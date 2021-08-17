@@ -17,16 +17,7 @@
                 v-model="graphqlFieldsFilterText"
                 type="search"
                 :placeholder="$t('search')"
-                class="
-                  bg-primaryLight
-                  flex
-                  w-full
-                  py-2
-                  pr-2
-                  pl-9
-                  truncate
-                  focus:outline-none
-                "
+                class="bg-primaryLight flex w-full py-2 pr-2 pl-9"
               />
             </div>
             <div class="flex">

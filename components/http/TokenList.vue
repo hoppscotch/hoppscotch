@@ -42,7 +42,7 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('delete')"
-              icon="delete"
+              icon="remove_circle_outline"
               color="red"
               @click.native="removeOAuthToken(index)"
             />

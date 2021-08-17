@@ -35,20 +35,13 @@
             class="divide-x divide-dividerLight flex"
           >
             <input
-              class="
-                bg-primaryLight
-                flex flex-1
-                py-2
-                px-4
-                truncate
-                focus:outline-none
-              "
+              class="bg-primaryLight flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'param' + index"
               :value="member.user.email"
               readonly
             />
-            <span class="select-wrapper">
+            <span>
               <tippy
                 :ref="`memberOptions-${index}`"
                 interactive
@@ -57,24 +50,19 @@
                 arrow
               >
                 <template #trigger>
-                  <input
-                    class="
-                      bg-primaryLight
-                      flex flex-1
-                      py-2
-                      px-4
-                      truncate
-                      focus:outline-none
-                    "
-                    :placeholder="$t('team.permissions')"
-                    :name="'value' + index"
-                    :value="
-                      typeof member.role === 'string'
-                        ? member.role
-                        : JSON.stringify(member.role)
-                    "
-                    readonly
-                  />
+                  <span class="select-wrapper">
+                    <input
+                      class="bg-primaryLight flex flex-1 py-2 px-4"
+                      :placeholder="$t('team.permissions')"
+                      :name="'value' + index"
+                      :value="
+                        typeof member.role === 'string'
+                          ? member.role
+                          : JSON.stringify(member.role)
+                      "
+                      readonly
+                    />
+                  </span>
                 </template>
                 <SmartItem
                   label="OWNER"
@@ -95,7 +83,7 @@
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
-                icon="delete"
+                icon="remove_circle_outline"
                 color="red"
                 @click.native="removeExistingTeamMember(member.user.uid)"
               />
@@ -108,19 +96,12 @@
           >
             <input
               v-model="member.key"
-              class="
-                bg-primaryLight
-                flex flex-1
-                py-2
-                px-4
-                truncate
-                focus:outline-none
-              "
+              class="bg-primaryLight flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'member' + index"
               autofocus
             />
-            <span class="select-wrapper">
+            <span>
               <tippy
                 :ref="`newMemberOptions-${index}`"
                 interactive
@@ -129,24 +110,19 @@
                 arrow
               >
                 <template #trigger>
-                  <input
-                    class="
-                      bg-primaryLight
-                      flex flex-1
-                      py-2
-                      px-4
-                      truncate
-                      focus:outline-none
-                    "
-                    :placeholder="$t('team.permissions')"
-                    :name="'value' + index"
-                    :value="
-                      typeof member.value === 'string'
-                        ? member.value
-                        : JSON.stringify(member.value)
-                    "
-                    readonly
-                  />
+                  <span class="select-wrapper">
+                    <input
+                      class="bg-primaryLight flex flex-1 py-2 px-4"
+                      :placeholder="$t('team.permissions')"
+                      :name="'value' + index"
+                      :value="
+                        typeof member.value === 'string'
+                          ? member.value
+                          : JSON.stringify(member.value)
+                      "
+                      readonly
+                    />
+                  </span>
                 </template>
                 <SmartItem
                   label="OWNER"
@@ -167,7 +143,7 @@
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
-                icon="delete"
+                icon="remove_circle_outline"
                 color="red"
                 @click.native="removeTeamMember(index)"
               />

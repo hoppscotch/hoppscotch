@@ -14,16 +14,7 @@
         <input
           v-model="filterText"
           type="search"
-          class="
-            bg-primaryLight
-            flex
-            w-full
-            py-2
-            pr-2
-            pl-9
-            truncate
-            focus:outline-none
-          "
+          class="bg-primaryLight flex w-full py-2 pr-2 pl-9"
           :placeholder="$t('search')"
         />
       </div>

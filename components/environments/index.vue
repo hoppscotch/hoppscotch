@@ -22,7 +22,6 @@
             py-2
             px-4
             appearance-none
-            focus:outline-none
           "
         >
           <option :value="-1">{{ $t("environment.no_environment") }}</option>

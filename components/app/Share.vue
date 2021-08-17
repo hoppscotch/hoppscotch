@@ -104,11 +104,11 @@ export default {
   @apply rounded;
   @apply flex-col flex;
   @apply p-4;
-  @apply transition;
   @apply items-center;
   @apply justify-center;
   @apply hover:(bg-primaryLight text-secondaryDark);
-  @apply focus:(border-divider outline-none);
+  @apply focus:outline-none;
+  @apply focus-visible:border-divider;
 
   svg {
     @apply opacity-80;

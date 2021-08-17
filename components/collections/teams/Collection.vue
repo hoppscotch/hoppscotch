@@ -28,7 +28,7 @@
           v-if="doc && !selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('import.title')"
-          icon="check_box_outline_blank"
+          icon="radio_button_unchecked"
           color="green"
           @click.native="$emit('select-collection')"
         />
@@ -36,7 +36,7 @@
           v-if="doc && selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
-          icon="check_box"
+          icon="check_circle_outline"
           color="green"
           @click.native="$emit('unselect-collection')"
         />
@@ -92,7 +92,7 @@
             />
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="delete"
+              icon="remove_circle_outline"
               color="red"
               :label="$t('delete')"
               @click.native="
@@ -204,7 +204,7 @@ export default {
       )
     },
     getCollectionIcon() {
-      if (this.isSelected) return "check_circle"
+      if (this.isSelected) return "check_circle_outline"
       else if (!this.showChildren && !this.isFiltered) return "arrow_right"
       else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
       else return "folder"

@@ -75,7 +75,7 @@
             />
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="delete"
+              icon="remove_circle_outline"
               color="red"
               :label="$t('delete')"
               @click.native="
@@ -188,7 +188,7 @@ export default {
       )
     },
     getCollectionIcon() {
-      if (this.isSelected) return "check_circle"
+      if (this.isSelected) return "check_circle_outline"
       else if (!this.showChildren && !this.isFiltered) return "arrow_right"
       else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
       else return "folder"

@@ -6,7 +6,6 @@
     class="
       font-bold
       py-2
-      transition
       inline-flex
       items-center
       justify-center
@@ -15,8 +14,8 @@
     "
     :class="[
       color
-        ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus:(text-${color}-900 bg-${color}-300)`
-        : `text-accentContrast bg-accent hover:bg-accentDark focus:bg-accentDark`,
+        ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus-visible:(text-${color}-900 bg-${color}-300)`
+        : `text-accentContrast bg-accent hover:bg-accentDark focus-visible:bg-accentDark`,
       label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',
       { 'opacity-75 cursor-not-allowed': disabled },
@@ -28,7 +27,7 @@
           gradient,
       },
       {
-        'border border-accent hover:border-accentDark focus:border-accentDark':
+        'border border-accent hover:border-accentDark focus-visible:border-accentDark':
           outline,
       },
     ]"

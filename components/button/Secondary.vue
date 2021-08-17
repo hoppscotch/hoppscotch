@@ -6,7 +6,6 @@
     class="
       font-medium
       py-2
-      transition
       inline-flex
       items-center
       justify-center
@@ -18,14 +17,14 @@
     :class="[
       color
         ? `text-${color}-500 hover:(text-${color}-600 text-${color}-600)`
-        : 'text-secondary hover:text-secondaryDark focus:text-secondaryDark',
+        : 'text-secondary hover:text-secondaryDark focus-visible:text-secondaryDark',
       label ? 'rounded px-4' : 'px-2',
       { 'rounded-full': rounded },
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
       { 'px-6 py-4 text-lg': large },
       {
-        'border border-divider hover:border-dividerDark focus:border-dividerDark':
+        'border border-divider hover:border-dividerDark focus-visible:border-dividerDark':
           outline,
       },
     ]"

@@ -306,19 +306,13 @@ export default defineComponent({
               return this.httpUser && this.httpPassword
             },
             isRawParams() {
-              return this.rawParams && this.rawParams !== "{}"
+              return this.rawParams && this.rawParams !== ""
             },
             isPreRequestScript() {
-              return (
-                this.preRequestScript &&
-                this.preRequestScript !== `// pw.env.set('variable', 'value');`
-              )
+              return this.preRequestScript && this.preRequestScript !== ""
             },
             isTestScript() {
-              return (
-                this.testScript &&
-                this.testScript !== `// pw.expect('variable').toBe('value');`
-              )
+              return this.testScript && this.testScript !== ""
             },
           },
           {

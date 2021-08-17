@@ -22,14 +22,12 @@
           arrow
         >
           <template #trigger>
-            <div class="flex">
-              <span class="select-wrapper">
-                <ButtonSecondary
-                  :label="contentType"
-                  class="rounded-none ml-2 pr-8"
-                />
-              </span>
-            </div>
+            <span class="select-wrapper">
+              <ButtonSecondary
+                :label="contentType"
+                class="rounded-none ml-2 pr-8"
+              />
+            </span>
           </template>
           <SmartItem
             v-for="(contentTypeItem, index) in validContentTypes"

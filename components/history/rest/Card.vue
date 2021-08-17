@@ -29,7 +29,7 @@
     </span>
     <ButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
-      icon="delete"
+      icon="remove_circle_outline"
       color="red"
       :title="$t('delete')"
       class="group-hover:inline-flex hidden"

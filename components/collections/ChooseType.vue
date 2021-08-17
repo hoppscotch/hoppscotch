@@ -25,7 +25,6 @@
                 py-2
                 px-4
                 appearance-none
-                focus:outline-none
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >

@@ -53,7 +53,6 @@
           flex-1
           py-1
           px-4
-          focus:outline-none
         "
         @change="
           updateParam(index, {
@@ -65,14 +64,7 @@
       />
       <input
         v-else
-        class="
-          bg-primaryLight
-          flex flex-1
-          py-2
-          px-4
-          truncate
-          focus:outline-none
-        "
+        class="bg-primaryLight flex flex-1 py-2 px-4"
         :placeholder="$t('count.parameter', { count: index + 1 })"
         :name="'param' + index"
         :value="param.key"
@@ -95,7 +87,6 @@
           flex-1
           py-1
           px-4
-          focus:outline-none
         "
         @change="
           updateParam(index, {
@@ -107,14 +98,7 @@
       />
       <input
         v-else
-        class="
-          bg-primaryLight
-          flex flex-1
-          py-2
-          px-4
-          truncate
-          focus:outline-none
-        "
+        class="bg-primaryLight flex flex-1 py-2 px-4"
         :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="param.value"
@@ -139,9 +123,9 @@
           :icon="
             param.hasOwnProperty('active')
               ? param.active
-                ? 'check_box'
-                : 'check_box_outline_blank'
-              : 'check_box'
+                ? 'check_circle_outline'
+                : 'radio_button_unchecked'
+              : 'check_circle_outline'
           "
           color="green"
           @click.native="
@@ -157,7 +141,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('delete')"
-          icon="delete"
+          icon="remove_circle_outline"
           color="red"
           @click.native="deleteParam(index)"
         />

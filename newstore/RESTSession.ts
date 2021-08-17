@@ -33,8 +33,8 @@ const defaultRESTRequest: HoppRESTRequest = {
     authName: "None",
     authActive: true,
   },
-  preRequestScript: "// pw.env.set('variable', 'value');",
-  testScript: "// pw.expect('variable').toBe('value');",
+  preRequestScript: "",
+  testScript: "",
   body: {
     contentType: "application/json",
     body: "",

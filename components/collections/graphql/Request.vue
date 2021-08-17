@@ -21,7 +21,7 @@
         @click="!doc ? selectRequest() : {}"
       >
         <i class="material-icons" :class="{ 'text-green-500': isSelected }">
-          {{ isSelected ? "check_circle" : "description" }}
+          {{ isSelected ? "check_circle_outline" : "description" }}
         </i>
       </span>
       <span
@@ -75,7 +75,7 @@
               "
             />
             <SmartItem
-              icon="delete"
+              icon="remove_circle_outline"
               color="red"
               :label="$t('delete')"
               @click.native="

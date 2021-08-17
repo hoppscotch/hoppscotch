@@ -36,10 +36,7 @@
               py-2
               pr-2
               pl-8
-              transition
-              truncate
-              focus:(border-divider
-              outline-none)
+              focus-visible:border-divider
             "
             :placeholder="$t('search')"
           />

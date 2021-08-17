@@ -16,13 +16,21 @@
       <label class="font-semibold text-secondaryLight">
         {{ $t("javascript_code") }}
       </label>
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip' }"
-        to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
-        blank
-        :title="$t('wiki')"
-        icon="help_outline"
-      />
+      <div class="flex">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
+          blank
+          :title="$t('wiki')"
+          icon="help_outline"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('clear')"
+          icon="clear_all"
+          @click.native="clearContent"
+        />
+      </div>
     </div>
     <div class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
@@ -63,10 +71,11 @@
           {{ $t("test.snippets") }}
         </h4>
         <div class="flex flex-col pt-4">
-          <SmartItem
+          <TabSecondary
             v-for="(snippet, index) in snippets"
             :key="`snippet-${index}`"
             :label="snippet.name"
+            active
             @click.native="useSnippet(snippet.script)"
           />
         </div>
@@ -82,19 +91,22 @@ import testSnippets from "~/helpers/testSnippets"
 
 export default defineComponent({
   setup() {
-    return {
-      testScript: useTestScript(),
+    const testScript = useTestScript()
+
+    const useSnippet = (script: string) => {
+      testScript.value += script
     }
-  },
-  data() {
+
+    const clearContent = () => {
+      testScript.value = ""
+    }
+
     return {
+      testScript,
       snippets: testSnippets,
+      useSnippet,
+      clearContent,
     }
-  },
-  methods: {
-    useSnippet(script: string) {
-      this.testScript += script
-    },
   },
 })
 </script>

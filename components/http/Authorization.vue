@@ -25,14 +25,12 @@
           arrow
         >
           <template #trigger>
-            <div class="flex">
-              <span class="select-wrapper">
-                <ButtonSecondary
-                  class="rounded-none ml-2 pr-8"
-                  :label="authName"
-                />
-              </span>
-            </div>
+            <span class="select-wrapper">
+              <ButtonSecondary
+                class="rounded-none ml-2 pr-8"
+                :label="authName"
+              />
+            </span>
           </template>
           <SmartItem
             label="None"

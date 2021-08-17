@@ -26,7 +26,7 @@
           class="material-icons"
           :class="{ 'text-green-500': isSelected }"
         >
-          check_circle
+          check_circle_outline
         </i>
         <span v-else>
           {{ request.method }}
@@ -86,7 +86,7 @@
               "
             />
             <SmartItem
-              icon="delete"
+              icon="remove_circle_outline"
               color="red"
               :label="$t('delete')"
               @click.native="

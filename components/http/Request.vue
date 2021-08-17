@@ -1,15 +1,15 @@
 <template>
   <div class="bg-primary flex p-4 top-0 z-10 sticky">
     <div class="relative inline-flex">
-      <span class="select-wrapper">
-        <tippy
-          ref="methodOptions"
-          interactive
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
+      <tippy
+        ref="methodOptions"
+        interactive
+        trigger="click"
+        theme="popover"
+        arrow
+      >
+        <template #trigger>
+          <span class="select-wrapper">
             <input
               id="method"
               class="
@@ -22,25 +22,23 @@
                 text-secondaryDark
                 py-2
                 px-4
-                transition
                 w-28
-                truncate
                 hover:border-dividerDark
-                focus:border-accent focus:outline-none
+                focus-visible:border-accent
               "
               :value="newMethod"
               :readonly="!isCustomMethod"
               @input="onSelectMethod($event.target.value)"
             />
-          </template>
-          <SmartItem
-            v-for="(method, index) in methods"
-            :key="`method-${index}`"
-            :label="method"
-            @click.native="onSelectMethod(method)"
-          />
-        </tippy>
-      </span>
+          </span>
+        </template>
+        <SmartItem
+          v-for="(method, index) in methods"
+          :key="`method-${index}`"
+          :label="method"
+          @click.native="onSelectMethod(method)"
+        />
+      </tippy>
     </div>
     <div class="flex-1 inline-flex">
       <SmartEnvInput
@@ -55,10 +53,8 @@
           text-secondaryDark
           py-1
           px-4
-          transition
-          truncate
           hover:border-dividerDark
-          focus:outline-none focus:border-accent
+          focus-visible:border-accent
         "
         @enter="newSendRequest()"
       />
@@ -74,9 +70,7 @@
           text-secondaryDark
           py-2
           px-4
-          transition
-          truncate
-          focus:border-accent focus:outline-none
+          focus-visible:border-accent
         "
         name="url"
         type="text"

@@ -16,8 +16,6 @@
           px-4
           pt-2
           pb-6
-          truncate
-          focus:outline-none
         "
       />
       <div

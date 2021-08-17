@@ -123,9 +123,8 @@ export default defineComponent({
   @apply flex flex-col flex-1;
   @apply items-center;
   @apply justify-center;
-  @apply transition;
   @apply hover:(bg-primaryDark text-secondaryDark);
-  @apply focus:text-secondaryDark;
+  @apply focus-visible:text-secondaryDark;
 
   &::after {
     @apply absolute;

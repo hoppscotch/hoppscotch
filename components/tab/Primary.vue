@@ -7,7 +7,6 @@
       rounded
       py-2
       px-4
-      transition
       inline-flex
       items-center
       truncate
@@ -15,8 +14,8 @@
     "
     :class="[
       color
-        ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`
-        : 'hover:text-secondaryDark focus:text-accent',
+        ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
+        : 'hover:text-secondaryDark focus-visible:text-accent',
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
     ]"

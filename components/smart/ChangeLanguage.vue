@@ -1,8 +1,8 @@
 <template>
   <span class="inline-flex">
-    <span class="select-wrapper">
-      <tippy ref="language" interactive trigger="click" theme="popover" arrow>
-        <template #trigger>
+    <tippy ref="language" interactive trigger="click" theme="popover" arrow>
+      <template #trigger>
+        <span class="select-wrapper">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('settings.choose_language')"
@@ -13,18 +13,18 @@
               $i18n.locales.find(({ code }) => code == $i18n.locale).name
             }`"
           />
-        </template>
-        <NuxtLink
-          v-for="(locale, index) in $i18n.locales.filter(
-            ({ code }) => code !== $i18n.locale
-          )"
-          :key="`locale-${index}`"
-          :to="switchLocalePath(locale.code)"
-          @click="$refs.language.tippy().hide()"
-        >
-          <SmartItem :label="locale.name" />
-        </NuxtLink>
-      </tippy>
-    </span>
+        </span>
+      </template>
+      <NuxtLink
+        v-for="(locale, index) in $i18n.locales.filter(
+          ({ code }) => code !== $i18n.locale
+        )"
+        :key="`locale-${index}`"
+        :to="switchLocalePath(locale.code)"
+        @click="$refs.language.tippy().hide()"
+      >
+        <SmartItem :label="locale.name" />
+      </NuxtLink>
+    </tippy>
   </span>
 </template>

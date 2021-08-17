@@ -22,10 +22,7 @@
                     w-full
                     py-2
                     px-4
-                    transition
-                    truncate
-                    focus:(border-accent
-                    outline-none)
+                    focus-visible:border-accent
                   "
                   :placeholder="$t('url')"
                   @keyup.enter="urlValid ? toggleConnection() : null"
@@ -41,10 +38,7 @@
                     w-full
                     py-2
                     px-4
-                    transition
-                    truncate
-                    focus:(border-accent
-                    outline-none)
+                    focus-visible:border-accent
                   "
                   spellcheck="false"
                 />
@@ -124,7 +118,7 @@
                 v-if="index + 1 !== communication.inputs.length"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('delete')"
-                icon="delete"
+                icon="remove_circle_outline"
                 class="rounded-l-none"
                 color="red"
                 outline

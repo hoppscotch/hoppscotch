@@ -6,8 +6,8 @@
     class="inline-flex items-center justify-center focus:outline-none"
     :class="[
       color
-        ? `text-${color}-500 hover:text-${color}-600 focus:text-${color}-600`
-        : 'hover:text-secondaryDark focus:text-secondaryDark',
+        ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
+        : 'hover:text-secondaryDark focus-visible:text-secondaryDark',
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
     ]"

@@ -183,19 +183,21 @@ hr {
   @apply w-full;
   @apply px-4 py-2;
   @apply bg-primary;
-  @apply truncate;
   @apply rounded;
   @apply text-secondaryDark;
   @apply border border-divider;
-  @apply transition;
-  @apply focus:(outline-none border-accent);
-  @apply disabled:cursor-not-allowed;
+  @apply focus-visible:border-accent;
 }
 
 input,
 select,
 textarea,
 button {
+  @apply focus:outline-none;
+  @apply truncate;
+  @apply transition;
+  @apply disabled:cursor-not-allowed;
+
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
 }
@@ -358,6 +360,7 @@ input[type="checkbox"] {
         @apply ml-auto;
         @apply sm:ml-8;
         @apply transition;
+        @apply rounded;
         @apply text-current;
         @apply normal-case;
         @apply hover:(bg-opacity-20 no-underline);

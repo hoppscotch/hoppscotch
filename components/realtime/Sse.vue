@@ -18,10 +18,7 @@
               w-full
               py-2
               px-4
-              transition
-              truncate
-              focus:(border-accent
-              outline-none)
+              focus-visible:border-accent
             "
             :placeholder="$t('url')"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
@@ -51,10 +48,7 @@
               w-full
               py-2
               px-4
-              transition
-              truncate
-              focus:(border-accent
-              outline-none)
+              focus-visible:border-accent
             "
             spellcheck="false"
           />

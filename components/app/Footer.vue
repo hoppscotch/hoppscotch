@@ -16,7 +16,8 @@
           } ${$t('layout.zen_mode')}`"
           :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
           :class="{
-            '!text-accent focus:text-accent hover:text-accent': ZEN_MODE,
+            '!text-accent !focus-visible:text-accentDark !hover:text-accentDark':
+              ZEN_MODE,
           }"
           @click.native="ZEN_MODE = !ZEN_MODE"
         />

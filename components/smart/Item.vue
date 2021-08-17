@@ -6,16 +6,14 @@
     class="
       rounded
       font-medium
+      flex-shrink-0
       py-2
       px-4
-      transition
       inline-flex
       items-center
-      hover:(bg-primaryDark
-      text-secondaryDark)
-      focus:(bg-primaryDark
-      outline-none
-      text-secondaryDark)
+      hover:bg-primaryDark hover:text-secondaryDark
+      focus:outline-none
+      focus-visible:bg-primaryDark focus-visible:text-secondaryDark
     "
     :class="[
       { 'opacity-75 cursor-not-allowed': disabled },
@@ -23,7 +21,7 @@
       { 'flex-1': label },
       { 'flex-row-reverse justify-end': reverse },
       {
-        'border border-divider hover:border-dividerDark focus:border-dividerDark':
+        'border border-divider hover:border-dividerDark focus-visible:border-dividerDark':
           outline,
       },
     ]"

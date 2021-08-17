@@ -84,9 +84,9 @@ export default {
     @apply text-secondary;
     @apply font-semibold;
     @apply cursor-pointer;
-    @apply transition;
     @apply hover:text-secondaryDark;
-    @apply focus:(text-secondaryDark outline-none);
+    @apply focus:outline-none;
+    @apply focus-visible:text-secondaryDark;
 
     .tab-info {
       @apply inline-flex;

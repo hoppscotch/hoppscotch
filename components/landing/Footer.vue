@@ -159,6 +159,6 @@ export default {
   @apply px-2 py-1;
   @apply -mx-2 -my-1;
   @apply hover:text-secondaryDark;
-  @apply focus:text-secondaryDark;
+  @apply focus-visible:text-secondaryDark;
 }
 </style>

@@ -1,7 +1,7 @@
 import { BehaviorSubject } from "rxjs"
 import gql from "graphql-tag"
 import cloneDeep from "lodash/cloneDeep"
-import { ApolloQueryResult } from "@apollo/client/core"
+import * as Apollo from "@apollo/client/core"
 import { apolloClient } from "~/helpers/apollo"
 
 interface TeamsTeamMember {
@@ -54,7 +54,7 @@ export default class TeamMemberAdapter {
 
     let cursor: string | null = null
     while (true) {
-      const response: ApolloQueryResult<any> = await apolloClient.query({
+      const response: Apollo.ApolloQueryResult<any> = await apolloClient.query({
         query: gql`
           query GetTeamMembers($teamID: String!, $cursor: String) {
             team(teamID: $teamID) {

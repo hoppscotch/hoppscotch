@@ -40,7 +40,9 @@ describe("toBe", () => {
   })
 
   test("test for strings", () => {
-    expect(getTestResult("pw.expect('hello').toBe('bonjour')", 0)).toEqual("FAIL")
+    expect(getTestResult("pw.expect('hello').toBe('bonjour')", 0)).toEqual(
+      "FAIL"
+    )
     expect(getTestResult("pw.expect('hi').toBe('hi')", 0)).toEqual("PASS")
   })
 
@@ -94,9 +96,13 @@ describe("toHaveProperty", () => {
 describe("toBeLevel2xx", () => {
   test("test for numbers", () => {
     expect(getTestResult("pw.expect(200).toBeLevel2xx()", 0)).toEqual("PASS")
-    expect(getTestResult("pw.expect(200).not.toBeLevel2xx()", 0)).toEqual("FAIL")
+    expect(getTestResult("pw.expect(200).not.toBeLevel2xx()", 0)).toEqual(
+      "FAIL"
+    )
     expect(getTestResult("pw.expect(300).toBeLevel2xx()", 0)).toEqual("FAIL")
-    expect(getTestResult("pw.expect(300).not.toBeLevel2xx()", 0)).toEqual("PASS")
+    expect(getTestResult("pw.expect(300).not.toBeLevel2xx()", 0)).toEqual(
+      "PASS"
+    )
   })
   test("test for strings", () => {
     expect(getTestResult("pw.expect('200').toBeLevel2xx()", 0)).toEqual("PASS")
@@ -122,9 +128,13 @@ describe("toBeLevel2xx", () => {
 describe("toBeLevel3xx()", () => {
   test("test for numbers", () => {
     expect(getTestResult("pw.expect(300).toBeLevel3xx()", 0)).toEqual("PASS")
-    expect(getTestResult("pw.expect(300).not.toBeLevel3xx()", 0)).toEqual("FAIL")
+    expect(getTestResult("pw.expect(300).not.toBeLevel3xx()", 0)).toEqual(
+      "FAIL"
+    )
     expect(getTestResult("pw.expect(400).toBeLevel3xx()", 0)).toEqual("FAIL")
-    expect(getTestResult("pw.expect(400).not.toBeLevel3xx()", 0)).toEqual("PASS")
+    expect(getTestResult("pw.expect(400).not.toBeLevel3xx()", 0)).toEqual(
+      "PASS"
+    )
   })
   test("test for strings", () => {
     expect(getTestResult("pw.expect('300').toBeLevel3xx()", 0)).toEqual("PASS")
@@ -150,9 +160,13 @@ describe("toBeLevel3xx()", () => {
 describe("toBeLevel4xx()", () => {
   test("test for numbers", () => {
     expect(getTestResult("pw.expect(400).toBeLevel4xx()", 0)).toEqual("PASS")
-    expect(getTestResult("pw.expect(400).not.toBeLevel4xx()", 0)).toEqual("FAIL")
+    expect(getTestResult("pw.expect(400).not.toBeLevel4xx()", 0)).toEqual(
+      "FAIL"
+    )
     expect(getTestResult("pw.expect(500).toBeLevel4xx()", 0)).toEqual("FAIL")
-    expect(getTestResult("pw.expect(500).not.toBeLevel4xx()", 0)).toEqual("PASS")
+    expect(getTestResult("pw.expect(500).not.toBeLevel4xx()", 0)).toEqual(
+      "PASS"
+    )
   })
   test("test for strings", () => {
     expect(getTestResult("pw.expect('400').toBeLevel4xx()", 0)).toEqual("PASS")
@@ -178,9 +192,13 @@ describe("toBeLevel4xx()", () => {
 describe("toBeLevel5xx()", () => {
   test("test for numbers", () => {
     expect(getTestResult("pw.expect(500).toBeLevel5xx()", 0)).toEqual("PASS")
-    expect(getTestResult("pw.expect(500).not.toBeLevel5xx()", 0)).toEqual("FAIL")
+    expect(getTestResult("pw.expect(500).not.toBeLevel5xx()", 0)).toEqual(
+      "FAIL"
+    )
     expect(getTestResult("pw.expect(200).toBeLevel5xx()", 0)).toEqual("FAIL")
-    expect(getTestResult("pw.expect(200).not.toBeLevel5xx()", 0)).toEqual("PASS")
+    expect(getTestResult("pw.expect(200).not.toBeLevel5xx()", 0)).toEqual(
+      "PASS"
+    )
   })
   test("test for strings", () => {
     expect(getTestResult("pw.expect('500').toBeLevel5xx()", 0)).toEqual("PASS")
@@ -205,8 +223,12 @@ describe("toBeLevel5xx()", () => {
 
 describe("toHaveLength()", () => {
   test("test for strings", () => {
-    expect(getTestResult("pw.expect('word').toHaveLength(4)", 0)).toEqual("PASS")
-    expect(getTestResult("pw.expect('word').toHaveLength(5)", 0)).toEqual("FAIL")
+    expect(getTestResult("pw.expect('word').toHaveLength(4)", 0)).toEqual(
+      "PASS"
+    )
+    expect(getTestResult("pw.expect('word').toHaveLength(5)", 0)).toEqual(
+      "FAIL"
+    )
     expect(getTestResult("pw.expect('word').not.toHaveLength(4)", 0)).toEqual(
       "FAIL"
     )

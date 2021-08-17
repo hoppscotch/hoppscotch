@@ -23,7 +23,14 @@ import {
   setGraphqlCollections,
   setRESTCollections,
 } from "./collections"
-import { replaceEnvironments, environments$ } from "./environments"
+import {
+  replaceEnvironments,
+  environments$,
+  Environment,
+  addGlobalEnvVariable,
+  setGlobalEnvVariables,
+  globalEnv$,
+} from "./environments"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -142,14 +149,45 @@ function setupCollectionsPersistence() {
 }
 
 function setupEnvironmentsPersistence() {
-  const environmentsData = JSON.parse(
+  const environmentsData: Environment[] = JSON.parse(
     window.localStorage.getItem("environments") || "[]"
   )
+
+  // Check if a global env is defined and if so move that to globals
+  const globalIndex = environmentsData.findIndex(
+    (x) => x.name.toLowerCase() === "globals"
+  )
+
+  if (globalIndex !== -1) {
+    const globalEnv = environmentsData[globalIndex]
+    globalEnv.variables.forEach((variable) => addGlobalEnvVariable(variable))
+
+    // Remove global from environments
+    environmentsData.splice(globalIndex, 1)
+
+    // Just sync the changes manually
+    window.localStorage.setItem(
+      "environments",
+      JSON.stringify(environmentsData)
+    )
+  }
 
   replaceEnvironments(environmentsData)
 
   environments$.subscribe((envs) => {
     window.localStorage.setItem("environments", JSON.stringify(envs))
+  })
+}
+
+function setupGlobalEnvsPersistence() {
+  const globals: Environment["variables"] = JSON.parse(
+    window.localStorage.getItem("globalEnv") || "[]"
+  )
+
+  setGlobalEnvVariables(globals)
+
+  globalEnv$.subscribe((vars) => {
+    window.localStorage.setItem("globalEnvs", JSON.stringify(vars))
   })
 }
 
@@ -159,6 +197,7 @@ export function setupLocalPersistence() {
   setupSettingsPersistence()
   setupHistoryPersistence()
   setupCollectionsPersistence()
+  setupGlobalEnvsPersistence()
   setupEnvironmentsPersistence()
 }
 

@@ -19,15 +19,18 @@ type TestReportEndBlock = {
 }
 
 type TestReportEntry = {
+  result: "PASS" | "FAIL" | "ERROR"
+  message: string
   styles: {
     icon: string
   }
-} & ({ result: "PASS" } | { result: "FAIL" | "ERROR"; message: string })
+}
+
 type TestReport = TestReportStartBlock | TestReportEntry | TestReportEndBlock
 
 export default function runTestScriptWithVariables(
   script: string,
-  variables: TestScriptVariables
+  variables?: TestScriptVariables
 ) {
   const pw = {
     _errors: [],
@@ -130,15 +133,21 @@ class Expectation {
     })
   }
 
-  _pass() {
-    return this._testReports.push({ result: "PASS", styles: styles.PASS })
+  _pass(message: string) {
+    return this._testReports.push({
+      result: "PASS",
+      message,
+      styles: styles.PASS,
+    })
   }
 
   // TEST METHODS DEFINED BELOW
   // these are the usual methods that would follow expect(...)
   toBe(value: any) {
     return this._satisfies(value)
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(`${this.expectValue} do (not)match with ${value}`)
+        )
       : this._fail(
           this._fmtNot(`Expected ${this.expectValue} (not)to be ${value}`)
         )
@@ -149,7 +158,9 @@ class Expectation {
       Object.prototype.hasOwnProperty.call(this.expectValue, value),
       true
     )
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(`${this.expectValue} do (not)have property ${value}`)
+        )
       : this._fail(
           this._fmtNot(
             `Expected object ${this.expectValue} to (not)have property ${value}`
@@ -165,7 +176,9 @@ class Expectation {
       )
     }
     return this._satisfies(code >= 200 && code < 300, true)
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(`${this.expectValue} is (not)a 200-level status`)
+        )
       : this._fail(
           this._fmtNot(
             `Expected ${this.expectValue} to (not)be 200-level status`
@@ -181,7 +194,9 @@ class Expectation {
       )
     }
     return this._satisfies(code >= 300 && code < 400, true)
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(`${this.expectValue} is (not)a 300-level status`)
+        )
       : this._fail(
           this._fmtNot(
             `Expected ${this.expectValue} to (not)be 300-level status`
@@ -197,7 +212,9 @@ class Expectation {
       )
     }
     return this._satisfies(code >= 400 && code < 500, true)
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(`${this.expectValue} is (not)a 400-level status`)
+        )
       : this._fail(
           this._fmtNot(
             `Expected ${this.expectValue} to (not)be 400-level status`
@@ -213,7 +230,9 @@ class Expectation {
       )
     }
     return this._satisfies(code >= 500 && code < 600, true)
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(`${this.expectValue} is (not)a 500-level status`)
+        )
       : this._fail(
           this._fmtNot(
             `Expected ${this.expectValue} to (not)be 500-level status`
@@ -224,7 +243,11 @@ class Expectation {
   toHaveLength(expectedLength: number) {
     const actualLength = this.expectValue.length
     return this._satisfies(actualLength, expectedLength)
-      ? this._pass()
+      ? this._pass(
+          this._fmtNot(
+            `Length expectation of (not)being ${expectedLength} is kept`
+          )
+        )
       : this._fail(
           this._fmtNot(
             `Expected length to be ${expectedLength} but actual length was ${actualLength}`
@@ -253,7 +276,7 @@ class Expectation {
       )
     }
     return this._satisfies(actualType, expectedType)
-      ? this._pass()
+      ? this._pass(this._fmtNot(`The type is (not)"${expectedType}"`))
       : this._fail(
           this._fmtNot(
             `Expected type to be "${expectedType}" but actual type was "${actualType}"`

@@ -20,6 +20,8 @@ const defaultEnvironmentsState = {
     },
   ] as Environment[],
 
+  globals: [] as Environment["variables"],
+
   // Current environment index specifies the index
   // -1 means no environments are selected
   currentEnvironmentIndex: -1,
@@ -188,6 +190,40 @@ const dispatchers = defineDispatchers({
       ),
     }
   },
+  setGlobalVariables(_, { entries }: { entries: Environment["variables"] }) {
+    return {
+      globals: entries,
+    }
+  },
+  clearGlobalVariables() {
+    return {
+      globals: [],
+    }
+  },
+  addGlobalVariable(
+    { globals },
+    { entry }: { entry: Environment["variables"][number] }
+  ) {
+    return {
+      globals: [...globals, entry],
+    }
+  },
+  removeGlobalVariable({ globals }, { envIndex }: { envIndex: number }) {
+    return {
+      globals: globals.filter((_, i) => i !== envIndex),
+    }
+  },
+  updateGlobalVariable(
+    { globals },
+    {
+      envIndex,
+      updatedEntry,
+    }: { envIndex: number; updatedEntry: Environment["variables"][number] }
+  ) {
+    return {
+      globals: globals.map((x, i) => (i !== envIndex ? x : updatedEntry)),
+    }
+  },
 })
 
 export const environmentsStore = new DispatchingStore(
@@ -198,6 +234,8 @@ export const environmentsStore = new DispatchingStore(
 export const environments$ = environmentsStore.subject$.pipe(
   pluck("environments")
 )
+
+export const globalEnv$ = environmentsStore.subject$.pipe(pluck("globalEnv"))
 
 export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
   pluck("currentEnvironmentIndex")
@@ -243,7 +281,7 @@ export function setCurrentEnvironment(newEnvIndex: number) {
   })
 }
 
-export function getGlobalEnvironment(): Environment | null {
+export function getLegacyGlobalEnvironment(): Environment | null {
   const envs = environmentsStore.value.environments
 
   const el = envs.find(
@@ -251,6 +289,57 @@ export function getGlobalEnvironment(): Environment | null {
   )
 
   return el ?? null
+}
+
+export function getGlobalVariables(): Environment["variables"] {
+  return environmentsStore.value.globals
+}
+
+export function addGlobalEnvVariable(entry: Environment["variables"][number]) {
+  environmentsStore.dispatch({
+    dispatcher: "addGlobalVariable",
+    payload: {
+      entry,
+    },
+  })
+}
+
+export function setGlobalEnvVariables(entries: Environment["variables"]) {
+  environmentsStore.dispatch({
+    dispatcher: "setGlobalVariables",
+    payload: {
+      entries,
+    },
+  })
+}
+
+export function clearGlobalEnvVariables() {
+  environmentsStore.dispatch({
+    dispatcher: "clearGlobalVariables",
+    payload: {},
+  })
+}
+
+export function removeGlobalEnvVariable(envIndex: number) {
+  environmentsStore.dispatch({
+    dispatcher: "removeGlobalVariable",
+    payload: {
+      envIndex,
+    },
+  })
+}
+
+export function updateGlobalEnvVariable(
+  envIndex: number,
+  updatedEntry: Environment["variables"][number]
+) {
+  environmentsStore.dispatch({
+    dispatcher: "updateGlobalVariable",
+    payload: {
+      envIndex,
+      updatedEntry,
+    },
+  })
 }
 
 export function replaceEnvironments(newEnvironments: any[]) {

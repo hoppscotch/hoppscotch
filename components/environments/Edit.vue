@@ -10,6 +10,7 @@
             class="input floating-input"
             placeholder=" "
             type="text"
+            :disabled="editingEnvironmentIndex === 'global'"
             @keyup.enter="saveEnvironment"
           />
           <label for="selectLabelEnvEdit">
@@ -101,8 +102,11 @@
 <script lang="ts">
 import clone from "lodash/clone"
 import { defineComponent, PropType } from "@nuxtjs/composition-api"
-import type { Environment } from "~/newstore/environments"
-import { updateEnvironment } from "~/newstore/environments"
+import {
+  Environment,
+  setGlobalEnvVariables,
+  updateEnvironment,
+} from "~/newstore/environments"
 
 export default defineComponent({
   props: {
@@ -111,7 +115,10 @@ export default defineComponent({
       type: Object as PropType<Environment | null>,
       default: null,
     },
-    editingEnvironmentIndex: { type: Number, default: null },
+    editingEnvironmentIndex: {
+      type: [Number, String] as PropType<number | "global">,
+      default: null,
+    },
   },
   data() {
     return {
@@ -161,7 +168,9 @@ export default defineComponent({
         variables: this.vars,
       }
 
-      updateEnvironment(this.editingEnvironmentIndex, environmentUpdated)
+      if (this.editingEnvironmentIndex === "global")
+        setGlobalEnvVariables(environmentUpdated.variables)
+      else updateEnvironment(this.editingEnvironmentIndex, environmentUpdated)
       this.hideModal()
     },
     hideModal() {

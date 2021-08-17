@@ -75,6 +75,21 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
+    <div class="flex flex-col">
+      <EnvironmentsEnvironment
+        environment-index="global"
+        :environment="globalEnvironment"
+        class="border-b border-dashed border-dividerLight"
+        @edit-environment="editEnvironment(globalEnvironment, 'global')"
+      />
+      <EnvironmentsEnvironment
+        v-for="(environment, index) in environments"
+        :key="`environment-${index}`"
+        :environment-index="index"
+        :environment="environment"
+        @edit-environment="editEnvironment(environment, index)"
+      />
+    </div>
     <div
       v-if="environments.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
@@ -88,15 +103,6 @@
         @click.native="displayModalAdd(true)"
       />
     </div>
-    <div class="flex flex-col">
-      <EnvironmentsEnvironment
-        v-for="(environment, index) in environments"
-        :key="`environment-${index}`"
-        :environment-index="index"
-        :environment="environment"
-        @edit-environment="editEnvironment(environment, index)"
-      />
-    </div>
   </AppSection>
 </template>
 
@@ -108,12 +114,23 @@ import {
   setCurrentEnvironment,
   selectedEnvIndex$,
   Environment,
+  globalEnv$,
 } from "~/newstore/environments"
 
 export default defineComponent({
   setup() {
+    const globalEnv = useReadonlyStream(globalEnv$, [])
+    const globalEnvName = {
+      name: "Global",
+    }
+    const globalEnvVariables = {
+      variables: globalEnv.value,
+    }
+    const globalEnvironment = Object.assign(globalEnvName, globalEnvVariables)
+
     return {
       environments: useReadonlyStream(environments$, []),
+      globalEnvironment,
       selectedEnvironmentIndex: useStream(
         selectedEnvIndex$,
         -1,

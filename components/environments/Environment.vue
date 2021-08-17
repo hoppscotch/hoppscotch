@@ -40,6 +40,7 @@
           "
         />
         <SmartItem
+          v-if="!(environmentIndex === 'global')"
           icon="remove_circle_outline"
           color="red"
           :label="$t('delete')"
@@ -60,13 +61,17 @@
 </template>
 
 <script lang="ts">
+import { PropType } from "@nuxtjs/composition-api"
 import Vue from "vue"
 import { deleteEnvironment } from "~/newstore/environments"
 
 export default Vue.extend({
   props: {
     environment: { type: Object, default: () => {} },
-    environmentIndex: { type: Number, default: null },
+    environmentIndex: {
+      type: [Number, String] as PropType<number | "global">,
+      default: null,
+    },
   },
   data() {
     return {
@@ -75,7 +80,8 @@ export default Vue.extend({
   },
   methods: {
     removeEnvironment() {
-      deleteEnvironment(this.environmentIndex)
+      if (this.environmentIndex !== "global")
+        deleteEnvironment(this.environmentIndex)
       this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })

@@ -4,7 +4,9 @@ import { currentUser$ } from "./auth"
 import {
   Environment,
   environments$,
+  globalEnv$,
   replaceEnvironments,
+  setGlobalEnvVariables,
 } from "~/newstore/environments"
 import { settingsStore } from "~/newstore/settings"
 
@@ -15,6 +17,14 @@ import { settingsStore } from "~/newstore/settings"
  * set this to true and then set it back to false once it is done
  */
 let loadedEnvironments = false
+
+/**
+ * Used locally to prevent infinite loop when global env sync update
+ * is applied to the store which then fires the store sync listener.
+ * When you want to update global env and not want to fire the update listener,
+ * set this to true and then set it back to false once it is done
+ */
+let loadedGlobals = true
 
 async function writeEnvironments(environment: Environment[]) {
   if (currentUser$.value == null)
@@ -42,6 +52,32 @@ async function writeEnvironments(environment: Environment[]) {
   }
 }
 
+async function writeGlobalEnvironment(variables: Environment["variables"]) {
+  if (currentUser$.value == null)
+    throw new Error("Cannot write global environment when signed out")
+
+  const ev = {
+    updatedOn: new Date(),
+    author: currentUser$.value.uid,
+    author_name: currentUser$.value.displayName,
+    author_image: currentUser$.value.photoURL,
+    variables,
+  }
+
+  try {
+    await firebase
+      .firestore()
+      .collection("users")
+      .doc(currentUser$.value.uid)
+      .collection("globalEnv")
+      .doc("sync")
+      .set(ev)
+  } catch (e) {
+    console.error("error updating", ev, e)
+    throw e
+  }
+}
+
 export function initEnvironments() {
   environments$.subscribe((envs) => {
     if (
@@ -53,15 +89,33 @@ export function initEnvironments() {
     }
   })
 
-  let snapshotStop: (() => void) | null = null
+  globalEnv$.subscribe((vars) => {
+    if (
+      currentUser$.value &&
+      settingsStore.value.syncEnvironments &&
+      loadedGlobals
+    ) {
+      writeGlobalEnvironment(vars)
+    }
+  })
+
+  let envSnapshotStop: (() => void) | null = null
+  let globalsSnapshotStop: (() => void) | null = null
 
   currentUser$.subscribe((user) => {
-    if (!user && snapshotStop) {
+    if (!user) {
       // User logged out, clean up snapshot listener
-      snapshotStop()
-      snapshotStop = null
+      if (envSnapshotStop) {
+        envSnapshotStop()
+        envSnapshotStop = null
+      }
+
+      if (globalsSnapshotStop) {
+        globalsSnapshotStop()
+        globalsSnapshotStop = null
+      }
     } else if (user) {
-      snapshotStop = firebase
+      envSnapshotStop = firebase
         .firestore()
         .collection("users")
         .doc(user.uid)
@@ -78,6 +132,25 @@ export function initEnvironments() {
           loadedEnvironments = false
           replaceEnvironments(environments[0].environment)
           loadedEnvironments = true
+        })
+      globalsSnapshotStop = firebase
+        .firestore()
+        .collection("users")
+        .doc(user.uid)
+        .collection("globalEnv")
+        .onSnapshot((globalsRef) => {
+          const variables: any[] = []
+
+          globalsRef.forEach((doc) => {
+            const variable = doc.data()
+            variable.id = doc.id
+
+            variables.push(variable)
+          })
+
+          loadedGlobals = false
+          setGlobalEnvVariables(variables)
+          loadedGlobals = true
         })
     }
   })

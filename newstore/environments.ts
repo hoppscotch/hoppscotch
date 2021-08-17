@@ -235,7 +235,7 @@ export const environments$ = environmentsStore.subject$.pipe(
   pluck("environments")
 )
 
-export const globalEnv$ = environmentsStore.subject$.pipe(pluck("globalEnv"))
+export const globalEnv$ = environmentsStore.subject$.pipe(pluck("globals"))
 
 export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
   pluck("currentEnvironmentIndex")

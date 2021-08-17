@@ -278,7 +278,7 @@ export const aggregateEnvs$ = combineLatest([
       results.push({ key, value, sourceEnv: "global" })
     )
 
-    return results 
+    return results
   })
 )
 

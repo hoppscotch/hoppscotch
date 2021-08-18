@@ -25,10 +25,7 @@ import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
 import { tippy } from "vue-tippy"
-import {
-  currentEnvironment$,
-  getCurrentEnvironment,
-} from "~/newstore/environments"
+import { aggregateEnvs$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
 const tagsToReplace = {
@@ -53,13 +50,9 @@ export default defineComponent({
     },
   },
   setup() {
-    const currentEnvironment = useReadonlyStream(
-      currentEnvironment$,
-      getCurrentEnvironment()
-    )
-
+    const aggregateEnvs = useReadonlyStream(aggregateEnvs$)
     return {
-      currentEnvironment,
+      aggregateEnvs,
     }
   },
   data() {
@@ -83,7 +76,7 @@ export default defineComponent({
   },
 
   watch: {
-    currentEnvironment() {
+    aggregateEnvs() {
       this.processHighlights()
     },
     highlightStyle() {
@@ -201,15 +194,14 @@ export default defineComponent({
           .substring(position.start, position.end + 1)
           .slice(2, -2)
         result += `<span class="${highlightPositions[k].style} ${
-          this.currentEnvironment.variables.find((k) => k.key === envVar)
-            ?.value === undefined
+          this.aggregateEnvs.find((k) => k.key === envVar)?.value === undefined
             ? "bg-red-400 text-red-50 hover:bg-red-600"
             : "bg-accentDark text-accentContrast hover:bg-accent"
-        }" v-tippy data-tippy-content="environment: ${
-          this.currentEnvironment.name
-        } • value: ${
-          this.currentEnvironment.variables.find((k) => k.key === envVar)?.value
-        }">${this.safe_tags_replace(
+        }" v-tippy data-tippy-content="${this.getEnvName(
+          this.aggregateEnvs.find((k) => k.key === envVar)?.sourceEnv
+        )} <kbd>${this.getEnvValue(
+          this.aggregateEnvs.find((k) => k.key === envVar)?.value
+        )}</kbd>">${this.safe_tags_replace(
           this.internalValue.substring(position.start, position.end + 1)
         )}</span>`
         startingPosition = position.end + 1
@@ -458,6 +450,14 @@ export default defineComponent({
         textRange.moveStart("character", savedSel.start)
         textRange.select()
       }
+    },
+    getEnvName(name) {
+      if (name) return name
+      return "choose an environment"
+    },
+    getEnvValue(value) {
+      if (value) return value
+      return "not found"
     },
   },
 })

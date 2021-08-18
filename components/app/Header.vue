@@ -116,6 +116,19 @@ export default defineComponent({
         duration: 0,
         action: [
           {
+            text: this.$t("action.learn_more").toString(),
+            onClick: (_, toastObject) => {
+              setLocalConfig("cookiesAllowed", "yes")
+              toastObject.goAway(0)
+              window
+                .open(
+                  "https://github.com/hoppscotch/hoppscotch/wiki/Privacy-Policy",
+                  "_blank"
+                )
+                .focus()
+            },
+          },
+          {
             text: this.$t("action.dismiss").toString(),
             onClick: (_, toastObject) => {
               setLocalConfig("cookiesAllowed", "yes")

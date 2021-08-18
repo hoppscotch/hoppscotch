@@ -358,6 +358,7 @@ input[type="checkbox"] {
         @apply px-4;
         @apply bg-opacity-10;
         @apply ml-auto;
+        @apply last:ml-4;
         @apply sm:ml-8;
         @apply transition;
         @apply rounded;

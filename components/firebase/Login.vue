@@ -228,13 +228,17 @@ export default {
               text: this.$t("yes"),
               onClick: async (_, toastObject) => {
                 const { user } = await signInWithGithub()
-                await user.linkAndRetrieveDataWithCredential(pendingCred)
+                await user.linkWithCredential(pendingCred)
 
                 this.showLoginSuccess()
 
                 toastObject.remove()
               },
             },
+          })
+        } else {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
+            icon: "error",
           })
         }
       }
@@ -304,14 +308,17 @@ export default {
               text: this.$t("yes"),
               onClick: async (_, toastObject) => {
                 const { user } = await signInUserWithGoogle()
-                // TODO: handle deprecation
-                await user.linkAndRetrieveDataWithCredential(pendingCred)
+                await user.linkWithCredential(pendingCred)
 
                 this.showLoginSuccess()
 
                 toastObject.remove()
               },
             },
+          })
+        } else {
+          this.$toast.error(this.$t("error.something_went_wrong"), {
+            icon: "error",
           })
         }
       }

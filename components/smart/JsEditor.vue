@@ -104,7 +104,7 @@ export default {
         })
         .catch(() => {
           // nextTIck shouldn't really ever throw but still
-          this.initalized = true
+          this.initialized = true
         })
     })
 

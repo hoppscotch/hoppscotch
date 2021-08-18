@@ -397,7 +397,7 @@
 **Fixed bugs:**
 
 - Auto Theme Selection is kinda difficult to see [\#563](https://github.com/liyasthomas/postwoman/issues/563)
-- Can't send request to localhost via Chrome extention [\#560](https://github.com/liyasthomas/postwoman/issues/560)
+- Can't send request to localhost via Chrome extension [\#560](https://github.com/liyasthomas/postwoman/issues/560)
 - Validation for duplicate collection ignores letter case [\#547](https://github.com/liyasthomas/postwoman/issues/547)
 - Build failed [\#327](https://github.com/liyasthomas/postwoman/issues/327)
 - Fixed typo in translation file for Auto theme [\#556](https://github.com/liyasthomas/postwoman/pull/556) ([AndrewBastin](https://github.com/AndrewBastin))
@@ -423,7 +423,7 @@
 
 - POST request body editor reacts to the content type [\#594](https://github.com/liyasthomas/postwoman/pull/594) ([AndrewBastin](https://github.com/AndrewBastin))
 - Fix variablesJSONString store default for GraphQL page [\#593](https://github.com/liyasthomas/postwoman/pull/593) ([dmitryyankowski](https://github.com/dmitryyankowski))
-- Environment Mangement [\#591](https://github.com/liyasthomas/postwoman/pull/591) ([JacobAnavisca](https://github.com/JacobAnavisca))
+- Environment Management [\#591](https://github.com/liyasthomas/postwoman/pull/591) ([JacobAnavisca](https://github.com/JacobAnavisca))
 - GraphQL Query Autocompletion [\#590](https://github.com/liyasthomas/postwoman/pull/590) ([AndrewBastin](https://github.com/AndrewBastin))
 - Refactor/lint [\#589](https://github.com/liyasthomas/postwoman/pull/589) ([liyasthomas](https://github.com/liyasthomas))
 - Even [\#588](https://github.com/liyasthomas/postwoman/pull/588) ([liyasthomas](https://github.com/liyasthomas))

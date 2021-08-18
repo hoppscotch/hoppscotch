@@ -1,183 +1,183 @@
 [
   {
     "code": "af",
-    "name": "Afrikaans",
+    "file": "af.json",
     "iso": "af-AF",
-    "file": "af.json"
+    "name": "Afrikaans"
   },
   {
     "code": "ar",
-    "name": "عربى",
-    "iso": "ar-AR",
+    "dir": "rtl",
     "file": "ar.json",
-    "dir": "rtl"
+    "iso": "ar-AR",
+    "name": "عربى"
   },
   {
     "code": "ca",
-    "name": "Català",
+    "file": "ca.json",
     "iso": "ca-CA",
-    "file": "ca.json"
+    "name": "Català"
   },
   {
     "code": "cs",
-    "name": "Čeština",
+    "file": "cs.json",
     "iso": "cs-CS",
-    "file": "cs.json"
+    "name": "Čeština"
   },
   {
     "code": "da",
-    "name": "Dansk",
+    "file": "da.json",
     "iso": "da-DA",
-    "file": "da.json"
+    "name": "Dansk"
   },
   {
     "code": "de",
-    "name": "Deutsch",
+    "file": "de.json",
     "iso": "de-DE",
-    "file": "de.json"
+    "name": "Deutsch"
   },
   {
     "code": "el",
-    "name": "Ελληνικά",
+    "file": "el.json",
     "iso": "el-EL",
-    "file": "el.json"
+    "name": "Ελληνικά"
   },
   {
     "code": "en",
-    "name": "English",
+    "file": "en.json",
     "iso": "en-US",
-    "file": "en.json"
+    "name": "English"
   },
   {
     "code": "es",
-    "name": "Español",
+    "file": "es.json",
     "iso": "es-ES",
-    "file": "es.json"
+    "name": "Español"
   },
   {
     "code": "fi",
-    "name": "Suomalainen",
+    "file": "fi.json",
     "iso": "fi-FI",
-    "file": "fi.json"
+    "name": "Suomalainen"
   },
   {
     "code": "fr",
-    "name": "Français",
+    "file": "fr.json",
     "iso": "fr-FR",
-    "file": "fr.json"
+    "name": "Français"
   },
   {
     "code": "he",
-    "name": "עִברִית",
+    "file": "he.json",
     "iso": "he-HE",
-    "file": "he.json"
+    "name": "עִברִית"
   },
   {
     "code": "hu",
-    "name": "Magyar",
+    "file": "hu.json",
     "iso": "hu-HU",
-    "file": "hu.json"
+    "name": "Magyar"
   },
   {
     "code": "it",
-    "name": "Italiano",
+    "file": "it.json",
     "iso": "it",
-    "file": "it.json"
+    "name": "Italiano"
   },
   {
     "code": "ja",
-    "name": "日本人",
+    "file": "ja.json",
     "iso": "ja-JA",
-    "file": "ja.json"
+    "name": "日本人"
   },
   {
     "code": "ko",
-    "name": "한국어",
+    "file": "ko.json",
     "iso": "ko-KO",
-    "file": "ko.json"
+    "name": "한국어"
   },
   {
     "code": "nl",
-    "name": "Nederlands",
+    "file": "nl.json",
     "iso": "nl-NL",
-    "file": "nl.json"
+    "name": "Nederlands"
   },
   {
     "code": "no",
-    "name": "Norsk",
+    "file": "no.json",
     "iso": "no-NO",
-    "file": "no.json"
+    "name": "Norsk"
   },
   {
     "code": "pl",
-    "name": "Polskie",
+    "file": "pl.json",
     "iso": "pl-PL",
-    "file": "pl.json"
+    "name": "Polskie"
   },
   {
     "code": "pt-br",
-    "name": "Português Brasileiro",
+    "file": "pt-br.json",
     "iso": "pt-BR",
-    "file": "pt-br.json"
+    "name": "Português Brasileiro"
   },
   {
     "code": "pt",
-    "name": "Português",
+    "file": "pt.json",
     "iso": "pt-PT",
-    "file": "pt.json"
+    "name": "Português"
   },
   {
     "code": "ro",
-    "name": "Română",
+    "file": "ro.json",
     "iso": "ro-RO",
-    "file": "ro.json"
+    "name": "Română"
   },
   {
     "code": "ru",
-    "name": "Pусский",
+    "file": "ru.json",
     "iso": "ru-RU",
-    "file": "ru.json"
+    "name": "Pусский"
   },
   {
     "code": "sr",
-    "name": "Српски",
+    "file": "sr.json",
     "iso": "sr-SR",
-    "file": "sr.json"
+    "name": "Српски"
   },
   {
     "code": "sv",
-    "name": "Svenska",
+    "file": "sv.json",
     "iso": "sv-SV",
-    "file": "sv.json"
+    "name": "Svenska"
   },
   {
     "code": "tr",
-    "name": "Türk",
+    "file": "tr.json",
     "iso": "tr-TR",
-    "file": "tr.json"
+    "name": "Türk"
   },
   {
     "code": "uk",
-    "name": "Українська",
+    "file": "uk.json",
     "iso": "uk-UK",
-    "file": "uk.json"
+    "name": "Українська"
   },
   {
     "code": "vi",
-    "name": "Tiếng Việt",
+    "file": "vi.json",
     "iso": "vi-VI",
-    "file": "vi.json"
+    "name": "Tiếng Việt"
   },
   {
     "code": "tw",
-    "name": "中國傳統的",
+    "file": "tw.json",
     "iso": "zh-TW",
-    "file": "tw.json"
+    "name": "中國傳統的"
   },
   {
     "code": "cn",
-    "name": "简体中文",
+    "file": "cn.json",
     "iso": "zh-CN",
-    "file": "cn.json"
+    "name": "简体中文"
   }
 ]

@@ -24,7 +24,7 @@
         </label>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('clear')"
+          :title="$t('action.clear')"
           icon="clear_all"
           @click.native="clearContent()"
         />

@@ -121,7 +121,7 @@
           />
           <SmartItem
             ref="clearAll"
-            :label="$t('clear_all')"
+            :label="$t('action.clear_all')"
             icon="clear_all"
             @click.native="
               clearContent()

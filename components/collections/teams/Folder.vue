@@ -75,9 +75,9 @@
             />
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="remove_circle_outline"
+              icon="delete"
               color="red"
-              :label="$t('delete')"
+              :label="$t('action.delete')"
               @click.native="
                 confirmRemove = true
                 $refs.options.tippy().hide()

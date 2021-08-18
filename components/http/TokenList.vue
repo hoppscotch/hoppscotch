@@ -6,7 +6,7 @@
         <div v-if="tokens.length != 0">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('clear')"
+            :title="$t('action.clear_all')"
             icon="clear_all"
             @click.native="clearContent('tokens', $event)"
           />
@@ -41,7 +41,7 @@
           <li>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('delete')"
+              :title="$t('action.remove')"
               icon="remove_circle_outline"
               color="red"
               @click.native="removeOAuthToken(index)"

@@ -9,36 +9,28 @@
         <label for="requestType" class="px-4 pb-4">
           {{ $t("request.choose_language") }}
         </label>
-        <div class="flex">
-          <tippy
-            ref="options"
-            interactive
-            trigger="click"
-            theme="popover"
-            arrow
-          >
-            <template #trigger>
-              <span class="select-wrapper">
-                <ButtonSecondary
-                  :label="codegens.find((x) => x.id === codegenType).name"
-                  outline
-                  class="pr-8"
-                />
-              </span>
-            </template>
-            <SmartItem
-              v-for="(gen, index) in codegens"
-              :key="`gen-${index}`"
-              :label="gen.name"
-              :info-icon="gen.id === codegenType ? 'done' : ''"
-              :active-info-icon="gen.id === codegenType"
-              @click.native="
-                codegenType = gen.id
-                $refs.options.tippy().hide()
-              "
-            />
-          </tippy>
-        </div>
+        <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+          <template #trigger>
+            <span class="select-wrapper">
+              <ButtonSecondary
+                :label="codegens.find((x) => x.id === codegenType).name"
+                outline
+                class="flex-1 pr-8"
+              />
+            </span>
+          </template>
+          <SmartItem
+            v-for="(gen, index) in codegens"
+            :key="`gen-${index}`"
+            :label="gen.name"
+            :info-icon="gen.id === codegenType ? 'done' : ''"
+            :active-info-icon="gen.id === codegenType"
+            @click.native="
+              codegenType = gen.id
+              $refs.options.tippy().hide()
+            "
+          />
+        </tippy>
         <div class="flex flex-1 justify-between">
           <label for="generatedCode" class="px-4 pt-4 pb-4">
             {{ $t("request.generated_code") }}

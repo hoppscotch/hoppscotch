@@ -10,33 +10,46 @@
         sticky
       "
     >
-      <div class="select-wrapper">
-        <select
-          v-model="selectedEnvironmentIndex"
-          :disabled="environments.length == 0"
-          class="
-            bg-primaryLight
-            border-b border-dividerLight
-            flex
-            w-full
-            py-2
-            px-4
-            appearance-none
-          "
-        >
-          <option :value="-1">{{ $t("environment.no_environment") }}</option>
-          <option v-if="environments.length === 0" value="0">
-            {{ $t("environment.create_new") }}
-          </option>
-          <option
-            v-for="(environment, index) in environments"
-            :key="`environment-${index}`"
-            :value="index"
+      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+        <template #trigger>
+          <span
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('environment.select')"
+            class="border-b border-dividerLight flex-1 select-wrapper"
           >
-            {{ environment.name }}
-          </option>
-        </select>
-      </div>
+            <ButtonSecondary
+              v-if="selectedEnvironmentIndex !== -1"
+              :label="environments[selectedEnvironmentIndex].name"
+              class="rounded-none flex-1 pr-8"
+            />
+            <ButtonSecondary
+              v-else
+              :label="$t('environment.no_environment')"
+              class="rounded-none flex-1 pr-8"
+            />
+          </span>
+        </template>
+        <SmartItem
+          :label="$t('environment.no_environment')"
+          :info-icon="selectedEnvironmentIndex === -1 ? 'done' : ''"
+          :active-info-icon="selectedEnvironmentIndex === -1"
+          @click.native="
+            selectedEnvironmentIndex = -1
+            $refs.options.tippy().hide()
+          "
+        />
+        <SmartItem
+          v-for="(gen, index) in environments"
+          :key="`gen-${index}`"
+          :label="gen.name"
+          :info-icon="index === selectedEnvironmentIndex ? 'done' : ''"
+          :active-info-icon="index === selectedEnvironmentIndex"
+          @click.native="
+            selectedEnvironmentIndex = index
+            $refs.options.tippy().hide()
+          "
+        />
+      </tippy>
       <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"

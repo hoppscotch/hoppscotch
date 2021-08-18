@@ -6,6 +6,7 @@
         :key="`navigation-${index}`"
         :to="localePath(navigation.target)"
         class="nav-link"
+        tabindex="0"
       >
         <i v-if="navigation.icon" class="material-icons">
           {{ navigation.icon }}

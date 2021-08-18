@@ -117,7 +117,7 @@
               <ButtonSecondary
                 v-if="index + 1 !== communication.inputs.length"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
+                :title="$t('action.remove')"
                 icon="remove_circle_outline"
                 class="rounded-l-none"
                 color="red"

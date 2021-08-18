@@ -31,7 +31,7 @@
       v-tippy="{ theme: 'tooltip' }"
       icon="remove_circle_outline"
       color="red"
-      :title="$t('delete')"
+      :title="$t('action.remove')"
       class="group-hover:inline-flex hidden"
       data-testid="delete_history_entry"
       @click.native="$emit('delete-entry')"

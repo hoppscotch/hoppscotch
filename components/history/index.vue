@@ -31,7 +31,7 @@
           data-testid="clear_history"
           :disabled="history.length === 0"
           icon="clear_all"
-          :title="$t('clear_all')"
+          :title="$t('action.clear_all')"
           @click.native="confirmRemove = true"
         />
       </div>

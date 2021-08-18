@@ -24,7 +24,7 @@
           <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('clear')"
+              :title="$t('action.clear_all')"
               :icon="clearIcon"
               class="rounded"
               @click.native="clearContent()"
@@ -60,7 +60,7 @@
               <ButtonSecondary
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
+                :title="$t('action.remove')"
                 icon="remove_circle_outline"
                 color="red"
                 @click.native="removeEnvironmentVariable(index)"

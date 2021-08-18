@@ -5,7 +5,7 @@
     >
       <div class="space-x-2 group inline-flex items-center">
         <ButtonSecondary
-          class="tracking-wide !font-bold"
+          class="tracking-wide !font-bold !text-secondaryDark"
           label="HOPPSCOTCH"
           to="/"
         />

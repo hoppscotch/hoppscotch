@@ -8,16 +8,16 @@
     <template #body>
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2 px-2">
         <SmartItem
-          :loading="signingInWithGoogle"
-          svg="google"
-          :label="$t('auth.continue_with_google')"
-          @click.native="signInWithGoogle"
-        />
-        <SmartItem
           :loading="signingInWithGitHub"
           svg="github"
           :label="$t('auth.continue_with_github')"
           @click.native="signInWithGithub"
+        />
+        <SmartItem
+          :loading="signingInWithGoogle"
+          svg="google"
+          :label="$t('auth.continue_with_google')"
+          @click.native="signInWithGoogle"
         />
         <SmartItem
           icon="mail"

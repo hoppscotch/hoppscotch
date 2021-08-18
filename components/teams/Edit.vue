@@ -82,7 +82,7 @@
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
+                :title="$t('action.remove')"
                 icon="remove_circle_outline"
                 color="red"
                 @click.native="removeExistingTeamMember(member.user.uid)"
@@ -142,7 +142,7 @@
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('delete')"
+                :title="$t('action.remove')"
                 icon="remove_circle_outline"
                 color="red"
                 @click.native="removeTeamMember(index)"

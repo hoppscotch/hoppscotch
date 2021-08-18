@@ -17,7 +17,11 @@
     "dismiss": "Dismiss",
     "copy": "Copy",
     "learn_more": "Learn more",
-    "go_back": "Go back"
+    "go_back": "Go back",
+    "delete": "Delete",
+    "remove": "Remove",
+    "clear": "Clear",
+    "clear_all": "Clear all"
   },
   "confirm": {
     "logout": "Are you sure you want to logout?",
@@ -27,7 +31,8 @@
     "remove_request": "Are you sure you want to permanently delete this request?",
     "remove_environment": "Are you sure you want to permanently delete this environment?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
-    "remove_team": "Are you sure you want to delete this team?"
+    "remove_team": "Are you sure you want to delete this team?",
+    "sync": "Are you sure you want to sync this workspace?"
   },
   "empty": {
     "protocols": "Protocols are empty",
@@ -307,7 +312,8 @@
     "create_new": "Create new environment",
     "edit": "Edit Environment",
     "variable_list": "Variable List",
-    "invalid_name": "Please provide a valid name for the environment"
+    "invalid_name": "Please provide a valid name for the environment",
+    "select": "Select environment"
   },
   "response": {
     "title": "Response",
@@ -401,8 +407,6 @@
   "no_label": "No label",
   "search": "Search",
   "history_deleted": "History deleted",
-  "clear": "Clear",
-  "clear_all": "Clear all",
   "cleared": "Cleared",
   "time": "Time",
   "duration": "Duration",
@@ -410,7 +414,6 @@
   "new": "New",
   "more": "More",
   "edit": "Edit",
-  "delete": "Delete",
   "deleted": "Deleted",
   "undo": "Undo",
   "edit_request": "Edit Request",

@@ -43,7 +43,7 @@
         <ButtonSecondary
           v-if="doc && selected"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('delete')"
+          :title="$t('action.remove')"
           icon="check_circle_outline"
           color="green"
           @click.native="$emit('unselect-collection')"
@@ -96,9 +96,9 @@
               "
             />
             <SmartItem
-              icon="remove_circle_outline"
+              icon="delete"
               color="red"
-              :label="$t('delete')"
+              :label="$t('action.delete')"
               @click.native="
                 confirmRemove = true
                 $refs.options.tippy().hide()

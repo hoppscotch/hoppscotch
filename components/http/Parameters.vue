@@ -26,7 +26,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('clear_all')"
+          :title="$t('action.clear_all')"
           icon="clear_all"
           @click.native="clearContent"
         />
@@ -140,7 +140,7 @@
       <span>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('delete')"
+          :title="$t('action.remove')"
           icon="remove_circle_outline"
           color="red"
           @click.native="deleteParam(index)"

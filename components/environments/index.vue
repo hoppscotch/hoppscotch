@@ -76,10 +76,10 @@
     />
     <div class="flex flex-col">
       <EnvironmentsEnvironment
-        environment-index="global"
+        environment-index="Global"
         :environment="globalEnvironment"
         class="border-b border-dashed border-dividerLight"
-        @edit-environment="editEnvironment('global')"
+        @edit-environment="editEnvironment('Global')"
       />
       <EnvironmentsEnvironment
         v-for="(environment, index) in environments"
@@ -139,7 +139,7 @@ export default defineComponent({
       showModalImportExport: false,
       showModalAdd: false,
       showModalEdit: false,
-      editingEnvironmentIndex: undefined as number | "global" | undefined,
+      editingEnvironmentIndex: undefined as number | "Global" | undefined,
     }
   },
   methods: {
@@ -154,7 +154,7 @@ export default defineComponent({
     displayModalImportExport(shouldDisplay: boolean) {
       this.showModalImportExport = shouldDisplay
     },
-    editEnvironment(environmentIndex: number | "global") {
+    editEnvironment(environmentIndex: number | "Global") {
       this.$data.editingEnvironmentIndex = environmentIndex
       this.displayModalEdit(true)
     },

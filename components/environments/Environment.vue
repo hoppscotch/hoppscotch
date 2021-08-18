@@ -40,7 +40,7 @@
           "
         />
         <SmartItem
-          v-if="!(environmentIndex === 'global')"
+          v-if="!(environmentIndex === 'Global')"
           icon="remove_circle_outline"
           color="red"
           :label="$t('delete')"
@@ -69,7 +69,7 @@ export default Vue.extend({
   props: {
     environment: { type: Object, default: () => {} },
     environmentIndex: {
-      type: [Number, String] as PropType<number | "global">,
+      type: [Number, String] as PropType<number | "Global">,
       default: null,
     },
   },
@@ -80,7 +80,7 @@ export default Vue.extend({
   },
   methods: {
     removeEnvironment() {
-      if (this.environmentIndex !== "global")
+      if (this.environmentIndex !== "Global")
         deleteEnvironment(this.environmentIndex)
       this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",

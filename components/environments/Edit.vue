@@ -10,7 +10,7 @@
             class="input floating-input"
             placeholder=" "
             type="text"
-            :disabled="editingEnvironmentIndex === 'global'"
+            :disabled="editingEnvironmentIndex === 'Global'"
             @keyup.enter="saveEnvironment"
           />
           <label for="selectLabelEnvEdit">
@@ -114,7 +114,7 @@ export default defineComponent({
   props: {
     show: Boolean,
     editingEnvironmentIndex: {
-      type: [Number, String] as PropType<number | "global" | null>,
+      type: [Number, String] as PropType<number | "Global" | null>,
       default: null,
     },
   },
@@ -122,7 +122,7 @@ export default defineComponent({
     const workingEnv = computed(() => {
       if (props.editingEnvironmentIndex === null) return null
 
-      if (props.editingEnvironmentIndex === "global") {
+      if (props.editingEnvironmentIndex === "Global") {
         return {
           name: "Global",
           variables: getGlobalVariables(),
@@ -180,7 +180,7 @@ export default defineComponent({
         variables: this.vars,
       }
 
-      if (this.editingEnvironmentIndex === "global")
+      if (this.editingEnvironmentIndex === "Global")
         setGlobalEnvVariables(environmentUpdated.variables)
       else updateEnvironment(this.editingEnvironmentIndex!, environmentUpdated)
       this.hideModal()

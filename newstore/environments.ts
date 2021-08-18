@@ -262,7 +262,7 @@ export const currentEnvironment$ = combineLatest([
 /**
  * Stream returning all the environment variables accessible in
  * the current state (Global + The Selected Environment).
- * NOTE: The source environment attribute will be "global" for Global Env as source.
+ * NOTE: The source environment attribute will be "Global" for Global Env as source.
  */
 export const aggregateEnvs$ = combineLatest([
   currentEnvironment$,
@@ -275,7 +275,7 @@ export const aggregateEnvs$ = combineLatest([
       results.push({ key, value, sourceEnv: selectedEnv.name })
     )
     globalVars.forEach(({ key, value }) =>
-      results.push({ key, value, sourceEnv: "global" })
+      results.push({ key, value, sourceEnv: "Global" })
     )
 
     return results

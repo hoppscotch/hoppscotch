@@ -12,7 +12,7 @@
           @keyup.enter="saveRequest"
         />
         <label for="selectLabelEditReq">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

@@ -29,6 +29,7 @@
       },
     ]"
     :disabled="disabled"
+    tabindex="0"
   >
     <i
       v-if="icon"

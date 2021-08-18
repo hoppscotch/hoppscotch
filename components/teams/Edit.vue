@@ -13,7 +13,7 @@
             @keyup.enter="saveTeam"
           />
           <label for="selectLabelTeamEdit">
-            {{ $t("label") }}
+            {{ $t("action.label") }}
           </label>
         </div>
         <div class="flex flex-1 justify-between items-center">

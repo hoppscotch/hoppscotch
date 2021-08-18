@@ -88,7 +88,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           icon="keyboard"
-          :title="$t('shortcuts')"
+          :title="$t('app.shortcuts')"
           @click.native="showShortcuts = true"
         />
         <ButtonSecondary

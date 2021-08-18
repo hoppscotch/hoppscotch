@@ -23,7 +23,7 @@ type RESTSession = {
 
 const defaultRESTRequest: HoppRESTRequest = {
   v: RESTReqSchemaVersion,
-  endpoint: "https://httpbin.org/get",
+  endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
   params: [],
   headers: [],

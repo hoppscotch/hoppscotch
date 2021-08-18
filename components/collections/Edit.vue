@@ -12,7 +12,7 @@
           @keyup.enter="saveCollection"
         />
         <label for="selectLabelEdit">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

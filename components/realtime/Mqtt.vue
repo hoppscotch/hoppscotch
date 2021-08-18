@@ -22,13 +22,17 @@
                     px-4
                     focus-visible:border-accent
                   "
-                  :placeholder="$t('url')"
+                  :placeholder="$t('mqtt.url')"
                 />
                 <ButtonPrimary
                   id="connect"
                   :disabled="!validUrl"
                   class="rounded-l-none w-28"
-                  :label="connectionState ? $t('disconnect') : $t('connect')"
+                  :label="
+                    connectionState
+                      ? $t('action.disconnect')
+                      : $t('action.connect')
+                  "
                   :loading="connectingState"
                   @click.native="toggleConnection"
                 />
@@ -68,7 +72,7 @@
         </div>
         <div class="flex flex-1 p-4 items-center justify-between">
           <label for="mqtt-message" class="font-semibold text-secondaryLight">{{
-            $t("communication")
+            $t("mqtt.communication")
           }}</label>
         </div>
         <div class="flex px-4">
@@ -77,7 +81,7 @@
             v-model="msg"
             class="input !rounded-r-none"
             type="text"
-            :placeholder="$t('message')"
+            :placeholder="$t('mqtt.message')"
             spellcheck="false"
           />
           <ButtonPrimary

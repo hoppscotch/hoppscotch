@@ -4,7 +4,7 @@
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
-            {{ $t("account") }}
+            {{ $t("settings.account") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
             {{ $t("settings.account_description") }}
@@ -72,7 +72,7 @@
                       toggleSettings('syncCollections', !SYNC_COLLECTIONS)
                     "
                   >
-                    {{ $t("syncCollections") }}
+                    {{ $t("settings.sync_collections") }}
                   </SmartToggle>
                 </div>
                 <div class="flex items-center">
@@ -82,7 +82,7 @@
                       toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)
                     "
                   >
-                    {{ $t("syncEnvironments") }}
+                    {{ $t("settings.sync_environments") }}
                   </SmartToggle>
                 </div>
                 <div class="flex items-center">
@@ -90,7 +90,7 @@
                     :on="SYNC_HISTORY"
                     @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
                   >
-                    {{ $t("syncHistory") }}
+                    {{ $t("settings.sync_history") }}
                   </SmartToggle>
                 </div>
               </div>
@@ -102,7 +102,7 @@
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
-            {{ $t("theme") }}
+            {{ $t("settings.theme") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
             {{ $t("settings.theme_description") }}
@@ -111,7 +111,7 @@
         <div class="space-y-8 p-8 md:col-span-2">
           <section>
             <h4 class="font-semibold text-secondaryDark">
-              {{ $t("background") }}
+              {{ $t("settings.background") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
               <ColorScheme placeholder="..." tag="span">
@@ -178,7 +178,11 @@
               <div class="flex items-center">
                 <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
                   {{ $t("settings.telemetry") }}
-                  {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
+                  {{
+                    TELEMETRY_ENABLED
+                      ? $t("state.enabled")
+                      : $t("state.disabled")
+                  }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
@@ -187,7 +191,11 @@
                   @change="toggleSetting('SHORTCUT_INDICATOR')"
                 >
                   {{ $t("settings.shortcuts_indicator") }}
-                  {{ SHORTCUT_INDICATOR ? $t("enabled") : $t("disabled") }}
+                  {{
+                    SHORTCUT_INDICATOR
+                      ? $t("state.enabled")
+                      : $t("state.disabled")
+                  }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
@@ -196,13 +204,15 @@
                   @change="toggleSetting('LEFT_SIDEBAR')"
                 >
                   {{ $t("settings.navigation_sidebar") }}
-                  {{ LEFT_SIDEBAR ? $t("enabled") : $t("disabled") }}
+                  {{
+                    LEFT_SIDEBAR ? $t("state.enabled") : $t("state.disabled")
+                  }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
                 <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
                   {{ $t("layout.zen_mode") }}
-                  {{ ZEN_MODE ? $t("enabled") : $t("disabled") }}
+                  {{ ZEN_MODE ? $t("state.enabled") : $t("state.disabled") }}
                 </SmartToggle>
               </div>
             </div>
@@ -222,19 +232,19 @@
         <div class="space-y-8 p-8 md:col-span-2">
           <section>
             <h4 class="font-semibold text-secondaryDark">
-              {{ $t("extensions") }}
+              {{ $t("settings.extensions") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
               <span v-if="extensionVersion != null">
                 {{
-                  `${$t("extension_version")}: v${extensionVersion.major}.${
-                    extensionVersion.minor
-                  }`
+                  `${$t("settings.extension_version")}: v${
+                    extensionVersion.major
+                  }.${extensionVersion.minor}`
                 }}
               </span>
               <span v-else>
-                {{ $t("extension_version") }}:
-                {{ $t("extension_ver_not_reported") }}
+                {{ $t("settings.extension_version") }}:
+                {{ $t("settings.extension_ver_not_reported") }}
               </span>
             </div>
             <div class="flex flex-col space-y-2 py-4">
@@ -267,17 +277,17 @@
                   :on="EXTENSIONS_ENABLED"
                   @change="toggleSetting('EXTENSIONS_ENABLED')"
                 >
-                  {{ $t("extensions_use_toggle") }}
+                  {{ $t("settings.extensions_use_toggle") }}
                 </SmartToggle>
               </div>
             </div>
           </section>
           <section>
             <h4 class="font-semibold text-secondaryDark">
-              {{ $t("proxy") }}
+              {{ $t("settings.proxy") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
-              {{ `${$t("official_proxy_hosting")} ${$t("read_the")}` }}
+              {{ `${$t("settings.official_proxy_hosting")} ${$t("read_the")}` }}
               <SmartLink
                 class="link"
                 to="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
@@ -292,7 +302,7 @@
                   :on="PROXY_ENABLED"
                   @change="toggleSetting('PROXY_ENABLED')"
                 >
-                  {{ $t("proxy_use_toggle") }}
+                  {{ $t("settings.proxy_use_toggle") }}
                 </SmartToggle>
               </div>
             </div>
@@ -307,7 +317,7 @@
                   :disabled="!PROXY_ENABLED"
                 />
                 <label for="url">
-                  {{ `${$t("proxy")} ${$t("url")}` }}
+                  {{ $t("settings.proxy_url") }}
                 </label>
               </div>
               <ButtonSecondary

@@ -13,14 +13,14 @@
     </SmartTab>
     <SmartTab
       id="sse"
-      :label="$t('sse')"
+      :label="$t('tab.sse')"
       style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
     >
       <RealtimeSse />
     </SmartTab>
     <SmartTab
       id="socketio"
-      :label="$t('socketio')"
+      :label="$t('tab.socketio')"
       style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
     >
       <RealtimeSocketio />

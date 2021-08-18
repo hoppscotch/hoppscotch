@@ -12,7 +12,7 @@
           @keyup.enter="addNewCollection"
         />
         <label for="selectLabelGqlAdd">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

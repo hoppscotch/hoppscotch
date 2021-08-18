@@ -25,7 +25,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 to="https://docs.hoppscotch.io/"
                 blank
-                :title="$t('wiki')"
+                :title="$t('app.wiki')"
                 icon="help_outline"
               />
             </div>
@@ -38,7 +38,7 @@
               <SmartTab
                 v-if="queryFields.length > 0"
                 :id="'queries'"
-                :label="$t('queries')"
+                :label="$t('tab.queries')"
                 :selected="true"
                 class="divide-y divide-dividerLight"
               >
@@ -53,7 +53,7 @@
               <SmartTab
                 v-if="mutationFields.length > 0"
                 :id="'mutations'"
-                :label="$t('mutations')"
+                :label="$t('graphql.mutations')"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlField
@@ -67,7 +67,7 @@
               <SmartTab
                 v-if="subscriptionFields.length > 0"
                 :id="'subscriptions'"
-                :label="$t('subscriptions')"
+                :label="$t('graphql.subscriptions')"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlField
@@ -82,7 +82,7 @@
                 v-if="graphqlTypes.length > 0"
                 :id="'types'"
                 ref="typesTab"
-                :label="$t('types')"
+                :label="$t('tab.types')"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlType
@@ -120,7 +120,7 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'history'" :label="$t('history')">
+      <SmartTab :id="'history'" :label="$t('tab.history')">
         <History
           ref="graphqlHistoryComponent"
           :page="'graphql'"
@@ -128,7 +128,7 @@
         />
       </SmartTab>
 
-      <SmartTab :id="'collections'" :label="$t('collections')">
+      <SmartTab :id="'collections'" :label="$t('tab.collections')">
         <CollectionsGraphql />
       </SmartTab>
 
@@ -149,14 +149,14 @@
             "
           >
             <label class="font-semibold text-secondaryLight">
-              {{ $t("schema") }}
+              {{ $t("graphql.schema") }}
             </label>
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 to="https://docs.hoppscotch.io/"
                 blank
-                :title="$t('wiki')"
+                :title="$t('app.wiki')"
                 icon="help_outline"
               />
               <ButtonSecondary

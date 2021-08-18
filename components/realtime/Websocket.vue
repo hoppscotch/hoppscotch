@@ -23,7 +23,7 @@
                   type="url"
                   spellcheck="false"
                   :class="{ error: !urlValid }"
-                  :placeholder="$t('url')"
+                  :placeholder="$t('websocket.url')"
                   @keyup.enter="urlValid ? toggleConnection() : null"
                 />
                 <ButtonPrimary
@@ -31,7 +31,11 @@
                   :disabled="!urlValid"
                   class="rounded-l-none w-28"
                   name="connect"
-                  :label="!connectionState ? $t('connect') : $t('disconnect')"
+                  :label="
+                    !connectionState
+                      ? $t('action.connect')
+                      : $t('action.disconnect')
+                  "
                   :loading="connectingState"
                   @click.native="toggleConnection"
                 />
@@ -156,7 +160,7 @@
             for="websocket-message"
             class="font-semibold text-secondaryLight"
           >
-            {{ $t("communication") }}
+            {{ $t("websocket.communication") }}
           </label>
         </div>
         <div class="flex px-4">
@@ -166,7 +170,7 @@
             name="message"
             type="text"
             :disabled="!connectionState"
-            :placeholder="$t('message')"
+            :placeholder="$t('websocket.message')"
             class="input !rounded-r-none"
             @keyup.enter="connectionState ? sendMessage() : null"
             @keyup.up="connectionState ? walkHistory('up') : null"
@@ -177,7 +181,7 @@
             name="send"
             :disabled="!connectionState"
             class="rounded-l-none"
-            :label="$t('send')"
+            :label="$t('action.send')"
             @click.native="sendMessage"
           />
         </div>

@@ -11,7 +11,7 @@
           placeholder=" "
         ></textarea>
         <label for="import-curl">
-          {{ $t("enter_curl") }}
+          {{ $t("request.enter_curl") }}
         </label>
       </div>
     </template>

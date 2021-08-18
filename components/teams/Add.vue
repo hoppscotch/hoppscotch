@@ -12,7 +12,7 @@
           @keyup.enter="addNewTeam"
         />
         <label for="selectLabelTeamAdd">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

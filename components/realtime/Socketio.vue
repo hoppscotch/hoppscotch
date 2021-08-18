@@ -24,7 +24,7 @@
                     px-4
                     focus-visible:border-accent
                   "
-                  :placeholder="$t('url')"
+                  :placeholder="$t('socketio.url')"
                   @keyup.enter="urlValid ? toggleConnection() : null"
                 />
                 <input
@@ -47,7 +47,11 @@
                   :disabled="!urlValid"
                   name="connect"
                   class="rounded-l-none w-28"
-                  :label="!connectionState ? $t('connect') : $t('disconnect')"
+                  :label="
+                    !connectionState
+                      ? $t('action.connect')
+                      : $t('action.disconnect')
+                  "
                   :loading="connectingState"
                   @click.native="toggleConnection"
                 />
@@ -72,7 +76,7 @@
       <AppSection label="messages">
         <div class="flex flex-col flex-1 p-4 inline-flex">
           <label for="events" class="font-semibold text-secondaryLight">
-            {{ $t("events") }}
+            {{ $t("socketio.events") }}
           </label>
         </div>
         <div class="flex px-4">
@@ -81,14 +85,14 @@
             v-model="communication.eventName"
             class="input"
             name="event_name"
-            :placeholder="$t('event_name')"
+            :placeholder="$t('socketio.event_name')"
             type="text"
             :disabled="!connectionState"
           />
         </div>
         <div class="flex flex-1 p-4 items-center justify-between">
           <label class="font-semibold text-secondaryLight">{{
-            $t("communication")
+            $t("socketio.communication")
           }}</label>
           <div class="flex">
             <ButtonSecondary
@@ -130,7 +134,7 @@
                 name="send"
                 :disabled="!connectionState"
                 class="rounded-l-none"
-                :label="$t('send')"
+                :label="$t('action.send')"
                 @click.native="sendMessage"
               />
             </div>

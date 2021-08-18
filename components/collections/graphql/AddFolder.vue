@@ -16,7 +16,7 @@
           @keyup.enter="addFolder"
         />
         <label for="selectLabelGqlAddFolder">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

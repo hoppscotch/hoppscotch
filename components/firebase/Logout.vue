@@ -2,7 +2,7 @@
   <div class="flex">
     <SmartItem
       icon="exit_to_app"
-      :label="$t('logout')"
+      :label="$t('auth.logout')"
       @click.native="
         $emit('confirm-logout')
         confirmLogout = true
@@ -32,7 +32,7 @@ export default Vue.extend({
       try {
         await signOutUser()
 
-        this.$toast.info(this.$t("logged_out").toString(), {
+        this.$toast.info(this.$t("auth.logged_out").toString(), {
           icon: "vpn_key",
         })
       } catch (e) {

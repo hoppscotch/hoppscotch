@@ -27,7 +27,7 @@
           }}{{ entry.payload }}</span
         >
       </span>
-      <span v-else>{{ $t("waiting_for_connection") }}</span>
+      <span v-else>{{ $t("response.waiting_for_connection") }}</span>
     </div>
   </div>
 </template>

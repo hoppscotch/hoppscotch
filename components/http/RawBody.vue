@@ -14,14 +14,14 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("raw_request_body") }}
+        {{ $t("request.raw_body") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/"
           blank
-          :title="$t('wiki')"
+          :title="$t('app.wiki')"
           icon="help_outline"
         />
         <ButtonSecondary

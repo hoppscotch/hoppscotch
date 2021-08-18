@@ -159,7 +159,7 @@ export default defineComponent({
             duration: 0,
             action: [
               {
-                text: this.$t("reload").toString(),
+                text: this.$t("app.reload").toString(),
                 onClick: (_, toastObject) => {
                   toastObject.goAway(0)
                   window.location.reload()

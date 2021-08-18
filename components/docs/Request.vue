@@ -6,18 +6,18 @@
     </h4>
     <p v-if="request.url" class="doc-desc">
       <span>
-        {{ $t("url") }}: <code>{{ request.url || $t("none") }}</code>
+        {{ $t("request.url") }}: <code>{{ request.url || $t("none") }}</code>
       </span>
     </p>
     <p v-if="request.path" class="doc-desc">
       <span>
-        {{ $t("path") }}:
+        {{ $t("request.path") }}:
         <code>{{ request.path || $t("none") }}</code>
       </span>
     </p>
     <p v-if="request.method" class="doc-desc">
       <span>
-        {{ $t("method") }}:
+        {{ $t("request.method") }}:
         <code>{{ request.method || $t("none") }}</code>
       </span>
     </p>
@@ -58,7 +58,9 @@
         </span>
       </p>
     </span>
-    <h4 v-if="request.params" class="heading">{{ $t("parameters") }}</h4>
+    <h4 v-if="request.params" class="heading">
+      {{ $t("request.parameters") }}
+    </h4>
     <span v-if="request.params">
       <p
         v-for="(parameter, index) in request.params"
@@ -86,19 +88,19 @@
     </span>
     <p v-if="request.rawParams" class="doc-desc">
       <span>
-        {{ $t("parameters") }}:
+        {{ $t("request.parameters") }}:
         <code>{{ request.rawParams || $t("none") }}</code>
       </span>
     </p>
     <p v-if="request.contentType" class="doc-desc">
       <span>
-        {{ $t("content_type") }}:
+        {{ $t("request.content_type") }}:
         <code>{{ request.contentType || $t("none") }}</code>
       </span>
     </p>
     <p v-if="request.requestType" class="doc-desc">
       <span>
-        {{ $t("request_type") }}:
+        {{ $t("request.type") }}:
         <code>{{ request.requestType || $t("none") }}</code>
       </span>
     </p>

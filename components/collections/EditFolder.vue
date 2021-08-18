@@ -16,7 +16,7 @@
           @keyup.enter="editFolder"
         />
         <label for="selectLabelEditFolder">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

@@ -12,7 +12,7 @@
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
-          {{ $t("content_type") }}
+          {{ $t("request.content_type") }}
         </label>
         <tippy
           ref="contentTypeOptions"

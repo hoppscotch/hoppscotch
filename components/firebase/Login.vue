@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('login_to_hoppscotch')"
+    :title="$t('auth.login_to_hoppscotch')"
     dialog
     @close="hideModal"
   >
@@ -163,7 +163,7 @@ export default {
   },
   methods: {
     showLoginSuccess() {
-      this.$toast.info(this.$t("login_success"), {
+      this.$toast.info(this.$t("auth.login_success"), {
         icon: "vpn_key",
       })
     },
@@ -174,20 +174,23 @@ export default {
         const { additionalUserInfo } = await signInUserWithGoogle()
 
         if (additionalUserInfo.isNewUser) {
-          this.$toast.info(`${this.$t("action.turn_on")} ${this.$t("sync")}`, {
-            icon: "sync",
-            duration: null,
-            closeOnSwipe: false,
-            action: {
-              text: this.$t("yes"),
-              onClick: (_, toastObject) => {
-                applySetting("syncHistory", true)
-                applySetting("syncCollections", true)
-                applySetting("syncEnvironments", true)
-                toastObject.remove()
+          this.$toast.info(
+            `${this.$t("action.turn_on")} ${this.$t("auth.sync")}`,
+            {
+              icon: "sync",
+              duration: null,
+              closeOnSwipe: false,
+              action: {
+                text: this.$t("yes"),
+                onClick: (_, toastObject) => {
+                  applySetting("syncHistory", true)
+                  applySetting("syncCollections", true)
+                  applySetting("syncEnvironments", true)
+                  toastObject.remove()
+                },
               },
-            },
-          })
+            }
+          )
         }
 
         this.showLoginSuccess()
@@ -254,20 +257,23 @@ export default {
         setProviderInfo(credential.providerId, credential.accessToken)
 
         if (additionalUserInfo.isNewUser) {
-          this.$toast.info(`${this.$t("action.turn_on")} ${this.$t("sync")}`, {
-            icon: "sync",
-            duration: null,
-            closeOnSwipe: false,
-            action: {
-              text: this.$t("yes"),
-              onClick: (_, toastObject) => {
-                applySetting("syncHistory", true)
-                applySetting("syncCollections", true)
-                applySetting("syncEnvironments", true)
-                toastObject.remove()
+          this.$toast.info(
+            `${this.$t("action.turn_on")} ${this.$t("auth.sync")}`,
+            {
+              icon: "sync",
+              duration: null,
+              closeOnSwipe: false,
+              action: {
+                text: this.$t("yes"),
+                onClick: (_, toastObject) => {
+                  applySetting("syncHistory", true)
+                  applySetting("syncCollections", true)
+                  applySetting("syncEnvironments", true)
+                  toastObject.remove()
+                },
               },
-            },
-          })
+            }
+          )
         }
 
         this.showLoginSuccess()

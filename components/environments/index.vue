@@ -15,7 +15,12 @@
           <span
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('environment.select')"
-            class="border-b border-dividerLight flex-1 select-wrapper"
+            class="
+              bg-primaryLight
+              border-b border-dividerLight
+              flex-1
+              select-wrapper
+            "
           >
             <ButtonSecondary
               v-if="selectedEnvironmentIndex !== -1"
@@ -62,7 +67,7 @@
             v-tippy="{ theme: 'tooltip' }"
             to="https://docs.hoppscotch.io/"
             blank
-            :title="$t('wiki')"
+            :title="$t('app.wiki')"
             icon="help_outline"
           />
           <ButtonSecondary

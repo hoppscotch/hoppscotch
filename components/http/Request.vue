@@ -1,51 +1,63 @@
 <template>
-  <div class="bg-primary flex p-4 top-0 z-10 sticky">
-    <div class="relative inline-flex">
-      <tippy
-        ref="methodOptions"
-        interactive
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <span class="select-wrapper">
-            <input
-              id="method"
-              class="
-                bg-primaryLight
-                border border-divider
-                rounded-l
-                cursor-pointer
-                flex
-                font-semibold
-                text-secondaryDark
-                py-2
-                px-4
-                w-28
-                hover:border-dividerDark
-                focus-visible:border-accent
-              "
-              :value="newMethod"
-              :readonly="!isCustomMethod"
-              @input="onSelectMethod($event.target.value)"
-            />
-          </span>
-        </template>
-        <SmartItem
-          v-for="(method, index) in methods"
-          :key="`method-${index}`"
-          :label="method"
-          @click.native="onSelectMethod(method)"
-        />
-      </tippy>
-    </div>
-    <div class="flex-1 inline-flex">
-      <SmartEnvInput
-        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
-        v-model="newEndpoint"
-        :placeholder="$t('url')"
-        styles="
+  <div
+    class="
+      bg-primary
+      flex flex-col
+      space-y-2
+      p-4
+      top-0
+      z-10
+      sticky
+      md:flex-row md:space-y-0
+    "
+  >
+    <div class="flex flex-1">
+      <div class="flex relative">
+        <tippy
+          ref="methodOptions"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+        >
+          <template #trigger>
+            <span class="select-wrapper">
+              <input
+                id="method"
+                class="
+                  bg-primaryLight
+                  border border-divider
+                  rounded-l
+                  cursor-pointer
+                  flex
+                  font-semibold
+                  text-secondaryDark
+                  py-2
+                  px-4
+                  w-28
+                  hover:border-dividerDark
+                  focus-visible:border-accent
+                "
+                :value="newMethod"
+                :readonly="!isCustomMethod"
+                @input="onSelectMethod($event.target.value)"
+              />
+            </span>
+          </template>
+          <SmartItem
+            v-for="(method, index) in methods"
+            :key="`method-${index}`"
+            :label="method"
+            @click.native="onSelectMethod(method)"
+          />
+        </tippy>
+      </div>
+      <div class="flex flex-1">
+        <SmartEnvInput
+          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+          v-model="newEndpoint"
+          :placeholder="$t('request.url')"
+          styles="
           bg-primaryLight
           border border-divider
           flex
@@ -56,39 +68,43 @@
           hover:border-dividerDark
           focus-visible:border-accent
         "
-        @enter="newSendRequest()"
-      />
-      <input
-        v-else
-        id="url"
-        v-model="newEndpoint"
-        v-focus
-        class="
-          bg-primaryLight
-          border border-divider
-          flex flex-1
-          text-secondaryDark
-          py-2
-          px-4
-          focus-visible:border-accent
-        "
-        name="url"
-        type="text"
-        spellcheck="false"
-        :placeholder="$t('url')"
-        autofocus
-        @keyup.enter="newSendRequest()"
-      />
+          @enter="newSendRequest()"
+        />
+        <input
+          v-else
+          id="url"
+          v-model="newEndpoint"
+          v-focus
+          class="
+            bg-primaryLight
+            border border-divider
+            rounded-r
+            flex
+            text-secondaryDark
+            w-full
+            py-2
+            px-4
+            md:rounded-r-none
+            focus-visible:border-accent
+          "
+          name="url"
+          type="text"
+          spellcheck="false"
+          :placeholder="$t('request.url')"
+          autofocus
+          @keyup.enter="newSendRequest()"
+        />
+      </div>
     </div>
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-none min-w-20"
-        :label="!loading ? $t('send') : $t('cancel')"
+        class="rounded-r-none flex-1 min-w-20 md:rounded-l-none"
+        :label="!loading ? $t('action.send') : $t('action.cancel')"
         :shortcut="[getSpecialKey(), 'G']"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
-      <span class="inline-flex">
+      <span class="flex">
         <tippy
           ref="sendOptions"
           interactive
@@ -131,13 +147,13 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded-r-none ml-2"
+        class="rounded-r-none flex-1 ml-2"
         :label="$t('request.save')"
         :shortcut="[getSpecialKey(), 'S']"
         outline
         @click.native="showSaveRequestModal = true"
       />
-      <span class="inline-flex">
+      <span class="flex">
         <tippy
           ref="saveOptions"
           interactive

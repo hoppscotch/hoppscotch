@@ -53,7 +53,7 @@
               <ButtonSecondary
                 v-else
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('account')"
+                :title="$t('header.account')"
                 class="rounded"
                 icon="account_circle"
               />
@@ -111,7 +111,7 @@ export default defineComponent({
 
     const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
     if (!cookiesAllowed) {
-      this.$toast.show(this.$t("we_use_cookies").toString(), {
+      this.$toast.show(this.$t("app.we_use_cookies").toString(), {
         icon: "cookie",
         duration: 0,
         action: [

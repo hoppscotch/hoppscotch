@@ -14,14 +14,14 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("javascript_code") }}
+        {{ $t("preRequest.javascript_code") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
           blank
-          :title="$t('wiki')"
+          :title="$t('app.wiki')"
           icon="help_outline"
         />
         <ButtonSecondary

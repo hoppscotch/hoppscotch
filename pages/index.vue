@@ -7,14 +7,14 @@
           <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">
             <SmartTab
               :id="'params'"
-              :label="$t('parameters')"
+              :label="$t('tab.parameters')"
               :selected="true"
               :info="newActiveParamsCount$"
             >
               <HttpParameters />
             </SmartTab>
 
-            <SmartTab :id="'bodyParams'" :label="$t('body')">
+            <SmartTab :id="'bodyParams'" :label="$t('tab.body')">
               <HttpBody />
             </SmartTab>
 
@@ -26,18 +26,18 @@
               <HttpHeaders />
             </SmartTab>
 
-            <SmartTab :id="'authorization'" :label="$t('authorization')">
+            <SmartTab :id="'authorization'" :label="$t('tab.authorization')">
               <HttpAuthorization />
             </SmartTab>
 
             <SmartTab
               :id="'preRequestScript'"
-              :label="$t('pre_request_script')"
+              :label="$t('tab.pre_request_script')"
             >
               <HttpPreRequestScript />
             </SmartTab>
 
-            <SmartTab :id="'tests'" :label="$t('tests')">
+            <SmartTab :id="'tests'" :label="$t('tab.tests')">
               <HttpTests />
             </SmartTab>
           </SmartTabs>
@@ -56,11 +56,11 @@
     >
       <aside>
         <SmartTabs styles="sticky z-10 top-0">
-          <SmartTab :id="'history'" :label="$t('history')" :selected="true">
+          <SmartTab :id="'history'" :label="$t('tab.history')" :selected="true">
             <History ref="historyComponent" :page="'rest'" />
           </SmartTab>
 
-          <SmartTab :id="'collections'" :label="$t('collections')">
+          <SmartTab :id="'collections'" :label="$t('tab.collections')">
             <Collections />
           </SmartTab>
 
@@ -70,6 +70,12 @@
         </SmartTabs>
       </aside>
     </Pane>
+    <SmartConfirmModal
+      :show="confirmSync"
+      :title="$t('confirm.sync')"
+      @hide-modal="confirmSync = false"
+      @resolve="syncRequest"
+    />
   </Splitpanes>
 </template>
 
@@ -77,8 +83,10 @@
 import {
   computed,
   defineComponent,
+  getCurrentInstance,
   onBeforeUnmount,
   onMounted,
+  ref,
   useContext,
   watch,
 } from "@nuxtjs/composition-api"
@@ -105,6 +113,7 @@ import {
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
+import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
 
 function bindRequestToURLParams() {
   const {
@@ -173,7 +182,12 @@ function setupRequestSync() {
   onLoggedIn(async () => {
     if (Object.keys(route.value.query).length === 0) {
       const request = await loadRequestFromSync()
-      if (request) setRESTRequest(request)
+      if (request) {
+        console.log("sync le request nnd")
+
+        setRESTRequest(request)
+        // confirmSync.value = true
+      }
     }
 
     sub = startRequestSync()
@@ -188,6 +202,16 @@ function setupRequestSync() {
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
+    const confirmSync = ref(false)
+
+    const internalInstance = getCurrentInstance()
+    console.log("yoo", internalInstance)
+
+    const syncRequest = (request: HoppRESTRequest) => {
+      console.log("syncinggg")
+      setRESTRequest(request)
+    }
+
     const { subscribeToStream } = useStreamSubscriber()
 
     setupRequestSync()
@@ -220,6 +244,8 @@ export default defineComponent({
       PROXY_ENABLED: useSetting("PROXY_ENABLED"),
       URL_EXCLUDES: useSetting("URL_EXCLUDES"),
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
+      confirmSync,
+      syncRequest,
     }
   },
 })

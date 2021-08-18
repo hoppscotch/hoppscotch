@@ -1,7 +1,7 @@
 <template>
   <div>
     <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">
-      <SmartTab :id="'query'" :label="$t('query')" :selected="true">
+      <SmartTab :id="'query'" :label="$t('tab.query')" :selected="true">
         <AppSection label="query">
           <div
             class="
@@ -18,7 +18,7 @@
             "
           >
             <label class="font-semibold text-secondaryLight">
-              {{ $t("query") }}
+              {{ $t("request.query") }}
             </label>
             <div class="flex">
               <ButtonSecondary
@@ -68,7 +68,7 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'variables'" :label="$t('variables')">
+      <SmartTab :id="'variables'" :label="$t('tab.variables')">
         <AppSection label="variables">
           <div
             class="
@@ -84,7 +84,7 @@
             "
           >
             <label class="font-semibold text-secondaryLight">
-              {{ $t("variables") }}
+              {{ $t("request.variables") }}
             </label>
             <div class="flex">
               <ButtonSecondary

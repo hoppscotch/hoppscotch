@@ -15,7 +15,7 @@
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
-          {{ $t("authorization_type") }}
+          {{ $t("authorization.type") }}
         </label>
         <tippy
           ref="authTypeOptions"
@@ -64,13 +64,13 @@
           class="px-2"
           @change="authActive = !authActive"
         >
-          {{ $t("enabled") }}
+          {{ $t("state.enabled") }}
         </SmartToggle>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/"
           blank
-          :title="$t('wiki')"
+          :title="$t('app.wiki')"
           icon="help_outline"
         />
         <ButtonSecondary
@@ -184,7 +184,7 @@
         :on="!URL_EXCLUDES.auth"
         @change="setExclude('auth', !$event)"
       >
-        {{ $t("include_in_url") }}
+        {{ $t("authorization.include_in_url") }}
       </SmartToggle> -->
   </div>
 </template>

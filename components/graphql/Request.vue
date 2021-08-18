@@ -17,13 +17,13 @@
           px-4
           focus-visible:border-accent
         "
-        :placeholder="$t('url')"
+        :placeholder="$t('request.url')"
         @keyup.enter="onConnectClick"
       />
       <ButtonPrimary
         id="get"
         name="get"
-        :label="!connected ? $t('connect') : $t('disconnect')"
+        :label="!connected ? $t('action.connect') : $t('action.disconnect')"
         class="rounded-l-none w-28"
         @click.native="onConnectClick"
       />

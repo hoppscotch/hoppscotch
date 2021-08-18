@@ -13,7 +13,7 @@
           justify-between
         "
       >
-        <h3 class="ml-4 heading">{{ $t("shortcuts") }}</h3>
+        <h3 class="ml-4 heading">{{ $t("app.shortcuts") }}</h3>
         <div class="flex">
           <ButtonSecondary
             icon="close"

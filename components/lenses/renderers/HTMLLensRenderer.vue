@@ -20,7 +20,9 @@
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          :title="previewEnabled ? $t('hide.preview') : $t('preview_html')"
+          :title="
+            previewEnabled ? $t('hide.preview') : $t('response.preview_html')
+          "
           :icon="!previewEnabled ? 'visibility' : 'visibility_off'"
           @click.native.prevent="togglePreview"
         />

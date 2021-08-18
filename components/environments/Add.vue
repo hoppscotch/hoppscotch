@@ -12,7 +12,7 @@
           @keyup.enter="addNewEnvironment"
         />
         <label for="selectLabelEnvAdd">
-          {{ $t("label") }}
+          {{ $t("action.label") }}
         </label>
       </div>
     </template>

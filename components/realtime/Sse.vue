@@ -20,7 +20,7 @@
               px-4
               focus-visible:border-accent
             "
-            :placeholder="$t('url')"
+            :placeholder="$t('sse.url')"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
           />
           <label
@@ -35,7 +35,7 @@
               truncate
             "
           >
-            {{ $t("event_type") }}
+            {{ $t("sse.event_type") }}
           </label>
           <input
             id="event-type"
@@ -57,7 +57,9 @@
             :disabled="!serverValid"
             name="start"
             class="rounded-l-none w-22"
-            :label="!connectionSSEState ? $t('start') : $t('stop')"
+            :label="
+              !connectionSSEState ? $t('action.start') : $t('action.stop')
+            "
             :loading="connectingState"
             @click.native="toggleSSEConnection"
           />

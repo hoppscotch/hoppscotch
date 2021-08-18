@@ -14,7 +14,7 @@
             @keyup.enter="saveEnvironment"
           />
           <label for="selectLabelEnvEdit">
-            {{ $t("label") }}
+            {{ $t("action.label") }}
           </label>
         </div>
         <div class="flex flex-1 justify-between items-center">

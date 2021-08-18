@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('modal.import_export')} ${$t('collections')}`"
+    :title="`${$t('modal.import_export')} ${$t('modal.collections')}`"
     @close="hideModal"
   >
     <template #actions>

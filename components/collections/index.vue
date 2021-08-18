@@ -56,7 +56,7 @@
             v-tippy="{ theme: 'tooltip' }"
             to="https://docs.hoppscotch.io/"
             blank
-            :title="$t('wiki')"
+            :title="$t('app.wiki')"
             icon="help_outline"
           />
           <ButtonSecondary

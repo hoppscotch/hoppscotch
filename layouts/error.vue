@@ -3,7 +3,7 @@
     <h1 class="mb-4 text-4xl heading">{{ statusCode }}</h1>
     <h3 class="select-text">{{ message }}</h3>
     <p class="mt-4">
-      <ButtonSecondary to="/" icon="home" outline :label="$t('home')" />
+      <ButtonSecondary to="/" icon="home" outline :label="$t('app.home')" />
       <ButtonSecondary
         icon="refresh"
         :label="$t('reload')"

@@ -10,7 +10,7 @@
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('more')"
+              :title="$t('action.more')"
               class="rounded"
               icon="more_vert"
             />
@@ -53,9 +53,9 @@
       <div class="flex flex-col space-y-2">
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('replace_current')"
+          :title="$t('action.replace_current')"
           icon="folder_special"
-          :label="$t('replace_json')"
+          :label="$t('action.replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
         <input
@@ -67,7 +67,7 @@
         />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('preserve_current')"
+          :title="$t('action.preserve_current')"
           icon="create_new_folder"
           :label="$t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
@@ -81,7 +81,7 @@
         />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('download_file')"
+          :title="$t('action.download_file')"
           icon="drive_file_move"
           :label="$t('export.as_json')"
           @click.native="exportJSON"
@@ -226,7 +226,7 @@ export default defineComponent({
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.$toast.success(this.$t("download_started"), {
+      this.$toast.success(this.$t("state.download_started"), {
         icon: "done",
       })
       setTimeout(() => {
@@ -235,7 +235,7 @@ export default defineComponent({
       }, 1000)
     },
     fileImported() {
-      this.$toast.info(this.$t("file_imported"), {
+      this.$toast.info(this.$t("state.file_imported"), {
         icon: "folder_shared",
       })
     },

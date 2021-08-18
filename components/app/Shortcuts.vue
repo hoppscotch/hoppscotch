@@ -38,7 +38,7 @@
               pl-8
               focus-visible:border-divider
             "
-            :placeholder="$t('search')"
+            :placeholder="$t('action.search')"
           />
         </div>
       </div>

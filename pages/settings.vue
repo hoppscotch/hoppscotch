@@ -34,7 +34,7 @@
                   </div>
                   <div class="ml-4">
                     <label>
-                      {{ currentUser.displayName || $t("nothing_found") }}
+                      {{ currentUser.displayName || $t("state.nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
                       {{ $t("settings.account_name_description") }}
@@ -47,7 +47,7 @@
                   </div>
                   <div class="ml-4">
                     <label>
-                      {{ currentUser.email || $t("nothing_found") }}
+                      {{ currentUser.email || $t("state.nothing_found") }}
                     </label>
                     <p class="mt-1 text-secondaryLight">
                       {{ $t("settings.account_email_description") }}
@@ -163,7 +163,7 @@
                 to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
                 blank
               >
-                {{ $t("contact_us") }} </SmartLink
+                {{ $t("app.contact_us") }} </SmartLink
               >.
             </div>
             <div class="space-y-4 py-4">
@@ -287,13 +287,17 @@
               {{ $t("settings.proxy") }}
             </h4>
             <div class="mt-1 text-secondaryLight">
-              {{ `${$t("settings.official_proxy_hosting")} ${$t("read_the")}` }}
+              {{
+                `${$t("settings.official_proxy_hosting")} ${$t(
+                  "settings.read_the"
+                )}`
+              }}
               <SmartLink
                 class="link"
                 to="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
                 blank
               >
-                {{ $t("proxy_privacy_policy") }} </SmartLink
+                {{ $t("app.proxy_privacy_policy") }} </SmartLink
               >.
             </div>
             <div class="space-y-4 py-4">
@@ -322,7 +326,7 @@
               </div>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('reset_default')"
+                :title="$t('settings.reset_default')"
                 :icon="clearIcon"
                 outline
                 class="rounded"
@@ -460,7 +464,7 @@ export default defineComponent({
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
       this.clearIcon = "done"
-      this.$toast.info(this.$t("cleared").toString(), {
+      this.$toast.info(this.$t("state.cleared").toString(), {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "clear_all"), 1000)

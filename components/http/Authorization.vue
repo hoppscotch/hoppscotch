@@ -107,7 +107,7 @@
           name="http_basic_user"
         />
         <label for="http_basic_user">
-          {{ $t("username") }}
+          {{ $t("authorization.username") }}
         </label>
       </div>
       <div class="flex relative">
@@ -120,7 +120,7 @@
           :type="passwordFieldType"
         />
         <label for="http_basic_passwd">
-          {{ $t("password") }}
+          {{ $t("authorization.password") }}
         </label>
         <ButtonSecondary
           :icon="passwordFieldType === 'text' ? 'visibility' : 'visibility_off'"
@@ -164,22 +164,6 @@
         />
       </div>
     </div>
-    <!-- <button
-            v-if="authType === 'OAuth 2.0'"
-            v-tooltip.bottom="$t('use_token')"
-            class="icon button"
-            @click="showTokenListModal = !showTokenListModal"
-          >
-            <i class="material-icons">open_in_new</i>
-          </button> -->
-    <!-- <button
-            v-if="authType === 'OAuth 2.0'"
-            v-tooltip.bottom="$t('get_token')"
-            class="icon button"
-            @click="showTokenRequest = !showTokenRequest"
-          >
-            <i class="material-icons">vpn_key</i>
-          </button> -->
     <!-- <SmartToggle
         :on="!URL_EXCLUDES.auth"
         @change="setExclude('auth', !$event)"

@@ -92,8 +92,14 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('save')" @click.native="saveEnvironment" />
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary
+          :label="$t('action.save')"
+          @click.native="saveEnvironment"
+        />
+        <ButtonSecondary
+          :label="$t('action.cancel')"
+          @click.native="hideModal"
+        />
       </span>
     </template>
   </SmartModal>
@@ -153,7 +159,7 @@ export default defineComponent({
     clearContent() {
       this.vars = []
       this.clearIcon = "done"
-      this.$toast.info(this.$t("cleared").toString(), {
+      this.$toast.info(this.$t("state.cleared").toString(), {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "clear_all"), 1000)

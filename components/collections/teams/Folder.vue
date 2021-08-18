@@ -46,7 +46,7 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('more')"
+                :title="$t('action.more')"
                 icon="more_vert"
               />
             </template>
@@ -62,7 +62,7 @@
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               icon="edit"
-              :label="$t('edit')"
+              :label="$t('action.edit')"
               @click.native="
                 $emit('edit-folder', {
                   folder,
@@ -221,7 +221,7 @@ export default {
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {
-            this.$toast.error(this.$t("deleted"), {
+            this.$toast.error(this.$t("state.deleted"), {
               icon: "delete",
             })
             this.$emit("update-team-collections")

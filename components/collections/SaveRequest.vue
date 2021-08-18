@@ -39,8 +39,14 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('save')" @click.native="saveRequestAs" />
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary
+          :label="$t('action.save')"
+          @click.native="saveRequestAs"
+        />
+        <ButtonSecondary
+          :label="$t('action.cancel')"
+          @click.native="hideModal"
+        />
       </span>
     </template>
   </SmartModal>
@@ -108,7 +114,7 @@ export default defineComponent({
     },
     saveRequestAs() {
       if (!this.requestName) {
-        this.$toast.error(this.$t("empty_req_name"), {
+        this.$toast.error(this.$t("error.empty_req_name"), {
           icon: "error",
         })
         return

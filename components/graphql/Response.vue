@@ -21,7 +21,7 @@
         <ButtonSecondary
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('download_file')"
+          :title="$t('action.download_file')"
           :icon="downloadResponseIcon"
           @click.native="downloadResponse"
         />
@@ -92,7 +92,7 @@
         </div>
       </div>
       <ButtonSecondary
-        :label="$t('documentation')"
+        :label="$t('app.documentation')"
         to="https://docs.hoppscotch.io"
         icon="open_in_new"
         blank
@@ -151,7 +151,7 @@ export default defineComponent({
       document.body.appendChild(a)
       a.click()
       downloadResponseIcon.value = "done"
-      $toast.success(t("download_started").toString(), {
+      $toast.success(t("state.download_started").toString(), {
         icon: "done",
       })
       setTimeout(() => {

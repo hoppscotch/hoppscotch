@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="$t('edit_request')" @close="hideModal">
+  <SmartModal v-if="show" :title="$t('modal.edit_request')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -18,8 +18,11 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('save')" @click.native="saveRequest" />
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('action.save')" @click.native="saveRequest" />
+        <ButtonSecondary
+          :label="$t('action.cancel')"
+          @click.native="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

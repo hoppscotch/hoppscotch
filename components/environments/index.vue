@@ -58,7 +58,7 @@
       <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"
-          :label="$t('new')"
+          :label="$t('action.new')"
           class="rounded-none"
           @click.native="displayModalAdd(true)"
         />

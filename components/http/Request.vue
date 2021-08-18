@@ -345,7 +345,7 @@ export default defineComponent({
           .catch(() => {})
       } else {
         copyToClipboard(window.location.href)
-        $toast.info(t("copied_to_clipboard").toString(), {
+        $toast.info(t("state.copied_to_clipboard").toString(), {
           icon: "done",
         })
       }

@@ -65,7 +65,7 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('more')"
+                :title="$t('action.more')"
                 icon="more_vert"
               />
             </template>
@@ -84,7 +84,7 @@
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               icon="create"
-              :label="$t('edit')"
+              :label="$t('action.edit')"
               @click.native="
                 $emit('edit-collection')
                 $refs.options.tippy().hide()

@@ -2,47 +2,48 @@
   <div class="request">
     <h4 class="heading">
       <i class="material-icons">insert_drive_file</i>
-      {{ request.name || $t("none") }}
+      {{ request.name || $t("state.none") }}
     </h4>
     <p v-if="request.url" class="doc-desc">
       <span>
-        {{ $t("request.url") }}: <code>{{ request.url || $t("none") }}</code>
+        {{ $t("request.url") }}:
+        <code>{{ request.url || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.path" class="doc-desc">
       <span>
         {{ $t("request.path") }}:
-        <code>{{ request.path || $t("none") }}</code>
+        <code>{{ request.path || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.method" class="doc-desc">
       <span>
         {{ $t("request.method") }}:
-        <code>{{ request.method || $t("none") }}</code>
+        <code>{{ request.method || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.auth" class="doc-desc">
       <span>
-        {{ $t("authentication") }}:
-        <code>{{ request.auth || $t("none") }}</code>
+        {{ $t("request.authorization") }}:
+        <code>{{ request.auth.authType || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.httpUser" class="doc-desc">
       <span>
-        {{ $t("username") }}:
-        <code>{{ request.httpUser || $t("none") }}</code>
+        {{ $t("authorization.username") }}:
+        <code>{{ request.httpUser || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.httpPassword" class="doc-desc">
       <span>
-        {{ $t("password") }}:
-        <code>{{ request.httpPassword || $t("none") }}</code>
+        {{ $t("authorization.password") }}:
+        <code>{{ request.httpPassword || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.bearerToken" class="doc-desc">
       <span>
-        {{ $t("token") }}:
-        <code>{{ request.bearerToken || $t("none") }}</code>
+        {{ $t("authorization.token") }}:
+        <code>{{ request.bearerToken || $t("state.none") }}</code>
       </span>
     </p>
     <h4 v-if="request.headers" class="heading">{{ $t("tab.headers") }}</h4>
@@ -53,8 +54,8 @@
         class="doc-desc"
       >
         <span>
-          {{ header.key || $t("none") }}:
-          <code>{{ header.value || $t("none") }}</code>
+          {{ header.key || $t("state.none") }}:
+          <code>{{ header.value || $t("state.none") }}</code>
         </span>
       </p>
     </span>
@@ -68,12 +69,14 @@
         class="doc-desc"
       >
         <span>
-          {{ parameter.key || $t("none") }}:
-          <code>{{ parameter.value || $t("none") }}</code>
+          {{ parameter.key || $t("state.none") }}:
+          <code>{{ parameter.value || $t("state.none") }}</code>
         </span>
       </p>
     </span>
-    <h4 v-if="request.bodyParams" class="heading">{{ $t("payload") }}</h4>
+    <h4 v-if="request.bodyParams" class="heading">
+      {{ $t("request.payload") }}
+    </h4>
     <span v-if="request.bodyParams">
       <p
         v-for="(payload, index) in request.bodyParams"
@@ -81,27 +84,27 @@
         class="doc-desc"
       >
         <span>
-          {{ payload.key || $t("none") }}:
-          <code>{{ payload.value || $t("none") }}</code>
+          {{ payload.key || $t("state.none") }}:
+          <code>{{ payload.value || $t("state.none") }}</code>
         </span>
       </p>
     </span>
     <p v-if="request.rawParams" class="doc-desc">
       <span>
         {{ $t("request.parameters") }}:
-        <code>{{ request.rawParams || $t("none") }}</code>
+        <code>{{ request.rawParams || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.contentType" class="doc-desc">
       <span>
         {{ $t("request.content_type") }}:
-        <code>{{ request.contentType || $t("none") }}</code>
+        <code>{{ request.contentType || $t("state.none") }}</code>
       </span>
     </p>
     <p v-if="request.requestType" class="doc-desc">
       <span>
         {{ $t("request.type") }}:
-        <code>{{ request.requestType || $t("none") }}</code>
+        <code>{{ request.requestType || $t("state.none") }}</code>
       </span>
     </p>
   </div>

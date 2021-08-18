@@ -24,13 +24,13 @@ export default {
     yes: {
       type: String,
       default() {
-        return this.$t("yes")
+        return this.$t("action.yes")
       },
     },
     no: {
       type: String,
       default() {
-        return this.$t("no")
+        return this.$t("action.no")
       },
     },
   },

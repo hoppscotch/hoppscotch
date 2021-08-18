@@ -51,7 +51,7 @@
           v-if="!saveRequest && !doc"
           v-tippy="{ theme: 'tooltip' }"
           icon="replay"
-          :title="$t('restore')"
+          :title="$t('action.restore')"
           class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
         />
@@ -66,13 +66,13 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('more')"
+                :title="$t('action.more')"
                 icon="more_vert"
               />
             </template>
             <SmartItem
               icon="edit"
-              :label="$t('edit')"
+              :label="$t('action.edit')"
               @click.native="
                 $emit('edit-request', {
                   collectionIndex,

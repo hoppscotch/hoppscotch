@@ -181,7 +181,7 @@ export default {
               duration: null,
               closeOnSwipe: false,
               action: {
-                text: this.$t("yes"),
+                text: this.$t("action.yes"),
                 onClick: (_, toastObject) => {
                   applySetting("syncHistory", true)
                   applySetting("syncCollections", true)
@@ -228,7 +228,7 @@ export default {
             duration: null,
             closeOnSwipe: false,
             action: {
-              text: this.$t("yes"),
+              text: this.$t("action.yes"),
               onClick: async (_, toastObject) => {
                 const { user } = await signInWithGithub()
                 await user.linkWithCredential(pendingCred)
@@ -264,7 +264,7 @@ export default {
               duration: null,
               closeOnSwipe: false,
               action: {
-                text: this.$t("yes"),
+                text: this.$t("action.yes"),
                 onClick: (_, toastObject) => {
                   applySetting("syncHistory", true)
                   applySetting("syncCollections", true)
@@ -311,7 +311,7 @@ export default {
             duration: null,
             closeOnSwipe: false,
             action: {
-              text: this.$t("yes"),
+              text: this.$t("action.yes"),
               onClick: async (_, toastObject) => {
                 const { user } = await signInUserWithGoogle()
                 await user.linkWithCredential(pendingCred)

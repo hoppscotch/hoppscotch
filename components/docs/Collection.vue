@@ -2,7 +2,7 @@
   <div class="collection">
     <h2 class="heading">
       <i class="material-icons">folder</i>
-      {{ collection.name || $t("none") }}
+      {{ collection.name || $t("state.none") }}
     </h2>
     <span
       v-for="(folder, index) in collection.folders"

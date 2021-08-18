@@ -16,7 +16,7 @@
               <input
                 v-model="graphqlFieldsFilterText"
                 type="search"
-                :placeholder="$t('search')"
+                :placeholder="$t('action.search')"
                 class="bg-primaryLight flex w-full py-2 pr-2 pl-9"
               />
             </div>
@@ -162,7 +162,7 @@
               <ButtonSecondary
                 ref="downloadSchema"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('download_file')"
+                :title="$t('action.download_file')"
                 :icon="downloadSchemaIcon"
                 @click.native="downloadSchema"
               />
@@ -415,7 +415,7 @@ export default defineComponent({
       document.body.appendChild(a)
       a.click()
       downloadSchemaIcon.value = "done"
-      $toast.success(t("download_started").toString(), {
+      $toast.success(t("state.download_started").toString(), {
         icon: "done",
       })
       setTimeout(() => {

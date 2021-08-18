@@ -61,7 +61,7 @@
         </Pane>
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
-            <RealtimeLog :title="$t('log')" :log="communication.log" />
+            <RealtimeLog :title="$t('socketio.log')" :log="communication.log" />
           </AppSection>
         </Pane>
       </Splitpanes>
@@ -219,7 +219,7 @@ export default defineComponent({
       this.connectingState = true
       this.communication.log = [
         {
-          payload: this.$t("connecting_to", { name: this.url }),
+          payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
           color: "var(--accent-color)",
         },
@@ -239,13 +239,13 @@ export default defineComponent({
           this.connectionState = true
           this.communication.log = [
             {
-              payload: this.$t("connected_to", { name: this.url }),
+              payload: this.$t("state.connected_to", { name: this.url }),
               source: "info",
               color: "var(--accent-color)",
               ts: new Date().toLocaleTimeString(),
             },
           ]
-          this.$toast.success(this.$t("connected"), {
+          this.$toast.success(this.$t("state.connected"), {
             icon: "sync",
           })
         })
@@ -270,12 +270,12 @@ export default defineComponent({
           this.connectingState = false
           this.connectionState = false
           this.communication.log.push({
-            payload: this.$t("disconnected_from", { name: this.url }),
+            payload: this.$t("state.disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
             ts: new Date().toLocaleTimeString(),
           })
-          this.$toast.error(this.$t("disconnected"), {
+          this.$toast.error(this.$t("state.disconnected"), {
             icon: "sync_disabled",
           })
         })

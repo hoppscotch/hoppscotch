@@ -18,8 +18,11 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('save')" @click.native="addNewTeam" />
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('action.save')" @click.native="addNewTeam" />
+        <ButtonSecondary
+          :label="$t('action.cancel')"
+          @click.native="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

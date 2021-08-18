@@ -11,7 +11,7 @@
         <input
           v-model="filterText"
           type="search"
-          :placeholder="$t('search')"
+          :placeholder="$t('action.search')"
           class="
             bg-primaryLight
             border-b border-dividerLight
@@ -26,7 +26,7 @@
       <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"
-          :label="$t('new')"
+          :label="$t('action.new')"
           class="rounded-none"
           @click.native="displayModalAdd(true)"
         />
@@ -86,7 +86,7 @@
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-center">
-        {{ $t("nothing_found") }} "{{ filterText }}"
+        {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <CollectionsGraphqlAdd

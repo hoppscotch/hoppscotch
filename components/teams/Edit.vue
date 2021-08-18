@@ -174,8 +174,11 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('save')" @click.native="saveTeam" />
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonPrimary :label="$t('action.save')" @click.native="saveTeam" />
+        <ButtonSecondary
+          :label="$t('action.cancel')"
+          @click.native="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

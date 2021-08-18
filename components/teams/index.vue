@@ -18,7 +18,7 @@
         @click.native="displayModalAdd(true)"
       />
       <p v-if="$apollo.queries.myTeams.loading">
-        {{ $t("loading") }}
+        {{ $t("state.loading") }}
       </p>
       <div v-if="myTeams.length === 0" class="flex items-center">
         <i class="mr-4 material-icons">help_outline</i>

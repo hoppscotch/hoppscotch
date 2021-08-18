@@ -21,7 +21,7 @@
           v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('download_file')"
+          :title="$t('action.download_file')"
           :icon="downloadIcon"
           @click.native="downloadResponse"
         />
@@ -91,7 +91,7 @@ export default {
       document.body.appendChild(a)
       a.click()
       this.downloadIcon = "done"
-      this.$toast.success(this.$t("download_started"), {
+      this.$toast.success(this.$t("state.download_started"), {
         icon: "done",
       })
       setTimeout(() => {
@@ -103,7 +103,7 @@ export default {
     copyResponse() {
       copyToClipboard(this.responseBodyText)
       this.copyIcon = "done"
-      this.$toast.success(this.$t("copied_to_clipboard"), {
+      this.$toast.success(this.$t("state.copied_to_clipboard"), {
         icon: "done",
       })
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)

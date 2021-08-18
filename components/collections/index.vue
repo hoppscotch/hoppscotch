@@ -11,7 +11,7 @@
         <input
           v-model="filterText"
           type="search"
-          :placeholder="$t('search')"
+          :placeholder="$t('action.search')"
           class="
             bg-primaryLight
             border-b border-dividerLight
@@ -42,12 +42,12 @@
           class="rounded-none"
           icon="add"
           :title="$t('team.no_access')"
-          :label="$t('new')"
+          :label="$t('action.new')"
         />
         <ButtonSecondary
           v-else
           icon="add"
-          :label="$t('new')"
+          :label="$t('action.new')"
           class="rounded-none"
           @click.native="displayModalAdd(true)"
         />
@@ -135,7 +135,7 @@
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-center">
-        {{ $t("nothing_found") }} "{{ filterText }}"
+        {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <CollectionsAdd
@@ -591,7 +591,7 @@ export default defineComponent({
 
         removeRESTCollection(collectionIndex)
 
-        this.$toast.error(this.$t("deleted"), {
+        this.$toast.error(this.$t("state.deleted"), {
           icon: "delete",
         })
       } else if (collectionsType.type === "team-collections") {
@@ -619,7 +619,7 @@ export default defineComponent({
               },
             })
             .then(() => {
-              this.$toast.error(this.$t("deleted"), {
+              this.$toast.error(this.$t("state.deleted"), {
                 icon: "delete",
               })
             })
@@ -645,7 +645,7 @@ export default defineComponent({
         }
         removeRESTRequest(folderPath, requestIndex)
 
-        this.$toast.error(this.$t("deleted"), {
+        this.$toast.error(this.$t("state.deleted"), {
           icon: "delete",
         })
       } else if (this.collectionsType.type === "team-collections") {
@@ -661,7 +661,7 @@ export default defineComponent({
         teamUtils
           .deleteRequest(this.$apollo, requestIndex)
           .then(() => {
-            this.$toast.error(this.$t("deleted"), {
+            this.$toast.error(this.$t("state.deleted"), {
               icon: "delete",
             })
           })

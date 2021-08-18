@@ -6,7 +6,7 @@
           class="cursor-pointer transition hover:text-secondaryDark"
           @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
         >
-          {{ team.name || $t("nothing_found") }}
+          {{ team.name || $t("state.nothing_found") }}
         </label>
         <div class="flex -space-x-1 mt-2 overflow-hidden">
           <img
@@ -24,14 +24,14 @@
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
+            :title="$t('action.more')"
             icon="more_vert"
           />
         </template>
         <SmartItem
           v-if="team.myRole === 'OWNER'"
           icon="create"
-          :label="$t('edit')"
+          :label="$t('action.edit')"
           @click.native="
             $emit('edit-team')
             $refs.options.tippy().hide()

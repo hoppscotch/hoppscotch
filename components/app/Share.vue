@@ -86,7 +86,7 @@ export default {
     copyAppLink() {
       copyToClipboard(this.url)
       this.copyIcon = "done"
-      this.$toast.success(this.$t("copied_to_clipboard").toString(), {
+      this.$toast.success(this.$t("state.copied_to_clipboard").toString(), {
         icon: "done",
       })
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)

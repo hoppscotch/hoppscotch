@@ -52,7 +52,7 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('more')"
+                :title="$t('action.more')"
                 icon="more_vert"
               />
             </template>
@@ -66,7 +66,7 @@
             />
             <SmartItem
               icon="edit"
-              :label="$t('edit')"
+              :label="$t('action.edit')"
               @click.native="
                 $emit('edit-folder', {
                   folder,
@@ -229,7 +229,7 @@ export default {
       }
       removeRESTFolder(this.folderPath)
 
-      this.$toast.error(this.$t("deleted"), {
+      this.$toast.error(this.$t("state.deleted"), {
         icon: "delete",
       })
     },

@@ -15,7 +15,7 @@
           v-model="filterText"
           type="search"
           class="bg-primaryLight flex w-full py-2 pr-2 pl-9"
-          :placeholder="$t('search')"
+          :placeholder="$t('action.search')"
         />
       </div>
       <div class="flex">
@@ -63,7 +63,7 @@
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-center">
-        {{ $t("nothing_found") }} "{{ filterText }}"
+        {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <div
@@ -137,7 +137,7 @@ export default defineComponent({
       if (this.page === "rest") clearRESTHistory()
       else clearGraphqlHistory()
 
-      this.$toast.error(this.$t("history_deleted").toString(), {
+      this.$toast.error(this.$t("state.history_deleted").toString(), {
         icon: "delete",
       })
     },
@@ -148,7 +148,7 @@ export default defineComponent({
       if (this.page === "rest") deleteRESTHistoryEntry(entry)
       else deleteGraphqlHistoryEntry(entry)
 
-      this.$toast.error(this.$t("deleted").toString(), {
+      this.$toast.error(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

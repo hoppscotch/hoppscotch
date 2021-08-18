@@ -54,7 +54,7 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('more')"
+                :title="$t('action.more')"
                 icon="more_vert"
               />
             </template>
@@ -70,7 +70,7 @@
             />
             <SmartItem
               icon="create"
-              :label="$t('edit')"
+              :label="$t('action.edit')"
               @click.native="
                 $emit('edit-collection')
                 $refs.options.tippy().hide()
@@ -219,7 +219,7 @@ export default Vue.extend({
       }
       removeGraphqlCollection(this.collectionIndex)
 
-      this.$toast.error(this.$t("deleted").toString(), {
+      this.$toast.error(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

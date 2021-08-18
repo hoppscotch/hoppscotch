@@ -70,7 +70,7 @@
       <AppSection label="response">
         <ul>
           <li>
-            <RealtimeLog :title="$t('log')" :log="events.log" />
+            <RealtimeLog :title="$t('sse.log')" :log="events.log" />
             <div id="result"></div>
           </li>
         </ul>
@@ -137,7 +137,7 @@ export default {
       this.connectingState = true
       this.events.log = [
         {
-          payload: this.$t("connecting_to", { name: this.server }),
+          payload: this.$t("state.connecting_to", { name: this.server }),
           source: "info",
           color: "var(--accent-color)",
         },
@@ -150,13 +150,13 @@ export default {
             this.connectionSSEState = true
             this.events.log = [
               {
-                payload: this.$t("connected_to", { name: this.server }),
+                payload: this.$t("state.connected_to", { name: this.server }),
                 source: "info",
                 color: "var(--accent-color)",
                 ts: new Date().toLocaleTimeString(),
               },
             ]
-            this.$toast.success(this.$t("connected"), {
+            this.$toast.success(this.$t("state.connected"), {
               icon: "sync",
             })
           }
@@ -166,12 +166,14 @@ export default {
           this.sse.onclose = () => {
             this.connectionSSEState = false
             this.events.log.push({
-              payload: this.$t("disconnected_from", { name: this.server }),
+              payload: this.$t("state.disconnected_from", {
+                name: this.server,
+              }),
               source: "info",
               color: "#ff5555",
               ts: new Date().toLocaleTimeString(),
             })
-            this.$toast.error(this.$t("disconnected"), {
+            this.$toast.error(this.$t("state.disconnected"), {
               icon: "sync_disabled",
             })
           }
@@ -191,7 +193,7 @@ export default {
       } else {
         this.events.log = [
           {
-            payload: this.$t("browser_support_sse"),
+            payload: this.$t("error.browser_support_sse"),
             source: "info",
             color: "#ff5555",
             ts: new Date().toLocaleTimeString(),

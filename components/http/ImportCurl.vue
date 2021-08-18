@@ -21,7 +21,10 @@
           :label="$t('import.title')"
           @click.native="handleImport"
         />
-        <ButtonSecondary :label="$t('cancel')" @click.native="hideModal" />
+        <ButtonSecondary
+          :label="$t('action.cancel')"
+          @click.native="hideModal"
+        />
       </span>
     </template>
   </SmartModal>
@@ -124,7 +127,7 @@ export default defineComponent({
         )
       } catch (e) {
         console.error(e)
-        this.$toast.error(this.$t("curl_invalid_format").toString(), {
+        this.$toast.error(this.$t("error.curl_invalid_format").toString(), {
           icon: "error",
         })
       }

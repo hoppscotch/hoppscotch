@@ -27,13 +27,13 @@
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('more')"
+            :title="$t('action.more')"
             icon="more_vert"
           />
         </template>
         <SmartItem
           icon="create"
-          :label="$t('edit')"
+          :label="$t('action.edit')"
           @click.native="
             $emit('edit-environment')
             $refs.options.tippy().hide()
@@ -82,7 +82,7 @@ export default Vue.extend({
     removeEnvironment() {
       if (this.environmentIndex !== "Global")
         deleteEnvironment(this.environmentIndex)
-      this.$toast.error(this.$t("deleted").toString(), {
+      this.$toast.error(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

@@ -61,9 +61,9 @@ export default {
       if (this.entry.meta.responseDuration) {
         const responseDuration = this.entry.meta.responseDuration
         return responseDuration > 0
-          ? `${this.$t("duration")}: ${responseDuration}ms`
-          : this.$t("no_duration")
-      } else return this.$t("no_duration")
+          ? `${this.$t("request.duration")}: ${responseDuration}ms`
+          : this.$t("error.no_duration")
+      } else return this.$t("error.no_duration")
     },
     entryStatus() {
       const foundStatusGroup = findStatusGroup(this.entry.statusCode)

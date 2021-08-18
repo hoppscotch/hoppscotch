@@ -42,7 +42,7 @@
         </Pane>
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
-            <RealtimeLog :title="$t('log')" :log="log" />
+            <RealtimeLog :title="$t('mqtt.log')" :log="log" />
           </AppSection>
         </Pane>
       </Splitpanes>
@@ -199,7 +199,7 @@ export default defineComponent({
       this.connectingState = true
       this.log = [
         {
-          payload: this.$t("connecting_to", { name: this.url }),
+          payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
           color: "var(--accent-color)",
           ts: new Date().toLocaleTimeString(),
@@ -237,12 +237,12 @@ export default defineComponent({
       this.connectingState = false
       this.connectionState = true
       this.log.push({
-        payload: this.$t("connected_to", { name: this.url }),
+        payload: this.$t("state.connected_to", { name: this.url }),
         source: "info",
         color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
-      this.$toast.success(this.$t("connected"), {
+      this.$toast.success(this.$t("state.connected"), {
         icon: "sync",
       })
     },
@@ -265,7 +265,7 @@ export default defineComponent({
       this.manualDisconnect = true
       this.client.disconnect()
       this.log.push({
-        payload: this.$t("disconnected_from", { name: this.url }),
+        payload: this.$t("state.disconnected_from", { name: this.url }),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
@@ -275,7 +275,7 @@ export default defineComponent({
       this.connectingState = false
       this.connectionState = false
       if (this.manualDisconnect) {
-        this.$toast.error(this.$t("disconnected"), {
+        this.$toast.error(this.$t("state.disconnected"), {
           icon: "sync_disabled",
         })
       } else {

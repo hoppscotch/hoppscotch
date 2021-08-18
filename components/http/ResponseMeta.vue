@@ -42,7 +42,7 @@
         </div>
       </div>
       <ButtonSecondary
-        :label="$t('documentation')"
+        :label="$t('app.documentation')"
         to="https://docs.hoppscotch.io"
         icon="open_in_new"
         blank
@@ -87,7 +87,7 @@
       >
         <span v-if="response.statusCode">
           <span class="text-secondary"> {{ $t("response.status") }}: </span>
-          {{ response.statusCode || $t("waiting_send_req") }}
+          {{ response.statusCode || $t("state.waiting_send_request") }}
         </span>
         <span v-if="response.meta && response.meta.responseDuration">
           <span class="text-secondary"> {{ $t("response.time") }}: </span>

@@ -34,7 +34,7 @@
           v-if="contentType.endsWith('json')"
           ref="prettifyRequest"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('prettify_body')"
+          :title="$t('action.prettify')"
           :icon="prettifyIcon"
           @click.native="prettifyRequestBody"
         />
@@ -108,11 +108,11 @@ export default defineComponent({
           this.rawParamsBody = target.result
         }
         reader.readAsText(file)
-        this.$toast.info(this.$t("file_imported"), {
+        this.$toast.info(this.$t("state.file_imported"), {
           icon: "attach_file",
         })
       } else {
-        this.$toast.error(this.$t("choose_file"), {
+        this.$toast.error(this.$t("action.choose_file"), {
           icon: "attach_file",
         })
       }
@@ -126,7 +126,7 @@ export default defineComponent({
         setTimeout(() => (this.prettifyIcon = "photo_filter"), 1000)
       } catch (e) {
         console.error(e)
-        this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
+        this.$toast.error(`${this.$t("error.json_prettify_invalid_body")}`, {
           icon: "error",
         })
       }

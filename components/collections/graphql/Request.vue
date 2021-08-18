@@ -43,7 +43,7 @@
           v-if="!savingMode"
           v-tippy="{ theme: 'tooltip' }"
           icon="replay"
-          :title="$t('restore')"
+          :title="$t('action.restore')"
           class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
         />
@@ -58,13 +58,13 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('more')"
+                :title="$t('action.more')"
                 icon="more_vert"
               />
             </template>
             <SmartItem
               icon="edit"
-              :label="$t('edit')"
+              :label="$t('action.edit')"
               @click.native="
                 $emit('edit-request', {
                   request,
@@ -171,7 +171,7 @@ export default Vue.extend({
       }
 
       removeGraphqlRequest(this.folderPath, this.requestIndex)
-      this.$toast.error(this.$t("deleted").toString(), {
+      this.$toast.error(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

@@ -142,7 +142,10 @@
         </Pane>
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="response">
-            <RealtimeLog :title="$t('log')" :log="communication.log" />
+            <RealtimeLog
+              :title="$t('websocket.log')"
+              :log="communication.log"
+            />
           </AppSection>
         </Pane>
       </Splitpanes>
@@ -271,7 +274,7 @@ export default defineComponent({
     connect() {
       this.communication.log = [
         {
-          payload: this.$t("connecting_to", { name: this.url }),
+          payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
           color: "var(--accent-color)",
         },
@@ -284,13 +287,13 @@ export default defineComponent({
           this.connectionState = true
           this.communication.log = [
             {
-              payload: this.$t("connected_to", { name: this.url }),
+              payload: this.$t("state.connected_to", { name: this.url }),
               source: "info",
               color: "var(--accent-color)",
               ts: new Date().toLocaleTimeString(),
             },
           ]
-          this.$toast.success(this.$t("connected"), {
+          this.$toast.success(this.$t("state.connected"), {
             icon: "sync",
           })
         }
@@ -300,12 +303,12 @@ export default defineComponent({
         this.socket.onclose = () => {
           this.connectionState = false
           this.communication.log.push({
-            payload: this.$t("disconnected_from", { name: this.url }),
+            payload: this.$t("state.disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
             ts: new Date().toLocaleTimeString(),
           })
-          this.$toast.error(this.$t("disconnected"), {
+          this.$toast.error(this.$t("state.disconnected"), {
             icon: "sync_disabled",
           })
         }
@@ -403,10 +406,10 @@ export default defineComponent({
     deleteProtocol({ index }) {
       const oldProtocols = this.protocols.slice()
       this.$delete(this.protocols, index)
-      this.$toast.error(this.$t("deleted"), {
+      this.$toast.error(this.$t("state.deleted"), {
         icon: "delete",
         action: {
-          text: this.$t("undo"),
+          text: this.$t("action.undo"),
           duration: 4000,
           onClick: (_, toastObject) => {
             this.protocols = oldProtocols

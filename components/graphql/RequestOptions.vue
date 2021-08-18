@@ -22,7 +22,7 @@
             </label>
             <div class="flex">
               <ButtonSecondary
-                :label="$t('run')"
+                :label="$t('request.run')"
                 :shortcut="[getSpecialKey(), 'Enter']"
                 icon="play_arrow"
                 class="rounded-none !text-accent"
@@ -37,7 +37,7 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="`${$t(
-                  'prettify_query'
+                  'action.prettify'
                 )} <kbd>${getSpecialKey()}</kbd><kbd>P</kbd>`"
                 :icon="prettifyQueryIcon"
                 @click.native="prettifyQuery"
@@ -358,7 +358,7 @@ export default defineComponent({
       const startTime = Date.now()
 
       nuxt.value.$loading.start()
-      response.value = t("loading").toString()
+      response.value = t("state.loading").toString()
 
       try {
         const runURL = clone(url.value)
@@ -393,14 +393,14 @@ export default defineComponent({
 
         addGraphqlHistoryEntry(historyEntry)
 
-        $toast.success(t("finished_in", { duration }).toString(), {
+        $toast.success(t("state.finished_in", { duration }).toString(), {
           icon: "done",
         })
       } catch (e: any) {
         response.value = `${e}. ${t("error.check_console_details")}`
         nuxt.value.$loading.finish()
 
-        $toast.error(`${e} ${t("f12_details").toString()}`, {
+        $toast.error(`${e} ${t("error.f12_details").toString()}`, {
           icon: "error",
         })
         console.error(e)

@@ -6,7 +6,7 @@
           <AppSection label="import">
             <div class="flex p-4 items-start justify-between">
               <label>
-                {{ $t("generate_docs_message") }}
+                {{ $t("documentation.generate_message") }}
               </label>
               <span
                 class="
@@ -83,7 +83,7 @@
               "
             >
               <ButtonPrimary
-                :label="$t('generate_docs')"
+                :label="$t('documentation.generate')"
                 @click.native="getDoc"
               />
             </div>
@@ -104,7 +104,7 @@
               >
                 <i class="opacity-75 pb-2 material-icons">topic</i>
                 <span class="text-center">
-                  {{ $t("generate_docs_first") }}
+                  {{ $t("helpers.generate_documentation_first") }}
                 </span>
               </div>
               <div
@@ -196,6 +196,7 @@ export default defineComponent({
       items: [],
       docsMarkdown: "",
       selected: [],
+      currentUser: null,
     }
   },
   subscriptions() {
@@ -249,11 +250,11 @@ export default defineComponent({
           this.collectionJSON = target.result
         }
         reader.readAsText(file)
-        this.$toast.info(this.$t("file_imported"), {
+        this.$toast.info(this.$t("state.file_imported"), {
           icon: "attach_file",
         })
       } else {
-        this.$toast.error(this.$t("choose_file"), {
+        this.$toast.error(this.$t("action.choose_file"), {
           icon: "attach_file",
         })
       }
@@ -286,7 +287,7 @@ export default defineComponent({
         this.items = JSON.parse(this.collectionJSON)
         this.assignIDs(this.items, "", "#")
         this.$toast.clear()
-        this.$toast.info(this.$t("docs_generated"), {
+        this.$toast.info(this.$t("state.docs_generated"), {
           icon: "book",
         })
         const docsMarkdown = Mustache.render(

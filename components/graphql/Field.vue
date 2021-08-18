@@ -38,7 +38,7 @@
         field-deprecated
       "
     >
-      {{ $t("deprecated") }}
+      {{ $t("state.deprecated") }}
     </div>
     <div v-if="fieldArgs.length > 0">
       <h5 class="my-2">Arguments:</h5>

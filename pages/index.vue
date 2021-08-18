@@ -1489,7 +1489,7 @@ export default {
         this.runningRequest = false
         const duration = new Date().getTime() - startTime
         this.response.duration = duration
-        this.response.size = payload.headers["content-length"]
+        this.response.size = (JSON.stringify(payload.data).length + JSON.stringify(payload.headers).length)
         ;(() => {
           this.response.status = payload.status
           this.response.headers = payload.headers

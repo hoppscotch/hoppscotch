@@ -101,9 +101,11 @@
 
 <script lang="ts">
 import clone from "lodash/clone"
-import { defineComponent, PropType } from "@nuxtjs/composition-api"
+import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
 import {
   Environment,
+  getEnviroment,
+  getGlobalVariables,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
@@ -111,14 +113,28 @@ import {
 export default defineComponent({
   props: {
     show: Boolean,
-    editingEnvironment: {
-      type: Object as PropType<Environment | null>,
-      default: null,
-    },
     editingEnvironmentIndex: {
-      type: [Number, String] as PropType<number | "global">,
+      type: [Number, String] as PropType<number | "global" | null>,
       default: null,
     },
+  },
+  setup(props) {
+    const workingEnv = computed(() => {
+      if (props.editingEnvironmentIndex === null) return null
+
+      if (props.editingEnvironmentIndex === "global") {
+        return {
+          name: "Global",
+          variables: getGlobalVariables(),
+        } as Environment
+      } else {
+        return getEnviroment(props.editingEnvironmentIndex)
+      }
+    })
+
+    return {
+      workingEnv,
+    }
   },
   data() {
     return {
@@ -128,13 +144,9 @@ export default defineComponent({
     }
   },
   watch: {
-    editingEnvironment() {
-      this.name = this.editingEnvironment?.name ?? null
-      this.vars = clone(this.editingEnvironment?.variables ?? [])
-    },
     show() {
-      this.name = this.editingEnvironment?.name ?? null
-      this.vars = clone(this.editingEnvironment?.variables ?? [])
+      this.name = this.workingEnv?.name ?? null
+      this.vars = clone(this.workingEnv?.variables ?? [])
     },
   },
   methods: {
@@ -170,7 +182,7 @@ export default defineComponent({
 
       if (this.editingEnvironmentIndex === "global")
         setGlobalEnvVariables(environmentUpdated.variables)
-      else updateEnvironment(this.editingEnvironmentIndex, environmentUpdated)
+      else updateEnvironment(this.editingEnvironmentIndex!, environmentUpdated)
       this.hideModal()
     },
     hideModal() {

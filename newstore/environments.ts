@@ -476,3 +476,7 @@ export function updateEnvironmentVariable(
     },
   })
 }
+
+export function getEnviroment(index: number) {
+  return environmentsStore.value.environments[index]
+}

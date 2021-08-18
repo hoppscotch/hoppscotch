@@ -67,7 +67,6 @@
     />
     <EnvironmentsEdit
       :show="showModalEdit"
-      :editing-environment="editingEnvironment"
       :editing-environment-index="editingEnvironmentIndex"
       @hide-modal="displayModalEdit(false)"
     />
@@ -80,14 +79,14 @@
         environment-index="global"
         :environment="globalEnvironment"
         class="border-b border-dashed border-dividerLight"
-        @edit-environment="editEnvironment(globalEnvironment, 'global')"
+        @edit-environment="editEnvironment('global')"
       />
       <EnvironmentsEnvironment
         v-for="(environment, index) in environments"
         :key="`environment-${index}`"
         :environment-index="index"
         :environment="environment"
-        @edit-environment="editEnvironment(environment, index)"
+        @edit-environment="editEnvironment(index)"
       />
     </div>
     <div
@@ -107,26 +106,23 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { computed, defineComponent } from "@nuxtjs/composition-api"
 import { useReadonlyStream, useStream } from "~/helpers/utils/composables"
 import {
   environments$,
   setCurrentEnvironment,
   selectedEnvIndex$,
-  Environment,
   globalEnv$,
 } from "~/newstore/environments"
 
 export default defineComponent({
   setup() {
     const globalEnv = useReadonlyStream(globalEnv$, [])
-    const globalEnvName = {
+
+    const globalEnvironment = computed(() => ({
       name: "Global",
-    }
-    const globalEnvVariables = {
       variables: globalEnv.value,
-    }
-    const globalEnvironment = Object.assign(globalEnvName, globalEnvVariables)
+    }))
 
     return {
       environments: useReadonlyStream(environments$, []),
@@ -143,8 +139,7 @@ export default defineComponent({
       showModalImportExport: false,
       showModalAdd: false,
       showModalEdit: false,
-      editingEnvironment: undefined as Environment | undefined,
-      editingEnvironmentIndex: undefined as number | undefined,
+      editingEnvironmentIndex: undefined as number | "global" | undefined,
     }
   },
   methods: {
@@ -159,13 +154,11 @@ export default defineComponent({
     displayModalImportExport(shouldDisplay: boolean) {
       this.showModalImportExport = shouldDisplay
     },
-    editEnvironment(environment: Environment, environmentIndex: number) {
-      this.$data.editingEnvironment = environment
+    editEnvironment(environmentIndex: number | "global") {
       this.$data.editingEnvironmentIndex = environmentIndex
       this.displayModalEdit(true)
     },
     resetSelectedData() {
-      this.$data.editingEnvironment = undefined
       this.$data.editingEnvironmentIndex = undefined
     },
   },

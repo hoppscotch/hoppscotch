@@ -187,7 +187,7 @@ function setupGlobalEnvsPersistence() {
   setGlobalEnvVariables(globals)
 
   globalEnv$.subscribe((vars) => {
-    window.localStorage.setItem("globalEnvs", JSON.stringify(vars))
+    window.localStorage.setItem("globalEnv", JSON.stringify(vars))
   })
 }
 

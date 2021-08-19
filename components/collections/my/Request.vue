@@ -40,11 +40,20 @@
           py-2
           pr-2
           transition
+          items-center
           group-hover:text-secondaryDark
         "
         @click="!doc ? selectRequest() : {}"
       >
         <span class="truncate"> {{ request.name }} </span>
+        <span
+          v-if="
+            active &&
+            active.folderPath == folderPath &&
+            active.requestIndex == requestIndex
+          "
+          class="rounded-full bg-green-500 h-1.5 mx-3 w-1.5"
+        ></span>
       </span>
       <div class="flex">
         <ButtonSecondary
@@ -108,10 +117,12 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
-import { setRESTRequest } from "~/newstore/RESTSession"
+import { useReadonlyStream } from "~/helpers/utils/composables"
+import { restSaveContext$, setRESTRequest } from "~/newstore/RESTSession"
 
-export default {
+export default defineComponent({
   props: {
     request: { type: Object, default: () => {} },
     collectionIndex: { type: Number, default: null },
@@ -124,6 +135,12 @@ export default {
     collectionsType: { type: Object, default: () => {} },
     folderPath: { type: String, default: null },
     picked: { type: Object, default: () => {} },
+  },
+  setup() {
+    const active = useReadonlyStream(restSaveContext$)
+    return {
+      active,
+    }
   },
   data() {
     return {
@@ -188,5 +205,5 @@ export default {
       )
     },
   },
-}
+})
 </script>

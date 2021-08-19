@@ -14,11 +14,13 @@ import { useStream } from "~/helpers/utils/composables"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppRESTAuth } from "~/helpers/types/HoppRESTAuth"
 import { ValidContentTypes } from "~/helpers/utils/contenttypes"
+import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 type RESTSession = {
   request: HoppRESTRequest
   response: HoppRESTResponse | null
   testResults: HoppTestResult | null
+  saveContext: HoppRequestSaveContext | null
 }
 
 const defaultRESTRequest: HoppRESTRequest = {
@@ -45,6 +47,7 @@ const defaultRESTSession: RESTSession = {
   request: defaultRESTRequest,
   response: null,
   testResults: null,
+  saveContext: null,
 }
 
 const dispatchers = defineDispatchers({
@@ -338,6 +341,14 @@ const dispatchers = defineDispatchers({
       testResults: newResults,
     }
   },
+  setSaveContext(
+    _,
+    { newContext }: { newContext: HoppRequestSaveContext | null }
+  ) {
+    return {
+      saveContext: newContext,
+    }
+  },
 })
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
@@ -346,13 +357,31 @@ export function getRESTRequest() {
   return restSessionStore.subject$.value.request
 }
 
-export function setRESTRequest(req: HoppRESTRequest) {
+export function setRESTRequest(
+  req: HoppRESTRequest,
+  saveContext?: HoppRequestSaveContext | null
+) {
   restSessionStore.dispatch({
     dispatcher: "setRequest",
     payload: {
       req,
     },
   })
+
+  if (saveContext) setRESTSaveContext(saveContext)
+}
+
+export function setRESTSaveContext(saveContext: HoppRequestSaveContext | null) {
+  restSessionStore.dispatch({
+    dispatcher: "setSaveContext",
+    payload: {
+      newContext: saveContext,
+    },
+  })
+}
+
+export function getRESTSaveContext() {
+  return restSessionStore.value.saveContext
 }
 
 export function resetRESTRequest() {

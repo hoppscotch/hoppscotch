@@ -147,7 +147,11 @@ export default {
             requestID: this.requestIndex,
           },
         })
-      else setRESTRequest(translateToNewRequest(this.request))
+      else
+        setRESTRequest(translateToNewRequest(this.request), {
+          originLocation: "team-collection",
+          requestIndex: this.requestIndex,
+        })
     },
     removeRequest() {
       this.$emit("remove-request", {

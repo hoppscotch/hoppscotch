@@ -62,7 +62,11 @@ import {
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
-import { getRESTRequest, useRESTRequestName } from "~/newstore/RESTSession"
+import {
+  getRESTRequest,
+  useRESTRequestName,
+  setRESTSaveContext,
+} from "~/newstore/RESTSession"
 
 export default defineComponent({
   props: {
@@ -142,10 +146,32 @@ export default defineComponent({
           this.picked.requestIndex,
           requestUpdated
         )
+        setRESTSaveContext({
+          originLocation: "user-collection",
+          folderPath: this.picked.folderPath,
+          requestIndex: this.picked.requestIndex,
+        })
       } else if (this.picked.pickedType === "my-folder") {
-        saveRESTRequestAs(this.picked.folderPath, requestUpdated)
+        const insertionIndex = saveRESTRequestAs(
+          this.picked.folderPath,
+          requestUpdated
+        )
+        setRESTSaveContext({
+          originLocation: "user-collection",
+          folderPath: this.picked.folderPath,
+          requestIndex: insertionIndex,
+        })
       } else if (this.picked.pickedType === "my-collection") {
-        saveRESTRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
+        debugger
+        const insertionIndex = saveRESTRequestAs(
+          `${this.picked.collectionIndex}`,
+          requestUpdated
+        )
+        setRESTSaveContext({
+          originLocation: "user-collection",
+          folderPath: `${this.picked.collectionIndex}`,
+          requestIndex: insertionIndex,
+        })
       } else if (this.picked.pickedType === "teams-request") {
         teamUtils.overwriteRequestTeams(
           this.$apollo,
@@ -153,6 +179,10 @@ export default defineComponent({
           requestUpdated.name,
           this.picked.requestID
         )
+        setRESTSaveContext({
+          originLocation: "teams-collection",
+          requestID: this.picked.requestID,
+        })
       } else if (this.picked.pickedType === "teams-folder") {
         teamUtils.saveRequestAsTeams(
           this.$apollo,
@@ -161,6 +191,10 @@ export default defineComponent({
           this.collectionsType.selectedTeam.id,
           this.picked.folderID
         )
+        setRESTSaveContext({
+          originLocation: "teams-collection",
+          requestID: this.picked.requestID,
+        })
       } else if (this.picked.pickedType === "teams-collection") {
         teamUtils.saveRequestAsTeams(
           this.$apollo,
@@ -169,6 +203,10 @@ export default defineComponent({
           this.collectionsType.selectedTeam.id,
           this.picked.collectionID
         )
+        setRESTSaveContext({
+          originLocation: "teams-collection",
+          requestID: this.picked.requestID,
+        })
       } else if (this.picked.pickedType === "gql-my-request") {
         editGraphqlRequest(
           this.picked.folderPath,
@@ -183,6 +221,7 @@ export default defineComponent({
       this.$toast.success("Requested added", {
         icon: "done",
       })
+
       this.hideModal()
     },
     hideModal() {

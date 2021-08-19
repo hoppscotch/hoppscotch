@@ -219,7 +219,10 @@ import {
   updateRESTMethod,
   resetRESTRequest,
   useRESTRequestName,
+  getRESTSaveContext,
+  getRESTRequest,
 } from "~/newstore/RESTSession"
+import { editRESTRequest } from "~/newstore/collections"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import {
@@ -230,6 +233,8 @@ import {
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useSetting } from "~/newstore/settings"
+import { saveRequestAsTeams } from "~/helpers/teams/utils"
+import { apolloClient } from "~/helpers/apollo"
 
 const methods = [
   "GET",
@@ -366,6 +371,32 @@ export default defineComponent({
       }
     }
 
+    const saveRequest = () => {
+      const saveCtx = getRESTSaveContext()
+      if (!saveCtx) {
+        showSaveRequestModal.value = true
+        return
+      }
+
+      if (saveCtx.originLocation === "user-collection") {
+        editRESTRequest(
+          saveCtx.folderPath,
+          saveCtx.requestIndex,
+          getRESTRequest()
+        )
+      } else if (saveCtx.originLocation === "team-collection") {
+        const req = getRESTRequest()
+
+        // TODO: handle error case (NOTE: saveRequestAsTeams is async)
+        saveRequestAsTeams(
+          apolloClient,
+          JSON.stringify(req),
+          req.name,
+          saveCtx.requestID
+        )
+      }
+    }
+
     defineActionHandler("request.send-cancel", () => {
       if (!loading.value) newSendRequest()
       else cancelRequest()
@@ -374,10 +405,7 @@ export default defineComponent({
     defineActionHandler("request.copy-link", copyRequest)
     defineActionHandler("request.method.next", cycleDownMethod)
     defineActionHandler("request.method.prev", cycleUpMethod)
-    defineActionHandler(
-      "request.save",
-      () => (showSaveRequestModal.value = true)
-    )
+    defineActionHandler("request.save", saveRequest)
     defineActionHandler("request.method.get", () => updateMethod("GET"))
     defineActionHandler("request.method.post", () => updateMethod("POST"))
     defineActionHandler("request.method.put", () => updateMethod("PUT"))

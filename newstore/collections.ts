@@ -1,5 +1,6 @@
 import { pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { getRESTSaveContext, setRESTSaveContext } from "./RESTSession"
 
 interface Collection {
   name: string
@@ -255,6 +256,16 @@ const collectionDispatchers = defineDispatchers({
 
     targetLocation.requests.splice(requestIndex, 1)
 
+    // If the save context is set and is set to the same source, we invalidate it
+    const saveCtx = getRESTSaveContext()
+    if (
+      saveCtx?.originLocation === "user-collection" &&
+      saveCtx.folderPath === path &&
+      saveCtx.requestIndex === requestIndex
+    ) {
+      setRESTSaveContext(null)
+    }
+
     return {
       state: newState,
     }
@@ -416,6 +427,15 @@ export function editRESTRequest(
 }
 
 export function saveRESTRequestAs(path: string, request: any) {
+  // For calculating the insertion request index
+  debugger
+  const targetLocation = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    path.split("/").map((x) => parseInt(x))
+  )
+
+  const insertionIndex = targetLocation!.requests.length
+
   restCollectionStore.dispatch({
     dispatcher: "saveRequestAs",
     payload: {
@@ -423,6 +443,8 @@ export function saveRESTRequestAs(path: string, request: any) {
       request,
     },
   })
+
+  return insertionIndex
 }
 
 export function removeRESTRequest(path: string, requestIndex: number) {

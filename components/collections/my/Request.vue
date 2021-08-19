@@ -160,7 +160,13 @@ export default {
             requestIndex: this.requestIndex,
           },
         })
-      else setRESTRequest(translateToNewRequest(this.request))
+      else {
+        setRESTRequest(translateToNewRequest(this.request), {
+          originLocation: "user-collection",
+          folderPath: this.folderPath,
+          requestIndex: this.requestIndex,
+        })
+      }
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging

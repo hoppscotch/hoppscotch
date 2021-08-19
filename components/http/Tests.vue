@@ -64,7 +64,7 @@
         <SmartAnchor
           class="link"
           :label="$t('action.learn_more')"
-          to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
+          to="https://docs.hoppscotch.io/features/tests"
           blank
         />
         <h4 class="font-bold text-secondaryLight pt-6">

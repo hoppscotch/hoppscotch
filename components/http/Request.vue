@@ -140,7 +140,7 @@
         :label="$t('request.save')"
         :shortcut="[getSpecialKey(), 'S']"
         outline
-        @click.native="showSaveRequestModal = true"
+        @click.native="saveRequest()"
       />
       <span class="flex">
         <tippy
@@ -388,13 +388,21 @@ export default defineComponent({
         const req = getRESTRequest()
 
         // TODO: handle error case (NOTE: saveRequestAsTeams is async)
-        saveRequestAsTeams(
-          apolloClient,
-          JSON.stringify(req),
-          req.name,
-          saveCtx.requestID
-        )
+        try {
+          saveRequestAsTeams(
+            apolloClient,
+            JSON.stringify(req),
+            req.name,
+            saveCtx.requestID
+          )
+        } catch (error) {
+          showSaveRequestModal.value = true
+          return
+        }
       }
+      $toast.success(t("request.saved").toString(), {
+        icon: "done",
+      })
     }
 
     defineActionHandler("request.send-cancel", () => {
@@ -433,6 +441,7 @@ export default defineComponent({
       clearContent,
       copyRequest,
       onSelectMethod,
+      saveRequest,
 
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
 

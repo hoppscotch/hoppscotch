@@ -294,7 +294,7 @@
               }}
               <SmartLink
                 class="link"
-                to="https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy"
+                to="https://docs.hoppscotch.io/privacy"
                 blank
               >
                 {{ $t("app.proxy_privacy_policy") }} </SmartLink

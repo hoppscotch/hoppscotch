@@ -64,7 +64,7 @@
         <SmartAnchor
           class="link"
           :label="$t('action.learn_more')"
-          to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
+          to="https://docs.hoppscotch.io/features/pre-request-script"
           blank
         />
         <h4 class="font-bold text-secondaryLight pt-6">

@@ -9,7 +9,7 @@
         <SmartItem
           icon="menu_book"
           :label="$t('app.documentation')"
-          to="https://github.com/hoppscotch/hoppscotch/wiki"
+          to="https://docs.hoppscotch.io"
           :description="$t('support.documentation')"
           info-icon="chevron_right"
           active

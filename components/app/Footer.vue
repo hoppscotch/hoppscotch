@@ -32,16 +32,12 @@
             arrow
           >
             <template #trigger>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                icon="help_center"
-                :title="$t('app.help')"
-              />
+              <ButtonSecondary icon="help_center" :label="$t('app.help')" />
             </template>
             <div class="flex flex-col">
               <SmartItem
                 :label="$t('app.documentation')"
-                to="https://github.com/hoppscotch/hoppscotch/wiki"
+                to="https://docs.hoppscotch.io"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
@@ -74,7 +70,7 @@
               />
               <SmartItem
                 :label="$t('app.terms_and_privacy')"
-                to="https://github.com/hoppscotch/hoppscotch/wiki/Privacy-Policy"
+                to="https://docs.hoppscotch.io/privacy"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />

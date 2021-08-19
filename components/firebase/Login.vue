@@ -80,14 +80,14 @@
         By signing in, you are agreeing to our
         <SmartAnchor
           class="link"
-          to="https://github.com/hoppscotch/hoppscotch/wiki/Terms-&-Conditions"
+          to="https://docs.hoppscotch.io/terms"
           blank
           label="Terms of Service"
         />
         and
         <SmartAnchor
           class="link"
-          to="https://github.com/hoppscotch/hoppscotch/wiki/Privacy-Policy"
+          to="https://docs.hoppscotch.io/privacy"
           blank
           label="Privacy Policy"
         />.

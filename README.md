@@ -266,7 +266,7 @@ _Collections are synced with cloud / local session storage_
 
 </details>
 
-_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://github.com/hoppscotch/proxyscotch/wiki/Privacy-policy)**_
+_Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/privacy)**_
 
 📜 **Pre-Request Scripts β:** Snippets of code associated with a request that are executed before the request is sent.
 
@@ -300,7 +300,7 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 ⌨️ **Keyboard Shortcuts:** Optimized for efficiency.
 
-> **[Shortcuts WIki](https://github.com/hoppscotch/hoppscotch/wiki/Shortcuts)**
+> **[Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
 
 🌎 **i18n:** Experience the app in your own language.
 
@@ -408,7 +408,7 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 
 </details>
 
-**To find out more, please check out [Hoppscotch Wiki](https://github.com/hoppscotch/hoppscotch/wiki).**
+**To find out more, please check out our [Documentation](https://docs.hoppscotch.io).**
 
 ## **Demo**
 

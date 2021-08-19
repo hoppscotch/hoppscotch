@@ -121,10 +121,7 @@ export default defineComponent({
               setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)
               window
-                .open(
-                  "https://github.com/hoppscotch/hoppscotch/wiki/Privacy-Policy",
-                  "_blank"
-                )
+                .open("https://docs.hoppscotch.io/privacy", "_blank")
                 .focus()
             },
           },

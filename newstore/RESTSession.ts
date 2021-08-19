@@ -608,6 +608,11 @@ export function deleteAllFormDataEntries() {
   })
 }
 
+export const restSaveContext$ = restSessionStore.subject$.pipe(
+  pluck("saveContext"),
+  distinctUntilChanged()
+)
+
 export const restRequest$ = restSessionStore.subject$.pipe(
   pluck("request"),
   distinctUntilChanged()

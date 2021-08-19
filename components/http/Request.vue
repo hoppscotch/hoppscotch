@@ -1,16 +1,5 @@
 <template>
-  <div
-    class="
-      bg-primary
-      flex flex-col
-      space-y-2
-      p-4
-      top-0
-      z-10
-      sticky
-      md:flex-row md:space-y-0
-    "
-  >
+  <div class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky">
     <div class="flex flex-1">
       <div class="flex relative">
         <tippy
@@ -61,6 +50,7 @@
           bg-primaryLight
           border border-divider
           flex
+          rounded-r
           flex-1
           text-secondaryDark
           py-1
@@ -84,7 +74,6 @@
             w-full
             py-2
             px-4
-            md:rounded-r-none
             focus-visible:border-accent
           "
           name="url"
@@ -99,7 +88,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-r-none flex-1 min-w-20 md:rounded-l-none"
+        class="rounded-r-none flex-1 min-w-20"
         :label="!loading ? $t('action.send') : $t('action.cancel')"
         :shortcut="[getSpecialKey(), 'G']"
         @click.native="!loading ? newSendRequest() : cancelRequest()"

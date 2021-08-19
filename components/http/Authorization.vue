@@ -68,7 +68,7 @@
         </SmartToggle>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/"
+          to="https://docs.hoppscotch.io/features/authorization"
           blank
           :title="$t('app.wiki')"
           icon="help_outline"

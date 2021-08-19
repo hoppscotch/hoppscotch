@@ -19,7 +19,7 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://github.com/hoppscotch/hoppscotch/wiki/Pre-Request-Scripts"
+          to="https://docs.hoppscotch.io/features/pre-request-script"
           blank
           :title="$t('app.wiki')"
           icon="help_outline"

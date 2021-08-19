@@ -19,7 +19,7 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://github.com/hoppscotch/hoppscotch/wiki/Post-Request-Tests"
+          to="https://docs.hoppscotch.io/features/tests"
           blank
           :title="$t('app.wiki')"
           icon="help_outline"

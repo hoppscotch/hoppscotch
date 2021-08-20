@@ -52,7 +52,13 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="bg-primaryLight flex flex-1 py-2 px-4"
+                      class="
+                        bg-primaryLight
+                        cursor-pointer
+                        flex flex-1
+                        py-2
+                        px-4
+                      "
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="
@@ -112,7 +118,13 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="bg-primaryLight flex flex-1 py-2 px-4"
+                      class="
+                        bg-primaryLight
+                        cursor-pointer
+                        flex flex-1
+                        py-2
+                        px-4
+                      "
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="

@@ -63,7 +63,7 @@
         </div>
         <SmartAnchor
           class="link"
-          :label="$t('action.learn_more')"
+          :label="`${$t('test.learn')} \xA0 →`"
           to="https://docs.hoppscotch.io/features/tests"
           blank
         />

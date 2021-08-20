@@ -95,7 +95,7 @@
       <p v-if="mode === 'email'" class="text-secondaryLight">
         <SmartAnchor
           class="link"
-          :label="`← ${$t('auth.all_sign_in_options')}`"
+          :label="`← \xA0 ${$t('auth.all_sign_in_options')}`"
           @click.native="mode = 'sign-in'"
         />
       </p>
@@ -105,7 +105,7 @@
       >
         <SmartAnchor
           class="link"
-          :label="`← ${$t('auth.re_enter_email')}`"
+          :label="`← \xA0 ${$t('auth.re_enter_email')}`"
           @click.native="mode = 'email'"
         />
         <SmartAnchor

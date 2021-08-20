@@ -253,6 +253,7 @@ pre.ace_editor {
 
 .select {
   @apply appearance-none;
+  @apply cursor-pointer;
 
   &::-ms-expand {
     @apply hidden;
@@ -262,7 +263,6 @@ pre.ace_editor {
 .select-wrapper {
   @apply flex flex-1;
   @apply relative;
-  @apply cursor-pointer;
 
   &::after {
     @apply absolute;
@@ -449,15 +449,15 @@ input[type="checkbox"] {
 }
 
 .splitpanes--vertical > .splitpanes__splitter::before {
-  left: -2px;
-  right: -2px;
-  height: 100%;
+  @apply -left-0.5;
+  @apply -right-0.5;
+  @apply h-full;
 }
 
 .splitpanes--horizontal > .splitpanes__splitter::before {
-  top: -2px;
-  bottom: -2px;
-  width: 100%;
+  @apply -top-0.5;
+  @apply -bottom-0.5;
+  @apply w-full;
 }
 
 @media (max-width: 767px) {

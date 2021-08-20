@@ -20,6 +20,7 @@
               class="
                 bg-primaryLight
                 border-b border-dividerLight
+                cursor-pointer
                 flex
                 w-full
                 py-2

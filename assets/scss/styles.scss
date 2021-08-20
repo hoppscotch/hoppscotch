@@ -56,11 +56,21 @@ body {
   @apply select-none;
   @apply overflow-x-hidden;
 
+  animation: fade 300ms forwards;
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
   overflow: overlay;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .fade-enter-active,
@@ -82,7 +92,9 @@ body {
 }
 
 .material-icons {
-  font-size: 133.4% !important;
+  font-size: var(--body-line-height) !important;
+  width: var(--body-line-height);
+  overflow: hidden;
 }
 
 .svg-icons {

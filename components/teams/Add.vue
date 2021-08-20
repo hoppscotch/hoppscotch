@@ -47,14 +47,14 @@ export default {
       // We clear it early to give the UI a snappy feel
       this.name = ""
       if (!name) {
-        this.$toast.info(this.$t("empty.team_name"), {
-          icon: "info",
+        this.$toast.error(this.$t("empty.team_name"), {
+          icon: "error_outline",
         })
         return
       }
       if (name !== null && name.replace(/\s/g, "").length < 6) {
         this.$toast.error(this.$t("team.name_length_insufficient"), {
-          icon: "error",
+          icon: "error_outline",
         })
         return
       }

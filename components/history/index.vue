@@ -136,8 +136,7 @@ export default defineComponent({
     clearHistory() {
       if (this.page === "rest") clearRESTHistory()
       else clearGraphqlHistory()
-
-      this.$toast.error(this.$t("state.history_deleted").toString(), {
+      this.$toast.success(this.$t("state.history_deleted").toString(), {
         icon: "delete",
       })
     },
@@ -147,8 +146,7 @@ export default defineComponent({
     deleteHistory(entry: any) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)
       else deleteGraphqlHistoryEntry(entry)
-
-      this.$toast.error(this.$t("state.deleted").toString(), {
+      this.$toast.success(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

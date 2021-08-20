@@ -182,7 +182,7 @@ export default {
         this.$emit("update-query", gql.print(gql.parse(this.editor.getValue())))
       } catch (e) {
         this.$toast.error(this.$t("error.gql_prettify_invalid_query"), {
-          icon: "error",
+          icon: "error_outline",
         })
       }
     },

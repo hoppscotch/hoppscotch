@@ -59,7 +59,7 @@
         ]"
       />
       {{ label }}
-      <div v-if="shortcut.length && SHORTCUT_INDICATOR" class="ml-2">
+      <div v-if="shortcut.length" class="ml-2">
         <kbd
           v-for="(key, index) in shortcut"
           :key="`key-${index}`"
@@ -75,7 +75,6 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
   props: {
@@ -143,11 +142,6 @@ export default defineComponent({
       type: Array,
       default: () => [],
     },
-  },
-  setup() {
-    return {
-      SHORTCUT_INDICATOR: useSetting("SHORTCUT_INDICATOR"),
-    }
   },
 })
 </script>

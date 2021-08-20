@@ -119,7 +119,7 @@
                   sticky
                 "
               >
-                <div
+                <span
                   v-tippy="{ theme: 'tooltip' }"
                   :title="
                     !currentUser
@@ -140,7 +140,7 @@
                     :label="$t('export.create_secret_gist')"
                     @click.native="createDocsGist"
                   />
-                </div>
+                </span>
               </div>
               <div
                 v-for="(collection, index) in items"
@@ -236,7 +236,7 @@ export default defineComponent({
         })
         .catch((e) => {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
           console.error(e)
         })
@@ -250,7 +250,7 @@ export default defineComponent({
           this.collectionJSON = target.result
         }
         reader.readAsText(file)
-        this.$toast.info(this.$t("state.file_imported"), {
+        this.$toast.success(this.$t("state.file_imported"), {
           icon: "attach_file",
         })
       } else {
@@ -287,7 +287,7 @@ export default defineComponent({
         this.items = JSON.parse(this.collectionJSON)
         this.assignIDs(this.items, "", "#")
         this.$toast.clear()
-        this.$toast.info(this.$t("state.docs_generated"), {
+        this.$toast.success(this.$t("state.docs_generated"), {
           icon: "book",
         })
         const docsMarkdown = Mustache.render(
@@ -325,7 +325,7 @@ export default defineComponent({
       } catch (e) {
         console.error(e)
         this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error",
+          icon: "error_outline",
         })
       }
     },

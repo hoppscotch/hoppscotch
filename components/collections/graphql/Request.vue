@@ -12,8 +12,8 @@
         class="
           cursor-pointer
           flex
-          mx-2
-          w-12
+          px-2
+          w-16
           justify-center
           items-center
           truncate
@@ -171,7 +171,7 @@ export default Vue.extend({
       }
 
       removeGraphqlRequest(this.folderPath, this.requestIndex)
-      this.$toast.error(this.$t("state.deleted").toString(), {
+      this.$toast.success(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

@@ -48,8 +48,8 @@ export default {
   methods: {
     addFolder() {
       if (!this.name) {
-        this.$toast.info(this.$t("collection.invalid_name"), {
-          icon: "info",
+        this.$toast.error(this.$t("folder.invalid_name"), {
+          icon: "error_outline",
         })
         return
       }

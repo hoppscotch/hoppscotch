@@ -251,7 +251,7 @@ export default defineComponent({
         })
         .catch((e) => {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
           console.error(e)
         })
@@ -275,7 +275,7 @@ export default defineComponent({
         this.$data.rename.replace(/\s/g, "").length < 6
       ) {
         this.$toast.error(this.$t("team.name_length_insufficient"), {
-          icon: "error",
+          icon: "error_outline",
         })
         return
       }
@@ -283,7 +283,7 @@ export default defineComponent({
       this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
           this.$toast.error(this.$t("team.invalid_email_format"), {
-            icon: "error",
+            icon: "error_outline",
           })
           invalidEmail = true
         }
@@ -293,7 +293,7 @@ export default defineComponent({
       this.$data.newMembers.forEach((element) => {
         if (!element.value) {
           this.$toast.error(this.$t("invalid_member_permission"), {
-            icon: "error",
+            icon: "error_outline",
           })
           invalidPermission = true
         }
@@ -315,7 +315,7 @@ export default defineComponent({
           })
           .catch((e) => {
             this.$toast.error(e, {
-              icon: "done",
+              icon: "error_outline",
             })
             console.error(e)
           })
@@ -335,7 +335,7 @@ export default defineComponent({
           })
           .catch((e) => {
             this.$toast.error(e, {
-              icon: "done",
+              icon: "error_outline",
             })
             console.error(e)
           })
@@ -345,7 +345,7 @@ export default defineComponent({
           this.name === this.$data.rename ? this.name : this.$data.rename
         if (!/\S/.test(newName))
           return this.$toast.error(this.$t("empty.team_name"), {
-            icon: "error",
+            icon: "error_outline",
           })
         // Call to the graphql mutation
         if (this.name !== this.rename)
@@ -358,7 +358,7 @@ export default defineComponent({
             })
             .catch((e) => {
               this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error",
+                icon: "error_outline",
               })
               console.error(e)
             })

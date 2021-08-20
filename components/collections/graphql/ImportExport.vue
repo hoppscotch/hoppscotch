@@ -23,7 +23,7 @@
               $refs.options.tippy().hide()
             "
           />
-          <SmartItem
+          <span
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser
@@ -32,20 +32,23 @@
                 ? $t('export.require_github')
                 : null
             "
-            :disabled="
-              !currentUser
-                ? true
-                : currentUser.provider !== 'github.com'
-                ? true
-                : false
-            "
-            icon="assignment_turned_in"
-            :label="$t('export.create_secret_gist')"
-            @click.native="
-              createCollectionGist
-              $refs.options.tippy().hide()
-            "
-          />
+          >
+            <SmartItem
+              :disabled="
+                !currentUser
+                  ? true
+                  : currentUser.provider !== 'github.com'
+                  ? true
+                  : false
+              "
+              icon="assignment_turned_in"
+              :label="$t('export.create_secret_gist')"
+              @click.native="
+                createCollectionGist
+                $refs.options.tippy().hide()
+              "
+            />
+          </span>
         </tippy>
       </span>
     </template>
@@ -143,7 +146,7 @@ export default defineComponent({
         })
         .catch((e) => {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
           console.error(e)
         })
@@ -249,7 +252,7 @@ export default defineComponent({
       document.body.appendChild(a)
       a.click()
       this.$toast.success(this.$t("state.download_started"), {
-        icon: "done",
+        icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)
@@ -257,13 +260,13 @@ export default defineComponent({
       }, 1000)
     },
     fileImported() {
-      this.$toast.info(this.$t("state.file_imported"), {
+      this.$toast.success(this.$t("state.file_imported"), {
         icon: "folder_shared",
       })
     },
     failedImport() {
       this.$toast.error(this.$t("import.failed"), {
-        icon: "error",
+        icon: "error_outline",
       })
     },
     parsePostmanCollection({ info, name, item }) {

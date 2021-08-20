@@ -10,7 +10,7 @@
       @dragend="dragging = false"
     >
       <span
-        class="cursor-pointer flex w-10 justify-center items-center truncate"
+        class="cursor-pointer flex px-4 justify-center items-center"
         @click="toggleShowChildren()"
       >
         <i class="material-icons" :class="{ 'text-green-500': isSelected }">
@@ -93,7 +93,7 @@
       <CollectionsGraphqlFolder
         v-for="(folder, index) in collection.folders"
         :key="`folder-${index}`"
-        class="border-l border-dividerLight ml-5"
+        class="border-l border-dividerLight ml-6"
         :picked="picked"
         :saving-mode="savingMode"
         :folder="folder"
@@ -110,7 +110,7 @@
       <CollectionsGraphqlRequest
         v-for="(request, index) in collection.requests"
         :key="`request-${index}`"
-        class="border-l border-dividerLight ml-5"
+        class="border-l border-dividerLight ml-6"
         :picked="picked"
         :saving-mode="savingMode"
         :request="request"
@@ -131,7 +131,7 @@
           border-l border-dividerLight
           flex flex-col
           text-secondaryLight
-          ml-5
+          ml-6
           p-4
           items-center
           justify-center
@@ -187,8 +187,8 @@ export default Vue.extend({
     },
     getCollectionIcon() {
       if (this.isSelected) return "check_circle_outline"
-      else if (!this.showChildren && !this.isFiltered) return "arrow_right"
-      else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
+      else if (!this.showChildren && !this.isFiltered) return "folder"
+      else if (this.showChildren || this.isFiltered) return "folder_open"
       else return "folder"
     },
   },
@@ -218,8 +218,7 @@ export default Vue.extend({
         this.$emit("select", { picked: null })
       }
       removeGraphqlCollection(this.collectionIndex)
-
-      this.$toast.error(this.$t("state.deleted").toString(), {
+      this.$toast.success(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

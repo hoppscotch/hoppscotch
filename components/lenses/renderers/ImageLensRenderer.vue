@@ -102,7 +102,7 @@ export default {
       a.click()
       this.downloadIcon = "done"
       this.$toast.success(this.$t("state.download_started"), {
-        icon: "done",
+        icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)

@@ -101,7 +101,7 @@ export default {
       a.click()
       this.downloadIcon = "done"
       this.$toast.success(this.$t("state.download_started"), {
-        icon: "done",
+        icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)
@@ -113,7 +113,7 @@ export default {
       copyToClipboard(this.responseBodyText)
       this.copyIcon = "done"
       this.$toast.success(this.$t("state.copied_to_clipboard"), {
-        icon: "done",
+        icon: "content_paste",
       })
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },

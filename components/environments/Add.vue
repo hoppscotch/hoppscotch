@@ -47,8 +47,8 @@ export default Vue.extend({
   methods: {
     addNewEnvironment() {
       if (!this.name) {
-        this.$toast.info(this.$t("environment.invalid_name").toString(), {
-          icon: "info",
+        this.$toast.error(this.$t("environment.invalid_name").toString(), {
+          icon: "error_outline",
         })
         return
       }

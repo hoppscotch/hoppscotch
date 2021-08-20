@@ -31,14 +31,13 @@ export default Vue.extend({
     async logout() {
       try {
         await signOutUser()
-
-        this.$toast.info(this.$t("auth.logged_out").toString(), {
+        this.$toast.success(this.$t("auth.logged_out").toString(), {
           icon: "vpn_key",
         })
       } catch (e) {
         console.error(e)
         this.$toast.error(this.$t("error.something_went_wrong").toString(), {
-          icon: "error",
+          icon: "error_outline",
         })
       }
     },

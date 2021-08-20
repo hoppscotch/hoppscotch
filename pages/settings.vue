@@ -187,19 +187,6 @@
               </div>
               <div class="flex items-center">
                 <SmartToggle
-                  :on="SHORTCUT_INDICATOR"
-                  @change="toggleSetting('SHORTCUT_INDICATOR')"
-                >
-                  {{ $t("settings.shortcuts_indicator") }}
-                  {{
-                    SHORTCUT_INDICATOR
-                      ? $t("state.enabled")
-                      : $t("state.disabled")
-                  }}
-                </SmartToggle>
-              </div>
-              <div class="flex items-center">
-                <SmartToggle
                   :on="LEFT_SIDEBAR"
                   @change="toggleSetting('LEFT_SIDEBAR')"
                 >
@@ -385,7 +372,6 @@ export default defineComponent({
       SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
       SYNC_HISTORY: useSetting("syncHistory"),
       TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
-      SHORTCUT_INDICATOR: useSetting("SHORTCUT_INDICATOR"),
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
       currentUser: useReadonlyStream(currentUser$, currentUser$.value),
@@ -464,7 +450,7 @@ export default defineComponent({
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
       this.clearIcon = "done"
-      this.$toast.info(this.$t("state.cleared").toString(), {
+      this.$toast.success(this.$t("state.cleared").toString(), {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "clear_all"), 1000)

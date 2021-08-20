@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center group">
     <span
-      class="cursor-pointer flex w-10 justify-center items-center truncate"
+      class="cursor-pointer flex px-4 justify-center items-center"
       @click="$emit('edit-environment')"
     >
       <i class="material-icons">layers</i>
@@ -82,7 +82,7 @@ export default Vue.extend({
     removeEnvironment() {
       if (this.environmentIndex !== "Global")
         deleteEnvironment(this.environmentIndex)
-      this.$toast.error(this.$t("state.deleted").toString(), {
+      this.$toast.success(this.$t("state.deleted").toString(), {
         icon: "delete",
       })
     },

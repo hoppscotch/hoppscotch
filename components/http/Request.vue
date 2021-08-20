@@ -1,45 +1,48 @@
 <template>
-  <div class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky">
+  <div class="bg-primary flex p-4 top-0 z-10 sticky">
     <div class="flex flex-1">
       <div class="flex relative">
-        <tippy
-          ref="methodOptions"
-          interactive
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <span class="select-wrapper">
-              <input
-                id="method"
-                class="
-                  bg-primaryLight
-                  border border-divider
-                  rounded-l
-                  cursor-pointer
-                  flex
-                  font-semibold
-                  text-secondaryDark
-                  py-2
-                  px-4
-                  w-28
-                  hover:border-dividerDark
-                  focus-visible:border-accent
-                "
-                :value="newMethod"
-                :readonly="!isCustomMethod"
-                @input="onSelectMethod($event.target.value)"
-              />
-            </span>
-          </template>
-          <SmartItem
-            v-for="(method, index) in methods"
-            :key="`method-${index}`"
-            :label="method"
-            @click.native="onSelectMethod(method)"
-          />
-        </tippy>
+        <label for="method">
+          <tippy
+            ref="methodOptions"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+          >
+            <template #trigger>
+              <span class="select-wrapper">
+                <input
+                  id="method"
+                  class="
+                    bg-primaryLight
+                    border border-divider
+                    rounded-l
+                    cursor-pointer
+                    flex
+                    font-semibold
+                    text-secondaryDark
+                    py-2
+                    px-4
+                    w-28
+                    hover:border-dividerDark
+                    focus-visible:border-accent
+                  "
+                  :value="newMethod"
+                  :readonly="!isCustomMethod"
+                  :placeholder="$t('request.method')"
+                  @input="onSelectMethod($event.target.value)"
+                />
+              </span>
+            </template>
+            <SmartItem
+              v-for="(method, index) in methods"
+              :key="`method-${index}`"
+              :label="method"
+              @click.native="onSelectMethod(method)"
+            />
+          </tippy>
+        </label>
       </div>
       <div class="flex flex-1">
         <SmartEnvInput
@@ -50,7 +53,6 @@
           bg-primaryLight
           border border-divider
           flex
-          rounded-r
           flex-1
           text-secondaryDark
           py-1
@@ -68,7 +70,6 @@
           class="
             bg-primaryLight
             border border-divider
-            rounded-r
             flex
             text-secondaryDark
             w-full
@@ -88,9 +89,8 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-r-none flex-1 min-w-20"
+        class="rounded-none flex-1 min-w-24"
         :label="!loading ? $t('action.send') : $t('action.cancel')"
-        :shortcut="[getSpecialKey(), 'G']"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -136,10 +136,10 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded-r-none flex-1 ml-2"
+        class="rounded-r-none ml-2"
         :label="$t('request.save')"
-        :shortcut="[getSpecialKey(), 'S']"
         outline
+        icon="save"
         @click.native="saveRequest()"
       />
       <span class="flex">
@@ -223,7 +223,6 @@ import {
   getRESTRequest,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import {
   useStreamSubscriber,
@@ -339,8 +338,8 @@ export default defineComponent({
           .catch(() => {})
       } else {
         copyToClipboard(window.location.href)
-        $toast.info(t("state.copied_to_clipboard").toString(), {
-          icon: "done",
+        $toast.success(t("state.copied_to_clipboard").toString(), {
+          icon: "content_paste",
         })
       }
     }
@@ -401,7 +400,7 @@ export default defineComponent({
         }
       }
       $toast.success(t("request.saved").toString(), {
-        icon: "done",
+        icon: "playlist_add_check",
       })
     }
 
@@ -431,7 +430,6 @@ export default defineComponent({
       loading,
       newSendRequest,
       requestName: useRESTRequestName(),
-      getSpecialKey: getPlatformSpecialKey,
       showCurlImportModal,
       showCodegenModal,
       showSaveRequestModal,

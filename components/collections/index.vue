@@ -351,7 +351,7 @@ export default defineComponent({
           })
           .catch((e) => {
             this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error",
+              icon: "error_outline",
             })
             console.error(e)
           })
@@ -361,8 +361,8 @@ export default defineComponent({
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {
       if (!newName) {
-        this.$toast.info(this.$t("collection.invalid_name"), {
-          icon: "info",
+        this.$toast.error(this.$t("collection.invalid_name"), {
+          icon: "error_outline",
         })
         return
       }
@@ -380,14 +380,13 @@ export default defineComponent({
         teamUtils
           .renameCollection(this.$apollo, newName, this.editingCollection.id)
           .then(() => {
-            // TODO: $t translations ?
-            this.$toast.success("Collection Renamed", {
+            this.$toast.success(this.$t("collection.renamed"), {
               icon: "done",
             })
           })
           .catch((e) => {
             this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error",
+              icon: "error_outline",
             })
             console.error(e)
           })
@@ -411,7 +410,7 @@ export default defineComponent({
           })
           .catch((e) => {
             this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error",
+              icon: "error_outline",
             })
             console.error(e)
           })
@@ -445,14 +444,14 @@ export default defineComponent({
             this.editingRequestIndex
           )
           .then(() => {
-            this.$toast.success("Request Renamed", {
+            this.$toast.success(this.$t("request.renamed"), {
               icon: "done",
             })
             this.$emit("update-team-collections")
           })
           .catch((e) => {
             this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error",
+              icon: "error_outline",
             })
             console.error(e)
           })
@@ -525,7 +524,7 @@ export default defineComponent({
             })
             .catch((e) => {
               this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error",
+                icon: "error_outline",
               })
               console.error(e)
             })
@@ -590,8 +589,7 @@ export default defineComponent({
         }
 
         removeRESTCollection(collectionIndex)
-
-        this.$toast.error(this.$t("state.deleted"), {
+        this.$toast.success(this.$t("state.deleted"), {
           icon: "delete",
         })
       } else if (collectionsType.type === "team-collections") {
@@ -619,13 +617,13 @@ export default defineComponent({
               },
             })
             .then(() => {
-              this.$toast.error(this.$t("state.deleted"), {
+              this.$toast.success(this.$t("state.deleted"), {
                 icon: "delete",
               })
             })
             .catch((e) => {
               this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error",
+                icon: "error_outline",
               })
               console.error(e)
             })
@@ -644,8 +642,7 @@ export default defineComponent({
           this.$emit("select", { picked: null })
         }
         removeRESTRequest(folderPath, requestIndex)
-
-        this.$toast.error(this.$t("state.deleted"), {
+        this.$toast.success(this.$t("state.deleted"), {
           icon: "delete",
         })
       } else if (this.collectionsType.type === "team-collections") {
@@ -661,13 +658,13 @@ export default defineComponent({
         teamUtils
           .deleteRequest(this.$apollo, requestIndex)
           .then(() => {
-            this.$toast.error(this.$t("state.deleted"), {
+            this.$toast.success(this.$t("state.deleted"), {
               icon: "delete",
             })
           })
           .catch((e) => {
             this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error",
+              icon: "error_outline",
             })
             console.error(e)
           })

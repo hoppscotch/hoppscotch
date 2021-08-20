@@ -50,7 +50,7 @@
               />
               <SmartItem
                 :label="$t('app.whats_new')"
-                to="https://github.com/hoppscotch/hoppscotch/blob/main/CHANGELOG.md"
+                to="https://docs.hoppscotch.io/changelog"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />

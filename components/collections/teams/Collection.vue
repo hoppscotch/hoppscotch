@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <div class="flex items-center group">
       <span
-        class="cursor-pointer flex w-10 justify-center items-center truncate"
+        class="cursor-pointer flex px-4 justify-center items-center"
         @click="toggleShowChildren()"
       >
         <i class="material-icons" :class="{ 'text-green-500': isSelected }">
@@ -108,7 +108,7 @@
       <CollectionsTeamsFolder
         v-for="(folder, index) in collection.children"
         :key="`folder-${folder}`"
-        class="border-l border-dividerLight ml-5"
+        class="border-l border-dividerLight ml-6"
         :folder="folder"
         :folder-index="index"
         :folder-path="`${collectionIndex}/${index}`"
@@ -128,7 +128,7 @@
       <CollectionsTeamsRequest
         v-for="(request, index) in collection.requests"
         :key="`request-${index}`"
-        class="border-l border-dividerLight ml-5"
+        class="border-l border-dividerLight ml-6"
         :request="request.request"
         :collection-index="collectionIndex"
         :folder-index="-1"
@@ -152,7 +152,7 @@
           border-l border-dividerLight
           flex flex-col
           text-secondaryLight
-          ml-5
+          ml-6
           p-4
           items-center
           justify-center
@@ -205,8 +205,8 @@ export default {
     },
     getCollectionIcon() {
       if (this.isSelected) return "check_circle_outline"
-      else if (!this.showChildren && !this.isFiltered) return "arrow_right"
-      else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
+      else if (!this.showChildren && !this.isFiltered) return "folder"
+      else if (this.showChildren || this.isFiltered) return "folder_open"
       else return "folder"
     },
   },

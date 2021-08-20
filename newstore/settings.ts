@@ -47,7 +47,6 @@ export type SettingsType = {
   THEME_COLOR: HoppAccentColor
   BG_COLOR: HoppBgColor
   TELEMETRY_ENABLED: boolean
-  SHORTCUT_INDICATOR: boolean
   LEFT_SIDEBAR: boolean
   RIGHT_SIDEBAR: boolean
   ZEN_MODE: boolean
@@ -73,7 +72,6 @@ export const defaultSettings: SettingsType = {
   THEME_COLOR: "blue",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
-  SHORTCUT_INDICATOR: false,
   LEFT_SIDEBAR: true,
   RIGHT_SIDEBAR: true,
   ZEN_MODE: false,

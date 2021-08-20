@@ -23,7 +23,6 @@
             <div class="flex">
               <ButtonSecondary
                 :label="$t('request.run')"
-                :shortcut="[getSpecialKey(), 'Enter']"
                 icon="play_arrow"
                 class="rounded-none !text-accent"
                 @click.native="runQuery()"
@@ -401,7 +400,7 @@ export default defineComponent({
         nuxt.value.$loading.finish()
 
         $toast.error(`${e} ${t("error.f12_details").toString()}`, {
-          icon: "error",
+          icon: "error_outline",
         })
         console.error(e)
       }

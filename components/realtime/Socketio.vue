@@ -282,7 +282,7 @@ export default defineComponent({
       } catch (e) {
         this.handleError(e)
         this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error",
+          icon: "error_outline",
         })
       }
 

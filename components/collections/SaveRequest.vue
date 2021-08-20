@@ -119,13 +119,13 @@ export default defineComponent({
     saveRequestAs() {
       if (!this.requestName) {
         this.$toast.error(this.$t("error.empty_req_name"), {
-          icon: "error",
+          icon: "error_outline",
         })
         return
       }
       if (this.picked == null) {
         this.$toast.error(this.$t("collection.select"), {
-          icon: "error",
+          icon: "error_outline",
         })
         return
       }
@@ -218,8 +218,8 @@ export default defineComponent({
       } else if (this.picked.pickedType === "gql-my-collection") {
         saveGraphqlRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       }
-      this.$toast.success("Requested added", {
-        icon: "done",
+      this.$toast.success(this.$t("request.added"), {
+        icon: "post_add",
       })
 
       this.hideModal()

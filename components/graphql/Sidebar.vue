@@ -416,7 +416,7 @@ export default defineComponent({
       a.click()
       downloadSchemaIcon.value = "done"
       $toast.success(t("state.download_started").toString(), {
-        icon: "done",
+        icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)

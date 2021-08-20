@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <div class="flex items-center group">
       <span
-        class="cursor-pointer flex w-10 justify-center items-center truncate"
+        class="cursor-pointer flex px-4 justify-center items-center"
         @click="toggleShowChildren()"
       >
         <i class="material-icons" :class="{ 'text-green-500': isSelected }">
@@ -91,7 +91,7 @@
       <CollectionsTeamsFolder
         v-for="(subFolder, subFolderIndex) in folder.children"
         :key="`subFolder-${subFolderIndex}`"
-        class="border-l border-dividerLight ml-5"
+        class="border-l border-dividerLight ml-6"
         :folder="subFolder"
         :folder-index="subFolderIndex"
         :collection-index="collectionIndex"
@@ -111,7 +111,7 @@
       <CollectionsTeamsRequest
         v-for="(request, index) in folder.requests"
         :key="`request-${index}`"
-        class="border-l border-dividerLight ml-5"
+        class="border-l border-dividerLight ml-6"
         :request="request.request"
         :collection-index="collectionIndex"
         :folder-index="folderIndex"
@@ -134,7 +134,7 @@
           border-l border-dividerLight
           flex flex-col
           text-secondaryLight
-          ml-5
+          ml-6
           p-4
           items-center
           justify-center
@@ -189,8 +189,8 @@ export default {
     },
     getCollectionIcon() {
       if (this.isSelected) return "check_circle_outline"
-      else if (!this.showChildren && !this.isFiltered) return "arrow_right"
-      else if (this.showChildren || this.isFiltered) return "arrow_drop_down"
+      else if (!this.showChildren && !this.isFiltered) return "folder"
+      else if (this.showChildren || this.isFiltered) return "folder_open"
       else return "folder"
     },
   },
@@ -221,14 +221,14 @@ export default {
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {
-            this.$toast.error(this.$t("state.deleted"), {
+            this.$toast.success(this.$t("state.deleted"), {
               icon: "delete",
             })
             this.$emit("update-team-collections")
           })
           .catch((e) => {
             this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error",
+              icon: "error_outline",
             })
             console.error(e)
           })

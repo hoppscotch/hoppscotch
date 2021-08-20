@@ -88,7 +88,7 @@ export default {
         })
         .catch((e) => {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
           console.error(e)
         })
@@ -104,7 +104,7 @@ export default {
         })
         .catch((e) => {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
           console.error(e)
         })

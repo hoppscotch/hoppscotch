@@ -163,7 +163,7 @@ export default {
   },
   methods: {
     showLoginSuccess() {
-      this.$toast.info(this.$t("auth.login_success"), {
+      this.$toast.success(this.$t("auth.login_success"), {
         icon: "vpn_key",
       })
     },
@@ -222,7 +222,6 @@ export default {
 
             return
           }
-
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
             duration: null,
@@ -241,7 +240,7 @@ export default {
           })
         } else {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
         }
       }
@@ -305,7 +304,6 @@ export default {
 
             return
           }
-
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
             duration: null,
@@ -324,7 +322,7 @@ export default {
           })
         } else {
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
         }
       }
@@ -346,7 +344,7 @@ export default {
         .catch((e) => {
           console.error(e)
           this.$toast.error(e.message, {
-            icon: "error",
+            icon: "error_outline",
           })
           this.signingInWithEmail = false
         })

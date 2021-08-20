@@ -5,8 +5,8 @@
         class="
           cursor-pointer
           flex
-          mx-2
-          w-12
+          px-2
+          w-16
           justify-center
           items-center
           truncate

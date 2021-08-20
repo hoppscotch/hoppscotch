@@ -322,7 +322,7 @@ export default defineComponent({
       } catch (e) {
         this.handleError(e)
         this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error",
+          icon: "error_outline",
         })
       }
 
@@ -406,7 +406,7 @@ export default defineComponent({
     deleteProtocol({ index }) {
       const oldProtocols = this.protocols.slice()
       this.$delete(this.protocols, index)
-      this.$toast.error(this.$t("state.deleted"), {
+      this.$toast.success(this.$t("state.deleted"), {
         icon: "delete",
         action: {
           text: this.$t("action.undo"),

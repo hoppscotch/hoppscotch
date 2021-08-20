@@ -87,7 +87,7 @@ export default {
       copyToClipboard(this.url)
       this.copyIcon = "done"
       this.$toast.success(this.$t("state.copied_to_clipboard").toString(), {
-        icon: "done",
+        icon: "content_paste",
       })
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },

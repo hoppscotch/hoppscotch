@@ -187,7 +187,7 @@ export default {
         } catch (e) {
           this.handleSSEError(e)
           this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error",
+            icon: "error_outline",
           })
         }
       } else {

@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center group">
     <span
-      class="cursor-pointer flex mx-2 w-12 justify-center items-center truncate"
+      class="cursor-pointer flex px-2 w-16 justify-center items-center truncate"
       :class="entryStatus.className"
       data-testid="restore_history_entry"
       :title="duration"
@@ -32,7 +32,7 @@
       icon="remove_circle_outline"
       color="red"
       :title="$t('action.remove')"
-      class="group-hover:inline-flex hidden"
+      class="hidden group-hover:inline-flex"
       data-testid="delete_history_entry"
       @click.native="$emit('delete-entry')"
     />

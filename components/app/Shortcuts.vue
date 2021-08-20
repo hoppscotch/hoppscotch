@@ -55,9 +55,9 @@
           :key="`map-${mapIndex}`"
           class="space-y-4 py-4 px-6"
         >
-          <h5 class="font-semibold text-secondaryDark">
+          <h1 class="font-semibold text-secondaryDark">
             {{ $t(map.section) }}
-          </h5>
+          </h1>
           <div
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"

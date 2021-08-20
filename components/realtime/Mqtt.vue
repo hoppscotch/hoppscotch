@@ -280,7 +280,7 @@ export default defineComponent({
         })
       } else {
         this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error",
+          icon: "error_outline",
         })
       }
       this.manualDisconnect = false

@@ -49,8 +49,8 @@ export default Vue.extend({
   methods: {
     saveCollection() {
       if (!this.name) {
-        this.$toast.info(this.$t("collection.invalid_name").toString(), {
-          icon: "info",
+        this.$toast.error(this.$t("collection.invalid_name").toString(), {
+          icon: "error_outline",
         })
         return
       }

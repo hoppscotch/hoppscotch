@@ -44,7 +44,7 @@
   </p>
 </div>
 
-#### **Contact**
+#### **Support**
 
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=Telegram)](https://hoppscotch.io/telegram)
 
@@ -76,83 +76,47 @@
 
 ⚡️ **Fast:** Send requests and get/copy responses in real-time.
 
-<details>
-  <summary><i>HTTP Methods</i></summary>
+**HTTP Methods**
 
----
+- [x] `GET` - Requests retrieve resource information
+- [x] `POST` - The server creates a new entry in a database
+- [x] `PUT` - Updates an existing resource
+- [x] `PATCH` - Very similar to `PUT` but makes a partial update on a resource
+- [x] `DELETE` - Deletes resource or related component
+- [x] `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
+- [x] `CONNECT` - Establishes a tunnel to the server identified by the target resource
+- [x] `OPTIONS` - Describe the communication options for the target resource
+- [x] `TRACE` - Performs a message loop-back test along the path to the target resource
+- [x] `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
-- `GET` - Requests retrieve resource information
-- `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
-- `POST` - The server creates a new entry in a database
-- `PUT` - Updates an existing resource
-- `DELETE` - Deletes resource or related component
-- `CONNECT` - Establishes a tunnel to the server identified by the target resource
-- `OPTIONS` - Describe the communication options for the target resource
-- `TRACE` - Performs a message loop-back test along the path to the target resource
-- `PATCH` - Very similar to `PUT` but makes a partial update on a resource
-- `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
+🌈 **Make it yours:** Customizable combinations for background, foreground and accent colors — [customize now ✨](https://hoppscotch.io/settings).
 
----
+**Theming**
 
-</details>
+- [x] Choose theme: System (default), Light, Dark and Black
+- [x] Choose accent color: Green (default), Teal, Blue, Indigo, Purple, Yellow, Orange, Red and Pink
+- [x] Distraction free Zen mode
 
-🌈 **Make it yours:** Customizable combinations for background, foreground and accent colors. [Customize now ✨](https://hoppscotch.io/settings)
-
-<details>
-  <summary><i>Theming</i></summary>
-
----
-
-- Choose theme: System (default), Light, Dark and Black
-- Choose accent color: Green (default), Teal, Blue, Indigo, Purple, Yellow, Orange, Red and Pink
-- Distraction free Zen mode
-
-<p>
-  <a href="https://hoppscotch.io"><img src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_light.png" alt="Screenshot" width="100%"></a>
-</p>
-
----
-
-</details>
-
-_Customized themes are synced with local session storage_
+_Customized themes are synced with cloud / local session_
 
 🔥 **PWA:** Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
-<details>
-  <summary><i>Features</i></summary>
-
----
-
-- Instant loading with Service Workers
-- Offline support
-- Low RAM/memory and CPU usage
-- Add to Home Screen
-- Desktop PWA
-
----
-
-</details>
+- [x] Instant loading with Service Workers
+- [x] Offline support
+- [x] Low RAM/memory and CPU usage
+- [x] Add to Home Screen
+- [x] Desktop PWA
 
 🚀 **Request:** Retrieve response from endpoint instantly.
 
-- Choose `method`
-- Enter `URL`
-- Send
+1. Choose `method`
+2. Enter `URL`
+3. Send
 
-<details>
-  <summary><i>Features</i></summary>
-
----
-
-- Copy/share public "Share URL"
-- Generate/copy request code snippets for 10+ languages and frameworks
-- Import `cURL`
-- Label requests
-
----
-
-</details>
+- [x] Copy/share public "Share URL"
+- [x] Generate/copy request code snippets for 10+ languages and frameworks
+- [x] Import `cURL`
+- [x] Label requests
 
 🔌 **WebSocket:** Establish full-duplex communication channels over a single TCP connection.
 
@@ -164,37 +128,19 @@ _Customized themes are synced with local session storage_
 
 🔮 **GraphQL:** GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
-<details>
-  <summary><i>Features</i></summary>
+- [x] Set endpoint and get schema
+- [x] Multi-column docs
+- [x] Set custom request headers
+- [x] Query schema
+- [x] Get query response
 
----
+🔐 **Authorization:** Allows to identify the end user.
 
-- Set endpoint and get schemas
-- Multi-column docs
-- Set custom request headers
-- Query schema
-- Get query response
-
----
-
-</details>
-
-🔐 **Authentication:** Allows to identify the end user.
-
-<details>
-  <summary><i>Types</i></summary>
-
----
-
-- None
-- Basic
-- Bearer Token
-- OAuth 2.0
-- OIDC Access Token/PKCE
-
----
-
-</details>
+- [x] None
+- [x] Basic
+- [x] Bearer Token
+- [x] OAuth 2.0
+- [x] OIDC Access Token/PKCE
 
 📢 **Headers:** Describes the format the body of your request is being sent as.
 
@@ -202,126 +148,54 @@ _Customized themes are synced with local session storage_
 
 📃 **Request Body:** Used to send and receive data via the REST API.
 
-<details>
-  <summary><i>Options</i></summary>
-
----
-
-- Set `Content Type`
-- Add or remove Parameter list
-- Toggle between key-value and RAW input parameter list
-
----
-
-</details>
+- [x] Set `Content Type`
+- [x] FormData, JSON and many more
+- [x] Toggle between key-value and RAW input parameter list
 
 👋 **Response:** Contains the status line, headers and the message/response body.
 
-<details>
-  <summary><i>Features</i></summary>
-
----
-
-- Copy response to clipboard
-- Download response as a file
-- View response headers
-- View raw and preview of HTML, image, JSON, XML responses
-
----
-
-</details>
+- [x] Copy response to clipboard
+- [x] Download response as a file
+- [x] View response headers
+- [x] View raw and preview of HTML, image, JSON, XML responses
 
 ⏰ **History:** Request entries are synced with cloud / local session storage to restore with a single click.
 
 📁 **Collections:** Keep your API requests organized with collections and folders. Reuse them with a single click.
 
-<details>
-  <summary><i>Features</i></summary>
-
----
-
-- Unlimited collections, folders and requests
-- Nested folders
-- Export as / import from GitHub gist
-
----
-
-</details>
+- [x] Unlimited collections, folders and requests
+- [x] Nested folders
+- [x] Export and import as file or GitHub gist
 
 _Collections are synced with cloud / local session storage_
 
 🌐 **Proxy:** Enable Proxy Mode from Settings to access blocked APIs.
 
-<details>
-  <summary><i>Features</i></summary>
-
----
-
-- Hide your IP address
-- Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
-- Access APIs served in non-HTTPS (`http://`)
-- Use custom Proxy URL
-
----
-
-</details>
+- [x] Hide your IP address
+- [x] Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
+- [x] Access APIs served in non-HTTPS `[http://]` endpoints
+- [x] Use your own Proxy URL
 
 _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/privacy)**_
 
 📜 **Pre-Request Scripts β:** Snippets of code associated with a request that are executed before the request is sent.
 
-<details>
-  <summary><i>Use-cases</i></summary>
-
----
-
-- Initialize environment variables
-- Include timestamp in the request headers
-- Send a random alphanumeric string in the URL parameters
-
----
-
-</details>
+- [x] Set environment variables
+- [x] Include timestamp in the request headers
+- [x] Send a random alphanumeric string in the URL parameters
+- [x] Any JavaScript functions
 
 📄 **API Documentation:** Create and share dynamic API documentation easily, quickly.
-
-<details>
-  <summary><i>Usage</i></summary>
-
----
 
 1. Add your requests to Collections and Folders
 2. Export Collections and easily share your APIs with the rest of your team
 3. Import Collections and Generate Documentation on-the-go
-
----
-
-</details>
 
 ⌨️ **Keyboard Shortcuts:** Optimized for efficiency.
 
 > **[Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
 
 🌎 **i18n:** Experience the app in your own language.
-
-<details>
-  <summary><i>Usage</i></summary>
-
----
-
-1. Scroll down to the footer
-2. Click "Choose Language" icon button
-3. Select your language from the menu
-
----
-
-</details>
-
-_Keep in mind: Translations aren't available for all source and target language combinations_
-
-**To provide a localized experience for users around the world, you can add you own translations.**
-
-_**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/hoppscotch/hoppscotch/tree/i18n) only!**_
 
 📦 **Add-ons:** Official add-ons for hoppscotch.
 
@@ -335,50 +209,35 @@ _**All `i18n` contributions are welcome to `i18n` [branch](https://github.com/ho
 
 - **[Hopp-Doc-Gen](https://github.com/hoppscotch/hopp-doc-gen)** - An API doc generator CLI for Hoppscotch
 
-_Add-ons are developed and maintained under **[Official Hoppscotch Organization](https://github.com/hoppscotch)**._
+_Add-ons are developed and maintained under **[Hoppscotch Organization](https://github.com/hoppscotch)**._
 
-☁️ **Auth + Sync:** Sign in and sync in real-time.
+☁️ **Auth + Sync:** Sign in and sync your data in real-time.
 
 **Sign in with**
 
-- Google
-- GitHub
+- [x] GitHub
+- [x] Google
+- [x] Email
 
-**Sync**
+**Synchronize your data**
 
-- History
-- Collections
-- Environments
+- [x] History
+- [x] Collections
+- [x] Environments
+- [x] Settings
 
 ✅ **Post-Request Tests β:** Write tests associated with a request that are executed after the request response.
 
-<details>
-  <summary><i>Use-cases</i></summary>
-
----
-
-- Check the status code as an integer
-- Filter response headers
-- Parse the response data
-
----
-
-</details>
+- [x] Check the status code as an integer
+- [x] Filter response headers
+- [x] Parse the response data
+- [x] Any JavaScript functions
 
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 
-<details>
-  <summary><i>Features</i></summary>
-
----
-
-- Unlimited environments and variables
-- Initialize through pre-request script
-- Export as / import from GitHub gist
-
----
-
-</details>
+- [x] Unlimited environments and variables
+- [x] Initialize through pre-request script
+- [x] Export as / import from GitHub gist
 
 <details>
   <summary><i>Use-cases</i></summary>
@@ -395,20 +254,11 @@ _Add-ons are developed and maintained under **[Official Hoppscotch Organization]
 
 👨‍👩‍👧‍👦 **Teams β:** Helps you collaborate across your team to design, develop, and test APIs faster.
 
-<details>
-  <summary><i>Features</i></summary>
+- [x] Unlimited team collections and shared requests
+- [x] Unlimited team members
+- [x] User roles
 
----
-
-- Unlimited team collections and shared requests
-- Unlimited team members
-- User roles
-
----
-
-</details>
-
-**To find out more, please check out our [Documentation](https://docs.hoppscotch.io).**
+**For more features, please read our [documentation](https://docs.hoppscotch.io).**
 
 ## **Demo**
 
@@ -476,7 +326,7 @@ Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDU
 
 ## **Continuous Integration**
 
-We use [GitHub Actions](https://github.com/features/actions) for continuous integration. Check out our [Build Workflows](https://github.com/hoppscotch/hoppscotch/actions).
+We use [GitHub Actions](https://github.com/features/actions) for continuous integration. Check out our [build workflows](https://github.com/hoppscotch/hoppscotch/actions).
 
 ## **Changelog**
 
@@ -484,7 +334,7 @@ See the [`CHANGELOG`](CHANGELOG.md) file for details.
 
 ## **Authors**
 
-This project exists thanks to all the people who contribute [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute — [make a contribution](CONTRIBUTING.md).
 
 <div align="center">
   <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">

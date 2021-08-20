@@ -40,7 +40,11 @@
       >
         <span class="truncate"> {{ request.name }} </span>
         <span
-          v-if="active && active.requestIndex == requestIndex"
+          v-if="
+            active &&
+            active.originLocation === 'team-collection' &&
+            active.requestID === requestIndex
+          "
           class="rounded-full bg-green-500 h-1.5 mx-3 w-1.5"
         ></span>
       </span>
@@ -109,7 +113,11 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-import { restSaveContext$, setRESTRequest } from "~/newstore/RESTSession"
+import {
+  restSaveContext$,
+  setRESTRequest,
+  setRESTSaveContext,
+} from "~/newstore/RESTSession"
 
 export default defineComponent({
   props: {
@@ -125,7 +133,7 @@ export default defineComponent({
     picked: { type: Object, default: () => {} },
   },
   setup() {
-    const active = useReadonlyStream(restSaveContext$)
+    const active = useReadonlyStream(restSaveContext$, null)
     return {
       active,
     }
@@ -153,6 +161,14 @@ export default defineComponent({
   },
   methods: {
     selectRequest() {
+      if (
+        this.active &&
+        this.active.originLocation === "team-collection" &&
+        this.active.requestID === this.requestIndex
+      ) {
+        setRESTSaveContext(null)
+        return
+      }
       if (this.$props.saveRequest)
         this.$emit("select", {
           picked: {

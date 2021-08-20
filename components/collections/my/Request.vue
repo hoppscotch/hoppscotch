@@ -49,8 +49,9 @@
         <span
           v-if="
             active &&
-            active.folderPath == folderPath &&
-            active.requestIndex == requestIndex
+            active.originLocation === 'user-collection' &&
+            active.folderPath === folderPath &&
+            active.requestIndex === requestIndex
           "
           class="rounded-full bg-green-500 h-1.5 mx-3 w-1.5"
         ></span>
@@ -120,7 +121,11 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-import { restSaveContext$, setRESTRequest } from "~/newstore/RESTSession"
+import {
+  restSaveContext$,
+  setRESTRequest,
+  setRESTSaveContext,
+} from "~/newstore/RESTSession"
 
 export default defineComponent({
   props: {
@@ -137,7 +142,7 @@ export default defineComponent({
     picked: { type: Object, default: () => {} },
   },
   setup() {
-    const active = useReadonlyStream(restSaveContext$)
+    const active = useReadonlyStream(restSaveContext$, null)
     return {
       active,
     }
@@ -167,6 +172,15 @@ export default defineComponent({
   },
   methods: {
     selectRequest() {
+      if (
+        this.active &&
+        this.active.originLocation === "user-collection" &&
+        this.active.folderPath === this.folderPath &&
+        this.active.requestIndex === this.requestIndex
+      ) {
+        setRESTSaveContext(null)
+        return
+      }
       if (this.$props.saveRequest)
         this.$emit("select", {
           picked: {

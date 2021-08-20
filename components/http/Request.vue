@@ -232,7 +232,7 @@ import {
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useSetting } from "~/newstore/settings"
-import { saveRequestAsTeams } from "~/helpers/teams/utils"
+import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 
 const methods = [
@@ -386,9 +386,9 @@ export default defineComponent({
       } else if (saveCtx.originLocation === "team-collection") {
         const req = getRESTRequest()
 
-        // TODO: handle error case (NOTE: saveRequestAsTeams is async)
+        // TODO: handle error case (NOTE: overwriteRequestTeams is async)
         try {
-          saveRequestAsTeams(
+          overwriteRequestTeams(
             apolloClient,
             JSON.stringify(req),
             req.name,

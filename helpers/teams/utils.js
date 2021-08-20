@@ -457,10 +457,11 @@ export async function saveRequestAsTeams(
   teamID,
   collectionID
 ) {
-  await apollo.mutate({
+  const x = await apollo.mutate({
     mutation: gql`
       mutation ($data: CreateTeamRequestInput!, $collectionID: String!) {
         createRequestInCollection(data: $data, collectionID: $collectionID) {
+          id
           collection {
             id
             team {
@@ -480,6 +481,7 @@ export async function saveRequestAsTeams(
       },
     },
   })
+  return x.data?.createRequestInCollection
 }
 
 export async function overwriteRequestTeams(apollo, request, title, requestID) {

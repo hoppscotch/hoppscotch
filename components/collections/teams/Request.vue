@@ -105,7 +105,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -143,7 +143,7 @@ export default defineComponent({
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "teams-request" &&
@@ -163,7 +163,7 @@ export default defineComponent({
       else
         setRESTRequest(translateToNewRequest(this.request), {
           originLocation: "team-collection",
-          requestIndex: this.requestIndex,
+          requestID: this.requestIndex as string,
         })
     },
     removeRequest() {
@@ -173,9 +173,9 @@ export default defineComponent({
         requestIndex: this.$props.requestIndex,
       })
     },
-    getRequestLabelColor(method) {
+    getRequestLabelColor(method: any) {
       return (
-        this.requestMethodLabels[method.toLowerCase()] ||
+        (this.requestMethodLabels as any)[method.toLowerCase()] ||
         this.requestMethodLabels.default
       )
     },

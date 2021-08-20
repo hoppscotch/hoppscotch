@@ -116,7 +116,7 @@ export default defineComponent({
     onSelect({ picked }) {
       this.picked = picked
     },
-    saveRequestAs() {
+    async saveRequestAs() {
       if (!this.requestName) {
         this.$toast.error(this.$t("error.empty_req_name"), {
           icon: "error_outline",
@@ -180,33 +180,43 @@ export default defineComponent({
           this.picked.requestID
         )
         setRESTSaveContext({
-          originLocation: "teams-collection",
+          originLocation: "team-collection",
           requestID: this.picked.requestID,
         })
       } else if (this.picked.pickedType === "teams-folder") {
-        teamUtils.saveRequestAsTeams(
+        const req = await teamUtils.saveRequestAsTeams(
           this.$apollo,
           JSON.stringify(requestUpdated),
           requestUpdated.name,
           this.collectionsType.selectedTeam.id,
           this.picked.folderID
         )
-        setRESTSaveContext({
-          originLocation: "teams-collection",
-          requestID: this.picked.requestID,
-        })
+
+        if (req && req.id) {
+          setRESTSaveContext({
+            originLocation: "team-collection",
+            requestID: req.id,
+            teamID: this.collectionsType.selectedTeam.id,
+            collectionID: this.picked.folderID,
+          })
+        }
       } else if (this.picked.pickedType === "teams-collection") {
-        teamUtils.saveRequestAsTeams(
+        const req = await teamUtils.saveRequestAsTeams(
           this.$apollo,
           JSON.stringify(requestUpdated),
           requestUpdated.name,
           this.collectionsType.selectedTeam.id,
           this.picked.collectionID
         )
-        setRESTSaveContext({
-          originLocation: "teams-collection",
-          requestID: this.picked.requestID,
-        })
+
+        if (req && req.id) {
+          setRESTSaveContext({
+            originLocation: "team-collection",
+            requestID: req.id,
+            teamID: this.collectionsType.selectedTeam.id,
+            collectionID: this.picked.collectionID,
+          })
+        }
       } else if (this.picked.pickedType === "gql-my-request") {
         editGraphqlRequest(
           this.picked.folderPath,

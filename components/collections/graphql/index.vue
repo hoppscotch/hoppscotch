@@ -4,7 +4,14 @@
     :class="{ 'rounded border border-divider': savingMode }"
   >
     <div
-      class="flex flex-col top-sidebarPrimaryStickyFold z-10 sticky"
+      class="
+        divide-y divide-dividerLight
+        border-b border-dividerLight
+        flex flex-col
+        top-sidebarPrimaryStickyFold
+        z-10
+        sticky
+      "
       :class="{ 'bg-primary': !savingMode }"
     >
       <div v-if="showCollActions" class="search-wrapper">
@@ -12,18 +19,10 @@
           v-model="filterText"
           type="search"
           :placeholder="$t('action.search')"
-          class="
-            bg-primaryLight
-            border-b border-dividerLight
-            flex
-            w-full
-            py-2
-            pr-2
-            pl-9
-          "
+          class="bg-primary flex w-full py-2 pr-2 pl-10"
         />
       </div>
-      <div class="border-b border-dividerLight flex flex-1 justify-between">
+      <div class="flex flex-1 justify-between">
         <ButtonSecondary
           icon="add"
           :label="$t('action.new')"

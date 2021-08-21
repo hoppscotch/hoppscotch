@@ -1,11 +1,12 @@
 <template>
   <div class="flex h-screen w-screen">
-    <Splitpanes :dbl-click-splitter="false" horizontal>
+    <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
       <Pane v-if="!ZEN_MODE" style="height: auto">
         <AppHeader />
       </Pane>
       <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
         <Splitpanes
+          class="no-splitter"
           :dbl-click-splitter="false"
           :horizontal="!(windowInnerWidth >= 768)"
         >
@@ -17,7 +18,11 @@
             <AppSidenav />
           </Pane>
           <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
-            <Splitpanes :dbl-click-splitter="false" horizontal>
+            <Splitpanes
+              class="no-splitter"
+              :dbl-click-splitter="false"
+              horizontal
+            >
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
                 <main class="flex flex-1 w-full">
                   <nuxt class="flex flex-1" />

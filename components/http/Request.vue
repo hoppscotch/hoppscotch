@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-primary flex p-4 top-0 z-10 sticky">
+  <div class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky">
     <div class="flex flex-1">
       <div class="flex relative">
         <label for="method">
@@ -26,7 +26,7 @@
                     px-4
                     w-28
                     hover:border-dividerDark
-                    focus-visible:border-accent
+                    focus-visible:bg-primary focus-visible:border-dividerDark
                   "
                   :value="newMethod"
                   :readonly="!isCustomMethod"
@@ -54,11 +54,13 @@
           border border-divider
           flex
           flex-1
+          rounded-r
           text-secondaryDark
           py-1
           px-4
           hover:border-dividerDark
-          focus-visible:border-accent
+          focus-visible:border-dividerDark
+                    focus-visible:bg-primary
         "
           @enter="newSendRequest()"
         />
@@ -70,12 +72,14 @@
           class="
             bg-primaryLight
             border border-divider
+            rounded-r
             flex
             text-secondaryDark
             w-full
             py-2
             px-4
-            focus-visible:border-accent
+            hover:border-dividerDark
+            focus-visible:bg-primary focus-visible:border-dividerDark
           "
           name="url"
           type="text"
@@ -89,7 +93,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-none flex-1 min-w-24"
+        class="rounded-r-none flex-1 min-w-22"
         :label="!loading ? $t('action.send') : $t('action.cancel')"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />

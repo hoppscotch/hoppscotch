@@ -24,16 +24,7 @@
         <i class="mr-4 material-icons">help_outline</i>
         {{ $t("empty.teams") }}
       </div>
-      <div
-        v-else
-        class="
-          divide-y divide-dividerLight
-          border border-divider
-          rounded
-          flex flex-col flex-1
-          md:w-64
-        "
-      >
+      <div v-else class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <TeamsTeam
           v-for="(team, index) in myTeams"
           :key="`team-${index}`"

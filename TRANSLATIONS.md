@@ -1,41 +1,23 @@
 # Translations
 
-Thanks for your interest in helping translating the software!
+Thanks for showing your interest in helping us to translate the software.
 
-## Starting a translation
+## Creating a new translation
 
-Before you start working on a translation, look through the [open pull requests](https://github.com/hoppscotch/hoppscotch/pulls) to see if anyone else is already working on one for your language.
+Before you start working on a new language, please look through the [open pull requests](https://github.com/hoppscotch/hoppscotch/pulls) to see if anyone is already working on a translation. If you find one, please join the discussion and help us keep the existing translations up to date.
 
-If there's not, then today is your day to lead this effort! Here's how to start:
+if there is no existing translation, you can create a new one by following these steps:
 
-1. [Fork this repository](https://github.com/hoppscotch/hoppscotch/fork)
-2. Create a new branch for your translation work e.g. `es`.
-3. Copy `lang/en-US.json` to your target language file e.g. `lang/es-ES.json` and translate all the strings.
-4. Add your language entry to `nuxt.config.js`.
+1. **[Fork the repository](https://github.com/hoppscotch/hoppscotch/fork).**
+2. **Create a new branch for your translation.**
+3. **Create target language file in the [`locales`](https://github.com/hoppscotch/hoppscotch/tree/main/locales) directory.**
+4. **Copy the contents of the source file [`locales/en.json`](https://github.com/hoppscotch/hoppscotch/blob/main/locales/en.json) to the target language file.**
+5. **Translate the strings in the target language file.**
+6. **Add your language entry to [`languages.json`](https://github.com/hoppscotch/hoppscotch/blob/main/languages.json).**
+7. **Save & commit changes.**
+8. **Send a pull request.**
 
-   e.g.
-
-   ```
-    i18n: {
-      locales: [
-        {
-          code: "en",
-          name: "English",
-          iso: "en-US",
-          file: "en-US.json",
-        },
-        {
-          code: 'es',
-          name: 'Español',
-          iso: 'es-ES',
-          file: 'es-ES.json'
-        }
-      ]
-    }
-   ```
-
-5. Save & commit changes.
-6. Send a pull request. (You may send a pull request before all steps above are complete: e.g., you may want to ask for help with translations, or getting tests to pass. However your pull request will not be merged until all steps above are complete.)
+_You may send a pull request before all steps above are complete: e.g., you may want to ask for help with translations, or getting tests to pass. However, your pull request will not be merged until all steps above are complete._
 
 Completing an initial translation of the whole site is a fairly large task. One way to break that task up is to work with other translators through pull requests on your fork. You can also [add collaborators to your fork](https://help.github.com/en/github/setting-up-and-managing-your-github-user-account/inviting-collaborators-to-a-personal-repository) if you'd like to invite other translators to commit directly to your fork and share responsibility for merging pull requests.
 

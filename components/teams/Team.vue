@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-1 items-end">
+  <div class="border border-dividerLight rounded flex flex-1 items-end">
     <div class="flex flex-1 items-start">
       <div class="p-4">
         <label
@@ -12,6 +12,8 @@
           <img
             v-for="(member, index) in team.members"
             :key="`member-${index}`"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="member.user.displayName"
             :src="member.user.photoURL"
             :alt="member.user.displayName"
             class="rounded-full h-5 ring-primary ring-2 w-5 inline-block"
@@ -47,21 +49,24 @@
             $refs.options.tippy().hide()
           "
         />
-        <SmartItem
+        <span
           v-tippy="{ theme: 'tooltip' }"
           :title="
             team.myRole === 'OWNER' && team.ownersCount == 1
               ? $t('team.exit_disabled')
               : ''
           "
-          :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
-          icon="remove"
-          :label="$t('team.exit')"
-          @click.native="
-            exitTeam()
-            $refs.options.tippy().hide()
-          "
-        />
+        >
+          <SmartItem
+            :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
+            icon="remove"
+            :label="$t('team.exit')"
+            @click.native="
+              exitTeam()
+              $refs.options.tippy().hide()
+            "
+          />
+        </span>
       </tippy>
     </span>
   </div>

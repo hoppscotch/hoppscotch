@@ -17,12 +17,12 @@
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.show_all") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <!-- <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.command_menu") }}
           </span>
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.help_menu") }}
-          </span>
+          </span> -->
         </div>
         <div class="flex flex-col space-y-4">
           <div class="flex">
@@ -33,12 +33,12 @@
             <span class="shortcut-key">{{ getSpecialKey() }}</span>
             <span class="shortcut-key">K</span>
           </div>
-          <div class="flex">
+          <!-- <div class="flex">
             <span class="shortcut-key">/</span>
           </div>
           <div class="flex">
             <span class="shortcut-key">?</span>
-          </div>
+          </div> -->
         </div>
       </div>
       <ButtonSecondary

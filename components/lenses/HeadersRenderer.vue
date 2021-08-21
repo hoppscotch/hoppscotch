@@ -1,6 +1,33 @@
 <template>
   <div>
     <div
+      class="
+        bg-primary
+        border-b border-dividerLight
+        flex flex-1
+        top-lowerSecondaryStickyFold
+        pl-4
+        z-10
+        sticky
+        items-center
+        justify-between
+      "
+    >
+      <label class="font-semibold text-secondaryLight">
+        {{ $t("request.header_list") }}
+      </label>
+      <div class="flex">
+        <ButtonSecondary
+          v-if="headers"
+          ref="copyHeaders"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('action.copy')"
+          :icon="copyIcon"
+          @click.native="copyHeaders"
+        />
+      </div>
+    </div>
+    <div
       v-for="(header, index) in headers"
       :key="`header-${index}`"
       class="
@@ -43,9 +70,26 @@
 </template>
 
 <script>
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+
 export default {
   props: {
     headers: { type: Array, default: () => [] },
+  },
+  data() {
+    return {
+      copyIcon: "content_copy",
+    }
+  },
+  methods: {
+    copyHeaders() {
+      copyToClipboard(JSON.stringify(this.headers))
+      this.copyIcon = "done"
+      this.$toast.success(this.$t("state.copied_to_clipboard"), {
+        icon: "content_paste",
+      })
+      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
+    },
   },
 }
 </script>

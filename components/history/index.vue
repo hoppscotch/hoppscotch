@@ -2,7 +2,7 @@
   <AppSection label="history">
     <div
       class="
-        bg-primaryLight
+        bg-primary
         border-b border-dividerLight
         flex
         top-sidebarPrimaryStickyFold
@@ -14,7 +14,7 @@
         <input
           v-model="filterText"
           type="search"
-          class="bg-primaryLight flex w-full py-2 pr-2 pl-9"
+          class="bg-primary flex w-full py-2 pr-2 pl-10"
           :placeholder="$t('action.search')"
         />
       </div>

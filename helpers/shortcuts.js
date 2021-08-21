@@ -4,14 +4,14 @@ export default [
   {
     section: "shortcut.general.title",
     shortcuts: [
-      {
-        keys: ["?"],
-        label: "shortcut.general.help_menu",
-      },
-      {
-        keys: ["/"],
-        label: "shortcut.general.command_menu",
-      },
+      // {
+      //   keys: ["?"],
+      //   label: "shortcut.general.help_menu",
+      // },
+      // {
+      //   keys: ["/"],
+      //   label: "shortcut.general.command_menu",
+      // },
       {
         keys: [getPlatformSpecialKey(), "K"],
         label: "shortcut.general.show_all",
@@ -104,15 +104,15 @@ export default [
       },
     ],
   },
-  {
-    section: "shortcut.miscellaneous.title",
-    shortcuts: [
-      {
-        keys: [getPlatformSpecialKey(), "M"],
-        label: "shortcut.miscellaneous.invite",
-      },
-    ],
-  },
+  // {
+  //   section: "shortcut.miscellaneous.title",
+  //   shortcuts: [
+  //     {
+  //       keys: [getPlatformSpecialKey(), "M"],
+  //       label: "shortcut.miscellaneous.invite",
+  //     },
+  //   ],
+  // },
 ]
 
 export const spotlight = [

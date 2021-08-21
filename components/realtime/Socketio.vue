@@ -1,52 +1,57 @@
 <template>
-  <Splitpanes :dbl-click-splitter="false" vertical>
+  <Splitpanes class="smart-splitter" :dbl-click-splitter="false" vertical>
     <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes :dbl-click-splitter="false" horizontal>
+      <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
-              <div class="flex-1 inline-flex">
-                <input
-                  id="socketio-url"
-                  v-model="url"
-                  v-focus
-                  type="url"
-                  spellcheck="false"
-                  :class="{ error: !urlValid }"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded-l
-                    flex flex-1
-                    text-secondaryDark
-                    w-full
-                    py-2
-                    px-4
-                    focus-visible:border-accent
-                  "
-                  :placeholder="$t('socketio.url')"
-                  @keyup.enter="urlValid ? toggleConnection() : null"
-                />
-                <input
-                  id="socketio-path"
-                  v-model="path"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    flex flex-1
-                    text-secondaryDark
-                    w-full
-                    py-2
-                    px-4
-                    focus-visible:border-accent
-                  "
-                  spellcheck="false"
-                />
+              <div class="space-x-2 flex-1 inline-flex">
+                <div class="flex flex-1">
+                  <input
+                    id="socketio-url"
+                    v-model="url"
+                    v-focus
+                    type="url"
+                    spellcheck="false"
+                    :class="{ error: !urlValid }"
+                    class="
+                      bg-primaryLight
+                      border border-divider
+                      rounded-l
+                      flex flex-1
+                      text-secondaryDark
+                      w-full
+                      py-2
+                      px-4
+                      hover:border-dividerDark
+                      focus-visible:bg-primary focus-visible:border-dividerDark
+                    "
+                    :placeholder="$t('socketio.url')"
+                    @keyup.enter="urlValid ? toggleConnection() : null"
+                  />
+                  <input
+                    id="socketio-path"
+                    v-model="path"
+                    class="
+                      bg-primaryLight
+                      border border-divider
+                      rounded-r
+                      flex flex-1
+                      text-secondaryDark
+                      w-full
+                      py-2
+                      px-4
+                      hover:border-dividerDark
+                      focus-visible:bg-primary focus-visible:border-dividerDark
+                    "
+                    spellcheck="false"
+                  />
+                </div>
                 <ButtonPrimary
                   id="connect"
                   :disabled="!urlValid"
                   name="connect"
-                  class="rounded-l-none w-28"
+                  class="w-32"
                   :label="
                     !connectionState
                       ? $t('action.connect')
@@ -99,6 +104,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('add.new')"
               icon="add"
+              class="rounded"
               @click.native="addCommunicationInput"
             />
           </div>
@@ -123,7 +129,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
                 icon="remove_circle_outline"
-                class="rounded-l-none"
+                class="rounded-r"
                 color="red"
                 outline
                 @click.native="removeCommunicationInput({ index })"

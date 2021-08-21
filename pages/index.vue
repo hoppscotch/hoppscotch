@@ -1,7 +1,7 @@
 <template>
-  <Splitpanes :dbl-click-splitter="false" vertical>
+  <Splitpanes class="smart-splitter" :dbl-click-splitter="false" vertical>
     <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes :dbl-click-splitter="false" horizontal>
+      <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
           <HttpRequest />
           <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">

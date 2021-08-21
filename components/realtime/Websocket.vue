@@ -1,11 +1,11 @@
 <template>
-  <Splitpanes :dbl-click-splitter="false" vertical>
+  <Splitpanes class="smart-splitter" :dbl-click-splitter="false" vertical>
     <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes :dbl-click-splitter="false" horizontal>
+      <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
-              <div class="flex-1 inline-flex">
+              <div class="space-x-2 flex-1 inline-flex">
                 <input
                   id="websocket-url"
                   v-model="url"
@@ -13,12 +13,13 @@
                   class="
                     bg-primaryLight
                     border border-divider
-                    rounded-l
+                    rounded
                     text-secondaryDark
                     w-full
                     py-2
                     px-4
-                    focus-visible:border-accent
+                    hover:border-dividerDark
+                    focus-visible:bg-primary focus-visible:border-dividerDark
                   "
                   type="url"
                   spellcheck="false"
@@ -29,7 +30,7 @@
                 <ButtonPrimary
                   id="connect"
                   :disabled="!urlValid"
-                  class="rounded-l-none w-28"
+                  class="w-32"
                   name="connect"
                   :label="
                     !connectionState
@@ -83,7 +84,7 @@
             >
               <input
                 v-model="protocol.value"
-                class="bg-primaryLight flex flex-1 py-2 px-4"
+                class="bg-primary flex flex-1 py-2 px-4"
                 :placeholder="$t('count.protocol', { count: index + 1 })"
                 name="message"
                 type="text"

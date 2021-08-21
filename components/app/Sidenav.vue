@@ -17,7 +17,7 @@
         <span>{{ navigation.title }}</span>
       </NuxtLink>
     </nav>
-    <nav
+    <!-- <nav
       class="
         flex flex-nowrap
         p-4
@@ -25,7 +25,7 @@
         justify-center
         md:(flex-col
         space-x-0 space-y-2)
-      "
+        "
     >
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
@@ -48,41 +48,41 @@
         class="rounded"
         @click.native="showSupport = true"
       />
-    </nav>
-    <AppSearch :show="showSearch" @hide-modal="showSearch = false" />
+    </nav> -->
+    <!-- <AppSearch :show="showSearch" @hide-modal="showSearch = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <AppShare :show="showShare" @hide-modal="showShare = false" />
+    <AppShare :show="showShare" @hide-modal="showShare = false" /> -->
   </aside>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineComponent } from "@nuxtjs/composition-api"
+// import { defineActionHandler } from "~/helpers/actions"
 
 export default defineComponent({
-  setup() {
-    const showSearch = ref(false)
-    const showSupport = ref(false)
-    const showShare = ref(false)
+  // setup() {
+  // const showSearch = ref(false)
+  // const showSupport = ref(false)
+  // const showShare = ref(false)
 
-    defineActionHandler("modals.search.toggle", () => {
-      showSearch.value = !showSearch.value
-    })
+  // defineActionHandler("modals.search.toggle", () => {
+  //   showSearch.value = !showSearch.value
+  // })
 
-    defineActionHandler("modals.support.toggle", () => {
-      showSupport.value = !showSupport.value
-    })
+  // defineActionHandler("modals.support.toggle", () => {
+  //   showSupport.value = !showSupport.value
+  // })
 
-    defineActionHandler("modals.share.toggle", () => {
-      showShare.value = !showShare.value
-    })
+  // defineActionHandler("modals.share.toggle", () => {
+  //   showShare.value = !showShare.value
+  // })
 
-    return {
-      showSearch,
-      showSupport,
-      showShare,
-    }
-  },
+  //   return {
+  //     showSearch,
+  //     showSupport,
+  //     showShare,
+  //   }
+  // },
   data() {
     return {
       primaryNavigation: [
@@ -159,8 +159,9 @@ export default defineComponent({
   }
 
   &.exact-active-link {
-    @apply text-accent;
-    @apply hover:text-accent;
+    @apply text-secondaryDark;
+    @apply bg-primaryLight;
+    @apply hover:text-secondaryDark;
 
     .material-icons,
     .svg-icons {

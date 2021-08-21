@@ -198,7 +198,7 @@ hr {
   @apply rounded;
   @apply text-secondaryDark;
   @apply border border-divider;
-  @apply focus-visible:border-accent;
+  @apply focus-visible:border-dividerDark;
 }
 
 input,
@@ -242,7 +242,7 @@ button {
 }
 
 .floating-input:focus-within ~ label {
-  @apply text-accent;
+  @apply text-secondaryDark;
 }
 
 pre.ace_editor {
@@ -292,7 +292,7 @@ pre.ace_editor {
     @apply pointer-events-none;
     @apply font-icon;
     @apply text-secondaryLight;
-    @apply left-3;
+    @apply left-4;
 
     content: "\e8b6";
   }
@@ -400,20 +400,35 @@ input[type="checkbox"] {
   }
 }
 
-.splitpanes__splitter {
+.smart-splitter .splitpanes__splitter {
   @apply relative;
   @apply bg-primaryLight;
 }
 
-.splitpanes--vertical > .splitpanes__splitter {
+.no-splitter .splitpanes__splitter {
+  @apply relative;
+  @apply bg-primaryLight;
+}
+
+.smart-splitter.splitpanes--vertical > .splitpanes__splitter {
   @apply w-1;
 }
 
-.splitpanes--horizontal > .splitpanes__splitter {
+.smart-splitter.splitpanes--horizontal > .splitpanes__splitter {
   @apply h-1;
 }
 
-.splitpanes__splitter::before {
+.no-splitter.splitpanes--vertical > .splitpanes__splitter {
+  @apply w-0.5;
+  @apply pointer-events-none;
+}
+
+.no-splitter.splitpanes--horizontal > .splitpanes__splitter {
+  @apply h-0.5;
+  @apply pointer-events-none;
+}
+
+.smart-splitter .splitpanes__splitter::before {
   @apply absolute;
   @apply inset-0;
   @apply bg-dividerLight;
@@ -424,7 +439,7 @@ input[type="checkbox"] {
   content: "";
 }
 
-.splitpanes__splitter::after {
+.smart-splitter .splitpanes__splitter::after {
   @apply absolute;
   @apply inset-0;
   @apply z-30;
@@ -436,25 +451,25 @@ input[type="checkbox"] {
   @apply font-icon;
 }
 
-.splitpanes--vertical > .splitpanes__splitter::after {
+.smart-splitter.splitpanes--vertical > .splitpanes__splitter::after {
   content: "\e5d4";
 }
 
-.splitpanes--horizontal > .splitpanes__splitter::after {
+.smart-splitter.splitpanes--horizontal > .splitpanes__splitter::after {
   content: "\e5d3";
 }
 
-.splitpanes__splitter:hover::before {
+.smart-splitter .splitpanes__splitter:hover::before {
   @apply opacity-100;
 }
 
-.splitpanes--vertical > .splitpanes__splitter::before {
+.smart-splitter.splitpanes--vertical > .splitpanes__splitter::before {
   @apply -left-0.5;
   @apply -right-0.5;
   @apply h-full;
 }
 
-.splitpanes--horizontal > .splitpanes__splitter::before {
+.smart-splitter.splitpanes--horizontal > .splitpanes__splitter::before {
   @apply -top-0.5;
   @apply -bottom-0.5;
   @apply w-full;

@@ -1,8 +1,12 @@
 <template>
   <div>
-    <Splitpanes :dbl-click-splitter="false" vertical>
+    <Splitpanes class="smart-splitter" :dbl-click-splitter="false" vertical>
       <Pane class="hide-scrollbar !overflow-auto">
-        <Splitpanes :dbl-click-splitter="false" horizontal>
+        <Splitpanes
+          class="smart-splitter"
+          :dbl-click-splitter="false"
+          horizontal
+        >
           <Pane class="hide-scrollbar !overflow-auto">
             <GraphqlRequest :conn="gqlConn" />
             <GraphqlRequestOptions :conn="gqlConn" />

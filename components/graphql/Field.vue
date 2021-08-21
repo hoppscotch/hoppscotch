@@ -86,4 +86,8 @@ export default {
 .field-highlighted {
   @apply border-b-2 border-accent;
 }
+
+.field-title {
+  @apply select-text;
+}
 </style>

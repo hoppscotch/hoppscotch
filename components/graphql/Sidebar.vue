@@ -3,21 +3,13 @@
     <SmartTabs styles="sticky z-10 top-0">
       <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
         <AppSection label="docs">
-          <div
-            class="
-              bg-primaryLight
-              flex
-              top-sidebarPrimaryStickyFold
-              z-10
-              sticky
-            "
-          >
+          <div class="bg-primary flex top-sidebarPrimaryStickyFold z-10 sticky">
             <div class="search-wrapper">
               <input
                 v-model="graphqlFieldsFilterText"
                 type="search"
                 :placeholder="$t('action.search')"
-                class="bg-primaryLight flex w-full py-2 pr-2 pl-9"
+                class="bg-primary flex w-full py-2 pr-2 pl-10"
               />
             </div>
             <div class="flex">
@@ -138,7 +130,6 @@
             v-if="schemaString"
             class="
               bg-primary
-              border-b border-dividerLight
               flex flex-1
               top-sidebarPrimaryStickyFold
               pl-4

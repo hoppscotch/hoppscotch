@@ -18,8 +18,7 @@
               type="text"
               autofocus
               class="
-                bg-primaryLight
-                border-b border-dividerLight
+                bg-primary
                 cursor-pointer
                 flex
                 w-full

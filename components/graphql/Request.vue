@@ -1,6 +1,6 @@
 <template>
   <div class="bg-primary flex p-4 top-0 z-10 sticky">
-    <div class="flex-1 inline-flex">
+    <div class="space-x-2 flex-1 inline-flex">
       <input
         id="url"
         v-model="url"
@@ -10,12 +10,13 @@
         class="
           bg-primaryLight
           border border-divider
-          rounded-l
+          rounded
           text-secondaryDark
           w-full
           py-2
           px-4
-          focus-visible:border-accent
+          hover:border-dividerDark
+          focus-visible:bg-primary focus-visible:border-dividerDark
         "
         :placeholder="$t('request.url')"
         @keyup.enter="onConnectClick"
@@ -24,7 +25,7 @@
         id="get"
         name="get"
         :label="!connected ? $t('action.connect') : $t('action.disconnect')"
-        class="rounded-l-none w-28"
+        class="w-32"
         @click.native="onConnectClick"
       />
     </div>

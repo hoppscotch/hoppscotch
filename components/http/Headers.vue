@@ -50,7 +50,7 @@
         :value="header.key"
         autofocus
         styles="
-          bg-primaryLight
+          bg-primary
           flex
           flex-1
           py-1
@@ -71,7 +71,7 @@
         v-model="header.value"
         :placeholder="$t('count.value', { count: index + 1 })"
         styles="
-          bg-primaryLight
+          bg-primary
           flex
           flex-1
           py-1
@@ -87,7 +87,7 @@
       />
       <input
         v-else
-        class="bg-primaryLight flex flex-1 py-2 px-4"
+        class="bg-primary flex flex-1 py-2 px-4"
         :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="header.value"

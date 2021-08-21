@@ -4,7 +4,16 @@
     :class="{ 'rounded border border-divider': saveRequest }"
   >
     <div
-      class="bg-primary rounded-t flex flex-col top-0 z-10 sticky"
+      class="
+        divide-y divide-dividerLight
+        bg-primary
+        border-b border-dividerLight
+        rounded-t
+        flex flex-col
+        top-0
+        z-10
+        sticky
+      "
       :class="{ '!top-sidebarPrimaryStickyFold': !saveRequest && !doc }"
     >
       <div v-if="!saveRequest" class="search-wrapper">
@@ -12,15 +21,7 @@
           v-model="filterText"
           type="search"
           :placeholder="$t('action.search')"
-          class="
-            bg-primaryLight
-            border-b border-dividerLight
-            flex
-            w-full
-            py-2
-            pr-2
-            pl-9
-          "
+          class="bg-primary flex w-full py-2 pr-2 pl-10"
         />
       </div>
       <CollectionsChooseType
@@ -30,7 +31,7 @@
         @update-collection-type="updateCollectionType"
         @update-selected-team="updateSelectedTeam"
       />
-      <div class="border-b border-dividerLight flex flex-1 justify-between">
+      <div class="flex flex-1 justify-between">
         <ButtonSecondary
           v-if="
             collectionsType.type == 'team-collections' &&

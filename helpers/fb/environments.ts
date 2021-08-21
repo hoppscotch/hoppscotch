@@ -130,7 +130,9 @@ export function initEnvironments() {
           })
 
           loadedEnvironments = false
-          replaceEnvironments(environments[0].environment)
+          if (environments.length > 0) {
+            replaceEnvironments(environments[0].environment)
+          }
           loadedEnvironments = true
         })
       globalsSnapshotStop = firebase

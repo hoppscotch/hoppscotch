@@ -141,17 +141,14 @@ export function initEnvironments() {
         .doc(user.uid)
         .collection("globalEnv")
         .onSnapshot((globalsRef) => {
-          const variables: any[] = []
+          if (globalsRef.docs.length === 0) {
+            loadedGlobals = true
+            return
+          }
 
-          globalsRef.forEach((doc) => {
-            const variable = doc.data()
-            variable.id = doc.id
-
-            variables.push(variable)
-          })
-
+          const doc = globalsRef.docs[0].data()
           loadedGlobals = false
-          setGlobalEnvVariables(variables)
+          setGlobalEnvVariables(doc.variables)
           loadedGlobals = true
         })
     }

@@ -124,8 +124,10 @@ export default defineComponent({
     processHighlights() {
       if (!this.highlightEnabled) {
         this.htmlOutput = this.internalValue
-        this.$emit("input", this.internalValue)
-        this.$emit("change", this.internalValue)
+        if (this.intervalTree !== this.value) {
+          this.$emit("input", this.internalValue)
+          this.$emit("change", this.internalValue)
+        }
         return
       }
 
@@ -223,8 +225,10 @@ export default defineComponent({
         this.renderTippy()
       })
 
-      this.$emit("input", this.internalValue)
-      this.$emit("change", this.internalValue)
+      if (this.internalValue !== this.value) {
+        this.$emit("input", this.internalValue)
+        this.$emit("change", this.internalValue)
+      }
     },
     renderTippy() {
       const tippable = document.querySelectorAll("[v-tippy]")

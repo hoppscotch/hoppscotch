@@ -1,5 +1,6 @@
+import { isEqual } from "lodash"
 import { combineLatest } from "rxjs"
-import { map, pluck } from "rxjs/operators"
+import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
@@ -232,13 +233,18 @@ export const environmentsStore = new DispatchingStore(
 )
 
 export const environments$ = environmentsStore.subject$.pipe(
-  pluck("environments")
+  pluck("environments"),
+  distinctUntilChanged()
 )
 
-export const globalEnv$ = environmentsStore.subject$.pipe(pluck("globals"))
+export const globalEnv$ = environmentsStore.subject$.pipe(
+  pluck("globals"),
+  distinctUntilChanged()
+)
 
 export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
-  pluck("currentEnvironmentIndex")
+  pluck("currentEnvironmentIndex"),
+  distinctUntilChanged()
 )
 
 export const currentEnvironment$ = combineLatest([
@@ -279,7 +285,8 @@ export const aggregateEnvs$ = combineLatest([
     )
 
     return results
-  })
+  }),
+  distinctUntilChanged(isEqual)
 )
 
 export function getCurrentEnvironment(): Environment {

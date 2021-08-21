@@ -413,6 +413,10 @@ export default defineComponent({
     defineActionHandler("request.method.next", cycleDownMethod)
     defineActionHandler("request.method.prev", cycleUpMethod)
     defineActionHandler("request.save", saveRequest)
+    defineActionHandler(
+      "request.save-as",
+      () => (showSaveRequestModal.value = true)
+    )
     defineActionHandler("request.method.get", () => updateMethod("GET"))
     defineActionHandler("request.method.post", () => updateMethod("POST"))
     defineActionHandler("request.method.put", () => updateMethod("PUT"))

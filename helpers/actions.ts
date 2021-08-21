@@ -10,6 +10,7 @@ export type HoppAction =
   | "request.reset" // Clear request data
   | "request.copy-link" // Copy Request Link
   | "request.save" // Save to Collections
+  | "request.save-as" // Save As
   | "request.method.next" // Select Next Method
   | "request.method.prev" // Select Previous Method
   | "request.method.get" // Select GET Method

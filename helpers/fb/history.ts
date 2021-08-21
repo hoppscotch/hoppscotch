@@ -36,7 +36,10 @@ async function writeHistory(entry: any, col: HistoryFBCollections) {
   if (currentUser$.value == null)
     throw new Error("User not logged in to sync history")
 
-  const hs = entry
+  const hs = {
+    ...entry,
+    updatedOn: new Date(),
+  }
 
   try {
     await firebase
@@ -200,3 +203,7 @@ export function initHistory() {
     }
   })
 }
+
+restHistoryStore.dispatches$.subscribe((state) => {
+  console.log(state)
+})

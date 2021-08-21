@@ -1,4 +1,4 @@
-import { isEqual } from "lodash"
+import isEqual from "lodash/isEqual"
 import { combineLatest } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import DispatchingStore, {

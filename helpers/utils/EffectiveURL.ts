@@ -2,7 +2,7 @@ import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 import { FormDataKeyValue, HoppRESTRequest } from "../types/HoppRESTRequest"
 import parseTemplateString from "../templating"
-import { Environment } from "~/newstore/environments"
+import { Environment, getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**
@@ -57,6 +57,8 @@ export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment
 ): EffectiveHoppRESTRequest {
+  const envVariables = [...environment.variables, ...getGlobalVariables()]
+
   const effectiveFinalHeaders = request.headers
     .filter(
       (x) =>
@@ -66,8 +68,8 @@ export function getEffectiveRESTRequest(
     .map((x) => ({
       // Parse out environment template strings
       active: true,
-      key: parseTemplateString(x.key, environment.variables),
-      value: parseTemplateString(x.value, environment.variables),
+      key: parseTemplateString(x.key, envVariables),
+      value: parseTemplateString(x.value, envVariables),
     }))
 
   // Authentication
@@ -99,10 +101,7 @@ export function getEffectiveRESTRequest(
 
   return {
     ...request,
-    effectiveFinalURL: parseTemplateString(
-      request.endpoint,
-      environment.variables
-    ),
+    effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
     effectiveFinalHeaders,
     effectiveFinalParams: request.params
       .filter(
@@ -112,8 +111,8 @@ export function getEffectiveRESTRequest(
       )
       .map((x) => ({
         active: true,
-        key: parseTemplateString(x.key, environment.variables),
-        value: parseTemplateString(x.value, environment.variables),
+        key: parseTemplateString(x.key, envVariables),
+        value: parseTemplateString(x.value, envVariables),
       })),
     effectiveFinalBody,
   }

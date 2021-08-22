@@ -36,7 +36,6 @@
             label="None"
             @click.native="
               authType = 'none'
-              authName = 'None'
               $refs.authTypeOptions.tippy().hide()
             "
           />
@@ -44,7 +43,6 @@
             label="Basic Auth"
             @click.native="
               authType = 'basic'
-              authName = 'Basic Auth'
               $refs.authTypeOptions.tippy().hide()
             "
           />
@@ -52,7 +50,6 @@
             label="Bearer Token"
             @click.native="
               authType = 'bearer'
-              authName = 'Bearer Token'
               $refs.authTypeOptions.tippy().hide()
             "
           />
@@ -174,7 +171,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, Ref, ref } from "@nuxtjs/composition-api"
+import { computed, defineComponent, Ref, ref } from "@nuxtjs/composition-api"
 import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
@@ -187,12 +184,16 @@ export default defineComponent({
   setup() {
     const auth = useStream(
       restAuth$,
-      { authType: "none", authName: "None", authActive: true },
+      { authType: "none", authActive: true },
       setRESTAuth
     )
 
     const authType = pluckRef(auth, "authType")
-    const authName = pluckRef(auth, "authName")
+    const authName = computed(() => {
+      if (authType.value === "basic") return "Basic Auth"
+      else if (authType.value === "bearer") return "Bearer"
+      else return "None"
+    })
     const authActive = pluckRef(auth, "authActive")
 
     const basicUsername = pluckRef(auth as Ref<HoppRESTAuthBasic>, "username")
@@ -207,7 +208,6 @@ export default defineComponent({
     const clearContent = () => {
       auth.value = {
         authType: "none",
-        authName: "None",
         authActive: true,
       }
     }

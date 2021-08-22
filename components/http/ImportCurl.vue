@@ -116,7 +116,6 @@ export default defineComponent({
             testScript: "",
             auth: {
               authType: "none",
-              authName: "None",
               authActive: true,
             },
             body: {

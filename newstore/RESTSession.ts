@@ -23,7 +23,7 @@ type RESTSession = {
   saveContext: HoppRequestSaveContext | null
 }
 
-const defaultRESTRequest: HoppRESTRequest = {
+export const defaultRESTRequest: HoppRESTRequest = {
   v: RESTReqSchemaVersion,
   endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
@@ -32,7 +32,6 @@ const defaultRESTRequest: HoppRESTRequest = {
   method: "GET",
   auth: {
     authType: "none",
-    authName: "None",
     authActive: true,
   },
   preRequestScript: "",

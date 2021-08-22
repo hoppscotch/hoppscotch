@@ -101,11 +101,8 @@ import {
   restActiveHeadersCount$,
   getRESTRequest,
   setRESTRequest,
-  setRESTHeaders,
-  setRESTParams,
-  updateRESTMethod,
-  setRESTEndpoint,
 } from "~/newstore/RESTSession"
+import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
   useReadonlyStream,
   useStream,
@@ -161,14 +158,9 @@ function bindRequestToURLParams() {
   // Now, we have to see the initial URL param and set that as the request
   onMounted(() => {
     const query = route.value.query
-    if (query.headers && typeof query.headers === "string")
-      setRESTHeaders(JSON.parse(query.headers))
-    if (query.params && typeof query.params === "string")
-      setRESTParams(JSON.parse(query.params))
-    if (query.method && typeof query.method === "string")
-      updateRESTMethod(query.method)
-    if (query.endpoint && typeof query.endpoint === "string")
-      setRESTEndpoint(query.endpoint)
+
+    if (Object.keys(query).length === 0) return
+    setRESTRequest(translateExtURLParams(query))
   })
 }
 

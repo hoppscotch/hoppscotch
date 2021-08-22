@@ -15,8 +15,7 @@ export type HoppRESTAuthBearer = {
   token: string
 }
 
-export type HoppRESTAuth =
-  { authActive: boolean } & (
+export type HoppRESTAuth = { authActive: boolean } & (
   | HoppRESTAuthNone
   | HoppRESTAuthBasic
   | HoppRESTAuthBearer

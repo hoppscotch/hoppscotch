@@ -13,13 +13,17 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalURL: string
   effectiveFinalHeaders: { key: string; value: string }[]
   effectiveFinalParams: { key: string; value: string }[]
-  effectiveFinalBody: FormData | string
+  effectiveFinalBody: FormData | string | null
 }
 
 function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   env: Environment
-): FormData | string {
+): FormData | string | null {
+  if (request.body.contentType === null) {
+    return null
+  }
+
   if (request.body.contentType === "multipart/form-data") {
     const formData = new FormData()
 
@@ -93,11 +97,12 @@ export function getEffectiveRESTRequest(
   }
 
   const effectiveFinalBody = getFinalBodyFromRequest(request, environment)
-  effectiveFinalHeaders.push({
-    active: true,
-    key: "content-type",
-    value: request.body.contentType,
-  })
+  if (request.body.contentType)
+    effectiveFinalHeaders.push({
+      active: true,
+      key: "content-type",
+      value: request.body.contentType,
+    })
 
   return {
     ...request,

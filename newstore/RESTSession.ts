@@ -37,8 +37,7 @@ export const defaultRESTRequest: HoppRESTRequest = {
   preRequestScript: "",
   testScript: "",
   body: {
-    contentType: "application/json",
-    body: "",
+    contentType: null,
   },
 }
 
@@ -201,7 +200,7 @@ const dispatchers = defineDispatchers({
   },
   setContentType(
     curr: RESTSession,
-    { newContentType }: { newContentType: ValidContentTypes }
+    { newContentType }: { newContentType: ValidContentTypes | null }
   ) {
     // TODO: persist body evenafter switching content typees
     if (curr.request.body.contentType !== "multipart/form-data") {
@@ -223,7 +222,10 @@ const dispatchers = defineDispatchers({
             ...curr.request,
             body: <HoppRESTReqBody>{
               contentType: newContentType,
-              body: curr.request.body.body,
+              body:
+                newContentType === null
+                  ? undefined
+                  : (curr.request.body as any).body,
             },
           },
         }
@@ -591,7 +593,7 @@ export function updateFormDataEntry(index: number, entry: FormDataKeyValue) {
   })
 }
 
-export function setRESTContentType(newContentType: ValidContentTypes) {
+export function setRESTContentType(newContentType: ValidContentTypes | null) {
   restSessionStore.dispatch({
     dispatcher: "setContentType",
     payload: {

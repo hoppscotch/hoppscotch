@@ -24,11 +24,20 @@
           <template #trigger>
             <span class="select-wrapper">
               <ButtonSecondary
-                :label="contentType"
+                :label="contentType || $t('state.none').toLowerCase()"
                 class="rounded-none ml-2 pr-8"
               />
             </span>
           </template>
+          <SmartItem
+            :label="$t('state.none').toLowerCase()"
+            :info-icon="contentType === null ? 'done' : ''"
+            :active-info-icon="contentType === null"
+            @click.native="
+              contentType = null
+              $refs.contentTypeOptions.tippy().hide()
+            "
+          />
           <SmartItem
             v-for="(contentTypeItem, index) in validContentTypes"
             :key="`contentTypeItem-${index}`"
@@ -44,7 +53,15 @@
       </span>
     </div>
     <HttpBodyParameters v-if="contentType === 'multipart/form-data'" />
-    <HttpRawBody v-else :content-type="contentType" />
+    <HttpRawBody v-else-if="contentType !== null" :content-type="contentType" />
+    <div
+      v-if="contentType == null"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <span class="text-center pb-4">
+        {{ $t("empty.body") }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -59,11 +76,7 @@ export default defineComponent({
     return {
       validContentTypes: Object.keys(knownContentTypes),
 
-      contentType: useStream(
-        restContentType$,
-        "application/json",
-        setRESTContentType
-      ),
+      contentType: useStream(restContentType$, null, setRESTContentType),
     }
   },
 })

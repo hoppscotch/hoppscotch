@@ -31,7 +31,7 @@
           @click.native="clearContent('rawParams', $event)"
         />
         <ButtonSecondary
-          v-if="contentType.endsWith('json')"
+          v-if="contentType && contentType.endsWith('json')"
           ref="prettifyRequest"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.prettify')"

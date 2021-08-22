@@ -54,7 +54,7 @@ function parseV0ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
   }
 
   if (urlParams.contentType) {
-    if (urlParams.contentType === "multipart/formdata") {
+    if (urlParams.contentType === "multipart/form-data") {
       resolvedReq.body = {
         contentType: "multipart/form-data",
         body: JSON.parse(urlParams.bodyParams || "[]").map(
@@ -68,10 +68,10 @@ function parseV0ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
         ),
       }
     } else if (isJSONContentType(urlParams.contentType)) {
-      if (urlParams.rawInput) {
+      if (urlParams.rawParams) {
         resolvedReq.body = {
           contentType: urlParams.contentType,
-          body: urlParams.rawInput,
+          body: urlParams.rawParams,
         }
       } else {
         resolvedReq.body = {
@@ -82,7 +82,7 @@ function parseV0ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
     } else {
       resolvedReq.body = {
         contentType: urlParams.contentType,
-        body: urlParams.rawInput,
+        body: urlParams.rawParams,
       }
     }
   }

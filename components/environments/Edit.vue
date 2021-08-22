@@ -46,13 +46,13 @@
           >
             <input
               v-model="variable.key"
-              class="bg-primaryLight flex flex-1 py-2 px-4"
+              class="bg-primary flex flex-1 py-2 px-4"
               :placeholder="$t('count.variable', { count: index + 1 })"
               :name="'param' + index"
             />
             <input
               v-model="variable.value"
-              class="bg-primaryLight flex flex-1 py-2 px-4"
+              class="bg-primary flex flex-1 py-2 px-4"
               :placeholder="$t('count.value', { count: index + 1 })"
               :name="'value' + index"
             />
@@ -83,7 +83,7 @@
             </span>
             <ButtonSecondary
               :label="$t('add.new')"
-              outline
+              filled
               @click.native="addEnvironmentVariable"
             />
           </div>

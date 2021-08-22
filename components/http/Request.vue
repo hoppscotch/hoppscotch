@@ -108,7 +108,7 @@
           <template #trigger>
             <ButtonPrimary
               class="rounded-l-none"
-              outline
+              filled
               icon="keyboard_arrow_down"
             />
           </template>
@@ -142,7 +142,7 @@
       <ButtonSecondary
         class="rounded-r-none ml-2"
         :label="$t('request.save')"
-        outline
+        filled
         icon="save"
         @click.native="saveRequest()"
       />
@@ -157,7 +157,7 @@
           <template #trigger>
             <ButtonSecondary
               icon="keyboard_arrow_down"
-              outline
+              filled
               class="rounded-r"
             />
           </template>

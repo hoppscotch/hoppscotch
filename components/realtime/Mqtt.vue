@@ -72,15 +72,15 @@
           />
         </div>
         <div class="flex flex-1 p-4 items-center justify-between">
-          <label for="mqtt-message" class="font-semibold text-secondaryLight">{{
-            $t("mqtt.communication")
-          }}</label>
+          <label for="mqtt-message" class="font-semibold text-secondaryLight">
+            {{ $t("mqtt.communication") }}
+          </label>
         </div>
-        <div class="flex px-4">
+        <div class="flex space-x-2 px-4">
           <input
             id="mqtt-message"
             v-model="msg"
-            class="input !rounded-r-none"
+            class="input"
             type="text"
             :placeholder="$t('mqtt.message')"
             spellcheck="false"
@@ -88,7 +88,6 @@
           <ButtonPrimary
             id="publish"
             name="get"
-            class="rounded-l-none"
             :disabled="!canpublish"
             :label="$t('mqtt.publish')"
             @click.native="publish"
@@ -103,24 +102,23 @@
             inline-flex
           "
         >
-          <label for="sub_topic" class="font-semibold text-secondaryLight">{{
-            $t("mqtt.topic")
-          }}</label>
+          <label for="sub_topic" class="font-semibold text-secondaryLight">
+            {{ $t("mqtt.topic") }}
+          </label>
         </div>
-        <div class="flex px-4">
+        <div class="flex space-x-2 px-4">
           <input
             id="sub_topic"
             v-model="sub_topic"
             type="text"
             :placeholder="$t('mqtt.topic_name')"
             spellcheck="false"
-            class="input !rounded-r-none"
+            class="input"
           />
           <ButtonPrimary
             id="subscribe"
             name="get"
             :disabled="!cansubscribe"
-            class="rounded-l-none"
             :label="
               subscriptionState ? $t('mqtt.unsubscribe') : $t('mqtt.subscribe')
             "

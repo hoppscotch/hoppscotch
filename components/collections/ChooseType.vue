@@ -19,12 +19,15 @@
               autofocus
               class="
                 bg-primary
+                border-b border-transparent
                 cursor-pointer
                 flex
+                font-medium
                 w-full
                 py-2
                 px-4
                 appearance-none
+                hover:bg-primaryDark
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >

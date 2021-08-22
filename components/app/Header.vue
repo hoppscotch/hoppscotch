@@ -26,14 +26,13 @@
           v-if="currentUser === null"
           icon="filter_drama"
           :label="$t('header.save_workspace')"
-          outline
-          class="hidden !text-secondaryDark md:flex"
+          filled
+          class="hidden !font-semibold md:flex"
           @click.native="showLogin = true"
         />
         <ButtonPrimary
           v-if="currentUser === null"
           :label="$t('header.login')"
-          outline
           @click.native="showLogin = true"
         />
         <span v-else class="pr-2">

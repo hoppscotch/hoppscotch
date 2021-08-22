@@ -167,7 +167,7 @@
             {{ $t("websocket.communication") }}
           </label>
         </div>
-        <div class="flex px-4">
+        <div class="flex space-x-2 px-4">
           <input
             id="websocket-message"
             v-model="communication.input"
@@ -175,7 +175,7 @@
             type="text"
             :disabled="!connectionState"
             :placeholder="$t('websocket.message')"
-            class="input !rounded-r-none"
+            class="input"
             @keyup.enter="connectionState ? sendMessage() : null"
             @keyup.up="connectionState ? walkHistory('up') : null"
             @keyup.down="connectionState ? walkHistory('down') : null"
@@ -184,7 +184,6 @@
             id="send"
             name="send"
             :disabled="!connectionState"
-            class="rounded-l-none"
             :label="$t('action.send')"
             @click.native="sendMessage"
           />

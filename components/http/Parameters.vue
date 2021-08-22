@@ -157,7 +157,7 @@
       <ButtonSecondary
         :label="$t('add.new')"
         icon="add"
-        outline
+        filled
         @click.native="addParam"
       />
     </div>

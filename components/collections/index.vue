@@ -118,15 +118,14 @@
             collectionsType.selectedTeam.myRole == 'VIEWER')
         "
         v-tippy="{ theme: 'tooltip' }"
-        disabled
         :title="$t('team.no_access')"
         :label="$t('add.new')"
-        outline
+        filled
       />
       <ButtonSecondary
         v-else
-        outline
         :label="$t('add.new')"
+        filled
         @click.native="displayModalAdd(true)"
       />
     </div>

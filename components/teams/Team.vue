@@ -49,24 +49,15 @@
             $refs.options.tippy().hide()
           "
         />
-        <span
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
-            team.myRole === 'OWNER' && team.ownersCount == 1
-              ? $t('team.exit_disabled')
-              : ''
+        <SmartItem
+          v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
+          icon="remove"
+          :label="$t('team.exit')"
+          @click.native="
+            exitTeam()
+            $refs.options.tippy().hide()
           "
-        >
-          <SmartItem
-            :disabled="team.myRole === 'OWNER' && team.ownersCount == 1"
-            icon="remove"
-            :label="$t('team.exit')"
-            @click.native="
-              exitTeam()
-              $refs.options.tippy().hide()
-            "
-          />
-        </span>
+        />
       </tippy>
     </span>
   </div>

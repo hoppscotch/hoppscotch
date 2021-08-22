@@ -96,9 +96,9 @@
           />
         </div>
         <div class="flex flex-1 p-4 items-center justify-between">
-          <label class="font-semibold text-secondaryLight">{{
-            $t("socketio.communication")
-          }}</label>
+          <label class="font-semibold text-secondaryLight">
+            {{ $t("socketio.communication") }}
+          </label>
           <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -114,10 +114,10 @@
             v-for="(input, index) of communication.inputs"
             :key="`input-${index}`"
           >
-            <div class="flex">
+            <div class="flex space-x-2">
               <input
                 v-model="communication.inputs[index]"
-                class="input !rounded-r-none"
+                class="input"
                 name="message"
                 :placeholder="$t('count.message', { count: index + 1 })"
                 type="text"
@@ -129,7 +129,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
                 icon="remove_circle_outline"
-                class="rounded-r"
+                class="rounded"
                 color="red"
                 outline
                 @click.native="removeCommunicationInput({ index })"
@@ -139,7 +139,6 @@
                 id="send"
                 name="send"
                 :disabled="!connectionState"
-                class="rounded-l-none"
                 :label="$t('action.send')"
                 @click.native="sendMessage"
               />

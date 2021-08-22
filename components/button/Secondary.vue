@@ -27,6 +27,7 @@
         'border border-divider hover:border-dividerDark focus-visible:border-dividerDark':
           outline,
       },
+      { 'bg-primaryDark': filled },
     ]"
     :disabled="disabled"
     tabindex="0"
@@ -126,6 +127,10 @@ export default defineComponent({
     shortcut: {
       type: Array,
       default: () => [],
+    },
+    filled: {
+      type: Boolean,
+      default: false,
     },
   },
 })

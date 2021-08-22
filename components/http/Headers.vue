@@ -144,7 +144,7 @@
         {{ $t("empty.headers") }}
       </span>
       <ButtonSecondary
-        outline
+        filled
         :label="$t('add.new')"
         icon="add"
         @click.native="addHeader"

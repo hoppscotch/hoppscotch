@@ -35,7 +35,7 @@
             class="divide-x divide-dividerLight flex"
           >
             <input
-              class="bg-primaryLight flex flex-1 py-2 px-4"
+              class="bg-primary flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'param' + index"
               :value="member.user.email"
@@ -52,13 +52,7 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="
-                        bg-primaryLight
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
+                      class="bg-primary cursor-pointer flex flex-1 py-2 px-4"
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="
@@ -102,7 +96,7 @@
           >
             <input
               v-model="member.key"
-              class="bg-primaryLight flex flex-1 py-2 px-4"
+              class="bg-primary flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'member' + index"
               autofocus
@@ -118,13 +112,7 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="
-                        bg-primaryLight
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
+                      class="bg-primary cursor-pointer flex flex-1 py-2 px-4"
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="
@@ -177,7 +165,7 @@
             </span>
             <ButtonSecondary
               :label="$t('add.new')"
-              outline
+              filled
               @click.native="addTeamMember"
             />
           </div>

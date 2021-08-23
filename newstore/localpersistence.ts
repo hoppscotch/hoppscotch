@@ -16,6 +16,7 @@ import {
   graphqlHistoryStore,
   setRESTHistoryEntries,
   setGraphqlHistoryEntries,
+  translateToNewRESTHistory,
 } from "./history"
 import {
   restCollectionStore,
@@ -109,7 +110,7 @@ function setupSettingsPersistence() {
 function setupHistoryPersistence() {
   const restHistoryData = JSON.parse(
     window.localStorage.getItem("history") || "[]"
-  )
+  ).map(translateToNewRESTHistory)
 
   const graphqlHistoryData = JSON.parse(
     window.localStorage.getItem("graphqlHistory") || "[]"

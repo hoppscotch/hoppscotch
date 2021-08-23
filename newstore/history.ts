@@ -2,9 +2,46 @@ import eq from "lodash/eq"
 import { pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { completedRESTResponse$ } from "./RESTSession"
+import {
+  HoppRESTRequest,
+  translateToNewRequest,
+} from "~/helpers/types/HoppRESTRequest"
+
+export type RESTHistoryEntry = {
+  request: HoppRESTRequest
+
+  responseMeta: {
+    duration: number | null
+    statusCode: number | null
+  }
+
+  star: boolean
+
+  id?: string // For when Firebase Firestore is set
+}
+
+export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
+  const request = translateToNewRequest(x)
+  const star = x.star ?? false
+  const duration = x.duration ?? null
+  const statusCode = x.status ?? null
+
+  const obj: RESTHistoryEntry = {
+    request,
+    star,
+    responseMeta: {
+      duration,
+      statusCode,
+    },
+  }
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
 
 export const defaultRESTHistoryState = {
-  state: [] as any[],
+  state: [] as RESTHistoryEntry[],
 }
 
 export const defaultGraphqlHistoryState = {
@@ -16,21 +53,24 @@ export const HISTORY_LIMIT = 50
 type RESTHistoryType = typeof defaultRESTHistoryState
 type GraphqlHistoryType = typeof defaultGraphqlHistoryState
 
-const HistoryDispatcher = defineDispatchers({
-  setEntries(
-    _: RESTHistoryType | GraphqlHistoryType,
-    { entries }: { entries: any[] }
-  ) {
+const RESTHistoryDispatchers = defineDispatchers({
+  setEntries(_: RESTHistoryType, { entries }: { entries: RESTHistoryEntry[] }) {
     return {
       state: entries,
     }
   },
-  addEntry(currentVal: RESTHistoryType | GraphqlHistoryType, { entry }) {
+  addEntry(
+    currentVal: RESTHistoryType,
+    { entry }: { entry: RESTHistoryEntry }
+  ) {
     return {
       state: [entry, ...currentVal.state].slice(0, HISTORY_LIMIT),
     }
   },
-  deleteEntry(currentVal: RESTHistoryType | GraphqlHistoryType, { entry }) {
+  deleteEntry(
+    currentVal: RESTHistoryType,
+    { entry }: { entry: RESTHistoryEntry }
+  ) {
     return {
       state: currentVal.state.filter((e) => !eq(e, entry)),
     }
@@ -40,7 +80,46 @@ const HistoryDispatcher = defineDispatchers({
       state: [],
     }
   },
-  toggleStar(currentVal: RESTHistoryType | GraphqlHistoryType, { entry }) {
+  toggleStar(
+    currentVal: RESTHistoryType,
+    { entry }: { entry: RESTHistoryEntry }
+  ) {
+    return {
+      state: currentVal.state.map((e) => {
+        if (eq(e, entry) && e.star !== undefined) {
+          return {
+            ...e,
+            star: !e.star,
+          }
+        }
+        return e
+      }),
+    }
+  },
+})
+
+const GQLHistoryDispatchers = defineDispatchers({
+  setEntries(_: GraphqlHistoryType, { entries }: { entries: any[] }) {
+    return {
+      state: entries,
+    }
+  },
+  addEntry(currentVal: GraphqlHistoryType, { entry }) {
+    return {
+      state: [entry, ...currentVal.state].slice(0, HISTORY_LIMIT),
+    }
+  },
+  deleteEntry(currentVal: GraphqlHistoryType, { entry }) {
+    return {
+      state: currentVal.state.filter((e) => !eq(e, entry)),
+    }
+  },
+  clearHistory() {
+    return {
+      state: [],
+    }
+  },
+  toggleStar(currentVal: GraphqlHistoryType, { entry }) {
     return {
       state: currentVal.state.map((e) => {
         if (eq(e, entry) && e.star !== undefined) {
@@ -57,32 +136,32 @@ const HistoryDispatcher = defineDispatchers({
 
 export const restHistoryStore = new DispatchingStore(
   defaultRESTHistoryState,
-  HistoryDispatcher
+  RESTHistoryDispatchers
 )
 
 export const graphqlHistoryStore = new DispatchingStore(
   defaultGraphqlHistoryState,
-  HistoryDispatcher
+  GQLHistoryDispatchers
 )
 
 export const restHistory$ = restHistoryStore.subject$.pipe(pluck("state"))
 export const graphqlHistory$ = graphqlHistoryStore.subject$.pipe(pluck("state"))
 
-export function setRESTHistoryEntries(entries: any[]) {
+export function setRESTHistoryEntries(entries: RESTHistoryEntry[]) {
   restHistoryStore.dispatch({
     dispatcher: "setEntries",
     payload: { entries },
   })
 }
 
-export function addRESTHistoryEntry(entry: any) {
+export function addRESTHistoryEntry(entry: RESTHistoryEntry) {
   restHistoryStore.dispatch({
     dispatcher: "addEntry",
     payload: { entry },
   })
 }
 
-export function deleteRESTHistoryEntry(entry: any) {
+export function deleteRESTHistoryEntry(entry: RESTHistoryEntry) {
   restHistoryStore.dispatch({
     dispatcher: "deleteEntry",
     payload: { entry },
@@ -96,7 +175,7 @@ export function clearRESTHistory() {
   })
 }
 
-export function toggleRESTHistoryEntryStar(entry: any) {
+export function toggleRESTHistoryEntryStar(entry: RESTHistoryEntry) {
   restHistoryStore.dispatch({
     dispatcher: "toggleStar",
     payload: { entry },
@@ -144,10 +223,11 @@ completedRESTResponse$.subscribe((res) => {
     if (res.type === "loading" || res.type === "network_fail") return
 
     addRESTHistoryEntry({
-      ...res.req,
-      type: res.type,
-      meta: res.meta,
-      statusCode: res.statusCode,
+      request: res.req,
+      responseMeta: {
+        duration: res.meta.responseDuration,
+        statusCode: res.statusCode,
+      },
       star: false,
     })
   }

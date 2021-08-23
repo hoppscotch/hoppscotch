@@ -85,7 +85,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, PropType } from "@nuxtjs/composition-api"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restHistory$,
@@ -101,7 +101,7 @@ import { setRESTRequest } from "~/newstore/RESTSession"
 
 export default defineComponent({
   props: {
-    page: { type: String, default: null },
+    page: { type: String as PropType<"rest" | "graphql">, default: null },
   },
   setup(props) {
     return {

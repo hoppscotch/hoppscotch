@@ -7,7 +7,7 @@
       :title="duration"
       @click="$emit('use-entry')"
     >
-      {{ entry.method }}
+      {{ entry.request.method }}
     </span>
     <span
       class="
@@ -24,7 +24,7 @@
       @click="$emit('use-entry')"
     >
       <span class="truncate">
-        {{ `${entry.endpoint}` }}
+        {{ entry.request.endpoint }}
       </span>
     </span>
     <ButtonSecondary
@@ -48,31 +48,53 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import {
+  computed,
+  defineComponent,
+  PropType,
+  useContext,
+} from "@nuxtjs/composition-api"
 import findStatusGroup from "~/helpers/findStatusGroup"
+import { RESTHistoryEntry } from "~/newstore/history"
 
-export default {
+export default defineComponent({
   props: {
-    entry: { type: Object, default: () => {} },
+    entry: { type: Object as PropType<RESTHistoryEntry>, default: () => {} },
     showMore: Boolean,
   },
-  computed: {
-    duration() {
-      if (this.entry.meta.responseDuration) {
-        const responseDuration = this.entry.meta.responseDuration
+  setup(props) {
+    const {
+      app: { i18n },
+    } = useContext()
+    const $t = i18n.t.bind(i18n)
+
+    const duration = computed(() => {
+      if (props.entry.responseMeta.duration) {
+        const responseDuration = props.entry.responseMeta.duration
+        if (!responseDuration) return ""
+
         return responseDuration > 0
-          ? `${this.$t("request.duration")}: ${responseDuration}ms`
-          : this.$t("error.no_duration")
-      } else return this.$t("error.no_duration")
-    },
-    entryStatus() {
-      const foundStatusGroup = findStatusGroup(this.entry.statusCode)
+          ? `${$t("request.duration").toString()}: ${responseDuration}ms`
+          : $t("error.no_duration").toString()
+      } else return $t("error.no_duration").toString()
+    })
+
+    const entryStatus = computed(() => {
+      const foundStatusGroup = findStatusGroup(
+        props.entry.responseMeta.statusCode
+      )
       return (
         foundStatusGroup || {
           className: "",
         }
       )
-    },
+    })
+
+    return {
+      duration,
+      entryStatus,
+    }
   },
-}
+})
 </script>

@@ -37,6 +37,7 @@ export type HoppRESTReqBody =
 
 export interface HoppRESTRequest {
   v: string
+  id?: string // Firebase Firestore ID
 
   name: string
   method: string
@@ -85,11 +86,19 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
     // Old format
     const endpoint: string = `${x.url}${x.path}`
 
-    const headers: HoppRESTHeader[] = x.headers
+    const headers: HoppRESTHeader[] = x.headers ?? []
 
     // Remove old keys from params
-    const params: HoppRESTParam[] = (x.params as any[]).map(
-      ({ key, value, active }) => ({
+    const params: HoppRESTParam[] = (x.params ?? []).map(
+      ({
+        key,
+        value,
+        active,
+      }: {
+        key: string
+        value: string
+        active: boolean
+      }) => ({
         key,
         value,
         active,
@@ -117,6 +126,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       body,
       auth,
       v: RESTReqSchemaVersion,
+      id: x.id, // Pass-through Firebase Firestore ID
     }
 
     return result

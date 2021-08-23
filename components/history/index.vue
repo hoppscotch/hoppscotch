@@ -144,7 +144,7 @@ export default defineComponent({
       })
     },
     useHistory(entry: any) {
-      if (this.page === "rest") setRESTRequest(entry)
+      if (this.page === "rest") setRESTRequest(entry.request)
     },
     deleteHistory(entry: any) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)

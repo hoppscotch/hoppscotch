@@ -8,6 +8,8 @@ import {
 } from "~/helpers/types/HoppRESTRequest"
 
 export type RESTHistoryEntry = {
+  v: number
+
   request: HoppRESTRequest
 
   responseMeta: {
@@ -20,13 +22,26 @@ export type RESTHistoryEntry = {
   id?: string // For when Firebase Firestore is set
 }
 
+export function makeHistoryEntry(
+  x: Omit<RESTHistoryEntry, "v">
+): RESTHistoryEntry {
+  return {
+    v: 1,
+    ...x,
+  }
+}
+
 export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
+  if (x.v === 1) return x
+
+  // Legacy
   const request = translateToNewRequest(x)
   const star = x.star ?? false
   const duration = x.duration ?? null
   const statusCode = x.status ?? null
 
   const obj: RESTHistoryEntry = {
+    v: 1,
     request,
     star,
     responseMeta: {
@@ -222,13 +237,15 @@ completedRESTResponse$.subscribe((res) => {
   if (res !== null) {
     if (res.type === "loading" || res.type === "network_fail") return
 
-    addRESTHistoryEntry({
-      request: res.req,
-      responseMeta: {
-        duration: res.meta.responseDuration,
-        statusCode: res.statusCode,
-      },
-      star: false,
-    })
+    addRESTHistoryEntry(
+      makeHistoryEntry({
+        request: res.req,
+        responseMeta: {
+          duration: res.meta.responseDuration,
+          statusCode: res.statusCode,
+        },
+        star: false,
+      })
+    )
   }
 })

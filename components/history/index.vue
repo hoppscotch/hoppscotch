@@ -126,8 +126,11 @@ export default defineComponent({
         const filterText = this.filterText.toLowerCase()
         return Object.keys(entry).some((key) => {
           let value = entry[key]
-          value = typeof value !== "string" ? value.toString() : value
-          return value.toLowerCase().includes(filterText)
+          if (value) {
+            value = typeof value !== "string" ? value.toString() : value
+            return value.toLowerCase().includes(filterText)
+          }
+          return false
         })
       })
     },

@@ -129,12 +129,14 @@ a {
     @apply text-primary;
     @apply font-semibold;
     @apply py-1 px-2;
+    @apply truncate;
     @apply shadow;
 
     font-size: 88%;
     line-height: var(--body-line-height);
 
     kbd {
+      @apply inline-flex;
       @apply font-sans;
       @apply bg-gray-500;
       @apply bg-opacity-45;
@@ -142,6 +144,7 @@ a {
       @apply rounded-sm;
       @apply px-1;
       @apply ml-1;
+      @apply truncate;
     }
   }
 

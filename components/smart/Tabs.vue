@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-nowrap flex-1">
-    <div class="rounded-t tabs hide-scrollbar relative" :class="styles">
+    <div class="tabs hide-scrollbar relative" :class="styles">
       <div class="flex flex-1">
         <div class="flex flex-1 justify-between">
           <div class="flex">

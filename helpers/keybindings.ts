@@ -38,7 +38,7 @@ export const bindings: {
 } = {
   "ctrl-g": "request.send-cancel",
   "ctrl-i": "request.reset",
-  "ctrl-c": "request.copy-link",
+  "ctrl-u": "request.copy-link",
   "ctrl-s": "request.save",
   "ctrl-shift-s": "request.save-as",
   "alt-up": "request.method.next",

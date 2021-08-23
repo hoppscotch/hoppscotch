@@ -34,7 +34,7 @@ export default [
         label: "shortcut.request.save_to_collections",
       },
       {
-        keys: [getPlatformSpecialKey(), "C"],
+        keys: [getPlatformSpecialKey(), "U"],
         label: "shortcut.request.copy_request_link",
       },
       {

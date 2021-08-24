@@ -33,7 +33,8 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { addGraphqlCollection } from "~/newstore/collections"
+import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { addGraphqlCollection, makeCollection } from "~/newstore/collections"
 
 export default defineComponent({
   props: {
@@ -53,11 +54,13 @@ export default defineComponent({
         return
       }
 
-      addGraphqlCollection({
-        name: this.name,
-        folders: [],
-        requests: [],
-      })
+      addGraphqlCollection(
+        makeCollection<HoppGQLRequest>({
+          name: this.name,
+          folders: [],
+          requests: [],
+        })
+      )
 
       this.hideModal()
     },

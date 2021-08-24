@@ -6,6 +6,8 @@ import {
   graphqlCollections$,
   setRESTCollections,
   setGraphqlCollections,
+  translateToNewRESTCollection,
+  translateToNewGQLCollection,
 } from "~/newstore/collections"
 import { settingsStore } from "~/newstore/settings"
 
@@ -114,7 +116,11 @@ export function initCollections() {
 
           // TODO: Wth is with collections[0]
           if (collections.length > 0) {
-            setRESTCollections(collections[0].collection)
+            setRESTCollections(
+              (collections[0].collection ?? []).map(
+                translateToNewRESTCollection
+              )
+            )
           }
 
           loadedRESTCollections = true
@@ -138,7 +144,9 @@ export function initCollections() {
 
           // TODO: Wth is with collections[0]
           if (collections.length > 0) {
-            setGraphqlCollections(collections[0].collection)
+            setGraphqlCollections(
+              (collections[0].collection ?? []).map(translateToNewGQLCollection)
+            )
           }
 
           loadedGraphqlCollections = true

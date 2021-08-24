@@ -29,14 +29,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, PropType } from "@nuxtjs/composition-api"
+import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { editGraphqlRequest } from "~/newstore/collections"
 
 export default defineComponent({
   props: {
     show: Boolean,
     folderPath: { type: String, default: null },
-    request: { type: Object, default: () => {} },
+    request: { type: Object as PropType<HoppGQLRequest>, default: () => {} },
     requestIndex: { type: Number, default: null },
   },
   data() {

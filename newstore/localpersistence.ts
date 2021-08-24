@@ -24,6 +24,8 @@ import {
   graphqlCollectionStore,
   setGraphqlCollections,
   setRESTCollections,
+  translateToNewRESTCollection,
+  translateToNewGQLCollection,
 } from "./collections"
 import {
   replaceEnvironments,
@@ -132,11 +134,11 @@ function setupHistoryPersistence() {
 function setupCollectionsPersistence() {
   const restCollectionData = JSON.parse(
     window.localStorage.getItem("collections") || "[]"
-  )
+  ).map(translateToNewRESTCollection)
 
   const graphqlCollectionData = JSON.parse(
     window.localStorage.getItem("collectionsGraphql") || "[]"
-  )
+  ).map(translateToNewGQLCollection)
 
   setRESTCollections(restCollectionData)
   setGraphqlCollections(graphqlCollectionData)

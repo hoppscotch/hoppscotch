@@ -3,12 +3,14 @@ import "firebase/firestore"
 import { currentUser$ } from "./auth"
 import { settingsStore } from "~/newstore/settings"
 import {
+  GQLHistoryEntry,
   graphqlHistoryStore,
   HISTORY_LIMIT,
   RESTHistoryEntry,
   restHistoryStore,
   setGraphqlHistoryEntries,
   setRESTHistoryEntries,
+  translateToNewGQLHistory,
   translateToNewRESTHistory,
 } from "~/newstore/history"
 
@@ -190,12 +192,12 @@ export function initHistory() {
         .orderBy("updatedOn", "desc")
         .limit(HISTORY_LIMIT)
         .onSnapshot((historyRef) => {
-          const history: any[] = []
+          const history: GQLHistoryEntry[] = []
 
           historyRef.forEach((doc) => {
             const entry = doc.data()
             entry.id = doc.id
-            history.push(entry)
+            history.push(translateToNewGQLHistory(entry))
           })
 
           loadedGraphqlHistory = false

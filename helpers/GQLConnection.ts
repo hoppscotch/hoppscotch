@@ -11,7 +11,7 @@ import {
 } from "graphql"
 import { distinctUntilChanged, map } from "rxjs/operators"
 import { sendNetworkRequest } from "./network"
-import { GQLHeader } from "~/newstore/GQLSession"
+import { GQLHeader } from "./types/HoppGQLRequest"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 

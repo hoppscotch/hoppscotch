@@ -213,10 +213,10 @@ import {
 import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
 import { GQLConnection } from "~/helpers/GQLConnection"
+import { GQLHeader } from "~/helpers/types/HoppGQLRequest"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
-  GQLHeader,
   setGQLHeaders,
   setGQLQuery,
   setGQLResponse,

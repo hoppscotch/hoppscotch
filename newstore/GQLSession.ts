@@ -1,35 +1,32 @@
 import { distinctUntilChanged, pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { useStream } from "~/helpers/utils/composables"
-
-export type GQLHeader = {
-  key: string
-  value: string
-  active: boolean
-}
+import {
+  GQLHeader,
+  HoppGQLRequest,
+  makeGQLRequest,
+} from "~/helpers/types/HoppGQLRequest"
 
 type GQLSession = {
-  name: string
-  url: string
-  headers: GQLHeader[]
+  request: HoppGQLRequest
   schema: string
-  query: string
-  variables: string
   response: string
 }
 
 export const defaultGQLSession: GQLSession = {
-  name: "",
-  url: "https://rickandmortyapi.com/graphql",
-  headers: [],
-  schema: "",
-  query: `query GetCharacter($id: ID!) {
+  request: makeGQLRequest({
+    name: "",
+    url: "https://rickandmortyapi.com/graphql",
+    headers: [],
+    variables: `{ "id": "1" }`,
+    query: `query GetCharacter($id: ID!) {
   character(id: $id) {
     id
     name
   }
 }`,
-  variables: `{ "id": "1" }`,
+  }),
+  schema: "",
   response: "",
 }
 
@@ -37,29 +34,44 @@ const dispatchers = defineDispatchers({
   setSession(_: GQLSession, { session }: { session: GQLSession }) {
     return session
   },
-  setName(_: GQLSession, { newName }: { newName: string }) {
+  setName(curr: GQLSession, { newName }: { newName: string }) {
     return {
-      name: newName,
+      request: {
+        ...curr.request,
+        name: newName,
+      },
     }
   },
-  setURL(_: GQLSession, { newURL }: { newURL: string }) {
+  setURL(curr: GQLSession, { newURL }: { newURL: string }) {
     return {
-      url: newURL,
+      request: {
+        ...curr.request,
+        url: newURL,
+      },
     }
   },
-  setHeaders(_, { headers }: { headers: GQLHeader[] }) {
+  setHeaders(curr: GQLSession, { headers }: { headers: GQLHeader[] }) {
     return {
-      headers,
+      request: {
+        ...curr.request,
+        headers,
+      },
     }
   },
   addHeader(curr: GQLSession, { header }: { header: GQLHeader }) {
     return {
-      headers: [...curr.headers, header],
+      request: {
+        ...curr.request,
+        headers: [...curr.request.headers, header],
+      },
     }
   },
   removeHeader(curr: GQLSession, { headerIndex }: { headerIndex: number }) {
     return {
-      headers: curr.headers.filter((_x, i) => i !== headerIndex),
+      request: {
+        ...curr.request,
+        headers: curr.request.headers.filter((_x, i) => i !== headerIndex),
+      },
     }
   },
   updateHeader(
@@ -70,19 +82,28 @@ const dispatchers = defineDispatchers({
     }: { headerIndex: number; updatedHeader: GQLHeader }
   ) {
     return {
-      headers: curr.headers.map((x, i) =>
-        i === headerIndex ? updatedHeader : x
-      ),
+      request: {
+        ...curr.request,
+        headers: curr.request.headers.map((x, i) =>
+          i === headerIndex ? updatedHeader : x
+        ),
+      },
     }
   },
-  setQuery(_: GQLSession, { newQuery }: { newQuery: string }) {
+  setQuery(curr: GQLSession, { newQuery }: { newQuery: string }) {
     return {
-      query: newQuery,
+      request: {
+        ...curr.request,
+        query: newQuery,
+      },
     }
   },
-  setVariables(_: GQLSession, { newVariables }: { newVariables: string }) {
+  setVariables(curr: GQLSession, { newVariables }: { newVariables: string }) {
     return {
-      variables: newVariables,
+      request: {
+        ...curr.request,
+        variables: newVariables,
+      },
     }
   },
   setResponse(_: GQLSession, { newResponse }: { newResponse: string }) {
@@ -193,34 +214,32 @@ export function setGQLSession(session: GQLSession) {
 }
 
 export function useGQLRequestName() {
-  return useStream(gqlName$, gqlSessionStore.value.name, (val) => {
+  return useStream(gqlName$, "", (newName) => {
     gqlSessionStore.dispatch({
       dispatcher: "setName",
-      payload: {
-        newName: val,
-      },
+      payload: { newName },
     })
   })
 }
 
 export const gqlName$ = gqlSessionStore.subject$.pipe(
-  pluck("name"),
+  pluck("request", "name"),
   distinctUntilChanged()
 )
 export const gqlURL$ = gqlSessionStore.subject$.pipe(
-  pluck("url"),
+  pluck("request", "url"),
   distinctUntilChanged()
 )
 export const gqlQuery$ = gqlSessionStore.subject$.pipe(
-  pluck("query"),
+  pluck("request", "query"),
   distinctUntilChanged()
 )
 export const gqlVariables$ = gqlSessionStore.subject$.pipe(
-  pluck("variables"),
+  pluck("request", "variables"),
   distinctUntilChanged()
 )
 export const gqlHeaders$ = gqlSessionStore.subject$.pipe(
-  pluck("headers"),
+  pluck("request", "headers"),
   distinctUntilChanged()
 )
 

@@ -59,14 +59,19 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "@nuxtjs/composition-api"
+import {
+  computed,
+  defineComponent,
+  PropType,
+  ref,
+} from "@nuxtjs/composition-api"
+import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { setGQLSession } from "~/newstore/GQLSession"
-
-// TODO: Concrete entry data type
+import { GQLHistoryEntry } from "~/newstore/history"
 
 export default defineComponent({
   props: {
-    entry: { type: Object, default: () => {} },
+    entry: { type: Object as PropType<GQLHistoryEntry>, default: () => {} },
     showMore: Boolean,
   },
   setup(props) {
@@ -74,8 +79,8 @@ export default defineComponent({
 
     const query = computed(() =>
       expand.value
-        ? (props.entry.query.split("\n") as string[])
-        : (props.entry.query
+        ? (props.entry.request.query.split("\n") as string[])
+        : (props.entry.request.query
             .split("\n")
             .slice(0, 2)
             .concat(["..."]) as string[])
@@ -83,13 +88,15 @@ export default defineComponent({
 
     const useEntry = () => {
       setGQLSession({
-        name: "",
-        url: props.entry.url,
-        headers: props.entry.headers,
-        response: props.entry.response,
+        request: makeGQLRequest({
+          name: props.entry.request.name,
+          url: props.entry.request.url,
+          headers: props.entry.request.headers,
+          query: props.entry.request.query,
+          variables: props.entry.request.variables,
+        }),
         schema: "",
-        query: props.entry.query,
-        variables: props.entry.variables,
+        response: props.entry.response,
       })
     }
 

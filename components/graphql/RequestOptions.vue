@@ -291,9 +291,10 @@ import {
 } from "~/newstore/GQLSession"
 import { commonHeaders } from "~/helpers/headers"
 import { GQLConnection } from "~/helpers/GQLConnection"
-import { addGraphqlHistoryEntry } from "~/newstore/history"
+import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
+import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 
 export default defineComponent({
   props: {
@@ -377,20 +378,19 @@ export default defineComponent({
 
         response.value = JSON.stringify(JSON.parse(responseText), null, 2)
 
-        const historyEntry = {
-          url: runURL,
-          query: runQuery,
-          variables: runVariables,
-          star: false,
-          headers: runHeaders,
-          response: response.value,
-          date: new Date().toLocaleDateString(),
-          time: new Date().toLocaleTimeString(),
-          updatedOn: new Date(),
-          duration,
-        }
-
-        addGraphqlHistoryEntry(historyEntry)
+        addGraphqlHistoryEntry(
+          makeGQLHistoryEntry({
+            request: makeGQLRequest({
+              name: "",
+              url: runURL,
+              query: runQuery,
+              headers: runHeaders,
+              variables: runVariables,
+            }),
+            response: response.value,
+            star: false,
+          })
+        )
 
         $toast.success(t("state.finished_in", { duration }).toString(), {
           icon: "done",

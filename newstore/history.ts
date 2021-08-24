@@ -6,6 +6,10 @@ import {
   HoppRESTRequest,
   translateToNewRequest,
 } from "~/helpers/types/HoppRESTRequest"
+import {
+  HoppGQLRequest,
+  translateToGQLRequest,
+} from "~/helpers/types/HoppGQLRequest"
 
 export type RESTHistoryEntry = {
   v: number
@@ -22,9 +26,29 @@ export type RESTHistoryEntry = {
   id?: string // For when Firebase Firestore is set
 }
 
-export function makeHistoryEntry(
+export type GQLHistoryEntry = {
+  v: number
+  request: HoppGQLRequest
+
+  response: string
+
+  star: boolean
+
+  id?: string // For when Firestore ID is set
+}
+
+export function makeRESTHistoryEntry(
   x: Omit<RESTHistoryEntry, "v">
 ): RESTHistoryEntry {
+  return {
+    v: 1,
+    ...x,
+  }
+}
+
+export function makeGQLHistoryEntry(
+  x: Omit<GQLHistoryEntry, "v">
+): GQLHistoryEntry {
   return {
     v: 1,
     ...x,
@@ -40,15 +64,33 @@ export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
   const duration = x.duration ?? null
   const statusCode = x.status ?? null
 
-  const obj: RESTHistoryEntry = {
-    v: 1,
+  const obj: RESTHistoryEntry = makeRESTHistoryEntry({
     request,
     star,
     responseMeta: {
       duration,
       statusCode,
     },
-  }
+  })
+
+  if (x.id) obj.id = x.id
+
+  return obj
+}
+
+export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
+  if (x.v === 1) return x
+
+  // Legacy
+  const request = translateToGQLRequest(x)
+  const star = x.star ?? false
+  const response = x.response ?? ""
+
+  const obj: GQLHistoryEntry = makeGQLHistoryEntry({
+    request,
+    star,
+    response,
+  })
 
   if (x.id) obj.id = x.id
 
@@ -60,7 +102,7 @@ export const defaultRESTHistoryState = {
 }
 
 export const defaultGraphqlHistoryState = {
-  state: [] as any[],
+  state: [] as GQLHistoryEntry[],
 }
 
 export const HISTORY_LIMIT = 50
@@ -114,17 +156,26 @@ const RESTHistoryDispatchers = defineDispatchers({
 })
 
 const GQLHistoryDispatchers = defineDispatchers({
-  setEntries(_: GraphqlHistoryType, { entries }: { entries: any[] }) {
+  setEntries(
+    _: GraphqlHistoryType,
+    { entries }: { entries: GQLHistoryEntry[] }
+  ) {
     return {
       state: entries,
     }
   },
-  addEntry(currentVal: GraphqlHistoryType, { entry }) {
+  addEntry(
+    currentVal: GraphqlHistoryType,
+    { entry }: { entry: GQLHistoryEntry }
+  ) {
     return {
       state: [entry, ...currentVal.state].slice(0, HISTORY_LIMIT),
     }
   },
-  deleteEntry(currentVal: GraphqlHistoryType, { entry }) {
+  deleteEntry(
+    currentVal: GraphqlHistoryType,
+    { entry }: { entry: GQLHistoryEntry }
+  ) {
     return {
       state: currentVal.state.filter((e) => !eq(e, entry)),
     }
@@ -134,7 +185,10 @@ const GQLHistoryDispatchers = defineDispatchers({
       state: [],
     }
   },
-  toggleStar(currentVal: GraphqlHistoryType, { entry }) {
+  toggleStar(
+    currentVal: GraphqlHistoryType,
+    { entry }: { entry: GQLHistoryEntry }
+  ) {
     return {
       state: currentVal.state.map((e) => {
         if (eq(e, entry) && e.star !== undefined) {
@@ -197,21 +251,21 @@ export function toggleRESTHistoryEntryStar(entry: RESTHistoryEntry) {
   })
 }
 
-export function setGraphqlHistoryEntries(entries: any[]) {
+export function setGraphqlHistoryEntries(entries: GQLHistoryEntry[]) {
   graphqlHistoryStore.dispatch({
     dispatcher: "setEntries",
     payload: { entries },
   })
 }
 
-export function addGraphqlHistoryEntry(entry: any) {
+export function addGraphqlHistoryEntry(entry: GQLHistoryEntry) {
   graphqlHistoryStore.dispatch({
     dispatcher: "addEntry",
     payload: { entry },
   })
 }
 
-export function deleteGraphqlHistoryEntry(entry: any) {
+export function deleteGraphqlHistoryEntry(entry: GQLHistoryEntry) {
   graphqlHistoryStore.dispatch({
     dispatcher: "deleteEntry",
     payload: { entry },
@@ -225,7 +279,7 @@ export function clearGraphqlHistory() {
   })
 }
 
-export function toggleGraphqlHistoryEntryStar(entry: any) {
+export function toggleGraphqlHistoryEntryStar(entry: GQLHistoryEntry) {
   graphqlHistoryStore.dispatch({
     dispatcher: "toggleStar",
     payload: { entry },
@@ -238,7 +292,7 @@ completedRESTResponse$.subscribe((res) => {
     if (res.type === "loading" || res.type === "network_fail") return
 
     addRESTHistoryEntry(
-      makeHistoryEntry({
+      makeRESTHistoryEntry({
         request: res.req,
         responseMeta: {
           duration: res.meta.responseDuration,

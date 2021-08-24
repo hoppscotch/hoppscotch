@@ -96,6 +96,8 @@ import {
   toggleRESTHistoryEntryStar,
   deleteGraphqlHistoryEntry,
   deleteRESTHistoryEntry,
+  RESTHistoryEntry,
+  GQLHistoryEntry,
 } from "~/newstore/history"
 import { setRESTRequest } from "~/newstore/RESTSession"
 
@@ -105,7 +107,7 @@ export default defineComponent({
   },
   setup(props) {
     return {
-      history: useReadonlyStream(
+      history: useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
         props.page === "rest" ? restHistory$ : graphqlHistory$,
         []
       ),
@@ -120,19 +122,23 @@ export default defineComponent({
   },
   computed: {
     filteredHistory(): any[] {
-      const filteringHistory = this.history
+      const filteringHistory = this.history as Array<
+        RESTHistoryEntry | GQLHistoryEntry
+      >
 
-      return filteringHistory.filter((entry) => {
-        const filterText = this.filterText.toLowerCase()
-        return Object.keys(entry).some((key) => {
-          let value = entry[key]
-          if (value) {
-            value = typeof value !== "string" ? value.toString() : value
-            return value.toLowerCase().includes(filterText)
-          }
-          return false
-        })
-      })
+      return filteringHistory.filter(
+        (entry: RESTHistoryEntry | GQLHistoryEntry) => {
+          const filterText = this.filterText.toLowerCase()
+          return Object.keys(entry).some((key) => {
+            let value = entry[key as keyof typeof entry]
+            if (value) {
+              value = typeof value !== "string" ? value.toString() : value
+              return value.toLowerCase().includes(filterText)
+            }
+            return false
+          })
+        }
+      )
     },
   },
   methods: {

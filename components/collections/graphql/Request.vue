@@ -97,7 +97,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, PropType } from "@nuxtjs/composition-api"
+import { HoppGQLRequest, makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { removeGraphqlRequest } from "~/newstore/collections"
 import { setGQLSession } from "~/newstore/GQLSession"
 
@@ -107,7 +108,7 @@ export default defineComponent({
     picked: { type: Object, default: null },
     // Whether the request is being saved (activate 'select' event)
     savingMode: { type: Boolean, default: false },
-    request: { type: Object, default: () => {} },
+    request: { type: Object as PropType<HoppGQLRequest>, default: () => {} },
     folderPath: { type: String, default: null },
     requestIndex: { type: Number, default: null },
     doc: Boolean,
@@ -143,11 +144,13 @@ export default defineComponent({
         this.pick()
       } else {
         setGQLSession({
-          name: this.$props.request.name,
-          url: this.$props.request.url,
-          query: this.$props.request.query,
-          headers: this.$props.request.headers,
-          variables: this.$props.request.variables,
+          request: makeGQLRequest({
+            name: this.$props.request.name,
+            url: this.$props.request.url,
+            query: this.$props.request.query,
+            headers: this.$props.request.headers,
+            variables: this.$props.request.variables,
+          }),
           schema: "",
           response: "",
         })

@@ -3,6 +3,7 @@
     <div class="flex flex-col mt-16 items-center justify-center">
       <h2
         class="
+          font-bold
           text-accent text-center
           leading-none
           tracking-tighter
@@ -15,6 +16,7 @@
       </h2>
       <h3
         class="
+          font-extrabold
           my-4
           text-center text-secondaryDark
           leading-none
@@ -35,7 +37,6 @@
         <ButtonPrimary
           label="Get Started"
           icon="arrow_forward"
-          rounded
           reverse
           large
           @click.native="showLogin = true"
@@ -43,17 +44,17 @@
         <ButtonSecondary
           to="https://github.com/hoppscotch/hoppscotch"
           blank
+          filled
           outline
           label="GitHub"
           svg="github"
           large
-          rounded
           :shortcut="['30k Stars']"
         />
       </div>
-      <!-- <LandingStats /> -->
+      <LandingStats />
+      <LandingScreenshot />
     </div>
-    <div class="flex flex-col items-center justify-center"></div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>

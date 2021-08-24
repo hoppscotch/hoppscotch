@@ -64,7 +64,7 @@
               icon="assignment_turned_in"
               :label="$t('export.create_secret_gist')"
               @click.native="
-                createCollectionGist
+                createCollectionGist()
                 $refs.options.tippy().hide()
               "
             />

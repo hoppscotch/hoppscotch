@@ -11,7 +11,6 @@
           :horizontal="!(windowInnerWidth >= 768)"
         >
           <Pane
-            v-if="LEFT_SIDEBAR"
             style="width: auto; height: auto"
             class="hide-scrollbar !overflow-auto"
           >
@@ -120,7 +119,6 @@ export default defineComponent({
     updateThemes()
 
     return {
-      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
     }
   },

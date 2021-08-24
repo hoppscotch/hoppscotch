@@ -36,7 +36,7 @@
   <p>
     <a href="https://hoppscotch.io">
       <img
-        src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/banner_dark.png"
+        src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/light_rest.png"
         alt="Screenshot"
         width="100%"
       />
@@ -78,34 +78,34 @@
 
 **HTTP Methods**
 
-- [x] `GET` - Requests retrieve resource information
-- [x] `POST` - The server creates a new entry in a database
-- [x] `PUT` - Updates an existing resource
-- [x] `PATCH` - Very similar to `PUT` but makes a partial update on a resource
-- [x] `DELETE` - Deletes resource or related component
-- [x] `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
-- [x] `CONNECT` - Establishes a tunnel to the server identified by the target resource
-- [x] `OPTIONS` - Describe the communication options for the target resource
-- [x] `TRACE` - Performs a message loop-back test along the path to the target resource
-- [x] `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
+- `GET` - Requests retrieve resource information
+- `POST` - The server creates a new entry in a database
+- `PUT` - Updates an existing resource
+- `PATCH` - Very similar to `PUT` but makes a partial update on a resource
+- `DELETE` - Deletes resource or related component
+- `HEAD` - Retrieve response headers identical to those of a GET request, but without the response body.
+- `CONNECT` - Establishes a tunnel to the server identified by the target resource
+- `OPTIONS` - Describe the communication options for the target resource
+- `TRACE` - Performs a message loop-back test along the path to the target resource
+- `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
 🌈 **Make it yours:** Customizable combinations for background, foreground and accent colors — [customize now ✨](https://hoppscotch.io/settings).
 
 **Theming**
 
-- [x] Choose theme: System (default), Light, Dark and Black
-- [x] Choose accent color: Green (default), Teal, Blue, Indigo, Purple, Yellow, Orange, Red and Pink
-- [x] Distraction free Zen mode
+- Choose theme: System (default), Light, Dark and Black
+- Choose accent color: Green (default), Teal, Blue, Indigo, Purple, Yellow, Orange, Red and Pink
+- Distraction free Zen mode
 
 _Customized themes are synced with cloud / local session_
 
 🔥 **PWA:** Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
 
-- [x] Instant loading with Service Workers
-- [x] Offline support
-- [x] Low RAM/memory and CPU usage
-- [x] Add to Home Screen
-- [x] Desktop PWA
+- Instant loading with Service Workers
+- Offline support
+- Low RAM/memory and CPU usage
+- Add to Home Screen
+- Desktop PWA
 
 🚀 **Request:** Retrieve response from endpoint instantly.
 
@@ -113,10 +113,10 @@ _Customized themes are synced with cloud / local session_
 2. Enter `URL`
 3. Send
 
-- [x] Copy/share public "Share URL"
-- [x] Generate/copy request code snippets for 10+ languages and frameworks
-- [x] Import `cURL`
-- [x] Label requests
+- Copy/share public "Share URL"
+- Generate/copy request code snippets for 10+ languages and frameworks
+- Import `cURL`
+- Label requests
 
 🔌 **WebSocket:** Establish full-duplex communication channels over a single TCP connection.
 
@@ -128,19 +128,19 @@ _Customized themes are synced with cloud / local session_
 
 🔮 **GraphQL:** GraphQL is a query language for APIs and a runtime for fulfilling those queries with your existing data.
 
-- [x] Set endpoint and get schema
-- [x] Multi-column docs
-- [x] Set custom request headers
-- [x] Query schema
-- [x] Get query response
+- Set endpoint and get schema
+- Multi-column docs
+- Set custom request headers
+- Query schema
+- Get query response
 
 🔐 **Authorization:** Allows to identify the end user.
 
-- [x] None
-- [x] Basic
-- [x] Bearer Token
-- [x] OAuth 2.0
-- [x] OIDC Access Token/PKCE
+- None
+- Basic
+- Bearer Token
+- OAuth 2.0
+- OIDC Access Token/PKCE
 
 📢 **Headers:** Describes the format the body of your request is being sent as.
 
@@ -148,42 +148,42 @@ _Customized themes are synced with cloud / local session_
 
 📃 **Request Body:** Used to send and receive data via the REST API.
 
-- [x] Set `Content Type`
-- [x] FormData, JSON and many more
-- [x] Toggle between key-value and RAW input parameter list
+- Set `Content Type`
+- FormData, JSON and many more
+- Toggle between key-value and RAW input parameter list
 
 👋 **Response:** Contains the status line, headers and the message/response body.
 
-- [x] Copy response to clipboard
-- [x] Download response as a file
-- [x] View response headers
-- [x] View raw and preview of HTML, image, JSON, XML responses
+- Copy response to clipboard
+- Download response as a file
+- View response headers
+- View raw and preview of HTML, image, JSON, XML responses
 
 ⏰ **History:** Request entries are synced with cloud / local session storage to restore with a single click.
 
 📁 **Collections:** Keep your API requests organized with collections and folders. Reuse them with a single click.
 
-- [x] Unlimited collections, folders and requests
-- [x] Nested folders
-- [x] Export and import as file or GitHub gist
+- Unlimited collections, folders and requests
+- Nested folders
+- Export and import as file or GitHub gist
 
 _Collections are synced with cloud / local session storage_
 
 🌐 **Proxy:** Enable Proxy Mode from Settings to access blocked APIs.
 
-- [x] Hide your IP address
-- [x] Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
-- [x] Access APIs served in non-HTTPS `[http://]` endpoints
-- [x] Use your own Proxy URL
+- Hide your IP address
+- Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
+- Access APIs served in non-HTTPS `[http://]` endpoints
+- Use your own Proxy URL
 
 _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/privacy)**_
 
 📜 **Pre-Request Scripts β:** Snippets of code associated with a request that are executed before the request is sent.
 
-- [x] Set environment variables
-- [x] Include timestamp in the request headers
-- [x] Send a random alphanumeric string in the URL parameters
-- [x] Any JavaScript functions
+- Set environment variables
+- Include timestamp in the request headers
+- Send a random alphanumeric string in the URL parameters
+- Any JavaScript functions
 
 📄 **API Documentation:** Create and share dynamic API documentation easily, quickly.
 
@@ -193,7 +193,7 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 ⌨️ **Keyboard Shortcuts:** Optimized for efficiency.
 
-> **[Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
+> **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
 
 🌎 **i18n:** Experience the app in your own language.
 
@@ -215,29 +215,29 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 **Sign in with**
 
-- [x] GitHub
-- [x] Google
-- [x] Email
+- GitHub
+- Google
+- Email
 
 **Synchronize your data**
 
-- [x] History
-- [x] Collections
-- [x] Environments
-- [x] Settings
+- History
+- Collections
+- Environments
+- Settings
 
 ✅ **Post-Request Tests β:** Write tests associated with a request that are executed after the request response.
 
-- [x] Check the status code as an integer
-- [x] Filter response headers
-- [x] Parse the response data
-- [x] Any JavaScript functions
+- Check the status code as an integer
+- Filter response headers
+- Parse the response data
+- Any JavaScript functions
 
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 
-- [x] Unlimited environments and variables
-- [x] Initialize through pre-request script
-- [x] Export as / import from GitHub gist
+- Unlimited environments and variables
+- Initialize through pre-request script
+- Export as / import from GitHub gist
 
 <details>
   <summary><i>Use-cases</i></summary>
@@ -254,9 +254,9 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 👨‍👩‍👧‍👦 **Teams β:** Helps you collaborate across your team to design, develop, and test APIs faster.
 
-- [x] Unlimited team collections and shared requests
-- [x] Unlimited team members
-- [x] User roles
+- Unlimited team collections and shared requests
+- Unlimited team members
+- User roles
 
 **For more features, please read our [documentation](https://docs.hoppscotch.io).**
 
@@ -288,7 +288,8 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 
 ### Browser based development environment
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
+- [GitHub codespace](https://docs.github.com/en/codespaces/developing-in-codespaces/creating-a-codespace)
+- [Gitpod](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
 
 ### Local development environment
 

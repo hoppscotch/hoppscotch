@@ -15,7 +15,6 @@
         flex flex-col
         h-full
         max-w-full
-        shadow-xl
         transform
         transition
         top-0
@@ -27,7 +26,7 @@
         fixed
         overflow-auto
       "
-      :class="show ? 'translate-x-0' : 'translate-x-full'"
+      :class="show ? 'shadow-xl translate-x-0' : 'translate-x-full'"
     >
       <slot name="content"></slot>
     </aside>

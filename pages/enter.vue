@@ -1,11 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen items-center justify-center">
-    <div v-if="signingInWithEmail">
-      <SmartSpinner />
-    </div>
-    <div v-else class="text-sm text-secondaryLight animate-pulse">
-      <AppLogo class="h-8 w-8" />
-    </div>
+    <SmartSpinner v-if="signingInWithEmail" />
+    <SmartLoadingIndicator v-else />
     <pre v-if="error">{{ error }}</pre>
   </div>
 </template>

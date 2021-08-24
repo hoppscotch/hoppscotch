@@ -204,7 +204,7 @@
   "hide": {
     "more": "Hide more",
     "preview": "Hide Preview",
-    "sidebar": "Hide sidebar"
+    "sidebar": "Collapse sidebar"
   },
   "import": {
     "collections": "Import collections",
@@ -386,7 +386,7 @@
   "show": {
     "code": "Show code",
     "more": "Show more",
-    "sidebar": "Show sidebar"
+    "sidebar": "Expand sidebar"
   },
   "socketio": {
     "communication": "Communication",

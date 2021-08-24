@@ -14,7 +14,7 @@
         <div v-if="navigation.svg" class="h-4 w-4">
           <SmartIcon :name="navigation.svg" class="svg-icons" />
         </div>
-        <span>{{ navigation.title }}</span>
+        <span v-if="LEFT_SIDEBAR">{{ navigation.title }}</span>
       </NuxtLink>
     </nav>
     <!-- <nav
@@ -57,32 +57,34 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
+import { useSetting } from "~/newstore/settings"
 // import { defineActionHandler } from "~/helpers/actions"
 
 export default defineComponent({
-  // setup() {
-  // const showSearch = ref(false)
-  // const showSupport = ref(false)
-  // const showShare = ref(false)
+  setup() {
+    // const showSearch = ref(false)
+    // const showSupport = ref(false)
+    // const showShare = ref(false)
 
-  // defineActionHandler("modals.search.toggle", () => {
-  //   showSearch.value = !showSearch.value
-  // })
+    // defineActionHandler("modals.search.toggle", () => {
+    //   showSearch.value = !showSearch.value
+    // })
 
-  // defineActionHandler("modals.support.toggle", () => {
-  //   showSupport.value = !showSupport.value
-  // })
+    // defineActionHandler("modals.support.toggle", () => {
+    //   showSupport.value = !showSupport.value
+    // })
 
-  // defineActionHandler("modals.share.toggle", () => {
-  //   showShare.value = !showShare.value
-  // })
+    // defineActionHandler("modals.share.toggle", () => {
+    //   showShare.value = !showShare.value
+    // })
 
-  //   return {
-  //     showSearch,
-  //     showSupport,
-  //     showShare,
-  //   }
-  // },
+    return {
+      //     showSearch,
+      //     showSupport,
+      //     showShare,
+      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+    }
+  },
   data() {
     return {
       primaryNavigation: [

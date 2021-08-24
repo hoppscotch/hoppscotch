@@ -3,6 +3,7 @@
     <input
       ref="acInput"
       v-model="text"
+      class="input"
       type="text"
       :placeholder="placeholder"
       :spellcheck="spellcheck"
@@ -107,6 +108,9 @@ export default {
     text() {
       this.$emit("input", this.text)
     },
+    value(newValue) {
+      this.text = newValue
+    },
   },
 
   mounted() {
@@ -191,7 +195,7 @@ export default {
 
   ul.suggestions {
     @apply hidden;
-    @apply bg-actColor;
+    @apply bg-primary;
     @apply absolute;
     @apply mx-2;
     @apply left-0;
@@ -207,11 +211,9 @@ export default {
     li {
       @apply w-full;
       @apply block;
-      @apply py-2;
-      @apply px-4;
+      @apply py-2 px-4;
       @apply text-sm;
       @apply font-mono;
-      @apply font-normal;
 
       &:last-child {
         border-radius: 0 0 8px 8px;
@@ -219,8 +221,8 @@ export default {
 
       &:hover,
       &.active {
-        @apply bg-acColor;
-        @apply text-actColor;
+        @apply bg-accent;
+        @apply text-primary;
         @apply cursor-pointer;
       }
     }

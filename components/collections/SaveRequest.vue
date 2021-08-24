@@ -1,56 +1,70 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("save_request_as") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("save_request_as") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
-      <label for="selectLabel">{{ $t("token_req_name") }}</label>
+    </template>
+    <template #body>
+      <label for="selectLabelSaveReq">{{ $t("token_req_name") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelSaveReq"
         v-model="requestData.name"
+        class="input"
         type="text"
         @keyup.enter="saveRequestAs"
       />
-      <label for="selectLabel">Select location</label>
-      <!-- <input readonly :value="path" /> -->
+      <label>Select location</label>
+      <!-- <input class="input" readonly :value="path" /> -->
+
+      <CollectionsGraphql
+        v-if="mode === 'graphql'"
+        :doc="false"
+        :show-coll-actions="false"
+        :picked="picked"
+        :saving-mode="true"
+        @select="onSelect"
+      />
+
       <Collections
+        v-else
         :picked="picked"
         :save-request="true"
         @select="onSelect"
         @update-collection="collectionsType.type = $event"
         @update-coll-type="onUpdateCollType"
       />
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="saveRequestAs">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="saveRequestAs">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
 import * as teamUtils from "~/helpers/teams/utils"
+import {
+  saveRESTRequestAs,
+  editRESTRequest,
+  editGraphqlRequest,
+  saveGraphqlRequestAs,
+} from "~/newstore/collections"
 
 export default {
   props: {
+    // mode can be either "graphql" or "rest"
+    mode: { type: String, default: "rest" },
     show: Boolean,
     editingRequest: { type: Object, default: () => {} },
   },
@@ -70,52 +84,6 @@ export default {
       },
       picked: null,
     }
-  },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
-  computed: {
-    folders() {
-      const collections = this.$store.state.postwoman.collections
-      const collectionIndex = this.$data.requestData.collectionIndex
-      const userSelectedAnyCollection = collectionIndex !== undefined
-      if (!userSelectedAnyCollection) return []
-
-      const noCollectionAvailable = collections[collectionIndex] !== undefined
-      if (!noCollectionAvailable) return []
-
-      return getFolderNames(collections[collectionIndex].folders, [])
-    },
-    requests() {
-      const collections = this.$store.state.postwoman.collections
-      const collectionIndex = this.$data.requestData.collectionIndex
-      const folderName = this.$data.requestData.folderName
-
-      const userSelectedAnyCollection = collectionIndex !== undefined
-      if (!userSelectedAnyCollection) {
-        return []
-      }
-
-      const userSelectedAnyFolder =
-        folderName !== undefined && folderName !== ""
-
-      if (userSelectedAnyFolder) {
-        const collection = collections[collectionIndex]
-        const folder = findFolder(folderName, collection)
-        return folder.requests
-      } else {
-        const collection = collections[collectionIndex]
-        const noCollectionAvailable = collection !== undefined
-
-        if (!noCollectionAvailable) {
-          return []
-        }
-
-        return collection.requests
-      }
-    },
   },
   watch: {
     "requestData.collectionIndex": function resetFolderAndRequestIndex() {
@@ -138,14 +106,6 @@ export default {
     onSelect({ picked }) {
       this.picked = picked
     },
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     saveRequestAs() {
       if (this.picked == null) {
         this.$toast.error(this.$t("select_collection"), {
@@ -163,36 +123,25 @@ export default {
       const requestUpdated = {
         ...this.$props.editingRequest,
         name: this.$data.requestData.name,
-        collection: this.$data.requestData.collectionIndex,
+      }
+
+      // Filter out all REST file inputs
+      if (this.mode === "rest" && requestUpdated.bodyParams) {
+        requestUpdated.bodyParams = requestUpdated.bodyParams.map((param) =>
+          param?.value?.[0] instanceof File ? { ...param, value: "" } : param
+        )
       }
 
       if (this.picked.pickedType === "my-request") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          folderName: this.picked.folderName,
-          requestIndex: this.picked.requestIndex,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        editRESTRequest(
+          this.picked.folderPath,
+          this.picked.requestIndex,
+          requestUpdated
+        )
       } else if (this.picked.pickedType === "my-folder") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          folderName: this.picked.folderName,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        saveRESTRequestAs(this.picked.folderPath, requestUpdated)
       } else if (this.picked.pickedType === "my-collection") {
-        this.$store.commit("postwoman/saveRequestAs", {
-          request: requestUpdated,
-          collectionIndex: this.picked.collectionIndex,
-          flag: "rest",
-        })
-
-        this.syncCollections()
+        saveRESTRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       } else if (this.picked.pickedType === "teams-request") {
         teamUtils.overwriteRequestTeams(
           this.$apollo,
@@ -216,6 +165,16 @@ export default {
           this.collectionsType.selectedTeam.id,
           this.picked.collectionID
         )
+      } else if (this.picked.pickedType === "gql-my-request") {
+        editGraphqlRequest(
+          this.picked.folderPath,
+          this.picked.requestIndex,
+          requestUpdated
+        )
+      } else if (this.picked.pickedType === "gql-my-folder") {
+        saveGraphqlRequestAs(this.picked.folderPath, requestUpdated)
+      } else if (this.picked.pickedType === "gql-my-collection") {
+        saveGraphqlRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
       }
       this.$toast.success("Requested added", {
         icon: "done",
@@ -223,40 +182,9 @@ export default {
       this.hideModal()
     },
     hideModal() {
+      this.picked = null
       this.$emit("hide-modal")
     },
   },
-}
-
-function getFolderNames(folders, namesList, folderName = "") {
-  if (folders.length) {
-    folders.forEach((folder) => {
-      namesList.push(folderName + folder.name)
-      if (folder.folders && folder.folders.length) {
-        getFolderNames(folder.folders, namesList, folder.name + "/")
-      }
-    })
-  }
-  return namesList
-}
-
-function findFolder(folderName, currentFolder) {
-  let selectedFolder
-  let result
-
-  if (folderName === currentFolder.name) {
-    return currentFolder
-  }
-
-  for (let i = 0; i < currentFolder.folders.length; i++) {
-    selectedFolder = currentFolder.folders[i]
-
-    result = findFolder(folderName, selectedFolder)
-
-    if (result !== false) {
-      return result
-    }
-  }
-  return false
 }
 </script>

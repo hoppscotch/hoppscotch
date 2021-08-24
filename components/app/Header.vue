@@ -3,49 +3,15 @@
     <div class="row-wrapper">
       <span class="slide-in">
         <nuxt-link :to="localePath('index')">
-          <h1 class="hide-on-small-screen logo">Hoppscotch</h1>
-          <h1 class="show-on-small-screen logo">Hs</h1>
+          <h1 class="heading logo">Hoppscotch</h1>
         </nuxt-link>
-        <iframe
-          src="https://ghbtns.com/github-btn.html?user=hoppscotch&repo=hoppscotch&type=star&count=true"
-          frameborder="0"
-          scrolling="0"
-          width="150"
-          height="20"
-          title="GitHub"
-          class="ml-8 hide-on-small-screen"
-          loading="lazy"
-        ></iframe>
+        <AppGitHubStarButton class="ml-8 hide-on-small-screen" />
       </span>
       <span>
-        <a
-          href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
-          target="_blank"
-          rel="noopener"
-          class="
-            inline-flex
-            items-center
-            px-4
-            py-2
-            mx-4
-            font-mono
-            text-sm
-            rounded-md
-            bg-bgDarkColor
-            hide-on-small-screen
-          "
-        >
-          Appwrite - Open-Source Backend as a Service
-          <img
-            class="w-8 ml-2"
-            src="~assets/images/appwrite-icon.svg"
-            alt="Appwrite"
-          />
-        </a>
         <button
           id="installPWA"
           v-tooltip="$t('install_pwa')"
-          class="icon"
+          class="icon button"
           @click.prevent="showInstallPrompt()"
         >
           <i class="material-icons">offline_bolt</i>
@@ -56,7 +22,7 @@
           aria-label="GitHub"
           rel="noopener"
         >
-          <button v-tooltip="'GitHub'" class="icon" aria-label="GitHub">
+          <button v-tooltip="'GitHub'" class="icon button" aria-label="GitHub">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -69,37 +35,37 @@
             </svg>
           </button>
         </a>
-        <v-popover v-if="fb.currentUser === null">
-          <button v-tooltip="$t('login_with')" class="icon">
+        <v-popover v-if="currentUser === null">
+          <button v-tooltip="$t('login_with')" class="icon button">
             <i class="material-icons">login</i>
           </button>
-          <template slot="popover">
-            <FirebaseLogin />
+          <template #popover>
+            <FirebaseLogin @show-email="showEmail = true" />
           </template>
         </v-popover>
         <v-popover v-else>
           <button
             v-tooltip="
-              (fb.currentUser.displayName ||
+              (currentUser.displayName ||
                 '<label><i>Name not found</i></label>') +
               '<br>' +
-              (fb.currentUser.email || '<label><i>Email not found</i></label>')
+              (currentUser.email || '<label><i>Email not found</i></label>')
             "
-            class="icon"
+            class="icon button"
             aria-label="Account"
           >
             <img
-              v-if="fb.currentUser.photoURL"
-              :src="fb.currentUser.photoURL"
+              v-if="currentUser.photoURL"
+              :src="currentUser.photoURL"
               class="w-6 h-6 rounded-full material-icons"
               alt="Profile image"
             />
             <i v-else class="material-icons">account_circle</i>
           </button>
-          <template slot="popover">
+          <template #popover>
             <div>
               <nuxt-link v-close-popover :to="localePath('settings')">
-                <button class="icon">
+                <button class="icon button">
                   <i class="material-icons">settings</i>
                   <span>
                     {{ $t("settings") }}
@@ -113,25 +79,29 @@
           </template>
         </v-popover>
         <v-popover>
-          <button v-tooltip="$t('more')" class="icon">
+          <button v-tooltip="$t('more')" class="icon button">
             <i class="material-icons">drag_indicator</i>
           </button>
-          <template slot="popover">
-            <button v-close-popover class="icon" @click="showExtensions = true">
+          <template #popover>
+            <button
+              v-close-popover
+              class="icon button"
+              @click="showExtensions = true"
+            >
               <i class="material-icons">extension</i>
               <span>{{ $t("extensions") }}</span>
             </button>
-            <button v-close-popover class="icon" @click="showShortcuts = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="showShortcuts = true"
+            >
               <i class="material-icons">keyboard</i>
               <span>{{ $t("shortcuts") }}</span>
             </button>
-            <button v-close-popover class="icon" @click="showSupport = true">
-              <i class="material-icons">favorite</i>
-              <span>{{ $t("support_us") }}</span>
-            </button>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               onClick="window.open('https://twitter.com/share?text=👽 Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io');"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
@@ -145,7 +115,7 @@
               v-if="navigatorShare"
               v-close-popover
               v-tooltip="$t('more')"
-              class="icon"
+              class="icon button"
               @click="nativeShare"
             >
               <i class="material-icons">share</i>
@@ -160,13 +130,14 @@
       @hide-modal="showExtensions = false"
     />
     <AppShortcuts :show="showShortcuts" @hide-modal="showShortcuts = false" />
-    <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </header>
 </template>
 
 <script>
 import intializePwa from "~/helpers/pwa"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
+import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 // import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
 
 export default {
@@ -178,24 +149,20 @@ export default {
       showInstallPrompt: null,
       showExtensions: false,
       showShortcuts: false,
-      showSupport: false,
+      showEmail: false,
       navigatorShare: navigator.share,
-      fb,
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   async mounted() {
-    this._keyListener = function (e) {
-      if (e.key === "Escape") {
-        e.preventDefault()
-        this.showExtensions = this.showShortcuts = this.showSupport = false
-      }
-    }
-    document.addEventListener("keydown", this._keyListener.bind(this))
-
     // Initializes the PWA code - checks if the app is installed,
     // etc.
     this.showInstallPrompt = await intializePwa()
-    const cookiesAllowed = localStorage.getItem("cookiesAllowed") === "yes"
+    const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
     if (!cookiesAllowed) {
       this.$toast.show(this.$t("we_use_cookies"), {
         icon: "info",
@@ -205,7 +172,7 @@ export default {
           {
             text: this.$t("dismiss"),
             onClick: (_, toastObject) => {
-              localStorage.setItem("cookiesAllowed", "yes")
+              setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)
             },
           },
@@ -213,24 +180,24 @@ export default {
       })
     }
 
-    // let showAd = localStorage.getItem("showAd") === "no"
+    // const showAd = localStorage.getItem("showAd") === "no"
     // if (!showAd) {
     //   setTimeout(() => {
     //     this.$toast.clear()
     //     this.$toast.show(
-    //       "<span><a href='https://github.com/sponsors/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
+    //       "<span><a href='https://fundoss.org/collective/hoppscotch' target='_blank' rel='noopener'>Sponsor us to support Hoppscotch open source project 💖</a><br><sub>Whoosh this away to dismiss.</sub></span>",
     //       {
     //         icon: "",
     //         duration: 0,
     //         theme: "toasted-ad",
     //         action: [
     //           {
-    //             text: "Sponsor",
+    //             text: "Donate",
     //             icon: "chevron_right",
     //             onClick: (_, toastObject) => {
     //               localStorage.setItem("showAd", "no")
     //               toastObject.goAway(0)
-    //               window.open("https://github.com/sponsors/hoppscotch")
+    //               window.open("https://fundoss.org/collective/hoppscotch")
     //             },
     //           },
     //         ],
@@ -239,7 +206,7 @@ export default {
     //         },
     //       }
     //     )
-    //   }, 8000)
+    //   }, 6000)
     // }
 
     // let showExtensionsToast = localStorage.getItem("showExtensionsToast") === "yes"
@@ -276,9 +243,6 @@ export default {
     //   }, 5000)
     // }
   },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
   methods: {
     nativeShare() {
       if (navigator.share) {
@@ -299,17 +263,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
-$responsiveWidth: 768px;
-
 .logo {
   @apply text-xl;
   @apply transition-colors;
   @apply ease-in-out;
   @apply duration-150;
-
-  &:hover {
-    @apply text-acColor;
-  }
+  @apply hover:text-accent;
 }
 
 @keyframes slideIn {
@@ -328,15 +287,5 @@ $responsiveWidth: 768px;
   @apply relative;
 
   animation: slideIn 0.2s forwards ease-in-out;
-}
-
-.show-on-small-screen {
-  @apply hidden;
-}
-
-@media (max-width: $responsiveWidth) {
-  .show-on-small-screen {
-    @apply inline-flex;
-  }
 }
 </style>

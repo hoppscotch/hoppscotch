@@ -4,14 +4,12 @@
       class="font-bold type-title"
       :class="{ 'type-highlighted': isHighlighted }"
     >
-      <span v-if="isInput" class="font-normal text-acColor">input </span>
-      <span v-else-if="isInterface" class="font-normal text-acColor"
-        >interface
-      </span>
-      <span v-else-if="isEnum" class="font-normal text-acColor">enum </span>
+      <span v-if="isInput" class="text-accent">input </span>
+      <span v-else-if="isInterface" class="text-accent">interface </span>
+      <span v-else-if="isEnum" class="text-accent">enum </span>
       {{ gqlType.name }}
     </div>
-    <div v-if="gqlType.description" class="mt-2 text-fgLightColor type-desc">
+    <div v-if="gqlType.description" class="mt-2 text-secondaryLight type-desc">
       {{ gqlType.description }}
     </div>
     <div v-if="interfaces.length > 0" class="mb-2">
@@ -104,6 +102,6 @@ export default {
 
 <style scoped lang="scss">
 .type-highlighted {
-  @apply text-acColor;
+  @apply text-accent;
 }
 </style>

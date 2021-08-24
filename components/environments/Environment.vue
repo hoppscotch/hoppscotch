@@ -2,20 +2,20 @@
   <div>
     <div class="row-wrapper">
       <div>
-        <button class="icon" @click="$emit('edit-environment')">
+        <button class="icon button" @click="$emit('edit-environment')">
           <i class="material-icons">layers</i>
           <span>{{ environment.name }}</span>
         </button>
       </div>
       <v-popover>
-        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
-        <template slot="popover">
+        <template #popover>
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('edit-environment')"
             >
               <i class="material-icons">create</i>
@@ -23,7 +23,11 @@
             </button>
           </div>
           <div>
-            <button v-close-popover class="icon" @click="confirmRemove = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -40,11 +44,11 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+<script lang="ts">
+import Vue from "vue"
+import { deleteEnvironment } from "~/newstore/environments"
 
-export default {
+export default Vue.extend({
   props: {
     environment: { type: Object, default: () => {} },
     environmentIndex: { type: Number, default: null },
@@ -54,26 +58,13 @@ export default {
       confirmRemove: false,
     }
   },
-  subscriptions() {
-    return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
-    }
-  },
   methods: {
-    syncEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
-    },
     removeEnvironment() {
-      this.$store.commit("postwoman/removeEnvironment", this.environmentIndex)
-      this.$toast.error(this.$t("deleted"), {
+      deleteEnvironment(this.environmentIndex)
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
-      this.syncEnvironments()
     },
   },
-}
+})
 </script>

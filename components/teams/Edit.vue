@@ -1,24 +1,24 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
+    <template #header>
+      <h3 class="heading">{{ $t("edit_team") }}</h3>
+      <button class="icon button" @click="hideModal">
+        <i class="material-icons">close</i>
+      </button>
+    </template>
+    <template #body>
       <ul>
         <li>
           <div class="row-wrapper">
-            <h3 class="title">{{ $t("edit_team") }}</h3>
-            <div>
-              <button class="icon" @click="hideModal">
-                <i class="material-icons">close</i>
-              </button>
-            </div>
+            <label>{{ $t("label") }}</label>
           </div>
         </li>
       </ul>
-    </div>
-    <div slot="body">
       <ul>
         <li>
           <input
             v-model="name"
+            class="input"
             type="text"
             :placeholder="editingTeam.name"
             @keyup.enter="saveTeam"
@@ -40,14 +40,15 @@
           border-b border-dashed
           divide-y
           md:divide-x
-          border-brdColor
-          divide-dashed divide-brdColor
+          border-divider
+          divide-dashed divide-divider
           md:divide-y-0
         "
         :class="{ 'border-t': index == 0 }"
       >
         <li>
           <input
+            class="input"
             :placeholder="$t('email')"
             :name="'param' + index"
             :value="member.user.email"
@@ -58,6 +59,7 @@
           <span class="select-wrapper">
             <v-popover>
               <input
+                class="input"
                 :placeholder="$t('permissions')"
                 :name="'value' + index"
                 :value="
@@ -67,11 +69,11 @@
                 "
                 readonly
               />
-              <template slot="popover">
+              <template #popover>
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="updateRole(index, 'OWNER')"
                   >
                     OWNER
@@ -80,7 +82,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="updateRole(index, 'EDITOR')"
                   >
                     EDITOR
@@ -89,7 +91,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="updateRole(index, 'VIEWER')"
                   >
                     VIEWER
@@ -104,7 +106,7 @@
             <button
               id="member"
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeExistingTeamMember(member.user.uid)"
             >
               <i class="material-icons">delete</i>
@@ -119,14 +121,15 @@
           border-b border-dashed
           divide-y
           md:divide-x
-          border-brdColor
-          divide-dashed divide-brdColor
+          border-divider
+          divide-dashed divide-divider
           md:divide-y-0
         "
       >
         <li>
           <input
             v-model="member.key"
+            class="input"
             :placeholder="$t('email')"
             :name="'param' + index"
             autofocus
@@ -136,6 +139,7 @@
           <span class="select-wrapper">
             <v-popover>
               <input
+                class="input"
                 :placeholder="$t('permissions')"
                 :name="'value' + index"
                 :value="
@@ -145,11 +149,11 @@
                 "
                 readonly
               />
-              <template slot="popover">
+              <template #popover>
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="member.value = 'OWNER'"
                   >
                     OWNER
@@ -158,7 +162,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="member.value = 'EDITOR'"
                   >
                     EDITOR
@@ -167,7 +171,7 @@
                 <div>
                   <button
                     v-close-popover
-                    class="icon"
+                    class="icon button"
                     @click="member.value = 'VIEWER'"
                   >
                     VIEWER
@@ -182,7 +186,7 @@
             <button
               id="member"
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeTeamMember(index)"
             >
               <i class="material-icons">delete</i>
@@ -192,26 +196,24 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addTeamMember">
+          <button class="icon button" @click="addTeamMember">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
         </li>
       </ul>
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="saveTeam">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="saveTeam">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 
@@ -307,13 +309,26 @@ export default {
         })
         return
       }
+      let invalidEmail = false
       this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
           this.$toast.error(this.$t("invalid_emailID_format"), {
             icon: "error",
           })
+          invalidEmail = true
         }
       })
+      if (invalidEmail) return
+      let invalidPermission = false
+      this.$data.newMembers.forEach((element) => {
+        if (!element.value) {
+          this.$toast.error(this.$t("invalid_member_permission"), {
+            icon: "error",
+          })
+          invalidPermission = true
+        }
+      })
+      if (invalidPermission) return
       this.$data.newMembers.forEach((element) => {
         // Call to the graphql mutation
         teamUtils
@@ -328,17 +343,15 @@ export default {
             this.$toast.success(this.$t("team_saved"), {
               icon: "done",
             })
-            this.hideModal()
           })
           .catch((error) => {
             // Error
-            this.$toast.error(this.$t("error_occurred"), {
+            this.$toast.error(error, {
               icon: "done",
             })
             console.error(error)
           })
       })
-      let messageShown = true
       this.members.forEach((element) => {
         teamUtils
           .updateTeamMemberRole(
@@ -349,22 +362,15 @@ export default {
           )
           .then(() => {
             // Result
-            if (messageShown) {
-              this.$toast.success(this.$t("role_updated"), {
-                icon: "done",
-              })
-              messageShown = false
-            }
-            this.hideModal()
+            this.$toast.success(this.$t("role_updated"), {
+              icon: "done",
+            })
           })
           .catch((error) => {
             // Error
-            if (messageShown) {
-              this.$toast.error(this.$t("error_occurred"), {
-                icon: "done",
-              })
-              messageShown = false
-            }
+            this.$toast.error(error, {
+              icon: "done",
+            })
             console.error(error)
           })
       })
@@ -384,7 +390,6 @@ export default {
               this.$toast.success(this.$t("team_saved"), {
                 icon: "done",
               })
-              this.hideModal()
             })
             .catch((error) => {
               // Error
@@ -395,10 +400,10 @@ export default {
             })
       }
       this.hideModal()
-      this.newMembers = []
     },
     hideModal() {
       this.rename = null
+      this.newMembers = []
       this.$emit("hide-modal")
     },
   },

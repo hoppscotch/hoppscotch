@@ -7,8 +7,8 @@ export const options = {
   description:
     "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "var(--ac-color)",
-    background: "var(--bg-color)",
+    color: "var(--accent-color)",
+    background: "var(--primary-color)",
   },
   app: {
     background: "#202124",
@@ -115,8 +115,8 @@ export default {
     "@nuxtjs/google-analytics",
     // https://github.com/nuxt-community/gtm-module
     "@nuxtjs/gtm",
-    // https://github.com/nuxt-community/nuxt-tailwindcss
-    "@nuxtjs/tailwindcss",
+    // https://github.com/windicss/windicss
+    "nuxt-windicss",
     // https://github.com/nuxt-community/color-mode-module
     "@nuxtjs/color-mode",
     // https: //github.com/nuxt-community/google-fonts-module
@@ -164,7 +164,7 @@ export default {
 
   // ESLint module configuration (https://github.com/nuxt-community/eslint-module)
   eslint: {
-    // fix: true,
+    fix: true,
     emitWarning: true,
     quiet: true,
   },
@@ -216,11 +216,6 @@ export default {
       Poppins: [400, 500, 600, 700, 800],
       "Roboto+Mono": true,
     },
-  },
-
-  // TailwindCSS module configuration (https://github.com/nuxt-community/tailwindcss-module)
-  tailwindcss: {
-    viewer: false,
   },
 
   // i18n module configuration (https://github.com/nuxt-community/i18n-module)
@@ -361,6 +356,7 @@ export default {
       if (isDev) {
         config.mode = "development"
       }
+
       config.node = {
         fs: "empty",
       }
@@ -371,6 +367,7 @@ export default {
           use: { loader: "worker-loader" },
           exclude: /(node_modules)/,
         })
+
         config.module.rules.push({
           test: /\.md$/i,
           use: { loader: "raw-loader" },

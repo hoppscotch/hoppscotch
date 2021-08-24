@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppSection ref="request" :label="$t('request')" no-legend>
+    <AppSection label="request">
       <ul>
         <li>
           <label for="socketio-url">{{ $t("url") }}</label>
@@ -10,7 +10,7 @@
             type="url"
             spellcheck="false"
             :class="{ error: !urlValid }"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
             @keyup.enter="urlValid ? toggleConnection() : null"
           />
@@ -18,7 +18,12 @@
         <div>
           <li>
             <label for="socketio-path">{{ $t("path") }}</label>
-            <input id="socketio-path" v-model="path" spellcheck="false" />
+            <input
+              id="socketio-path"
+              v-model="path"
+              class="input"
+              spellcheck="false"
+            />
           </li>
         </div>
         <div>
@@ -28,7 +33,7 @@
               id="connect"
               :disabled="!urlValid"
               name="connect"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
             >
               {{ !connectionState ? $t("connect") : $t("disconnect") }}
@@ -43,12 +48,7 @@
       </ul>
     </AppSection>
 
-    <AppSection
-      id="response"
-      ref="response"
-      :label="$t('communication')"
-      no-legend
-    >
+    <AppSection label="response">
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="communication.log" />
@@ -60,6 +60,7 @@
           <input
             id="event_name"
             v-model="communication.eventName"
+            class="input"
             name="event_name"
             type="text"
             :readonly="!connectionState"
@@ -81,14 +82,15 @@
           border-b border-dashed
           divide-y
           md:divide-x
-          border-brdColor
-          divide-dashed divide-brdColor
+          border-divider
+          divide-dashed divide-divider
           md:divide-y-0
         "
       >
         <li>
           <input
             v-model="communication.inputs[index]"
+            class="input"
             name="message"
             type="text"
             :readonly="!connectionState"
@@ -99,7 +101,7 @@
           <li>
             <button
               v-tooltip.bottom="$t('delete')"
-              class="icon"
+              class="icon button"
               @click="removeCommunicationInput({ index })"
             >
               <i class="material-icons">delete</i>
@@ -110,6 +112,7 @@
           <li>
             <button
               id="send"
+              class="button"
               name="send"
               :disabled="!connectionState"
               @click="sendMessage"
@@ -124,7 +127,7 @@
       </ul>
       <ul>
         <li>
-          <button class="icon" @click="addCommunicationInput">
+          <button class="icon button" @click="addCommunicationInput">
             <i class="material-icons">add</i>
             <span>{{ $t("add_new") }}</span>
           </button>
@@ -138,6 +141,7 @@
 import { io as Client } from "socket.io-client"
 import wildcard from "socketio-wildcard"
 import debounce from "~/helpers/utils/debounce"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
 export default {
   data() {
@@ -197,7 +201,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         },
       ]
 
@@ -216,7 +220,7 @@ export default {
             {
               payload: this.$t("connected_to", { name: this.url }),
               source: "info",
-              color: "var(--ac-color)",
+              color: "var(--accent-color)",
               ts: new Date().toLocaleTimeString(),
             },
           ]
@@ -259,6 +263,10 @@ export default {
           icon: "error",
         })
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "socketio",
+      })
     },
     disconnect() {
       this.io.close()

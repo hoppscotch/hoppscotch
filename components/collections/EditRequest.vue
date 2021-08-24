@@ -1,38 +1,35 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_request") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("edit_request") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
-      <label for="selectLabel">{{ $t("label") }}</label>
+    </template>
+    <template #body>
+      <label for="selectLabelEditReq">{{ $t("label") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelEditReq"
         v-model="requestUpdateData.name"
+        class="input"
         type="text"
         :placeholder="placeholderReqName"
         @keyup.enter="saveRequest"
       />
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="saveRequest">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="saveRequest">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 

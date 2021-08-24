@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <label
-      >{{ $t("color") }}:
-      {{ active.charAt(0).toUpperCase() + active.slice(1) }}</label
-    >
+    <label>{{ $t("color") }}: {{ capitalized(active) }}</label>
     <div>
       <!-- text-blue-400 -->
       <!-- text-green-400 -->
@@ -17,7 +14,7 @@
       <span
         v-for="(color, index) of accentColors"
         :key="`color-${index}`"
-        v-tooltip="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
+        v-tooltip="capitalized(color)"
         class="
           inline-flex
           items-center
@@ -32,7 +29,7 @@
           cursor-pointer
           hover:shadow-none
         "
-        :class="[`text-${color}-400`, { 'bg-actColor': color === active }]"
+        :class="[`text-${color}-400`, { 'bg-primary': color === active }]"
         @click="setActiveColor(color)"
       >
         <i class="material-icons">lens</i>
@@ -41,34 +38,37 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import Vue from "vue"
+import {
+  HoppAccentColors,
+  HoppAccentColor,
+  getSettingSubject,
+  settingsStore,
+  applySetting,
+} from "~/newstore/settings"
+
+export default Vue.extend({
   data() {
     return {
-      active: localStorage.getItem("THEME_COLOR") || "green",
-      accentColors: [
-        "blue",
-        "green",
-        "teal",
-        "indigo",
-        "purple",
-        "orange",
-        "pink",
-        "red",
-        "yellow",
-      ],
+      accentColors: HoppAccentColors,
+      active: settingsStore.value.THEME_COLOR,
     }
   },
-  watch: {
-    active(color) {
-      localStorage.setItem("THEME_COLOR", color)
-    },
+  subscriptions() {
+    return {
+      active: getSettingSubject("THEME_COLOR"),
+    }
   },
   methods: {
-    setActiveColor(color) {
+    setActiveColor(color: HoppAccentColor) {
       document.documentElement.setAttribute("data-accent", color)
-      this.active = color
+
+      applySetting("THEME_COLOR", color)
+    },
+    capitalized(color: HoppAccentColor) {
+      return `${color.charAt(0).toUpperCase()}${color.slice(1)}`
     },
   },
-}
+})
 </script>

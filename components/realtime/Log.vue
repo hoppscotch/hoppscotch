@@ -43,8 +43,8 @@ export default {
 <style scoped lang="scss">
 .realtime-log {
   @apply p-4;
-  @apply bg-bgDarkColor;
-  @apply text-fgColor;
+  @apply bg-primaryDark;
+  @apply text-secondary;
   @apply overflow-auto;
 
   height: 256px;
@@ -52,14 +52,12 @@ export default {
   &,
   span {
     @apply font-mono;
-    @apply font-normal;
     @apply select-text;
   }
 
   span {
     @apply block;
-    @apply break-words;
-    @apply break-all;
+    @apply break-words break-all;
   }
 }
 </style>

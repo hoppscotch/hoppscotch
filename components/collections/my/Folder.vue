@@ -3,7 +3,7 @@
     <div
       :class="[
         'row-wrapper transition duration-150 ease-in-out',
-        { 'bg-bgDarkColor': dragging },
+        { 'bg-primaryDark': dragging },
       ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
@@ -13,7 +13,7 @@
       @dragend="dragging = false"
     >
       <div>
-        <button class="icon" @click="toggleShowChildren">
+        <button class="icon button" @click="toggleShowChildren">
           <i v-show="!showChildren && !isFiltered" class="material-icons"
             >arrow_right</i
           >
@@ -27,15 +27,15 @@
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover v-if="!saveRequest">
-        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+      <v-popover>
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
-        <template slot="popover">
+        <template #popover>
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('add-folder', { folder, path: folderPath })"
             >
               <i class="material-icons">create_new_folder</i>
@@ -45,9 +45,14 @@
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="
-                $emit('edit-folder', { folder, folderIndex, collectionIndex })
+                $emit('edit-folder', {
+                  folder,
+                  folderIndex,
+                  collectionIndex,
+                  folderPath,
+                })
               "
             >
               <i class="material-icons">edit</i>
@@ -55,7 +60,11 @@
             </button>
           </div>
           <div>
-            <button v-close-popover class="icon" @click="confirmRemove = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -68,7 +77,7 @@
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="subFolder.name"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsMyFolder
             :folder="subFolder"
@@ -92,15 +101,15 @@
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
-          class="flex ml-8 border-l border-brdColor"
+          class="flex ml-8 border-l border-divider"
         >
           <CollectionsMyRequest
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :folder-name="folder.name"
-            :request-index="index"
             :folder-path="folderPath"
+            :request-index="index"
             :doc="doc"
             :picked="picked"
             :save-request="saveRequest"
@@ -119,7 +128,7 @@
           folder.requests.length === 0
         "
       >
-        <li class="flex ml-8 border-l border-brdColor">
+        <li class="flex ml-8 border-l border-divider">
           <p class="info">
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}
@@ -137,8 +146,11 @@
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+import {
+  removeRESTFolder,
+  removeRESTRequest,
+  moveRESTRequest,
+} from "~/newstore/collections"
 
 export default {
   name: "Folder",
@@ -162,11 +174,6 @@ export default {
       cursor: "",
     }
   },
-  subscriptions() {
-    return {
-      SYNC_COLLECTIONS: getSettingSubject("syncCollections"),
-    }
-  },
   computed: {
     isSelected() {
       return (
@@ -177,14 +184,6 @@ export default {
     },
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        fb.writeCollections(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-          "collections"
-        )
-      }
-    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {
@@ -198,43 +197,39 @@ export default {
       this.showChildren = !this.showChildren
     },
     removeFolder() {
-      this.$store.commit("postwoman/removeFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folder.name,
-        folderIndex: this.$props.folderIndex,
-        flag: "rest",
-      })
-      this.syncCollections()
+      // TODO: Bubble it up ?
+      // Cancel pick if picked folder was deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "my-folder" &&
+        this.picked.folderPath === this.folderPath
+      ) {
+        this.$emit("select", { picked: null })
+      }
+      removeRESTFolder(this.folderPath)
+
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
       })
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "rest"
-
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: this.$props.folderIndex,
-        newFolderName: this.$props.folder.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      this.syncCollections()
+      moveRESTRequest(folderPath, requestIndex, this.folderPath)
     },
-    removeRequest({ collectionIndex, folderName, requestIndex }) {
-      this.$emit("remove-request", {
-        collectionIndex,
-        folderName,
-        requestIndex,
-      })
+    removeRequest({ requestIndex }) {
+      // TODO: Bubble it up to root ?
+      // Cancel pick if the picked item is being deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "my-request" &&
+        this.picked.folderPath === this.folderPath &&
+        this.picked.requestIndex === requestIndex
+      ) {
+        this.$emit("select", { picked: null })
+      }
+      removeRESTRequest(this.folderPath, requestIndex)
     },
   },
 }

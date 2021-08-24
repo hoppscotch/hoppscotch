@@ -1,29 +1,29 @@
 <template>
   <div class="page">
-    <div v-if="currentUser && currentUser.eaInvited">
+    <div v-if="currentBackendUser && currentBackendUser.eaInvited">
       <Teams />
     </div>
 
-    <AppSection ref="account" :label="$t('account')" no-legend>
+    <AppSection label="account">
       <div class="flex flex-col">
         <label>{{ $t("account") }}</label>
-        <div v-if="fb.currentUser">
-          <button class="icon">
+        <div v-if="currentUser">
+          <button class="icon button">
             <img
-              v-if="fb.currentUser.photoURL"
-              :src="fb.currentUser.photoURL"
+              v-if="currentUser.photoURL"
+              :src="currentUser.photoURL"
               class="w-6 h-6 rounded-full material-icons"
             />
             <i v-else class="material-icons">account_circle</i>
             <span>
-              {{ fb.currentUser.displayName || $t("nothing_found") }}
+              {{ currentUser.displayName || $t("nothing_found") }}
             </span>
           </button>
           <br />
-          <button class="icon">
+          <button class="icon button">
             <i class="material-icons">email</i>
             <span>
-              {{ fb.currentUser.email || $t("nothing_found") }}
+              {{ currentUser.email || $t("nothing_found") }}
             </span>
           </button>
           <br />
@@ -57,24 +57,17 @@
               {{ SYNC_HISTORY ? $t("enabled") : $t("disabled") }}
             </SmartToggle>
           </p>
-
-          <p v-if="fb.currentSettings.length !== 3">
-            <button @click="initSettings">
-              <i class="material-icons">sync</i>
-              <span>{{ $t("turn_on") + " " + $t("sync") }}</span>
-            </button>
-          </p>
         </div>
         <div v-else>
           <label>{{ $t("login_with") }}</label>
           <p>
-            <FirebaseLogin />
+            <FirebaseLogin @show-email="showEmail = true" />
           </p>
         </div>
       </div>
     </AppSection>
 
-    <AppSection ref="theme" :label="$t('theme')" no-legend>
+    <AppSection label="theme">
       <div class="flex flex-col">
         <label>{{ $t("theme") }}</label>
         <SmartColorModePicker />
@@ -91,7 +84,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="extensions" :label="$t('extensions')" no-legend>
+    <AppSection label="extensions">
       <div class="flex flex-col">
         <label>{{ $t("extensions") }}</label>
         <div class="row-wrapper">
@@ -113,7 +106,7 @@
       </div>
     </AppSection>
 
-    <AppSection ref="proxy" :label="$t('proxy')" no-legend>
+    <AppSection label="proxy">
       <div class="flex flex-col">
         <label>{{ $t("proxy") }}</label>
         <div class="row-wrapper">
@@ -131,7 +124,7 @@
             target="_blank"
             rel="noopener"
           >
-            <button v-tooltip="$t('wiki')" class="icon">
+            <button v-tooltip="$t('wiki')" class="icon button">
               <i class="material-icons">help_outline</i>
             </button>
           </a>
@@ -140,15 +133,16 @@
           <label for="url">{{ $t("url") }}</label>
           <button
             v-tooltip.bottom="$t('reset_default')"
-            class="icon"
+            class="icon button"
             @click="resetProxy"
           >
-            <i class="material-icons">clear_all</i>
+            <i class="material-icons">{{ clearIcon }}</i>
           </button>
         </div>
         <input
           id="url"
           v-model="PROXY_URL"
+          class="input"
           type="url"
           :disabled="!PROXY_ENABLED"
           :placeholder="$t('url')"
@@ -174,17 +168,17 @@
 			<ul>
 				<li>
 					<label for="url">URL</label>
-					<input id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
+					<input class="input" id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
 				</li>
 				<li>
 					<label for="key">Key</label>
-					<input id="key" type="password" v-model="settings.PROXY_KEY" :disabled="!settings.PROXY_ENABLED" @change="applySetting('PROXY_KEY', $event)">
+					<input class="input" id="key" type="password" v-model="settings.PROXY_KEY" :disabled="!settings.PROXY_ENABLED" @change="applySetting('PROXY_KEY', $event)">
 				</li>
 			</ul>
       -->
     </AppSection>
 
-    <AppSection ref="experiments" :label="$t('experiments')" no-legend>
+    <AppSection label="experiments">
       <div class="flex flex-col">
         <label>{{ $t("experiments") }}</label>
         <p class="info">
@@ -205,15 +199,32 @@
             {{ $t("use_experimental_url_bar") }}
           </SmartToggle>
         </div>
+        <span>
+          <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
+            {{ $t("telemetry") }}
+            {{ TELEMETRY_ENABLED ? $t("enabled") : $t("disabled") }}
+          </SmartToggle>
+        </span>
       </div>
     </AppSection>
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
+    <SmartConfirmModal
+      :show="confirmRemove"
+      :title="`${$t('are_you_sure_remove_telemetry')} ${$t(
+        'telemetry_helps_us'
+      )}`"
+      @hide-modal="confirmRemove = false"
+      @resolve="
+        toggleSetting('TELEMETRY_ENABLED')
+        confirmRemove = false
+      "
+    />
   </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
 import { hasExtensionInstalled } from "../helpers/strategies/ExtensionStrategy"
-import { fb } from "~/helpers/fb"
 import {
   getSettingSubject,
   applySetting,
@@ -222,6 +233,7 @@ import {
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 type SettingsType = typeof defaultSettings
 
@@ -232,8 +244,7 @@ export default Vue.extend({
         ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
         : null,
 
-      doneButton: '<i class="material-icons">done</i>',
-      fb,
+      clearIcon: "clear_all",
 
       SYNC_COLLECTIONS: true,
       SYNC_ENVIRONMENTS: true,
@@ -244,6 +255,15 @@ export default Vue.extend({
 
       EXTENSIONS_ENABLED: true,
       PROXY_ENABLED: true,
+
+      showEmail: false,
+
+      currentBackendUser: null,
+      currentUser: null,
+
+      confirmRemove: false,
+
+      TELEMETRY_ENABLED: null,
     }
   },
   subscriptions() {
@@ -264,8 +284,11 @@ export default Vue.extend({
       SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
       SYNC_HISTORY: getSettingSubject("syncHistory"),
 
+      TELEMETRY_ENABLED: getSettingSubject("TELEMETRY_ENABLED"),
+
       // Teams feature flag
-      currentUser: currentUserInfo$,
+      currentBackendUser: currentUserInfo$,
+      currentUser: currentUser$,
     }
   },
   head() {
@@ -291,6 +314,10 @@ export default Vue.extend({
     },
   },
   methods: {
+    showConfirmModal() {
+      if (this.TELEMETRY_ENABLED) this.confirmRemove = true
+      else toggleSetting("TELEMETRY_ENABLED")
+    },
     applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
       applySetting(key, value)
     },
@@ -308,53 +335,14 @@ export default Vue.extend({
       value: SettingsType[K]
     ) {
       this.applySetting(name, value)
-
-      if (name === "syncCollections" && value) {
-        this.syncCollections()
-      }
-      if (name === "syncEnvironments" && value) {
-        this.syncEnvironments()
-      }
     },
-    initSettings() {
-      applySetting("syncHistory", true)
-      applySetting("syncCollections", true)
-      applySetting("syncEnvironments", true)
-    },
-    resetProxy({ target }: { target: HTMLElement }) {
+    resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
-
-      target.innerHTML = this.doneButton
+      this.clearIcon = "done"
       this.$toast.info(this.$t("cleared"), {
         icon: "clear_all",
       })
-      setTimeout(
-        () => (target.innerHTML = '<i class="material-icons">clear_all</i>'),
-        1000
-      )
-    },
-    syncCollections(): void {
-      if (fb.currentUser !== null && this.SYNC_COLLECTIONS) {
-        if (this.$store.state.postwoman.collections)
-          fb.writeCollections(
-            JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)),
-            "collections"
-          )
-        if (this.$store.state.postwoman.collectionsGraphql)
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-      }
-    },
-    syncEnvironments(): void {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
+      setTimeout(() => (this.clearIcon = "clear_all"), 1000)
     },
   },
 })

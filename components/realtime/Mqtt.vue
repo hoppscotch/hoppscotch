@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AppSection :label="$t('request')" no-legend>
+    <AppSection label="request">
       <ul>
         <li>
           <label for="mqtt-url">{{ $t("url") }}</label>
@@ -9,7 +9,7 @@
             v-model="url"
             type="url"
             spellcheck="false"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
           />
         </li>
@@ -19,7 +19,7 @@
             <button
               id="connect"
               :disabled="!validUrl"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleConnection"
             >
               {{ connectionState ? $t("disconnect") : $t("connect") }}
@@ -34,7 +34,7 @@
       </ul>
     </AppSection>
 
-    <AppSection :label="$t('communication')" no-legend>
+    <AppSection label="response">
       <ul>
         <li>
           <RealtimeLog :title="$t('log')" :log="log" />
@@ -46,6 +46,7 @@
           <input
             id="pub_topic"
             v-model="pub_topic"
+            class="input"
             type="text"
             spellcheck="false"
           />
@@ -57,7 +58,7 @@
             v-model="msg"
             type="text"
             spellcheck="false"
-            class="border-dashed md:border-l border-brdColor"
+            class="input border-dashed md:border-l border-divider"
           />
         </li>
         <div>
@@ -65,6 +66,7 @@
             <label for="publish" class="hide-on-small-screen">&nbsp;</label>
             <button
               id="publish"
+              class="button"
               name="get"
               :disabled="!canpublish"
               @click="publish"
@@ -85,7 +87,7 @@
             v-model="sub_topic"
             type="text"
             spellcheck="false"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
           />
         </li>
         <div>
@@ -95,7 +97,7 @@
               id="subscribe"
               name="get"
               :disabled="!cansubscribe"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleSubscription"
             >
               {{
@@ -119,6 +121,7 @@
 <script>
 import Paho from "paho-mqtt"
 import debounce from "~/helpers/utils/debounce"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 
 export default {
   data() {
@@ -172,7 +175,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
           ts: new Date().toLocaleTimeString(),
         },
       ]
@@ -189,6 +192,10 @@ export default {
       })
       this.client.onConnectionLost = this.onConnectionLost
       this.client.onMessageArrived = this.onMessageArrived
+
+      logHoppRequestRunToAnalytics({
+        platform: "mqtt",
+      })
     },
     onConnectionFailure() {
       this.connectionState = false
@@ -204,7 +211,7 @@ export default {
       this.log.push({
         payload: this.$t("connected_to", { name: this.url }),
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
       this.$toast.success(this.$t("connected"), {
@@ -215,7 +222,7 @@ export default {
       this.log.push({
         payload: `Message: ${payloadString} arrived on topic: ${destinationName}`,
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
     },
@@ -257,7 +264,7 @@ export default {
           payload: `Published message: ${this.msg} to topic: ${this.pub_topic}`,
           ts: new Date().toLocaleTimeString(),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         })
       } catch (e) {
         this.log.push({
@@ -302,7 +309,7 @@ export default {
           (this.subscriptionState ? "subscribed" : "unsubscribed") +
           ` to topic: ${this.sub_topic}`,
         source: "info",
-        color: "var(--ac-color)",
+        color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
     },

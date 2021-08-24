@@ -2,7 +2,7 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <AppSection ref="import" :label="$t('import')" no-legend>
+        <AppSection label="import">
           <div class="flex flex-col">
             <label>{{ $t("collection") }}</label>
             <p class="info">
@@ -12,7 +12,7 @@
               <label for="collectionUpload">
                 <button
                   v-tooltip="'JSON'"
-                  class="icon"
+                  class="icon button"
                   @click="$refs.collectionUpload.click()"
                 >
                   <i class="material-icons">folder</i>
@@ -21,6 +21,7 @@
               </label>
               <input
                 ref="collectionUpload"
+                class="input"
                 name="collectionUpload"
                 type="file"
                 @change="uploadCollection"
@@ -28,7 +29,7 @@
               <div>
                 <button
                   v-tooltip.bottom="$t('clear')"
-                  class="icon"
+                  class="icon button"
                   @click="collectionJSON = '[]'"
                 >
                   <i class="material-icons">clear_all</i>
@@ -42,20 +43,20 @@
               :options="{
                 maxLines: '16',
                 minLines: '8',
-                fontSize: '16px',
+                fontSize: '15px',
                 autoScrollEditorIntoView: true,
                 showPrintMargin: false,
                 useWorker: false,
               }"
             />
-            <button class="icon" @click="getDoc">
+            <button class="icon button" @click="getDoc">
               <i class="material-icons">topic</i>
               <span>{{ $t("generate_docs") }}</span>
             </button>
           </div>
         </AppSection>
 
-        <AppSection ref="documentation" :label="$t('documentation')" no-legend>
+        <AppSection label="documentation">
           <div class="flex flex-col">
             <label>{{ $t("documentation") }}</label>
             <p v-if="items.length === 0" class="info">
@@ -64,22 +65,22 @@
             <div v-else class="row-wrapper">
               <div
                 v-tooltip.bottom="{
-                  content: !fb.currentUser
+                  content: !currentUser
                     ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : fb.currentUser.provider !== 'github.com'
+                    : currentUser.provider !== 'github.com'
                     ? $t('login_with_github_to') + $t('create_secret_gist')
                     : null,
                 }"
               >
                 <button
                   :disabled="
-                    !fb.currentUser
+                    !currentUser
                       ? true
-                      : fb.currentUser.provider !== 'github.com'
+                      : currentUser.provider !== 'github.com'
                       ? true
                       : false
                   "
-                  class="icon"
+                  class="icon button"
                   @click="createDocsGist"
                 >
                   <i class="material-icons">assignment</i>
@@ -113,7 +114,7 @@
 
 <script>
 import Mustache from "mustache"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 import DocsTemplate from "~/assets/md/docs.md"
 import folderContents from "~/assets/md/folderContents.md"
 import folderBody from "~/assets/md/folderBody.md"
@@ -121,11 +122,15 @@ import folderBody from "~/assets/md/folderBody.md"
 export default {
   data() {
     return {
-      fb,
       collectionJSON: "[]",
       items: [],
       docsMarkdown: "",
       selected: [],
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   head() {
@@ -147,7 +152,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `token ${fb.currentUser.accessToken}`,
+              Authorization: `token ${this.currentUser.accessToken}`,
               Accept: "application/vnd.github.v3+json",
             },
           }

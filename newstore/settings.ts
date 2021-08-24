@@ -4,7 +4,47 @@ import { Observable } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import type { KeysMatching } from "~/types/ts-utils"
 
-export const defaultSettings = {
+export const HoppBgColors = ["system", "light", "dark", "black"] as const
+
+export type HoppBgColor = typeof HoppBgColors[number]
+
+export const HoppAccentColors = [
+  "blue",
+  "green",
+  "teal",
+  "indigo",
+  "purple",
+  "orange",
+  "pink",
+  "red",
+  "yellow",
+] as const
+
+export type HoppAccentColor = typeof HoppAccentColors[number]
+
+export type SettingsType = {
+  syncCollections: boolean
+  syncHistory: boolean
+  syncEnvironments: boolean
+
+  SCROLL_INTO_ENABLED: boolean
+  PROXY_ENABLED: boolean
+  PROXY_URL: string
+  PROXY_KEY: string
+  EXTENSIONS_ENABLED: boolean
+  EXPERIMENTAL_URL_BAR_ENABLED: boolean
+  URL_EXCLUDES: {
+    auth: boolean
+    httpUser: boolean
+    httpPassword: boolean
+    bearerToken: boolean
+  }
+  THEME_COLOR: HoppAccentColor
+  BG_COLOR: HoppBgColor
+  TELEMETRY_ENABLED: boolean
+}
+
+export const defaultSettings: SettingsType = {
   syncCollections: true,
   syncHistory: true,
   syncEnvironments: true,
@@ -21,9 +61,10 @@ export const defaultSettings = {
     httpPassword: true,
     bearerToken: true,
   },
+  THEME_COLOR: "green",
+  BG_COLOR: "system",
+  TELEMETRY_ENABLED: true,
 }
-
-export type SettingsType = typeof defaultSettings
 
 const validKeys = Object.keys(defaultSettings)
 
@@ -66,25 +107,14 @@ const dispatchers = defineDispatchers({
 
     return result
   },
-  applySettingFB<K extends keyof SettingsType>(
-    _currentState: SettingsType,
-    { settingKey, value }: { settingKey: K; value: SettingsType[K] }
-  ) {
-    if (!validKeys.includes(settingKey)) {
-      console.log(
-        `Ignoring non-existent setting key '${settingKey}' assignment by firebase`
-      )
-      return {}
-    }
-
-    const result: Partial<SettingsType> = {}
-    result[settingKey] = value
-
-    return result
-  },
 })
 
 export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
+
+/**
+ * An observable value to make avail all the state information at once
+ */
+export const settings$ = settingsStore.subject$.asObservable()
 
 export function getSettingSubject<K extends keyof SettingsType>(
   settingKey: K
@@ -114,19 +144,6 @@ export function applySetting<K extends keyof SettingsType>(
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
-    payload: {
-      settingKey,
-      value,
-    },
-  })
-}
-
-export function applySettingFB<K extends keyof SettingsType>(
-  settingKey: K,
-  value: SettingsType[K]
-) {
-  settingsStore.dispatch({
-    dispatcher: "applySettingFB",
     payload: {
       settingKey,
       value,

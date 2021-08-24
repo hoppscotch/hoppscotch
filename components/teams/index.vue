@@ -1,18 +1,12 @@
 <template>
-  <AppSection
-    ref="teams"
-    class="green"
-    icon="history"
-    :label="$t('teams')"
-    no-legend
-  >
+  <AppSection label="teams">
     <div class="flex flex-col">
       <label>{{ $t("teams") }}</label>
-      <div v-if="fb.currentUser"></div>
+      <div v-if="currentUser"></div>
       <div v-else>
         <label>{{ $t("login_with") }}</label>
         <p>
-          <FirebaseLogin />
+          <FirebaseLogin @show-email="showEmail = true" />
         </p>
       </div>
     </div>
@@ -27,7 +21,7 @@
     />
     <div class="row-wrapper">
       <div>
-        <button class="icon" @click="displayModalAdd(true)">
+        <button class="icon button" @click="displayModalAdd(true)">
           <i class="material-icons">add</i>
           <span>{{ $t("new") }}</span>
         </button>
@@ -50,12 +44,13 @@
         </li>
       </ul>
     </div>
+    <FirebaseEmail :show="showEmail" @hide-modal="showEmail = false" />
   </AppSection>
 </template>
 
 <script>
 import gql from "graphql-tag"
-import { fb } from "~/helpers/fb"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 export default {
   data() {
@@ -66,7 +61,12 @@ export default {
       editingteamID: "",
       me: {},
       myTeams: [],
-      fb,
+      showEmail: false,
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
     }
   },
   apollo: {
@@ -134,7 +134,6 @@ export default {
 }
 
 ul {
-  display: flex;
-  flex-direction: column;
+  @apply flex flex-col;
 }
 </style>

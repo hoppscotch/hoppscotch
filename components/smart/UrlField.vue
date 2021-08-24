@@ -1,4 +1,4 @@
-<!-- 
+<!--
  This code is a complete adaptation of the work done here
  https://github.com/SyedWasiHaider/vue-highlightable-input
 -->
@@ -392,19 +392,21 @@ export default {
 <style lang="scss">
 .VAR {
   @apply font-bold;
-  @apply text-acColor;
+  @apply text-accent;
 }
+
 .url-field-container {
   @apply inline-grid;
 }
+
 .url-field {
-  @apply border-dashed;
-  @apply border-brdColor;
+  @apply border-dashed border-divider;
   @apply whitespace-nowrap;
   @apply overflow-x-auto;
   @apply resize-none;
   @apply md:border-l;
 }
+
 .url-field::-webkit-scrollbar {
   @apply hidden;
 }

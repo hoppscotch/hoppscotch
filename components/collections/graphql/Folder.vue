@@ -3,7 +3,7 @@
     <div
       :class="[
         'row-wrapper transition duration-150 ease-in-out',
-        { 'bg-bgDarkColor': dragging },
+        { 'bg-primaryDark': dragging },
       ]"
       @dragover.prevent
       @drop.prevent="dropEvent"
@@ -13,26 +13,30 @@
       @dragend="dragging = false"
     >
       <div>
-        <button class="icon" @click="toggleShowChildren">
+        <button class="icon button" @click="toggleShowChildren">
           <i v-show="!showChildren && !isFiltered" class="material-icons"
             >arrow_right</i
           >
           <i v-show="showChildren || isFiltered" class="material-icons"
             >arrow_drop_down</i
           >
-          <i class="material-icons">folder_open</i>
+          <i v-if="isSelected" class="mx-3 text-green-400 material-icons"
+            >check_circle</i
+          >
+
+          <i v-else class="material-icons">folder_open</i>
           <span>{{ folder.name }}</span>
         </button>
       </div>
       <v-popover>
-        <button v-tooltip.left="$t('more')" class="tooltip-target icon">
+        <button v-tooltip.left="$t('more')" class="tooltip-target icon button">
           <i class="material-icons">more_vert</i>
         </button>
-        <template slot="popover">
+        <template #popover>
           <div>
             <button
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('add-folder', { folder, path: folderPath })"
             >
               <i class="material-icons">create_new_folder</i>
@@ -42,17 +46,19 @@
           <div>
             <button
               v-close-popover
-              class="icon"
-              @click="
-                $emit('edit-folder', { folder, folderIndex, collectionIndex })
-              "
+              class="icon button"
+              @click="$emit('edit-folder', { folder, folderPath })"
             >
               <i class="material-icons">edit</i>
               <span>{{ $t("edit") }}</span>
             </button>
           </div>
           <div>
-            <button v-close-popover class="icon" @click="confirmRemove = true">
+            <button
+              v-close-popover
+              class="icon button"
+              @click="confirmRemove = true"
+            >
               <i class="material-icons">delete</i>
               <span>{{ $t("delete") }}</span>
             </button>
@@ -65,9 +71,11 @@
         <li
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="subFolder.name"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsGraphqlFolder
+            :picked="picked"
+            :saving-mode="savingMode"
             :folder="subFolder"
             :folder-index="subFolderIndex"
             :folder-path="`${folderPath}/${subFolderIndex}`"
@@ -77,6 +85,7 @@
             @add-folder="$emit('add-folder', $event)"
             @edit-folder="$emit('edit-folder', $event)"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -84,16 +93,20 @@
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
-          class="flex ml-8 border-l border-brdColor"
+          class="flex ml-8 border-l border-divider"
         >
           <CollectionsGraphqlRequest
+            :picked="picked"
+            :saving-mode="savingMode"
             :request="request"
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
+            :folder-path="folderPath"
             :folder-name="folder.name"
             :request-index="index"
             :doc="doc"
             @edit-request="$emit('edit-request', $event)"
+            @select="$emit('select', $event)"
           />
         </li>
       </ul>
@@ -105,7 +118,7 @@
           folder.requests.length === 0
         "
       >
-        <li class="flex ml-8 border-l border-brdColor">
+        <li class="flex ml-8 border-l border-divider">
           <p class="info">
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}
@@ -122,12 +135,16 @@
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   name: "Folder",
   props: {
+    picked: { type: Object, default: null },
+    // Whether the request is in a selectable mode (activates 'select' event)
+    savingMode: { type: Boolean, default: false },
     folder: { type: Object, default: () => {} },
     folderIndex: { type: Number, default: null },
     collectionIndex: { type: Number, default: null },
@@ -142,54 +159,53 @@ export default {
       confirmRemove: false,
     }
   },
+  computed: {
+    isSelected(): boolean {
+      return (
+        this.picked &&
+        this.picked.pickedType === "gql-my-folder" &&
+        this.picked.folderPath === this.folderPath
+      )
+    },
+  },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
+    pick() {
+      this.$emit("select", {
+        picked: {
+          pickedType: "gql-my-folder",
+          folderPath: this.folderPath,
+        },
+      })
     },
     toggleShowChildren() {
+      if (this.savingMode) {
+        this.pick()
+      }
+
       this.showChildren = !this.showChildren
     },
     removeFolder() {
-      this.$store.commit("postwoman/removeFolder", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folder.name,
-        folderIndex: this.$props.folderIndex,
-        flag: "graphql",
-      })
-      this.syncCollections()
-      this.$toast.error(this.$t("deleted"), {
+      // Cancel pick if the picked folder is deleted
+      if (
+        this.picked &&
+        this.picked.pickedType === "gql-my-folder" &&
+        this.picked.folderPath === this.folderPath
+      ) {
+        this.$emit("select", { picked: null })
+      }
+
+      removeGraphqlFolder(this.folderPath)
+      this.$toast.error(this.$t("deleted").toString(), {
         icon: "delete",
       })
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
-      const oldCollectionIndex = dataTransfer.getData("oldCollectionIndex")
-      const oldFolderIndex = dataTransfer.getData("oldFolderIndex")
-      const oldFolderName = dataTransfer.getData("oldFolderName")
+      const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      const flag = "graphql"
 
-      this.$store.commit("postwoman/moveRequest", {
-        oldCollectionIndex,
-        newCollectionIndex: this.$props.collectionIndex,
-        newFolderIndex: this.$props.folderIndex,
-        newFolderName: this.$props.folder.name,
-        oldFolderIndex,
-        oldFolderName,
-        requestIndex,
-        flag,
-      })
-      this.syncCollections()
+      moveGraphqlRequest(folderPath, requestIndex, this.folderPath)
     },
   },
-}
+})
 </script>

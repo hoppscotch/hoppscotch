@@ -1,27 +1,23 @@
 <template>
   <div>
-    <button v-close-popover class="icon" @click="logout">
+    <button v-close-popover class="icon button" @click="logout">
       <i class="material-icons">exit_to_app</i>
       <span>{{ $t("logout") }}</span>
     </button>
   </div>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { signOutUser } from "~/helpers/fb/auth"
 
-export default {
-  data() {
-    return {
-      fb,
-    }
-  },
+export default Vue.extend({
   methods: {
     async logout() {
       try {
-        await fb.signOutUser()
+        await signOutUser()
 
-        this.$toast.info(this.$t("logged_out"), {
+        this.$toast.info(this.$t("logged_out").toString(), {
           icon: "vpn_key",
         })
       } catch (err) {
@@ -31,5 +27,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

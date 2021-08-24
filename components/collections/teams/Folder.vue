@@ -2,7 +2,7 @@
   <div>
     <div class="transition duration-150 ease-in-out row-wrapper">
       <div>
-        <button class="icon" @click="toggleShowChildren">
+        <button class="icon button" @click="toggleShowChildren">
           <i v-show="!showChildren && !isFiltered" class="material-icons"
             >arrow_right</i
           >
@@ -18,20 +18,20 @@
           <span>{{ folder.name ? folder.name : folder.title }}</span>
         </button>
       </div>
-      <v-popover v-if="!saveRequest">
+      <v-popover>
         <button
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tooltip.left="$t('more')"
-          class="tooltip-target icon"
+          class="tooltip-target icon button"
         >
           <i class="material-icons">more_vert</i>
         </button>
-        <template slot="popover">
+        <template #popover>
           <div>
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="$emit('add-folder', { folder, path: folderPath })"
             >
               <i class="material-icons">create_new_folder</i>
@@ -42,9 +42,14 @@
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="
-                $emit('edit-folder', { folder, folderIndex, collectionIndex })
+                $emit('edit-folder', {
+                  folder,
+                  folderIndex,
+                  collectionIndex,
+                  folderPath: '',
+                })
               "
             >
               <i class="material-icons">edit</i>
@@ -55,7 +60,7 @@
             <button
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               v-close-popover
-              class="icon"
+              class="icon button"
               @click="confirmRemove = true"
             >
               <i class="material-icons">delete</i>
@@ -70,7 +75,7 @@
         <li
           v-for="(subFolder, subFolderIndex) in folder.children"
           :key="subFolder.name"
-          class="ml-8 border-l border-brdColor"
+          class="ml-8 border-l border-divider"
         >
           <CollectionsTeamsFolder
             :folder="subFolder"
@@ -95,7 +100,7 @@
         <li
           v-for="(request, index) in folder.requests"
           :key="index"
-          class="flex ml-8 border-l border-brdColor"
+          class="flex ml-8 border-l border-divider"
         >
           <CollectionsTeamsRequest
             :request="request.request"
@@ -119,7 +124,7 @@
           (folder.requests == undefined || folder.requests.length === 0)
         "
       >
-        <li class="flex ml-8 border-l border-brdColor">
+        <li class="flex ml-8 border-l border-divider">
           <p class="info">
             <i class="material-icons">not_interested</i>
             {{ $t("folder_empty") }}
@@ -184,6 +189,15 @@ export default {
     },
     removeFolder() {
       if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
+        // Cancel pick if picked collection folder was deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-folder" &&
+          this.picked.folderID === this.folder.id
+        ) {
+          this.$emit("select", { picked: null })
+        }
+
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {

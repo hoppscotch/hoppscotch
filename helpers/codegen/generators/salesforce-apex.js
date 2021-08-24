@@ -77,7 +77,7 @@ export const SalesforceApexCodegen = {
     requestString.push(`    System.debug(response.getBody());\n`)
     requestString.push(`} catch (CalloutException ex) {\n`)
     requestString.push(
-      `    System.debug('An error occured ' + ex.getMessage());\n`
+      `    System.debug('An error occurred ' + ex.getMessage());\n`
     )
     requestString.push(`}`)
 

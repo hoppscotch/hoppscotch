@@ -1,76 +1,64 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("new_collection") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("new_collection") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
-      <label for="selectLabel">{{ $t("label") }}</label>
+    </template>
+    <template #body>
+      <label for="selectLabelGqlAdd">{{ $t("label") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelGqlAdd"
         v-model="name"
+        class="input"
         type="text"
         :placeholder="$t('my_new_collection')"
         @keyup.enter="addNewCollection"
       />
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="addNewCollection">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="addNewCollection">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { addGraphqlCollection } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
   },
   data() {
     return {
-      name: null,
+      name: null as string | null,
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     addNewCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+      if (!this.name) {
+        this.$toast.info(this.$t("invalid_collection_name").toString())
         return
       }
-      this.$store.commit("postwoman/addNewCollection", {
-        name: this.$data.name,
-        flag: "graphql",
+
+      addGraphqlCollection({
+        name: this.name,
+        folders: [],
+        requests: [],
       })
-      this.syncCollections()
+
       this.hideModal()
     },
     hideModal() {
@@ -78,5 +66,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

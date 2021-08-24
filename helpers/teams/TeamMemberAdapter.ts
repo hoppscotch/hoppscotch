@@ -75,8 +75,6 @@ export default class TeamMemberAdapter {
         },
       })
 
-      debugger
-
       result.push(...response.data.team.members)
 
       if ((response.data.team.members as any[]).length === 0) break

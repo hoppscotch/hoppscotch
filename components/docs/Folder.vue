@@ -1,6 +1,6 @@
 <template>
   <div class="folder">
-    <h3>
+    <h3 class="heading">
       <i class="material-icons">folder_open</i>
       {{ folder.name || $t("none") }}
     </h3>
@@ -23,13 +23,10 @@ export default {
 
 <style lang="scss" scoped>
 .folder {
-  @apply flex;
-  @apply flex-col;
+  @apply flex flex-col flex-1;
   @apply justify-center;
-  @apply flex-1;
   @apply p-4;
-  @apply border-l;
-  @apply border-brdColor;
+  @apply border-l border-divider;
   @apply mt-4;
 
   .material-icons {

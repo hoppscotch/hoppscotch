@@ -1,86 +1,72 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">
-          {{ $t("import_export") }} {{ $t("environments") }}
-        </h3>
-        <div>
-          <v-popover>
-            <button v-tooltip.left="$t('more')" class="tooltip-target icon">
-              <i class="material-icons">more_vert</i>
-            </button>
-            <template slot="popover">
-              <div>
-                <button
-                  v-close-popover
-                  class="icon"
-                  @click="readEnvironmentGist"
-                >
-                  <i class="material-icons">assignment_returned</i>
-                  <span>{{ $t("import_from_gist") }}</span>
-                </button>
-              </div>
-              <div
-                v-tooltip.bottom="{
-                  content: !fb.currentUser
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : fb.currentUser.provider !== 'github.com'
-                    ? $t('login_with_github_to') + $t('create_secret_gist')
-                    : null,
-                }"
-              >
-                <button
-                  v-close-popover
-                  :disabled="
-                    !fb.currentUser
-                      ? true
-                      : fb.currentUser.provider !== 'github.com'
-                      ? true
-                      : false
-                  "
-                  class="icon"
-                  @click="createEnvironmentGist"
-                >
-                  <i class="material-icons">assignment_turned_in</i>
-                  <span>{{ $t("create_secret_gist") }}</span>
-                </button>
-              </div>
-            </template>
-          </v-popover>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div slot="body" class="flex flex-col">
-      <div class="flex flex-col items-start p-2">
-        <span
-          v-tooltip="{
-            content: !fb.currentUser
-              ? $t('login_first')
-              : $t('replace_current'),
-          }"
-        >
+    <template #header>
+      <h3 class="heading">
+        {{ $t("import_export") }} {{ $t("environments") }}
+      </h3>
+      <div>
+        <v-popover>
           <button
-            :disabled="!fb.currentUser"
-            class="icon"
-            @click="syncEnvironments"
+            v-tooltip.left="$t('more')"
+            class="tooltip-target icon button"
           >
-            <i class="material-icons">folder_shared</i>
-            <span>{{ $t("import_from_sync") }}</span>
+            <i class="material-icons">more_vert</i>
           </button>
-        </span>
+          <template #popover>
+            <div>
+              <button
+                v-close-popover
+                class="icon button"
+                @click="readEnvironmentGist"
+              >
+                <i class="material-icons">assignment_returned</i>
+                <span>{{ $t("import_from_gist") }}</span>
+              </button>
+            </div>
+            <div
+              v-tooltip.bottom="{
+                content: !currentUser
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : currentUser.provider !== 'github.com'
+                  ? $t('login_with_github_to') + $t('create_secret_gist')
+                  : null,
+              }"
+            >
+              <button
+                v-close-popover
+                :disabled="
+                  !currentUser
+                    ? true
+                    : currentUser.provider !== 'github.com'
+                    ? true
+                    : false
+                "
+                class="icon button"
+                @click="createEnvironmentGist"
+              >
+                <i class="material-icons">assignment_turned_in</i>
+                <span>{{ $t("create_secret_gist") }}</span>
+              </button>
+            </div>
+          </template>
+        </v-popover>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+    </template>
+    <template #body>
+      <div class="flex flex-col items-start p-2">
         <button
           v-tooltip="$t('replace_current')"
-          class="icon"
+          class="icon button"
           @click="openDialogChooseFileToReplaceWith"
         >
-          <i class="material-icons">create_new_folder</i>
+          <i class="material-icons">folder_special</i>
           <span>{{ $t("replace_json") }}</span>
           <input
             ref="inputChooseFileToReplaceWith"
+            class="input"
             type="file"
             style="display: none"
             accept="application/json"
@@ -89,70 +75,56 @@
         </button>
         <button
           v-tooltip="$t('preserve_current')"
-          class="icon"
+          class="icon button"
           @click="openDialogChooseFileToImportFrom"
         >
-          <i class="material-icons">folder_special</i>
+          <i class="material-icons">create_new_folder</i>
           <span>{{ $t("import_json") }}</span>
           <input
             ref="inputChooseFileToImportFrom"
+            class="input"
             type="file"
             style="display: none"
             accept="application/json"
             @change="importFromJSON"
           />
         </button>
+        <button
+          v-tooltip="$t('download_file')"
+          class="icon button"
+          @click="exportJSON"
+        >
+          <i class="material-icons">drive_file_move</i>
+          <span>
+            {{ $t("export_as_json") }}
+          </span>
+        </button>
       </div>
-      <div v-if="showJsonCode" class="row-wrapper">
-        <textarea v-model="environmentJson" rows="8" readonly></textarea>
-      </div>
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span>
-          <SmartToggle :on="showJsonCode" @change="showJsonCode = $event">
-            {{ $t("show_code") }}
-          </SmartToggle>
-        </span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button
-            v-tooltip="$t('download_file')"
-            class="icon primary"
-            @click="exportJSON"
-          >
-            {{ $t("export") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
   </SmartModal>
 </template>
 
 <script>
-import { fb } from "~/helpers/fb"
-import { getSettingSubject } from "~/newstore/settings"
+import { currentUser$ } from "~/helpers/fb/auth"
+import {
+  environments$,
+  replaceEnvironments,
+  appendEnvironments,
+} from "~/newstore/environments"
 
 export default {
   props: {
     show: Boolean,
   },
-  data() {
-    return {
-      fb,
-      showJsonCode: false,
-    }
-  },
   subscriptions() {
     return {
-      SYNC_ENVIRONMENTS: getSettingSubject("syncEnvironments"),
+      environments: environments$,
+      currentUser: currentUser$,
     }
   },
   computed: {
     environmentJson() {
-      return JSON.stringify(this.$store.state.postwoman.environments, null, 2)
+      return JSON.stringify(this.environments, null, 2)
     },
   },
   methods: {
@@ -169,7 +141,7 @@ export default {
           },
           {
             headers: {
-              Authorization: `token ${fb.currentUser.accessToken}`,
+              Authorization: `token ${this.currentUser.accessToken}`,
               Accept: "application/vnd.github.v3+json",
             },
           }
@@ -198,9 +170,8 @@ export default {
         })
         .then(({ files }) => {
           const environments = JSON.parse(Object.values(files)[0].content)
-          this.$store.commit("postwoman/replaceEnvironments", environments)
+          replaceEnvironments(environments)
           this.fileImported()
-          this.syncToFBEnvironments()
         })
         .catch((error) => {
           this.failedImport()
@@ -221,11 +192,10 @@ export default {
       reader.onload = ({ target }) => {
         const content = target.result
         const environments = JSON.parse(content)
-        this.$store.commit("postwoman/replaceEnvironments", environments)
+        replaceEnvironments(environments)
       }
       reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
       this.fileImported()
-      this.syncToFBEnvironments()
       this.$refs.inputChooseFileToReplaceWith.value = ""
     },
     importFromJSON() {
@@ -243,15 +213,11 @@ export default {
         }
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
-      this.syncToFBEnvironments()
       this.$refs.inputChooseFileToImportFrom.value = ""
     },
     importFromPostwoman(environments) {
-      const confirmation = this.$t("file_imported")
-      this.$store.commit("postwoman/importAddEnvironments", {
-        environments,
-        confirmation,
-      })
+      appendEnvironments(environments)
+      this.fileImported()
     },
     importFromPostman({ name, values }) {
       const environment = { name, variables: [] }
@@ -278,20 +244,6 @@ export default {
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
-    },
-    syncEnvironments() {
-      this.$store.commit(
-        "postwoman/replaceEnvironments",
-        fb.currentEnvironments
-      )
-      this.fileImported()
-    },
-    syncToFBEnvironments() {
-      if (fb.currentUser !== null && this.SYNC_ENVIRONMENTS) {
-        fb.writeEnvironments(
-          JSON.parse(JSON.stringify(this.$store.state.postwoman.environments))
-        )
-      }
     },
     fileImported() {
       this.$toast.info(this.$t("file_imported"), {

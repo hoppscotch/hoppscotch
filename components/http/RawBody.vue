@@ -9,15 +9,15 @@
               v-if="rawInput && contentType.endsWith('json')"
               ref="prettifyRequest"
               v-tooltip="$t('prettify_body')"
-              class="icon"
+              class="icon button"
               @click="prettifyRequestBody"
             >
-              <i class="material-icons">photo_filter</i>
+              <i class="material-icons">{{ prettifyIcon }}</i>
             </button>
             <label for="payload" class="p-0">
               <button
                 v-tooltip="$t('import_json')"
-                class="icon"
+                class="icon button"
                 @click="$refs.payload.click()"
               >
                 <i class="material-icons">post_add</i>
@@ -25,13 +25,14 @@
             </label>
             <input
               ref="payload"
+              class="input"
               name="payload"
               type="file"
               @change="uploadPayload"
             />
             <button
               v-tooltip.bottom="$t('clear')"
-              class="icon"
+              class="icon button"
               @click="clearContent('rawParams', $event)"
             >
               <i class="material-icons">clear_all</i>
@@ -45,7 +46,7 @@
             :options="{
               maxLines: '16',
               minLines: '8',
-              fontSize: '16px',
+              fontSize: '15px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
               useWorker: false,
@@ -68,7 +69,7 @@ export default {
   },
   data() {
     return {
-      doneButton: '<i class="material-icons">done</i>',
+      prettifyIcon: "photo_filter",
     }
   },
   computed: {
@@ -111,9 +112,8 @@ export default {
       try {
         const jsonObj = JSON.parse(this.rawParamsBody)
         this.rawParamsBody = JSON.stringify(jsonObj, null, 2)
-        const oldIcon = this.$refs.prettifyRequest.innerHTML
-        this.$refs.prettifyRequest.innerHTML = this.doneButton
-        setTimeout(() => (this.$refs.prettifyRequest.innerHTML = oldIcon), 1000)
+        this.prettifyIcon = "done"
+        setTimeout(() => (this.prettifyIcon = "photo_filter"), 1000)
       } catch (e) {
         this.$toast.error(`${this.$t("json_prettify_invalid_body")}`, {
           icon: "error",

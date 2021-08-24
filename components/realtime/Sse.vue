@@ -1,6 +1,6 @@
 <template>
-  <div class="page">
-    <AppSection ref="request" :label="$t('request')" no-legend>
+  <div>
+    <AppSection label="request">
       <ul>
         <li>
           <label for="server">{{ $t("server") }}</label>
@@ -9,7 +9,7 @@
             v-model="server"
             type="url"
             :class="{ error: !serverValid }"
-            class="md:rounded-bl-lg"
+            class="input md:rounded-bl-lg"
             :placeholder="$t('url')"
             @keyup.enter="serverValid ? toggleSSEConnection() : null"
           />
@@ -21,7 +21,7 @@
               id="start"
               :disabled="!serverValid"
               name="start"
-              class="rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
+              class="button rounded-b-lg md:rounded-bl-none md:rounded-br-lg"
               @click="toggleSSEConnection"
             >
               {{ !connectionSSEState ? $t("start") : $t("stop") }}
@@ -36,12 +36,7 @@
       </ul>
     </AppSection>
 
-    <AppSection
-      id="response"
-      ref="response"
-      :label="$t('communication')"
-      no-legend
-    >
+    <AppSection label="response">
       <ul>
         <li>
           <RealtimeLog :title="$t('events')" :log="events.log" />
@@ -53,6 +48,7 @@
 </template>
 
 <script>
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 
 export default {
@@ -105,7 +101,7 @@ export default {
         {
           payload: this.$t("connecting_to", { name: this.server }),
           source: "info",
-          color: "var(--ac-color)",
+          color: "var(--accent-color)",
         },
       ]
       if (typeof EventSource !== "undefined") {
@@ -117,7 +113,7 @@ export default {
               {
                 payload: this.$t("connected_to", { name: this.server }),
                 source: "info",
-                color: "var(--ac-color)",
+                color: "var(--accent-color)",
                 ts: new Date().toLocaleTimeString(),
               },
             ]
@@ -163,6 +159,10 @@ export default {
           },
         ]
       }
+
+      logHoppRequestRunToAnalytics({
+        platform: "mqtt",
+      })
     },
     handleSSEError(error) {
       this.stop()

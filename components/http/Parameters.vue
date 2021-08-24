@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="parameters" label="Parameters" no-legend>
+  <AppSection label="parameters">
     <ul v-if="params.length !== 0">
       <li>
         <div class="row-wrapper">
@@ -7,7 +7,7 @@
           <div>
             <button
               v-tooltip.bottom="$t('clear')"
-              class="icon"
+              class="icon button"
               @click="clearContent('parameters', $event)"
             >
               <i class="material-icons">clear_all</i>
@@ -23,14 +23,15 @@
         border-b border-dashed
         divide-y
         md:divide-x
-        border-brdColor
-        divide-dashed divide-brdColor
+        border-divider
+        divide-dashed divide-divider
         md:divide-y-0
       "
       :class="{ 'border-t': index == 0 }"
     >
       <li>
         <input
+          class="input"
           :placeholder="$t('parameter_count', { count: index + 1 })"
           :name="'param' + index"
           :value="param.key"
@@ -45,6 +46,7 @@
       </li>
       <li>
         <input
+          class="input"
           :placeholder="$t('value_count', { count: index + 1 })"
           :name="'value' + index"
           :value="param.value"
@@ -59,6 +61,7 @@
       <li>
         <span class="select-wrapper">
           <select
+            class="select"
             :name="'type' + index"
             @change="
               $store.commit('setTypeParams', {
@@ -86,7 +89,7 @@
                   : $t('turn_on')
                 : $t('turn_off'),
             }"
-            class="icon"
+            class="icon button"
             @click="
               $store.commit('setActiveParams', {
                 index,
@@ -110,7 +113,7 @@
         <li>
           <button
             v-tooltip.bottom="$t('delete')"
-            class="icon"
+            class="icon button"
             @click="removeRequestParam(index)"
           >
             <i class="material-icons">delete</i>
@@ -120,7 +123,7 @@
     </ul>
     <ul>
       <li>
-        <button class="icon" @click="addRequestParam">
+        <button class="icon button" @click="addRequestParam">
           <i class="material-icons">add</i>
           <span>{{ $t("add_new") }}</span>
         </button>

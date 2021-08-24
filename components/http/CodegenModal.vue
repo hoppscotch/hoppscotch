@@ -1,16 +1,14 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("generate_code") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("generate_code") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <label for="requestType">{{ $t("choose_language") }}</label>
       <span class="select-wrapper">
         <v-popover>
@@ -22,15 +20,15 @@
             id="requestType"
             v-model="requestType"
             :placeholder="$t('choose_language')"
-            class="cursor-pointer"
+            class="input cursor-pointer"
             readonly
             autofocus
           />
-          <template slot="popover">
+          <template #popover>
             <div v-for="gen in codegens" :key="gen.id">
               <button
                 v-close-popover
-                class="icon"
+                class="icon button"
                 @click="requestType = gen.id"
               >
                 {{ gen.name }}
@@ -45,10 +43,10 @@
           <button
             ref="copyRequestCode"
             v-tooltip="$t('copy_code')"
-            class="icon"
+            class="icon button"
             @click="copyRequestCode"
           >
-            <i class="material-icons">content_copy</i>
+            <i class="material-icons">{{ copyIcon }}</i>
           </button>
         </div>
       </div>
@@ -60,7 +58,7 @@
         :options="{
           maxLines: '10',
           minLines: '10',
-          fontSize: '16px',
+          fontSize: '15px',
           autoScrollEditorIntoView: true,
           readOnly: true,
           showPrintMargin: false,
@@ -68,7 +66,7 @@
         }"
         styles="rounded-b-lg"
       />
-    </div>
+    </template>
   </SmartModal>
 </template>
 
@@ -84,8 +82,7 @@ export default {
   data() {
     return {
       codegens,
-      copyButton: '<i class="material-icons">content_copy</i>',
-      doneButton: '<i class="material-icons">done</i>',
+      copyIcon: "content_copy",
     }
   },
   computed: {
@@ -106,17 +103,14 @@ export default {
       this.$emit("handle-import")
     },
     copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML = this.doneButton
-      this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done",
-      })
       this.$refs.generatedCode.editor.selectAll()
       this.$refs.generatedCode.editor.focus()
       document.execCommand("copy")
-      setTimeout(
-        () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
-        1000
-      )
+      this.copyIcon = "done"
+      this.$toast.success(this.$t("copied_to_clipboard"), {
+        icon: "done",
+      })
+      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
 }

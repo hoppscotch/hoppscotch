@@ -1,45 +1,43 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("edit_collection") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("edit_collection") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
-      <label for="selectLabel">{{ $t("label") }}</label>
+    </template>
+    <template #body>
+      <label for="selectLabelGqlEdit">{{ $t("label") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelGqlEdit"
         v-model="name"
+        class="input"
         type="text"
         :placeholder="editingCollection.name"
         @keyup.enter="saveCollection"
       />
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="saveCollection">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="saveCollection">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
+import { editGraphqlCollection } from "~/newstore/collections"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
     editingCollection: { type: Object, default: () => {} },
@@ -47,37 +45,21 @@ export default {
   },
   data() {
     return {
-      name: null,
+      name: null as string | null,
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     saveCollection() {
-      if (!this.$data.name) {
-        this.$toast.info(this.$t("invalid_collection_name"))
+      if (!this.name) {
+        this.$toast.info(this.$t("invalid_collection_name").toString())
         return
       }
       const collectionUpdated = {
         ...this.$props.editingCollection,
-        name: this.$data.name,
+        name: this.name,
       }
-      this.$store.commit("postwoman/editCollection", {
-        collection: collectionUpdated,
-        collectionIndex: this.$props.editingCollectionIndex,
-        flag: "graphql",
-      })
-      this.syncCollections()
+
+      editGraphqlCollection(this.editingCollectionIndex, collectionUpdated)
       this.hideModal()
     },
     hideModal() {
@@ -85,5 +67,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

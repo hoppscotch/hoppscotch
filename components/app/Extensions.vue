@@ -1,16 +1,14 @@
 <template>
   <SmartModal v-if="show" @close="hideModal">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("extensions") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("extensions") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
+    </template>
+    <template #body>
       <p class="info">
         {{ $t("extensions_info1") }}
       </p>
@@ -20,7 +18,7 @@
           target="_blank"
           rel="noopener"
         >
-          <button class="icon">
+          <button class="icon button">
             <svg
               class="material-icons"
               xmlns="http://www.w3.org/2000/svg"
@@ -35,7 +33,7 @@
             <span
               v-if="hasFirefoxExtInstalled"
               v-tooltip="$t('installed')"
-              class="icon"
+              class="icon button"
             >
               <i class="material-icons">done</i>
             </span>
@@ -48,7 +46,7 @@
           target="_blank"
           rel="noopener"
         >
-          <button class="icon">
+          <button class="icon button">
             <svg
               class="material-icons"
               xmlns="http://www.w3.org/2000/svg"
@@ -63,15 +61,14 @@
             <span
               v-if="hasChromeExtInstalled"
               v-tooltip="$t('installed')"
-              class="icon"
+              class="icon button"
             >
               <i class="material-icons">done</i>
             </span>
           </button>
         </a>
       </div>
-    </div>
-    <div slot="footer"></div>
+    </template>
   </SmartModal>
 </template>
 

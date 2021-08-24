@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-block cursor-pointer" @click="toggle()">
+  <div class="inline-block cursor-pointer" @click="$emit('change')">
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
@@ -17,23 +17,16 @@ export default {
       default: false,
     },
   },
-
-  methods: {
-    toggle() {
-      const containsOnClass = this.$refs.toggle.classList.toggle("on")
-      this.$emit("change", containsOnClass)
-    },
-  },
 }
 </script>
 
 <style scoped lang="scss">
 $useBorder: false;
-$borderColor: var(--fg-light-color);
-$activeColor: var(--ac-color);
-$inactiveColor: var(--fg-light-color);
-$inactiveHandleColor: var(--bg-color);
-$activeHandleColor: var(--act-color);
+$borderColor: var(--secondary-light-color);
+$activeColor: var(--accent-color);
+$inactiveColor: var(--secondary-light-color);
+$inactiveHandleColor: var(--primary-color);
+$activeHandleColor: var(--primary-color);
 $width: 32px;
 $height: 16px;
 $handleSpacing: 4px;

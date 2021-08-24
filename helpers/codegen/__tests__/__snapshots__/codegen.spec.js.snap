@@ -64,7 +64,7 @@ var response = client.Get(request);
 
 if (!response.IsSuccessful)
 {
-    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+    Console.WriteLine(\\"An error occurred \\" + response.ErrorMessage);
 }
 
 var result = response.Content;
@@ -87,7 +87,7 @@ var response = client.Post(request);
 
 if (!response.IsSuccessful)
 {
-    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+    Console.WriteLine(\\"An error occurred \\" + response.ErrorMessage);
 }
 
 var result = response.Content;
@@ -113,7 +113,7 @@ var response = client.Post(request);
 
 if (!response.IsSuccessful)
 {
-    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+    Console.WriteLine(\\"An error occurred \\" + response.ErrorMessage);
 }
 
 var result = response.Content;
@@ -133,7 +133,7 @@ var response = client.Put(request);
 
 if (!response.IsSuccessful)
 {
-    Console.WriteLine(\\"An error occured \\" + response.ErrorMessage);
+    Console.WriteLine(\\"An error occurred \\" + response.ErrorMessage);
 }
 
 var result = response.Content;
@@ -146,13 +146,13 @@ req.Header.Set(\\"Authorization\\", \\"Basic bW9ja1VzZXI6bW9ja1Bhc3N3b3Jk\\")
 req.Header.Set(\\"h1\\", \\"h1v\\")
 req.Header.Set(\\"h2\\", \\"h2v\\")
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 client := &http.Client{}
 resp, err := client.Do(req)
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 defer resp.Body.Close()
@@ -172,13 +172,13 @@ req.Header.Set(\\"Authorization\\", \\"Bearer abcdefghijklmn\\")
 req.Header.Set(\\"h1\\", \\"h1v\\")
 req.Header.Set(\\"h2\\", \\"h2v\\")
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 client := &http.Client{}
 resp, err := client.Do(req)
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 defer resp.Body.Close()
@@ -195,13 +195,13 @@ req.Header.Set(\\"Authorization\\", \\"Bearer abcdefghijklmn\\")
 req.Header.Set(\\"h1\\", \\"h1v\\")
 req.Header.Set(\\"h2\\", \\"h2v\\")
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 client := &http.Client{}
 resp, err := client.Do(req)
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 defer resp.Body.Close()
@@ -216,13 +216,13 @@ exports[`generate request for Go Native generate PUT request for www-form-urlenc
 "req, err := http.NewRequest(\\"PUT\\", \\"https://httpbin.org/path/to?a=b\\", strings.NewReader(\\"foo=bar&baz=qux\\"))
 req.Header.Set(\\"Content-Type\\", \\"application/x-www-form-urlencoded\\")
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 client := &http.Client{}
 resp, err := client.Do(req)
 if err != nil {
-  log.Fatalf(\\"An Error Occured %v\\", err)
+  log.Fatalf(\\"An error occurred %v\\", err)
 }
 
 defer resp.Body.Close()
@@ -1242,7 +1242,7 @@ try {
     HttpResponse response = client.send(request);
     System.debug(response.getBody());
 } catch (CalloutException ex) {
-    System.debug('An error occured ' + ex.getMessage());
+    System.debug('An error occurred ' + ex.getMessage());
 }"
 `;
 
@@ -1263,7 +1263,7 @@ try {
     HttpResponse response = client.send(request);
     System.debug(response.getBody());
 } catch (CalloutException ex) {
-    System.debug('An error occured ' + ex.getMessage());
+    System.debug('An error occurred ' + ex.getMessage());
 }"
 `;
 
@@ -1284,7 +1284,7 @@ try {
     HttpResponse response = client.send(request);
     System.debug(response.getBody());
 } catch (CalloutException ex) {
-    System.debug('An error occured ' + ex.getMessage());
+    System.debug('An error occurred ' + ex.getMessage());
 }"
 `;
 
@@ -1302,7 +1302,7 @@ try {
     HttpResponse response = client.send(request);
     System.debug(response.getBody());
 } catch (CalloutException ex) {
-    System.debug('An error occured ' + ex.getMessage());
+    System.debug('An error occurred ' + ex.getMessage());
 }"
 `;
 

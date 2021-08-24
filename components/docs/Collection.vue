@@ -1,6 +1,6 @@
 <template>
   <div class="collection">
-    <h2>
+    <h2 class="heading">
       <i class="material-icons">folder</i>
       {{ collection.name || $t("none") }}
     </h2>
@@ -30,10 +30,8 @@ export default {
 
 <style lang="scss" scoped>
 .collection {
-  @apply flex;
-  @apply flex-col;
+  @apply flex flex-col flex-1;
   @apply justify-center;
-  @apply flex-1;
   @apply p-4;
 
   .material-icons {

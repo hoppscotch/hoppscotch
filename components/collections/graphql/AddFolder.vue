@@ -1,48 +1,44 @@
 <template>
   <SmartModal v-if="show" @close="$emit('hide-modal')">
-    <div slot="header">
-      <div class="row-wrapper">
-        <h3 class="title">{{ $t("new_folder") }}</h3>
-        <div>
-          <button class="icon" @click="hideModal">
-            <i class="material-icons">close</i>
-          </button>
-        </div>
+    <template #header>
+      <h3 class="heading">{{ $t("new_folder") }}</h3>
+      <div>
+        <button class="icon button" @click="hideModal">
+          <i class="material-icons">close</i>
+        </button>
       </div>
-    </div>
-    <div slot="body" class="flex flex-col">
-      <label for="selectLabel">{{ $t("label") }}</label>
+    </template>
+    <template #body>
+      <label for="selectLabelGqlAddFolder">{{ $t("label") }}</label>
       <input
-        id="selectLabel"
+        id="selectLabelGqlAddFolder"
         v-model="name"
+        class="input"
         type="text"
         :placeholder="$t('my_new_folder')"
         @keyup.enter="addFolder"
       />
-    </div>
-    <div slot="footer">
-      <div class="row-wrapper">
-        <span></span>
-        <span>
-          <button class="icon" @click="hideModal">
-            {{ $t("cancel") }}
-          </button>
-          <button class="icon primary" @click="addFolder">
-            {{ $t("save") }}
-          </button>
-        </span>
-      </div>
-    </div>
+    </template>
+    <template #footer>
+      <span></span>
+      <span>
+        <button class="icon button" @click="hideModal">
+          {{ $t("cancel") }}
+        </button>
+        <button class="icon button primary" @click="addFolder">
+          {{ $t("save") }}
+        </button>
+      </span>
+    </template>
   </SmartModal>
 </template>
 
-<script>
-import { fb } from "~/helpers/fb"
+<script lang="ts">
+import Vue from "vue"
 
-export default {
+export default Vue.extend({
   props: {
     show: Boolean,
-    folder: { type: Object, default: () => {} },
     folderPath: { type: String, default: null },
     collectionIndex: { type: Number, default: null },
   },
@@ -52,25 +48,13 @@ export default {
     }
   },
   methods: {
-    syncCollections() {
-      if (fb.currentUser !== null && fb.currentSettings[0]) {
-        if (fb.currentSettings[0].value) {
-          fb.writeCollections(
-            JSON.parse(
-              JSON.stringify(this.$store.state.postwoman.collectionsGraphql)
-            ),
-            "collectionsGraphql"
-          )
-        }
-      }
-    },
     addFolder() {
+      // TODO: Blocking when name is null ?
+
       this.$emit("add-folder", {
         name: this.name,
-        folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
-      this.syncCollections()
       this.hideModal()
     },
     hideModal() {
@@ -78,5 +62,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

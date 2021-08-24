@@ -1,16 +1,16 @@
 <template>
-  <AppSection ref="history" icon="history" :label="$t('history')" no-legend>
+  <AppSection label="history">
     <div class="show-on-large-screen">
       <input
         v-model="filterText"
         aria-label="Search"
         type="search"
         :placeholder="$t('search')"
-        class="rounded-t-lg"
+        class="input rounded-t-lg"
       />
     </div>
     <div
-      class="divide-y virtual-list divide-dashed divide-brdColor"
+      class="divide-y virtual-list divide-dashed divide-divider"
       :class="{ filled: filteredHistory.length }"
     >
       <ul v-for="(entry, index) in filteredHistory" :key="`entry-${index}`">
@@ -42,11 +42,11 @@
     <p v-if="history.length === 0" class="info">
       <i class="material-icons">schedule</i> {{ $t("history_empty") }}
     </p>
-    <div v-if="history.length !== 0" class="rounded-b-lg bg-bgDarkColor">
+    <div v-if="history.length !== 0" class="rounded-b-lg bg-primaryDark">
       <div v-if="!isClearingHistory" class="row-wrapper">
         <button
           data-testid="clear_history"
-          class="icon"
+          class="icon button"
           :disabled="history.length === 0"
           @click="enableHistoryClearing"
         >
@@ -55,7 +55,7 @@
         </button>
         <button
           v-tooltip="{ content: !showMore ? $t('show_more') : $t('hide_more') }"
-          class="icon"
+          class="icon button"
           @click="toggleCollapse()"
         >
           <i class="material-icons">
@@ -71,7 +71,7 @@
           <button
             v-tooltip="$t('yes')"
             data-testid="confirm_clear_history"
-            class="icon"
+            class="icon button"
             @click="clearHistory"
           >
             <i class="material-icons">done</i>
@@ -79,7 +79,7 @@
           <button
             v-tooltip="$t('no')"
             data-testid="reject_clear_history"
-            class="icon"
+            class="icon button"
             @click="disableHistoryClearing"
           >
             <i class="material-icons">close</i>
@@ -176,18 +176,22 @@ export default {
 <style scoped lang="scss">
 .virtual-list {
   max-height: calc(100vh - 270px);
+
   [readonly] {
-    cursor: default;
+    @apply cursor-default;
   }
 }
+
 ul,
 ol {
-  flex-direction: column;
+  @apply flex-col;
 }
+
 @media (max-width: 720px) {
   .virtual-list.filled {
     min-height: 320px;
   }
+
   .labels {
     display: none;
   }

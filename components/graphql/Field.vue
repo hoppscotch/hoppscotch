@@ -64,7 +64,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     gqlField: { type: Object, default: () => {} },
     jumpTypeCallback: { type: Function, default: () => {} },
@@ -79,7 +81,7 @@ export default {
       return this.gqlField.args || []
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

@@ -17,11 +17,13 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     folder: { type: Object, default: () => {} },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

@@ -70,9 +70,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 
-export default {
+export default defineComponent({
   props: {
     headers: { type: Array, default: () => [] },
   },
@@ -91,5 +92,5 @@ export default {
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
-}
+})
 </script>

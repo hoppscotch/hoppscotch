@@ -5,7 +5,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     label: { type: String, default: null },
     info: { type: String, default: null },
@@ -26,5 +28,5 @@ export default {
   mounted() {
     this.active = this.selected
   },
-}
+})
 </script>

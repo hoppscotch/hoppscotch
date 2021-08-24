@@ -24,9 +24,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { getSuitableLenses, getLensRenderers } from "~/helpers/lenses/lenses"
 
-export default {
+export default defineComponent({
   components: {
     // Lens Renderers
     ...getLensRenderers(),
@@ -46,5 +47,5 @@ export default {
       return getSuitableLenses(this.response)
     },
   },
-}
+})
 </script>

@@ -33,9 +33,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { getSourcePrefix } from "~/helpers/utils/string"
 
-export default {
+export default defineComponent({
   props: {
     log: { type: Array, default: () => [] },
     title: {
@@ -53,7 +54,7 @@ export default {
   methods: {
     getSourcePrefix,
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

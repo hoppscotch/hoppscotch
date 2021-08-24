@@ -13,14 +13,16 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     on: {
       type: Boolean,
       default: false,
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

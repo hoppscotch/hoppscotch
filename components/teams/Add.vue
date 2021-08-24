@@ -29,9 +29,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import * as teamUtils from "~/helpers/teams/utils"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
@@ -76,5 +77,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

@@ -30,7 +30,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   data() {
     return {
       features: [
@@ -79,5 +81,5 @@ export default {
       ],
     }
   },
-}
+})
 </script>

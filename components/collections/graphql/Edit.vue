@@ -32,10 +32,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { editGraphqlCollection } from "~/newstore/collections"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     show: Boolean,
     editingCollection: { type: Object, default: () => {} },
@@ -55,7 +55,7 @@ export default Vue.extend({
         return
       }
       const collectionUpdated = {
-        ...this.$props.editingCollection,
+        ...(this.editingCollection as any),
         name: this.name,
       }
 

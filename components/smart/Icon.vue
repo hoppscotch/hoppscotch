@@ -3,7 +3,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     name: {
       type: String,
@@ -15,5 +17,5 @@ export default {
       return require(`~/assets/icons/${this.name}.svg?inline`)
     },
   },
-}
+})
 </script>

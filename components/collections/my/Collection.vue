@@ -178,9 +178,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { moveRESTRequest } from "~/newstore/collections"
 
-export default {
+export default defineComponent({
   props: {
     collectionIndex: { type: Number, default: null },
     collection: { type: Object, default: () => {} },
@@ -247,5 +248,5 @@ export default {
       moveRESTRequest(folderPath, requestIndex, this.collectionIndex.toString())
     },
   },
-}
+})
 </script>

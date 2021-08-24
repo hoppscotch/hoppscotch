@@ -119,6 +119,7 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { applySetting } from "~/newstore/settings"
 import {
   signInUserWithGoogle,
@@ -132,7 +133,7 @@ import {
 import { setLocalConfig } from "~/newstore/localpersistence"
 import { useStreamSubscriber } from "~/helpers/utils/composables"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
@@ -358,5 +359,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

@@ -36,11 +36,13 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   head() {
     return {
       title: `${this.$t("navigation.realtime")} • Hoppscotch`,
     }
   },
-}
+})
 </script>

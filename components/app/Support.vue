@@ -74,10 +74,11 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { invokeAction } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
@@ -92,5 +93,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

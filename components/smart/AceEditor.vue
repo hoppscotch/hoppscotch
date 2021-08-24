@@ -57,11 +57,12 @@
 <script>
 import ace from "ace-builds"
 import "ace-builds/webpack-resolver"
+import { defineComponent } from "@nuxtjs/composition-api"
 import jsonParse from "~/helpers/jsonParse"
 import debounce from "~/helpers/utils/debounce"
 import outline from "~/helpers/outline"
 
-export default {
+export default defineComponent({
   props: {
     provideOutline: {
       type: Boolean,
@@ -265,7 +266,7 @@ export default {
       }
     }),
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

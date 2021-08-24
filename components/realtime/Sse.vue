@@ -85,12 +85,13 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import debounce from "~/helpers/utils/debounce"
 
-export default {
+export default defineComponent({
   components: { Splitpanes, Pane },
   data() {
     return {
@@ -232,5 +233,5 @@ export default {
       this.sse.onclose()
     },
   },
-}
+})
 </script>

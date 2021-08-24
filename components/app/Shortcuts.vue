@@ -81,9 +81,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import shortcuts from "~/helpers/shortcuts"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
@@ -103,7 +104,7 @@ export default {
       this.$emit("close")
     },
   },
-}
+})
 </script>
 
 <style lang="scss" scoped>

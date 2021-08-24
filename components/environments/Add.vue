@@ -32,10 +32,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { createEnvironment } from "~/newstore/environments"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     show: Boolean,
   },

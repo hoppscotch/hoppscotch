@@ -156,9 +156,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import * as teamUtils from "~/helpers/teams/utils"
 
-export default {
+export default defineComponent({
   name: "Folder",
   props: {
     folder: { type: Object, default: () => {} },
@@ -246,5 +247,5 @@ export default {
       })
     },
   },
-}
+})
 </script>

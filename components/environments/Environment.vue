@@ -61,11 +61,10 @@
 </template>
 
 <script lang="ts">
-import { PropType } from "@nuxtjs/composition-api"
-import Vue from "vue"
+import { defineComponent, PropType } from "@nuxtjs/composition-api"
 import { deleteEnvironment } from "~/newstore/environments"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     environment: { type: Object, default: () => {} },
     environmentIndex: {

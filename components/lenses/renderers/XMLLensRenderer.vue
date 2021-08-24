@@ -54,10 +54,11 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 
-export default {
+export default defineComponent({
   mixins: [TextContentRendererMixin],
   props: {
     response: { type: Object, default: () => {} },
@@ -109,5 +110,5 @@ export default {
       setTimeout(() => (this.copyIcon = "content_copy"), 1000)
     },
   },
-}
+})
 </script>

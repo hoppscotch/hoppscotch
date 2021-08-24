@@ -18,10 +18,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { signOutUser } from "~/helpers/fb/auth"
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       confirmLogout: false,

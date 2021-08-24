@@ -35,8 +35,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-export default {
+
+export default defineComponent({
   props: {
     show: Boolean,
   },
@@ -95,7 +97,7 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>
 
 <style lang="scss" scoped>

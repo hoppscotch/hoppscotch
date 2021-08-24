@@ -11,12 +11,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { initializeFirebase } from "~/helpers/fb"
 import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
 import { getLocalConfig, removeLocalConfig } from "~/newstore/localpersistence"
 
-export default Vue.extend({
+export default defineComponent({
   layout: "empty",
   data() {
     return {

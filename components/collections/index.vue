@@ -181,6 +181,8 @@
 import gql from "graphql-tag"
 import cloneDeep from "lodash/cloneDeep"
 import { defineComponent } from "@nuxtjs/composition-api"
+import CollectionsMyCollection from "./my/Collection.vue"
+import CollectionsTeamsCollection from "./teams/Collection.vue"
 import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import * as teamUtils from "~/helpers/teams/utils"
@@ -200,6 +202,10 @@ import {
 } from "~/helpers/utils/composables"
 
 export default defineComponent({
+  components: {
+    CollectionsMyCollection,
+    CollectionsTeamsCollection,
+  },
   props: {
     doc: Boolean,
     selected: { type: Array, default: () => [] },

@@ -19,9 +19,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import GithubButton from "vue-github-button"
 
-export default {
+export default defineComponent({
   components: {
     GithubButton,
   },
@@ -31,5 +32,5 @@ export default {
       default: undefined,
     },
   },
-}
+})
 </script>

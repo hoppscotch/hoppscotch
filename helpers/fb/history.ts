@@ -5,9 +5,11 @@ import { settingsStore } from "~/newstore/settings"
 import {
   graphqlHistoryStore,
   HISTORY_LIMIT,
+  RESTHistoryEntry,
   restHistoryStore,
   setGraphqlHistoryEntries,
   setRESTHistoryEntries,
+  translateToNewRESTHistory,
 } from "~/newstore/history"
 
 type HistoryFBCollections = "history" | "graphqlHistory"
@@ -167,12 +169,12 @@ export function initHistory() {
         .orderBy("updatedOn", "desc")
         .limit(HISTORY_LIMIT)
         .onSnapshot((historyRef) => {
-          const history: any[] = []
+          const history: RESTHistoryEntry[] = []
 
           historyRef.forEach((doc) => {
             const entry = doc.data()
             entry.id = doc.id
-            history.push(entry)
+            history.push(translateToNewRESTHistory(entry))
           })
 
           loadedRESTHistory = false

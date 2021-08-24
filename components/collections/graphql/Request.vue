@@ -97,11 +97,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { removeGraphqlRequest } from "~/newstore/collections"
 import { setGQLSession } from "~/newstore/GQLSession"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     // Whether the object is selected (show the tick mark)
     picked: { type: Object, default: null },

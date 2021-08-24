@@ -10,6 +10,7 @@ import "ace-builds/webpack-resolver"
 import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
 import * as esprima from "esprima"
+import { defineComponent } from "@nuxtjs/composition-api"
 import debounce from "~/helpers/utils/debounce"
 import {
   getPreRequestScriptCompletions,
@@ -18,7 +19,7 @@ import {
   performTestLinting,
 } from "~/helpers/tern"
 
-export default {
+export default defineComponent({
   props: {
     value: {
       type: String,
@@ -275,7 +276,7 @@ export default {
         })
     }, 2000),
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

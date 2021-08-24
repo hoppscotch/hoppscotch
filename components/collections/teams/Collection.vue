@@ -107,7 +107,7 @@
     <div v-if="showChildren || isFiltered">
       <CollectionsTeamsFolder
         v-for="(folder, index) in collection.children"
-        :key="`folder-${folder}`"
+        :key="`folder-${index}`"
         class="border-l border-dividerLight ml-6"
         :folder="folder"
         :folder-index="index"
@@ -174,7 +174,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     collectionIndex: { type: Number, default: null },
     collection: { type: Object, default: () => {} },
@@ -251,5 +253,5 @@ export default {
       })
     },
   },
-}
+})
 </script>

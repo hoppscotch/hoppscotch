@@ -33,7 +33,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     styles: {
       type: String,
@@ -59,7 +61,7 @@ export default {
       this.$emit("tab-changed", id)
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

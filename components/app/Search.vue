@@ -75,10 +75,11 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { invokeAction } from "~/helpers/actions"
 import { spotlight } from "~/helpers/shortcuts"
 
-export default {
+export default defineComponent({
   props: {
     show: Boolean,
   },
@@ -107,7 +108,7 @@ export default {
       invokeAction(command, "path_from_invokeAction")
     },
   },
-}
+})
 </script>
 
 <style lang="scss" scoped>

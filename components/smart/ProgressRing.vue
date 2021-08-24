@@ -22,7 +22,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     radius: {
       type: Number,
@@ -51,5 +53,5 @@ export default {
       return this.circumference - (this.progress / 100) * this.circumference
     },
   },
-}
+})
 </script>

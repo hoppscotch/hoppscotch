@@ -38,6 +38,7 @@ export const defaultRESTRequest: HoppRESTRequest = {
   testScript: "",
   body: {
     contentType: null,
+    body: null,
   },
 }
 
@@ -224,8 +225,8 @@ const dispatchers = defineDispatchers({
               contentType: newContentType,
               body:
                 newContentType === null
-                  ? undefined
-                  : (curr.request.body as any).body,
+                  ? null
+                  : (curr.request.body as any)?.body ?? "",
             },
           },
         }

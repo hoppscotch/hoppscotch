@@ -11,10 +11,11 @@ import "ace-builds/src-noconflict/ext-language_tools"
 import "ace-builds/src-noconflict/mode-graphqlschema"
 import * as gql from "graphql"
 import { getAutocompleteSuggestions } from "graphql-language-service-interface"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { defineGQLLanguageMode } from "~/helpers/syntax/gqlQueryLangMode"
 import debounce from "~/helpers/utils/debounce"
 
-export default {
+export default defineComponent({
   props: {
     value: {
       type: String,
@@ -237,7 +238,7 @@ export default {
       }
     }, 2000),
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

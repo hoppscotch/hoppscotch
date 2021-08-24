@@ -33,7 +33,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     url: {
       type: String,
@@ -54,5 +56,5 @@ export default {
       default: "bg-green-500",
     },
   },
-}
+})
 </script>

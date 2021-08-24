@@ -152,10 +152,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
 
-export default Vue.extend({
+export default defineComponent({
   name: "Folder",
   props: {
     picked: { type: Object, default: null },

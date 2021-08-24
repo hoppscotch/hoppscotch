@@ -6,7 +6,7 @@
       <ButtonSecondary to="/" icon="home" outline :label="$t('app.home')" />
       <ButtonSecondary
         icon="refresh"
-        :label="$t('reload')"
+        :label="$t('app.reload')"
         outline
         @click.native="reloadApplication"
       />
@@ -15,9 +15,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { initializeFirebase } from "~/helpers/fb"
 
-export default {
+export default defineComponent({
   props: {
     error: {
       type: Object,
@@ -43,7 +44,7 @@ export default {
       window.location.reload()
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

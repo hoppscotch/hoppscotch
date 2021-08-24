@@ -12,9 +12,9 @@
   ------
   intersecting (entry: IntersectionObserverEntry) -> When the component is intersecting the viewport
 */
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 
-export default Vue.extend({
+export default defineComponent({
   data() {
     return {
       observer: null as IntersectionObserver | null,

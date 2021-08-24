@@ -153,13 +153,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   removeGraphqlCollection,
   moveGraphqlRequest,
 } from "~/newstore/collections"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     picked: { type: Object, default: null },
     // Whether the viewing context is related to picking (activates 'select' events)

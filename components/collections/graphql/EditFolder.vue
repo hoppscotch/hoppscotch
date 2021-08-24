@@ -33,10 +33,10 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import { defineComponent } from "@nuxtjs/composition-api"
 import { editGraphqlFolder } from "~/newstore/collections"
 
-export default Vue.extend({
+export default defineComponent({
   props: {
     show: Boolean,
     folder: { type: Object, default: () => {} },
@@ -44,7 +44,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      name: null,
+      name: "",
     }
   },
   methods: {
@@ -55,11 +55,14 @@ export default Vue.extend({
         })
         return
       }
-      editGraphqlFolder(this.folderPath, { ...this.folder, name: this.name })
+      editGraphqlFolder(this.folderPath, {
+        ...(this.folder as any),
+        name: this.name,
+      })
       this.hideModal()
     },
     hideModal() {
-      this.name = null
+      this.name = ""
       this.$emit("hide-modal")
     },
   },

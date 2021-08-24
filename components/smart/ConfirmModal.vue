@@ -17,7 +17,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     show: Boolean,
     title: { type: String, default: null },
@@ -43,5 +45,5 @@ export default {
       this.$emit("hide-modal")
     },
   },
-}
+})
 </script>

@@ -35,7 +35,9 @@
 </template>
 
 <script>
-export default {
+import { defineComponent } from "@nuxtjs/composition-api"
+
+export default defineComponent({
   props: {
     show: {
       type: Boolean,
@@ -64,5 +66,5 @@ export default {
       this.$emit("close")
     },
   },
-}
+})
 </script>

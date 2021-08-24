@@ -64,9 +64,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import * as teamUtils from "~/helpers/teams/utils"
 
-export default {
+export default defineComponent({
   props: {
     team: { type: Object, default: () => {} },
     teamID: { type: String, default: null },
@@ -106,5 +107,5 @@ export default {
         })
     },
   },
-}
+})
 </script>

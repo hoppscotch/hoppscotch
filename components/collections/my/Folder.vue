@@ -161,13 +161,14 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   removeRESTFolder,
   removeRESTRequest,
   moveRESTRequest,
 } from "~/newstore/collections"
 
-export default {
+export default defineComponent({
   name: "Folder",
   props: {
     folder: { type: Object, default: () => {} },
@@ -252,5 +253,5 @@ export default {
       removeRESTRequest(this.folderPath, requestIndex)
     },
   },
-}
+})
 </script>

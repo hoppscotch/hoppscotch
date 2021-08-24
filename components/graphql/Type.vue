@@ -56,13 +56,14 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,
   GraphQLInterfaceType,
 } from "graphql"
 
-export default {
+export default defineComponent({
   props: {
     // eslint-disable-next-line vue/require-default-prop, vue/require-prop-types
     gqlType: {},
@@ -96,7 +97,7 @@ export default {
       return !!this.highlightedFields.find(({ name }) => name === field.name)
     },
   },
-}
+})
 </script>
 
 <style scoped lang="scss">

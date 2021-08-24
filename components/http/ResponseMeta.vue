@@ -103,10 +103,11 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import findStatusGroup from "~/helpers/findStatusGroup"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
 
-export default {
+export default defineComponent({
   props: {
     response: {
       type: Object,
@@ -121,7 +122,7 @@ export default {
   methods: {
     getSpecialKey: getPlatformSpecialKey,
   },
-}
+})
 </script>
 
 <style lang="scss" scoped>

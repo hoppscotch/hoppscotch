@@ -33,6 +33,7 @@ export type HoppRESTReqBody =
   | HoppRESTReqBodyFormData
   | {
       contentType: null
+      body: null
     }
 
 export interface HoppRESTRequest {

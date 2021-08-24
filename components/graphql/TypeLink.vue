@@ -8,9 +8,10 @@
 </template>
 
 <script>
+import { defineComponent } from "@nuxtjs/composition-api"
 import { GraphQLScalarType } from "graphql"
 
-export default {
+export default defineComponent({
   props: {
     // eslint-disable-next-line vue/require-default-prop
     gqlType: null,
@@ -39,5 +40,5 @@ export default {
       return t
     },
   },
-}
+})
 </script>

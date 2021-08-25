@@ -43,6 +43,7 @@ export type SettingsType = {
     httpUser: boolean
     httpPassword: boolean
     bearerToken: boolean
+    oauth2Token: boolean
   }
   THEME_COLOR: HoppAccentColor
   BG_COLOR: HoppBgColor
@@ -68,6 +69,7 @@ export const defaultSettings: SettingsType = {
     httpUser: true,
     httpPassword: true,
     bearerToken: true,
+    oauth2Token: true,
   },
   THEME_COLOR: "blue",
   BG_COLOR: "system",

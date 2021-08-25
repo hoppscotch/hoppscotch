@@ -342,5 +342,6 @@
   "show_sidebar": "Show sidebar",
   "protocols": "Protocols",
   "protocol_count": "protocol {count}",
-  "telemetry": "Telemetry"
+  "telemetry": "Telemetry",
+  "import_openapi": "Import From OpenAPI"
 }

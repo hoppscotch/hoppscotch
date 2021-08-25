@@ -52,6 +52,14 @@
       :collections-type="collectionsType"
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
+      @openapi-import="initModalImportOpenAPI"
+    />
+    <CollectionsImportOpenAPI
+      :show="showModalImportOpenAPI"
+      :collections-type="collectionsType"
+      :imported="openapiParsed"
+      @hide-modal="displayModalImportOpenAPI(false)"
+      @update-team-collections="updateTeamCollections"
     />
     <div class="border-b row-wrapper border-divider">
       <button
@@ -162,6 +170,7 @@ export default {
       showModalAdd: false,
       showModalEdit: false,
       showModalImportExport: false,
+      showModalImportOpenAPI: false,
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
@@ -180,6 +189,7 @@ export default {
       },
       teamCollectionAdapter: new TeamCollectionAdapter(null),
       teamCollectionsNew: [],
+      openapiParsed: undefined,
     }
   },
   subscriptions() {
@@ -422,6 +432,9 @@ export default {
     displayModalImportExport(shouldDisplay) {
       this.showModalImportExport = shouldDisplay
     },
+    displayModalImportOpenAPI(shouldDisplay) {
+      this.showModalImportOpenAPI = shouldDisplay
+    },
     displayModalAddFolder(shouldDisplay) {
       this.showModalAddFolder = shouldDisplay
 
@@ -436,6 +449,10 @@ export default {
       this.showModalEditRequest = shouldDisplay
 
       if (!shouldDisplay) this.resetSelectedData()
+    },
+    initModalImportOpenAPI(collection) {
+      this.openapiParsed = collection
+      this.showModalImportOpenAPI = true
     },
     editCollection(collection, collectionIndex) {
       this.$data.editingCollection = collection

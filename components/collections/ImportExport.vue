@@ -103,6 +103,22 @@
           />
         </button>
         <button
+          v-tooltip="$t('preserve_current')"
+          class="icon button"
+          @click="openDialogChooseFileForOpenAPI"
+        >
+          <i class="material-icons">create_new_folder</i>
+          <span>{{ $t("import_openapi") }}</span>
+          <input
+            ref="inputChooseFileForOpenAPI"
+            class="input"
+            type="file"
+            style="display: none"
+            accept="application/json, application/yaml"
+            @change="importOpenAPI"
+          />
+        </button>
+        <button
           v-if="collectionsType.type == 'team-collections'"
           v-tooltip="$t('preserve_current')"
           class="icon button"
@@ -175,6 +191,7 @@
 <script>
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
+import openapiParser from "~/helpers/openAPIParser"
 import {
   restCollections$,
   setRESTCollections,
@@ -262,6 +279,11 @@ export default {
     },
     openDialogChooseFileToImportFrom() {
       this.$refs.inputChooseFileToImportFrom.click()
+    },
+    openDialogChooseFileForOpenAPI() {
+      this.$refs.inputChooseFileForOpenAPI.click()
+      // this.$emit("openapi-import")
+      // this.$emit("hide-modal")
     },
     replaceWithJSON() {
       const reader = new FileReader()
@@ -364,6 +386,28 @@ export default {
       }
       reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
       this.$refs.inputChooseFileToImportFrom.value = ""
+    },
+    importOpenAPI() {
+      const reader = new FileReader()
+      reader.onload = async ({ target }) => {
+        const content = target.result
+        try {
+          const collection = await openapiParser(JSON.parse(content))
+          if (collection) {
+            this.fileImported()
+            this.$emit("openapi-import", collection)
+            console.log({ collection })
+            this.$emit("hide-modal")
+          } else {
+            this.failedImport()
+            return
+          }
+        } catch (e) {
+          this.failedImport()
+        }
+      }
+      reader.readAsText(this.$refs.inputChooseFileForOpenAPI.files[0])
+      this.$refs.inputChooseFileForOpenAPI.value = ""
     },
     importFromMyCollections() {
       teamUtils

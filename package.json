@@ -42,6 +42,7 @@
     "node-interval-tree": "^1.3.3",
     "nuxt": "^2.15.8",
     "nuxt-i18n": "^6.28.1",
+    "openapi-types": "^9.1.0",
     "paho-mqtt": "^1.1.0",
     "rxjs": "^7.3.0",
     "socket.io-client": "^4.1.3",

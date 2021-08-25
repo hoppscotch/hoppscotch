@@ -198,7 +198,7 @@ const tokenRequest = async ({
  * Handle the redirect back from the authorization server and
  * get an access token from the token endpoint
  *
- * @returns {Object}
+ * @returns {Promise<any | void>}
  */
 
 const oauthRedirect = () => {
@@ -213,6 +213,7 @@ const oauthRedirect = () => {
     // Verify state matches what we set at the beginning
     if (getLocalConfig("pkce_state") !== q.state) {
       alert("Invalid state")
+      Promise.reject(tokenResponse)
     } else {
       try {
         // Exchange the authorization code for an access token
@@ -225,6 +226,7 @@ const oauthRedirect = () => {
         })
       } catch (e) {
         console.error(e)
+        return Promise.reject(tokenResponse)
       }
     }
     // Clean these up since we don't need them anymore
@@ -234,7 +236,7 @@ const oauthRedirect = () => {
     removeLocalConfig("client_id")
     return tokenResponse
   }
-  return tokenResponse
+  return Promise.reject(tokenResponse)
 }
 
 export { tokenRequest, oauthRedirect }

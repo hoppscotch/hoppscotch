@@ -53,9 +53,22 @@
               $refs.authTypeOptions.tippy().hide()
             "
           />
+          <SmartItem
+            label="OAuth 2.0"
+            @click.native="
+              authType = 'oauth-2'
+              $refs.authTypeOptions.tippy().hide()
+            "
+          />
         </tippy>
       </span>
       <div class="flex">
+        <!-- <SmartToggle
+          :on="!URLExcludes.auth"
+          @change="setExclude('auth', !$event)"
+        >
+          {{ $t("authorization.include_in_url") }}
+        </SmartToggle> -->
         <SmartToggle
           :on="authActive"
           class="px-2"
@@ -161,12 +174,30 @@
         />
       </div>
     </div>
-    <!-- <SmartToggle
-        :on="!URL_EXCLUDES.auth"
-        @change="setExclude('auth', !$event)"
-      >
-        {{ $t("authorization.include_in_url") }}
-      </SmartToggle> -->
+    <div v-if="authType === 'oauth-2'" class="space-y-2 p-2">
+      <div class="flex relative">
+        <input
+          id="oauth2_token"
+          v-model="oauth2Token"
+          class="input floating-input"
+          placeholder=" "
+          name="oauth2_token"
+        />
+        <label for="oauth2_token"> Token </label>
+      </div>
+      <HttpOAuth2Authorization />
+      <div class="p-2">
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
+        </div>
+        <SmartAnchor
+          class="link"
+          :label="$t('action.learn_more')"
+          to="https://docs.hoppscotch.io/"
+          blank
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -175,6 +206,7 @@ import { computed, defineComponent, Ref, ref } from "@nuxtjs/composition-api"
 import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
+  HoppRESTAuthOAuth2,
 } from "~/helpers/types/HoppRESTAuth"
 import { pluckRef, useStream } from "~/helpers/utils/composables"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
@@ -192,6 +224,7 @@ export default defineComponent({
     const authName = computed(() => {
       if (authType.value === "basic") return "Basic Auth"
       else if (authType.value === "bearer") return "Bearer"
+      else if (authType.value === "oauth-2") return "OAuth 2.0"
       else return "None"
     })
     const authActive = pluckRef(auth, "authActive")
@@ -200,6 +233,8 @@ export default defineComponent({
     const basicPassword = pluckRef(auth as Ref<HoppRESTAuthBasic>, "password")
 
     const bearerToken = pluckRef(auth as Ref<HoppRESTAuthBearer>, "token")
+
+    const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
 
     const URLExcludes = useSetting("URL_EXCLUDES")
 
@@ -226,6 +261,7 @@ export default defineComponent({
       basicUsername,
       basicPassword,
       bearerToken,
+      oauth2Token,
       URLExcludes,
       passwordFieldType,
       clearContent,

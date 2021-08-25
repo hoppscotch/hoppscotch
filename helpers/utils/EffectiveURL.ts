@@ -87,7 +87,10 @@ export function getEffectiveRESTRequest(
           `${request.auth.username}:${request.auth.password}`
         )}`,
       })
-    } else if (request.auth.authType === "bearer") {
+    } else if (
+      request.auth.authType === "bearer" ||
+      request.auth.authType === "oauth-2"
+    ) {
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",

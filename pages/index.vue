@@ -84,8 +84,10 @@ import {
   computed,
   defineComponent,
   getCurrentInstance,
+  onBeforeMount,
   onBeforeUnmount,
   onMounted,
+  Ref,
   ref,
   useContext,
   watch,
@@ -94,6 +96,7 @@ import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
+import isEqual from "lodash/isEqual"
 import { useSetting } from "~/newstore/settings"
 import {
   restRequest$,
@@ -101,9 +104,12 @@ import {
   restActiveHeadersCount$,
   getRESTRequest,
   setRESTRequest,
+  setRESTAuth,
+  restAuth$,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
+  pluckRef,
   useReadonlyStream,
   useStream,
   useStreamSubscriber,
@@ -111,6 +117,8 @@ import {
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
 import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
+import { oauthRedirect } from "~/helpers/oauth"
+import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
 
 function bindRequestToURLParams() {
   const {
@@ -159,12 +167,36 @@ function bindRequestToURLParams() {
   onMounted(() => {
     const query = route.value.query
 
-    if (Object.keys(query).length === 0) return
+    // If query params are empty, or contains code or error param (these are from Oauth Redirect)
+    // We skip URL params parsing
+    if (Object.keys(query).length === 0 || query.code || query.error) return
     setRESTRequest(translateExtURLParams(query))
   })
 }
 
-function setupRequestSync() {
+function oAuthURL() {
+  const auth = useStream(
+    restAuth$,
+    { authType: "none", authActive: true },
+    setRESTAuth
+  )
+
+  const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
+
+  onBeforeMount(async () => {
+    const tokenInfo = await oauthRedirect()
+    if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
+      if (typeof tokenInfo === "object") {
+        oauth2Token.value = tokenInfo.access_token
+      }
+    }
+  })
+}
+
+function setupRequestSync(
+  confirmSync: Ref<boolean>,
+  requestForSync: Ref<HoppRESTRequest | null>
+) {
   const { route } = useContext()
 
   // Subscription to request sync
@@ -172,13 +204,18 @@ function setupRequestSync() {
 
   // Load request on login resolve and start sync
   onLoggedIn(async () => {
-    if (Object.keys(route.value.query).length === 0) {
+    if (
+      Object.keys(route.value.query).length === 0 &&
+      !(route.value.query.code || route.value.query.error)
+    ) {
       const request = await loadRequestFromSync()
       if (request) {
         console.log("sync le request nnd")
-
-        setRESTRequest(request)
-        // confirmSync.value = true
+        // setRESTRequest(request)
+        if (!isEqual(request, getRESTRequest())) {
+          requestForSync.value = request
+          confirmSync.value = true
+        }
       }
     }
 
@@ -194,19 +231,21 @@ function setupRequestSync() {
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
+    const requestForSync = ref<HoppRESTRequest | null>(null)
+
     const confirmSync = ref(false)
 
     const internalInstance = getCurrentInstance()
     console.log("yoo", internalInstance)
 
-    const syncRequest = (request: HoppRESTRequest) => {
+    const syncRequest = () => {
       console.log("syncinggg")
-      setRESTRequest(request)
+      setRESTRequest(requestForSync.value!)
     }
 
     const { subscribeToStream } = useStreamSubscriber()
 
-    setupRequestSync()
+    setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
 
     subscribeToStream(restRequest$, (x) => {
@@ -238,6 +277,8 @@ export default defineComponent({
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       confirmSync,
       syncRequest,
+      oAuthURL,
+      requestForSync,
     }
   },
 })

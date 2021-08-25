@@ -3,15 +3,13 @@
     <header
       class="flex space-x-2 flex-1 py-2 px-2 items-center justify-between"
     >
-      <div class="space-x-2 group inline-flex items-center">
+      <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark"
           label="HOPPSCOTCH"
           to="/"
         />
-        <AppGitHubStarButton
-          class="mt-1.5 transition hidden group-hover:flex"
-        />
+        <AppGitHubStarButton class="mt-1.5 transition" />
       </div>
       <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary

@@ -766,7 +766,6 @@ export function editRESTRequest(
 
 export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
   // For calculating the insertion request index
-  debugger
   const targetLocation = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,
     path.split("/").map((x) => parseInt(x))

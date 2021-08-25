@@ -162,7 +162,6 @@ export default defineComponent({
           requestIndex: insertionIndex,
         })
       } else if (this.picked.pickedType === "my-collection") {
-        debugger
         const insertionIndex = saveRESTRequestAs(
           `${this.picked.collectionIndex}`,
           requestUpdated

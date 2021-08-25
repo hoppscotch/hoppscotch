@@ -185,7 +185,7 @@
                   }}
                 </SmartToggle>
               </div>
-              <div class="flex items-center">
+              <!-- <div class="flex items-center">
                 <SmartToggle
                   :on="LEFT_SIDEBAR"
                   @change="toggleSetting('LEFT_SIDEBAR')"
@@ -195,7 +195,7 @@
                     LEFT_SIDEBAR ? $t("state.enabled") : $t("state.disabled")
                   }}
                 </SmartToggle>
-              </div>
+              </div> -->
               <div class="flex items-center">
                 <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
                   {{ $t("layout.zen_mode") }}

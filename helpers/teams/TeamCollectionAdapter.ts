@@ -2,6 +2,7 @@ import { BehaviorSubject } from "rxjs"
 import { gql } from "graphql-tag"
 import pull from "lodash/pull"
 import remove from "lodash/remove"
+import { translateToNewRequest } from "../types/HoppRESTRequest"
 import { TeamCollection } from "./TeamCollection"
 import { TeamRequest } from "./TeamRequest"
 import {
@@ -466,7 +467,9 @@ export default class TeamCollectionAdapter {
         this.addRequest({
           id: data.teamRequestAdded.id,
           collectionID: data.teamRequestAdded.collectionID,
-          request: JSON.parse(data.teamRequestAdded.request),
+          request: translateToNewRequest(
+            JSON.parse(data.teamRequestAdded.request)
+          ),
           title: data.teamRequestAdded.title,
         })
       })
@@ -548,7 +551,7 @@ export default class TeamCollectionAdapter {
         id: el.id,
         collectionID,
         title: el.title,
-        request: JSON.parse(el.request),
+        request: translateToNewRequest(JSON.parse(el.request)),
       }
     })
 

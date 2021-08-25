@@ -107,95 +107,145 @@
         reverse
       />
     </div>
-    <div v-if="authType === 'basic'" class="space-y-2 p-2">
-      <div class="flex relative">
-        <input
-          id="http_basic_user"
-          v-model="basicUsername"
-          class="input floating-input"
-          placeholder=" "
-          name="http_basic_user"
-        />
-        <label for="http_basic_user">
-          {{ $t("authorization.username") }}
-        </label>
-      </div>
-      <div class="flex relative">
-        <input
-          id="http_basic_passwd"
-          v-model="basicPassword"
-          class="input floating-input"
-          placeholder=" "
-          name="http_basic_passwd"
-          :type="passwordFieldType"
-        />
-        <label for="http_basic_passwd">
-          {{ $t("authorization.password") }}
-        </label>
-        <ButtonSecondary
-          :icon="passwordFieldType === 'text' ? 'visibility' : 'visibility_off'"
-          outline
-          class="rounded ml-2"
-          @click.native="switchVisibility"
-        />
-      </div>
-      <div class="p-2">
-        <div class="text-secondaryLight pb-2">
-          {{ $t("helpers.authorization") }}
+    <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
+      <div class="border-r border-dividerLight space-y-2 p-2 w-2/3">
+        <div class="flex relative">
+          <input
+            id="http_basic_user"
+            v-model="basicUsername"
+            class="input floating-input"
+            placeholder=" "
+            name="http_basic_user"
+          />
+          <label for="http_basic_user">
+            {{ $t("authorization.username") }}
+          </label>
         </div>
-        <SmartAnchor
-          class="link"
-          :label="$t('action.learn_more')"
-          to="https://docs.hoppscotch.io/"
-          blank
-        />
+        <div class="flex relative">
+          <input
+            id="http_basic_passwd"
+            v-model="basicPassword"
+            class="input floating-input"
+            placeholder=" "
+            name="http_basic_passwd"
+            :type="passwordFieldType"
+          />
+          <label for="http_basic_passwd">
+            {{ $t("authorization.password") }}
+          </label>
+          <ButtonSecondary
+            :icon="
+              passwordFieldType === 'text' ? 'visibility' : 'visibility_off'
+            "
+            outline
+            class="rounded ml-2"
+            @click.native="switchVisibility"
+          />
+        </div>
+      </div>
+      <div
+        class="
+          h-full
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          p-4
+          z-9
+          sticky
+          overflow-auto
+        "
+      >
+        <div class="p-2">
+          <div class="text-secondaryLight pb-2">
+            {{ $t("helpers.authorization") }}
+          </div>
+          <SmartAnchor
+            class="link"
+            :label="`${$t('authorization.learn')} \xA0 →`"
+            to="https://docs.hoppscotch.io/"
+            blank
+          />
+        </div>
       </div>
     </div>
-    <div v-if="authType === 'bearer'" class="space-y-2 p-2">
-      <div class="flex relative">
-        <input
-          id="bearer_token"
-          v-model="bearerToken"
-          class="input floating-input"
-          placeholder=" "
-          name="bearer_token"
-        />
-        <label for="bearer_token"> Token </label>
-      </div>
-      <div class="p-2">
-        <div class="text-secondaryLight pb-2">
-          {{ $t("helpers.authorization") }}
+    <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
+      <div class="border-r border-dividerLight space-y-2 p-2 w-2/3">
+        <div class="flex relative">
+          <input
+            id="bearer_token"
+            v-model="bearerToken"
+            class="input floating-input"
+            placeholder=" "
+            name="bearer_token"
+          />
+          <label for="bearer_token"> Token </label>
         </div>
-        <SmartAnchor
-          class="link"
-          :label="$t('action.learn_more')"
-          to="https://docs.hoppscotch.io/"
-          blank
-        />
+      </div>
+      <div
+        class="
+          h-full
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          p-4
+          z-9
+          sticky
+          overflow-auto
+        "
+      >
+        <div class="p-2">
+          <div class="text-secondaryLight pb-2">
+            {{ $t("helpers.authorization") }}
+          </div>
+          <SmartAnchor
+            class="link"
+            :label="`${$t('authorization.learn')} \xA0 →`"
+            to="https://docs.hoppscotch.io/"
+            blank
+          />
+        </div>
       </div>
     </div>
-    <div v-if="authType === 'oauth-2'" class="space-y-2 p-2">
-      <div class="flex relative">
-        <input
-          id="oauth2_token"
-          v-model="oauth2Token"
-          class="input floating-input"
-          placeholder=" "
-          name="oauth2_token"
-        />
-        <label for="oauth2_token"> Token </label>
-      </div>
-      <HttpOAuth2Authorization />
-      <div class="p-2">
-        <div class="text-secondaryLight pb-2">
-          {{ $t("helpers.authorization") }}
+    <div
+      v-if="authType === 'oauth-2'"
+      class="border-b border-dividerLight flex"
+    >
+      <div class="border-r border-dividerLight space-y-2 p-2 w-2/3">
+        <div class="flex relative">
+          <input
+            id="oauth2_token"
+            v-model="oauth2Token"
+            class="input floating-input"
+            placeholder=" "
+            name="oauth2_token"
+          />
+          <label for="oauth2_token"> Token </label>
         </div>
-        <SmartAnchor
-          class="link"
-          :label="$t('action.learn_more')"
-          to="https://docs.hoppscotch.io/"
-          blank
-        />
+        <HttpOAuth2Authorization />
+      </div>
+      <div
+        class="
+          h-full
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          p-4
+          z-9
+          sticky
+          overflow-auto
+        "
+      >
+        <div class="p-2">
+          <div class="text-secondaryLight pb-2">
+            {{ $t("helpers.authorization") }}
+          </div>
+          <SmartAnchor
+            class="link"
+            :label="`${$t('authorization.learn')} \xA0 →`"
+            to="https://docs.hoppscotch.io/"
+            blank
+          />
+        </div>
       </div>
     </div>
   </div>

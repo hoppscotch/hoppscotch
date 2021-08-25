@@ -85,7 +85,9 @@
     "we_sent_magic_link_description": "Check your inbox - we sent an email to {email}. It contains a magic link that will log you in."
   },
   "authorization": {
+    "generate_token": "Generate Token",
     "include_in_url": "Include in URL",
+    "learn": "Learn how",
     "password": "Password",
     "token": "Token",
     "type": "Authorization Type",

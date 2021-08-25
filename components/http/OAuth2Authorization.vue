@@ -8,7 +8,7 @@
         placeholder=" "
         name="oidcDiscoveryURL"
       />
-      <label for="oidcDiscoveryURL">oidcDiscoveryURL </label>
+      <label for="oidcDiscoveryURL"> OpenID Connect Discovery URL </label>
     </div>
     <div class="flex relative">
       <input
@@ -18,7 +18,7 @@
         placeholder=" "
         name="authURL"
       />
-      <label for="authURL">authURL </label>
+      <label for="authURL"> Authentication URL </label>
     </div>
     <div class="flex relative">
       <input
@@ -28,7 +28,7 @@
         placeholder=" "
         name="accessTokenURL"
       />
-      <label for="accessTokenURL">accessTokenURL </label>
+      <label for="accessTokenURL"> Access Token URL </label>
     </div>
     <div class="flex relative">
       <input
@@ -38,7 +38,7 @@
         placeholder=" "
         name="clientID"
       />
-      <label for="clientID">clientID </label>
+      <label for="clientID"> Client ID </label>
     </div>
     <div class="flex relative">
       <input
@@ -48,11 +48,11 @@
         placeholder=" "
         name="scope"
       />
-      <label for="scope">scope </label>
+      <label for="scope"> Scope </label>
     </div>
     <div>
       <ButtonPrimary
-        label="Get request"
+        :label="$t('authorization.generate_token')"
         @click.native="handleAccessTokenRequest()"
       />
     </div>

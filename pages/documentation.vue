@@ -182,12 +182,14 @@ import DocsTemplate from "~/assets/md/docs.md"
 import folderContents from "~/assets/md/folderContents.md"
 import folderBody from "~/assets/md/folderBody.md"
 import { useSetting } from "~/newstore/settings"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     return {
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      currentUser: useReadonlyStream(currentUser$, null),
     }
   },
   data() {
@@ -196,12 +198,6 @@ export default defineComponent({
       items: [],
       docsMarkdown: "",
       selected: [],
-      currentUser: null,
-    }
-  },
-  subscriptions() {
-    return {
-      currentUser: currentUser$,
     }
   },
   head() {

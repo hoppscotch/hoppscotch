@@ -45,7 +45,7 @@
             active.originLocation === 'team-collection' &&
             active.requestID === requestIndex
           "
-          class="rounded-full bg-green-500 h-1.5 mx-3 w-1.5"
+          class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
         ></span>
       </span>
       <div class="flex">

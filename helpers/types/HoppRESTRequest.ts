@@ -127,8 +127,9 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       body,
       auth,
       v: RESTReqSchemaVersion,
-      id: x.id, // Pass-through Firebase Firestore ID
     }
+
+    if (x.id) result.id = x.id
 
     return result
   }

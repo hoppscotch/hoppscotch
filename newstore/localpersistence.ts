@@ -35,6 +35,8 @@ import {
   setGlobalEnvVariables,
   globalEnv$,
 } from "./environments"
+import { restRequest$, setRESTRequest } from "./RESTSession"
+import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -195,10 +197,26 @@ function setupGlobalEnvsPersistence() {
   })
 }
 
+function setupRequestPersistence() {
+  const localRequest = JSON.parse(
+    window.localStorage.getItem("restRequest") || "null"
+  )
+
+  if (localRequest) {
+    const parsedLocal = translateToNewRequest(localRequest)
+    setRESTRequest(parsedLocal)
+  }
+
+  restRequest$.subscribe((req) => {
+    window.localStorage.setItem("restRequest", JSON.stringify(req))
+  })
+}
+
 export function setupLocalPersistence() {
   checkAndMigrateOldSettings()
 
   setupSettingsPersistence()
+  setupRequestPersistence()
   setupHistoryPersistence()
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()

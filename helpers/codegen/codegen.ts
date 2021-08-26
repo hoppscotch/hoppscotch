@@ -1,4 +1,9 @@
-import { HoppRESTHeader, HoppRESTParam } from "../types/HoppRESTRequest"
+import {
+  FormDataKeyValue,
+  HoppRESTHeader,
+  HoppRESTParam,
+} from "../types/HoppRESTRequest"
+import { EffectiveHoppRESTRequest } from "../utils/EffectiveURL"
 import { CLibcurlCodegen } from "./generators/c-libcurl"
 import { CsRestsharpCodegen } from "./generators/cs-restsharp"
 import { CurlCodegen } from "./generators/curl"
@@ -67,11 +72,11 @@ export type HoppCodegenContext = {
   bearerToken: string | null
   headers: HoppRESTHeader[]
   params: HoppRESTParam[]
-  bodyParams: any // TODO: Change this
+  bodyParams: FormDataKeyValue[]
   rawParams: string | null
   rawInput: boolean
   rawRequestBody: any
-  contentType: string
+  contentType: string | null
   queryString: string
 }
 
@@ -85,4 +90,94 @@ export function generateCodeWithGenerator(
   }
 
   return ""
+}
+
+function getCodegenAuth(
+  request: EffectiveHoppRESTRequest
+): Pick<
+  HoppCodegenContext,
+  "auth" | "bearerToken" | "httpUser" | "httpPassword"
+> {
+  if (!request.auth.authActive || request.auth.authType === "none") {
+    return {
+      auth: "None",
+      httpUser: null,
+      httpPassword: null,
+      bearerToken: null,
+    }
+  }
+
+  if (request.auth.authType === "basic") {
+    return {
+      auth: "Basic Auth",
+      httpUser: request.auth.username,
+      httpPassword: request.auth.password,
+      bearerToken: null,
+    }
+  } else {
+    return {
+      auth: "Bearer Token",
+      httpUser: null,
+      httpPassword: null,
+      bearerToken: request.auth.token,
+    }
+  }
+}
+
+function getCodegenGeneralRESTInfo(
+  request: EffectiveHoppRESTRequest
+): Pick<
+  HoppCodegenContext,
+  | "name"
+  | "uri"
+  | "url"
+  | "method"
+  | "queryString"
+  | "pathName"
+  | "params"
+  | "headers"
+> {
+  const urlObj = new URL(request.effectiveFinalURL)
+
+  return {
+    name: request.name,
+    uri: request.effectiveFinalURL,
+    headers: request.effectiveFinalHeaders.map((x) => ({ ...x, active: true })),
+    params: request.effectiveFinalParams.map((x) => ({ ...x, active: true })),
+    method: request.method,
+    url: urlObj.origin,
+    queryString: urlObj.searchParams.toString(),
+    pathName: urlObj.pathname,
+  }
+}
+
+function getCodegenReqBodyData(
+  request: EffectiveHoppRESTRequest
+): Pick<
+  HoppCodegenContext,
+  "rawRequestBody" | "rawInput" | "contentType" | "bodyParams" | "rawParams"
+> {
+  return {
+    contentType: request.body.contentType,
+    rawInput: request.body.contentType !== "multipart/form-data",
+    rawRequestBody:
+      request.body.contentType !== "multipart/form-data"
+        ? request.body.body
+        : null,
+    bodyParams:
+      request.body.contentType === "multipart/form-data"
+        ? request.body.body
+        : [],
+    rawParams: null,
+  }
+}
+
+export function generateCodegenContext(
+  request: EffectiveHoppRESTRequest
+): HoppCodegenContext {
+  return {
+    ...getCodegenAuth(request),
+    ...getCodegenGeneralRESTInfo(request),
+    ...getCodegenReqBodyData(request),
+  }
 }

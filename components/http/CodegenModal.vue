@@ -26,8 +26,10 @@
             :info-icon="gen.id === codegenType ? 'done' : ''"
             :active-info-icon="gen.id === codegenType"
             @click.native="
-              codegenType = gen.id
-              $refs.options.tippy().hide()
+              () => {
+                codegenType = gen.id
+                options.tippy().hide()
+              }
             "
           />
         </tippy>
@@ -68,82 +70,62 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-import { codegens } from "~/helpers/codegen/codegen"
-import { getRESTRequest } from "~/newstore/RESTSession"
+<script setup lang="ts">
+import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
+import { codegens, generateCodegenContext } from "~/helpers/codegen/codegen"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
 import { getCurrentEnvironment } from "~/newstore/environments"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { getRESTRequest } from "~/newstore/RESTSession"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  data() {
-    return {
-      codegens,
-      copyIcon: "content_copy",
-      request: getRESTRequest(),
-      codegenType: "curl",
-    }
-  },
-  computed: {
-    requestCode(): string {
-      const effectiveRequest = getEffectiveRESTRequest(
-        this.request,
-        getCurrentEnvironment()
-      )
+const props = defineProps<{
+  show: boolean
+}>()
 
-      const urlObj = new URL(effectiveRequest.effectiveFinalURL)
-      const baseURL = urlObj.origin
-      const path = urlObj.pathname
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
 
-      // TODO: Solidify
-      // TODO: Implement updated auth stuff
-      return codegens
-        .find((x) => x.id === this.codegenType)!
-        .generator({
-          auth: "None",
-          httpUser: null,
-          httpPassword: null,
-          method: effectiveRequest.method,
-          url: baseURL,
-          pathName: path,
-          queryString: urlObj.searchParams.toString(),
-          bearerToken: null,
-          headers: effectiveRequest.effectiveFinalHeaders,
-          rawInput: null,
-          rawParams: null,
-          rawRequestBody: "",
-          contentType: effectiveRequest.effectiveFinalHeaders.find(
-            (x) => x.key === "content-type"
-          ),
-        })
-    },
-  },
-  watch: {
-    show(goingToShow) {
-      if (goingToShow) {
-        this.request = getRESTRequest()
-      }
-    },
-  },
-  methods: {
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-    handleImport() {
-      this.$emit("handle-import")
-    },
-    copyRequestCode() {
-      copyToClipboard(this.requestCode)
-      this.copyIcon = "done"
-      this.$toast.success(this.$t("state.copied_to_clipboard").toString(), {
-        icon: "content_paste",
-      })
-      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
-    },
-  },
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const $t = i18n.t.bind(i18n)
+
+const options = ref<any | null>(null)
+
+const request = ref(getRESTRequest())
+const codegenType = ref("curl")
+const copyIcon = ref("content_copy")
+
+const requestCode = computed(() => {
+  const effectiveRequest = getEffectiveRESTRequest(
+    request.value as any,
+    getCurrentEnvironment()
+  )
+
+  return codegens
+    .find((x) => x.id === codegenType.value)!
+    .generator(generateCodegenContext(effectiveRequest))
 })
+
+watch(
+  () => props.show,
+  (goingToShow) => {
+    if (goingToShow) {
+      request.value = getRESTRequest()
+    }
+  }
+)
+
+const hideModal = () => emit("hide-modal")
+
+const copyRequestCode = () => {
+  copyToClipboard(requestCode.value)
+  copyIcon.value = "done"
+  $toast.success($t("state.copied_to_clipboard").toString(), {
+    icon: "content_paste",
+  })
+  setTimeout(() => (copyIcon.value = "content_copy"), 1000)
+}
 </script>

@@ -80,12 +80,13 @@ export function getEffectiveRESTRequest(
   if (request.auth.authActive) {
     // TODO: Support a better b64 implementation than btoa ?
     if (request.auth.authType === "basic") {
+      const username = parseTemplateString(request.auth.username, envVariables)
+      const password = parseTemplateString(request.auth.password, envVariables)
+
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",
-        value: `Basic ${btoa(
-          `${request.auth.username}:${request.auth.password}`
-        )}`,
+        value: `Basic ${btoa(`${username}:${password}`)}`,
       })
     } else if (
       request.auth.authType === "bearer" ||
@@ -94,7 +95,10 @@ export function getEffectiveRESTRequest(
       effectiveFinalHeaders.push({
         active: true,
         key: "Authorization",
-        value: `Bearer ${request.auth.token}`,
+        value: `Bearer ${parseTemplateString(
+          request.auth.token,
+          envVariables
+        )}`,
       })
     }
   }

@@ -1,57 +1,53 @@
 <template>
-  <div class="flex flex-col space-y-2">
-    <div class="flex relative">
+  <div class="flex flex-col">
+    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
       <input
         id="oidcDiscoveryURL"
         v-model="oidcDiscoveryURL"
-        class="input floating-input"
-        placeholder=" "
+        class="bg-primary flex flex-1 py-2 px-4"
+        placeholder="OpenID Connect Discovery URL"
         name="oidcDiscoveryURL"
       />
-      <label for="oidcDiscoveryURL"> OpenID Connect Discovery URL </label>
     </div>
-    <div class="flex relative">
+    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
       <input
         id="authURL"
         v-model="authURL"
-        class="input floating-input"
-        placeholder=" "
+        class="bg-primary flex flex-1 py-2 px-4"
+        placeholder="Authentication URL"
         name="authURL"
       />
-      <label for="authURL"> Authentication URL </label>
     </div>
-    <div class="flex relative">
+    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
       <input
         id="accessTokenURL"
         v-model="accessTokenURL"
-        class="input floating-input"
-        placeholder=" "
+        class="bg-primary flex flex-1 py-2 px-4"
+        placeholder="Access Token URL"
         name="accessTokenURL"
       />
-      <label for="accessTokenURL"> Access Token URL </label>
     </div>
-    <div class="flex relative">
+    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
       <input
         id="clientID"
         v-model="clientID"
-        class="input floating-input"
-        placeholder=" "
+        class="bg-primary flex flex-1 py-2 px-4"
+        placeholder="Client ID"
         name="clientID"
       />
-      <label for="clientID"> Client ID </label>
     </div>
-    <div class="flex relative">
+    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
       <input
         id="scope"
         v-model="scope"
-        class="input floating-input"
-        placeholder=" "
+        class="bg-primary flex flex-1 py-2 px-4"
+        placeholder="Scope"
         name="scope"
       />
-      <label for="scope"> Scope </label>
     </div>
-    <div>
-      <ButtonPrimary
+    <div class="p-2">
+      <ButtonSecondary
+        filled
         :label="$t('authorization.generate_token')"
         @click.native="handleAccessTokenRequest()"
       />
@@ -101,7 +97,7 @@ export default {
         oidcDiscoveryURL.value === "" &&
         (authURL.value === "" || accessTokenURL.value === "")
       ) {
-        $toast.error($t("complete_config_urls"), {
+        $toast.error($t("complete_config_urls").toString(), {
           icon: "error",
         })
         return

@@ -108,39 +108,51 @@
       />
     </div>
     <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight space-y-2 p-2 w-2/3">
-        <div class="flex relative">
+      <div class="border-r border-dividerLight w-2/3">
+        <div
+          class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        >
+          <SmartEnvInput
+            class="bg-primary flex flex-1 py-1 px-4"
+            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+            v-model="basicUsername"
+            :placeholder="$t('authorization.username')"
+          />
           <input
+            v-else
             id="http_basic_user"
             v-model="basicUsername"
-            class="input floating-input"
-            placeholder=" "
+            class="bg-primary flex flex-1 py-2 px-4"
+            :placeholder="$t('authorization.username')"
             name="http_basic_user"
           />
-          <label for="http_basic_user">
-            {{ $t("authorization.username") }}
-          </label>
         </div>
-        <div class="flex relative">
+        <div
+          class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        >
+          <SmartEnvInput
+            class="bg-primary flex flex-1 py-1 px-4"
+            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+            v-model="basicPassword"
+            :placeholder="$t('authorization.password')"
+          />
           <input
+            v-else
             id="http_basic_passwd"
             v-model="basicPassword"
-            class="input floating-input"
-            placeholder=" "
+            class="bg-primary flex flex-1 py-2 px-4"
+            :placeholder="$t('authorization.password')"
             name="http_basic_passwd"
             :type="passwordFieldType"
           />
-          <label for="http_basic_passwd">
-            {{ $t("authorization.password") }}
-          </label>
-          <ButtonSecondary
-            :icon="
-              passwordFieldType === 'text' ? 'visibility' : 'visibility_off'
-            "
-            outline
-            class="rounded ml-2"
-            @click.native="switchVisibility"
-          />
+          <span>
+            <ButtonSecondary
+              :icon="
+                passwordFieldType === 'text' ? 'visibility' : 'visibility_off'
+              "
+              @click.native="switchVisibility"
+            />
+          </span>
         </div>
       </div>
       <div
@@ -169,16 +181,24 @@
       </div>
     </div>
     <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight space-y-2 p-2 w-2/3">
-        <div class="flex relative">
+      <div class="border-r border-dividerLight w-2/3">
+        <div
+          class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        >
+          <SmartEnvInput
+            class="bg-primary flex flex-1 py-1 px-4"
+            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+            v-model="bearerToken"
+            placeholder="Token"
+          />
           <input
+            v-else
             id="bearer_token"
             v-model="bearerToken"
-            class="input floating-input"
-            placeholder=" "
+            class="bg-primary flex flex-1 py-2 px-4"
+            placeholder="Token"
             name="bearer_token"
           />
-          <label for="bearer_token"> Token </label>
         </div>
       </div>
       <div
@@ -210,16 +230,24 @@
       v-if="authType === 'oauth-2'"
       class="border-b border-dividerLight flex"
     >
-      <div class="border-r border-dividerLight space-y-2 p-2 w-2/3">
-        <div class="flex relative">
+      <div class="border-r border-dividerLight w-2/3">
+        <div
+          class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        >
+          <SmartEnvInput
+            class="bg-primary flex flex-1 py-1 px-4"
+            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
+            v-model="oauth2Token"
+            placeholder="Token"
+          />
           <input
+            v-else
             id="oauth2_token"
             v-model="oauth2Token"
-            class="input floating-input"
-            placeholder=" "
+            class="bg-primary flex flex-1 py-2 px-4"
+            placeholder="Token"
             name="oauth2_token"
           />
-          <label for="oauth2_token"> Token </label>
         </div>
         <HttpOAuth2Authorization />
       </div>
@@ -316,6 +344,7 @@ export default defineComponent({
       passwordFieldType,
       clearContent,
       switchVisibility,
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
     }
   },
 })

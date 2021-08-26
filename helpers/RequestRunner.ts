@@ -4,7 +4,9 @@ import getEnvironmentVariablesFromScript from "./preRequest"
 import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { createRESTNetworkRequestStream } from "./network"
-import runTestScriptWithVariables from "./postwomanTesting"
+import runTestScriptWithVariables, {
+  transformResponseForTesting,
+} from "./postwomanTesting"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 
@@ -50,7 +52,7 @@ export function runRESTRequest$(): Observable<HoppRESTResponse> {
         >
         errors: [] // ¯\_(ツ)_/¯
       } = runTestScriptWithVariables(effectiveRequest.testScript, {
-        response: res,
+        response: transformResponseForTesting(res),
       }) as any
 
       setRESTTestResults(translateToNewTestResults(testReport))

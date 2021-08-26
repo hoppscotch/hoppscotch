@@ -6,8 +6,16 @@ const styles = {
   ERROR: { icon: "close", class: "cl-error-response" },
 }
 
+type TestScriptResponse = {
+  body: any
+  headers: any[]
+  status: number
+
+  __newRes: HoppRESTResponse
+}
+
 type TestScriptVariables = {
-  response: HoppRESTResponse
+  response: TestScriptResponse
 }
 
 type TestReportStartBlock = {
@@ -282,5 +290,32 @@ class Expectation {
             `Expected type to be "${expectedType}" but actual type was "${actualType}"`
           )
         )
+  }
+}
+
+export function transformResponseForTesting(
+  response: HoppRESTResponse
+): TestScriptResponse {
+  if (response.type === "loading") {
+    throw new Error("Cannot transform loading responses")
+  }
+
+  if (response.type === "network_fail") {
+    throw new Error("Cannot transform failed responses")
+  }
+
+  let body: any = new TextDecoder("utf-8").decode(response.body)
+
+  // Try parsing to JSON
+  try {
+    body = JSON.parse(body)
+  } catch (_) {}
+
+  return {
+    body,
+    headers: response.headers,
+    status: response.statusCode,
+
+    __newRes: response,
   }
 }

@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "nuxt",
-    "build": "nuxt build",
+    "build": "vue-tsc --noEmit && nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate --modern",
     "analyze": "npx nuxt build -a",
@@ -77,6 +77,7 @@
     "@types/cookie": "^0.4.1",
     "@types/lodash": "^4.14.172",
     "@types/splitpanes": "^2.2.1",
+    "@vue/runtime-dom": "^3.2.6",
     "@vue/test-utils": "^1.2.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^27.0.6",
@@ -100,6 +101,7 @@
     "stylelint-config-standard": "^22.0.0",
     "ts-jest": "^27.0.5",
     "typescript": "^4.2",
+    "unplugin-vue2-script-setup": "^0.4.2",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
   }

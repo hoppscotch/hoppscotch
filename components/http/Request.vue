@@ -115,27 +115,18 @@
           <SmartItem
             :label="$t('import.curl')"
             icon="import_export"
-            @click.native="
-              showCurlImportModal = !showCurlImportModal
-              sendOptions.tippy().hide()
-            "
+            @click.native="showCurlImportModal = !showCurlImportModal"
           />
           <SmartItem
             :label="$t('show.code')"
             icon="code"
-            @click.native="
-              showCodegenModal = !showCodegenModal
-              sendOptions.tippy().hide()
-            "
+            @click.native="showCodegenModal = !showCodegenModal"
           />
           <SmartItem
             ref="clearAll"
             :label="$t('action.clear_all')"
             icon="clear_all"
-            @click.native="
-              clearContent()
-              sendOptions.tippy().hide()
-            "
+            @click.native="clearContent()"
           />
         </tippy>
       </span>
@@ -174,19 +165,13 @@
             ref="copyRequest"
             :label="$t('request.copy_link')"
             :icon="hasNavigatorShare ? 'share' : 'content_copy'"
-            @click.native="
-              copyRequest()
-              saveOptions.tippy().hide()
-            "
+            @click.native="copyRequest()"
           />
           <SmartItem
             ref="saveRequest"
             :label="$t('request.save_as')"
             icon="create_new_folder"
-            @click.native="
-              showSaveRequestModal = true
-              saveOptions.tippy().hide()
-            "
+            @click.native="showSaveRequestModal = true"
           />
         </tippy>
       </span>
@@ -207,14 +192,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  computed,
-  defineComponent,
-  ref,
-  useContext,
-  watch,
-} from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -252,212 +231,180 @@ const methods = [
   "CUSTOM",
 ]
 
-export default defineComponent({
-  setup() {
-    const {
-      $toast,
-      app: { i18n },
-    } = useContext()
-    const nuxt = useNuxt()
-    const t = i18n.t.bind(i18n)
-    const { subscribeToStream } = useStreamSubscriber()
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const nuxt = useNuxt()
+const t = i18n.t.bind(i18n)
+const { subscribeToStream } = useStreamSubscriber()
 
-    const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
-    const newMethod = useStream(restMethod$, "", updateRESTMethod)
+const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
+const newMethod = useStream(restMethod$, "", updateRESTMethod)
 
-    const loading = ref(false)
+const loading = ref(false)
 
-    const showCurlImportModal = ref(false)
-    const showCodegenModal = ref(false)
-    const showSaveRequestModal = ref(false)
+const showCurlImportModal = ref(false)
+const showCodegenModal = ref(false)
+const showSaveRequestModal = ref(false)
 
-    const hasNavigatorShare = !!navigator.share
+const hasNavigatorShare = !!navigator.share
 
-    // Template refs
-    const methodOptions = ref<any | null>(null)
-    const saveOptions = ref<any | null>(null)
-    const sendOptions = ref<any | null>(null)
+// Template refs
+const methodOptions = ref<any | null>(null)
+const saveOptions = ref<any | null>(null)
+const sendOptions = ref<any | null>(null)
 
-    // Update Nuxt Loading bar
-    watch(loading, () => {
-      if (loading.value) {
-        nuxt.value.$loading.start()
-      } else {
-        nuxt.value.$loading.finish()
-      }
-    })
-
-    const newSendRequest = () => {
-      loading.value = true
-
-      subscribeToStream(
-        runRESTRequest$(),
-        (responseState) => {
-          console.log(responseState)
-          if (loading.value) {
-            // Check exists because, loading can be set to false
-            // when cancelled
-            updateRESTResponse(responseState)
-          }
-        },
-        () => {
-          loading.value = false
-        },
-        () => {
-          loading.value = false
-        }
-      )
-    }
-
-    const cancelRequest = () => {
-      loading.value = false
-      updateRESTResponse(null)
-    }
-
-    const updateMethod = (method: string) => {
-      updateRESTMethod(method)
-    }
-
-    const onSelectMethod = (method: string) => {
-      updateMethod(method)
-      // Vue-tippy has no typescript support yet
-      methodOptions.value.tippy().hide()
-    }
-
-    const clearContent = () => {
-      resetRESTRequest()
-    }
-
-    const copyRequest = () => {
-      if (navigator.share) {
-        const time = new Date().toLocaleTimeString()
-        const date = new Date().toLocaleDateString()
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-            url: window.location.href,
-          })
-          .then(() => {})
-          .catch(() => {})
-      } else {
-        copyToClipboard(window.location.href)
-        $toast.success(t("state.copied_to_clipboard").toString(), {
-          icon: "content_paste",
-        })
-      }
-    }
-
-    const cycleUpMethod = () => {
-      const currentIndex = methods.indexOf(newMethod.value)
-      if (currentIndex === -1) {
-        // Most probs we are in CUSTOM mode
-        // Cycle up from CUSTOM is PATCH
-        updateMethod("PATCH")
-      } else if (currentIndex === 0) {
-        updateMethod("CUSTOM")
-      } else {
-        updateMethod(methods[currentIndex - 1])
-      }
-    }
-
-    const cycleDownMethod = () => {
-      const currentIndex = methods.indexOf(newMethod.value)
-      if (currentIndex === -1) {
-        // Most probs we are in CUSTOM mode
-        // Cycle down from CUSTOM is GET
-        updateMethod("GET")
-      } else if (currentIndex === methods.length - 1) {
-        updateMethod("GET")
-      } else {
-        updateMethod(methods[currentIndex + 1])
-      }
-    }
-
-    const saveRequest = () => {
-      const saveCtx = getRESTSaveContext()
-      if (!saveCtx) {
-        showSaveRequestModal.value = true
-        return
-      }
-
-      if (saveCtx.originLocation === "user-collection") {
-        editRESTRequest(
-          saveCtx.folderPath,
-          saveCtx.requestIndex,
-          getRESTRequest()
-        )
-      } else if (saveCtx.originLocation === "team-collection") {
-        const req = getRESTRequest()
-
-        // TODO: handle error case (NOTE: overwriteRequestTeams is async)
-        try {
-          overwriteRequestTeams(
-            apolloClient,
-            JSON.stringify(req),
-            req.name,
-            saveCtx.requestID
-          )
-        } catch (error) {
-          showSaveRequestModal.value = true
-          return
-        }
-      }
-      $toast.success(t("request.saved").toString(), {
-        icon: "playlist_add_check",
-      })
-    }
-
-    defineActionHandler("request.send-cancel", () => {
-      if (!loading.value) newSendRequest()
-      else cancelRequest()
-    })
-    defineActionHandler("request.reset", clearContent)
-    defineActionHandler("request.copy-link", copyRequest)
-    defineActionHandler("request.method.next", cycleDownMethod)
-    defineActionHandler("request.method.prev", cycleUpMethod)
-    defineActionHandler("request.save", saveRequest)
-    defineActionHandler(
-      "request.save-as",
-      () => (showSaveRequestModal.value = true)
-    )
-    defineActionHandler("request.method.get", () => updateMethod("GET"))
-    defineActionHandler("request.method.post", () => updateMethod("POST"))
-    defineActionHandler("request.method.put", () => updateMethod("PUT"))
-    defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
-    defineActionHandler("request.method.head", () => updateMethod("HEAD"))
-
-    const isCustomMethod = computed(() => {
-      return newMethod.value === "CUSTOM" || !methods.includes(newMethod.value)
-    })
-
-    return {
-      newEndpoint,
-      newMethod,
-      methods,
-      loading,
-      newSendRequest,
-      requestName: useRESTRequestName(),
-      showCurlImportModal,
-      showCodegenModal,
-      showSaveRequestModal,
-      hasNavigatorShare,
-      updateMethod,
-      cancelRequest,
-      clearContent,
-      copyRequest,
-      onSelectMethod,
-      saveRequest,
-
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
-
-      // Template refs
-      methodOptions,
-      sendOptions,
-      saveOptions,
-
-      isCustomMethod,
-    }
-  },
+// Update Nuxt Loading bar
+watch(loading, () => {
+  if (loading.value) {
+    nuxt.value.$loading.start()
+  } else {
+    nuxt.value.$loading.finish()
+  }
 })
+
+const newSendRequest = () => {
+  loading.value = true
+
+  subscribeToStream(
+    runRESTRequest$(),
+    (responseState) => {
+      console.log(responseState)
+      if (loading.value) {
+        // Check exists because, loading can be set to false
+        // when cancelled
+        updateRESTResponse(responseState)
+      }
+    },
+    () => {
+      loading.value = false
+    },
+    () => {
+      loading.value = false
+    }
+  )
+}
+
+const cancelRequest = () => {
+  loading.value = false
+  updateRESTResponse(null)
+}
+
+const updateMethod = (method: string) => {
+  updateRESTMethod(method)
+}
+
+const onSelectMethod = (method: string) => {
+  updateMethod(method)
+  // Vue-tippy has no typescript support yet
+  methodOptions.value.tippy().hide()
+}
+
+const clearContent = () => {
+  resetRESTRequest()
+}
+
+const copyRequest = () => {
+  if (navigator.share) {
+    const time = new Date().toLocaleTimeString()
+    const date = new Date().toLocaleDateString()
+    navigator
+      .share({
+        title: "Hoppscotch",
+        text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
+        url: window.location.href,
+      })
+      .then(() => {})
+      .catch(() => {})
+  } else {
+    copyToClipboard(window.location.href)
+    $toast.success(t("state.copied_to_clipboard").toString(), {
+      icon: "content_paste",
+    })
+  }
+}
+
+const cycleUpMethod = () => {
+  const currentIndex = methods.indexOf(newMethod.value)
+  if (currentIndex === -1) {
+    // Most probs we are in CUSTOM mode
+    // Cycle up from CUSTOM is PATCH
+    updateMethod("PATCH")
+  } else if (currentIndex === 0) {
+    updateMethod("CUSTOM")
+  } else {
+    updateMethod(methods[currentIndex - 1])
+  }
+}
+
+const cycleDownMethod = () => {
+  const currentIndex = methods.indexOf(newMethod.value)
+  if (currentIndex === -1) {
+    // Most probs we are in CUSTOM mode
+    // Cycle down from CUSTOM is GET
+    updateMethod("GET")
+  } else if (currentIndex === methods.length - 1) {
+    updateMethod("GET")
+  } else {
+    updateMethod(methods[currentIndex + 1])
+  }
+}
+
+const saveRequest = () => {
+  const saveCtx = getRESTSaveContext()
+  if (!saveCtx) {
+    showSaveRequestModal.value = true
+    return
+  }
+
+  if (saveCtx.originLocation === "user-collection") {
+    editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
+  } else if (saveCtx.originLocation === "team-collection") {
+    const req = getRESTRequest()
+
+    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
+    try {
+      overwriteRequestTeams(
+        apolloClient,
+        JSON.stringify(req),
+        req.name,
+        saveCtx.requestID
+      )
+    } catch (error) {
+      showSaveRequestModal.value = true
+      return
+    }
+  }
+  $toast.success(t("request.saved").toString(), {
+    icon: "playlist_add_check",
+  })
+}
+
+defineActionHandler("request.send-cancel", () => {
+  if (!loading.value) newSendRequest()
+  else cancelRequest()
+})
+defineActionHandler("request.reset", clearContent)
+defineActionHandler("request.copy-link", copyRequest)
+defineActionHandler("request.method.next", cycleDownMethod)
+defineActionHandler("request.method.prev", cycleUpMethod)
+defineActionHandler("request.save", saveRequest)
+defineActionHandler(
+  "request.save-as",
+  () => (showSaveRequestModal.value = true)
+)
+defineActionHandler("request.method.get", () => updateMethod("GET"))
+defineActionHandler("request.method.post", () => updateMethod("POST"))
+defineActionHandler("request.method.put", () => updateMethod("PUT"))
+defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
+defineActionHandler("request.method.head", () => updateMethod("HEAD"))
+
+const isCustomMethod = computed(() => {
+  return newMethod.value === "CUSTOM" || !methods.includes(newMethod.value)
+})
+
+const requestName = useRESTRequestName()
+
+const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
 </script>

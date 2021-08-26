@@ -125,7 +125,7 @@ export default {
     // https: //github.com/nuxt-community/google-fonts-module
     "@nuxtjs/google-fonts",
     // https://github.com/nuxt/typescript
-    "@nuxt/typescript-build",
+    ["@nuxt/typescript-build", { typeCheck: false }],
     // https://github.com/nuxt-community/dotenv-module
     "@nuxtjs/dotenv",
     // https://github.com/nuxt-community/composition-api

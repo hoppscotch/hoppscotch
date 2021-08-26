@@ -183,7 +183,7 @@
             @click.native="
               () => {
                 copyRequest()
-                sendOptions.tippy().hide()
+                saveOptions.tippy().hide()
               }
             "
           />
@@ -194,7 +194,7 @@
             @click.native="
               () => {
                 showSaveRequestModal = true
-                sendOptions.tippy().hide()
+                saveOptions.tippy().hide()
               }
             "
           />

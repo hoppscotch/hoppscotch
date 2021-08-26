@@ -113,9 +113,9 @@
           class="divide-x divide-dividerLight border-b border-dividerLight flex"
         >
           <SmartEnvInput
-            class="bg-primary flex flex-1 py-1 px-4"
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="basicUsername"
+            class="bg-primary flex flex-1 py-1 px-4"
             :placeholder="$t('authorization.username')"
           />
           <input
@@ -131,9 +131,9 @@
           class="divide-x divide-dividerLight border-b border-dividerLight flex"
         >
           <SmartEnvInput
-            class="bg-primary flex flex-1 py-1 px-4"
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="basicPassword"
+            class="bg-primary flex flex-1 py-1 px-4"
             :placeholder="$t('authorization.password')"
           />
           <input
@@ -186,9 +186,9 @@
           class="divide-x divide-dividerLight border-b border-dividerLight flex"
         >
           <SmartEnvInput
-            class="bg-primary flex flex-1 py-1 px-4"
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="bearerToken"
+            class="bg-primary flex flex-1 py-1 px-4"
             placeholder="Token"
           />
           <input
@@ -235,9 +235,9 @@
           class="divide-x divide-dividerLight border-b border-dividerLight flex"
         >
           <SmartEnvInput
-            class="bg-primary flex flex-1 py-1 px-4"
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="oauth2Token"
+            class="bg-primary flex flex-1 py-1 px-4"
             placeholder="Token"
           />
           <input

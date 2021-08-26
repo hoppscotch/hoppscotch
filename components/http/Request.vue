@@ -115,18 +115,33 @@
           <SmartItem
             :label="$t('import.curl')"
             icon="import_export"
-            @click.native="showCurlImportModal = !showCurlImportModal"
+            @click.native="
+              () => {
+                showCurlImportModal = !showCurlImportModal
+                sendOptions.tippy().hide()
+              }
+            "
           />
           <SmartItem
             :label="$t('show.code')"
             icon="code"
-            @click.native="showCodegenModal = !showCodegenModal"
+            @click.native="
+              () => {
+                showCodegenModal = !showCodegenModal
+                sendOptions.tippy().hide()
+              }
+            "
           />
           <SmartItem
             ref="clearAll"
             :label="$t('action.clear_all')"
             icon="clear_all"
-            @click.native="clearContent()"
+            @click.native="
+              () => {
+                clearContent()
+                sendOptions.tippy().hide()
+              }
+            "
           />
         </tippy>
       </span>
@@ -165,13 +180,23 @@
             ref="copyRequest"
             :label="$t('request.copy_link')"
             :icon="hasNavigatorShare ? 'share' : 'content_copy'"
-            @click.native="copyRequest()"
+            @click.native="
+              () => {
+                copyRequest()
+                sendOptions.tippy().hide()
+              }
+            "
           />
           <SmartItem
             ref="saveRequest"
             :label="$t('request.save_as')"
             icon="create_new_folder"
-            @click.native="showSaveRequestModal = true"
+            @click.native="
+              () => {
+                showSaveRequestModal = true
+                sendOptions.tippy().hide()
+              }
+            "
           />
         </tippy>
       </span>

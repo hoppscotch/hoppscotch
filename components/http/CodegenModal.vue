@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('request.generate_code')"
+    :title="t('request.generate_code')"
     @close="hideModal"
   >
     <template #body>
@@ -35,7 +35,7 @@
         </tippy>
         <div class="flex flex-1 justify-between">
           <label for="generatedCode" class="px-4 pt-4 pb-4">
-            {{ $t("request.generated_code") }}
+            {{ t("request.generated_code") }}
           </label>
         </div>
         <SmartAceEditor
@@ -58,14 +58,11 @@
     <template #footer>
       <ButtonPrimary
         ref="copyRequestCode"
-        :label="$t('action.copy')"
+        :label="t('action.copy')"
         :icon="copyIcon"
         @click.native="copyRequestCode"
       />
-      <ButtonSecondary
-        :label="$t('action.dismiss')"
-        @click.native="hideModal"
-      />
+      <ButtonSecondary :label="t('action.dismiss')" @click.native="hideModal" />
     </template>
   </SmartModal>
 </template>
@@ -90,7 +87,7 @@ const {
   $toast,
   app: { i18n },
 } = useContext()
-const $t = i18n.t.bind(i18n)
+const t = i18n.t.bind(i18n)
 
 const options = ref<any | null>(null)
 
@@ -123,7 +120,7 @@ const hideModal = () => emit("hide-modal")
 const copyRequestCode = () => {
   copyToClipboard(requestCode.value)
   copyIcon.value = "done"
-  $toast.success($t("state.copied_to_clipboard").toString(), {
+  $toast.success(t("state.copied_to_clipboard").toString(), {
     icon: "content_paste",
   })
   setTimeout(() => (copyIcon.value = "content_copy"), 1000)

@@ -75,7 +75,7 @@ export type HoppCodegenContext = {
   bodyParams: FormDataKeyValue[]
   rawParams: string | null
   rawInput: boolean
-  rawRequestBody: any
+  rawRequestBody: string | null
   contentType: string | null
   queryString: string
 }
@@ -138,6 +138,9 @@ function getCodegenGeneralRESTInfo(
   | "headers"
 > {
   const urlObj = new URL(request.effectiveFinalURL)
+  request.effectiveFinalParams.forEach(({ key, value }) => {
+    urlObj.searchParams.append(key, value)
+  })
 
   return {
     name: request.name,
@@ -168,7 +171,10 @@ function getCodegenReqBodyData(
       request.body.contentType === "multipart/form-data"
         ? request.body.body
         : [],
-    rawParams: null,
+    rawParams:
+      request.body.contentType !== "multipart/form-data"
+        ? request.body.body
+        : null,
   }
 }
 

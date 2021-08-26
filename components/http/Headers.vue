@@ -193,11 +193,11 @@ export default defineComponent({
       deep: true,
     },
   },
-  mounted() {
-    if (!this.headers$?.length) {
-      this.addHeader()
-    }
-  },
+  // mounted() {
+  //   if (!this.headers$?.length) {
+  //     this.addHeader()
+  //   }
+  // },
   methods: {
     addHeader() {
       addRESTHeader({ key: "", value: "", active: true })

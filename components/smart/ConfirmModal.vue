@@ -1,5 +1,10 @@
 <template>
-  <SmartModal v-if="show" :title="$t('modal.confirm')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    dialog
+    :title="$t('modal.confirm')"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <label>

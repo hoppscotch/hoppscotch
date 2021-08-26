@@ -116,7 +116,7 @@
     "remove_request": "Are you sure you want to permanently delete this request?",
     "remove_team": "Are you sure you want to delete this team?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
-    "sync": "Are you sure you want to sync this workspace?"
+    "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
   "count": {
     "header": "Header {count}",

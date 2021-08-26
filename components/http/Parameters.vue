@@ -197,11 +197,11 @@ export default defineComponent({
       deep: true,
     },
   },
-  mounted() {
-    if (!this.params$?.length) {
-      this.addParam()
-    }
-  },
+  // mounted() {
+  //   if (!this.params$?.length) {
+  //     this.addParam()
+  //   }
+  // },
   methods: {
     addParam() {
       addRESTParam({ key: "", value: "", active: true })

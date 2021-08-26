@@ -1,14 +1,21 @@
 export default [
   {
-    name: "Status code: Status code is 200",
-    script: `\n\npw.test("Status code is 200", ()=> {
-    pw.expect(pw.response.statusCode).toBe(200);
-});`,
+    name: "Environment: Set an environment variable",
+    script: `\n\n// Set an environment variable
+pw.env.set("variable", "value");`,
   },
   {
-    name: "Response body: Contains string",
-    script: `\n\npw.test("Status code is 200", ()=> {
-    pw.expect(pw.response.statusCode).toBe(200);
-});`,
+    name: "Environment: Set timestamp variable",
+    script: `\n\n// Set timestamp variable
+const cuttentTime = Date.now();
+pw.env.set("timestamp", cuttentTime.toString());`,
+  },
+  {
+    name: "Environment: Set random number variable",
+    script: `\n\n// Set random number variable
+const min = 1
+const max = 1000
+const randomArbitrary = Math.random() * (max - min) + min
+pw.env.set("randomNumber", randomArbitrary.toString());`,
   },
 ]

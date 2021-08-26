@@ -62,8 +62,7 @@
           {{ $t("helpers.post_request_tests") }}
         </div>
         <SmartAnchor
-          class="link"
-          :label="`${$t('test.learn')} \xA0 →`"
+          :label="$t('test.learn')"
           to="https://docs.hoppscotch.io/features/tests"
           blank
         />

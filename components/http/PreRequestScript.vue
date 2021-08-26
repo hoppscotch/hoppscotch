@@ -62,8 +62,7 @@
           {{ $t("helpers.pre_request_script") }}
         </div>
         <SmartAnchor
-          class="link"
-          :label="`${$t('preRequest.learn')} \xA0 →`"
+          :label="$t('preRequest.learn')"
           to="https://docs.hoppscotch.io/features/pre-request-script"
           blank
         />

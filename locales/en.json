@@ -248,7 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript Code",
-    "learn": "Learn how to write pre-request scripts",
+    "learn": "Read documentation",
     "script": "Pre-Request Script",
     "snippets": "Snippets"
   },
@@ -478,7 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript Code",
-    "learn": "Learn how to write test scripts",
+    "learn": "Read documentation",
     "report": "Test Report",
     "results": "Test Results",
     "script": "Script",

@@ -1,10 +1,15 @@
 <template>
   <AppSection :label="$t('test.results')">
-    <div v-if="testResults && (testResults.expectResults || testResults.tests)">
+    <div
+      v-if="
+        testResults &&
+        (testResults.expectResults.length || testResults.tests.length)
+      "
+    >
       <div
         class="
           bg-primary
-          border-b border-dividerLight
+          border-dividerLight border-b
           flex flex-1
           top-lowerSecondaryStickyFold
           pl-4
@@ -24,25 +29,8 @@
           @click.native="clearContent()"
         />
       </div>
-      <div class="flex p-2 items-center">
-        <SmartProgressRing
-          class="text-red-500"
-          :radius="16"
-          :stroke="4"
-          :progress="(failedTests / totalTests) * 100"
-        />
-        <div class="ml-2">
-          <span v-if="failedTests" class="text-red-500">
-            {{ failedTests }} failing,
-          </span>
-          <span v-if="passedTests" class="text-green-500">
-            {{ passedTests }} successful,
-          </span>
-          <span> out of {{ totalTests }} tests. </span>
-        </div>
-      </div>
-      <div class="divide-y divide-dividerLight">
-        <div v-if="testResults.tests">
+      <div class="divide-dividerLight border-dividerLight border-b divide-y-4">
+        <div v-if="testResults.tests" class="divide-dividerLight divide-y-4">
           <HttpTestResultEntry
             v-for="(result, index) in testResults.tests"
             :key="`result-${index}`"
@@ -51,8 +39,12 @@
         </div>
         <div
           v-if="testResults.expectResults"
-          class="divide-y divide-dividerLight"
+          class="divide-dividerLight divide-y"
         >
+          <HttpTestResultReport
+            v-if="testResults.expectResults.length"
+            :test-results="testResults"
+          />
           <div
             v-for="(result, index) in testResults.expectResults"
             :key="`result-${index}`"
@@ -103,25 +95,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "@nuxtjs/composition-api"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 
 const testResults = useReadonlyStream(restTestResults$, null)
-
-const totalTests = computed(() => testResults.value?.expectResults.length)
-const failedTests = computed(
-  () =>
-    testResults.value?.expectResults.filter(
-      (result: { status: string }) => result.status === "fail"
-    ).length
-)
-const passedTests = computed(
-  () =>
-    testResults.value?.expectResults.filter(
-      (result: { status: string }) => result.status === "pass"
-    ).length
-)
 
 const clearContent = () => setRESTTestResults(null)
 </script>

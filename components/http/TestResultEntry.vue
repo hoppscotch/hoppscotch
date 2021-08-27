@@ -2,18 +2,15 @@
   <div>
     <span
       v-if="testResults.description"
-      class="
-        border-b border-dividerLight
-        flex
-        text-secondaryDark
-        py-2
-        px-4
-        items-center
-      "
+      class="flex font-bold text-secondaryDark py-2 px-4 items-center"
     >
       {{ testResults.description }}
     </span>
     <div v-if="testResults.expectResults" class="divide-y divide-dividerLight">
+      <HttpTestResultReport
+        v-if="testResults.expectResults.length"
+        :test-results="testResults"
+      />
       <div
         v-for="(result, index) in testResults.expectResults"
         :key="`result-${index}`"

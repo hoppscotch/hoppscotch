@@ -9,9 +9,8 @@ pw.test("Status code is 200", ()=> {
   {
     name: "Response: Assert property from body",
     script: `\n\n// Check JSON response property
-pw.test("Status code is 200", ()=> {
-    const body = pw.response.body.json();
-    pw.expect(body.property).toBe("value");
+pw.test("Check JSON response property", ()=> {
+    pw.expect(pw.response.method).toBe("GET");
 });`,
   },
   {

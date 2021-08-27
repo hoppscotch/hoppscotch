@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Nouă versiune găsită. Reîmprospătați pentru a actualiza.",
     "proxy_privacy_policy": "Politica de confidențialitate proxy",
+    "reload": "Reîncarcă",
     "search": "Căutare",
     "share": "Acțiune",
     "shortcuts": "Comenzi rapide",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Verificați căsuța de e-mail - am trimis un e-mail la {email}. Conține un link magic care vă va conecta."
   },
   "authorization": {
+    "generate_token": "Generați token",
     "include_in_url": "Includeți în URL",
+    "learn": "Afla cum",
     "password": "Parola",
     "token": "Jeton",
     "type": "Tipul de autorizare",
@@ -97,6 +100,7 @@
     "my_collections": "Colecțiile mele",
     "name": "Noua mea colecție",
     "new": "Colecție nouă",
+    "renamed": "Colecția redenumită",
     "save_as": "Salvează ca",
     "select": "Selectați o colecție",
     "select_location": "Selectați locația",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Folder creat",
     "edit": "Editați folderul",
+    "invalid_name": "Vă rugăm să furnizați un nume pentru dosar",
     "new": "Dosar nou",
     "renamed": "Dosar redenumit"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Cod JavaScript",
+    "learn": "Citiți documentația",
     "script": "Script de cerere prealabilă",
     "snippets": "Fragmente"
   },
@@ -250,6 +256,7 @@
     "star": "Eliminați steaua"
   },
   "request": {
+    "added": "Cerere adăugată",
     "authorization": "Autorizare",
     "body": "Solicitați corpul",
     "choose_language": "Alege limba",
@@ -260,6 +267,7 @@
     "generate_code": "Generați cod",
     "generated_code": "Cod generat",
     "header_list": "Lista anteturilor",
+    "invalid_name": "Vă rugăm să furnizați un nume pentru cerere",
     "method": "Metodă",
     "name": "Solicitați numele",
     "parameter_list": "Parametrii interogării",
@@ -267,9 +275,11 @@
     "payload": "Încărcătură utilă",
     "query": "Interogare",
     "raw_body": "Corp de solicitare brută",
+    "renamed": "Cererea redenumită",
     "run": "Alerga",
     "save": "salva",
     "save_as": "Salvează ca",
+    "saved": "Cererea a fost salvată",
     "share": "Acțiune",
     "title": "Cerere",
     "type": "Tip de solicitare",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Utilizați middleware-ul proxy pentru a trimite cereri",
     "read_the": "Citeste",
     "reset_default": "Resetare la valorile implicite",
-    "shortcuts_indicator": "Indicator de comenzi rapide",
     "sync": "Sincroniza",
     "sync_collections": "Colecții",
     "sync_description": "Aceste setări sunt sincronizate cu cloud.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Cod JavaScript",
+    "learn": "Citiți documentația",
     "report": "Raport de testare",
     "results": "Rezultatele testului",
     "script": "Script",

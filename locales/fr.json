@@ -52,6 +52,7 @@
     "name": "marelle",
     "new_version_found": "Nouvelle version trouvée. Actualiser pour mettre à jour.",
     "proxy_privacy_policy": "Politique de confidentialité du proxy",
+    "reload": "Recharger",
     "search": "Chercher",
     "share": "Partager",
     "shortcuts": "Raccourcis",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Vérifiez votre boîte de réception - nous avons envoyé un e-mail à {email}. Il contient un lien magique qui vous connectera."
   },
   "authorization": {
+    "generate_token": "Générer un jeton",
     "include_in_url": "Inclure dans l'URL",
+    "learn": "Apprendre",
     "password": "Mot de passe",
     "token": "Jeton",
     "type": "Type d'autorisation",
@@ -97,6 +100,7 @@
     "my_collections": "Mes collections",
     "name": "Ma nouvelle collection",
     "new": "Nouvelle collection",
+    "renamed": "Collection renommée",
     "save_as": "Enregistrer sous",
     "select": "Sélectionnez une collection",
     "select_location": "Sélectionnez l'emplacement",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Dossier créé",
     "edit": "Modifier le dossier",
+    "invalid_name": "Veuillez fournir un nom pour le dossier",
     "new": "Nouveau dossier",
     "renamed": "Dossier renommé"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Code JavaScript",
+    "learn": "Lire la documentation",
     "script": "Script de pré-demande",
     "snippets": "Extraits"
   },
@@ -250,6 +256,7 @@
     "star": "Supprimer l'étoile"
   },
   "request": {
+    "added": "Demande ajoutée",
     "authorization": "Autorisation",
     "body": "Corps de la demande",
     "choose_language": "Choisissez la langue",
@@ -260,6 +267,7 @@
     "generate_code": "Générer le code",
     "generated_code": "Code généré",
     "header_list": "Liste des en-têtes",
+    "invalid_name": "Veuillez fournir un nom pour la demande",
     "method": "Méthode",
     "name": "Nom de la demande",
     "parameter_list": "Paramètres de requête",
@@ -267,9 +275,11 @@
     "payload": "Charge utile",
     "query": "Mettre en doute",
     "raw_body": "Corps de requête brut",
+    "renamed": "Demande renommée",
     "run": "Cours",
     "save": "sauver",
     "save_as": "Enregistrer sous",
+    "saved": "Demande enregistrée",
     "share": "Partager",
     "title": "Demande",
     "type": "Type de demande",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Utiliser le middleware proxy pour envoyer des requêtes",
     "read_the": "Lis le",
     "reset_default": "Réinitialiser par défaut",
-    "shortcuts_indicator": "Indicateur de raccourcis",
     "sync": "Synchroniser",
     "sync_collections": "Collections",
     "sync_description": "Ces paramètres sont synchronisés avec le cloud.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Code JavaScript",
+    "learn": "Lire la documentation",
     "report": "Rapport d'essai",
     "results": "Résultats de test",
     "script": "Scénario",

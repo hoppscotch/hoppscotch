@@ -52,6 +52,7 @@
     "name": "seksek",
     "new_version_found": "Yeni sürüm bulundu. Güncellemek için yenileyin.",
     "proxy_privacy_policy": "Proxy gizlilik ilkesi",
+    "reload": "Tekrar yükle",
     "search": "Arama",
     "share": "Paylaşmak",
     "shortcuts": "Kısayollar",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Gelen kutunuzu kontrol edin - {email} adresine bir e-posta gönderdik. Giriş yapmanızı sağlayacak sihirli bir bağlantı içerir."
   },
   "authorization": {
+    "generate_token": "Jeton Oluştur",
     "include_in_url": "URL'ye dahil et",
+    "learn": "Nasıl öğrenilir",
     "password": "Parola",
     "token": "Jeton",
     "type": "Yetki Türü",
@@ -97,6 +100,7 @@
     "my_collections": "Koleksiyonlarım",
     "name": "Yeni Koleksiyonum",
     "new": "Yeni koleksiyon",
+    "renamed": "Koleksiyon yeniden adlandırıldı",
     "save_as": "Farklı kaydet",
     "select": "Bir Koleksiyon Seçin",
     "select_location": "Konum seçin",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Klasör oluşturuldu",
     "edit": "Klasörü Düzenle",
+    "invalid_name": "Lütfen klasör için bir ad girin",
     "new": "Yeni dosya",
     "renamed": "Klasör yeniden adlandırıldı"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript Kodu",
+    "learn": "Belgeleri okuyun",
     "script": "Ön İstek Komut Dosyası",
     "snippets": "snippet'ler"
   },
@@ -250,6 +256,7 @@
     "star": "Yıldızı kaldır"
   },
   "request": {
+    "added": "İstek eklendi",
     "authorization": "yetki",
     "body": "İstek Gövdesi",
     "choose_language": "Dil seçiniz",
@@ -260,6 +267,7 @@
     "generate_code": "Kodunu oluşturun",
     "generated_code": "oluşturulan kod",
     "header_list": "Başlık Listesi",
+    "invalid_name": "Lütfen istek için bir ad girin",
     "method": "Yöntem",
     "name": "İstek adı",
     "parameter_list": "Sorgu Parametreleri",
@@ -267,9 +275,11 @@
     "payload": "yük",
     "query": "Sorgu",
     "raw_body": "Ham İstek Gövdesi",
+    "renamed": "Yeniden adlandırılmış istek",
     "run": "Çalıştırmak",
     "save": "Kayıt etmek",
     "save_as": "Farklı kaydet",
+    "saved": "İstek kaydedildi",
     "share": "Paylaşmak",
     "title": "Rica etmek",
     "type": "İstek Türü",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "İstek göndermek için proxy ara yazılımını kullanın",
     "read_the": "Okumak",
     "reset_default": "Varsayılana sıfırla",
-    "shortcuts_indicator": "Kısayollar göstergesi",
     "sync": "senkronize et",
     "sync_collections": "Koleksiyonlar",
     "sync_description": "Bu ayarlar bulutla senkronize edilir.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript Kodu",
+    "learn": "Belgeleri okuyun",
     "report": "Test raporu",
     "results": "Test sonuçları",
     "script": "Senaryo",

@@ -52,6 +52,7 @@
     "name": "Nhảy lò cò",
     "new_version_found": "Phiên bản mới được tìm thấy. Làm mới để cập nhật.",
     "proxy_privacy_policy": "Chính sách về quyền riêng tư của proxy",
+    "reload": "Nạp lại",
     "search": "Tìm kiếm",
     "share": "Chia sẻ",
     "shortcuts": "Các phím tắt",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Kiểm tra hộp thư đến của bạn - chúng tôi đã gửi một email đến {email}. Nó chứa một liên kết kỳ diệu sẽ giúp bạn đăng nhập."
   },
   "authorization": {
+    "generate_token": "Tạo mã thông báo",
     "include_in_url": "Bao gồm trong URL",
+    "learn": "Học cách",
     "password": "Mật khẩu",
     "token": "Mã thông báo",
     "type": "Loại ủy quyền",
@@ -97,6 +100,7 @@
     "my_collections": "Bộ sưu tập của tôi",
     "name": "Bộ sưu tập mới của tôi",
     "new": "Bộ sưu tập mới",
+    "renamed": "Bộ sưu tập đã được đổi tên",
     "save_as": "Lưu thành",
     "select": "Chọn một Bộ sưu tập",
     "select_location": "Chọn địa điểm",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Thư mục đã được tạo",
     "edit": "Chỉnh sửa thư mục",
+    "invalid_name": "Vui lòng cung cấp tên cho thư mục",
     "new": "Thư mục mới",
     "renamed": "Thư mục đã được đổi tên"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Mã JavaScript",
+    "learn": "Đọc tài liệu",
     "script": "Tập lệnh Yêu cầu Trước",
     "snippets": "Đoạn mã"
   },
@@ -250,6 +256,7 @@
     "star": "Xóa dấu sao"
   },
   "request": {
+    "added": "Đã thêm yêu cầu",
     "authorization": "Ủy quyền",
     "body": "Nội dung yêu cầu",
     "choose_language": "Chọn ngôn ngữ",
@@ -260,6 +267,7 @@
     "generate_code": "Tạo mã",
     "generated_code": "Mã đã tạo",
     "header_list": "Danh sách tiêu đề",
+    "invalid_name": "Vui lòng cung cấp tên cho yêu cầu",
     "method": "Phương pháp",
     "name": "Yêu cầu tên",
     "parameter_list": "Tham số truy vấn",
@@ -267,9 +275,11 @@
     "payload": "Khối hàng",
     "query": "Truy vấn",
     "raw_body": "Nội dung yêu cầu thô",
+    "renamed": "Yêu cầu đổi tên",
     "run": "Chạy",
     "save": "Cứu",
     "save_as": "Lưu thành",
+    "saved": "Yêu cầu đã được lưu",
     "share": "Chia sẻ",
     "title": "Yêu cầu",
     "type": "Loại yêu cầu",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Sử dụng phần mềm trung gian proxy để gửi yêu cầu",
     "read_the": "Đọc",
     "reset_default": "Đặt lại về mặc định",
-    "shortcuts_indicator": "Chỉ báo phím tắt",
     "sync": "Làm cho đồng bộ",
     "sync_collections": "Bộ sưu tập",
     "sync_description": "Các cài đặt này được đồng bộ hóa với đám mây.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Mã JavaScript",
+    "learn": "Đọc tài liệu",
     "report": "Báo cáo thử nghiệm",
     "results": "Kết quả kiểm tra",
     "script": "Script",

@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Ny version hittades. Uppdatera för att uppdatera.",
     "proxy_privacy_policy": "Sekretesspolicy för proxy",
+    "reload": "Ladda om",
     "search": "Sök",
     "share": "Dela med sig",
     "shortcuts": "Genvägar",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Kontrollera din inkorg - vi skickade ett e -postmeddelande till {email}. Den innehåller en magisk länk som loggar in dig."
   },
   "authorization": {
+    "generate_token": "Generera Token",
     "include_in_url": "Inkludera i URL",
+    "learn": "Lära sig hur",
     "password": "Lösenord",
     "token": "Tecken",
     "type": "Godkännande typ",
@@ -97,6 +100,7 @@
     "my_collections": "Mina samlingar",
     "name": "Min nya samling",
     "new": "Ny kollektion",
+    "renamed": "Samling bytt namn",
     "save_as": "Spara som",
     "select": "Välj en samling",
     "select_location": "Välj plats",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Mapp skapad",
     "edit": "Redigera mapp",
+    "invalid_name": "Ange ett namn på mappen",
     "new": "Ny mapp",
     "renamed": "Mappen har bytt namn"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript -kod",
+    "learn": "Läs dokumentation",
     "script": "Skript för förfrågan",
     "snippets": "Utdrag"
   },
@@ -250,6 +256,7 @@
     "star": "Ta bort stjärnan"
   },
   "request": {
+    "added": "Begäran har lagts till",
     "authorization": "Tillstånd",
     "body": "Begär organ",
     "choose_language": "Välj språk",
@@ -260,6 +267,7 @@
     "generate_code": "Generera kod",
     "generated_code": "Genererad kod",
     "header_list": "Rubriklista",
+    "invalid_name": "Ange ett namn på begäran",
     "method": "Metod",
     "name": "Begär namn",
     "parameter_list": "Frågeparametrar",
@@ -267,9 +275,11 @@
     "payload": "Nyttolast",
     "query": "Fråga",
     "raw_body": "Raw Request Body",
+    "renamed": "Begäran bytt namn",
     "run": "Springa",
     "save": "Spara",
     "save_as": "Spara som",
+    "saved": "Begäran sparad",
     "share": "Dela med sig",
     "title": "Begäran",
     "type": "Typ av förfrågan",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Använd proxy -mellanprogrammet för att skicka förfrågningar",
     "read_the": "Läs",
     "reset_default": "Återställ till standard",
-    "shortcuts_indicator": "Genvägsindikator",
     "sync": "Synkronisera",
     "sync_collections": "Samlingar",
     "sync_description": "Dessa inställningar synkroniseras till moln.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript -kod",
+    "learn": "Läs dokumentation",
     "report": "Testrapport",
     "results": "Testresultat",
     "script": "Manus",

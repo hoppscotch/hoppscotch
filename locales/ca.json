@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "S'ha trobat una nova versió. Actualitzeu per actualitzar.",
     "proxy_privacy_policy": "Política de privadesa del servidor intermediari",
+    "reload": "Recarregar",
     "search": "Cerca",
     "share": "Compartir",
     "shortcuts": "Dreceres",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Comproveu la vostra safata d'entrada: hem enviat un correu electrònic a {email}. Conté un enllaç màgic que us permetrà iniciar la sessió."
   },
   "authorization": {
+    "generate_token": "Generar testimoni",
     "include_in_url": "Inclou a l'URL",
+    "learn": "Aprèn com",
     "password": "Contrasenya",
     "token": "Testimoni",
     "type": "Tipus d'autorització",
@@ -97,6 +100,7 @@
     "my_collections": "Les meves col·leccions",
     "name": "La meva nova col·lecció",
     "new": "Nova col · lecció",
+    "renamed": "S'ha canviat el nom de la col·lecció",
     "save_as": "Guardar com",
     "select": "Seleccioneu una col·lecció",
     "select_location": "Seleccioneu la ubicació",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "S'ha creat la carpeta",
     "edit": "Edita la carpeta",
+    "invalid_name": "Proporcioneu un nom per a la carpeta",
     "new": "Carpeta nova",
     "renamed": "S'ha canviat el nom de la carpeta"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Codi JavaScript",
+    "learn": "Llegiu la documentació",
     "script": "Script de sol·licitud prèvia",
     "snippets": "Fragments"
   },
@@ -250,6 +256,7 @@
     "star": "Elimina l'estrella"
   },
   "request": {
+    "added": "S'ha afegit la sol·licitud",
     "authorization": "Autorització",
     "body": "Organisme de sol·licitud",
     "choose_language": "Tria l’idioma",
@@ -260,6 +267,7 @@
     "generate_code": "Generar codi",
     "generated_code": "Codi generat",
     "header_list": "Llista de capçaleres",
+    "invalid_name": "Proporcioneu un nom per a la sol·licitud",
     "method": "Mètode",
     "name": "Sol·licita el nom",
     "parameter_list": "Paràmetres de consulta",
@@ -267,9 +275,11 @@
     "payload": "Càrrega útil",
     "query": "Consulta",
     "raw_body": "Cos de sol·licitud en brut",
+    "renamed": "S'ha canviat el nom de la sol·licitud",
     "run": "Correr",
     "save": "Desa",
     "save_as": "Guardar com",
+    "saved": "S'ha desat la sol·licitud",
     "share": "Compartir",
     "title": "Sol·licitud",
     "type": "Tipus de sol·licitud",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Utilitzeu el middleware del servidor intermediari per enviar sol·licituds",
     "read_the": "Llegir el",
     "reset_default": "Restableix el valor predeterminat",
-    "shortcuts_indicator": "Indicador de dreceres",
     "sync": "Sincronitza",
     "sync_collections": "Col·leccions",
     "sync_description": "Aquesta configuració se sincronitza amb el núvol.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Codi JavaScript",
+    "learn": "Llegiu la documentació",
     "report": "Informe de prova",
     "results": "Resultats de l'exàmen",
     "script": "Guió",

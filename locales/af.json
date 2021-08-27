@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Nuwe weergawe gevind. Herlaai om op te dateer.",
     "proxy_privacy_policy": "Volmag privaatheidsbeleid",
+    "reload": "Herlaai",
     "search": "Soek",
     "share": "Deel",
     "shortcuts": "Kortpaaie",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Gaan jou inkassie na - ons het 'n e -pos na {email} gestuur. Dit bevat 'n magiese skakel waarmee u sal aanmeld."
   },
   "authorization": {
+    "generate_token": "Genereer teken",
     "include_in_url": "Sluit in by URL",
+    "learn": "Leer hoe",
     "password": "Wagwoord",
     "token": "Teken",
     "type": "Magtigingstipe",
@@ -97,6 +100,7 @@
     "my_collections": "My versamelings",
     "name": "My nuwe versameling",
     "new": "Nuwe versameling",
+    "renamed": "Versameling hernoem",
     "save_as": "Stoor as",
     "select": "Kies 'n versameling",
     "select_location": "Kies ligging",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Vouer geskep",
     "edit": "Wysig gids",
+    "invalid_name": "Gee 'n naam vir die gids",
     "new": "Nuwe leêr",
     "renamed": "Vouer hernoem"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript -kode",
+    "learn": "Lees dokumentasie",
     "script": "Vooraansoekskrif",
     "snippets": "Brokkies"
   },
@@ -250,6 +256,7 @@
     "star": "Verwyder ster"
   },
   "request": {
+    "added": "Versoek bygevoeg",
     "authorization": "Magtiging",
     "body": "Versoek liggaam",
     "choose_language": "Kies taal",
@@ -260,6 +267,7 @@
     "generate_code": "Genereer kode",
     "generated_code": "Kode gegenereer",
     "header_list": "Koplys",
+    "invalid_name": "Gee 'n naam vir die versoek",
     "method": "Metode",
     "name": "Versoek naam",
     "parameter_list": "Navraagparameters",
@@ -267,9 +275,11 @@
     "payload": "Nuttingslading",
     "query": "Navraag",
     "raw_body": "Rou versoeksliggaam",
+    "renamed": "Versoek hernoem",
     "run": "Hardloop",
     "save": "Stoor",
     "save_as": "Stoor as",
+    "saved": "Versoek gestoor",
     "share": "Deel",
     "title": "Versoek",
     "type": "Soort versoek",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Gebruik die proxy -middelware om versoeke te stuur",
     "read_the": "Lees die",
     "reset_default": "Herstel tot standaard",
-    "shortcuts_indicator": "Kortpadaanwyser",
     "sync": "Sinchroniseer",
     "sync_collections": "Versamelings",
     "sync_description": "Hierdie instellings word met wolk gesinkroniseer.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript -kode",
+    "learn": "Lees dokumentasie",
     "report": "Toetsverslag",
     "results": "Toets resultate",
     "script": "Skrif",

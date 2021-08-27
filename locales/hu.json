@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Új verzió található. Frissítés a frissítéshez.",
     "proxy_privacy_policy": "Proxy adatvédelmi irányelvei",
+    "reload": "Újratöltés",
     "search": "Keresés",
     "share": "Részvény",
     "shortcuts": "Parancsikonok",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Ellenőrizze postaládáját - e -mailt küldtünk a (z) {email} címre. Tartalmaz egy varázslatos linket, amellyel bejelentkezhet."
   },
   "authorization": {
+    "generate_token": "Token generálása",
     "include_in_url": "Belefoglalás az URL -be",
+    "learn": "Megtanulják, hogyan",
     "password": "Jelszó",
     "token": "Jelképes",
     "type": "Engedélyezés típusa",
@@ -97,6 +100,7 @@
     "my_collections": "Saját gyűjtemények",
     "name": "Új gyűjteményem",
     "new": "Új kollekció",
+    "renamed": "A gyűjtemény átnevezett",
     "save_as": "Mentés másként",
     "select": "Válasszon egy gyűjteményt",
     "select_location": "Válassza ki a helyet",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Mappa létrehozva",
     "edit": "Mappa szerkesztése",
+    "invalid_name": "Kérjük, adja meg a mappa nevét",
     "new": "Új mappa",
     "renamed": "Mappa átnevezve"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript kód",
+    "learn": "Olvassa el a dokumentációt",
     "script": "Előkéréses szkript",
     "snippets": "Részletek"
   },
@@ -250,6 +256,7 @@
     "star": "Csillag eltávolítása"
   },
   "request": {
+    "added": "Kérés hozzáadva",
     "authorization": "Engedélyezés",
     "body": "Kérés törzse",
     "choose_language": "Válassz nyelvet",
@@ -260,6 +267,7 @@
     "generate_code": "Kód generálása",
     "generated_code": "Generált kód",
     "header_list": "Fejléc lista",
+    "invalid_name": "Kérjük, adja meg a kérelem nevét",
     "method": "Módszer",
     "name": "Kérés neve",
     "parameter_list": "Lekérdezési paraméterek",
@@ -267,9 +275,11 @@
     "payload": "Hasznos teher",
     "query": "Lekérdezés",
     "raw_body": "Nyers kérés törzse",
+    "renamed": "Kérés átnevezve",
     "run": "Fuss",
     "save": "Mentés",
     "save_as": "Mentés másként",
+    "saved": "Kérés mentve",
     "share": "Részvény",
     "title": "Kérés",
     "type": "Kérelem típusa",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Használja a proxy köztes szoftvert kérések küldéséhez",
     "read_the": "Olvassa el a",
     "reset_default": "Visszaállítás alapértelmezettre",
-    "shortcuts_indicator": "Gyorsbillentyűk jelző",
     "sync": "Szinkronizálás",
     "sync_collections": "Gyűjtemények",
     "sync_description": "Ezek a beállítások szinkronizálva vannak a felhővel.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript kód",
+    "learn": "Olvassa el a dokumentációt",
     "report": "Vizsgálati jelentés",
     "results": "Vizsgálati eredmények",
     "script": "Forgatókönyv",

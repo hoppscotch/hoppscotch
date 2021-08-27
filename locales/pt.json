@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Nova versão encontrada. Atualize para atualizar.",
     "proxy_privacy_policy": "Política de privacidade do proxy",
+    "reload": "recarregar",
     "search": "Procurar",
     "share": "Compartilhado",
     "shortcuts": "Atalhos",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Verifique sua caixa de entrada - enviamos um e-mail para {email}. Ele contém um link mágico que fará o seu login."
   },
   "authorization": {
+    "generate_token": "Gerar token",
     "include_in_url": "Incluir no URL",
+    "learn": "Aprenda como",
     "password": "Senha",
     "token": "Símbolo",
     "type": "Tipo de Autorização",
@@ -97,6 +100,7 @@
     "my_collections": "Minhas coleções",
     "name": "Minha nova coleção",
     "new": "Nova coleção",
+    "renamed": "Coleção renomeada",
     "save_as": "Salvar como",
     "select": "Selecione uma coleção",
     "select_location": "Selecione a localização",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Pasta criada",
     "edit": "Editar pasta",
+    "invalid_name": "Forneça um nome para a pasta",
     "new": "Nova pasta",
     "renamed": "Pasta renomeada"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Código JavaScript",
+    "learn": "Leia a documentação",
     "script": "Script de pré-solicitação",
     "snippets": "Trechos"
   },
@@ -250,6 +256,7 @@
     "star": "Remover estrela"
   },
   "request": {
+    "added": "Pedido adicionado",
     "authorization": "Autorização",
     "body": "Corpo de Solicitação",
     "choose_language": "Escolha o seu idioma",
@@ -260,6 +267,7 @@
     "generate_code": "Gerar código",
     "generated_code": "Código gerado",
     "header_list": "Lista de Cabeçalhos",
+    "invalid_name": "Forneça um nome para o pedido",
     "method": "Método",
     "name": "Nome do pedido",
     "parameter_list": "Parâmetros de consulta",
@@ -267,9 +275,11 @@
     "payload": "Carga útil",
     "query": "Consulta",
     "raw_body": "Corpo de Solicitação Bruta",
+    "renamed": "Pedido renomeado",
     "run": "Corre",
     "save": "Salvar",
     "save_as": "Salvar como",
+    "saved": "Pedido salvo",
     "share": "Compartilhado",
     "title": "Solicitar",
     "type": "Tipo de solicitação",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Use o middleware de proxy para enviar solicitações",
     "read_the": "Leia o",
     "reset_default": "Restaurar ao padrão",
-    "shortcuts_indicator": "Indicador de atalhos",
     "sync": "Sincronizar",
     "sync_collections": "Coleções",
     "sync_description": "Essas configurações são sincronizadas com a nuvem.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Código JavaScript",
+    "learn": "Leia a documentação",
     "report": "Relatório de teste",
     "results": "Resultado dos testes",
     "script": "Roteiro",

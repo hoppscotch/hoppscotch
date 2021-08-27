@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Ny version fundet. Opdater for at opdatere.",
     "proxy_privacy_policy": "Politik til beskyttelse af personlige oplysninger i proxy",
+    "reload": "Genindlæs",
     "search": "Søg",
     "share": "Del",
     "shortcuts": "Genveje",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Tjek din indbakke - vi sendte en e -mail til {email}. Den indeholder et magisk link, der logger dig ind."
   },
   "authorization": {
+    "generate_token": "Generer Token",
     "include_in_url": "Inkluder i URL",
+    "learn": "Lær hvordan",
     "password": "Adgangskode",
     "token": "Polet",
     "type": "Godkendelse Type",
@@ -97,6 +100,7 @@
     "my_collections": "Mine samlinger",
     "name": "Min nye samling",
     "new": "Ny kollektion",
+    "renamed": "Samling omdøbt",
     "save_as": "Gem som",
     "select": "Vælg en samling",
     "select_location": "Vælg placering",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Mappe oprettet",
     "edit": "Rediger mappe",
+    "invalid_name": "Angiv et navn til mappen",
     "new": "Ny mappe",
     "renamed": "Mappen omdøbt"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript -kode",
+    "learn": "Læs dokumentation",
     "script": "Pre-Request Script",
     "snippets": "Uddrag"
   },
@@ -250,6 +256,7 @@
     "star": "Fjern stjerne"
   },
   "request": {
+    "added": "Anmodning tilføjet",
     "authorization": "Bemyndigelse",
     "body": "Anmodningsorgan",
     "choose_language": "Vælg sprog",
@@ -260,6 +267,7 @@
     "generate_code": "Generer kode",
     "generated_code": "Genereret kode",
     "header_list": "Overskriftsliste",
+    "invalid_name": "Angiv et navn på anmodningen",
     "method": "Metode",
     "name": "Anmodningsnavn",
     "parameter_list": "Forespørgselsparametre",
@@ -267,9 +275,11 @@
     "payload": "Nyttelast",
     "query": "Forespørgsel",
     "raw_body": "Raw Request Body",
+    "renamed": "Anmodning omdøbt",
     "run": "Løb",
     "save": "Gemme",
     "save_as": "Gem som",
+    "saved": "Anmodning gemt",
     "share": "Del",
     "title": "Anmodning",
     "type": "Anmodningstype",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Brug proxy -middleware til at sende anmodninger",
     "read_the": "Læs",
     "reset_default": "Nulstil til standard",
-    "shortcuts_indicator": "Genvejsindikator",
     "sync": "Synkroniser",
     "sync_collections": "Samlinger",
     "sync_description": "Disse indstillinger er synkroniseret til cloud.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript -kode",
+    "learn": "Læs dokumentation",
     "report": "Test rapport",
     "results": "Test resultater",
     "script": "Manuskript",

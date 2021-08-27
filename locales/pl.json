@@ -52,6 +52,7 @@
     "name": "Gra w klasy",
     "new_version_found": "Znaleziono nową wersję. Odśwież, aby zaktualizować.",
     "proxy_privacy_policy": "Polityka prywatności proxy",
+    "reload": "Przeładować",
     "search": "Szukaj",
     "share": "Udział",
     "shortcuts": "Skróty",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Sprawdź swoją skrzynkę odbiorczą – wysłaliśmy e-mail na adres {email}. Zawiera magiczny link, który Cię zaloguje."
   },
   "authorization": {
+    "generate_token": "Wygeneruj token",
     "include_in_url": "Uwzględnij w adresie URL",
+    "learn": "Naucz się jak",
     "password": "Hasło",
     "token": "Znak",
     "type": "Typ autoryzacji",
@@ -97,6 +100,7 @@
     "my_collections": "Moje kolekcje",
     "name": "Moja nowa kolekcja",
     "new": "Nowa kolekcja",
+    "renamed": "Zmieniono nazwę kolekcji",
     "save_as": "Zapisz jako",
     "select": "Wybierz kolekcję",
     "select_location": "Wybierz lokalizację",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Utworzono folder",
     "edit": "Edytuj folder",
+    "invalid_name": "Podaj nazwę folderu",
     "new": "Nowy folder",
     "renamed": "Zmieniono nazwę folderu"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Kod JavaScript",
+    "learn": "Przeczytaj dokumentację",
     "script": "Skrypt żądania wstępnego",
     "snippets": "Fragmenty"
   },
@@ -250,6 +256,7 @@
     "star": "Usuń gwiazdkę"
   },
   "request": {
+    "added": "Dodano prośbę",
     "authorization": "Upoważnienie",
     "body": "Treść zapytania",
     "choose_language": "Wybierz język",
@@ -260,6 +267,7 @@
     "generate_code": "Wygeneruj kod",
     "generated_code": "Wygenerowany kod",
     "header_list": "Lista nagłówków",
+    "invalid_name": "Podaj nazwę prośby",
     "method": "metoda",
     "name": "Poproś o imię i nazwisko",
     "parameter_list": "Parametry zapytania",
@@ -267,9 +275,11 @@
     "payload": "Ładunek",
     "query": "Zapytanie",
     "raw_body": "Surowa treść żądania",
+    "renamed": "Zmieniono nazwę żądania",
     "run": "Uruchomić",
     "save": "Ratować",
     "save_as": "Zapisz jako",
+    "saved": "Prośba została zapisana",
     "share": "Udział",
     "title": "Wniosek",
     "type": "Typ żądania",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Użyj oprogramowania pośredniczącego proxy do wysyłania żądań",
     "read_the": "Przeczytać",
     "reset_default": "Przywróć ustawienia domyślne",
-    "shortcuts_indicator": "Wskaźnik skrótów",
     "sync": "Synchronizować",
     "sync_collections": "Kolekcje",
     "sync_description": "Te ustawienia są synchronizowane z chmurą.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Kod JavaScript",
+    "learn": "Przeczytaj dokumentację",
     "report": "Sprawozdanie z badań",
     "results": "Wyniki testu",
     "script": "Scenariusz",

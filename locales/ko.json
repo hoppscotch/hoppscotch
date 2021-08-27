@@ -52,6 +52,7 @@
     "name": "호프스카치",
     "new_version_found": "새 버전을 찾았습니다. 업데이트하려면 새로고침하세요.",
     "proxy_privacy_policy": "프록시 개인 정보 보호 정책",
+    "reload": "새로고침",
     "search": "찾다",
     "share": "공유하다",
     "shortcuts": "바로가기",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "받은 편지함을 확인하세요. {email}(으)로 이메일을 보냈습니다. 여기에는 로그인할 수 있는 매직 링크가 포함되어 있습니다."
   },
   "authorization": {
+    "generate_token": "토큰 생성",
     "include_in_url": "URL에 포함",
+    "learn": "어떻게하는지 배우다",
     "password": "비밀번호",
     "token": "토큰",
     "type": "승인 유형",
@@ -97,6 +100,7 @@
     "my_collections": "내 컬렉션",
     "name": "내 새 컬렉션",
     "new": "새 컬렉션",
+    "renamed": "컬렉션 이름이 변경됨",
     "save_as": "다른 이름으로 저장",
     "select": "컬렉션 선택",
     "select_location": "위치 선택",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "폴더 생성됨",
     "edit": "폴더 수정",
+    "invalid_name": "폴더 이름을 입력하세요.",
     "new": "새 폴더",
     "renamed": "폴더 이름이 변경됨"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "자바스크립트 코드",
+    "learn": "문서 읽기",
     "script": "사전 요청 스크립트",
     "snippets": "짧은 발췌"
   },
@@ -250,6 +256,7 @@
     "star": "별표 삭제"
   },
   "request": {
+    "added": "추가된 요청",
     "authorization": "권한 부여",
     "body": "요청 본문",
     "choose_language": "언어 선택",
@@ -260,6 +267,7 @@
     "generate_code": "코드 생성",
     "generated_code": "생성된 코드",
     "header_list": "헤더 목록",
+    "invalid_name": "요청의 이름을 입력하세요.",
     "method": "방법",
     "name": "요청 이름",
     "parameter_list": "쿼리 매개변수",
@@ -267,9 +275,11 @@
     "payload": "유효 탑재량",
     "query": "질문",
     "raw_body": "원시 요청 본문",
+    "renamed": "요청 이름이 변경됨",
     "run": "운영",
     "save": "구하다",
     "save_as": "다른 이름으로 저장",
+    "saved": "요청이 저장됨",
     "share": "공유하다",
     "title": "요구",
     "type": "요청 유형",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "프록시 미들웨어를 사용하여 요청 보내기",
     "read_the": "읽기",
     "reset_default": "기본값으로 재설정",
-    "shortcuts_indicator": "바로가기 표시기",
     "sync": "동기화",
     "sync_collections": "컬렉션",
     "sync_description": "이러한 설정은 클라우드에 동기화됩니다.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "자바스크립트 코드",
+    "learn": "문서 읽기",
     "report": "시험 보고서",
     "results": "시험 결과",
     "script": "스크립트",

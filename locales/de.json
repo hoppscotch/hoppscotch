@@ -52,6 +52,7 @@
     "name": "Hüpfburg",
     "new_version_found": "Neue Version gefunden. Aktualisieren, um zu aktualisieren.",
     "proxy_privacy_policy": "Proxy-Datenschutzrichtlinie",
+    "reload": "Neu laden",
     "search": "Suche",
     "share": "Aktie",
     "shortcuts": "Verknüpfungen",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Überprüfen Sie Ihren Posteingang - wir haben eine E-Mail an {email} gesendet. Es enthält einen magischen Link, der Sie einloggt."
   },
   "authorization": {
+    "generate_token": "Token generieren",
     "include_in_url": "In URL einschließen",
+    "learn": "Lernen wie",
     "password": "Passwort",
     "token": "Zeichen",
     "type": "Berechtigungstyp",
@@ -97,6 +100,7 @@
     "my_collections": "Meine Sammlungen",
     "name": "Meine neue Kollektion",
     "new": "Neue Kollektion",
+    "renamed": "Sammlung umbenannt",
     "save_as": "Speichern als",
     "select": "Wählen Sie eine Sammlung",
     "select_location": "Ort auswählen",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Ordner erstellt",
     "edit": "Ordner bearbeiten",
+    "invalid_name": "Bitte geben Sie einen Namen für den Ordner an",
     "new": "Neuer Ordner",
     "renamed": "Ordner umbenannt"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript-Code",
+    "learn": "Dokumentation lesen",
     "script": "Skript zur Vorabanfrage",
     "snippets": "Ausschnitte"
   },
@@ -250,6 +256,7 @@
     "star": "Stern entfernen"
   },
   "request": {
+    "added": "Anfrage hinzugefügt",
     "authorization": "Genehmigung",
     "body": "Anfragekörper",
     "choose_language": "Sprache wählen",
@@ -260,6 +267,7 @@
     "generate_code": "Code generieren",
     "generated_code": "Generierter Code",
     "header_list": "Header-Liste",
+    "invalid_name": "Bitte geben Sie einen Namen für die Anfrage an",
     "method": "Methode",
     "name": "Anfragename",
     "parameter_list": "Abfrageparameter",
@@ -267,9 +275,11 @@
     "payload": "Nutzlast",
     "query": "Anfrage",
     "raw_body": "Roher Anfragetext",
+    "renamed": "Anfrage umbenannt",
     "run": "Laufen",
     "save": "Speichern",
     "save_as": "Speichern als",
+    "saved": "Anfrage gespeichert",
     "share": "Aktie",
     "title": "Anfrage",
     "type": "Anfragetyp",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Verwenden Sie die Proxy-Middleware, um Anfragen zu senden",
     "read_the": "Lies das",
     "reset_default": "Zurücksetzen",
-    "shortcuts_indicator": "Verknüpfungsanzeige",
     "sync": "Synchronisieren",
     "sync_collections": "Kollektionen",
     "sync_description": "Diese Einstellungen werden mit der Cloud synchronisiert.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript-Code",
+    "learn": "Dokumentation lesen",
     "report": "Testbericht",
     "results": "Testergebnisse",
     "script": "Skript",

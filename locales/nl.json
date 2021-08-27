@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Nieuwe versie gevonden. Vernieuwen om te updaten.",
     "proxy_privacy_policy": "Proxy-privacybeleid",
+    "reload": "Herladen",
     "search": "Zoeken",
     "share": "Deel",
     "shortcuts": "Sneltoetsen",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Controleer uw inbox - we hebben een e-mail gestuurd naar {email}. Het bevat een magische link waarmee u kunt inloggen."
   },
   "authorization": {
+    "generate_token": "Token genereren",
     "include_in_url": "Opnemen in URL",
+    "learn": "Leren hoe",
     "password": "Wachtwoord",
     "token": "token",
     "type": "Autorisatietype:",
@@ -97,6 +100,7 @@
     "my_collections": "Mijn collecties",
     "name": "Mijn nieuwe collectie",
     "new": "Nieuwe collectie",
+    "renamed": "Collectie hernoemd",
     "save_as": "Opslaan als",
     "select": "Selecteer een collectie",
     "select_location": "Selecteer een locatie",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Map aangemaakt",
     "edit": "Map bewerken",
+    "invalid_name": "Geef een naam op voor de map",
     "new": "Nieuwe map",
     "renamed": "Map hernoemd"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript-code",
+    "learn": "Documentatie lezen",
     "script": "Script vooraf aanvragen",
     "snippets": "Fragmenten"
   },
@@ -250,6 +256,7 @@
     "star": "Ster verwijderen"
   },
   "request": {
+    "added": "Verzoek toegevoegd",
     "authorization": "autorisatie",
     "body": "Verzoektekst",
     "choose_language": "Kies een taal",
@@ -260,6 +267,7 @@
     "generate_code": "Genereer code",
     "generated_code": "Gegenereerde code",
     "header_list": "Koplijst",
+    "invalid_name": "Geef een naam op voor het verzoek",
     "method": "Methode",
     "name": "Naam aanvragen",
     "parameter_list": "Queryparameters",
@@ -267,9 +275,11 @@
     "payload": "Laadvermogen",
     "query": "Vraag",
     "raw_body": "Ruwe verzoektekst",
+    "renamed": "Verzoek hernoemd",
     "run": "Loop",
     "save": "Sparen",
     "save_as": "Opslaan als",
+    "saved": "Verzoek opgeslagen",
     "share": "Deel",
     "title": "Verzoek",
     "type": "Aanvraag type",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Gebruik de proxy-middleware om verzoeken te verzenden",
     "read_the": "Lees de",
     "reset_default": "Reset naar standaard",
-    "shortcuts_indicator": "Indicator voor snelkoppelingen",
     "sync": "Synchroniseren",
     "sync_collections": "Collecties",
     "sync_description": "Deze instellingen worden gesynchroniseerd met de cloud.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript-code",
+    "learn": "Documentatie lezen",
     "report": "Test rapport",
     "results": "Test resultaten",
     "script": "Script",

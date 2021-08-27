@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Nuova versione trovata. Aggiorna per aggiornare.",
     "proxy_privacy_policy": "Informativa sulla privacy del proxy",
+    "reload": "Ricaricare",
     "search": "Ricerca",
     "share": "Condividere",
     "shortcuts": "Scorciatoie",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Controlla la tua casella di posta: abbiamo inviato un'email a {email}. Contiene un collegamento magico che ti consentirà di accedere."
   },
   "authorization": {
+    "generate_token": "Genera token",
     "include_in_url": "Includi nell'URL",
+    "learn": "Impara come",
     "password": "Parola d'ordine",
     "token": "Gettone",
     "type": "Tipo di autorizzazione",
@@ -97,6 +100,7 @@
     "my_collections": "Le mie collezioni",
     "name": "La mia nuova collezione",
     "new": "Nuova collezione",
+    "renamed": "Collezione rinominata",
     "save_as": "Salva come",
     "select": "Seleziona una collezione",
     "select_location": "Seleziona la posizione",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Cartella creata",
     "edit": "Modifica cartella",
+    "invalid_name": "Si prega di fornire un nome per la cartella",
     "new": "Nuova cartella",
     "renamed": "Cartella rinominata"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Codice JavaScript",
+    "learn": "Leggi la documentazione",
     "script": "Script di pre-richiesta",
     "snippets": "frammenti"
   },
@@ -250,6 +256,7 @@
     "star": "Rimuovi stella"
   },
   "request": {
+    "added": "Richiesta aggiunta",
     "authorization": "Autorizzazione",
     "body": "Richiedi corpo",
     "choose_language": "Scegli la lingua",
@@ -260,6 +267,7 @@
     "generate_code": "Genera codice",
     "generated_code": "Codice generato",
     "header_list": "Elenco intestazioni",
+    "invalid_name": "Si prega di fornire un nome per la richiesta",
     "method": "Metodo",
     "name": "Nome richiesta",
     "parameter_list": "Parametri di query",
@@ -267,9 +275,11 @@
     "payload": "Carico utile",
     "query": "domanda",
     "raw_body": "Corpo della richiesta grezza",
+    "renamed": "Richiesta rinominata",
     "run": "Correre",
     "save": "Salva",
     "save_as": "Salva come",
+    "saved": "Richiesta salvata",
     "share": "Condividere",
     "title": "Richiesta",
     "type": "Tipo di richiesta",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Usa il middleware proxy per inviare richieste",
     "read_the": "Leggi il",
     "reset_default": "Riportare alle condizioni originali",
-    "shortcuts_indicator": "Indicatore di scorciatoie",
     "sync": "Sincronizzare",
     "sync_collections": "Collezioni",
     "sync_description": "Queste impostazioni sono sincronizzate con il cloud.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Codice JavaScript",
+    "learn": "Leggi la documentazione",
     "report": "Rapporto di prova",
     "results": "Risultati del test",
     "script": "sceneggiatura",

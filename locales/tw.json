@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "New version found. Refresh to update.",
     "proxy_privacy_policy": "代理隱私政策",
+    "reload": "重新加載",
     "search": "Search",
     "share": "Share",
     "shortcuts": "快捷方式",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Check your inbox - we sent an email to {email}. It contains a magic link that will log you in."
   },
   "authorization": {
+    "generate_token": "生成令牌",
     "include_in_url": "包含在網址中",
+    "learn": "學習怎樣",
     "password": "密碼",
     "token": "令牌",
     "type": "授權類型",
@@ -97,6 +100,7 @@
     "my_collections": "我的收藏",
     "name": "My New Collection",
     "new": "New Collection",
+    "renamed": "收藏更名",
     "save_as": "Save as",
     "select": "Select a Collection",
     "select_location": "Select location",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Folder created",
     "edit": "Edit Folder",
+    "invalid_name": "請提供文件夾的名稱",
     "new": "New Folder",
     "renamed": "Folder renamed"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript 代碼",
+    "learn": "閱讀文檔",
     "script": "Pre-Request Script",
     "snippets": "Snippets"
   },
@@ -250,6 +256,7 @@
     "star": "Remove star"
   },
   "request": {
+    "added": "添加了請求",
     "authorization": "授權",
     "body": "請求正文",
     "choose_language": "Choose language",
@@ -260,6 +267,7 @@
     "generate_code": "Generate code",
     "generated_code": "Generated code",
     "header_list": "標題列表",
+    "invalid_name": "請提供請求的名稱",
     "method": "方法",
     "name": "Request name",
     "parameter_list": "查詢參數",
@@ -267,9 +275,11 @@
     "payload": "有效載荷",
     "query": "詢問",
     "raw_body": "原始請求正文",
+    "renamed": "請求重命名",
     "run": "跑步",
     "save": "Save",
     "save_as": "Save as",
+    "saved": "請求已保存",
     "share": "Share",
     "title": "要求",
     "type": "請求類型",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "使用代理中間件發送請求",
     "read_the": "閱讀",
     "reset_default": "重置為默認",
-    "shortcuts_indicator": "Shortcuts indicator",
     "sync": "同步",
     "sync_collections": "收藏",
     "sync_description": "這些設置會同步到雲。",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript 代碼",
+    "learn": "閱讀文檔",
     "report": "Test Report",
     "results": "Test Results",
     "script": "Script",

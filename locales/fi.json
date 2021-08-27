@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Uusi versio löytyi. Päivitä päivittääksesi.",
     "proxy_privacy_policy": "Välityspalvelimen tietosuojakäytäntö",
+    "reload": "Lataa uudelleen",
     "search": "Hae",
     "share": "Jaa",
     "shortcuts": "Pikanäppäimet",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Tarkista postilaatikkosi - lähetimme sähköpostin osoitteeseen {email}. Se sisältää maagisen linkin, joka kirjaa sinut sisään."
   },
   "authorization": {
+    "generate_token": "Luo tunnus",
     "include_in_url": "Sisällytä URL -osoitteeseen",
+    "learn": "Opi kuinka",
     "password": "Salasana",
     "token": "Token",
     "type": "Valtuustyyppi",
@@ -97,6 +100,7 @@
     "my_collections": "Omat kokoelmat",
     "name": "Uusi kokoelmani",
     "new": "Uusi kokoelma",
+    "renamed": "Kokoelma nimetty uudelleen",
     "save_as": "Tallenna nimellä",
     "select": "Valitse kokoelma",
     "select_location": "Valitse sijainti",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Kansio luotu",
     "edit": "Muokkaa kansiota",
+    "invalid_name": "Anna kansion nimi",
     "new": "Uusi kansio",
     "renamed": "Kansio nimettiin uudelleen"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript -koodi",
+    "learn": "Lue dokumentaatio",
     "script": "Pre-Request-skripti",
     "snippets": "Katkelmat"
   },
@@ -250,6 +256,7 @@
     "star": "Poista tähti"
   },
   "request": {
+    "added": "Pyyntö lisätty",
     "authorization": "Valtuutus",
     "body": "Pyynnön runko",
     "choose_language": "Valitse kieli",
@@ -260,6 +267,7 @@
     "generate_code": "Luo koodi",
     "generated_code": "Luotu koodi",
     "header_list": "Otsikkoluettelo",
+    "invalid_name": "Anna pyynnölle nimi",
     "method": "Menetelmä",
     "name": "Pyynnön nimi",
     "parameter_list": "Kyselyparametrit",
@@ -267,9 +275,11 @@
     "payload": "Hyötykuorma",
     "query": "Kysely",
     "raw_body": "Raaka pyynnön runko",
+    "renamed": "Pyyntö nimettiin uudelleen",
     "run": "Juosta",
     "save": "Tallentaa",
     "save_as": "Tallenna nimellä",
+    "saved": "Pyyntö tallennettu",
     "share": "Jaa",
     "title": "Pyyntö",
     "type": "Pyynnön tyyppi",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Käytä välityspalvelimen väliohjelmistoa pyyntöjen lähettämiseen",
     "read_the": "Lue",
     "reset_default": "Palauta oletusarvoon",
-    "shortcuts_indicator": "Pikavalintojen ilmaisin",
     "sync": "Synkronoida",
     "sync_collections": "Kokoelmat",
     "sync_description": "Nämä asetukset synkronoidaan pilveen.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript -koodi",
+    "learn": "Lue dokumentaatio",
     "report": "Testiraportti",
     "results": "Testitulokset",
     "script": "Käsikirjoitus",

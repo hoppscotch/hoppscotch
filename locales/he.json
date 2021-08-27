@@ -52,6 +52,7 @@
     "name": "הופסקוץ '",
     "new_version_found": "נמצאה גרסה חדשה. רענן לעדכון.",
     "proxy_privacy_policy": "מדיניות הפרטיות של פרוקסי",
+    "reload": "לִטעוֹן מִחָדָשׁ",
     "search": "לחפש",
     "share": "לַחֲלוֹק",
     "shortcuts": "קיצורי דרך",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "בדוק את תיבת הדואר הנכנס שלך - שלחנו הודעת דוא\"ל אל {email}. הוא מכיל קישור קסם שיכניס אותך למערכת."
   },
   "authorization": {
+    "generate_token": "צור אסימון",
     "include_in_url": "כלול בכתובת האתר",
+    "learn": "ללמוד איך",
     "password": "סיסמה",
     "token": "אֲסִימוֹן",
     "type": "סוג הרשאה",
@@ -97,6 +100,7 @@
     "my_collections": "האוספים שלי",
     "name": "האוסף החדש שלי",
     "new": "קולקציה חדשה",
+    "renamed": "שם האוסף שונה",
     "save_as": "שמור כ",
     "select": "בחר אוסף",
     "select_location": "תבחר מיקום",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "תיקייה נוצרה",
     "edit": "ערוך תיקייה",
+    "invalid_name": "אנא ספק שם לתיקייה",
     "new": "תיקייה חדשה",
     "renamed": "שם התיקייה שונה"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "קוד JavaScript",
+    "learn": "קרא תיעוד",
     "script": "סקריפט של בקשה מראש",
     "snippets": "קטעים"
   },
@@ -250,6 +256,7 @@
     "star": "הסר כוכב"
   },
   "request": {
+    "added": "הבקשה נוספה",
     "authorization": "הרשאה",
     "body": "גוף הבקשה",
     "choose_language": "בחר שפה",
@@ -260,6 +267,7 @@
     "generate_code": "צור קוד",
     "generated_code": "קוד שנוצר",
     "header_list": "רשימת כותרות",
+    "invalid_name": "אנא ספק שם לבקשה",
     "method": "שיטה",
     "name": "שם הבקשה",
     "parameter_list": "פרמטרי שאילתה",
@@ -267,9 +275,11 @@
     "payload": "מטען",
     "query": "שאילתא",
     "raw_body": "גוף בקשה גולמית",
+    "renamed": "שם הבקשה שונה",
     "run": "לָרוּץ",
     "save": "להציל",
     "save_as": "שמור כ",
+    "saved": "הבקשה נשמרה",
     "share": "לַחֲלוֹק",
     "title": "בַּקָשָׁה",
     "type": "סוג בקשה",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "השתמש בתוכנת ה- proxy באמצע כדי לשלוח בקשות",
     "read_the": "קרא את ה",
     "reset_default": "אפס לברירת המחדל",
-    "shortcuts_indicator": "מחוון קיצורי דרך",
     "sync": "לְסַנכְרֵן",
     "sync_collections": "אוספים",
     "sync_description": "הגדרות אלה מסונכרנות עם ענן.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "קוד JavaScript",
+    "learn": "קרא תיעוד",
     "report": "דוח בדיקה",
     "results": "תוצאות מבחן",
     "script": "תַסרִיט",

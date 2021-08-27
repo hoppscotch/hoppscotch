@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Se encontró una nueva versión. Actualizar para actualizar.",
     "proxy_privacy_policy": "Política de privacidad de proxy",
+    "reload": "Recargar",
     "search": "Búsqueda",
     "share": "Cuota",
     "shortcuts": "Atajos",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Revise su bandeja de entrada; le enviamos un correo electrónico a {email}. Contiene un enlace mágico que lo iniciará."
   },
   "authorization": {
+    "generate_token": "Generar token",
     "include_in_url": "Incluir en URL",
+    "learn": "Aprender cómo",
     "password": "Contraseña",
     "token": "Simbólico",
     "type": "Tipo de autorización",
@@ -97,6 +100,7 @@
     "my_collections": "Mis colecciones",
     "name": "Mi nueva colección",
     "new": "Nueva colección",
+    "renamed": "Colección renombrada",
     "save_as": "Guardar como",
     "select": "Seleccione una colección",
     "select_location": "Seleccionar ubicación",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Carpeta creada",
     "edit": "Editar carpeta",
+    "invalid_name": "Proporcione un nombre para la carpeta.",
     "new": "Nueva carpeta",
     "renamed": "Carpeta renombrada"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "Código JavaScript",
+    "learn": "Leer documentación",
     "script": "Script de solicitud previa",
     "snippets": "Fragmentos"
   },
@@ -250,6 +256,7 @@
     "star": "Quitar estrella"
   },
   "request": {
+    "added": "Solicitud agregada",
     "authorization": "Autorización",
     "body": "Cuerpo de solicitud",
     "choose_language": "Elige lengua",
@@ -260,6 +267,7 @@
     "generate_code": "Generar codigo",
     "generated_code": "Código generado",
     "header_list": "Lista de encabezados",
+    "invalid_name": "Proporcione un nombre para la solicitud.",
     "method": "Método",
     "name": "Solicitar nombre",
     "parameter_list": "Parámetros de consulta",
@@ -267,9 +275,11 @@
     "payload": "Carga útil",
     "query": "Consulta",
     "raw_body": "Cuerpo de solicitud sin procesar",
+    "renamed": "Solicitud renombrada",
     "run": "Correr",
     "save": "Salvar",
     "save_as": "Guardar como",
+    "saved": "Solicitud guardada",
     "share": "Cuota",
     "title": "Solicitud",
     "type": "Tipo de solicitud",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Utilice el middleware de proxy para enviar solicitudes",
     "read_the": "Leer el",
     "reset_default": "Restablecen a los predeterminados",
-    "shortcuts_indicator": "Indicador de accesos directos",
     "sync": "Sincronizar",
     "sync_collections": "Colecciones",
     "sync_description": "Esta configuración se sincroniza con la nube.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "Código JavaScript",
+    "learn": "Leer documentación",
     "report": "Informe de prueba",
     "results": "Resultados de la prueba",
     "script": "Texto",

@@ -52,6 +52,7 @@
     "name": "石けり遊び",
     "new_version_found": "新しいバージョンが見つかりました。更新して更新します。",
     "proxy_privacy_policy": "プロキシプライバシーポリシー",
+    "reload": "リロード",
     "search": "探す",
     "share": "共有",
     "shortcuts": "ショートカット",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "受信トレイを確認してください-{email}にメールを送信しました。ログインするための魔法のリンクが含まれています。"
   },
   "authorization": {
+    "generate_token": "トークンを生成する",
     "include_in_url": "URLに含める",
+    "learn": "方法を学びます",
     "password": "パスワード",
     "token": "トークン",
     "type": "承認タイプ",
@@ -97,6 +100,7 @@
     "my_collections": "マイコレクション",
     "name": "私の新しいコレクション",
     "new": "新しいコレクション",
+    "renamed": "コレクションの名前が変更されました",
     "save_as": "名前を付けて保存",
     "select": "コレクションを選択する",
     "select_location": "場所を選択",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "作成されたフォルダ",
     "edit": "フォルダの編集",
+    "invalid_name": "フォルダの名前を入力してください",
     "new": "新しいフォルダ",
     "renamed": "フォルダの名前が変更されました"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScriptコード",
+    "learn": "ドキュメントを読む",
     "script": "事前リクエストスクリプト",
     "snippets": "切れ端"
   },
@@ -250,6 +256,7 @@
     "star": "星を削除します"
   },
   "request": {
+    "added": "リクエストが追加されました",
     "authorization": "承認",
     "body": "リクエストボディ",
     "choose_language": "言語を選択",
@@ -260,6 +267,7 @@
     "generate_code": "コードを生成する",
     "generated_code": "生成されたコード",
     "header_list": "ヘッダーリスト",
+    "invalid_name": "リクエストの名前を入力してください",
     "method": "方法",
     "name": "リクエスト名",
     "parameter_list": "クエリパラメータ",
@@ -267,9 +275,11 @@
     "payload": "ペイロード",
     "query": "クエリ",
     "raw_body": "生のリクエストボディ",
+    "renamed": "名前が変更されたリクエスト",
     "run": "走る",
     "save": "保存する",
     "save_as": "名前を付けて保存",
+    "saved": "保存されたリクエスト",
     "share": "共有",
     "title": "リクエスト",
     "type": "リクエストの種類",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "プロキシミドルウェアを使用してリクエストを送信する",
     "read_the": "読む",
     "reset_default": "デフォルトにリセット",
-    "shortcuts_indicator": "ショートカットインジケーター",
     "sync": "同期する",
     "sync_collections": "コレクション",
     "sync_description": "これらの設定はクラウドに同期されます。",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScriptコード",
+    "learn": "ドキュメントを読む",
     "report": "試験報告書",
     "results": "試験結果",
     "script": "脚本",

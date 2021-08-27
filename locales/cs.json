@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Nalezena nová verze. Aktualizujte aktualizací.",
     "proxy_privacy_policy": "Zásady ochrany osobních údajů proxy",
+    "reload": "Znovu načíst",
     "search": "Vyhledávání",
     "share": "Podíl",
     "shortcuts": "Klávesové zkratky",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Zkontrolujte svou doručenou poštu - odeslali jsme e -mail na adresu {email}. Obsahuje kouzelný odkaz, který vás přihlásí."
   },
   "authorization": {
+    "generate_token": "Generovat token",
     "include_in_url": "Zahrnout do adresy URL",
+    "learn": "Zjistěte jak",
     "password": "Heslo",
     "token": "Žeton",
     "type": "Typ autorizace",
@@ -97,6 +100,7 @@
     "my_collections": "Moje sbírky",
     "name": "Moje nová kolekce",
     "new": "Nová kolekce",
+    "renamed": "Sbírka přejmenována",
     "save_as": "Uložit jako",
     "select": "Vyberte sbírku",
     "select_location": "Vyberte umístění",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Složka vytvořena",
     "edit": "Upravit složku",
+    "invalid_name": "Zadejte název složky",
     "new": "Nová složka",
     "renamed": "Složka přejmenována"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScriptový kód",
+    "learn": "Přečtěte si dokumentaci",
     "script": "Předběžný skript",
     "snippets": "Úryvky"
   },
@@ -250,6 +256,7 @@
     "star": "Odstraňte hvězdu"
   },
   "request": {
+    "added": "Žádost přidána",
     "authorization": "Povolení",
     "body": "Žádost",
     "choose_language": "Vyber jazyk",
@@ -260,6 +267,7 @@
     "generate_code": "Vygenerujte kód",
     "generated_code": "Generovaný kód",
     "header_list": "Seznam záhlaví",
+    "invalid_name": "Uveďte prosím název žádosti",
     "method": "Metoda",
     "name": "Vyžádejte si jméno",
     "parameter_list": "Parametry dotazu",
@@ -267,9 +275,11 @@
     "payload": "Užitečné zatížení",
     "query": "Dotaz",
     "raw_body": "Raw Request Body",
+    "renamed": "Žádost přejmenována",
     "run": "Běh",
     "save": "Uložit",
     "save_as": "Uložit jako",
+    "saved": "Žádost uložena",
     "share": "Podíl",
     "title": "Žádost",
     "type": "Typ požadavku",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "K odesílání žádostí použijte middleware proxy",
     "read_the": "Číst",
     "reset_default": "Obnovit do základního nastavení",
-    "shortcuts_indicator": "Indikátor zkratek",
     "sync": "Synchronizovat",
     "sync_collections": "Sbírky",
     "sync_description": "Tato nastavení jsou synchronizována s cloudem.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScriptový kód",
+    "learn": "Přečtěte si dokumentaci",
     "report": "Protokol o zkoušce",
     "results": "Výsledky testů",
     "script": "Skript",

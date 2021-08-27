@@ -52,6 +52,7 @@
     "name": "Hoppscotch",
     "new_version_found": "Ny versjon funnet. Oppdater for å oppdatere.",
     "proxy_privacy_policy": "Personvernerklæring for proxy",
+    "reload": "Last på nytt",
     "search": "Søk",
     "share": "Dele",
     "shortcuts": "Snarveier",
@@ -84,7 +85,9 @@
     "we_sent_magic_link_description": "Sjekk innboksen din - vi sendte en e -post til {email}. Den inneholder en magisk lenke som logger deg på."
   },
   "authorization": {
+    "generate_token": "Generer token",
     "include_in_url": "Inkluder i URL",
+    "learn": "Lær hvordan",
     "password": "Passord",
     "token": "Token",
     "type": "Godkjenningstype",
@@ -97,6 +100,7 @@
     "my_collections": "Mine samlinger",
     "name": "Min nye samling",
     "new": "Ny kolleksjon",
+    "renamed": "Samlingen ble omdøpt",
     "save_as": "Lagre som",
     "select": "Velg en samling",
     "select_location": "Velg plassering",
@@ -174,6 +178,7 @@
   "folder": {
     "created": "Mappen er opprettet",
     "edit": "Rediger mappe",
+    "invalid_name": "Oppgi et navn på mappen",
     "new": "Ny mappe",
     "renamed": "Mappen ble gitt nytt navn"
   },
@@ -243,6 +248,7 @@
   },
   "preRequest": {
     "javascript_code": "JavaScript -kode",
+    "learn": "Les dokumentasjon",
     "script": "Skript for forespørsel",
     "snippets": "Utdrag"
   },
@@ -250,6 +256,7 @@
     "star": "Fjern stjernen"
   },
   "request": {
+    "added": "Forespørsel lagt til",
     "authorization": "Autorisasjon",
     "body": "Forespørselsorgan",
     "choose_language": "Velg språk",
@@ -260,6 +267,7 @@
     "generate_code": "Generer kode",
     "generated_code": "Generert kode",
     "header_list": "Toppliste",
+    "invalid_name": "Oppgi et navn på forespørselen",
     "method": "Metode",
     "name": "Forespørselsnavn",
     "parameter_list": "Spørringsparametere",
@@ -267,9 +275,11 @@
     "payload": "Nyttelast",
     "query": "Spørsmål",
     "raw_body": "Raw Request Body",
+    "renamed": "Forespørsel omdøpt",
     "run": "Løpe",
     "save": "Lagre",
     "save_as": "Lagre som",
+    "saved": "Forespørselen er lagret",
     "share": "Dele",
     "title": "Be om",
     "type": "Type forespørsel",
@@ -323,7 +333,6 @@
     "proxy_use_toggle": "Bruk proxy -mellomvaren til å sende forespørsler",
     "read_the": "Les",
     "reset_default": "Tilbakestill til standard",
-    "shortcuts_indicator": "Snarveiindikator",
     "sync": "Synkroniser",
     "sync_collections": "Samlinger",
     "sync_description": "Disse innstillingene er synkronisert med skyen.",
@@ -469,6 +478,7 @@
   },
   "test": {
     "javascript_code": "JavaScript -kode",
+    "learn": "Les dokumentasjon",
     "report": "Testrapport",
     "results": "Testresultater",
     "script": "Manus",

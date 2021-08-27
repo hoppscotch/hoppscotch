@@ -115,14 +115,14 @@
           <SmartEnvInput
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="basicUsername"
-            class="bg-primary flex flex-1 py-1 px-4"
+            class="bg-transparent flex flex-1 py-1 px-4"
             :placeholder="$t('authorization.username')"
           />
           <input
             v-else
             id="http_basic_user"
             v-model="basicUsername"
-            class="bg-primary flex flex-1 py-2 px-4"
+            class="bg-transparent flex flex-1 py-2 px-4"
             :placeholder="$t('authorization.username')"
             name="http_basic_user"
           />
@@ -133,14 +133,14 @@
           <SmartEnvInput
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="basicPassword"
-            class="bg-primary flex flex-1 py-1 px-4"
+            class="bg-transparent flex flex-1 py-1 px-4"
             :placeholder="$t('authorization.password')"
           />
           <input
             v-else
             id="http_basic_passwd"
             v-model="basicPassword"
-            class="bg-primary flex flex-1 py-2 px-4"
+            class="bg-transparent flex flex-1 py-2 px-4"
             :placeholder="$t('authorization.password')"
             name="http_basic_passwd"
             :type="passwordFieldType"
@@ -157,6 +157,7 @@
       </div>
       <div
         class="
+          bg-primary
           h-full
           top-upperTertiaryStickyFold
           min-w-46
@@ -188,14 +189,14 @@
           <SmartEnvInput
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="bearerToken"
-            class="bg-primary flex flex-1 py-1 px-4"
+            class="bg-transparent flex flex-1 py-1 px-4"
             placeholder="Token"
           />
           <input
             v-else
             id="bearer_token"
             v-model="bearerToken"
-            class="bg-primary flex flex-1 py-2 px-4"
+            class="bg-transparent flex flex-1 py-2 px-4"
             placeholder="Token"
             name="bearer_token"
           />
@@ -203,6 +204,7 @@
       </div>
       <div
         class="
+          bg-primary
           h-full
           top-upperTertiaryStickyFold
           min-w-46
@@ -237,14 +239,14 @@
           <SmartEnvInput
             v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="oauth2Token"
-            class="bg-primary flex flex-1 py-1 px-4"
+            class="bg-transparent flex flex-1 py-1 px-4"
             placeholder="Token"
           />
           <input
             v-else
             id="oauth2_token"
             v-model="oauth2Token"
-            class="bg-primary flex flex-1 py-2 px-4"
+            class="bg-transparent flex flex-1 py-2 px-4"
             placeholder="Token"
             name="oauth2_token"
           />
@@ -253,6 +255,7 @@
       </div>
       <div
         class="
+          bg-primary
           h-full
           top-upperTertiaryStickyFold
           min-w-46

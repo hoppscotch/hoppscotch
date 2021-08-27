@@ -18,7 +18,7 @@
   @apply rounded;
   @apply pl-2;
   @apply pr-0.5;
-  @apply bg-primary;
+  @apply bg-transparent;
   @apply border border-divider;
 }
 

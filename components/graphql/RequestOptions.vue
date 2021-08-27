@@ -159,7 +159,7 @@
               :value="header.key"
               autofocus
               styles="
-                bg-primary
+                bg-transparent
                 flex
                 flex-1
                 py-1
@@ -176,7 +176,7 @@
               "
             />
             <input
-              class="bg-primary flex flex-1 py-2 px-4"
+              class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="$t('count.value', { count: index + 1 })"
               :name="`value ${index}`"
               :value="header.value"
@@ -329,7 +329,6 @@ export default defineComponent({
     watch(
       headers,
       () => {
-        console.log("changed")
         if (
           (headers.value[headers.value.length - 1]?.key !== "" ||
             headers.value[headers.value.length - 1]?.value !== "") &&

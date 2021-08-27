@@ -16,7 +16,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('environment.select')"
             class="
-              bg-primary
+              bg-transparent
               border-b border-dividerLight
               flex-1
               select-wrapper

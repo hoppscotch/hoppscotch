@@ -8,7 +8,6 @@ export const lenses = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
 
 export function getSuitableLenses(response) {
   const contentType = response.headers.find((h) => h.key === "content-type")
-  console.log(contentType)
 
   if (!contentType) return [rawLens]
 

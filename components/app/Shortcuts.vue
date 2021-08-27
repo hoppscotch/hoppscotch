@@ -3,6 +3,7 @@
     <template #content>
       <div
         class="
+          bg-primary
           border-b border-dividerLight
           flex
           p-2
@@ -22,7 +23,7 @@
           />
         </div>
       </div>
-      <div class="border-b border-dividerLight">
+      <div class="bg-primary border-b border-dividerLight">
         <div class="flex flex-col my-4 mx-6 search-wrapper">
           <input
             v-model="filterText"

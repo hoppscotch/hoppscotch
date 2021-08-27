@@ -4,7 +4,7 @@
       <input
         id="oidcDiscoveryURL"
         v-model="oidcDiscoveryURL"
-        class="bg-primary flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="OpenID Connect Discovery URL"
         name="oidcDiscoveryURL"
       />
@@ -13,7 +13,7 @@
       <input
         id="authURL"
         v-model="authURL"
-        class="bg-primary flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Authentication URL"
         name="authURL"
       />
@@ -22,7 +22,7 @@
       <input
         id="accessTokenURL"
         v-model="accessTokenURL"
-        class="bg-primary flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Access Token URL"
         name="accessTokenURL"
       />
@@ -31,7 +31,7 @@
       <input
         id="clientID"
         v-model="clientID"
-        class="bg-primary flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Client ID"
         name="clientID"
       />
@@ -40,7 +40,7 @@
       <input
         id="scope"
         v-model="scope"
-        class="bg-primary flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Scope"
         name="scope"
       />

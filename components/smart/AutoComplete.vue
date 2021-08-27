@@ -198,7 +198,7 @@ export default defineComponent({
 
   ul.suggestions {
     @apply hidden;
-    @apply bg-primary;
+    @apply bg-popover;
     @apply absolute;
     @apply mx-2;
     @apply left-0;

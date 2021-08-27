@@ -5,7 +5,7 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
-        top-upperSecondaryStickyFold
+        top-upperTertiaryStickyFold
         pl-4
         z-10
         sticky

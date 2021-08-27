@@ -19,7 +19,8 @@
                     py-2
                     px-4
                     hover:border-dividerDark
-                    focus-visible:bg-primary focus-visible:border-dividerDark
+                    focus-visible:bg-transparent
+                    focus-visible:border-dividerDark
                   "
                   type="url"
                   spellcheck="false"
@@ -84,7 +85,7 @@
             >
               <input
                 v-model="protocol.value"
-                class="bg-primary flex flex-1 py-2 px-4"
+                class="bg-transparent flex flex-1 py-2 px-4"
                 :placeholder="$t('count.protocol', { count: index + 1 })"
                 name="message"
                 type="text"

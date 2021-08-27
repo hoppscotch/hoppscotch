@@ -158,12 +158,10 @@ export function useKeybindingDisabler() {
   // TODO: Move to a lock based system that keeps the bindings disabled until all locks are lifted
   const disableKeybindings = () => {
     keybindingsEnabled = false
-    console.log("Keybinds disabled by a component")
   }
 
   const enableKeybindings = () => {
     keybindingsEnabled = true
-    console.log("Keybinds enabled by a component")
   }
 
   return {

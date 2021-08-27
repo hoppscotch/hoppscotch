@@ -83,7 +83,6 @@
 import {
   computed,
   defineComponent,
-  getCurrentInstance,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -112,7 +111,6 @@ import {
   pluckRef,
   useReadonlyStream,
   useStream,
-  useStreamSubscriber,
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
@@ -210,7 +208,6 @@ function setupRequestSync(
     ) {
       const request = await loadRequestFromSync()
       if (request) {
-        console.log("sync le request nnd")
         // setRESTRequest(request)
         if (!isEqual(request, getRESTRequest())) {
           requestForSync.value = request
@@ -235,22 +232,12 @@ export default defineComponent({
 
     const confirmSync = ref(false)
 
-    const internalInstance = getCurrentInstance()
-    console.log("yoo", internalInstance)
-
     const syncRequest = () => {
-      console.log("syncinggg")
       setRESTRequest(requestForSync.value!)
     }
 
-    const { subscribeToStream } = useStreamSubscriber()
-
     setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
-
-    subscribeToStream(restRequest$, (x) => {
-      console.log(x)
-    })
 
     return {
       newActiveParamsCount$: useReadonlyStream(

@@ -66,11 +66,9 @@ export function unbindAction(action: HoppAction, handler: () => void) {
 export function defineActionHandler(action: HoppAction, handler: () => void) {
   onMounted(() => {
     bindAction(action, handler)
-    console.log(`Action bound: ${action}`)
   })
 
   onBeforeUnmount(() => {
     unbindAction(action, handler)
-    console.log(`Action unbound: ${action}`)
   })
 }

@@ -50,7 +50,7 @@
         :value="header.key"
         autofocus
         styles="
-          bg-primary
+          bg-transparent
           flex
           flex-1
           py-1
@@ -71,7 +71,7 @@
         v-model="header.value"
         :placeholder="$t('count.value', { count: index + 1 })"
         styles="
-          bg-primary
+          bg-transparent
           flex
           flex-1
           py-1
@@ -87,7 +87,7 @@
       />
       <input
         v-else
-        class="bg-primary flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         :placeholder="$t('count.value', { count: index + 1 })"
         :name="'value' + index"
         :value="header.value"
@@ -182,7 +182,6 @@ export default defineComponent({
   watch: {
     headers$: {
       handler(newValue) {
-        console.log("changed")
         if (
           (newValue[newValue.length - 1]?.key !== "" ||
             newValue[newValue.length - 1]?.value !== "") &&
@@ -203,7 +202,6 @@ export default defineComponent({
       addRESTHeader({ key: "", value: "", active: true })
     },
     updateHeader(index: number, item: HoppRESTHeader) {
-      console.log(index, item)
       updateRESTHeader(index, item)
     },
     deleteHeader(index: number) {

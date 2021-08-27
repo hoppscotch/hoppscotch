@@ -21,7 +21,8 @@
                     py-2
                     px-4
                     hover:border-dividerDark
-                    focus-visible:bg-primary focus-visible:border-dividerDark
+                    focus-visible:bg-transparent
+                    focus-visible:border-dividerDark
                   "
                   :placeholder="$t('mqtt.url')"
                 />

@@ -82,7 +82,6 @@ export default defineComponent({
   },
   methods: {
     downloadResponse() {
-      console.log(this.responseType)
       const dataToWrite = this.responseBodyText
       const file = new Blob([dataToWrite], { type: this.responseType })
       const a = document.createElement("a")

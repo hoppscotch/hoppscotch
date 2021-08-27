@@ -76,7 +76,6 @@ export function startRequestSync(): Subscription {
     )
     .subscribe(() => {
       // NOTE: This subscription should be kept
-      console.log("synced request")
     })
 
   return sub

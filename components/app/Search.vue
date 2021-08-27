@@ -9,7 +9,7 @@
         name="command"
         :placeholder="$t('app.type_a_command_search')"
         class="
-          bg-primary
+          bg-transparent
           border-b border-dividerLight
           text-secondaryDark text-base
           leading-normal

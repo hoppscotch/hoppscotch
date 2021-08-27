@@ -14,7 +14,7 @@
         <input
           v-model="filterText"
           type="search"
-          class="bg-primary flex w-full py-2 pr-2 pl-10"
+          class="bg-transparent flex w-full py-2 pr-2 pl-10"
           :placeholder="$t('action.search')"
         />
       </div>

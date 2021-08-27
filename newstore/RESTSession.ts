@@ -27,8 +27,8 @@ export const defaultRESTRequest: HoppRESTRequest = {
   v: RESTReqSchemaVersion,
   endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
-  params: [],
-  headers: [],
+  params: [{ key: "", value: "", active: true }],
+  headers: [{ key: "", value: "", active: true }],
   method: "GET",
   auth: {
     authType: "none",

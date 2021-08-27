@@ -26,7 +26,8 @@
                     px-4
                     w-28
                     hover:border-dividerDark
-                    focus-visible:bg-primary focus-visible:border-dividerDark
+                    focus-visible:bg-transparent
+                    focus-visible:border-dividerDark
                   "
                   :value="newMethod"
                   :readonly="!isCustomMethod"
@@ -50,18 +51,18 @@
           v-model="newEndpoint"
           :placeholder="$t('request.url')"
           styles="
-          bg-primaryLight
-          border border-divider
-          flex
-          flex-1
-          rounded-r
-          text-secondaryDark
-          py-1
-          px-4
-          hover:border-dividerDark
-          focus-visible:border-dividerDark
-                    focus-visible:bg-primary
-        "
+            bg-primaryLight
+            border border-divider
+            flex
+            flex-1
+            rounded-r
+            text-secondaryDark
+            py-1
+            px-4
+            hover:border-dividerDark
+            focus-visible:border-dividerDark
+            focus-visible:bg-transparent
+          "
           @enter="newSendRequest()"
         />
         <input
@@ -79,7 +80,7 @@
             py-2
             px-4
             hover:border-dividerDark
-            focus-visible:bg-primary focus-visible:border-dividerDark
+            focus-visible:bg-transparent focus-visible:border-dividerDark
           "
           name="url"
           type="text"
@@ -295,7 +296,6 @@ const newSendRequest = () => {
   subscribeToStream(
     runRESTRequest$(),
     (responseState) => {
-      console.log(responseState)
       if (loading.value) {
         // Check exists because, loading can be set to false
         // when cancelled

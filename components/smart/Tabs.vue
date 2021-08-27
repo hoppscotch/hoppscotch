@@ -114,7 +114,7 @@ export default defineComponent({
       @apply left-4;
       @apply right-4;
       @apply bottom-0;
-      @apply bg-primary;
+      @apply bg-transparent;
       @apply z-2;
       @apply h-0.5;
 

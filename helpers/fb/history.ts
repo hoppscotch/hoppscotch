@@ -94,8 +94,6 @@ async function toggleStar(entry: any, col: HistoryFBCollections) {
   if (currentUser$.value == null)
     throw new Error("User not logged in to toggle star")
 
-  console.log(entry)
-
   try {
     await firebase
       .firestore()
@@ -207,7 +205,3 @@ export function initHistory() {
     }
   })
 }
-
-restHistoryStore.dispatches$.subscribe((state) => {
-  console.log(state)
-})

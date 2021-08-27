@@ -48,6 +48,7 @@
       </div>
       <div
         class="
+          bg-primary
           h-full
           top-upperTertiaryStickyFold
           min-w-46

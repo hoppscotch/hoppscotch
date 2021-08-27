@@ -197,7 +197,7 @@ hr {
   @apply flex flex-1;
   @apply w-full;
   @apply px-4 py-2;
-  @apply bg-primary;
+  @apply bg-transparent;
   @apply rounded;
   @apply text-secondaryDark;
   @apply border border-divider;
@@ -236,7 +236,7 @@ button {
 
 .floating-input:focus-within ~ label,
 .floating-input:not(:placeholder-shown) ~ label {
-  @apply bg-primary;
+  @apply bg-transparent;
   @apply transform;
   @apply origin-top-left;
   @apply scale-75;

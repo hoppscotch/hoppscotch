@@ -35,7 +35,7 @@
             class="divide-x divide-dividerLight flex"
           >
             <input
-              class="bg-primary flex flex-1 py-2 px-4"
+              class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'param' + index"
               :value="member.user.email"
@@ -52,7 +52,13 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="bg-primary cursor-pointer flex flex-1 py-2 px-4"
+                      class="
+                        bg-transparent
+                        cursor-pointer
+                        flex flex-1
+                        py-2
+                        px-4
+                      "
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="
@@ -96,7 +102,7 @@
           >
             <input
               v-model="member.key"
-              class="bg-primary flex flex-1 py-2 px-4"
+              class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'member' + index"
               autofocus
@@ -112,7 +118,13 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="bg-primary cursor-pointer flex flex-1 py-2 px-4"
+                      class="
+                        bg-transparent
+                        cursor-pointer
+                        flex flex-1
+                        py-2
+                        px-4
+                      "
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="

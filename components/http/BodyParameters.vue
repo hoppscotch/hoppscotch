@@ -5,7 +5,7 @@
         bg-primary
         border-b border-dividerLight
         flex flex-1
-        top-upperSecondaryStickyFold
+        top-upperTertiaryStickyFold
         pl-4
         z-10
         sticky
@@ -48,7 +48,7 @@
         v-model="param.key"
         :placeholder="$t('count.parameter', { count: index + 1 })"
         styles="
-          bg-primaryLight
+          bg-transparent
           flex
           flex-1
           py-1
@@ -65,7 +65,7 @@
       />
       <input
         v-else
-        class="bg-primaryLight flex flex-1 py-2 px-4"
+        class="bg-transparent flex flex-1 py-2 px-4"
         :placeholder="$t('count.parameter', { count: index + 1 })"
         :name="'param' + index"
         :value="param.key"
@@ -96,12 +96,12 @@
           v-model="param.value"
           :placeholder="$t('count.value', { count: index + 1 })"
           styles="
-          bg-primaryLight
-          flex
-          flex-1
-          py-1
-          px-4
-        "
+            bg-transparent
+            flex
+            flex-1
+            py-1
+            px-4
+          "
           @change="
             updateBodyParam(index, {
               key: param.key,
@@ -113,7 +113,7 @@
         />
         <input
           v-else
-          class="bg-primaryLight flex flex-1 py-2 px-4"
+          class="bg-transparent flex flex-1 py-2 px-4"
           :placeholder="$t('count.value', { count: index + 1 })"
           :name="'value' + index"
           :value="param.value"
@@ -256,8 +256,6 @@ export default defineComponent({
       entry: FormDataKeyValue,
       event: InputEvent
     ) => {
-      console.log(index, event)
-
       const fileEntry: FormDataKeyValue = {
         ...entry,
         isFile: true,
@@ -304,7 +302,7 @@ export default defineComponent({
   @apply flex flex-1;
   @apply whitespace-nowrap;
   @apply overflow-auto;
-  @apply bg-primaryLight;
+  @apply bg-transparent;
 
   .file-chips-wrapper {
     @apply flex;

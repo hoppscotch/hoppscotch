@@ -60,7 +60,7 @@ export default defineComponent({
 <style scoped lang="scss">
 .realtime-log {
   @apply p-4;
-  @apply bg-primary;
+  @apply bg-transparent;
   @apply text-secondary;
   @apply overflow-auto;
 

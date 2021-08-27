@@ -1,11 +1,6 @@
 <template>
   <AppSection :label="$t('test.results')">
-    <div
-      v-if="
-        testResults &&
-        (testResults.expectResults.length || testResults.tests.length)
-      "
-    >
+    <div v-if="testResults && (testResults.expectResults || testResults.tests)">
       <div
         class="
           bg-primary
@@ -48,25 +43,12 @@
       </div>
       <div class="divide-y divide-dividerLight">
         <div v-if="testResults.tests">
-          <HttpTestResult
+          <HttpTestResultEntry
             v-for="(result, index) in testResults.tests"
             :key="`result-${index}`"
-            :results="result"
+            :test-results="result"
           />
         </div>
-        <span
-          v-if="testResults.description"
-          class="
-            border-b border-dividerLight
-            flex
-            text-secondaryDark
-            py-2
-            px-4
-            items-center
-          "
-        >
-          {{ testResults.description }}
-        </span>
         <div
           v-if="testResults.expectResults"
           class="divide-y divide-dividerLight"

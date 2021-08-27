@@ -1,6 +1,7 @@
-export type HoppTestExpectResult =
-  | { status: "pass" }
-  | { status: "fail" | "error"; message: string }
+export type HoppTestExpectResult = {
+  status: "fail" | "pass" | "error"
+  message: string
+}
 
 export type HoppTestData = {
   description: string

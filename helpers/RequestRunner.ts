@@ -45,6 +45,7 @@ export function runRESTRequest$(): Observable<HoppRESTResponse> {
             }
           | {
               result: "PASS"
+              message: string
               styles: { icon: "check"; class: "success-response" }
             }
           | { startBlock: string; styles: { icon: ""; class: "" } }
@@ -98,7 +99,11 @@ function translateToNewTestResults(testReport: {
         message: string
         styles: { icon: "close"; class: "cl-error-response" }
       }
-    | { result: "PASS"; styles: { icon: "check"; class: "success-response" } }
+    | {
+        result: "PASS"
+        message: string
+        styles: { icon: "check"; class: "success-response" }
+      }
     | { startBlock: string; styles: { icon: ""; class: "" } }
     | { endBlock: true; styles: { icon: ""; class: "" } }
   >
@@ -129,6 +134,7 @@ function translateToNewTestResults(testReport: {
       // A normal PASS expectation
       testsStack[testsStack.length - 1].expectResults.push({
         status: "pass",
+        message: result.message,
       })
     } else if (isTestFail(result)) {
       // A normal FAIL expectation

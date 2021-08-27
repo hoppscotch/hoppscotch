@@ -32,7 +32,11 @@
             arrow
           >
             <template #trigger>
-              <ButtonSecondary icon="help_center" :label="$t('app.help')" />
+              <ButtonSecondary
+                icon="help_center"
+                class="rounded-none"
+                :label="$t('app.help')"
+              />
             </template>
             <div class="flex flex-col">
               <SmartItem

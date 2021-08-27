@@ -120,36 +120,26 @@
   </AppSection>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed } from "@nuxtjs/composition-api"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 
-export default defineComponent({
-  setup() {
-    return {
-      testResults: useReadonlyStream(restTestResults$, null),
-    }
-  },
-  computed: {
-    totalTests(): number | undefined {
-      return this.testResults?.expectResults.length
-    },
-    failedTests(): number | undefined {
-      return this.testResults?.expectResults.filter(
-        (result: { status: string }) => result.status === "fail"
-      ).length
-    },
-    passedTests(): number | undefined {
-      return this.testResults?.expectResults.filter(
-        (result: { status: string }) => result.status === "pass"
-      ).length
-    },
-  },
-  methods: {
-    clearContent() {
-      setRESTTestResults(null)
-    },
-  },
-})
+const testResults = useReadonlyStream(restTestResults$, null)
+
+const totalTests = computed(() => testResults.value?.expectResults.length)
+const failedTests = computed(
+  () =>
+    testResults.value?.expectResults.filter(
+      (result: { status: string }) => result.status === "fail"
+    ).length
+)
+const passedTests = computed(
+  () =>
+    testResults.value?.expectResults.filter(
+      (result: { status: string }) => result.status === "pass"
+    ).length
+)
+
+const clearContent = () => setRESTTestResults(null)
 </script>

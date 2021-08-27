@@ -72,7 +72,7 @@
         </h4>
         <div class="flex flex-col pt-4">
           <TabSecondary
-            v-for="(snippet, index) in snippets"
+            v-for="(snippet, index) in testSnippets"
             :key="`snippet-${index}`"
             :label="snippet.name"
             active
@@ -84,29 +84,17 @@
   </AppSection>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import { useTestScript } from "~/newstore/RESTSession"
 import testSnippets from "~/helpers/testSnippets"
 
-export default defineComponent({
-  setup() {
-    const testScript = useTestScript()
+const testScript = useTestScript()
 
-    const useSnippet = (script: string) => {
-      testScript.value += script
-    }
+const useSnippet = (script: string) => {
+  testScript.value += script
+}
 
-    const clearContent = () => {
-      testScript.value = ""
-    }
-
-    return {
-      testScript,
-      snippets: testSnippets,
-      useSnippet,
-      clearContent,
-    }
-  },
-})
+const clearContent = () => {
+  testScript.value = ""
+}
 </script>

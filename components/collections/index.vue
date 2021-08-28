@@ -16,12 +16,12 @@
       "
       :class="{ '!top-sidebarPrimaryStickyFold': !saveRequest && !doc }"
     >
-      <div v-if="!saveRequest" class="search-wrapper">
+      <div v-if="!saveRequest" class="search-wrappe">
         <input
           v-model="filterText"
           type="search"
           :placeholder="$t('action.search')"
-          class="bg-transparent flex w-full py-2 pr-2 pl-10"
+          class="bg-transparent flex w-full py-2 pr-2 pl-4"
         />
       </div>
       <CollectionsChooseType

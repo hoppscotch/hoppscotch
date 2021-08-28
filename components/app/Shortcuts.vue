@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="bg-primary border-b border-dividerLight">
-        <div class="flex flex-col my-4 mx-6 search-wrapper">
+        <div class="flex flex-col my-4 mx-6">
           <input
             v-model="filterText"
             type="search"
@@ -31,8 +31,7 @@
               flex
               w-full
               py-2
-              pr-2
-              pl-8
+              px-4
               focus-visible:border-divider
             "
             :placeholder="$t('action.search')"

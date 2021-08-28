@@ -282,25 +282,6 @@ pre.ace_editor {
   }
 }
 
-.search-wrapper {
-  @apply flex flex-1;
-  @apply relative;
-
-  &::after {
-    @apply absolute;
-    @apply flex;
-    @apply inset-y-0;
-    @apply items-center;
-    @apply justify-center;
-    @apply pointer-events-none;
-    @apply font-icon;
-    @apply text-secondaryLight;
-    @apply left-4;
-
-    content: "\e8b6";
-  }
-}
-
 input[type="checkbox"] {
   @apply hidden;
 

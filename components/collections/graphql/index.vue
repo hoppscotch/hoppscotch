@@ -14,14 +14,13 @@
       "
       :class="{ 'bg-primary': !savingMode }"
     >
-      <div v-if="showCollActions" class="search-wrapper">
-        <input
-          v-model="filterText"
-          type="search"
-          :placeholder="$t('action.search')"
-          class="bg-transparent flex w-full py-2 pr-2 pl-10"
-        />
-      </div>
+      <input
+        v-if="showCollActions"
+        v-model="filterText"
+        type="search"
+        :placeholder="$t('action.search')"
+        class="bg-transparent flex w-full py-2 px-4"
+      />
       <div class="flex flex-1 justify-between">
         <ButtonSecondary
           svg="plus"

@@ -19,7 +19,7 @@
               autofocus
               class="
                 bg-transparent
-                border-b border-transparent
+                border-t border-dividerLight
                 cursor-pointer
                 flex
                 font-medium

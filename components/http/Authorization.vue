@@ -100,7 +100,7 @@
       </span>
       <ButtonSecondary
         outline
-        :label="$t('action.learn_more')"
+        :label="$t('app.documentation')"
         to="https://docs.hoppscotch.io"
         blank
         svg="external-link"

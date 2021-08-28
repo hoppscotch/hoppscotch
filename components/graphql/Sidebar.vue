@@ -4,14 +4,12 @@
       <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
         <AppSection label="docs">
           <div class="bg-primary flex top-sidebarPrimaryStickyFold z-10 sticky">
-            <div class="search-wrapper">
-              <input
-                v-model="graphqlFieldsFilterText"
-                type="search"
-                :placeholder="$t('action.search')"
-                class="bg-transparent flex w-full py-2 pr-2 pl-10"
-              />
-            </div>
+            <input
+              v-model="graphqlFieldsFilterText"
+              type="search"
+              :placeholder="$t('action.search')"
+              class="bg-transparent flex w-full p-4 py-2"
+            />
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"

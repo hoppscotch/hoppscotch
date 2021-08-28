@@ -54,7 +54,6 @@ $transition: all 0.2s ease-in-out;
   height: $height;
   border: if($useBorder, 2px solid $borderColor, none);
   background-color: if($useBorder, transparent, $inactiveColor);
-  transition: $transition;
   box-sizing: initial;
 
   .handle {

@@ -6,6 +6,7 @@
     class="
       rounded
       py-2
+      transition
       px-4
       inline-flex
       items-center

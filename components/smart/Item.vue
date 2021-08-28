@@ -5,6 +5,7 @@
     :blank="blank"
     class="
       rounded
+      transition
       font-medium
       flex-shrink-0
       py-2

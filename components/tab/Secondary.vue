@@ -7,6 +7,7 @@
       font-medium
       flex-1
       py-2
+      transition
       transform
       inline-flex
       items-center

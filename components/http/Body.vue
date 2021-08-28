@@ -64,6 +64,14 @@
       <span class="text-center pb-4">
         {{ $t("empty.body") }}
       </span>
+      <ButtonSecondary
+        outline
+        :label="$t('app.documentation')"
+        to="https://docs.hoppscotch.io"
+        blank
+        svg="external-link"
+        reverse
+      />
     </div>
   </div>
 </template>

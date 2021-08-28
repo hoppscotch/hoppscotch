@@ -6,6 +6,7 @@
     class="
       font-bold
       py-2
+      transition
       inline-flex
       items-center
       justify-center

@@ -10,14 +10,12 @@
         sticky
       "
     >
-      <div class="search-wrapper">
-        <input
-          v-model="filterText"
-          type="search"
-          class="bg-transparent flex w-full py-2 pr-2 pl-10"
-          :placeholder="$t('action.search')"
-        />
-      </div>
+      <input
+        v-model="filterText"
+        type="search"
+        class="bg-transparent flex w-full p-4 py-2"
+        :placeholder="$t('action.search')"
+      />
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"

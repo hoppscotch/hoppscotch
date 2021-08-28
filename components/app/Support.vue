@@ -59,9 +59,9 @@
           @click.native="hideModal()"
         />
         <SmartItem
-          svg="twitter"
+          svg="logos/twitter"
           :label="$t('app.twitter')"
-          to="https://twitter.com/hoppscotch_io"
+          to="https://hoppscotch.io/twitter"
           blank
           :description="$t('support.twitter')"
           info-icon="chevron_right"

@@ -33,7 +33,7 @@
           >
             <template #trigger>
               <ButtonSecondary
-                svg="life-buoy"
+                svg="help-circle"
                 class="!rounded-none"
                 :label="$t('app.help')"
               />
@@ -73,9 +73,17 @@
               <SmartItem
                 svg="twitter"
                 :label="$t('app.twitter')"
-                to="https://twitter.com/hoppscotch_io"
+                to="https://hoppscotch.io/twitter"
                 blank
                 @click.native="$refs.options.tippy().hide()"
+              />
+              <SmartItem
+                svg="user-plus"
+                :label="$t('app.invite')"
+                @click.native="
+                  showShare = true
+                  $refs.options.tippy().hide()
+                "
               />
               <SmartItem
                 svg="lock"
@@ -115,6 +123,7 @@
       </div>
     </div>
     <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
+    <AppShare :show="showShare" @hide-modal="showShare = false" />
   </div>
 </template>
 
@@ -127,9 +136,14 @@ import { useSetting } from "~/newstore/settings"
 export default defineComponent({
   setup() {
     const showShortcuts = ref(false)
+    const showShare = ref(false)
 
     defineActionHandler("flyouts.keybinds.toggle", () => {
       showShortcuts.value = !showShortcuts.value
+    })
+
+    defineActionHandler("modals.share.toggle", () => {
+      showShare.value = !showShare.value
     })
 
     return {
@@ -140,6 +154,7 @@ export default defineComponent({
       navigatorShare: !!navigator.share,
 
       showShortcuts,
+      showShare,
     }
   },
   watch: {

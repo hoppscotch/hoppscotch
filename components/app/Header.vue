@@ -20,6 +20,20 @@
           class="rounded"
           @click.native="showInstallPrompt()"
         />
+        <!-- <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${$t('app.search')} <kbd>/</kbd>`"
+          svg="search"
+          class="rounded"
+          @click.native="showSearch = true"
+        /> -->
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${$t('support.title')} <kbd>?</kbd>`"
+          svg="life-buoy"
+          class="rounded"
+          @click.native="showSupport = true"
+        />
         <ButtonSecondary
           v-if="currentUser === null"
           svg="upload-cloud"
@@ -33,7 +47,7 @@
           :label="$t('header.login')"
           @click.native="showLogin = true"
         />
-        <span v-else class="pr-2">
+        <span v-else class="px-2">
           <tippy ref="user" interactive trigger="click" theme="popover" arrow>
             <template #trigger>
               <ProfilePicture
@@ -68,20 +82,35 @@
     </header>
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
+    <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
+    <!-- <AppSearch :show="showSearch" @hide-modal="showSearch = false" /> -->
   </div>
 </template>
 
 <script>
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import intializePwa from "~/helpers/pwa"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import { useReadonlyStream } from "~/helpers/utils/composables"
+import { defineActionHandler } from "~/helpers/actions"
 
 export default defineComponent({
   setup() {
+    const showSupport = ref(false)
+    // const showSearch = ref(false)
+
+    defineActionHandler("modals.support.toggle", () => {
+      showSupport.value = !showSupport.value
+    })
+    // defineActionHandler("modals.search.toggle", () => {
+    //   showSearch.value = !showSearch.value
+    // })
+
     return {
       currentUser: useReadonlyStream(currentUser$, null),
+      showSupport,
+      // showSearch,
     }
   },
   data() {

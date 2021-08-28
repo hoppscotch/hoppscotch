@@ -17,71 +17,16 @@
         <span v-if="LEFT_SIDEBAR">{{ navigation.title }}</span>
       </NuxtLink>
     </nav>
-    <!-- <nav
-      class="
-        flex flex-nowrap
-        p-2
-        items-center
-        justify-center
-        md:(flex-col
-        space-x-0 space-y-2)
-        "
-    >
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip', placement: 'top' }"
-        :title="`${$t('app.search')} <kbd>/</kbd>`"
-        svg="search"
-        class="rounded"
-        @click.native="showSearch = true"
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip', placement: 'top' }"
-        :title="$t('app.invite')"
-        svg="user-plus"
-        class="rounded"
-        @click.native="showShare = true"
-      />
-      <ButtonSecondary
-        v-tippy="{ theme: 'tooltip', placement: 'top' }"
-        :title="`${$t('support.title')} <kbd>?</kbd>`"
-        svg="life-buoy"
-        class="rounded"
-        @click.native="showSupport = true"
-      />
-    </nav> -->
-    <!-- <AppSearch :show="showSearch" @hide-modal="showSearch = false" />
-    <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <AppShare :show="showShare" @hide-modal="showShare = false" /> -->
   </aside>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
 import { useSetting } from "~/newstore/settings"
-// import { defineActionHandler } from "~/helpers/actions"
 
 export default defineComponent({
   setup() {
-    // const showSearch = ref(false)
-    // const showSupport = ref(false)
-    // const showShare = ref(false)
-
-    // defineActionHandler("modals.search.toggle", () => {
-    //   showSearch.value = !showSearch.value
-    // })
-
-    // defineActionHandler("modals.support.toggle", () => {
-    //   showSupport.value = !showSupport.value
-    // })
-
-    // defineActionHandler("modals.share.toggle", () => {
-    //   showShare.value = !showShare.value
-    // })
-
     return {
-      //     showSearch,
-      //     showSupport,
-      //     showShare,
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
     }
   },
@@ -159,7 +104,7 @@ export default defineComponent({
     @apply mt-2;
     @apply font-font-medium;
 
-    font-size: 90%;
+    font-size: calc(var(--body-font-size) - 0.062rem);
   }
 
   &.exact-active-link {

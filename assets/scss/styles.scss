@@ -236,7 +236,7 @@ button {
 
 .floating-input:focus-within ~ label,
 .floating-input:not(:placeholder-shown) ~ label {
-  @apply bg-transparent;
+  @apply bg-primary;
   @apply transform;
   @apply origin-top-left;
   @apply scale-75;

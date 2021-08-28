@@ -10,7 +10,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('action.go_back')"
         class="rounded"
-        icon="arrow_back"
+        svg="arrow-left"
         @click.native="
           mode = 'import_export'
           mySelectedCollectionID = undefined
@@ -32,7 +32,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.more')"
               class="rounded"
-              icon="more_vert"
+              svg="more-vertical"
             />
           </template>
           <SmartItem
@@ -77,7 +77,7 @@
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.replace_current')"
-          icon="folder_special"
+          svg="file"
           :label="$t('action.replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
@@ -92,7 +92,7 @@
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.preserve_current')"
-          icon="create_new_folder"
+          svg="folder-plus"
           :label="$t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
@@ -108,14 +108,14 @@
           v-if="collectionsType.type == 'team-collections'"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.preserve_current')"
-          icon="folder_shared"
+          svg="user"
           :label="$t('import.from_my_collections')"
           @click.native="mode = 'import_from_my_collections'"
         />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
-          icon="drive_file_move"
+          svg="download"
           :label="$t('export.as_json')"
           @click.native="exportJSON"
         />
@@ -160,7 +160,7 @@
         <span>
           <ButtonPrimary
             :disabled="mySelectedCollectionID == undefined"
-            icon="create_new_folder"
+            svg="folder-plus"
             :label="$t('import.title')"
             @click.native="importFromMyCollections"
           />

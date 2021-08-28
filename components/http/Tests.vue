@@ -22,12 +22,12 @@
           to="https://docs.hoppscotch.io/features/tests"
           blank
           :title="$t('app.wiki')"
-          icon="help_outline"
+          svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
-          icon="clear_all"
+          svg="trash-2"
           @click.native="clearContent"
         />
       </div>

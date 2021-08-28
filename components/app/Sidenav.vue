@@ -11,7 +11,7 @@
         <i v-if="navigation.icon" class="material-icons">
           {{ navigation.icon }}
         </i>
-        <div v-if="navigation.svg" class="h-4 w-4">
+        <div v-if="navigation.svg">
           <SmartIcon :name="navigation.svg" class="svg-icons" />
         </div>
         <span v-if="LEFT_SIDEBAR">{{ navigation.title }}</span>
@@ -20,7 +20,7 @@
     <!-- <nav
       class="
         flex flex-nowrap
-        p-4
+        p-2
         items-center
         justify-center
         md:(flex-col
@@ -30,21 +30,21 @@
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="`${$t('app.search')} <kbd>/</kbd>`"
-        icon="search"
+        svg="search"
         class="rounded"
         @click.native="showSearch = true"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="$t('app.invite')"
-        icon="person_add_alt"
+        svg="user-plus"
         class="rounded"
         @click.native="showShare = true"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip', placement: 'top' }"
         :title="`${$t('support.title')} <kbd>?</kbd>`"
-        icon="support"
+        svg="life-buoy"
         class="rounded"
         @click.native="showSupport = true"
       />
@@ -90,7 +90,7 @@ export default defineComponent({
       primaryNavigation: [
         {
           target: "index",
-          icon: "settings_ethernet",
+          svg: "link-2",
           title: this.$t("navigation.rest"),
         },
         {
@@ -100,17 +100,17 @@ export default defineComponent({
         },
         {
           target: "realtime",
-          icon: "language",
+          svg: "globe",
           title: this.$t("navigation.realtime"),
         },
         {
           target: "documentation",
-          icon: "book",
+          svg: "book-open",
           title: this.$t("navigation.doc"),
         },
         {
           target: "settings",
-          icon: "settings",
+          svg: "settings",
           title: this.$t("navigation.settings"),
         },
       ],
@@ -158,6 +158,8 @@ export default defineComponent({
   span {
     @apply mt-2;
     @apply font-font-medium;
+
+    font-size: 90%;
   }
 
   &.exact-active-link {

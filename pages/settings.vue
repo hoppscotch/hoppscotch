@@ -30,7 +30,7 @@
                       :src="currentUser.photoURL"
                       class="rounded-full h-5 w-5"
                     />
-                    <i v-else class="material-icons">account_circle</i>
+                    <SmartIcon v-else name="user" class="svg-icons" />
                   </div>
                   <div class="ml-4">
                     <label>
@@ -43,7 +43,7 @@
                 </div>
                 <div class="flex items-start">
                   <div class="flex items-center">
-                    <i class="material-icons">email</i>
+                    <SmartIcon name="at-sign" class="svg-icons" />
                   </div>
                   <div class="ml-4">
                     <label>
@@ -314,7 +314,7 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('settings.reset_default')"
-                :icon="clearIcon"
+                :svg="clearIcon"
                 outline
                 class="rounded"
                 @click.native="resetProxy"
@@ -390,7 +390,7 @@ export default defineComponent({
       hasChromeExtInstalled: hasChromeExtensionInstalled(),
       hasFirefoxExtInstalled: hasFirefoxExtensionInstalled(),
 
-      clearIcon: "clear_all",
+      clearIcon: "rotate-ccw",
 
       showLogin: false,
 
@@ -449,11 +449,11 @@ export default defineComponent({
     },
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
-      this.clearIcon = "done"
+      this.clearIcon = "check"
       this.$toast.success(this.$t("state.cleared").toString(), {
         icon: "clear_all",
       })
-      setTimeout(() => (this.clearIcon = "clear_all"), 1000)
+      setTimeout(() => (this.clearIcon = "rotate-ccw"), 1000)
     },
     getColorModeName(colorMode: string) {
       switch (colorMode) {

@@ -4,7 +4,7 @@
     <span class="max-w-64 px-2 truncate"><slot></slot></span>
     <ButtonSecondary
       class="rounded close-button"
-      icon="close"
+      svg="x"
       @click.native="$emit('chip-delete')"
     />
   </span>

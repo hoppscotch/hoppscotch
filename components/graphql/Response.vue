@@ -22,14 +22,14 @@
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
-          :icon="downloadResponseIcon"
+          :svg="downloadResponseIcon"
           @click.native="downloadResponse"
         />
         <ButtonSecondary
           ref="copyResponseButton"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.copy')"
-          :icon="copyResponseIcon"
+          :svg="copyResponseIcon"
           @click.native="copyResponse"
         />
       </div>
@@ -94,7 +94,7 @@
       <ButtonSecondary
         :label="$t('app.documentation')"
         to="https://docs.hoppscotch.io"
-        icon="open_in_new"
+        svg="external-link"
         blank
         outline
         reverse
@@ -132,13 +132,13 @@ export default defineComponent({
 
     const responseString = useReadonlyStream(gqlResponse$, "")
 
-    const downloadResponseIcon = ref("save_alt")
-    const copyResponseIcon = ref("content_copy")
+    const downloadResponseIcon = ref("download")
+    const copyResponseIcon = ref("copy")
 
     const copyResponse = () => {
       copyToClipboard(responseString.value!)
-      copyResponseIcon.value = "done"
-      setTimeout(() => (copyResponseIcon.value = "content_copy"), 1000)
+      copyResponseIcon.value = "check"
+      setTimeout(() => (copyResponseIcon.value = "copy"), 1000)
     }
 
     const downloadResponse = () => {
@@ -150,14 +150,14 @@ export default defineComponent({
       a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      downloadResponseIcon.value = "done"
+      downloadResponseIcon.value = "check"
       $toast.success(t("state.download_started").toString(), {
         icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
-        downloadResponseIcon.value = "save_alt"
+        downloadResponseIcon.value = "download"
       }, 1000)
     }
 

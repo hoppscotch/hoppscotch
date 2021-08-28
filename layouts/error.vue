@@ -3,11 +3,11 @@
     <h1 class="mb-4 text-4xl heading">{{ statusCode }}</h1>
     <h3 class="select-text">{{ message }}</h3>
     <p class="mt-4">
-      <ButtonSecondary to="/" icon="home" outline :label="$t('app.home')" />
+      <ButtonSecondary to="/" svg="home" filled :label="$t('app.home')" />
       <ButtonSecondary
-        icon="refresh"
+        svg="refresh-cw"
         :label="$t('app.reload')"
-        outline
+        filled
         @click.native="reloadApplication"
       />
     </p>

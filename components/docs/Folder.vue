@@ -1,7 +1,7 @@
 <template>
   <div class="folder">
     <h3 class="heading">
-      <i class="material-icons">folder_open</i>
+      <SmartIcon name="folder-minus" class="svg-icons" />
       {{ folder.name || $t("state.none") }}
     </h3>
     <div

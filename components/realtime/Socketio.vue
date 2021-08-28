@@ -105,7 +105,7 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('add.new')"
-              icon="add"
+              svg="plus"
               class="rounded"
               @click.native="addCommunicationInput"
             />
@@ -130,7 +130,7 @@
                 v-if="index + 1 !== communication.inputs.length"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
-                icon="remove_circle_outline"
+                svg="trash"
                 class="rounded"
                 color="red"
                 outline

@@ -16,12 +16,12 @@
         @click="useEntry"
       >
         <span class="truncate">
-          {{ entry.url }}
+          {{ entry.request.url }}
         </span>
       </span>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
-        icon="remove_circle_outline"
+        svg="trash"
         color="red"
         :title="$t('action.remove')"
         class="hidden group-hover:inline-flex"
@@ -31,14 +31,14 @@
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? $t('hide.more') : $t('show.more')"
-        :icon="expand ? 'unfold_less' : 'unfold_more'"
+        :svg="expand ? 'minimize-2' : 'maximize-2'"
         class="hidden group-hover:inline-flex"
         @click.native="expand = !expand"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="!entry.star ? $t('add.star') : $t('remove.star')"
-        :icon="entry.star ? 'star' : 'star_border'"
+        :svg="entry.star ? 'star-solid' : 'star'"
         color="yellow"
         :class="{ 'group-hover:inline-flex hidden': !entry.star }"
         data-testid="star_button"

@@ -12,7 +12,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.more')"
               class="rounded"
-              icon="more_vert"
+              svg="more-vertical"
             />
           </template>
           <SmartItem
@@ -57,7 +57,7 @@
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.replace_current')"
-          icon="folder_special"
+          svg="file"
           :label="$t('action.replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
@@ -71,7 +71,7 @@
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.preserve_current')"
-          icon="create_new_folder"
+          svg="folder-plus"
           :label="$t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
@@ -85,7 +85,7 @@
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
-          icon="drive_file_move"
+          svg="download"
           :label="$t('export.as_json')"
           @click.native="exportJSON"
         />

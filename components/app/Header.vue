@@ -16,13 +16,13 @@
           id="installPWA"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('header.install_pwa')"
-          icon="download_for_offline"
+          svg="download"
           class="rounded"
           @click.native="showInstallPrompt()"
         />
         <ButtonSecondary
           v-if="currentUser === null"
-          icon="filter_drama"
+          svg="upload-cloud"
           :label="$t('header.save_workspace')"
           filled
           class="hidden !font-semibold md:flex"
@@ -52,12 +52,12 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('header.account')"
                 class="rounded"
-                icon="account_circle"
+                svg="user"
               />
             </template>
             <SmartItem
               to="/settings"
-              icon="settings"
+              svg="settings"
               :label="$t('navigation.settings')"
               @click.native="$refs.user.tippy().hide()"
             />

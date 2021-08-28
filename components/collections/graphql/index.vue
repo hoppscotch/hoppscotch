@@ -24,9 +24,9 @@
       </div>
       <div class="flex flex-1 justify-between">
         <ButtonSecondary
-          icon="add"
+          svg="plus"
           :label="$t('action.new')"
-          class="rounded-none"
+          class="!rounded-none"
           @click.native="displayModalAdd(true)"
         />
         <div class="flex">
@@ -35,13 +35,13 @@
             to="https://docs.hoppscotch.io/features/collections"
             blank
             :title="$t('app.wiki')"
-            icon="help_outline"
+            svg="help-circle"
           />
           <ButtonSecondary
             v-if="showCollActions"
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('modal.import_export')"
-            icon="import_export"
+            svg="archive"
             @click.native="displayModalImportExport(true)"
           />
         </div>

@@ -9,7 +9,7 @@
         'bg-primaryLight !text-accent hover:text-accent': color === active,
       }"
       class="rounded"
-      :icon="getIcon(color)"
+      :svg="getIcon(color)"
       @click.native="setBGMode(color)"
     />
   </div>
@@ -38,15 +38,15 @@ export default defineComponent({
     getIcon(color: HoppBgColor) {
       switch (color) {
         case "system":
-          return "devices"
+          return "monitor"
         case "light":
-          return "light_mode"
+          return "sun"
         case "dark":
-          return "nights_stay"
+          return "cloud"
         case "black":
-          return "dark_mode"
+          return "moon"
         default:
-          return "devices"
+          return "monitor"
       }
     },
     getColorModeName(colorMode: string) {

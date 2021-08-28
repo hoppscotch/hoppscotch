@@ -22,18 +22,18 @@
           to="https://docs.hoppscotch.io/features/body"
           blank
           :title="$t('app.wiki')"
-          icon="help_outline"
+          svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
-          icon="clear_all"
+          svg="trash-2"
           @click.native="clearContent"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('add.new')"
-          icon="add"
+          svg="plus"
           @click.native="addBodyParam"
         />
       </div>
@@ -131,7 +131,7 @@
         <label for="attachment" class="p-0">
           <ButtonSecondary
             class="w-full"
-            icon="attach_file"
+            svg="paperclip"
             @click.native="$refs.attachment[index].click()"
           />
         </label>
@@ -154,12 +154,12 @@
                 : $t('action.turn_on')
               : $t('action.turn_off')
           "
-          :icon="
+          :svg="
             param.hasOwnProperty('active')
               ? param.active
-                ? 'check_circle_outline'
-                : 'radio_button_unchecked'
-              : 'check_circle_outline'
+                ? 'check-circle'
+                : 'circle'
+              : 'check-circle'
           "
           color="green"
           @click.native="
@@ -176,7 +176,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.remove')"
-          icon="remove_circle_outline"
+          svg="trash"
           color="red"
           @click.native="deleteBodyParam(index)"
         />
@@ -192,7 +192,7 @@
       <ButtonSecondary
         :label="$t('add.new')"
         filled
-        icon="add"
+        svg="plus"
         @click.native="addBodyParam"
       />
     </div>

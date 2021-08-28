@@ -21,13 +21,12 @@
         :class="getRequestLabelColor(request.method)"
         @click="!doc ? selectRequest() : {}"
       >
-        <i
+        <SmartIcon
           v-if="isSelected"
-          class="material-icons"
+          class="svg-icons"
           :class="{ 'text-green-500': isSelected }"
-        >
-          check_circle_outline
-        </i>
+          name="check-circle"
+        />
         <span v-else class="truncate">
           {{ request.method }}
         </span>
@@ -60,7 +59,7 @@
         <ButtonSecondary
           v-if="!saveRequest && !doc"
           v-tippy="{ theme: 'tooltip' }"
-          icon="replay"
+          svg="rotate-ccw"
           :title="$t('action.restore')"
           class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
@@ -77,11 +76,11 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.more')"
-                icon="more_vert"
+                svg="more-vertical"
               />
             </template>
             <SmartItem
-              icon="edit"
+              svg="edit"
               :label="$t('action.edit')"
               @click.native="
                 $emit('edit-request', {
@@ -96,7 +95,7 @@
               "
             />
             <SmartItem
-              icon="delete"
+              svg="trash-2"
               color="red"
               :label="$t('action.delete')"
               @click.native="

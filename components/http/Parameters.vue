@@ -22,18 +22,18 @@
           to="https://docs.hoppscotch.io/features/parameters"
           blank
           :title="$t('app.wiki')"
-          icon="help_outline"
+          svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
-          icon="clear_all"
+          svg="trash-2"
           @click.native="clearContent"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('add.new')"
-          icon="add"
+          svg="plus"
           @click.native="addParam"
         />
       </div>
@@ -120,12 +120,12 @@
                 : $t('action.turn_on')
               : $t('action.turn_off')
           "
-          :icon="
+          :svg="
             param.hasOwnProperty('active')
               ? param.active
-                ? 'check_circle_outline'
-                : 'radio_button_unchecked'
-              : 'check_circle_outline'
+                ? 'check-circle'
+                : 'circle'
+              : 'check-circle'
           "
           color="green"
           @click.native="
@@ -141,7 +141,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.remove')"
-          icon="remove_circle_outline"
+          svg="trash"
           color="red"
           @click.native="deleteParam(index)"
         />
@@ -156,7 +156,7 @@
       </span>
       <ButtonSecondary
         :label="$t('add.new')"
-        icon="add"
+        svg="plus"
         filled
         @click.native="addParam"
       />

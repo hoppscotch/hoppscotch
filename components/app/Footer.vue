@@ -5,7 +5,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="LEFT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
-          icon="menu_open"
+          svg="sidebar"
           :class="{ 'transform -rotate-180': !LEFT_SIDEBAR }"
           @click.native="LEFT_SIDEBAR = !LEFT_SIDEBAR"
         />
@@ -14,7 +14,7 @@
           :title="`${
             ZEN_MODE ? $t('action.turn_off') : $t('action.turn_on')
           } ${$t('layout.zen_mode')}`"
-          :icon="ZEN_MODE ? 'fullscreen_exit' : 'fullscreen'"
+          :svg="ZEN_MODE ? 'minimize' : 'maximize'"
           :class="{
             '!text-accent !focus-visible:text-accentDark !hover:text-accentDark':
               ZEN_MODE,
@@ -33,19 +33,21 @@
           >
             <template #trigger>
               <ButtonSecondary
-                icon="help_center"
-                class="rounded-none"
+                svg="life-buoy"
+                class="!rounded-none"
                 :label="$t('app.help')"
               />
             </template>
             <div class="flex flex-col">
               <SmartItem
+                svg="book"
                 :label="$t('app.documentation')"
                 to="https://docs.hoppscotch.io"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
+                svg="zap"
                 :label="$t('app.keyboard_shortcuts')"
                 @click.native="
                   showShortcuts = true
@@ -53,12 +55,14 @@
                 "
               />
               <SmartItem
+                svg="gift"
                 :label="$t('app.whats_new')"
                 to="https://docs.hoppscotch.io/changelog"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
+                svg="message-circle"
                 :label="$t('app.chat_with_us')"
                 @click.native="
                   chatWithUs()
@@ -67,12 +71,14 @@
               />
               <hr />
               <SmartItem
+                svg="twitter"
                 :label="$t('app.twitter')"
                 to="https://twitter.com/hoppscotch_io"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
+                svg="lock"
                 :label="$t('app.terms_and_privacy')"
                 to="https://docs.hoppscotch.io/privacy"
                 blank
@@ -87,21 +93,21 @@
         </span>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          icon="keyboard"
+          svg="zap"
           :title="$t('app.shortcuts')"
           @click.native="showShortcuts = true"
         />
         <ButtonSecondary
           v-if="navigatorShare"
           v-tippy="{ theme: 'tooltip' }"
-          icon="share"
+          svg="share-2"
           :title="$t('request.share')"
           @click.native="nativeShare()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="RIGHT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
-          icon="menu_open"
+          svg="sidebar"
           class="transform rotate-180"
           :class="{ 'rotate-360': !RIGHT_SIDEBAR }"
           @click.native="RIGHT_SIDEBAR = !RIGHT_SIDEBAR"

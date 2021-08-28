@@ -44,7 +44,7 @@
       <ButtonSecondary
         :label="$t('app.documentation')"
         to="https://docs.hoppscotch.io"
-        icon="open_in_new"
+        svg="external-link"
         blank
         outline
         reverse
@@ -76,7 +76,7 @@
           :label="$t('action.learn_more')"
           to="https://docs.hoppscotch.io"
           blank
-          icon="open_in_new"
+          svg="external-link"
           reverse
         />
       </div>

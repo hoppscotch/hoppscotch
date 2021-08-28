@@ -29,7 +29,7 @@
     </span>
     <ButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
-      icon="remove_circle_outline"
+      svg="trash"
       color="red"
       :title="$t('action.remove')"
       class="hidden group-hover:inline-flex"
@@ -40,7 +40,7 @@
       v-tippy="{ theme: 'tooltip' }"
       :title="!entry.star ? $t('add.star') : $t('remove.star')"
       :class="{ 'group-hover:inline-flex hidden': !entry.star }"
-      :icon="entry.star ? 'star' : 'star_border'"
+      :svg="entry.star ? 'star-solid' : 'star'"
       color="yellow"
       data-testid="star_button"
       @click.native="$emit('toggle-star')"

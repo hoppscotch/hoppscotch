@@ -36,7 +36,7 @@
       <div class="flex space-x-4 my-8 justify-center items-center">
         <ButtonPrimary
           label="Get Started"
-          icon="arrow_forward"
+          svg="arrow-right"
           reverse
           large
           @click.native="showLogin = true"

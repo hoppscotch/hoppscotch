@@ -81,12 +81,12 @@
           to="https://docs.hoppscotch.io/features/authorization"
           blank
           :title="$t('app.wiki')"
-          icon="help_outline"
+          svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
-          icon="clear_all"
+          svg="trash-2"
           @click.native="clearContent"
         />
       </div>
@@ -103,7 +103,7 @@
         :label="$t('action.learn_more')"
         to="https://docs.hoppscotch.io"
         blank
-        icon="open_in_new"
+        svg="external-link"
         reverse
       />
     </div>
@@ -147,9 +147,7 @@
           />
           <span>
             <ButtonSecondary
-              :icon="
-                passwordFieldType === 'text' ? 'visibility' : 'visibility_off'
-              "
+              :svg="passwordFieldType === 'text' ? 'eye' : 'eye-off'"
               @click.native="switchVisibility"
             />
           </span>

@@ -58,7 +58,7 @@
                 <ButtonSecondary
                   v-if="dimissible"
                   class="rounded"
-                  icon="close"
+                  svg="x"
                   @click.native="close"
                 />
               </span>

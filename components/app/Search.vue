@@ -18,7 +18,15 @@
           pb-6
         "
       />
+      <AppLunr
+        v-if="search"
+        log
+        :input="lunr"
+        :search="search"
+        @action="runAction"
+      />
       <div
+        v-else
         class="
           divide-y divide-dividerLight
           flex flex-col
@@ -28,10 +36,7 @@
           hide-scrollbar
         "
       >
-        <div
-          v-for="(map, mapIndex) in filteredMappings"
-          :key="`map-${mapIndex}`"
-        >
+        <div v-for="(map, mapIndex) in mappings" :key="`map-${mapIndex}`">
           <h5 class="my-2 text-secondaryLight py-2 px-4">
             {{ $t(map.section) }}
           </h5>
@@ -49,10 +54,7 @@
               group
               hover:bg-primaryLight
             "
-            @click="
-              runAction(shortcut.action)
-              hideModal()
-            "
+            @click="runAction(shortcut.action)"
           >
             <i class="mr-4 opacity-75 material-icons group-hover:opacity-100">
               {{ shortcut.icon }}
@@ -77,7 +79,7 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { invokeAction } from "~/helpers/actions"
-import { spotlight } from "~/helpers/shortcuts"
+import { spotlight, lunr } from "~/helpers/shortcuts"
 
 export default defineComponent({
   props: {
@@ -87,18 +89,8 @@ export default defineComponent({
     return {
       search: "",
       mappings: spotlight,
+      lunr,
     }
-  },
-  computed: {
-    filteredMappings() {
-      return this.mappings.filter((mapping) =>
-        mapping.shortcuts.some((shortcut) =>
-          shortcut.keywords.some((keyword) =>
-            keyword.toLowerCase().includes(this.search.toLowerCase())
-          )
-        )
-      )
-    },
   },
   methods: {
     hideModal() {
@@ -106,6 +98,8 @@ export default defineComponent({
     },
     runAction(command) {
       invokeAction(command, "path_from_invokeAction")
+      this.search = ""
+      this.hideModal()
     },
   },
 })

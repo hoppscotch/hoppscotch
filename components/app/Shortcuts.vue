@@ -19,7 +19,7 @@
           <ButtonSecondary svg="x" class="rounded" @click.native="close()" />
         </div>
       </div>
-      <div class="bg-primary border-b border-dividerLight">
+      <!-- <div class="bg-primary border-b border-dividerLight">
         <div class="flex flex-col my-4 mx-6">
           <input
             v-model="filterText"
@@ -37,7 +37,7 @@
             :placeholder="$t('action.search')"
           />
         </div>
-      </div>
+      </div> -->
       <div
         class="
           divide-y divide-dividerLight
@@ -86,7 +86,7 @@ export default defineComponent({
   },
   data() {
     return {
-      filterText: "",
+      // filterText: "",
       mappings: shortcuts,
     }
   },

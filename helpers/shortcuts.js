@@ -4,14 +4,14 @@ export default [
   {
     section: "shortcut.general.title",
     shortcuts: [
-      // {
-      //   keys: ["?"],
-      //   label: "shortcut.general.help_menu",
-      // },
-      // {
-      //   keys: ["/"],
-      //   label: "shortcut.general.command_menu",
-      // },
+      {
+        keys: ["?"],
+        label: "shortcut.general.help_menu",
+      },
+      {
+        keys: ["/"],
+        label: "shortcut.general.command_menu",
+      },
       {
         keys: [getPlatformSpecialKey(), "K"],
         label: "shortcut.general.show_all",
@@ -104,15 +104,15 @@ export default [
       },
     ],
   },
-  // {
-  //   section: "shortcut.miscellaneous.title",
-  //   shortcuts: [
-  //     {
-  //       keys: [getPlatformSpecialKey(), "M"],
-  //       label: "shortcut.miscellaneous.invite",
-  //     },
-  //   ],
-  // },
+  {
+    section: "shortcut.miscellaneous.title",
+    shortcuts: [
+      {
+        keys: [getPlatformSpecialKey(), "M"],
+        label: "shortcut.miscellaneous.invite",
+      },
+    ],
+  },
 ]
 
 export const spotlight = [
@@ -124,26 +124,12 @@ export const spotlight = [
         label: "shortcut.general.help_menu",
         action: "modals.support.toggle",
         icon: "support",
-        keywords: [
-          "help",
-          "support",
-          "documentation",
-          "troubleshooting",
-          "chat",
-          "community",
-          "feedback",
-          "report",
-          "bug",
-          "issue",
-          "ticket",
-        ],
       },
       {
         keys: [getPlatformSpecialKey(), "K"],
         label: "shortcut.general.show_all",
         action: "flyouts.keybinds.toggle",
         icon: "keyboard",
-        keywords: ["keyboard", "shortcuts"],
       },
     ],
   },
@@ -155,67 +141,42 @@ export const spotlight = [
         label: "shortcut.navigation.back",
         action: "navigation.jump.back",
         icon: "arrow_forward",
-        keywords: ["back", "jump", "page", "navigation", "go"],
       },
       {
         keys: [getPlatformSpecialKey(), "→"],
         label: "shortcut.navigation.forward",
         action: "navigation.jump.forward",
         icon: "arrow_forward",
-        keywords: ["forward", "jump", "page", "navigation", "go"],
       },
       {
         keys: [getPlatformAlternateKey(), "R"],
         label: "shortcut.navigation.rest",
         action: "navigation.jump.rest",
         icon: "arrow_forward",
-        keywords: ["rest", "jump", "page", "navigation", "go"],
       },
       {
         keys: [getPlatformAlternateKey(), "Q"],
         label: "shortcut.navigation.graphql",
         action: "navigation.jump.graphql",
         icon: "arrow_forward",
-        keywords: ["graphql", "jump", "page", "navigation", "go"],
       },
       {
         keys: [getPlatformAlternateKey(), "W"],
         label: "shortcut.navigation.realtime",
         action: "navigation.jump.realtime",
         icon: "arrow_forward",
-        keywords: [
-          "realtime",
-          "jump",
-          "page",
-          "navigation",
-          "websocket",
-          "socket",
-          "mqtt",
-          "sse",
-          "go",
-        ],
       },
       {
         keys: [getPlatformAlternateKey(), "D"],
         label: "shortcut.navigation.documentation",
         action: "navigation.jump.documentation",
         icon: "arrow_forward",
-        keywords: ["documentation", "jump", "page", "navigation", "go"],
       },
       {
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
         action: "navigation.jump.settings",
         icon: "arrow_forward",
-        keywords: [
-          "settings",
-          "jump",
-          "page",
-          "navigation",
-          "account",
-          "theme",
-          "go",
-        ],
       },
     ],
   },
@@ -227,8 +188,80 @@ export const spotlight = [
         label: "shortcut.miscellaneous.invite",
         action: "modals.share.toggle",
         icon: "person_add_alt",
-        keywords: ["invite", "share", "app", "social"],
       },
     ],
+  },
+]
+
+export const lunr = [
+  {
+    keys: ["?"],
+    label: "shortcut.general.help_menu",
+    action: "modals.support.toggle",
+    icon: "support",
+    tags: "help support documentation troubleshooting chat community feedback report bug issue ticket",
+  },
+  {
+    keys: [getPlatformSpecialKey(), "K"],
+    label: "shortcut.general.show_all",
+    action: "flyouts.keybinds.toggle",
+    icon: "keyboard",
+    tags: "keyboard shortcuts",
+  },
+  {
+    keys: [getPlatformSpecialKey(), "←"],
+    label: "shortcut.navigation.back",
+    action: "navigation.jump.back",
+    icon: "arrow_forward",
+    tags: "back jump page navigation go",
+  },
+  {
+    keys: [getPlatformSpecialKey(), "→"],
+    label: "shortcut.navigation.forward",
+    action: "navigation.jump.forward",
+    icon: "arrow_forward",
+    tags: "forward jump next forward page navigation go",
+  },
+  {
+    keys: [getPlatformAlternateKey(), "R"],
+    label: "shortcut.navigation.rest",
+    action: "navigation.jump.rest",
+    icon: "arrow_forward",
+    tags: "rest jump page navigation go",
+  },
+  {
+    keys: [getPlatformAlternateKey(), "Q"],
+    label: "shortcut.navigation.graphql",
+    action: "navigation.jump.graphql",
+    icon: "arrow_forward",
+    tags: "graphql jump page navigation go",
+  },
+  {
+    keys: [getPlatformAlternateKey(), "W"],
+    label: "shortcut.navigation.realtime",
+    action: "navigation.jump.realtime",
+    icon: "arrow_forward",
+    tags: "realtime jump page navigation websocket socket mqtt sse go",
+  },
+  {
+    keys: [getPlatformAlternateKey(), "D"],
+    label: "shortcut.navigation.documentation",
+    action: "navigation.jump.documentation",
+    icon: "arrow_forward",
+    tags: "documentation jump page navigation go",
+  },
+  {
+    keys: [getPlatformAlternateKey(), "S"],
+    label: "shortcut.navigation.settings",
+    action: "navigation.jump.settings",
+    icon: "arrow_forward",
+    tags: "settings jump page navigation account theme go",
+  },
+  {
+    keys: [getPlatformSpecialKey(), "M"],
+    label: "shortcut.miscellaneous.invite",
+    action: "modals.share.toggle",
+    icon: "person_add_alt",
+    tags: "invite share app social",
   },
 ]

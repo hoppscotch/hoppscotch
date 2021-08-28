@@ -27,12 +27,12 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('action.more')"
-            icon="more_vert"
+            svg="more-vertical"
           />
         </template>
         <SmartItem
           v-if="team.myRole === 'OWNER'"
-          icon="create"
+          svg="edit"
           :label="$t('action.edit')"
           @click.native="
             $emit('edit-team')
@@ -41,7 +41,7 @@
         />
         <SmartItem
           v-if="team.myRole === 'OWNER'"
-          icon="delete"
+          svg="trash-2"
           color="red"
           :label="$t('action.delete')"
           @click.native="
@@ -51,7 +51,7 @@
         />
         <SmartItem
           v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
-          icon="remove"
+          svg="trash"
           :label="$t('team.exit')"
           @click.native="
             exitTeam()

@@ -22,7 +22,7 @@
           </label>
           <div class="flex">
             <ButtonSecondary
-              icon="add"
+              svg="plus"
               :label="$t('add.new')"
               @click.native="addTeamMember"
             />
@@ -89,7 +89,7 @@
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
-                icon="remove_circle_outline"
+                svg="trash"
                 color="red"
                 @click.native="removeExistingTeamMember(member.user.uid)"
               />
@@ -155,7 +155,7 @@
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
-                icon="remove_circle_outline"
+                svg="trash"
                 color="red"
                 @click.native="removeTeamMember(index)"
               />
@@ -171,7 +171,7 @@
               justify-center
             "
           >
-            <i class="opacity-75 pb-2 material-icons">layers</i>
+            <SmartIcon class="opacity-75 pb-2" name="users" />
             <span class="text-center pb-4">
               {{ $t("empty.members") }}
             </span>

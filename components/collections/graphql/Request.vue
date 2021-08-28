@@ -20,9 +20,11 @@
         "
         @click="!doc ? selectRequest() : {}"
       >
-        <i class="material-icons" :class="{ 'text-green-500': isSelected }">
-          {{ isSelected ? "check_circle_outline" : "description" }}
-        </i>
+        <SmartIcon
+          class="svg-icons"
+          :class="{ 'text-green-500': isSelected }"
+          :name="isSelected ? 'check-circle' : 'file'"
+        />
       </span>
       <span
         class="
@@ -42,7 +44,7 @@
         <ButtonSecondary
           v-if="!savingMode"
           v-tippy="{ theme: 'tooltip' }"
-          icon="replay"
+          svg="rotate-ccw"
           :title="$t('action.restore')"
           class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
@@ -59,11 +61,11 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.more')"
-                icon="more_vert"
+                svg="more-vertical"
               />
             </template>
             <SmartItem
-              icon="edit"
+              svg="edit"
               :label="$t('action.edit')"
               @click.native="
                 $emit('edit-request', {
@@ -75,7 +77,7 @@
               "
             />
             <SmartItem
-              icon="delete"
+              svg="trash-2"
               color="red"
               :label="$t('action.delete')"
               @click.native="

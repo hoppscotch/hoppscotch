@@ -1,7 +1,7 @@
 <template>
   <div class="request">
     <h4 class="heading">
-      <i class="material-icons">insert_drive_file</i>
+      <SmartIcon name="file" class="svg-icons" />
       {{ request.name || $t("state.none") }}
     </h4>
     <p v-if="request.url" class="doc-desc">

@@ -23,7 +23,7 @@
             </span>
           </a>
           <button class="share-link" @click="copyAppLink">
-            <span class="font-icon h-6 text-xl w-6">{{ copyIcon }}</span>
+            <SmartIcon class="h-6 text-xl w-6" :name="copyIcon" />
             <span class="mt-3">
               {{ $t("app.copy") }}
             </span>
@@ -54,11 +54,11 @@ export default defineComponent({
 
     return {
       url: "https://hoppscotch.io",
-      copyIcon: "content_copy",
+      copyIcon: "copy",
       platforms: [
         {
           name: "Email",
-          icon: "email",
+          icon: "mail",
           link: `mailto:?subject=${subject}&body=${summary}`,
         },
         {
@@ -87,11 +87,11 @@ export default defineComponent({
   methods: {
     copyAppLink() {
       copyToClipboard(this.url)
-      this.copyIcon = "done"
+      this.copyIcon = "check"
       this.$toast.success(this.$t("state.copied_to_clipboard").toString(), {
         icon: "content_paste",
       })
-      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
+      setTimeout(() => (this.copyIcon = "copy"), 1000)
     },
     hideModal() {
       this.$emit("hide-modal")

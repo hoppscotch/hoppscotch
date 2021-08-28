@@ -4,7 +4,7 @@
       class="cursor-pointer flex px-4 justify-center items-center"
       @click="$emit('edit-environment')"
     >
-      <i class="material-icons">layers</i>
+      <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
       class="
@@ -28,11 +28,11 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('action.more')"
-            icon="more_vert"
+            svg="more-vertical"
           />
         </template>
         <SmartItem
-          icon="create"
+          svg="edit"
           :label="$t('action.edit')"
           @click.native="
             $emit('edit-environment')
@@ -41,7 +41,7 @@
         />
         <SmartItem
           v-if="!(environmentIndex === 'Global')"
-          icon="delete"
+          svg="trash-2"
           color="red"
           :label="$t('action.delete')"
           @click.native="

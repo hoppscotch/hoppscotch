@@ -59,7 +59,7 @@
       <ButtonPrimary
         ref="copyRequestCode"
         :label="t('action.copy')"
-        :icon="copyIcon"
+        :svg="copyIcon"
         @click.native="copyRequestCode"
       />
       <ButtonSecondary :label="t('action.dismiss')" @click.native="hideModal" />
@@ -93,7 +93,7 @@ const options = ref<any | null>(null)
 
 const request = ref(getRESTRequest())
 const codegenType = ref("curl")
-const copyIcon = ref("content_copy")
+const copyIcon = ref("copy")
 
 const requestCode = computed(() => {
   const effectiveRequest = getEffectiveRESTRequest(
@@ -119,10 +119,10 @@ const hideModal = () => emit("hide-modal")
 
 const copyRequestCode = () => {
   copyToClipboard(requestCode.value)
-  copyIcon.value = "done"
+  copyIcon.value = "check"
   $toast.success(t("state.copied_to_clipboard").toString(), {
     icon: "content_paste",
   })
-  setTimeout(() => (copyIcon.value = "content_copy"), 1000)
+  setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>

@@ -22,12 +22,12 @@
           to="https://docs.hoppscotch.io/features/body"
           blank
           :title="$t('app.wiki')"
-          icon="help_outline"
+          svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
-          icon="clear_all"
+          svg="trash-2"
           @click.native="clearContent('rawParams', $event)"
         />
         <ButtonSecondary
@@ -35,14 +35,14 @@
           ref="prettifyRequest"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.prettify')"
-          :icon="prettifyIcon"
+          :svg="prettifyIcon"
           @click.native="prettifyRequestBody"
         />
         <label for="payload">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="$t('import.json')"
-            icon="post_add"
+            svg="file-plus"
             @click.native="$refs.payload.click()"
           />
         </label>
@@ -88,7 +88,7 @@ export default defineComponent({
   setup() {
     return {
       rawParamsBody: pluckRef(useRESTRequestBody(), "body"),
-      prettifyIcon: "photo_filter",
+      prettifyIcon: "sparkles",
     }
   },
   computed: {
@@ -122,8 +122,8 @@ export default defineComponent({
       try {
         const jsonObj = JSON.parse(this.rawParamsBody)
         this.rawParamsBody = JSON.stringify(jsonObj, null, 2)
-        this.prettifyIcon = "done"
-        setTimeout(() => (this.prettifyIcon = "photo_filter"), 1000)
+        this.prettifyIcon = "check"
+        setTimeout(() => (this.prettifyIcon = "sparkles"), 1000)
       } catch (e) {
         console.error(e)
         this.$toast.error(`${this.$t("error.json_prettify_invalid_body")}`, {

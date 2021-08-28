@@ -18,7 +18,7 @@
                 to="https://docs.hoppscotch.io/quickstart/graphql"
                 blank
                 :title="$t('app.wiki')"
-                icon="help_outline"
+                svg="help-circle"
               />
             </div>
           </div>
@@ -148,20 +148,20 @@
                 to="https://docs.hoppscotch.io/quickstart/graphql"
                 blank
                 :title="$t('app.wiki')"
-                icon="help_outline"
+                svg="help-circle"
               />
               <ButtonSecondary
                 ref="downloadSchema"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.download_file')"
-                :icon="downloadSchemaIcon"
+                :svg="downloadSchemaIcon"
                 @click.native="downloadSchema"
               />
               <ButtonSecondary
                 ref="copySchemaCode"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
-                :icon="copySchemaIcon"
+                :svg="copySchemaIcon"
                 @click.native="copySchema"
               />
             </div>
@@ -317,8 +317,8 @@ export default defineComponent({
       []
     )
 
-    const downloadSchemaIcon = ref("save_alt")
-    const copySchemaIcon = ref("content_copy")
+    const downloadSchemaIcon = ref("download")
+    const copySchemaIcon = ref("copy")
 
     const graphqlFieldsFilterText = ref("")
 
@@ -405,14 +405,14 @@ export default defineComponent({
       }.graphql`
       document.body.appendChild(a)
       a.click()
-      downloadSchemaIcon.value = "done"
+      downloadSchemaIcon.value = "check"
       $toast.success(t("state.download_started").toString(), {
         icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
-        downloadSchemaIcon.value = "save_alt"
+        downloadSchemaIcon.value = "download"
       }, 1000)
     }
 
@@ -420,8 +420,8 @@ export default defineComponent({
       if (!schemaString.value) return
 
       copyToClipboard(schemaString.value)
-      copySchemaIcon.value = "done"
-      setTimeout(() => (copySchemaIcon.value = "content_copy"), 1000)
+      copySchemaIcon.value = "check"
+      setTimeout(() => (copySchemaIcon.value = "copy"), 1000)
     }
 
     const handleUseHistory = (entry: GQLHistoryEntry) => {

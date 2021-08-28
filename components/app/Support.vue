@@ -7,7 +7,7 @@
     <template #body>
       <div class="flex flex-col space-y-2">
         <SmartItem
-          icon="menu_book"
+          svg="book"
           :label="$t('app.documentation')"
           to="https://docs.hoppscotch.io"
           :description="$t('support.documentation')"
@@ -17,7 +17,7 @@
           @click.native="hideModal()"
         />
         <SmartItem
-          icon="keyboard"
+          svg="zap"
           :label="$t('app.keyboard_shortcuts')"
           :description="$t('support.shortcuts')"
           info-icon="chevron_right"
@@ -28,7 +28,7 @@
           "
         />
         <SmartItem
-          icon="auto_awesome"
+          svg="gift"
           :label="$t('app.whats_new')"
           to="https://docs.hoppscotch.io/changelog"
           :description="$t('support.changelog')"
@@ -38,7 +38,7 @@
           @click.native="hideModal()"
         />
         <SmartItem
-          icon="contact_support"
+          svg="message-circle"
           :label="$t('app.chat_with_us')"
           :description="$t('support.chat')"
           info-icon="chevron_right"

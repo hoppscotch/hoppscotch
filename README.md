@@ -36,7 +36,7 @@
   <p>
     <a href="https://hoppscotch.io">
       <img
-        src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/light_rest.png"
+        src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/static/images/screenshots/rest.png"
         alt="Screenshot"
         width="100%"
       />

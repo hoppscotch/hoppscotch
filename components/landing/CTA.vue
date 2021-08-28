@@ -28,7 +28,7 @@
         <p class="mt-2">
           <SmartLink :to="cta.link.target" class="link" blank>
             {{ cta.link.title }}
-            <i class="material-icons">chevron_right</i>
+            <SmartIcon name="chevron-right" class="svg-icons" />
           </SmartLink>
         </p>
       </div>

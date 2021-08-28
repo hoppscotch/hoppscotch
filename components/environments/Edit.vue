@@ -25,13 +25,13 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.clear_all')"
-              :icon="clearIcon"
+              :svg="clearIcon"
               class="rounded"
               @click.native="clearContent()"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              icon="add"
+              svg="plus"
               :title="$t('add.new')"
               class="rounded"
               @click.native="addEnvironmentVariable"
@@ -61,7 +61,7 @@
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
-                icon="remove_circle_outline"
+                svg="trash"
                 color="red"
                 @click.native="removeEnvironmentVariable(index)"
               />
@@ -77,7 +77,7 @@
               justify-center
             "
           >
-            <i class="opacity-75 pb-2 material-icons">layers</i>
+            <SmartIcon class="opacity-75 pb-2" name="layers" />
             <span class="text-center pb-4">
               {{ $t("empty.environments") }}
             </span>
@@ -146,7 +146,7 @@ export default defineComponent({
     return {
       name: null as string | null,
       vars: [] as { key: string; value: string }[],
-      clearIcon: "clear_all",
+      clearIcon: "trash-2",
     }
   },
   watch: {
@@ -158,11 +158,11 @@ export default defineComponent({
   methods: {
     clearContent() {
       this.vars = []
-      this.clearIcon = "done"
+      this.clearIcon = "check"
       this.$toast.success(this.$t("state.cleared").toString(), {
         icon: "clear_all",
       })
-      setTimeout(() => (this.clearIcon = "clear_all"), 1000)
+      setTimeout(() => (this.clearIcon = "trash-2"), 1000)
     },
     addEnvironmentVariable() {
       this.vars.push({

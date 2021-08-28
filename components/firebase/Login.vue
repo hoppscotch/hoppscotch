@@ -9,13 +9,13 @@
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2 px-2">
         <SmartItem
           :loading="signingInWithGitHub"
-          svg="github"
+          svg="auth/github"
           :label="$t('auth.continue_with_github')"
           @click.native="signInWithGithub"
         />
         <SmartItem
           :loading="signingInWithGoogle"
-          svg="google"
+          svg="auth/google"
           :label="$t('auth.continue_with_google')"
           @click.native="signInWithGoogle"
         />
@@ -61,9 +61,7 @@
       </div>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
         <div class="flex flex-col max-w-md justify-center items-center">
-          <i class="text-accent material-icons !text-4xl">
-            mark_email_unread
-          </i>
+          <SmartIcon class="h-6 text-accent w-6" name="inbox" />
           <h3 class="my-2 text-center text-lg">
             {{ $t("auth.we_sent_magic_link") }}
           </h3>

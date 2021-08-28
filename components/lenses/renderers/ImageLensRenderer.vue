@@ -22,7 +22,7 @@
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
-          :icon="downloadIcon"
+          :svg="downloadIcon"
           @click.native="downloadResponse"
         />
       </div>
@@ -46,7 +46,7 @@ export default defineComponent({
   data() {
     return {
       imageSource: "",
-      downloadIcon: "save_alt",
+      downloadIcon: "download",
     }
   },
   computed: {
@@ -102,14 +102,14 @@ export default defineComponent({
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.downloadIcon = "done"
+      this.downloadIcon = "check"
       this.$toast.success(this.$t("state.download_started"), {
         icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
-        this.downloadIcon = "save_alt"
+        this.downloadIcon = "download"
       }, 1000)
     },
   },

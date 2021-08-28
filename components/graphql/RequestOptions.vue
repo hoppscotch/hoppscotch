@@ -23,14 +23,14 @@
             <div class="flex">
               <ButtonSecondary
                 :label="$t('request.run')"
-                icon="play_arrow"
+                svg="play"
                 class="rounded-none !text-accent"
                 @click.native="runQuery()"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
-                :icon="copyQueryIcon"
+                :svg="copyQueryIcon"
                 @click.native="copyQuery"
               />
               <ButtonSecondary
@@ -38,14 +38,14 @@
                 :title="`${$t(
                   'action.prettify'
                 )} <kbd>${getSpecialKey()}</kbd><kbd>P</kbd>`"
-                :icon="prettifyQueryIcon"
+                :svg="prettifyQueryIcon"
                 @click.native="prettifyQuery"
               />
               <ButtonSecondary
                 ref="saveRequest"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('request.save')"
-                icon="create_new_folder"
+                svg="folder-plus"
                 @click.native="saveRequest"
               />
             </div>
@@ -89,7 +89,7 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
-                :icon="copyVariablesIcon"
+                :svg="copyVariablesIcon"
                 @click.native="copyVariables"
               />
             </div>
@@ -132,13 +132,13 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.clear_all')"
-                icon="clear_all"
+                svg="trash-2"
                 @click.native="headers = []"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('add.new')"
-                icon="add"
+                svg="plus"
                 @click.native="addRequestHeader"
               />
             </div>
@@ -199,12 +199,12 @@
                       : $t('action.turn_on')
                     : $t('action.turn_off')
                 "
-                :icon="
+                :svg="
                   header.hasOwnProperty('active')
                     ? header.active
-                      ? 'check_circle_outline'
-                      : 'radio_button_unchecked'
-                    : 'check_circle_outline'
+                      ? 'check-circle'
+                      : 'circle'
+                    : 'check-circle'
                 "
                 color="green"
                 @click.native="
@@ -220,7 +220,7 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
-                icon="remove_circle_outline"
+                svg="trash"
                 color="red"
                 @click.native="removeRequestHeader(index)"
               />
@@ -242,7 +242,7 @@
             <ButtonSecondary
               :label="$t('add.new')"
               filled
-              icon="add"
+              svg="plus"
               @click.native="addRequestHeader"
             />
           </div>
@@ -318,9 +318,9 @@ export default defineComponent({
 
     const queryEditor = ref<any | null>(null)
 
-    const copyQueryIcon = ref("content_copy")
-    const prettifyQueryIcon = ref("photo_filter")
-    const copyVariablesIcon = ref("content_copy")
+    const copyQueryIcon = ref("copy")
+    const prettifyQueryIcon = ref("sparkles")
+    const copyVariablesIcon = ref("copy")
 
     const showSaveRequestModal = ref(false)
 
@@ -347,8 +347,8 @@ export default defineComponent({
 
     const copyQuery = () => {
       copyToClipboard(gqlQueryString.value)
-      copyQueryIcon.value = "done"
-      setTimeout(() => (copyQueryIcon.value = "content_copy"), 1000)
+      copyQueryIcon.value = "check"
+      setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
     }
 
     const response = useStream(gqlResponse$, "", setGQLResponse)
@@ -416,8 +416,8 @@ export default defineComponent({
 
     const prettifyQuery = () => {
       queryEditor.value.prettifyQuery()
-      prettifyQueryIcon.value = "done"
-      setTimeout(() => (prettifyQueryIcon.value = "photo_filter"), 1000)
+      prettifyQueryIcon.value = "check"
+      setTimeout(() => (prettifyQueryIcon.value = "sparkles"), 1000)
     }
 
     const saveRequest = () => {
@@ -431,8 +431,8 @@ export default defineComponent({
 
     const copyVariables = () => {
       copyToClipboard(variableString.value)
-      copyVariablesIcon.value = "done"
-      setTimeout(() => (copyVariablesIcon.value = "content_copy"), 1000)
+      copyVariablesIcon.value = "check"
+      setTimeout(() => (copyVariablesIcon.value = "copy"), 1000)
     }
 
     const addRequestHeader = () => {

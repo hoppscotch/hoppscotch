@@ -37,8 +37,8 @@
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
                   title="JSON"
-                  icon="folder"
-                  class="rounded-none"
+                  svg="folder"
+                  class="!rounded-none"
                   :label="$t('import.collections')"
                   @click.native="$refs.collectionUpload.click()"
                 />
@@ -53,7 +53,7 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.clear')"
-                icon="clear_all"
+                svg="trash-2"
                 @click.native="collectionJSON = '[]'"
               />
             </div>

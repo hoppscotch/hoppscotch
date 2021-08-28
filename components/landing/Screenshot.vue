@@ -11,7 +11,7 @@
     "
   >
     <img
-      src="images/screenshots/light_rest.png"
+      src="images/screenshots/rest.png"
       alt="Screenshot"
       class="rounded-lg ring-dividerLight mt-8 max-w-5/6 ring-4"
     />

@@ -107,15 +107,11 @@
           arrow
         >
           <template #trigger>
-            <ButtonPrimary
-              class="rounded-l-none"
-              filled
-              icon="keyboard_arrow_down"
-            />
+            <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
           <SmartItem
             :label="$t('import.curl')"
-            icon="import_export"
+            svg="terminal"
             @click.native="
               () => {
                 showCurlImportModal = !showCurlImportModal
@@ -125,7 +121,7 @@
           />
           <SmartItem
             :label="$t('show.code')"
-            icon="code"
+            svg="code"
             @click.native="
               () => {
                 showCodegenModal = !showCodegenModal
@@ -136,7 +132,7 @@
           <SmartItem
             ref="clearAll"
             :label="$t('action.clear_all')"
-            icon="clear_all"
+            svg="rotate-ccw"
             @click.native="
               () => {
                 clearContent()
@@ -150,7 +146,7 @@
         class="rounded-r-none ml-2"
         :label="$t('request.save')"
         filled
-        icon="save"
+        svg="save"
         @click.native="saveRequest()"
       />
       <span class="flex">
@@ -162,11 +158,7 @@
           arrow
         >
           <template #trigger>
-            <ButtonSecondary
-              icon="keyboard_arrow_down"
-              filled
-              class="rounded-r"
-            />
+            <ButtonSecondary svg="chevron-down" filled class="rounded-r" />
           </template>
           <input
             id="request-name"
@@ -180,7 +172,7 @@
           <SmartItem
             ref="copyRequest"
             :label="$t('request.copy_link')"
-            :icon="hasNavigatorShare ? 'share' : 'content_copy'"
+            :svg="hasNavigatorShare ? 'share-2' : 'copy'"
             @click.native="
               () => {
                 copyRequest()
@@ -191,7 +183,7 @@
           <SmartItem
             ref="saveRequest"
             :label="$t('request.save_as')"
-            icon="create_new_folder"
+            svg="folder-plus"
             @click.native="
               () => {
                 showSaveRequestModal = true

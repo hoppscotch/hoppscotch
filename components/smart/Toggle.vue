@@ -26,20 +26,22 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-$useBorder: false;
+$useBorder: true;
 $borderColor: var(--divider-color);
-$activeColor: var(--accent-color);
+$activeColor: var(--divider-color);
 $inactiveColor: var(--divider-color);
-$inactiveHandleColor: var(--primary-color);
-$activeHandleColor: var(--primary-color);
+$inactiveHandleColor: var(--secondary-light-color);
+$activeHandleColor: var(--accent-color);
 $width: 1.6rem;
-$height: 0.78rem;
-$handleSpacing: 0.2rem;
+$height: 0.6rem;
+$indicatorHeight: 0.4rem;
+$indicatorWidth: 0.4rem;
+$handleSpacing: 0.1rem;
 $transition: all 0.2s ease-in-out;
 
 .toggle {
   @apply relative;
-  @apply inline-flex;
+  @apply flex;
   @apply items-center;
   @apply justify-center;
   @apply rounded-full;
@@ -57,7 +59,8 @@ $transition: all 0.2s ease-in-out;
 
   .handle {
     @apply absolute;
-    @apply inline-block;
+    @apply flex;
+    @apply flex-shrink-0;
     @apply inset-0;
     @apply rounded-full;
     @apply pointer-events-none;
@@ -65,12 +68,12 @@ $transition: all 0.2s ease-in-out;
     transition: $transition;
     margin: $handleSpacing;
     background-color: $inactiveHandleColor;
-    width: #{$height - ($handleSpacing * 2)};
-    height: #{$height - ($handleSpacing * 2)};
+    width: $indicatorWidth;
+    height: $indicatorHeight;
   }
 
   &.on {
-    background-color: $activeColor;
+    // background-color: $activeColor;
     border-color: $activeColor;
 
     .handle {

@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <SmartItem
-      icon="exit_to_app"
+      svg="log-out"
       :label="$t('auth.logout')"
       @click.native="
         $emit('confirm-logout')

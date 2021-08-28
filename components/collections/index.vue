@@ -40,16 +40,16 @@
           "
           v-tippy="{ theme: 'tooltip' }"
           disabled
-          class="rounded-none"
-          icon="add"
+          class="!rounded-none"
+          svg="plus"
           :title="$t('team.no_access')"
           :label="$t('action.new')"
         />
         <ButtonSecondary
           v-else
-          icon="add"
+          svg="plus"
           :label="$t('action.new')"
-          class="rounded-none"
+          class="!rounded-none"
           @click.native="displayModalAdd(true)"
         />
         <span class="flex">
@@ -58,7 +58,7 @@
             to="https://docs.hoppscotch.io/features/collections"
             blank
             :title="$t('app.wiki')"
-            icon="help_outline"
+            svg="help-circle"
           />
           <ButtonSecondary
             v-if="!saveRequest"
@@ -67,7 +67,7 @@
               collectionsType.type == 'team-collections' &&
               collectionsType.selectedTeam == undefined
             "
-            icon="import_export"
+            svg="archive"
             :title="$t('modal.import_export')"
             @click.native="displayModalImportExport(true)"
           />

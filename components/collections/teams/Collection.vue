@@ -5,9 +5,11 @@
         class="cursor-pointer flex px-4 justify-center items-center"
         @click="toggleShowChildren()"
       >
-        <i class="material-icons" :class="{ 'text-green-500': isSelected }">
-          {{ getCollectionIcon }}
-        </i>
+        <SmartIcon
+          class="svg-icons"
+          :class="{ 'text-green-500': isSelected }"
+          :name="getCollectionIcon"
+        />
       </span>
       <span
         class="
@@ -28,7 +30,7 @@
           v-if="doc && !selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('import.title')"
-          icon="radio_button_unchecked"
+          svg="circle"
           color="green"
           @click.native="$emit('select-collection')"
         />
@@ -36,14 +38,14 @@
           v-if="doc && selected"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.remove')"
-          icon="check_circle_outline"
+          svg="check-circle"
           color="green"
           @click.native="$emit('unselect-collection')"
         />
         <ButtonSecondary
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
-          icon="create_new_folder"
+          svg="folder-plus"
           :title="$t('folder.new')"
           class="hidden group-hover:inline-flex"
           @click.native="
@@ -66,12 +68,12 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.more')"
-                icon="more_vert"
+                svg="more-vertical"
               />
             </template>
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="create_new_folder"
+              svg="folder-plus"
               :label="$t('folder.new')"
               @click.native="
                 $emit('add-folder', {
@@ -83,7 +85,7 @@
             />
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="create"
+              svg="edit"
               :label="$t('action.edit')"
               @click.native="
                 $emit('edit-collection')
@@ -92,7 +94,7 @@
             />
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              icon="delete"
+              svg="trash-2"
               color="red"
               :label="$t('action.delete')"
               @click.native="
@@ -206,9 +208,9 @@ export default defineComponent({
       )
     },
     getCollectionIcon() {
-      if (this.isSelected) return "check_circle_outline"
+      if (this.isSelected) return "check-circle"
       else if (!this.showChildren && !this.isFiltered) return "folder"
-      else if (this.showChildren || this.isFiltered) return "folder_open"
+      else if (this.showChildren || this.isFiltered) return "folder-minus"
       else return "folder"
     },
   },

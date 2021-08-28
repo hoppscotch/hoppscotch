@@ -23,7 +23,7 @@
           :title="
             previewEnabled ? $t('hide.preview') : $t('response.preview_html')
           "
-          :icon="!previewEnabled ? 'visibility' : 'visibility_off'"
+          :svg="!previewEnabled ? 'eye' : 'eye-off'"
           @click.native.prevent="togglePreview"
         />
         <ButtonSecondary
@@ -31,7 +31,7 @@
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
-          :icon="downloadIcon"
+          :svg="downloadIcon"
           @click.native="downloadResponse"
         />
         <ButtonSecondary
@@ -39,7 +39,7 @@
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.copy')"
-          :icon="copyIcon"
+          :svg="copyIcon"
           @click.native="copyResponse"
         />
       </div>
@@ -80,8 +80,8 @@ export default defineComponent({
   },
   data() {
     return {
-      downloadIcon: "save_alt",
-      copyIcon: "content_copy",
+      downloadIcon: "download",
+      copyIcon: "copy",
       previewEnabled: false,
     }
   },
@@ -96,23 +96,23 @@ export default defineComponent({
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.downloadIcon = "done"
+      this.downloadIcon = "check"
       this.$toast.success(this.$t("state.download_started"), {
         icon: "downloading",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
-        this.downloadIcon = "save_alt"
+        this.downloadIcon = "download"
       }, 1000)
     },
     copyResponse() {
       copyToClipboard(this.responseBodyText)
-      this.copyIcon = "done"
+      this.copyIcon = "check"
       this.$toast.success(this.$t("state.copied_to_clipboard"), {
         icon: "content_paste",
       })
-      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
+      setTimeout(() => (this.copyIcon = "copy"), 1000)
     },
     togglePreview() {
       this.previewEnabled = !this.previewEnabled

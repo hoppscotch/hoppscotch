@@ -24,13 +24,13 @@
           to="https://docs.hoppscotch.io/features/history"
           blank
           :title="$t('app.wiki')"
-          icon="help_outline"
+          svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           data-testid="clear_history"
           :disabled="history.length === 0"
-          icon="clear_all"
+          svg="trash-2"
           :title="$t('action.clear_all')"
           @click.native="confirmRemove = true"
         />

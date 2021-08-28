@@ -22,7 +22,7 @@
           ref="copyHeaders"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.copy')"
-          :icon="copyIcon"
+          :svg="copyIcon"
           @click.native="copyHeaders"
         />
       </div>
@@ -79,17 +79,17 @@ export default defineComponent({
   },
   data() {
     return {
-      copyIcon: "content_copy",
+      copyIcon: "copy",
     }
   },
   methods: {
     copyHeaders() {
       copyToClipboard(JSON.stringify(this.headers))
-      this.copyIcon = "done"
+      this.copyIcon = "check"
       this.$toast.success(this.$t("state.copied_to_clipboard"), {
         icon: "content_paste",
       })
-      setTimeout(() => (this.copyIcon = "content_copy"), 1000)
+      setTimeout(() => (this.copyIcon = "copy"), 1000)
     },
   },
 })

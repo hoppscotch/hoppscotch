@@ -23,7 +23,7 @@
         <div class="flex flex-col my-4 mx-6">
           <input
             v-model="filterText"
-            type="search"
+            type="search" autocomplete="off"
             class="
               bg-primaryLight
               border border-dividerLight

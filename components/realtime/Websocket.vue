@@ -23,6 +23,7 @@
                     focus-visible:border-dividerDark
                   "
                   type="url"
+                  autocomplete="off"
                   spellcheck="false"
                   :class="{ error: !urlValid }"
                   :placeholder="$t('websocket.url')"
@@ -89,6 +90,7 @@
                 :placeholder="$t('count.protocol', { count: index + 1 })"
                 name="message"
                 type="text"
+                autocomplete="off"
               />
               <span>
                 <ButtonSecondary
@@ -174,6 +176,7 @@
             v-model="communication.input"
             name="message"
             type="text"
+            autocomplete="off"
             :disabled="!connectionState"
             :placeholder="$t('websocket.message')"
             class="input"

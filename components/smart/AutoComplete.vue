@@ -4,6 +4,7 @@
       ref="acInput"
       v-model="text"
       type="text"
+      autocomplete="off"
       :placeholder="placeholder"
       :spellcheck="spellcheck"
       :autocapitalize="autocapitalize"

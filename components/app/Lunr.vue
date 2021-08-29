@@ -3,6 +3,7 @@
     <AppSearchEntry
       v-for="(shortcut, shortcutIndex) in theOutput"
       :key="`shortcut-${shortcutIndex}`"
+      :ref="`item-${shortcutIndex}`"
       :shortcut="shortcut"
       @action="$emit('action', shortcut.action)"
     />
@@ -62,6 +63,7 @@ export default {
       outputHash: "",
       theOutput: [],
       cache: {},
+      currentItem: -1,
     }
   },
   computed: {
@@ -118,6 +120,12 @@ export default {
       },
       immediate: true,
     },
+  },
+  mounted() {
+    document.addEventListener("keydown", this.nextItem)
+  },
+  destroyed() {
+    document.removeEventListener("keydown", this.nextItem)
   },
   methods: {
     async output(search) {
@@ -195,6 +203,24 @@ export default {
       val &= 0xffffffff
       const hex = val.toString(16).toUpperCase()
       return `00000000${hex}`.slice(-8)
+    },
+    nextItem(e) {
+      if (e.keyCode === 38 && this.currentItem > 0) {
+        e.preventDefault()
+        this.currentItem--
+        this.$nextTick().then(() => {
+          this.$refs[`item-${this.currentItem}`][0].$el.focus()
+        })
+      } else if (
+        e.keyCode === 40 &&
+        this.currentItem < this.theOutput.length - 1
+      ) {
+        e.preventDefault()
+        this.currentItem++
+        this.$nextTick().then(() => {
+          this.$refs[`item-${this.currentItem}`][0].$el.focus()
+        })
+      }
     },
   },
 }

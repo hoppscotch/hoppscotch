@@ -6,6 +6,7 @@
         v-model="search"
         v-focus
         type="text"
+        autocomplete="off"
         name="command"
         :placeholder="$t('app.type_a_command_search')"
         class="

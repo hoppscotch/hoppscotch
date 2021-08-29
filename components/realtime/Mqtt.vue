@@ -11,6 +11,7 @@
                   v-model="url"
                   v-focus
                   type="url"
+                  autocomplete="off"
                   spellcheck="false"
                   class="
                     bg-primaryLight
@@ -69,6 +70,7 @@
             class="input"
             :placeholder="$t('mqtt.topic_name')"
             type="text"
+            autocomplete="off"
             spellcheck="false"
           />
         </div>
@@ -83,6 +85,7 @@
             v-model="msg"
             class="input"
             type="text"
+            autocomplete="off"
             :placeholder="$t('mqtt.message')"
             spellcheck="false"
           />
@@ -112,6 +115,7 @@
             id="sub_topic"
             v-model="sub_topic"
             type="text"
+            autocomplete="off"
             :placeholder="$t('mqtt.topic_name')"
             spellcheck="false"
             class="input"

@@ -84,6 +84,7 @@
           "
           name="url"
           type="text"
+          autocomplete="off"
           spellcheck="false"
           :placeholder="$t('request.url')"
           autofocus
@@ -166,6 +167,7 @@
             :placeholder="$t('request.name')"
             name="request-name"
             type="text"
+            autocomplete="off"
             class="mb-2 input"
             @keyup.enter="saveOptions.tippy().hide()"
           />

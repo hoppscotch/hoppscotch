@@ -18,6 +18,7 @@
         v-if="showCollActions"
         v-model="filterText"
         type="search"
+        autocomplete="off"
         :placeholder="$t('action.search')"
         class="bg-transparent flex w-full py-2 px-4"
       />

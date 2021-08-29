@@ -7,6 +7,7 @@
             <input
               v-model="graphqlFieldsFilterText"
               type="search"
+              autocomplete="off"
               :placeholder="$t('action.search')"
               class="bg-transparent flex w-full p-4 py-2"
             />

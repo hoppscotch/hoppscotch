@@ -30,6 +30,15 @@
         {{ key }}
       </span>
     </div>
+    <div
+      v-if="theOutput.length === 0"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+    >
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <span class="text-center">
+        {{ $t("state.nothing_found") }} "{{ search }}"
+      </span>
+    </div>
   </div>
 </template>
 
@@ -138,16 +147,14 @@ export default {
     async output(search) {
       const that = this
       if ((await this.idx) && (await this.idx.search)) {
-        return this.idx.search(`${search}*`).map(function (valu) {
-          return that.input[+valu.ref]
-        }, that)
+        return this.idx
+          .search(`${search}*`)
+          .map(({ ref }) => that.input[+ref], that)
       }
       if (this.idx.then)
-        return this.idx.then((index) => {
-          return index.search(`${search}*`).map(function (valu) {
-            return that.input[+valu.ref]
-          }, that)
-        })
+        return this.idx.then((index) =>
+          index.search(`${search}*`).map(({ ref }) => that.input[+ref], that)
+        )
       // no index
       return this.input
     },
@@ -158,7 +165,7 @@ export default {
         // if (this.log) console.log("feilds from ", first)
 
         const stopWords = this.stopWords
-        const documents = this.input.map(function (val, i) {
+        const documents = this.input.map((val, i) => {
           const doc = {}
           const seen = []
           function replacer(key, value) {
@@ -170,7 +177,7 @@ export default {
             }
             return value
           }
-          Object.keys(val).forEach(function (key) {
+          Object.keys(val).forEach((key) => {
             doc[key] = JSON.stringify(val[key], replacer)
           })
           return { __id: i, ...val }
@@ -211,7 +218,7 @@ export default {
     hex32(val) {
       val &= 0xffffffff
       const hex = val.toString(16).toUpperCase()
-      return ("00000000" + hex).slice(-8)
+      return `00000000${hex}`.slice(-8)
     },
   },
 }

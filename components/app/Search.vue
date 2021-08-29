@@ -102,11 +102,11 @@ export default defineComponent({
   },
   methods: {
     hideModal() {
+      this.search = ""
       this.$emit("hide-modal")
     },
     runAction(command) {
       invokeAction(command, "path_from_invokeAction")
-      this.search = ""
       this.hideModal()
     },
   },

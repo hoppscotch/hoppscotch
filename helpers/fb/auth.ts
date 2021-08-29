@@ -13,6 +13,9 @@ import {
   signInWithEmailLink as signInWithEmailLinkFB,
   ActionCodeSettings,
   signOut,
+  linkWithCredential,
+  AuthCredential,
+  UserCredential,
 } from "firebase/auth"
 import {
   onSnapshot,
@@ -176,6 +179,13 @@ export async function getSignInMethodsForEmail(email: string) {
   return await fetchSignInMethodsForEmail(getAuth(), email)
 }
 
+export async function linkWithFBCredential(
+  user: User,
+  credential: AuthCredential
+) {
+  return await linkWithCredential(user, credential)
+}
+
 /**
  * Sends an email with the signin link to the user
  *
@@ -242,6 +252,10 @@ export async function setProviderInfo(id: string, token: string) {
     console.error("error updating", e)
     throw e
   }
+}
+
+export function getGithubCredentialFromResult(result: UserCredential) {
+  return GithubAuthProvider.credentialFromResult(result)
 }
 
 /**

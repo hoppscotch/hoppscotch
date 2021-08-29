@@ -1,7 +1,7 @@
 <template>
   <SmartTabs
     class="h-full overflow-hidden"
-    styles="sticky top-0 z-10 border-b border-dividerLight !overflow-visible"
+    styles="sticky bg-primary top-0 z-10 border-b border-dividerLight !overflow-visible"
   >
     <SmartTab
       id="websocket"

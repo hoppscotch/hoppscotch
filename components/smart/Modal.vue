@@ -37,7 +37,6 @@
               shadow-lg
               text-left
               w-full
-              p-4
               transform
               transition-all
               inline-block
@@ -46,7 +45,10 @@
               sm:max-w-md sm:align-middle
               md:rounded-lg
             "
-            :class="{ 'mt-24 md:mb-8': placement === 'top' }"
+            :class="[
+              { 'mt-24 md:mb-8': placement === 'top' },
+              { 'p-4': !fullWidth },
+            ]"
           >
             <div
               v-if="title"
@@ -64,7 +66,8 @@
               </span>
             </div>
             <div
-              class="flex flex-col max-h-md py-2 overflow-y-auto hide-scrollbar"
+              class="flex flex-col max-h-md overflow-y-auto hide-scrollbar"
+              :class="{ 'py-2': !fullWidth }"
             >
               <slot name="body"></slot>
             </div>
@@ -114,6 +117,10 @@ export default defineComponent({
     placement: {
       type: String,
       default: "top",
+    },
+    fullWidth: {
+      type: Boolean,
+      default: false,
     },
   },
   setup() {

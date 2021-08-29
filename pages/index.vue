@@ -4,7 +4,7 @@
       <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
           <HttpRequest />
-          <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">
+          <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
             <SmartTab
               :id="'params'"
               :label="$t('tab.parameters')"
@@ -55,7 +55,7 @@
       class="hide-scrollbar !overflow-auto"
     >
       <aside>
-        <SmartTabs styles="sticky z-10 top-0">
+        <SmartTabs styles="sticky bg-primary z-10 top-0">
           <SmartTab :id="'history'" :label="$t('tab.history')" :selected="true">
             <History ref="historyComponent" :page="'rest'" />
           </SmartTab>

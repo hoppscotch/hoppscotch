@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" @close="$emit('hide-modal')">
+  <SmartModal v-if="show" full-width @close="$emit('hide-modal')">
     <template #body>
       <input
         id="command"
@@ -11,11 +11,11 @@
         class="
           bg-transparent
           border-b border-dividerLight
+          flex flex-shrink-0
           text-secondaryDark text-base
           leading-normal
-          px-4
-          pt-2
-          pb-6
+          py-4
+          px-6
         "
       />
       <AppLunr
@@ -37,18 +37,17 @@
         "
       >
         <div v-for="(map, mapIndex) in mappings" :key="`map-${mapIndex}`">
-          <h5 class="my-2 text-secondaryLight py-2 px-4">
+          <h5 class="my-2 text-secondaryLight py-2 px-6">
             {{ $t(map.section) }}
           </h5>
           <div
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
             class="
-              rounded
               cursor-pointer
               flex
               py-2
-              px-4
+              px-6
               transition
               items-center
               group
@@ -56,10 +55,19 @@
             "
             @click="runAction(shortcut.action)"
           >
-            <i class="mr-4 opacity-75 material-icons group-hover:opacity-100">
-              {{ shortcut.icon }}
-            </i>
-            <span class="flex flex-1 mr-4 group-hover:text-secondaryDark">
+            <SmartIcon
+              class="
+                mr-4
+                opacity-75
+                transition
+                svg-icons
+                group-hover:opacity-100
+              "
+              :name="shortcut.icon"
+            />
+            <span
+              class="flex flex-1 mr-4 transition group-hover:text-secondaryDark"
+            >
               {{ $t(shortcut.label) }}
             </span>
             <span

@@ -4,7 +4,6 @@
       v-for="(shortcut, shortcutIndex) in theOutput"
       :key="`shortcut-${shortcutIndex}`"
       class="
-        rounded
         cursor-pointer
         flex
         py-2
@@ -16,10 +15,11 @@
       "
       @click="$emit('action', shortcut.action)"
     >
-      <i class="mr-4 opacity-75 material-icons group-hover:opacity-100">
-        {{ shortcut.icon }}
-      </i>
-      <span class="flex flex-1 mr-4 group-hover:text-secondaryDark">
+      <SmartIcon
+        class="mr-4 opacity-75 transition svg-icons group-hover:opacity-100"
+        :name="shortcut.icon"
+      />
+      <span class="flex flex-1 mr-4 transition group-hover:text-secondaryDark">
         {{ $t(shortcut.label) }}
       </span>
       <span

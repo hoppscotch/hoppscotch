@@ -69,7 +69,6 @@ export default defineComponent({
   @apply flex;
   @apply whitespace-nowrap;
   @apply overflow-auto;
-  @apply bg-primary;
 
   // &::after {
   //   @apply absolute;

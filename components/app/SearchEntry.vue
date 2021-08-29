@@ -9,14 +9,33 @@
       items-center
       group
       hover:bg-primaryLight
+      focus:outline-none
+      focus-visible:bg-primaryLight
     "
+    tabindex="0"
     @click="$emit('action', shortcut.action)"
+    @keydown.enter="$emit('action', shortcut.action)"
   >
     <SmartIcon
-      class="mr-4 opacity-75 transition svg-icons group-hover:opacity-100"
+      class="
+        mr-4
+        opacity-75
+        transition
+        svg-icons
+        group-hover:opacity-100
+        group-focus:opacity-100
+      "
       :name="shortcut.icon"
     />
-    <span class="flex flex-1 mr-4 transition group-hover:text-secondaryDark">
+    <span
+      class="
+        flex flex-1
+        mr-4
+        transition
+        group-hover:text-secondaryDark
+        group-focus:text-secondaryDark
+      "
+    >
       {{ $t(shortcut.label) }}
     </span>
     <span

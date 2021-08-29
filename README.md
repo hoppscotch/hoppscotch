@@ -197,6 +197,8 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 🌎 **i18n:** Experience the app in your own language.
 
+Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
+
 📦 **Add-ons:** Official add-ons for hoppscotch.
 
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch

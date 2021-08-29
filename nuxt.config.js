@@ -181,7 +181,7 @@ export default {
     position: "bottom-center",
     duration: 3000,
     keepOnHover: true,
-    singleton: true,
+    // singleton: true,
   },
 
   // Google Analytics module configuration (https://github.com/nuxt-community/analytics-module)

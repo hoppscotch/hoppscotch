@@ -35,12 +35,14 @@
   @apply text-accentContrast;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   @apply text-secondaryDark;
   @apply opacity-25;
 }
 
-input {
+input,
+textarea {
   @apply text-secondaryDark;
   @apply font-medium;
 }

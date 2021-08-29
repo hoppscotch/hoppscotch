@@ -1,5 +1,10 @@
-import firebase from "firebase/app"
-import "firebase/firestore"
+import {
+  collection,
+  doc,
+  getFirestore,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore"
 import { currentUser$ } from "./auth"
 import {
   Environment,
@@ -39,13 +44,16 @@ async function writeEnvironments(environment: Environment[]) {
   }
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection("environments")
-      .doc("sync")
-      .set(ev)
+    await setDoc(
+      doc(
+        getFirestore(),
+        "users",
+        currentUser$.value.uid,
+        "envrionments",
+        "sync"
+      ),
+      ev
+    )
   } catch (e) {
     console.error("error updating", ev, e)
     throw e
@@ -65,13 +73,10 @@ async function writeGlobalEnvironment(variables: Environment["variables"]) {
   }
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection("globalEnv")
-      .doc("sync")
-      .set(ev)
+    await setDoc(
+      doc(getFirestore(), "users", currentUser$.value.uid, "globalEnv", "sync"),
+      ev
+    )
   } catch (e) {
     console.error("error updating", ev, e)
     throw e
@@ -115,12 +120,9 @@ export function initEnvironments() {
         globalsSnapshotStop = null
       }
     } else if (user) {
-      envSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("environments")
-        .onSnapshot((environmentsRef) => {
+      envSnapshotStop = onSnapshot(
+        collection(getFirestore(), "users", user.uid, "environments"),
+        (environmentsRef) => {
           const environments: any[] = []
 
           environmentsRef.forEach((doc) => {
@@ -134,13 +136,11 @@ export function initEnvironments() {
             replaceEnvironments(environments[0].environment)
           }
           loadedEnvironments = true
-        })
-      globalsSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("globalEnv")
-        .onSnapshot((globalsRef) => {
+        }
+      )
+      globalsSnapshotStop = onSnapshot(
+        collection(getFirestore(), "users", user.uid, "globalEnv"),
+        (globalsRef) => {
           if (globalsRef.docs.length === 0) {
             loadedGlobals = true
             return
@@ -150,7 +150,8 @@ export function initEnvironments() {
           loadedGlobals = false
           setGlobalEnvVariables(doc.variables)
           loadedGlobals = true
-        })
+        }
+      )
     }
   })
 }

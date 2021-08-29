@@ -1,5 +1,16 @@
-import firebase from "firebase/app"
-import "firebase/firestore"
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  getFirestore,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  updateDoc,
+} from "firebase/firestore"
 import { currentUser$ } from "./auth"
 import { settingsStore } from "~/newstore/settings"
 import {
@@ -46,12 +57,10 @@ async function writeHistory(entry: any, col: HistoryFBCollections) {
   }
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection(col)
-      .add(hs)
+    await addDoc(
+      collection(getFirestore(), "users", currentUser$.value.uid, col),
+      hs
+    )
   } catch (e) {
     console.error("error writing to history", hs, e)
     throw e
@@ -63,13 +72,9 @@ async function deleteHistory(entry: any, col: HistoryFBCollections) {
     throw new Error("User not logged in to delete history")
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection(col)
-      .doc(entry.id)
-      .delete()
+    await deleteDoc(
+      doc(getFirestore(), "users", currentUser$.value.uid, col, entry.id)
+    )
   } catch (e) {
     console.error("error deleting history", entry, e)
     throw e
@@ -80,12 +85,9 @@ async function clearHistory(col: HistoryFBCollections) {
   if (currentUser$.value == null)
     throw new Error("User not logged in to clear history")
 
-  const { docs } = await firebase
-    .firestore()
-    .collection("users")
-    .doc(currentUser$.value.uid)
-    .collection(col)
-    .get()
+  const { docs } = await getDocs(
+    collection(getFirestore(), "users", currentUser$.value.uid)
+  )
 
   await Promise.all(docs.map((e) => deleteHistory(e, col)))
 }
@@ -95,13 +97,10 @@ async function toggleStar(entry: any, col: HistoryFBCollections) {
     throw new Error("User not logged in to toggle star")
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection(col)
-      .doc(entry.id)
-      .update({ star: !entry.star })
+    await updateDoc(
+      doc(getFirestore(), "users", currentUser$.value.uid, col, entry.id),
+      { star: !entry.star }
+    )
   } catch (e) {
     console.error("error toggling star", entry, e)
     throw e
@@ -161,14 +160,13 @@ export function initHistory() {
         graphqlSnapshotStop = null
       }
     } else {
-      restSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("history")
-        .orderBy("updatedOn", "desc")
-        .limit(HISTORY_LIMIT)
-        .onSnapshot((historyRef) => {
+      restSnapshotStop = onSnapshot(
+        query(
+          collection(getFirestore(), "users", user.uid, "history"),
+          orderBy("updatedOn", "desc"),
+          limit(HISTORY_LIMIT)
+        ),
+        (historyRef) => {
           const history: RESTHistoryEntry[] = []
 
           historyRef.forEach((doc) => {
@@ -180,16 +178,16 @@ export function initHistory() {
           loadedRESTHistory = false
           setRESTHistoryEntries(history)
           loadedRESTHistory = true
-        })
+        }
+      )
 
-      graphqlSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("graphqlHistory")
-        .orderBy("updatedOn", "desc")
-        .limit(HISTORY_LIMIT)
-        .onSnapshot((historyRef) => {
+      graphqlSnapshotStop = onSnapshot(
+        query(
+          collection(getFirestore(), "users", user.uid, "graphqlHistory"),
+          orderBy("updatedOn", "desc"),
+          limit(HISTORY_LIMIT)
+        ),
+        (historyRef) => {
           const history: GQLHistoryEntry[] = []
 
           historyRef.forEach((doc) => {
@@ -201,7 +199,8 @@ export function initHistory() {
           loadedGraphqlHistory = false
           setGraphqlHistoryEntries(history)
           loadedGraphqlHistory = true
-        })
+        }
+      )
     }
   })
 }

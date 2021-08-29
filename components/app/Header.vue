@@ -9,7 +9,7 @@
           label="HOPPSCOTCH"
           to="/"
         />
-        <AppGitHubStarButton class="mt-1.5 transition" />
+        <AppGitHubStarButton class="mt-1.5 transition hidden sm:flex" />
       </div>
       <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary

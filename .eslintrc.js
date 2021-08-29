@@ -22,6 +22,7 @@ module.exports = {
   // add your custom rules here
   rules: {
     semi: [2, "never"],
+    "import/named": "off", // because, named import issue with typescript see: https://github.com/typescript-eslint/typescript-eslint/issues/154
     "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
     "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
     "vue/max-attributes-per-line": "off",

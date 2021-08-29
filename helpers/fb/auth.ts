@@ -1,6 +1,29 @@
-import firebase from "firebase/app"
-import "firebase/firestore"
-import "firebase/auth"
+import {
+  User,
+  getAuth,
+  onAuthStateChanged,
+  onIdTokenChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithEmailAndPassword as signInWithEmailAndPass,
+  isSignInWithEmailLink as isSignInWithEmailLinkFB,
+  fetchSignInMethodsForEmail,
+  sendSignInLinkToEmail,
+  signInWithEmailLink as signInWithEmailLinkFB,
+  ActionCodeSettings,
+  signOut,
+  linkWithCredential,
+  AuthCredential,
+  UserCredential,
+} from "firebase/auth"
+import {
+  onSnapshot,
+  getFirestore,
+  setDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore"
 import {
   BehaviorSubject,
   distinctUntilChanged,
@@ -11,7 +34,7 @@ import {
 } from "rxjs"
 import { onBeforeUnmount, onMounted } from "@nuxtjs/composition-api"
 
-export type HoppUser = firebase.User & {
+export type HoppUser = User & {
   provider?: string
   accessToken?: string
 }
@@ -39,9 +62,12 @@ export const authEvents$ = new Subject<AuthEvents>()
  * Initializes the firebase authentication related subjects
  */
 export function initAuth() {
+  const auth = getAuth()
+  const firestore = getFirestore()
+
   let extraSnapshotStop: (() => void) | null = null
 
-  firebase.auth().onAuthStateChanged((user) => {
+  onAuthStateChanged(auth, (user) => {
     /** Whether the user was logged in before */
     const wasLoggedIn = currentUser$.value !== null
 
@@ -62,19 +88,14 @@ export function initAuth() {
           uid: profile.uid,
         }
 
-        firebase
-          .firestore()
-          .collection("users")
-          .doc(user.uid)
-          .set(us, { merge: true })
-          .catch((e) => console.error("error updating", us, e))
+        setDoc(doc(firestore, "users", user.uid), us, { merge: true }).catch(
+          (e) => console.error("error updating", us, e)
+        )
       })
 
-      extraSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .onSnapshot((doc) => {
+      extraSnapshotStop = onSnapshot(
+        doc(firestore, "users", user.uid),
+        (doc) => {
           const data = doc.data()
 
           const userUpdate: HoppUser = user
@@ -86,7 +107,8 @@ export function initAuth() {
           }
 
           currentUser$.next(userUpdate)
-        })
+        }
+      )
     }
     currentUser$.next(user)
 
@@ -104,7 +126,7 @@ export function initAuth() {
     }
   })
 
-  firebase.auth().onIdTokenChanged(async (user) => {
+  onIdTokenChanged(auth, async (user) => {
     if (user) {
       authIdToken$.next(await user.getIdToken())
 
@@ -123,18 +145,17 @@ export function initAuth() {
  * Sign user in with a popup using Google
  */
 export async function signInUserWithGoogle() {
-  return await firebase
-    .auth()
-    .signInWithPopup(new firebase.auth.GoogleAuthProvider())
+  return await signInWithPopup(getAuth(), new GoogleAuthProvider())
 }
 
 /**
  * Sign user in with a popup using Github
  */
 export async function signInUserWithGithub() {
-  return await firebase
-    .auth()
-    .signInWithPopup(new firebase.auth.GithubAuthProvider().addScope("gist"))
+  return await signInWithPopup(
+    getAuth(),
+    new GithubAuthProvider().addScope("gist")
+  )
 }
 
 /**
@@ -144,7 +165,7 @@ export async function signInWithEmailAndPassword(
   email: string,
   password: string
 ) {
-  return await firebase.auth().signInWithEmailAndPassword(email, password)
+  return await signInWithEmailAndPass(getAuth(), email, password)
 }
 
 /**
@@ -155,7 +176,14 @@ export async function signInWithEmailAndPassword(
  * @returns Promise for string array of the auth provider methods accessible
  */
 export async function getSignInMethodsForEmail(email: string) {
-  return await firebase.auth().fetchSignInMethodsForEmail(email)
+  return await fetchSignInMethodsForEmail(getAuth(), email)
+}
+
+export async function linkWithFBCredential(
+  user: User,
+  credential: AuthCredential
+) {
+  return await linkWithCredential(user, credential)
 }
 
 /**
@@ -166,9 +194,9 @@ export async function getSignInMethodsForEmail(email: string) {
  */
 export async function signInWithEmail(
   email: string,
-  actionCodeSettings: firebase.auth.ActionCodeSettings
+  actionCodeSettings: ActionCodeSettings
 ) {
-  return await firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
+  return await sendSignInLinkToEmail(getAuth(), email, actionCodeSettings)
 }
 
 /**
@@ -177,7 +205,7 @@ export async function signInWithEmail(
  * @param url - The URL to look in
  */
 export function isSignInWithEmailLink(url: string) {
-  return firebase.auth().isSignInWithEmailLink(url)
+  return isSignInWithEmailLinkFB(getAuth(), url)
 }
 
 /**
@@ -187,7 +215,7 @@ export function isSignInWithEmailLink(url: string) {
  * @param url - The action URL which is used to validate login
  */
 export async function signInWithEmailLink(email: string, url: string) {
-  return await firebase.auth().signInWithEmailLink(email, url)
+  return await signInWithEmailLinkFB(getAuth(), email, url)
 }
 
 /**
@@ -196,7 +224,7 @@ export async function signInWithEmailLink(email: string, url: string) {
 export async function signOutUser() {
   if (!currentUser$.value) throw new Error("No user has logged in")
 
-  await firebase.auth().signOut()
+  await signOut(getAuth())
 }
 
 /**
@@ -216,16 +244,18 @@ export async function setProviderInfo(id: string, token: string) {
   }
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .update(us)
-      .catch((e) => console.error("error updating", us, e))
+    await updateDoc(
+      doc(getFirestore(), "users", currentUser$.value.uid),
+      us
+    ).catch((e) => console.error("error updating", us, e))
   } catch (e) {
     console.error("error updating", e)
     throw e
   }
+}
+
+export function getGithubCredentialFromResult(result: UserCredential) {
+  return GithubAuthProvider.credentialFromResult(result)
 }
 
 /**

@@ -1,4 +1,4 @@
-import firebase from "firebase/app"
+import { initializeApp } from "firebase/app"
 import { initAnalytics } from "./analytics"
 import { initAuth } from "./auth"
 import { initCollections } from "./collections"
@@ -22,7 +22,7 @@ let initialized = false
 export function initializeFirebase() {
   if (!initialized) {
     try {
-      firebase.initializeApp(firebaseConfig)
+      initializeApp(firebaseConfig)
 
       initAuth()
       initSettings()

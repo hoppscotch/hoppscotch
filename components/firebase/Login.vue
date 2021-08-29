@@ -116,17 +116,16 @@
   </SmartModal>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { applySetting } from "~/newstore/settings"
 import {
   signInUserWithGoogle,
-  getSignInMethodsForEmail,
-  signInWithEmailAndPassword,
   signInUserWithGithub,
   setProviderInfo,
   currentUser$,
   signInWithEmail,
+  linkWithFBCredential,
+  getGithubCredentialFromResult,
 } from "~/helpers/fb/auth"
 import { setLocalConfig } from "~/newstore/localpersistence"
 import { useStreamSubscriber } from "~/helpers/utils/composables"
@@ -162,7 +161,7 @@ export default defineComponent({
   },
   methods: {
     showLoginSuccess() {
-      this.$toast.success(this.$t("auth.login_success"), {
+      this.$toast.success(this.$t("auth.login_success").toString(), {
         icon: "vpn_key",
       })
     },
@@ -170,28 +169,7 @@ export default defineComponent({
       this.signingInWithGoogle = true
 
       try {
-        const { additionalUserInfo } = await signInUserWithGoogle()
-
-        if (additionalUserInfo.isNewUser) {
-          this.$toast.info(
-            `${this.$t("action.turn_on")} ${this.$t("auth.sync")}`,
-            {
-              icon: "sync",
-              duration: null,
-              closeOnSwipe: false,
-              action: {
-                text: this.$t("action.yes"),
-                onClick: (_, toastObject) => {
-                  applySetting("syncHistory", true)
-                  applySetting("syncCollections", true)
-                  applySetting("syncEnvironments", true)
-                  toastObject.remove()
-                },
-              },
-            }
-          )
-        }
-
+        await signInUserWithGoogle()
         this.showLoginSuccess()
       } catch (e) {
         console.error(e)
@@ -201,44 +179,24 @@ export default defineComponent({
           // User's email already exists.
           // The pending Google credential.
           const pendingCred = e.credential
-          // The provider account's email address.
-          const email = e.email
-          // Get sign-in methods for this email.
-          const methods = await getSignInMethodsForEmail(email)
-
-          // Step 3.
-          // If the user has several sign-in methods,
-          // the first method in the list will be the "recommended" method to use.
-          if (methods[0] === "password") {
-            // Asks the user their password.
-            // In real scenario, you should handle this asynchronously.
-            const password = promptUserForPassword() // TODO: implement promptUserForPassword.
-
-            const user = await signInWithEmailAndPassword(email, password)
-            await user.linkWithCredential(pendingCred)
-
-            this.showLoginSuccess()
-
-            return
-          }
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
-            duration: null,
+            duration: 0,
             closeOnSwipe: false,
             action: {
-              text: this.$t("action.yes"),
+              text: this.$t("action.yes").toString(),
               onClick: async (_, toastObject) => {
-                const { user } = await signInWithGithub()
-                await user.linkWithCredential(pendingCred)
+                const { user } = await signInUserWithGithub()
+                await linkWithFBCredential(user, pendingCred)
 
                 this.showLoginSuccess()
 
-                toastObject.remove()
+                toastObject.goAway(0)
               },
             },
           })
         } else {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
+          this.$toast.error(this.$t("error.something_went_wrong").toString(), {
             icon: "error_outline",
           })
         }
@@ -250,29 +208,11 @@ export default defineComponent({
       this.signingInWithGitHub = true
 
       try {
-        const { credential, additionalUserInfo } = await signInUserWithGithub()
+        const result = await signInUserWithGithub()
+        const credential = getGithubCredentialFromResult(result)!
+        const token = credential.accessToken
 
-        setProviderInfo(credential.providerId, credential.accessToken)
-
-        if (additionalUserInfo.isNewUser) {
-          this.$toast.info(
-            `${this.$t("action.turn_on")} ${this.$t("auth.sync")}`,
-            {
-              icon: "sync",
-              duration: null,
-              closeOnSwipe: false,
-              action: {
-                text: this.$t("action.yes"),
-                onClick: (_, toastObject) => {
-                  applySetting("syncHistory", true)
-                  applySetting("syncCollections", true)
-                  applySetting("syncEnvironments", true)
-                  toastObject.remove()
-                },
-              },
-            }
-          )
-        }
+        setProviderInfo(result.providerId!, token!)
 
         this.showLoginSuccess()
       } catch (e) {
@@ -283,44 +223,24 @@ export default defineComponent({
           // User's email already exists.
           // The pending Google credential.
           const pendingCred = e.credential
-          // The provider account's email address.
-          const email = e.email
-          // Get sign-in methods for this email.
-          const methods = await getSignInMethodsForEmail(email)
-
-          // Step 3.
-          // If the user has several sign-in methods,
-          // the first method in the list will be the "recommended" method to use.
-          if (methods[0] === "password") {
-            // Asks the user their password.
-            // In real scenario, you should handle this asynchronously.
-            const password = promptUserForPassword() // TODO: implement promptUserForPassword.
-
-            const user = await signInWithEmailAndPassword(email, password)
-            await user.linkWithCredential(pendingCred)
-
-            this.showLoginSuccess()
-
-            return
-          }
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
             icon: "vpn_key",
-            duration: null,
+            duration: 0,
             closeOnSwipe: false,
             action: {
-              text: this.$t("action.yes"),
+              text: this.$t("action.yes").toString(),
               onClick: async (_, toastObject) => {
                 const { user } = await signInUserWithGoogle()
-                await user.linkWithCredential(pendingCred)
+                await linkWithFBCredential(user, pendingCred)
 
                 this.showLoginSuccess()
 
-                toastObject.remove()
+                toastObject.goAway(0)
               },
             },
           })
         } else {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
+          this.$toast.error(this.$t("error.something_went_wrong").toString(), {
             icon: "error_outline",
           })
         }

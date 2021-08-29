@@ -86,7 +86,7 @@ async function clearHistory(col: HistoryFBCollections) {
     throw new Error("User not logged in to clear history")
 
   const { docs } = await getDocs(
-    collection(getFirestore(), "users", currentUser$.value.uid)
+    collection(getFirestore(), "users", currentUser$.value.uid, col)
   )
 
   await Promise.all(docs.map((e) => deleteHistory(e, col)))

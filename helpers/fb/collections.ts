@@ -1,5 +1,10 @@
-import firebase from "firebase/app"
-import "firebase/firestore"
+import {
+  collection,
+  doc,
+  getFirestore,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore"
 import { currentUser$ } from "./auth"
 import {
   restCollections$,
@@ -49,13 +54,10 @@ export async function writeCollections(
   }
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection(flag)
-      .doc("sync")
-      .set(cl)
+    await setDoc(
+      doc(getFirestore(), "users", currentUser$.value.uid, flag, "sync"),
+      cl
+    )
   } catch (e) {
     console.error("error updating", cl, e)
     throw e
@@ -98,12 +100,9 @@ export function initCollections() {
         graphqlSnapshotStop = null
       }
     } else {
-      restSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("collections")
-        .onSnapshot((collectionsRef) => {
+      restSnapshotStop = onSnapshot(
+        collection(getFirestore(), "users", user.uid, "collections"),
+        (collectionsRef) => {
           const collections: any[] = []
           collectionsRef.forEach((doc) => {
             const collection = doc.data()
@@ -124,14 +123,12 @@ export function initCollections() {
           }
 
           loadedRESTCollections = true
-        })
+        }
+      )
 
-      graphqlSnapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("collectionsGraphql")
-        .onSnapshot((collectionsRef) => {
+      graphqlSnapshotStop = onSnapshot(
+        collection(getFirestore(), "users", user.uid, "collectionsGraphql"),
+        (collectionsRef) => {
           const collections: any[] = []
           collectionsRef.forEach((doc) => {
             const collection = doc.data()
@@ -150,7 +147,8 @@ export function initCollections() {
           }
 
           loadedGraphqlCollections = true
-        })
+        }
+      )
     }
   })
 }

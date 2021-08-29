@@ -1,5 +1,11 @@
-import firebase from "firebase/app"
-import "firebase/analytics"
+import {
+  Analytics,
+  getAnalytics,
+  logEvent,
+  setAnalyticsCollectionEnabled,
+  setUserId,
+  setUserProperties,
+} from "firebase/analytics"
 import { authEvents$ } from "./auth"
 import {
   HoppAccentColor,
@@ -8,7 +14,7 @@ import {
   settingsStore,
 } from "~/newstore/settings"
 
-let analytics: firebase.analytics.Analytics | null
+let analytics: Analytics | null = null
 
 type SettingsCustomDimensions = {
   usesProxy: boolean
@@ -29,7 +35,7 @@ type HoppRequestEvent =
   | { platform: "wss" | "sse" | "socketio" | "mqtt" }
 
 export function initAnalytics() {
-  analytics = firebase.app().analytics()
+  analytics = getAnalytics()
 
   initLoginListeners()
   initSettingsListeners()
@@ -38,16 +44,16 @@ export function initAnalytics() {
 function initLoginListeners() {
   authEvents$.subscribe((ev) => {
     if (ev.event === "login") {
-      if (settingsStore.value.TELEMETRY_ENABLED) {
-        analytics?.setUserId(ev.user.uid)
+      if (settingsStore.value.TELEMETRY_ENABLED && analytics) {
+        setUserId(analytics, ev.user.uid)
 
-        analytics?.logEvent("login", {
+        logEvent(analytics, "login", {
           method: ev.user.providerData[0]?.providerId, // Assume the first provider is the login provider
         })
       }
     } else if (ev.event === "logout") {
-      if (settingsStore.value.TELEMETRY_ENABLED) {
-        analytics?.logEvent("logout")
+      if (settingsStore.value.TELEMETRY_ENABLED && analytics) {
+        logEvent(analytics, "logout")
       }
     }
   })
@@ -71,29 +77,30 @@ function initSettingsListeners() {
 
     // User toggled telemetry mode to off or to on
     if (
-      (telemetryStatus && !settings.TELEMETRY_ENABLED) ||
-      settings.TELEMETRY_ENABLED
+      ((telemetryStatus && !settings.TELEMETRY_ENABLED) ||
+        settings.TELEMETRY_ENABLED) &&
+      analytics
     ) {
-      analytics?.setUserProperties(conf)
+      setUserProperties(analytics, conf)
     }
 
     telemetryStatus = settings.TELEMETRY_ENABLED
 
-    analytics?.setAnalyticsCollectionEnabled(telemetryStatus)
+    if (analytics) setAnalyticsCollectionEnabled(analytics, telemetryStatus)
   })
 
-  analytics?.setAnalyticsCollectionEnabled(telemetryStatus)
+  if (analytics) setAnalyticsCollectionEnabled(analytics, telemetryStatus)
 }
 
 export function logHoppRequestRunToAnalytics(ev: HoppRequestEvent) {
-  if (settingsStore.value.TELEMETRY_ENABLED) {
-    analytics?.logEvent("hopp-request", ev)
+  if (settingsStore.value.TELEMETRY_ENABLED && analytics) {
+    logEvent(analytics, "hopp-request", ev)
   }
 }
 
 export function logPageView(pagePath: string) {
-  if (settingsStore.value.TELEMETRY_ENABLED) {
-    analytics?.logEvent("page_view", {
+  if (settingsStore.value.TELEMETRY_ENABLED && analytics) {
+    logEvent(analytics, "page_view", {
       page_path: pagePath,
     })
   }

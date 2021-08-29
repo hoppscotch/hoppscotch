@@ -1,5 +1,3 @@
-import firebase from "firebase/app"
-import "firebase/firestore"
 import {
   audit,
   combineLatest,
@@ -9,6 +7,7 @@ import {
   map,
   Subscription,
 } from "rxjs"
+import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore"
 import {
   HoppRESTRequest,
   translateToNewRequest,
@@ -23,13 +22,10 @@ import { restRequest$ } from "~/newstore/RESTSession"
  * @param request The request to write to the request sync
  */
 function writeCurrentRequest(user: HoppUser, request: HoppRESTRequest) {
-  return firebase
-    .firestore()
-    .collection("users")
-    .doc(user.uid)
-    .collection("requests")
-    .doc("rest")
-    .set(request)
+  return setDoc(
+    doc(getFirestore(), "users", user.uid, "requests", "rest"),
+    request
+  )
 }
 
 /**
@@ -43,15 +39,11 @@ export async function loadRequestFromSync(): Promise<HoppRESTRequest | null> {
   if (!currentUser)
     throw new Error("Cannot load request from sync without login")
 
-  const doc = await firebase
-    .firestore()
-    .collection("users")
-    .doc(currentUser.uid)
-    .collection("requests")
-    .doc("rest")
-    .get()
+  const fbDoc = await getDoc(
+    doc(getFirestore(), "users", currentUser.uid, "requests", "rest")
+  )
 
-  const data = doc.data()
+  const data = fbDoc.data()
 
   if (!data) return null
   else return translateToNewRequest(data)

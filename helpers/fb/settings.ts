@@ -1,5 +1,10 @@
-import firebase from "firebase/app"
-import "firebase/firestore"
+import {
+  collection,
+  doc,
+  getFirestore,
+  onSnapshot,
+  setDoc,
+} from "@firebase/firestore"
 import { currentUser$ } from "./auth"
 import { applySetting, settingsStore, SettingsType } from "~/newstore/settings"
 
@@ -28,13 +33,10 @@ async function writeSettings(setting: string, value: any) {
   }
 
   try {
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(currentUser$.value.uid)
-      .collection("settings")
-      .doc(setting)
-      .set(st)
+    await setDoc(
+      doc(getFirestore(), "users", currentUser$.value.uid, "settings", setting),
+      st
+    )
   } catch (e) {
     console.error("error updating", st, e)
     throw e
@@ -66,12 +68,9 @@ export function initSettings() {
       snapshotStop()
       snapshotStop = null
     } else if (user) {
-      snapshotStop = firebase
-        .firestore()
-        .collection("users")
-        .doc(user.uid)
-        .collection("settings")
-        .onSnapshot((settingsRef) => {
+      snapshotStop = onSnapshot(
+        collection(getFirestore(), "users", user.uid, "settings"),
+        (settingsRef) => {
           const settings: any[] = []
 
           settingsRef.forEach((doc) => {
@@ -87,7 +86,8 @@ export function initSettings() {
             }
           })
           loadedSettings = true
-        })
+        }
+      )
     }
   })
 }

@@ -10,6 +10,7 @@
             class="input floating-input"
             placeholder=" "
             type="text"
+            autocomplete="off"
             :disabled="editingEnvironmentIndex === 'Global'"
             @keyup.enter="saveEnvironment"
           />

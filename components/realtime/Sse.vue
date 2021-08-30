@@ -9,6 +9,7 @@
               v-model="server"
               v-focus
               type="url"
+              autocomplete="off"
               :class="{ error: !serverValid }"
               class="
                 bg-primaryLight

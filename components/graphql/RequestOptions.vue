@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SmartTabs styles="sticky top-upperPrimaryStickyFold z-10">
+    <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
       <SmartTab :id="'query'" :label="$t('tab.query')" :selected="true">
         <AppSection label="query">
           <div

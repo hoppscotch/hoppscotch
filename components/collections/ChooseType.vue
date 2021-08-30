@@ -16,6 +16,7 @@
             <select
               id="team"
               type="text"
+              autocomplete="off"
               autofocus
               class="
                 bg-transparent

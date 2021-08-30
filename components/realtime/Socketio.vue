@@ -12,6 +12,7 @@
                     v-model="url"
                     v-focus
                     type="url"
+                    autocomplete="off"
                     spellcheck="false"
                     :class="{ error: !urlValid }"
                     class="
@@ -94,6 +95,7 @@
             name="event_name"
             :placeholder="$t('socketio.event_name')"
             type="text"
+            autocomplete="off"
             :disabled="!connectionState"
           />
         </div>
@@ -123,6 +125,7 @@
                 name="message"
                 :placeholder="$t('count.message', { count: index + 1 })"
                 type="text"
+                autocomplete="off"
                 :disabled="!connectionState"
                 @keyup.enter="connectionState ? sendMessage() : null"
               />

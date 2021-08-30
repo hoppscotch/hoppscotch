@@ -1,12 +1,13 @@
 <template>
   <aside>
-    <SmartTabs styles="sticky z-10 top-0">
+    <SmartTabs styles="sticky bg-primary z-10 top-0">
       <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
         <AppSection label="docs">
           <div class="bg-primary flex top-sidebarPrimaryStickyFold z-10 sticky">
             <input
               v-model="graphqlFieldsFilterText"
               type="search"
+              autocomplete="off"
               :placeholder="$t('action.search')"
               class="bg-transparent flex w-full p-4 py-2"
             />
@@ -22,7 +23,7 @@
           </div>
           <SmartTabs
             ref="gqlTabs"
-            styles="border-t border-dividerLight sticky z-10 top-sidebarSecondaryStickyFold"
+            styles="border-t border-dividerLight bg-primary sticky z-10 top-sidebarSecondaryStickyFold"
           >
             <div class="gqlTabs">
               <SmartTab

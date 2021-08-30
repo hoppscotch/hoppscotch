@@ -35,7 +35,7 @@
             placeholder=" "
             type="email"
             name="email"
-            autocomplete="email"
+            autocomplete="off"
             required
             spellcheck="false"
             autofocus

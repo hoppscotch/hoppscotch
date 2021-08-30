@@ -6,6 +6,7 @@
         v-model="url"
         v-focus
         type="url"
+        autocomplete="off"
         spellcheck="false"
         class="
           bg-primaryLight

@@ -9,7 +9,7 @@
           label="HOPPSCOTCH"
           to="/"
         />
-        <AppGitHubStarButton class="mt-1.5 transition" />
+        <AppGitHubStarButton class="mt-1.5 transition hidden sm:flex" />
       </div>
       <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
@@ -20,13 +20,13 @@
           class="rounded"
           @click.native="showInstallPrompt()"
         />
-        <!-- <ButtonSecondary
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="`${$t('app.search')} <kbd>/</kbd>`"
           svg="search"
           class="rounded"
           @click.native="showSearch = true"
-        /> -->
+        />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="`${$t('support.title')} <kbd>?</kbd>`"
@@ -83,7 +83,7 @@
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <!-- <AppSearch :show="showSearch" @hide-modal="showSearch = false" /> -->
+    <AppSearch :show="showSearch" @hide-modal="showSearch = false" />
   </div>
 </template>
 
@@ -98,19 +98,19 @@ import { defineActionHandler } from "~/helpers/actions"
 export default defineComponent({
   setup() {
     const showSupport = ref(false)
-    // const showSearch = ref(false)
+    const showSearch = ref(false)
 
     defineActionHandler("modals.support.toggle", () => {
       showSupport.value = !showSupport.value
     })
-    // defineActionHandler("modals.search.toggle", () => {
-    //   showSearch.value = !showSearch.value
-    // })
+    defineActionHandler("modals.search.toggle", () => {
+      showSearch.value = !showSearch.value
+    })
 
     return {
       currentUser: useReadonlyStream(currentUser$, null),
       showSupport,
-      // showSearch,
+      showSearch,
     }
   },
   data() {

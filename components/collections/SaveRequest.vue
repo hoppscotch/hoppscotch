@@ -10,6 +10,7 @@
             class="input floating-input"
             placeholder=" "
             type="text"
+            autocomplete="off"
             @keyup.enter="saveRequestAs"
           />
           <label for="selectLabelSaveReq">

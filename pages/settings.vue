@@ -305,6 +305,7 @@
                   class="input floating-input"
                   placeholder=" "
                   type="url"
+                  autocomplete="off"
                   :disabled="!PROXY_ENABLED"
                 />
                 <label for="url">

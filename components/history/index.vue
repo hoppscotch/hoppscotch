@@ -13,6 +13,7 @@
       <input
         v-model="filterText"
         type="search"
+        autocomplete="off"
         class="bg-transparent flex w-full p-4 py-2"
         :placeholder="$t('action.search')"
       />

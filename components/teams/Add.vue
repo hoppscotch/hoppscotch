@@ -9,6 +9,7 @@
           class="input floating-input"
           placeholder=" "
           type="text"
+          autocomplete="off"
           @keyup.enter="addNewTeam"
         />
         <label for="selectLabelTeamAdd">

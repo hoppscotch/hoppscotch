@@ -13,6 +13,7 @@
           class="input floating-input"
           placeholder=" "
           type="text"
+          autocomplete="off"
           @keyup.enter="editFolder"
         />
         <label for="selectLabelEditFolder">

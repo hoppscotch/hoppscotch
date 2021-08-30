@@ -127,6 +127,7 @@
         <div class="select-wrapper">
           <select
             type="text"
+            autocomplete="off"
             class="select"
             autofocus
             @change="

@@ -1,24 +1,31 @@
 <template>
-  <SmartModal v-if="show" @close="$emit('hide-modal')">
+  <SmartModal v-if="show" full-width @close="$emit('hide-modal')">
     <template #body>
       <input
         id="command"
         v-model="search"
         v-focus
         type="text"
+        autocomplete="off"
         name="command"
         :placeholder="$t('app.type_a_command_search')"
         class="
           bg-transparent
           border-b border-dividerLight
+          flex flex-shrink-0
           text-secondaryDark text-base
-          leading-normal
-          px-4
-          pt-2
-          pb-6
+          p-6
         "
       />
+      <AppLunr
+        v-if="search"
+        log
+        :input="lunr"
+        :search="search"
+        @action="runAction"
+      />
       <div
+        v-else
         class="
           divide-y divide-dividerLight
           flex flex-col
@@ -28,96 +35,44 @@
           hide-scrollbar
         "
       >
-        <div
-          v-for="(map, mapIndex) in filteredMappings"
-          :key="`map-${mapIndex}`"
-        >
-          <h5 class="my-2 text-secondaryLight py-2 px-4">
+        <div v-for="(map, mapIndex) in mappings" :key="`map-${mapIndex}`">
+          <h5 class="my-2 text-secondaryLight py-2 px-6">
             {{ $t(map.section) }}
           </h5>
-          <div
+          <AppSearchEntry
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
-            class="
-              rounded
-              cursor-pointer
-              flex
-              py-2
-              px-4
-              transition
-              items-center
-              group
-              hover:bg-primaryLight
-            "
-            @click="
-              runAction(shortcut.action)
-              hideModal()
-            "
-          >
-            <i class="mr-4 opacity-75 material-icons group-hover:opacity-100">
-              {{ shortcut.icon }}
-            </i>
-            <span class="flex flex-1 mr-4 group-hover:text-secondaryDark">
-              {{ $t(shortcut.label) }}
-            </span>
-            <span
-              v-for="(key, keyIndex) in shortcut.keys"
-              :key="`map-${mapIndex}-shortcut-${shortcutIndex}-key-${keyIndex}`"
-              class="shortcut-key"
-            >
-              {{ key }}
-            </span>
-          </div>
+            :shortcut="shortcut"
+            @action="runAction"
+          />
         </div>
       </div>
     </template>
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import { invokeAction } from "~/helpers/actions"
-import { spotlight } from "~/helpers/shortcuts"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
+import { HoppAction, invokeAction } from "~/helpers/actions"
+import { spotlight as mappings, lunr } from "~/helpers/shortcuts"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  data() {
-    return {
-      search: "",
-      mappings: spotlight,
-    }
-  },
-  computed: {
-    filteredMappings() {
-      return this.mappings.filter((mapping) =>
-        mapping.shortcuts.some((shortcut) =>
-          shortcut.keywords.some((keyword) =>
-            keyword.toLowerCase().includes(this.search.toLowerCase())
-          )
-        )
-      )
-    },
-  },
-  methods: {
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-    runAction(command) {
-      invokeAction(command, "path_from_invokeAction")
-    },
-  },
-})
-</script>
+defineProps<{
+  show: boolean
+}>()
 
-<style lang="scss" scoped>
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const search = ref("")
+
+const hideModal = () => {
+  search.value = ""
+  emit("hide-modal")
 }
-</style>
+
+const runAction = (command: HoppAction) => {
+  invokeAction(command)
+  hideModal()
+}
+</script>

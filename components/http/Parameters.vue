@@ -48,7 +48,7 @@
       </div>
     </div>
     <div v-if="bulkMode" class="flex">
-      <textarea
+      <textarea-autosize
         v-model="bulkParams"
         v-focus
         name="bulk-parameters"
@@ -64,7 +64,7 @@
         "
         rows="10"
         :placeholder="$t('state.bulk_mode_placeholder')"
-      ></textarea>
+      />
     </div>
     <div v-else>
       <div

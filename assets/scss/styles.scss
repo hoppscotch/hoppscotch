@@ -196,7 +196,7 @@ hr {
 .input,
 .select,
 .textarea {
-  @apply flex flex-1;
+  @apply flex;
   @apply w-full;
   @apply px-4 py-2;
   @apply bg-transparent;

@@ -98,6 +98,7 @@ export default {
   plugins: [
     "~/plugins/v-tippy",
     "~/plugins/v-focus",
+    "~/plugins/v-textarea",
     "~/plugins/vue-apollo",
     "~/plugins/crisp",
     { src: "~/plugins/web-worker", ssr: false },

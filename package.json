@@ -102,7 +102,7 @@
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-standard": "^22.0.0",
     "ts-jest": "^27.0.5",
-    "typescript": "^4.2",
+    "typescript": "^4.4",
     "unplugin-vue2-script-setup": "^0.5.4",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"

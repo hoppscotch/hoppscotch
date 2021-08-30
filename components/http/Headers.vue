@@ -224,13 +224,11 @@ export default defineComponent({
 
     watch(bulkHeaders, () => {
       try {
-        const transformation = bulkHeaders.value.split("\n").map((item) => {
-          return {
-            key: item.substr(0, item.indexOf(":")).trim(),
-            value: item.substr(item.indexOf(":") + 1).trim(),
-            active: true,
-          }
-        })
+        const transformation = bulkHeaders.value.split("\n").map((item) => ({
+          key: item.substr(0, item.indexOf(":")).trim(),
+          value: item.substr(item.indexOf(":") + 1).trim(),
+          active: !item.trim().startsWith("//"),
+        }))
         setRESTHeaders(transformation)
       } catch (e) {
         $toast.error(t("error.something_went_wrong").toString(), {

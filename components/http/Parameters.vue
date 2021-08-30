@@ -232,13 +232,11 @@ export default defineComponent({
 
     watch(bulkParams, () => {
       try {
-        const transformation = bulkParams.value.split("\n").map((item) => {
-          return {
-            key: item.substr(0, item.indexOf(":")).trim(),
-            value: item.substr(item.indexOf(":") + 1).trim(),
-            active: true,
-          }
-        })
+        const transformation = bulkParams.value.split("\n").map((item) => ({
+          key: item.substr(0, item.indexOf(":")).trim(),
+          value: item.substr(item.indexOf(":") + 1).trim(),
+          active: !item.trim().startsWith("//"),
+        }))
         setRESTParams(transformation)
       } catch (e) {
         $toast.error(t("error.something_went_wrong").toString(), {

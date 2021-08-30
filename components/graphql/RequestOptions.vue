@@ -29,6 +29,13 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
+                to="https://docs.hoppscotch.io"
+                blank
+                :title="$t('app.wiki')"
+                svg="help-circle"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
                 :svg="copyQueryIcon"
                 @click.native="copyQuery"
@@ -88,6 +95,13 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
+                to="https://docs.hoppscotch.io"
+                blank
+                :title="$t('app.wiki')"
+                svg="help-circle"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
                 :svg="copyVariablesIcon"
                 @click.native="copyVariables"
@@ -131,34 +145,70 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
+                to="https://docs.hoppscotch.io"
+                blank
+                :title="$t('app.wiki')"
+                svg="help-circle"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.clear_all')"
                 svg="trash-2"
+                :disabled="bulkMode"
                 @click.native="headers = []"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('state.bulk_mode')"
+                svg="edit"
+                :class="{ '!text-accent': bulkMode }"
+                @click.native="bulkMode = !bulkMode"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('add.new')"
                 svg="plus"
+                :disabled="bulkMode"
                 @click.native="addRequestHeader"
               />
             </div>
           </div>
-          <div
-            v-for="(header, index) in headers"
-            :key="`header-${index}`"
-            class="
-              divide-x divide-dividerLight
-              border-b border-dividerLight
-              flex
-            "
-          >
-            <SmartAutoComplete
-              :placeholder="$t('count.header', { count: index + 1 })"
-              :source="commonHeaders"
-              :spellcheck="false"
-              :value="header.key"
-              autofocus
-              styles="
+          <div v-if="bulkMode" class="flex">
+            <textarea
+              v-model="bulkHeaders"
+              v-focus
+              name="bulk-parameters"
+              class="
+                bg-transparent
+                border-b border-dividerLight
+                flex flex-1
+                py-2
+                px-4
+                whitespace-pre
+                resize-y
+                overflow-auto
+              "
+              rows="10"
+              :placeholder="$t('state.bulk_mode_placeholder')"
+            ></textarea>
+          </div>
+          <div v-else>
+            <div
+              v-for="(header, index) in headers"
+              :key="`header-${index}`"
+              class="
+                divide-x divide-dividerLight
+                border-b border-dividerLight
+                flex
+              "
+            >
+              <SmartAutoComplete
+                :placeholder="$t('count.header', { count: index + 1 })"
+                :source="commonHeaders"
+                :spellcheck="false"
+                :value="header.key"
+                autofocus
+                styles="
                 bg-transparent
                 flex
                 flex-1
@@ -167,84 +217,85 @@
                 truncate
                 focus:outline-none
               "
-              @input="
-                updateGQLHeader(index, {
-                  key: $event,
-                  value: header.value,
-                  active: header.active,
-                })
-              "
-            />
-            <input
-              class="bg-transparent flex flex-1 py-2 px-4"
-              :placeholder="$t('count.value', { count: index + 1 })"
-              :name="`value ${index}`"
-              :value="header.value"
-              autofocus
-              @change="
-                updateGQLHeader(index, {
-                  key: header.key,
-                  value: $event.target.value,
-                  active: header.active,
-                })
-              "
-            />
-            <span>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  header.hasOwnProperty('active')
-                    ? header.active
-                      ? $t('action.turn_off')
-                      : $t('action.turn_on')
-                    : $t('action.turn_off')
-                "
-                :svg="
-                  header.hasOwnProperty('active')
-                    ? header.active
-                      ? 'check-circle'
-                      : 'circle'
-                    : 'check-circle'
-                "
-                color="green"
-                @click.native="
+                @input="
                   updateGQLHeader(index, {
-                    key: header.key,
+                    key: $event,
                     value: header.value,
-                    active: !header.active,
+                    active: header.active,
                   })
                 "
               />
-            </span>
-            <span>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
-                svg="trash"
-                color="red"
-                @click.native="removeRequestHeader(index)"
+              <input
+                class="bg-transparent flex flex-1 py-2 px-4"
+                :placeholder="$t('count.value', { count: index + 1 })"
+                :name="`value ${index}`"
+                :value="header.value"
+                autofocus
+                @change="
+                  updateGQLHeader(index, {
+                    key: header.key,
+                    value: $event.target.value,
+                    active: header.active,
+                  })
+                "
               />
-            </span>
-          </div>
-          <div
-            v-if="headers.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
-          >
-            <span class="text-center pb-4">
-              {{ $t("empty.headers") }}
-            </span>
-            <ButtonSecondary
-              :label="$t('add.new')"
-              filled
-              svg="plus"
-              @click.native="addRequestHeader"
-            />
+              <span>
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="
+                    header.hasOwnProperty('active')
+                      ? header.active
+                        ? $t('action.turn_off')
+                        : $t('action.turn_on')
+                      : $t('action.turn_off')
+                  "
+                  :svg="
+                    header.hasOwnProperty('active')
+                      ? header.active
+                        ? 'check-circle'
+                        : 'circle'
+                      : 'check-circle'
+                  "
+                  color="green"
+                  @click.native="
+                    updateGQLHeader(index, {
+                      key: header.key,
+                      value: header.value,
+                      active: !header.active,
+                    })
+                  "
+                />
+              </span>
+              <span>
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('action.remove')"
+                  svg="trash"
+                  color="red"
+                  @click.native="removeRequestHeader(index)"
+                />
+              </span>
+            </div>
+            <div
+              v-if="headers.length === 0"
+              class="
+                flex flex-col
+                text-secondaryLight
+                p-4
+                items-center
+                justify-center
+              "
+            >
+              <span class="text-center pb-4">
+                {{ $t("empty.headers") }}
+              </span>
+              <ButtonSecondary
+                :label="$t('add.new')"
+                filled
+                svg="plus"
+                @click.native="addRequestHeader"
+              />
+            </div>
           </div>
         </AppSection>
       </SmartTab>
@@ -310,6 +361,25 @@ export default defineComponent({
     } = useContext()
     const t = i18n.t.bind(i18n)
     const nuxt = useNuxt()
+
+    const bulkMode = ref(false)
+    const bulkHeaders = ref("")
+
+    watch(bulkHeaders, () => {
+      try {
+        const transformation = bulkHeaders.value.split("\n").map((item) => ({
+          key: item.substr(0, item.indexOf(":")).trim(),
+          value: item.substr(item.indexOf(":") + 1).trim(),
+          active: !item.trim().startsWith("//"),
+        }))
+        setGQLHeaders(transformation)
+      } catch (e) {
+        $toast.error(t("error.something_went_wrong").toString(), {
+          icon: "error_outline",
+        })
+        console.error(e)
+      }
+    })
 
     const url = useReadonlyStream(gqlURL$, "")
     const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
@@ -475,6 +545,8 @@ export default defineComponent({
 
       commonHeaders,
       updateGQLHeader,
+      bulkMode,
+      bulkHeaders,
     }
   },
 })

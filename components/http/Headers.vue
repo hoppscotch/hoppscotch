@@ -49,11 +49,13 @@
     </div>
     <div v-if="bulkMode" class="flex">
       <textarea
-        name="bulk-parameters"
+        v-model="bulkHeaders"
+        v-focus
+        name="bulk-headers"
         class="
-          bg-transparent border-b
-          border-dividerLight flex
-          flex-1
+          bg-transparent
+          border-b border-dividerLight
+          flex flex-1
           py-2
           px-4
           whitespace-pre
@@ -62,7 +64,6 @@
         "
         rows="10"
         :placeholder="$t('state.bulk_mode_placeholder')"
-        v-focus
       ></textarea>
     </div>
     <div v-else>
@@ -191,13 +192,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
+import {
+  defineComponent,
+  ref,
+  useContext,
+  watch,
+} from "@nuxtjs/composition-api"
 import {
   restHeaders$,
   addRESTHeader,
   updateRESTHeader,
   deleteRESTHeader,
   deleteAllRESTHeaders,
+  setRESTHeaders,
 } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useSetting } from "~/newstore/settings"
@@ -206,11 +213,38 @@ import { HoppRESTHeader } from "~/helpers/types/HoppRESTRequest"
 
 export default defineComponent({
   setup() {
+    const {
+      $toast,
+      app: { i18n },
+    } = useContext()
+    const t = i18n.t.bind(i18n)
+
     const bulkMode = ref(false)
+    const bulkHeaders = ref("")
+
+    watch(bulkHeaders, () => {
+      try {
+        const transformation = bulkHeaders.value.split("\n").map((item) => {
+          return {
+            key: item.substr(0, item.indexOf(":")).trim(),
+            value: item.substr(item.indexOf(":") + 1).trim(),
+            active: true,
+          }
+        })
+        setRESTHeaders(transformation)
+      } catch (e) {
+        $toast.error(t("error.something_went_wrong").toString(), {
+          icon: "error_outline",
+        })
+        console.error(e)
+      }
+    })
+
     return {
       headers$: useReadonlyStream(restHeaders$, []),
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       bulkMode,
+      bulkHeaders,
     }
   },
   data() {

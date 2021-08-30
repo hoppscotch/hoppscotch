@@ -49,6 +49,8 @@
     </div>
     <div v-if="bulkMode" class="flex">
       <textarea
+        v-model="bulkParams"
+        v-focus
         name="bulk-parameters"
         class="
           bg-transparent
@@ -62,7 +64,6 @@
         "
         rows="10"
         :placeholder="$t('state.bulk_mode_placeholder')"
-        v-focus
       ></textarea>
     </div>
     <div v-else>
@@ -200,7 +201,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
+import {
+  defineComponent,
+  ref,
+  useContext,
+  watch,
+} from "@nuxtjs/composition-api"
 import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -209,16 +215,44 @@ import {
   updateRESTParam,
   deleteRESTParam,
   deleteAllRESTParams,
+  setRESTParams,
 } from "~/newstore/RESTSession"
 import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
   setup() {
+    const {
+      $toast,
+      app: { i18n },
+    } = useContext()
+    const t = i18n.t.bind(i18n)
+
     const bulkMode = ref(false)
+    const bulkParams = ref("")
+
+    watch(bulkParams, () => {
+      try {
+        const transformation = bulkParams.value.split("\n").map((item) => {
+          return {
+            key: item.substr(0, item.indexOf(":")).trim(),
+            value: item.substr(item.indexOf(":") + 1).trim(),
+            active: true,
+          }
+        })
+        setRESTParams(transformation)
+      } catch (e) {
+        $toast.error(t("error.something_went_wrong").toString(), {
+          icon: "error_outline",
+        })
+        console.error(e)
+      }
+    })
+
     return {
       params$: useReadonlyStream(restParams$, []),
       EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       bulkMode,
+      bulkParams,
     }
   },
   watch: {

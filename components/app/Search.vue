@@ -51,31 +51,28 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "~/helpers/actions"
-import { spotlight, lunr } from "~/helpers/shortcuts"
+import { spotlight as mappings, lunr } from "~/helpers/shortcuts"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  data() {
-    return {
-      search: "",
-      mappings: spotlight,
-      lunr,
-    }
-  },
-  methods: {
-    hideModal() {
-      this.search = ""
-      this.$emit("hide-modal")
-    },
-    runAction(command: HoppAction) {
-      invokeAction(command)
-      this.hideModal()
-    },
-  },
-})
+defineProps<{
+  show: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const search = ref("")
+
+const hideModal = () => {
+  search.value = ""
+  emit("hide-modal")
+}
+
+const runAction = (command: HoppAction) => {
+  invokeAction(command)
+  hideModal()
+}
 </script>

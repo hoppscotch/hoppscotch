@@ -77,6 +77,7 @@
     "@nuxtjs/stylelint-module": "^4.0.0",
     "@nuxtjs/svg": "^0.2.0",
     "@testing-library/jest-dom": "^5.14.1",
+    "@types/codemirror": "^5.60.2",
     "@types/cookie": "^0.4.1",
     "@types/lodash": "^4.14.172",
     "@types/splitpanes": "^2.2.1",

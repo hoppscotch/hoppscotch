@@ -5,7 +5,7 @@
         <textarea-autosize
           id="import-curl"
           v-model="curl"
-          class="textarea floating-input"
+          class="font-mono textarea floating-input"
           autofocus
           rows="8"
           placeholder=" "

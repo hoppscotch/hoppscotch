@@ -55,7 +55,9 @@
         class="
           bg-transparent
           border-b border-dividerLight
-          flex flex-1
+          flex
+          font-mono font-medium
+          flex-1
           py-2
           px-4
           whitespace-pre
@@ -233,8 +235,8 @@ export default defineComponent({
     watch(bulkParams, () => {
       try {
         const transformation = bulkParams.value.split("\n").map((item) => ({
-          key: item.substr(0, item.indexOf(":")).trim(),
-          value: item.substr(item.indexOf(":") + 1).trim(),
+          key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+          value: item.substring(item.indexOf(":") + 1).trim(),
           active: !item.trim().startsWith("//"),
         }))
         setRESTParams(transformation)

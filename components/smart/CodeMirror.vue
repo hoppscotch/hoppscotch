@@ -2,84 +2,80 @@
   <div ref="editor" class="w-full block"></div>
 </template>
 
-<script>
+<script setup lang="ts">
 import Codemirror from "codemirror"
 
 import "codemirror/lib/codemirror.css"
-import "codemirror/theme/juejin.css"
-import "codemirror/addon/fold/foldgutter.css"
 
+import "codemirror/theme/juejin.css"
+
+import "codemirror/addon/fold/foldgutter.css"
 import "codemirror/addon/fold/foldgutter"
 import "codemirror/addon/fold/brace-fold"
 import "codemirror/addon/fold/comment-fold"
 import "codemirror/addon/fold/indent-fold"
+import "codemirror/addon/display/autorefresh"
 
 import "codemirror/mode/javascript/javascript"
 
+import { onMounted, ref, watch } from "@nuxtjs/composition-api"
+
 const DEFAULT_THEME = "juejin"
 
-export default {
-  props: {
-    value: {
-      type: String,
-      default: "",
-    },
-    mode: {
-      type: Object,
-      default: () => {
-        return {
-          name: "javascript",
-          json: true,
-        }
-      },
-    },
-  },
+const props = defineProps<{
+  value: string
+  mode: string
+}>()
 
-  data() {
-    return {
-      editor: null,
-      cacheValue: "",
-    }
-  },
+const emit = defineEmits<{
+  (e: "input", value: string): void
+}>()
 
-  watch: {
-    value(value) {
-      if (value !== this.cacheValue) {
-        this.editor.setValue(value)
-        this.cacheValue = value
-      }
-    },
-    mode(mode) {
-      this.editor.setOption("mode", mode)
-    },
-  },
+watch(
+  () => props.value,
+  (value) => {
+    editor.setValue(value)
+  }
+)
 
-  mounted() {
-    console.log(Codemirror.modes)
-    this.editor = Codemirror(this.$refs.editor, {
-      value: this.value,
-      mode: this.mode,
-      lineNumbers: true,
-      inputStyle: "textarea",
-      foldGutter: true,
-      theme: DEFAULT_THEME,
-      gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-    })
-    this.editor.on("change", (instance) => {
-      const val = instance.doc.getValue()
-      this.cacheValue = val
-      this.$emit("input", val)
-    })
-  },
-}
+watch(
+  () => props.mode,
+  (mode) => {
+    editor.setOption("mode", mode)
+  }
+)
+
+const editor = ref<any | null>(null)
+
+const cm = ref<Codemirror.Editor | null>(null)
+
+onMounted(() => {
+  cm.value = Codemirror(editor.value, {
+    value: props.value,
+    mode: props.mode,
+    autoRefresh: true,
+    lineNumbers: true,
+    foldGutter: true,
+    theme: DEFAULT_THEME,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+  })
+  cm.value?.on("change", (instance) => {
+    const val = instance.getValue()
+    emit("input", val)
+  })
+})
 </script>
 
-<style>
+<style lang="scss" scoped>
 .CodeMirror {
   @apply block;
   @apply border-b;
   @apply border-dividerLight;
-  @apply h-auto;
   @apply w-full;
+  @apply h-auto;
+}
+
+.CodeMirror-scroll {
+  @apply min-h-32;
 }
 </style>

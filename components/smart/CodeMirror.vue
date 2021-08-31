@@ -9,14 +9,10 @@ import "codemirror/lib/codemirror.css"
 
 import "codemirror/theme/juejin.css"
 
-import "codemirror/addon/fold/foldgutter.css"
-import "codemirror/addon/fold/foldgutter"
-import "codemirror/addon/fold/brace-fold"
-import "codemirror/addon/fold/comment-fold"
-import "codemirror/addon/fold/indent-fold"
 import "codemirror/addon/display/autorefresh"
-
-import "codemirror/mode/javascript/javascript"
+import "codemirror/addon/selection/active-line"
+import "codemirror/addon/edit/closebrackets"
+import "codemirror/addon/display/placeholder"
 
 import { onMounted, ref, watch } from "@nuxtjs/composition-api"
 
@@ -25,6 +21,8 @@ const DEFAULT_THEME = "juejin"
 const props = defineProps<{
   value: string
   mode: string
+  placeholder: string
+  wrap: boolean
 }>()
 
 const emit = defineEmits<{
@@ -53,14 +51,17 @@ onMounted(() => {
   cm.value = Codemirror(editor.value, {
     value: props.value,
     mode: props.mode,
+    lineWrapping: props.wrap,
+    placeholder: props.placeholder,
     autoRefresh: true,
     lineNumbers: true,
-    foldGutter: true,
+    styleActiveLine: true,
+    autoCloseBrackets: true,
     theme: DEFAULT_THEME,
-    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    gutters: ["CodeMirror-linenumbers"],
   })
-  cm.value?.on("change", (instance) => {
-    const val = instance.getValue()
+  cm.value?.on("change", (cm) => {
+    const val = cm.getValue()
     emit("input", val)
   })
 })
@@ -73,6 +74,7 @@ onMounted(() => {
   @apply border-dividerLight;
   @apply w-full;
   @apply h-auto;
+  @apply font-mono;
 }
 
 .CodeMirror-scroll {

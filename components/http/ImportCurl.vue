@@ -2,14 +2,14 @@
   <SmartModal v-if="show" :title="$t('import.curl')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
-        <textarea
+        <textarea-autosize
           id="import-curl"
           v-model="curl"
-          class="textarea floating-input"
+          class="font-mono textarea floating-input"
           autofocus
           rows="8"
           placeholder=" "
-        ></textarea>
+        />
         <label for="import-curl">
           {{ $t("request.enter_curl") }}
         </label>

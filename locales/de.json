@@ -1,44 +1,44 @@
 {
   "action": {
-    "cancel": "Stornieren",
+    "cancel": "Abbrechen",
     "choose_file": "Wähle eine Datei",
-    "clear": "Klar",
-    "clear_all": "Alles löschen",
+    "clear": "Zurücksetzen",
+    "clear_all": "Alles zurücksetzen",
     "connect": "Verbinden",
     "copy": "Kopieren",
     "delete": "Löschen",
     "disconnect": "Trennen",
-    "dismiss": "Zurückweisen",
-    "download_file": "Download-Datei",
+    "dismiss": "Verwerfen",
+    "download_file": "Datei herunterladen",
     "edit": "Bearbeiten",
-    "go_back": "Geh zurück",
+    "go_back": "Zurück",
     "label": "Etikett",
     "learn_more": "Mehr erfahren",
     "more": "Mehr",
     "new": "Neu",
     "no": "Nein",
-    "preserve_current": "Strom bewahren",
+    "preserve_current": "Aktuelles behalten",
     "prettify": "Verschönern",
     "remove": "Entfernen",
-    "replace_current": "Strom ersetzen",
+    "replace_current": "Aktuelles ersetzen",
     "replace_json": "Durch JSON ersetzen",
     "restore": "Wiederherstellen",
     "save": "Speichern",
-    "search": "Suche",
+    "search": "Suchen",
     "send": "Senden",
     "start": "Start",
-    "stop": "Stoppen",
+    "stop": "Stopp",
     "turn_off": "Ausschalten",
     "turn_on": "Einschalten",
     "undo": "Rückgängig machen",
-    "yes": "Jawohl"
+    "yes": "Ja"
   },
   "add": {
     "new": "Neue hinzufügen",
     "star": "Stern hinzufügen"
   },
   "app": {
-    "chat_with_us": "chatte mit uns",
+    "chat_with_us": "Chatte mit uns",
     "contact_us": "Kontaktiere uns",
     "copy": "Kopieren",
     "documentation": "Dokumentation",
@@ -48,13 +48,13 @@
     "invite_description": "In Hoppscotch haben wir eine einfache und intuitive Benutzeroberfläche zum Erstellen und Verwalten Ihrer APIs entwickelt. Hoppscotch ist ein Tool, mit dem Sie Ihre APIs erstellen, testen, dokumentieren und teilen können.",
     "invite_your_friends": "Lade deine Freunde ein",
     "join_discord_community": "Treten Sie unserer Discord-Community bei",
-    "keyboard_shortcuts": "Tastatürkürzel",
+    "keyboard_shortcuts": "Tastaturkürzel",
     "name": "Hüpfburg",
     "new_version_found": "Neue Version gefunden. Aktualisieren, um zu aktualisieren.",
     "proxy_privacy_policy": "Proxy-Datenschutzrichtlinie",
     "reload": "Neu laden",
     "search": "Suche",
-    "share": "Aktie",
+    "share": "Teilen",
     "shortcuts": "Verknüpfungen",
     "spotlight": "Scheinwerfer",
     "status": "Status",
@@ -79,7 +79,7 @@
     "login_to_hoppscotch": "Anmelden bei Hoppscotch",
     "logout": "Ausloggen",
     "re_enter_email": "E-Mail erneut eingeben",
-    "send_magic_link": "Senden Sie einen magischen Link",
+    "send_magic_link": "Magischen Link schicken",
     "sync": "Synchronisieren",
     "we_sent_magic_link": "Wir haben dir einen magischen Link geschickt!",
     "we_sent_magic_link_description": "Überprüfen Sie Ihren Posteingang - wir haben eine E-Mail an {email} gesendet. Es enthält einen magischen Link, der Sie einloggt."
@@ -89,7 +89,7 @@
     "include_in_url": "In URL einschließen",
     "learn": "Lernen wie",
     "password": "Passwort",
-    "token": "Zeichen",
+    "token": "Token",
     "type": "Berechtigungstyp",
     "username": "Nutzername"
   },
@@ -243,7 +243,7 @@
     "doc": "Dokumente",
     "graphql": "GraphQL",
     "realtime": "Echtzeit",
-    "rest": "SICH AUSRUHEN",
+    "rest": "REST",
     "settings": "Einstellungen"
   },
   "preRequest": {
@@ -355,8 +355,8 @@
       "title": "Allgemein"
     },
     "miscellaneous": {
-      "invite": "Laden Sie Leute zu Hoppscotch . ein",
-      "title": "Sonstig"
+      "invite": "Laden Sie Leute zu Hoppscotch ein",
+      "title": "Sonstiges"
     },
     "navigation": {
       "back": "Gehen Sie zurück zur vorherigen Seite",
@@ -482,7 +482,7 @@
     "report": "Testbericht",
     "results": "Testergebnisse",
     "script": "Skript",
-    "snippets": "Ausschnitte"
+    "snippets": "Schnipsel"
   },
   "websocket": {
     "communication": "Kommunikation",

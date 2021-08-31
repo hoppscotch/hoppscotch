@@ -77,12 +77,12 @@
           v-model="param.key"
           :placeholder="$t('count.parameter', { count: index + 1 })"
           styles="
-          bg-transparent
-          flex
-          flex-1
-          py-1
-          px-4
-        "
+            bg-transparent
+            flex
+            flex-1
+            py-1
+            px-4
+          "
           @change="
             updateParam(index, {
               key: $event,
@@ -111,12 +111,12 @@
           v-model="param.value"
           :placeholder="$t('count.value', { count: index + 1 })"
           styles="
-          bg-transparent
-          flex
-          flex-1
-          py-1
-          px-4
-        "
+            bg-transparent
+            flex
+            flex-1
+            py-1
+            px-4
+          "
           @change="
             updateParam(index, {
               key: param.key,

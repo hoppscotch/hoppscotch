@@ -209,14 +209,14 @@
                 :value="header.key"
                 autofocus
                 styles="
-                bg-transparent
-                flex
-                flex-1
-                py-1
-                px-4
-                truncate
-                focus:outline-none
-              "
+                  bg-transparent
+                  flex
+                  flex-1
+                  py-1
+                  px-4
+                  truncate
+                  focus:outline-none
+                "
                 @input="
                   updateGQLHeader(index, {
                     key: $event,

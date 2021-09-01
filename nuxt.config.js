@@ -98,6 +98,7 @@ export default {
   plugins: [
     "~/plugins/v-tippy",
     "~/plugins/v-focus",
+    "~/plugins/v-textarea",
     "~/plugins/vue-apollo",
     "~/plugins/crisp",
     { src: "~/plugins/web-worker", ssr: false },
@@ -213,7 +214,7 @@ export default {
     families: {
       Inter: [400, 500, 600, 700, 800],
       "Material+Icons": true,
-      "Roboto+Mono": true,
+      "Roboto+Mono": [400, 500],
     },
   },
 

@@ -35,12 +35,14 @@
   @apply text-accentContrast;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   @apply text-secondaryDark;
   @apply opacity-25;
 }
 
-input {
+input,
+textarea {
   @apply text-secondaryDark;
   @apply font-medium;
 }
@@ -194,7 +196,7 @@ hr {
 .input,
 .select,
 .textarea {
-  @apply flex flex-1;
+  @apply flex;
   @apply w-full;
   @apply px-4 py-2;
   @apply bg-transparent;

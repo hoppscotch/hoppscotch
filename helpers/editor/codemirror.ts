@@ -26,7 +26,7 @@ import { LinterDefinition } from "./linting/linter"
 const DEFAULT_THEME = "juejin"
 
 type CodeMirrorOptions = {
-  extendedEditorConfig: CodeMirror.EditorConfiguration
+  extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
   linter: LinterDefinition | null
 }
 
@@ -55,17 +55,34 @@ export function useCodemirror(
 ) {
   const cm = ref<CodeMirror.Editor | null>(null)
 
+  const updateEditorConfig = () => {
+    Object.keys(options.extendedEditorConfig).forEach((key) => {
+      // Only update options which need updating
+      if (
+        cm.value &&
+        cm.value?.getOption(key as any) !==
+          (options.extendedEditorConfig as any)[key]
+      ) {
+        cm.value?.setOption(
+          key as any,
+          (options.extendedEditorConfig as any)[key]
+        )
+      }
+    })
+  }
+
+  const updateLinterConfig = () => {
+    if (options.linter) {
+      cm.value?.setOption("lint", options.linter)
+    }
+  }
+
   // Boot-up CodeMirror, set the value and listeners
   onMounted(() => {
-    cm.value = CodeMirror(el.value!, {
-      ...DEFAULT_EDITOR_CONFIG,
-      ...options.extendedEditorConfig,
-    })
-    cm.value.setValue(value.value)
+    cm.value = CodeMirror(el.value!, DEFAULT_EDITOR_CONFIG)
 
-    if (options.linter) {
-      cm.value.setOption("lint", options.linter)
-    }
+    updateEditorConfig()
+    updateLinterConfig()
 
     cm.value.on("change", (instance) => {
       // External update propagation (via watchers) should be ignored
@@ -74,6 +91,13 @@ export function useCodemirror(
       }
     })
   })
+
+  // If the editor properties are reactive, watch for updates
+  watch(() => options.extendedEditorConfig, updateEditorConfig, {
+    immediate: true,
+    deep: true,
+  })
+  watch(() => options.linter, updateLinterConfig, { immediate: true })
 
   // Watch value updates
   watch(value, (newVal) => {

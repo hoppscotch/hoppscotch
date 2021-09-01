@@ -11,7 +11,7 @@
     "
   >
     <img
-      src="images/screenshots/rest.png"
+      src="https://tiny.cc/hoppscotch_screenshot_1"
       alt="Screenshot"
       class="rounded-lg ring-dividerLight mt-8 max-w-5/6 ring-4"
     />

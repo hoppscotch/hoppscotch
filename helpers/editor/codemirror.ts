@@ -4,6 +4,7 @@ import "codemirror/theme/juejin.css"
 
 import "codemirror/lib/codemirror.css"
 import "codemirror/addon/lint/lint.css"
+import "codemirror/addon/dialog/dialog.css"
 
 import "codemirror/addon/fold/foldgutter.css"
 import "codemirror/addon/fold/foldgutter"
@@ -12,6 +13,12 @@ import "codemirror/addon/fold/comment-fold"
 import "codemirror/addon/fold/indent-fold"
 import "codemirror/addon/display/autorefresh"
 import "codemirror/addon/lint/lint"
+import "codemirror/addon/display/placeholder"
+import "codemirror/addon/edit/closebrackets"
+import "codemirror/addon/search/search"
+import "codemirror/addon/search/searchcursor"
+import "codemirror/addon/search/jump-to-line"
+import "codemirror/addon/dialog/dialog"
 
 import { watch, onMounted, ref, Ref } from "@nuxtjs/composition-api"
 import { LinterDefinition } from "./linting/linter"
@@ -28,6 +35,7 @@ const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
   autoRefresh: true,
   lineNumbers: true,
   foldGutter: true,
+  autoCloseBrackets: true,
   gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
 }
 

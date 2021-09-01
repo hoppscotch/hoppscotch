@@ -79,6 +79,7 @@
     "@testing-library/jest-dom": "^5.14.1",
     "@types/codemirror": "^5.60.2",
     "@types/cookie": "^0.4.1",
+    "@types/esprima": "^4.0.3",
     "@types/lodash": "^4.14.172",
     "@types/lunr": "^2.3.4",
     "@types/splitpanes": "^2.2.1",

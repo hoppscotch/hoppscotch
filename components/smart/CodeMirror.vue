@@ -39,6 +39,8 @@ const editor = ref<any | null>(null)
 useCodemirror(editor, value, {
   extendedEditorConfig: {
     mode: props.mode,
+    placeholder: props.placeholder,
+    lineWrapping: props.wrap,
   },
   linter: props.linter,
 })

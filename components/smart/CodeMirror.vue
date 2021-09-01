@@ -7,13 +7,20 @@ import "codemirror/mode/javascript/javascript"
 
 import { ref, watch } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
+import { LinterDefinition } from "~/helpers/editor/linting/linter"
 
-const props = defineProps<{
-  value: string
-  mode: string
-  placeholder: string
-  wrap: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    value: string
+    mode: string
+    placeholder: string
+    wrap: boolean
+    linter: LinterDefinition | null
+  }>(),
+  {
+    linter: null as any,
+  }
+)
 
 const emit = defineEmits<{
   (e: "input", value: string): void
@@ -30,7 +37,10 @@ watch(value, (val) => emit("input", val))
 const editor = ref<any | null>(null)
 
 useCodemirror(editor, value, {
-  mode: props.mode,
+  extendedEditorConfig: {
+    mode: props.mode,
+  },
+  linter: props.linter,
 })
 </script>
 

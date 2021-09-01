@@ -243,7 +243,7 @@
     "doc": "المستندات",
     "graphql": "GraphQL",
     "realtime": "في الوقت الحالى",
-    "rest": "راحة",
+    "rest": "REST",
     "settings": "إعدادات"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "التحرير بالجملة",
+    "bulk_mode_placeholder": "يتم فصل الإدخالات بواسطة سطر جديد\nالمفاتيح والقيم مفصولة بـ:\nقم بإلحاق // بأي صف تريد إضافته ولكن يظل معطلاً",
     "cleared": "مسح",
     "connected": "متصل",
     "connected_to": "متصل بـ {name}",

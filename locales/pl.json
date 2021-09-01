@@ -241,9 +241,9 @@
   },
   "navigation": {
     "doc": "Dokumenty",
-    "graphql": "WykresQL",
+    "graphql": "GraphQL",
     "realtime": "Czas rzeczywisty",
-    "rest": "ODPOCZYNEK",
+    "rest": "REST",
     "settings": "Ustawienia"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Edycja zbiorcza",
+    "bulk_mode_placeholder": "Wpisy są oddzielone znakiem nowej linii\nKlucze i wartości są oddzielone:\nDołącz // do dowolnego wiersza, który chcesz dodać, ale pozostaw wyłączony",
     "cleared": "Wyczyszczono",
     "connected": "Połączony",
     "connected_to": "Połączony z {name}",

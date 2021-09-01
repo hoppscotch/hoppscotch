@@ -241,9 +241,9 @@
   },
   "navigation": {
     "doc": "Documenti",
-    "graphql": "GraficoQL",
+    "graphql": "GraphQL",
     "realtime": "Tempo reale",
-    "rest": "RIPOSO",
+    "rest": "REST",
     "settings": "Impostazioni"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Modifica in blocco",
+    "bulk_mode_placeholder": "Le voci sono separate da newline\nChiavi e valori sono separati da:\nAnteponi // a qualsiasi riga che desideri aggiungere ma mantieni disabilitato",
     "cleared": "Cancellato",
     "connected": "Collegato",
     "connected_to": "Collegato a {nome}",

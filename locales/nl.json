@@ -243,7 +243,7 @@
     "doc": "Documenten",
     "graphql": "GraphQL",
     "realtime": "Echte tijd",
-    "rest": "RUST UIT",
+    "rest": "REST",
     "settings": "Instellingen"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Bulkbewerking",
+    "bulk_mode_placeholder": "Invoer wordt gescheiden door een nieuwe regel\nSleutels en waarden worden gescheiden door:\nVoeg // toe aan elke rij die u wilt toevoegen, maar blijf uitgeschakeld",
     "cleared": "gewist",
     "connected": "Verbonden",
     "connected_to": "Verbonden met {naam}",

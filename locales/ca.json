@@ -42,7 +42,7 @@
     "contact_us": "Poseu-vos en contacte amb nosaltres",
     "copy": "Copia",
     "documentation": "Documentació",
-    "help": "Ajuda, comentaris i </br> documentació",
+    "help": "Ajuda, comentaris i documentació",
     "home": "Inici",
     "invite": "Convidar",
     "invite_description": "A Hoppscotch, hem dissenyat una interfície senzilla i intuïtiva per crear i gestionar les vostres API. Hoppscotch és una eina que us ajuda a construir, provar, documentar i compartir les vostres API.",
@@ -243,7 +243,7 @@
     "doc": "Documents",
     "graphql": "GraphQL",
     "realtime": "Temps real",
-    "rest": "DESCANS",
+    "rest": "REST",
     "settings": "Configuració"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Edició massiva",
+    "bulk_mode_placeholder": "Les entrades estan separades per una nova línia\nLes claus i els valors estan separats per:\nPrepara // a qualsevol fila que vulguis afegir, però continua desactivat",
     "cleared": "Esborrat",
     "connected": "Connectat",
     "connected_to": "Connectat a {name}",

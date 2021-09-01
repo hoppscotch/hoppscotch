@@ -42,7 +42,7 @@
     "contact_us": "Contactează-ne",
     "copy": "Copie",
     "documentation": "Documentație",
-    "help": "Ajutor, feedback și </br> documentație",
+    "help": "Ajutor, feedback și documentație",
     "home": "Acasă",
     "invite": "A invita",
     "invite_description": "În Hoppscotch, am proiectat o interfață simplă și intuitivă pentru crearea și gestionarea API-urilor dvs. Hoppscotch este un instrument care vă ajută să construiți, să testați, să documentați și să partajați API-urile dvs.",
@@ -243,7 +243,7 @@
     "doc": "Documente",
     "graphql": "GraphQL",
     "realtime": "Timp real",
-    "rest": "ODIHNĂ",
+    "rest": "REST",
     "settings": "Setări"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Editare în bloc",
+    "bulk_mode_placeholder": "Intrările sunt separate prin linie nouă\nCheile și valorile sunt separate prin:\nPrepend // la orice rând pe care doriți să îl adăugați, dar păstrați-l dezactivat",
     "cleared": "Eliminat",
     "connected": "Conectat",
     "connected_to": "Conectat la {name}",

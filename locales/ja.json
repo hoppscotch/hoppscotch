@@ -243,7 +243,7 @@
     "doc": "ドキュメント",
     "graphql": "GraphQL",
     "realtime": "リアルタイム",
-    "rest": "休み",
+    "rest": "REST",
     "settings": "設定"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "一括編集",
+    "bulk_mode_placeholder": "エントリは改行で区切られます\nキーと値は次のように区切られます。\n追加する行の前に//を追加しますが、無効のままにします",
     "cleared": "クリア",
     "connected": "接続済み",
     "connected_to": "{名前}に接続しました",

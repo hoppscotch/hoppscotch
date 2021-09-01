@@ -243,7 +243,7 @@
     "doc": "Docs",
     "graphql": "GraphQL",
     "realtime": "Thời gian thực",
-    "rest": "LÊN ĐỈNH",
+    "rest": "REST",
     "settings": "Cài đặt"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Chỉnh sửa hàng loạt",
+    "bulk_mode_placeholder": "Các mục nhập được phân tách bằng dòng mới\nCác khóa và giá trị được phân tách bằng:\nThêm // vào bất kỳ hàng nào bạn muốn thêm nhưng vẫn bị vô hiệu hóa",
     "cleared": "Đã xóa",
     "connected": "Đã kết nối",
     "connected_to": "Đã kết nối với {name}",

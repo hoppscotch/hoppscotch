@@ -243,7 +243,7 @@
     "doc": "Documents",
     "graphql": "GraphQL",
     "realtime": "Temps réel",
-    "rest": "DU REPOS",
+    "rest": "REST",
     "settings": "Paramètres"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Modification groupée",
+    "bulk_mode_placeholder": "Les entrées sont séparées par une nouvelle ligne\nLes clés et les valeurs sont séparées par :\nAjoutez // à n'importe quelle ligne que vous souhaitez ajouter mais restez désactivé",
     "cleared": "Effacé",
     "connected": "Lié",
     "connected_to": "Connecté à {nom}",

@@ -42,7 +42,7 @@
     "contact_us": "Kontak Ons",
     "copy": "Kopieer",
     "documentation": "Dokumentasie",
-    "help": "Hulp, terugvoer en </br> dokumentasie",
+    "help": "Hulp, terugvoer en dokumentasie",
     "home": "Tuis",
     "invite": "Nooi",
     "invite_description": "In Hoppscotch het ons 'n eenvoudige en intuïtiewe koppelvlak ontwerp om u API's te skep en te bestuur. Hoppscotch is 'n instrument waarmee u u API's kan bou, toets, dokumenteer en deel.",
@@ -243,7 +243,7 @@
     "doc": "Dokumente",
     "graphql": "GraphQL",
     "realtime": "Ware tyd",
-    "rest": "RUS",
+    "rest": "REST",
     "settings": "Instellings"
   },
   "preRequest": {
@@ -364,7 +364,7 @@
       "forward": "Gaan vorentoe na die volgende bladsy",
       "graphql": "Gaan na die GraphQL -bladsy",
       "realtime": "Gaan na Realtime -bladsy",
-      "rest": "Gaan na die RUS -bladsy",
+      "rest": "Gaan na die REST -bladsy",
       "settings": "Gaan na die instellingsbladsy",
       "title": "Navigasie"
     },
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Grootmaatbewerking",
+    "bulk_mode_placeholder": "Inskrywings word geskei deur nuwe lyn\nSleutels en waardes word geskei deur:\nStel // voor op enige ry wat u wil byvoeg, maar hou dit uitgeskakel",
     "cleared": "Uitgevee",
     "connected": "Koppel",
     "connected_to": "Gekoppel aan {naam}",

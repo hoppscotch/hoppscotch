@@ -42,7 +42,7 @@
     "contact_us": "Ota meihin yhteyttä",
     "copy": "Kopio",
     "documentation": "Dokumentointi",
-    "help": "Ohje, palaute ja </br> dokumentaatio",
+    "help": "Ohje, palaute ja dokumentaatio",
     "home": "Koti",
     "invite": "Kutsu",
     "invite_description": "Hoppscotchissa suunnittelimme yksinkertaisen ja intuitiivisen käyttöliittymän sovellusliittymiesi luomiseen ja hallintaan. Hoppscotch on työkalu, jonka avulla voit rakentaa, testata, dokumentoida ja jakaa sovellusliittymiäsi.",
@@ -243,7 +243,7 @@
     "doc": "Docs",
     "graphql": "GraphQL",
     "realtime": "Reaaliaika",
-    "rest": "LEVÄTÄ",
+    "rest": "REST",
     "settings": "asetukset"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL -osoite"
   },
   "state": {
+    "bulk_mode": "Joukkomuokkaus",
+    "bulk_mode_placeholder": "Merkinnät erotetaan rivillä\nAvaimet ja arvot erotetaan toisistaan:\nEsitä // mihin tahansa riviin, jonka haluat lisätä, mutta pidä poissa käytöstä",
     "cleared": "Selvitetty",
     "connected": "Yhdistetty",
     "connected_to": "Yhdistetty kohteeseen {name}",

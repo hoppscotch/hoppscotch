@@ -42,7 +42,7 @@
     "contact_us": "Свяжитесь с нами",
     "copy": "Копировать",
     "documentation": "Документация",
-    "help": "Справка, отзывы и </br> документация",
+    "help": "Справка, отзывы и документация",
     "home": "Дом",
     "invite": "Приглашать",
     "invite_description": "В Hoppscotch мы разработали простой и интуитивно понятный интерфейс для создания и управления вашими API. Hoppscotch - это инструмент, который помогает создавать, тестировать, документировать и делиться своими API.",
@@ -243,7 +243,7 @@
     "doc": "Документы",
     "graphql": "GraphQL",
     "realtime": "В реальном времени",
-    "rest": "ОСТАЛЬНЫЕ",
+    "rest": "REST",
     "settings": "Настройки"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Bulk edit",
+    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend // to any row you want to add but keep disabled",
     "cleared": "Очищено",
     "connected": "Связаны",
     "connected_to": "Подключено к {name}",

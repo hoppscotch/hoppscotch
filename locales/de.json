@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Bulk-Bearbeitung",
+    "bulk_mode_placeholder": "Einträge werden durch Zeilenumbruch getrennt\nSchlüssel und Werte werden getrennt durch:\nStellen Sie // jeder Zeile voran, die Sie hinzufügen möchten, aber lassen Sie sie deaktiviert",
     "cleared": "Gelöscht",
     "connected": "In Verbindung gebracht",
     "connected_to": "Verbunden mit {name}",

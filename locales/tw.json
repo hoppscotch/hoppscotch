@@ -403,6 +403,8 @@
     "url": "網址"
   },
   "state": {
+    "bulk_mode": "批量修改",
+    "bulk_mode_placeholder": "條目由換行符分隔\n鍵和值由 分隔：\n將 // 添加到要添加但保持禁用狀態的任何行",
     "cleared": "清除",
     "connected": "連接的",
     "connected_to": "已連接到{name}",

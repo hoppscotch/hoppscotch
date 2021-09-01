@@ -42,7 +42,7 @@
     "contact_us": "Lépjen kapcsolatba velünk",
     "copy": "Másolat",
     "documentation": "Dokumentáció",
-    "help": "Súgó, visszajelzés és </br> dokumentáció",
+    "help": "Súgó, visszajelzés és dokumentáció",
     "home": "itthon",
     "invite": "Meghívás",
     "invite_description": "A Hoppscotch alkalmazásban egyszerű és intuitív felületet terveztünk az API -k létrehozásához és kezeléséhez. A Hoppscotch egy olyan eszköz, amely segít API -k felépítésében, tesztelésében, dokumentálásában és megosztásában.",
@@ -243,7 +243,7 @@
     "doc": "Dokumentumok",
     "graphql": "GraphQL",
     "realtime": "Valós idő",
-    "rest": "PIHENÉS",
+    "rest": "REST",
     "settings": "Beállítások"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Tömeges szerkesztés",
+    "bulk_mode_placeholder": "A bejegyzéseket új sor választja el\nA kulcsokat és az értékeket a következők választják el egymástól:\nElőtag // bármelyik sorhoz, amelyet hozzá szeretne adni, de továbbra is letiltva",
     "cleared": "Törölt",
     "connected": "csatlakoztatva",
     "connected_to": "Összekapcsolva a következővel: {name}",

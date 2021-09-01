@@ -42,7 +42,7 @@
     "contact_us": "צור קשר",
     "copy": "עותק",
     "documentation": "תיעוד",
-    "help": "עזרה, משוב ו </br> תיעוד",
+    "help": "עזרה, משוב ו תיעוד",
     "home": "בית",
     "invite": "להזמין",
     "invite_description": "ב- Hoppscotch עיצבנו ממשק פשוט ואינטואיטיבי ליצירה ולניהול ממשקי ה- API שלך. Hoppscotch הוא כלי שעוזר לך לבנות, לבדוק, לתעד ולשתף את ה- API שלך.",
@@ -243,7 +243,7 @@
     "doc": "מסמכים",
     "graphql": "GraphQL",
     "realtime": "זמן אמת",
-    "rest": "מנוחה",
+    "rest": "REST",
     "settings": "הגדרות"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "כתובת URL"
   },
   "state": {
+    "bulk_mode": "עריכה בכמות גדולה",
+    "bulk_mode_placeholder": "הערכים מופרדים באמצעות שורה חדשה\nמפתחות וערכים מופרדים על ידי:\nהזינו // לכל שורה שתרצו להוסיף אך תשמרו",
     "cleared": "מְבוּעָר",
     "connected": "מְחוּבָּר",
     "connected_to": "מחובר אל {name}",

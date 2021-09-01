@@ -243,7 +243,7 @@
     "doc": "Dokümanlar",
     "graphql": "GraphQL",
     "realtime": "Gerçek zamanlı",
-    "rest": "DİNLENMEK",
+    "rest": "REST",
     "settings": "Ayarlar"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Toplu düzenleme",
+    "bulk_mode_placeholder": "Girişler yeni satırla ayrılır\nAnahtarlar ve değerler şu şekilde ayrılır:\nEklemek istediğiniz ancak devre dışı bırakmak istediğiniz herhangi bir satırın başına // ekleyin",
     "cleared": "Temizlendi",
     "connected": "bağlı",
     "connected_to": "{name} ile bağlantılı",

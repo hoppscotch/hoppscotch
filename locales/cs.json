@@ -42,7 +42,7 @@
     "contact_us": "Kontaktujte nás",
     "copy": "kopírovat",
     "documentation": "Dokumentace",
-    "help": "Nápověda, zpětná vazba a </br> dokumentace",
+    "help": "Nápověda, zpětná vazba a dokumentace",
     "home": "Domov",
     "invite": "Pozvat",
     "invite_description": "V Hoppscotch jsme navrhli jednoduché a intuitivní rozhraní pro vytváření a správu vašich API. Hoppscotch je nástroj, který vám pomáhá vytvářet, testovat, dokumentovat a sdílet vaše API.",
@@ -243,7 +243,7 @@
     "doc": "Docs",
     "graphql": "GraphQL",
     "realtime": "Reálný čas",
-    "rest": "ZBYTEK",
+    "rest": "REST",
     "settings": "Nastavení"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Hromadná úprava",
+    "bulk_mode_placeholder": "Záznamy jsou odděleny novým řádkem\nKlíče a hodnoty jsou odděleny:\nPředřadte // do libovolného řádku, který chcete přidat, ale ponechte jej deaktivovaný",
     "cleared": "Vymazáno",
     "connected": "Připojeno",
     "connected_to": "Připojeno k {name}",

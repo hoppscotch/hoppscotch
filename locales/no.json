@@ -42,7 +42,7 @@
     "contact_us": "Kontakt oss",
     "copy": "Kopiere",
     "documentation": "Dokumentasjon",
-    "help": "Hjelp, tilbakemelding og </br> dokumentasjon",
+    "help": "Hjelp, tilbakemelding og dokumentasjon",
     "home": "Hjem",
     "invite": "Invitere",
     "invite_description": "I Hoppscotch designet vi et enkelt og intuitivt grensesnitt for å lage og administrere dine APIer. Hoppscotch er et verktøy som hjelper deg med å bygge, teste, dokumentere og dele API -ene dine.",
@@ -243,7 +243,7 @@
     "doc": "Dokumenter",
     "graphql": "GraphQL",
     "realtime": "Sanntid",
-    "rest": "HVILE",
+    "rest": "REST",
     "settings": "Innstillinger"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Masse redigering",
+    "bulk_mode_placeholder": "Oppføringer skilles med ny linje\nNøkler og verdier er atskilt med:\nForbered // til hvilken som helst rad du vil legge til, men behold den deaktivert",
     "cleared": "Ryddet",
     "connected": "Tilkoblet",
     "connected_to": "Koblet til {name}",

@@ -42,7 +42,7 @@
     "contact_us": "Contate-Nos",
     "copy": "cópia de",
     "documentation": "Documentação",
-    "help": "Ajuda, feedback e </br> documentação",
+    "help": "Ajuda, feedback e documentação",
     "home": "Lar",
     "invite": "Convidar",
     "invite_description": "No Hoppscotch, projetamos uma interface simples e intuitiva para criar e gerenciar suas APIs. Hoppscotch é uma ferramenta que o ajuda a construir, testar, documentar e compartilhar suas APIs.",
@@ -243,7 +243,7 @@
     "doc": "Docs",
     "graphql": "GraphQL",
     "realtime": "Tempo real",
-    "rest": "DESCANSO",
+    "rest": "REST",
     "settings": "Configurações"
   },
   "preRequest": {
@@ -403,6 +403,8 @@
     "url": "URL"
   },
   "state": {
+    "bulk_mode": "Edição em massa",
+    "bulk_mode_placeholder": "As entradas são separadas por nova linha\nChaves e valores são separados por:\nAnexar // a qualquer linha que você deseja adicionar, mas manter desativado",
     "cleared": "Liberado",
     "connected": "Conectado",
     "connected_to": "Conectado a {name}",

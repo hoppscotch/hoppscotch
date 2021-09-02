@@ -260,6 +260,12 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - Unlimited team members
 - User roles
 
+🚚 **Bulk Edit:** Edit key-value pairs in bulk.
+
+- Entries are separated by newline
+- Keys and values are separated by :
+- Prepend // to any row you want to add but keep disabled
+
 **For more features, please read our [documentation](https://docs.hoppscotch.io).**
 
 ## **Demo**

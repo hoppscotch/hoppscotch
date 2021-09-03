@@ -142,10 +142,20 @@ function getCodegenGeneralRESTInfo(
     urlObj.searchParams.append(key, value)
   })
 
+  // Remove authorization headers if auth is specified (because see #1798)
+  const finalHeaders =
+    request.auth.authActive && request.auth.authType !== "none"
+      ? request.effectiveFinalHeaders
+          .filter((x) => x.key.toLowerCase() !== "authorization")
+          .map((x) => ({ ...x, active: true }))
+      : request.effectiveFinalHeaders.map((x) => ({ ...x, active: true }))
+
+  console.log(finalHeaders)
+
   return {
     name: request.name,
     uri: request.effectiveFinalURL,
-    headers: request.effectiveFinalHeaders.map((x) => ({ ...x, active: true })),
+    headers: finalHeaders,
     params: request.effectiveFinalParams.map((x) => ({ ...x, active: true })),
     method: request.method,
     url: urlObj.origin,

@@ -391,7 +391,7 @@ export default defineComponent({
     const queryEditor = ref<any | null>(null)
 
     const copyQueryIcon = ref("copy")
-    const prettifyQueryIcon = ref("sparkles")
+    const prettifyQueryIcon = ref("align-left")
     const copyVariablesIcon = ref("copy")
 
     const showSaveRequestModal = ref(false)
@@ -489,7 +489,7 @@ export default defineComponent({
     const prettifyQuery = () => {
       queryEditor.value.prettifyQuery()
       prettifyQueryIcon.value = "check"
-      setTimeout(() => (prettifyQueryIcon.value = "sparkles"), 1000)
+      setTimeout(() => (prettifyQueryIcon.value = "align-left"), 1000)
     }
 
     const saveRequest = () => {

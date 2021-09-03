@@ -63,22 +63,22 @@ export default defineComponent({
         },
         {
           name: "Twitter",
-          icon: "twitter",
+          icon: "brands/twitter",
           link: `https://twitter.com/intent/tweet?text=${text} ${description}&url=${url}&via=${twitter}`,
         },
         {
           name: "Facebook",
-          icon: "facebook",
+          icon: "brands/facebook",
           link: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
         },
         {
           name: "Reddit",
-          icon: "reddit",
+          icon: "brands/reddit",
           link: `https://www.reddit.com/submit?url=${url}&title=${text}`,
         },
         {
           name: "LinkedIn",
-          icon: "linkedin",
+          icon: "brands/linkedin",
           link: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
         },
       ],

@@ -88,7 +88,7 @@ export default defineComponent({
   setup() {
     return {
       rawParamsBody: pluckRef(useRESTRequestBody(), "body"),
-      prettifyIcon: "sparkles",
+      prettifyIcon: "align-left",
     }
   },
   computed: {
@@ -123,7 +123,7 @@ export default defineComponent({
         const jsonObj = JSON.parse(this.rawParamsBody)
         this.rawParamsBody = JSON.stringify(jsonObj, null, 2)
         this.prettifyIcon = "check"
-        setTimeout(() => (this.prettifyIcon = "sparkles"), 1000)
+        setTimeout(() => (this.prettifyIcon = "align-left"), 1000)
       } catch (e) {
         console.error(e)
         this.$toast.error(`${this.$t("error.json_prettify_invalid_body")}`, {

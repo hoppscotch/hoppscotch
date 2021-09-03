@@ -239,7 +239,7 @@
                 <SmartItem
                   to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
                   blank
-                  svg="firefox"
+                  svg="brands/firefox"
                   label="Firefox"
                   :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
                   :active-info-icon="hasFirefoxExtInstalled"
@@ -250,7 +250,7 @@
                 <SmartItem
                   to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
                   blank
-                  svg="chrome"
+                  svg="brands/chrome"
                   label="Chrome"
                   :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
                   :active-info-icon="hasChromeExtInstalled"

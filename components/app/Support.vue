@@ -49,7 +49,7 @@
           "
         />
         <SmartItem
-          svg="discord"
+          svg="brands/discord"
           :label="$t('app.join_discord_community')"
           to="https://hoppscotch.io/discord"
           blank
@@ -59,7 +59,7 @@
           @click.native="hideModal()"
         />
         <SmartItem
-          svg="logos/twitter"
+          svg="brands/twitter"
           :label="$t('app.twitter')"
           to="https://hoppscotch.io/twitter"
           blank

@@ -88,7 +88,7 @@
     "code": "ja",
     "file": "ja.json",
     "iso": "ja-JA",
-    "name": "日本人"
+    "name": "日本語"
   },
   {
     "code": "ko",
@@ -172,7 +172,7 @@
     "code": "tw",
     "file": "tw.json",
     "iso": "zh-TW",
-    "name": "中國傳統的"
+    "name": "繁體中文"
   },
   {
     "code": "cn",

@@ -32,8 +32,8 @@
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
     "ace-builds": "^1.4.12",
-    "acorn": "^8.4.1",
-    "acorn-walk": "^8.1.1",
+    "acorn": "^8.5.0",
+    "acorn-walk": "^8.2.0",
     "core-js": "^3.17.2",
     "esprima": "^4.0.1",
     "firebase": "^9.0.1",
@@ -80,7 +80,7 @@
     "@types/lodash": "^4.14.172",
     "@types/lunr": "^2.3.4",
     "@types/splitpanes": "^2.2.1",
-    "@vue/runtime-dom": "^3.2.8",
+    "@vue/runtime-dom": "^3.2.9",
     "@vue/test-utils": "^1.2.2",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^27.1.0",
@@ -104,7 +104,7 @@
     "stylelint-config-standard": "^22.0.0",
     "ts-jest": "^27.0.5",
     "typescript": "^4.2",
-    "unplugin-vue2-script-setup": "^0.5.6",
+    "unplugin-vue2-script-setup": "^0.5.7",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
   }

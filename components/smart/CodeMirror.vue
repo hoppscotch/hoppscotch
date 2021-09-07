@@ -13,12 +13,13 @@ const props = withDefaults(
   defineProps<{
     value: string
     mode: string
-    placeholder: string
+    placeholder?: string
     wrap: boolean
     linter: LinterDefinition | null
   }>(),
   {
     linter: null as any,
+    placeholder: "",
   }
 )
 
@@ -45,18 +46,3 @@ useCodemirror(editor, value, {
   linter: props.linter,
 })
 </script>
-
-<style lang="scss" scoped>
-.CodeMirror {
-  @apply block;
-  @apply border-b;
-  @apply border-dividerLight;
-  @apply w-full;
-  @apply h-auto;
-  @apply font-mono;
-}
-
-.CodeMirror-scroll {
-  @apply min-h-32;
-}
-</style>

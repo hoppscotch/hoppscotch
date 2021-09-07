@@ -14,12 +14,13 @@ const props = withDefaults(
     value: string
     mode: string
     placeholder?: string
-    wrap: boolean
+    wrap?: boolean
     linter: LinterDefinition | null
   }>(),
   {
-    linter: null as any,
     placeholder: "",
+    wrap: true,
+    linter: null as any,
   }
 )
 

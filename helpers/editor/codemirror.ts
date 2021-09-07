@@ -1,6 +1,8 @@
 import CodeMirror from "codemirror"
 
-import "codemirror/theme/juejin.css"
+import "codemirror/theme/base16-light.css"
+import "codemirror/theme/base16-dark.css"
+import "codemirror/theme/3024-night.css"
 
 import "codemirror/lib/codemirror.css"
 import "codemirror/addon/lint/lint.css"
@@ -20,10 +22,8 @@ import "codemirror/addon/search/searchcursor"
 import "codemirror/addon/search/jump-to-line"
 import "codemirror/addon/dialog/dialog"
 
-import { watch, onMounted, ref, Ref } from "@nuxtjs/composition-api"
+import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 import { LinterDefinition } from "./linting/linter"
-
-const DEFAULT_THEME = "juejin"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
@@ -31,7 +31,6 @@ type CodeMirrorOptions = {
 }
 
 const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
-  theme: DEFAULT_THEME,
   autoRefresh: true,
   lineNumbers: true,
   foldGutter: true,
@@ -81,6 +80,7 @@ export function useCodemirror(
   onMounted(() => {
     cm.value = CodeMirror(el.value!, DEFAULT_EDITOR_CONFIG)
 
+    setTheme()
     updateEditorConfig()
     updateLinterConfig()
 
@@ -91,6 +91,28 @@ export function useCodemirror(
       }
     })
   })
+
+  const setTheme = () => {
+    const { $colorMode } = useContext() as any
+    if (cm.value) {
+      cm.value?.setOption("theme", getThemeName($colorMode.value))
+    }
+  }
+
+  const getThemeName = (mode: string) => {
+    switch (mode) {
+      case "system":
+        return "default"
+      case "light":
+        return "base16-light"
+      case "dark":
+        return "base16-dark"
+      case "black":
+        return "3024-night"
+      default:
+        return "default"
+    }
+  }
 
   // If the editor properties are reactive, watch for updates
   watch(() => options.extendedEditorConfig, updateEditorConfig, {

@@ -17,7 +17,7 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-divider bg-clip-content;
   @apply rounded-full;
-  @apply border-solid border-4 border-transparent;
+  @apply border-solid border-transparent border-4;
   @apply hover:(bg-dividerDark bg-clip-content);
 }
 
@@ -116,8 +116,8 @@ a {
 
   &.link {
     @apply items-center;
-    @apply px-1 py-0.5;
-    @apply -mx-1 -my-0.5;
+    @apply py-0.5 px-1;
+    @apply -my-0.5 -mx-1;
     @apply text-accent;
     @apply rounded;
     @apply hover:text-accentDark;
@@ -198,7 +198,7 @@ hr {
 .textarea {
   @apply flex;
   @apply w-full;
-  @apply px-4 py-2;
+  @apply py-2 px-4;
   @apply bg-transparent;
   @apply rounded;
   @apply text-secondaryDark;
@@ -293,7 +293,7 @@ input[type="checkbox"] {
     @apply cursor-pointer;
 
     &::before {
-      @apply border-2 border-divider;
+      @apply border-divider border-2;
       @apply rounded;
       @apply inline-flex;
       @apply items-center;
@@ -459,6 +459,22 @@ input[type="checkbox"] {
   @apply -top-0.5;
   @apply -bottom-0.5;
   @apply w-full;
+}
+
+.CodeMirror {
+  @apply block;
+  @apply border-b;
+  @apply border-dividerLight;
+  @apply w-full;
+  @apply h-auto;
+}
+
+.CodeMirror * {
+  font-family: "Roboto Mono", monospace;
+}
+
+.CodeMirror-scroll {
+  @apply min-h-32;
 }
 
 @media (max-width: 767px) {

@@ -7,6 +7,7 @@ import "codemirror/theme/3024-night.css"
 import "codemirror/lib/codemirror.css"
 import "codemirror/addon/lint/lint.css"
 import "codemirror/addon/dialog/dialog.css"
+import "codemirror/addon/hint/show-hint.css"
 
 import "codemirror/addon/fold/foldgutter.css"
 import "codemirror/addon/fold/foldgutter"
@@ -15,6 +16,7 @@ import "codemirror/addon/fold/comment-fold"
 import "codemirror/addon/fold/indent-fold"
 import "codemirror/addon/display/autorefresh"
 import "codemirror/addon/lint/lint"
+import "codemirror/addon/hint/show-hint"
 import "codemirror/addon/display/placeholder"
 import "codemirror/addon/edit/closebrackets"
 import "codemirror/addon/search/search"
@@ -24,10 +26,12 @@ import "codemirror/addon/dialog/dialog"
 
 import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 import { LinterDefinition } from "./linting/linter"
+import { Completer } from "./completion"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
   linter: LinterDefinition | null
+  completer: Completer | null
 }
 
 const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
@@ -76,6 +80,31 @@ export function useCodemirror(
     }
   }
 
+  const updateCompleterConfig = () => {
+    if (options.completer) {
+      cm.value?.setOption("hintOptions", {
+        completeSingle: false,
+        hint: async (editor: CodeMirror.Editor) => {
+          const pos = editor.getCursor()
+          const text = editor.getValue()
+
+          const result = await options.completer!(text, pos)
+
+          console.log("complete!")
+          console.log(result)
+
+          return <CodeMirror.Hints>{
+            from: result.start,
+            to: result.end,
+            list: result.completions
+              .sort((a, b) => a.score - b.score)
+              .map((x) => x.text),
+          }
+        },
+      })
+    }
+  }
+
   // Boot-up CodeMirror, set the value and listeners
   onMounted(() => {
     cm.value = CodeMirror(el.value!, DEFAULT_EDITOR_CONFIG)
@@ -83,11 +112,19 @@ export function useCodemirror(
     setTheme()
     updateEditorConfig()
     updateLinterConfig()
+    updateCompleterConfig()
 
     cm.value.on("change", (instance) => {
       // External update propagation (via watchers) should be ignored
       if (instance.getValue() !== value.value) {
         value.value = instance.getValue()
+      }
+    })
+
+    /* TODO: Show autocomplete on typing (this is just for testing) */
+    cm.value.on("keyup", (instance, event) => {
+      if (!instance.state.completionActive && event.key !== "Enter") {
+        instance.showHint()
       }
     })
   })
@@ -120,6 +157,7 @@ export function useCodemirror(
     deep: true,
   })
   watch(() => options.linter, updateLinterConfig, { immediate: true })
+  watch(() => options.completer, updateCompleterConfig, { immediate: true })
 
   // Watch value updates
   watch(value, (newVal) => {

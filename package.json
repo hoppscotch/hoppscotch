@@ -35,6 +35,7 @@
     "acorn": "^8.4.1",
     "acorn-walk": "^8.1.1",
     "codemirror": "^5.62.3",
+    "codemirror-github-light": "^0.4.2",
     "core-js": "^3.16.4",
     "esprima": "^4.0.1",
     "firebase": "^9.0.0",

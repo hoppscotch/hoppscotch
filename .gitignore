@@ -104,3 +104,6 @@ tests/*/screenshots
 
 # Tests videos
 tests/*/videos
+
+# Andrew's crazy Volar shim generator
+shims-volar.d.ts

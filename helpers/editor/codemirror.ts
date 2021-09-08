@@ -43,7 +43,7 @@ const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
   gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
   extraKeys: {
     "Ctrl-Space": "autocomplete",
-  }
+  },
 }
 
 /**
@@ -115,8 +115,9 @@ export function useCodemirror(
     }
   }
 
-  // Boot-up CodeMirror, set the value and listeners
-  onMounted(() => {
+  const initialize = () => {
+    if (!el.value) return
+
     cm.value = CodeMirror(el.value!, DEFAULT_EDITOR_CONFIG)
 
     setTheme()
@@ -130,14 +131,15 @@ export function useCodemirror(
         value.value = instance.getValue()
       }
     })
+  }
 
-    // /* TODO: Show autocomplete on typing (this is just for testing) */
-    // cm.value.on("keyup", (instance, event) => {
-    //   if (!instance.state.completionActive && event.key !== "Enter") {
-    //     instance.showHint()
-    //   }
-    // })
+  // Boot-up CodeMirror, set the value and listeners
+  onMounted(() => {
+    initialize()
   })
+
+  // Reinitialize if the target ref updates
+  watch(el, initialize)
 
   const setTheme = () => {
     if (cm.value) {

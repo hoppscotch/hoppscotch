@@ -1,5 +1,9 @@
 <template>
-  <Splitpanes class="smart-splitter" :dbl-click-splitter="false" vertical>
+  <Splitpanes
+    class="smart-splitter"
+    :dbl-click-splitter="false"
+    :horizontal="!(windowInnerWidth.x.value >= 768)"
+  >
     <Pane class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
@@ -144,11 +148,13 @@ import Paho from "paho-mqtt"
 import debounce from "~/helpers/utils/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
+import useWindowSize from "~/helpers/utils/useWindowSize"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     return {
+      windowInnerWidth: useWindowSize(),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
     }
   },

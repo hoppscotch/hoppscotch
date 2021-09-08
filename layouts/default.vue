@@ -8,7 +8,7 @@
         <Splitpanes
           class="no-splitter"
           :dbl-click-splitter="false"
-          :horizontal="!(windowInnerWidth >= 768)"
+          :horizontal="!(windowInnerWidth.x.value >= 768)"
         >
           <Pane
             style="width: auto; height: auto"
@@ -57,6 +57,7 @@ import { useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
+import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function updateThemes() {
   const { $colorMode } = useContext() as any
@@ -119,12 +120,8 @@ export default defineComponent({
     updateThemes()
 
     return {
+      windowInnerWidth: useWindowSize(),
       ZEN_MODE: useSetting("ZEN_MODE"),
-    }
-  },
-  data() {
-    return {
-      windowInnerWidth: 0,
     }
   },
   head() {
@@ -141,8 +138,6 @@ export default defineComponent({
     registerApolloAuthUpdate()
   },
   async mounted() {
-    window.addEventListener("resize", this.handleResize)
-    this.handleResize()
     performMigrations()
     console.log(
       "%cWe ❤︎ open source!",
@@ -178,14 +173,6 @@ export default defineComponent({
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)
-  },
-  destroyed() {
-    window.removeEventListener("resize", this.handleResize)
-  },
-  methods: {
-    handleResize() {
-      this.windowInnerWidth = window.innerWidth
-    },
   },
 })
 </script>

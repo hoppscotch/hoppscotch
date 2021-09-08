@@ -1,5 +1,9 @@
 <template>
-  <Splitpanes class="smart-splitter" :dbl-click-splitter="false" vertical>
+  <Splitpanes
+    class="smart-splitter"
+    :dbl-click-splitter="false"
+    :horizontal="!(windowInnerWidth.x.value >= 768)"
+  >
     <Pane class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
         <Pane class="hide-scrollbar !overflow-auto">
@@ -117,6 +121,7 @@ import { onLoggedIn } from "~/helpers/fb/auth"
 import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import { oauthRedirect } from "~/helpers/oauth"
 import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
+import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function bindRequestToURLParams() {
   const {
@@ -240,6 +245,7 @@ export default defineComponent({
     bindRequestToURLParams()
 
     return {
+      windowInnerWidth: useWindowSize(),
       newActiveParamsCount$: useReadonlyStream(
         restActiveParamsCount$.pipe(
           map((e) => {
@@ -259,9 +265,6 @@ export default defineComponent({
         null
       ),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
-      PROXY_ENABLED: useSetting("PROXY_ENABLED"),
-      URL_EXCLUDES: useSetting("URL_EXCLUDES"),
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       confirmSync,
       syncRequest,
       oAuthURL,

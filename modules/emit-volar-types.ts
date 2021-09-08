@@ -1,6 +1,7 @@
 import { resolve } from "path"
 import { Module } from "@nuxt/types"
 import ts from "typescript"
+import chokidar from "chokidar"
 
 const { readdir, writeFile } = require("fs").promises
 
@@ -30,7 +31,7 @@ async function getAllVueComponentPaths(): Promise<string[]> {
       vueFilePaths.push(
         `./${f
           .split("/")
-          .slice(componentsIndex + 1)
+          .slice(componentsIndex)
           .join("/")}`
       )
     }
@@ -45,8 +46,9 @@ function resolveComponentName(filename: string): string {
   return filename
     .split("/")
     .slice(index + 1)
+    .filter((x) => x !== "index.vue") // Remove index.vue
     .map((x) => x.split(".vue")[0]) // Remove extension
-    .filter((x) => x.toUpperCase() !== x.toLowerCase())
+    .filter((x) => x.toUpperCase() !== x.toLowerCase()) // Remove non-word stuff
     .map((x) => titleCase(x)) // titlecase it
     .join("")
 }
@@ -113,9 +115,7 @@ function generateTypeScriptDef(components: [string, string][]) {
   return printer.printFile(source)
 }
 
-const module: Module<{}> = async function () {
-  if (!this.nuxt.options.dev) return
-
+async function generateShim() {
   const results = await getAllVueComponentPaths()
   const fileComponentNameCombo: [string, string][] = results.map((x) => [
     resolveComponentName(x),
@@ -124,6 +124,16 @@ const module: Module<{}> = async function () {
   const typescriptString = generateTypeScriptDef(fileComponentNameCombo)
 
   await writeFile(resolve("shims-volar.d.ts"), typescriptString)
+}
+
+const module: Module<{}> = async function () {
+  if (!this.nuxt.options.dev) return
+
+  await generateShim()
+
+  chokidar.watch(resolve("../components/")).on("all", async () => {
+    await generateShim()
+  })
 }
 
 export default module

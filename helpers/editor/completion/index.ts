@@ -29,5 +29,9 @@ export type Completer = (
   /**
    * Position where the completer is fired
    */
-  completePos: { line: number; ch: number }
-) => Promise<CompleterResult>
+  completePos: { line: number; ch: number },
+  completeTokenLocation: {
+    start: { line: number; ch: number }
+    end: { line: number; ch: number }
+  }
+) => Promise<CompleterResult | null>

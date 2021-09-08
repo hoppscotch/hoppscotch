@@ -19,11 +19,12 @@
           <ButtonSecondary svg="x" class="rounded" @click.native="close()" />
         </div>
       </div>
-      <!-- <div class="bg-primary border-b border-dividerLight">
+      <div class="bg-primary border-b border-dividerLight">
         <div class="flex flex-col my-4 mx-6">
           <input
             v-model="filterText"
-            type="search" autocomplete="off"
+            type="search"
+            autocomplete="off"
             class="
               bg-primaryLight
               border border-dividerLight
@@ -35,10 +36,43 @@
               focus-visible:border-divider
             "
             :placeholder="$t('action.search')"
+            v-focus
           />
         </div>
-      </div> -->
+      </div>
+      <div v-if="filterText">
+        <div
+          v-for="(map, mapIndex) in searchResults"
+          :key="`map-${mapIndex}`"
+          class="space-y-4 py-4 px-6"
+        >
+          <h1 class="font-semibold text-secondaryDark">
+            {{ $t(map.item.section) }}
+          </h1>
+          <AppShortcutsEntry
+            v-for="(shortcut, index) in map.item.shortcuts"
+            :key="`shortcut-${index}`"
+            :shortcut="shortcut"
+          />
+        </div>
+        <div
+          v-if="searchResults.length === 0"
+          class="
+            flex flex-col
+            text-secondaryLight
+            p-4
+            items-center
+            justify-center
+          "
+        >
+          <i class="opacity-75 pb-2 material-icons">manage_search</i>
+          <span class="text-center">
+            {{ $t("state.nothing_found") }} "{{ filterText }}"
+          </span>
+        </div>
+      </div>
       <div
+        v-else
         class="
           divide-y divide-dividerLight
           flex flex-col flex-1
@@ -54,53 +88,44 @@
           <h1 class="font-semibold text-secondaryDark">
             {{ $t(map.section) }}
           </h1>
-          <div
+          <AppShortcutsEntry
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
-            class="flex items-center"
-          >
-            <span class="flex flex-1 mr-4">
-              {{ $t(shortcut.label) }}
-            </span>
-            <span
-              v-for="(key, keyIndex) in shortcut.keys"
-              :key="`map-${mapIndex}-shortcut-${shortcutIndex}-key-${keyIndex}`"
-              class="shortcut-key"
-            >
-              {{ key }}
-            </span>
-          </div>
+            :shortcut="shortcut"
+          />
         </div>
       </div>
     </template>
   </AppSlideOver>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import shortcuts from "~/helpers/shortcuts"
+<script setup lang="ts">
+import { computed, ref } from "@nuxtjs/composition-api"
+import Fuse from "fuse.js"
+import mappings from "~/helpers/shortcuts"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  data() {
-    return {
-      // filterText: "",
-      mappings: shortcuts,
-    }
-  },
-  watch: {
-    $route() {
-      this.$emit("close")
-    },
-  },
-  methods: {
-    close() {
-      this.$emit("close")
-    },
-  },
-})
+defineProps<{
+  show: boolean
+}>()
+
+const options = {
+  keys: ["shortcuts.label"],
+}
+
+const fuse = new Fuse(mappings, options)
+
+const filterText = ref("")
+
+const searchResults = computed(() => fuse.search(filterText.value))
+
+const emit = defineEmits<{
+  (e: "close"): void
+}>()
+
+const close = () => {
+  filterText.value = ""
+  emit("close")
+}
 </script>
 
 <style lang="scss" scoped>

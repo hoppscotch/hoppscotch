@@ -83,7 +83,7 @@
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <AppSearch :show="showSearch" @hide-modal="showSearch = false" />
+    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
   </div>
 </template>
 

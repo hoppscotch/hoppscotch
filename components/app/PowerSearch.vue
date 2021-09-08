@@ -8,7 +8,7 @@
         type="text"
         autocomplete="off"
         name="command"
-        :placeholder="$t('app.type_a_command_search')"
+        :placeholder="$t('app.type_a_command_search').toString()"
         class="
           bg-transparent
           border-b border-dividerLight
@@ -17,10 +17,9 @@
           p-6
         "
       />
-      <AppLunr
+      <AppFuse
         v-if="search"
-        log
-        :input="lunr"
+        :input="fuse"
         :search="search"
         @action="runAction"
       />
@@ -39,7 +38,7 @@
           <h5 class="my-2 text-secondaryLight py-2 px-6">
             {{ $t(map.section) }}
           </h5>
-          <AppSearchEntry
+          <AppPowerSearchEntry
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
             :shortcut="shortcut"
@@ -54,7 +53,7 @@
 <script setup lang="ts">
 import { ref } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "~/helpers/actions"
-import { spotlight as mappings, lunr } from "~/helpers/shortcuts"
+import { spotlight as mappings, fuse } from "~/helpers/shortcuts"
 
 defineProps<{
   show: boolean

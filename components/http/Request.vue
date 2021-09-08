@@ -1,5 +1,17 @@
 <template>
-  <div class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky">
+  <div
+    class="
+      bg-primary
+      flex
+      space-x-2
+      p-4
+      top-0
+      z-10
+      sticky
+      overflow-x-auto
+      hide-scrollbar
+    "
+  >
     <div class="flex flex-1">
       <div class="flex relative">
         <label for="method">
@@ -57,6 +69,7 @@
             flex-1
             rounded-r
             text-secondaryDark
+            min-w-32
             py-1
             px-4
             hover:border-dividerDark
@@ -77,6 +90,7 @@
             flex
             text-secondaryDark
             w-full
+            min-w-32
             py-2
             px-4
             hover:border-dividerDark

@@ -5,5 +5,12 @@ Vue.use(VueTippy, {
   a11y: false,
   animateFill: false,
   arrowType: "round",
+  popperOptions: {
+    modifiers: {
+      preventOverflow: {
+        boundariesElement: "window",
+      },
+    },
+  },
 })
 Vue.component("Tippy", TippyComponent)

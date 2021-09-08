@@ -27,6 +27,7 @@ import "codemirror/addon/dialog/dialog"
 import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 import { LinterDefinition } from "./linting/linter"
 import { Completer } from "./completion"
+import { convertIndexToLineCh } from "./utils"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
@@ -88,10 +89,14 @@ export function useCodemirror(
           const pos = editor.getCursor()
           const text = editor.getValue()
 
-          const result = await options.completer!(text, pos)
+          const token = editor.getTokenAt(pos)
 
-          console.log("complete!")
-          console.log(result)
+          const result = await options.completer!(text, pos, {
+            start: convertIndexToLineCh(text, token.start),
+            end: convertIndexToLineCh(text, token.end),
+          })
+
+          if (!result) return null
 
           return <CodeMirror.Hints>{
             from: result.start,

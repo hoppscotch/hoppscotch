@@ -36,7 +36,8 @@
 }
 
 input::placeholder,
-textarea::placeholder {
+textarea::placeholder,
+.CodeMirror-empty {
   @apply text-secondaryDark;
   @apply opacity-25;
 }

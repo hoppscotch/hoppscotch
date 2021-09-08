@@ -48,25 +48,7 @@
       </div>
     </div>
     <div v-if="bulkMode" class="flex">
-      <textarea-autosize
-        v-model="bulkParams"
-        v-focus
-        name="bulk-parameters"
-        class="
-          bg-transparent
-          border-b border-dividerLight
-          flex
-          font-mono font-medium
-          flex-1
-          py-2
-          px-4
-          whitespace-pre
-          resize-y
-          overflow-auto
-        "
-        rows="10"
-        :placeholder="$t('state.bulk_mode_placeholder')"
-      />
+      <div ref="bulkEditor" class="w-full block"></div>
     </div>
     <div v-else>
       <div
@@ -96,7 +78,7 @@
         <input
           v-else
           class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="$t('count.parameter', { count: index + 1 })"
+          :placeholder="$t('count.parameter', { count: index + 1 }).toString()"
           :name="'param' + index"
           :value="param.key"
           autofocus
@@ -130,7 +112,7 @@
         <input
           v-else
           class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="$t('count.value', { count: index + 1 })"
+          :placeholder="$t('count.value', { count: index + 1 }).toString()"
           :name="'value' + index"
           :value="param.value"
           @change="
@@ -202,13 +184,9 @@
   </AppSection>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  ref,
-  useContext,
-  watch,
-} from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, useContext, watch } from "@nuxtjs/composition-api"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -220,72 +198,74 @@ import {
   setRESTParams,
 } from "~/newstore/RESTSession"
 import { useSetting } from "~/newstore/settings"
+import "codemirror/mode/yaml/yaml"
 
-export default defineComponent({
-  setup() {
-    const {
-      $toast,
-      app: { i18n },
-    } = useContext()
-    const t = i18n.t.bind(i18n)
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
-    const bulkMode = ref(false)
-    const bulkParams = ref("")
+const bulkMode = ref(false)
+const bulkParams = ref("")
 
-    watch(bulkParams, () => {
-      try {
-        const transformation = bulkParams.value.split("\n").map((item) => ({
-          key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
-          value: item.substring(item.indexOf(":") + 1).trim(),
-          active: !item.trim().startsWith("//"),
-        }))
-        setRESTParams(transformation)
-      } catch (e) {
-        $toast.error(t("error.something_went_wrong").toString(), {
-          icon: "error_outline",
-        })
-        console.error(e)
-      }
+watch(bulkParams, () => {
+  try {
+    const transformation = bulkParams.value.split("\n").map((item) => ({
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      value: item.substring(item.indexOf(":") + 1).trim(),
+      active: !item.trim().startsWith("//"),
+    }))
+    setRESTParams(transformation)
+  } catch (e) {
+    $toast.error(t("error.something_went_wrong").toString(), {
+      icon: "error_outline",
     })
-
-    return {
-      params$: useReadonlyStream(restParams$, []),
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
-      bulkMode,
-      bulkParams,
-    }
-  },
-  watch: {
-    params$: {
-      handler(newValue) {
-        if (
-          (newValue[newValue.length - 1]?.key !== "" ||
-            newValue[newValue.length - 1]?.value !== "") &&
-          newValue.length
-        )
-          this.addParam()
-      },
-      deep: true,
-    },
-  },
-  // mounted() {
-  //   if (!this.params$?.length) {
-  //     this.addParam()
-  //   }
-  // },
-  methods: {
-    addParam() {
-      addRESTParam({ key: "", value: "", active: true })
-    },
-    updateParam(index: number, item: HoppRESTParam) {
-      updateRESTParam(index, item)
-    },
-    deleteParam(index: number) {
-      deleteRESTParam(index)
-    },
-    clearContent() {
-      deleteAllRESTParams()
-    },
-  },
+    console.error(e)
+  }
 })
+
+const bulkEditor = ref<any | null>(null)
+
+useCodemirror(bulkEditor, bulkParams, {
+  extendedEditorConfig: {
+    mode: "text/x-yaml",
+    placeholder: t("state.bulk_mode_placeholder").toString(),
+  },
+  linter: null,
+  completer: null,
+})
+
+const params$ = useReadonlyStream(restParams$, [])
+
+watch(
+  params$,
+  (newValue) => {
+    if (
+      (newValue[newValue.length - 1]?.key !== "" ||
+        newValue[newValue.length - 1]?.value !== "") &&
+      newValue.length
+    )
+      addParam()
+  },
+  { deep: true }
+)
+
+const addParam = () => {
+  addRESTParam({ key: "", value: "", active: true })
+}
+
+const updateParam = (index: number, item: HoppRESTParam) => {
+  updateRESTParam(index, item)
+}
+
+const deleteParam = (index: number) => {
+  deleteRESTParam(index)
+}
+
+const clearContent = () => {
+  deleteAllRESTParams()
+}
+
+const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
 </script>

@@ -48,25 +48,7 @@
       </div>
     </div>
     <div v-if="bulkMode" class="flex">
-      <textarea-autosize
-        v-model="bulkHeaders"
-        v-focus
-        name="bulk-headers"
-        class="
-          bg-transparent
-          border-b border-dividerLight
-          flex
-          font-mono
-          flex-1
-          py-2
-          px-4
-          whitespace-pre
-          resize-y
-          overflow-auto
-        "
-        rows="10"
-        :placeholder="$t('state.bulk_mode_placeholder')"
-      />
+      <div ref="bulkEditor" class="w-full block"></div>
     </div>
     <div v-else>
       <div
@@ -193,96 +175,86 @@
   </AppSection>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
+import { ref, useContext, watch } from "@nuxtjs/composition-api"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
-  defineComponent,
-  ref,
-  useContext,
-  watch,
-} from "@nuxtjs/composition-api"
-import {
-  restHeaders$,
   addRESTHeader,
-  updateRESTHeader,
-  deleteRESTHeader,
   deleteAllRESTHeaders,
+  deleteRESTHeader,
+  restHeaders$,
   setRESTHeaders,
+  updateRESTHeader,
 } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useSetting } from "~/newstore/settings"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { HoppRESTHeader } from "~/helpers/types/HoppRESTRequest"
 
-export default defineComponent({
-  setup() {
-    const {
-      $toast,
-      app: { i18n },
-    } = useContext()
-    const t = i18n.t.bind(i18n)
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
-    const bulkMode = ref(false)
-    const bulkHeaders = ref("")
+const bulkMode = ref(false)
+const bulkHeaders = ref("")
+const bulkEditor = ref<any | null>(null)
 
-    watch(bulkHeaders, () => {
-      try {
-        const transformation = bulkHeaders.value.split("\n").map((item) => ({
-          key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
-          value: item.substring(item.indexOf(":") + 1).trim(),
-          active: !item.trim().startsWith("//"),
-        }))
-        setRESTHeaders(transformation)
-      } catch (e) {
-        $toast.error(t("error.something_went_wrong").toString(), {
-          icon: "error_outline",
-        })
-        console.error(e)
-      }
-    })
-
-    return {
-      headers$: useReadonlyStream(restHeaders$, []),
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
-      bulkMode,
-      bulkHeaders,
-    }
+useCodemirror(bulkEditor, bulkHeaders, {
+  extendedEditorConfig: {
+    mode: "text/x-yaml",
+    placeholder: t("state.bulk_mode_placeholder").toString(),
   },
-  data() {
-    return {
-      commonHeaders,
-    }
-  },
-  watch: {
-    headers$: {
-      handler(newValue) {
-        if (
-          (newValue[newValue.length - 1]?.key !== "" ||
-            newValue[newValue.length - 1]?.value !== "") &&
-          newValue.length
-        )
-          this.addHeader()
-      },
-      deep: true,
-    },
-  },
-  // mounted() {
-  //   if (!this.headers$?.length) {
-  //     this.addHeader()
-  //   }
-  // },
-  methods: {
-    addHeader() {
-      addRESTHeader({ key: "", value: "", active: true })
-    },
-    updateHeader(index: number, item: HoppRESTHeader) {
-      updateRESTHeader(index, item)
-    },
-    deleteHeader(index: number) {
-      deleteRESTHeader(index)
-    },
-    clearContent() {
-      deleteAllRESTHeaders()
-    },
-  },
+  linter: null,
+  completer: null,
 })
+
+watch(bulkHeaders, () => {
+  try {
+    const transformation = bulkHeaders.value.split("\n").map((item) => ({
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      value: item.substring(item.indexOf(":") + 1).trim(),
+      active: !item.trim().startsWith("//"),
+    }))
+    setRESTHeaders(transformation)
+  } catch (e) {
+    $toast.error(t("error.something_went_wrong").toString(), {
+      icon: "error_outline",
+    })
+    console.error(e)
+  }
+})
+
+const headers$ = useReadonlyStream(restHeaders$, [])
+
+watch(
+  headers$,
+  (newValue) => {
+    if (
+      (newValue[newValue.length - 1]?.key !== "" ||
+        newValue[newValue.length - 1]?.value !== "") &&
+      newValue.length
+    )
+      addHeader()
+  },
+  { deep: true }
+)
+
+const addHeader = () => {
+  addRESTHeader({ key: "", value: "", active: true })
+}
+
+const updateHeader = (index: number, item: HoppRESTHeader) => {
+  updateRESTHeader(index, item)
+}
+
+const deleteHeader = (index: number) => {
+  deleteRESTHeader(index)
+}
+
+const clearContent = () => {
+  deleteAllRESTHeaders()
+}
+const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
 </script>

@@ -57,6 +57,8 @@ export function useCodemirror(
   value: Ref<string>,
   options: CodeMirrorOptions
 ) {
+  const { $colorMode } = useContext() as any
+
   const cm = ref<CodeMirror.Editor | null>(null)
 
   const updateEditorConfig = () => {
@@ -135,7 +137,6 @@ export function useCodemirror(
   })
 
   const setTheme = () => {
-    const { $colorMode } = useContext() as any
     if (cm.value) {
       cm.value?.setOption("theme", getThemeName($colorMode.value))
     }
@@ -174,6 +175,9 @@ export function useCodemirror(
       }
     }
   })
+
+  // Watch color mode updates and update theme
+  watch(() => $colorMode.value, setTheme)
 
   return {
     cm,

@@ -59,6 +59,23 @@ import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 
+function appLayout() {
+  const rightSidebar = useSetting("RIGHT_SIDEBAR")
+  const windowInnerWidth = useWindowSize()
+
+  // Initially apply
+  onBeforeMount(() => {
+    if (windowInnerWidth.x.value < 768) rightSidebar.value = false
+  })
+
+  // Listen for updates
+  watch(windowInnerWidth.x, () =>
+    windowInnerWidth.x.value >= 768
+      ? (rightSidebar.value = true)
+      : (rightSidebar.value = false)
+  )
+}
+
 function updateThemes() {
   const { $colorMode } = useContext() as any
 
@@ -113,6 +130,8 @@ function defineJumpActions() {
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
+    appLayout()
+
     hookKeybindingsListener()
 
     defineJumpActions()

@@ -41,6 +41,9 @@ const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
   foldGutter: true,
   autoCloseBrackets: true,
   gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+  extraKeys: {
+    "Ctrl-Space": "autocomplete",
+  }
 }
 
 /**
@@ -128,12 +131,12 @@ export function useCodemirror(
       }
     })
 
-    /* TODO: Show autocomplete on typing (this is just for testing) */
-    cm.value.on("keyup", (instance, event) => {
-      if (!instance.state.completionActive && event.key !== "Enter") {
-        instance.showHint()
-      }
-    })
+    // /* TODO: Show autocomplete on typing (this is just for testing) */
+    // cm.value.on("keyup", (instance, event) => {
+    //   if (!instance.state.completionActive && event.key !== "Enter") {
+    //     instance.showHint()
+    //   }
+    // })
   })
 
   const setTheme = () => {

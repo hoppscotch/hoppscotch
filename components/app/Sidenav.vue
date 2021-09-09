@@ -15,6 +15,12 @@
           <SmartIcon :name="navigation.svg" class="svg-icons" />
         </div>
         <span v-if="LEFT_SIDEBAR">{{ navigation.title }}</span>
+        <tippy
+          v-if="!LEFT_SIDEBAR"
+          :placement="windowInnerWidth.x.value >= 768 ? 'right' : 'bottom'"
+          theme="tooltip"
+          :content="navigation.title"
+        />
       </NuxtLink>
     </nav>
   </aside>
@@ -22,11 +28,13 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
+import useWindowSize from "~/helpers/utils/useWindowSize"
 import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
   setup() {
     return {
+      windowInnerWidth: useWindowSize(),
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
     }
   },

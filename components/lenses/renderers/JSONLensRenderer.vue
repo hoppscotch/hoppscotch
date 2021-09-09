@@ -100,7 +100,7 @@ useCodemirror(
   jsonBodyText,
   reactive({
     extendedEditorConfig: {
-      mode: "javascript",
+      mode: "application/ld+json",
       readOnly: true,
       lineWrapping: linewrapEnabled,
     },

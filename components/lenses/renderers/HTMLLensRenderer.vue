@@ -53,10 +53,14 @@
       </div>
     </div>
     <div class="relative">
-      <div ref="htmlResponse" class="w-full block"></div>
+      <div
+        v-show="!previewEnabled"
+        ref="htmlResponse"
+        class="w-full block"
+      ></div>
       <iframe
+        v-show="previewEnabled"
         ref="previewFrame"
-        :class="{ hidden: !previewEnabled }"
         class="covers-response"
         src="about:blank"
       ></iframe>
@@ -68,6 +72,9 @@
 import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import "codemirror/mode/xml/xml"
+import "codemirror/mode/javascript/javascript"
+import "codemirror/mode/css/css"
 import "codemirror/mode/htmlmixed/htmlmixed"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
@@ -109,7 +116,7 @@ useCodemirror(
   responseBodyText,
   reactive({
     extendedEditorConfig: {
-      mode: "javascript",
+      mode: "htmlmixed",
       readOnly: true,
       lineWrapping: linewrapEnabled,
     },
@@ -170,9 +177,8 @@ const togglePreview = () => {
 
 <style lang="scss" scoped>
 .covers-response {
-  @apply absolute;
-  @apply inset-0;
   @apply bg-white;
+  @apply min-h-64;
   @apply h-full;
   @apply w-full;
   @apply border;

@@ -1,6 +1,6 @@
 import CodeMirror from "codemirror"
 
-import "codemirror-github-light/lib/codemirror-github-light-theme.css"
+import "codemirror-theme-github/theme/github.css"
 import "codemirror/theme/base16-dark.css"
 import "codemirror/theme/3024-night.css"
 
@@ -162,7 +162,7 @@ export function useCodemirror(
       case "system":
         return "default"
       case "light":
-        return "github-light"
+        return "github"
       case "dark":
         return "base16-dark"
       case "black":

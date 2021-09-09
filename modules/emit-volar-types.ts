@@ -28,12 +28,7 @@ async function getAllVueComponentPaths(): Promise<string[]> {
     if (f.endsWith(".vue")) {
       const componentsIndex = f.split("/").indexOf("components")
 
-      vueFilePaths.push(
-        `./${f
-          .split("/")
-          .slice(componentsIndex)
-          .join("/")}`
-      )
+      vueFilePaths.push(`./${f.split("/").slice(componentsIndex).join("/")}`)
     }
   }
 

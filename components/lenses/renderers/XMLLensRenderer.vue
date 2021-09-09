@@ -19,6 +19,14 @@
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
@@ -42,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useContext } from "@nuxtjs/composition-api"
+import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import "codemirror/mode/xml/xml"
@@ -85,15 +93,21 @@ const responseType = computed(() => {
 })
 
 const xmlResponse = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
-useCodemirror(xmlResponse, responseBodyText, {
-  extendedEditorConfig: {
-    mode: "application/xml",
-    readOnly: true,
-  },
-  linter: null,
-  completer: null,
-})
+useCodemirror(
+  xmlResponse,
+  responseBodyText,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/xml",
+      readOnly: true,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+  })
+)
 
 const downloadResponse = () => {
   const dataToWrite = responseBodyText.value

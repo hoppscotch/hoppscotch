@@ -475,7 +475,7 @@ input[type="checkbox"] {
 }
 
 .CodeMirror-scroll {
-  @apply min-h-32;
+  @apply min-h-64;
 }
 
 @media (max-width: 767px) {

@@ -133,6 +133,7 @@ export default {
     "@nuxtjs/composition-api/module",
     // https://github.com/antfu/unplugin-vue2-script-setup
     "unplugin-vue2-script-setup/nuxt",
+    "~/modules/emit-volar-types.ts",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)

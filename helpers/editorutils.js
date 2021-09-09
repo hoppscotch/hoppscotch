@@ -1,12 +1,12 @@
 const mimeToMode = {
-  "text/plain": "plain_text",
-  "text/html": "html",
-  "application/xml": "xml",
-  "application/hal+json": "json",
-  "application/vnd.api+json": "json",
-  "application/json": "json",
+  "text/plain": "text/x-yaml",
+  "text/html": "htmlmixed",
+  "application/xml": "application/xml",
+  "application/hal+json": "application/ld+json",
+  "application/vnd.api+json": "application/ld+json",
+  "application/json": "application/ld+json",
 }
 
 export function getEditorLangForMimeType(mimeType) {
-  return mimeToMode[mimeType] || "plain_text"
+  return mimeToMode[mimeType] || "text/x-yaml"
 }

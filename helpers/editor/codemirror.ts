@@ -44,6 +44,7 @@ const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
   extraKeys: {
     "Ctrl-Space": "autocomplete",
   },
+  viewportMargin: Infinity,
 }
 
 /**
@@ -120,6 +121,8 @@ export function useCodemirror(
 
     cm.value = CodeMirror(el.value!, DEFAULT_EDITOR_CONFIG)
 
+    cm.value.setValue(value.value)
+
     setTheme()
     updateEditorConfig()
     updateLinterConfig()
@@ -139,7 +142,14 @@ export function useCodemirror(
   })
 
   // Reinitialize if the target ref updates
-  watch(el, initialize)
+  watch(el, () => {
+    if (cm.value) {
+      const parent = cm.value.getWrapperElement()
+      parent.remove()
+      cm.value = null
+    }
+    initialize()
+  })
 
   const setTheme = () => {
     if (cm.value) {

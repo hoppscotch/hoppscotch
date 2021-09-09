@@ -467,7 +467,7 @@ input[type="checkbox"] {
   @apply border-b;
   @apply border-dividerLight;
   @apply w-full;
-  @apply h-auto;
+  @apply !h-full;
 }
 
 .CodeMirror * {

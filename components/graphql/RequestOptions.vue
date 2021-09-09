@@ -106,19 +106,7 @@
               />
             </div>
           </div>
-          <SmartAceEditor
-            ref="variableEditor"
-            v-model="variableString"
-            :lang="'json'"
-            :options="{
-              maxLines: Infinity,
-              minLines: 16,
-              autoScrollEditorIntoView: true,
-              showPrintMargin: false,
-              useWorker: false,
-            }"
-            styles="border-b border-dividerLight"
-          />
+          <div ref="variableEditor" class="w-full block"></div>
         </AppSection>
       </SmartTab>
 
@@ -323,6 +311,7 @@ import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
+import "codemirror/mode/javascript/javascript"
 
 const props = defineProps<{
   conn: GQLConnection
@@ -365,6 +354,16 @@ useCodemirror(bulkEditor, bulkHeaders, {
   extendedEditorConfig: {
     mode: "text/x-yaml",
     placeholder: t("state.bulk_mode_placeholder").toString(),
+  },
+  linter: null,
+  completer: null,
+})
+
+const variableEditor = ref<any | null>(null)
+
+useCodemirror(variableEditor, variableString, {
+  extendedEditorConfig: {
+    mode: "javascript",
   },
   linter: null,
   completer: null,

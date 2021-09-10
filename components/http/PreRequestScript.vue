@@ -26,6 +26,13 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
           svg="trash-2"
           @click.native="clearContent"
@@ -34,17 +41,7 @@
     </div>
     <div class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <SmartJsEditor
-          v-model="preRequestScript"
-          :options="{
-            maxLines: Infinity,
-            minLines: 16,
-            autoScrollEditorIntoView: true,
-            showPrintMargin: false,
-            useWorker: false,
-          }"
-          complete-mode="pre"
-        />
+        <div ref="preRrequestEditor" class="w-full block"></div>
       </div>
       <div
         class="
@@ -84,29 +81,38 @@
   </AppSection>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { reactive, ref } from "@nuxtjs/composition-api"
 import { usePreRequestScript } from "~/newstore/RESTSession"
-import preRequestScriptSnippets from "~/helpers/preRequestScriptSnippets"
+import snippets from "~/helpers/preRequestScriptSnippets"
+import "codemirror/mode/javascript/javascript"
+import { useCodemirror } from "~/helpers/editor/codemirror"
+import linter from "~/helpers/editor/linting/preRequest"
+import completer from "~/helpers/editor/completion/preRequest"
 
-export default defineComponent({
-  setup() {
-    const preRequestScript = usePreRequestScript()
+const preRequestScript = usePreRequestScript()
 
-    const useSnippet = (script: string) => {
-      preRequestScript.value += script
-    }
+const preRrequestEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
-    const clearContent = () => {
-      preRequestScript.value = ""
-    }
+useCodemirror(
+  preRrequestEditor,
+  preRequestScript,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      lineWrapping: linewrapEnabled,
+    },
+    linter,
+    completer,
+  })
+)
 
-    return {
-      preRequestScript,
-      snippets: preRequestScriptSnippets,
-      useSnippet,
-      clearContent,
-    }
-  },
-})
+const useSnippet = (script: string) => {
+  preRequestScript.value += script
+}
+
+const clearContent = () => {
+  preRequestScript.value = ""
+}
 </script>

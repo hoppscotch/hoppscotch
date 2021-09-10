@@ -281,7 +281,7 @@ export default {
         config.module.rules.push({
           test: /\.js$/,
           include: /(node_modules)/,
-          exclude: /(node_modules)\/(ace-builds)|(@firebase)/,
+          exclude: /(node_modules)\/(@firebase)/,
           loader: "babel-loader",
           options: {
             plugins: [

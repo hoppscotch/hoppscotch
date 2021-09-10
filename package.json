@@ -31,7 +31,6 @@
     "@nuxtjs/robots": "^2.5.0",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
-    "ace-builds": "^1.4.12",
     "acorn": "^8.5.0",
     "acorn-walk": "^8.2.0",
     "codemirror": "^5.62.3",

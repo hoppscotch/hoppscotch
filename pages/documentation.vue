@@ -64,10 +64,9 @@
             <textarea-autosize
               id="import-curl"
               v-model="collectionJSON"
-              class="font-mono p-4"
+              class="font-mono p-4 bg-primary"
               autofocus
               rows="8"
-              placeholder=" "
             />
             <div
               class="

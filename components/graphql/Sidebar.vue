@@ -220,6 +220,7 @@ import {
   setGQLURL,
   setGQLVariables,
 } from "~/newstore/GQLSession"
+import "~/helpers/editor/modes/graphql"
 
 function isTextFoundInGraphqlFieldObject(
   text: string,
@@ -396,7 +397,7 @@ useCodemirror(
   schemaString,
   reactive({
     extendedEditorConfig: {
-      mode: "application/ld+json",
+      mode: "graphql",
       readOnly: true,
       lineWrapping: linewrapEnabled,
     },

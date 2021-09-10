@@ -41,6 +41,7 @@
     "fuse.js": "^6.4.6",
     "graphql": "^15.5.0",
     "graphql-language-service-interface": "^2.8.4",
+    "graphql-language-service-parser": "^1.9.2",
     "json-loader": "^0.5.7",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0",

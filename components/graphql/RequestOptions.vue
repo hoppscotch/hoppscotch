@@ -300,6 +300,7 @@ import { getCurrentStrategyID } from "~/helpers/network"
 import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import "codemirror/mode/javascript/javascript"
+import "~/helpers/editor/modes/graphql"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
@@ -365,7 +366,7 @@ const schemaString = useReadonlyStream(props.conn.schema$, null)
 
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
-    mode: "application/ld+json",
+    mode: "graphql",
   },
   linter: createGQLQueryLinter(schemaString),
   completer: queryCompleter(schemaString),

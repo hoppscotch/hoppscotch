@@ -104,3 +104,6 @@ tests/*/screenshots
 
 # Tests videos
 tests/*/videos
+
+# Local Netlify folder
+.netlify

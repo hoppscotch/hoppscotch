@@ -1,5 +1,7 @@
 [build]
-  functions = "netlify/"
+  base = "packages/hoppscotch-app/"
+  publish = "dist"
+  command = "npm run generate"
   environment = { NODE_VERSION = "14" }
 
 [[redirects]]

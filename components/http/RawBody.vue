@@ -26,6 +26,13 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
           svg="trash-2"
           @click.native="clearContent('rawParams', $event)"
@@ -62,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useContext } from "@nuxtjs/composition-api"
+import { computed, reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { pluckRef } from "~/helpers/utils/composables"
@@ -89,16 +96,21 @@ const prettifyIcon = ref("align-left")
 const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(props.contentType)
 )
-
+const linewrapEnabled = ref(true)
 const rawBodyParameters = ref<any | null>(null)
 
-useCodemirror(rawBodyParameters, rawParamsBody, {
-  extendedEditorConfig: {
-    mode: rawInputEditorLang.value,
-  },
-  linter: null,
-  completer: null,
-})
+useCodemirror(
+  rawBodyParameters,
+  rawParamsBody,
+  reactive({
+    extendedEditorConfig: {
+      lineWrapping: linewrapEnabled,
+      mode: rawInputEditorLang,
+    },
+    linter: null,
+    completer: null,
+  })
+)
 
 const clearContent = () => {
   rawParamsBody.value = ""

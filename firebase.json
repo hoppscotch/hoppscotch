@@ -5,13 +5,9 @@
   },
   "hosting": {
     "predeploy": [
-      "cd packages/hoppscotch-app",
-      "mv .env.example .env",
-      "npm i pnpm",
-      "pnpm ci",
-      "pnpm run generate"
+      "cd packages/hoppscotch-app && mv .env.example .env && npm install -g pnpm && pnpm i && pnpm run generate"
     ],
-    "public": "dist",
+    "public": "packages/hoppscotch-app/dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [
       {

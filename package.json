@@ -5,9 +5,19 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install",
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,js,vue}": "eslint",
+    "*.{css,scss,vue}": "stylelint"
   },
   "workspaces": [
     "./packages/*"
-  ]
+  ],
+  "dependencies": {
+    "husky": "^7.0.2",
+    "lint-staged": "^11.1.2"
+  }
 }

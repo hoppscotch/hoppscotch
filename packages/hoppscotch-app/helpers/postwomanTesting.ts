@@ -47,7 +47,7 @@ export default function runTestScriptWithVariables(
     expect(value: any) {
       try {
         return expect(value, this._testReports)
-      } catch (e) {
+      } catch (e: any) {
         pw._testReports.push({
           result: "ERROR",
           message: e.toString(),
@@ -80,7 +80,7 @@ function test(
   _testReports.push({ startBlock: descriptor })
   try {
     func()
-  } catch (e) {
+  } catch (e: any) {
     _testReports.push({ result: "ERROR", message: e, styles: styles.ERROR })
   }
   _testReports.push({ endBlock: true })

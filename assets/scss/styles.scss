@@ -464,8 +464,6 @@ input[type="checkbox"] {
 
 .CodeMirror {
   @apply block;
-  @apply border-b;
-  @apply border-dividerLight;
   @apply w-full;
   @apply !h-full;
 }

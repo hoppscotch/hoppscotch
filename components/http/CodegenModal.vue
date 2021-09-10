@@ -38,21 +38,11 @@
             {{ t("request.generated_code") }}
           </label>
         </div>
-        <SmartAceEditor
+        <div
           v-if="codegenType"
           ref="generatedCode"
-          :value="requestCode"
-          :lang="codegens.find((x) => x.id === codegenType).language"
-          :options="{
-            maxLines: 16,
-            minLines: 8,
-            autoScrollEditorIntoView: true,
-            readOnly: true,
-            showPrintMargin: false,
-            useWorker: false,
-          }"
-          styles="border rounded border-dividerLight"
-        />
+          class="w-full border border-dividerLight rounded block"
+        ></div>
       </div>
     </template>
     <template #footer>
@@ -70,6 +60,7 @@
 <script setup lang="ts">
 import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
 import { codegens, generateCodegenContext } from "~/helpers/codegen/codegen"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
 import { getCurrentEnvironment } from "~/newstore/environments"
@@ -104,6 +95,17 @@ const requestCode = computed(() => {
   return codegens
     .find((x) => x.id === codegenType.value)!
     .generator(generateCodegenContext(effectiveRequest))
+})
+
+const generatedCode = ref<any | null>(null)
+
+useCodemirror(generatedCode, requestCode, {
+  extendedEditorConfig: {
+    mode: "text/plain",
+    readOnly: true,
+  },
+  linter: null,
+  completer: null,
 })
 
 watch(

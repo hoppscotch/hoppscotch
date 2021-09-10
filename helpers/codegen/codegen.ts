@@ -150,8 +150,6 @@ function getCodegenGeneralRESTInfo(
           .map((x) => ({ ...x, active: true }))
       : request.effectiveFinalHeaders.map((x) => ({ ...x, active: true }))
 
-  console.log(finalHeaders)
-
   return {
     name: request.name,
     uri: request.effectiveFinalURL,

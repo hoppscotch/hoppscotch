@@ -19,6 +19,13 @@
       </label>
       <div class="flex">
         <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
@@ -34,21 +41,7 @@
         />
       </div>
     </div>
-    <SmartAceEditor
-      v-if="responseString"
-      :value="responseString"
-      :lang="'json'"
-      :lint="false"
-      :options="{
-        maxLines: Infinity,
-        minLines: 16,
-        autoScrollEditorIntoView: true,
-        readOnly: true,
-        showPrintMargin: false,
-        useWorker: false,
-      }"
-      styles="border-b border-dividerLight"
-    />
+    <div v-if="responseString" ref="schemaEditor" class="w-full block"></div>
     <div
       v-else
       class="
@@ -72,18 +65,11 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, ref, useContext } from "@nuxtjs/composition-api"
-import { GQLConnection } from "~/helpers/GQLConnection"
+import { reactive, ref, useContext } from "@nuxtjs/composition-api"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { gqlResponse$ } from "~/newstore/GQLSession"
-
-defineProps({
-  conn: {
-    type: Object as PropType<GQLConnection>,
-    required: true,
-  },
-})
 
 const {
   $toast,
@@ -92,6 +78,23 @@ const {
 const t = i18n.t.bind(i18n)
 
 const responseString = useReadonlyStream(gqlResponse$, "")
+
+const schemaEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
+
+useCodemirror(
+  schemaEditor,
+  responseString,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/ld+json",
+      readOnly: true,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+  })
+)
 
 const downloadResponseIcon = ref("download")
 const copyResponseIcon = ref("copy")

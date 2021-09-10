@@ -55,20 +55,7 @@
               />
             </div>
           </div>
-          <GraphqlQueryEditor
-            ref="queryEditor"
-            v-model="gqlQueryString"
-            :on-run-g-q-l-query="runQuery"
-            :options="{
-              maxLines: Infinity,
-              minLines: 16,
-              autoScrollEditorIntoView: true,
-              showPrintMargin: false,
-              useWorker: false,
-            }"
-            styles="border-b border-dividerLight"
-            @update-query="updateQuery"
-          />
+          <div ref="queryEditor" class="w-full block"></div>
         </AppSection>
       </SmartTab>
 
@@ -284,6 +271,7 @@
 <script setup lang="ts">
 import { onMounted, ref, useContext, watch } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
+import * as gql from "graphql"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useNuxt,
@@ -312,6 +300,9 @@ import { getCurrentStrategyID } from "~/helpers/network"
 import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import "codemirror/mode/javascript/javascript"
+import jsonLinter from "~/helpers/editor/linting/json"
+import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
+import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 
 const props = defineProps<{
   conn: GQLConnection
@@ -363,13 +354,22 @@ const variableEditor = ref<any | null>(null)
 
 useCodemirror(variableEditor, variableString, {
   extendedEditorConfig: {
-    mode: "javascript",
+    mode: "application/ld+json",
   },
-  linter: null,
+  linter: jsonLinter,
   completer: null,
 })
 
 const queryEditor = ref<any | null>(null)
+const schemaString = useReadonlyStream(props.conn.schema$, null)
+
+useCodemirror(queryEditor, gqlQueryString, {
+  extendedEditorConfig: {
+    mode: "application/ld+json",
+  },
+  linter: createGQLQueryLinter(schemaString),
+  completer: queryCompleter(schemaString),
+})
 
 const copyQueryIcon = ref("copy")
 const prettifyQueryIcon = ref("align-left")
@@ -466,18 +466,19 @@ const hideRequestModal = () => {
 }
 
 const prettifyQuery = () => {
-  queryEditor.value.prettifyQuery()
+  try {
+    gqlQueryString.value = gql.print(gql.parse(gqlQueryString.value))
+  } catch (e) {
+    $toast.error(t("error.gql_prettify_invalid_query").toString(), {
+      icon: "error_outline",
+    })
+  }
   prettifyQueryIcon.value = "check"
   setTimeout(() => (prettifyQueryIcon.value = "align-left"), 1000)
 }
 
 const saveRequest = () => {
   showSaveRequestModal.value = true
-}
-
-// Why ?
-const updateQuery = (updatedQuery: string) => {
-  gqlQueryString.value = updatedQuery
 }
 
 const copyVariables = () => {

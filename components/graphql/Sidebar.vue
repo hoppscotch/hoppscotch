@@ -150,6 +150,13 @@
                 svg="help-circle"
               />
               <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('state.linewrap')"
+                :class="{ '!text-accent': linewrapEnabled }"
+                svg="corner-down-left"
+                @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+              />
+              <ButtonSecondary
                 ref="downloadSchema"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.download_file')"
@@ -165,20 +172,11 @@
               />
             </div>
           </div>
-          <SmartAceEditor
+          <div
             v-if="schemaString"
-            v-model="schemaString"
-            :lang="'graphqlschema'"
-            :options="{
-              maxLines: Infinity,
-              minLines: 16,
-              autoScrollEditorIntoView: true,
-              readOnly: true,
-              showPrintMargin: false,
-              useWorker: false,
-            }"
-            styles="border-b border-dividerLight"
-          />
+            ref="schemaEditor"
+            class="w-full block"
+          ></div>
           <div
             v-else
             class="
@@ -200,17 +198,17 @@
   </aside>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import {
   computed,
-  defineComponent,
   nextTick,
-  PropType,
+  reactive,
   ref,
   useContext,
 } from "@nuxtjs/composition-api"
 import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { GQLHeader } from "~/helpers/types/HoppGQLRequest"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -285,186 +283,168 @@ type GQLHistoryEntry = {
   variables: string
 }
 
-export default defineComponent({
-  props: {
-    conn: {
-      type: Object as PropType<GQLConnection>,
-      required: true,
-    },
-  },
-  setup(props) {
-    const {
-      $toast,
-      app: { i18n },
-    } = useContext()
-    const t = i18n.t.bind(i18n)
+const props = defineProps<{
+  conn: GQLConnection
+}>()
 
-    const queryFields = useReadonlyStream(
-      props.conn.queryFields$.pipe(map((x) => x ?? [])),
-      []
-    )
-    const mutationFields = useReadonlyStream(
-      props.conn.mutationFields$.pipe(map((x) => x ?? [])),
-      []
-    )
-    const subscriptionFields = useReadonlyStream(
-      props.conn.subscriptionFields$.pipe(map((x) => x ?? [])),
-      []
-    )
-    const graphqlTypes = useReadonlyStream(
-      props.conn.graphqlTypes$.pipe(map((x) => x ?? [])),
-      []
-    )
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
-    const downloadSchemaIcon = ref("download")
-    const copySchemaIcon = ref("copy")
+const queryFields = useReadonlyStream(
+  props.conn.queryFields$.pipe(map((x) => x ?? [])),
+  []
+)
 
-    const graphqlFieldsFilterText = ref("")
+const mutationFields = useReadonlyStream(
+  props.conn.mutationFields$.pipe(map((x) => x ?? [])),
+  []
+)
 
-    const gqlTabs = ref<any | null>(null)
-    const typesTab = ref<any | null>(null)
+const subscriptionFields = useReadonlyStream(
+  props.conn.subscriptionFields$.pipe(map((x) => x ?? [])),
+  []
+)
 
-    const filteredQueryFields = computed(() => {
-      return getFilteredGraphqlFields(
-        graphqlFieldsFilterText.value,
-        queryFields.value as any
-      )
-    })
+const graphqlTypes = useReadonlyStream(
+  props.conn.graphqlTypes$.pipe(map((x) => x ?? [])),
+  []
+)
 
-    const filteredMutationFields = computed(() => {
-      return getFilteredGraphqlFields(
-        graphqlFieldsFilterText.value,
-        mutationFields.value as any
-      )
-    })
+const downloadSchemaIcon = ref("download")
+const copySchemaIcon = ref("copy")
 
-    const filteredSubscriptionFields = computed(() => {
-      return getFilteredGraphqlFields(
-        graphqlFieldsFilterText.value,
-        subscriptionFields.value as any
-      )
-    })
+const graphqlFieldsFilterText = ref("")
 
-    const filteredGraphqlTypes = computed(() => {
-      return getFilteredGraphqlTypes(
-        graphqlFieldsFilterText.value,
-        graphqlTypes.value as any
-      )
-    })
+const gqlTabs = ref<any | null>(null)
+const typesTab = ref<any | null>(null)
 
-    const isGqlTypeHighlighted = (gqlType: GraphQLType) => {
-      if (!graphqlFieldsFilterText.value) return false
-
-      return isTextFoundInGraphqlFieldObject(
-        graphqlFieldsFilterText.value,
-        gqlType as any
-      )
-    }
-
-    const getGqlTypeHighlightedFields = (gqlType: GraphQLType) => {
-      if (!graphqlFieldsFilterText.value) return []
-
-      const fields = Object.values((gqlType as any)._fields || {})
-      if (!fields || fields.length === 0) return []
-
-      return fields.filter((field) =>
-        isTextFoundInGraphqlFieldObject(
-          graphqlFieldsFilterText.value,
-          field as any
-        )
-      )
-    }
-
-    const handleJumpToType = async (type: GraphQLType) => {
-      gqlTabs.value.selectTab(typesTab.value)
-      await nextTick()
-
-      const rootTypeName = resolveRootType(type).name
-
-      const target = document.getElementById(`type_${rootTypeName}`)
-      if (target) {
-        gqlTabs.value.$el
-          .querySelector(".gqlTabs")
-          .scrollTo({ top: target.offsetTop, behavior: "smooth" })
-      }
-    }
-    const schemaString = useReadonlyStream(
-      props.conn.schemaString$.pipe(map((x) => x ?? "")),
-      ""
-    )
-
-    const downloadSchema = () => {
-      const dataToWrite = JSON.stringify(schemaString.value, null, 2)
-      const file = new Blob([dataToWrite], { type: "application/graphql" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      a.download = `${
-        url.split("/").pop()!.split("#")[0].split("?")[0]
-      }.graphql`
-      document.body.appendChild(a)
-      a.click()
-      downloadSchemaIcon.value = "check"
-      $toast.success(t("state.download_started").toString(), {
-        icon: "downloading",
-      })
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-        downloadSchemaIcon.value = "download"
-      }, 1000)
-    }
-
-    const copySchema = () => {
-      if (!schemaString.value) return
-
-      copyToClipboard(schemaString.value)
-      copySchemaIcon.value = "check"
-      setTimeout(() => (copySchemaIcon.value = "copy"), 1000)
-    }
-
-    const handleUseHistory = (entry: GQLHistoryEntry) => {
-      const url = entry.url
-      const headers = entry.headers
-      const gqlQueryString = entry.query
-      const variableString = entry.variables
-      const responseText = entry.response
-
-      setGQLURL(url)
-      setGQLHeaders(headers)
-      setGQLQuery(gqlQueryString)
-      setGQLVariables(variableString)
-      setGQLResponse(responseText)
-      props.conn.reset()
-    }
-
-    return {
-      queryFields,
-      mutationFields,
-      subscriptionFields,
-      graphqlTypes,
-      schemaString,
-
-      graphqlFieldsFilterText,
-
-      filteredQueryFields,
-      filteredMutationFields,
-      filteredSubscriptionFields,
-      filteredGraphqlTypes,
-
-      isGqlTypeHighlighted,
-      getGqlTypeHighlightedFields,
-
-      gqlTabs,
-      typesTab,
-      handleJumpToType,
-
-      downloadSchema,
-      downloadSchemaIcon,
-      copySchemaIcon,
-      copySchema,
-      handleUseHistory,
-    }
-  },
+const filteredQueryFields = computed(() => {
+  return getFilteredGraphqlFields(
+    graphqlFieldsFilterText.value,
+    queryFields.value as any
+  )
 })
+
+const filteredMutationFields = computed(() => {
+  return getFilteredGraphqlFields(
+    graphqlFieldsFilterText.value,
+    mutationFields.value as any
+  )
+})
+
+const filteredSubscriptionFields = computed(() => {
+  return getFilteredGraphqlFields(
+    graphqlFieldsFilterText.value,
+    subscriptionFields.value as any
+  )
+})
+
+const filteredGraphqlTypes = computed(() => {
+  return getFilteredGraphqlTypes(
+    graphqlFieldsFilterText.value,
+    graphqlTypes.value as any
+  )
+})
+
+const isGqlTypeHighlighted = (gqlType: GraphQLType) => {
+  if (!graphqlFieldsFilterText.value) return false
+
+  return isTextFoundInGraphqlFieldObject(
+    graphqlFieldsFilterText.value,
+    gqlType as any
+  )
+}
+
+const getGqlTypeHighlightedFields = (gqlType: GraphQLType) => {
+  if (!graphqlFieldsFilterText.value) return []
+
+  const fields = Object.values((gqlType as any)._fields || {})
+  if (!fields || fields.length === 0) return []
+
+  return fields.filter((field) =>
+    isTextFoundInGraphqlFieldObject(graphqlFieldsFilterText.value, field as any)
+  )
+}
+
+const handleJumpToType = async (type: GraphQLType) => {
+  gqlTabs.value.selectTab(typesTab.value)
+  await nextTick()
+
+  const rootTypeName = resolveRootType(type).name
+
+  const target = document.getElementById(`type_${rootTypeName}`)
+  if (target) {
+    gqlTabs.value.$el
+      .querySelector(".gqlTabs")
+      .scrollTo({ top: target.offsetTop, behavior: "smooth" })
+  }
+}
+
+const schemaString = useReadonlyStream(
+  props.conn.schemaString$.pipe(map((x) => x ?? "")),
+  ""
+)
+
+const schemaEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
+
+useCodemirror(
+  schemaEditor,
+  schemaString,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/ld+json",
+      readOnly: true,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+  })
+)
+
+const downloadSchema = () => {
+  const dataToWrite = JSON.stringify(schemaString.value, null, 2)
+  const file = new Blob([dataToWrite], { type: "application/graphql" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.graphql`
+  document.body.appendChild(a)
+  a.click()
+  downloadSchemaIcon.value = "check"
+  $toast.success(t("state.download_started").toString(), {
+    icon: "downloading",
+  })
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    downloadSchemaIcon.value = "download"
+  }, 1000)
+}
+
+const copySchema = () => {
+  if (!schemaString.value) return
+
+  copyToClipboard(schemaString.value)
+  copySchemaIcon.value = "check"
+  setTimeout(() => (copySchemaIcon.value = "copy"), 1000)
+}
+
+const handleUseHistory = (entry: GQLHistoryEntry) => {
+  const url = entry.url
+  const headers = entry.headers
+  const gqlQueryString = entry.query
+  const variableString = entry.variables
+  const responseText = entry.response
+
+  setGQLURL(url)
+  setGQLHeaders(headers)
+  setGQLQuery(gqlQueryString)
+  setGQLVariables(variableString)
+  setGQLResponse(responseText)
+  props.conn.reset()
+}
 </script>

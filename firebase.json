@@ -4,7 +4,13 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
-    "predeploy": ["mv .env.example .env && npm ci && npm run generate"],
+    "predeploy": [
+      "cd packages/hoppscotch-app",
+      "mv .env.example .env",
+      "npm i pnpm",
+      "pnpm ci",
+      "pnpm run generate"
+    ],
     "public": "dist",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [

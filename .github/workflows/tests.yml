@@ -2,7 +2,7 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, refactor/monorepo ]
   pull_request:
     branches: [ main ]
 
@@ -21,5 +21,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npm test
+    - name: Cache .pnpm-store
+      uses: actions/cache@v1
+      with:
+        path: ~/.pnpm-store
+        key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+    - name: Install pnpm
+      run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
+    - name: Run tests
+      - run: cd packages/hoppscotch-app && pnpm ci
+      - run: pnpm test

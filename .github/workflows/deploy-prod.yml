@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - refactor/monorepo
 
 jobs:
   deploy_live_website:

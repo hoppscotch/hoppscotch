@@ -53,7 +53,6 @@
 import { ref, useContext, computed, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import "codemirror/mode/yaml/yaml"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 const props = defineProps<{
@@ -100,7 +99,7 @@ useCodemirror(
   responseBodyText,
   reactive({
     extendedEditorConfig: {
-      mode: "text/x-yaml",
+      mode: "text/plain",
       readOnly: true,
       lineWrapping: linewrapEnabled,
     },

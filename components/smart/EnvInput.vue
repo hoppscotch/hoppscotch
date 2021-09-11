@@ -501,7 +501,6 @@ export default defineComponent({
   @apply overflow-y-hidden;
   @apply resize-none;
   @apply focus:outline-none;
-  @apply transition;
 }
 
 .env-input::-webkit-scrollbar {

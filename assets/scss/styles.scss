@@ -348,6 +348,7 @@ input[type="checkbox"] {
       @apply justify-start;
       @apply shadow;
       @apply font-medium;
+      @apply transition;
 
       font-size: var(--body-font-size);
       line-height: var(--body-line-height);
@@ -359,7 +360,6 @@ input[type="checkbox"] {
         @apply ml-auto;
         @apply last:ml-4;
         @apply sm:ml-8;
-        @apply transition;
         @apply rounded;
         @apply text-current;
         @apply normal-case;
@@ -466,10 +466,14 @@ input[type="checkbox"] {
   @apply block;
   @apply w-full;
   @apply !h-full;
-}
 
-.CodeMirror * {
-  font-family: "Roboto Mono", monospace;
+  &:not(.CodeMirror-focused) .CodeMirror-activeline-background {
+    background: transparent !important;
+  }
+
+  * {
+    font-family: "Roboto Mono", monospace;
+  }
 }
 
 .CodeMirror-scroll {

@@ -142,7 +142,7 @@ const {
   app: { i18n },
 } = useContext()
 
-const $t = i18n.t.bind(i18n)
+const t = i18n.t.bind(i18n)
 
 // TODO: Use a better implementation with computed ?
 // This implementation can't work across updates to mode prop (which won't happen tho)
@@ -194,13 +194,13 @@ const hideModal = () => {
 
 const saveRequestAs = async () => {
   if (!requestName.value) {
-    $toast.error($t("error.empty_req_name").toString(), {
+    $toast.error(t("error.empty_req_name").toString(), {
       icon: "error_outline",
     })
     return
   }
   if (picked.value === null) {
-    $toast.error($t("collection.select").toString(), {
+    $toast.error(t("collection.select").toString(), {
       icon: "error_outline",
     })
     return
@@ -342,7 +342,7 @@ const saveRequestAs = async () => {
       requestUpdated as HoppGQLRequest
     )
   }
-  $toast.success($t("request.added").toString(), {
+  $toast.success(t("request.added").toString(), {
     icon: "post_add",
   })
   hideModal()

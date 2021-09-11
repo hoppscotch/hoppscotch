@@ -28,4 +28,12 @@ export type HoppRequestSaveContext =
        * ID of the request in the team
        */
       requestID: string
+      /**
+       * ID of the team
+       */
+      teamID?: string
+      /**
+       * ID of the collection loaded
+       */
+      collectionID?: string
     }

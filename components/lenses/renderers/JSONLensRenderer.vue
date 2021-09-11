@@ -43,9 +43,7 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <div ref="jsonResponse" class="w-full block"></div>
-    </div>
+    <div ref="jsonResponse"></div>
   </div>
 </template>
 

@@ -41,7 +41,7 @@
     </div>
     <div class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <div ref="testScriptEditor" class="w-full block"></div>
+        <div ref="testScriptEditor"></div>
       </div>
       <div
         class="

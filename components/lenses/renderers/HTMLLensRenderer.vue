@@ -52,19 +52,13 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <div
-        v-show="!previewEnabled"
-        ref="htmlResponse"
-        class="w-full block"
-      ></div>
-      <iframe
-        v-show="previewEnabled"
-        ref="previewFrame"
-        class="covers-response"
-        src="about:blank"
-      ></iframe>
-    </div>
+    <div v-show="!previewEnabled" ref="htmlResponse"></div>
+    <iframe
+      v-show="previewEnabled"
+      ref="previewFrame"
+      class="covers-response"
+      src="about:blank"
+    ></iframe>
   </div>
 </template>
 

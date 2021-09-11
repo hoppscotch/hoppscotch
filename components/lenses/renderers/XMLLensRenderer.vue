@@ -43,9 +43,7 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <div ref="xmlResponse" class="w-full block"></div>
-    </div>
+    <div ref="xmlResponse"></div>
   </div>
 </template>
 

@@ -55,7 +55,7 @@
               />
             </div>
           </div>
-          <div ref="queryEditor" class="w-full block"></div>
+          <div ref="queryEditor"></div>
         </AppSection>
       </SmartTab>
 
@@ -93,7 +93,7 @@
               />
             </div>
           </div>
-          <div ref="variableEditor" class="w-full block"></div>
+          <div ref="variableEditor"></div>
         </AppSection>
       </SmartTab>
 
@@ -147,7 +147,7 @@
             </div>
           </div>
           <div v-if="bulkMode" class="flex">
-            <div ref="bulkEditor" class="w-full block"></div>
+            <div ref="bulkEditor"></div>
           </div>
           <div v-else>
             <div

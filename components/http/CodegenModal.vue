@@ -41,7 +41,7 @@
         <div
           v-if="codegenType"
           ref="generatedCode"
-          class="w-full border border-dividerLight rounded block"
+          class="border border-dividerLight rounded"
         ></div>
       </div>
     </template>

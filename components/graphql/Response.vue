@@ -41,7 +41,7 @@
         />
       </div>
     </div>
-    <div v-if="responseString" ref="schemaEditor" class="w-full block"></div>
+    <div v-if="responseString" ref="schemaEditor"></div>
     <div
       v-else
       class="

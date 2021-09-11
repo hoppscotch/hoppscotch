@@ -48,7 +48,7 @@
       </div>
     </div>
     <div v-if="bulkMode" class="flex">
-      <div ref="bulkEditor" class="w-full block"></div>
+      <div ref="bulkEditor"></div>
     </div>
     <div v-else>
       <div

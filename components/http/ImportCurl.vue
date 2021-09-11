@@ -6,10 +6,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div
-          ref="curlEditor"
-          class="w-full border border-dividerLight rounded block"
-        ></div>
+        <div ref="curlEditor" class="border border-dividerLight rounded"></div>
       </div>
     </template>
     <template #footer>

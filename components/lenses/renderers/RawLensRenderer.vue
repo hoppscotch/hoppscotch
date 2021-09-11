@@ -43,9 +43,7 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <div ref="rawResponse" class="w-full block"></div>
-    </div>
+    <div ref="rawResponse"></div>
   </div>
 </template>
 

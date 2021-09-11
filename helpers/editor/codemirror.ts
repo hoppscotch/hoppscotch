@@ -2,7 +2,7 @@ import CodeMirror from "codemirror"
 
 import "codemirror-theme-github/theme/github.css"
 import "codemirror/theme/base16-dark.css"
-import "codemirror/theme/3024-night.css"
+import "codemirror/theme/tomorrow-night-bright.css"
 
 import "codemirror/lib/codemirror.css"
 import "codemirror/addon/lint/lint.css"
@@ -168,7 +168,7 @@ export function useCodemirror(
       case "dark":
         return "base16-dark"
       case "black":
-        return "3024-night"
+        return "tomorrow-night-bright"
       default:
         return "default"
     }

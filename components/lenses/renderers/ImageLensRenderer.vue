@@ -27,12 +27,10 @@
         />
       </div>
     </div>
-    <div class="flex relative">
-      <img
-        class="border-b border-dividerLight flex max-w-full flex-1"
-        :src="imageSource"
-      />
-    </div>
+    <img
+      class="border-b border-dividerLight flex max-w-full flex-1"
+      :src="imageSource"
+    />
   </div>
 </template>
 

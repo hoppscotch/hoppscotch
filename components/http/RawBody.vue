@@ -62,9 +62,7 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <div ref="rawBodyParameters" class="w-full block"></div>
-    </div>
+    <div ref="rawBodyParameters"></div>
   </div>
 </template>
 

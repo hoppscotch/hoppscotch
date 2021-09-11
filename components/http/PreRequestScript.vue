@@ -82,13 +82,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "@nuxtjs/composition-api"
+import { reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { usePreRequestScript } from "~/newstore/RESTSession"
 import snippets from "~/helpers/preRequestScriptSnippets"
 import "codemirror/mode/javascript/javascript"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import linter from "~/helpers/editor/linting/preRequest"
 import completer from "~/helpers/editor/completion/preRequest"
+
+const {
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
 const preRequestScript = usePreRequestScript()
 
@@ -102,6 +107,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/javascript",
       lineWrapping: linewrapEnabled,
+      placeholder: t("preRequest.javascript_code").toString(),
     },
     linter,
     completer,

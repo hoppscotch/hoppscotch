@@ -13,7 +13,7 @@
       </div>
     </template>
     <template #footer>
-      <span>
+      <span class="flex">
         <ButtonPrimary
           :label="$t('import.title').toString()"
           @click.native="handleImport"

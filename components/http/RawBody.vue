@@ -106,6 +106,7 @@ useCodemirror(
     extendedEditorConfig: {
       lineWrapping: linewrapEnabled,
       mode: rawInputEditorLang,
+      placeholder: t("request.raw_body").toString(),
     },
     linter: null,
     completer: null,

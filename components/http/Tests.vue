@@ -82,13 +82,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "@nuxtjs/composition-api"
+import { reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { useTestScript } from "~/newstore/RESTSession"
 import testSnippets from "~/helpers/testSnippets"
 import "codemirror/mode/javascript/javascript"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import linter from "~/helpers/editor/linting/testScript"
 import completer from "~/helpers/editor/completion/testScript"
+
+const {
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
 const testScript = useTestScript()
 
@@ -102,6 +107,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/javascript",
       lineWrapping: linewrapEnabled,
+      placeholder: t("test.javascript_code").toString(),
     },
     linter,
     completer,

@@ -52,6 +52,24 @@
         justify-center
       "
     >
+      <div class="flex space-x-2 pb-4">
+        <div class="flex flex-col space-y-4 items-end">
+          <span class="flex flex-1 items-center">
+            {{ $t("shortcut.general.command_menu") }}
+          </span>
+          <span class="flex flex-1 items-center">
+            {{ $t("shortcut.general.help_menu") }}
+          </span>
+        </div>
+        <div class="flex flex-col space-y-4">
+          <div class="flex">
+            <span class="shortcut-key">/</span>
+          </div>
+          <div class="flex">
+            <span class="shortcut-key">?</span>
+          </div>
+        </div>
+      </div>
       <ButtonSecondary
         :label="$t('app.documentation')"
         to="https://docs.hoppscotch.io"

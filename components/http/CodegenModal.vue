@@ -46,13 +46,17 @@
       </div>
     </template>
     <template #footer>
-      <ButtonPrimary
-        ref="copyRequestCode"
-        :label="t('action.copy')"
-        :svg="copyIcon"
-        @click.native="copyRequestCode"
-      />
-      <ButtonSecondary :label="t('action.dismiss')" @click.native="hideModal" />
+      <span class="flex">
+        <ButtonPrimary
+          :label="t('action.copy').toString()"
+          :svg="copyIcon"
+          @click.native="copyRequestCode"
+        />
+        <ButtonSecondary
+          :label="t('action.dismiss').toString()"
+          @click.native="hideModal"
+        />
+      </span>
     </template>
   </SmartModal>
 </template>

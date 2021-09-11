@@ -356,6 +356,7 @@ const variableEditor = ref<any | null>(null)
 useCodemirror(variableEditor, variableString, {
   extendedEditorConfig: {
     mode: "application/ld+json",
+    placeholder: t("request.variables").toString(),
   },
   linter: jsonLinter,
   completer: null,
@@ -367,6 +368,7 @@ const schemaString = useReadonlyStream(props.conn.schema$, null)
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
     mode: "graphql",
+    placeholder: t("request.query").toString(),
   },
   linter: createGQLQueryLinter(schemaString),
   completer: queryCompleter(schemaString),

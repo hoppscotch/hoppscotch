@@ -483,7 +483,7 @@ export default defineComponent({
     line-height: 1.9;
 
     &::before {
-      @apply text-secondaryDark;
+      @apply text-secondary;
       @apply opacity-25;
       @apply pointer-events-none;
 

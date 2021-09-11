@@ -463,21 +463,27 @@ input[type="checkbox"] {
 }
 
 .CodeMirror {
-  @apply block;
-  @apply w-full;
-  @apply !h-full;
+  @apply !h-auto;
 
   &:not(.CodeMirror-focused) .CodeMirror-activeline-background {
     background: transparent !important;
   }
 
+  .CodeMirror-dialog-top {
+    @apply bg-primaryLight;
+    @apply border-dividerLight;
+    @apply px-4;
+    @apply py-2;
+    @apply z-5;
+  }
+
+  .CodeMirror-scroll {
+    @apply min-h-64;
+  }
+
   * {
     font-family: "Roboto Mono", monospace;
   }
-}
-
-.CodeMirror-scroll {
-  @apply min-h-64;
 }
 
 @media (max-width: 767px) {

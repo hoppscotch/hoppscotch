@@ -146,9 +146,7 @@
               />
             </div>
           </div>
-          <div v-if="bulkMode" class="flex">
-            <div ref="bulkEditor"></div>
-          </div>
+          <div v-if="bulkMode" ref="bulkEditor"></div>
           <div v-else>
             <div
               v-for="(header, index) in headers"

@@ -195,7 +195,7 @@ export class GQLConnection {
       method: "post",
       url,
       headers: {
-        ...headers,
+        ...finalHeaders,
         "content-type": "application/json",
       },
       data: JSON.stringify({

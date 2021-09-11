@@ -45,7 +45,7 @@
     "help": "Ayuda",
     "home": "Inicio",
     "invite": "Invitar",
-    "invite_description": "En Hoppscotch, diseñamos una interfaz simple e intuitiva para crear y administrar sus API. Hoppscotch es una herramienta que le ayuda a crear, probar, documentar y compartir sus API.",
+    "invite_description": "En Hoppscotch, diseñamos una interfaz simple e intuitiva para crear y administrar tus API. Hoppscotch es una herramienta que le ayuda a crear, probar, documentar y compartir tus API.",
     "invite_your_friends": "Invita a tus amigos",
     "join_discord_community": "Únete a nuestra comunidad de Discord",
     "keyboard_shortcuts": "Atajos de teclado",
@@ -163,8 +163,8 @@
     "curl_invalid_format": "cURL no está formateado correctamente",
     "empty_req_name": "Nombre de petición vacío",
     "f12_details": "(F12 para más detalles)",
-    "gql_prettify_invalid_query": "No se puede aplicar prettify a una consulta no válida, resuelvelos errores de sintaxis de la consulta y vuelve a intentarlo",
-    "json_prettify_invalid_body": "No se puede aplicar prettify a un cuerpo inválido, resuelve errores de sintaxis json y vuelve a intentarlo",
+    "gql_prettify_invalid_query": "No se puede aplicar prettify a una consulta no válida, resuelve los errores de sintaxis de la consulta y vuelve a intentarlo",
+    "json_prettify_invalid_body": "No se puede aplicar prettify a un cuerpo inválido, resuelve los errores de sintaxis json y vuelve a intentarlo",
     "network_fail": "No se pudo enviar la petición",
     "no_duration": "Sin duración",
     "something_went_wrong": "Algo salió mal"
@@ -235,8 +235,8 @@
     "subscribe": "Suscribirse",
     "topic": "Tema",
     "topic_name": "Nombre del tema",
-    "topic_title": "Publicar / Suscribir tema",
-    "unsubscribe": "Darse de baja",
+    "topic_title": "Publicar / Suscribirse a un tema",
+    "unsubscribe": "Desuscribirse",
     "url": "URL"
   },
   "navigation": {

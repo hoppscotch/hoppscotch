@@ -139,8 +139,8 @@ export default {
   modules: [
     // https://github.com/nuxt-community/axios-module
     "@nuxtjs/axios",
-    // https://github.com/nuxt-community/modules/tree/master/packages/toast
-    "@nuxtjs/toast",
+    // https://github.com/Maronato/vue-toastification
+    "vue-toastification/nuxt",
     // https://github.com/nuxt-community/i18n-module
     "@nuxtjs/i18n",
     // https://github.com/nuxt-community/robots-module
@@ -180,9 +180,12 @@ export default {
   // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)
   toast: {
     position: "bottom-center",
-    duration: 3000,
-    keepOnHover: true,
-    // singleton: true,
+    toastClassName: "toasted-container",
+    timeout: 3000,
+    closeOnClick: false,
+    showCloseButtonOnHover: true,
+    closeButton: "button",
+    transition: "Vue-Toastification__fade",
   },
 
   // Google Analytics module configuration (https://github.com/nuxt-community/analytics-module)

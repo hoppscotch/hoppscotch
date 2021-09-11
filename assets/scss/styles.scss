@@ -339,51 +339,62 @@ input[type="checkbox"] {
   @apply text-secondaryLight;
 }
 
-.toasted-container {
-  .toasted {
-    &.toasted-primary {
-      @apply bg-tooltip;
-      @apply text-primary;
-      @apply justify-start;
-      @apply shadow;
-      @apply font-medium;
+.Vue-Toastification__progress-bar {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
 
-      font-size: var(--body-font-size);
-      line-height: var(--body-line-height);
+.Vue-Toastification__toast {
+  @apply !bg-tooltip;
+  @apply !text-primary;
+  @apply !justify-start;
+  @apply !shadow;
+  @apply !font-medium;
+  @apply h-auto;
+  @apply w-auto;
+  @apply px-4;
+  @apply py-2;
+  @apply rounded;
+  @apply flex;
+  @apply items-center;
+}
 
-      .action {
-        @apply bg-gray-500;
-        @apply px-4;
-        @apply bg-opacity-10;
-        @apply ml-auto;
-        @apply last:ml-4;
-        @apply sm:ml-8;
-        @apply transition;
-        @apply rounded;
-        @apply text-current;
-        @apply normal-case;
-        @apply hover:(bg-opacity-20 no-underline);
-        @apply font-medium;
+.Vue-Toastification__toast-body {
+  @apply !font-sans;
 
-        font-size: var(--body-font-size);
-        line-height: var(--body-line-height);
-      }
-    }
+  font-size: var(--body-font-size) !important;
+  line-height: var(--body-line-height) !important;
+}
 
-    &.info {
-      @apply !bg-accent;
-    }
+.action {
+  @apply bg-gray-500;
+  @apply px-4;
+  @apply bg-opacity-10;
+  @apply ml-auto;
+  @apply last:ml-4;
+  @apply sm:ml-8;
+  @apply transition;
+  @apply rounded;
+  @apply text-current;
+  @apply normal-case;
+  @apply hover:(bg-opacity-20 no-underline);
+  @apply font-medium;
 
-    &.error {
-      @apply !bg-red-200;
-      @apply !text-red-800;
-    }
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+}
 
-    &.success {
-      @apply !bg-green-200;
-      @apply !text-green-800;
-    }
-  }
+.Vue-Toastification__toast--info {
+  @apply !bg-accent;
+}
+
+.Vue-Toastification__toast--error {
+  @apply !bg-red-200;
+  @apply !text-red-800;
+}
+
+.Vue-Toastification__toast--success {
+  @apply !bg-green-200;
+  @apply !text-green-800;
 }
 
 .smart-splitter .splitpanes__splitter {

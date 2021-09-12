@@ -150,6 +150,16 @@ export default defineComponent({
 
     handleKeystroke(event) {
       switch (event.code) {
+        case "Enter":
+          event.preventDefault()
+          if (this.currentSuggestionIndex > -1)
+            this.forceSuggestion(
+              this.suggestions.find(
+                (_item, index) => index === this.currentSuggestionIndex
+              )
+            )
+          break
+
         case "ArrowUp":
           event.preventDefault()
           this.currentSuggestionIndex =

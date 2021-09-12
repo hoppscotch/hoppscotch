@@ -4,7 +4,7 @@ import { getAutocompleteSuggestions } from "graphql-language-service-interface"
 import { Completer, CompleterResult, CompletionEntry } from "."
 
 const completer: (schemaRef: Ref<GraphQLSchema | null>) => Completer =
-  (schemaRef: Ref<GraphQLSchema | null>) => (text, completePos, tokenPos) => {
+  (schemaRef: Ref<GraphQLSchema | null>) => (text, completePos) => {
     if (!schemaRef.value) return Promise.resolve(null)
 
     const completions = getAutocompleteSuggestions(schemaRef.value, text, {
@@ -13,8 +13,6 @@ const completer: (schemaRef: Ref<GraphQLSchema | null>) => Completer =
     } as any)
 
     return Promise.resolve(<CompleterResult>{
-      start: tokenPos.start,
-      end: tokenPos.end,
       completions: completions.map(
         (x, i) =>
           <CompletionEntry>{

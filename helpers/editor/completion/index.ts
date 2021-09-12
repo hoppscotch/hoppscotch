@@ -9,16 +9,6 @@ export type CompleterResult = {
    * List of completions to display
    */
   completions: CompletionEntry[]
-  /**
-   * Start of the completion position
-   * (on completion the start..end region is replaced)
-   */
-  start: { line: number; ch: number }
-  /**
-   * End of the completion position
-   * (on completion the start..end region is replaced)
-   */
-  end: { line: number; ch: number }
 }
 
 export type Completer = (
@@ -29,9 +19,5 @@ export type Completer = (
   /**
    * Position where the completer is fired
    */
-  completePos: { line: number; ch: number },
-  completeTokenLocation: {
-    start: { line: number; ch: number }
-    end: { line: number; ch: number }
-  }
+  completePos: { line: number; ch: number }
 ) => Promise<CompleterResult | null>

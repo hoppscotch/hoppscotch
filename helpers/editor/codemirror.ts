@@ -28,7 +28,6 @@ import "codemirror/addon/selection/active-line"
 import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 import { LinterDefinition } from "./linting/linter"
 import { Completer } from "./completion"
-import { convertIndexToLineCh } from "./utils"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
@@ -99,16 +98,13 @@ export function useCodemirror(
 
           const token = editor.getTokenAt(pos)
 
-          const result = await options.completer!(text, pos, {
-            start: convertIndexToLineCh(text, token.start),
-            end: convertIndexToLineCh(text, token.end),
-          })
+          const result = await options.completer!(text, pos)
 
           if (!result) return null
 
           return <CodeMirror.Hints>{
-            from: result.start,
-            to: result.end,
+            from: { line: pos.line, ch: token.start },
+            to: { line: pos.line, ch: token.end },
             list: result.completions
               .sort((a, b) => a.score - b.score)
               .map((x) => x.text),

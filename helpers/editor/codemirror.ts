@@ -97,6 +97,9 @@ export function useCodemirror(
           const text = editor.getValue()
 
           const token = editor.getTokenAt(pos)
+          // It's not a word token, so, just increment to skip to next
+          if (token.string.toUpperCase() === token.string.toLowerCase())
+            token.start += 1
 
           const result = await options.completer!(text, pos)
 

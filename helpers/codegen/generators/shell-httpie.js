@@ -37,7 +37,7 @@ export const ShellHttpieCodegen = {
     }
 
     // URL
-    let escapedUrl = `${url}${pathName}${queryString}`
+    let escapedUrl = `${url}${pathName}?${queryString}`
     escapedUrl = escapedUrl.replace(/'/g, "\\'")
     requestString.push(` ${method} $'${escapedUrl}'`)
 

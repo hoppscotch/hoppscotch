@@ -25,7 +25,7 @@ export const NodejsRequestCodegen = {
     requestString.push(`const request = require('request');\n`)
     requestString.push(`const options = {\n`)
     requestString.push(`  method: '${method.toLowerCase()}',\n`)
-    requestString.push(`  url: '${url}${pathName}${queryString}'`)
+    requestString.push(`  url: '${url}${pathName}?${queryString}'`)
 
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`

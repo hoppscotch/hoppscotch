@@ -31,7 +31,7 @@ export const PythonRequestsCodegen = {
     const genHeaders = []
 
     requestString.push(`import requests\n\n`)
-    requestString.push(`url = '${url}${pathName}${queryString}'\n`)
+    requestString.push(`url = '${url}${pathName}?${queryString}'\n`)
 
     // auth headers
     if (auth === "Basic Auth") {
@@ -58,7 +58,7 @@ export const PythonRequestsCodegen = {
       requestString.push(...printHeaders(genHeaders))
       requestString.push(`response = requests.request(\n`)
       requestString.push(`  '${method}',\n`)
-      requestString.push(`  '${url}${pathName}${queryString}',\n`)
+      requestString.push(`  '${url}${pathName}?${queryString}',\n`)
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       genHeaders.push(`'Content-Type': '${contentType}'`)
@@ -83,7 +83,7 @@ export const PythonRequestsCodegen = {
       }
       requestString.push(`response = requests.request(\n`)
       requestString.push(`  '${method}',\n`)
-      requestString.push(`  '${url}${pathName}${queryString}',\n`)
+      requestString.push(`  '${url}${pathName}?${queryString}',\n`)
       requestString.push(`  data=data,\n`)
     }
 

@@ -21,7 +21,7 @@ export const JavascriptJqueryCodegen = {
     const genHeaders = []
 
     requestString.push(
-      `jQuery.ajax({\n  url: "${url}${pathName}${queryString}"`
+      `jQuery.ajax({\n  url: "${url}${pathName}?${queryString}"`
     )
     requestString.push(`,\n  method: "${method.toUpperCase()}"`)
     const requestBody = rawInput ? rawParams : rawRequestBody

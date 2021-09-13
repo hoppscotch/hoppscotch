@@ -19,7 +19,7 @@ export const CurlCodegen = {
   }) => {
     const requestString = []
     requestString.push(`curl -X ${method}`)
-    requestString.push(`  '${url}${pathName}${queryString}'`)
+    requestString.push(`  '${url}${pathName}?${queryString}'`)
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(

@@ -25,7 +25,7 @@ export const NodejsUnirestCodegen = {
     requestString.push(`const unirest = require('unirest');\n`)
     requestString.push(`const req = unirest(\n`)
     requestString.push(
-      `'${method.toLowerCase()}', '${url}${pathName}${queryString}')\n`
+      `'${method.toLowerCase()}', '${url}${pathName}?${queryString}')\n`
     )
 
     if (auth === "Basic Auth") {

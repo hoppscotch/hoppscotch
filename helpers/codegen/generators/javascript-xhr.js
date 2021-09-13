@@ -25,7 +25,7 @@ export const JavascriptXhrCodegen = {
     const user = auth === "Basic Auth" ? `'${httpUser}'` : null
     const password = auth === "Basic Auth" ? `'${httpPassword}'` : null
     requestString.push(
-      `xhr.open('${method}', '${url}${pathName}${queryString}', true, ${user}, ${password})`
+      `xhr.open('${method}', '${url}${pathName}?${queryString}', true, ${user}, ${password})`
     )
     if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       requestString.push(

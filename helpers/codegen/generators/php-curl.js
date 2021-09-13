@@ -25,7 +25,7 @@ export const PhpCurlCodegen = {
     requestString.push(`<?php\n`)
     requestString.push(`$curl = curl_init();\n`)
     requestString.push(`curl_setopt_array($curl, array(\n`)
-    requestString.push(`  CURLOPT_URL => "${url}${pathName}${queryString}",\n`)
+    requestString.push(`  CURLOPT_URL => "${url}${pathName}?${queryString}",\n`)
     requestString.push(`  CURLOPT_RETURNTRANSFER => true,\n`)
     requestString.push(`  CURLOPT_ENCODING => "",\n`)
     requestString.push(`  CURLOPT_MAXREDIRS => 10,\n`)

@@ -32,7 +32,7 @@ export const JavaUnirestCodegen = {
     // create client and request
     const verb = verbs.find((v) => v.verb === method)
     requestString.push(
-      `HttpResponse<String> response = Unirest.${verb.unirestMethod}("${url}${pathName}${queryString}")\n`
+      `HttpResponse<String> response = Unirest.${verb.unirestMethod}("${url}${pathName}?${queryString}")\n`
     )
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`

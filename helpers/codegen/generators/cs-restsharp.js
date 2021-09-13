@@ -48,7 +48,7 @@ export const CsRestsharpCodegen = {
     // create client and request
     requestString.push(`var client = new RestClient("${url}");\n\n`)
     requestString.push(
-      `var request = new RestRequest("${pathName}${queryString}", ${requestDataFormat});\n\n`
+      `var request = new RestRequest("${pathName}?${queryString}", ${requestDataFormat});\n\n`
     )
 
     // authentification

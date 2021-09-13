@@ -24,7 +24,7 @@ export const CLibcurlCodegen = {
       `curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "${method}");`
     )
     requestString.push(
-      `curl_easy_setopt(hnd, CURLOPT_URL, "${url}${pathName}${queryString}");`
+      `curl_easy_setopt(hnd, CURLOPT_URL, "${url}${pathName}?${queryString}");`
     )
     requestString.push(`struct curl_slist *headers = NULL;`)
 

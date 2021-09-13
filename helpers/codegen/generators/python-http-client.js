@@ -91,7 +91,7 @@ export const PythonHttpClientCodegen = {
       }
     }
     requestString.push(
-      `conn.request("${method}", "${pathName}${queryString}", payload, headers)\n`
+      `conn.request("${method}", "${pathName}?${queryString}", payload, headers)\n`
     )
     requestString.push(`res = conn.getresponse()\n`)
     requestString.push(`data = res.read()\n`)

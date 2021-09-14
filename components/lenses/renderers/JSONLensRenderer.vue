@@ -13,9 +13,9 @@
         justify-between
       "
     >
-      <label class="font-semibold text-secondaryLight">
-        {{ $t("response.body") }}
-      </label>
+      <label class="font-semibold text-secondaryLight">{{
+        $t("response.body")
+      }}</label>
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"
@@ -44,15 +44,89 @@
       </div>
     </div>
     <div ref="jsonResponse"></div>
+    <div
+      v-if="outlinePath"
+      class="
+        h-32
+        bg-primaryLight
+        border-t border-dividerLight
+        flex flex-nowrap flex-1
+        py-2
+        px-4
+        bottom-0
+        z-10
+        sticky
+        overflow-auto
+        hide-scrollbar
+      "
+    >
+      <div v-for="(item, index) in outlinePath" :key="`item-${index}`">
+        <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+          <template #trigger>
+            <ButtonSecondary
+              v-if="item.kind === 'RootObject'"
+              :label="item.kind"
+            />
+            <ButtonSecondary
+              v-if="item.kind === 'RootArray'"
+              :label="item.kind"
+            />
+            <ButtonSecondary
+              v-if="item.kind === 'ArrayMember'"
+              :label="item.index.toString()"
+            />
+            <ButtonSecondary
+              v-if="item.kind === 'ObjectMember'"
+              :label="item.name"
+            />
+          </template>
+          <div
+            v-if="item.kind === 'ArrayMember' || item.kind === 'ObjectMember'"
+          >
+            <div v-if="item.kind === 'ArrayMember'">
+              <ButtonSecondary
+                v-for="(ast, astIndex) in item.astParent.values"
+                :key="`ast-${astIndex}`"
+                :label="astIndex.toString()"
+                @click.native="jumpCursor(ast)"
+              />
+            </div>
+            <div v-if="item.kind === 'ObjectMember'">
+              <ButtonSecondary
+                v-for="(ast, astIndex) in item.astParent.members"
+                :key="`ast-${astIndex}`"
+                :label="ast.key.value"
+                @click.native="jumpCursor(ast)"
+              />
+            </div>
+          </div>
+        </tippy>
+        <i v-if="index + 1 !== outlinePath.length" class="mx-2 material-icons"
+          >chevron_right</i
+        >
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
+import {
+  computed,
+  ref,
+  watchEffect,
+  useContext,
+  reactive,
+} from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import "codemirror/mode/javascript/javascript"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
+import { getJSONOutlineAtPos } from "~/helpers/newOutline"
+import {
+  convertIndexToLineCh,
+  convertLineChToIndex,
+} from "~/helpers/editor/utils"
 
 const props = defineProps<{
   response: HoppRESTResponse
@@ -90,10 +164,18 @@ const jsonBodyText = computed(() => {
   }
 })
 
+const ast = computed(() => {
+  try {
+    return jsonParse(jsonBodyText.value)
+  } catch (_: any) {
+    return null
+  }
+})
+
 const jsonResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
-useCodemirror(
+const { cursor } = useCodemirror(
   jsonResponse,
   jsonBodyText,
   reactive({
@@ -106,6 +188,13 @@ useCodemirror(
     completer: null,
   })
 )
+
+const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
+  console.log(jsonBodyText.value)
+  console.log(ast.start)
+  console.log(convertIndexToLineCh(jsonBodyText.value, ast.start))
+  cursor.value = convertIndexToLineCh(jsonBodyText.value, ast.start)
+}
 
 const downloadResponse = () => {
   const dataToWrite = responseBodyText.value
@@ -127,6 +216,19 @@ const downloadResponse = () => {
     downloadIcon.value = "download"
   }, 1000)
 }
+
+const outlinePath = computed(() => {
+  if (ast.value) {
+    return getJSONOutlineAtPos(
+      ast.value,
+      convertLineChToIndex(jsonBodyText.value, cursor.value)
+    )
+  } else return null
+})
+
+watchEffect(() => {
+  console.log(outlinePath.value)
+})
 
 const copyResponse = () => {
   copyToClipboard(responseBodyText.value)

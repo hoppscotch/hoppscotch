@@ -61,10 +61,11 @@ export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string>,
   options: CodeMirrorOptions
-) {
+): { cm: Ref<CodeMirror.Position | null>; cursor: Ref<CodeMirror.Position> } {
   const { $colorMode } = useContext() as any
 
   const cm = ref<CodeMirror.Editor | null>(null)
+  const cursor = ref<CodeMirror.Position>({ line: 0, ch: 0 })
 
   const updateEditorConfig = () => {
     Object.keys(options.extendedEditorConfig).forEach((key) => {
@@ -135,6 +136,10 @@ export function useCodemirror(
         value.value = instance.getValue()
       }
     })
+
+    cm.value.on("cursorActivity", (instance) => {
+      cursor.value = instance.getCursor()
+    })
   }
 
   // Boot-up CodeMirror, set the value and listeners
@@ -192,10 +197,20 @@ export function useCodemirror(
     }
   })
 
+  // Push cursor updates
+  watch(cursor, (value) => {
+    if (value !== cm.value?.getCursor()) {
+      cm.value?.focus()
+      console.log(value)
+      cm.value?.setCursor(value)
+    }
+  })
+
   // Watch color mode updates and update theme
   watch(() => $colorMode.value, setTheme)
 
   return {
     cm,
+    cursor,
   }
 }

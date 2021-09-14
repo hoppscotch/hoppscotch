@@ -465,9 +465,9 @@ input[type="checkbox"] {
 .CodeMirror {
   @apply !h-auto;
 
-  &:not(.CodeMirror-focused) .CodeMirror-activeline-background {
-    background: transparent !important;
-  }
+  // &:not(.CodeMirror-focused) .CodeMirror-activeline-background {
+  //   background: transparent !important;
+  // }
 
   .CodeMirror-dialog-top {
     @apply bg-primaryLight;

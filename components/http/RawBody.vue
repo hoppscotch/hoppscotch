@@ -26,6 +26,13 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
           svg="trash-2"
           @click.native="clearContent('rawParams', $event)"
@@ -55,82 +62,87 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <SmartAceEditor
-        v-model="rawParamsBody"
-        :lang="rawInputEditorLang"
-        :options="{
-          maxLines: Infinity,
-          minLines: 16,
-          autoScrollEditorIntoView: true,
-          showPrintMargin: false,
-          useWorker: false,
-        }"
-        styles="border-b border-dividerLight"
-      />
-    </div>
+    <div ref="rawBodyParameters"></div>
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed, reactive, ref, useContext } from "@nuxtjs/composition-api"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { pluckRef } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
+import "codemirror/mode/yaml/yaml"
+import "codemirror/mode/xml/xml"
+import "codemirror/mode/css/css"
+import "codemirror/mode/htmlmixed/htmlmixed"
+import "codemirror/mode/javascript/javascript"
 
-export default defineComponent({
-  props: {
-    contentType: {
-      type: String,
-      required: true,
+const props = defineProps<{
+  contentType: string
+}>()
+
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
+
+const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
+const prettifyIcon = ref("align-left")
+
+const rawInputEditorLang = computed(() =>
+  getEditorLangForMimeType(props.contentType)
+)
+const linewrapEnabled = ref(true)
+const rawBodyParameters = ref<any | null>(null)
+
+useCodemirror(
+  rawBodyParameters,
+  rawParamsBody,
+  reactive({
+    extendedEditorConfig: {
+      lineWrapping: linewrapEnabled,
+      mode: rawInputEditorLang,
+      placeholder: t("request.raw_body").toString(),
     },
-  },
-  setup() {
-    return {
-      rawParamsBody: pluckRef(useRESTRequestBody(), "body"),
-      prettifyIcon: "align-left",
+    linter: null,
+    completer: null,
+  })
+)
+
+const clearContent = () => {
+  rawParamsBody.value = ""
+}
+
+const uploadPayload = (e: InputEvent) => {
+  const file = e.target.files[0]
+  if (file !== undefined && file !== null) {
+    const reader = new FileReader()
+    reader.onload = ({ target }) => {
+      rawParamsBody.value = target?.result
     }
-  },
-  computed: {
-    rawInputEditorLang() {
-      return getEditorLangForMimeType(this.contentType)
-    },
-  },
-  methods: {
-    clearContent() {
-      this.rawParamsBody = ""
-    },
-    uploadPayload() {
-      const file = this.$refs.payload.files[0]
-      if (file !== undefined && file !== null) {
-        const reader = new FileReader()
-        reader.onload = ({ target }) => {
-          this.rawParamsBody = target.result
-        }
-        reader.readAsText(file)
-        this.$toast.success(this.$t("state.file_imported"), {
-          icon: "attach_file",
-        })
-      } else {
-        this.$toast.error(this.$t("action.choose_file"), {
-          icon: "attach_file",
-        })
-      }
-      this.$refs.payload.value = ""
-    },
-    prettifyRequestBody() {
-      try {
-        const jsonObj = JSON.parse(this.rawParamsBody)
-        this.rawParamsBody = JSON.stringify(jsonObj, null, 2)
-        this.prettifyIcon = "check"
-        setTimeout(() => (this.prettifyIcon = "align-left"), 1000)
-      } catch (e) {
-        console.error(e)
-        this.$toast.error(`${this.$t("error.json_prettify_invalid_body")}`, {
-          icon: "error_outline",
-        })
-      }
-    },
-  },
-})
+    reader.readAsText(file)
+    $toast.success(t("state.file_imported").toString(), {
+      icon: "attach_file",
+    })
+  } else {
+    $toast.error(t("action.choose_file").toString(), {
+      icon: "attach_file",
+    })
+  }
+}
+const prettifyRequestBody = () => {
+  try {
+    const jsonObj = JSON.parse(rawParamsBody.value)
+    rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
+    prettifyIcon.value = "check"
+    setTimeout(() => (prettifyIcon.value = "align-left"), 1000)
+  } catch (e) {
+    console.error(e)
+    $toast.error(`${t("error.json_prettify_invalid_body")}`, {
+      icon: "error_outline",
+    })
+  }
+}
 </script>

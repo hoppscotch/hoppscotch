@@ -42,9 +42,7 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="`${$t(
-                  'action.prettify'
-                )} <kbd>${getSpecialKey()}</kbd><kbd>P</kbd>`"
+                :title="$t('action.prettify')"
                 :svg="prettifyQueryIcon"
                 @click.native="prettifyQuery"
               />
@@ -57,20 +55,7 @@
               />
             </div>
           </div>
-          <GraphqlQueryEditor
-            ref="queryEditor"
-            v-model="gqlQueryString"
-            :on-run-g-q-l-query="runQuery"
-            :options="{
-              maxLines: Infinity,
-              minLines: 16,
-              autoScrollEditorIntoView: true,
-              showPrintMargin: false,
-              useWorker: false,
-            }"
-            styles="border-b border-dividerLight"
-            @update-query="updateQuery"
-          />
+          <div ref="queryEditor"></div>
         </AppSection>
       </SmartTab>
 
@@ -108,19 +93,7 @@
               />
             </div>
           </div>
-          <SmartAceEditor
-            ref="variableEditor"
-            v-model="variableString"
-            :lang="'json'"
-            :options="{
-              maxLines: Infinity,
-              minLines: 16,
-              autoScrollEditorIntoView: true,
-              showPrintMargin: false,
-              useWorker: false,
-            }"
-            styles="border-b border-dividerLight"
-          />
+          <div ref="variableEditor"></div>
         </AppSection>
       </SmartTab>
 
@@ -173,27 +146,7 @@
               />
             </div>
           </div>
-          <div v-if="bulkMode" class="flex">
-            <textarea-autosize
-              v-model="bulkHeaders"
-              v-focus
-              name="bulk-parameters"
-              class="
-                bg-transparent
-                border-b border-dividerLight
-                flex
-                font-mono
-                flex-1
-                py-2
-                px-4
-                whitespace-pre
-                resize-y
-                overflow-auto
-              "
-              rows="10"
-              :placeholder="$t('state.bulk_mode_placeholder')"
-            />
-          </div>
+          <div v-if="bulkMode" ref="bulkEditor"></div>
           <div v-else>
             <div
               v-for="(header, index) in headers"
@@ -229,7 +182,9 @@
               />
               <input
                 class="bg-transparent flex flex-1 py-2 px-4"
-                :placeholder="$t('count.value', { count: index + 1 })"
+                :placeholder="
+                  $t('count.value', { count: index + 1 }).toString()
+                "
                 :name="`value ${index}`"
                 :value="header.value"
                 autofocus
@@ -311,17 +266,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  onMounted,
-  PropType,
-  ref,
-  useContext,
-  watch,
-} from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { onMounted, ref, useContext, watch } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
-import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import * as gql from "graphql"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useNuxt,
@@ -348,208 +296,207 @@ import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { useCodemirror } from "~/helpers/editor/codemirror"
+import "codemirror/mode/javascript/javascript"
+import "~/helpers/editor/modes/graphql"
+import jsonLinter from "~/helpers/editor/linting/json"
+import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
+import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 
-export default defineComponent({
-  props: {
-    conn: {
-      type: Object as PropType<GQLConnection>,
-      required: true,
-    },
-  },
-  setup(props) {
-    const {
-      $toast,
-      app: { i18n },
-    } = useContext()
-    const t = i18n.t.bind(i18n)
-    const nuxt = useNuxt()
+const props = defineProps<{
+  conn: GQLConnection
+}>()
 
-    const bulkMode = ref(false)
-    const bulkHeaders = ref("")
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
+const nuxt = useNuxt()
 
-    watch(bulkHeaders, () => {
-      try {
-        const transformation = bulkHeaders.value.split("\n").map((item) => ({
-          key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
-          value: item.substring(item.indexOf(":") + 1).trim(),
-          active: !item.trim().startsWith("//"),
-        }))
-        setGQLHeaders(transformation)
-      } catch (e) {
-        $toast.error(t("error.something_went_wrong").toString(), {
-          icon: "error_outline",
-        })
-        console.error(e)
-      }
+const bulkMode = ref(false)
+const bulkHeaders = ref("")
+
+watch(bulkHeaders, () => {
+  try {
+    const transformation = bulkHeaders.value.split("\n").map((item) => ({
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      value: item.substring(item.indexOf(":") + 1).trim(),
+      active: !item.trim().startsWith("//"),
+    }))
+    setGQLHeaders(transformation)
+  } catch (e) {
+    $toast.error(t("error.something_went_wrong").toString(), {
+      icon: "error_outline",
     })
+    console.error(e)
+  }
+})
 
-    const url = useReadonlyStream(gqlURL$, "")
-    const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
-    const variableString = useStream(gqlVariables$, "", setGQLVariables)
-    const headers = useStream(gqlHeaders$, [], setGQLHeaders)
+const url = useReadonlyStream(gqlURL$, "")
+const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
+const variableString = useStream(gqlVariables$, "", setGQLVariables)
+const headers = useStream(gqlHeaders$, [], setGQLHeaders)
 
-    const queryEditor = ref<any | null>(null)
+const bulkEditor = ref<any | null>(null)
 
-    const copyQueryIcon = ref("copy")
-    const prettifyQueryIcon = ref("align-left")
-    const copyVariablesIcon = ref("copy")
+useCodemirror(bulkEditor, bulkHeaders, {
+  extendedEditorConfig: {
+    mode: "text/x-yaml",
+    placeholder: t("state.bulk_mode_placeholder").toString(),
+  },
+  linter: null,
+  completer: null,
+})
 
-    const showSaveRequestModal = ref(false)
+const variableEditor = ref<any | null>(null)
 
-    const schema = useReadonlyStream(props.conn.schemaString$, "")
+useCodemirror(variableEditor, variableString, {
+  extendedEditorConfig: {
+    mode: "application/ld+json",
+    placeholder: t("request.variables").toString(),
+  },
+  linter: jsonLinter,
+  completer: null,
+})
 
-    watch(
-      headers,
-      () => {
-        if (
-          (headers.value[headers.value.length - 1]?.key !== "" ||
-            headers.value[headers.value.length - 1]?.value !== "") &&
-          headers.value.length
-        )
-          addRequestHeader()
-      },
-      { deep: true }
+const queryEditor = ref<any | null>(null)
+const schemaString = useReadonlyStream(props.conn.schema$, null)
+
+useCodemirror(queryEditor, gqlQueryString, {
+  extendedEditorConfig: {
+    mode: "graphql",
+    placeholder: t("request.query").toString(),
+  },
+  linter: createGQLQueryLinter(schemaString),
+  completer: queryCompleter(schemaString),
+})
+
+const copyQueryIcon = ref("copy")
+const prettifyQueryIcon = ref("align-left")
+const copyVariablesIcon = ref("copy")
+
+const showSaveRequestModal = ref(false)
+
+watch(
+  headers,
+  () => {
+    if (
+      (headers.value[headers.value.length - 1]?.key !== "" ||
+        headers.value[headers.value.length - 1]?.value !== "") &&
+      headers.value.length
+    )
+      addRequestHeader()
+  },
+  { deep: true }
+)
+
+onMounted(() => {
+  if (!headers.value?.length) {
+    addRequestHeader()
+  }
+})
+
+const copyQuery = () => {
+  copyToClipboard(gqlQueryString.value)
+  copyQueryIcon.value = "check"
+  setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
+}
+
+const response = useStream(gqlResponse$, "", setGQLResponse)
+
+const runQuery = async () => {
+  const startTime = Date.now()
+
+  nuxt.value.$loading.start()
+  response.value = t("state.loading").toString()
+
+  try {
+    const runURL = clone(url.value)
+    const runHeaders = clone(headers.value)
+    const runQuery = clone(gqlQueryString.value)
+    const runVariables = clone(variableString.value)
+
+    const responseText = await props.conn.runQuery(
+      runURL,
+      runHeaders,
+      runQuery,
+      runVariables
+    )
+    const duration = Date.now() - startTime
+
+    nuxt.value.$loading.finish()
+
+    response.value = JSON.stringify(JSON.parse(responseText), null, 2)
+
+    addGraphqlHistoryEntry(
+      makeGQLHistoryEntry({
+        request: makeGQLRequest({
+          name: "",
+          url: runURL,
+          query: runQuery,
+          headers: runHeaders,
+          variables: runVariables,
+        }),
+        response: response.value,
+        star: false,
+      })
     )
 
-    onMounted(() => {
-      if (!headers.value?.length) {
-        addRequestHeader()
-      }
+    $toast.success(t("state.finished_in", { duration }).toString(), {
+      icon: "done",
     })
+  } catch (e: any) {
+    response.value = `${e}. ${t("error.check_console_details")}`
+    nuxt.value.$loading.finish()
 
-    const copyQuery = () => {
-      copyToClipboard(gqlQueryString.value)
-      copyQueryIcon.value = "check"
-      setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
-    }
+    $toast.error(`${e} ${t("error.f12_details").toString()}`, {
+      icon: "error_outline",
+    })
+    console.error(e)
+  }
 
-    const response = useStream(gqlResponse$, "", setGQLResponse)
+  logHoppRequestRunToAnalytics({
+    platform: "graphql-query",
+    strategy: getCurrentStrategyID(),
+  })
+}
 
-    const runQuery = async () => {
-      const startTime = Date.now()
+const hideRequestModal = () => {
+  showSaveRequestModal.value = false
+}
 
-      nuxt.value.$loading.start()
-      response.value = t("state.loading").toString()
+const prettifyQuery = () => {
+  try {
+    gqlQueryString.value = gql.print(gql.parse(gqlQueryString.value))
+  } catch (e) {
+    $toast.error(t("error.gql_prettify_invalid_query").toString(), {
+      icon: "error_outline",
+    })
+  }
+  prettifyQueryIcon.value = "check"
+  setTimeout(() => (prettifyQueryIcon.value = "align-left"), 1000)
+}
 
-      try {
-        const runURL = clone(url.value)
-        const runHeaders = clone(headers.value)
-        const runQuery = clone(gqlQueryString.value)
-        const runVariables = clone(variableString.value)
+const saveRequest = () => {
+  showSaveRequestModal.value = true
+}
 
-        const responseText = await props.conn.runQuery(
-          runURL,
-          runHeaders,
-          runQuery,
-          runVariables
-        )
-        const duration = Date.now() - startTime
+const copyVariables = () => {
+  copyToClipboard(variableString.value)
+  copyVariablesIcon.value = "check"
+  setTimeout(() => (copyVariablesIcon.value = "copy"), 1000)
+}
 
-        nuxt.value.$loading.finish()
+const addRequestHeader = () => {
+  addGQLHeader({
+    key: "",
+    value: "",
+    active: true,
+  })
+}
 
-        response.value = JSON.stringify(JSON.parse(responseText), null, 2)
-
-        addGraphqlHistoryEntry(
-          makeGQLHistoryEntry({
-            request: makeGQLRequest({
-              name: "",
-              url: runURL,
-              query: runQuery,
-              headers: runHeaders,
-              variables: runVariables,
-            }),
-            response: response.value,
-            star: false,
-          })
-        )
-
-        $toast.success(t("state.finished_in", { duration }).toString(), {
-          icon: "done",
-        })
-      } catch (e: any) {
-        response.value = `${e}. ${t("error.check_console_details")}`
-        nuxt.value.$loading.finish()
-
-        $toast.error(`${e} ${t("error.f12_details").toString()}`, {
-          icon: "error_outline",
-        })
-        console.error(e)
-      }
-
-      logHoppRequestRunToAnalytics({
-        platform: "graphql-query",
-        strategy: getCurrentStrategyID(),
-      })
-    }
-
-    const hideRequestModal = () => {
-      showSaveRequestModal.value = false
-    }
-
-    const prettifyQuery = () => {
-      queryEditor.value.prettifyQuery()
-      prettifyQueryIcon.value = "check"
-      setTimeout(() => (prettifyQueryIcon.value = "align-left"), 1000)
-    }
-
-    const saveRequest = () => {
-      showSaveRequestModal.value = true
-    }
-
-    // Why ?
-    const updateQuery = (updatedQuery: string) => {
-      gqlQueryString.value = updatedQuery
-    }
-
-    const copyVariables = () => {
-      copyToClipboard(variableString.value)
-      copyVariablesIcon.value = "check"
-      setTimeout(() => (copyVariablesIcon.value = "copy"), 1000)
-    }
-
-    const addRequestHeader = () => {
-      addGQLHeader({
-        key: "",
-        value: "",
-        active: true,
-      })
-    }
-
-    const removeRequestHeader = (index: number) => {
-      removeGQLHeader(index)
-    }
-
-    return {
-      gqlQueryString,
-      variableString,
-      headers,
-      copyQueryIcon,
-      prettifyQueryIcon,
-      copyVariablesIcon,
-
-      queryEditor,
-
-      showSaveRequestModal,
-      hideRequestModal,
-
-      schema,
-
-      copyQuery,
-      runQuery,
-      prettifyQuery,
-      saveRequest,
-      updateQuery,
-      copyVariables,
-      addRequestHeader,
-      removeRequestHeader,
-
-      getSpecialKey: getPlatformSpecialKey,
-
-      commonHeaders,
-      updateGQLHeader,
-      bulkMode,
-      bulkHeaders,
-    }
-  },
-})
+const removeRequestHeader = (index: number) => {
+  removeGQLHeader(index)
+}
 </script>

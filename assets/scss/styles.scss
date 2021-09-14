@@ -17,7 +17,7 @@
 ::-webkit-scrollbar-thumb {
   @apply bg-divider bg-clip-content;
   @apply rounded-full;
-  @apply border-solid border-4 border-transparent;
+  @apply border-solid border-transparent border-4;
   @apply hover:(bg-dividerDark bg-clip-content);
 }
 
@@ -36,8 +36,9 @@
 }
 
 input::placeholder,
-textarea::placeholder {
-  @apply text-secondaryDark;
+textarea::placeholder,
+.CodeMirror-empty {
+  @apply text-secondary;
   @apply opacity-25;
 }
 
@@ -116,8 +117,8 @@ a {
 
   &.link {
     @apply items-center;
-    @apply px-1 py-0.5;
-    @apply -mx-1 -my-0.5;
+    @apply py-0.5 px-1;
+    @apply -my-0.5 -mx-1;
     @apply text-accent;
     @apply rounded;
     @apply hover:text-accentDark;
@@ -198,7 +199,7 @@ hr {
 .textarea {
   @apply flex;
   @apply w-full;
-  @apply px-4 py-2;
+  @apply py-2 px-4;
   @apply bg-transparent;
   @apply rounded;
   @apply text-secondaryDark;
@@ -293,7 +294,7 @@ input[type="checkbox"] {
     @apply cursor-pointer;
 
     &::before {
-      @apply border-2 border-divider;
+      @apply border-divider border-2;
       @apply rounded;
       @apply inline-flex;
       @apply items-center;
@@ -347,6 +348,7 @@ input[type="checkbox"] {
       @apply justify-start;
       @apply shadow;
       @apply font-medium;
+      @apply transition;
 
       font-size: var(--body-font-size);
       line-height: var(--body-line-height);
@@ -358,7 +360,6 @@ input[type="checkbox"] {
         @apply ml-auto;
         @apply last:ml-4;
         @apply sm:ml-8;
-        @apply transition;
         @apply rounded;
         @apply text-current;
         @apply normal-case;
@@ -459,6 +460,32 @@ input[type="checkbox"] {
   @apply -top-0.5;
   @apply -bottom-0.5;
   @apply w-full;
+}
+
+.CodeMirror {
+  @apply !h-auto;
+
+  font-size: var(--body-font-size);
+
+  &:not(.CodeMirror-focused) .CodeMirror-activeline-background {
+    background: transparent !important;
+  }
+
+  .CodeMirror-dialog-top {
+    @apply bg-primaryLight;
+    @apply border-dividerLight;
+    @apply px-4;
+    @apply py-2;
+    @apply z-5;
+  }
+
+  .CodeMirror-scroll {
+    @apply min-h-64;
+  }
+
+  * {
+    font-family: "Roboto Mono", monospace;
+  }
 }
 
 @media (max-width: 767px) {

@@ -26,6 +26,13 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
           svg="trash-2"
           @click.native="clearContent"
@@ -34,17 +41,7 @@
     </div>
     <div class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <SmartJsEditor
-          v-model="testScript"
-          :options="{
-            maxLines: Infinity,
-            minLines: 16,
-            autoScrollEditorIntoView: true,
-            showPrintMargin: false,
-            useWorker: false,
-          }"
-          complete-mode="test"
-        />
+        <div ref="testScriptEditor"></div>
       </div>
       <div
         class="
@@ -85,10 +82,37 @@
 </template>
 
 <script setup lang="ts">
+import { reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { useTestScript } from "~/newstore/RESTSession"
 import testSnippets from "~/helpers/testSnippets"
+import "codemirror/mode/javascript/javascript"
+import { useCodemirror } from "~/helpers/editor/codemirror"
+import linter from "~/helpers/editor/linting/testScript"
+import completer from "~/helpers/editor/completion/testScript"
+
+const {
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
 const testScript = useTestScript()
+
+const testScriptEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
+
+useCodemirror(
+  testScriptEditor,
+  testScript,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/javascript",
+      lineWrapping: linewrapEnabled,
+      placeholder: t("test.javascript_code").toString(),
+    },
+    linter,
+    completer,
+  })
+)
 
 const useSnippet = (script: string) => {
   testScript.value += script

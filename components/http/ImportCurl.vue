@@ -1,28 +1,22 @@
 <template>
-  <SmartModal v-if="show" :title="$t('import.curl')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    :title="$t('import.curl').toString()"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
-        <textarea-autosize
-          id="import-curl"
-          v-model="curl"
-          class="font-mono textarea floating-input"
-          autofocus
-          rows="8"
-          placeholder=" "
-        />
-        <label for="import-curl">
-          {{ $t("request.enter_curl") }}
-        </label>
+        <div ref="curlEditor" class="border border-dividerLight rounded"></div>
       </div>
     </template>
     <template #footer>
-      <span>
+      <span class="flex">
         <ButtonPrimary
-          :label="$t('import.title')"
+          :label="$t('import.title').toString()"
           @click.native="handleImport"
         />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="$t('action.cancel').toString()"
           @click.native="hideModal"
         />
       </span>
@@ -30,108 +24,114 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, useContext } from "@nuxtjs/composition-api"
 import parseCurlCommand from "~/helpers/curlparser"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   HoppRESTHeader,
   HoppRESTParam,
   makeRESTRequest,
 } from "~/helpers/types/HoppRESTRequest"
 import { setRESTRequest } from "~/newstore/RESTSession"
+import "codemirror/mode/shell/shell"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  emits: ["hide-modal"],
-  data() {
-    return {
-      curl: "",
-    }
-  },
-  methods: {
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-    handleImport() {
-      const text = this.curl
-      try {
-        const parsedCurl = parseCurlCommand(text)
-        const { origin, pathname } = new URL(
-          parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
-        )
-        const endpoint = origin + pathname
-        const headers: HoppRESTHeader[] = []
-        const params: HoppRESTParam[] = []
-        if (parsedCurl.query) {
-          for (const key of Object.keys(parsedCurl.query)) {
-            const val = parsedCurl.query[key]!
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
-            if (Array.isArray(val)) {
-              val.forEach((value) => {
-                params.push({
-                  key,
-                  value,
-                  active: true,
-                })
-              })
-            } else {
-              params.push({
-                key,
-                value: val!,
-                active: true,
-              })
-            }
-          }
-        }
-        if (parsedCurl.headers) {
-          for (const key of Object.keys(parsedCurl.headers)) {
-            headers.push({
+const curl = ref("")
+
+const curlEditor = ref<any | null>(null)
+
+useCodemirror(curlEditor, curl, {
+  extendedEditorConfig: {
+    mode: "application/x-sh",
+    placeholder: t("request.enter_curl").toString(),
+  },
+  linter: null,
+  completer: null,
+})
+
+defineProps<{ show: boolean }>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const hideModal = () => {
+  emit("hide-modal")
+}
+
+const handleImport = () => {
+  const text = curl.value
+  try {
+    const parsedCurl = parseCurlCommand(text)
+    const { origin, pathname } = new URL(
+      parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
+    )
+    const endpoint = origin + pathname
+    const headers: HoppRESTHeader[] = []
+    const params: HoppRESTParam[] = []
+    if (parsedCurl.query) {
+      for (const key of Object.keys(parsedCurl.query)) {
+        const val = parsedCurl.query[key]!
+
+        if (Array.isArray(val)) {
+          val.forEach((value) => {
+            params.push({
               key,
-              value: parsedCurl.headers[key],
+              value,
               active: true,
             })
-          }
-        }
-        const method = parsedCurl.method.toUpperCase()
-        // let rawInput = false
-        // let rawParams: any | null = null
-
-        // if (parsedCurl.data) {
-        //   rawInput = true
-        //   rawParams = parsedCurl.data
-        // }
-
-        this.showCurlImportModal = false
-
-        setRESTRequest(
-          makeRESTRequest({
-            name: "Untitled request",
-            endpoint,
-            method,
-            params,
-            headers,
-            preRequestScript: "",
-            testScript: "",
-            auth: {
-              authType: "none",
-              authActive: true,
-            },
-            body: {
-              contentType: "application/json",
-              body: "",
-            },
           })
-        )
-      } catch (e) {
-        console.error(e)
-        this.$toast.error(this.$t("error.curl_invalid_format").toString(), {
-          icon: "error_outline",
+        } else {
+          params.push({
+            key,
+            value: val!,
+            active: true,
+          })
+        }
+      }
+    }
+    if (parsedCurl.headers) {
+      for (const key of Object.keys(parsedCurl.headers)) {
+        headers.push({
+          key,
+          value: parsedCurl.headers[key],
+          active: true,
         })
       }
-      this.hideModal()
-    },
-  },
-})
+    }
+    const method = parsedCurl.method.toUpperCase()
+
+    setRESTRequest(
+      makeRESTRequest({
+        name: "Untitled request",
+        endpoint,
+        method,
+        params,
+        headers,
+        preRequestScript: "",
+        testScript: "",
+        auth: {
+          authType: "none",
+          authActive: true,
+        },
+        body: {
+          contentType: "application/json",
+          body: "",
+        },
+      })
+    )
+  } catch (e) {
+    console.error(e)
+    $toast.error(t("error.curl_invalid_format").toString(), {
+      icon: "error_outline",
+    })
+  }
+  hideModal()
+}
 </script>

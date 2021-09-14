@@ -483,7 +483,7 @@ export default defineComponent({
     line-height: 1.9;
 
     &::before {
-      @apply text-secondaryDark;
+      @apply text-secondary;
       @apply opacity-25;
       @apply pointer-events-none;
 
@@ -501,7 +501,6 @@ export default defineComponent({
   @apply overflow-y-hidden;
   @apply resize-none;
   @apply focus:outline-none;
-  @apply transition;
 }
 
 .env-input::-webkit-scrollbar {

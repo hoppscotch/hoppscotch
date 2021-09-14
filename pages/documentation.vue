@@ -61,17 +61,12 @@
                 @click.native="collectionJSON = '[]'"
               />
             </div>
-            <SmartAceEditor
+            <textarea-autosize
+              id="import-curl"
               v-model="collectionJSON"
-              :lang="'json'"
-              :lint="false"
-              :options="{
-                maxLines: Infinity,
-                minLines: 16,
-                autoScrollEditorIntoView: true,
-                showPrintMargin: false,
-                useWorker: false,
-              }"
+              class="font-mono p-4 bg-primary"
+              autofocus
+              rows="8"
             />
             <div
               class="

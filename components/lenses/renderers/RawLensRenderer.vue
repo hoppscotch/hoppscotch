@@ -19,6 +19,14 @@
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          svg="corner-down-left"
+          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"
@@ -35,80 +43,96 @@
         />
       </div>
     </div>
-    <div class="relative">
-      <SmartAceEditor
-        :value="responseBodyText"
-        :lang="'plain_text'"
-        :options="{
-          maxLines: Infinity,
-          minLines: 16,
-          autoScrollEditorIntoView: true,
-          readOnly: true,
-          showPrintMargin: false,
-          useWorker: false,
-        }"
-        styles="border-b border-dividerLight"
-      />
-    </div>
+    <div ref="rawResponse"></div>
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import TextContentRendererMixin from "./mixins/TextContentRendererMixin"
+<script setup lang="ts">
+import { ref, useContext, computed, reactive } from "@nuxtjs/composition-api"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
-export default defineComponent({
-  mixins: [TextContentRendererMixin],
-  props: {
-    response: { type: Object, default: () => {} },
-  },
-  data() {
-    return {
-      downloadIcon: "download",
-      copyIcon: "copy",
-    }
-  },
-  computed: {
-    responseType() {
-      return (
-        this.response.headers.find(
-          (h) => h.key.toLowerCase() === "content-type"
-        ).value || ""
-      )
-        .split(";")[0]
-        .toLowerCase()
-    },
-  },
-  methods: {
-    downloadResponse() {
-      const dataToWrite = this.responseBodyText
-      const file = new Blob([dataToWrite], { type: this.responseType })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-      document.body.appendChild(a)
-      a.click()
-      this.downloadIcon = "check"
-      this.$toast.success(this.$t("state.download_started"), {
-        icon: "downloading",
-      })
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-        this.downloadIcon = "download"
-      }, 1000)
-    },
-    copyResponse() {
-      copyToClipboard(this.responseBodyText)
-      this.copyIcon = "check"
-      this.$toast.success(this.$t("state.copied_to_clipboard"), {
-        icon: "content_paste",
-      })
-      setTimeout(() => (this.copyIcon = "copy"), 1000)
-    },
-  },
+const props = defineProps<{
+  response: HoppRESTResponse
+}>()
+
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
+
+const responseBodyText = computed(() => {
+  if (
+    props.response.type === "loading" ||
+    props.response.type === "network_fail"
+  )
+    return ""
+  if (typeof props.response.body === "string") return props.response.body
+  else {
+    const res = new TextDecoder("utf-8").decode(props.response.body)
+    // HACK: Temporary trailing null character issue from the extension fix
+    return res.replace(/\0+$/, "")
+  }
 })
+
+const downloadIcon = ref("download")
+const copyIcon = ref("copy")
+
+const responseType = computed(() => {
+  return (
+    props.response.headers.find((h) => h.key.toLowerCase() === "content-type")
+      .value || ""
+  )
+    .split(";")[0]
+    .toLowerCase()
+})
+
+const rawResponse = ref<any | null>(null)
+const linewrapEnabled = ref(true)
+
+useCodemirror(
+  rawResponse,
+  responseBodyText,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/plain",
+      readOnly: true,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+  })
+)
+
+const downloadResponse = () => {
+  const dataToWrite = responseBodyText.value
+  const file = new Blob([dataToWrite], { type: responseType.value })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+  // TODO get uri from meta
+  a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
+  document.body.appendChild(a)
+  a.click()
+  downloadIcon.value = "check"
+  $toast.success(t("state.download_started").toString(), {
+    icon: "downloading",
+  })
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    downloadIcon.value = "download"
+  }, 1000)
+}
+
+const copyResponse = () => {
+  copyToClipboard(responseBodyText.value)
+  copyIcon.value = "check"
+  $toast.success(t("state.copied_to_clipboard").toString(), {
+    icon: "content_paste",
+  })
+  setTimeout(() => (copyIcon.value = "copy"), 1000)
+}
 </script>

@@ -33,45 +33,32 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "~/helpers/utils/composables"
 import { gqlHeaders$, gqlURL$, setGQLURL } from "~/newstore/GQLSession"
 
-export default defineComponent({
-  props: {
-    conn: {
-      type: Object as PropType<GQLConnection>,
-      required: true,
-    },
-  },
-  setup(props) {
-    const connected = useReadonlyStream(props.conn.connected$, false)
-    const headers = useReadonlyStream(gqlHeaders$, [])
+const props = defineProps<{
+  conn: GQLConnection
+}>()
 
-    const url = useStream(gqlURL$, "", setGQLURL)
+const connected = useReadonlyStream(props.conn.connected$, false)
+const headers = useReadonlyStream(gqlHeaders$, [])
 
-    const onConnectClick = () => {
-      if (!connected.value) {
-        props.conn.connect(url.value, headers.value as any)
+const url = useStream(gqlURL$, "", setGQLURL)
 
-        logHoppRequestRunToAnalytics({
-          platform: "graphql-schema",
-          strategy: getCurrentStrategyID(),
-        })
-      } else {
-        props.conn.disconnect()
-      }
-    }
+const onConnectClick = () => {
+  if (!connected.value) {
+    props.conn.connect(url.value, headers.value as any)
 
-    return {
-      url,
-      connected,
-      onConnectClick,
-    }
-  },
-})
+    logHoppRequestRunToAnalytics({
+      platform: "graphql-schema",
+      strategy: getCurrentStrategyID(),
+    })
+  } else {
+    props.conn.disconnect()
+  }
+}
 </script>

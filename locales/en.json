@@ -421,6 +421,7 @@
     "file_imported": "File imported",
     "finished_in": "Finished in {duration}ms",
     "history_deleted": "History deleted",
+    "linewrap": "Wrap lines",
     "loading": "Loading...",
     "none": "None",
     "nothing_found": "Nothing found for",

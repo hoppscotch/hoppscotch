@@ -298,7 +298,7 @@
               </div>
             </div>
             <div class="flex space-x-2 py-4 items-center">
-              <div class="flex flex-1 items-center relative">
+              <div class="flex flex-1 flex-col relative">
                 <input
                   id="url"
                   v-model="PROXY_URL"

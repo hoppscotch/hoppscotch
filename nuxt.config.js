@@ -133,6 +133,7 @@ export default {
     "@nuxtjs/composition-api/module",
     // https://github.com/antfu/unplugin-vue2-script-setup
     "unplugin-vue2-script-setup/nuxt",
+    "~/modules/emit-volar-types.ts",
   ],
 
   // Modules (https://go.nuxtjs.dev/config-modules)
@@ -280,7 +281,7 @@ export default {
         config.module.rules.push({
           test: /\.js$/,
           include: /(node_modules)/,
-          exclude: /(node_modules)\/(ace-builds)|(@firebase)/,
+          exclude: /(node_modules)\/(@firebase)/,
           loader: "babel-loader",
           options: {
             plugins: [

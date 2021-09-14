@@ -201,7 +201,6 @@ export function useCodemirror(
   watch(cursor, (value) => {
     if (value !== cm.value?.getCursor()) {
       cm.value?.focus()
-      console.log(value)
       cm.value?.setCursor(value)
     }
   })

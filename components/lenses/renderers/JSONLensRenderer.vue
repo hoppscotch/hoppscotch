@@ -47,12 +47,10 @@
     <div
       v-if="outlinePath"
       class="
-        h-32
         bg-primaryLight
         border-t border-dividerLight
         flex flex-nowrap flex-1
-        py-2
-        px-4
+        px-2
         bottom-0
         z-10
         sticky
@@ -60,48 +58,84 @@
         hide-scrollbar
       "
     >
-      <div v-for="(item, index) in outlinePath" :key="`item-${index}`">
-        <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+      <div
+        v-for="(item, index) in outlinePath"
+        :key="`item-${index}`"
+        class="flex items-center"
+      >
+        <tippy
+          ref="outlineOptions"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+        >
           <template #trigger>
-            <ButtonSecondary
-              v-if="item.kind === 'RootObject'"
-              :label="item.kind"
-            />
-            <ButtonSecondary
-              v-if="item.kind === 'RootArray'"
-              :label="item.kind"
-            />
-            <ButtonSecondary
-              v-if="item.kind === 'ArrayMember'"
-              :label="item.index.toString()"
-            />
-            <ButtonSecondary
-              v-if="item.kind === 'ObjectMember'"
-              :label="item.name"
-            />
+            <div v-if="item.kind === 'RootObject'" class="outline">{}</div>
+            <div v-if="item.kind === 'RootArray'" class="outline">[]</div>
+            <div v-if="item.kind === 'ArrayMember'" class="outline">
+              {{ item.index.toString() }}
+            </div>
+            <div v-if="item.kind === 'ObjectMember'" class="outline">
+              {{ item.name }}
+            </div>
           </template>
           <div
             v-if="item.kind === 'ArrayMember' || item.kind === 'ObjectMember'"
           >
-            <div v-if="item.kind === 'ArrayMember'">
-              <ButtonSecondary
-                v-for="(ast, astIndex) in item.astParent.values"
+            <div v-if="item.kind === 'ArrayMember'" class="flex flex-col">
+              <SmartItem
+                v-for="(arrayMember, astIndex) in item.astParent.values"
                 :key="`ast-${astIndex}`"
                 :label="astIndex.toString()"
-                @click.native="jumpCursor(ast)"
+                @click.native="
+                  () => {
+                    jumpCursor(arrayMember)
+                    outlineOptions[index].tippy().hide()
+                  }
+                "
               />
             </div>
-            <div v-if="item.kind === 'ObjectMember'">
-              <ButtonSecondary
-                v-for="(ast, astIndex) in item.astParent.members"
+            <div v-if="item.kind === 'ObjectMember'" class="flex flex-col">
+              <SmartItem
+                v-for="(objectMember, astIndex) in item.astParent.members"
                 :key="`ast-${astIndex}`"
-                :label="ast.key.value"
-                @click.native="jumpCursor(ast)"
+                :label="objectMember.key.value"
+                @click.native="
+                  () => {
+                    jumpCursor(objectMember)
+                    outlineOptions[index].tippy().hide()
+                  }
+                "
               />
             </div>
           </div>
+          <div v-if="item.kind === 'RootObject'" class="flex flex-col">
+            <SmartItem
+              label="{}"
+              @click.native="
+                () => {
+                  jumpCursor(item.astValue)
+                  outlineOptions[index].tippy().hide()
+                }
+              "
+            />
+          </div>
+          <div v-if="item.kind === 'RootArray'" class="flex flex-col">
+            <SmartItem
+              label="[]"
+              @click.native="
+                () => {
+                  jumpCursor(item.astValue)
+                  outlineOptions[index].tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
-        <i v-if="index + 1 !== outlinePath.length" class="mx-2 material-icons"
+        <i
+          v-if="index + 1 !== outlinePath.length"
+          class="text-secondaryLight opacity-50 material-icons"
           >chevron_right</i
         >
       </div>
@@ -110,13 +144,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  ref,
-  watchEffect,
-  useContext,
-  reactive,
-} from "@nuxtjs/composition-api"
+import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import "codemirror/mode/javascript/javascript"
@@ -172,6 +200,7 @@ const ast = computed(() => {
   }
 })
 
+const outlineOptions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
@@ -190,9 +219,6 @@ const { cursor } = useCodemirror(
 )
 
 const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
-  console.log(jsonBodyText.value)
-  console.log(ast.start)
-  console.log(convertIndexToLineCh(jsonBodyText.value, ast.start))
   cursor.value = convertIndexToLineCh(jsonBodyText.value, ast.start)
 }
 
@@ -226,10 +252,6 @@ const outlinePath = computed(() => {
   } else return null
 })
 
-watchEffect(() => {
-  console.log(outlinePath.value)
-})
-
 const copyResponse = () => {
   copyToClipboard(responseBodyText.value)
   copyIcon.value = "check"
@@ -239,3 +261,17 @@ const copyResponse = () => {
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>
+
+<style lang="scss" scoped>
+.outline {
+  @apply cursor-pointer;
+  @apply flex-grow-0 flex-shrink-0;
+  @apply text-secondaryLight;
+  @apply inline-flex;
+  @apply items-center;
+  @apply px-2;
+  @apply py-1;
+  @apply transition;
+  @apply hover:text-secondary;
+}
+</style>

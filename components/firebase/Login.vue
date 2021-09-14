@@ -26,7 +26,7 @@
         />
       </div>
       <div v-if="mode === 'email'" class="flex flex-col space-y-2">
-        <div class="flex items-center relative">
+        <div class="flex flex-col">
           <input
             id="email"
             v-model="form.email"

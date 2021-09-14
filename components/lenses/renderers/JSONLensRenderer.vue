@@ -219,7 +219,9 @@ const { cursor } = useCodemirror(
 )
 
 const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
-  cursor.value = convertIndexToLineCh(jsonBodyText.value, ast.start)
+  const pos = convertIndexToLineCh(jsonBodyText.value, ast.start)
+  pos.line--
+  cursor.value = pos
 }
 
 const downloadResponse = () => {

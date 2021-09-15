@@ -8,9 +8,9 @@ import { map } from "rxjs/operators"
  *
  * @returns The constructed object observable
  */
-export function constructFromStreams<T>(
-  streamObj: { [key in keyof T]: Observable<T[key]> }
-): Observable<T> {
+export function constructFromStreams<T>(streamObj: {
+  [key in keyof T]: Observable<T[key]>
+}): Observable<T> {
   return combineLatest(Object.values<Observable<T[keyof T]>>(streamObj)).pipe(
     map((streams) => {
       const keys = Object.keys(streamObj) as (keyof T)[]

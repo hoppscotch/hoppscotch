@@ -17,14 +17,13 @@
         {{ title }}
       </label>
     </div>
-    <div ref="log" name="log" class="realtime-log">
+    <div name="log" class="realtime-log">
       <span v-if="log" class="space-y-2">
         <span
           v-for="(entry, index) in log"
           :key="`entry-${index}`"
           :style="{ color: entry.color }"
-          >{{ entry.ts }}{{ getSourcePrefix(entry.source)
-          }}{{ entry.payload }}</span
+          >{{ entry.ts }}{{ source(entry.source) }}{{ entry.payload }}</span
         >
       </span>
       <span v-else>{{ $t("response.waiting_for_connection") }}</span>
@@ -32,27 +31,14 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import { getSourcePrefix } from "~/helpers/utils/string"
+<script setup lang="ts">
+import { getSourcePrefix as source } from "~/helpers/utils/string"
 
-export default defineComponent({
-  props: {
-    log: { type: Array, default: () => [] },
-    title: {
-      type: String,
-      default: "",
-    },
-  },
-  updated() {
-    this.$nextTick(function () {
-      if (this.$refs.log) {
-        this.$refs.log.scrollBy(0, this.$refs.log.scrollHeight + 100)
-      }
-    })
-  },
-  methods: {
-    getSourcePrefix,
+defineProps({
+  log: { type: Array, default: () => [] },
+  title: {
+    type: String,
+    default: "",
   },
 })
 </script>

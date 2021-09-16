@@ -19,7 +19,7 @@ export const ShellWgetCodegen = {
   }) => {
     const requestString = []
     requestString.push(`wget -O - --method=${method}`)
-    requestString.push(`  '${url}${pathName}${queryString}'`)
+    requestString.push(`  '${url}${pathName}?${queryString}'`)
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       requestString.push(

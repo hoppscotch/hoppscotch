@@ -6,12 +6,11 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
-    "pre-commit": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{ts,js,vue}": "eslint",
-    "*.{css,scss,vue}": "stylelint"
+    "dev": "pnpm -r dev",
+    "lintfix": "pnpm -r lintfix",
+    "pre-commit": "pnpm -r lint"
   },
   "workspaces": [
     "./packages/*"
@@ -19,5 +18,9 @@
   "dependencies": {
     "husky": "^7.0.2",
     "lint-staged": "^11.1.2"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "@commitlint/config-conventional": "^13.1.0"
   }
 }

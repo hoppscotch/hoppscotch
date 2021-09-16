@@ -24,7 +24,7 @@ export const NodejsNativeCodegen = {
 
     requestString.push(`const http = require('http');\n\n`)
 
-    requestString.push(`const url = '${url}${pathName}${queryString}';\n`)
+    requestString.push(`const url = '${url}${pathName}?${queryString}';\n`)
 
     requestString.push(`const options = {\n`)
     requestString.push(`  method: '${method}',\n`)

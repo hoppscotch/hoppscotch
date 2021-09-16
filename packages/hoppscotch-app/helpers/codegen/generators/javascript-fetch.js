@@ -21,7 +21,7 @@ export const JavascriptFetchCodegen = {
   }) => {
     const requestString = []
     let genHeaders = []
-    requestString.push(`fetch("${url}${pathName}${queryString}", {\n`)
+    requestString.push(`fetch("${url}${pathName}?${queryString}", {\n`)
     requestString.push(`  method: "${method}",\n`)
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`

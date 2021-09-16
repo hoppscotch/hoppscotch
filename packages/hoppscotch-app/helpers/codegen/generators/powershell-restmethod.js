@@ -26,7 +26,7 @@ export const PowershellRestmethodCodegen = {
     let variables = ""
 
     requestString.push(
-      `Invoke-RestMethod -Method '${formattedMethod}' -Uri '${url}${pathName}${queryString}'`
+      `Invoke-RestMethod -Method '${formattedMethod}' -Uri '${url}${pathName}?${queryString}'`
     )
     const requestBody = rawInput ? rawParams : rawRequestBody
 

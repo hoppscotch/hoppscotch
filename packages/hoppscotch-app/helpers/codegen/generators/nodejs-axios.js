@@ -22,7 +22,7 @@ export const NodejsAxiosCodegen = {
     const requestBody = rawInput ? rawParams : rawRequestBody
 
     requestString.push(
-      `axios.${method.toLowerCase()}('${url}${pathName}${queryString}'`
+      `axios.${method.toLowerCase()}('${url}${pathName}?${queryString}'`
     )
     if (requestBody.length !== 0) {
       requestString.push(", ")

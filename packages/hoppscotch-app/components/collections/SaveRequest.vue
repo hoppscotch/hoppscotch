@@ -1,5 +1,9 @@
 <template>
-  <SmartModal v-if="show" :title="$t('collection.save_as')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    :title="$t('collection.save_as').toString()"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <div class="flex relative">
@@ -41,11 +45,11 @@
     <template #footer>
       <span>
         <ButtonPrimary
-          :label="$t('action.save')"
+          :label="$t('action.save').toString()"
           @click.native="saveRequestAs"
         />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="$t('action.cancel').toString()"
           @click.native="hideModal"
         />
       </span>
@@ -53,191 +57,294 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import * as teamUtils from "~/helpers/teams/utils"
+<script setup lang="ts">
+import { reactive, ref, useContext, watch } from "@nuxtjs/composition-api"
+import { isHoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import {
-  saveRESTRequestAs,
-  editRESTRequest,
   editGraphqlRequest,
+  editRESTRequest,
   saveGraphqlRequestAs,
+  saveRESTRequestAs,
 } from "~/newstore/collections"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
 import {
   getRESTRequest,
-  useRESTRequestName,
   setRESTSaveContext,
+  useRESTRequestName,
 } from "~/newstore/RESTSession"
+import * as teamUtils from "~/helpers/teams/utils"
+import { apolloClient } from "~/helpers/apollo"
+import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
 
-export default defineComponent({
-  props: {
-    // mode can be either "graphql" or "rest"
-    mode: { type: String, default: "rest" },
-    show: Boolean,
-  },
-  setup(props) {
-    return {
-      requestName:
-        props.mode === "rest" ? useRESTRequestName() : useGQLRequestName(),
+type CollectionType =
+  | {
+      type: "my-collections"
     }
-  },
-  data() {
-    return {
-      requestData: {
-        name: this.requestName,
-        collectionIndex: undefined,
-        folderName: undefined,
-        requestIndex: undefined,
-      },
-      collectionsType: {
-        type: "my-collections",
-        selectedTeam: undefined,
-      },
-      picked: null,
+  | {
+      type: "team-collections"
+      // TODO: Figure this type out
+      selectedTeam: {
+        id: string
+      }
     }
-  },
-  watch: {
-    "requestData.collectionIndex": function resetFolderAndRequestIndex() {
-      // if user has chosen some folder, than selected other collection, which doesn't have any folders
-      // than `requestUpdateData.folderName` won't be reseted
-      this.$data.requestData.folderName = undefined
-      this.$data.requestData.requestIndex = undefined
-    },
-    "requestData.folderName": function resetRequestIndex() {
-      this.$data.requestData.requestIndex = undefined
-    },
-    editingRequest({ name }) {
-      this.$data.requestData.name = name || this.$data.defaultRequestName
-    },
-  },
-  methods: {
-    onUpdateCollType(newCollType) {
-      this.collectionsType = newCollType
-    },
-    onSelect({ picked }) {
-      this.picked = picked
-    },
-    async saveRequestAs() {
-      if (!this.requestName) {
-        this.$toast.error(this.$t("error.empty_req_name"), {
-          icon: "error_outline",
-        })
-        return
-      }
-      if (this.picked == null) {
-        this.$toast.error(this.$t("collection.select"), {
-          icon: "error_outline",
-        })
-        return
-      }
 
-      const requestUpdated =
-        this.mode === "rest" ? getRESTRequest() : getGQLSession()
+type Picked =
+  | {
+      pickedType: "my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "my-collection"
+      collectionIndex: number
+    }
+  | {
+      pickedType: "teams-request"
+      requestID: string
+    }
+  | {
+      pickedType: "teams-folder"
+      folderID: string
+    }
+  | {
+      pickedType: "teams-collection"
+      collectionID: string
+    }
+  | {
+      pickedType: "gql-my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "gql-my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "gql-my-collection"
+      collectionIndex: number
+    }
 
-      // Filter out all REST file inputs
-      if (this.mode === "rest" && requestUpdated.bodyParams) {
-        requestUpdated.bodyParams = requestUpdated.bodyParams.map((param) =>
-          param?.value?.[0] instanceof File ? { ...param, value: "" } : param
-        )
-      }
+const props = defineProps<{
+  mode: "rest" | "graphql"
+  show: boolean
+}>()
 
-      if (this.picked.pickedType === "my-request") {
-        editRESTRequest(
-          this.picked.folderPath,
-          this.picked.requestIndex,
-          requestUpdated
-        )
-        setRESTSaveContext({
-          originLocation: "user-collection",
-          folderPath: this.picked.folderPath,
-          requestIndex: this.picked.requestIndex,
-        })
-      } else if (this.picked.pickedType === "my-folder") {
-        const insertionIndex = saveRESTRequestAs(
-          this.picked.folderPath,
-          requestUpdated
-        )
-        setRESTSaveContext({
-          originLocation: "user-collection",
-          folderPath: this.picked.folderPath,
-          requestIndex: insertionIndex,
-        })
-      } else if (this.picked.pickedType === "my-collection") {
-        const insertionIndex = saveRESTRequestAs(
-          `${this.picked.collectionIndex}`,
-          requestUpdated
-        )
-        setRESTSaveContext({
-          originLocation: "user-collection",
-          folderPath: `${this.picked.collectionIndex}`,
-          requestIndex: insertionIndex,
-        })
-      } else if (this.picked.pickedType === "teams-request") {
-        teamUtils.overwriteRequestTeams(
-          this.$apollo,
-          JSON.stringify(requestUpdated),
-          requestUpdated.name,
-          this.picked.requestID
-        )
-        setRESTSaveContext({
-          originLocation: "team-collection",
-          requestID: this.picked.requestID,
-        })
-      } else if (this.picked.pickedType === "teams-folder") {
-        const req = await teamUtils.saveRequestAsTeams(
-          this.$apollo,
-          JSON.stringify(requestUpdated),
-          requestUpdated.name,
-          this.collectionsType.selectedTeam.id,
-          this.picked.folderID
-        )
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
 
-        if (req && req.id) {
-          setRESTSaveContext({
-            originLocation: "team-collection",
-            requestID: req.id,
-            teamID: this.collectionsType.selectedTeam.id,
-            collectionID: this.picked.folderID,
-          })
-        }
-      } else if (this.picked.pickedType === "teams-collection") {
-        const req = await teamUtils.saveRequestAsTeams(
-          this.$apollo,
-          JSON.stringify(requestUpdated),
-          requestUpdated.name,
-          this.collectionsType.selectedTeam.id,
-          this.picked.collectionID
-        )
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
 
-        if (req && req.id) {
-          setRESTSaveContext({
-            originLocation: "team-collection",
-            requestID: req.id,
-            teamID: this.collectionsType.selectedTeam.id,
-            collectionID: this.picked.collectionID,
-          })
-        }
-      } else if (this.picked.pickedType === "gql-my-request") {
-        editGraphqlRequest(
-          this.picked.folderPath,
-          this.picked.requestIndex,
-          requestUpdated
-        )
-      } else if (this.picked.pickedType === "gql-my-folder") {
-        saveGraphqlRequestAs(this.picked.folderPath, requestUpdated)
-      } else if (this.picked.pickedType === "gql-my-collection") {
-        saveGraphqlRequestAs(`${this.picked.collectionIndex}`, requestUpdated)
-      }
-      this.$toast.success(this.$t("request.added"), {
-        icon: "post_add",
-      })
+const t = i18n.t.bind(i18n)
 
-      this.hideModal()
-    },
-    hideModal() {
-      this.picked = null
-      this.$emit("hide-modal")
-    },
-  },
+// TODO: Use a better implementation with computed ?
+// This implementation can't work across updates to mode prop (which won't happen tho)
+const requestName =
+  props.mode === "rest" ? useRESTRequestName() : useGQLRequestName()
+
+const requestData = reactive({
+  name: requestName,
+  collectionIndex: undefined as number | undefined,
+  folderName: undefined as number | undefined,
+  requestIndex: undefined as number | undefined,
 })
+
+const collectionsType = ref<CollectionType>({
+  type: "my-collections",
+})
+
+// TODO: Figure this type out
+const picked = ref<Picked | null>(null)
+
+// Resets
+watch(
+  () => requestData.collectionIndex,
+  () => {
+    requestData.folderName = undefined
+    requestData.requestIndex = undefined
+  }
+)
+watch(
+  () => requestData.folderName,
+  () => {
+    requestData.requestIndex = undefined
+  }
+)
+
+// All the methods
+const onUpdateCollType = (newCollType: CollectionType) => {
+  collectionsType.value = newCollType
+}
+
+const onSelect = ({ picked: pickedVal }: { picked: Picked | null }) => {
+  picked.value = pickedVal
+}
+
+const hideModal = () => {
+  picked.value = null
+  emit("hide-modal")
+}
+
+const saveRequestAs = async () => {
+  if (!requestName.value) {
+    $toast.error(t("error.empty_req_name").toString(), {
+      icon: "error_outline",
+    })
+    return
+  }
+  if (picked.value === null) {
+    $toast.error(t("collection.select").toString(), {
+      icon: "error_outline",
+    })
+    return
+  }
+
+  const requestUpdated =
+    props.mode === "rest" ? getRESTRequest() : getGQLSession().request
+
+  // // Filter out all REST file inputs
+  // if (this.mode === "rest" && requestUpdated.bodyParams) {
+  //   requestUpdated.bodyParams = requestUpdated.bodyParams.map((param) =>
+  //     param?.value?.[0] instanceof File ? { ...param, value: "" } : param
+  //   )
+  // }
+
+  if (picked.value.pickedType === "my-request") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    editRESTRequest(
+      picked.value.folderPath,
+      picked.value.requestIndex,
+      requestUpdated
+    )
+
+    setRESTSaveContext({
+      originLocation: "user-collection",
+      folderPath: picked.value.folderPath,
+      requestIndex: picked.value.requestIndex,
+    })
+  } else if (picked.value.pickedType === "my-folder") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    const insertionIndex = saveRESTRequestAs(
+      picked.value.folderPath,
+      requestUpdated
+    )
+
+    setRESTSaveContext({
+      originLocation: "user-collection",
+      folderPath: picked.value.folderPath,
+      requestIndex: insertionIndex,
+    })
+  } else if (picked.value.pickedType === "my-collection") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    const insertionIndex = saveRESTRequestAs(
+      `${picked.value.collectionIndex}`,
+      requestUpdated
+    )
+    setRESTSaveContext({
+      originLocation: "user-collection",
+      folderPath: `${picked.value.collectionIndex}`,
+      requestIndex: insertionIndex,
+    })
+  } else if (picked.value.pickedType === "teams-request") {
+    if (isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    if (collectionsType.value.type !== "team-collections")
+      throw new Error("Collections Type mismatch")
+
+    teamUtils.overwriteRequestTeams(
+      apolloClient,
+      JSON.stringify(requestUpdated),
+      requestUpdated.name,
+      picked.value.requestID
+    )
+
+    setRESTSaveContext({
+      originLocation: "team-collection",
+      requestID: picked.value.requestID,
+    })
+  } else if (picked.value.pickedType === "teams-folder") {
+    if (isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    if (collectionsType.value.type !== "team-collections")
+      throw new Error("Collections Type mismatch")
+
+    const req = await teamUtils.saveRequestAsTeams(
+      apolloClient,
+      JSON.stringify(requestUpdated),
+      requestUpdated.name,
+      collectionsType.value.selectedTeam.id,
+      picked.value.folderID
+    )
+
+    if (req && req.id) {
+      setRESTSaveContext({
+        originLocation: "team-collection",
+        requestID: req.id,
+        teamID: collectionsType.value.selectedTeam.id,
+        collectionID: picked.value.folderID,
+      })
+    }
+  } else if (picked.value.pickedType === "teams-collection") {
+    if (isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    if (collectionsType.value.type !== "team-collections")
+      throw new Error("Collections Type mismatch")
+
+    const req = await teamUtils.saveRequestAsTeams(
+      apolloClient,
+      JSON.stringify(requestUpdated),
+      requestUpdated.name,
+      collectionsType.value.selectedTeam.id,
+      picked.value.collectionID
+    )
+
+    if (req && req.id) {
+      setRESTSaveContext({
+        originLocation: "team-collection",
+        requestID: req.id,
+        teamID: collectionsType.value.selectedTeam.id,
+        collectionID: picked.value.collectionID,
+      })
+    }
+  } else if (picked.value.pickedType === "gql-my-request") {
+    // TODO: Check for GQL request ?
+    editGraphqlRequest(
+      picked.value.folderPath,
+      picked.value.requestIndex,
+      requestUpdated as HoppGQLRequest
+    )
+  } else if (picked.value.pickedType === "gql-my-folder") {
+    // TODO: Check for GQL request ?
+    saveGraphqlRequestAs(
+      picked.value.folderPath,
+      requestUpdated as HoppGQLRequest
+    )
+  } else if (picked.value.pickedType === "gql-my-collection") {
+    // TODO: Check for GQL request ?
+    saveGraphqlRequestAs(
+      `${picked.value.collectionIndex}`,
+      requestUpdated as HoppGQLRequest
+    )
+  }
+  $toast.success(t("request.added").toString(), {
+    icon: "post_add",
+  })
+  hideModal()
+}
 </script>

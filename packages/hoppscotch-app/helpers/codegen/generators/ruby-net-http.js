@@ -35,7 +35,7 @@ export const RubyNetHttpCodeGen = {
 
     // create URI and request
     const verb = verbs.find((v) => v.verb === method)
-    requestString.push(`uri = URI.parse('${url}${pathName}${queryString}')\n`)
+    requestString.push(`uri = URI.parse('${url}${pathName}?${queryString}')\n`)
     requestString.push(`request = Net::HTTP::${verb.rbMethod}.new(uri)`)
 
     // content type

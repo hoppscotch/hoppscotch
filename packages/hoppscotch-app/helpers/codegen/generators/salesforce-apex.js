@@ -30,7 +30,7 @@ export const SalesforceApexCodegen = {
     requestString.push(`HttpRequest request = new HttpRequest();\n`)
     requestString.push(`request.setMethod('${method}');\n`)
     requestString.push(
-      `request.setEndpoint('${url}${pathName}${queryString}');\n\n`
+      `request.setEndpoint('${url}${pathName}?${queryString}');\n\n`
     )
 
     // authentification

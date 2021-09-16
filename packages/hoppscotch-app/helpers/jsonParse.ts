@@ -19,7 +19,75 @@
  *   - end: int - the end exclusive offset of the syntax error
  *
  */
-export default function jsonParse(str) {
+type JSONEOFValue = {
+  kind: "EOF"
+  start: number
+  end: number
+}
+
+type JSONNullValue = {
+  kind: "Null"
+  start: number
+  end: number
+}
+
+type JSONNumberValue = {
+  kind: "Number"
+  start: number
+  end: number
+  value: number
+}
+
+type JSONStringValue = {
+  kind: "String"
+  start: number
+  end: number
+  value: string
+}
+
+type JSONBooleanValue = {
+  kind: "Boolean"
+  start: number
+  end: number
+  value: boolean
+}
+
+type JSONPrimitiveValue =
+  | JSONNullValue
+  | JSONEOFValue
+  | JSONStringValue
+  | JSONNumberValue
+  | JSONBooleanValue
+
+export type JSONObjectValue = {
+  kind: "Object"
+  start: number
+  end: number
+  // eslint-disable-next-line no-use-before-define
+  members: JSONObjectMember[]
+}
+
+export type JSONArrayValue = {
+  kind: "Array"
+  start: number
+  end: number
+  // eslint-disable-next-line no-use-before-define
+  values: JSONValue[]
+}
+
+export type JSONValue = JSONObjectValue | JSONArrayValue | JSONPrimitiveValue
+
+export type JSONObjectMember = {
+  kind: "Member"
+  start: number
+  end: number
+  key: JSONStringValue
+  value: JSONValue
+}
+
+export default function jsonParse(
+  str: string
+): JSONObjectValue | JSONArrayValue {
   string = str
   strLen = str.length
   start = end = lastEnd = -1
@@ -37,15 +105,15 @@ export default function jsonParse(str) {
   }
 }
 
-let string
-let strLen
-let start
-let end
-let lastEnd
-let code
-let kind
+let string: string
+let strLen: number
+let start: number
+let end: number
+let lastEnd: number
+let code: number
+let kind: string
 
-function parseObj() {
+function parseObj(): JSONObjectValue {
   const nodeStart = start
   const members = []
   expect("{")
@@ -63,9 +131,9 @@ function parseObj() {
   }
 }
 
-function parseMember() {
+function parseMember(): JSONObjectMember {
   const nodeStart = start
-  const key = kind === "String" ? curToken() : null
+  const key = kind === "String" ? (curToken() as JSONStringValue) : null
   expect("String")
   expect(":")
   const value = parseVal()
@@ -73,14 +141,14 @@ function parseMember() {
     kind: "Member",
     start: nodeStart,
     end: lastEnd,
-    key,
+    key: key!,
     value,
   }
 }
 
-function parseArr() {
+function parseArr(): JSONArrayValue {
   const nodeStart = start
-  const values = []
+  const values: JSONValue[] = []
   expect("[")
   if (!skip("]")) {
     do {
@@ -96,7 +164,7 @@ function parseArr() {
   }
 }
 
-function parseVal() {
+function parseVal(): JSONValue {
   switch (kind) {
     case "[":
       return parseArr()
@@ -111,14 +179,19 @@ function parseVal() {
       lex()
       return token
   }
-  return expect("Value")
+  return expect("Value") as never
 }
 
-function curToken() {
-  return { kind, start, end, value: JSON.parse(string.slice(start, end)) }
+function curToken(): JSONPrimitiveValue {
+  return {
+    kind: kind as any,
+    start,
+    end,
+    value: JSON.parse(string.slice(start, end)),
+  }
 }
 
-function expect(str) {
+function expect(str: string) {
   if (kind === str) {
     lex()
     return
@@ -137,11 +210,17 @@ function expect(str) {
   throw syntaxError(`Expected ${str} but found ${found}.`)
 }
 
-function syntaxError(message) {
+type SyntaxError = {
+  message: string
+  start: number
+  end: number
+}
+
+function syntaxError(message: string): SyntaxError {
   return { message, start, end }
 }
 
-function skip(k) {
+function skip(k: string) {
   if (kind === k) {
     lex()
     return true
@@ -227,7 +306,7 @@ function lex() {
 function readString() {
   ch()
   while (code !== 34 && code > 31) {
-    if (code === 92) {
+    if (code === (92 as any)) {
       // \
       ch()
       switch (code) {
@@ -299,7 +378,7 @@ function readNumber() {
   if (code === 69 || code === 101) {
     // E e
     ch()
-    if (code === 43 || code === 45) {
+    if (code === (43 as any) || code === (45 as any)) {
       // + -
       ch()
     }

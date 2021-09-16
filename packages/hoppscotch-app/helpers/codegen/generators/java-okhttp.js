@@ -39,7 +39,7 @@ export const JavaOkhttpCodegen = {
     }
 
     requestString.push("Request request = new Request.Builder()")
-    requestString.push(`.url("${url}${pathName}${queryString}")`)
+    requestString.push(`.url("${url}${pathName}?${queryString}")`)
 
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       requestString.push(`.method("${method}", body)`)

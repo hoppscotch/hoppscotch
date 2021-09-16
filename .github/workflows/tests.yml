@@ -29,4 +29,4 @@ jobs:
       - name: Install pnpm
         run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
       - name: Run tests
-        run: pnpm i && cd packages/hoppscotch-app && pnpm test
+        run: pnpm i && pnpm -r test

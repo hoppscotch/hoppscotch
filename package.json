@@ -5,7 +5,6 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
     "dev": "pnpm -r dev",

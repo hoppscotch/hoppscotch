@@ -1,8 +1,8 @@
 [build]
   base = "/"
   publish = "packages/hoppscotch-app/dist"
-  command = "pnpm run generate"
-  environment = { NODE_VERSION = "14" }
+  command = "npx pnpm install --store=node_modules/.pnpm-store && pnpm run generate"
+  environment = { NODE_VERSION = "14", NPM_FLAGS = "--version" }
 
 [[redirects]]
   from = "/discord"

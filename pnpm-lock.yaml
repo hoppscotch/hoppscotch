@@ -43,7 +43,7 @@ importers:
       '@types/codemirror': ^5.60.2
       '@types/cookie': ^0.4.1
       '@types/esprima': ^4.0.3
-      '@types/lodash': ^4.14.172
+      '@types/lodash': ^4.14.173
       '@types/splitpanes': ^2.2.1
       '@vue/runtime-dom': ^3.2.11
       '@vue/test-utils': ^1.2.2
@@ -75,11 +75,11 @@ importers:
       nuxt: ^2.15.8
       nuxt-windicss: ^1.2.4
       paho-mqtt: ^1.1.0
-      prettier: ^2.4.0
+      prettier: ^2.4.1
       pretty-quick: ^3.1.1
       raw-loader: ^4.0.2
       rxjs: ^7.3.0
-      sass: ^1.40.1
+      sass: ^1.41.1
       sass-loader: ^10.2.0
       socket.io-client: ^4.2.0
       socketio-wildcard: ^2.0.0
@@ -146,7 +146,7 @@ importers:
       '@babel/preset-env': 7.15.6_@babel+core@7.15.5
       '@commitlint/cli': 13.1.0
       '@commitlint/config-conventional': 13.1.0
-      '@nuxt/types': 2.15.8_sass@1.41.0
+      '@nuxt/types': 2.15.8_sass@1.41.1
       '@nuxt/typescript-build': 2.1.0_@nuxt+types@2.15.8
       '@nuxtjs/color-mode': 2.1.1
       '@nuxtjs/dotenv': 1.4.1
@@ -160,7 +160,7 @@ importers:
       '@types/codemirror': 5.60.2
       '@types/cookie': 0.4.1
       '@types/esprima': 4.0.3
-      '@types/lodash': 4.14.172
+      '@types/lodash': 4.14.173
       '@types/splitpanes': 2.2.1
       '@vue/runtime-dom': 3.2.11
       '@vue/test-utils': 1.2.2
@@ -169,16 +169,16 @@ importers:
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-plugin-nuxt: 2.0.0_eslint@7.32.0
-      eslint-plugin-prettier: 4.0.0_5559632aa3c77deec3ae5c2ea6ed0f36
+      eslint-plugin-prettier: 4.0.0_6e975bd57c7acf028c1a9ddbbf60c898
       eslint-plugin-vue: 7.17.0_eslint@7.32.0
       jest: 27.2.0
       jest-serializer-vue: 2.0.2
       nuxt-windicss: 1.2.4_typescript@4.4.2
-      prettier: 2.4.0
-      pretty-quick: 3.1.1_prettier@2.4.0
+      prettier: 2.4.1
+      pretty-quick: 3.1.1_prettier@2.4.1
       raw-loader: 4.0.2
-      sass: 1.41.0
-      sass-loader: 10.2.0_sass@1.41.0
+      sass: 1.41.1
+      sass-loader: 10.2.0_sass@1.41.1
       stylelint: 13.13.1
       stylelint-config-prettier: 8.0.2_stylelint@13.13.1
       stylelint-config-standard: 22.0.0_stylelint@13.13.1
@@ -3236,7 +3236,7 @@ packages:
       std-env: 2.3.0
     dev: false
 
-  /@nuxt/types/2.15.8_sass@1.41.0:
+  /@nuxt/types/2.15.8_sass@1.41.1:
     resolution: {integrity: sha512-zBAG5Fy+SIaZIerOVF1vxy1zz16ZK07QSbsuQAjdtEFlvr+vKK+0AqCv8r8DBY5IVqdMIaw5FgNUz5py0xWdPg==}
     dependencies:
       '@types/autoprefixer': 9.7.2
@@ -3257,7 +3257,7 @@ packages:
       '@types/webpack-bundle-analyzer': 3.9.3
       '@types/webpack-dev-middleware': 4.1.2
       '@types/webpack-hot-middleware': 2.25.4
-      sass-loader: 10.1.1_sass@1.41.0
+      sass-loader: 10.1.1_sass@1.41.1
     transitivePeerDependencies:
       - fibers
       - node-sass
@@ -3270,7 +3270,7 @@ packages:
     peerDependencies:
       '@nuxt/types': '>=2.13.1'
     dependencies:
-      '@nuxt/types': 2.15.8_sass@1.41.0
+      '@nuxt/types': 2.15.8_sass@1.41.1
       consola: 2.15.3
       fork-ts-checker-webpack-plugin: 6.3.3
       ts-loader: 8.3.0_typescript@4.2.4
@@ -4217,8 +4217,8 @@ packages:
     resolution: {integrity: sha512-62vfe65cMSzYaWmpmhqCMMNl0khen89w57mByPi1OseGfcV/LV03fO8YVrNj7rFQsRWNJo650WWyh6m7p8vZmA==}
     dev: true
 
-  /@types/lodash/4.14.172:
-    resolution: {integrity: sha512-/BHF5HAx3em7/KkzVKm3LrsD6HZAXuXO1AJZQ3cRRBZj4oHZDviWPYu0aEplAqDFNHZPW6d3G7KN+ONcCCC7pw==}
+  /@types/lodash/4.14.173:
+    resolution: {integrity: sha512-vv0CAYoaEjCw/mLy96GBTnRoZrSxkGE0BKzKimdR8P3OzrNYNvBgtW7p055A+E8C31vXNUhWKoFCbhq7gbyhFg==}
     dev: true
 
   /@types/long/4.0.1:
@@ -8355,7 +8355,7 @@ packages:
       - supports-color
     dev: true
 
-  /eslint-plugin-prettier/4.0.0_5559632aa3c77deec3ae5c2ea6ed0f36:
+  /eslint-plugin-prettier/4.0.0_6e975bd57c7acf028c1a9ddbbf60c898:
     resolution: {integrity: sha512-98MqmCJ7vJodoQK359bqQWaxOE0CS8paAz/GgjaZLyex4TTk3g9HugoO89EqWCrFiOqn9EVvcoo7gZzONCWVwQ==}
     engines: {node: '>=6.0.0'}
     peerDependencies:
@@ -8368,7 +8368,7 @@ packages:
     dependencies:
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
-      prettier: 2.4.0
+      prettier: 2.4.1
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -14163,8 +14163,8 @@ packages:
     dev: false
     optional: true
 
-  /prettier/2.4.0:
-    resolution: {integrity: sha512-DsEPLY1dE5HF3BxCRBmD4uYZ+5DCbvatnolqTqcxEgKVZnL2kUfyu7b8pPQ5+hTBkdhU9SLUmK0/pHb07RE4WQ==}
+  /prettier/2.4.1:
+    resolution: {integrity: sha512-9fbDAXSBcc6Bs1mZrDYb3XKzDLm4EXXL9sC1LqKP5rZkT6KRr/rf9amVUcODVXgguK/isJz0d0hP72WeaKWsvA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     dev: true
@@ -14201,7 +14201,7 @@ packages:
       react-is: 17.0.2
     dev: true
 
-  /pretty-quick/3.1.1_prettier@2.4.0:
+  /pretty-quick/3.1.1_prettier@2.4.1:
     resolution: {integrity: sha512-ZYLGiMoV2jcaas3vTJrLvKAYsxDoXQBUn8OSTxkl67Fyov9lyXivJTl0+2WVh+y6EovGcw7Lm5ThYpH+Sh3XxQ==}
     engines: {node: '>=10.13'}
     hasBin: true
@@ -14214,7 +14214,7 @@ packages:
       ignore: 5.1.8
       mri: 1.1.6
       multimatch: 4.0.0
-      prettier: 2.4.0
+      prettier: 2.4.1
     dev: true
 
   /pretty-time/1.1.0:
@@ -15085,7 +15085,7 @@ packages:
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /sass-loader/10.1.1_sass@1.41.0:
+  /sass-loader/10.1.1_sass@1.41.1:
     resolution: {integrity: sha512-W6gVDXAd5hR/WHsPicvZdjAWHBcEJ44UahgxcIE196fW2ong0ZHMPO1kZuI5q0VlvMQZh32gpv69PLWQm70qrw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -15104,12 +15104,12 @@ packages:
       klona: 2.0.4
       loader-utils: 2.0.0
       neo-async: 2.6.2
-      sass: 1.41.0
+      sass: 1.41.1
       schema-utils: 3.1.1
       semver: 7.3.5
     dev: true
 
-  /sass-loader/10.2.0_sass@1.41.0:
+  /sass-loader/10.2.0_sass@1.41.1:
     resolution: {integrity: sha512-kUceLzC1gIHz0zNJPpqRsJyisWatGYNFRmv2CKZK2/ngMJgLqxTbXwe/hJ85luyvZkgqU3VlJ33UVF2T/0g6mw==}
     engines: {node: '>= 10.13.0'}
     peerDependencies:
@@ -15128,13 +15128,13 @@ packages:
       klona: 2.0.4
       loader-utils: 2.0.0
       neo-async: 2.6.2
-      sass: 1.41.0
+      sass: 1.41.1
       schema-utils: 3.1.1
       semver: 7.3.5
     dev: true
 
-  /sass/1.41.0:
-    resolution: {integrity: sha512-wb8nT60cjo9ZZMcHzG7TzdbFtCAmHEKWrH+zAdScPb4ZxL64WQBnGdbp5nwlenW5wJPcHva1JWmVa0h6iqA5eg==}
+  /sass/1.41.1:
+    resolution: {integrity: sha512-vIjX7izRxw3Wsiez7SX7D+j76v7tenfO18P59nonjr/nzCkZuoHuF7I/Fo0ZRZPKr88v29ivIdE9BqGDgQD/Nw==}
     engines: {node: '>=8.9.0'}
     hasBin: true
     dependencies:

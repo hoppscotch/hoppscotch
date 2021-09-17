@@ -1,7 +1,7 @@
 <div align="center">
   <a href="https://hoppscotch.io">
     <img
-      src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/packages/hoppscotch-app/static/logo.png"
+      src="https://avatars.githubusercontent.com/u/56705483"
       alt="Hoppscotch Logo"
       height="64"
     />

@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:lts-alpine
 
 LABEL maintainer="Hoppscotch (support@hoppscotch.io)"
 
@@ -9,17 +9,19 @@ RUN apk add --update --no-cache \
 # Create app directory
 WORKDIR /app
 
-COPY package*.json ./
-
-RUN npm install
-
 ADD . /app/
 
 COPY . .
 
+RUN npm install -g pnpm
+
+RUN pnpm i
+
 ENV HOST 0.0.0.0
 EXPOSE 3000
 
-RUN mv .env.example .env
+RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
 
-CMD ["npm", "run", "dev"]
+RUN pnpm -r build-prod
+
+CMD ["pnpm", "run", "start"]

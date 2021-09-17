@@ -13,6 +13,7 @@
     "build": "vue-tsc --noEmit && nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate --modern",
+    "build-prod": "nuxt generate --modern",
     "analyze": "npx nuxt build -a",
     "lint:script": "eslint --ext .ts,.js,.vue --ignore-path .gitignore .",
     "lint:style": "stylelint **/*.{css,scss,vue} --ignore-path .gitignore",

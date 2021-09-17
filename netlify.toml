@@ -1,7 +1,7 @@
 [build]
-  base = "packages/hoppscotch-app/"
-  publish = "dist"
-  command = "npm run generate"
+  base = "/"
+  publish = "packages/hoppscotch-app/dist"
+  command = "pnpm run generate"
   environment = { NODE_VERSION = "14" }
 
 [[redirects]]

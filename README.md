@@ -173,7 +173,7 @@ _Collections are synced with cloud / local session storage_
 
 - Hide your IP address
 - Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
-- Access APIs served in non-HTTPS `[http://]` endpoints
+- Access APIs served in non-HTTPS (`http://`) endpoints
 - Use your own Proxy URL
 
 _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/hoppscotch/proxyscotch)** - **[Privacy Policy](https://docs.hoppscotch.io/privacy)**_
@@ -290,7 +290,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 ## **Developing**
 
-0. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/.env.example) file found in repository's root directory with your own keys and rename it to `.env`.
+0. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/.env.example) file found in `packages/hoppscotch-app` with your own keys and rename it to `.env`.
 
 _Sample keys only works with the [production build](https://hoppscotch.io)._
 
@@ -302,8 +302,8 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 ### Local development environment
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install dependencies by running `npm install` within the directory that you cloned (probably `hoppscotch`).
-3. Start the development server with `npm run dev`.
+2. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
+3. Start the development server with `pnpm run dev`.
 4. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
 ### Docker compose
@@ -323,9 +323,9 @@ docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ## **Releasing**
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install dependencies by running `npm install` within the directory that you cloned (probably `hoppscotch`).
-3. Build the release files with `npm run generate`.
-4. Find the built project in `./dist`.
+2. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
+3. Build the release files with `pnpm run generate`.
+4. Find the built project in `packages/hoppscotch-app/dist`.
 
 ## **Contributing**
 

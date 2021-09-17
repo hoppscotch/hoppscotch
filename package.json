@@ -7,11 +7,11 @@
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
-    "dev": "pnpm -r dev",
-    "build-prod": "pnpm -r build-prod",
-    "start": "pnpm -r start",
-    "lintfix": "pnpm -r lintfix",
-    "pre-commit": "pnpm -r lint"
+    "dev": "pnpm -r do-dev",
+    "generate": "pnpm -r do-build-prod",
+    "start": "pnpm -r do-prod-start",
+    "lintfix": "pnpm -r do-lintfix",
+    "pre-commit": "pnpm -r do-lintfix"
   },
   "workspaces": [
     "./packages/*"

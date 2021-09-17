@@ -22,6 +22,6 @@ EXPOSE 3000
 
 RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
 
-RUN pnpm -r build-prod
+RUN pnpm run generate
 
 CMD ["pnpm", "run", "start"]

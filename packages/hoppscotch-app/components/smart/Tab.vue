@@ -8,6 +8,7 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 
 export default defineComponent({
+  name: "SmartTab",
   props: {
     label: { type: String, default: null },
     info: { type: String, default: null },

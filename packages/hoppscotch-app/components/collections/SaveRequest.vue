@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('collection.save_as').toString()"
+    :title="`${$t('collection.save_as')}`"
     @close="hideModal"
   >
     <template #body>
@@ -45,11 +45,11 @@
     <template #footer>
       <span>
         <ButtonPrimary
-          :label="$t('action.save').toString()"
+          :label="`${$t('action.save')}`"
           @click.native="saveRequestAs"
         />
         <ButtonSecondary
-          :label="$t('action.cancel').toString()"
+          :label="`${$t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -194,13 +194,13 @@ const hideModal = () => {
 
 const saveRequestAs = async () => {
   if (!requestName.value) {
-    $toast.error(t("error.empty_req_name").toString(), {
+    $toast.error(`${t("error.empty_req_name")}`, {
       icon: "error_outline",
     })
     return
   }
   if (picked.value === null) {
-    $toast.error(t("collection.select").toString(), {
+    $toast.error(`${t("collection.select")}`, {
       icon: "error_outline",
     })
     return
@@ -342,7 +342,7 @@ const saveRequestAs = async () => {
       requestUpdated as HoppGQLRequest
     )
   }
-  $toast.success(t("request.added").toString(), {
+  $toast.success(`${t("request.added")}`, {
     icon: "post_add",
   })
   hideModal()

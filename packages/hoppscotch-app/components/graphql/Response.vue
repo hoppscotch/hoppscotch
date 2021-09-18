@@ -71,7 +71,7 @@
         </div>
       </div>
       <ButtonSecondary
-        :label="$t('app.documentation')"
+        :label="`${$t('app.documentation')}`"
         to="https://docs.hoppscotch.io"
         svg="external-link"
         blank
@@ -133,7 +133,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadResponseIcon.value = "check"
-  $toast.success(t("state.download_started").toString(), {
+  $toast.success(`${t("state.download_started")}`, {
     icon: "downloading",
   })
   setTimeout(() => {

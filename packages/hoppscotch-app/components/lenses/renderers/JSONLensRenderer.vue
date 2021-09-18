@@ -74,7 +74,7 @@
             <div v-if="item.kind === 'RootObject'" class="outline">{}</div>
             <div v-if="item.kind === 'RootArray'" class="outline">[]</div>
             <div v-if="item.kind === 'ArrayMember'" class="outline">
-              {{ item.index.toString() }}
+              {{ item.index }}
             </div>
             <div v-if="item.kind === 'ObjectMember'" class="outline">
               {{ item.name }}
@@ -87,7 +87,7 @@
               <SmartItem
                 v-for="(arrayMember, astIndex) in item.astParent.values"
                 :key="`ast-${astIndex}`"
-                :label="astIndex.toString()"
+                :label="`${astIndex}`"
                 @click.native="
                   () => {
                     jumpCursor(arrayMember)
@@ -235,7 +235,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadIcon.value = "check"
-  $toast.success(t("state.download_started").toString(), {
+  $toast.success(`${t("state.download_started")}`, {
     icon: "downloading",
   })
   setTimeout(() => {
@@ -257,7 +257,7 @@ const outlinePath = computed(() => {
 const copyResponse = () => {
   copyToClipboard(responseBodyText.value)
   copyIcon.value = "check"
-  $toast.success(t("state.copied_to_clipboard").toString(), {
+  $toast.success(`${t("state.copied_to_clipboard")}`, {
     icon: "content_paste",
   })
   setTimeout(() => (copyIcon.value = "copy"), 1000)

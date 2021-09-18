@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="t('request.generate_code')"
+    :title="`${t('request.generate_code')}`"
     @close="hideModal"
   >
     <template #body>
@@ -48,12 +48,12 @@
     <template #footer>
       <span class="flex">
         <ButtonPrimary
-          :label="t('action.copy').toString()"
+          :label="`${t('action.copy')}`"
           :svg="copyIcon"
           @click.native="copyRequestCode"
         />
         <ButtonSecondary
-          :label="t('action.dismiss').toString()"
+          :label="`${t('action.dismiss')}`"
           @click.native="hideModal"
         />
       </span>
@@ -126,7 +126,7 @@ const hideModal = () => emit("hide-modal")
 const copyRequestCode = () => {
   copyToClipboard(requestCode.value)
   copyIcon.value = "check"
-  $toast.success(t("state.copied_to_clipboard").toString(), {
+  $toast.success(`${t("state.copied_to_clipboard")}`, {
     icon: "content_paste",
   })
   setTimeout(() => (copyIcon.value = "copy"), 1000)

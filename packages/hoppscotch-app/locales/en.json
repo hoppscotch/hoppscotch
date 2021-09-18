@@ -480,8 +480,10 @@
     "title": "Teams"
   },
   "test": {
+    "failed": "test failed",
     "javascript_code": "JavaScript Code",
     "learn": "Read documentation",
+    "passed": "test passed",
     "report": "Test Report",
     "results": "Test Results",
     "script": "Script",

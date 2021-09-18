@@ -171,12 +171,12 @@ export default defineComponent({
     if (workbox) {
       workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {
-          this.$toast.show(this.$t("app.new_version_found").toString(), {
+          this.$toast.show(`${this.$t("app.new_version_found")}`, {
             icon: "download_for_offline",
             duration: 0,
             action: [
               {
-                text: this.$t("app.reload").toString(),
+                text: `${this.$t("app.reload")}`,
                 onClick: (_, toastObject) => {
                   toastObject.goAway(0)
                   window.location.reload()

@@ -40,7 +40,7 @@
     </span>
     <span
       v-for="(key, keyIndex) in shortcut.keys"
-      :key="`key-${keyIndex}`"
+      :key="`key-${String(keyIndex)}`"
       class="shortcut-key"
     >
       {{ key }}

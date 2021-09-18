@@ -19,7 +19,7 @@
         v-for="(locale, index) in $i18n.locales.filter(
           ({ code }) => code !== $i18n.locale
         )"
-        :key="`locale-${index}`"
+        :key="`locale-${String(index)}`"
         :to="switchLocalePath(locale.code)"
         @click="$refs.language.tippy().hide()"
       >

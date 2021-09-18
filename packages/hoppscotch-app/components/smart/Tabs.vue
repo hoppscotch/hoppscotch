@@ -17,7 +17,7 @@
                 {{ tab.icon }}
               </i>
               <span v-if="tab.label">{{ tab.label }}</span>
-              <span v-if="tab.info" class="tab-info">
+              <span v-if="tab.info && tab.info !== 'null'" class="tab-info">
                 {{ tab.info }}
               </span>
             </button>

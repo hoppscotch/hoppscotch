@@ -3,13 +3,13 @@
     <SmartTabs :id="'collections_tab'" @tab-changed="updateCollectionsType">
       <SmartTab
         :id="'my-collections'"
-        :label="$t('collection.my_collections')"
+        :label="`${$t('collection.my_collections')}`"
         :selected="true"
       />
       <SmartTab
         v-if="currentUser && currentUser.eaInvited && !doc"
         :id="'team-collections'"
-        :label="$t('collection.team_collections')"
+        :label="`${$t('collection.team_collections')}`"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <div class="select-wrapper">
@@ -43,8 +43,8 @@
               </option>
               <option
                 v-for="(team, index) in myTeams"
-                :key="`team-${index}`"
-                :value="index"
+                :key="`team-${String(index)}`"
+                :value="String(index)"
               >
                 {{ team.name }}
               </option>

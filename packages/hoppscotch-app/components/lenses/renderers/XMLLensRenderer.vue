@@ -118,7 +118,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadIcon.value = "check"
-  $toast.success(t("state.download_started").toString(), {
+  $toast.success(`${t("state.download_started")}`, {
     icon: "downloading",
   })
   setTimeout(() => {
@@ -131,7 +131,7 @@ const downloadResponse = () => {
 const copyResponse = () => {
   copyToClipboard(responseBodyText.value)
   copyIcon.value = "check"
-  $toast.success(t("state.copied_to_clipboard").toString(), {
+  $toast.success(`${t("state.copied_to_clipboard")}`, {
     icon: "content_paste",
   })
   setTimeout(() => (copyIcon.value = "copy"), 1000)

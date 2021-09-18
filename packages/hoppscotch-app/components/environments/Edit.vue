@@ -1,5 +1,9 @@
 <template>
-  <SmartModal v-if="show" :title="$t('environment.edit')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    :title="`${$t('environment.edit')}`"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <div class="flex relative">
@@ -48,13 +52,13 @@
             <input
               v-model="variable.key"
               class="bg-transparent flex flex-1 py-2 px-4"
-              :placeholder="$t('count.variable', { count: index + 1 })"
+              :placeholder="`${$t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
             <input
               v-model="variable.value"
               class="bg-transparent flex flex-1 py-2 px-4"
-              :placeholder="$t('count.value', { count: index + 1 })"
+              :placeholder="`${$t('count.value', { count: index + 1 })}`"
               :name="'value' + index"
             />
             <div class="flex">
@@ -83,7 +87,7 @@
               {{ $t("empty.environments") }}
             </span>
             <ButtonSecondary
-              :label="$t('add.new')"
+              :label="`${$t('add.new')}`"
               filled
               @click.native="addEnvironmentVariable"
             />
@@ -94,11 +98,11 @@
     <template #footer>
       <span>
         <ButtonPrimary
-          :label="$t('action.save')"
+          :label="`${$t('action.save')}`"
           @click.native="saveEnvironment"
         />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="`${$t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -160,7 +164,7 @@ export default defineComponent({
     clearContent() {
       this.vars = []
       this.clearIcon = "check"
-      this.$toast.success(this.$t("state.cleared").toString(), {
+      this.$toast.success(`${this.$t("state.cleared")}`, {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "trash-2"), 1000)
@@ -176,7 +180,7 @@ export default defineComponent({
     },
     saveEnvironment() {
       if (!this.name) {
-        this.$toast.error(this.$t("environment.invalid_name").toString(), {
+        this.$toast.error(`${this.$t("environment.invalid_name")}`, {
           icon: "error_outline",
         })
         return

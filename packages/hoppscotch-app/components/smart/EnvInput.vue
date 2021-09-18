@@ -384,10 +384,10 @@ export default defineComponent({
         const preSelectionRange = range.cloneRange()
         preSelectionRange.selectNodeContents(containerEl)
         preSelectionRange.setEnd(range.startContainer, range.startOffset)
-        start = preSelectionRange.toString().length
+        start = `${preSelectionRange}`.length
         return {
           start,
-          end: start + range.toString().length,
+          end: start + `${range}`.length,
         }
       } else if (document.selection) {
         const selectedTextRange = document.selection.createRange()

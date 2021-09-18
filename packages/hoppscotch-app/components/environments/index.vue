@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="$t('environment.title')">
+  <AppSection :label="`${$t('environment.title')}`">
     <div
       class="
         bg-primary
@@ -14,7 +14,7 @@
         <template #trigger>
           <span
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('environment.select')"
+            :title="`${$t('environment.select')}`"
             class="
               bg-transparent
               border-b border-dividerLight
@@ -29,18 +29,20 @@
             />
             <ButtonSecondary
               v-else
-              :label="$t('environment.no_environment')"
+              :label="`${$t('environment.no_environment')}`"
               class="rounded-none flex-1 pr-8"
             />
           </span>
         </template>
         <SmartItem
-          :label="$t('environment.no_environment')"
+          :label="`${$t('environment.no_environment')}`"
           :info-icon="selectedEnvironmentIndex === -1 ? 'done' : ''"
           :active-info-icon="selectedEnvironmentIndex === -1"
           @click.native="
-            selectedEnvironmentIndex = -1
-            $refs.options.tippy().hide()
+            () => {
+              selectedEnvironmentIndex = -1
+              $refs.options.tippy().hide()
+            }
           "
         />
         <SmartItem
@@ -50,15 +52,17 @@
           :info-icon="index === selectedEnvironmentIndex ? 'done' : ''"
           :active-info-icon="index === selectedEnvironmentIndex"
           @click.native="
-            selectedEnvironmentIndex = index
-            $refs.options.tippy().hide()
+            () => {
+              selectedEnvironmentIndex = index
+              $refs.options.tippy().hide()
+            }
           "
         />
       </tippy>
       <div class="border-b border-dividerLight flex flex-1 justify-between">
         <ButtonSecondary
           svg="plus"
-          :label="$t('action.new')"
+          :label="`${$t('action.new')}`"
           class="!rounded-none"
           @click.native="displayModalAdd(true)"
         />
@@ -115,7 +119,7 @@
         {{ $t("empty.environments") }}
       </span>
       <ButtonSecondary
-        :label="$t('add.new')"
+        :label="`${$t('add.new')}`"
         filled
         @click.native="displayModalAdd(true)"
       />

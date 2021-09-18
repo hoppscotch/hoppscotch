@@ -39,7 +39,6 @@ const dispatchers = defineDispatchers({
       console.log(
         `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
       )
-
       return {}
     }
 

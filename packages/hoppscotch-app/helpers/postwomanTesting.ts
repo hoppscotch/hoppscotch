@@ -50,7 +50,7 @@ export default function runTestScriptWithVariables(
       } catch (e: any) {
         pw._testReports.push({
           result: "ERROR",
-          message: e.toString(),
+          message: `${e}`,
           styles: styles.ERROR,
         })
       }

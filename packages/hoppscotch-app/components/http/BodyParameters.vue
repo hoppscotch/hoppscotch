@@ -46,7 +46,7 @@
       <SmartEnvInput
         v-if="EXPERIMENTAL_URL_BAR_ENABLED"
         v-model="param.key"
-        :placeholder="$t('count.parameter', { count: index + 1 })"
+        :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
         styles="
           bg-transparent
           flex
@@ -66,7 +66,7 @@
       <input
         v-else
         class="bg-transparent flex flex-1 py-2 px-4"
-        :placeholder="$t('count.parameter', { count: index + 1 })"
+        :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
         :name="'param' + index"
         :value="param.key"
         autofocus
@@ -94,7 +94,7 @@
         <SmartEnvInput
           v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="param.value"
-          :placeholder="$t('count.value', { count: index + 1 })"
+          :placeholder="`${$t('count.value', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -114,7 +114,7 @@
         <input
           v-else
           class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="$t('count.value', { count: index + 1 })"
+          :placeholder="`${$t('count.value', { count: index + 1 })}`"
           :name="'value' + index"
           :value="param.value"
           @change="
@@ -190,7 +190,7 @@
         {{ $t("empty.body") }}
       </span>
       <ButtonSecondary
-        :label="$t('add.new')"
+        :label="`${$t('add.new')}`"
         filled
         svg="plus"
         @click.native="addBodyParam"

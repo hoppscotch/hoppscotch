@@ -55,7 +55,7 @@
         class="divide-x divide-dividerLight border-b border-dividerLight flex"
       >
         <SmartAutoComplete
-          :placeholder="$t('count.header', { count: index + 1 })"
+          :placeholder="`${$t('count.header', { count: index + 1 })}`"
           :source="commonHeaders"
           :spellcheck="false"
           :value="header.key"
@@ -80,7 +80,7 @@
         <SmartEnvInput
           v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="header.value"
-          :placeholder="$t('count.value', { count: index + 1 })"
+          :placeholder="`${$t('count.value', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -99,7 +99,7 @@
         <input
           v-else
           class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="$t('count.value', { count: index + 1 })"
+          :placeholder="`${$t('count.value', { count: index + 1 })}`"
           :name="'value' + index"
           :value="header.value"
           @change="
@@ -164,7 +164,7 @@
         </span>
         <ButtonSecondary
           filled
-          :label="$t('add.new')"
+          :label="`${$t('add.new')}`"
           svg="plus"
           @click.native="addHeader"
         />
@@ -202,7 +202,7 @@ const bulkEditor = ref<any | null>(null)
 useCodemirror(bulkEditor, bulkHeaders, {
   extendedEditorConfig: {
     mode: "text/x-yaml",
-    placeholder: t("state.bulk_mode_placeholder").toString(),
+    placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
   linter: null,
   completer: null,
@@ -217,7 +217,7 @@ watch(bulkHeaders, () => {
     }))
     setRESTHeaders(transformation)
   } catch (e) {
-    $toast.error(t("error.something_went_wrong").toString(), {
+    $toast.error(`${t("error.something_went_wrong")}`, {
       icon: "error_outline",
     })
     console.error(e)

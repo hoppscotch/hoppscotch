@@ -35,8 +35,10 @@
           svg="edit"
           :label="$t('action.edit')"
           @click.native="
-            $emit('edit-team')
-            $refs.options.tippy().hide()
+            () => {
+              $emit('edit-team')
+              $refs.options.tippy().hide()
+            }
           "
         />
         <SmartItem
@@ -45,8 +47,10 @@
           color="red"
           :label="$t('action.delete')"
           @click.native="
-            deleteTeam()
-            $refs.options.tippy().hide()
+            () => {
+              deleteTeam()
+              $refs.options.tippy().hide()
+            }
           "
         />
         <SmartItem
@@ -54,8 +58,10 @@
           svg="trash"
           :label="$t('team.exit')"
           @click.native="
-            exitTeam()
-            $refs.options.tippy().hide()
+            () => {
+              exitTeam()
+              $refs.options.tippy().hide()
+            }
           "
         />
       </tippy>

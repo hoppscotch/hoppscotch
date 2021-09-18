@@ -66,23 +66,27 @@
             </template>
             <SmartItem
               svg="edit"
-              :label="$t('action.edit')"
+              :label="`${$t('action.edit')}`"
               @click.native="
-                $emit('edit-request', {
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('edit-request', {
+                    request,
+                    requestIndex,
+                    folderPath,
+                  })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
               svg="trash-2"
               color="red"
-              :label="$t('action.delete')"
+              :label="`${$t('action.delete')}`"
               @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
+                () => {
+                  confirmRemove = true
+                  $refs.options.tippy().hide()
+                }
               "
             />
           </tippy>
@@ -91,7 +95,7 @@
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('confirm.remove_request')"
+      :title="`${$t('confirm.remove_request')}`"
       @hide-modal="confirmRemove = false"
       @resolve="removeRequest"
     />
@@ -176,7 +180,7 @@ export default defineComponent({
       }
 
       removeGraphqlRequest(this.folderPath, this.requestIndex)
-      this.$toast.success(this.$t("state.deleted").toString(), {
+      this.$toast.success(`${this.$t("state.deleted")}`, {
         icon: "delete",
       })
     },

@@ -8,7 +8,7 @@
               v-model="graphqlFieldsFilterText"
               type="search"
               autocomplete="off"
-              :placeholder="$t('action.search')"
+              :placeholder="`${$t('action.search')}`"
               class="bg-transparent flex w-full p-4 py-2"
             />
             <div class="flex">
@@ -29,7 +29,7 @@
               <SmartTab
                 v-if="queryFields.length > 0"
                 :id="'queries'"
-                :label="$t('tab.queries')"
+                :label="`${$t('tab.queries')}`"
                 :selected="true"
                 class="divide-y divide-dividerLight"
               >
@@ -44,7 +44,7 @@
               <SmartTab
                 v-if="mutationFields.length > 0"
                 :id="'mutations'"
-                :label="$t('graphql.mutations')"
+                :label="`${$t('graphql.mutations')}`"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlField
@@ -58,7 +58,7 @@
               <SmartTab
                 v-if="subscriptionFields.length > 0"
                 :id="'subscriptions'"
-                :label="$t('graphql.subscriptions')"
+                :label="`${$t('graphql.subscriptions')}`"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlField
@@ -73,7 +73,7 @@
                 v-if="graphqlTypes.length > 0"
                 :id="'types'"
                 ref="typesTab"
-                :label="$t('tab.types')"
+                :label="`${$t('tab.types')}`"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlType
@@ -111,7 +111,7 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'history'" :label="$t('tab.history')">
+      <SmartTab :id="'history'" :label="`${$t('tab.history')}`">
         <History
           ref="graphqlHistoryComponent"
           :page="'graphql'"
@@ -119,7 +119,7 @@
         />
       </SmartTab>
 
-      <SmartTab :id="'collections'" :label="$t('tab.collections')">
+      <SmartTab :id="'collections'" :label="`${$t('tab.collections')}`">
         <CollectionsGraphql />
       </SmartTab>
 
@@ -412,7 +412,7 @@ const downloadSchema = () => {
   document.body.appendChild(a)
   a.click()
   downloadSchemaIcon.value = "check"
-  $toast.success(t("state.download_started").toString(), {
+  $toast.success(`${t("state.download_started")}`, {
     icon: "downloading",
   })
   setTimeout(() => {

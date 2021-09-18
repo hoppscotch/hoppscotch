@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('folder.edit')"
+    :title="`${$t('folder.edit')}`"
     @close="$emit('hide-modal')"
   >
     <template #body>
@@ -23,9 +23,12 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="editFolder" />
+        <ButtonPrimary
+          :label="`${$t('action.save')}`"
+          @click.native="editFolder"
+        />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="`${$t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -51,7 +54,7 @@ export default defineComponent({
   methods: {
     editFolder() {
       if (!this.name) {
-        this.$toast.error(this.$t("collection.invalid_name").toString(), {
+        this.$toast.error(`${this.$t("collection.invalid_name")}`, {
           icon: "error_outline",
         })
         return

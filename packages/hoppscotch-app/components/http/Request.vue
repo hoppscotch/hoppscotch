@@ -43,7 +43,7 @@
                   "
                   :value="newMethod"
                   :readonly="!isCustomMethod"
-                  :placeholder="$t('request.method')"
+                  :placeholder="`${$t('request.method')}`"
                   @input="onSelectMethod($event.target.value)"
                 />
               </span>
@@ -61,7 +61,7 @@
         <SmartEnvInput
           v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="newEndpoint"
-          :placeholder="$t('request.url')"
+          :placeholder="`${$t('request.url')}`"
           styles="
             bg-primaryLight
             border border-divider
@@ -100,7 +100,7 @@
           type="text"
           autocomplete="off"
           spellcheck="false"
-          :placeholder="$t('request.url')"
+          :placeholder="`${$t('request.url')}`"
           autofocus
           @keyup.enter="newSendRequest()"
         />
@@ -110,7 +110,7 @@
       <ButtonPrimary
         id="send"
         class="rounded-r-none flex-1 min-w-22"
-        :label="!loading ? $t('action.send') : $t('action.cancel')"
+        :label="`${!loading ? $t('action.send') : $t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -125,7 +125,7 @@
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
           <SmartItem
-            :label="$t('import.curl')"
+            :label="`${$t('import.curl')}`"
             svg="terminal"
             @click.native="
               () => {
@@ -135,7 +135,7 @@
             "
           />
           <SmartItem
-            :label="$t('show.code')"
+            :label="`${$t('show.code')}`"
             svg="code"
             @click.native="
               () => {
@@ -146,7 +146,7 @@
           />
           <SmartItem
             ref="clearAll"
-            :label="$t('action.clear_all')"
+            :label="`${$t('action.clear_all')}`"
             svg="rotate-ccw"
             @click.native="
               () => {
@@ -159,7 +159,7 @@
       </span>
       <ButtonSecondary
         class="rounded-r-none ml-2"
-        :label="$t('request.save')"
+        :label="`${$t('request.save')}`"
         filled
         svg="save"
         @click.native="saveRequest()"
@@ -178,7 +178,7 @@
           <input
             id="request-name"
             v-model="requestName"
-            :placeholder="$t('request.name')"
+            :placeholder="`${$t('request.name')}`"
             name="request-name"
             type="text"
             autocomplete="off"
@@ -187,7 +187,7 @@
           />
           <SmartItem
             ref="copyRequest"
-            :label="$t('request.copy_link')"
+            :label="`${$t('request.copy_link')}`"
             :svg="hasNavigatorShare ? 'share-2' : 'copy'"
             @click.native="
               () => {
@@ -198,7 +198,7 @@
           />
           <SmartItem
             ref="saveRequest"
-            :label="$t('request.save_as')"
+            :label="`${$t('request.save_as')}`"
             svg="folder-plus"
             @click.native="
               () => {
@@ -352,7 +352,7 @@ const copyRequest = () => {
       .catch(() => {})
   } else {
     copyToClipboard(window.location.href)
-    $toast.success(t("state.copied_to_clipboard").toString(), {
+    $toast.success(`${t("state.copied_to_clipboard")}`, {
       icon: "content_paste",
     })
   }
@@ -409,7 +409,7 @@ const saveRequest = () => {
       return
     }
   }
-  $toast.success(t("request.saved").toString(), {
+  $toast.success(`${t("request.saved")}`, {
     icon: "playlist_add_check",
   })
 }

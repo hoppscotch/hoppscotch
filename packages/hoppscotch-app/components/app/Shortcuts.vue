@@ -36,7 +36,7 @@
               px-4
               focus-visible:border-divider
             "
-            :placeholder="$t('action.search')"
+            :placeholder="`${$t('action.search')}`"
           />
         </div>
       </div>

@@ -88,7 +88,7 @@ export default defineComponent({
     copyAppLink() {
       copyToClipboard(this.url)
       this.copyIcon = "check"
-      this.$toast.success(this.$t("state.copied_to_clipboard").toString(), {
+      this.$toast.success(this.$t("state.copied_to_clipboard"), {
         icon: "content_paste",
       })
       setTimeout(() => (this.copyIcon = "copy"), 1000)

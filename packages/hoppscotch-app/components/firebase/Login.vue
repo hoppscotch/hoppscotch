@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('auth.login_to_hoppscotch')"
+    :title="`${$t('auth.login_to_hoppscotch')}`"
     dialog
     @close="hideModal"
   >
@@ -10,18 +10,18 @@
         <SmartItem
           :loading="signingInWithGitHub"
           svg="auth/github"
-          :label="$t('auth.continue_with_github')"
+          :label="`${$t('auth.continue_with_github')}`"
           @click.native="signInWithGithub"
         />
         <SmartItem
           :loading="signingInWithGoogle"
           svg="auth/google"
-          :label="$t('auth.continue_with_google')"
+          :label="`${$t('auth.continue_with_google')}`"
           @click.native="signInWithGoogle"
         />
         <SmartItem
           icon="mail"
-          :label="$t('auth.continue_with_email')"
+          :label="`${$t('auth.continue_with_email')}`"
           @click.native="mode = 'email'"
         />
       </div>
@@ -55,7 +55,7 @@
               : true
           "
           type="button"
-          :label="$t('auth.send_magic_link')"
+          :label="`${$t('auth.send_magic_link')}`"
           @click.native="signInWithEmail"
         />
       </div>
@@ -108,7 +108,7 @@
         />
         <SmartAnchor
           class="link"
-          :label="$t('action.dismiss')"
+          :label="`${$t('action.dismiss')}`"
           @click.native="hideModal"
         />
       </p>
@@ -161,7 +161,7 @@ export default defineComponent({
   },
   methods: {
     showLoginSuccess() {
-      this.$toast.success(this.$t("auth.login_success").toString(), {
+      this.$toast.success(`${this.$t("auth.login_success")}`, {
         icon: "vpn_key",
       })
     },
@@ -184,7 +184,7 @@ export default defineComponent({
             duration: 0,
             closeOnSwipe: false,
             action: {
-              text: this.$t("action.yes").toString(),
+              text: `${this.$t("action.yes")}`,
               onClick: async (_, toastObject) => {
                 const { user } = await signInUserWithGithub()
                 await linkWithFBCredential(user, pendingCred)
@@ -196,7 +196,7 @@ export default defineComponent({
             },
           })
         } else {
-          this.$toast.error(this.$t("error.something_went_wrong").toString(), {
+          this.$toast.error(`${this.$t("error.something_went_wrong")}`, {
             icon: "error_outline",
           })
         }
@@ -228,7 +228,7 @@ export default defineComponent({
             duration: 0,
             closeOnSwipe: false,
             action: {
-              text: this.$t("action.yes").toString(),
+              text: `${this.$t("action.yes")}`,
               onClick: async (_, toastObject) => {
                 const { user } = await signInUserWithGoogle()
                 await linkWithFBCredential(user, pendingCred)
@@ -240,7 +240,7 @@ export default defineComponent({
             },
           })
         } else {
-          this.$toast.error(this.$t("error.something_went_wrong").toString(), {
+          this.$toast.error(`${this.$t("error.something_went_wrong")}`, {
             icon: "error_outline",
           })
         }

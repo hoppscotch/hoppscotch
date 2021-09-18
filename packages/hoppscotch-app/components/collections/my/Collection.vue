@@ -82,19 +82,23 @@
               svg="folder-plus"
               :label="$t('folder.new')"
               @click.native="
-                $emit('add-folder', {
-                  folder: collection,
-                  path: `${collectionIndex}`,
-                })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('add-folder', {
+                    folder: collection,
+                    path: `${collectionIndex}`,
+                  })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
               svg="edit"
               :label="$t('action.edit')"
               @click.native="
-                $emit('edit-collection')
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('edit-collection')
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
@@ -102,8 +106,10 @@
               color="red"
               :label="$t('action.delete')"
               @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
+                () => {
+                  confirmRemove = true
+                  $refs.options.tippy().hide()
+                }
               "
             />
           </tippy>
@@ -138,7 +144,7 @@
         :collection-index="collectionIndex"
         :folder-index="-1"
         :folder-name="collection.name"
-        :folder-path="collectionIndex.toString()"
+        :folder-path="`${collectionIndex}`"
         :request-index="index"
         :doc="doc"
         :save-request="saveRequest"
@@ -247,7 +253,7 @@ export default defineComponent({
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      moveRESTRequest(folderPath, requestIndex, this.collectionIndex.toString())
+      moveRESTRequest(folderPath, requestIndex, `${this.collectionIndex}`)
     },
   },
 })

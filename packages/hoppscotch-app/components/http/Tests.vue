@@ -1,5 +1,5 @@
 <template>
-  <AppSection id="script" :label="$t('test.script')">
+  <AppSection id="script" :label="`${$t('test.script')}`">
     <div
       class="
         bg-primary
@@ -60,7 +60,7 @@
           {{ $t("helpers.post_request_tests") }}
         </div>
         <SmartAnchor
-          :label="$t('test.learn')"
+          :label="`${$t('test.learn')}`"
           to="https://docs.hoppscotch.io/features/tests"
           blank
         />
@@ -107,7 +107,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/javascript",
       lineWrapping: linewrapEnabled,
-      placeholder: t("test.javascript_code").toString(),
+      placeholder: `${t("test.javascript_code")}`,
     },
     linter,
     completer,

@@ -1,5 +1,5 @@
 <template>
-  <AppSection id="script" :label="$t('preRequest.script')">
+  <AppSection id="script" :label="`${$t('preRequest.script')}`">
     <div
       class="
         bg-primary
@@ -60,7 +60,7 @@
           {{ $t("helpers.pre_request_script") }}
         </div>
         <SmartAnchor
-          :label="$t('preRequest.learn')"
+          :label="`${$t('preRequest.learn')}`"
           to="https://docs.hoppscotch.io/features/pre-request-script"
           blank
         />
@@ -107,7 +107,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/javascript",
       lineWrapping: linewrapEnabled,
-      placeholder: t("preRequest.javascript_code").toString(),
+      placeholder: `${t("preRequest.javascript_code")}`,
     },
     linter,
     completer,

@@ -137,12 +137,12 @@ export default defineComponent({
 
     const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
     if (!cookiesAllowed) {
-      this.$toast.show(this.$t("app.we_use_cookies").toString(), {
+      this.$toast.show(this.$t("app.we_use_cookies"), {
         icon: "cookie",
         duration: 0,
         action: [
           {
-            text: this.$t("action.learn_more").toString(),
+            text: this.$t("action.learn_more"),
             onClick: (_, toastObject) => {
               setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)
@@ -152,7 +152,7 @@ export default defineComponent({
             },
           },
           {
-            text: this.$t("action.dismiss").toString(),
+            text: this.$t("action.dismiss"),
             onClick: (_, toastObject) => {
               setLocalConfig("cookiesAllowed", "yes")
               toastObject.goAway(0)

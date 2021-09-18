@@ -57,8 +57,10 @@
               svg="folder-plus"
               :label="$t('folder.new')"
               @click.native="
-                $emit('add-folder', { folder, path: folderPath })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('add-folder', { folder, path: folderPath })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
@@ -66,13 +68,15 @@
               svg="edit"
               :label="$t('action.edit')"
               @click.native="
-                $emit('edit-folder', {
-                  folder,
-                  folderIndex,
-                  collectionIndex,
-                  folderPath: '',
-                })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('edit-folder', {
+                    folder,
+                    folderIndex,
+                    collectionIndex,
+                    folderPath: '',
+                  })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
@@ -81,8 +85,10 @@
               color="red"
               :label="$t('action.delete')"
               @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
+                () => {
+                  confirmRemove = true
+                  $refs.options.tippy().hide()
+                }
               "
             />
           </tippy>

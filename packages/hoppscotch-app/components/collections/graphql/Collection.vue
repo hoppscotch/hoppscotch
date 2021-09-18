@@ -62,29 +62,35 @@
             </template>
             <SmartItem
               svg="folder-plus"
-              :label="$t('folder.new')"
+              :label="`${$t('folder.new')}`"
               @click.native="
-                $emit('add-folder', {
-                  path: `${collectionIndex}`,
-                })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('add-folder', {
+                    path: `${collectionIndex}`,
+                  })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
               svg="edit"
-              :label="$t('action.edit')"
+              :label="`${$t('action.edit')}`"
               @click.native="
-                $emit('edit-collection')
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('edit-collection')
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
               svg="trash-2"
               color="red"
-              :label="$t('action.delete')"
+              :label="`${$t('action.delete')}`"
               @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
+                () => {
+                  confirmRemove = true
+                  $refs.options.tippy().hide()
+                }
               "
             />
           </tippy>
@@ -94,13 +100,13 @@
     <div v-if="showChildren || isFiltered">
       <CollectionsGraphqlFolder
         v-for="(folder, index) in collection.folders"
-        :key="`folder-${index}`"
+        :key="`folder-${String(index)}`"
         class="border-l border-dividerLight ml-6"
         :picked="picked"
         :saving-mode="savingMode"
         :folder="folder"
         :folder-index="index"
-        :folder-path="`${collectionIndex}/${index}`"
+        :folder-path="`${collectionIndex}/${String(index)}`"
         :collection-index="collectionIndex"
         :doc="doc"
         :is-filtered="isFiltered"
@@ -111,7 +117,7 @@
       />
       <CollectionsGraphqlRequest
         v-for="(request, index) in collection.requests"
-        :key="`request-${index}`"
+        :key="`request-${String(index)}`"
         class="border-l border-dividerLight ml-6"
         :picked="picked"
         :saving-mode="savingMode"
@@ -147,7 +153,7 @@
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('confirm.remove_collection')"
+      :title="`${$t('confirm.remove_collection')}`"
       @hide-modal="confirmRemove = false"
       @resolve="removeCollection"
     />
@@ -220,7 +226,7 @@ export default defineComponent({
         this.$emit("select", { picked: null })
       }
       removeGraphqlCollection(this.collectionIndex)
-      this.$toast.success(this.$t("state.deleted").toString(), {
+      this.$toast.success(`${this.$t("state.deleted")}`, {
         icon: "delete",
       })
     },

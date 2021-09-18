@@ -37,8 +37,10 @@
             :info-icon="contentType === null ? 'done' : ''"
             :active-info-icon="contentType === null"
             @click.native="
-              contentType = null
-              $refs.contentTypeOptions.tippy().hide()
+              () => {
+                contentType = null
+                $refs.contentTypeOptions.tippy().hide()
+              }
             "
           />
           <SmartItem
@@ -48,8 +50,10 @@
             :info-icon="contentTypeItem === contentType ? 'done' : ''"
             :active-info-icon="contentTypeItem === contentType"
             @click.native="
-              contentType = contentTypeItem
-              $refs.contentTypeOptions.tippy().hide()
+              () => {
+                contentType = contentTypeItem
+                $refs.contentTypeOptions.tippy().hide()
+              }
             "
           />
         </tippy>
@@ -66,7 +70,7 @@
       </span>
       <ButtonSecondary
         outline
-        :label="$t('app.documentation')"
+        :label="`${$t('app.documentation')}`"
         to="https://docs.hoppscotch.io"
         blank
         svg="external-link"

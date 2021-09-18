@@ -35,7 +35,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear')"
           svg="trash-2"
-          @click.native="clearContent('rawParams', $event)"
+          @click.native="clearContent"
         />
         <ButtonSecondary
           v-if="contentType && contentType.endsWith('json')"
@@ -104,7 +104,7 @@ useCodemirror(
     extendedEditorConfig: {
       lineWrapping: linewrapEnabled,
       mode: rawInputEditorLang,
-      placeholder: t("request.raw_body").toString(),
+      placeholder: t("request.raw_body"),
     },
     linter: null,
     completer: null,
@@ -123,11 +123,11 @@ const uploadPayload = (e: InputEvent) => {
       rawParamsBody.value = target?.result
     }
     reader.readAsText(file)
-    $toast.success(t("state.file_imported").toString(), {
+    $toast.success(`${t("state.file_imported")}`, {
       icon: "attach_file",
     })
   } else {
-    $toast.error(t("action.choose_file").toString(), {
+    $toast.error(`${t("action.choose_file")}`, {
       icon: "attach_file",
     })
   }

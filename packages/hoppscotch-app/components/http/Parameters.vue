@@ -57,7 +57,7 @@
         <SmartEnvInput
           v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="param.key"
-          :placeholder="$t('count.parameter', { count: index + 1 })"
+          :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -76,7 +76,9 @@
         <input
           v-else
           class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="$t('count.parameter', { count: index + 1 }).toString()"
+          :placeholder="`${$t('count.parameter', {
+            count: index + 1,
+          })}`"
           :name="'param' + index"
           :value="param.key"
           autofocus
@@ -91,7 +93,7 @@
         <SmartEnvInput
           v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="param.value"
-          :placeholder="$t('count.value', { count: index + 1 })"
+          :placeholder="`${$t('count.value', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -110,7 +112,7 @@
         <input
           v-else
           class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="$t('count.value', { count: index + 1 }).toString()"
+          :placeholder="`${$t('count.value', { count: index + 1 })}`"
           :name="'value' + index"
           :value="param.value"
           @change="
@@ -172,7 +174,7 @@
           {{ $t("empty.parameters") }}
         </span>
         <ButtonSecondary
-          :label="$t('add.new')"
+          :label="`${$t('add.new')}`"
           svg="plus"
           filled
           @click.native="addParam"
@@ -216,7 +218,7 @@ watch(bulkParams, () => {
     }))
     setRESTParams(transformation)
   } catch (e) {
-    $toast.error(t("error.something_went_wrong").toString(), {
+    $toast.error(`${t("error.something_went_wrong")}`, {
       icon: "error_outline",
     })
     console.error(e)
@@ -228,7 +230,7 @@ const bulkEditor = ref<any | null>(null)
 useCodemirror(bulkEditor, bulkParams, {
   extendedEditorConfig: {
     mode: "text/x-yaml",
-    placeholder: t("state.bulk_mode_placeholder").toString(),
+    placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
   linter: null,
   completer: null,

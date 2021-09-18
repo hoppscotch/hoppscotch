@@ -4,7 +4,7 @@
       class="cursor-pointer flex px-2 w-16 justify-center items-center truncate"
       :class="entryStatus.className"
       data-testid="restore_history_entry"
-      :title="duration"
+      :title="`${duration}`"
       @click="$emit('use-entry')"
     >
       {{ entry.request.method }}
@@ -20,7 +20,7 @@
         group-hover:text-secondaryDark
       "
       data-testid="restore_history_entry"
-      :title="duration"
+      :title="`${duration}`"
       @click="$emit('use-entry')"
     >
       <span class="truncate">
@@ -75,9 +75,9 @@ export default defineComponent({
         if (!responseDuration) return ""
 
         return responseDuration > 0
-          ? `${$t("request.duration").toString()}: ${responseDuration}ms`
-          : $t("error.no_duration").toString()
-      } else return $t("error.no_duration").toString()
+          ? `${$t("request.duration")}: ${responseDuration}ms`
+          : $t("error.no_duration")
+      } else return $t("error.no_duration")
     })
 
     const entryStatus = computed(() => {

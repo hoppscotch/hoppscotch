@@ -48,7 +48,7 @@
     <div class="p-2">
       <ButtonSecondary
         filled
-        :label="$t('authorization.generate_token')"
+        :label="`${$t('authorization.generate_token')}`"
         @click.native="handleAccessTokenRequest()"
       />
     </div>
@@ -97,7 +97,7 @@ export default {
         oidcDiscoveryURL.value === "" &&
         (authURL.value === "" || accessTokenURL.value === "")
       ) {
-        $toast.error($t("complete_config_urls").toString(), {
+        $toast.error(`${$t("complete_config_urls")}`, {
           icon: "error",
         })
         return
@@ -113,7 +113,7 @@ export default {
         }
         await tokenRequest(tokenReqParams)
       } catch (e) {
-        $toast.error(e, {
+        $toast.error(`${e}`, {
           icon: "code",
         })
       }

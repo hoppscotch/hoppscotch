@@ -1,5 +1,9 @@
 <template>
-  <SmartModal v-if="show" :title="$t('modal.edit_request')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    :title="`${$t('modal.edit_request')}`"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -19,9 +23,12 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="saveRequest" />
+        <ButtonPrimary
+          :label="`${$t('action.save')}`"
+          @click.native="saveRequest"
+        />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="`${$t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -51,7 +58,7 @@ export default defineComponent({
   methods: {
     saveRequest() {
       if (!this.requestUpdateData.name) {
-        this.$toast.error(this.$t("collection.invalid_name").toString(), {
+        this.$toast.error(`${this.$t("collection.invalid_name")}`, {
           icon: "error_outline",
         })
         return

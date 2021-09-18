@@ -13,7 +13,7 @@
       v-if="headerLength"
       id="headers"
       :label="$t('response.headers')"
-      :info="headerLength.toString()"
+      :info="`${headerLength}`"
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>

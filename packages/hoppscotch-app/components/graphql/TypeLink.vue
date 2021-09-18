@@ -22,7 +22,7 @@ export default defineComponent({
 
   computed: {
     typeString() {
-      return this.gqlType.toString()
+      return `${this.gqlType}`
     },
     isScalar() {
       return this.resolveRootType(this.gqlType) instanceof GraphQLScalarType

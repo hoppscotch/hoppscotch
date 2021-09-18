@@ -1,7 +1,7 @@
 <template>
   <div>
     <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-      <SmartTab :id="'query'" :label="$t('tab.query')" :selected="true">
+      <SmartTab :id="'query'" :label="`${$t('tab.query')}`" :selected="true">
         <AppSection label="query">
           <div
             class="
@@ -22,7 +22,7 @@
             </label>
             <div class="flex">
               <ButtonSecondary
-                :label="$t('request.run')"
+                :label="`${$t('request.run')}`"
                 svg="play"
                 class="rounded-none !text-accent"
                 @click.native="runQuery()"
@@ -59,7 +59,7 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'variables'" :label="$t('tab.variables')">
+      <SmartTab :id="'variables'" :label="`${$t('tab.variables')}`">
         <AppSection label="variables">
           <div
             class="
@@ -97,7 +97,7 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'headers'" :label="$t('tab.headers')">
+      <SmartTab :id="'headers'" :label="`${$t('tab.headers')}`">
         <AppSection label="headers">
           <div
             class="
@@ -158,7 +158,7 @@
               "
             >
               <SmartAutoComplete
-                :placeholder="$t('count.header', { count: index + 1 })"
+                :placeholder="`${$t('count.header', { count: index + 1 })}`"
                 :source="commonHeaders"
                 :spellcheck="false"
                 :value="header.key"
@@ -182,9 +182,7 @@
               />
               <input
                 class="bg-transparent flex flex-1 py-2 px-4"
-                :placeholder="
-                  $t('count.value', { count: index + 1 }).toString()
-                "
+                :placeholder="`${$t('count.value', { count: index + 1 })}`"
                 :name="`value ${index}`"
                 :value="header.value"
                 autofocus
@@ -247,7 +245,7 @@
                 {{ $t("empty.headers") }}
               </span>
               <ButtonSecondary
-                :label="$t('add.new')"
+                :label="`${$t('add.new')}`"
                 filled
                 svg="plus"
                 @click.native="addRequestHeader"
@@ -326,7 +324,7 @@ watch(bulkHeaders, () => {
     }))
     setGQLHeaders(transformation)
   } catch (e) {
-    $toast.error(t("error.something_went_wrong").toString(), {
+    $toast.error(`${t("error.something_went_wrong")}`, {
       icon: "error_outline",
     })
     console.error(e)
@@ -343,7 +341,7 @@ const bulkEditor = ref<any | null>(null)
 useCodemirror(bulkEditor, bulkHeaders, {
   extendedEditorConfig: {
     mode: "text/x-yaml",
-    placeholder: t("state.bulk_mode_placeholder").toString(),
+    placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
   linter: null,
   completer: null,
@@ -354,7 +352,7 @@ const variableEditor = ref<any | null>(null)
 useCodemirror(variableEditor, variableString, {
   extendedEditorConfig: {
     mode: "application/ld+json",
-    placeholder: t("request.variables").toString(),
+    placeholder: `${t("request.variables")}`,
   },
   linter: jsonLinter,
   completer: null,
@@ -366,7 +364,7 @@ const schemaString = useReadonlyStream(props.conn.schema$, null)
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
     mode: "graphql",
-    placeholder: t("request.query").toString(),
+    placeholder: `${t("request.query")}`,
   },
   linter: createGQLQueryLinter(schemaString),
   completer: queryCompleter(schemaString),
@@ -409,7 +407,7 @@ const runQuery = async () => {
   const startTime = Date.now()
 
   nuxt.value.$loading.start()
-  response.value = t("state.loading").toString()
+  response.value = `${t("state.loading")}`
 
   try {
     const runURL = clone(url.value)
@@ -443,14 +441,14 @@ const runQuery = async () => {
       })
     )
 
-    $toast.success(t("state.finished_in", { duration }).toString(), {
+    $toast.success(`${t("state.finished_in", { duration })}`, {
       icon: "done",
     })
   } catch (e: any) {
     response.value = `${e}. ${t("error.check_console_details")}`
     nuxt.value.$loading.finish()
 
-    $toast.error(`${e} ${t("error.f12_details").toString()}`, {
+    $toast.error(`${e} ${t("error.f12_details")}`, {
       icon: "error_outline",
     })
     console.error(e)
@@ -470,7 +468,7 @@ const prettifyQuery = () => {
   try {
     gqlQueryString.value = gql.print(gql.parse(gqlQueryString.value))
   } catch (e) {
-    $toast.error(t("error.gql_prettify_invalid_query").toString(), {
+    $toast.error(`${t("error.gql_prettify_invalid_query")}`, {
       icon: "error_outline",
     })
   }

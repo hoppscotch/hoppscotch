@@ -13,7 +13,7 @@
         <div class="p-8 md:col-span-2">
           <div v-if="currentUser === null">
             <ButtonPrimary
-              :label="$t('auth.login')"
+              :label="`${$t('auth.login')}`"
               @click.native="showLogin = true"
             />
           </div>
@@ -333,8 +333,10 @@
       )}`"
       @hide-modal="confirmRemove = false"
       @resolve="
-        toggleSetting('TELEMETRY_ENABLED')
-        confirmRemove = false
+        () => {
+          toggleSetting('TELEMETRY_ENABLED')
+          confirmRemove = false
+        }
       "
     />
   </div>
@@ -451,7 +453,7 @@ export default defineComponent({
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
       this.clearIcon = "check"
-      this.$toast.success(this.$t("state.cleared").toString(), {
+      this.$toast.success(`${this.$t("state.cleared")}`, {
         icon: "clear_all",
       })
       setTimeout(() => (this.clearIcon = "rotate-ccw"), 1000)

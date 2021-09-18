@@ -11,37 +11,40 @@
           <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
             <SmartTab
               :id="'params'"
-              :label="$t('tab.parameters')"
+              :label="`${$t('tab.parameters')}`"
               :selected="true"
-              :info="newActiveParamsCount$"
+              :info="`${newActiveParamsCount$}`"
             >
               <HttpParameters />
             </SmartTab>
 
-            <SmartTab :id="'bodyParams'" :label="$t('tab.body')">
+            <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
               <HttpBody />
             </SmartTab>
 
             <SmartTab
               :id="'headers'"
-              :label="$t('tab.headers')"
-              :info="newActiveHeadersCount$"
+              :label="`${$t('tab.headers')}`"
+              :info="`${newActiveHeadersCount$}`"
             >
               <HttpHeaders />
             </SmartTab>
 
-            <SmartTab :id="'authorization'" :label="$t('tab.authorization')">
+            <SmartTab
+              :id="'authorization'"
+              :label="`${$t('tab.authorization')}`"
+            >
               <HttpAuthorization />
             </SmartTab>
 
             <SmartTab
               :id="'preRequestScript'"
-              :label="$t('tab.pre_request_script')"
+              :label="`${$t('tab.pre_request_script')}`"
             >
               <HttpPreRequestScript />
             </SmartTab>
 
-            <SmartTab :id="'tests'" :label="$t('tab.tests')">
+            <SmartTab :id="'tests'" :label="`${$t('tab.tests')}`">
               <HttpTests />
             </SmartTab>
           </SmartTabs>
@@ -60,15 +63,19 @@
     >
       <aside>
         <SmartTabs styles="sticky bg-primary z-10 top-0">
-          <SmartTab :id="'history'" :label="$t('tab.history')" :selected="true">
+          <SmartTab
+            :id="'history'"
+            :label="`${$t('tab.history')}`"
+            :selected="true"
+          >
             <History ref="historyComponent" :page="'rest'" />
           </SmartTab>
 
-          <SmartTab :id="'collections'" :label="$t('tab.collections')">
+          <SmartTab :id="'collections'" :label="`${$t('tab.collections')}`">
             <Collections />
           </SmartTab>
 
-          <SmartTab :id="'env'" :label="$t('environment.title')">
+          <SmartTab :id="'env'" :label="`${$t('environment.title')}`">
             <Environments />
           </SmartTab>
         </SmartTabs>
@@ -76,7 +83,7 @@
     </Pane>
     <SmartConfirmModal
       :show="confirmSync"
-      :title="$t('confirm.sync')"
+      :title="`${$t('confirm.sync')}`"
       @hide-modal="confirmSync = false"
       @resolve="syncRequest"
     />
@@ -250,7 +257,7 @@ export default defineComponent({
         restActiveParamsCount$.pipe(
           map((e) => {
             if (e === 0) return null
-            return e.toString()
+            return `${e}`
           })
         ),
         null
@@ -259,7 +266,7 @@ export default defineComponent({
         restActiveHeadersCount$.pipe(
           map((e) => {
             if (e === 0) return null
-            return e.toString()
+            return `${e}`
           })
         ),
         null

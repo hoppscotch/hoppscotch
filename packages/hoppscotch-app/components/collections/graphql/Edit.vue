@@ -1,5 +1,9 @@
 <template>
-  <SmartModal v-if="show" :title="$t('collection.edit')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    :title="`${$t('collection.edit')}`"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -20,11 +24,11 @@
     <template #footer>
       <span>
         <ButtonPrimary
-          :label="$t('action.save')"
+          :label="`${$t('action.save')}`"
           @click.native="saveCollection"
         />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="`${$t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -50,7 +54,7 @@ export default defineComponent({
   methods: {
     saveCollection() {
       if (!this.name) {
-        this.$toast.error(this.$t("collection.invalid_name").toString(), {
+        this.$toast.error(`${this.$t("collection.invalid_name")}`, {
           icon: "error_outline",
         })
         return

@@ -8,7 +8,7 @@
         type="text"
         autocomplete="off"
         name="command"
-        :placeholder="$t('app.type_a_command_search').toString()"
+        :placeholder="`${$t('app.type_a_command_search')}`"
         class="
           bg-transparent
           border-b border-dividerLight

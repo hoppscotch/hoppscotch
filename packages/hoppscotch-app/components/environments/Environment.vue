@@ -33,27 +33,31 @@
         </template>
         <SmartItem
           svg="edit"
-          :label="$t('action.edit')"
+          :label="`${$t('action.edit')}`"
           @click.native="
-            $emit('edit-environment')
-            $refs.options.tippy().hide()
+            () => {
+              $emit('edit-environment')
+              $refs.options.tippy().hide()
+            }
           "
         />
         <SmartItem
           v-if="!(environmentIndex === 'Global')"
           svg="trash-2"
           color="red"
-          :label="$t('action.delete')"
+          :label="`${$t('action.delete')}`"
           @click.native="
-            confirmRemove = true
-            $refs.options.tippy().hide()
+            () => {
+              confirmRemove = true
+              $refs.options.tippy().hide()
+            }
           "
         />
       </tippy>
     </span>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('confirm.remove_environment')"
+      :title="`${$t('confirm.remove_environment')}`"
       @hide-modal="confirmRemove = false"
       @resolve="removeEnvironment"
     />
@@ -81,7 +85,7 @@ export default defineComponent({
     removeEnvironment() {
       if (this.environmentIndex !== "Global")
         deleteEnvironment(this.environmentIndex)
-      this.$toast.success(this.$t("state.deleted").toString(), {
+      this.$toast.success(`${this.$t("state.deleted")}`, {
         icon: "delete",
       })
     },

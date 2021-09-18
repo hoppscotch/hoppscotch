@@ -64,7 +64,7 @@ export const PhpCurlCodegen = {
         } else {
           const requestObject = JSON.parse(requestBody)
           requestBody = `"${Object.keys(requestObject)
-            .map((key) => `${key}=${requestObject[key].toString()}`)
+            .map((key) => `${key}=${requestObject[key]}`)
             .join("&")}"`
         }
       }

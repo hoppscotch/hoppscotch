@@ -1,9 +1,5 @@
 <template>
-  <SmartModal
-    v-if="show"
-    :title="$t('import.curl').toString()"
-    @close="hideModal"
-  >
+  <SmartModal v-if="show" :title="`${$t('import.curl')}`" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <div ref="curlEditor" class="border border-dividerLight rounded"></div>
@@ -12,11 +8,11 @@
     <template #footer>
       <span class="flex">
         <ButtonPrimary
-          :label="$t('import.title').toString()"
+          :label="`${$t('import.title')}`"
           @click.native="handleImport"
         />
         <ButtonSecondary
-          :label="$t('action.cancel').toString()"
+          :label="`${$t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -49,7 +45,7 @@ const curlEditor = ref<any | null>(null)
 useCodemirror(curlEditor, curl, {
   extendedEditorConfig: {
     mode: "application/x-sh",
-    placeholder: t("request.enter_curl").toString(),
+    placeholder: `${t("request.enter_curl")}`,
   },
   linter: null,
   completer: null,
@@ -128,7 +124,7 @@ const handleImport = () => {
     )
   } catch (e) {
     console.error(e)
-    $toast.error(t("error.curl_invalid_format").toString(), {
+    $toast.error(`${t("error.curl_invalid_format")}`, {
       icon: "error_outline",
     })
   }

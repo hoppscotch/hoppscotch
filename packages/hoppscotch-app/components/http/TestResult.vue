@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="$t('test.results')">
+  <AppSection :label="`${$t('test.results')}`">
     <div
       v-if="
         testResults &&
@@ -64,7 +64,9 @@
             <span class="text-secondaryLight">
               {{
                 ` \xA0 — \xA0test ${
-                  result.status === "pass" ? $t("passed") : $t("failed")
+                  result.status === "pass"
+                    ? $t("test.passed")
+                    : $t("test.failed")
                 }`
               }}
             </span>
@@ -84,7 +86,7 @@
       </span>
       <ButtonSecondary
         outline
-        :label="$t('action.learn_more')"
+        :label="`${$t('action.learn_more')}`"
         to="https://docs.hoppscotch.io"
         blank
         svg="external-link"

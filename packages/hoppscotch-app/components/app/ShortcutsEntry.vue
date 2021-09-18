@@ -5,7 +5,7 @@
     </span>
     <span
       v-for="(key, index) in shortcut.keys"
-      :key="`key-${index}`"
+      :key="`key-${String(index)}`"
       class="shortcut-key"
     >
       {{ key }}

@@ -157,7 +157,7 @@ function getCodegenGeneralRESTInfo(
     params: request.effectiveFinalParams.map((x) => ({ ...x, active: true })),
     method: request.method,
     url: urlObj.origin,
-    queryString: urlObj.searchParams.toString(),
+    queryString: `${urlObj.searchParams}`,
     pathName: urlObj.pathname,
   }
 }

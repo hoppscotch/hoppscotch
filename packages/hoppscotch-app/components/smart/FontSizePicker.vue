@@ -9,19 +9,23 @@
             class="pr-8"
             svg="type"
             outline
-            :label="getFontSizeName(fontSizes.find((size) => size == active))"
+            :label="`${getFontSizeName(
+              fontSizes.find((size) => size == active)
+            )}`"
           />
         </span>
       </template>
       <SmartItem
         v-for="(size, index) in fontSizes"
         :key="`size-${index}`"
-        :label="getFontSizeName(size)"
+        :label="`${getFontSizeName(size)}`"
         :info-icon="size === active ? 'done' : ''"
         :active-info-icon="size === active"
         @click.native="
-          setActiveFont(size)
-          $refs.fontSize.tippy().hide()
+          () => {
+            setActiveFont(size)
+            $refs.fontSize.tippy().hide()
+          }
         "
       />
     </tippy>

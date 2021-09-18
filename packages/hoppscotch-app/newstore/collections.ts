@@ -260,7 +260,6 @@ const restCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve path '${path}'. Ignoring editRequest dispatch.`
       )
-
       return {}
     }
 
@@ -287,7 +286,6 @@ const restCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve path '${path}'. Ignoring saveRequestAs dispatch.`
       )
-
       return {}
     }
 
@@ -312,7 +310,6 @@ const restCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve path '${path}'. Ignoring removeRequest dispatch.`
       )
-
       return {}
     }
 
@@ -364,7 +361,6 @@ const restCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve destination path '${destinationPath}'. Skipping moveRequest dispatch.`
       )
-
       return {}
     }
 
@@ -533,7 +529,6 @@ const gqlCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve path '${path}'. Ignoring editRequest dispatch.`
       )
-
       return {}
     }
 
@@ -560,7 +555,6 @@ const gqlCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve path '${path}'. Ignoring saveRequestAs dispatch.`
       )
-
       return {}
     }
 
@@ -585,7 +579,6 @@ const gqlCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve path '${path}'. Ignoring removeRequest dispatch.`
       )
-
       return {}
     }
 
@@ -637,7 +630,6 @@ const gqlCollectionDispatchers = defineDispatchers({
       console.log(
         `Could not resolve destination path '${destinationPath}'. Skipping moveRequest dispatch.`
       )
-
       return {}
     }
 

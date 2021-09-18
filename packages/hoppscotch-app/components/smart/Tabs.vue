@@ -1,34 +1,53 @@
 <template>
-  <div class="flex flex-col flex-nowrap flex-1">
-    <div class="tabs hide-scrollbar relative" :class="styles">
+  <div
+    class="flex flex-nowrap flex-1 h-full"
+    :class="{ 'flex-col': !vertical }"
+  >
+    <div
+      class="tabs hide-scrollbar relative"
+      :class="[{ 'border-r border-dividerLight': vertical }, styles]"
+    >
       <div class="flex flex-1">
-        <div class="flex flex-1 justify-between">
-          <div class="flex">
+        <div
+          class="flex flex-1 justify-between"
+          :class="{ 'flex-col': vertical }"
+        >
+          <div class="flex" :class="{ 'flex-col space-y-2 p-2': vertical }">
             <button
               v-for="(tab, index) in tabs"
               :key="`tab-${index}`"
               class="tab"
-              :class="{ active: tab.active }"
+              :class="[{ active: tab.active }, { vertical: vertical }]"
               tabindex="0"
               @keyup.enter="selectTab(tab)"
               @click="selectTab(tab)"
             >
-              <i v-if="tab.icon" class="material-icons">
-                {{ tab.icon }}
-              </i>
-              <span v-if="tab.label">{{ tab.label }}</span>
+              <SmartIcon v-if="tab.icon" class="svg-icons" :name="tab.icon" />
+              <tippy
+                v-if="vertical && tab.label"
+                placement="left"
+                theme="tooltip"
+                :content="tab.label"
+              />
+              <span v-else-if="tab.label">{{ tab.label }}</span>
               <span v-if="tab.info && tab.info !== 'null'" class="tab-info">
                 {{ tab.info }}
               </span>
             </button>
           </div>
-          <div class="flex">
+          <div class="flex justify-center items-center">
             <slot name="actions"></slot>
           </div>
         </div>
       </div>
     </div>
-    <slot></slot>
+    <div
+      :class="{
+        'flex flex-col flex-1 overflow-y-auto hide-scrollbar': vertical,
+      }"
+    >
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -41,6 +60,10 @@ export default defineComponent({
       type: String,
       default: "",
     },
+    vertical: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -49,8 +72,10 @@ export default defineComponent({
     }
   },
 
-  created() {
-    this.tabs = this.$children
+  mounted() {
+    this.tabs = this.$children.filter(
+      (child) => child.$options.name === "SmartTab"
+    )
   },
 
   methods: {
@@ -69,6 +94,7 @@ export default defineComponent({
   @apply flex;
   @apply whitespace-nowrap;
   @apply overflow-auto;
+  @apply flex-shrink-0;
 
   // &::after {
   //   @apply absolute;
@@ -84,6 +110,7 @@ export default defineComponent({
   .tab {
     @apply relative;
     @apply flex;
+    @apply flex-shrink-0;
     @apply items-center;
     @apply justify-center;
     @apply px-4 py-2;
@@ -120,10 +147,6 @@ export default defineComponent({
       content: "";
     }
 
-    .material-icons {
-      @apply mr-4;
-    }
-
     &:focus::after {
       @apply bg-divider;
     }
@@ -138,6 +161,28 @@ export default defineComponent({
 
       &::after {
         @apply bg-accent;
+      }
+    }
+
+    &.vertical {
+      @apply p-2;
+      @apply rounded;
+
+      &:focus::after {
+        @apply hidden;
+      }
+
+      &.active {
+        @apply text-accent;
+
+        .tab-info {
+          @apply text-secondary;
+          @apply border-dividerDark;
+        }
+
+        &::after {
+          @apply hidden;
+        }
       }
     }
   }

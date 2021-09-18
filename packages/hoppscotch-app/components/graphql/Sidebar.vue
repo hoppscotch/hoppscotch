@@ -1,9 +1,54 @@
 <template>
-  <aside>
-    <SmartTabs styles="sticky bg-primary z-10 top-0">
-      <SmartTab :id="'docs'" :label="`Docs`" :selected="true">
-        <AppSection label="docs">
-          <div class="bg-primary flex top-sidebarPrimaryStickyFold z-10 sticky">
+  <SmartTabs styles="sticky bg-primary z-10 top-0" vertical>
+    <SmartTab
+      :id="'history'"
+      icon="clock"
+      :label="`${$t('tab.history')}`"
+      :selected="true"
+    >
+      <History
+        ref="graphqlHistoryComponent"
+        :page="'graphql'"
+        @useHistory="handleUseHistory"
+      />
+    </SmartTab>
+
+    <SmartTab
+      :id="'collections'"
+      icon="folder"
+      :label="`${$t('tab.collections')}`"
+    >
+      <CollectionsGraphql />
+    </SmartTab>
+
+    <SmartTab
+      :id="'docs'"
+      icon="book-open"
+      :label="`${$t('tab.documentation')}`"
+    >
+      <AppSection label="docs">
+        <div
+          v-if="
+            queryFields.length === 0 &&
+            mutationFields.length === 0 &&
+            subscriptionFields.length === 0 &&
+            graphqlTypes.length === 0
+          "
+          class="
+            flex flex-col
+            text-secondaryLight
+            p-4
+            items-center
+            justify-center
+          "
+        >
+          <i class="opacity-75 pb-2 material-icons">link</i>
+          <span class="text-center">
+            {{ $t("empty.schema") }}
+          </span>
+        </div>
+        <div v-else>
+          <div class="bg-primary flex top-0 z-10 sticky">
             <input
               v-model="graphqlFieldsFilterText"
               type="search"
@@ -23,7 +68,7 @@
           </div>
           <SmartTabs
             ref="gqlTabs"
-            styles="border-t border-dividerLight bg-primary sticky z-10 top-sidebarSecondaryStickyFold"
+            styles="border-t border-b border-dividerLight bg-primary sticky z-10 top-sidebarPrimaryStickyFold"
           >
             <div class="gqlTabs">
               <SmartTab
@@ -88,110 +133,79 @@
               </SmartTab>
             </div>
           </SmartTabs>
-          <div
-            v-if="
-              queryFields.length === 0 &&
-              mutationFields.length === 0 &&
-              subscriptionFields.length === 0 &&
-              graphqlTypes.length === 0
-            "
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
-          >
-            <i class="opacity-75 pb-2 material-icons">link</i>
-            <span class="text-center">
-              {{ $t("empty.schema") }}
-            </span>
-          </div>
-        </AppSection>
-      </SmartTab>
+        </div>
+      </AppSection>
+    </SmartTab>
 
-      <SmartTab :id="'history'" :label="`${$t('tab.history')}`">
-        <History
-          ref="graphqlHistoryComponent"
-          :page="'graphql'"
-          @useHistory="handleUseHistory"
-        />
-      </SmartTab>
-
-      <SmartTab :id="'collections'" :label="`${$t('tab.collections')}`">
-        <CollectionsGraphql />
-      </SmartTab>
-
-      <SmartTab :id="'schema'" :label="`Schema`">
-        <AppSection ref="schema" label="schema">
-          <div
-            v-if="schemaString"
-            class="
-              bg-primary
-              flex flex-1
-              top-sidebarPrimaryStickyFold
-              pl-4
-              z-10
-              sticky
-              items-center
-              justify-between
-            "
-          >
-            <label class="font-semibold text-secondaryLight">
-              {{ $t("graphql.schema") }}
-            </label>
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/quickstart/graphql"
-                blank
-                :title="$t('app.wiki')"
-                svg="help-circle"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('state.linewrap')"
-                :class="{ '!text-accent': linewrapEnabled }"
-                svg="corner-down-left"
-                @click.native.prevent="linewrapEnabled = !linewrapEnabled"
-              />
-              <ButtonSecondary
-                ref="downloadSchema"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.download_file')"
-                :svg="downloadSchemaIcon"
-                @click.native="downloadSchema"
-              />
-              <ButtonSecondary
-                ref="copySchemaCode"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.copy')"
-                :svg="copySchemaIcon"
-                @click.native="copySchema"
-              />
-            </div>
+    <SmartTab :id="'schema'" icon="box" :label="`${$t('tab.schema')}`">
+      <AppSection ref="schema" label="schema">
+        <div
+          v-if="schemaString"
+          class="
+            bg-primary
+            flex flex-1
+            top-0
+            pl-4
+            z-10
+            sticky
+            items-center
+            justify-between
+            border-b border-dividerLight
+          "
+        >
+          <label class="font-semibold text-secondaryLight">
+            {{ $t("graphql.schema") }}
+          </label>
+          <div class="flex">
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              to="https://docs.hoppscotch.io/quickstart/graphql"
+              blank
+              :title="$t('app.wiki')"
+              svg="help-circle"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('state.linewrap')"
+              :class="{ '!text-accent': linewrapEnabled }"
+              svg="corner-down-left"
+              @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+            />
+            <ButtonSecondary
+              ref="downloadSchema"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('action.download_file')"
+              :svg="downloadSchemaIcon"
+              @click.native="downloadSchema"
+            />
+            <ButtonSecondary
+              ref="copySchemaCode"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('action.copy')"
+              :svg="copySchemaIcon"
+              @click.native="copySchema"
+            />
           </div>
-          <div v-if="schemaString" ref="schemaEditor"></div>
-          <div
-            v-else
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
-          >
-            <i class="opacity-75 pb-2 material-icons">link</i>
-            <span class="text-center">
-              {{ $t("empty.schema") }}
-            </span>
-          </div>
-        </AppSection>
-      </SmartTab>
-    </SmartTabs>
-  </aside>
+        </div>
+        <div v-if="schemaString" ref="schemaEditor"></div>
+        <div
+          v-else
+          class="
+            flex flex-col
+            text-secondaryLight
+            p-4
+            items-center
+            justify-center
+          "
+        >
+          <i class="opacity-75 pb-2 material-icons">link</i>
+          <span class="text-center">
+            {{ $t("empty.schema") }}
+          </span>
+        </div>
+      </AppSection>
+    </SmartTab>
+  </SmartTabs>
 </template>
 
 <script setup lang="ts">

@@ -8,7 +8,7 @@
         divide-y divide-dividerLight
         border-b border-dividerLight
         flex flex-col
-        top-sidebarPrimaryStickyFold
+        top-0
         z-10
         sticky
       "

@@ -397,7 +397,7 @@ export default defineComponent({
 
       showLogin: false,
 
-      active: getLocalConfig("THEME_COLOR") || "blue",
+      active: getLocalConfig("THEME_COLOR") || "indigo",
       confirmRemove: false,
     }
   },

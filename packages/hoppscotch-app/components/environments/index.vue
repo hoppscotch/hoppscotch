@@ -1,15 +1,6 @@
 <template>
   <AppSection :label="`${$t('environment.title')}`">
-    <div
-      class="
-        bg-primary
-        rounded-t
-        flex flex-col
-        top-sidebarPrimaryStickyFold
-        z-10
-        sticky
-      "
-    >
+    <div class="bg-primary rounded-t flex flex-col top-0 z-10 sticky">
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>
         <template #trigger>
           <span

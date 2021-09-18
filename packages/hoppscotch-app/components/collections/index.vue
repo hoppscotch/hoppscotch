@@ -14,7 +14,6 @@
         z-10
         sticky
       "
-      :class="{ '!top-sidebarPrimaryStickyFold': !saveRequest && !doc }"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input

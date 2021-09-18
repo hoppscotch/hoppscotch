@@ -1,15 +1,6 @@
 <template>
   <AppSection label="history">
-    <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex
-        top-sidebarPrimaryStickyFold
-        z-10
-        sticky
-      "
-    >
+    <div class="bg-primary border-b border-dividerLight flex top-0 z-10 sticky">
       <input
         v-model="filterText"
         type="search"

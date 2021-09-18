@@ -5,7 +5,7 @@
     </h4>
     <div class="mt-1 text-secondaryLight">
       <SmartAnchor
-        :label="$t('team.join_beta')"
+        :label="`${$t('team.join_beta')}`"
         to="https://hoppscotch.io/beta"
         blank
         class="link"
@@ -13,21 +13,27 @@
     </div>
     <div class="space-y-4 mt-4">
       <ButtonSecondary
-        :label="$t('team.create_new')"
+        :label="`${$t('team.create_new')}`"
         outline
         @click.native="displayModalAdd(true)"
       />
-      <p v-if="$apollo.queries.myTeams.loading">
+      <p v-if="!myTeamsLoading">
         {{ $t("state.loading") }}
       </p>
-      <div v-if="myTeams.length === 0" class="flex items-center">
+      <div
+        v-if="!myTeamsLoading && myTeams.myTeams.length === 0"
+        class="flex items-center"
+      >
         <i class="mr-4 material-icons">help_outline</i>
         {{ $t("empty.teams") }}
       </div>
-      <div v-else class="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+      <div
+        v-else-if="!myTeamsLoading && !isApolloError(myTeams)"
+        class="grid gap-4 sm:grid-cols-2 md:grid-cols-3"
+      >
         <TeamsTeam
-          v-for="(team, index) in myTeams"
-          :key="`team-${index}`"
+          v-for="(team, index) in myTeams.myTeams"
+          :key="`team-${String(index)}`"
           :team-i-d="team.id"
           :team="team"
           @edit-team="editTeam(team, team.id)"
@@ -35,94 +41,68 @@
       </div>
     </div>
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
+    <!-- ¯\_(ツ)_/¯ -->
     <TeamsEdit
-      :team="myTeams[0]"
+      v-if="!myTeamsLoading && myTeams.myTeams.length > 0"
+      :team="myTeams.myTeams[0]"
       :show="showModalEdit"
       :editing-team="editingTeam"
-      :editingteam-i-d="editingteamID"
+      :editingteam-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
     />
   </AppSection>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import gql from "graphql-tag"
-import { currentUser$ } from "~/helpers/fb/auth"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+<script setup lang="ts">
+import { gql } from "@apollo/client/core"
+import { ref } from "@nuxtjs/composition-api"
+import { useGQLQuery, isApolloError } from "~/helpers/apollo"
 
-export default defineComponent({
-  setup() {
-    return {
-      currentUser: useReadonlyStream(currentUser$, null),
-    }
-  },
-  data() {
-    return {
-      showModalAdd: false,
-      showModalEdit: false,
-      editingTeam: {},
-      editingteamID: "",
-      me: {},
-      myTeams: [],
-    }
-  },
-  apollo: {
-    me: {
-      query: gql`
-        query GetMe {
-          me {
+const showModalAdd = ref(false)
+const showModalEdit = ref(false)
+const editingTeam = ref<any>({}) // TODO: Check this out
+const editingTeamID = ref<any>("")
+
+const { loading: myTeamsLoading, data: myTeams } = useGQLQuery({
+  query: gql`
+    query GetMyTeams {
+      myTeams {
+        id
+        name
+        myRole
+        ownersCount
+        members {
+          user {
+            photoURL
+            displayName
+            email
             uid
-            eaInvited
           }
+          role
         }
-      `,
-      pollInterval: 100000,
-    },
-    myTeams: {
-      query: gql`
-        query GetMyTeams {
-          myTeams {
-            id
-            name
-            myRole
-            ownersCount
-            members {
-              user {
-                photoURL
-                displayName
-                email
-                uid
-              }
-              role
-            }
-          }
-        }
-      `,
-      pollInterval: 10000,
-    },
-  },
-  beforeDestroy() {
-    document.removeEventListener("keydown", this._keyListener)
-  },
-  methods: {
-    displayModalAdd(shouldDisplay) {
-      this.showModalAdd = shouldDisplay
-    },
-    displayModalEdit(shouldDisplay) {
-      this.showModalEdit = shouldDisplay
-
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    editTeam(team, teamID) {
-      this.editingTeam = team
-      this.editingteamID = teamID
-      this.displayModalEdit(true)
-    },
-    resetSelectedData() {
-      this.$data.editingTeam = undefined
-      this.$data.editingteamID = undefined
-    },
-  },
+      }
+    }
+  `,
+  pollInterval: 10000,
 })
+
+const displayModalAdd = (shouldDisplay: boolean) => {
+  showModalAdd.value = shouldDisplay
+}
+
+const displayModalEdit = (shouldDisplay: boolean) => {
+  showModalEdit.value = shouldDisplay
+
+  if (!shouldDisplay) resetSelectedData()
+}
+const editTeam = (team: any, teamID: any) => {
+  editingTeam.value = team
+  editingTeamID.value = teamID
+  displayModalEdit(true)
+}
+
+const resetSelectedData = () => {
+  editingTeam.value = undefined
+  editingTeamID.value = undefined
+}
 </script>

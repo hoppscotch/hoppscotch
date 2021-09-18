@@ -43,8 +43,6 @@ async function writeEnvironments(environment: Environment[]) {
     environment,
   }
 
-  console.log(ev)
-
   try {
     await setDoc(
       doc(
@@ -87,7 +85,6 @@ async function writeGlobalEnvironment(variables: Environment["variables"]) {
 
 export function initEnvironments() {
   environments$.subscribe((envs) => {
-    console.log("env update")
     if (
       currentUser$.value &&
       settingsStore.value.syncEnvironments &&

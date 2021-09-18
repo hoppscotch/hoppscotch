@@ -37,7 +37,7 @@
           :picked="picked"
           :save-request="true"
           @select="onSelect"
-          @update-collection="collectionsType.type = $event"
+          @update-collection="updateColl"
           @update-coll-type="onUpdateCollType"
         />
       </div>
@@ -259,7 +259,7 @@ const saveRequestAs = async () => {
       requestIndex: insertionIndex,
     })
   } else if (picked.value.pickedType === "teams-request") {
-    if (isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
     if (collectionsType.value.type !== "team-collections")
@@ -277,7 +277,7 @@ const saveRequestAs = async () => {
       requestID: picked.value.requestID,
     })
   } else if (picked.value.pickedType === "teams-folder") {
-    if (isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
     if (collectionsType.value.type !== "team-collections")
@@ -300,7 +300,7 @@ const saveRequestAs = async () => {
       })
     }
   } else if (picked.value.pickedType === "teams-collection") {
-    if (isHoppRESTRequest(requestUpdated))
+    if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
     if (collectionsType.value.type !== "team-collections")
@@ -346,5 +346,9 @@ const saveRequestAs = async () => {
     icon: "post_add",
   })
   hideModal()
+}
+
+const updateColl = (ev: CollectionType["type"]) => {
+  collectionsType.value.type = ev
 }
 </script>

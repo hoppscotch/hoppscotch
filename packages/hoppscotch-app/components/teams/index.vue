@@ -17,8 +17,12 @@
         outline
         @click.native="displayModalAdd(true)"
       />
-      <p v-if="!myTeamsLoading">
-        {{ $t("state.loading") }}
+      <p
+        v-if="myTeamsLoading"
+        class="flex flex-col items-center justify-center"
+      >
+        <SmartSpinner class="mb-4" />
+        <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
       </p>
       <div
         v-if="!myTeamsLoading && myTeams.myTeams.length === 0"

@@ -2,11 +2,16 @@ import {
   ApolloClient,
   HttpLink,
   InMemoryCache,
+  QueryOptions,
+  OperationVariables,
   split,
+  ApolloError,
+  isApolloError as _isApolloError
 } from "@apollo/client/core"
 import { WebSocketLink } from "@apollo/client/link/ws"
 import { setContext } from "@apollo/client/link/context"
 import { getMainDefinition } from "@apollo/client/utilities"
+import { ref, onMounted, onBeforeUnmount, Ref } from "@nuxtjs/composition-api"
 import { authIdToken$ } from "./fb/auth"
 
 let authToken: String | null = null
@@ -84,3 +89,39 @@ export const apolloClient = new ApolloClient({
     },
   },
 })
+
+export function isApolloError(x: any): x is ApolloError {
+  return _isApolloError(x)
+}
+
+export function useGQLQuery<T = any, TVariables = OperationVariables>(
+  options: QueryOptions<TVariables, T>
+): { loading: Ref<boolean>; data: Ref<T | ApolloError | undefined> } {
+  const loading = ref(true)
+  const data = ref<T | ApolloError | undefined>()
+
+  let subscription: ZenObservable.Subscription | null = null
+
+  onMounted(() => {
+    subscription = apolloClient.watchQuery(options).subscribe((result) => {
+      if (result.error) {
+        data.value = result.error
+      } else {
+        data.value = result.data
+      }
+
+      loading.value = false
+    })
+  })
+
+  onBeforeUnmount(() => {
+    if (subscription) {
+      subscription.unsubscribe()
+    }
+  })
+
+  return {
+    loading,
+    data,
+  }
+}

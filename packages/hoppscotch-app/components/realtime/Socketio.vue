@@ -117,7 +117,7 @@
             />
           </div>
         </div>
-        <div class="flex flex-col space-y-2 px-4">
+        <div class="flex flex-col space-y-2 px-4 pb-4">
           <div
             v-for="(input, index) of communication.inputs"
             :key="`input-${index}`"

@@ -51,8 +51,12 @@
       />
     </div>
     <div v-else class="flex flex-col flex-1">
-      <div v-if="response.type === 'loading'">
-        <i class="animate-spin material-icons"> refresh </i>
+      <div
+        v-if="response.type === 'loading'"
+        class="flex flex-col items-center justify-center"
+      >
+        <SmartSpinner class="mb-4" />
+        <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
       </div>
       <div
         v-if="response.type === 'network_fail'"

@@ -6,7 +6,7 @@ import {
   OperationVariables,
   split,
   ApolloError,
-  isApolloError as _isApolloError
+  isApolloError as _isApolloError,
 } from "@apollo/client/core"
 import { WebSocketLink } from "@apollo/client/link/ws"
 import { setContext } from "@apollo/client/link/context"

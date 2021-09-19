@@ -27,6 +27,8 @@ const SmartLink = {
     let on = {}
     switch (tag) {
       case ANCHOR_TAG:
+        attrs["aria-label"] = "Link"
+
         // Map `to` prop to the correct attribute
         attrs.href = context.props.to
 
@@ -53,6 +55,7 @@ const SmartLink = {
         break
 
       default:
+        attrs["aria-label"] = "Button"
         break
     }
 

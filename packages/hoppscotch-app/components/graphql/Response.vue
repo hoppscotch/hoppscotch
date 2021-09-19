@@ -1,47 +1,55 @@
 <template>
   <AppSection ref="response" label="response">
     <div
-      v-if="responseString"
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        pl-4
-        top-0
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      v-if="responseString === 'loading'"
+      class="flex flex-col p-4 items-center justify-center"
     >
-      <label class="font-semibold text-secondaryLight">
-        {{ $t("response.title") }}
-      </label>
-      <div class="flex">
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
-          svg="corner-down-left"
-          @click.native.prevent="linewrapEnabled = !linewrapEnabled"
-        />
-        <ButtonSecondary
-          ref="downloadResponse"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.download_file')"
-          :svg="downloadResponseIcon"
-          @click.native="downloadResponse"
-        />
-        <ButtonSecondary
-          ref="copyResponseButton"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.copy')"
-          :svg="copyResponseIcon"
-          @click.native="copyResponse"
-        />
-      </div>
+      <SmartSpinner class="mb-4" />
+      <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
     </div>
-    <div v-if="responseString" ref="schemaEditor"></div>
+    <div v-else-if="responseString">
+      <div
+        class="
+          bg-primary
+          border-b border-dividerLight
+          flex flex-1
+          pl-4
+          top-0
+          z-10
+          sticky
+          items-center
+          justify-between
+        "
+      >
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("response.title") }}
+        </label>
+        <div class="flex">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('state.linewrap')"
+            :class="{ '!text-accent': linewrapEnabled }"
+            svg="corner-down-left"
+            @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+          />
+          <ButtonSecondary
+            ref="downloadResponse"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('action.download_file')"
+            :svg="downloadResponseIcon"
+            @click.native="downloadResponse"
+          />
+          <ButtonSecondary
+            ref="copyResponseButton"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('action.copy')"
+            :svg="copyResponseIcon"
+            @click.native="copyResponse"
+          />
+        </div>
+      </div>
+      <div ref="schemaEditor"></div>
+    </div>
     <div
       v-else
       class="

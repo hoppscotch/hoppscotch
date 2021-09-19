@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex flex-nowrap flex-1 h-full"
-    :class="{ 'flex-col': !vertical }"
+    :class="{ 'flex-col h-auto': !vertical }"
   >
     <div
       class="tabs hide-scrollbar relative"
@@ -19,6 +19,7 @@
               class="tab"
               :class="[{ active: tab.active }, { vertical: vertical }]"
               tabindex="0"
+              :aria-label="tab.label"
               @keyup.enter="selectTab(tab)"
               @click="selectTab(tab)"
             >
@@ -42,8 +43,9 @@
       </div>
     </div>
     <div
+      class="contents h-full w-full"
       :class="{
-        'flex flex-col flex-1 overflow-y-auto hide-scrollbar': vertical,
+        '!flex flex-col flex-1 overflow-y-auto hide-scrollbar': vertical,
       }"
     >
       <slot></slot>

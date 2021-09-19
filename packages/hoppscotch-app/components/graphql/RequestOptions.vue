@@ -1,6 +1,21 @@
 <template>
   <div>
     <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
+      <template #actions>
+        <ButtonSecondary
+          :label="`${$t('request.run')}`"
+          svg="play"
+          class="rounded-none !text-accent"
+          @click.native="runQuery()"
+        />
+        <ButtonSecondary
+          ref="saveRequest"
+          :label="`${$t('request.save')}`"
+          class="rounded-none"
+          @click.native="saveRequest"
+        />
+      </template>
+
       <SmartTab :id="'query'" :label="`${$t('tab.query')}`" :selected="true">
         <AppSection label="query">
           <div
@@ -22,12 +37,6 @@
             </label>
             <div class="flex">
               <ButtonSecondary
-                :label="`${$t('request.run')}`"
-                svg="play"
-                class="rounded-none !text-accent"
-                @click.native="runQuery()"
-              />
-              <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 to="https://docs.hoppscotch.io"
                 blank
@@ -37,21 +46,14 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
-                :svg="copyQueryIcon"
+                :svg="`${copyQueryIcon}`"
                 @click.native="copyQuery"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.prettify')"
-                :svg="prettifyQueryIcon"
+                :svg="`${prettifyQueryIcon}`"
                 @click.native="prettifyQuery"
-              />
-              <ButtonSecondary
-                ref="saveRequest"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('request.save')"
-                svg="folder-plus"
-                @click.native="saveRequest"
               />
             </div>
           </div>
@@ -88,7 +90,7 @@
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.copy')"
-                :svg="copyVariablesIcon"
+                :svg="`${copyVariablesIcon}`"
                 @click.native="copyVariables"
               />
             </div>
@@ -127,7 +129,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.clear_all')"
                 svg="trash-2"
-                :disabled="bulkMode"
+                :disabled="Boolean(bulkMode)"
                 @click.native="headers = []"
               />
               <ButtonSecondary
@@ -141,7 +143,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('add.new')"
                 svg="plus"
-                :disabled="bulkMode"
+                :disabled="Boolean(bulkMode)"
                 @click.native="addRequestHeader"
               />
             </div>
@@ -150,7 +152,7 @@
           <div v-else>
             <div
               v-for="(header, index) in headers"
-              :key="`header-${index}`"
+              :key="`header-${String(index)}`"
               class="
                 divide-x divide-dividerLight
                 border-b border-dividerLight
@@ -183,7 +185,7 @@
               <input
                 class="bg-transparent flex flex-1 py-2 px-4"
                 :placeholder="`${$t('count.value', { count: index + 1 })}`"
-                :name="`value ${index}`"
+                :name="`value ${String(index)}`"
                 :value="header.value"
                 autofocus
                 @change="
@@ -258,7 +260,7 @@
 
     <CollectionsSaveRequest
       mode="graphql"
-      :show="showSaveRequestModal"
+      :show="Boolean(showSaveRequestModal)"
       @hide-modal="hideRequestModal"
     />
   </div>
@@ -407,7 +409,7 @@ const runQuery = async () => {
   const startTime = Date.now()
 
   nuxt.value.$loading.start()
-  response.value = `${t("state.loading")}`
+  response.value = "loading"
 
   try {
     const runURL = clone(url.value)

@@ -177,6 +177,7 @@ export default defineComponent({
             action: [
               {
                 text: `${this.$t("app.reload")}`,
+                class: "!ml-auto",
                 onClick: (_, toastObject) => {
                   toastObject.goAway(0)
                   window.location.reload()

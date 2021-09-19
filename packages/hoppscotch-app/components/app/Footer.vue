@@ -35,59 +35,65 @@
               <ButtonSecondary
                 svg="help-circle"
                 class="!rounded-none"
-                :label="$t('app.help')"
+                :label="`${$t('app.help')}`"
               />
             </template>
             <div class="flex flex-col">
               <SmartItem
                 svg="book"
-                :label="$t('app.documentation')"
+                :label="`${$t('app.documentation')}`"
                 to="https://docs.hoppscotch.io"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="zap"
-                :label="$t('app.keyboard_shortcuts')"
+                :label="`${$t('app.keyboard_shortcuts')}`"
                 @click.native="
-                  showShortcuts = true
-                  $refs.options.tippy().hide()
+                  () => {
+                    showShortcuts = true
+                    $refs.options.tippy().hide()
+                  }
                 "
               />
               <SmartItem
                 svg="gift"
-                :label="$t('app.whats_new')"
+                :label="`${$t('app.whats_new')}`"
                 to="https://docs.hoppscotch.io/changelog"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="message-circle"
-                :label="$t('app.chat_with_us')"
+                :label="`${$t('app.chat_with_us')}`"
                 @click.native="
-                  chatWithUs()
-                  $refs.options.tippy().hide()
+                  () => {
+                    chatWithUs()
+                    $refs.options.tippy().hide()
+                  }
                 "
               />
               <hr />
               <SmartItem
                 svg="twitter"
-                :label="$t('app.twitter')"
+                :label="`${$t('app.twitter')}`"
                 to="https://hoppscotch.io/twitter"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="user-plus"
-                :label="$t('app.invite')"
+                :label="`${$t('app.invite')}`"
                 @click.native="
-                  showShare = true
-                  $refs.options.tippy().hide()
+                  () => {
+                    showShare = true
+                    $refs.options.tippy().hide()
+                  }
                 "
               />
               <SmartItem
                 svg="lock"
-                :label="$t('app.terms_and_privacy')"
+                :label="`${$t('app.terms_and_privacy')}`"
                 to="https://docs.hoppscotch.io/privacy"
                 blank
                 @click.native="$refs.options.tippy().hide()"

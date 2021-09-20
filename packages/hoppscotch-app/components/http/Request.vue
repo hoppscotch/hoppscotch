@@ -36,7 +36,7 @@
                     text-secondaryDark
                     py-2
                     px-4
-                    w-28
+                    w-26
                     hover:border-dividerDark
                     focus-visible:bg-transparent
                     focus-visible:border-dividerDark
@@ -109,7 +109,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-r-none flex-1 min-w-22"
+        class="rounded-r-none flex-1 min-w-20"
         :label="`${!loading ? $t('action.send') : $t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
@@ -158,8 +158,12 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded-r-none ml-2"
-        :label="`${$t('request.save')}`"
+        class="rounded-r-none rounded-l ml-2"
+        :label="
+          windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
+            ? `${$t('request.save')}`
+            : ''
+        "
         filled
         svg="save"
         @click.native="saveRequest()"
@@ -251,6 +255,7 @@ import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useSetting } from "~/newstore/settings"
 import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
+import useWindowSize from "~/helpers/utils/useWindowSize"
 
 const methods = [
   "GET",
@@ -440,4 +445,7 @@ const isCustomMethod = computed(() => {
 const requestName = useRESTRequestName()
 
 const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
+
+const windowInnerWidth = useWindowSize()
+const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 </script>

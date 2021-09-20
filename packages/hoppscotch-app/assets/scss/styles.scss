@@ -179,9 +179,9 @@ a {
   @apply items-stretch;
   @apply overflow-y-auto;
 
-  &::-webkit-scrollbar {
-    @apply hidden;
-  }
+  // &::-webkit-scrollbar {
+  //   @apply hidden;
+  // }
 }
 
 hr {

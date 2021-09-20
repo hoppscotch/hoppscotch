@@ -75,6 +75,13 @@
               />
               <hr />
               <SmartItem
+                svg="github"
+                :label="`${$t('app.github')}`"
+                to="https://github.com/hoppscotch/hoppscotch"
+                blank
+                @click.native="$refs.options.tippy().hide()"
+              />
+              <SmartItem
                 svg="twitter"
                 :label="`${$t('app.twitter')}`"
                 to="https://hoppscotch.io/twitter"

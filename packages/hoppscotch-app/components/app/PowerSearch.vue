@@ -1,5 +1,10 @@
 <template>
-  <SmartModal v-if="show" full-width @close="$emit('hide-modal')">
+  <SmartModal
+    v-if="show"
+    max-width="sm:max-w-md"
+    full-width
+    @close="$emit('hide-modal')"
+  >
     <template #body>
       <input
         id="command"

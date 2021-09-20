@@ -9,7 +9,7 @@
       >
         <transition name="fade" appear>
           <div
-            class="bg-primaryDark opacity-90 inset-0 transition fixed"
+            class="bg-primaryLight opacity-90 inset-0 transition fixed"
             @touchstart="!dialog ? close() : null"
             @touchend="!dialog ? close() : null"
             @mouseup="!dialog ? close() : null"
@@ -34,7 +34,7 @@
           <div
             class="
               bg-primary
-              shadow-lg
+              shadow-xl
               text-left
               w-full
               transform
@@ -42,12 +42,12 @@
               inline-block
               align-bottom
               overflow-hidden
-              sm:max-w-md sm:align-middle
-              md:rounded-lg
+              sm:align-middle sm:rounded-xl
             "
             :class="[
               { 'mt-24 md:mb-8': placement === 'top' },
               { 'p-4': !fullWidth },
+              maxWidth,
             ]"
           >
             <div
@@ -121,6 +121,10 @@ export default defineComponent({
     fullWidth: {
       type: Boolean,
       default: false,
+    },
+    maxWidth: {
+      type: String,
+      default: "sm:max-w-lg",
     },
   },
   setup() {

@@ -2,6 +2,7 @@
   <SmartModal
     v-if="show"
     :title="$t('support.title')"
+    max-width="sm:max-w-md"
     @close="$emit('hide-modal')"
   >
     <template #body>

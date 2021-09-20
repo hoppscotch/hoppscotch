@@ -2,6 +2,7 @@
   <SmartModal
     v-if="show"
     :title="`${$t('auth.login_to_hoppscotch')}`"
+    max-width="sm:max-w-md"
     dialog
     @close="hideModal"
   >

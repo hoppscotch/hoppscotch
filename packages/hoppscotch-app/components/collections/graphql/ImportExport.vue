@@ -2,6 +2,7 @@
   <SmartModal
     v-if="show"
     :title="`${$t('modal.import_export')} ${$t('modal.collections')}`"
+    max-width="sm:max-w-md"
     @close="hideModal"
   >
     <template #actions>

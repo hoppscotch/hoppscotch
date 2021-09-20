@@ -219,6 +219,8 @@
     "title": "Import"
   },
   "layout": {
+    "column": "Column layout",
+    "row": "Row layout",
     "zen_mode": "Zen mode"
   },
   "modal": {

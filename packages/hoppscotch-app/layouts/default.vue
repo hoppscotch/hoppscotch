@@ -61,19 +61,24 @@ import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function appLayout() {
   const rightSidebar = useSetting("RIGHT_SIDEBAR")
+  const columnLayout = useSetting("COLUMN_LAYOUT")
   const windowInnerWidth = useWindowSize()
 
   // Initially apply
   onBeforeMount(() => {
-    if (windowInnerWidth.x.value < 768) rightSidebar.value = false
+    if (windowInnerWidth.x.value < 768) {
+      rightSidebar.value = false
+      columnLayout.value = true
+    }
   })
 
   // Listen for updates
-  watch(windowInnerWidth.x, () =>
-    windowInnerWidth.x.value >= 768
-      ? (rightSidebar.value = true)
-      : (rightSidebar.value = false)
-  )
+  watch(windowInnerWidth.x, () => {
+    if (windowInnerWidth.x.value < 768) {
+      rightSidebar.value = false
+      columnLayout.value = true
+    }
+  })
 }
 
 function updateThemes() {

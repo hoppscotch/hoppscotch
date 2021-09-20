@@ -5,7 +5,11 @@
     :horizontal="!(windowInnerWidth.x.value >= 768)"
   >
     <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
+      <Splitpanes
+        class="smart-splitter"
+        :dbl-click-splitter="false"
+        :horizontal="COLUMN_LAYOUT"
+      >
         <Pane class="hide-scrollbar !overflow-auto">
           <HttpRequest />
           <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
@@ -279,6 +283,7 @@ export default defineComponent({
         null
       ),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       confirmSync,
       syncRequest,
       oAuthURL,

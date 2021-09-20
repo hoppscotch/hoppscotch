@@ -5,7 +5,11 @@
     :horizontal="!(windowInnerWidth.x.value >= 768)"
   >
     <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes class="smart-splitter" :dbl-click-splitter="false" horizontal>
+      <Splitpanes
+        class="smart-splitter"
+        :dbl-click-splitter="false"
+        :horizontal="COLUMN_LAYOUT"
+      >
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="import">
             <div class="flex p-4 items-start justify-between">
@@ -190,6 +194,7 @@ export default defineComponent({
     return {
       windowInnerWidth: useWindowSize(),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       currentUser: useReadonlyStream(currentUser$, null),
     }
   },

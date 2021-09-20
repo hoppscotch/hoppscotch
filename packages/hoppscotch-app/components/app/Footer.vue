@@ -120,6 +120,14 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="COLUMN_LAYOUT ? $t('layout.row') : $t('layout.column')"
+          svg="columns"
+          class="transform"
+          :class="{ 'rotate-90': !COLUMN_LAYOUT }"
+          @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="RIGHT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
           svg="sidebar"
           class="transform rotate-180"
@@ -156,6 +164,7 @@ export default defineComponent({
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
+      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
 
       navigatorShare: !!navigator.share,
 

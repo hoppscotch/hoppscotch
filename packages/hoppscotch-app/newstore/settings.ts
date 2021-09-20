@@ -52,6 +52,7 @@ export type SettingsType = {
   RIGHT_SIDEBAR: boolean
   ZEN_MODE: boolean
   FONT_SIZE: HoppFontSize
+  COLUMN_LAYOUT: boolean
 }
 
 export const defaultSettings: SettingsType = {
@@ -78,6 +79,7 @@ export const defaultSettings: SettingsType = {
   RIGHT_SIDEBAR: true,
   ZEN_MODE: false,
   FONT_SIZE: "small",
+  COLUMN_LAYOUT: true,
 }
 
 const validKeys = Object.keys(defaultSettings)

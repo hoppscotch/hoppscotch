@@ -101,6 +101,7 @@ export default {
     "~/plugins/v-textarea",
     "~/plugins/vue-apollo",
     "~/plugins/crisp",
+    "~/plugins/show-keys",
     { src: "~/plugins/web-worker", ssr: false },
   ],
 

@@ -302,9 +302,10 @@ _Sample keys only works with the [production build](https://hoppscotch.io)._
 ### Local development environment
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
-3. Start the development server with `pnpm run dev`.
-4. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
+2. Install pnpm using npm by running `npm install -g pnpm`.
+3. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
+4. Start the development server with `pnpm run dev`.
+5. Open development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
 ### Docker compose
 
@@ -323,9 +324,10 @@ docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ## **Releasing**
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
-2. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
-3. Build the release files with `pnpm run generate`.
-4. Find the built project in `packages/hoppscotch-app/dist`.
+2. Install pnpm using npm by running `npm install -g pnpm`.
+3. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
+4. Build the release files with `pnpm run generate`.
+5. Find the built project in `packages/hoppscotch-app/dist`.
 
 ## **Contributing**
 

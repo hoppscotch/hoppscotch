@@ -22,7 +22,7 @@ importers:
       '@babel/preset-env': ^7.15.6
       '@commitlint/cli': ^13.1.0
       '@commitlint/config-conventional': ^13.1.0
-      '@hoppscotch/js-sandbox': workspace:^0.3.1
+      '@hoppscotch/js-sandbox': workspace:^1.0.0
       '@nuxt/types': ^2.15.8
       '@nuxt/typescript-build': ^2.1.0
       '@nuxtjs/axios': ^5.13.6

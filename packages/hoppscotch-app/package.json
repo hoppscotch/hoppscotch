@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.4.12",
-    "@hoppscotch/js-sandbox": "workspace:^0.3.1",
+    "@hoppscotch/js-sandbox": "workspace:^1.0.0",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/composition-api": "^0.29.0",
     "@nuxtjs/gtm": "^2.4.0",

@@ -158,7 +158,7 @@ export function updateTeamMemberRole(apollo, userID, newRole, teamID) {
     mutation: gql`
       mutation updateTeamMemberRole(
         $newRole: TeamMemberRole!
-        $userUid: String!
+        $userUid: ID!
         $teamID: ID!
       ) {
         updateTeamMemberRole(
@@ -197,7 +197,7 @@ export function renameTeam(apollo, name, teamID) {
 export function removeTeamMember(apollo, userID, teamID) {
   return apollo.mutate({
     mutation: gql`
-      mutation removeTeamMember($userUid: String!, $teamID: ID!) {
+      mutation removeTeamMember($userUid: ID!, $teamID: ID!) {
         removeTeamMember(userUid: $userUid, teamID: $teamID)
       }
     `,

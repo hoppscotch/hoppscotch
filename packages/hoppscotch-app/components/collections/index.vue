@@ -506,7 +506,7 @@ export default defineComponent({
               mutation: gql`
                 mutation CreateChildCollection(
                   $childTitle: String!
-                  $collectionID: String!
+                  $collectionID: ID!
                 ) {
                   createChildCollection(
                     childTitle: $childTitle
@@ -613,7 +613,7 @@ export default defineComponent({
             .mutate({
               // Query
               mutation: gql`
-                mutation ($collectionID: String!) {
+                mutation ($collectionID: ID!) {
                   deleteCollection(collectionID: $collectionID)
                 }
               `,

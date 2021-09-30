@@ -56,7 +56,7 @@ export default class TeamMemberAdapter {
     while (true) {
       const response: Apollo.ApolloQueryResult<any> = await apolloClient.query({
         query: gql`
-          query GetTeamMembers($teamID: String!, $cursor: String) {
+          query GetTeamMembers($teamID: ID!, $cursor: ID) {
             team(teamID: $teamID) {
               members(cursor: $cursor) {
                 membershipID
@@ -92,7 +92,7 @@ export default class TeamMemberAdapter {
     this.teamMemberAdded$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamMemberAdded($teamID: String!) {
+          subscription TeamMemberAdded($teamID: ID!) {
             teamMemberAdded(teamID: $teamID) {
               user {
                 uid
@@ -113,7 +113,7 @@ export default class TeamMemberAdapter {
     this.teamMemberRemoved$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamMemberRemoved($teamID: String!) {
+          subscription TeamMemberRemoved($teamID: ID!) {
             teamMemberRemoved(teamID: $teamID)
           }
         `,
@@ -132,7 +132,7 @@ export default class TeamMemberAdapter {
     this.teamMemberUpdated$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamMemberUpdated($teamID: String!) {
+          subscription TeamMemberUpdated($teamID: ID!) {
             teamMemberUpdated(teamID: $teamID) {
               user {
                 uid

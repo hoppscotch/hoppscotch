@@ -382,7 +382,7 @@ export default class TeamCollectionAdapter {
     this.teamCollectionAdded$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamCollectionAdded($teamID: String!) {
+          subscription TeamCollectionAdded($teamID: ID!) {
             teamCollectionAdded(teamID: $teamID) {
               id
               title
@@ -411,7 +411,7 @@ export default class TeamCollectionAdapter {
     this.teamCollectionUpdated$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamCollectionUpdated($teamID: String!) {
+          subscription TeamCollectionUpdated($teamID: ID!) {
             teamCollectionUpdated(teamID: $teamID) {
               id
               title
@@ -435,7 +435,7 @@ export default class TeamCollectionAdapter {
     this.teamCollectionRemoved$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamCollectionRemoved($teamID: String!) {
+          subscription TeamCollectionRemoved($teamID: ID!) {
             teamCollectionRemoved(teamID: $teamID)
           }
         `,
@@ -450,7 +450,7 @@ export default class TeamCollectionAdapter {
     this.teamRequestAdded$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamRequestAdded($teamID: String!) {
+          subscription TeamRequestAdded($teamID: ID!) {
             teamRequestAdded(teamID: $teamID) {
               id
               collectionID
@@ -477,7 +477,7 @@ export default class TeamCollectionAdapter {
     this.teamRequestUpdated$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamRequestUpdated($teamID: String!) {
+          subscription TeamRequestUpdated($teamID: ID!) {
             teamRequestUpdated(teamID: $teamID) {
               id
               collectionID
@@ -502,7 +502,7 @@ export default class TeamCollectionAdapter {
     this.teamRequestDeleted$ = apolloClient
       .subscribe({
         query: gql`
-          subscription TeamRequestDeleted($teamID: String!) {
+          subscription TeamRequestDeleted($teamID: ID!) {
             teamRequestDeleted(teamID: $teamID)
           }
         `,

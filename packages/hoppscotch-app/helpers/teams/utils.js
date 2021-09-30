@@ -14,7 +14,7 @@ export async function getLiveTeamMembersList(apollo, teamID) {
 
   const { data } = await apollo.query({
     query: gql`
-      query GetTeamMembers($teamID: String!) {
+      query GetTeamMembers($teamID: ID!) {
         team(teamID: $teamID) {
           members {
             user {
@@ -36,7 +36,7 @@ export async function getLiveTeamMembersList(apollo, teamID) {
   const addedSub = apollo
     .subscribe({
       query: gql`
-        subscription TeamMemberAdded($teamID: String!) {
+        subscription TeamMemberAdded($teamID: ID!) {
           teamMemberAdded(teamID: $teamID) {
             user {
               uid
@@ -57,7 +57,7 @@ export async function getLiveTeamMembersList(apollo, teamID) {
   const updateSub = apollo
     .subscribe({
       query: gql`
-        subscription TeamMemberUpdated($teamID: String!) {
+        subscription TeamMemberUpdated($teamID: ID!) {
           teamMemberUpdated(teamID: $teamID) {
             user {
               uid
@@ -84,7 +84,7 @@ export async function getLiveTeamMembersList(apollo, teamID) {
   const removeSub = apollo
     .subscribe({
       query: gql`
-        subscription TeamMemberRemoved($teamID: String!) {
+        subscription TeamMemberRemoved($teamID: ID!) {
           teamMemberRemoved(teamID: $teamID)
         }
       `,
@@ -134,7 +134,7 @@ export function addTeamMemberByEmail(apollo, userRole, userEmail, teamID) {
       mutation addTeamMemberByEmail(
         $userRole: TeamMemberRole!
         $userEmail: String!
-        $teamID: String!
+        $teamID: ID!
       ) {
         addTeamMemberByEmail(
           userRole: $userRole
@@ -159,7 +159,7 @@ export function updateTeamMemberRole(apollo, userID, newRole, teamID) {
       mutation updateTeamMemberRole(
         $newRole: TeamMemberRole!
         $userUid: String!
-        $teamID: String!
+        $teamID: ID!
       ) {
         updateTeamMemberRole(
           newRole: $newRole
@@ -181,7 +181,7 @@ export function updateTeamMemberRole(apollo, userID, newRole, teamID) {
 export function renameTeam(apollo, name, teamID) {
   return apollo.mutate({
     mutation: gql`
-      mutation renameTeam($newName: String!, $teamID: String!) {
+      mutation renameTeam($newName: String!, $teamID: ID!) {
         renameTeam(newName: $newName, teamID: $teamID) {
           id
         }
@@ -197,7 +197,7 @@ export function renameTeam(apollo, name, teamID) {
 export function removeTeamMember(apollo, userID, teamID) {
   return apollo.mutate({
     mutation: gql`
-      mutation removeTeamMember($userUid: String!, $teamID: String!) {
+      mutation removeTeamMember($userUid: String!, $teamID: ID!) {
         removeTeamMember(userUid: $userUid, teamID: $teamID)
       }
     `,
@@ -213,7 +213,7 @@ export async function deleteTeam(apollo, teamID) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($teamID: String!) {
+        mutation ($teamID: ID!) {
           deleteTeam(teamID: $teamID)
         }
       `,
@@ -229,7 +229,7 @@ export async function deleteTeam(apollo, teamID) {
 export function exitTeam(apollo, teamID) {
   return apollo.mutate({
     mutation: gql`
-      mutation ($teamID: String!) {
+      mutation ($teamID: ID!) {
         leaveTeam(teamID: $teamID)
       }
     `,
@@ -245,7 +245,7 @@ export async function rootCollectionsOfTeam(apollo, teamID) {
   while (true) {
     const response = await apollo.query({
       query: gql`
-        query rootCollectionsOfTeam($teamID: String!, $cursor: String!) {
+        query rootCollectionsOfTeam($teamID: ID!, $cursor: ID!) {
           rootCollectionsOfTeam(teamID: $teamID, cursor: $cursor) {
             id
             title
@@ -271,7 +271,7 @@ export async function getCollectionChildren(apollo, collectionID) {
   const children = []
   const response = await apollo.query({
     query: gql`
-      query getCollectionChildren($collectionID: String!) {
+      query getCollectionChildren($collectionID: ID!) {
         collection(collectionID: $collectionID) {
           children {
             id
@@ -297,7 +297,7 @@ export async function getCollectionRequests(apollo, collectionID) {
   while (true) {
     const response = await apollo.query({
       query: gql`
-        query getCollectionRequests($collectionID: String!, $cursor: String) {
+        query getCollectionRequests($collectionID: ID!, $cursor: ID) {
           requestsInCollection(collectionID: $collectionID, cursor: $cursor) {
             id
             title
@@ -329,7 +329,7 @@ export async function renameCollection(apollo, title, id) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($newTitle: String!, $collectionID: String!) {
+        mutation ($newTitle: String!, $collectionID: ID!) {
           renameCollection(newTitle: $newTitle, collectionID: $collectionID) {
             id
           }
@@ -350,7 +350,7 @@ export async function updateRequest(apollo, request, requestName, requestID) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($data: UpdateTeamRequestInput!, $requestID: String!) {
+        mutation ($data: UpdateTeamRequestInput!, $requestID: ID!) {
           updateRequest(data: $data, requestID: $requestID) {
             id
           }
@@ -374,7 +374,7 @@ export async function addChildCollection(apollo, title, id) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($childTitle: String!, $collectionID: String!) {
+        mutation ($childTitle: String!, $collectionID: ID!) {
           createChildCollection(
             childTitle: $childTitle
             collectionID: $collectionID
@@ -398,7 +398,7 @@ export async function deleteCollection(apollo, id) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($collectionID: String!) {
+        mutation ($collectionID: ID!) {
           deleteCollection(collectionID: $collectionID)
         }
       `,
@@ -416,7 +416,7 @@ export async function deleteRequest(apollo, requestID) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($requestID: String!) {
+        mutation ($requestID: ID!) {
           deleteRequest(requestID: $requestID)
         }
       `,
@@ -434,7 +434,7 @@ export async function createNewRootCollection(apollo, title, id) {
   while (true) {
     response = await apollo.mutate({
       mutation: gql`
-        mutation ($title: String!, $teamID: String!) {
+        mutation ($title: String!, $teamID: ID!) {
           createRootCollection(title: $title, teamID: $teamID) {
             id
           }
@@ -459,7 +459,7 @@ export async function saveRequestAsTeams(
 ) {
   const x = await apollo.mutate({
     mutation: gql`
-      mutation ($data: CreateTeamRequestInput!, $collectionID: String!) {
+      mutation ($data: CreateTeamRequestInput!, $collectionID: ID!) {
         createRequestInCollection(data: $data, collectionID: $collectionID) {
           id
           collection {
@@ -487,10 +487,7 @@ export async function saveRequestAsTeams(
 export async function overwriteRequestTeams(apollo, request, title, requestID) {
   await apollo.mutate({
     mutation: gql`
-      mutation updateRequest(
-        $data: UpdateTeamRequestInput!
-        $requestID: String!
-      ) {
+      mutation updateRequest($data: UpdateTeamRequestInput!, $requestID: ID!) {
         updateRequest(data: $data, requestID: $requestID) {
           id
           title
@@ -512,7 +509,7 @@ export async function importFromMyCollections(apollo, collectionID, teamID) {
     mutation: gql`
       mutation importFromMyCollections(
         $fbCollectionPath: String!
-        $teamID: String!
+        $teamID: ID!
       ) {
         importCollectionFromUserFirestore(
           fbCollectionPath: $fbCollectionPath
@@ -534,7 +531,7 @@ export async function importFromMyCollections(apollo, collectionID, teamID) {
 export async function importFromJSON(apollo, collections, teamID) {
   const response = await apollo.mutate({
     mutation: gql`
-      mutation importFromJSON($jsonString: String!, $teamID: String!) {
+      mutation importFromJSON($jsonString: String!, $teamID: ID!) {
         importCollectionsFromJSON(jsonString: $jsonString, teamID: $teamID)
       }
     `,
@@ -549,7 +546,7 @@ export async function importFromJSON(apollo, collections, teamID) {
 export async function replaceWithJSON(apollo, collections, teamID) {
   const response = await apollo.mutate({
     mutation: gql`
-      mutation replaceWithJSON($jsonString: String!, $teamID: String!) {
+      mutation replaceWithJSON($jsonString: String!, $teamID: ID!) {
         replaceCollectionsWithJSON(jsonString: $jsonString, teamID: $teamID)
       }
     `,
@@ -564,7 +561,7 @@ export async function replaceWithJSON(apollo, collections, teamID) {
 export async function exportAsJSON(apollo, teamID) {
   const response = await apollo.query({
     query: gql`
-      query exportAsJSON($teamID: String!) {
+      query exportAsJSON($teamID: ID!) {
         exportCollectionsToJSON(teamID: $teamID)
       }
     `,

@@ -47,6 +47,8 @@ importers:
       '@types/esprima': ^4.0.3
       '@types/lodash': ^4.14.174
       '@types/splitpanes': ^2.2.1
+      '@urql/core': ^2.3.3
+      '@urql/devtools': ^2.0.3
       '@vue/runtime-dom': ^3.2.19
       '@vue/test-utils': ^1.2.2
       acorn: ^8.5.0
@@ -69,6 +71,8 @@ importers:
       graphql: ^15.6.0
       graphql-language-service-interface: ^2.8.4
       graphql-language-service-parser: ^1.9.2
+      graphql-tag: ^2.12.5
+      io-ts: ^2.2.16
       jest: ^27.2.2
       jest-serializer-vue: ^2.0.2
       json-loader: ^0.5.7
@@ -102,6 +106,7 @@ importers:
       vue-textarea-autosize: ^1.1.1
       vue-tippy: ^4.11.0
       vuejs-auto-complete: ^0.9.0
+      wonka: ^4.0.15
       worker-loader: ^3.0.8
       yargs-parser: ^20.2.9
     dependencies:
@@ -114,6 +119,7 @@ importers:
       '@nuxtjs/robots': 2.5.0
       '@nuxtjs/sitemap': 2.4.0
       '@nuxtjs/toast': 3.3.1
+      '@urql/core': 2.3.3_graphql@15.6.0
       acorn: 8.5.0
       acorn-walk: 8.2.0
       axios: 0.21.4
@@ -127,6 +133,8 @@ importers:
       graphql: 15.6.0
       graphql-language-service-interface: 2.8.4_graphql@15.6.0
       graphql-language-service-parser: 1.9.2_graphql@15.6.0
+      graphql-tag: 2.12.5_graphql@15.6.0
+      io-ts: 2.2.16_fp-ts@2.11.3
       json-loader: 0.5.7
       lodash: 4.17.21
       mustache: 4.2.0
@@ -138,13 +146,14 @@ importers:
       socketio-wildcard: 2.0.0
       splitpanes: 2.3.8
       tern: 0.24.3
-      vue-apollo: 3.0.8
+      vue-apollo: 3.0.8_graphql-tag@2.12.5
       vue-cli-plugin-apollo: 0.22.2_typescript@4.4.3
       vue-functional-data-merge: 3.1.0
       vue-github-button: 1.3.0
       vue-textarea-autosize: 1.1.1
       vue-tippy: 4.11.0
       vuejs-auto-complete: 0.9.0
+      wonka: 4.0.15
       yargs-parser: 20.2.9
     devDependencies:
       '@babel/core': 7.15.5
@@ -168,6 +177,7 @@ importers:
       '@types/esprima': 4.0.3
       '@types/lodash': 4.14.174
       '@types/splitpanes': 2.2.1
+      '@urql/devtools': 2.0.3_@urql+core@2.3.3+graphql@15.6.0
       '@vue/runtime-dom': 3.2.19
       '@vue/test-utils': 1.2.2
       babel-core: 7.0.0-bridge.0_@babel+core@7.15.5
@@ -4590,6 +4600,27 @@ packages:
     dependencies:
       '@typescript-eslint/types': 4.31.2
       eslint-visitor-keys: 2.1.0
+    dev: true
+
+  /@urql/core/2.3.3_graphql@15.6.0:
+    resolution: {integrity: sha512-Bi9mafTFu0O1XZmI7/HrEk12LHZW+Fs/V1FqSJoUDgYIhARIJW6cCh3Havy1dJJ0FETxYmmQQXPf6kst+IP2qQ==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+    dependencies:
+      '@graphql-typed-document-node/core': 3.1.0_graphql@15.6.0
+      graphql: 15.6.0
+      wonka: 4.0.15
+    dev: false
+
+  /@urql/devtools/2.0.3_@urql+core@2.3.3+graphql@15.6.0:
+    resolution: {integrity: sha512-TktPLiBS9LcBPHD6qcnb8wqOVcg3Bx0iCtvQ80uPpfofwwBGJmqnQTjUdEFU6kwaLOFZULQ9+Uo4831G823mQw==}
+    peerDependencies:
+      '@urql/core': '>= 1.14.0'
+      graphql: '>= 0.11.0'
+    dependencies:
+      '@urql/core': 2.3.3_graphql@15.6.0
+      graphql: 15.6.0
+      wonka: 4.0.15
     dev: true
 
   /@vue/babel-helper-vue-jsx-merge-props/1.2.1:
@@ -10432,7 +10463,6 @@ packages:
       fp-ts: ^2.5.0
     dependencies:
       fp-ts: 2.11.3
-    dev: true
 
   /ip/1.1.5:
     resolution: {integrity: sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=}
@@ -17362,12 +17392,13 @@ packages:
     deprecated: Sorry but vue-analytics is no longer maintained. I would suggest you switch to vue-gtag, with love, the guy who made the package.
     dev: true
 
-  /vue-apollo/3.0.8:
+  /vue-apollo/3.0.8_graphql-tag@2.12.5:
     resolution: {integrity: sha512-RnkC75PMoGwl1sdZdVO3R9P51wqmgOVi4QmljkBaTzlVThVlqfkJhrBcPiw2K9EohvSagvZclNqXktyOCcXbBA==}
     peerDependencies:
       graphql-tag: ^2
     dependencies:
       chalk: 2.4.2
+      graphql-tag: 2.12.5_graphql@15.6.0
       serialize-javascript: 4.0.0
       throttle-debounce: 2.3.0
     dev: false
@@ -17864,6 +17895,9 @@ packages:
       assert-never: 1.2.1
       babel-walk: 3.0.0-canary-5
     optional: true
+
+  /wonka/4.0.15:
+    resolution: {integrity: sha512-U0IUQHKXXn6PFo9nqsHphVCE5m3IntqZNB9Jjn7EB1lrR7YTDY3YWgFvEvwniTzXSvOH/XMzAZaIfJF/LvHYXg==}
 
   /word-wrap/1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}

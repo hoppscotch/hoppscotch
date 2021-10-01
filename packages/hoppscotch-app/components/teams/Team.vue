@@ -4,7 +4,7 @@
       <div class="p-4">
         <label
           class="cursor-pointer transition hover:text-secondaryDark"
-          @click="team.myRole === 'OWNER' ? $emit('edit-team') : ''"
+          @click="team.myRole === 'OWNER' ? emit('edit-team') : ''"
         >
           {{ team.name || $t("state.nothing_found") }}
         </label>
@@ -36,7 +36,7 @@
           :label="$t('action.edit').toString()"
           @click.native="
             () => {
-              $emit('edit-team')
+              emit('edit-team')
               $refs.options.tippy().hide()
             }
           "
@@ -92,6 +92,11 @@ const props = defineProps<{
     }>
   }
   teamID: string
+}>()
+
+const emit = defineEmits<{
+  (e: "edit-team"): void
+  
 }>()
 
 const {

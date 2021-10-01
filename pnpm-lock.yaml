@@ -47,6 +47,8 @@ importers:
       '@types/esprima': ^4.0.3
       '@types/lodash': ^4.14.176
       '@types/splitpanes': ^2.2.1
+      '@urql/core': ^2.3.3
+      '@urql/devtools': ^2.0.3
       '@vue/runtime-dom': ^3.2.20
       '@vue/test-utils': ^1.2.2
       acorn: ^8.5.0
@@ -70,6 +72,7 @@ importers:
       graphql-language-service-interface: ^2.8.4
       graphql-language-service-parser: ^1.9.3
       graphql-tag: ^2.12.5
+      io-ts: ^2.2.16
       jest: ^27.3.1
       jest-serializer-vue: ^2.0.2
       json-loader: ^0.5.7
@@ -106,6 +109,7 @@ importers:
       vue-textarea-autosize: ^1.1.1
       vue-tippy: ^4.12.0
       vuejs-auto-complete: ^0.9.0
+      wonka: ^4.0.15
       worker-loader: ^3.0.8
       yargs-parser: ^20.2.9
     dependencies:
@@ -118,6 +122,7 @@ importers:
       '@nuxtjs/robots': 2.5.0
       '@nuxtjs/sitemap': 2.4.0
       '@nuxtjs/toast': 3.3.1
+      '@urql/core': 2.3.3_graphql@15.7.2
       acorn: 8.5.0
       acorn-walk: 8.2.0
       axios: 0.24.0
@@ -132,6 +137,7 @@ importers:
       graphql-language-service-interface: 2.8.4_graphql@15.7.2
       graphql-language-service-parser: 1.9.3_graphql@15.7.2
       graphql-tag: 2.12.5_graphql@15.7.2
+      io-ts: 2.2.16_fp-ts@2.11.5
       json-loader: 0.5.7
       lodash: 4.17.21
       mustache: 4.2.0
@@ -153,6 +159,7 @@ importers:
       vue-textarea-autosize: 1.1.1
       vue-tippy: 4.12.0
       vuejs-auto-complete: 0.9.0
+      wonka: 4.0.15
       yargs-parser: 20.2.9
     devDependencies:
       '@babel/core': 7.16.0
@@ -176,6 +183,7 @@ importers:
       '@types/esprima': 4.0.3
       '@types/lodash': 4.14.176
       '@types/splitpanes': 2.2.1
+      '@urql/devtools': 2.0.3_@urql+core@2.3.3+graphql@15.7.2
       '@vue/runtime-dom': 3.2.20
       '@vue/test-utils': 1.2.2
       babel-core: 7.0.0-bridge.0_@babel+core@7.16.0
@@ -232,7 +240,7 @@ importers:
       '@relmify/jest-fp-ts': 1.1.1_fp-ts@2.11.5+io-ts@2.2.16
       '@types/jest': 27.0.2
       '@types/lodash': 4.14.176
-      '@types/node': 16.11.5
+      '@types/node': 16.11.6
       '@typescript-eslint/eslint-plugin': 4.33.0_cc617358c89d3f38c52462f6d809db4c
       '@typescript-eslint/parser': 4.33.0_eslint@7.32.0+typescript@4.4.4
       eslint: 7.32.0
@@ -472,7 +480,7 @@ packages:
     resolution: {integrity: sha512-cYDUpvIzhBVnMzRoY1fkSEhK/HmwEVwlyULYgn/tMQYd6Obag3ylCjONle3gdErfXBW61SVTlR9QR7uWlgeIkg==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.15.0
+      '@babel/types': 7.16.0
       jsesc: 2.5.2
       source-map: 0.5.7
     dev: false
@@ -1000,6 +1008,16 @@ packages:
     dependencies:
       '@babel/core': 7.16.0
       '@babel/helper-plugin-utils': 7.14.5
+
+  /@babel/plugin-syntax-jsx/7.14.5_@babel+core@7.16.0:
+    resolution: {integrity: sha512-ohuFIsOMXJnbOMRfX7/w7LocdR6R7whhuRD4ax8IipLcLPlZGJKkBxgHp++U4N/vKyU16/YDQr2f5seajD3jIw==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.16.0
+      '@babel/helper-plugin-utils': 7.14.5
+    dev: false
 
   /@babel/plugin-syntax-jsx/7.16.0_@babel+core@7.16.0:
     resolution: {integrity: sha512-8zv2+xiPHwly31RK4RmnEYY5zziuF3O7W2kIDW+07ewWDh6Oi0dRq8kwvulRkFgt6DB97RlKs5c1y068iPlCUg==}
@@ -1590,8 +1608,8 @@ packages:
       '@babel/generator': 7.16.0
       '@babel/helper-function-name': 7.16.0
       '@babel/helper-split-export-declaration': 7.16.0
-      '@babel/parser': 7.12.16
-      '@babel/types': 7.12.13
+      '@babel/parser': 7.16.0
+      '@babel/types': 7.16.0
       debug: 4.3.2
       globals: 11.12.0
       lodash: 4.17.21
@@ -2956,7 +2974,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 16.11.5
+      '@types/node': 16.11.6
       '@types/yargs': 15.0.14
       chalk: 4.1.2
     dev: true
@@ -3168,8 +3186,8 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27258467.4e424d0:
-    resolution: {integrity: sha512-oL8ObcXc0GBgvHCIEEzx6+2dgwlyBPCLkwYhZjRImZAt3tvD/RJCJih32QgmSddsO3eBW2OqxyMjdqmJwRmgXg==}
+  /@nuxt/kit-edge/3.0.0-27264278.aba2d22:
+    resolution: {integrity: sha512-FfPr+jGV7+exXKWZK+1h4by0pdBKWOqPJGzmlABna+tp/EDiqZL6EIFPfgl+DkgEFCvsT/Uya+7G0f6LX8QgMA==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       consola: 2.15.3
@@ -3181,7 +3199,7 @@ packages:
       hookable: 5.0.0
       jiti: 1.12.9
       lodash.template: 4.5.0
-      mlly: 0.3.10
+      mlly: 0.3.11
       pathe: 0.2.0
       pkg-types: 0.3.1
       rc9: 1.2.0
@@ -3190,7 +3208,7 @@ packages:
       std-env: 2.3.1
       ufo: 0.7.9
       unctx: 1.0.2
-      untyped: 0.2.10
+      untyped: 0.2.11
     dev: true
 
   /@nuxt/loading-screen/2.0.4:
@@ -4335,10 +4353,6 @@ packages:
     resolution: {integrity: sha512-+5haRZ9uzI7rYqzDznXgkuacqb6LJhAti8mzZKWxIXn/WEtvB+GHVJ7AuMwcN1HMvXOSJcrvA6PPoYHYOYYebA==}
     dev: false
 
-  /@types/node/16.11.5:
-    resolution: {integrity: sha512-NyUV2DGcqYIx9op++MG2+Z4Nhw1tPhi0Wfs81TgncuX1aJC4zf2fgCJlJhl4BW9bCSS04e34VkqmOS96w0XQdg==}
-    dev: true
-
   /@types/node/16.11.6:
     resolution: {integrity: sha512-ua7PgUoeQFjmWPcoo9khiPum3Pd60k4/2ZGXt18sm2Slk0W0xZTqt5Y0Ny1NyBiN1EVQ/+FaF9NcY4Qe6rwk5w==}
 
@@ -4657,6 +4671,27 @@ packages:
       eslint-visitor-keys: 2.1.0
     dev: true
 
+  /@urql/core/2.3.3_graphql@15.7.2:
+    resolution: {integrity: sha512-Bi9mafTFu0O1XZmI7/HrEk12LHZW+Fs/V1FqSJoUDgYIhARIJW6cCh3Havy1dJJ0FETxYmmQQXPf6kst+IP2qQ==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+    dependencies:
+      '@graphql-typed-document-node/core': 3.1.0_graphql@15.7.2
+      graphql: 15.7.2
+      wonka: 4.0.15
+    dev: false
+
+  /@urql/devtools/2.0.3_@urql+core@2.3.3+graphql@15.7.2:
+    resolution: {integrity: sha512-TktPLiBS9LcBPHD6qcnb8wqOVcg3Bx0iCtvQ80uPpfofwwBGJmqnQTjUdEFU6kwaLOFZULQ9+Uo4831G823mQw==}
+    peerDependencies:
+      '@urql/core': '>= 1.14.0'
+      graphql: '>= 0.11.0'
+    dependencies:
+      '@urql/core': 2.3.3_graphql@15.7.2
+      graphql: 15.7.2
+      wonka: 4.0.15
+    dev: true
+
   /@vue/babel-helper-vue-jsx-merge-props/1.2.1:
     resolution: {integrity: sha512-QOi5OW45e2R20VygMSNhyQHvpdUwQZqGPc748JLGCYEy+yp8fNFNdbNIGAgZmi9e+2JHPd6i6idRuqivyicIkA==}
     dev: false
@@ -4668,7 +4703,7 @@ packages:
     dependencies:
       '@babel/core': 7.16.0
       '@babel/helper-module-imports': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
       '@vue/babel-helper-vue-jsx-merge-props': 1.2.1
       html-tags: 2.0.0
       lodash.kebabcase: 4.1.1
@@ -4697,7 +4732,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
     dev: false
 
   /@vue/babel-sugar-composition-api-render-instance/1.2.4_@babel+core@7.16.0:
@@ -4706,7 +4741,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
     dev: false
 
   /@vue/babel-sugar-functional-vue/1.2.2_@babel+core@7.16.0:
@@ -4715,7 +4750,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
     dev: false
 
   /@vue/babel-sugar-inject-h/1.2.2_@babel+core@7.16.0:
@@ -4724,7 +4759,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
     dev: false
 
   /@vue/babel-sugar-v-model/1.2.3_@babel+core@7.16.0:
@@ -4733,7 +4768,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
       '@vue/babel-helper-vue-jsx-merge-props': 1.2.1
       '@vue/babel-plugin-transform-vue-jsx': 1.2.1_@babel+core@7.16.0
       camelcase: 5.3.1
@@ -4747,7 +4782,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.16.0
-      '@babel/plugin-syntax-jsx': 7.16.0_@babel+core@7.16.0
+      '@babel/plugin-syntax-jsx': 7.14.5_@babel+core@7.16.0
       '@vue/babel-plugin-transform-vue-jsx': 1.2.1_@babel+core@7.16.0
       camelcase: 5.3.1
     dev: false
@@ -10597,7 +10632,6 @@ packages:
       fp-ts: ^2.5.0
     dependencies:
       fp-ts: 2.11.5
-    dev: true
 
   /ip/1.1.5:
     resolution: {integrity: sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=}
@@ -12674,6 +12708,10 @@ packages:
     resolution: {integrity: sha512-vD3A7naDtIOqHYZhnYUrECRO6UODWNqz6T0TS/pxwolzVoWKX/mXJF1XSM3qxruCDtkzJbzJPgesByihY/r3EA==}
     dev: true
 
+  /mlly/0.3.11:
+    resolution: {integrity: sha512-Md4jt3kLrp7ebOTdJ2YAF6TXE5Yd5D1CqdizxqG/Km6jHtR7tatu0oefAjvi1EgfvN8vu/Y/7mAutzpYCrHktw==}
+    dev: true
+
   /moment/2.29.1:
     resolution: {integrity: sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==}
     dev: false
@@ -13025,7 +13063,7 @@ packages:
   /nuxt-windicss/2.0.9:
     resolution: {integrity: sha512-Kf7LlQz8fFQhZ+N2PU6caQEJLtt5QdsgOdiGb/uGpDBQJk0f+HwHYpFFfVOSwd6Sso9L5mlfjIPhe1AOtjYEeA==}
     dependencies:
-      '@nuxt/kit-edge': 3.0.0-27258467.4e424d0
+      '@nuxt/kit-edge': 3.0.0-27264278.aba2d22
       defu: 5.0.0
       h3: 0.3.3
       listhen: 0.2.5
@@ -13599,7 +13637,7 @@ packages:
     resolution: {integrity: sha512-BjECNgz/tsyqg0/T4Z/U7WbFQXUT24nfkxPbALcrk/uHVeZf9MrGG4tfvYtu+jsrHCFMseLQ6woQddDEBATw3A==}
     dependencies:
       jsonc-parser: 3.0.0
-      mlly: 0.3.10
+      mlly: 0.3.11
       pathe: 0.2.0
     dev: true
 
@@ -17139,8 +17177,8 @@ packages:
       has-value: 0.3.1
       isobject: 3.0.1
 
-  /untyped/0.2.10:
-    resolution: {integrity: sha512-Ym1bZHJK3rE7n6WYVlIQPOkpCtkWcZbiy0obnmQ0Pn7a82lJVXWgyLhKE1XSyCvmg3HvEQW8kgHAE+r17G4l2Q==}
+  /untyped/0.2.11:
+    resolution: {integrity: sha512-KVNcu9jB+mlnQJiunAzmqpnnn9R+yniT+AkOk9ZgCIsThwh0nlP6wO+O7mJjHM7Y2yplEu3v6NNtRvb82+uGxw==}
     dev: true
 
   /upath/1.2.0:
@@ -17933,6 +17971,9 @@ packages:
     engines: {node: '>= 12'}
     hasBin: true
     dev: true
+
+  /wonka/4.0.15:
+    resolution: {integrity: sha512-U0IUQHKXXn6PFo9nqsHphVCE5m3IntqZNB9Jjn7EB1lrR7YTDY3YWgFvEvwniTzXSvOH/XMzAZaIfJF/LvHYXg==}
 
   /word-wrap/1.2.3:
     resolution: {integrity: sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==}

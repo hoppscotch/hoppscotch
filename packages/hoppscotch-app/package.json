@@ -35,6 +35,7 @@
     "@nuxtjs/robots": "^2.5.0",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
+    "@urql/core": "^2.3.3",
     "acorn": "^8.5.0",
     "acorn-walk": "^8.2.0",
     "axios": "^0.22.0",
@@ -49,6 +50,7 @@
     "graphql-language-service-interface": "^2.8.4",
     "graphql-language-service-parser": "^1.9.2",
     "graphql-tag": "^2.12.5",
+    "io-ts": "^2.2.16",
     "json-loader": "^0.5.7",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0",
@@ -67,6 +69,7 @@
     "vue-textarea-autosize": "^1.1.1",
     "vue-tippy": "^4.12.0",
     "vuejs-auto-complete": "^0.9.0",
+    "wonka": "^4.0.15",
     "yargs-parser": "^20.2.9"
   },
   "devDependencies": {
@@ -91,6 +94,7 @@
     "@types/esprima": "^4.0.3",
     "@types/lodash": "^4.14.175",
     "@types/splitpanes": "^2.2.1",
+    "@urql/devtools": "^2.0.3",
     "@vue/runtime-dom": "^3.2.20",
     "@vue/test-utils": "^1.2.2",
     "babel-core": "^7.0.0-bridge.0",

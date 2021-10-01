@@ -141,6 +141,10 @@ export function initAuth() {
   })
 }
 
+export function getAuthIDToken(): string | null {
+  return authIdToken$.getValue()
+}
+
 /**
  * Sign user in with a popup using Google
  */

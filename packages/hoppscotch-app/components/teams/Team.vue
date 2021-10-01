@@ -14,7 +14,7 @@
             :key="`member-${index}`"
             v-tippy="{ theme: 'tooltip' }"
             :title="member.user.displayName"
-            :src="member.user.photoURL"
+            :src="member.user.photoURL || undefined"
             :alt="member.user.displayName"
             class="rounded-full h-5 ring-primary ring-2 w-5 inline-block"
           />
@@ -33,7 +33,7 @@
         <SmartItem
           v-if="team.myRole === 'OWNER'"
           svg="edit"
-          :label="$t('action.edit')"
+          :label="$t('action.edit').toString()"
           @click.native="
             () => {
               $emit('edit-team')
@@ -45,7 +45,7 @@
           v-if="team.myRole === 'OWNER'"
           svg="trash-2"
           color="red"
-          :label="$t('action.delete')"
+          :label="$t('action.delete').toString()"
           @click.native="
             () => {
               deleteTeam()
@@ -56,7 +56,7 @@
         <SmartItem
           v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
           svg="trash"
-          :label="$t('team.exit')"
+          :label="$t('team.exit').toString()"
           @click.native="
             () => {
               exitTeam()
@@ -69,49 +69,79 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import * as teamUtils from "~/helpers/teams/utils"
+<script setup lang="ts">
+import { useContext } from "@nuxtjs/composition-api"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import {
+  deleteTeam as backendDeleteTeam,
+  leaveTeam,
+} from "~/helpers/backend/mutations/Team"
+import { TeamMemberRole } from "~/helpers/backend/types/TeamMemberRole"
 
-export default defineComponent({
-  props: {
-    team: { type: Object, default: () => {} },
-    teamID: { type: String, default: null },
-  },
-  methods: {
-    deleteTeam() {
-      if (!confirm(this.$t("confirm.remove_team"))) return
-      // Call to the graphql mutation
-      teamUtils
-        .deleteTeam(this.$apollo, this.teamID)
-        .then(() => {
-          this.$toast.success(this.$t("team.deleted"), {
-            icon: "done",
-          })
+const props = defineProps<{
+  team: {
+    name: string
+    myRole: TeamMemberRole
+    ownersCount: number
+    members: Array<{
+      user: {
+        displayName: string
+        photoURL: string | null
+      }
+    }>
+  }
+  teamID: string
+}>()
+
+const {
+  app: { i18n },
+  $toast,
+} = useContext()
+
+const $t = i18n.t.bind(i18n)
+
+const deleteTeam = () => {
+  if (!confirm($t("confirm.remove_team").toString())) return
+
+  pipe(
+    backendDeleteTeam(props.teamID),
+    TE.match(
+      (err) => {
+        // TODO: Better errors ? We know the possible errors now
+        $toast.error($t("error.something_went_wrong").toString(), {
+          icon: "error_outline",
         })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
-          console.error(e)
+        console.error(err)
+      },
+      () => {
+        $toast.success($t("team.deleted").toString(), {
+          icon: "done",
         })
-    },
-    exitTeam() {
-      if (!confirm("Are you sure you want to exit this team?")) return
-      teamUtils
-        .exitTeam(this.$apollo, this.teamID)
-        .then(() => {
-          this.$toast.success(this.$t("team.left"), {
-            icon: "done",
-          })
+      }
+    )
+  )() // Tasks (and TEs) are lazy, so call the function returned
+}
+
+const exitTeam = () => {
+  if (!confirm("Are you sure you want to exit this team?")) return
+
+  pipe(
+    leaveTeam(props.teamID),
+    TE.match(
+      (err) => {
+        // TODO: Better errors ?
+        $toast.error($t("error.something_went_wrong").toString(), {
+          icon: "error_outline",
         })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
-          console.error(e)
+        console.error(err)
+      },
+      () => {
+        $toast.success($t("team.left").toString(), {
+          icon: "done",
         })
-    },
-  },
-})
+      }
+    )
+  )() // Tasks (and TEs) are lazy, so call the function returned
+}
 </script>

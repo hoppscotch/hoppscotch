@@ -15,7 +15,8 @@ import {
 } from "@urql/core"
 import { devtoolsExchange } from "@urql/devtools"
 import * as E from "fp-ts/Either"
-import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { pipe, constVoid } from "fp-ts/function"
 import { subscribe } from "wonka"
 import clone from "lodash/clone"
 import { getAuthIDToken } from "~/helpers/fb/auth"
@@ -49,7 +50,7 @@ export type GQLError<T extends string> =
     }
   | {
       type: "gql_error"
-      err: T
+      error: T
     }
 
 const DEFAULT_QUERY_OPTIONS = {
@@ -122,7 +123,7 @@ export function useGQLQuery<
               (gqlErr) =>
                 <GQLError<QueryFailType>>{
                   type: "gql_error",
-                  err: gqlErr as QueryFailType,
+                  error: gqlErr as QueryFailType,
                 },
               // The right case (it was a GraphQL Error)
               (networkErr) =>
@@ -163,3 +164,44 @@ export function useGQLQuery<
       }
     | { loading: true }
 }
+
+export const runMutation = <
+  MutationReturnType = any,
+  MutationFailType extends string = "",
+  MutationVariables extends {} = {}
+>(
+  mutation: string | DocumentNode | TypedDocumentNode<any, MutationVariables>,
+  variables?: MutationVariables
+): TE.TaskEither<GQLError<MutationFailType>, NonNullable<MutationReturnType>> =>
+  pipe(
+    TE.tryCatch(
+      () => client.mutation<MutationReturnType>(mutation, variables).toPromise(),
+      () => constVoid() as never // The mutation function can never fail, so this will never be called ;)
+    ),
+    TE.chainEitherK((result) =>
+      pipe(
+        result.data as MutationReturnType, // If we have the result, then okay
+        E.fromNullable(
+          // Result is null
+          pipe(
+            result.error?.networkError, // Check for network error
+            E.fromNullable(result.error?.name), // If it is null, then it is a GQL error
+            E.match(
+              // The left case (network error was null)
+              (gqlErr) =>
+                <GQLError<MutationFailType>>{
+                  type: "gql_error",
+                  error: gqlErr as MutationFailType,
+                },
+              // The right case (it was a GraphQL Error)
+              (networkErr) =>
+                <GQLError<MutationFailType>>{
+                  type: "network_error",
+                  error: networkErr,
+                }
+            )
+          )
+        )
+      )
+    )
+  )

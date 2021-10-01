@@ -42,6 +42,7 @@
     "contact_us": "Neem contact op",
     "copy": "Kopiëren",
     "documentation": "Documentatie",
+    "github": "GitHub",
     "help": "Hulp, feedback en documentatie",
     "home": "Thuis",
     "invite": "Uitnodiging",
@@ -219,6 +220,8 @@
     "title": "Importeren"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen-modus"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Bestand geïmporteerd",
     "finished_in": "Klaar in {duration}ms",
     "history_deleted": "Geschiedenis verwijderd",
+    "linewrap": "Wikkellijnen",
     "loading": "Bezig met laden...",
     "none": "Geen",
     "nothing_found": "Niets gevonden voor",
@@ -441,6 +445,7 @@
     "authorization": "autorisatie",
     "body": "Lichaam",
     "collections": "Collecties",
+    "documentation": "Documentatie",
     "headers": "Kopteksten",
     "history": "Geschiedenis",
     "mqtt": "MQTT",

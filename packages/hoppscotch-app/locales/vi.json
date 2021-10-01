@@ -42,6 +42,7 @@
     "contact_us": "Liên hệ chúng tôi",
     "copy": "Sao chép",
     "documentation": "Tài liệu",
+    "github": "GitHub",
     "help": "Tài liệu trợ giúp, phản hồi và",
     "home": "Nhà",
     "invite": "Mời gọi",
@@ -219,6 +220,8 @@
     "title": "Nhập khẩu"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Chế độ Zen"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Đã nhập tệp",
     "finished_in": "Hoàn thành sau {thời lượng} mili giây",
     "history_deleted": "Lịch sử đã bị xóa",
+    "linewrap": "Quấn dòng",
     "loading": "Đang tải...",
     "none": "Không có",
     "nothing_found": "Không tìm thấy kết quả cho",
@@ -441,6 +445,7 @@
     "authorization": "Ủy quyền",
     "body": "Thân hình",
     "collections": "Bộ sưu tập",
+    "documentation": "Tài liệu",
     "headers": "Tiêu đề",
     "history": "Môn lịch sử",
     "mqtt": "MQTT",

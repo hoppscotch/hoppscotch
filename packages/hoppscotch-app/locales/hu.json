@@ -42,6 +42,7 @@
     "contact_us": "Lépjen kapcsolatba velünk",
     "copy": "Másolat",
     "documentation": "Dokumentáció",
+    "github": "GitHub",
     "help": "Súgó, visszajelzés és dokumentáció",
     "home": "itthon",
     "invite": "Meghívás",
@@ -219,6 +220,8 @@
     "title": "Importálás"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen mód"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Fájl importálva",
     "finished_in": "{Duration} ms múlva befejeződött",
     "history_deleted": "Előzmények törölve",
+    "linewrap": "Tekerje a vonalakat",
     "loading": "Betöltés...",
     "none": "Egyik sem",
     "nothing_found": "Nem talált semmit",
@@ -441,6 +445,7 @@
     "authorization": "Engedélyezés",
     "body": "Test",
     "collections": "Gyűjtemények",
+    "documentation": "Dokumentáció",
     "headers": "Fejlécek",
     "history": "Történelem",
     "mqtt": "MQTT",

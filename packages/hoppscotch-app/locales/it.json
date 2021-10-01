@@ -42,6 +42,7 @@
     "contact_us": "Contattaci",
     "copy": "copia",
     "documentation": "Documentazione",
+    "github": "GitHub",
     "help": "Aiuto, feedback e documentazione",
     "home": "Casa",
     "invite": "Invitare",
@@ -219,6 +220,8 @@
     "title": "Importare"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Modalità Zen"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "File importato",
     "finished_in": "Finito in {duration}ms",
     "history_deleted": "Cronologia cancellata",
+    "linewrap": "Avvolgere le linee",
     "loading": "Caricamento in corso...",
     "none": "Nessuno",
     "nothing_found": "Niente trovato per",
@@ -441,6 +445,7 @@
     "authorization": "Autorizzazione",
     "body": "Corpo",
     "collections": "Collezioni",
+    "documentation": "Documentazione",
     "headers": "intestazioni",
     "history": "Storia",
     "mqtt": "MQTT",

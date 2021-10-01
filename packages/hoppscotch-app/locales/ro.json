@@ -42,6 +42,7 @@
     "contact_us": "Contactează-ne",
     "copy": "Copie",
     "documentation": "Documentație",
+    "github": "GitHub",
     "help": "Ajutor, feedback și documentație",
     "home": "Acasă",
     "invite": "A invita",
@@ -219,6 +220,8 @@
     "title": "Import"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Modul Zen"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Fișier importat",
     "finished_in": "Finalizat în {durata} ms",
     "history_deleted": "Istoricul a fost șters",
+    "linewrap": "Înfășurați liniile",
     "loading": "Se încarcă...",
     "none": "Nici unul",
     "nothing_found": "Nimic găsit pentru",
@@ -441,6 +445,7 @@
     "authorization": "Autorizare",
     "body": "Corp",
     "collections": "Colecții",
+    "documentation": "Documentație",
     "headers": "Anteturi",
     "history": "Istorie",
     "mqtt": "MQTT",

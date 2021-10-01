@@ -42,6 +42,7 @@
     "contact_us": "Bize Ulaşın",
     "copy": "kopyala",
     "documentation": "belgeler",
+    "github": "GitHub",
     "help": "Yardım, geri bildirim ve belgeler",
     "home": "Ev",
     "invite": "Davet etmek",
@@ -219,6 +220,8 @@
     "title": "İçe aktarmak"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen modu"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Dosya içe aktarıldı",
     "finished_in": "{duration} ms içinde tamamlandı",
     "history_deleted": "Geçmiş silindi",
+    "linewrap": "Çizgileri sarın",
     "loading": "Yükleniyor...",
     "none": "Hiçbiri",
     "nothing_found": "için hiçbir şey bulunamadı",
@@ -441,6 +445,7 @@
     "authorization": "yetki",
     "body": "Vücut",
     "collections": "Koleksiyonlar",
+    "documentation": "belgeler",
     "headers": "Başlıklar",
     "history": "Tarih",
     "mqtt": "MQTT",

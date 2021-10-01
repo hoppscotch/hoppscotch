@@ -42,6 +42,7 @@
     "contact_us": "צור קשר",
     "copy": "עותק",
     "documentation": "תיעוד",
+    "github": "GitHub",
     "help": "עזרה, משוב ו תיעוד",
     "home": "בית",
     "invite": "להזמין",
@@ -219,6 +220,8 @@
     "title": "יְבוּא"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "מצב זן"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "הקובץ מיובא",
     "finished_in": "הסתיים תוך {duration} אלפיות השנייה",
     "history_deleted": "ההיסטוריה נמחקה",
+    "linewrap": "עוטפים קווים",
     "loading": "טעינה...",
     "none": "אף אחד",
     "nothing_found": "שום דבר לא נמצא עבור",
@@ -441,6 +445,7 @@
     "authorization": "הרשאה",
     "body": "גוּף",
     "collections": "אוספים",
+    "documentation": "תיעוד",
     "headers": "כותרות",
     "history": "הִיסטוֹרִיָה",
     "mqtt": "MQTT",

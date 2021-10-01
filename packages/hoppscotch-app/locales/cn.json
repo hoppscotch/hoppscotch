@@ -42,6 +42,7 @@
     "contact_us": "联系我们",
     "copy": "复制",
     "documentation": "帮助文档",
+    "github": "GitHub",
     "help": "帮助与反馈",
     "home": "主页",
     "invite": "邀请",
@@ -219,6 +220,8 @@
     "title": "导入"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "禅意模式"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "文件已导入",
     "finished_in": "在 {duration} 毫秒内完成",
     "history_deleted": "历史记录已删除",
+    "linewrap": "换行",
     "loading": "正在加载……",
     "none": "无",
     "nothing_found": "没有找到",
@@ -441,6 +445,7 @@
     "authorization": "授权",
     "body": "请求体",
     "collections": "组合",
+    "documentation": "帮助文档",
     "headers": "请求头",
     "history": "历史记录",
     "mqtt": "MQTT",

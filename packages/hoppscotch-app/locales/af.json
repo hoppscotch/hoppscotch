@@ -42,6 +42,7 @@
     "contact_us": "Kontak Ons",
     "copy": "Kopieer",
     "documentation": "Dokumentasie",
+    "github": "GitHub",
     "help": "Hulp, terugvoer en dokumentasie",
     "home": "Tuis",
     "invite": "Nooi",
@@ -219,6 +220,8 @@
     "title": "Invoer"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen -modus"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Lêer ingevoer",
     "finished_in": "Klaar in {duration} ms",
     "history_deleted": "Geskiedenis uitgevee",
+    "linewrap": "Draai lyne toe",
     "loading": "Laai tans ...",
     "none": "Geen",
     "nothing_found": "Niks gevind vir",
@@ -441,6 +445,7 @@
     "authorization": "Magtiging",
     "body": "Liggaam",
     "collections": "Versamelings",
+    "documentation": "Dokumentasie",
     "headers": "Opskrifte",
     "history": "Geskiedenis",
     "mqtt": "MQTT",

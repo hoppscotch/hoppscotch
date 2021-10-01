@@ -42,6 +42,7 @@
     "contact_us": "Επικοινωνήστε μαζί μας",
     "copy": "αντίγραφο",
     "documentation": "Τεκμηρίωση",
+    "github": "GitHub",
     "help": "Βοήθεια, σχόλια και τεκμηρίωση",
     "home": "Σπίτι",
     "invite": "Καλώ",
@@ -219,6 +220,8 @@
     "title": "Εισαγωγή"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Λειτουργία Zen"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Το αρχείο εισήχθη",
     "finished_in": "Ολοκληρώθηκε σε {duration} ms",
     "history_deleted": "Το ιστορικό διαγράφηκε",
+    "linewrap": "Τυλίξτε γραμμές",
     "loading": "Φόρτωση...",
     "none": "Κανένας",
     "nothing_found": "Δεν βρέθηκε τίποτα για",
@@ -441,6 +445,7 @@
     "authorization": "Εξουσιοδότηση",
     "body": "Σώμα",
     "collections": "Συλλογές",
+    "documentation": "Τεκμηρίωση",
     "headers": "Κεφαλίδες",
     "history": "Ιστορία",
     "mqtt": "MQTT",

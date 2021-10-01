@@ -42,6 +42,7 @@
     "contact_us": "Зв'яжіться з нами",
     "copy": "Копіювати",
     "documentation": "Документація",
+    "github": "GitHub",
     "help": "Довідка, відгуки та документація",
     "home": "Додому",
     "invite": "Запросити",
@@ -219,6 +220,8 @@
     "title": "Імпорт"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Режим дзен"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Файл імпортовано",
     "finished_in": "Завершено за {duration} мс",
     "history_deleted": "Історію видалено",
+    "linewrap": "Лінії загортання",
     "loading": "Завантаження ...",
     "none": "Жодного",
     "nothing_found": "Нічого не знайдено",
@@ -441,6 +445,7 @@
     "authorization": "Авторизація",
     "body": "Тіло",
     "collections": "Колекції",
+    "documentation": "Документація",
     "headers": "Заголовки",
     "history": "Історія",
     "mqtt": "MQTT",

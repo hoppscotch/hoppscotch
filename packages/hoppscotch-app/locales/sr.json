@@ -42,6 +42,7 @@
     "contact_us": "Контактирајте нас",
     "copy": "Цопи",
     "documentation": "Документација",
+    "github": "GitHub",
     "help": "Помоћ, повратне информације и документација",
     "home": "Кућа",
     "invite": "Позови",
@@ -219,6 +220,8 @@
     "title": "Увоз"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Зен режим"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Датотека је увезена",
     "finished_in": "Завршено за {дуратион} мс",
     "history_deleted": "Историја је избрисана",
+    "linewrap": "Омотајте линије",
     "loading": "Учитавање ...",
     "none": "Ниједан",
     "nothing_found": "Ништа није пронађено за",
@@ -441,6 +445,7 @@
     "authorization": "Овлашћење",
     "body": "Боди",
     "collections": "Збирке",
+    "documentation": "Документација",
     "headers": "Заглавља",
     "history": "Историја",
     "mqtt": "МКТТ",

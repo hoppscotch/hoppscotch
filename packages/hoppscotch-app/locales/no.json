@@ -42,6 +42,7 @@
     "contact_us": "Kontakt oss",
     "copy": "Kopiere",
     "documentation": "Dokumentasjon",
+    "github": "GitHub",
     "help": "Hjelp, tilbakemelding og dokumentasjon",
     "home": "Hjem",
     "invite": "Invitere",
@@ -219,6 +220,8 @@
     "title": "Import"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen -modus"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Fil importert",
     "finished_in": "Ferdig om {duration} ms",
     "history_deleted": "Historikk slettet",
+    "linewrap": "Pakk linjer",
     "loading": "Laster inn ...",
     "none": "Ingen",
     "nothing_found": "Ingenting funnet for",
@@ -441,6 +445,7 @@
     "authorization": "Autorisasjon",
     "body": "Kropp",
     "collections": "Samlinger",
+    "documentation": "Dokumentasjon",
     "headers": "Overskrifter",
     "history": "Historie",
     "mqtt": "MQTT",

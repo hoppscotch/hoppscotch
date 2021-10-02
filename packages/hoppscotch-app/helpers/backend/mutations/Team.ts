@@ -52,6 +52,9 @@ export const deleteTeam = (teamID: string) =>
     `,
     {
       teamID,
+    },
+    {
+      additionalTypenames: ["Team"],
     }
   )
 
@@ -64,5 +67,8 @@ export const leaveTeam = (teamID: string) =>
     `,
     {
       teamID,
+    },
+    {
+      additionalTypenames: ["Team"],
     }
   )

@@ -46,7 +46,7 @@ export const createTeam = (name: TeamName) =>
 export const deleteTeam = (teamID: string) =>
   runMutation<void, DeleteTeamErrors>(
     gql`
-      mutation DeleteTeam($teamID: String!) {
+      mutation DeleteTeam($teamID: ID!) {
         deleteTeam(teamID: $teamID)
       }
     `,
@@ -58,7 +58,7 @@ export const deleteTeam = (teamID: string) =>
 export const leaveTeam = (teamID: string) =>
   runMutation<void, ExitTeamErrors>(
     gql`
-      mutation ExitTeam($teamID: String!) {
+      mutation ExitTeam($teamID: ID!) {
         leaveTeam(teamID: $teamID)
       }
     `,

@@ -23,8 +23,8 @@
               <p class="flex text-secondaryLight items-center">
                 {{ currentUser.email || $t("state.nothing_found") }}
                 <SmartIcon
-                  name="verified"
                   v-if="currentUser.emailVerified"
+                  name="verified"
                   class="ml-2 text-green-500 svg-icons"
                 />
               </p>

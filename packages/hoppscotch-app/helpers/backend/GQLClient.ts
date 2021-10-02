@@ -12,6 +12,7 @@ import {
   TypedDocumentNode,
   OperationResult,
   defaultExchanges,
+  OperationContext,
 } from "@urql/core"
 import { devtoolsExchange } from "@urql/devtools"
 import * as E from "fp-ts/Either"
@@ -171,11 +172,15 @@ export const runMutation = <
   MutationVariables extends {} = {}
 >(
   mutation: string | DocumentNode | TypedDocumentNode<any, MutationVariables>,
-  variables?: MutationVariables
+  variables?: MutationVariables,
+  additionalConfig?: Partial<OperationContext>
 ): TE.TaskEither<GQLError<MutationFailType>, NonNullable<MutationReturnType>> =>
   pipe(
     TE.tryCatch(
-      () => client.mutation<MutationReturnType>(mutation, variables).toPromise(),
+      () =>
+        client
+          .mutation<MutationReturnType>(mutation, variables, additionalConfig)
+          .toPromise(),
       () => constVoid() as never // The mutation function can never fail, so this will never be called ;)
     ),
     TE.chainEitherK((result) =>

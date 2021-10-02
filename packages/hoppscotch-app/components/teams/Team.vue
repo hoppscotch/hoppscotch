@@ -99,23 +99,23 @@ const {
   $toast,
 } = useContext()
 
-const $t = i18n.t.bind(i18n)
+const t = i18n.t.bind(i18n)
 
 const deleteTeam = () => {
-  if (!confirm($t("confirm.remove_team").toString())) return
+  if (!confirm(t("confirm.remove_team").toString())) return
 
   pipe(
     backendDeleteTeam(props.teamID),
     TE.match(
       (err) => {
         // TODO: Better errors ? We know the possible errors now
-        $toast.error($t("error.something_went_wrong").toString(), {
+        $toast.error(t("error.something_went_wrong").toString(), {
           icon: "error_outline",
         })
         console.error(err)
       },
       () => {
-        $toast.success($t("team.deleted").toString(), {
+        $toast.success(t("team.deleted").toString(), {
           icon: "done",
         })
       }
@@ -131,13 +131,13 @@ const exitTeam = () => {
     TE.match(
       (err) => {
         // TODO: Better errors ?
-        $toast.error($t("error.something_went_wrong").toString(), {
+        $toast.error(t("error.something_went_wrong").toString(), {
           icon: "error_outline",
         })
         console.error(err)
       },
       () => {
-        $toast.success($t("team.left").toString(), {
+        $toast.success(t("team.left").toString(), {
           icon: "done",
         })
       }

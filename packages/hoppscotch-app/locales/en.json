@@ -246,6 +246,7 @@
   "navigation": {
     "doc": "Docs",
     "graphql": "GraphQL",
+    "profile": "Profile",
     "realtime": "Realtime",
     "rest": "REST",
     "settings": "Settings"

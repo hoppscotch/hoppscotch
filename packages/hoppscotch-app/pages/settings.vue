@@ -4,104 +4,6 @@
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
-            {{ $t("settings.account") }}
-          </h3>
-          <p class="mt-1 text-secondaryLight">
-            {{ $t("settings.account_description") }}
-          </p>
-        </div>
-        <div class="p-8 md:col-span-2">
-          <div v-if="currentUser === null">
-            <ButtonPrimary
-              :label="`${$t('auth.login')}`"
-              @click.native="showLogin = true"
-            />
-          </div>
-          <div v-else class="space-y-8">
-            <section>
-              <h4 class="font-semibold text-secondaryDark">
-                {{ $t("settings.user") }}
-              </h4>
-              <div class="space-y-4 py-4">
-                <div class="flex items-start">
-                  <div class="flex items-center">
-                    <img
-                      v-if="currentUser.photoURL"
-                      :src="currentUser.photoURL"
-                      class="rounded-full h-5 w-5"
-                    />
-                    <SmartIcon v-else name="user" class="svg-icons" />
-                  </div>
-                  <div class="ml-4">
-                    <label>
-                      {{ currentUser.displayName || $t("state.nothing_found") }}
-                    </label>
-                    <p class="mt-1 text-secondaryLight">
-                      {{ $t("settings.account_name_description") }}
-                    </p>
-                  </div>
-                </div>
-                <div class="flex items-start">
-                  <div class="flex items-center">
-                    <SmartIcon name="at-sign" class="svg-icons" />
-                  </div>
-                  <div class="ml-4">
-                    <label>
-                      {{ currentUser.email || $t("state.nothing_found") }}
-                    </label>
-                    <p class="mt-1 text-secondaryLight">
-                      {{ $t("settings.account_email_description") }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
-            <Teams v-if="currentBackendUser && currentBackendUser.eaInvited" />
-            <section>
-              <h4 class="font-semibold text-secondaryDark">
-                {{ $t("settings.sync") }}
-              </h4>
-              <div class="mt-1 text-secondaryLight">
-                {{ $t("settings.sync_description") }}
-              </div>
-              <div class="space-y-4 py-4">
-                <div class="flex items-center">
-                  <SmartToggle
-                    :on="SYNC_COLLECTIONS"
-                    @change="
-                      toggleSettings('syncCollections', !SYNC_COLLECTIONS)
-                    "
-                  >
-                    {{ $t("settings.sync_collections") }}
-                  </SmartToggle>
-                </div>
-                <div class="flex items-center">
-                  <SmartToggle
-                    :on="SYNC_ENVIRONMENTS"
-                    @change="
-                      toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)
-                    "
-                  >
-                    {{ $t("settings.sync_environments") }}
-                  </SmartToggle>
-                </div>
-                <div class="flex items-center">
-                  <SmartToggle
-                    :on="SYNC_HISTORY"
-                    @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
-                  >
-                    {{ $t("settings.sync_history") }}
-                  </SmartToggle>
-                </div>
-              </div>
-            </section>
-          </div>
-        </div>
-      </div>
-
-      <div class="md:grid md:gap-4 md:grid-cols-3">
-        <div class="p-8 md:col-span-1">
-          <h3 class="heading">
             {{ $t("settings.theme") }}
           </h3>
           <p class="mt-1 text-secondaryLight">
@@ -317,7 +219,6 @@
         </div>
       </div>
     </div>
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <SmartConfirmModal
       :show="confirmRemove"
       :title="`${$t('confirm.remove_telemetry')} ${$t(
@@ -336,7 +237,6 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,
@@ -349,9 +249,7 @@ import {
   useSetting,
 } from "~/newstore/settings"
 import type { KeysMatching } from "~/types/ts-utils"
-import { currentUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig } from "~/newstore/localpersistence"
-import { useReadonlyStream } from "~/helpers/utils/composables"
 
 type SettingsType = typeof defaultSettings
 
@@ -362,17 +260,10 @@ export default defineComponent({
       PROXY_URL: useSetting("PROXY_URL"),
       PROXY_KEY: useSetting("PROXY_KEY"),
       EXTENSIONS_ENABLED: useSetting("EXTENSIONS_ENABLED"),
-      SYNC_COLLECTIONS: useSetting("syncCollections"),
-      SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
-      SYNC_HISTORY: useSetting("syncHistory"),
+      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
       LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
-      currentUser: useReadonlyStream(currentUser$, currentUser$.value),
-      currentBackendUser: useReadonlyStream(
-        currentUserInfo$,
-        currentUserInfo$.value
-      ),
     }
   },
   data() {
@@ -386,9 +277,7 @@ export default defineComponent({
 
       clearIcon: "rotate-ccw",
 
-      showLogin: false,
-
-      active: getLocalConfig("THEME_COLOR") || "indigo",
+      active: getLocalConfig("THEME_COLOR") || "blue",
       confirmRemove: false,
     }
   },

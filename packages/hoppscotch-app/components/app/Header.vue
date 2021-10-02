@@ -70,6 +70,12 @@
               />
             </template>
             <SmartItem
+              to="/profile"
+              svg="user"
+              :label="$t('navigation.profile')"
+              @click.native="$refs.user.tippy().hide()"
+            />
+            <SmartItem
               to="/settings"
               svg="settings"
               :label="$t('navigation.settings')"

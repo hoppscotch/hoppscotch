@@ -96,7 +96,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "edit-team"): void
-  
 }>()
 
 const {

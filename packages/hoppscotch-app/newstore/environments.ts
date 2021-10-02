@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash"
 import isEqual from "lodash/isEqual"
 import { combineLatest } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
@@ -90,7 +91,7 @@ const dispatchers = defineDispatchers({
       environments: [
         ...environments,
         {
-          ...newEnvironment,
+          ...cloneDeep(newEnvironment),
           name: `${newEnvironment.name} - ${environments.length + 1}`,
         },
       ],

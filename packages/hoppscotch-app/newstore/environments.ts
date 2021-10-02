@@ -76,6 +76,26 @@ const dispatchers = defineDispatchers({
       ],
     }
   },
+  duplicateEnvironment(
+    { environments }: EnvironmentStore,
+    { envIndex }: { envIndex: number }
+  ) {
+    const newEnvironment = environments.find((_, index) => index === envIndex)
+    if (!newEnvironment) {
+      return {
+        environments,
+      }
+    }
+    return {
+      environments: [
+        ...environments,
+        {
+          ...newEnvironment,
+          name: `${newEnvironment.name} - ${environments.length + 1}`,
+        },
+      ],
+    }
+  },
   deleteEnvironment(
     { environments, currentEnvironmentIndex }: EnvironmentStore,
     { envIndex }: { envIndex: number }
@@ -394,6 +414,15 @@ export function createEnvironment(envName: string) {
     dispatcher: "createEnvironment",
     payload: {
       name: envName,
+    },
+  })
+}
+
+export function duplicateEnvironment(envIndex: number) {
+  environmentsStore.dispatch({
+    dispatcher: "duplicateEnvironment",
+    payload: {
+      envIndex,
     },
   })
 }

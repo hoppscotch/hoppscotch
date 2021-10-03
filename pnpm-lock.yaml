@@ -49,6 +49,7 @@ importers:
       '@types/splitpanes': ^2.2.1
       '@urql/core': ^2.3.3
       '@urql/devtools': ^2.0.3
+      '@urql/exchange-auth': ^0.1.6
       '@vue/runtime-dom': ^3.2.20
       '@vue/test-utils': ^1.2.2
       acorn: ^8.5.0
@@ -123,6 +124,7 @@ importers:
       '@nuxtjs/sitemap': 2.4.0
       '@nuxtjs/toast': 3.3.1
       '@urql/core': 2.3.3_graphql@15.7.2
+      '@urql/exchange-auth': 0.1.6_graphql@15.7.2
       acorn: 8.5.0
       acorn-walk: 8.2.0
       axios: 0.24.0
@@ -4691,6 +4693,16 @@ packages:
       graphql: 15.7.2
       wonka: 4.0.15
     dev: true
+
+  /@urql/exchange-auth/0.1.6_graphql@15.7.2:
+    resolution: {integrity: sha512-jVyUaV+hHe3p2rIJauh6lgILMAjXOsHQ98xjKhUF3TXYx88TZXuBIl5DPZwnMcGra8YPOSHO/Wsn6NEjO5hQ+Q==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+    dependencies:
+      '@urql/core': 2.3.3_graphql@15.7.2
+      graphql: 15.7.2
+      wonka: 4.0.15
+    dev: false
 
   /@vue/babel-helper-vue-jsx-merge-props/1.2.1:
     resolution: {integrity: sha512-QOi5OW45e2R20VygMSNhyQHvpdUwQZqGPc748JLGCYEy+yp8fNFNdbNIGAgZmi9e+2JHPd6i6idRuqivyicIkA==}

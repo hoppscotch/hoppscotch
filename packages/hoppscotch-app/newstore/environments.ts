@@ -1,3 +1,4 @@
+import { cloneDeep } from "lodash"
 import isEqual from "lodash/isEqual"
 import { combineLatest } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
@@ -72,6 +73,26 @@ const dispatchers = defineDispatchers({
         {
           name,
           variables: [],
+        },
+      ],
+    }
+  },
+  duplicateEnvironment(
+    { environments }: EnvironmentStore,
+    { envIndex }: { envIndex: number }
+  ) {
+    const newEnvironment = environments.find((_, index) => index === envIndex)
+    if (!newEnvironment) {
+      return {
+        environments,
+      }
+    }
+    return {
+      environments: [
+        ...environments,
+        {
+          ...cloneDeep(newEnvironment),
+          name: `Duplicate of ${newEnvironment.name}`,
         },
       ],
     }
@@ -394,6 +415,15 @@ export function createEnvironment(envName: string) {
     dispatcher: "createEnvironment",
     payload: {
       name: envName,
+    },
+  })
+}
+
+export function duplicateEnvironment(envIndex: number) {
+  environmentsStore.dispatch({
+    dispatcher: "duplicateEnvironment",
+    payload: {
+      envIndex,
     },
   })
 }

@@ -43,6 +43,17 @@
         />
         <SmartItem
           v-if="!(environmentIndex === 'Global')"
+          svg="copy"
+          :label="`${$t('action.duplicate')}`"
+          @click.native="
+            () => {
+              duplicateEnvironment()
+              $refs.options.tippy().hide()
+            }
+          "
+        />
+        <SmartItem
+          v-if="!(environmentIndex === 'Global')"
           svg="trash-2"
           color="red"
           :label="`${$t('action.delete')}`"
@@ -66,7 +77,10 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@nuxtjs/composition-api"
-import { deleteEnvironment } from "~/newstore/environments"
+import {
+  deleteEnvironment,
+  duplicateEnvironment,
+} from "~/newstore/environments"
 
 export default defineComponent({
   props: {
@@ -88,6 +102,10 @@ export default defineComponent({
       this.$toast.success(`${this.$t("state.deleted")}`, {
         icon: "delete",
       })
+    },
+    duplicateEnvironment() {
+      if (this.environmentIndex !== "Global")
+        duplicateEnvironment(this.environmentIndex)
     },
   },
 })

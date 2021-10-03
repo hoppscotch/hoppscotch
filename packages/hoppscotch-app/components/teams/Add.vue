@@ -44,7 +44,7 @@ const {
   $toast,
 } = useContext()
 
-const $t = i18n.t.bind(i18n)
+const t = i18n.t.bind(i18n)
 
 defineProps<{
   show: boolean
@@ -66,7 +66,7 @@ const addNewTeam = () =>
       (err) => {
         // err is of type "invalid_name" | GQLError<Err>
         if (err === "invalid_name") {
-          $toast.error($t("team.name_length_insufficient").toString(), {
+          $toast.error(t("team.name_length_insufficient").toString(), {
             icon: "error_outline",
           })
         } else {

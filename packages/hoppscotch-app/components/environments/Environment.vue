@@ -44,7 +44,7 @@
         <SmartItem
           v-if="!(environmentIndex === 'Global')"
           svg="copy"
-          :label="`${$t('action.copy')}`"
+          :label="`${$t('action.duplicate')}`"
           @click.native="
             () => {
               duplicateEnvironment()

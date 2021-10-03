@@ -92,7 +92,7 @@ const dispatchers = defineDispatchers({
         ...environments,
         {
           ...cloneDeep(newEnvironment),
-          name: `${newEnvironment.name} - ${environments.length + 1}`,
+          name: `Duplicate of ${newEnvironment.name}`,
         },
       ],
     }

@@ -11,16 +11,24 @@ import {
   createClient,
   TypedDocumentNode,
   OperationResult,
-  defaultExchanges,
+  dedupExchange,
   OperationContext,
+  cacheExchange,
+  fetchExchange,
+  makeOperation,
 } from "@urql/core"
+import { authExchange } from "@urql/exchange-auth"
 import { devtoolsExchange } from "@urql/devtools"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
 import { subscribe } from "wonka"
 import clone from "lodash/clone"
-import { getAuthIDToken } from "~/helpers/fb/auth"
+import {
+  getAuthIDToken,
+  probableUser$,
+  waitProbableLoginToConfirm,
+} from "~/helpers/fb/auth"
 
 const BACKEND_GQL_URL =
   process.env.CONTEXT === "production"
@@ -29,16 +37,47 @@ const BACKEND_GQL_URL =
 
 const client = createClient({
   url: BACKEND_GQL_URL,
-  fetchOptions: () => {
-    const token = getAuthIDToken()
+  exchanges: [
+    devtoolsExchange,
+    dedupExchange,
+    cacheExchange,
+    authExchange({
+      addAuthToOperation({ authState, operation }) {
+        if (!authState || !authState.authToken) {
+          return operation
+        }
 
-    return {
-      headers: {
-        authorization: token ? `Bearer ${token}` : "",
+        const fetchOptions =
+          typeof operation.context.fetchOptions === "function"
+            ? operation.context.fetchOptions()
+            : operation.context.fetchOptions || {}
+
+        return makeOperation(operation.kind, operation, {
+          ...operation.context,
+          fetchOptions: {
+            ...fetchOptions,
+            headers: {
+              ...fetchOptions.headers,
+              Authorization: `Bearer ${authState.authToken}`,
+            },
+          },
+        })
       },
-    }
-  },
-  exchanges: [devtoolsExchange, ...defaultExchanges],
+      willAuthError({ authState }) {
+        return !authState || !authState.authToken
+      },
+      getAuth: async () => {
+        if (!probableUser$.value) return { authToken: null }
+
+        await waitProbableLoginToConfirm()
+
+        return {
+          authToken: getAuthIDToken(),
+        }
+      },
+    }),
+    fetchExchange,
+  ],
 })
 
 /**
@@ -118,7 +157,7 @@ export function useGQLQuery<
             // Take the network error value
             result.error?.networkError,
             // If it null, set the left to the generic error name
-            E.fromNullable(result.error?.name),
+            E.fromNullable(result.error?.message),
             E.match(
               // The left case (network error was null)
               (gqlErr) =>

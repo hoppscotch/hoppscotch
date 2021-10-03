@@ -42,6 +42,7 @@
     "contact_us": "Ota meihin yhteyttä",
     "copy": "Kopio",
     "documentation": "Dokumentointi",
+    "github": "GitHub",
     "help": "Ohje, palaute ja dokumentaatio",
     "home": "Koti",
     "invite": "Kutsu",
@@ -219,6 +220,8 @@
     "title": "Tuonti"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen -tila"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Tiedosto tuotu",
     "finished_in": "Valmis {duration} ms",
     "history_deleted": "Historia poistettu",
+    "linewrap": "Kääri linjat",
     "loading": "Ladataan...",
     "none": "Ei mitään",
     "nothing_found": "Mitään ei löytynyt",
@@ -441,6 +445,7 @@
     "authorization": "Valtuutus",
     "body": "Runko",
     "collections": "Kokoelmat",
+    "documentation": "Dokumentointi",
     "headers": "Otsikot",
     "history": "Historia",
     "mqtt": "MQTT",

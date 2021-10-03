@@ -42,6 +42,7 @@
     "contact_us": "Kontakta oss",
     "copy": "Kopiera",
     "documentation": "Dokumentation",
+    "github": "GitHub",
     "help": "Hjälp, feedback och dokumentation",
     "home": "Hem",
     "invite": "Inbjudan",
@@ -219,6 +220,8 @@
     "title": "Importera"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen -läge"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Filen har importerats",
     "finished_in": "Avslutad på {duration} ms",
     "history_deleted": "Historik raderad",
+    "linewrap": "Slå in linjer",
     "loading": "Läser in...",
     "none": "Ingen",
     "nothing_found": "Inget hittat för",
@@ -441,6 +445,7 @@
     "authorization": "Tillstånd",
     "body": "Kropp",
     "collections": "Samlingar",
+    "documentation": "Dokumentation",
     "headers": "Rubriker",
     "history": "Historia",
     "mqtt": "MQTT",

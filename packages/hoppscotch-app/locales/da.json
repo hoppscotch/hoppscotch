@@ -42,6 +42,7 @@
     "contact_us": "Kontakt os",
     "copy": "Kopi",
     "documentation": "Dokumentation",
+    "github": "GitHub",
     "help": "Hjælp, feedback og dokumentation",
     "home": "Hjem",
     "invite": "Invitere",
@@ -219,6 +220,8 @@
     "title": "Importere"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen -tilstand"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Fil importeret",
     "finished_in": "Færdig om {duration} ms",
     "history_deleted": "Historik slettet",
+    "linewrap": "Wrap linjer",
     "loading": "Indlæser...",
     "none": "Ingen",
     "nothing_found": "Intet fundet til",
@@ -441,6 +445,7 @@
     "authorization": "Bemyndigelse",
     "body": "Legeme",
     "collections": "Samlinger",
+    "documentation": "Dokumentation",
     "headers": "Overskrifter",
     "history": "Historie",
     "mqtt": "MQTT",

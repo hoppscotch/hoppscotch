@@ -42,6 +42,7 @@
     "contact_us": "聯絡我們",
     "copy": "複製",
     "documentation": "幫助文件",
+    "github": "GitHub",
     "help": "幫助與反饋",
     "home": "主頁",
     "invite": "邀請",
@@ -219,6 +220,8 @@
     "title": "匯入"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "禪意模式"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "檔案匯入",
     "finished_in": "在 {duration} 毫秒內完成",
     "history_deleted": "歷史記錄已刪除",
+    "linewrap": "換行",
     "loading": "正在載入……",
     "none": "無",
     "nothing_found": "沒有找到",
@@ -441,6 +445,7 @@
     "authorization": "授權",
     "body": "請求體",
     "collections": "組合",
+    "documentation": "幫助文件",
     "headers": "請求頭",
     "history": "歷史記錄",
     "mqtt": "MQTT",

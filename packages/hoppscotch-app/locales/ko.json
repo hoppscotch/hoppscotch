@@ -42,7 +42,8 @@
     "contact_us": "문의하기",
     "copy": "복사",
     "documentation": "문서",
-    "help": "도움말, 피드백 및 문서", 
+    "github": "GitHub",
+    "help": "도움말, 피드백 및 문서",
     "home": "홈",
     "invite": "초대",
     "invite_description": "Hoppscotch에서는 API 생성 및 관리를 위한 간단하고 직관적인 인터페이스를 설계했습니다. Hoppscotch는 API를 빌드, 테스트, 문서화 및 공유하는 데 도움이 되는 도구입니다.",
@@ -219,6 +220,8 @@
     "title": "가저오기"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "전체화면"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "가져온 파일",
     "finished_in": "{duration}ms 후에 완료예정",
     "history_deleted": "기록 삭제됨",
+    "linewrap": "랩 라인",
     "loading": "로드 중...",
     "none": "없음",
     "nothing_found": "에 대한 검색 결과가 없습니다.",
@@ -441,6 +445,7 @@
     "authorization": "인증",
     "body": "본문",
     "collections": "모음집",
+    "documentation": "문서",
     "headers": "헤더",
     "history": "기록",
     "mqtt": "MQTT",

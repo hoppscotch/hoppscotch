@@ -42,7 +42,8 @@
     "contact_us": "お問い合わせ",
     "copy": "コピー",
     "documentation": "ドキュメンテーション",
-    "help": "ヘルプ、フィードバック、</br>ドキュメント",
+    "github": "GitHub",
+    "help": "ヘルプ、フィードバック、ドキュメント",
     "home": "家",
     "invite": "招待",
     "invite_description": "Hoppscotchでは、APIを作成および管理するためのシンプルで直感的なインターフェースを設計しました。 Hoppscotchは、APIの構築、テスト、文書化、共有を支援するツールです。",
@@ -219,6 +220,8 @@
     "title": "輸入"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "禅モード"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "インポートされたファイル",
     "finished_in": "{duration} msで終了",
     "history_deleted": "履歴が削除されました",
+    "linewrap": "ラップライン",
     "loading": "読み込んでいます...",
     "none": "なし",
     "nothing_found": "何も見つかりません",
@@ -441,6 +445,7 @@
     "authorization": "承認",
     "body": "体",
     "collections": "コレクション",
+    "documentation": "ドキュメンテーション",
     "headers": "ヘッダー",
     "history": "歴史",
     "mqtt": "MQTT",

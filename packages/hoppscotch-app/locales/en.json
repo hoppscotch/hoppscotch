@@ -220,8 +220,8 @@
     "title": "Import"
   },
   "layout": {
-    "column": "Column layout",
-    "row": "Row layout",
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen mode"
   },
   "modal": {

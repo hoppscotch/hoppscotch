@@ -42,6 +42,7 @@
     "contact_us": "Kontaktujte nás",
     "copy": "kopírovat",
     "documentation": "Dokumentace",
+    "github": "GitHub",
     "help": "Nápověda, zpětná vazba a dokumentace",
     "home": "Domov",
     "invite": "Pozvat",
@@ -219,6 +220,8 @@
     "title": "Import"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zenový režim"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Soubor importován",
     "finished_in": "Hotovo za {duration} ms",
     "history_deleted": "Historie odstraněna",
+    "linewrap": "Zabalit linky",
     "loading": "Načítání...",
     "none": "Žádný",
     "nothing_found": "Nic nebylo nalezeno pro",
@@ -441,6 +445,7 @@
     "authorization": "Povolení",
     "body": "Tělo",
     "collections": "Sbírky",
+    "documentation": "Dokumentace",
     "headers": "Záhlaví",
     "history": "Dějiny",
     "mqtt": "MQTT",

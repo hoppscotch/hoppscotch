@@ -42,6 +42,7 @@
     "contact_us": "Свяжитесь с нами",
     "copy": "Копировать",
     "documentation": "Документация",
+    "github": "GitHub",
     "help": "Справка, отзывы и документация",
     "home": "Дом",
     "invite": "Приглашать",
@@ -219,6 +220,8 @@
     "title": "Импортировать"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Режим дзен"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Файл импортирован",
     "finished_in": "Завершено через {duration} мс",
     "history_deleted": "История удалена",
+    "linewrap": "Обернуть линии",
     "loading": "Загружается ...",
     "none": "Никто",
     "nothing_found": "Ничего не найдено для",
@@ -441,6 +445,7 @@
     "authorization": "Авторизация",
     "body": "Тело",
     "collections": "Коллекции",
+    "documentation": "Документация",
     "headers": "Заголовки",
     "history": "История",
     "mqtt": "MQTT",

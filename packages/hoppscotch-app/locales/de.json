@@ -42,7 +42,8 @@
     "contact_us": "Kontaktiere uns",
     "copy": "Kopieren",
     "documentation": "Dokumentation",
-    "help": "Hilfe, Feedback und</br>Dokumentation",
+    "github": "GitHub",
+    "help": "Hilfe, Feedback und Dokumentation",
     "home": "Heim",
     "invite": "Einladen",
     "invite_description": "In Hoppscotch haben wir eine einfache und intuitive Benutzeroberfläche zum Erstellen und Verwalten Ihrer APIs entwickelt. Hoppscotch ist ein Tool, mit dem Sie Ihre APIs erstellen, testen, dokumentieren und teilen können.",
@@ -219,6 +220,8 @@
     "title": "Importieren"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Zen-Modus"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Datei importiert",
     "finished_in": "Fertig in {duration}ms",
     "history_deleted": "Verlauf gelöscht",
+    "linewrap": "Zeilen umbrechen",
     "loading": "Wird geladen...",
     "none": "Keiner",
     "nothing_found": "Nichts gefunden für",
@@ -441,6 +445,7 @@
     "authorization": "Genehmigung",
     "body": "Körper",
     "collections": "Kollektionen",
+    "documentation": "Dokumentation",
     "headers": "Kopfzeilen",
     "history": "Geschichte",
     "mqtt": "MQTT",

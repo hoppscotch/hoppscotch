@@ -42,6 +42,7 @@
     "contact_us": "Poseu-vos en contacte amb nosaltres",
     "copy": "Copia",
     "documentation": "Documentació",
+    "github": "GitHub",
     "help": "Ajuda, comentaris i documentació",
     "home": "Inici",
     "invite": "Convidar",
@@ -219,6 +220,8 @@
     "title": "Importació"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "Mode Zen"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "Fitxer importat",
     "finished_in": "Acabat en {duration} ms",
     "history_deleted": "S'ha suprimit l'historial",
+    "linewrap": "Línies d’embolcall",
     "loading": "S'està carregant ...",
     "none": "Cap",
     "nothing_found": "No s'ha trobat res",
@@ -441,6 +445,7 @@
     "authorization": "Autorització",
     "body": "Cos",
     "collections": "Col·leccions",
+    "documentation": "Documentació",
     "headers": "Capçaleres",
     "history": "Història",
     "mqtt": "MQTT",

@@ -42,7 +42,8 @@
     "contact_us": "اتصل بنا",
     "copy": "ينسخ",
     "documentation": "توثيق",
-    "help": "المساعدة والتعليقات ووثائق </br>",
+    "github": "GitHub",
+    "help": "المساعدة والتعليقات ووثائق",
     "home": "الصفحة الرئيسية",
     "invite": "يدعو",
     "invite_description": "في Hoppscotch ، قمنا بتصميم واجهة بسيطة وبديهية لإنشاء وإدارة واجهات برمجة التطبيقات الخاصة بك. Hoppscotch هي أداة تساعدك على بناء واختبار وتوثيق ومشاركة واجهات برمجة التطبيقات الخاصة بك.",
@@ -219,6 +220,8 @@
     "title": "يستورد"
   },
   "layout": {
+    "column": "Vertical layout",
+    "row": "Horizontal layout",
     "zen_mode": "وضع Zen"
   },
   "modal": {
@@ -421,6 +424,7 @@
     "file_imported": "تم استيراد الملف",
     "finished_in": "انتهى في {duration} مللي ثانية",
     "history_deleted": "تم حذف السجل",
+    "linewrap": "خطوط الالتفاف",
     "loading": "تحميل...",
     "none": "لا أحد",
     "nothing_found": "وجدت شيئا ل",
@@ -441,6 +445,7 @@
     "authorization": "تفويض",
     "body": "الجسم",
     "collections": "المجموعات",
+    "documentation": "توثيق",
     "headers": "الرؤوس",
     "history": "تاريخ",
     "mqtt": "MQTT",

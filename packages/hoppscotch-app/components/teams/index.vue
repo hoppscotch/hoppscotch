@@ -36,6 +36,13 @@
           @edit-team="editTeam(team, team.id)"
         />
       </div>
+      <div
+        v-if="!myTeams.loading && E.isLeft(myTeams.data)"
+        class="flex items-center flex-col"
+      >
+        <i class="mb-4 material-icons">help_outline</i>
+        {{ $t("error.something_went_wrong") }}
+      </div>
     </div>
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <!-- ¯\_(ツ)_/¯ -->

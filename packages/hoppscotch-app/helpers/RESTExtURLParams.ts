@@ -109,5 +109,9 @@ function parseV1ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
     resolvedReq.endpoint = urlParams.endpoint
   }
 
+  if (urlParams.body && typeof urlParams.body === "string") {
+    resolvedReq.body = JSON.parse(urlParams.body)
+  }
+
   return resolvedReq
 }

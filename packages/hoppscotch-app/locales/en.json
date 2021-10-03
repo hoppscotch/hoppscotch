@@ -472,6 +472,8 @@
     "exit_disabled": "Only owner cannot exit the team",
     "invalid_email_format": "Email format is invalid",
     "invalid_member_permission": "Please provide a valid permission to the team member",
+    "invite": "Invite",
+    "invite_tooltip": "Invite people to this workspace",
     "join_beta": "Join the beta program to access teams.",
     "left": "You left the team",
     "member_removed": "User removed",

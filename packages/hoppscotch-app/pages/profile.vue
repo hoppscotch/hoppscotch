@@ -47,9 +47,7 @@
                   <div class="flex items-center">
                     <SmartToggle
                       :on="SYNC_COLLECTIONS"
-                      @change="
-                        toggleSettings('syncCollections', !SYNC_COLLECTIONS)
-                      "
+                      @change="toggleSetting('syncCollections')"
                     >
                       {{ $t("settings.sync_collections") }}
                     </SmartToggle>
@@ -57,9 +55,7 @@
                   <div class="flex items-center">
                     <SmartToggle
                       :on="SYNC_ENVIRONMENTS"
-                      @change="
-                        toggleSettings('syncEnvironments', !SYNC_ENVIRONMENTS)
-                      "
+                      @change="toggleSetting('syncEnvironments')"
                     >
                       {{ $t("settings.sync_environments") }}
                     </SmartToggle>
@@ -67,7 +63,7 @@
                   <div class="flex items-center">
                     <SmartToggle
                       :on="SYNC_HISTORY"
-                      @change="toggleSettings('syncHistory', !SYNC_HISTORY)"
+                      @change="toggleSetting('syncHistory')"
                     >
                       {{ $t("settings.sync_history") }}
                     </SmartToggle>
@@ -75,11 +71,7 @@
                 </div>
               </section>
             </SmartTab>
-            <SmartTab
-              v-if="currentBackendUser && currentBackendUser.eaInvited"
-              :id="'teams'"
-              :label="$t('team.title')"
-            >
+            <SmartTab :id="'teams'" :label="$t('team.title')">
               <AppSection label="teams">
                 <Teams />
               </AppSection>
@@ -92,47 +84,37 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
+<script setup lang="ts">
+import {
+  ref,
+  useContext,
+  useMeta,
+  defineComponent,
+} from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-import { applySetting, SettingsType, useSetting } from "~/newstore/settings"
-import { KeysMatching } from "~/types/ts-utils"
+import { toggleSetting, useSetting } from "~/newstore/settings"
 
+const {
+  app: { i18n },
+} = useContext()
+
+const t = i18n.t.bind(i18n)
+
+const showLogin = ref(false)
+
+const SYNC_COLLECTIONS = useSetting("syncCollections")
+const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
+const SYNC_HISTORY = useSetting("syncHistory")
+const currentUser = useReadonlyStream(currentUser$, null)
+
+useMeta({
+  title: `${t("navigation.profile")} • Hoppscotch`,
+})
+</script>
+
+<script lang="ts">
 export default defineComponent({
-  setup() {
-    return {
-      SYNC_COLLECTIONS: useSetting("syncCollections"),
-      SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
-      SYNC_HISTORY: useSetting("syncHistory"),
-      currentUser: useReadonlyStream(currentUser$, currentUser$.value),
-      currentBackendUser: useReadonlyStream(
-        currentUserInfo$,
-        currentUserInfo$.value
-      ),
-    }
-  },
-  data() {
-    return {
-      showLogin: false,
-    }
-  },
-  head() {
-    return {
-      title: `${this.$t("navigation.profile")} • Hoppscotch`,
-    }
-  },
-  methods: {
-    applySetting<K extends keyof SettingsType>(key: K, value: SettingsType[K]) {
-      applySetting(key, value)
-    },
-    toggleSettings<K extends KeysMatching<SettingsType, boolean>>(
-      name: K,
-      value: SettingsType[K]
-    ) {
-      this.applySetting(name, value)
-    },
-  },
+  head: {},
 })
 </script>

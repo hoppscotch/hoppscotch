@@ -52,12 +52,13 @@ const axiosWithoutProxy = async (req, _store) => {
       cancelToken: (cancelSource && cancelSource.token) || "",
       responseType: "arraybuffer",
     })
-
     return res
   } catch (e) {
     if (axios.isCancel(e)) {
       // eslint-disable-next-line no-throw-literal
       throw "cancellation"
+    } else if (e.response.data) {
+      throw new Error(Buffer.from(e.response.data, "base64"))
     } else {
       console.error(e)
       throw e

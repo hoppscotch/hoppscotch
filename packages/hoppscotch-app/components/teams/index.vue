@@ -26,7 +26,8 @@
       </div>
       <div
         v-else-if="!myTeams.loading && E.isRight(myTeams.data)"
-        class="grid gap-4 sm:grid-cols-3 md:grid-cols-4"
+        class="grid gap-4"
+        :class="modal ? 'grid-cols-1' : 'sm:grid-cols-3 md:grid-cols-4'"
       >
         <TeamsTeam
           v-for="(team, index) in myTeams.data.right.myTeams"
@@ -68,6 +69,10 @@ import * as E from "fp-ts/Either"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import { MyTeamsQueryError } from "~/helpers/backend/QueryErrors"
 import { TeamMemberRole } from "~/helpers/backend/types/TeamMemberRole"
+
+defineProps<{
+  modal: boolean
+}>()
 
 const showModalAdd = ref(false)
 const showModalEdit = ref(false)

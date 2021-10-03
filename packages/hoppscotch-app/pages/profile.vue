@@ -73,7 +73,7 @@
             </SmartTab>
             <SmartTab :id="'teams'" :label="$t('team.title')">
               <AppSection label="teams">
-                <Teams />
+                <Teams :modal="false" />
               </AppSection>
             </SmartTab>
           </SmartTabs>

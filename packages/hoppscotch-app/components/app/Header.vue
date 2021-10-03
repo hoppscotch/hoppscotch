@@ -47,49 +47,65 @@
           :label="$t('header.login')"
           @click.native="showLogin = true"
         />
-        <span v-else class="px-2">
-          <tippy ref="user" interactive trigger="click" theme="popover" arrow>
-            <template #trigger>
-              <ProfilePicture
-                v-if="currentUser.photoURL"
-                v-tippy="{
-                  theme: 'tooltip',
-                }"
-                :url="currentUser.photoURL"
-                :alt="currentUser.displayName"
-                :title="currentUser.displayName"
-                indicator
-                :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
-              />
-              <ButtonSecondary
-                v-else
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('header.account')"
-                class="rounded"
+        <div v-else class="space-x-2 inline-flex items-center">
+          <ButtonPrimary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('team.invite_tooltip')"
+            :label="$t('team.invite')"
+            svg="user-plus"
+            class="
+              !bg-green-400
+              !text-green-500
+              !bg-opacity-10
+              !hover:bg-opacity-10 !hover:text-green-600 !hover:bg-green-600
+            "
+            @click.native="showTeamsModal = true"
+          />
+          <span class="px-2">
+            <tippy ref="user" interactive trigger="click" theme="popover" arrow>
+              <template #trigger>
+                <ProfilePicture
+                  v-if="currentUser.photoURL"
+                  v-tippy="{
+                    theme: 'tooltip',
+                  }"
+                  :url="currentUser.photoURL"
+                  :alt="currentUser.displayName"
+                  :title="currentUser.displayName"
+                  indicator
+                  :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
+                />
+                <ButtonSecondary
+                  v-else
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('header.account')"
+                  class="rounded"
+                  svg="user"
+                />
+              </template>
+              <SmartItem
+                to="/profile"
                 svg="user"
+                :label="$t('navigation.profile')"
+                @click.native="$refs.user.tippy().hide()"
               />
-            </template>
-            <SmartItem
-              to="/profile"
-              svg="user"
-              :label="$t('navigation.profile')"
-              @click.native="$refs.user.tippy().hide()"
-            />
-            <SmartItem
-              to="/settings"
-              svg="settings"
-              :label="$t('navigation.settings')"
-              @click.native="$refs.user.tippy().hide()"
-            />
-            <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
-          </tippy>
-        </span>
+              <SmartItem
+                to="/settings"
+                svg="settings"
+                :label="$t('navigation.settings')"
+                @click.native="$refs.user.tippy().hide()"
+              />
+              <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
+            </tippy>
+          </span>
+        </div>
       </div>
     </header>
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
     <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
+    <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
 
@@ -127,6 +143,7 @@ export default defineComponent({
       showInstallPrompt: null,
       showLogin: false,
       isOnLine: navigator.onLine,
+      showTeamsModal: false,
     }
   },
   async mounted() {

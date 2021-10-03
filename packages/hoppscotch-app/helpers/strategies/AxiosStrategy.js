@@ -1,6 +1,7 @@
 import axios from "axios"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
 import { settingsStore } from "~/newstore/settings"
+import { JsonFormattedError } from "~/helpers/utils/JsonFormattedError"
 
 let cancelSource = axios.CancelToken.source()
 
@@ -39,7 +40,6 @@ const axiosWithProxy = async (req) => {
       // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
-      console.error(e)
       throw e
     }
   }
@@ -57,10 +57,11 @@ const axiosWithoutProxy = async (req, _store) => {
     if (axios.isCancel(e)) {
       // eslint-disable-next-line no-throw-literal
       throw "cancellation"
-    } else if (e.response.data) {
-      throw new Error(Buffer.from(e.response.data, "base64"))
+    } else if (e.response?.data) {
+      throw new JsonFormattedError(
+        JSON.parse(Buffer.from(e.response.data, "base64").toString("utf8"))
+      )
     } else {
-      console.error(e)
       throw e
     }
   }

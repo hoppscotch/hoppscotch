@@ -136,7 +136,10 @@ import {
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
-import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
+import {
+  FormDataKeyValue,
+  HoppRESTRequest,
+} from "~/helpers/types/HoppRESTRequest"
 import { oauthRedirect } from "~/helpers/oauth"
 import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
 import useWindowSize from "~/helpers/utils/useWindowSize"
@@ -161,6 +164,16 @@ function bindRequestToURLParams() {
     return filtered.length > 0 ? JSON.stringify(filtered) : null
   })
 
+  const body = computed(() => {
+    const contentType = request.value.body.contentType
+    if (contentType === "multipart/form-data") {
+      const body = request.value.body.body as FormDataKeyValue[]
+      const filtered = body.filter((x) => x.key !== "")
+      return JSON.stringify({ body: filtered, contentType })
+    }
+    return JSON.stringify({ body: request.value.body.body, contentType })
+  })
+
   // Combine them together to a cleaner value
   const urlParams = computed(() => ({
     v: request.value.v,
@@ -168,6 +181,7 @@ function bindRequestToURLParams() {
     endpoint: request.value.endpoint,
     headers: headers.value,
     params: params.value,
+    body: body.value,
   }))
 
   // Watch and update accordingly

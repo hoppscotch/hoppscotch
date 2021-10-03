@@ -290,7 +290,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 ## **Developing**
 
-0. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/.env.example) file found in `packages/hoppscotch-app` with your own keys and rename it to `.env`.
+0. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-app/.env.example) file found in `packages/hoppscotch-app` with your own keys and rename it to `.env`.
 
 _Sample keys only works with the [production build](https://hoppscotch.io)._
 

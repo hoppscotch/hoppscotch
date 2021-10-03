@@ -164,15 +164,14 @@ function bindRequestToURLParams() {
     return filtered.length > 0 ? JSON.stringify(filtered) : null
   })
 
-  const contentType = request.value.body.contentType
-
   const body = computed(() => {
+    const contentType = request.value.body.contentType
     if (contentType === "multipart/form-data") {
       const body = request.value.body.body as FormDataKeyValue[]
       const filtered = body.filter((x) => x.key !== "")
-      return filtered.length > 0 ? JSON.stringify(filtered) : null
+      return JSON.stringify({ body: filtered, contentType })
     }
-    return JSON.stringify(request.value.body)
+    return JSON.stringify({ body: request.value.body.body, contentType })
   })
 
   // Combine them together to a cleaner value
@@ -182,7 +181,7 @@ function bindRequestToURLParams() {
     endpoint: request.value.endpoint,
     headers: headers.value,
     params: params.value,
-    body: JSON.stringify({ contentType, body }),
+    body: body.value,
   }))
 
   // Watch and update accordingly

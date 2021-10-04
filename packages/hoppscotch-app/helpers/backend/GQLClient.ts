@@ -13,17 +13,19 @@ import {
   OperationResult,
   dedupExchange,
   OperationContext,
-  cacheExchange,
   fetchExchange,
   makeOperation,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
+import { offlineExchange } from "@urql/exchange-graphcache"
+import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage"
 import { devtoolsExchange } from "@urql/devtools"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
 import { subscribe } from "wonka"
 import clone from "lodash/clone"
+import gql from "graphql-tag"
 import {
   getAuthIDToken,
   probableUser$,
@@ -35,12 +37,105 @@ const BACKEND_GQL_URL =
     ? "https://api.hoppscotch.io/graphql"
     : "https://api.hoppscotch.io/graphql"
 
+const storage = makeDefaultStorage({
+  idbName: "hoppcache-v1",
+  maxAge: 7,
+})
+
 const client = createClient({
   url: BACKEND_GQL_URL,
   exchanges: [
     devtoolsExchange,
     dedupExchange,
-    cacheExchange,
+    // TODO: Extract this outttttttt
+    offlineExchange({
+      keys: {
+        User: (data) => (data as any).uid,
+        TeamMember: (data) => (data as any).membershipID,
+        Team: (data) => data.id as any,
+      },
+      optimistic: {
+        deleteTeam: () => true,
+        leaveTeam: () => true,
+      },
+      updates: {
+        Mutation: {
+          deleteTeam: (_r, { teamID }, cache, _info) => {
+            cache.updateQuery(
+              {
+                query: gql`
+                  query {
+                    myTeams {
+                      id
+                    }
+                  }
+                `,
+              },
+              (data: any) => {
+                console.log(data)
+                data.myTeams = (data as any).myTeams.filter(
+                  (x: any) => x.id !== teamID
+                )
+
+                return data
+              }
+            )
+
+            cache.invalidate({
+              __typename: "Team",
+              id: teamID as any,
+            })
+          },
+          leaveTeam: (_r, { teamID }, cache, _info) => {
+            cache.updateQuery(
+              {
+                query: gql`
+                  query {
+                    myTeams {
+                      id
+                    }
+                  }
+                `,
+              },
+              (data: any) => {
+                console.log(data)
+                data.myTeams = (data as any).myTeams.filter(
+                  (x: any) => x.id !== teamID
+                )
+
+                return data
+              }
+            )
+
+            cache.invalidate({
+              __typename: "Team",
+              id: teamID as any,
+            })
+          },
+          createTeam: (result, _args, cache, _info) => {
+            cache.updateQuery(
+              {
+                query: gql`
+                  {
+                    myTeams {
+                      id
+                    }
+                  }
+                `,
+              },
+              (data: any) => {
+                console.log(result)
+                console.log(data)
+
+                data.myTeams.push(result.createTeam)
+                return data
+              }
+            )
+          },
+        },
+      },
+      storage,
+    }),
     authExchange({
       addAuthToOperation({ authState, operation }) {
         if (!authState || !authState.authToken) {
@@ -145,7 +240,9 @@ export function useGQLQuery<
   let subscription: { unsubscribe(): void } | null = null
 
   onMounted(() => {
-    const gqlQuery = client.query<any, QueryVariables>(query, variables)
+    const gqlQuery = client.query<any, QueryVariables>(query, variables, {
+      requestPolicy: "cache-and-network",
+    })
 
     const processResult = (result: OperationResult<any, QueryVariables>) =>
       pipe(
@@ -218,18 +315,21 @@ export const runMutation = <
     TE.tryCatch(
       () =>
         client
-          .mutation<MutationReturnType>(mutation, variables, additionalConfig)
+          .mutation<MutationReturnType>(mutation, variables, {
+            requestPolicy: "cache-and-network",
+            ...additionalConfig,
+          })
           .toPromise(),
       () => constVoid() as never // The mutation function can never fail, so this will never be called ;)
     ),
     TE.chainEitherK((result) =>
       pipe(
-        result.data as MutationReturnType, // If we have the result, then okay
+        result.data as MutationReturnType,
         E.fromNullable(
           // Result is null
           pipe(
-            result.error?.networkError, // Check for network error
-            E.fromNullable(result.error?.name), // If it is null, then it is a GQL error
+            result.error?.networkError,
+            E.fromNullable(result.error?.name),
             E.match(
               // The left case (network error was null)
               (gqlErr) =>

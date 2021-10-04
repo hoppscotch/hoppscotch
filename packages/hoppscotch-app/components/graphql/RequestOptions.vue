@@ -453,8 +453,9 @@ const runQuery = async () => {
     $toast.error(
       `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
       {
-      icon: "error_outline",
-    })
+        icon: "error_outline",
+      }
+    )
     console.error(e)
   }
 

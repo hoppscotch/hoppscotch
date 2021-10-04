@@ -447,10 +447,12 @@ const runQuery = async () => {
       icon: "done",
     })
   } catch (e: any) {
-    response.value = `${e}.\n\n${t("error.check_console_details")}`
+    response.value = `${e}`
     nuxt.value.$loading.finish()
 
-    $toast.error(`${e} ${t("error.f12_details")}`, {
+    $toast.error(
+      `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
+      {
       icon: "error_outline",
     })
     console.error(e)

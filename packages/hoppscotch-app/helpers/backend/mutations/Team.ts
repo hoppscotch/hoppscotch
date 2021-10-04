@@ -3,6 +3,7 @@ import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { runMutation } from "../GQLClient"
 import { TeamName } from "../types/TeamName"
+import { TeamMemberRole } from "../types/TeamMemberRole"
 
 type DeleteTeamErrors =
   | "team/not_required_role"
@@ -24,6 +25,11 @@ export const createTeam = (name: TeamName) =>
         createTeam: {
           id: string
           name: string
+          members: Array<{ membershipID: string }>
+          myRole: TeamMemberRole
+          ownersCount: number
+          editorsCount: number
+          viewersCount: number
         }
       },
       CreateTeamErrors
@@ -33,6 +39,13 @@ export const createTeam = (name: TeamName) =>
           createTeam(name: $name) {
             id
             name
+            members {
+              membershipID
+            }
+            myRole
+            ownersCount
+            editorsCount
+            viewersCount
           }
         }
       `,

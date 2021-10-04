@@ -87,6 +87,7 @@ const myTeams = useGQLQuery<
       myRole: TeamMemberRole
       ownersCount: number
       members: Array<{
+        membershipID: string
         user: {
           photoURL: string | null
           displayName: string
@@ -107,6 +108,7 @@ const myTeams = useGQLQuery<
         myRole
         ownersCount
         members {
+          membershipID
           user {
             photoURL
             displayName

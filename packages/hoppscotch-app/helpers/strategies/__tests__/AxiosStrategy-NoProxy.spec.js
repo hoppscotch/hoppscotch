@@ -1,5 +1,6 @@
 import axios from "axios"
 import axiosStrategy from "../AxiosStrategy"
+import { JsonFormattedError } from "~/helpers/utils/JsonFormattedError"
 
 jest.mock("axios")
 jest.mock("~/newstore/settings", () => {
@@ -42,18 +43,34 @@ describe("axiosStrategy", () => {
       await expect(axiosStrategy({})).resolves.toBeDefined()
     })
 
-    test("rejects cancel errors with text 'cancellation'", () => {
+    test("rejects cancel errors with text 'cancellation'", async () => {
       axios.isCancel.mockReturnValueOnce(true)
       axios.mockRejectedValue("err")
 
-      expect(axiosStrategy({})).rejects.toBe("cancellation")
+      await expect(axiosStrategy({})).rejects.toBe("cancellation")
     })
 
-    test("rejects non-cancellation errors as-is", () => {
+    test("rejects non-cancellation errors as-is", async () => {
       axios.isCancel.mockReturnValueOnce(false)
       axios.mockRejectedValue("err")
 
-      expect(axiosStrategy({})).rejects.toBe("err")
+      await expect(axiosStrategy({})).rejects.toBe("err")
+    })
+
+    test("non-cancellation errors that have response data are thrown", async () => {
+      const errorResponse = { error: "errr" }
+      axios.isCancel.mockReturnValueOnce(false)
+      axios.mockRejectedValue({
+        response: {
+          data: Buffer.from(JSON.stringify(errorResponse), "utf8").toString(
+            "base64"
+          ),
+        },
+      })
+
+      await expect(axiosStrategy({})).rejects.toMatchObject(
+        new JsonFormattedError(errorResponse)
+      )
     })
   })
 })

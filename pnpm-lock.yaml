@@ -50,6 +50,7 @@ importers:
       '@urql/core': ^2.3.3
       '@urql/devtools': ^2.0.3
       '@urql/exchange-auth': ^0.1.6
+      '@urql/exchange-graphcache': ^4.3.5
       '@vue/runtime-dom': ^3.2.20
       '@vue/test-utils': ^1.2.2
       acorn: ^8.5.0
@@ -125,6 +126,7 @@ importers:
       '@nuxtjs/toast': 3.3.1
       '@urql/core': 2.3.3_graphql@15.7.2
       '@urql/exchange-auth': 0.1.6_graphql@15.7.2
+      '@urql/exchange-graphcache': 4.3.5_graphql@15.7.2
       acorn: 8.5.0
       acorn-walk: 8.2.0
       axios: 0.24.0
@@ -4696,6 +4698,16 @@ packages:
 
   /@urql/exchange-auth/0.1.6_graphql@15.7.2:
     resolution: {integrity: sha512-jVyUaV+hHe3p2rIJauh6lgILMAjXOsHQ98xjKhUF3TXYx88TZXuBIl5DPZwnMcGra8YPOSHO/Wsn6NEjO5hQ+Q==}
+    peerDependencies:
+      graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
+    dependencies:
+      '@urql/core': 2.3.3_graphql@15.7.2
+      graphql: 15.7.2
+      wonka: 4.0.15
+    dev: false
+
+  /@urql/exchange-graphcache/4.3.5_graphql@15.7.2:
+    resolution: {integrity: sha512-q5/CzNtSxd5fW/YZ94KABmtQ34XliyS+KKKhyJ+/y66D7mYrN/ZEiuKTlnB7FTt9GLZ0yRtgIfXjwoGicB/Tlw==}
     peerDependencies:
       graphql: ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
     dependencies:

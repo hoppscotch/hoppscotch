@@ -37,7 +37,7 @@
     "@nuxtjs/toast": "^3.3.1",
     "acorn": "^8.5.0",
     "acorn-walk": "^8.2.0",
-    "axios": "^0.21.4",
+    "axios": "^0.22.0",
     "codemirror": "^5.63.1",
     "codemirror-theme-github": "^1.0.0",
     "core-js": "^3.18.1",

@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('app.invite_your_friends')"
+    :title="$t('team.title')"
     @close="$emit('hide-modal')"
   >
     <template #body>

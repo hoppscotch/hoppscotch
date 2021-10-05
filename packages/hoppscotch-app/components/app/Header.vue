@@ -54,10 +54,10 @@
             :label="$t('team.invite')"
             svg="user-plus"
             class="
-              !bg-green-400
+              !bg-green-500
               !text-green-500
               !bg-opacity-10
-              !hover:bg-opacity-10 !hover:text-green-600 !hover:bg-green-600
+              !hover:bg-opacity-10 !hover:text-green-400 !hover:bg-green-400
             "
             @click.native="showTeamsModal = true"
           />
@@ -110,11 +110,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  onMounted,
-  ref,
-  useContext,
-} from "@nuxtjs/composition-api"
+import { onMounted, ref, useContext } from "@nuxtjs/composition-api"
 import intializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"

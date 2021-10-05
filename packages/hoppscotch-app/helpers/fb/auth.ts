@@ -95,18 +95,16 @@ export function initAuth() {
 
   probableUser$.next(JSON.parse(getLocalConfig("login_state") ?? "null"))
 
-  currentUser$.subscribe((user) => {
+  onAuthStateChanged(auth, (user) => {
+    /** Whether the user was logged in before */
+    const wasLoggedIn = currentUser$.value !== null
+
     if (user) {
       probableUser$.next(user)
     } else {
       probableUser$.next(null)
       removeLocalConfig("login_state")
     }
-  })
-
-  onAuthStateChanged(auth, (user) => {
-    /** Whether the user was logged in before */
-    const wasLoggedIn = currentUser$.value !== null
 
     if (!user && extraSnapshotStop) {
       extraSnapshotStop()

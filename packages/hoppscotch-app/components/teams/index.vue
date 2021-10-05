@@ -19,10 +19,18 @@
           E.isRight(myTeams.data) &&
           myTeams.data.right.myTeams.length === 0
         "
-        class="flex items-center"
+        class="
+          flex flex-col
+          text-secondaryLight
+          p-4
+          items-center
+          justify-center
+        "
       >
-        <i class="mr-4 material-icons">help_outline</i>
-        {{ $t("empty.teams") }}
+        <i class="opacity-75 pb-2 material-icons">help_outline</i>
+        <span class="text-center">
+          {{ $t("empty.teams") }}
+        </span>
       </div>
       <div
         v-else-if="!myTeams.loading && E.isRight(myTeams.data)"

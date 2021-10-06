@@ -18,6 +18,21 @@ type ExitTeamErrors =
 
 type CreateTeamErrors = "team/name_invalid" | "ea/not_invite_or_admin"
 
+type RenameTeamErrors =
+  | "ea/not_invite_or_admin"
+  | "team/invalid_id"
+  | "team/not_required_role"
+
+type UpdateTeamMemberRoleErrors =
+  | "ea/not_invite_or_admin"
+  | "team/invalid_id"
+  | "team/not_required_role"
+
+type RemoveTeamMemberErrors =
+  | "ea/not_invite_or_admin"
+  | "team/invalid_id"
+  | "team/not_required_role"
+
 export const createTeam = (name: TeamName) =>
   pipe(
     runMutation<
@@ -83,5 +98,85 @@ export const leaveTeam = (teamID: string) =>
     },
     {
       additionalTypenames: ["Team"],
+    }
+  )
+
+export const renameTeam = (teamID: string, newName: TeamName) =>
+  pipe(
+    runMutation<
+      {
+        renameTeam: {
+          id: string
+          name: TeamName
+        }
+      },
+      RenameTeamErrors
+    >(
+      gql`
+        mutation RenameTeam($newName: String!, $teamID: ID!) {
+          renameTeam(newName: $newName, teamID: $teamID) {
+            id
+            name
+          }
+        }
+      `,
+      {
+        newName,
+        teamID,
+      }
+    ),
+    TE.map(({ renameTeam }) => renameTeam)
+  )
+
+export const updateTeamMemberRole = (
+  userUid: string,
+  teamID: string,
+  newRole: TeamMemberRole
+) =>
+  pipe(
+    runMutation<
+      {
+        updateTeamMemberRole: {
+          membershipID: string
+          role: TeamMemberRole
+        }
+      },
+      UpdateTeamMemberRoleErrors
+    >(
+      gql`
+          mutation UpdateTeamMemberRole(
+            $newRole: TeamMemberRole!,
+            $userUid: ID!,
+            teamID: ID!
+          ) {
+            updateTeamMemberRole(
+              newRole: $newRole
+              userUid: $userUid
+              teamID: $teamID
+            ) {
+              membershipID
+              role
+            }
+          }
+        `,
+      {
+        newRole,
+        userUid,
+        teamID,
+      }
+    ),
+    TE.map(({ updateTeamMemberRole }) => updateTeamMemberRole)
+  )
+
+export const removeTeamMember = (userUid: string, teamID: string) =>
+  runMutation<void, RemoveTeamMemberErrors>(
+    gql`
+      mutation RemoveTeamMember($userUid: ID!, $teamID: ID!) {
+        removeTeamMember(userUid: $userUid, teamID: $teamID)
+      }
+    `,
+    {
+      userUid,
+      teamID,
     }
   )

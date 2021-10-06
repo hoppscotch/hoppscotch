@@ -25,7 +25,9 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
 import { subscribe } from "wonka"
 import clone from "lodash/clone"
-import gql from "graphql-tag"
+import { keyDefs } from "./caching/keys"
+import { optimisticDefs } from "./caching/optimistic"
+import { updatesDef } from "./caching/updates"
 import {
   getAuthIDToken,
   probableUser$,
@@ -49,91 +51,9 @@ const client = createClient({
     dedupExchange,
     // TODO: Extract this outttttttt
     offlineExchange({
-      keys: {
-        User: (data) => (data as any).uid,
-        TeamMember: (data) => (data as any).membershipID,
-        Team: (data) => data.id as any,
-      },
-      optimistic: {
-        deleteTeam: () => true,
-        leaveTeam: () => true,
-      },
-      updates: {
-        Mutation: {
-          deleteTeam: (_r, { teamID }, cache, _info) => {
-            cache.updateQuery(
-              {
-                query: gql`
-                  query {
-                    myTeams {
-                      id
-                    }
-                  }
-                `,
-              },
-              (data: any) => {
-                console.log(data)
-                data.myTeams = (data as any).myTeams.filter(
-                  (x: any) => x.id !== teamID
-                )
-
-                return data
-              }
-            )
-
-            cache.invalidate({
-              __typename: "Team",
-              id: teamID as any,
-            })
-          },
-          leaveTeam: (_r, { teamID }, cache, _info) => {
-            cache.updateQuery(
-              {
-                query: gql`
-                  query {
-                    myTeams {
-                      id
-                    }
-                  }
-                `,
-              },
-              (data: any) => {
-                console.log(data)
-                data.myTeams = (data as any).myTeams.filter(
-                  (x: any) => x.id !== teamID
-                )
-
-                return data
-              }
-            )
-
-            cache.invalidate({
-              __typename: "Team",
-              id: teamID as any,
-            })
-          },
-          createTeam: (result, _args, cache, _info) => {
-            cache.updateQuery(
-              {
-                query: gql`
-                  {
-                    myTeams {
-                      id
-                    }
-                  }
-                `,
-              },
-              (data: any) => {
-                console.log(result)
-                console.log(data)
-
-                data.myTeams.push(result.createTeam)
-                return data
-              }
-            )
-          },
-        },
-      },
+      keys: keyDefs,
+      optimistic: optimisticDefs,
+      updates: updatesDef,
       storage,
     }),
     authExchange({

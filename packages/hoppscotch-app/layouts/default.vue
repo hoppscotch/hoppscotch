@@ -11,6 +11,7 @@
           :horizontal="!(windowInnerWidth.x.value >= 768)"
         >
           <Pane
+            v-if="windowInnerWidth.x.value >= 768"
             style="width: auto; height: auto"
             class="hide-scrollbar !overflow-auto"
           >
@@ -30,6 +31,13 @@
             </Splitpanes>
           </Pane>
         </Splitpanes>
+      </Pane>
+      <Pane
+        v-if="windowInnerWidth.x.value < 768"
+        style="width: auto; height: auto"
+        class="hide-scrollbar !overflow-auto"
+      >
+        <AppSidenav />
       </Pane>
       <Pane style="height: auto">
         <AppFooter />

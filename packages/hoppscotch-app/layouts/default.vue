@@ -108,21 +108,22 @@ function updateThemes() {
 
 function defineJumpActions() {
   const router = useRouter()
+  const { localePath } = useContext() as any
 
   defineActionHandler("navigation.jump.rest", () => {
-    router.push({ path: "/" })
+    router.push({ path: localePath("/") })
   })
   defineActionHandler("navigation.jump.graphql", () => {
-    router.push({ path: "/graphql" })
+    router.push({ path: localePath("/graphql") })
   })
   defineActionHandler("navigation.jump.realtime", () => {
-    router.push({ path: "/realtime" })
+    router.push({ path: localePath("/realtime") })
   })
   defineActionHandler("navigation.jump.documentation", () => {
-    router.push({ path: "/documentation" })
+    router.push({ path: localePath("/documentation") })
   })
   defineActionHandler("navigation.jump.settings", () => {
-    router.push({ path: "/settings" })
+    router.push({ path: localePath("/settings") })
   })
   defineActionHandler("navigation.jump.back", () => {
     router.go(-1)

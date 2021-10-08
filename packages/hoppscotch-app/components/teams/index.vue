@@ -71,12 +71,15 @@
 </template>
 
 <script setup lang="ts">
-import { gql } from "@apollo/client/core"
 import { ref, watchEffect } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
+import {
+  MyTeamsDocument,
+  MyTeamsQuery,
+  MyTeamsQueryVariables,
+} from "~/helpers/backend/graphql"
 import { MyTeamsQueryError } from "~/helpers/backend/QueryErrors"
-import { TeamMemberRole } from "~/helpers/backend/types/TeamMemberRole"
 
 defineProps<{
   modal: boolean
@@ -88,47 +91,10 @@ const editingTeam = ref<any>({}) // TODO: Check this out
 const editingTeamID = ref<any>("")
 
 const myTeams = useGQLQuery<
-  {
-    myTeams: Array<{
-      id: string
-      name: string
-      myRole: TeamMemberRole
-      ownersCount: number
-      members: Array<{
-        membershipID: string
-        user: {
-          photoURL: string | null
-          displayName: string
-          email: string
-          uid: string
-        }
-        role: TeamMemberRole
-      }>
-    }>
-  },
+  MyTeamsQuery,
+  MyTeamsQueryVariables,
   MyTeamsQueryError
->(
-  gql`
-    query GetMyTeams {
-      myTeams {
-        id
-        name
-        myRole
-        ownersCount
-        members {
-          membershipID
-          user {
-            photoURL
-            displayName
-            email
-            uid
-          }
-          role
-        }
-      }
-    }
-  `
-)
+>(MyTeamsDocument)
 
 watchEffect(() => {
   console.log(myTeams)

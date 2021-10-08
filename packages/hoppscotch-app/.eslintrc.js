@@ -18,6 +18,9 @@ module.exports = {
     "plugin:prettier/recommended",
     "plugin:nuxt/recommended",
   ],
+  ignorePatterns: [
+    "helpers/backend/graphql.ts"
+  ],
   plugins: ["vue", "prettier"],
   // add your custom rules here
   rules: {

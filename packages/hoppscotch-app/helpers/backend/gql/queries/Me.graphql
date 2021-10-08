@@ -1,0 +1,8 @@
+query Me {
+  me {
+    uid
+    displayName
+    photoURL
+    eaInvited
+  }
+}

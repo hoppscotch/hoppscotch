@@ -74,6 +74,16 @@ export default defineComponent({
     }
   },
 
+  updated() {
+    const candidates = this.$children.filter(
+      (child) => child.$options.name === "SmartTab"
+    )
+
+    if (candidates.length !== this.tabs.length) {
+      this.tabs = candidates
+    }
+  },
+
   mounted() {
     this.tabs = this.$children.filter(
       (child) => child.$options.name === "SmartTab"

@@ -95,9 +95,8 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
   const modifierKey = getActiveModifier(ev)
 
   const target = ev.target
-
-  if (!modifierKey && !(isDOMElement(target) && isTypableElement(target))) {
-    // Check if we are having singulars instead
+  // override default behaviour if element is typable
+  if (modifierKey && isDOMElement(target) && isTypableElement(target)) {
     const key = getPressedKey(ev)
 
     if (!key) return null
@@ -112,7 +111,6 @@ function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
 
 function getPressedKey(ev: KeyboardEvent): Key | null {
   const val = ev.key.toLowerCase()
-
   // Check arrow keys
   if (val === "arrowup") return "up"
   else if (val === "arrowdown") return "down"

@@ -1,0 +1,14 @@
+mutation UpdateTeamMemberRole(
+  $newRole: TeamMemberRole!,
+  $userUid: ID!,
+  $teamID: ID!
+) {
+  updateTeamMemberRole(
+    newRole: $newRole
+    userUid: $userUid
+    teamID: $teamID
+  ) {
+    membershipID
+    role
+  }
+}

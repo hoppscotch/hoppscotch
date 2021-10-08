@@ -1,9 +1,28 @@
-import gql from "graphql-tag"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { runMutation } from "../GQLClient"
 import { TeamName } from "../types/TeamName"
-import { TeamMemberRole } from "../types/TeamMemberRole"
+import {
+  CreateTeamDocument,
+  CreateTeamMutation,
+  CreateTeamMutationVariables,
+  DeleteTeamDocument,
+  DeleteTeamMutation,
+  DeleteTeamMutationVariables,
+  LeaveTeamDocument,
+  LeaveTeamMutation,
+  LeaveTeamMutationVariables,
+  RemoveTeamMemberDocument,
+  RemoveTeamMemberMutation,
+  RemoveTeamMemberMutationVariables,
+  RenameTeamDocument,
+  RenameTeamMutation,
+  RenameTeamMutationVariables,
+  TeamMemberRole,
+  UpdateTeamMemberRoleDocument,
+  UpdateTeamMemberRoleMutation,
+  UpdateTeamMemberRoleMutationVariables,
+} from "../graphql"
 
 type DeleteTeamErrors =
   | "team/not_required_role"
@@ -11,7 +30,7 @@ type DeleteTeamErrors =
   | "team/member_not_found"
   | "ea/not_invite_or_admin"
 
-type ExitTeamErrors =
+type LeaveTeamErrors =
   | "team/invalid_id"
   | "team/member_not_found"
   | "ea/not_invite_or_admin"
@@ -36,48 +55,22 @@ type RemoveTeamMemberErrors =
 export const createTeam = (name: TeamName) =>
   pipe(
     runMutation<
-      {
-        createTeam: {
-          id: string
-          name: string
-          members: Array<{ membershipID: string }>
-          myRole: TeamMemberRole
-          ownersCount: number
-          editorsCount: number
-          viewersCount: number
-        }
-      },
+      CreateTeamMutation,
+      CreateTeamMutationVariables,
       CreateTeamErrors
-    >(
-      gql`
-        mutation CreateTeam($name: String!) {
-          createTeam(name: $name) {
-            id
-            name
-            members {
-              membershipID
-            }
-            myRole
-            ownersCount
-            editorsCount
-            viewersCount
-          }
-        }
-      `,
-      {
-        name,
-      }
-    ),
+    >(CreateTeamDocument, {
+      name,
+    }),
     TE.map(({ createTeam }) => createTeam)
   )
 
 export const deleteTeam = (teamID: string) =>
-  runMutation<void, DeleteTeamErrors>(
-    gql`
-      mutation DeleteTeam($teamID: ID!) {
-        deleteTeam(teamID: $teamID)
-      }
-    `,
+  runMutation<
+    DeleteTeamMutation,
+    DeleteTeamMutationVariables,
+    DeleteTeamErrors
+  >(
+    DeleteTeamDocument,
     {
       teamID,
     },
@@ -87,12 +80,8 @@ export const deleteTeam = (teamID: string) =>
   )
 
 export const leaveTeam = (teamID: string) =>
-  runMutation<void, ExitTeamErrors>(
-    gql`
-      mutation ExitTeam($teamID: ID!) {
-        leaveTeam(teamID: $teamID)
-      }
-    `,
+  runMutation<LeaveTeamMutation, LeaveTeamMutationVariables, LeaveTeamErrors>(
+    LeaveTeamDocument,
     {
       teamID,
     },
@@ -104,27 +93,13 @@ export const leaveTeam = (teamID: string) =>
 export const renameTeam = (teamID: string, newName: TeamName) =>
   pipe(
     runMutation<
-      {
-        renameTeam: {
-          id: string
-          name: TeamName
-        }
-      },
+      RenameTeamMutation,
+      RenameTeamMutationVariables,
       RenameTeamErrors
-    >(
-      gql`
-        mutation RenameTeam($newName: String!, $teamID: ID!) {
-          renameTeam(newName: $newName, teamID: $teamID) {
-            id
-            name
-          }
-        }
-      `,
-      {
-        newName,
-        teamID,
-      }
-    ),
+    >(RenameTeamDocument, {
+      newName,
+      teamID,
+    }),
     TE.map(({ renameTeam }) => renameTeam)
   )
 
@@ -135,48 +110,23 @@ export const updateTeamMemberRole = (
 ) =>
   pipe(
     runMutation<
-      {
-        updateTeamMemberRole: {
-          membershipID: string
-          role: TeamMemberRole
-        }
-      },
+      UpdateTeamMemberRoleMutation,
+      UpdateTeamMemberRoleMutationVariables,
       UpdateTeamMemberRoleErrors
-    >(
-      gql`
-          mutation UpdateTeamMemberRole(
-            $newRole: TeamMemberRole!,
-            $userUid: ID!,
-            teamID: ID!
-          ) {
-            updateTeamMemberRole(
-              newRole: $newRole
-              userUid: $userUid
-              teamID: $teamID
-            ) {
-              membershipID
-              role
-            }
-          }
-        `,
-      {
-        newRole,
-        userUid,
-        teamID,
-      }
-    ),
+    >(UpdateTeamMemberRoleDocument, {
+      newRole,
+      userUid,
+      teamID,
+    }),
     TE.map(({ updateTeamMemberRole }) => updateTeamMemberRole)
   )
 
 export const removeTeamMember = (userUid: string, teamID: string) =>
-  runMutation<void, RemoveTeamMemberErrors>(
-    gql`
-      mutation RemoveTeamMember($userUid: ID!, $teamID: ID!) {
-        removeTeamMember(userUid: $userUid, teamID: $teamID)
-      }
-    `,
-    {
-      userUid,
-      teamID,
-    }
-  )
+  runMutation<
+    RemoveTeamMemberMutation,
+    RemoveTeamMemberMutationVariables,
+    RemoveTeamMemberErrors
+  >(RemoveTeamMemberDocument, {
+    userUid,
+    teamID,
+  })

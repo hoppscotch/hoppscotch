@@ -110,3 +110,9 @@ tests/*/videos
 
 # Andrew's crazy Volar shim generator
 shims-volar.d.ts
+
+# Hoppscotch Backend Schema Introspection JSON
+helpers/backend/backend-schema.json
+
+# GraphQL Type Generation
+helpers/backend/graphql.ts

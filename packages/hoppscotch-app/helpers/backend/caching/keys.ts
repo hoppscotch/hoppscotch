@@ -1,4 +1,4 @@
-import { KeyingConfig } from "@urql/exchange-graphcache";
+import { KeyingConfig } from "@urql/exchange-graphcache"
 
 export const keyDefs: KeyingConfig = {
   User: (data) => (data as any).uid,

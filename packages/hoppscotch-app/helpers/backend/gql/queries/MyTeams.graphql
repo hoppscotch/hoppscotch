@@ -1,0 +1,18 @@
+query MyTeams {
+  myTeams {
+    id
+    name
+    myRole
+    ownersCount
+    members {
+      membershipID
+      user {
+        photoURL
+        displayName
+        email
+        uid
+      }
+      role
+    }
+  }
+}

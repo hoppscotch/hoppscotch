@@ -6,7 +6,6 @@ import {
   reactive,
   Ref,
 } from "@nuxtjs/composition-api"
-import { DocumentNode } from "graphql/language"
 import {
   createClient,
   TypedDocumentNode,
@@ -28,6 +27,8 @@ import clone from "lodash/clone"
 import { keyDefs } from "./caching/keys"
 import { optimisticDefs } from "./caching/optimistic"
 import { updatesDef } from "./caching/updates"
+import { resolversDef } from "./caching/resolvers"
+import schema from "./backend-schema.json"
 import {
   getAuthIDToken,
   probableUser$,
@@ -49,11 +50,12 @@ const client = createClient({
   exchanges: [
     devtoolsExchange,
     dedupExchange,
-    // TODO: Extract this outttttttt
     offlineExchange({
+      schema: schema as any,
       keys: keyDefs,
       optimistic: optimisticDefs,
       updates: updatesDef,
+      resolvers: resolversDef,
       storage,
     }),
     authExchange({
@@ -142,10 +144,10 @@ export function isLoadedGQLQuery<QueryFailType extends string, QueryReturnType>(
 
 export function useGQLQuery<
   QueryReturnType = any,
-  QueryFailType extends string = "",
-  QueryVariables extends object = {}
+  QueryVariables extends object = {},
+  QueryFailType extends string = ""
 >(
-  query: string | DocumentNode | TypedDocumentNode<any, QueryVariables>,
+  query: TypedDocumentNode<QueryReturnType, QueryVariables>,
   variables?: QueryVariables,
   options: Partial<GQL_QUERY_OPTIONS> = DEFAULT_QUERY_OPTIONS
 ):
@@ -223,19 +225,19 @@ export function useGQLQuery<
 }
 
 export const runMutation = <
-  MutationReturnType = any,
-  MutationFailType extends string = "",
-  MutationVariables extends {} = {}
+  DocType,
+  DocVariables extends object | undefined,
+  DocErrors extends string
 >(
-  mutation: string | DocumentNode | TypedDocumentNode<any, MutationVariables>,
-  variables?: MutationVariables,
+  mutation: TypedDocumentNode<DocType, DocVariables>,
+  variables?: DocVariables,
   additionalConfig?: Partial<OperationContext>
-): TE.TaskEither<GQLError<MutationFailType>, NonNullable<MutationReturnType>> =>
+): TE.TaskEither<GQLError<DocErrors>, DocType> =>
   pipe(
     TE.tryCatch(
       () =>
         client
-          .mutation<MutationReturnType>(mutation, variables, {
+          .mutation(mutation, variables, {
             requestPolicy: "cache-and-network",
             ...additionalConfig,
           })
@@ -244,7 +246,7 @@ export const runMutation = <
     ),
     TE.chainEitherK((result) =>
       pipe(
-        result.data as MutationReturnType,
+        result.data,
         E.fromNullable(
           // Result is null
           pipe(
@@ -253,13 +255,13 @@ export const runMutation = <
             E.match(
               // The left case (network error was null)
               (gqlErr) =>
-                <GQLError<MutationFailType>>{
+                <GQLError<DocErrors>>{
                   type: "gql_error",
-                  error: gqlErr as MutationFailType,
+                  error: gqlErr,
                 },
               // The right case (it was a GraphQL Error)
               (networkErr) =>
-                <GQLError<MutationFailType>>{
+                <GQLError<DocErrors>>{
                   type: "network_error",
                   error: networkErr,
                 }

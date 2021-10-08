@@ -9,8 +9,11 @@
     "pnpm": ">=3"
   },
   "scripts": {
-    "dev": "nuxt",
+    "dev": "pnpx npm-run-all -p -l dev:*",
+    "dev:nuxt": "nuxt",
+    "dev:gql-codegen": "graphql-codegen --config gql-codegen.yml --watch",
     "build": "vue-tsc --noEmit && nuxt build",
+    "postinstall": "pnpm run gql-codegen",
     "start": "nuxt start",
     "generate": "nuxt generate --modern",
     "analyze": "npx nuxt build -a",
@@ -24,7 +27,8 @@
     "do-prod-start": "pnpm run start",
     "do-lint": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix",
-    "do-test": "pnpm run test"
+    "do-test": "pnpm run test",
+    "gql-codegen": "graphql-codegen --config gql-codegen.yml"
   },
   "dependencies": {
     "@apollo/client": "^3.4.16",
@@ -83,6 +87,13 @@
     "@babel/preset-env": "^7.16.0",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
+    "@graphql-codegen/add": "^3.1.0",
+    "@graphql-codegen/cli": "2.2.0",
+    "@graphql-codegen/typed-document-node": "^2.1.4",
+    "@graphql-codegen/typescript": "2.2.2",
+    "@graphql-codegen/typescript-operations": "^2.1.6",
+    "@graphql-codegen/urql-introspection": "^2.1.0",
+    "@graphql-typed-document-node/core": "^3.1.0",
     "@nuxt/types": "^2.15.8",
     "@nuxt/typescript-build": "^2.1.0",
     "@nuxtjs/color-mode": "^2.1.1",
@@ -112,6 +123,7 @@
     "eslint-plugin-vue": "^7.20.0",
     "jest": "^27.3.1",
     "jest-serializer-vue": "^2.0.2",
+    "npm-run-all": "^4.1.5",
     "nuxt-windicss": "^2.0.9",
     "prettier": "^2.4.1",
     "pretty-quick": "^3.1.1",

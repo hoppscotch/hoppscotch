@@ -73,11 +73,11 @@
 import { useContext } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import { TeamMemberRole } from "~/helpers/backend/graphql"
 import {
   deleteTeam as backendDeleteTeam,
   leaveTeam,
 } from "~/helpers/backend/mutations/Team"
-import { TeamMemberRole } from "~/helpers/backend/types/TeamMemberRole"
 
 const props = defineProps<{
   team: {

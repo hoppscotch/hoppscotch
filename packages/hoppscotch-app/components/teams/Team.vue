@@ -21,6 +21,18 @@
         </div>
       </div>
     </div>
+    <ButtonSecondary
+      v-if="team.myRole === 'OWNER'"
+      v-tippy="{ theme: 'tooltip' }"
+      svg="user-plus"
+      :title="$t('team.invite')"
+      @click.native="
+        () => {
+          emit('invite-team')
+          $refs.options.tippy().hide()
+        }
+      "
+    />
     <span>
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>
         <template #trigger>

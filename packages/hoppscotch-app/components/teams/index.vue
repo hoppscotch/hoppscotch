@@ -43,6 +43,7 @@
           :team-i-d="team.id"
           :team="team"
           @edit-team="editTeam(team, team.id)"
+          @invite-team="inviteTeam(team, team.id)"
         />
       </div>
       <div
@@ -67,6 +68,18 @@
       :editingteam-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
     />
+    <TeamsInvite
+      v-if="
+        !myTeams.loading &&
+        E.isRight(myTeams.data) &&
+        myTeams.data.right.myTeams.length > 0
+      "
+      :team="myTeams.data.right.myTeams[0]"
+      :show="showModalInvite"
+      :editing-team="editingTeam"
+      :editingteam-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
+    />
   </AppSection>
 </template>
 
@@ -87,6 +100,7 @@ defineProps<{
 
 const showModalAdd = ref(false)
 const showModalEdit = ref(false)
+const showModalInvite = ref(false)
 const editingTeam = ref<any>({}) // TODO: Check this out
 const editingTeamID = ref<any>("")
 
@@ -109,10 +123,23 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 
   if (!shouldDisplay) resetSelectedData()
 }
+
+const displayModalInvite = (shouldDisplay: boolean) => {
+  showModalInvite.value = shouldDisplay
+
+  if (!shouldDisplay) resetSelectedData()
+}
+
 const editTeam = (team: any, teamID: any) => {
   editingTeam.value = team
   editingTeamID.value = teamID
   displayModalEdit(true)
+}
+
+const inviteTeam = (team: any, teamID: any) => {
+  editingTeam.value = team
+  editingTeamID.value = teamID
+  displayModalInvite(true)
 }
 
 const resetSelectedData = () => {

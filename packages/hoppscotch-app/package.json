@@ -80,7 +80,7 @@
     "yargs-parser": "^20.2.9"
   },
   "devDependencies": {
-        "@babel/core": "^7.15.8",
+            "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",

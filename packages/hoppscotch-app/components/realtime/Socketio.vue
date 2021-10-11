@@ -15,6 +15,48 @@
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="space-x-2 flex-1 inline-flex">
                 <div class="flex flex-1">
+                  <label for="client-version">
+                    <tippy
+                      ref="versionOptions"
+                      interactive
+                      trigger="click"
+                      theme="popover"
+                      arrow
+                    >
+                      <template #trigger>
+                        <span class="select-wrapper">
+                          <input
+                            id="client-version"
+                            v-tippy="{ theme: 'tooltip' }"
+                            title="socket.io-client version"
+                            class="
+                              bg-primaryLight
+                              border border-divider
+                              rounded-l
+                              cursor-pointer
+                              flex
+                              font-semibold
+                              text-secondaryDark
+                              py-2
+                              px-4
+                              w-26
+                              hover:border-dividerDark
+                              focus-visible:bg-transparent
+                              focus-visible:border-dividerDark
+                            "
+                            :value="`Client ${clientVersion}`"
+                            readonly
+                          />
+                        </span>
+                      </template>
+                      <SmartItem
+                        v-for="(_, version) in socketIoClients"
+                        :key="`client-${version}`"
+                        :label="`Client ${version}`"
+                        @click.native="onSelectVersion(version)"
+                      />
+                    </tippy>
+                  </label>
                   <input
                     id="socketio-url"
                     v-model="url"
@@ -26,7 +68,6 @@
                     class="
                       bg-primaryLight
                       border border-divider
-                      rounded-l
                       flex flex-1
                       text-secondaryDark
                       w-full
@@ -167,12 +208,22 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
-import { io as Client } from "socket.io-client"
+// All Socket.IO client version imports
+import ClientV2 from "socket.io-client-v2"
+import { io as ClientV3 } from "socket.io-client-v3"
+import { io as ClientV4 } from "socket.io-client-v4"
+
 import wildcard from "socketio-wildcard"
 import debounce from "lodash/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+
+const socketIoClients = {
+  v4: ClientV4,
+  v3: ClientV3,
+  v2: ClientV2,
+}
 
 export default defineComponent({
   components: { Splitpanes, Pane },
@@ -181,10 +232,13 @@ export default defineComponent({
       windowInnerWidth: useWindowSize(),
       RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
+      socketIoClients,
     }
   },
   data() {
     return {
+      // default version is set to v4
+      clientVersion: "v4",
       url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
       path: "/socket.io",
       isUrlValid: true,
@@ -250,9 +304,8 @@ export default defineComponent({
         if (!this.path) {
           this.path = "/socket.io"
         }
-        this.io = new Client(this.url, {
-          path: this.path,
-        })
+        const Client = socketIoClients[this.clientVersion]
+        this.io = new Client(this.url, { path: this.path })
         // Add ability to listen to all events
         wildcard(Client.Manager)(this.io)
         this.io.on("connect", () => {
@@ -361,6 +414,10 @@ export default defineComponent({
         })
         this.communication.inputs = [""]
       }
+    },
+    onSelectVersion(version) {
+      this.clientVersion = version
+      this.$refs.versionOptions.tippy().hide()
     },
   },
 })

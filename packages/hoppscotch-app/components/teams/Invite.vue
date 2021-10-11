@@ -1,18 +1,11 @@
 <template>
-  <SmartModal v-if="show" :title="$t('team.invite_tooltip')" @close="hideModal">
+  <SmartModal v-if="show" :title="$t('team.invite')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <div class="flex flex-1 justify-between items-center">
           <label for="memberList" class="p-4">
-            {{ $t("team.members") }}
+            {{ $t("team.pending_invites") }}
           </label>
-          <div class="flex">
-            <ButtonSecondary
-              svg="plus"
-              :label="$t('add.new')"
-              @click.native="addTeamMember"
-            />
-          </div>
         </div>
         <div class="divide-y divide-dividerLight border-divider border rounded">
           <div
@@ -82,6 +75,35 @@
             </div>
           </div>
           <div
+            v-if="members.length === 0"
+            class="
+              flex flex-col
+              text-secondaryLight
+              p-4
+              items-center
+              justify-center
+            "
+          >
+            <SmartIcon class="opacity-75 pb-2" name="users" />
+            <span class="text-center pb-4">
+              {{ $t("empty.pending_invites") }}
+            </span>
+          </div>
+        </div>
+        <div class="flex flex-1 justify-between items-center">
+          <label for="memberList" class="p-4">
+            {{ $t("team.invite_tooltip") }}
+          </label>
+          <div class="flex">
+            <ButtonSecondary
+              svg="plus"
+              :label="$t('add.new')"
+              @click.native="addTeamMember"
+            />
+          </div>
+        </div>
+        <div class="divide-y divide-dividerLight border-divider border rounded">
+          <div
             v-for="(member, index) in newMembers"
             :key="`new-member-${index}`"
             class="divide-x divide-dividerLight flex"
@@ -148,7 +170,7 @@
             </div>
           </div>
           <div
-            v-if="members.length === 0 && newMembers.length === 0"
+            v-if="newMembers.length === 0"
             class="
               flex flex-col
               text-secondaryLight
@@ -172,7 +194,7 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="saveTeam" />
+        <ButtonPrimary :label="$t('team.invite')" @click.native="saveTeam" />
         <ButtonSecondary
           :label="$t('action.cancel')"
           @click.native="hideModal"

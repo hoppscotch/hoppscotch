@@ -143,6 +143,7 @@
     "history": "History is empty",
     "members": "Team is empty",
     "parameters": "This request does not have any parameters",
+    "pending_invites": "There are no pending invites for this team",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint",
     "team_name": "Team name empty",
@@ -484,6 +485,7 @@
     "new_created": "New team created",
     "new_name": "My New Team",
     "no_access": "You do not have edit access to these collections",
+    "pending_invites": "Pending invites",
     "permissions": "Permissions",
     "saved": "Team saved",
     "title": "Teams"

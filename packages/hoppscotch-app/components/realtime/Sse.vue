@@ -28,10 +28,11 @@
                 focus-visible:bg-transparent focus-visible:border-dividerDark
               "
               :placeholder="$t('sse.url')"
+              :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
             />
             <label
-              for="url"
+              for="event-type"
               class="
                 bg-primaryLight
                 border-t border-b border-divider
@@ -60,6 +61,7 @@
                 focus-visible:bg-transparent focus-visible:border-dividerDark
               "
               spellcheck="false"
+              :disabled="connectionSSEState"
             />
           </div>
           <ButtonPrimary

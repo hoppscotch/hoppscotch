@@ -34,6 +34,7 @@
                     focus-visible:border-dividerDark
                   "
                   :placeholder="$t('mqtt.url')"
+                  :disabled="connectionState"
                 />
                 <ButtonPrimary
                   id="connect"

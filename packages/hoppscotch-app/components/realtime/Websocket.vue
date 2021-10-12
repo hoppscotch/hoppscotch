@@ -35,6 +35,7 @@
                   spellcheck="false"
                   :class="{ error: !urlValid }"
                   :placeholder="$t('websocket.url')"
+                  :disabled="connectionState"
                   @keyup.enter="urlValid ? toggleConnection() : null"
                 />
                 <ButtonPrimary

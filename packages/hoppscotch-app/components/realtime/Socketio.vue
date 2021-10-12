@@ -46,6 +46,7 @@
                             "
                             :value="`Client ${clientVersion}`"
                             readonly
+                            :disabled="connectionState"
                           />
                         </span>
                       </template>
@@ -78,6 +79,7 @@
                       focus-visible:border-dividerDark
                     "
                     :placeholder="$t('socketio.url')"
+                    :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
                   />
                   <input
@@ -97,6 +99,7 @@
                       focus-visible:border-dividerDark
                     "
                     spellcheck="false"
+                    :disabled="connectionState"
                   />
                 </div>
                 <ButtonPrimary
@@ -260,6 +263,10 @@ export default defineComponent({
   watch: {
     url() {
       this.debouncer()
+    },
+    connectionState(connected) {
+      if (connected) this.$refs.versionOptions.tippy().disable()
+      else this.$refs.versionOptions.tippy().enable()
     },
   },
   mounted() {

@@ -20,6 +20,7 @@
           focus-visible:bg-transparent focus-visible:border-dividerDark
         "
         :placeholder="$t('request.url')"
+        :disabled="connected"
         @keyup.enter="onConnectClick"
       />
       <ButtonPrimary

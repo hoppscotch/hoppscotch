@@ -32,7 +32,7 @@
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
             />
             <label
-              for="url"
+              for="event-type"
               class="
                 bg-primaryLight
                 border-t border-b border-divider

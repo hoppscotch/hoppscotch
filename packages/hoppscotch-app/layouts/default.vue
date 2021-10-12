@@ -125,12 +125,6 @@ function defineJumpActions() {
   defineActionHandler("navigation.jump.settings", () => {
     router.push({ path: localePath("/settings") })
   })
-  defineActionHandler("navigation.jump.back", () => {
-    router.go(-1)
-  })
-  defineActionHandler("navigation.jump.forward", () => {
-    router.go(1)
-  })
 }
 
 export default defineComponent({

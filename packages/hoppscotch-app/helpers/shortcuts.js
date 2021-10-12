@@ -137,18 +137,6 @@ export const spotlight = [
     section: "shortcut.navigation.title",
     shortcuts: [
       {
-        keys: [getPlatformSpecialKey(), "←"],
-        label: "shortcut.navigation.back",
-        action: "navigation.jump.back",
-        icon: "arrow-right",
-      },
-      {
-        keys: [getPlatformSpecialKey(), "→"],
-        label: "shortcut.navigation.forward",
-        action: "navigation.jump.forward",
-        icon: "arrow-right",
-      },
-      {
         keys: [getPlatformAlternateKey(), "R"],
         label: "shortcut.navigation.rest",
         action: "navigation.jump.rest",
@@ -222,20 +210,6 @@ export const fuse = [
     action: "flyouts.keybinds.toggle",
     icon: "zap",
     tags: ["keyboard", "shortcuts"],
-  },
-  {
-    keys: [getPlatformSpecialKey(), "←"],
-    label: "shortcut.navigation.back",
-    action: "navigation.jump.back",
-    icon: "arrow-right",
-    tags: ["back", "jump", "page", "navigation", "go"],
-  },
-  {
-    keys: [getPlatformSpecialKey(), "→"],
-    label: "shortcut.navigation.forward",
-    action: "navigation.jump.forward",
-    icon: "arrow-right",
-    tags: ["forward", "jump", "next", "forward", "page", "navigation", "go"],
   },
   {
     keys: [getPlatformAlternateKey(), "R"],

@@ -57,8 +57,6 @@ export const bindings: {
   "alt-w": "navigation.jump.realtime",
   "alt-d": "navigation.jump.documentation",
   "alt-s": "navigation.jump.settings",
-  "ctrl-left": "navigation.jump.back",
-  "ctrl-right": "navigation.jump.forward",
 }
 
 /**
@@ -91,22 +89,23 @@ function handleKeyDown(ev: KeyboardEvent) {
 }
 
 function generateKeybindingString(ev: KeyboardEvent): ShortcutKey | null {
-  // All our keybinds need to have one modifier pressed atleast
+  // We may or may not have a modifier key
   const modifierKey = getActiveModifier(ev)
 
-  const target = ev.target
-  // override default behaviour if element is typable
-  if (modifierKey && isDOMElement(target) && isTypableElement(target)) {
-    const key = getPressedKey(ev)
-
-    if (!key) return null
-    else return `${key}` as ShortcutKey
-  }
-
+  // We will always have a non-modifier key
   const key = getPressedKey(ev)
   if (!key) return null
 
-  return `${modifierKey}-${key}` as ShortcutKey
+  // All key combos backed by modifiers are valid shortcuts (whether currently typing or not)
+  if (modifierKey) return `${modifierKey}-${key}`
+
+  const target = ev.target
+
+  // no modifier key here then we do not do anything while on input
+  if (isDOMElement(target) && isTypableElement(target)) return null
+
+  // single key while not input
+  return `${key}`
 }
 
 function getPressedKey(ev: KeyboardEvent): Key | null {

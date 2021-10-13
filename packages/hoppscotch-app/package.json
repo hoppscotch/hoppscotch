@@ -38,6 +38,7 @@
     "acorn": "^8.5.0",
     "acorn-walk": "^8.2.0",
     "axios": "^0.22.0",
+    "uuid": "8.3.2",
     "codemirror": "^5.63.1",
     "codemirror-theme-github": "^1.0.0",
     "core-js": "^3.18.2",

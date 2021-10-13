@@ -18,7 +18,8 @@
     </div>
     <!-- <SmartSpinner v-if="loading" />
     <SmartLoadingIndicator v-else />
-    <pre v-if="error">{{ error }}</pre> -->
+    <pre v-if="error">{{ error }}</pre>
+     TODO: revoked invite link -->
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>

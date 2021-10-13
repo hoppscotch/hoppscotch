@@ -9,6 +9,7 @@ import {
   watch,
   defineComponent,
 } from "@nuxtjs/composition-api"
+import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { useSetting } from "~/newstore/settings"
 
 function updateThemes() {
@@ -39,6 +40,9 @@ function updateThemes() {
 export default defineComponent({
   setup() {
     updateThemes()
+  },
+  beforeMount() {
+    setupLocalPersistence()
   },
 })
 </script>

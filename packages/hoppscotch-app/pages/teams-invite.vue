@@ -23,18 +23,32 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent } from "@nuxtjs/composition-api"
 import { initializeFirebase } from "~/helpers/fb"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-initializeFirebase()
 
-const currentUser = useReadonlyStream(currentUser$, null)
-
-// const loading = ref(false)
-// const error = ref(null)
-const showLogin = ref(false)
-
-const joinTeam = () => {}
+export default defineComponent({
+  layout: "empty",
+  setup() {
+    return {
+      currentUser: useReadonlyStream(currentUser$, null),
+    }
+  },
+  data() {
+    return {
+      showLogin: false,
+      //  loading : false
+      //  error : null
+    }
+  },
+  beforeMount() {
+    initializeFirebase()
+  },
+  async mounted() {},
+  methods: {
+    joinTeam() {},
+  },
+})
 </script>

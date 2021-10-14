@@ -480,7 +480,7 @@ export default defineComponent({
   @apply font-medium;
 
   &:empty {
-    line-height: 1.9;
+    @apply leading-loose;
 
     &::before {
       @apply text-secondary;

@@ -44,7 +44,6 @@
       class="divide-x divide-dividerLight border-b border-dividerLight flex"
     >
       <SmartEnvInput
-        v-if="EXPERIMENTAL_URL_BAR_ENABLED"
         v-model="param.key"
         :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
         styles="
@@ -57,22 +56,6 @@
         @change="
           updateBodyParam(index, {
             key: $event,
-            value: param.value,
-            active: param.active,
-            isFile: param.isFile,
-          })
-        "
-      />
-      <input
-        v-else
-        class="bg-transparent flex flex-1 py-2 px-4"
-        :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
-        :name="'param' + index"
-        :value="param.key"
-        autofocus
-        @change="
-          updateBodyParam(index, {
-            key: $event.target.value,
             value: param.value,
             active: param.active,
             isFile: param.isFile,
@@ -92,7 +75,6 @@
       </div>
       <span v-else class="flex flex-1">
         <SmartEnvInput
-          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="param.value"
           :placeholder="`${$t('count.value', { count: index + 1 })}`"
           styles="
@@ -106,21 +88,6 @@
             updateBodyParam(index, {
               key: param.key,
               value: $event,
-              active: param.active,
-              isFile: param.isFile,
-            })
-          "
-        />
-        <input
-          v-else
-          class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="`${$t('count.value', { count: index + 1 })}`"
-          :name="'value' + index"
-          :value="param.value"
-          @change="
-            updateBodyParam(index, {
-              key: param.key,
-              value: $event.target.value,
               active: param.active,
               isFile: param.isFile,
             })
@@ -210,7 +177,6 @@ import {
   updateFormDataEntry,
   useRESTRequestBody,
 } from "~/newstore/RESTSession"
-import { useSetting } from "~/newstore/settings"
 
 export default defineComponent({
   setup() {
@@ -291,7 +257,6 @@ export default defineComponent({
       clearContent,
       setRequestAttachment,
       chipDelete,
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
     }
   },
 })

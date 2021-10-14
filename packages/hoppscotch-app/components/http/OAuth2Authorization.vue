@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
+    <div class="border-b border-dividerLight flex">
       <input
         id="oidcDiscoveryURL"
         v-model="oidcDiscoveryURL"
@@ -9,7 +9,7 @@
         name="oidcDiscoveryURL"
       />
     </div>
-    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
+    <div class="border-b border-dividerLight flex">
       <input
         id="authURL"
         v-model="authURL"
@@ -18,7 +18,7 @@
         name="authURL"
       />
     </div>
-    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
+    <div class="border-b border-dividerLight flex">
       <input
         id="accessTokenURL"
         v-model="accessTokenURL"
@@ -27,7 +27,7 @@
         name="accessTokenURL"
       />
     </div>
-    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
+    <div class="border-b border-dividerLight flex">
       <input
         id="clientID"
         v-model="clientID"
@@ -36,7 +36,7 @@
         name="clientID"
       />
     </div>
-    <div class="divide-x divide-dividerLight border-b border-dividerLight flex">
+    <div class="border-b border-dividerLight flex">
       <input
         id="scope"
         v-model="scope"

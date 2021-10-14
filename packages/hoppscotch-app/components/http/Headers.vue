@@ -68,7 +68,7 @@
             px-4
             truncate
           "
-          :class="{ '!flex flex-1': EXPERIMENTAL_URL_BAR_ENABLED }"
+          class="!flex flex-1"
           @input="
             updateHeader(index, {
               key: $event,
@@ -78,7 +78,6 @@
           "
         />
         <SmartEnvInput
-          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="header.value"
           :placeholder="`${$t('count.value', { count: index + 1 })}`"
           styles="
@@ -92,20 +91,6 @@
             updateHeader(index, {
               key: header.key,
               value: $event,
-              active: header.active,
-            })
-          "
-        />
-        <input
-          v-else
-          class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="`${$t('count.value', { count: index + 1 })}`"
-          :name="'value' + index"
-          :value="header.value"
-          @change="
-            updateHeader(index, {
-              key: header.key,
-              value: $event.target.value,
               active: header.active,
             })
           "
@@ -185,7 +170,6 @@ import {
   updateRESTHeader,
 } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
-import { useSetting } from "~/newstore/settings"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { HoppRESTHeader } from "~/helpers/types/HoppRESTRequest"
 
@@ -254,5 +238,4 @@ const deleteHeader = (index: number) => {
 const clearContent = () => {
   deleteAllRESTHeaders()
 }
-const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
 </script>

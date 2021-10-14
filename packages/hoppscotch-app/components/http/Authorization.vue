@@ -109,48 +109,19 @@
     </div>
     <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <div
-          class="divide-x divide-dividerLight border-b border-dividerLight flex"
-        >
+        <div class="border-b border-dividerLight flex">
           <SmartEnvInput
-            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="basicUsername"
-            class="bg-transparent flex flex-1 py-1 px-4"
             :placeholder="$t('authorization.username')"
-          />
-          <input
-            v-else
-            id="http_basic_user"
-            v-model="basicUsername"
-            class="bg-transparent flex flex-1 py-2 px-4"
-            :placeholder="$t('authorization.username')"
-            name="http_basic_user"
+            styles="bg-transparent flex flex-1 py-1 px-4"
           />
         </div>
-        <div
-          class="divide-x divide-dividerLight border-b border-dividerLight flex"
-        >
+        <div class="border-b border-dividerLight flex">
           <SmartEnvInput
-            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="basicPassword"
-            class="bg-transparent flex flex-1 py-1 px-4"
             :placeholder="$t('authorization.password')"
+            styles="bg-transparent flex flex-1 py-1 px-4"
           />
-          <input
-            v-else
-            id="http_basic_passwd"
-            v-model="basicPassword"
-            class="bg-transparent flex flex-1 py-2 px-4"
-            :placeholder="$t('authorization.password')"
-            name="http_basic_passwd"
-            :type="passwordFieldType"
-          />
-          <span>
-            <ButtonSecondary
-              :svg="passwordFieldType === 'text' ? 'eye' : 'eye-off'"
-              @click.native="switchVisibility"
-            />
-          </span>
         </div>
       </div>
       <div
@@ -181,22 +152,11 @@
     </div>
     <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <div
-          class="divide-x divide-dividerLight border-b border-dividerLight flex"
-        >
+        <div class="border-b border-dividerLight flex">
           <SmartEnvInput
-            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="bearerToken"
-            class="bg-transparent flex flex-1 py-1 px-4"
             placeholder="Token"
-          />
-          <input
-            v-else
-            id="bearer_token"
-            v-model="bearerToken"
-            class="bg-transparent flex flex-1 py-2 px-4"
-            placeholder="Token"
-            name="bearer_token"
+            styles="bg-transparent flex flex-1 py-1 px-4"
           />
         </div>
       </div>
@@ -231,22 +191,11 @@
       class="border-b border-dividerLight flex"
     >
       <div class="border-r border-dividerLight w-2/3">
-        <div
-          class="divide-x divide-dividerLight border-b border-dividerLight flex"
-        >
+        <div class="border-b border-dividerLight flex">
           <SmartEnvInput
-            v-if="EXPERIMENTAL_URL_BAR_ENABLED"
             v-model="oauth2Token"
-            class="bg-transparent flex flex-1 py-1 px-4"
             placeholder="Token"
-          />
-          <input
-            v-else
-            id="oauth2_token"
-            v-model="oauth2Token"
-            class="bg-transparent flex flex-1 py-2 px-4"
-            placeholder="Token"
-            name="oauth2_token"
+            styles="bg-transparent flex flex-1 py-1 px-4"
           />
         </div>
         <HttpOAuth2Authorization />
@@ -281,7 +230,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, Ref, ref } from "@nuxtjs/composition-api"
+import { computed, defineComponent, Ref } from "@nuxtjs/composition-api"
 import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
@@ -317,19 +266,11 @@ export default defineComponent({
 
     const URLExcludes = useSetting("URL_EXCLUDES")
 
-    const passwordFieldType = ref("password")
-
     const clearContent = () => {
       auth.value = {
         authType: "none",
         authActive: true,
       }
-    }
-
-    const switchVisibility = () => {
-      if (passwordFieldType.value === "text")
-        passwordFieldType.value = "password"
-      else passwordFieldType.value = "text"
     }
 
     return {
@@ -342,10 +283,7 @@ export default defineComponent({
       bearerToken,
       oauth2Token,
       URLExcludes,
-      passwordFieldType,
       clearContent,
-      switchVisibility,
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
     }
   },
 })

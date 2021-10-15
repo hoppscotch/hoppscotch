@@ -23,9 +23,13 @@
           </label>
           <div class="flex">
             <ButtonSecondary
-              svg="plus"
-              :label="$t('add.new')"
-              @click.native="addTeamMember"
+              svg="user-plus"
+              :label="$t('team.invite')"
+              @click.native="
+                () => {
+                  $emit('invite-team')
+                }
+              "
             />
           </div>
         </div>
@@ -97,73 +101,7 @@
             </div>
           </div>
           <div
-            v-for="(member, index) in newMembers"
-            :key="`new-member-${index}`"
-            class="divide-x divide-dividerLight flex"
-          >
-            <input
-              v-model="member.key"
-              class="bg-transparent flex flex-1 py-2 px-4"
-              :placeholder="$t('team.email')"
-              :name="'member' + index"
-              autofocus
-            />
-            <span>
-              <tippy
-                :ref="`newMemberOptions-${index}`"
-                interactive
-                trigger="click"
-                theme="popover"
-                arrow
-              >
-                <template #trigger>
-                  <span class="select-wrapper">
-                    <input
-                      class="
-                        bg-transparent
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
-                      :placeholder="$t('team.permissions')"
-                      :name="'value' + index"
-                      :value="
-                        typeof member.value === 'string'
-                          ? member.value
-                          : JSON.stringify(member.value)
-                      "
-                      readonly
-                    />
-                  </span>
-                </template>
-                <SmartItem
-                  label="OWNER"
-                  @click.native="updateNewMemberRole(index, 'OWNER')"
-                />
-                <SmartItem
-                  label="EDITOR"
-                  @click.native="updateNewMemberRole(index, 'EDITOR')"
-                />
-                <SmartItem
-                  label="VIEWER"
-                  @click.native="updateNewMemberRole(index, 'VIEWER')"
-                />
-              </tippy>
-            </span>
-            <div class="flex">
-              <ButtonSecondary
-                id="member"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
-                svg="trash"
-                color="red"
-                @click.native="removeTeamMember(index)"
-              />
-            </div>
-          </div>
-          <div
-            v-if="members.length === 0 && newMembers.length === 0"
+            v-if="members.length === 0"
             class="
               flex flex-col
               text-secondaryLight
@@ -177,9 +115,13 @@
               {{ $t("empty.members") }}
             </span>
             <ButtonSecondary
-              :label="$t('add.new')"
-              filled
-              @click.native="addTeamMember"
+              svg="user-plus"
+              :label="$t('team.invite')"
+              @click.native="
+                () => {
+                  emit('invite-team')
+                }
+              "
             />
           </div>
         </div>
@@ -213,7 +155,6 @@ export default defineComponent({
     return {
       rename: null,
       members: [],
-      newMembers: [],
       membersAdapter: new TeamMemberAdapter(null),
     }
   },
@@ -245,14 +186,6 @@ export default defineComponent({
       this.members[id].role = role
       this.$refs[`memberOptions-${id}`][0].tippy().hide()
     },
-    updateNewMemberRole(id, role) {
-      this.newMembers[id].value = role
-      this.$refs[`newMemberOptions-${id}`][0].tippy().hide()
-    },
-    addTeamMember() {
-      const member = { key: "", value: "" }
-      this.newMembers.push(member)
-    },
     removeExistingTeamMember(userID) {
       teamUtils
         .removeTeamMember(this.$apollo, userID, this.editingteamID)
@@ -268,9 +201,6 @@ export default defineComponent({
           })
           console.error(e)
         })
-    },
-    removeTeamMember(index) {
-      this.newMembers.splice(index, 1)
     },
     validateEmail(emailID) {
       if (
@@ -292,47 +222,6 @@ export default defineComponent({
         })
         return
       }
-      let invalidEmail = false
-      this.$data.newMembers.forEach((element) => {
-        if (!this.validateEmail(element.key)) {
-          this.$toast.error(this.$t("team.invalid_email_format"), {
-            icon: "error_outline",
-          })
-          invalidEmail = true
-        }
-      })
-      if (invalidEmail) return
-      let invalidPermission = false
-      this.$data.newMembers.forEach((element) => {
-        if (!element.value) {
-          this.$toast.error(this.$t("invalid_member_permission"), {
-            icon: "error_outline",
-          })
-          invalidPermission = true
-        }
-      })
-      if (invalidPermission) return
-      this.$data.newMembers.forEach((element) => {
-        // Call to the graphql mutation
-        teamUtils
-          .addTeamMemberByEmail(
-            this.$apollo,
-            element.value,
-            element.key,
-            this.editingteamID
-          )
-          .then(() => {
-            this.$toast.success(this.$t("team.saved"), {
-              icon: "done",
-            })
-          })
-          .catch((e) => {
-            this.$toast.error(e, {
-              icon: "error_outline",
-            })
-            console.error(e)
-          })
-      })
       this.members.forEach((element) => {
         teamUtils
           .updateTeamMemberRole(
@@ -380,7 +269,6 @@ export default defineComponent({
     },
     hideModal() {
       this.rename = null
-      this.newMembers = []
       this.$emit("hide-modal")
     },
   },

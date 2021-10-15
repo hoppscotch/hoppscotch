@@ -67,6 +67,7 @@
       :editing-team="editingTeam"
       :editingteam-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeam, editingTeamID)"
     />
     <TeamsInvite
       v-if="

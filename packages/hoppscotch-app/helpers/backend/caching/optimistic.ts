@@ -1,6 +1,6 @@
-import { OptimisticMutationConfig } from "@urql/exchange-graphcache"
+import { GraphCacheOptimisticUpdaters } from "../graphql"
 
-export const optimisticDefs: OptimisticMutationConfig = {
+export const optimisticDefs: GraphCacheOptimisticUpdaters = {
   deleteTeam: () => true,
   leaveTeam: () => true,
   renameTeam: ({ teamID, newName }) => ({
@@ -9,5 +9,4 @@ export const optimisticDefs: OptimisticMutationConfig = {
     name: newName,
   }),
   removeTeamMember: () => true,
-  // TODO: updateTeamMemberRole
 }

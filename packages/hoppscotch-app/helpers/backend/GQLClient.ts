@@ -102,13 +102,13 @@ const client = createClient({
  */
 export type GQLError<T extends string> =
   | {
-      type: "network_error"
-      error: Error
-    }
+    type: "network_error"
+    error: Error
+  }
   | {
-      type: "gql_error"
-      error: T
-    }
+    type: "gql_error"
+    error: T
+  }
 
 const DEFAULT_QUERY_OPTIONS = {
   noPolling: false,
@@ -124,10 +124,10 @@ type UseQueryLoading = {
 type UseQueryLoaded<
   QueryFailType extends string = "",
   QueryReturnType = any
-> = {
-  loading: false
-  data: E.Either<GQLError<QueryFailType>, QueryReturnType>
-}
+  > = {
+    loading: false
+    data: E.Either<GQLError<QueryFailType>, QueryReturnType>
+  }
 
 type UseQueryReturn<QueryFailType extends string = "", QueryReturnType = any> =
   | UseQueryLoading
@@ -218,9 +218,9 @@ export function useGQLQuery<
     data: data!,
   }) as
     | {
-        loading: false
-        data: DataType
-      }
+      loading: false
+      data: DataType
+    }
     | { loading: true }
 }
 
@@ -259,7 +259,7 @@ export const runMutation = <
                   type: "gql_error",
                   error: gqlErr,
                 },
-              // The right case (it was a GraphQL Error)
+              // The right case (it was a network error)
               (networkErr) =>
                 <GQLError<DocErrors>>{
                   type: "network_error",

@@ -1,17 +1,18 @@
-import { UpdatesConfig } from "@urql/exchange-graphcache"
-import { MyTeamsDocument } from "../graphql"
+import { GraphCacheUpdaters, MyTeamsDocument } from "../graphql"
 
-export const updatesDef: Partial<UpdatesConfig> = {
+export const updatesDef: GraphCacheUpdaters = {
   Mutation: {
     deleteTeam: (_r, { teamID }, cache, _info) => {
       cache.updateQuery(
         {
           query: MyTeamsDocument,
         },
-        (data: any) => {
-          data.myTeams = (data as any).myTeams.filter(
-            (x: any) => x.id !== teamID
-          )
+        (data) => {
+          if (data) {
+            data.myTeams = data.myTeams.filter(
+              (x) => x.id !== teamID
+            )
+          }
 
           return data
         }
@@ -19,7 +20,7 @@ export const updatesDef: Partial<UpdatesConfig> = {
 
       cache.invalidate({
         __typename: "Team",
-        id: teamID as any,
+        id: teamID
       })
     },
     leaveTeam: (_r, { teamID }, cache, _info) => {
@@ -27,10 +28,12 @@ export const updatesDef: Partial<UpdatesConfig> = {
         {
           query: MyTeamsDocument,
         },
-        (data: any) => {
-          data.myTeams = (data as any).myTeams.filter(
-            (x: any) => x.id !== teamID
-          )
+        (data) => {
+          if (data) {
+            data.myTeams = data.myTeams.filter(
+              (x) => x.id !== teamID
+            )
+          }
 
           return data
         }
@@ -38,7 +41,7 @@ export const updatesDef: Partial<UpdatesConfig> = {
 
       cache.invalidate({
         __typename: "Team",
-        id: teamID as any,
+        id: teamID
       })
     },
     createTeam: (result, _args, cache, _info) => {
@@ -46,8 +49,8 @@ export const updatesDef: Partial<UpdatesConfig> = {
         {
           query: MyTeamsDocument,
         },
-        (data: any) => {
-          data.myTeams.push(result.createTeam)
+        (data) => {
+          if (data) data.myTeams.push(result.createTeam as any)
           return data
         }
       )
@@ -57,7 +60,7 @@ export const updatesDef: Partial<UpdatesConfig> = {
         cache.resolve(
           {
             __typename: "Team",
-            id: teamID as string,
+            id: teamID,
           },
           "members"
         ) as string[]
@@ -68,7 +71,7 @@ export const updatesDef: Partial<UpdatesConfig> = {
         .map(([key]) => key)
 
       cache.link(
-        { __typename: "Team", id: teamID as string },
+        { __typename: "Team", id: teamID },
         "members",
         newMembers
       )

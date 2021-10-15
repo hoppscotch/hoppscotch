@@ -80,7 +80,7 @@
     "yargs-parser": "^20.2.9"
   },
   "devDependencies": {
-            "@babel/core": "^7.15.8",
+    "@babel/core": "^7.15.8",
     "@babel/preset-env": "^7.15.8",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
@@ -89,6 +89,7 @@
     "@graphql-codegen/typed-document-node": "^2.1.4",
     "@graphql-codegen/typescript": "2.2.2",
     "@graphql-codegen/typescript-operations": "^2.1.6",
+    "@graphql-codegen/typescript-urql-graphcache": "^2.1.6",
     "@graphql-codegen/urql-introspection": "^2.1.0",
     "@graphql-typed-document-node/core": "^3.1.0",
     "@nuxt/types": "^2.15.8",

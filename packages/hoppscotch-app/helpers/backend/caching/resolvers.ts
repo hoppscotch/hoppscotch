@@ -1,14 +1,14 @@
-import { ResolverConfig } from "@urql/exchange-graphcache"
+import { GraphCacheResolvers } from "../graphql"
 
-export const resolversDef: ResolverConfig = {
+export const resolversDef: GraphCacheResolvers = {
   Query: {
     team: (_parent, { teamID }, _cache, _info) => ({
       __typename: "Team",
-      id: teamID as any,
+      id: teamID,
     }),
     user: (_parent, { uid }, _cache, _info) => ({
       __typename: "User",
-      uid: uid as any,
+      uid: uid,
     }),
   },
 }

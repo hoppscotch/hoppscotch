@@ -26,7 +26,11 @@
           @click.native="mode = 'email'"
         />
       </div>
-      <div v-if="mode === 'email'" class="flex flex-col space-y-2">
+      <form
+        v-if="mode === 'email'"
+        class="flex flex-col space-y-2"
+        @submit.prevent="signInWithEmail"
+      >
         <div class="flex flex-col">
           <input
             id="email"
@@ -40,7 +44,6 @@
             required
             spellcheck="false"
             autofocus
-            @keyup.enter="signInWithEmail"
           />
           <label for="email">
             {{ $t("auth.email") }}
@@ -48,18 +51,10 @@
         </div>
         <ButtonPrimary
           :loading="signingInWithEmail"
-          :disabled="
-            form.email.length !== 0
-              ? emailRegex.test(form.email)
-                ? false
-                : true
-              : true
-          "
-          type="button"
+          type="submit"
           :label="`${$t('auth.send_magic_link')}`"
-          @click.native="signInWithEmail"
         />
-      </div>
+      </form>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
         <div class="flex flex-col max-w-md justify-center items-center">
           <SmartIcon class="h-6 text-accent w-6" name="inbox" />
@@ -150,8 +145,6 @@ export default defineComponent({
       signingInWithGoogle: false,
       signingInWithGitHub: false,
       signingInWithEmail: false,
-      emailRegex:
-        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/,
       mode: "sign-in",
     }
   },

@@ -218,24 +218,10 @@ export default defineComponent({
   },
   data() {
     return {
-      rename: null,
       members: [],
       newMembers: [],
       membersAdapter: new TeamMemberAdapter(null),
     }
-  },
-  computed: {
-    editingTeamCopy() {
-      return this.editingTeam
-    },
-    name: {
-      get() {
-        return this.editingTeam.name
-      },
-      set(name) {
-        this.rename = name
-      },
-    },
   },
   watch: {
     editingteamID(teamID) {
@@ -290,15 +276,6 @@ export default defineComponent({
       return false
     },
     saveTeam() {
-      if (
-        this.$data.rename !== null &&
-        this.$data.rename.replace(/\s/g, "").length < 6
-      ) {
-        this.$toast.error(this.$t("team.name_length_insufficient"), {
-          icon: "error_outline",
-        })
-        return
-      }
       let invalidEmail = false
       this.$data.newMembers.forEach((element) => {
         if (!this.validateEmail(element.key)) {
@@ -360,33 +337,9 @@ export default defineComponent({
             console.error(e)
           })
       })
-      if (this.$data.rename !== null) {
-        const newName =
-          this.name === this.$data.rename ? this.name : this.$data.rename
-        if (!/\S/.test(newName))
-          return this.$toast.error(this.$t("empty.team_name"), {
-            icon: "error_outline",
-          })
-        // Call to the graphql mutation
-        if (this.name !== this.rename)
-          teamUtils
-            .renameTeam(this.$apollo, newName, this.editingteamID)
-            .then(() => {
-              this.$toast.success(this.$t("team.saved"), {
-                icon: "done",
-              })
-            })
-            .catch((e) => {
-              this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error_outline",
-              })
-              console.error(e)
-            })
-      }
       this.hideModal()
     },
     hideModal() {
-      this.rename = null
       this.newMembers = []
       this.$emit("hide-modal")
     },

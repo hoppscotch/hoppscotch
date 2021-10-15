@@ -1,11 +1,8 @@
 <template>
-  <div class="border border-dividerLight rounded flex flex-1 items-end">
+  <div class="border border-dividerLight rounded flex flex-col flex-1">
     <div class="flex flex-1 items-start">
       <div class="p-4">
-        <label
-          class="cursor-pointer transition hover:text-secondaryDark"
-          @click="team.myRole === 'OWNER' ? emit('edit-team') : ''"
-        >
+        <label class="font-semibold text-secondaryDark">
           {{ team.name || $t("state.nothing_found") }}
         </label>
         <div class="flex -space-x-1 mt-2 overflow-hidden">
@@ -21,63 +18,75 @@
         </div>
       </div>
     </div>
-    <ButtonSecondary
-      v-if="team.myRole === 'OWNER'"
-      v-tippy="{ theme: 'tooltip' }"
-      svg="user-plus"
-      :title="$t('team.invite')"
-      @click.native="
-        () => {
-          emit('invite-team')
-          $refs.options.tippy().hide()
-        }
-      "
-    />
-    <span>
-      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
-        <template #trigger>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.more')"
-            svg="more-vertical"
-          />
-        </template>
-        <SmartItem
+    <div class="flex items-center justify-between">
+      <span>
+        <ButtonSecondary
           v-if="team.myRole === 'OWNER'"
           svg="edit"
           :label="$t('action.edit').toString()"
           @click.native="
             () => {
-              emit('edit-team')
-              $refs.options.tippy().hide()
+              $emit('edit-team')
             }
           "
         />
-        <SmartItem
+        <ButtonSecondary
           v-if="team.myRole === 'OWNER'"
-          svg="trash-2"
-          color="red"
-          :label="$t('action.delete').toString()"
+          svg="user-plus"
+          :label="$t('team.invite')"
           @click.native="
             () => {
-              deleteTeam()
-              $refs.options.tippy().hide()
+              emit('invite-team')
             }
           "
         />
-        <SmartItem
-          v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
-          svg="trash"
-          :label="$t('team.exit').toString()"
-          @click.native="
-            () => {
-              exitTeam()
-              $refs.options.tippy().hide()
-            }
-          "
-        />
-      </tippy>
-    </span>
+      </span>
+      <span>
+        <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+          <template #trigger>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('action.more')"
+              svg="more-vertical"
+            />
+          </template>
+          <SmartItem
+            v-if="team.myRole === 'OWNER'"
+            svg="edit"
+            :label="$t('action.edit').toString()"
+            @click.native="
+              () => {
+                $emit('edit-team')
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+          <SmartItem
+            v-if="team.myRole === 'OWNER'"
+            svg="trash-2"
+            color="red"
+            :label="$t('action.delete').toString()"
+            @click.native="
+              () => {
+                deleteTeam()
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+          <SmartItem
+            v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
+            svg="trash"
+            :label="$t('team.exit').toString()"
+            @click.native="
+              () => {
+                exitTeam()
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+        </tippy>
+      </span>
+    </div>
   </div>
 </template>
 

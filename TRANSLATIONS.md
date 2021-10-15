@@ -29,4 +29,4 @@ If you notice spelling or grammar errors, typos, or opportunities for better phr
 
 ### Broken links
 
-When tests find broken links, try to fix them across all translations. Ideally, only update the linked URLs, so that translation changes will definitely not be necessary.
+When tests find broken links, try to fix them across all translations. Ideally, only update the linked URLs, so that translation changes will not be necessary.

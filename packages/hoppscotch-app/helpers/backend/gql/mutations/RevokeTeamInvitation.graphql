@@ -1,0 +1,3 @@
+mutation RevokeTeamInvitation($inviteID: ID!) {
+  revokeTeamInvitation(inviteID: $inviteID)
+}

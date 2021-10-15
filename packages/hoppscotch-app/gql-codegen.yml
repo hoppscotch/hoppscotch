@@ -9,6 +9,7 @@ generates:
       - typescript
       - typescript-operations
       - typed-document-node
+      - typescript-urql-graphcache
 
   helpers/backend/backend-schema.json:
     plugins:

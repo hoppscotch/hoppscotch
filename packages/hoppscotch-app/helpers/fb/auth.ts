@@ -16,6 +16,7 @@ import {
   linkWithCredential,
   AuthCredential,
   UserCredential,
+  updateProfile,
 } from "firebase/auth"
 import {
   onSnapshot,
@@ -289,6 +290,28 @@ export async function setProviderInfo(id: string, token: string) {
       doc(getFirestore(), "users", currentUser$.value.uid),
       us
     ).catch((e) => console.error("error updating", us, e))
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Sets the user's display name
+ *
+ * @param name - The new display name
+ */
+export async function setDisplayName(name: string) {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  const us = {
+    displayName: name,
+  }
+
+  try {
+    await updateProfile(currentUser$.value, us).catch((e) =>
+      console.error("error updating", us, e)
+    )
   } catch (e) {
     console.error("error updating", e)
     throw e

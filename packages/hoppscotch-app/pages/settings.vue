@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="divide-y divide-dividerLight space-y-8">
+    <div class="divide-y divide-dividerLight container space-y-8">
       <div class="md:grid md:gap-4 md:grid-cols-3">
-        <div class="p-8 md:col-span-1">
+        <div class="p-4 md:col-span-1">
           <h3 class="heading">
             {{ $t("settings.theme") }}
           </h3>
@@ -10,7 +10,7 @@
             {{ $t("settings.theme_description") }}
           </p>
         </div>
-        <div class="space-y-8 p-8 md:col-span-2">
+        <div class="space-y-8 p-4 md:col-span-2">
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.background") }}
@@ -110,7 +110,7 @@
       </div>
 
       <div class="md:grid md:gap-4 md:grid-cols-3">
-        <div class="p-8 md:col-span-1">
+        <div class="p-4 md:col-span-1">
           <h3 class="heading">
             {{ $t("settings.interceptor") }}
           </h3>
@@ -118,7 +118,7 @@
             {{ $t("settings.interceptor_description") }}
           </p>
         </div>
-        <div class="space-y-8 p-8 md:col-span-2">
+        <div class="space-y-8 p-4 md:col-span-2">
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.extensions") }}

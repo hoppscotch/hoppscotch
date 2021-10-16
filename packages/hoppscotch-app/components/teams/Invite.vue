@@ -14,55 +14,23 @@
             class="divide-x divide-dividerLight flex"
           >
             <input
-              class="bg-transparent flex flex-1 py-2 px-4"
+              class="bg-transparent text-secondaryLight flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
               :name="'param' + index"
               :value="member.user.email"
               readonly
             />
-            <span>
-              <tippy
-                :ref="`memberOptions-${index}`"
-                interactive
-                trigger="click"
-                theme="popover"
-                arrow
-              >
-                <template #trigger>
-                  <span class="select-wrapper">
-                    <input
-                      class="
-                        bg-transparent
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
-                      :placeholder="$t('team.permissions')"
-                      :name="'value' + index"
-                      :value="
-                        typeof member.role === 'string'
-                          ? member.role
-                          : JSON.stringify(member.role)
-                      "
-                      readonly
-                    />
-                  </span>
-                </template>
-                <SmartItem
-                  label="OWNER"
-                  @click.native="updateMemberRole(index, 'OWNER')"
-                />
-                <SmartItem
-                  label="EDITOR"
-                  @click.native="updateMemberRole(index, 'EDITOR')"
-                />
-                <SmartItem
-                  label="VIEWER"
-                  @click.native="updateMemberRole(index, 'VIEWER')"
-                />
-              </tippy>
-            </span>
+            <input
+              class="bg-transparent text-secondaryLight flex flex-1 py-2 px-4"
+              :placeholder="$t('team.permissions')"
+              :name="'value' + index"
+              :value="
+                typeof member.role === 'string'
+                  ? member.role
+                  : JSON.stringify(member.role)
+              "
+              readonly
+            />
             <div class="flex">
               <ButtonSecondary
                 id="member"

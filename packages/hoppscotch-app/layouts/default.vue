@@ -24,7 +24,7 @@
             >
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
                 <main class="flex flex-1 w-full">
-                  <nuxt class="flex overflow-y-auto flex-1" />
+                  <nuxt class="flex flex-1" style="overflow-y: overlay" />
                 </main>
               </Pane>
             </Splitpanes>

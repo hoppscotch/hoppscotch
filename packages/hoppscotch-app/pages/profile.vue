@@ -1,19 +1,23 @@
 <template>
   <div>
     <div class="container">
-      <div class="py-8 px-4">
+      <div class="p-4">
         <div v-if="currentUser === null">
           <ButtonPrimary
             :label="$t('auth.login')"
             @click.native="showLogin = true"
           />
         </div>
-        <div v-else class="space-y-4">
-          <div class="flex px-4 items-center">
+        <div v-else class="space-y-8">
+          <div
+            class="bg-primaryLight h-24 md:h-32 -mb-11 rounded"
+            style="background-image: url('/images/cover.svg')"
+          ></div>
+          <div class="flex px-4 items-end">
             <img
               v-if="currentUser.photoURL"
               :src="currentUser.photoURL"
-              class="rounded-full h-16 w-16"
+              class="rounded-lg ring-4 ring-primary h-16 w-16"
             />
             <SmartIcon v-else name="user" class="svg-icons" />
             <div class="ml-4">
@@ -36,6 +40,38 @@
               :label="$t('settings.account')"
               :selected="true"
             >
+              <section class="p-4">
+                <h4 class="font-semibold text-secondaryDark">
+                  {{ $t("settings.profile") }}
+                </h4>
+                <div class="mt-1 text-secondaryLight">
+                  {{ $t("settings.profile_description") }}
+                </div>
+                <div class="py-4">
+                  <label for="selectLabelTeamAdd">
+                    {{ $t("settings.profile_name") }}
+                  </label>
+                  <form
+                    class="flex md:max-w-sm mt-2"
+                    @submit.prevent="updateDisplayName"
+                  >
+                    <input
+                      id="selectLabelTeamAdd"
+                      v-model="displayName"
+                      class="input"
+                      :placeholder="$t('settings.profile_name')"
+                      type="text"
+                      autocomplete="off"
+                      required
+                    />
+                    <ButtonPrimary
+                      :label="$t('action.save').toString()"
+                      class="ml-2"
+                      type="submit"
+                    />
+                  </form>
+                </div>
+              </section>
               <section class="p-4">
                 <h4 class="font-semibold text-secondaryDark">
                   {{ $t("settings.sync") }}
@@ -91,7 +127,7 @@ import {
   useMeta,
   defineComponent,
 } from "@nuxtjs/composition-api"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { currentUser$, setDisplayName } from "~/helpers/fb/auth"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
 
@@ -107,6 +143,12 @@ const SYNC_COLLECTIONS = useSetting("syncCollections")
 const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
 const SYNC_HISTORY = useSetting("syncHistory")
 const currentUser = useReadonlyStream(currentUser$, null)
+
+const displayName = ref(currentUser$.value?.displayName)
+
+const updateDisplayName = () => {
+  setDisplayName(displayName.value)
+}
 
 useMeta({
   title: `${t("navigation.profile")} • Hoppscotch`,

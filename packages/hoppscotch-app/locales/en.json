@@ -334,6 +334,9 @@
     "light_mode": "Light",
     "navigation_sidebar": "Navigation sidebar",
     "official_proxy_hosting": "Official Proxy is hosted by Hoppscotch.",
+    "profile": "Profile",
+    "profile_description": "Update you profile details",
+    "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
     "proxy_use_toggle": "Use the proxy middleware to send requests",
@@ -474,7 +477,6 @@
     "invalid_email_format": "Email format is invalid",
     "invalid_member_permission": "Please provide a valid permission to the team member",
     "invite": "Invite",
-    "select_a_team": "Select a team",
     "invite_tooltip": "Invite people to this workspace",
     "invited_to_team": "{owner} invited you to join {team}",
     "join_beta": "Join the beta program to access teams.",
@@ -491,6 +493,7 @@
     "pending_invites": "Pending invites",
     "permissions": "Permissions",
     "saved": "Team saved",
+    "select_a_team": "Select a team",
     "title": "Teams"
   },
   "test": {

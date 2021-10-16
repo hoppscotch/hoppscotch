@@ -8,7 +8,7 @@ export const resolversDef: GraphCacheResolvers = {
     }),
     user: (_parent, { uid }, _cache, _info) => ({
       __typename: "User",
-      uid: uid,
+      uid,
     }),
   },
 }

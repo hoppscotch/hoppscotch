@@ -9,9 +9,7 @@ export const updatesDef: GraphCacheUpdaters = {
         },
         (data) => {
           if (data) {
-            data.myTeams = data.myTeams.filter(
-              (x) => x.id !== teamID
-            )
+            data.myTeams = data.myTeams.filter((x) => x.id !== teamID)
           }
 
           return data
@@ -20,7 +18,7 @@ export const updatesDef: GraphCacheUpdaters = {
 
       cache.invalidate({
         __typename: "Team",
-        id: teamID
+        id: teamID,
       })
     },
     leaveTeam: (_r, { teamID }, cache, _info) => {
@@ -30,9 +28,7 @@ export const updatesDef: GraphCacheUpdaters = {
         },
         (data) => {
           if (data) {
-            data.myTeams = data.myTeams.filter(
-              (x) => x.id !== teamID
-            )
+            data.myTeams = data.myTeams.filter((x) => x.id !== teamID)
           }
 
           return data
@@ -41,7 +37,7 @@ export const updatesDef: GraphCacheUpdaters = {
 
       cache.invalidate({
         __typename: "Team",
-        id: teamID
+        id: teamID,
       })
     },
     createTeam: (result, _args, cache, _info) => {
@@ -70,11 +66,7 @@ export const updatesDef: GraphCacheUpdaters = {
         .filter(([_key, uid]) => uid !== userUid)
         .map(([key]) => key)
 
-      cache.link(
-        { __typename: "Team", id: teamID },
-        "members",
-        newMembers
-      )
+      cache.link({ __typename: "Team", id: teamID }, "members", newMembers)
     },
   },
 }

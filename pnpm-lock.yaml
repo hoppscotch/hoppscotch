@@ -97,6 +97,7 @@ importers:
       ts-jest: ^27.0.5
       typescript: ^4.4.3
       unplugin-vue2-script-setup: ^0.6.11
+      uuid: 8.3.2
       vue-apollo: ^3.0.8
       vue-cli-plugin-apollo: ^0.22.2
       vue-functional-data-merge: ^3.1.0
@@ -144,6 +145,7 @@ importers:
       socketio-wildcard: 2.0.0
       splitpanes: 2.3.8
       tern: 0.24.3
+      uuid: 8.3.2
       vue-apollo: 3.0.8_graphql-tag@2.12.5
       vue-cli-plugin-apollo: 0.22.2_typescript@4.4.3
       vue-functional-data-merge: 3.1.0

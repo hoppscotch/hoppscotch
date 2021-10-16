@@ -168,14 +168,6 @@
             </div>
             <div class="space-y-4 py-4">
               <div class="flex items-center">
-                <SmartToggle
-                  :on="EXPERIMENTAL_URL_BAR_ENABLED"
-                  @change="toggleSetting('EXPERIMENTAL_URL_BAR_ENABLED')"
-                >
-                  {{ $t("settings.use_experimental_url_bar") }}
-                </SmartToggle>
-              </div>
-              <div class="flex items-center">
                 <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
                   {{ $t("settings.telemetry") }}
                   {{
@@ -185,7 +177,7 @@
                   }}
                 </SmartToggle>
               </div>
-              <!-- <div class="flex items-center">
+              <div class="flex items-center">
                 <SmartToggle
                   :on="LEFT_SIDEBAR"
                   @change="toggleSetting('LEFT_SIDEBAR')"
@@ -195,7 +187,7 @@
                     LEFT_SIDEBAR ? $t("state.enabled") : $t("state.disabled")
                   }}
                 </SmartToggle>
-              </div> -->
+              </div>
               <div class="flex items-center">
                 <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
                   {{ $t("layout.zen_mode") }}
@@ -370,7 +362,6 @@ export default defineComponent({
       PROXY_URL: useSetting("PROXY_URL"),
       PROXY_KEY: useSetting("PROXY_KEY"),
       EXTENSIONS_ENABLED: useSetting("EXTENSIONS_ENABLED"),
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       SYNC_COLLECTIONS: useSetting("syncCollections"),
       SYNC_ENVIRONMENTS: useSetting("syncEnvironments"),
       SYNC_HISTORY: useSetting("syncHistory"),

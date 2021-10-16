@@ -7,6 +7,12 @@
   publish = "packages/hoppscotch-app/dist"
   command = "npx pnpm i --store=node_modules/.pnpm-store && npx pnpm run generate"
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+
 [[redirects]]
   from = "/discord"
   to = "https://discord.gg/GAMWxmR"

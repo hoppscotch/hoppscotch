@@ -59,7 +59,6 @@
       </div>
       <div class="flex flex-1">
         <SmartEnvInput
-          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="newEndpoint"
           :placeholder="`${$t('request.url')}`"
           styles="
@@ -77,32 +76,6 @@
             focus-visible:bg-transparent
           "
           @enter="newSendRequest()"
-        />
-        <input
-          v-else
-          id="url"
-          v-model="newEndpoint"
-          v-focus
-          class="
-            bg-primaryLight
-            border border-divider
-            rounded-r
-            flex
-            text-secondaryDark
-            w-full
-            min-w-32
-            py-2
-            px-4
-            hover:border-dividerDark
-            focus-visible:bg-transparent focus-visible:border-dividerDark
-          "
-          name="url"
-          type="text"
-          autocomplete="off"
-          spellcheck="false"
-          :placeholder="`${$t('request.url')}`"
-          autofocus
-          @keyup.enter="newSendRequest()"
         />
       </div>
     </div>
@@ -450,8 +423,6 @@ const isCustomMethod = computed(() => {
 })
 
 const requestName = useRESTRequestName()
-
-const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
 
 const windowInnerWidth = useWindowSize()
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")

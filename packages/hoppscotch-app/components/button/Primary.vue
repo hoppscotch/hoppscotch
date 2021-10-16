@@ -34,6 +34,7 @@
     ]"
     :disabled="disabled"
     :tabindex="loading ? '-1' : '0'"
+    :type="type"
   >
     <span
       v-if="!loading"
@@ -142,6 +143,10 @@ export default defineComponent({
     shortcut: {
       type: Array,
       default: () => [],
+    },
+    type: {
+      type: String,
+      default: "button",
     },
   },
 })

@@ -1,4 +1,5 @@
 import axios from "axios"
+import { v4 } from "uuid"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
 import { settingsStore } from "~/newstore/settings"
 import { JsonFormattedError } from "~/helpers/utils/JsonFormattedError"
@@ -14,13 +15,25 @@ export const cancelRunningAxiosRequest = () => {
 
 const axiosWithProxy = async (req) => {
   try {
+    let proxyReqPayload = {
+      ...req,
+      wantsBinary: true,
+    }
+    const headers = {}
+    if (req.data instanceof FormData) {
+      const key = `proxyRequestData-${v4()}` // generate UniqueKey
+      headers["multipart-part-key"] = key
+
+      const formData = proxyReqPayload.data
+      proxyReqPayload.data = "" // discard formData
+      formData.append(key, JSON.stringify(proxyReqPayload)) // append axiosRequest to form
+      proxyReqPayload = formData
+    }
     const { data } = await axios.post(
       settingsStore.value.PROXY_URL || "https://proxy.hoppscotch.io",
+      proxyReqPayload,
       {
-        ...req,
-        wantsBinary: true,
-      },
-      {
+        headers,
         cancelToken: cancelSource.token,
       }
     )

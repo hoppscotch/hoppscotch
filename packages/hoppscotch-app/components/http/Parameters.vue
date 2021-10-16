@@ -55,7 +55,6 @@
         class="divide-x divide-dividerLight border-b border-dividerLight flex"
       >
         <SmartEnvInput
-          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="param.key"
           :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
           styles="
@@ -73,25 +72,7 @@
             })
           "
         />
-        <input
-          v-else
-          class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="`${$t('count.parameter', {
-            count: index + 1,
-          })}`"
-          :name="'param' + index"
-          :value="param.key"
-          autofocus
-          @change="
-            updateParam(index, {
-              key: $event.target.value,
-              value: param.value,
-              active: param.active,
-            })
-          "
-        />
         <SmartEnvInput
-          v-if="EXPERIMENTAL_URL_BAR_ENABLED"
           v-model="param.value"
           :placeholder="`${$t('count.value', { count: index + 1 })}`"
           styles="
@@ -105,20 +86,6 @@
             updateParam(index, {
               key: param.key,
               value: $event,
-              active: param.active,
-            })
-          "
-        />
-        <input
-          v-else
-          class="bg-transparent flex flex-1 py-2 px-4"
-          :placeholder="`${$t('count.value', { count: index + 1 })}`"
-          :name="'value' + index"
-          :value="param.value"
-          @change="
-            updateParam(index, {
-              key: param.key,
-              value: $event.target.value,
               active: param.active,
             })
           "
@@ -197,7 +164,6 @@ import {
   deleteAllRESTParams,
   setRESTParams,
 } from "~/newstore/RESTSession"
-import { useSetting } from "~/newstore/settings"
 import "codemirror/mode/yaml/yaml"
 
 const {
@@ -266,6 +232,4 @@ const deleteParam = (index: number) => {
 const clearContent = () => {
   deleteAllRESTParams()
 }
-
-const EXPERIMENTAL_URL_BAR_ENABLED = useSetting("EXPERIMENTAL_URL_BAR_ENABLED")
 </script>

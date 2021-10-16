@@ -16,6 +16,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
       - name: Install pnpm
         run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
       - name: Use Node.js ${{ matrix.node-version }}

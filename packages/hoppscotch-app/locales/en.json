@@ -474,6 +474,7 @@
     "invalid_email_format": "Email format is invalid",
     "invalid_member_permission": "Please provide a valid permission to the team member",
     "invite": "Invite",
+    "select_a_team": "Select a team",
     "invite_tooltip": "Invite people to this workspace",
     "invited_to_team": "{owner} invited you to join {team}",
     "join_beta": "Join the beta program to access teams.",

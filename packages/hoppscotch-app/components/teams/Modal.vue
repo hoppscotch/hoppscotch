@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('team.title')"
+    :title="$t('team.select_a_team')"
     @close="$emit('hide-modal')"
   >
     <template #body>

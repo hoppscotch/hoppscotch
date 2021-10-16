@@ -42,6 +42,7 @@
           :key="`team-${String(index)}`"
           :team-i-d="team.id"
           :team="team"
+          :compact="modal"
           @edit-team="editTeam(team, team.id)"
           @invite-team="inviteTeam(team, team.id)"
         />

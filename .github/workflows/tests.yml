@@ -21,11 +21,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
-      - name: Cache .pnpm-store
-        uses: actions/cache@v1
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Install pnpm
         run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
       - name: Run tests

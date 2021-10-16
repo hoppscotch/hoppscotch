@@ -1,8 +1,18 @@
 <template>
-  <div class="border border-dividerLight rounded flex flex-col flex-1">
-    <div class="flex flex-1 items-start">
+  <div class="border border-divider rounded flex flex-col flex-1">
+    <div
+      class="flex flex-1 items-start"
+      :class="{
+        'cursor-pointer hover:bg-primaryDark transition hover:border-dividerDark focus-visible:border-dividerDark':
+          compact && team.myRole === 'OWNER',
+      }"
+      @click="compact && team.myRole === 'OWNER' ? $emit('invite-team') : ''"
+    >
       <div class="p-4">
-        <label class="font-semibold text-secondaryDark">
+        <label
+          class="font-semibold text-secondaryDark"
+          :class="{ 'cursor-pointer': compact && team.myRole === 'OWNER' }"
+        >
           {{ team.name || $t("state.nothing_found") }}
         </label>
         <div class="flex -space-x-1 mt-2 overflow-hidden">
@@ -18,11 +28,12 @@
         </div>
       </div>
     </div>
-    <div class="flex items-center justify-between">
+    <div v-if="!compact" class="flex items-center justify-between">
       <span>
         <ButtonSecondary
           v-if="team.myRole === 'OWNER'"
           svg="edit"
+          class="rounded-none"
           :label="$t('action.edit').toString()"
           @click.native="
             () => {
@@ -33,6 +44,7 @@
         <ButtonSecondary
           v-if="team.myRole === 'OWNER'"
           svg="user-plus"
+          class="rounded-none"
           :label="$t('team.invite')"
           @click.native="
             () => {
@@ -113,6 +125,7 @@ const props = defineProps<{
     }>
   }
   teamID: string
+  compact: boolean
 }>()
 
 const emit = defineEmits<{

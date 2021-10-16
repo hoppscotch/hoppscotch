@@ -16,15 +16,18 @@ type GQLSession = {
 export const defaultGQLSession: GQLSession = {
   request: makeGQLRequest({
     name: "",
-    url: "https://rickandmortyapi.com/graphql",
+    url: "https://echo.hoppscotch.io/graphql",
     headers: [],
     variables: `{ "id": "1" }`,
-    query: `query GetCharacter($id: ID!) {
-  character(id: $id) {
-    id
-    name
+    query: `query Request {
+  method
+  url
+  headers {
+    key
+    value
   }
-}`,
+}
+`,
   }),
   schema: "",
   response: "",

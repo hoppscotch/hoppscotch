@@ -1,10 +1,11 @@
 import {
-  computed,
   ref,
-  onMounted,
-  onBeforeUnmount,
   reactive,
   Ref,
+  unref,
+  watchEffect,
+  watchSyncEffect,
+  WatchStopHandle,
 } from "@nuxtjs/composition-api"
 import {
   createClient,
@@ -14,6 +15,8 @@ import {
   OperationContext,
   fetchExchange,
   makeOperation,
+  GraphQLRequest,
+  createRequest,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
 import { offlineExchange } from "@urql/exchange-graphcache"
@@ -22,8 +25,7 @@ import { devtoolsExchange } from "@urql/devtools"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
-import { subscribe } from "wonka"
-import clone from "lodash/clone"
+import { Source, subscribe, pipe as wonkaPipe, onEnd } from "wonka"
 import { keyDefs } from "./caching/keys"
 import { optimisticDefs } from "./caching/optimistic"
 import { updatesDef } from "./caching/updates"
@@ -45,7 +47,7 @@ const storage = makeDefaultStorage({
   maxAge: 7,
 })
 
-const client = createClient({
+export const client = createClient({
   url: BACKEND_GQL_URL,
   exchanges: [
     devtoolsExchange,
@@ -97,6 +99,15 @@ const client = createClient({
   ],
 })
 
+type MaybeRef<X> = X | Ref<X>
+
+type UseQueryOptions<T = any, V = object> = {
+  query: TypedDocumentNode<T, V>
+  variables?: MaybeRef<V>
+
+  defer?: boolean
+}
+
 /**
  * A wrapper type for defining errors possible in a GQL operation
  */
@@ -110,118 +121,125 @@ export type GQLError<T extends string> =
       error: T
     }
 
-const DEFAULT_QUERY_OPTIONS = {
-  noPolling: false,
-  pause: undefined as Ref<boolean> | undefined,
-}
+export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
+  _args: UseQueryOptions<DocType, DocVarType>
+) => {
+  const stops: WatchStopHandle[] = []
 
-type GQL_QUERY_OPTIONS = typeof DEFAULT_QUERY_OPTIONS
+  const args = reactive(_args)
 
-type UseQueryLoading = {
-  loading: true
-}
+  const loading: Ref<boolean> = ref(true)
+  const isStale: Ref<boolean> = ref(true)
+  const data: Ref<E.Either<GQLError<DocErrorType>, DocType>> = ref() as any
 
-type UseQueryLoaded<
-  QueryFailType extends string = "",
-  QueryReturnType = any
-> = {
-  loading: false
-  data: E.Either<GQLError<QueryFailType>, QueryReturnType>
-}
+  const isPaused: Ref<boolean> = ref(args.defer ?? false)
 
-type UseQueryReturn<QueryFailType extends string = "", QueryReturnType = any> =
-  | UseQueryLoading
-  | UseQueryLoaded<QueryFailType, QueryReturnType>
+  const request: Ref<GraphQLRequest<DocType, DocVarType>> = ref(
+    createRequest<DocType, DocVarType>(
+      args.query,
+      unref<DocVarType>(args.variables as any) as any
+    )
+  ) as any
 
-export function isLoadedGQLQuery<QueryFailType extends string, QueryReturnType>(
-  x: UseQueryReturn<QueryFailType, QueryReturnType>
-): x is {
-  loading: false
-  data: E.Either<GQLError<QueryFailType>, QueryReturnType>
-} {
-  return !x.loading
-}
+  const source: Ref<Source<OperationResult> | undefined> = ref()
 
-export function useGQLQuery<
-  QueryReturnType = any,
-  QueryVariables extends object = {},
-  QueryFailType extends string = ""
->(
-  query: TypedDocumentNode<QueryReturnType, QueryVariables>,
-  variables?: QueryVariables,
-  options: Partial<GQL_QUERY_OPTIONS> = DEFAULT_QUERY_OPTIONS
-):
-  | { loading: false; data: E.Either<GQLError<QueryFailType>, QueryReturnType> }
-  | { loading: true } {
-  type DataType = E.Either<GQLError<QueryFailType>, QueryReturnType>
-
-  const finalOptions = Object.assign(clone(DEFAULT_QUERY_OPTIONS), options)
-
-  const data = ref<DataType>()
-
-  let subscription: { unsubscribe(): void } | null = null
-
-  onMounted(() => {
-    const gqlQuery = client.query<any, QueryVariables>(query, variables, {
-      requestPolicy: "cache-and-network",
-    })
-
-    const processResult = (result: OperationResult<any, QueryVariables>) =>
-      pipe(
-        // The target
-        result.data as QueryReturnType | undefined,
-        // Define what happens if data does not exist (it is an error)
-        E.fromNullable(
-          pipe(
-            // Take the network error value
-            result.error?.networkError,
-            // If it null, set the left to the generic error name
-            E.fromNullable(result.error?.message),
-            E.match(
-              // The left case (network error was null)
-              (gqlErr) =>
-                <GQLError<QueryFailType>>{
-                  type: "gql_error",
-                  error: gqlErr as QueryFailType,
-                },
-              // The right case (it was a GraphQL Error)
-              (networkErr) =>
-                <GQLError<QueryFailType>>{
-                  type: "network_error",
-                  error: networkErr,
-                }
-            )
-          )
+  stops.push(
+    watchEffect(
+      () => {
+        const newRequest = createRequest<DocType, DocVarType>(
+          args.query,
+          unref<DocVarType>(args.variables as any) as any
         )
-      )
 
-    if (finalOptions.noPolling) {
-      gqlQuery.toPromise().then((result) => {
-        data.value = processResult(result)
-      })
-    } else {
-      subscription = pipe(
-        gqlQuery,
-        subscribe((result) => {
-          data.value = processResult(result)
-        })
+        if (request.value.key !== newRequest.key) {
+          request.value = newRequest
+        }
+      },
+      { flush: "pre" }
+    )
+  )
+
+  stops.push(
+    watchEffect(
+      () => {
+        source.value = !isPaused.value
+          ? client.executeQuery<DocType, DocVarType>(request.value, {
+              requestPolicy: "cache-and-network",
+            })
+          : undefined
+      },
+      { flush: "pre" }
+    )
+  )
+
+  watchSyncEffect((onInvalidate) => {
+    if (source.value) {
+      loading.value = true
+      isStale.value = false
+
+      onInvalidate(
+        wonkaPipe(
+          source.value,
+          onEnd(() => {
+            loading.value = false
+            isStale.value = false
+          }),
+          subscribe((res) => {
+            data.value = pipe(
+              // The target
+              res.data as DocType | undefined,
+              // Define what happens if data does not exist (it is an error)
+              E.fromNullable(
+                pipe(
+                  // Take the network error value
+                  res.error?.networkError,
+                  // If it null, set the left to the generic error name
+                  E.fromNullable(res.error?.message),
+                  E.match(
+                    // The left case (network error was null)
+                    (gqlErr) =>
+                      <GQLError<DocErrorType>>{
+                        type: "gql_error",
+                        error: gqlErr as DocErrorType,
+                      },
+                    // The right case (it was a GraphQL Error)
+                    (networkErr) =>
+                      <GQLError<DocErrorType>>{
+                        type: "network_error",
+                        error: networkErr,
+                      }
+                  )
+                )
+              )
+            )
+
+            loading.value = false
+          })
+        ).unsubscribe
       )
     }
   })
 
-  onBeforeUnmount(() => {
-    subscription?.unsubscribe()
+  const execute = (updatedVars?: DocVarType) => {
+    if (updatedVars) {
+      args.variables = updatedVars as any
+    }
+
+    isPaused.value = false
+  }
+
+  const response = reactive({
+    loading,
+    data,
+    isStale,
+    execute,
   })
 
-  return reactive({
-    loading: computed(() => !data.value),
-    data: data!,
-  }) as
-    | {
-        loading: false
-        data: DataType
-      }
-    | { loading: true }
+  watchEffect(() => {
+    console.log(JSON.stringify(response))
+  })
+
+  return response
 }
 
 export const runMutation = <

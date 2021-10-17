@@ -49,7 +49,7 @@
       </div>
       <div
         v-if="!myTeams.loading && E.isLeft(myTeams.data)"
-        class="flex items-center flex-col"
+        class="flex flex-col items-center"
       >
         <i class="mb-4 material-icons">help_outline</i>
         {{ $t("error.something_went_wrong") }}
@@ -65,7 +65,6 @@
       "
       :team="myTeams.data.right.myTeams[0]"
       :show="showModalEdit"
-      :editing-team="editingTeam"
       :editingteam-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
       @invite-team="inviteTeam(editingTeam, editingTeamID)"
@@ -114,7 +113,9 @@ const myTeams = useGQLQuery<
   MyTeamsQuery,
   MyTeamsQueryVariables,
   MyTeamsQueryError
->(MyTeamsDocument)
+>({
+  query: MyTeamsDocument,
+})
 
 watchEffect(() => {
   console.log(myTeams)

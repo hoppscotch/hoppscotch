@@ -9,53 +9,88 @@
         </div>
         <div class="divide-y divide-dividerLight border-divider border rounded">
           <div
-            v-for="(member, index) in members"
-            :key="`member-${index}`"
-            class="divide-x divide-dividerLight flex"
+            v-if="pendingInvites.loading"
+            class="flex p-4 items-center justify-center"
           >
-            <input
-              class="bg-transparent text-secondaryLight flex flex-1 py-2 px-4"
-              :placeholder="$t('team.email')"
-              :name="'param' + index"
-              :value="member.user.email"
-              readonly
-            />
-            <input
-              class="bg-transparent text-secondaryLight flex flex-1 py-2 px-4"
-              :placeholder="$t('team.permissions')"
-              :name="'value' + index"
-              :value="
-                typeof member.role === 'string'
-                  ? member.role
-                  : JSON.stringify(member.role)
-              "
-              readonly
-            />
-            <div class="flex">
-              <ButtonSecondary
-                id="member"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
-                svg="trash"
-                color="red"
-                @click.native="removeExistingTeamMember(member.user.uid)"
-              />
-            </div>
+            <SmartSpinner />
           </div>
-          <div
-            v-if="members.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
-          >
-            <SmartIcon class="opacity-75 pb-2" name="users" />
-            <span class="text-center pb-4">
-              {{ $t("empty.pending_invites") }}
-            </span>
+          <div v-else>
+            <div
+              v-if="!pendingInvites.loading && E.isRight(pendingInvites.data)"
+            >
+              <div
+                v-for="(invitee, index) in pendingInvites.data.right.team
+                  .teamInvitations"
+                :key="`invitee-${index}`"
+                class="divide-x divide-dividerLight flex"
+              >
+                <input
+                  v-if="invitee"
+                  class="
+                    bg-transparent
+                    flex flex-1
+                    text-secondaryLight
+                    py-2
+                    px-4
+                  "
+                  :placeholder="`${$t('team.email')}`"
+                  :name="'param' + index"
+                  :value="invitee.inviteeEmail"
+                  readonly
+                />
+                <input
+                  class="
+                    bg-transparent
+                    flex flex-1
+                    text-secondaryLight
+                    py-2
+                    px-4
+                  "
+                  :placeholder="`${$t('team.permissions')}`"
+                  :name="'value' + index"
+                  :value="
+                    typeof invitee.inviteeRole === 'string'
+                      ? invitee.inviteeRole
+                      : JSON.stringify(invitee.inviteeRole)
+                  "
+                  readonly
+                />
+                <div class="flex">
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="$t('action.remove')"
+                    svg="trash"
+                    color="red"
+                    @click.native="removeInvitee(invitee.id)"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              v-if="
+                E.isRight(pendingInvites.data) &&
+                pendingInvites.data.right.team.teamInvitations.length === 0
+              "
+              class="
+                flex flex-col
+                text-secondaryLight
+                p-4
+                items-center
+                justify-center
+              "
+            >
+              <SmartIcon class="opacity-75 pb-2" name="users" />
+              <span class="text-center">
+                {{ $t("empty.pending_invites") }}
+              </span>
+            </div>
+            <div
+              v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
+              class="flex flex-col p-4 items-center"
+            >
+              <i class="mb-4 material-icons">help_outline</i>
+              {{ $t("error.something_went_wrong") }}
+            </div>
           </div>
         </div>
         <div class="flex flex-1 justify-between items-center">
@@ -66,21 +101,21 @@
             <ButtonSecondary
               svg="plus"
               :label="$t('add.new')"
-              @click.native="addTeamMember"
+              @click.native="addNewInvitee"
             />
           </div>
         </div>
         <div class="divide-y divide-dividerLight border-divider border rounded">
           <div
-            v-for="(member, index) in newMembers"
-            :key="`new-member-${index}`"
+            v-for="(invitee, index) in newInvites"
+            :key="`new-invitee-${index}`"
             class="divide-x divide-dividerLight flex"
           >
             <input
-              v-model="member.key"
+              v-model="invitee.key"
               class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="$t('team.email')"
-              :name="'member' + index"
+              :name="'invitee' + index"
               autofocus
             />
             <span>
@@ -104,9 +139,9 @@
                       :placeholder="$t('team.permissions')"
                       :name="'value' + index"
                       :value="
-                        typeof member.value === 'string'
-                          ? member.value
-                          : JSON.stringify(member.value)
+                        typeof invitee.value === 'string'
+                          ? invitee.value
+                          : JSON.stringify(invitee.value)
                       "
                       readonly
                     />
@@ -114,15 +149,15 @@
                 </template>
                 <SmartItem
                   label="OWNER"
-                  @click.native="updateNewMemberRole(index, 'OWNER')"
+                  @click.native="updateNewInviteeRole(index, 'OWNER')"
                 />
                 <SmartItem
                   label="EDITOR"
-                  @click.native="updateNewMemberRole(index, 'EDITOR')"
+                  @click.native="updateNewInviteeRole(index, 'EDITOR')"
                 />
                 <SmartItem
                   label="VIEWER"
-                  @click.native="updateNewMemberRole(index, 'VIEWER')"
+                  @click.native="updateNewInviteeRole(index, 'VIEWER')"
                 />
               </tippy>
             </span>
@@ -133,12 +168,12 @@
                 :title="$t('action.remove')"
                 svg="trash"
                 color="red"
-                @click.native="removeTeamMember(index)"
+                @click.native="removeNewInvitee(index)"
               />
             </div>
           </div>
           <div
-            v-if="newMembers.length === 0"
+            v-if="newInvites.length === 0"
             class="
               flex flex-col
               text-secondaryLight
@@ -154,7 +189,7 @@
             <ButtonSecondary
               :label="$t('add.new')"
               filled
-              @click.native="addTeamMember"
+              @click.native="addNewInvitee"
             />
           </div>
         </div>
@@ -162,7 +197,7 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('team.invite')" @click.native="saveTeam" />
+        <ButtonPrimary :label="$t('team.invite')" @click.native="sendInvites" />
         <ButtonSecondary
           :label="$t('action.cancel')"
           @click.native="hideModal"
@@ -172,145 +207,81 @@
   </SmartModal>
 </template>
 
-<script>
-import cloneDeep from "lodash/cloneDeep"
-import { defineComponent } from "@nuxtjs/composition-api"
-import * as teamUtils from "~/helpers/teams/utils"
-import TeamMemberAdapter from "~/helpers/teams/TeamMemberAdapter"
+<script setup lang="ts">
+import { watch, ref, reactive } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { useGQLQuery } from "~/helpers/backend/GQLClient"
+import {
+  GetPendingInvitesDocument,
+  GetPendingInvitesQuery,
+  GetPendingInvitesQueryVariables,
+} from "~/helpers/backend/graphql"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingTeam: { type: Object, default: () => {} },
-    editingteamID: { type: String, default: null },
-  },
-  data() {
-    return {
-      members: [],
-      newMembers: [],
-      membersAdapter: new TeamMemberAdapter(null),
-    }
-  },
-  watch: {
-    editingteamID(teamID) {
-      this.membersAdapter.changeTeamID(teamID)
-    },
-  },
-  mounted() {
-    this.membersAdapter.members$.subscribe((list) => {
-      this.members = cloneDeep(list)
-    })
-  },
-  methods: {
-    updateMemberRole(id, role) {
-      this.members[id].role = role
-      this.$refs[`memberOptions-${id}`][0].tippy().hide()
-    },
-    updateNewMemberRole(id, role) {
-      this.newMembers[id].value = role
-      this.$refs[`newMemberOptions-${id}`][0].tippy().hide()
-    },
-    addTeamMember() {
-      const member = { key: "", value: "" }
-      this.newMembers.push(member)
-    },
-    removeExistingTeamMember(userID) {
-      teamUtils
-        .removeTeamMember(this.$apollo, userID, this.editingteamID)
-        .then(() => {
-          this.$toast.success(this.$t("team.member_removed"), {
-            icon: "done",
-          })
-          this.hideModal()
-        })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
-          console.error(e)
-        })
-    },
-    removeTeamMember(index) {
-      this.newMembers.splice(index, 1)
-    },
-    validateEmail(emailID) {
-      if (
-        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
-          emailID
-        )
-      ) {
-        return true
-      }
-      return false
-    },
-    saveTeam() {
-      let invalidEmail = false
-      this.$data.newMembers.forEach((element) => {
-        if (!this.validateEmail(element.key)) {
-          this.$toast.error(this.$t("team.invalid_email_format"), {
-            icon: "error_outline",
-          })
-          invalidEmail = true
-        }
-      })
-      if (invalidEmail) return
-      let invalidPermission = false
-      this.$data.newMembers.forEach((element) => {
-        if (!element.value) {
-          this.$toast.error(this.$t("invalid_member_permission"), {
-            icon: "error_outline",
-          })
-          invalidPermission = true
-        }
-      })
-      if (invalidPermission) return
-      this.$data.newMembers.forEach((element) => {
-        // Call to the graphql mutation
-        teamUtils
-          .addTeamMemberByEmail(
-            this.$apollo,
-            element.value,
-            element.key,
-            this.editingteamID
-          )
-          .then(() => {
-            this.$toast.success(this.$t("team.saved"), {
-              icon: "done",
-            })
-          })
-          .catch((e) => {
-            this.$toast.error(e, {
-              icon: "error_outline",
-            })
-            console.error(e)
-          })
-      })
-      this.members.forEach((element) => {
-        teamUtils
-          .updateTeamMemberRole(
-            this.$apollo,
-            element.user.uid,
-            element.role,
-            this.editingteamID
-          )
-          .then(() => {
-            this.$toast.success(this.$t("team.member_role_updated"), {
-              icon: "done",
-            })
-          })
-          .catch((e) => {
-            this.$toast.error(e, {
-              icon: "error_outline",
-            })
-            console.error(e)
-          })
-      })
-      this.hideModal()
-    },
-    hideModal() {
-      this.newMembers = []
-      this.$emit("hide-modal")
-    },
-  },
+const props = defineProps({
+  show: Boolean,
+  editingteamID: { type: String, default: null },
 })
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const pendingInvites = useGQLQuery<
+  GetPendingInvitesQuery,
+  GetPendingInvitesQueryVariables,
+  ""
+>({
+  query: GetPendingInvitesDocument,
+  variables: reactive({
+    teamID: props.editingteamID,
+  }),
+  defer: true,
+})
+
+watch(
+  () => props.editingteamID,
+  () => {
+    if (props.editingteamID) {
+      pendingInvites.execute({
+        teamID: props.editingteamID,
+      })
+    }
+  }
+)
+
+watch(
+  () => pendingInvites,
+  () => {
+    console.log(pendingInvites)
+  }
+)
+
+const removeInvitee = (id: string) => {
+  console.log(id)
+}
+
+const newInvites = ref([])
+
+const addNewInvitee = () => {
+  newInvites.value.push({
+    key: "",
+    value: "",
+  })
+}
+
+const updateNewInviteeRole = (index: number, role: string) => {
+  newInvites.value[index].value = role
+}
+
+const removeNewInvitee = (id: number) => {
+  newInvites.value.splice(id, 1)
+}
+
+const sendInvites = () => {
+  console.log(newInvites.value)
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

@@ -1,7 +1,35 @@
 <template>
   <SmartModal v-if="show" :title="$t('team.invite')" @close="hideModal">
     <template #body>
-      <div class="flex flex-col px-2">
+      <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
+        <div class="flex flex-col max-w-md justify-center items-center">
+          <SmartIcon class="h-6 text-accent w-6" name="users" />
+          <h3 class="my-2 text-center text-lg">
+            {{ $t("team.we_sent_invite_link") }}
+          </h3>
+          <p class="text-center">
+            {{ $t("team.we_sent_invite_link_description") }}
+          </p>
+        </div>
+        <div class="flex space-y-2 px-4 pt-8 flex-col">
+          <div
+            v-for="(invitee, index) in sendInvitesResult"
+            :key="`invitee-${index}`"
+            class="flex items-center"
+          >
+            <i
+              class="material-icons mr-4"
+              :class="
+                invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
+              "
+            >
+              {{ invitee.status === "error" ? "error" : "check_circle" }}
+            </i>
+            <span class="flex truncate">{{ invitee.email }}</span>
+          </div>
+        </div>
+      </div>
+      <div v-else class="flex flex-col px-2">
         <div class="flex flex-1 justify-between items-center">
           <label for="memberList" class="pb-4 px-4">
             {{ $t("team.pending_invites") }}
@@ -121,7 +149,7 @@
             />
             <span>
               <tippy
-                :ref="`newMemberOptions-${index}`"
+                ref="newInviteeOptions"
                 interactive
                 trigger="click"
                 theme="popover"
@@ -150,15 +178,30 @@
                 </template>
                 <SmartItem
                   label="OWNER"
-                  @click.native="updateNewInviteeRole(index, 'OWNER')"
+                  @click.native="
+                    () => {
+                      updateNewInviteeRole(index, 'OWNER')
+                      newInviteeOptions[index].tippy().hide()
+                    }
+                  "
                 />
                 <SmartItem
                   label="EDITOR"
-                  @click.native="updateNewInviteeRole(index, 'EDITOR')"
+                  @click.native="
+                    () => {
+                      updateNewInviteeRole(index, 'EDITOR')
+                      newInviteeOptions[index].tippy().hide()
+                    }
+                  "
                 />
                 <SmartItem
                   label="VIEWER"
-                  @click.native="updateNewInviteeRole(index, 'VIEWER')"
+                  @click.native="
+                    () => {
+                      updateNewInviteeRole(index, 'VIEWER')
+                      newInviteeOptions[index].tippy().hide()
+                    }
+                  "
                 />
               </tippy>
             </span>
@@ -197,7 +240,27 @@
       </div>
     </template>
     <template #footer>
-      <span>
+      <p
+        v-if="sendInvitesResult.length"
+        class="flex flex-1 text-secondaryLight justify-between"
+      >
+        <SmartAnchor
+          class="link"
+          :label="`← \xA0 ${$t('team.invite_more')}`"
+          @click.native="
+            () => {
+              sendInvitesResult = []
+              newInvites = []
+            }
+          "
+        />
+        <SmartAnchor
+          class="link"
+          :label="`${$t('action.dismiss')}`"
+          @click.native="hideModal"
+        />
+      </p>
+      <span v-else>
         <ButtonPrimary :label="$t('team.invite')" @click.native="sendInvites" />
         <ButtonSecondary
           :label="$t('action.cancel')"
@@ -233,6 +296,8 @@ const {
   app: { i18n },
 } = useContext()
 const t = i18n.t.bind(i18n)
+
+const newInviteeOptions = ref<any | null>(null)
 
 const props = defineProps({
   show: Boolean,
@@ -303,7 +368,7 @@ const removeNewInvitee = (id: number) => {
   newInvites.value.splice(id, 1)
 }
 
-const result = ref<
+const sendInvitesResult = ref<
   Array<{
     email: Email
     status: "error" | "success"
@@ -335,7 +400,7 @@ const sendInvites = async () => {
     return
   }
 
-  result.value = await pipe(
+  sendInvitesResult.value = await pipe(
     A.sequence(T.task)(validationResult.value),
     T.chain(
       flow(
@@ -361,6 +426,8 @@ const sendInvites = async () => {
 }
 
 const hideModal = () => {
+  sendInvitesResult.value = []
+  newInvites.value = []
   emit("hide-modal")
 }
 </script>

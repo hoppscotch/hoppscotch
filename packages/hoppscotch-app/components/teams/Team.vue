@@ -28,7 +28,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!compact" class="flex items-center justify-between">
+    <div v-if="!compact" class="flex flex-shrink-0 items-end justify-between">
       <span>
         <ButtonSecondary
           v-if="team.myRole === 'OWNER'"

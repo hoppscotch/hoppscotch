@@ -34,7 +34,7 @@
           />
         </tippy>
         <div class="flex flex-1 justify-between">
-          <label for="generatedCode" class="px-4 pt-4 pb-4">
+          <label for="generatedCode" class="p-4">
             {{ t("request.generated_code") }}
           </label>
         </div>

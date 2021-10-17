@@ -30,7 +30,7 @@
   "author": "The Hoppscotch Team <support@hoppscotch.io> (https://hoppscotch.com/)",
   "license": "MIT",
   "dependencies": {
-    "fp-ts": "^2.11.4",
+    "fp-ts": "^2.11.5",
     "lodash": "^4.17.21",
     "quickjs-emscripten": "^0.13.0"
   },
@@ -39,7 +39,7 @@
     "@relmify/jest-fp-ts": "^1.1.1",
     "@types/jest": "^27.0.2",
     "@types/lodash": "^4.14.175",
-    "@types/node": "^16.10.3",
+    "@types/node": "^16.11.1",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",
@@ -49,8 +49,8 @@
     "jest": "^27.2.5",
     "prettier": "^2.4.1",
     "pretty-quick": "^3.1.1",
-    "ts-jest": "^27.0.5",
-    "typescript": "^4.4.3"
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.4.4"
   },
   "jest": {
     "setupFilesAfterEnv": [

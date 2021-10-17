@@ -231,7 +231,7 @@ export default defineComponent({
 
       &:hover,
       &.active {
-        @apply bg-accent;
+        @apply bg-accentDark;
         @apply text-accentContrast;
         @apply cursor-pointer;
       }

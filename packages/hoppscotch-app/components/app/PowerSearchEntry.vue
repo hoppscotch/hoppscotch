@@ -11,6 +11,7 @@
       hover:bg-primaryLight
       focus:outline-none
       focus-visible:bg-primaryLight
+      search-entry
     "
     tabindex="0"
     @click="$emit('action', shortcut.action)"
@@ -19,10 +20,10 @@
     <SmartIcon
       class="
         mr-4
-        opacity-75
+        opacity-50
         transition
         svg-icons
-        group-hover:opacity-100
+        group-hover:text-secondaryDark group-hover:opacity-100
         group-focus:opacity-100
       "
       :name="shortcut.icon"
@@ -55,6 +56,28 @@ defineProps<{
 </script>
 
 <style lang="scss" scoped>
+.search-entry {
+  @apply relative;
+
+  &::after {
+    @apply absolute;
+    @apply top-0;
+    @apply left-0;
+    @apply bottom-0;
+    @apply bg-transparent;
+    @apply z-2;
+    @apply w-0.5;
+    @apply transition;
+
+    content: "";
+  }
+
+  &:hover::after,
+  &:focus::after {
+    @apply bg-accentLight;
+  }
+}
+
 .shortcut-key {
   @apply bg-dividerLight;
   @apply rounded;

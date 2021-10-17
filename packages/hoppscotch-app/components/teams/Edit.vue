@@ -17,7 +17,7 @@
             {{ $t("action.label") }}
           </label>
         </div>
-        <div class="flex flex-1 justify-between items-center">
+        <div class="flex pt-4 flex-1 justify-between items-center">
           <label for="memberList" class="p-4">
             {{ $t("team.members") }}
           </label>
@@ -25,6 +25,7 @@
             <ButtonSecondary
               svg="user-plus"
               :label="$t('team.invite')"
+              filled
               @click.native="
                 () => {
                   $emit('invite-team')

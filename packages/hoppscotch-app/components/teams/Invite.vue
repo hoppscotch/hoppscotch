@@ -3,7 +3,7 @@
     <template #body>
       <div class="flex flex-col px-2">
         <div class="flex flex-1 justify-between items-center">
-          <label for="memberList" class="p-4">
+          <label for="memberList" class="pb-4 px-4">
             {{ $t("team.pending_invites") }}
           </label>
         </div>
@@ -93,7 +93,7 @@
             </div>
           </div>
         </div>
-        <div class="flex flex-1 justify-between items-center">
+        <div class="flex pt-4 flex-1 justify-between items-center">
           <label for="memberList" class="p-4">
             {{ $t("team.invite_tooltip") }}
           </label>
@@ -101,6 +101,7 @@
             <ButtonSecondary
               svg="plus"
               :label="$t('add.new')"
+              filled
               @click.native="addNewInvitee"
             />
           </div>
@@ -182,9 +183,9 @@
               justify-center
             "
           >
-            <SmartIcon class="opacity-75 pb-2" name="users" />
+            <SmartIcon class="opacity-75 pb-2" name="user-plus" />
             <span class="text-center pb-4">
-              {{ $t("empty.members") }}
+              {{ $t("empty.invites") }}
             </span>
             <ButtonSecondary
               :label="$t('add.new')"
@@ -208,14 +209,30 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, reactive } from "@nuxtjs/composition-api"
+import { watch, ref, reactive, useContext } from "@nuxtjs/composition-api"
+import * as T from "fp-ts/Task"
 import * as E from "fp-ts/Either"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+import { flow, pipe } from "fp-ts/function"
+import { Email, EmailCodec } from "../../helpers/backend/types/Email"
+import { TeamMemberRole } from "../../helpers/backend/graphql"
+import {
+  createTeamInvitation,
+  revokeTeamInvitation,
+} from "../../helpers/backend/mutations/TeamInvitation"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   GetPendingInvitesDocument,
   GetPendingInvitesQuery,
   GetPendingInvitesQueryVariables,
 } from "~/helpers/backend/graphql"
+
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
 
 const props = defineProps({
   show: Boolean,
@@ -256,20 +273,29 @@ watch(
   }
 )
 
-const removeInvitee = (id: string) => {
-  console.log(id)
+const removeInvitee = async (id: string) => {
+  const result = await revokeTeamInvitation(id)()
+  if (E.isLeft(result)) {
+    $toast.error(`${t("error.something_went_wrong")}`, {
+      icon: "error_outline",
+    })
+  } else {
+    $toast.success(`${t("team.member_removed")}`, {
+      icon: "person",
+    })
+  }
 }
 
-const newInvites = ref([])
+const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([])
 
 const addNewInvitee = () => {
   newInvites.value.push({
     key: "",
-    value: "",
+    value: TeamMemberRole.Viewer,
   })
 }
 
-const updateNewInviteeRole = (index: number, role: string) => {
+const updateNewInviteeRole = (index: number, role: TeamMemberRole) => {
   newInvites.value[index].value = role
 }
 
@@ -277,8 +303,61 @@ const removeNewInvitee = (id: number) => {
   newInvites.value.splice(id, 1)
 }
 
-const sendInvites = () => {
-  console.log(newInvites.value)
+const result = ref<
+  Array<{
+    email: Email
+    status: "error" | "success"
+  }>
+>([])
+
+const sendInvites = async () => {
+  const validationResult = pipe(
+    newInvites.value,
+    O.fromPredicate(
+      (invites): invites is Array<{ key: Email; value: TeamMemberRole }> =>
+        pipe(
+          invites,
+          A.every((invitee) => EmailCodec.is(invitee.key))
+        )
+    ),
+    O.map(
+      A.map((invitee) =>
+        createTeamInvitation(invitee.key, invitee.value, props.editingteamID)
+      )
+    )
+  )
+
+  if (O.isNone(validationResult)) {
+    // Error handling for no validation
+    $toast.error(`${t("error.incorrect_email")}`, {
+      icon: "error_outline",
+    })
+    return
+  }
+
+  result.value = await pipe(
+    A.sequence(T.task)(validationResult.value),
+    T.chain(
+      flow(
+        A.mapWithIndex((i, el) =>
+          pipe(
+            el,
+            E.foldW(
+              () => ({
+                status: "error" as const,
+                email: newInvites.value[i].key as Email,
+              }),
+              () => ({
+                status: "success" as const,
+                email: newInvites.value[i].key as Email,
+              })
+            )
+          )
+        ),
+        T.of
+      )
+    )
+  )()
 }
 
 const hideModal = () => {

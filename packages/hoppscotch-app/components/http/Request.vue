@@ -48,12 +48,14 @@
                 />
               </span>
             </template>
-            <SmartItem
-              v-for="(method, index) in methods"
-              :key="`method-${index}`"
-              :label="method"
-              @click.native="onSelectMethod(method)"
-            />
+            <div v-if="!isExampleSession">
+              <SmartItem
+                v-for="(method, index) in methods"
+                :key="`method-${index}`"
+                :label="method"
+                @click.native="onSelectMethod(method)"
+              />
+            </div>
           </tippy>
         </label>
       </div>
@@ -61,6 +63,7 @@
         <SmartEnvInput
           v-model="newEndpoint"
           :placeholder="`${$t('request.url')}`"
+          :contenteditable="!isExampleSession"
           styles="
             bg-primaryLight
             border border-divider
@@ -79,7 +82,7 @@
         />
       </div>
     </div>
-    <div class="flex">
+    <div v-if="!isExampleSession" class="flex">
       <ButtonPrimary
         id="send"
         class="rounded-r-none flex-1 min-w-20"
@@ -216,6 +219,7 @@ import {
   useRESTRequestName,
   getRESTSaveContext,
   getRESTRequest,
+  isRESTSessionType,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -230,6 +234,7 @@ import { useSetting } from "~/newstore/settings"
 import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import { HoppSessionType } from "~/helpers/types/HoppSessionType"
 
 const methods = [
   "GET",
@@ -251,6 +256,8 @@ const {
 const nuxt = useNuxt()
 const t = i18n.t.bind(i18n)
 const { subscribeToStream } = useStreamSubscriber()
+
+const isExampleSession = isRESTSessionType(HoppSessionType.Example)
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
 const newMethod = useStream(restMethod$, "", updateRESTMethod)

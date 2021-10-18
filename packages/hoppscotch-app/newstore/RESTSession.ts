@@ -15,8 +15,10 @@ import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppRESTAuth } from "~/helpers/types/HoppRESTAuth"
 import { ValidContentTypes } from "~/helpers/utils/contenttypes"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
+import { HoppSessionType } from "~/helpers/types/HoppSessionType"
 
 type RESTSession = {
+  sessionType: HoppSessionType
   request: HoppRESTRequest
   response: HoppRESTResponse | null
   testResults: HoppTestResult | null
@@ -40,9 +42,11 @@ export const defaultRESTRequest: HoppRESTRequest = {
     contentType: null,
     body: null,
   },
+  exampleResponses: [],
 }
 
 const defaultRESTSession: RESTSession = {
+  sessionType: HoppSessionType.Standard,
   request: defaultRESTRequest,
   response: null,
   testResults: null,
@@ -50,6 +54,14 @@ const defaultRESTSession: RESTSession = {
 }
 
 const dispatchers = defineDispatchers({
+  setSessionType(
+    _: RESTSession,
+    { sessionType }: { sessionType: HoppSessionType }
+  ) {
+    return {
+      sessionType,
+    }
+  },
   setRequest(_: RESTSession, { req }: { req: HoppRESTRequest }) {
     return {
       request: req,
@@ -354,6 +366,23 @@ const dispatchers = defineDispatchers({
 })
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
+
+export function isRESTSessionType(sessionType: HoppSessionType) {
+  return sessionType === restSessionStore.subject$.value.sessionType
+}
+
+export function setRESTSessionType(
+  sessionType: HoppSessionType,
+  saveContext?: HoppRequestSaveContext | null
+) {
+  restSessionStore.dispatch({
+    dispatcher: "setSessionType",
+    payload: {
+      sessionType,
+    },
+  })
+  if (saveContext) setRESTSaveContext(saveContext)
+}
 
 export function getRESTRequest() {
   return restSessionStore.subject$.value.request

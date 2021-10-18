@@ -1,5 +1,6 @@
 import { ValidContentTypes } from "../utils/contenttypes"
 import { HoppRESTAuth } from "./HoppRESTAuth"
+import { HoppRESTResponse } from "./HoppRESTResponse"
 
 export const RESTReqSchemaVersion = "1"
 
@@ -51,6 +52,7 @@ export interface HoppRESTRequest {
   auth: HoppRESTAuth
 
   body: HoppRESTReqBody
+  exampleResponses: HoppRESTResponse[]
 }
 
 export function makeRESTRequest(
@@ -127,6 +129,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       body,
       auth,
       v: RESTReqSchemaVersion,
+      exampleResponses: [],
     }
 
     if (x.id) result.id = x.id

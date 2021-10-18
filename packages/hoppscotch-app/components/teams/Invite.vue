@@ -29,6 +29,12 @@
           </div>
         </div>
       </div>
+      <div
+        v-else-if="sendingInvites"
+        class="flex p-4 items-center justify-center"
+      >
+        <SmartSpinner />
+      </div>
       <div v-else class="flex flex-col px-2">
         <div class="flex flex-1 justify-between items-center">
           <label for="memberList" class="pb-4 px-4">
@@ -375,6 +381,8 @@ const sendInvitesResult = ref<
   }>
 >([])
 
+const sendingInvites = ref<boolean>(false)
+
 const sendInvites = async () => {
   const validationResult = pipe(
     newInvites.value,
@@ -400,6 +408,8 @@ const sendInvites = async () => {
     return
   }
 
+  sendingInvites.value = true
+
   sendInvitesResult.value = await pipe(
     A.sequence(T.task)(validationResult.value),
     T.chain(
@@ -423,9 +433,12 @@ const sendInvites = async () => {
       )
     )
   )()
+
+  sendingInvites.value = false
 }
 
 const hideModal = () => {
+  sendingInvites.value = false
   sendInvitesResult.value = []
   newInvites.value = []
   emit("hide-modal")

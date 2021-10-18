@@ -6,6 +6,7 @@ import {
   watchEffect,
   watchSyncEffect,
   WatchStopHandle,
+  set,
 } from "@nuxtjs/composition-api"
 import {
   createClient,
@@ -222,7 +223,8 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   const execute = (updatedVars?: DocVarType) => {
     if (updatedVars) {
-      args.variables = updatedVars as any
+      set(args, "variables", updatedVars)
+      // args.variables = updatedVars as any
     }
 
     isPaused.value = false

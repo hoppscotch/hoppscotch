@@ -23,7 +23,7 @@
         "
       />
       <AppFuse
-        v-if="search"
+        v-if="search && show"
         :input="fuse"
         :search="search"
         @action="runAction"
@@ -58,12 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted, onMounted } from "@nuxtjs/composition-api"
+import { ref, computed, watch } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "~/helpers/actions"
 import { spotlight as mappings, fuse } from "~/helpers/shortcuts"
 import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
 
-defineProps<{
+const props = defineProps<{
   show: boolean
 }>()
 
@@ -95,7 +95,11 @@ const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
     onEnter: runAction,
   })
 
-onMounted(bindArrowKeysListerners)
-
-onUnmounted(unbindArrowKeysListerners)
+watch(
+  () => props.show,
+  (show) => {
+    if (show) bindArrowKeysListerners()
+    else unbindArrowKeysListerners()
+  }
+)
 </script>

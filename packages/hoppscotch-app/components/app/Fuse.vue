@@ -56,7 +56,11 @@ const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
     stopPropagation: true,
   })
 
-onMounted(bindArrowKeysListerners)
+onMounted(() => {
+  bindArrowKeysListerners()
+})
 
-onUnmounted(unbindArrowKeysListerners)
+onUnmounted(() => {
+  unbindArrowKeysListerners()
+})
 </script>

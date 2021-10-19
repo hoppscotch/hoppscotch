@@ -13,6 +13,7 @@
       focus-visible:bg-primaryLight
       search-entry
     "
+    :class="{ active, 'outline-none': active, 'focus-visible': active }"
     tabindex="0"
     @click="$emit('action', shortcut.action)"
     @keydown.enter="$emit('action', shortcut.action)"
@@ -26,6 +27,7 @@
         group-hover:text-secondaryDark group-hover:opacity-100
         group-focus:opacity-100
       "
+      :class="{ 'opacity-100': active, 'text-secondaryDark': active }"
       :name="shortcut.icon"
     />
     <span
@@ -36,6 +38,7 @@
         group-hover:text-secondaryDark
         group-focus:text-secondaryDark
       "
+      :class="{ 'text-secondaryDark': active }"
     >
       {{ $t(shortcut.label) }}
     </span>
@@ -52,6 +55,7 @@
 <script setup lang="ts">
 defineProps<{
   shortcut: Object
+  active: Boolean
 }>()
 </script>
 
@@ -73,7 +77,8 @@ defineProps<{
   }
 
   &:hover::after,
-  &:focus::after {
+  &:focus::after,
+  &.active::after {
     @apply bg-accentLight;
   }
 }

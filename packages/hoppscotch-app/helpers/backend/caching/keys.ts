@@ -1,7 +1,8 @@
-import { KeyingConfig } from "@urql/exchange-graphcache"
+import { GraphCacheKeysConfig } from "../graphql"
 
-export const keyDefs: KeyingConfig = {
-  User: (data) => (data as any).uid,
-  TeamMember: (data) => (data as any).membershipID,
-  Team: (data) => data.id as any,
+export const keyDefs: GraphCacheKeysConfig = {
+  User: (data) => data.uid!,
+  TeamMember: (data) => data.membershipID!,
+  Team: (data) => data.id!,
+  TeamInvitation: (data) => data.id!,
 }

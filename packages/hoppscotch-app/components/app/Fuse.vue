@@ -7,6 +7,7 @@
       :active="shortcutIndex === selectedEntry"
       :shortcut="shortcut.item"
       @action="$emit('action', shortcut.item.action)"
+      @mouseover.native="selectedEntry = shortcutIndex"
     />
     <div
       v-if="searchResults.length === 0"
@@ -21,12 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  onUnmounted,
-  onMounted,
-  getCurrentInstance,
-} from "@nuxtjs/composition-api"
+import { computed, onUnmounted, onMounted } from "@nuxtjs/composition-api"
 import Fuse from "fuse.js"
 import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
 import { HoppAction } from "~/helpers/actions"
@@ -34,6 +30,10 @@ import { HoppAction } from "~/helpers/actions"
 const props = defineProps<{
   input: Record<string, any>[]
   search: string
+}>()
+
+const emit = defineEmits<{
+  (e: "action", action: HoppAction): void
 }>()
 
 const options = {
@@ -48,10 +48,7 @@ const searchResultsItems = computed(() =>
   searchResults.value.map((searchResult: any) => searchResult.item)
 )
 
-const currentInstance = getCurrentInstance()
-
-const emitSearchAction = (action: HoppAction) =>
-  currentInstance.emit("action", action)
+const emitSearchAction = (action: HoppAction) => emit("action", action)
 
 const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
   useArrowKeysNavigation(searchResultsItems, {

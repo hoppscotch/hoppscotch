@@ -49,6 +49,7 @@
             :shortcut="shortcut"
             :active="shortcutsItems.indexOf(shortcut) === selectedEntry"
             @action="runAction"
+            @mouseover.native="selectedEntry = shortcutsItems.indexOf(shortcut)"
           />
         </div>
       </div>

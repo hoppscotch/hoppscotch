@@ -8,36 +8,22 @@
       transition
       items-center
       group
-      hover:bg-primaryLight
       focus:outline-none
       focus-visible:bg-primaryLight
       search-entry
     "
-    :class="{ active, 'outline-none': active, 'focus-visible': active }"
-    tabindex="0"
+    :class="{ active, 'focus-visible': active }"
+    tabindex="-1"
     @click="$emit('action', shortcut.action)"
     @keydown.enter="$emit('action', shortcut.action)"
   >
     <SmartIcon
-      class="
-        mr-4
-        opacity-50
-        transition
-        svg-icons
-        group-hover:text-secondaryDark group-hover:opacity-100
-        group-focus:opacity-100
-      "
-      :class="{ 'opacity-100': active, 'text-secondaryDark': active }"
+      class="mr-4 opacity-50 transition svg-icons group-focus:opacity-100"
+      :class="{ 'opacity-100 text-secondaryDark': active }"
       :name="shortcut.icon"
     />
     <span
-      class="
-        flex flex-1
-        mr-4
-        transition
-        group-hover:text-secondaryDark
-        group-focus:text-secondaryDark
-      "
+      class="flex flex-1 mr-4 transition"
       :class="{ 'text-secondaryDark': active }"
     >
       {{ $t(shortcut.label) }}
@@ -76,8 +62,6 @@ defineProps<{
     content: "";
   }
 
-  &:hover::after,
-  &:focus::after,
   &.active::after {
     @apply bg-accentLight;
   }

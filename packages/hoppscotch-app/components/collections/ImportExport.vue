@@ -412,7 +412,7 @@ export default defineComponent({
       const url = URL.createObjectURL(file)
       a.href = url
       // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.json`
       document.body.appendChild(a)
       a.click()
       this.$toast.success(this.$t("state.download_started"), {

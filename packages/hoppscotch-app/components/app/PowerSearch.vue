@@ -47,6 +47,7 @@
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
             :shortcut="shortcut"
+            :active="shortcutsItems.indexOf(shortcut) === selectedEntry"
             @action="runAction"
           />
         </div>
@@ -56,9 +57,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref, computed, onUnmounted, onMounted } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "~/helpers/actions"
 import { spotlight as mappings, fuse } from "~/helpers/shortcuts"
+import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
 
 defineProps<{
   show: boolean
@@ -79,4 +81,20 @@ const runAction = (command: HoppAction) => {
   invokeAction(command)
   hideModal()
 }
+
+const shortcutsItems = computed(() =>
+  mappings.reduce(
+    (shortcuts, section) => [...shortcuts, ...section.shortcuts],
+    []
+  )
+)
+
+const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
+  useArrowKeysNavigation(shortcutsItems, {
+    onEnter: runAction,
+  })
+
+onMounted(bindArrowKeysListerners)
+
+onUnmounted(unbindArrowKeysListerners)
 </script>

@@ -288,9 +288,10 @@ import { Email, EmailCodec } from "../../helpers/backend/types/Email"
 import { TeamMemberRole } from "../../helpers/backend/graphql"
 import {
   createTeamInvitation,
+  CreateTeamInvitationErrors,
   revokeTeamInvitation,
 } from "../../helpers/backend/mutations/TeamInvitation"
-import { useGQLQuery } from "~/helpers/backend/GQLClient"
+import { GQLError, useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   GetPendingInvitesDocument,
   GetPendingInvitesQuery,
@@ -374,11 +375,17 @@ const removeNewInvitee = (id: number) => {
   newInvites.value.splice(id, 1)
 }
 
+type SendInvitesErrorType = {
+  email: Email
+  status: "error"
+  error: GQLError<CreateTeamInvitationErrors>
+} | {
+  email: Email
+  status: "success"
+}
+
 const sendInvitesResult = ref<
-  Array<{
-    email: Email
-    status: "error" | "success"
-  }>
+  Array<SendInvitesErrorType>
 >([])
 
 const sendingInvites = ref<boolean>(false)
@@ -418,9 +425,10 @@ const sendInvites = async () => {
           pipe(
             el,
             E.foldW(
-              () => ({
+              (err) => ({
                 status: "error" as const,
                 email: newInvites.value[i].key as Email,
+                error: err
               }),
               () => ({
                 status: "success" as const,

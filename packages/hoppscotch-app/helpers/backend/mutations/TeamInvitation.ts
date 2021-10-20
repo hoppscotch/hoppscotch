@@ -15,7 +15,7 @@ import {
 } from "../graphql"
 import { Email } from "../types/Email"
 
-type CreateTeamInvitationErrors =
+export type CreateTeamInvitationErrors =
   | "invalid/email"
   | "team/invalid_id"
   | "team/member_not_found"

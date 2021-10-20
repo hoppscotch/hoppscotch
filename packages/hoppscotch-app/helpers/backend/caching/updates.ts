@@ -68,5 +68,51 @@ export const updatesDef: GraphCacheUpdaters = {
 
       cache.link({ __typename: "Team", id: teamID }, "members", newMembers)
     },
+    createTeamInvitation: (result, _args, cache, _info) => {
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: result.createTeamInvitation.teamID!,
+        },
+        "teamInvitations"
+      )
+    },
+    acceptTeamInvitation: (_result, _args, cache, _info) => {
+      cache.invalidate({ __typename: "Query" }, "myTeams")
+    },
+    revokeTeamInvitation: (_result, args, cache, _info) => {
+      const targetTeamID = cache.resolve(
+        {
+          __typename: "TeamInvitation",
+          id: args.inviteID,
+        },
+        "teamID"
+      )
+
+      if (typeof targetTeamID === "string") {
+        const newInvites = (
+          cache.resolve(
+            {
+              __typename: "Team",
+              id: targetTeamID,
+            },
+            "teamInvitations"
+          ) as string[]
+        ).filter(
+          (inviteKey) =>
+            inviteKey !==
+            cache.keyOfEntity({
+              __typename: "TeamInvitation",
+              id: args.inviteID,
+            })
+        )
+
+        cache.link(
+          { __typename: "Team", id: targetTeamID },
+          "teamInvitations",
+          newInvites
+        )
+      }
+    },
   },
 }

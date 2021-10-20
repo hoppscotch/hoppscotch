@@ -10,5 +10,9 @@ export const resolversDef: GraphCacheResolvers = {
       __typename: "User",
       uid,
     }),
+    teamInvitation: (_parent, args, _cache, _info) => ({
+      __typename: "TeamInvitation",
+      id: args.inviteID,
+    }),
   },
 }

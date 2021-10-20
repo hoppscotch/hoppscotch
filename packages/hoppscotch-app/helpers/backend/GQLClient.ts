@@ -201,7 +201,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
                     (gqlErr) =>
                       <GQLError<DocErrorType>>{
                         type: "gql_error",
-                        error: gqlErr as DocErrorType,
+                        error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
                       },
                     // The right case (it was a GraphQL Error)
                     (networkErr) =>
@@ -243,6 +243,8 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   return response
 }
+
+const parseGQLErrorString = (s: string) => s.startsWith("[GraphQL] ") ? s.split("[GraphQL] ")[1] : s
 
 export const runMutation = <
   DocType,

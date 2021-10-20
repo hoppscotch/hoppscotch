@@ -35,6 +35,14 @@
         />
         <ButtonSecondary
           v-if="response.body"
+          ref="setExampleResponse"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('action.add_request_example_response')"
+          :svg="exampleIcon"
+          @click.native="setExampleResponse"
+        />
+        <ButtonSecondary
+          v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.copy')"
@@ -155,6 +163,7 @@ import {
   convertIndexToLineCh,
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
+import { addRESTReqExampleResponse } from "~/newstore/RESTSession"
 
 const props = defineProps<{
   response: HoppRESTResponse
@@ -181,6 +190,7 @@ const responseBodyText = computed(() => {
 })
 
 const downloadIcon = ref("download")
+const exampleIcon = ref("archive")
 const copyIcon = ref("copy")
 
 const jsonBodyText = computed(() => {
@@ -243,6 +253,13 @@ const downloadResponse = () => {
     URL.revokeObjectURL(url)
     downloadIcon.value = "download"
   }, 1000)
+}
+
+const setExampleResponse = () => {
+  addRESTReqExampleResponse(props.response)
+  $toast.success(`Example added to request`, {
+    icon: "downloading",
+  })
 }
 
 const outlinePath = computed(() => {

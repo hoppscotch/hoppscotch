@@ -1,5 +1,6 @@
 {
   "action": {
+    "add_request_example_response": "Agregar ejemplo",
     "cancel": "Cancelar",
     "choose_file": "Elegir un archivo",
     "clear": "Limpiar",

@@ -17,17 +17,11 @@
           justify-center
           items-center
           truncate
+          text-gray-500
         "
-        :class="getRequestLabelColor(request.method)"
         @click="!doc ? selectRequest() : {}"
       >
-        <SmartIcon
-          v-if="isSelected"
-          class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
-          name="check-circle"
-        />
-        <span v-else class="truncate">
+        <span class="truncate">
           {{ request.method }}
         </span>
       </span>
@@ -45,25 +39,8 @@
         @click="!doc ? selectRequest() : {}"
       >
         <span class="truncate"> {{ request.name }} </span>
-        <span
-          v-if="
-            active &&
-            active.originLocation === 'user-collection' &&
-            active.folderPath === folderPath &&
-            active.requestIndex === requestIndex
-          "
-          class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
-        ></span>
       </span>
       <div class="flex">
-        <ButtonSecondary
-          v-if="!saveRequest && !doc"
-          v-tippy="{ theme: 'tooltip' }"
-          svg="rotate-ccw"
-          :title="$t('action.restore')"
-          class="hidden group-hover:inline-flex"
-          @click.native="!doc ? selectRequest() : {}"
-        />
         <span>
           <tippy
             ref="options"
@@ -83,12 +60,13 @@
               svg="edit"
               :label="$t('action.edit')"
               @click.native="
-                $emit('edit-request', {
+                $emit('edit-example', {
                   collectionIndex,
                   folderIndex,
                   folderName,
                   request,
                   requestIndex,
+                  exampleIndex,
                   folderPath,
                 })
                 $refs.options.tippy().hide()
@@ -107,36 +85,6 @@
         </span>
       </div>
     </div>
-    <div
-      v-if="showChildren"
-      class="
-        border-l border-dividerLight
-        text-secondaryLight
-        p-4
-        items-center
-        justify-center
-      "
-    >
-      <CollectionsMyExample
-        v-for="(example, index) in request.exampleResponses"
-        :key="`example-${index}`"
-        class="border-l border-dividerLight"
-        :request="request"
-        :collection-index="collectionIndex"
-        :folder-index="folderIndex"
-        :folder-name="folderName"
-        :folder-path="folderPath"
-        :request-index="requestIndex"
-        :example-index="index"
-        :doc="doc"
-        :picked="picked"
-        :save-request="saveRequest"
-        :collections-type="collectionsType"
-      />
-      <!-- @edit-example="$emit('edit-example', $event)"
-        @select="$emit('select', $event)"
-        @remove-example="removeExample"-->
-    </div>
     <SmartConfirmModal
       :show="confirmRemove"
       :title="$t('confirm.remove_request')"
@@ -149,11 +97,14 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
+import { HoppSessionType } from "~/helpers/types/HoppSessionType"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
+  setRESTSessionType,
+  updateRESTResponse,
 } from "~/newstore/RESTSession"
 
 export default defineComponent({
@@ -164,6 +115,7 @@ export default defineComponent({
     folderName: { type: String, default: null },
     // eslint-disable-next-line vue/require-default-prop
     requestIndex: [Number, String],
+    exampleIndex: { type: Number, default: null },
     doc: Boolean,
     saveRequest: Boolean,
     collectionsType: { type: Object, default: () => {} },
@@ -179,14 +131,6 @@ export default defineComponent({
   data() {
     return {
       dragging: false,
-      showChildren: false,
-      requestMethodLabels: {
-        get: "text-green-500",
-        post: "text-yellow-500",
-        put: "text-blue-500",
-        delete: "text-red-500",
-        default: "text-gray-500",
-      },
       confirmRemove: false,
     }
   },
@@ -202,7 +146,6 @@ export default defineComponent({
   },
   methods: {
     selectRequest() {
-      this.showChildren = !this.showChildren
       if (
         this.active &&
         this.active.originLocation === "user-collection" &&
@@ -212,14 +155,19 @@ export default defineComponent({
         setRESTSaveContext(null)
         return
       }
+
+      setRESTSessionType(HoppSessionType.Example)
+
+      console.log("SAVED" + this.$props.saveRequest)
       if (this.$props.saveRequest)
         this.$emit("select", {
           picked: {
-            pickedType: "my-request",
+            pickedType: "my-example",
             collectionIndex: this.collectionIndex,
             folderPath: this.folderPath,
             folderName: this.folderName,
             requestIndex: this.requestIndex,
+            exampleIndex: this.exampleIndex,
           },
         })
       else {
@@ -228,6 +176,16 @@ export default defineComponent({
           folderPath: this.folderPath,
           requestIndex: this.requestIndex,
         })
+        if (
+          !this.exampleIndex ||
+          this.exampleIndex >= this.request.exampleResponses.length
+        ) {
+          return
+        }
+
+        const response = this.request.exampleResponses[this.exampleIndex]
+        console.log(response)
+        updateRESTResponse(response)
       }
     },
     dragStart({ dataTransfer }) {
@@ -236,11 +194,12 @@ export default defineComponent({
       dataTransfer.setData("requestIndex", this.requestIndex)
     },
     removeRequest() {
-      this.$emit("remove-request", {
+      this.$emit("remove-example", {
         collectionIndex: this.$props.collectionIndex,
         folderName: this.$props.folderName,
         folderPath: this.folderPath,
         requestIndex: this.$props.requestIndex,
+        exampleIndex: this.exampleIndex,
       })
     },
     getRequestLabelColor(method) {

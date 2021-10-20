@@ -334,10 +334,23 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  addRequestExampleResponse(
+    curr: RESTSession,
+    { example }: { example: HoppRESTResponse }
+  ) {
+    const examples = curr.request.exampleResponses
+    return {
+      request: {
+        ...curr.request,
+        exampleResponses: [example, ...examples],
+      },
+    }
+  },
   updateResponse(
     _curr: RESTSession,
     { updatedRes }: { updatedRes: HoppRESTResponse | null }
   ) {
+    // updatedRes?.req = undefined
     return {
       response: updatedRes,
     }
@@ -566,6 +579,15 @@ export function setRESTReqBody(newBody: HoppRESTReqBody | null) {
     dispatcher: "setRequestBody",
     payload: {
       newBody,
+    },
+  })
+}
+
+export function addRESTReqExampleResponse(example: HoppRESTResponse | null) {
+  restSessionStore.dispatch({
+    dispatcher: "addRequestExampleResponse",
+    payload: {
+      example,
     },
   })
 }

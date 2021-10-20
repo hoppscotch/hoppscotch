@@ -1,5 +1,6 @@
 {
   "action": {
+    "add_request_example_response": "Add example",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
     "clear": "Clear",

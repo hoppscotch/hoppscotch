@@ -9,4 +9,5 @@ export const optimisticDefs: GraphCacheOptimisticUpdaters = {
     name: newName,
   }),
   removeTeamMember: () => true,
+  revokeTeamInvitation: () => true,
 }

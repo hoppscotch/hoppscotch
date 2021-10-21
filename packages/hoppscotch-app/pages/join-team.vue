@@ -4,11 +4,11 @@
       v-if="invalidLink"
       class="flex flex-1 items-center justify-center flex-col"
     >
-      <i class="opacity-75 pb-2 material-icons">report</i>
+      <i class="opacity-75 pb-2 material-icons">error_outline</i>
       <h1 class="heading text-center">
         {{ $t("team.invalid_invite_link") }}
       </h1>
-      <p class="text-center">
+      <p class="text-center mt-2">
         {{ $t("team.invalid_invite_link_description") }}
       </p>
     </div>
@@ -36,8 +36,31 @@
           v-if="!inviteDetails.loading && E.isLeft(inviteDetails.data)"
           class="flex flex-col p-4 items-center"
         >
-          <i class="mb-4 material-icons">help_outline</i>
-          {{ $t("error.something_went_wrong") }}
+          <i class="mb-4 material-icons">error_outline</i>
+          <p>
+            {{ getErrorMessage(inviteDetails.data.left.error) }}
+          </p>
+          <p
+            class="
+              p-4
+              items-center
+              mt-8
+              rounded
+              flex-col
+              border border-dividerLight
+              flex
+            "
+          >
+            <span class="mb-4">
+              {{ $t("team.logout_and_try_again") }}
+            </span>
+            <span class="flex">
+              <FirebaseLogout
+                v-if="inviteDetails.data.left.type === 'gql_error'"
+                outline
+              />
+            </span>
+          </p>
         </div>
         <div
           v-if="!inviteDetails.loading && E.isRight(inviteDetails.data)"
@@ -91,7 +114,7 @@ import { defineComponent, useRoute } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { useGQLQuery } from "~/helpers/backend/GQLClient"
+import { GQLError, useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   GetInviteDetailsDocument,
   GetInviteDetailsQuery,
@@ -123,11 +146,7 @@ export default defineComponent({
     })
 
     onLoggedIn(() => {
-      console.log("loog aayi")
-
       if (typeof route.value.query.id === "string") {
-        console.log("query run aayi", route.value.query.id)
-
         inviteDetails.execute({
           inviteID: route.value.query.id,
         })
@@ -179,6 +198,28 @@ export default defineComponent({
           }
         )
       )()
+    },
+    getErrorMessage(error: GQLError<GetInviteDetailsError>) {
+      if (error.type === "network_error") {
+        return this.$t("error.network_error")
+      } else {
+        switch (error) {
+          case "team_invite/not_valid_viewer":
+            return this.$t("team.not_valid_viewer")
+          case "team_invite/not_found":
+            return this.$t("team.not_found")
+          case "team_invite/no_invite_found":
+            return this.$t("team.no_invite_found")
+          case "team_invite/not_invitee":
+            return this.$t("team.not_invitee")
+          case "team_invite/already_member":
+            return this.$t("team.already_member")
+          case "team_invite/email_do_not_match":
+            return this.$t("team.email_do_not_match")
+          default:
+            return this.$t("error.something_went_wrong")
+        }
+      }
     },
   },
 })

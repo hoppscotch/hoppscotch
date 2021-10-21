@@ -11,21 +11,39 @@
             {{ $t("team.we_sent_invite_link_description") }}
           </p>
         </div>
-        <div class="flex space-y-2 px-4 pt-8 flex-col">
+        <div
+          class="
+            flex
+            border border-dividerLight
+            mt-8
+            rounded
+            flex-col
+            space-y-6
+            p-4
+          "
+        >
           <div
             v-for="(invitee, index) in sendInvitesResult"
             :key="`invitee-${index}`"
-            class="flex items-center"
           >
-            <i
-              class="material-icons mr-4"
-              :class="
-                invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
-              "
-            >
-              {{ invitee.status === "error" ? "error" : "check_circle" }}
-            </i>
-            <span class="flex truncate">{{ invitee.email }}</span>
+            <p class="flex items-center">
+              <i
+                class="material-icons mr-4"
+                :class="
+                  invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
+                "
+              >
+                {{
+                  invitee.status === "error"
+                    ? "error_outline"
+                    : "mark_email_read"
+                }}
+              </i>
+              <span class="truncate">{{ invitee.email }}</span>
+            </p>
+            <p v-if="invitee.status === 'error'" class="ml-8 text-red-500 mt-2">
+              {{ getErrorMessage(invitee.error) }}
+            </p>
           </div>
         </div>
       </div>
@@ -375,18 +393,18 @@ const removeNewInvitee = (id: number) => {
   newInvites.value.splice(id, 1)
 }
 
-type SendInvitesErrorType = {
-  email: Email
-  status: "error"
-  error: GQLError<CreateTeamInvitationErrors>
-} | {
-  email: Email
-  status: "success"
-}
+type SendInvitesErrorType =
+  | {
+      email: Email
+      status: "error"
+      error: GQLError<CreateTeamInvitationErrors>
+    }
+  | {
+      email: Email
+      status: "success"
+    }
 
-const sendInvitesResult = ref<
-  Array<SendInvitesErrorType>
->([])
+const sendInvitesResult = ref<Array<SendInvitesErrorType>>([])
 
 const sendingInvites = ref<boolean>(false)
 
@@ -428,7 +446,7 @@ const sendInvites = async () => {
               (err) => ({
                 status: "error" as const,
                 email: newInvites.value[i].key as Email,
-                error: err
+                error: err,
               }),
               () => ({
                 status: "success" as const,
@@ -443,6 +461,23 @@ const sendInvites = async () => {
   )()
 
   sendingInvites.value = false
+}
+
+const getErrorMessage = (error: SendInvitesErrorType) => {
+  if (error.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (error.error) {
+      case "team/invalid_id":
+        return t("team.invalid_id")
+      case "team/member_not_found":
+        return t("team.member_not_found")
+      case "team_invite/already_member":
+        return t("team.already_member")
+      case "team_invite/member_has_invite":
+        return t("team.member_has_invite")
+    }
+  }
 }
 
 const hideModal = () => {

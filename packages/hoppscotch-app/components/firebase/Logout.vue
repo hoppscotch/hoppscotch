@@ -3,6 +3,7 @@
     <SmartItem
       svg="log-out"
       :label="`${$t('auth.logout')}`"
+      :outline="outline"
       @click.native="
         () => {
           $emit('confirm-logout')
@@ -24,6 +25,12 @@ import { defineComponent } from "@nuxtjs/composition-api"
 import { signOutUser } from "~/helpers/fb/auth"
 
 export default defineComponent({
+  props: {
+    outline: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data() {
     return {
       confirmLogout: false,

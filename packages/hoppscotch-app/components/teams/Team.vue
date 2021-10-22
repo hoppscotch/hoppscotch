@@ -17,7 +17,7 @@
         </label>
         <div class="flex -space-x-1 mt-2 overflow-hidden">
           <img
-            v-for="(member, index) in team.members"
+            v-for="(member, index) in team.teamMembers"
             :key="`member-${index}`"
             v-tippy="{ theme: 'tooltip' }"
             :title="member.user.displayName"
@@ -117,7 +117,7 @@ const props = defineProps<{
     name: string
     myRole: TeamMemberRole
     ownersCount: number
-    members: Array<{
+    teamMembers: Array<{
       user: {
         displayName: string
         photoURL: string | null

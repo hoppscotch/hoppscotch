@@ -2,7 +2,7 @@ query GetTeam($teamID: ID!) {
   team(teamID: $teamID) {
     id
     name
-    members {
+    teamMembers {
       membershipID
       user {
         uid

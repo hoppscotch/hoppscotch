@@ -2,7 +2,7 @@ mutation RenameTeam($newName: String!, $teamID: ID!) {
   renameTeam(newName: $newName, teamID: $teamID) {
     id
     name
-    members {
+    teamMembers {
       membershipID
       user {
         uid

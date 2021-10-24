@@ -108,7 +108,7 @@
       </div>
     </div>
     <div
-      v-if="showChildren"
+      v-if="showChildren && !isEmpty"
       class="
         border-l border-dividerLight
         text-secondaryLight
@@ -118,7 +118,7 @@
       "
     >
       <CollectionsMyExample
-        v-for="(example, index) in request.exampleResponses"
+        v-for="(example, index) in request.examples"
         :key="`example-${index}`"
         class="border-l border-dividerLight"
         :request="request"
@@ -149,10 +149,12 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
+import { HoppSessionType } from "~/helpers/types/HoppSessionType"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restSaveContext$,
   setRESTRequest,
+  setRESTSessionType,
   setRESTSaveContext,
 } from "~/newstore/RESTSession"
 
@@ -191,6 +193,9 @@ export default defineComponent({
     }
   },
   computed: {
+    isEmpty() {
+      return !this.request.examples || this.request.examples.length === 0
+    },
     isSelected() {
       return (
         this.picked &&
@@ -202,6 +207,7 @@ export default defineComponent({
   },
   methods: {
     selectRequest() {
+      setRESTSessionType(HoppSessionType.Standard)
       this.showChildren = !this.showChildren
       if (
         this.active &&

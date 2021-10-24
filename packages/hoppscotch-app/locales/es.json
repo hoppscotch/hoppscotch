@@ -422,6 +422,7 @@
     "docs_generated": "Documentación generada",
     "download_started": "Descarga iniciada",
     "enabled": "Activado",
+    "example_added": "Ejemplo agregado a la petición",
     "file_imported": "Archivo importado",
     "finished_in": "Terminado en {duración} ms",
     "history_deleted": "Historial eliminado",

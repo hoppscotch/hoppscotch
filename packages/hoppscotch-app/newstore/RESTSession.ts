@@ -16,6 +16,7 @@ import { HoppRESTAuth } from "~/helpers/types/HoppRESTAuth"
 import { ValidContentTypes } from "~/helpers/utils/contenttypes"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import { HoppSessionType } from "~/helpers/types/HoppSessionType"
+import { fromRequestAndResponse } from "~/helpers/types/HoppRESTExample"
 
 type RESTSession = {
   sessionType: HoppSessionType
@@ -42,7 +43,7 @@ export const defaultRESTRequest: HoppRESTRequest = {
     contentType: null,
     body: null,
   },
-  exampleResponses: [],
+  examples: [],
 }
 
 const defaultRESTSession: RESTSession = {
@@ -336,13 +337,20 @@ const dispatchers = defineDispatchers({
   },
   addRequestExampleResponse(
     curr: RESTSession,
-    { example }: { example: HoppRESTResponse }
+    { response }: { response: HoppRESTResponse }
   ) {
-    const examples = curr.request.exampleResponses
+    const examples = curr.request.examples
+    const request = curr.request
+    const example = fromRequestAndResponse(
+      request,
+      response,
+      examples.length + 1
+    )
+
     return {
       request: {
-        ...curr.request,
-        exampleResponses: [example, ...examples],
+        ...request,
+        examples: [example, ...examples],
       },
     }
   },
@@ -380,8 +388,8 @@ const dispatchers = defineDispatchers({
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
 
-export function isRESTSessionType(sessionType: HoppSessionType) {
-  return sessionType === restSessionStore.subject$.value.sessionType
+export function getRESTSessionType() {
+  return restSessionStore.subject$.value.sessionType
 }
 
 export function setRESTSessionType(
@@ -583,11 +591,11 @@ export function setRESTReqBody(newBody: HoppRESTReqBody | null) {
   })
 }
 
-export function addRESTReqExampleResponse(example: HoppRESTResponse | null) {
+export function addRESTReqExampleResponse(response: HoppRESTResponse | null) {
   restSessionStore.dispatch({
     dispatcher: "addRequestExampleResponse",
     payload: {
-      example,
+      response,
     },
   })
 }
@@ -663,6 +671,11 @@ export function deleteAllFormDataEntries() {
 
 export const restSaveContext$ = restSessionStore.subject$.pipe(
   pluck("saveContext"),
+  distinctUntilChanged()
+)
+
+export const restSessionType$ = restSessionStore.subject$.pipe(
+  pluck("sessionType"),
   distinctUntilChanged()
 )
 

@@ -1,7 +1,7 @@
 import { HoppRESTRequest } from "./HoppRESTRequest"
 
 export type HoppRESTResponse =
-  | { type: "loading"; req: HoppRESTRequest }
+  | { type: "loading"; req: HoppRESTRequest | undefined }
   | {
       type: "fail"
       headers: { key: string; value: string }[]
@@ -13,13 +13,13 @@ export type HoppRESTResponse =
         responseDuration: number // in millis
       }
 
-      req: HoppRESTRequest
+      req: HoppRESTRequest | undefined
     }
   | {
       type: "network_fail"
       error: Error
 
-      req: HoppRESTRequest
+      req: HoppRESTRequest | undefined
     }
   | {
       type: "success"
@@ -31,5 +31,5 @@ export type HoppRESTResponse =
         responseDuration: number // in millis
       }
 
-      req: HoppRESTRequest
+      req: HoppRESTRequest | undefined
     }

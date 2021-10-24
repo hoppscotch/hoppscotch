@@ -118,9 +118,14 @@ export default defineComponent({
 
       return filteringHistory.filter(
         (entry: RESTHistoryEntry | GQLHistoryEntry) => {
+          if (!entry.request) {
+            return false
+          }
+
           const filterText = this.filterText.toLowerCase()
           return Object.keys(entry).some((key) => {
             let value = entry[key as keyof typeof entry]
+
             if (value) {
               value = `${value}`
               return value.toLowerCase().includes(filterText)

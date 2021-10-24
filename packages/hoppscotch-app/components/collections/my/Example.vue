@@ -38,7 +38,9 @@
         "
         @click="!doc ? selectRequest() : {}"
       >
-        <span class="truncate"> {{ request.name }} </span>
+        <span class="truncate">
+          {{ request.examples[exampleIndex].name }}
+        </span>
       </span>
       <div class="flex">
         <span>
@@ -98,11 +100,12 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 import { HoppSessionType } from "~/helpers/types/HoppSessionType"
+import { toRequest } from "~/helpers/types/HoppRESTExample"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restSaveContext$,
   setRESTRequest,
-  setRESTSaveContext,
+  // setRESTSaveContext,
   setRESTSessionType,
   updateRESTResponse,
 } from "~/newstore/RESTSession"
@@ -146,19 +149,7 @@ export default defineComponent({
   },
   methods: {
     selectRequest() {
-      if (
-        this.active &&
-        this.active.originLocation === "user-collection" &&
-        this.active.folderPath === this.folderPath &&
-        this.active.requestIndex === this.requestIndex
-      ) {
-        setRESTSaveContext(null)
-        return
-      }
-
       setRESTSessionType(HoppSessionType.Example)
-
-      console.log("SAVED" + this.$props.saveRequest)
       if (this.$props.saveRequest)
         this.$emit("select", {
           picked: {
@@ -176,16 +167,13 @@ export default defineComponent({
           folderPath: this.folderPath,
           requestIndex: this.requestIndex,
         })
-        if (
-          !this.exampleIndex ||
-          this.exampleIndex >= this.request.exampleResponses.length
-        ) {
+        if (this.exampleIndex >= this.request.examples.length) {
           return
         }
+        const example = this.request.examples[this.exampleIndex]
 
-        const response = this.request.exampleResponses[this.exampleIndex]
-        console.log(response)
-        updateRESTResponse(response)
+        updateRESTResponse(example.response)
+        setRESTRequest(toRequest(example))
       }
     },
     dragStart({ dataTransfer }) {
@@ -201,12 +189,6 @@ export default defineComponent({
         requestIndex: this.$props.requestIndex,
         exampleIndex: this.exampleIndex,
       })
-    },
-    getRequestLabelColor(method) {
-      return (
-        this.requestMethodLabels[method.toLowerCase()] ||
-        this.requestMethodLabels.default
-      )
     },
   },
 })

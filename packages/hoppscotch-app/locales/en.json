@@ -423,6 +423,7 @@
     "docs_generated": "Documentation generated",
     "download_started": "Download started",
     "enabled": "Enabled",
+    "example_added": "Example added to request",
     "file_imported": "File imported",
     "finished_in": "Finished in {duration}ms",
     "history_deleted": "History deleted",

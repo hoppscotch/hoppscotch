@@ -1,6 +1,6 @@
 import { ValidContentTypes } from "../utils/contenttypes"
 import { HoppRESTAuth } from "./HoppRESTAuth"
-import { HoppRESTResponse } from "./HoppRESTResponse"
+import { HoppRESTExample } from "./HoppRESTExample"
 
 export const RESTReqSchemaVersion = "1"
 
@@ -36,7 +36,6 @@ export type HoppRESTReqBody =
       contentType: null
       body: null
     }
-
 export interface HoppRESTRequest {
   v: string
   id?: string // Firebase Firestore ID
@@ -52,7 +51,7 @@ export interface HoppRESTRequest {
   auth: HoppRESTAuth
 
   body: HoppRESTReqBody
-  exampleResponses: HoppRESTResponse[]
+  examples: HoppRESTExample[]
 }
 
 export function makeRESTRequest(
@@ -117,6 +116,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
     const body = parseRequestBody(x)
 
     const auth = parseOldAuth(x)
+    const examples = x.examples
 
     const result: HoppRESTRequest = {
       name,
@@ -129,7 +129,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       body,
       auth,
       v: RESTReqSchemaVersion,
-      exampleResponses: [],
+      examples,
     }
 
     if (x.id) result.id = x.id

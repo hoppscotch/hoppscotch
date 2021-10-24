@@ -48,7 +48,7 @@
                 />
               </span>
             </template>
-            <div v-if="!isExampleSession">
+            <div v-if="sessionType !== 'example'">
               <SmartItem
                 v-for="(method, index) in methods"
                 :key="`method-${index}`"
@@ -63,7 +63,7 @@
         <SmartEnvInput
           v-model="newEndpoint"
           :placeholder="`${$t('request.url')}`"
-          :contenteditable="!isExampleSession"
+          :contenteditable="sessionType !== 'example'"
           styles="
             bg-primaryLight
             border border-divider
@@ -82,7 +82,7 @@
         />
       </div>
     </div>
-    <div v-if="!isExampleSession" class="flex">
+    <div v-if="sessionType !== 'example'" class="flex">
       <ButtonPrimary
         id="send"
         class="rounded-r-none flex-1 min-w-20"
@@ -209,6 +209,7 @@
 <script setup lang="ts">
 import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
 import { isRight } from "fp-ts/lib/Either"
+import { useReadonlyStream } from "../../helpers/utils/composables"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -219,7 +220,8 @@ import {
   useRESTRequestName,
   getRESTSaveContext,
   getRESTRequest,
-  isRESTSessionType,
+  getRESTSessionType,
+  restSessionType$,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -234,7 +236,6 @@ import { useSetting } from "~/newstore/settings"
 import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import useWindowSize from "~/helpers/utils/useWindowSize"
-import { HoppSessionType } from "~/helpers/types/HoppSessionType"
 
 const methods = [
   "GET",
@@ -257,8 +258,7 @@ const nuxt = useNuxt()
 const t = i18n.t.bind(i18n)
 const { subscribeToStream } = useStreamSubscriber()
 
-const isExampleSession = isRESTSessionType(HoppSessionType.Example)
-
+const sessionType = useReadonlyStream(restSessionType$, getRESTSessionType())
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
 const newMethod = useStream(restMethod$, "", updateRESTMethod)
 

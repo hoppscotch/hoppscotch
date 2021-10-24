@@ -197,6 +197,7 @@ const jsonBodyText = computed(() => {
   try {
     return JSON.stringify(JSON.parse(responseBodyText.value), null, 2)
   } catch (e) {
+    console.error(e)
     // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
     return responseBodyText.value
   }
@@ -257,7 +258,7 @@ const downloadResponse = () => {
 
 const setExampleResponse = () => {
   addRESTReqExampleResponse(props.response)
-  $toast.success(`Example added to request`, {
+  $toast.success(`${t("state.example_added")}`, {
     icon: "downloading",
   })
 }

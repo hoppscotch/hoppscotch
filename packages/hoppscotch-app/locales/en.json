@@ -492,6 +492,8 @@
     "join": "Invitation accepted",
     "join_beta": "Join the beta program to access teams.",
     "join_team": "Join {team}",
+    "joined_team": "You have joined {team}",
+    "joined_team_description": "You are now a member of this team",
     "left": "You left the team",
     "login_to_continue": "Login to continue",
     "login_to_continue_description": "You need to be logged in to join a team.",

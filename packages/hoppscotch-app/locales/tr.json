@@ -4,33 +4,33 @@
     "choose_file": "Bir dosya seçin",
     "clear": "Açık",
     "clear_all": "Hepsini temizle",
-    "connect": "Bağlamak",
+    "connect": "Bağlan",
     "copy": "kopyala",
-    "delete": "Silmek",
+    "delete": "Sil",
     "disconnect": "bağlantıyı kes",
-    "dismiss": "Azletmek",
+    "dismiss": "Azlalt",
     "download_file": "Dosyayı indir",
-    "edit": "Düzenlemek",
-    "go_back": "Geri gitmek",
+    "edit": "Düzenle",
+    "go_back": "Geri git",
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
     "more": "Daha",
     "new": "Yeni",
     "no": "Numara",
-    "preserve_current": "Akımı koru",
-    "prettify": "Güzelleştirmek",
-    "remove": "Kaldırmak",
-    "replace_current": "Akımı değiştir",
+    "preserve_current": "Şimdikini koru",
+    "prettify": "Güzelleştir",
+    "remove": "Kaldır",
+    "replace_current": "Şimdikini değiştir",
     "replace_json": "JSON ile değiştir",
-    "restore": "Onarmak",
-    "save": "Kaydetmek",
+    "restore": "Onar",
+    "save": "Kaydet",
     "search": "Arama",
-    "send": "Göndermek",
-    "start": "Başlangıç",
-    "stop": "Durmak",
+    "send": "Gönder",
+    "start": "Başla",
+    "stop": "Dur",
     "turn_off": "Kapat",
     "turn_on": "Aç",
-    "undo": "Geri alma",
+    "undo": "Geri al",
     "yes": "Evet"
   },
   "add": {
@@ -38,13 +38,13 @@
     "star": "Yıldız ekle"
   },
   "app": {
-    "chat_with_us": "bizle sohbet et",
+    "chat_with_us": "bizimle sohbet et",
     "contact_us": "Bize Ulaşın",
     "copy": "kopyala",
     "documentation": "belgeler",
     "github": "GitHub",
     "help": "Yardım, geri bildirim ve belgeler",
-    "home": "Ev",
+    "home": "Ana sayfa",
     "invite": "Davet etmek",
     "invite_description": "Hoppscotch'ta API'lerinizi oluşturmak ve yönetmek için basit ve sezgisel bir arayüz tasarladık. Hoppscotch, API'lerinizi oluşturmanıza, test etmenize, belgelemenize ve paylaşmanıza yardımcı olan bir araçtır.",
     "invite_your_friends": "Arkadaşlarını davet et",
@@ -71,7 +71,7 @@
     "account_exists": "Farklı kimlik bilgilerine sahip hesap var - Her iki hesabı birbirine bağlamak için giriş yapın",
     "all_sign_in_options": "Tüm oturum açma seçenekleri",
     "continue_with_email": "E-posta ile devam et",
-    "continue_with_github": "GitHub'a devam et",
+    "continue_with_github": "GitHub ile devam et",
     "continue_with_google": "Google ile devam",
     "email": "E-posta",
     "logged_out": "Çıkış yapıldı",
@@ -129,7 +129,7 @@
   },
   "documentation": {
     "generate": "Belge oluştur",
-    "generate_message": "Hareket halindeyken API belgeleri oluşturmak için herhangi bir Hoppscotch koleksiyonunu içe aktarın."
+    "generate_message": "Güncel API belgelerini oluşturmak için herhangi bir Hoppscotch koleksiyonunu içe aktarın."
   },
   "empty": {
     "authorization": "Bu istek herhangi bir yetkilendirme kullanmıyor",
@@ -152,10 +152,10 @@
     "create_new": "Yeni ortam oluştur",
     "edit": "Ortamı Düzenle",
     "invalid_name": "Lütfen ortam için geçerli bir ad girin",
-    "new": "Yeni çevre",
-    "no_environment": "Çevre yok",
+    "new": "Yeni ortam",
+    "no_environment": "Ortam yok",
     "select": "Ortam seçin",
-    "title": "ortamlar",
+    "title": "Ortamlar",
     "variable_list": "Değişken Listesi"
   },
   "error": {
@@ -173,8 +173,8 @@
   "export": {
     "as_json": "JSON olarak dışa aktar",
     "create_secret_gist": "Gizli Gist oluştur",
-    "gist_created": "Öz oluşturuldu",
-    "require_github": "Gizli öz oluşturmak için GitHub ile giriş yapın"
+    "gist_created": "Gist oluşturuldu",
+    "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın"
   },
   "folder": {
     "created": "Klasör oluşturuldu",
@@ -191,7 +191,7 @@
   "header": {
     "account": "Hesap",
     "install_pwa": "Uygulamayı yükle",
-    "login": "Giriş yapmak",
+    "login": "Giriş yap",
     "save_workspace": "Çalışma Alanımı Kaydet"
   },
   "helpers": {
@@ -217,18 +217,18 @@
     "from_my_collections": "Koleksiyonlarımdan İçe Aktar",
     "gist_url": "Gist URL'sini girin",
     "json": "JSON'dan içe aktar",
-    "title": "İçe aktarmak"
+    "title": "İçe aktar"
   },
   "layout": {
-    "column": "Vertical layout",
-    "row": "Horizontal layout",
+    "column": "Dikey görünüm",
+    "row": "Yatay görünüm",
     "zen_mode": "Zen modu"
   },
   "modal": {
     "collections": "Koleksiyonlar",
     "confirm": "Onaylamak",
     "edit_request": "İsteği Düzenle",
-    "import_export": "İthalat ihracat"
+    "import_export": "Yükleme/Dışa aktarma"
   },
   "mqtt": {
     "communication": "İletişim",
@@ -284,7 +284,7 @@
     "save_as": "Farklı kaydet",
     "saved": "İstek kaydedildi",
     "share": "Paylaşmak",
-    "title": "Rica etmek",
+    "title": "İstek",
     "type": "İstek Türü",
     "url": "URL",
     "variables": "Değişkenler"
@@ -327,14 +327,14 @@
     "font_size_small": "Küçük",
     "interceptor": "önleyici",
     "interceptor_description": "Uygulama ve API'ler arasındaki ara katman yazılımı.",
-    "language": "Dilim",
+    "language": "Dil",
     "light_mode": "Işık",
     "navigation_sidebar": "Gezinme kenar çubuğu",
     "official_proxy_hosting": "Resmi Proxy, Hoppscotch tarafından barındırılmaktadır.",
     "proxy": "vekil",
     "proxy_url": "Proxy URL'si",
     "proxy_use_toggle": "İstek göndermek için proxy ara yazılımını kullanın",
-    "read_the": "Okumak",
+    "read_the": "Oku",
     "reset_default": "Varsayılana sıfırla",
     "sync": "senkronize et",
     "sync_collections": "Koleksiyonlar",
@@ -351,14 +351,14 @@
   },
   "shortcut": {
     "general": {
-      "close_current_menu": "Geçerli menüyü kapat",
+      "close_current_menu": "Güncel menüyü kapat",
       "command_menu": "Arama ve komut menüsü",
       "help_menu": "Yardım menüsü",
       "show_all": "Klavye kısayolları",
       "title": "Genel"
     },
     "miscellaneous": {
-      "invite": "İnsanları Seksek'e davet edin",
+      "invite": "İnsanları Hoppscotch'a davet edin",
       "title": "Çeşitli"
     },
     "navigation": {
@@ -385,7 +385,7 @@
       "reset_request": "İsteği Sıfırla",
       "save_to_collections": "Koleksiyonlara Kaydet",
       "send_request": "İstek gönder",
-      "title": "Rica etmek"
+      "title": "İstek"
     }
   },
   "show": {
@@ -431,13 +431,13 @@
     "waiting_send_request": "istek göndermek için bekliyorum"
   },
   "support": {
-    "changelog": "En son sürümler hakkında daha fazla bilgi edinin",
-    "chat": "sorular? Bizle sohbet et!",
+    "changelog": "En son sürümler hakkında daha fazla bilgi edin",
+    "chat": "Sorun mu var? Bizle sohbet et!",
     "community": "Sorular sorun ve başkalarına yardım edin",
-    "documentation": "Hoppscotch hakkında daha fazla bilgi edinin",
+    "documentation": "Hoppscotch hakkında daha fazla bilgi edin",
     "forum": "Sorular sorun ve cevaplar alın",
     "shortcuts": "Uygulamaya daha hızlı göz atın",
-    "team": "Ekiple iletişim kurun",
+    "team": "Takımla iletişim kurun",
     "title": "Destek",
     "twitter": "Bizi Twitter'da takip edin"
   },
@@ -447,11 +447,11 @@
     "collections": "Koleksiyonlar",
     "documentation": "belgeler",
     "headers": "Başlıklar",
-    "history": "Tarih",
+    "history": "Geçmiş",
     "mqtt": "MQTT",
     "parameters": "parametreler",
     "pre_request_script": "Ön İstek Komut Dosyası",
-    "queries": "Sorguları",
+    "queries": "Sorgular",
     "query": "Sorgu",
     "socketio": "Soket.IO",
     "sse": "SSE",
@@ -461,40 +461,40 @@
     "websocket": "WebSocket"
   },
   "team": {
-    "create_new": "Yeni ekip oluştur",
+    "create_new": "Yeni takım oluştur",
     "deleted": "Takım silindi",
     "edit": "Takımı Düzenle",
     "email": "e-posta",
     "exit": "Takımdan Çık",
-    "exit_disabled": "Yalnızca sahip ekipten çıkamaz",
+    "exit_disabled": "Takımın kurucusu çıkamaz.",
     "invalid_email_format": "E-posta biçimi geçersiz",
-    "invalid_member_permission": "Lütfen ekip üyesine geçerli bir izin verin",
-    "join_beta": "Ekiplere erişmek için beta programına katılın.",
+    "invalid_member_permission": "Lütfen takım üyesine geçerli bir izin verin",
+    "join_beta": "Takımlara erişmek için beta programına katılın.",
     "left": "takımdan ayrıldın",
     "member_removed": "Kullanıcı kaldırıldı",
     "member_role_updated": "Kullanıcı rolleri güncellendi",
     "members": "Üyeler",
     "name_length_insufficient": "Takım adı en az 6 karakter uzunluğunda olmalıdır",
     "new": "Yeni takım",
-    "new_created": "Yeni ekip oluşturuldu",
+    "new_created": "Yeni takım oluşturuldu",
     "new_name": "Yeni Takımım",
     "no_access": "Bu koleksiyonlar için düzenleme erişiminiz yok",
     "permissions": "izinler",
-    "saved": "Ekip kaydedildi",
-    "title": "Takımlar"
+    "saved": "Takım kaydedildi",
+    "title": "Başlık"
   },
   "test": {
     "javascript_code": "JavaScript Kodu",
     "learn": "Belgeleri okuyun",
     "report": "Test raporu",
     "results": "Test sonuçları",
-    "script": "Senaryo",
+    "script": "Komut dosyası",
     "snippets": "snippet'ler"
   },
   "websocket": {
     "communication": "İletişim",
     "log": "Kayıt",
-    "message": "İleti",
+    "message": "Mesaj",
     "protocols": "protokoller",
     "url": "URL"
   }

@@ -63,7 +63,11 @@
           </p>
         </div>
         <div
-          v-if="!inviteDetails.loading && E.isRight(inviteDetails.data)"
+          v-if="
+            !inviteDetails.loading &&
+            E.isRight(inviteDetails.data) &&
+            !joinTeamSuccess
+          "
           class="flex-col flex-1 p-4 flex items-center justify-center"
         >
           <h1 class="heading">
@@ -94,7 +98,32 @@
               @click.native="joinTeam"
             />
           </div>
-          <pre v-if="error" class="p-4 text-red-500">{{ error }}</pre>
+        </div>
+        <div
+          v-if="
+            !inviteDetails.loading &&
+            E.isRight(inviteDetails.data) &&
+            joinTeamSuccess
+          "
+          class="flex-col flex-1 p-4 flex items-center justify-center"
+        >
+          <h1 class="heading">
+            {{
+              $t("team.joined_team", {
+                team: inviteDetails.data.right.teamInvitation.team.name,
+              })
+            }}
+          </h1>
+          <p class="text-secondaryLight mt-2">
+            {{
+              $t("team.joined_team_description", {
+                team: inviteDetails.data.right.teamInvitation.team.name,
+              })
+            }}
+          </p>
+          <div class="mt-8">
+            <ButtonSecondary to="/" svg="home" filled :label="$t('app.home')" />
+          </div>
         </div>
       </div>
     </div>
@@ -165,8 +194,8 @@ export default defineComponent({
       showLogin: false,
       loading: false,
       revokedLink: false,
-      error: null,
       inviteID: "",
+      joinTeamSuccess: false,
     }
   },
   beforeMount() {
@@ -193,8 +222,8 @@ export default defineComponent({
             })
           },
           () => {
+            this.joinTeamSuccess = true
             this.loading = false
-            this.$router.push("/")
           }
         )
       )()

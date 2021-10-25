@@ -111,7 +111,7 @@
     "raw-loader": "^4.0.2",
     "sass": "^1.43.3",
     "sass-loader": "^10.2.0",
-    "stylelint": "^13.13.1",
+    "stylelint": "^14.0.0",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-standard": "^22.0.0",
     "ts-jest": "^27.0.7",

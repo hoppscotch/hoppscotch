@@ -39,7 +39,7 @@
     "@relmify/jest-fp-ts": "^1.1.1",
     "@types/jest": "^27.0.2",
     "@types/lodash": "^4.14.176",
-    "@types/node": "^16.11.4",
+    "@types/node": "^16.11.5",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "eslint": "^7.32.0",

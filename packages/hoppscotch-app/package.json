@@ -113,7 +113,7 @@
     "sass-loader": "^10.2.0",
     "stylelint": "^13.13.1",
     "stylelint-config-prettier": "^9.0.3",
-    "stylelint-config-standard": "^22.0.0",
+    "stylelint-config-standard": "^23.0.0",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4",
     "unplugin-vue2-script-setup": "^0.6.12",

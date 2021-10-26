@@ -63,7 +63,7 @@
             </span>
             <span class="text-secondaryLight">
               {{
-                ` \xA0 — \xA0test ${
+                ` \xA0 — \xA0 ${
                   result.status === "pass"
                     ? $t("test.passed")
                     : $t("test.failed")

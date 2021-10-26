@@ -93,61 +93,72 @@
         </span>
       </div>
     </div>
-    <div v-if="showChildren || isFiltered">
-      <CollectionsGraphqlFolder
-        v-for="(subFolder, subFolderIndex) in folder.folders"
-        :key="`subFolder-${String(subFolderIndex)}`"
-        class="border-l border-dividerLight ml-6"
-        :picked="picked"
-        :saving-mode="savingMode"
-        :folder="subFolder"
-        :folder-index="subFolderIndex"
-        :folder-path="`${folderPath}/${String(subFolderIndex)}`"
-        :collection-index="collectionIndex"
-        :doc="doc"
-        :is-filtered="isFiltered"
-        @add-folder="$emit('add-folder', $event)"
-        @edit-folder="$emit('edit-folder', $event)"
-        @edit-request="$emit('edit-request', $event)"
-        @select="$emit('select', $event)"
-      />
-      <CollectionsGraphqlRequest
-        v-for="(request, index) in folder.requests"
-        :key="`request-${String(index)}`"
-        class="border-l border-dividerLight ml-6"
-        :picked="picked"
-        :saving-mode="savingMode"
-        :request="request"
-        :collection-index="collectionIndex"
-        :folder-index="folderIndex"
-        :folder-path="folderPath"
-        :folder-name="folder.name"
-        :request-index="index"
-        :doc="doc"
-        @edit-request="$emit('edit-request', $event)"
-        @select="$emit('select', $event)"
-      />
+    <div v-if="showChildren || isFiltered" class="flex">
       <div
-        v-if="
-          folder.folders &&
-          folder.folders.length === 0 &&
-          folder.requests &&
-          folder.requests.length === 0
-        "
         class="
-          border-l border-dividerLight
-          flex flex-col
-          text-secondaryLight
-          ml-6
-          p-4
-          items-center
-          justify-center
+          flex
+          w-1
+          transform
+          transition
+          cursor-nsResize
+          ml-5.5
+          bg-dividerLight
+          hover:scale-x-125 hover:bg-dividerDark
         "
-      >
-        <i class="opacity-75 pb-2 material-icons">folder_open</i>
-        <span class="text-center">
-          {{ $t("empty.folder") }}
-        </span>
+        @click="toggleShowChildren()"
+      ></div>
+      <div class="flex flex-col flex-1 truncate">
+        <CollectionsGraphqlFolder
+          v-for="(subFolder, subFolderIndex) in folder.folders"
+          :key="`subFolder-${String(subFolderIndex)}`"
+          :picked="picked"
+          :saving-mode="savingMode"
+          :folder="subFolder"
+          :folder-index="subFolderIndex"
+          :folder-path="`${folderPath}/${String(subFolderIndex)}`"
+          :collection-index="collectionIndex"
+          :doc="doc"
+          :is-filtered="isFiltered"
+          @add-folder="$emit('add-folder', $event)"
+          @edit-folder="$emit('edit-folder', $event)"
+          @edit-request="$emit('edit-request', $event)"
+          @select="$emit('select', $event)"
+        />
+        <CollectionsGraphqlRequest
+          v-for="(request, index) in folder.requests"
+          :key="`request-${String(index)}`"
+          :picked="picked"
+          :saving-mode="savingMode"
+          :request="request"
+          :collection-index="collectionIndex"
+          :folder-index="folderIndex"
+          :folder-path="folderPath"
+          :folder-name="folder.name"
+          :request-index="index"
+          :doc="doc"
+          @edit-request="$emit('edit-request', $event)"
+          @select="$emit('select', $event)"
+        />
+        <div
+          v-if="
+            folder.folders &&
+            folder.folders.length === 0 &&
+            folder.requests &&
+            folder.requests.length === 0
+          "
+          class="
+            flex flex-col
+            text-secondaryLight
+            p-4
+            items-center
+            justify-center
+          "
+        >
+          <i class="opacity-75 pb-2 material-icons">folder_open</i>
+          <span class="text-center">
+            {{ $t("empty.folder") }}
+          </span>
+        </div>
       </div>
     </div>
     <SmartConfirmModal

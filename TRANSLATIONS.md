@@ -10,10 +10,10 @@ if there is no existing translation, you can create a new one by following these
 
 1. **[Fork the repository](https://github.com/hoppscotch/hoppscotch/fork).**
 2. **Create a new branch for your translation.**
-3. **Create target language file in the [`locales`](https://github.com/hoppscotch/hoppscotch/tree/main/locales) directory.**
-4. **Copy the contents of the source file [`locales/en.json`](https://github.com/hoppscotch/hoppscotch/blob/main/locales/en.json) to the target language file.**
+3. **Create target language file in the [`locales`](https://github.com/hoppscotch/hoppscotch/tree/main/packages/hoppscotch-app/locales) directory.**
+4. **Copy the contents of the source file [`locales/en.json`](https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-app/locales/en.json) to the target language file.**
 5. **Translate the strings in the target language file.**
-6. **Add your language entry to [`languages.json`](https://github.com/hoppscotch/hoppscotch/blob/main/languages.json).**
+6. **Add your language entry to [`languages.json`](https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-app/languages.json).**
 7. **Save & commit changes.**
 8. **Send a pull request.**
 

@@ -17,7 +17,16 @@
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>
-    <SmartTab id="results" :label="$t('test.results')">
+    <SmartTab
+      id="results"
+      :label="$t('test.results')"
+      :indicator="
+        testResults &&
+        (testResults.expectResults.length || testResults.tests.length)
+          ? true
+          : false
+      "
+    >
       <HttpTestResult />
     </SmartTab>
   </SmartTabs>
@@ -26,6 +35,8 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { getSuitableLenses, getLensRenderers } from "~/helpers/lenses/lenses"
+import { useReadonlyStream } from "~/helpers/utils/composables"
+import { restTestResults$ } from "~/newstore/RESTSession"
 
 export default defineComponent({
   components: {
@@ -34,6 +45,12 @@ export default defineComponent({
   },
   props: {
     response: { type: Object, default: () => {} },
+  },
+  setup() {
+    const testResults = useReadonlyStream(restTestResults$, null)
+    return {
+      testResults,
+    }
   },
   computed: {
     headerLength() {

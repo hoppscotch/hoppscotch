@@ -41,6 +41,9 @@ export default defineConfig({
         mono: "var(--font-mono)",
         icon: "var(--font-icon)",
       },
+      cursor: {
+        nsResize: "ns-resize",
+      },
     },
   },
 })

@@ -34,6 +34,10 @@
               <span v-if="tab.info && tab.info !== 'null'" class="tab-info">
                 {{ tab.info }}
               </span>
+              <span
+                v-if="tab.indicator"
+                class="bg-accentLight h-1 w-1 ml-2 rounded-full"
+              ></span>
             </button>
           </div>
           <div class="flex justify-center items-center">

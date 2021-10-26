@@ -26,6 +26,7 @@
   0% {
     @apply opacity-0;
   }
+
   100% {
     @apply opacity-100;
   }

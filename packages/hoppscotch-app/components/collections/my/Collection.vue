@@ -116,64 +116,76 @@
         </span>
       </div>
     </div>
-    <div v-if="showChildren || isFiltered">
-      <CollectionsMyFolder
-        v-for="(folder, index) in collection.folders"
-        :key="`folder-${index}`"
-        class="border-l border-dividerLight ml-6"
-        :folder="folder"
-        :folder-index="index"
-        :folder-path="`${collectionIndex}/${index}`"
-        :collection-index="collectionIndex"
-        :doc="doc"
-        :save-request="saveRequest"
-        :collections-type="collectionsType"
-        :is-filtered="isFiltered"
-        :picked="picked"
-        @add-folder="$emit('add-folder', $event)"
-        @edit-folder="$emit('edit-folder', $event)"
-        @edit-request="$emit('edit-request', $event)"
-        @select="$emit('select', $event)"
-        @remove-request="$emit('remove-request', $event)"
-      />
-      <CollectionsMyRequest
-        v-for="(request, index) in collection.requests"
-        :key="`request-${index}`"
-        class="border-l border-dividerLight ml-6"
-        :request="request"
-        :collection-index="collectionIndex"
-        :folder-index="-1"
-        :folder-name="collection.name"
-        :folder-path="`${collectionIndex}`"
-        :request-index="index"
-        :doc="doc"
-        :save-request="saveRequest"
-        :collections-type="collectionsType"
-        :picked="picked"
-        @edit-request="editRequest($event)"
-        @select="$emit('select', $event)"
-        @remove-request="$emit('remove-request', $event)"
-      />
+    <div v-if="showChildren || isFiltered" class="flex">
       <div
-        v-if="
-          (collection.folders == undefined ||
-            collection.folders.length === 0) &&
-          (collection.requests == undefined || collection.requests.length === 0)
-        "
         class="
-          border-l border-dividerLight
-          flex flex-col
-          text-secondaryLight
-          ml-6
-          p-4
-          items-center
-          justify-center
+          flex
+          w-1
+          transform
+          transition
+          cursor-nsResize
+          ml-5.5
+          bg-dividerLight
+          hover:scale-x-125 hover:bg-dividerDark
         "
-      >
-        <i class="opacity-75 pb-2 material-icons">folder_open</i>
-        <span class="text-center">
-          {{ $t("empty.collection") }}
-        </span>
+        @click="toggleShowChildren()"
+      ></div>
+      <div class="flex flex-col flex-1 truncate">
+        <CollectionsMyFolder
+          v-for="(folder, index) in collection.folders"
+          :key="`folder-${index}`"
+          :folder="folder"
+          :folder-index="index"
+          :folder-path="`${collectionIndex}/${index}`"
+          :collection-index="collectionIndex"
+          :doc="doc"
+          :save-request="saveRequest"
+          :collections-type="collectionsType"
+          :is-filtered="isFiltered"
+          :picked="picked"
+          @add-folder="$emit('add-folder', $event)"
+          @edit-folder="$emit('edit-folder', $event)"
+          @edit-request="$emit('edit-request', $event)"
+          @select="$emit('select', $event)"
+          @remove-request="$emit('remove-request', $event)"
+        />
+        <CollectionsMyRequest
+          v-for="(request, index) in collection.requests"
+          :key="`request-${index}`"
+          :request="request"
+          :collection-index="collectionIndex"
+          :folder-index="-1"
+          :folder-name="collection.name"
+          :folder-path="`${collectionIndex}`"
+          :request-index="index"
+          :doc="doc"
+          :save-request="saveRequest"
+          :collections-type="collectionsType"
+          :picked="picked"
+          @edit-request="editRequest($event)"
+          @select="$emit('select', $event)"
+          @remove-request="$emit('remove-request', $event)"
+        />
+        <div
+          v-if="
+            (collection.folders == undefined ||
+              collection.folders.length === 0) &&
+            (collection.requests == undefined ||
+              collection.requests.length === 0)
+          "
+          class="
+            flex flex-col
+            text-secondaryLight
+            p-4
+            items-center
+            justify-center
+          "
+        >
+          <i class="opacity-75 pb-2 material-icons">folder_open</i>
+          <span class="text-center">
+            {{ $t("empty.collection") }}
+          </span>
+        </div>
       </div>
     </div>
     <SmartConfirmModal

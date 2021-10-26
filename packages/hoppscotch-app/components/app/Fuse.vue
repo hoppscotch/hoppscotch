@@ -4,8 +4,10 @@
       v-for="(shortcut, shortcutIndex) in searchResults"
       :key="`shortcut-${shortcutIndex}`"
       :ref="`item-${shortcutIndex}`"
+      :active="shortcutIndex === selectedEntry"
       :shortcut="shortcut.item"
       @action="$emit('action', shortcut.item.action)"
+      @mouseover.native="selectedEntry = shortcutIndex"
     />
     <div
       v-if="searchResults.length === 0"
@@ -20,12 +22,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "@nuxtjs/composition-api"
+import { computed, onUnmounted, onMounted } from "@nuxtjs/composition-api"
 import Fuse from "fuse.js"
+import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
+import { HoppAction } from "~/helpers/actions"
 
 const props = defineProps<{
   input: Record<string, any>[]
   search: string
+}>()
+
+const emit = defineEmits<{
+  (e: "action", action: HoppAction): void
 }>()
 
 const options = {
@@ -35,4 +43,24 @@ const options = {
 const fuse = new Fuse(props.input, options)
 
 const searchResults = computed(() => fuse.search(props.search))
+
+const searchResultsItems = computed(() =>
+  searchResults.value.map((searchResult: any) => searchResult.item)
+)
+
+const emitSearchAction = (action: HoppAction) => emit("action", action)
+
+const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
+  useArrowKeysNavigation(searchResultsItems, {
+    onEnter: emitSearchAction,
+    stopPropagation: true,
+  })
+
+onMounted(() => {
+  bindArrowKeysListerners()
+})
+
+onUnmounted(() => {
+  unbindArrowKeysListerners()
+})
 </script>

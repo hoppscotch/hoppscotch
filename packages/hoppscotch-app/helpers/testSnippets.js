@@ -10,7 +10,7 @@ pw.test("Status code is 200", ()=> {
     name: "Response: Assert property from body",
     script: `\n\n// Check JSON response property
 pw.test("Check JSON response property", ()=> {
-    pw.expect(pw.response.method).toBe("GET");
+    pw.expect(pw.response.body.method).toBe("GET");
 });`,
   },
   {

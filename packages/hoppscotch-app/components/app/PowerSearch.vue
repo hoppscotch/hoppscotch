@@ -23,7 +23,7 @@
         "
       />
       <AppFuse
-        v-if="search"
+        v-if="search && show"
         :input="fuse"
         :search="search"
         @action="runAction"
@@ -47,7 +47,9 @@
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
             :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
             :shortcut="shortcut"
+            :active="shortcutsItems.indexOf(shortcut) === selectedEntry"
             @action="runAction"
+            @mouseover.native="selectedEntry = shortcutsItems.indexOf(shortcut)"
           />
         </div>
       </div>
@@ -56,11 +58,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref, computed, watch } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "~/helpers/actions"
 import { spotlight as mappings, fuse } from "~/helpers/shortcuts"
+import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
 
-defineProps<{
+const props = defineProps<{
   show: boolean
 }>()
 
@@ -79,4 +82,24 @@ const runAction = (command: HoppAction) => {
   invokeAction(command)
   hideModal()
 }
+
+const shortcutsItems = computed(() =>
+  mappings.reduce(
+    (shortcuts, section) => [...shortcuts, ...section.shortcuts],
+    []
+  )
+)
+
+const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
+  useArrowKeysNavigation(shortcutsItems, {
+    onEnter: runAction,
+  })
+
+watch(
+  () => props.show,
+  (show) => {
+    if (show) bindArrowKeysListerners()
+    else unbindArrowKeysListerners()
+  }
+)
 </script>

@@ -17,7 +17,7 @@ import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 
 const getTestableBody = (res: HoppRESTResponse & { type: "success" }) => {
   const contentTypeHeader = res.headers.find(
-    (h) => h.value.toLowerCase() === "content-type"
+    (h) => h.key.toLowerCase() === "content-type"
   )
 
   const rawBody = new TextDecoder("utf-8").decode(res.body)

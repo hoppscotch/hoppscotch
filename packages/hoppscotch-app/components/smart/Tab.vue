@@ -12,6 +12,7 @@ export default defineComponent({
   props: {
     label: { type: String, default: null },
     info: { type: String, default: null },
+    indicator: { type: Boolean, default: false },
     icon: { type: String, default: null },
     id: { type: String, default: null, required: true },
     selected: {

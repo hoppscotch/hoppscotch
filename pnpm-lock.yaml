@@ -105,6 +105,7 @@ importers:
       stylelint: ^13.13.1
       stylelint-config-prettier: ^8.0.2
       stylelint-config-standard: ^22.0.0
+      subscriptions-transport-ws: ^0.9.19
       tern: ^0.24.3
       ts-jest: ^27.0.5
       typescript: ^4.4.3
@@ -121,7 +122,7 @@ importers:
       worker-loader: ^3.0.8
       yargs-parser: ^20.2.9
     dependencies:
-      '@apollo/client': 3.4.16_graphql@15.6.1
+      '@apollo/client': 3.4.16_9725b5bd6f8ccdf8972896e366c3daff
       '@hoppscotch/js-sandbox': link:../hoppscotch-js-sandbox
       '@nuxtjs/axios': 5.13.6
       '@nuxtjs/composition-api': 0.29.2_nuxt@2.15.8
@@ -158,6 +159,7 @@ importers:
       socket.io-client: 4.2.0
       socketio-wildcard: 2.0.0
       splitpanes: 2.3.8
+      subscriptions-transport-ws: 0.9.19_graphql@15.6.1
       tern: 0.24.3
       vue-apollo: 3.0.8_graphql-tag@2.12.5
       vue-cli-plugin-apollo: 0.22.2_typescript@4.4.3
@@ -304,33 +306,6 @@ packages:
       optimism: 0.16.1
       prop-types: 15.7.2
       subscriptions-transport-ws: 0.9.19_graphql@15.6.1
-      symbol-observable: 4.0.0
-      ts-invariant: 0.9.3
-      tslib: 2.3.1
-      zen-observable-ts: 1.1.0
-    dev: false
-
-  /@apollo/client/3.4.16_graphql@15.6.1:
-    resolution: {integrity: sha512-iF4zEYwvebkri0BZQyv8zfavPfVEafsK0wkOofa6eC2yZu50J18uTutKtC174rjHZ2eyxZ8tV7NvAPKRT+OtZw==}
-    peerDependencies:
-      graphql: ^14.0.0 || ^15.0.0
-      react: ^16.8.0 || ^17.0.0
-      subscriptions-transport-ws: ^0.9.0
-    peerDependenciesMeta:
-      react:
-        optional: true
-      subscriptions-transport-ws:
-        optional: true
-    dependencies:
-      '@graphql-typed-document-node/core': 3.1.0_graphql@15.6.1
-      '@wry/context': 0.6.1
-      '@wry/equality': 0.5.2
-      '@wry/trie': 0.3.1
-      graphql: 15.6.1
-      graphql-tag: 2.12.5_graphql@15.6.1
-      hoist-non-react-statics: 3.3.2
-      optimism: 0.16.1
-      prop-types: 15.7.2
       symbol-observable: 4.0.0
       ts-invariant: 0.9.3
       tslib: 2.3.1
@@ -3058,7 +3033,7 @@ packages:
       form-data: 4.0.0
       graphql: 15.6.1
       graphql-sse: 1.0.4_graphql@15.6.1
-      graphql-ws: 5.5.0_graphql@15.6.1
+      graphql-ws: 5.5.3_graphql@15.6.1
       is-promise: 4.0.0
       isomorphic-ws: 4.0.1_ws@8.2.2
       lodash: 4.17.21
@@ -10432,8 +10407,8 @@ packages:
       graphql: 15.6.1
     dev: false
 
-  /graphql-ws/5.5.0_graphql@15.6.1:
-    resolution: {integrity: sha512-WQepPMGQQoqS2VsrI2I3RMLCVz3CW4/6ZqGV6ABDOwH4R62DzjxwMlwZbj6vhSI/7IM3/C911yITwgs77iO/hw==}
+  /graphql-ws/5.5.3_graphql@15.6.1:
+    resolution: {integrity: sha512-Okp3gE3vq9OoeqsYVbmzKvPcvlinKNXrfVajH7D3ul1UdCg2+K2zVYbWKmqxehkAZ+GKVfngK5fzyXSsfpe+pA==}
     engines: {node: '>=10'}
     peerDependencies:
       graphql: '>=0.11 <=16'

@@ -70,6 +70,7 @@
     "socket.io-client": "^4.2.0",
     "socketio-wildcard": "^2.0.0",
     "splitpanes": "^2.3.8",
+    "subscriptions-transport-ws": "^0.9.19",
     "tern": "^0.24.3",
     "vue-apollo": "^3.0.8",
     "vue-cli-plugin-apollo": "^0.22.2",

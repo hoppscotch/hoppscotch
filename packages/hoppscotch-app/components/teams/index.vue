@@ -134,8 +134,6 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 
 const displayModalInvite = (shouldDisplay: boolean) => {
   showModalInvite.value = shouldDisplay
-
-  if (!shouldDisplay) resetSelectedData()
 }
 
 const editTeam = (team: any, teamID: any) => {

@@ -1,0 +1,31 @@
+// devcontainer.json for hoppscotch development
+// 
+// References:
+// - https://aka.ms/vscode-remote/devcontainer.json for format details.
+// - https://code.visualstudio.com/docs/remote/create-dev-container
+// - https://code.visualstudio.com/docs/remote/devcontainerjson-reference
+// - https://github.com/microsoft/vscode-dev-containers/blob/main/containers/javascript-node/.devcontainer/base.Dockerfile
+{
+    "name": "hoppscotch",
+    "image": "mcr.microsoft.com/vscode/devcontainers/typescript-node:14",
+    "containerEnv": {
+      // inject proxy env from host (if set)
+      "http_proxy": "${localEnv:http_proxy}",
+      "https_proxy": "${localEnv:https_proxy}",
+      "HTTP_PROXY": "${localEnv:HTTP_PROXY}",
+      "HTTPS_PROXY": "${localEnv:HTTPS_PROXY}",
+      "NO_PROXY": "${localEnv:NO_PROXY}",
+    },
+    "settings": {
+      "terminal.integrated.defaultProfile.linux": "zsh",
+    },
+    "forwardPorts": [3000],
+    "extensions": [
+      "octref.vetur", // VUE tooling
+      "joshbolduc.commitlint", // commitlint
+      "vivaxy.vscode-conventional-commits", // commitlint/conventional-commits
+      "eamodio.gitlens", // better GIT
+    ],
+    "containerUser": "node",
+    "postCreateCommand": "npm install -g pnpm"
+  }

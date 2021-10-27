@@ -25,6 +25,7 @@
       "joshbolduc.commitlint", // commitlint
       "vivaxy.vscode-conventional-commits", // commitlint/conventional-commits
       "eamodio.gitlens", // better GIT
+      "EditorConfig.EditorConfig", // support .editorconfig
     ],
     "containerUser": "node",
     "postCreateCommand": "npm install -g pnpm"

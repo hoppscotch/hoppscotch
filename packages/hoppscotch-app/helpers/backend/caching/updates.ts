@@ -1,6 +1,44 @@
 import { GraphCacheUpdaters, MyTeamsDocument } from "../graphql"
 
 export const updatesDef: GraphCacheUpdaters = {
+  Subscription: {
+    teamMemberAdded: (_r, { teamID }, cache, _info) => {
+      debugger
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: teamID,
+        },
+        "teamMembers"
+      )
+    },
+    teamMemberUpdated: (_r, { teamID }, cache, _info) => {
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: teamID,
+        },
+        "teamMembers"
+      )
+
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: teamID,
+        },
+        "myRole"
+      )
+    },
+    teamMemberRemoved: (_r, { teamID }, cache, _info) => {
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: teamID,
+        },
+        "teamMembers"
+      )
+    },
+  },
   Mutation: {
     deleteTeam: (_r, { teamID }, cache, _info) => {
       cache.updateQuery(

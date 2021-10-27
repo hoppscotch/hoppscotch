@@ -18,11 +18,13 @@ import {
   makeOperation,
   GraphQLRequest,
   createRequest,
+  subscriptionExchange,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
 import { offlineExchange } from "@urql/exchange-graphcache"
 import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage"
 import { devtoolsExchange } from "@urql/devtools"
+import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
@@ -33,13 +35,14 @@ import { updatesDef } from "./caching/updates"
 import { resolversDef } from "./caching/resolvers"
 import schema from "./backend-schema.json"
 import {
+  authIdToken$,
   getAuthIDToken,
   probableUser$,
   waitProbableLoginToConfirm,
 } from "~/helpers/fb/auth"
 
 const BACKEND_GQL_URL =
-  process.env.CONTEXT === "production"
+  process.env.context === "production"
     ? "https://api.hoppscotch.io/graphql"
     : "https://api.hoppscotch.io/graphql"
 
@@ -47,6 +50,18 @@ const storage = makeDefaultStorage({
   idbName: "hoppcache-v1",
   maxAge: 7,
 })
+
+const subscriptionClient = new SubscriptionClient(
+  process.env.context === "production"
+    ? "wss://api.hoppscotch.io/graphql"
+    : "wss://api.hoppscotch.io/graphql",
+  {
+    reconnect: true,
+    connectionParams: () => ({
+      authorization: `Bearer ${authIdToken$.value}`,
+    }),
+  }
+)
 
 export const client = createClient({
   url: BACKEND_GQL_URL,
@@ -97,6 +112,9 @@ export const client = createClient({
       },
     }),
     fetchExchange,
+    subscriptionExchange({
+      forwardSubscription: (operation) => subscriptionClient.request(operation),
+    }),
   ],
 })
 
@@ -106,6 +124,7 @@ type UseQueryOptions<T = any, V = object> = {
   query: TypedDocumentNode<T, V>
   variables?: MaybeRef<V>
 
+  updateSubs?: MaybeRef<GraphQLRequest<any, object>[]>
   defer?: boolean
 }
 
@@ -132,6 +151,8 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   const loading: Ref<boolean> = ref(true)
   const isStale: Ref<boolean> = ref(true)
   const data: Ref<E.Either<GQLError<DocErrorType>, DocType>> = ref() as any
+
+  if (!args.updateSubs) set(args, "updateSubs", [])
 
   const isPaused: Ref<boolean> = ref(args.defer ?? false)
 
@@ -178,7 +199,22 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
       loading.value = true
       isStale.value = false
 
-      onInvalidate(
+      const invalidateStops = args.updateSubs!.map((sub) => {
+        console.log("create sub")
+
+        return wonkaPipe(
+          client.executeSubscription(sub),
+          onEnd(() => {
+            if (source.value) execute()
+          }),
+          subscribe(() => {
+            console.log("invalidate!")
+            return execute()
+          })
+        ).unsubscribe
+      })
+
+      invalidateStops.push(
         wonkaPipe(
           source.value,
           onEnd(() => {
@@ -220,6 +256,8 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
           })
         ).unsubscribe
       )
+
+      onInvalidate(() => invalidateStops.forEach((unsub) => unsub()))
     }
   })
 

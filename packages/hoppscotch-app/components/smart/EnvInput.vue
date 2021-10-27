@@ -11,6 +11,7 @@
       class="env-input"
       :class="styles"
       contenteditable="true"
+      spellcheck="false"
       @keydown.enter.prevent="$emit('enter', $event)"
       @keyup="$emit('keyup', $event)"
       @click="$emit('click', $event)"

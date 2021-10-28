@@ -1,0 +1,3 @@
+subscription TeamMemberRemoved($teamID: ID!) {
+  teamMemberRemoved(teamID: $teamID)
+}

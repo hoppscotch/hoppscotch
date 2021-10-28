@@ -66,7 +66,7 @@
       :team="myTeams.data.right.myTeams[0]"
       :show="showModalEdit"
       :editing-team="editingTeam"
-      :editingteam-i-d="editingTeamID"
+      :editing-team-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
       @invite-team="inviteTeam(editingTeam, editingTeamID)"
     />
@@ -79,7 +79,7 @@
       :team="myTeams.data.right.myTeams[0]"
       :show="showModalInvite"
       :editing-team="editingTeam"
-      :editingteam-i-d="editingTeamID"
+      :editing-team-i-d="editingTeamID"
       @hide-modal="displayModalInvite(false)"
     />
   </AppSection>
@@ -124,8 +124,6 @@ const displayModalAdd = (shouldDisplay: boolean) => {
 
 const displayModalEdit = (shouldDisplay: boolean) => {
   showModalEdit.value = shouldDisplay
-
-  if (!shouldDisplay) resetSelectedData()
 }
 
 const displayModalInvite = (shouldDisplay: boolean) => {
@@ -142,10 +140,5 @@ const inviteTeam = (team: any, teamID: any) => {
   editingTeam.value = team
   editingTeamID.value = teamID
   displayModalInvite(true)
-}
-
-const resetSelectedData = () => {
-  editingTeam.value = undefined
-  editingTeamID.value = undefined
 }
 </script>

@@ -6,6 +6,7 @@ query GetTeam($teamID: ID!) {
       membershipID
       user {
         uid
+        email
       }
       role
     }

@@ -7,8 +7,8 @@ describe("wsValid", () => {
   })
 
   test("returns true for valid URL with Hostname", () => {
-    expect(wsValid("wss://echo.websocket.org/")).toBe(true)
-    expect(wsValid("wss://echo.websocket.org")).toBe(true)
+    expect(wsValid("wss://echo.websocket.events/")).toBe(true)
+    expect(wsValid("wss://echo.websocket.events")).toBe(true)
   })
 
   test("returns false for invalid URL with IP address", () => {
@@ -22,22 +22,22 @@ describe("wsValid", () => {
   })
 
   test("returns false for non-wss protocol URLs", () => {
-    expect(wsValid("http://echo.websocket.org/")).toBe(false)
-    expect(wsValid("http://echo.websocket.org")).toBe(false)
+    expect(wsValid("http://echo.websocket.events/")).toBe(false)
+    expect(wsValid("http://echo.websocket.events")).toBe(false)
     expect(wsValid("http://174.129.224.73/")).toBe(false)
     expect(wsValid("http://174.129.224.73")).toBe(false)
   })
 
   test("returns true for wss protocol URLs", () => {
-    expect(wsValid("wss://echo.websocket.org/")).toBe(true)
-    expect(wsValid("wss://echo.websocket.org")).toBe(true)
+    expect(wsValid("wss://echo.websocket.events/")).toBe(true)
+    expect(wsValid("wss://echo.websocket.events")).toBe(true)
     expect(wsValid("wss://174.129.224.73/")).toBe(true)
     expect(wsValid("wss://174.129.224.73")).toBe(true)
   })
 
   test("returns true for ws protocol URLs", () => {
-    expect(wsValid("ws://echo.websocket.org/")).toBe(true)
-    expect(wsValid("ws://echo.websocket.org")).toBe(true)
+    expect(wsValid("ws://echo.websocket.events/")).toBe(true)
+    expect(wsValid("ws://echo.websocket.events")).toBe(true)
     expect(wsValid("ws://174.129.224.73/")).toBe(true)
     expect(wsValid("ws://174.129.224.73")).toBe(true)
   })
@@ -50,8 +50,8 @@ describe("httpValid", () => {
   })
 
   test("returns true for valid URL with Hostname", () => {
-    expect(httpValid("http://echo.websocket.org/")).toBe(true)
-    expect(httpValid("http://echo.websocket.org")).toBe(true)
+    expect(httpValid("http://echo.websocket.events/")).toBe(true)
+    expect(httpValid("http://echo.websocket.events")).toBe(true)
   })
 
   test("returns false for invalid URL with IP address", () => {
@@ -65,22 +65,22 @@ describe("httpValid", () => {
   })
 
   test("returns false for non-http(s) protocol URLs", () => {
-    expect(httpValid("wss://echo.websocket.org/")).toBe(false)
-    expect(httpValid("wss://echo.websocket.org")).toBe(false)
+    expect(httpValid("wss://echo.websocket.events/")).toBe(false)
+    expect(httpValid("wss://echo.websocket.events")).toBe(false)
     expect(httpValid("wss://174.129.224.73/")).toBe(false)
     expect(httpValid("wss://174.129.224.73")).toBe(false)
   })
 
   test("returns true for HTTP protocol URLs", () => {
-    expect(httpValid("http://echo.websocket.org/")).toBe(true)
-    expect(httpValid("http://echo.websocket.org")).toBe(true)
+    expect(httpValid("http://echo.websocket.events/")).toBe(true)
+    expect(httpValid("http://echo.websocket.events")).toBe(true)
     expect(httpValid("http://174.129.224.73/")).toBe(true)
     expect(httpValid("http://174.129.224.73")).toBe(true)
   })
 
   test("returns true for HTTPS protocol URLs", () => {
-    expect(httpValid("https://echo.websocket.org/")).toBe(true)
-    expect(httpValid("https://echo.websocket.org")).toBe(true)
+    expect(httpValid("https://echo.websocket.events/")).toBe(true)
+    expect(httpValid("https://echo.websocket.events")).toBe(true)
     expect(httpValid("https://174.129.224.73/")).toBe(true)
     expect(httpValid("https://174.129.224.73")).toBe(true)
   })
@@ -93,8 +93,8 @@ describe("socketioValid", () => {
   })
 
   test("returns true for valid URL with Hostname", () => {
-    expect(socketioValid("http://echo.websocket.org/")).toBe(true)
-    expect(socketioValid("http://echo.websocket.org")).toBe(true)
+    expect(socketioValid("http://echo.websocket.events/")).toBe(true)
+    expect(socketioValid("http://echo.websocket.events")).toBe(true)
   })
 
   test("returns false for invalid URL with IP address", () => {
@@ -108,36 +108,36 @@ describe("socketioValid", () => {
   })
 
   test("returns false for non-http(s) and non-wss protocol URLs", () => {
-    expect(socketioValid("ftp://echo.websocket.org/")).toBe(false)
-    expect(socketioValid("ftp://echo.websocket.org")).toBe(false)
+    expect(socketioValid("ftp://echo.websocket.events/")).toBe(false)
+    expect(socketioValid("ftp://echo.websocket.events")).toBe(false)
     expect(socketioValid("ftp://174.129.224.73/")).toBe(false)
     expect(socketioValid("ftp://174.129.224.73")).toBe(false)
   })
 
   test("returns true for HTTP protocol URLs", () => {
-    expect(socketioValid("http://echo.websocket.org/")).toBe(true)
-    expect(socketioValid("http://echo.websocket.org")).toBe(true)
+    expect(socketioValid("http://echo.websocket.events/")).toBe(true)
+    expect(socketioValid("http://echo.websocket.events")).toBe(true)
     expect(socketioValid("http://174.129.224.73/")).toBe(true)
     expect(socketioValid("http://174.129.224.73")).toBe(true)
   })
 
   test("returns true for HTTPS protocol URLs", () => {
-    expect(socketioValid("https://echo.websocket.org/")).toBe(true)
-    expect(socketioValid("https://echo.websocket.org")).toBe(true)
+    expect(socketioValid("https://echo.websocket.events/")).toBe(true)
+    expect(socketioValid("https://echo.websocket.events")).toBe(true)
     expect(socketioValid("https://174.129.224.73/")).toBe(true)
     expect(socketioValid("https://174.129.224.73")).toBe(true)
   })
 
   test("returns true for wss protocol URLs", () => {
-    expect(socketioValid("wss://echo.websocket.org/")).toBe(true)
-    expect(socketioValid("wss://echo.websocket.org")).toBe(true)
+    expect(socketioValid("wss://echo.websocket.events/")).toBe(true)
+    expect(socketioValid("wss://echo.websocket.events")).toBe(true)
     expect(socketioValid("wss://174.129.224.73/")).toBe(true)
     expect(socketioValid("wss://174.129.224.73")).toBe(true)
   })
 
   test("returns true for ws protocol URLs", () => {
-    expect(socketioValid("ws://echo.websocket.org/")).toBe(true)
-    expect(socketioValid("ws://echo.websocket.org")).toBe(true)
+    expect(socketioValid("ws://echo.websocket.events/")).toBe(true)
+    expect(socketioValid("ws://echo.websocket.events")).toBe(true)
     expect(socketioValid("ws://174.129.224.73/")).toBe(true)
     expect(socketioValid("ws://174.129.224.73")).toBe(true)
   })

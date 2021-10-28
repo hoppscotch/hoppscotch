@@ -34,75 +34,23 @@
             />
           </div>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div
+          v-if="teamDetails.loading"
+          class="flex flex-col items-center justify-center"
+        >
+          <SmartSpinner class="mb-4" />
+          <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+        </div>
+        <div
+          v-if="
+            !teamDetails.loading &&
+            E.isRight(teamDetails.data) &&
+            teamDetails.data.right.team.teamMembers
+          "
+          class="divide-y divide-dividerLight border-divider border rounded"
+        >
           <div
-            v-for="(member, index) in members"
-            :key="`member-${index}`"
-            class="divide-x divide-dividerLight flex"
-          >
-            <input
-              class="bg-transparent flex flex-1 py-2 px-4"
-              :placeholder="$t('team.email')"
-              :name="'param' + index"
-              :value="member.user.email"
-              readonly
-            />
-            <span>
-              <tippy
-                :ref="`memberOptions-${index}`"
-                interactive
-                trigger="click"
-                theme="popover"
-                arrow
-              >
-                <template #trigger>
-                  <span class="select-wrapper">
-                    <input
-                      class="
-                        bg-transparent
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
-                      :placeholder="$t('team.permissions')"
-                      :name="'value' + index"
-                      :value="
-                        typeof member.role === 'string'
-                          ? member.role
-                          : JSON.stringify(member.role)
-                      "
-                      readonly
-                    />
-                  </span>
-                </template>
-                <SmartItem
-                  label="OWNER"
-                  @click.native="updateMemberRole(index, 'OWNER')"
-                />
-                <SmartItem
-                  label="EDITOR"
-                  @click.native="updateMemberRole(index, 'EDITOR')"
-                />
-                <SmartItem
-                  label="VIEWER"
-                  @click.native="updateMemberRole(index, 'VIEWER')"
-                />
-              </tippy>
-            </span>
-            <div class="flex">
-              <ButtonSecondary
-                id="member"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
-                svg="trash"
-                color="red"
-                @click.native="removeExistingTeamMember(member.user.uid)"
-              />
-            </div>
-          </div>
-          <div
-            v-if="members.length === 0"
+            v-if="teamDetails.data.right.team.teamMembers === 0"
             class="
               flex flex-col
               text-secondaryLight
@@ -125,6 +73,81 @@
               "
             />
           </div>
+          <div v-else>
+            <div
+              v-for="(member, index) in teamDetails.data.right.team.teamMembers"
+              :key="`member-${index}`"
+              class="divide-x divide-dividerLight flex"
+            >
+              <input
+                class="bg-transparent flex flex-1 py-2 px-4"
+                :placeholder="$t('team.email')"
+                :name="'param' + index"
+                :value="member.user.email"
+                readonly
+              />
+              <span>
+                <tippy
+                  :ref="`memberOptions-${index}`"
+                  interactive
+                  trigger="click"
+                  theme="popover"
+                  arrow
+                >
+                  <template #trigger>
+                    <span class="select-wrapper">
+                      <input
+                        class="
+                          bg-transparent
+                          cursor-pointer
+                          flex flex-1
+                          py-2
+                          px-4
+                        "
+                        :placeholder="$t('team.permissions')"
+                        :name="'value' + index"
+                        :value="
+                          typeof member.role === 'string'
+                            ? member.role
+                            : JSON.stringify(member.role)
+                        "
+                        readonly
+                      />
+                    </span>
+                  </template>
+                  <SmartItem
+                    label="OWNER"
+                    @click.native="updateMemberRole(index, 'OWNER')"
+                  />
+                  <SmartItem
+                    label="EDITOR"
+                    @click.native="updateMemberRole(index, 'EDITOR')"
+                  />
+                  <SmartItem
+                    label="VIEWER"
+                    @click.native="updateMemberRole(index, 'VIEWER')"
+                  />
+                </tippy>
+              </span>
+              <div class="flex">
+                <ButtonSecondary
+                  id="member"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="$t('action.remove')"
+                  svg="trash"
+                  color="red"
+                  @click.native="removeExistingTeamMember(member.user.uid)"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="!teamDetails.loading && E.isLeft(teamDetails.data)"
+          class="flex flex-col items-center"
+        >
+          <i class="mb-4 material-icons">help_outline</i>
+          {{ $t("error.something_went_wrong") }}
         </div>
       </div>
     </template>
@@ -140,138 +163,174 @@
   </SmartModal>
 </template>
 
-<script>
-import cloneDeep from "lodash/cloneDeep"
-import { defineComponent } from "@nuxtjs/composition-api"
-import * as teamUtils from "~/helpers/teams/utils"
-import TeamMemberAdapter from "~/helpers/teams/TeamMemberAdapter"
+<script setup lang="ts">
+import {
+  computed,
+  ref,
+  toRef,
+  useContext,
+  watch,
+} from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { TeamsTeamMember } from "~/helpers/teams/TeamMemberAdapter"
+import {
+  GetTeamDocument,
+  GetTeamQuery,
+  GetTeamQueryVariables,
+  TeamMemberAddedDocument,
+  TeamMemberRemovedDocument,
+  TeamMemberRole,
+  TeamMemberUpdatedDocument,
+} from "~/helpers/backend/graphql"
+import {
+  removeTeamMember,
+  renameTeam,
+  updateTeamMemberRole,
+} from "~/helpers/backend/mutations/Team"
+import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
+import { useGQLQuery } from "~/helpers/backend/GQLClient"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingTeam: { type: Object, default: () => {} },
-    editingteamID: { type: String, default: null },
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const props = defineProps<{
+  show: boolean
+  editingTeam: {
+    name: string
+  }
+  editingTeamID: string
+}>()
+
+const {
+  $toast,
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
+
+const members = ref<TeamsTeamMember[]>([])
+
+const name = toRef(props.editingTeam, "name")
+
+watch(
+  () => props.editingTeam.name,
+  (newName: string) => {
+    name.value = newName
+  }
+)
+
+watch(
+  () => props.editingTeamID,
+  (teamID: string) => {
+    teamDetails.execute({ teamID })
+  }
+)
+
+const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
+  query: GetTeamDocument,
+  variables: {
+    teamID: props.editingTeamID,
   },
-  data() {
-    return {
-      rename: null,
-      members: [],
-      membersAdapter: new TeamMemberAdapter(null),
-    }
-  },
-  computed: {
-    editingTeamCopy() {
-      return this.editingTeam
-    },
-    name: {
-      get() {
-        return this.editingTeam.name
-      },
-      set(name) {
-        this.rename = name
-      },
-    },
-  },
-  watch: {
-    editingteamID(teamID) {
-      this.membersAdapter.changeTeamID(teamID)
-    },
-  },
-  mounted() {
-    this.membersAdapter.members$.subscribe((list) => {
-      this.members = cloneDeep(list)
+  defer: true,
+  updateSubs: computed(() => {
+    if (props.editingTeamID) {
+      return [
+        {
+          key: 1,
+          query: TeamMemberAddedDocument,
+          variables: {
+            teamID: props.editingTeamID,
+          },
+        },
+        {
+          key: 2,
+          query: TeamMemberUpdatedDocument,
+          variables: {
+            teamID: props.editingTeamID,
+          },
+        },
+        {
+          key: 3,
+          query: TeamMemberRemovedDocument,
+          variables: {
+            teamID: props.editingTeamID,
+          },
+        },
+      ]
+    } else return []
+  }),
+})
+
+const updateMemberRole = (id: number, role: TeamMemberRole) => {
+  members.value[id].role = role
+  // $refs[`memberOptions-${id}`][0].tippy().hide()
+}
+
+const removeExistingTeamMember = async (userID: string) => {
+  const removeTeamMemberResult = await removeTeamMember(
+    userID,
+    props.editingTeamID
+  )()
+  if (E.isLeft(removeTeamMemberResult)) {
+    $toast.error(t("error.something_went_wrong"), {
+      icon: "error",
     })
-  },
-  methods: {
-    updateMemberRole(id, role) {
-      this.members[id].role = role
-      this.$refs[`memberOptions-${id}`][0].tippy().hide()
-    },
-    removeExistingTeamMember(userID) {
-      teamUtils
-        .removeTeamMember(this.$apollo, userID, this.editingteamID)
-        .then(() => {
-          this.$toast.success(this.$t("team.member_removed"), {
-            icon: "done",
-          })
-          this.hideModal()
+  } else {
+    $toast.success(t("team.member_removed"), {
+      icon: "done",
+    })
+  }
+}
+
+const saveTeam = async () => {
+  if (name.value !== "") {
+    if (TeamNameCodec.is(name.value)) {
+      const updateTeamNameResult = await renameTeam(
+        props.editingTeamID,
+        name.value
+      )()
+      if (E.isLeft(updateTeamNameResult)) {
+        $toast.error(t("error.something_went_wrong"), {
+          icon: "error",
         })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
-          console.error(e)
+      } else {
+        $toast.success(t("team.name_updated"), {
+          icon: "done",
         })
-    },
-    validateEmail(emailID) {
-      if (
-        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
-          emailID
-        )
-      ) {
-        return true
-      }
-      return false
-    },
-    saveTeam() {
-      if (
-        this.$data.rename !== null &&
-        this.$data.rename.replace(/\s/g, "").length < 6
-      ) {
-        this.$toast.error(this.$t("team.name_length_insufficient"), {
-          icon: "error_outline",
-        })
-        return
-      }
-      this.members.forEach((element) => {
-        teamUtils
-          .updateTeamMemberRole(
-            this.$apollo,
-            element.user.uid,
-            element.role,
-            this.editingteamID
-          )
-          .then(() => {
-            this.$toast.success(this.$t("team.member_role_updated"), {
-              icon: "done",
-            })
-          })
-          .catch((e) => {
-            this.$toast.error(e, {
-              icon: "error_outline",
-            })
-            console.error(e)
-          })
-      })
-      if (this.$data.rename !== null) {
-        const newName =
-          this.name === this.$data.rename ? this.name : this.$data.rename
-        if (!/\S/.test(newName))
-          return this.$toast.error(this.$t("empty.team_name"), {
-            icon: "error_outline",
-          })
-        // Call to the graphql mutation
-        if (this.name !== this.rename)
-          teamUtils
-            .renameTeam(this.$apollo, newName, this.editingteamID)
-            .then(() => {
-              this.$toast.success(this.$t("team.saved"), {
+        members.value.forEach(
+          async (element: { user: { uid: any }; role: any }) => {
+            const updateMemberRoleResult = await updateTeamMemberRole(
+              element.user.uid,
+              props.editingTeamID,
+              element.role
+            )()
+            if (E.isLeft(updateMemberRoleResult)) {
+              $toast.error(t("error.something_went_wrong"), {
+                icon: "error",
+              })
+              console.error(updateMemberRoleResult.left.error)
+            } else {
+              $toast.success(t("team.member_role_updated"), {
                 icon: "done",
               })
-            })
-            .catch((e) => {
-              this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error_outline",
-              })
-              console.error(e)
-            })
+            }
+          }
+        )
       }
-      this.hideModal()
-    },
-    hideModal() {
-      this.rename = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+      hideModal()
+    } else {
+      return $toast.error(t("team.name_length_insufficient"), {
+        icon: "error_outline",
+      })
+    }
+  } else {
+    return $toast.error(t("empty.team_name"), {
+      icon: "error_outline",
+    })
+  }
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

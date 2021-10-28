@@ -326,7 +326,7 @@ const newInviteeOptions = ref<any | null>(null)
 
 const props = defineProps({
   show: Boolean,
-  editingteamID: { type: String, default: null },
+  editingTeamID: { type: String, default: null },
 })
 
 const emit = defineEmits<{
@@ -340,17 +340,17 @@ const pendingInvites = useGQLQuery<
 >({
   query: GetPendingInvitesDocument,
   variables: reactive({
-    teamID: props.editingteamID,
+    teamID: props.editingTeamID,
   }),
   defer: true,
 })
 
 watch(
-  () => props.editingteamID,
+  () => props.editingTeamID,
   () => {
-    if (props.editingteamID) {
+    if (props.editingTeamID) {
       pendingInvites.execute({
-        teamID: props.editingteamID,
+        teamID: props.editingTeamID,
       })
     }
   }
@@ -420,7 +420,7 @@ const sendInvites = async () => {
     ),
     O.map(
       A.map((invitee) =>
-        createTeamInvitation(invitee.key, invitee.value, props.editingteamID)
+        createTeamInvitation(invitee.key, invitee.value, props.editingTeamID)
       )
     )
   )

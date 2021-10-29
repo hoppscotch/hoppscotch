@@ -228,7 +228,7 @@ export default defineComponent({
     return {
       connectionState: false,
       connectingState: false,
-      url: "wss://echo.websocket.org",
+      url: "wss://hoppscotch-websocket.herokuapp.com",
       isUrlValid: true,
       socket: null,
       communication: {

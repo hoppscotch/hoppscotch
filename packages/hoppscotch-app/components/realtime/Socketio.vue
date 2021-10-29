@@ -242,7 +242,7 @@ export default defineComponent({
     return {
       // default version is set to v4
       clientVersion: "v4",
-      url: "wss://main-daxrc78qyb411dls-gtw.qovery.io",
+      url: "wss://hoppscotch-socketio.herokuapp.com",
       path: "/socket.io",
       isUrlValid: true,
       connectingState: false,

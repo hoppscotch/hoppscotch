@@ -7,8 +7,8 @@ describe("wsValid", () => {
   })
 
   test("returns true for valid URL with Hostname", () => {
-    expect(wsValid("wss://echo.websocket.org/")).toBe(true)
-    expect(wsValid("wss://echo.websocket.org")).toBe(true)
+    expect(wsValid("wss://hoppscotch-websocket.herokuapp.com/")).toBe(true)
+    expect(wsValid("wss://hoppscotch-websocket.herokuapp.com")).toBe(true)
   })
 
   test("returns false for invalid URL with IP address", () => {
@@ -29,8 +29,8 @@ describe("wsValid", () => {
   })
 
   test("returns true for wss protocol URLs", () => {
-    expect(wsValid("wss://echo.websocket.org/")).toBe(true)
-    expect(wsValid("wss://echo.websocket.org")).toBe(true)
+    expect(wsValid("wss://hoppscotch-websocket.herokuapp.com/")).toBe(true)
+    expect(wsValid("wss://hoppscotch-websocket.herokuapp.com")).toBe(true)
     expect(wsValid("wss://174.129.224.73/")).toBe(true)
     expect(wsValid("wss://174.129.224.73")).toBe(true)
   })
@@ -65,8 +65,8 @@ describe("httpValid", () => {
   })
 
   test("returns false for non-http(s) protocol URLs", () => {
-    expect(httpValid("wss://echo.websocket.org/")).toBe(false)
-    expect(httpValid("wss://echo.websocket.org")).toBe(false)
+    expect(httpValid("wss://hoppscotch-websocket.herokuapp.com/")).toBe(false)
+    expect(httpValid("wss://hoppscotch-websocket.herokuapp.com")).toBe(false)
     expect(httpValid("wss://174.129.224.73/")).toBe(false)
     expect(httpValid("wss://174.129.224.73")).toBe(false)
   })
@@ -129,8 +129,10 @@ describe("socketioValid", () => {
   })
 
   test("returns true for wss protocol URLs", () => {
-    expect(socketioValid("wss://echo.websocket.org/")).toBe(true)
-    expect(socketioValid("wss://echo.websocket.org")).toBe(true)
+    expect(socketioValid("wss://hoppscotch-websocket.herokuapp.com/")).toBe(
+      true
+    )
+    expect(socketioValid("wss://hoppscotch-websocket.herokuapp.com")).toBe(true)
     expect(socketioValid("wss://174.129.224.73/")).toBe(true)
     expect(socketioValid("wss://174.129.224.73")).toBe(true)
   })

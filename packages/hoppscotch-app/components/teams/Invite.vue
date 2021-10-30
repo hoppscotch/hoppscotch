@@ -296,14 +296,24 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, reactive, useContext } from "@nuxtjs/composition-api"
+import {
+  watch,
+  ref,
+  reactive,
+  useContext,
+  computed,
+} from "@nuxtjs/composition-api"
 import * as T from "fp-ts/Task"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { flow, pipe } from "fp-ts/function"
 import { Email, EmailCodec } from "../../helpers/backend/types/Email"
-import { TeamMemberRole } from "../../helpers/backend/graphql"
+import {
+  TeamInvitationAddedDocument,
+  TeamInvitationRemovedDocument,
+  TeamMemberRole,
+} from "../../helpers/backend/graphql"
 import {
   createTeamInvitation,
   CreateTeamInvitationErrors,
@@ -342,6 +352,26 @@ const pendingInvites = useGQLQuery<
   variables: reactive({
     teamID: props.editingTeamID,
   }),
+  updateSubs: computed(() =>
+    !props.editingTeamID
+      ? []
+      : [
+          {
+            key: 3,
+            query: TeamInvitationAddedDocument,
+            variables: {
+              teamID: props.editingTeamID,
+            },
+          },
+          {
+            key: 4,
+            query: TeamInvitationRemovedDocument,
+            variables: {
+              teamID: props.editingTeamID,
+            },
+          },
+        ]
+  ),
   defer: true,
 })
 

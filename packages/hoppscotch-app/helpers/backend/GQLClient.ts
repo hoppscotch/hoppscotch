@@ -57,11 +57,17 @@ const subscriptionClient = new SubscriptionClient(
     : "wss://api.hoppscotch.io/graphql",
   {
     reconnect: true,
-    connectionParams: () => ({
-      authorization: `Bearer ${authIdToken$.value}`,
-    }),
+    connectionParams: () => {
+      return {
+        authorization: `Bearer ${authIdToken$.value}`,
+      }
+    },
   }
 )
+
+authIdToken$.subscribe(() => {
+  subscriptionClient.client.close()
+})
 
 export const client = createClient({
   url: BACKEND_GQL_URL,
@@ -113,6 +119,7 @@ export const client = createClient({
     }),
     fetchExchange,
     subscriptionExchange({
+      // @ts-expect-error: An issue with the Urql typing
       forwardSubscription: (operation) => subscriptionClient.request(operation),
     }),
   ],

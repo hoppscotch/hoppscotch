@@ -357,14 +357,14 @@ const pendingInvites = useGQLQuery<
       ? []
       : [
           {
-            key: 3,
+            key: 4,
             query: TeamInvitationAddedDocument,
             variables: {
               teamID: props.editingTeamID,
             },
           },
           {
-            key: 4,
+            key: 5,
             query: TeamInvitationRemovedDocument,
             variables: {
               teamID: props.editingTeamID,

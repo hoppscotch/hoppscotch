@@ -3,7 +3,6 @@ import { GraphCacheUpdaters, MyTeamsDocument } from "../graphql"
 export const updatesDef: GraphCacheUpdaters = {
   Subscription: {
     teamMemberAdded: (_r, { teamID }, cache, _info) => {
-      debugger
       cache.invalidate(
         {
           __typename: "Team",
@@ -36,6 +35,24 @@ export const updatesDef: GraphCacheUpdaters = {
           id: teamID,
         },
         "teamMembers"
+      )
+    },
+    teamInvitationAdded: (_r, { teamID }, cache, _info) => {
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: teamID,
+        },
+        "teamInvitations"
+      )
+    },
+    teamInvitationRemoved: (_r, { teamID }, cache, _info) => {
+      cache.invalidate(
+        {
+          __typename: "Team",
+          id: teamID,
+        },
+        "teamInvitations"
       )
     },
   },

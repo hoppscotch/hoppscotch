@@ -131,7 +131,7 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded-r-none rounded-l ml-2"
+        class="rounded rounded-r-none ml-2"
         :label="
           windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
             ? `${$t('request.save')}`
@@ -150,7 +150,11 @@
           arrow
         >
           <template #trigger>
-            <ButtonSecondary svg="chevron-down" filled class="rounded-r" />
+            <ButtonSecondary
+              svg="chevron-down"
+              filled
+              class="rounded rounded-l-none"
+            />
           </template>
           <input
             id="request-name"

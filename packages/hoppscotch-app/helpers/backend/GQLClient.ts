@@ -141,6 +141,7 @@ type UseQueryOptions<T = any, V = object> = {
 
   updateSubs?: MaybeRef<GraphQLRequest<any, object>[]>
   defer?: boolean
+  pollDuration?: number | undefined
 }
 
 /**
@@ -171,6 +172,8 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   const isPaused: Ref<boolean> = ref(args.defer ?? false)
 
+  const pollDuration: Ref<number | null> = ref(args.pollDuration ?? null)
+
   const request: Ref<GraphQLRequest<DocType, DocVarType>> = ref(
     createRequest<DocType, DocVarType>(
       args.query,
@@ -179,6 +182,25 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   ) as any
 
   const source: Ref<Source<OperationResult> | undefined> = ref()
+
+  // Toggles between true and false to cause the polling operation to tick
+  const pollerTick: Ref<boolean> = ref(true)
+
+  stops.push(
+    watchEffect(
+      (onInvalidate) => {
+        if (pollDuration.value !== null && !isPaused.value) {
+          const handle = setInterval(() => {
+            pollerTick.value = !pollerTick.value
+          }, pollDuration.value)
+
+          onInvalidate(() => {
+            clearInterval(handle)
+          })
+        }
+      }
+    )
+  )
 
   stops.push(
     watchEffect(
@@ -199,6 +221,9 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   stops.push(
     watchEffect(
       () => {
+        // Just listen to the polling ticks
+        pollerTick.value
+
         source.value = !isPaused.value
           ? client.value.executeQuery<DocType, DocVarType>(request.value, {
               requestPolicy: "cache-and-network",

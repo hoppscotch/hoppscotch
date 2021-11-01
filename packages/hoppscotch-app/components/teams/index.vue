@@ -116,6 +116,7 @@ const myTeams = useGQLQuery<
   MyTeamsQueryError
 >({
   query: MyTeamsDocument,
+  pollDuration: 5000,
 })
 
 watchEffect(() => {

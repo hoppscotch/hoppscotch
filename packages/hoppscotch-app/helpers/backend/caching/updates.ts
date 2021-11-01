@@ -108,19 +108,18 @@ export const updatesDef: GraphCacheUpdaters = {
     },
     removeTeamMember: (_result, { teamID, userUid }, cache) => {
       const newMembers = (
-        cache.resolve(
+        (cache.resolve(
           {
             __typename: "Team",
             id: teamID,
           },
           "teamMembers"
-        ) as string[]
+        ) as string[]) ?? []
       )
         .map((x) => [x, cache.resolve(x, "user") as string])
         .map(([key, userKey]) => [key, cache.resolve(userKey, "uid") as string])
         .filter(([_key, uid]) => uid !== userUid)
         .map(([key]) => key)
-
       cache.link({ __typename: "Team", id: teamID }, "teamMembers", newMembers)
     },
     createTeamInvitation: (result, _args, cache, _info) => {

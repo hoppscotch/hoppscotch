@@ -69,61 +69,63 @@ authIdToken$.subscribe(() => {
   subscriptionClient.client.close()
 })
 
-const createHoppClient = () => createClient({
-  url: BACKEND_GQL_URL,
-  exchanges: [
-    devtoolsExchange,
-    dedupExchange,
-    offlineExchange({
-      schema: schema as any,
-      keys: keyDefs,
-      optimistic: optimisticDefs,
-      updates: updatesDef,
-      resolvers: resolversDef,
-      storage,
-    }),
-    authExchange({
-      addAuthToOperation({ authState, operation }) {
-        if (!authState || !authState.authToken) {
-          return operation
-        }
+const createHoppClient = () =>
+  createClient({
+    url: BACKEND_GQL_URL,
+    exchanges: [
+      devtoolsExchange,
+      dedupExchange,
+      offlineExchange({
+        schema: schema as any,
+        keys: keyDefs,
+        optimistic: optimisticDefs,
+        updates: updatesDef,
+        resolvers: resolversDef,
+        storage,
+      }),
+      authExchange({
+        addAuthToOperation({ authState, operation }) {
+          if (!authState || !authState.authToken) {
+            return operation
+          }
 
-        const fetchOptions =
-          typeof operation.context.fetchOptions === "function"
-            ? operation.context.fetchOptions()
-            : operation.context.fetchOptions || {}
+          const fetchOptions =
+            typeof operation.context.fetchOptions === "function"
+              ? operation.context.fetchOptions()
+              : operation.context.fetchOptions || {}
 
-        return makeOperation(operation.kind, operation, {
-          ...operation.context,
-          fetchOptions: {
-            ...fetchOptions,
-            headers: {
-              ...fetchOptions.headers,
-              Authorization: `Bearer ${authState.authToken}`,
+          return makeOperation(operation.kind, operation, {
+            ...operation.context,
+            fetchOptions: {
+              ...fetchOptions,
+              headers: {
+                ...fetchOptions.headers,
+                Authorization: `Bearer ${authState.authToken}`,
+              },
             },
-          },
-        })
-      },
-      willAuthError({ authState }) {
-        return !authState || !authState.authToken
-      },
-      getAuth: async () => {
-        if (!probableUser$.value) return { authToken: null }
+          })
+        },
+        willAuthError({ authState }) {
+          return !authState || !authState.authToken
+        },
+        getAuth: async () => {
+          if (!probableUser$.value) return { authToken: null }
 
-        await waitProbableLoginToConfirm()
+          await waitProbableLoginToConfirm()
 
-        return {
-          authToken: getAuthIDToken(),
-        }
-      },
-    }),
-    fetchExchange,
-    subscriptionExchange({
-      // @ts-expect-error: An issue with the Urql typing
-      forwardSubscription: (operation) => subscriptionClient.request(operation),
-    }),
-  ],
-})
+          return {
+            authToken: getAuthIDToken(),
+          }
+        },
+      }),
+      fetchExchange,
+      subscriptionExchange({
+        // @ts-expect-error: An issue with the Urql typing
+        forwardSubscription: (operation) =>
+          subscriptionClient.request(operation),
+      }),
+    ],
+  })
 
 export const client = ref(createHoppClient())
 
@@ -312,8 +314,7 @@ export const runMutation = <
   pipe(
     TE.tryCatch(
       () =>
-        client
-          .value
+        client.value
           .mutation(mutation, variables, {
             requestPolicy: "cache-and-network",
             ...additionalConfig,

@@ -88,7 +88,7 @@
               />
               <span>
                 <tippy
-                  :ref="`memberOptions-${index}`"
+                  ref="memberOptions"
                   interactive
                   trigger="click"
                   theme="popover"
@@ -117,15 +117,30 @@
                   </template>
                   <SmartItem
                     label="OWNER"
-                    @click.native="updateMemberRole(index, 'OWNER')"
+                    @click.native="
+                      () => {
+                        updateMemberRole(member.user.uid, 'OWNER')
+                        memberOptions[index].tippy().hide()
+                      }
+                    "
                   />
                   <SmartItem
                     label="EDITOR"
-                    @click.native="updateMemberRole(index, 'EDITOR')"
+                    @click.native="
+                      () => {
+                        updateMemberRole(member.user.uid, 'EDITOR')
+                        memberOptions[index].tippy().hide()
+                      }
+                    "
                   />
                   <SmartItem
                     label="VIEWER"
-                    @click.native="updateMemberRole(index, 'VIEWER')"
+                    @click.native="
+                      () => {
+                        updateMemberRole(member.user.uid, 'VIEWER')
+                        memberOptions[index].tippy().hide()
+                      }
+                    "
                   />
                 </tippy>
               </span>
@@ -194,6 +209,8 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
+const memberOptions = ref<any | null>(null)
+
 const props = defineProps<{
   show: boolean
   editingTeam: {
@@ -261,9 +278,8 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
   }),
 })
 
-const updateMemberRole = (id: number, role: TeamMemberRole) => {
-  members.value[id].role = role
-  // $refs[`memberOptions-${id}`][0].tippy().hide()
+const updateMemberRole = (userID: string, role: TeamMemberRole) => {
+  members.value[userID].role = role
 }
 
 const removeExistingTeamMember = async (userID: string) => {

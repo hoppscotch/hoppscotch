@@ -13,6 +13,12 @@
       </p>
     </div>
     <div
+      v-else-if="loadingCurrentUser"
+      class="flex-col flex-1 p-4 flex items-center justify-center"
+    >
+      <SmartSpinner />
+    </div>
+    <div
       v-else-if="currentUser === null"
       class="flex-col flex-1 p-4 flex items-center justify-center"
     >
@@ -38,7 +44,7 @@
         >
           <i class="mb-4 material-icons">error_outline</i>
           <p>
-            {{ getErrorMessage(inviteDetails.data.left.error) }}
+            {{ getErrorMessage(inviteDetails.data.left) }}
           </p>
           <p
             class="
@@ -139,7 +145,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useRoute } from "@nuxtjs/composition-api"
+import { computed, defineComponent, useRoute } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
@@ -151,10 +157,15 @@ import {
 } from "~/helpers/backend/graphql"
 import { acceptTeamInvitation } from "~/helpers/backend/mutations/TeamInvitation"
 import { initializeFirebase } from "~/helpers/fb"
-import { currentUser$, onLoggedIn } from "~/helpers/fb/auth"
+import { currentUser$, onLoggedIn, probableUser$ } from "~/helpers/fb/auth"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
-type GetInviteDetailsError = "team_invite/not_valid_viewer"
+type GetInviteDetailsError =
+  | "team_invite/not_valid_viewer"
+  | "team_invite/not_found"
+  | "team_invite/no_invite_found"
+  | "team_invite/email_do_not_match"
+  | "team_invite/already_member"
 
 export default defineComponent({
   layout: "empty",
@@ -182,10 +193,20 @@ export default defineComponent({
       }
     })
 
+    const probableUser = useReadonlyStream(probableUser$, null)
+    const currentUser = useReadonlyStream(currentUser$, null)
+
+    const loadingCurrentUser = computed(() => {
+      if (!probableUser.value) return false
+      else if (!currentUser.value) return true
+      else return false
+    })
+
     return {
       E,
       inviteDetails,
-      currentUser: useReadonlyStream(currentUser$, null),
+      loadingCurrentUser,
+      currentUser,
     }
   },
   data() {
@@ -232,15 +253,13 @@ export default defineComponent({
       if (error.type === "network_error") {
         return this.$t("error.network_error")
       } else {
-        switch (error) {
+        switch (error.error) {
           case "team_invite/not_valid_viewer":
             return this.$t("team.not_valid_viewer")
           case "team_invite/not_found":
             return this.$t("team.not_found")
           case "team_invite/no_invite_found":
             return this.$t("team.no_invite_found")
-          case "team_invite/not_invitee":
-            return this.$t("team.not_invitee")
           case "team_invite/already_member":
             return this.$t("team.already_member")
           case "team_invite/email_do_not_match":

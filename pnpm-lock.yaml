@@ -51,7 +51,7 @@ importers:
       '@vue/test-utils': ^1.2.2
       acorn: ^8.5.0
       acorn-walk: ^8.2.0
-      axios: ^0.23.0
+      axios: ^0.24.0
       babel-core: ^7.0.0-bridge.0
       babel-jest: ^27.3.1
       codemirror: ^5.63.3
@@ -120,7 +120,7 @@ importers:
       '@nuxtjs/toast': 3.3.1
       acorn: 8.5.0
       acorn-walk: 8.2.0
-      axios: 0.23.0
+      axios: 0.24.0
       codemirror: 5.63.3
       codemirror-theme-github: 1.0.0
       core-js: 3.19.0
@@ -5928,8 +5928,8 @@ packages:
       - debug
     dev: false
 
-  /axios/0.23.0:
-    resolution: {integrity: sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==}
+  /axios/0.24.0:
+    resolution: {integrity: sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==}
     dependencies:
       follow-redirects: 1.14.5
     transitivePeerDependencies:

@@ -34,6 +34,8 @@ import {
   addGlobalEnvVariable,
   setGlobalEnvVariables,
   globalEnv$,
+  selectedEnvIndex$,
+  setCurrentEnvironment,
 } from "./environments"
 import { restRequest$, setRESTRequest } from "./RESTSession"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
@@ -185,6 +187,17 @@ function setupEnvironmentsPersistence() {
   })
 }
 
+function setupSelectedEnvPersistence() {
+  const selectedEnvIndex =
+    window.localStorage.getItem("selectedEnvIndex") || "-1"
+
+  setCurrentEnvironment(selectedEnvIndex * 1)
+
+  selectedEnvIndex$.subscribe((index) => {
+    window.localStorage.setItem("selectedEnvIndex", index)
+  })
+}
+
 function setupGlobalEnvsPersistence() {
   const globals: Environment["variables"] = JSON.parse(
     window.localStorage.getItem("globalEnv") || "[]"
@@ -221,6 +234,7 @@ export function setupLocalPersistence() {
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()
   setupEnvironmentsPersistence()
+  setupSelectedEnvPersistence()
 }
 
 /**

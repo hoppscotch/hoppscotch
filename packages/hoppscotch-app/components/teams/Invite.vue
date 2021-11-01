@@ -261,6 +261,80 @@
             />
           </div>
         </div>
+        <div
+          v-if="newInvites.length"
+          class="
+            px-4
+            mt-4
+            py-4
+            rounded
+            border border-dividerLight
+            bg-primaryLight
+          "
+        >
+          <span class="pb-2 flex items-center font-semibold">
+            <i class="text-secondaryLight mr-2 material-icons">help_outline</i>
+            {{ $t("profile.roles") }}
+          </span>
+          <p>
+            <span class="text-secondaryLight">
+              {{ $t("profile.roles_description") }}
+            </span>
+          </p>
+          <ul class="mt-4 space-y-4">
+            <li class="flex">
+              <span
+                class="
+                  font-semibold
+                  text-secondaryDark
+                  uppercase
+                  truncate
+                  max-w-16
+                  w-1/4
+                "
+              >
+                {{ $t("profile.owner") }}
+              </span>
+              <span class="flex flex-1">
+                {{ $t("profile.owner_description") }}
+              </span>
+            </li>
+            <li class="flex">
+              <span
+                class="
+                  font-semibold
+                  text-secondaryDark
+                  uppercase
+                  truncate
+                  max-w-16
+                  w-1/4
+                "
+              >
+                {{ $t("profile.editor") }}
+              </span>
+              <span class="flex flex-1">
+                {{ $t("profile.editor_description") }}
+              </span>
+            </li>
+            <li class="flex">
+              <span
+                class="
+                  font-semibold
+                  text-secondaryDark
+                  uppercase
+                  truncate
+                  max-w-16
+                  w-1/4
+                "
+              >
+                {{ $t("profile.viewer") }}
+              </span>
+              <span class="flex flex-1">
+                {{ $t("profile.viewer_description") }}
+              </span>
+            </li>
+          </ul>
+        </div>
       </div>
     </template>
     <template #footer>

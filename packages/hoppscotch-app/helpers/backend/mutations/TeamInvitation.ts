@@ -28,7 +28,6 @@ type RevokeTeamInvitationErrors =
 
 type AcceptTeamInvitationErrors =
   | "team_invite/no_invite_found"
-  | "team_invitee/not_invitee"
   | "team_invite/already_member"
   | "team_invite/email_do_not_match"
 

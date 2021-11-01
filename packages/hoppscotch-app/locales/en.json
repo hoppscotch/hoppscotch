@@ -509,7 +509,6 @@
     "new_name": "My New Team",
     "no_access": "You do not have edit access to these collections",
     "no_invite_found": "Invitation not found. Contact your team owner.",
-    "not_invitee": "Invite link doesn't match with your account details. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Permissions",

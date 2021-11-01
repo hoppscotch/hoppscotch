@@ -102,7 +102,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-nuxt": "^2.0.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-vue": "^7.20.0",
+    "eslint-plugin-vue": "^8.0.3",
     "jest": "^27.3.1",
     "jest-serializer-vue": "^2.0.2",
     "nuxt-windicss": "^2.0.9",

@@ -310,6 +310,16 @@
     "waiting_for_connection": "waiting for connection",
     "xml": "XML"
   },
+  "profile": {
+    "roles": "Roles",
+    "roles_description": "Roles are used to control access to the shared collections.",
+    "owner": "Owner",
+    "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
+    "editor": "Editor",
+    "editor_description": "Editors can add, edit, and delete requests.",
+    "viewer": "Viewer",
+    "viewer_description": "Viewers can only view and use requests."
+  },
   "settings": {
     "accent_color": "Accent color",
     "account": "Account",

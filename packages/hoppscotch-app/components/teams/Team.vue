@@ -2,11 +2,20 @@
   <div class="border border-divider rounded flex flex-col flex-1">
     <div
       class="flex flex-1 items-start"
-      :class="{
-        'cursor-pointer hover:bg-primaryDark transition hover:border-dividerDark focus-visible:border-dividerDark':
-          compact && team.myRole === 'OWNER',
-      }"
-      @click="compact && team.myRole === 'OWNER' ? $emit('invite-team') : ''"
+      :class="
+        compact
+          ? team.myRole === 'OWNER'
+            ? 'cursor-pointer hover:bg-primaryDark transition hover:border-dividerDark focus-visible:border-dividerDark'
+            : 'cursor-not-allowed bg-primaryLight'
+          : ''
+      "
+      @click="
+        compact
+          ? team.myRole === 'OWNER'
+            ? $emit('invite-team')
+            : noPermission()
+          : ''
+      "
     >
       <div class="p-4">
         <label
@@ -181,5 +190,11 @@ const exitTeam = () => {
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned
+}
+
+const noPermission = () => {
+  $toast.error(t("profile.no_permission").toString(), {
+    icon: "error_outline",
+  })
 }
 </script>

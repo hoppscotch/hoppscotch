@@ -69,7 +69,7 @@ authIdToken$.subscribe(() => {
   subscriptionClient.client.close()
 })
 
-export const client = createClient({
+const createHoppClient = () => createClient({
   url: BACKEND_GQL_URL,
   exchanges: [
     devtoolsExchange,
@@ -123,6 +123,12 @@ export const client = createClient({
       forwardSubscription: (operation) => subscriptionClient.request(operation),
     }),
   ],
+})
+
+export const client = ref(createHoppClient())
+
+authIdToken$.subscribe(() => {
+  client.value = createHoppClient()
 })
 
 type MaybeRef<X> = X | Ref<X>
@@ -192,7 +198,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
     watchEffect(
       () => {
         source.value = !isPaused.value
-          ? client.executeQuery<DocType, DocVarType>(request.value, {
+          ? client.value.executeQuery<DocType, DocVarType>(request.value, {
               requestPolicy: "cache-and-network",
             })
           : undefined
@@ -210,7 +216,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
         console.log("create sub")
 
         return wonkaPipe(
-          client.executeSubscription(sub),
+          client.value.executeSubscription(sub),
           onEnd(() => {
             if (source.value) execute()
           }),
@@ -307,6 +313,7 @@ export const runMutation = <
     TE.tryCatch(
       () =>
         client
+          .value
           .mutation(mutation, variables, {
             requestPolicy: "cache-and-network",
             ...additionalConfig,

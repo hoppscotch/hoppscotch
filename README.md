@@ -89,7 +89,7 @@
 - `TRACE` - Performs a message loop-back test along the path to the target resource
 - `<custom>` - Some APIs use custom request methods such as `LIST`. Type in your custom methods.
 
-🌈 **Make it yours:** Customizable combinations for background, foreground and accent colors — [customize now ✨](https://hoppscotch.io/settings).
+🌈 **Make it yours:** Customizable combinations for background, foreground and accent colors — [customize now](https://hoppscotch.io/settings).
 
 **Theming**
 
@@ -256,9 +256,12 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 👨‍👩‍👧‍👦 **Teams β:** Helps you collaborate across your team to design, develop, and test APIs faster.
 
-- Unlimited team collections and shared requests
+- Unlimited teams
+- Unlimited shared collections
 - Unlimited team members
-- User roles
+- Role-based access control
+- Cloud sync
+- Multiple devices
 
 🚚 **Bulk Edit:** Edit key-value pairs in bulk.
 

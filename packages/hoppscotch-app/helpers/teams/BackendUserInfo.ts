@@ -28,10 +28,6 @@ export interface UserInfo {
    * URL to the profile photo of the user (or null if none available)
    */
   photoURL: string | null
-  /**
-   * Whether the user has access to Early Access features
-   */
-  eaInvited: boolean
 }
 
 /**
@@ -65,7 +61,6 @@ async function updateUserInfo() {
             displayName
             email
             photoURL
-            eaInvited
           }
         }
       `,
@@ -76,7 +71,6 @@ async function updateUserInfo() {
       displayName: data.me.displayName,
       email: data.me.email,
       photoURL: data.me.photoURL,
-      eaInvited: data.me.eaInvited,
     })
   } catch (e) {
     currentUserInfo$.next(null)

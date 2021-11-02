@@ -1,0 +1,10 @@
+query GetPendingInvites($teamID: ID!) {
+  team(teamID: $teamID) {
+    id
+    teamInvitations {
+      inviteeRole
+      inviteeEmail
+      id
+    }
+  }
+}

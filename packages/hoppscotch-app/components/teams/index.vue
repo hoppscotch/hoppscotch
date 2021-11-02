@@ -1,93 +1,120 @@
 <template>
   <AppSection label="teams">
-    <h4 class="text-secondaryDark">
-      {{ $t("team.title") }}
-    </h4>
-    <div class="mt-1 text-secondaryLight">
-      <SmartAnchor
-        :label="`${$t('team.join_beta')}`"
-        to="https://hoppscotch.io/beta"
-        blank
-        class="link"
-      />
-    </div>
-    <div class="space-y-4 mt-4">
+    <div class="space-y-4 p-4">
       <ButtonSecondary
         :label="`${$t('team.create_new')}`"
         outline
         @click.native="displayModalAdd(true)"
       />
       <div
-        v-if="myTeamsLoading"
+        v-if="myTeams.loading"
         class="flex flex-col items-center justify-center"
       >
         <SmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
       </div>
       <div
-        v-if="!myTeamsLoading && myTeams.myTeams.length === 0"
-        class="flex items-center"
+        v-if="
+          !myTeams.loading &&
+          E.isRight(myTeams.data) &&
+          myTeams.data.right.myTeams.length === 0
+        "
+        class="
+          flex flex-col
+          text-secondaryLight
+          p-4
+          items-center
+          justify-center
+        "
       >
-        <i class="mr-4 material-icons">help_outline</i>
-        {{ $t("empty.teams") }}
+        <i class="opacity-75 pb-2 material-icons">help_outline</i>
+        <span class="text-center">
+          {{ $t("empty.teams") }}
+        </span>
       </div>
       <div
-        v-else-if="!myTeamsLoading && !isApolloError(myTeams)"
-        class="grid gap-4 sm:grid-cols-2 md:grid-cols-3"
+        v-else-if="!myTeams.loading && E.isRight(myTeams.data)"
+        class="grid gap-4"
+        :class="
+          modal ? 'grid-cols-1' : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+        "
       >
         <TeamsTeam
-          v-for="(team, index) in myTeams.myTeams"
+          v-for="(team, index) in myTeams.data.right.myTeams"
           :key="`team-${String(index)}`"
           :team-i-d="team.id"
           :team="team"
+          :compact="modal"
           @edit-team="editTeam(team, team.id)"
+          @invite-team="inviteTeam(team, team.id)"
         />
+      </div>
+      <div
+        v-if="!myTeams.loading && E.isLeft(myTeams.data)"
+        class="flex flex-col items-center"
+      >
+        <i class="mb-4 material-icons">help_outline</i>
+        {{ $t("error.something_went_wrong") }}
       </div>
     </div>
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <!-- ¯\_(ツ)_/¯ -->
     <TeamsEdit
-      v-if="!myTeamsLoading && myTeams.myTeams.length > 0"
-      :team="myTeams.myTeams[0]"
+      v-if="
+        !myTeams.loading &&
+        E.isRight(myTeams.data) &&
+        myTeams.data.right.myTeams.length > 0
+      "
+      :team="myTeams.data.right.myTeams[0]"
       :show="showModalEdit"
       :editing-team="editingTeam"
-      :editingteam-i-d="editingTeamID"
+      :editing-team-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeam, editingTeamID)"
+    />
+    <TeamsInvite
+      v-if="
+        !myTeams.loading &&
+        E.isRight(myTeams.data) &&
+        myTeams.data.right.myTeams.length > 0
+      "
+      :team="myTeams.data.right.myTeams[0]"
+      :show="showModalInvite"
+      :editing-team="editingTeam"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
     />
   </AppSection>
 </template>
 
 <script setup lang="ts">
-import { gql } from "@apollo/client/core"
 import { ref } from "@nuxtjs/composition-api"
-import { useGQLQuery, isApolloError } from "~/helpers/apollo"
+import * as E from "fp-ts/Either"
+import { useGQLQuery } from "~/helpers/backend/GQLClient"
+import {
+  MyTeamsDocument,
+  MyTeamsQuery,
+  MyTeamsQueryVariables,
+} from "~/helpers/backend/graphql"
+import { MyTeamsQueryError } from "~/helpers/backend/QueryErrors"
+
+defineProps<{
+  modal: boolean
+}>()
 
 const showModalAdd = ref(false)
 const showModalEdit = ref(false)
+const showModalInvite = ref(false)
 const editingTeam = ref<any>({}) // TODO: Check this out
 const editingTeamID = ref<any>("")
 
-const { loading: myTeamsLoading, data: myTeams } = useGQLQuery({
-  query: gql`
-    query GetMyTeams {
-      myTeams {
-        id
-        name
-        myRole
-        ownersCount
-        members {
-          user {
-            photoURL
-            displayName
-            email
-            uid
-          }
-          role
-        }
-      }
-    }
-  `,
-  pollInterval: 10000,
+const myTeams = useGQLQuery<
+  MyTeamsQuery,
+  MyTeamsQueryVariables,
+  MyTeamsQueryError
+>({
+  query: MyTeamsDocument,
+  pollDuration: 5000,
 })
 
 const displayModalAdd = (shouldDisplay: boolean) => {
@@ -96,17 +123,21 @@ const displayModalAdd = (shouldDisplay: boolean) => {
 
 const displayModalEdit = (shouldDisplay: boolean) => {
   showModalEdit.value = shouldDisplay
-
-  if (!shouldDisplay) resetSelectedData()
 }
+
+const displayModalInvite = (shouldDisplay: boolean) => {
+  showModalInvite.value = shouldDisplay
+}
+
 const editTeam = (team: any, teamID: any) => {
   editingTeam.value = team
   editingTeamID.value = teamID
   displayModalEdit(true)
 }
 
-const resetSelectedData = () => {
-  editingTeam.value = undefined
-  editingTeamID.value = undefined
+const inviteTeam = (team: any, teamID: any) => {
+  editingTeam.value = team
+  editingTeamID.value = teamID
+  displayModalInvite(true)
 }
 </script>

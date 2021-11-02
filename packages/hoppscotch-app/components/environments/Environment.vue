@@ -42,7 +42,6 @@
           "
         />
         <SmartItem
-          v-if="!(environmentIndex === 'Global')"
           svg="copy"
           :label="`${$t('action.duplicate')}`"
           @click.native="
@@ -80,6 +79,10 @@ import { defineComponent, PropType } from "@nuxtjs/composition-api"
 import {
   deleteEnvironment,
   duplicateEnvironment,
+  createEnvironment,
+  setEnvironmentVariables,
+  getGlobalVariables,
+  environmentsStore,
 } from "~/newstore/environments"
 
 export default defineComponent({
@@ -104,8 +107,16 @@ export default defineComponent({
       })
     },
     duplicateEnvironment() {
-      if (this.environmentIndex !== "Global")
-        duplicateEnvironment(this.environmentIndex)
+      if (this.environmentIndex === "Global") {
+        createEnvironment("Global-Copy")
+        setEnvironmentVariables(
+          environmentsStore.value.environments.length - 1,
+          getGlobalVariables().reduce((gVars, gVar) => {
+            gVars.push({ key: gVar.key, value: gVar.value })
+            return gVars
+          }, [])
+        )
+      } else duplicateEnvironment(this.environmentIndex)
     },
   },
 })

@@ -10,8 +10,9 @@
     "dev": "pnpm -r do-dev",
     "generate": "pnpm -r do-build-prod",
     "start": "pnpm -r do-prod-start",
+    "lint": "pnpm -r do-lint",
     "lintfix": "pnpm -r do-lintfix",
-    "pre-commit": "pnpm -r do-lintfix",
+    "pre-commit": "pnpm -r do-lint",
     "test": "pnpm -r do-test"
   },
   "workspaces": [

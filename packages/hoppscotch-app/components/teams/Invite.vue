@@ -460,13 +460,6 @@ watch(
   }
 )
 
-watch(
-  () => pendingInvites,
-  () => {
-    console.log(pendingInvites)
-  }
-)
-
 const removeInvitee = async (id: string) => {
   const result = await revokeTeamInvitation(id)()
   if (E.isLeft(result)) {

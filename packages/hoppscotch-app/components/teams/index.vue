@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "@nuxtjs/composition-api"
+import { ref } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
@@ -115,10 +115,6 @@ const myTeams = useGQLQuery<
 >({
   query: MyTeamsDocument,
   pollDuration: 5000,
-})
-
-watchEffect(() => {
-  console.log(myTeams)
 })
 
 const displayModalAdd = (shouldDisplay: boolean) => {

@@ -240,15 +240,12 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
       isStale.value = false
 
       const invalidateStops = args.updateSubs!.map((sub) => {
-        console.log("create sub")
-
         return wonkaPipe(
           client.value.executeSubscription(sub),
           onEnd(() => {
             if (source.value) execute()
           }),
           subscribe(() => {
-            console.log("invalidate!")
             return execute()
           })
         ).unsubscribe
@@ -260,7 +257,6 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
           onEnd(() => {
             loading.value = false
             isStale.value = false
-            console.log("end")
           }),
           subscribe((res) => {
             if (res.operation.key === request.value.key) {
@@ -321,10 +317,6 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
     data,
     isStale,
     execute,
-  })
-
-  watchEffect(() => {
-    console.log(JSON.stringify(response))
   })
 
   return response

@@ -102,10 +102,6 @@ defineProps<{
   modal: boolean
 }>()
 
-defineProps<{
-  modal: boolean
-}>()
-
 const showModalAdd = ref(false)
 const showModalEdit = ref(false)
 const showModalInvite = ref(false)

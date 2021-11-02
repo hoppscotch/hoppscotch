@@ -3,6 +3,5 @@ query Me {
     uid
     displayName
     photoURL
-    eaInvited
   }
 }

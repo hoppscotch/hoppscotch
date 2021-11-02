@@ -28,8 +28,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
           svg="trash-2"
-          :disabled="bulkMode"
-          @click.native="clearContent"
+          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"

@@ -96,12 +96,15 @@ body {
 }
 
 .material-icons {
+  @apply flex-shrink-0;
+
   font-size: var(--body-line-height) !important;
   width: var(--body-line-height);
-  overflow: hidden;
 }
 
 .svg-icons {
+  @apply flex-shrink-0;
+
   height: var(--body-line-height);
   width: var(--body-line-height);
 }

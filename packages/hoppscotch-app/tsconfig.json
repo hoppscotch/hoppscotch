@@ -4,6 +4,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
     "sourceMap": true,

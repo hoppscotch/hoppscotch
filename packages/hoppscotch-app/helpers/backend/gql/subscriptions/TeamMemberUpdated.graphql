@@ -1,0 +1,5 @@
+subscription TeamMemberUpdated($teamID: ID!) {
+  teamMemberUpdated(teamID: $teamID) {
+    membershipID
+  }
+}

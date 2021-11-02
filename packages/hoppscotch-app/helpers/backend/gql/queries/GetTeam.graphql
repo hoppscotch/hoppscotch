@@ -1,0 +1,14 @@
+query GetTeam($teamID: ID!) {
+  team(teamID: $teamID) {
+    id
+    name
+    teamMembers {
+      membershipID
+      user {
+        uid
+        email
+      }
+      role
+    }
+  }
+}

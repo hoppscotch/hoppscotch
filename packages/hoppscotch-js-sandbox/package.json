@@ -12,11 +12,13 @@
   "scripts": {
     "demo": "esrun src/demo.ts",
     "lint": "eslint --ext .ts,.js --ignore-path .gitignore",
+    "lintfix": "eslint --ext .ts,.js --ignore-path .gitignore --fix",
     "test": "npx jest",
     "build": "npx tsc",
     "clean": "npx tsc --build --clean",
     "prepublish": "pnpm run build",
-    "do-lintfix": "pnpm run lint",
+    "do-lint": "pnpm run lint",
+    "do-lintfix": "pnpm run lintfix",
     "do-build-prod": "pnpm run build",
     "do-test": "pnpm run test"
   },

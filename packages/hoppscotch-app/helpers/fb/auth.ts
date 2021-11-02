@@ -16,6 +16,7 @@ import {
   linkWithCredential,
   AuthCredential,
   UserCredential,
+  updateProfile,
 } from "firebase/auth"
 import {
   onSnapshot,
@@ -33,6 +34,11 @@ import {
   Subscription,
 } from "rxjs"
 import { onBeforeUnmount, onMounted } from "@nuxtjs/composition-api"
+import {
+  setLocalConfig,
+  getLocalConfig,
+  removeLocalConfig,
+} from "~/newstore/localpersistence"
 
 export type HoppUser = User & {
   provider?: string
@@ -40,9 +46,10 @@ export type HoppUser = User & {
 }
 
 type AuthEvents =
-  | { event: "login"; user: HoppUser }
-  | { event: "logout" }
-  | { event: "authTokenUpdate"; user: HoppUser; newToken: string | null }
+  | { event: "probable_login"; user: HoppUser } // We have previous login state, but the app is waiting for authentication
+  | { event: "login"; user: HoppUser } // We are authenticated
+  | { event: "logout" } // No authentication and we have no previous state
+  | { event: "authTokenUpdate"; user: HoppUser; newToken: string | null } // Token has been updated
 
 /**
  * A BehaviorSubject emitting the currently logged in user (or null if not logged in)
@@ -59,6 +66,26 @@ export const authIdToken$ = new BehaviorSubject<string | null>(null)
 export const authEvents$ = new Subject<AuthEvents>()
 
 /**
+ * Like currentUser$ but also gives probable user value
+ */
+export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
+
+/**
+ * Resolves when the probable login resolves into proper login
+ */
+export const waitProbableLoginToConfirm = () =>
+  new Promise<void>((resolve, reject) => {
+    if (authIdToken$.value) resolve()
+
+    if (!probableUser$.value) reject(new Error("no_probable_user"))
+
+    const sub = authIdToken$.pipe(filter((token) => !!token)).subscribe(() => {
+      sub?.unsubscribe()
+      resolve()
+    })
+  })
+
+/**
  * Initializes the firebase authentication related subjects
  */
 export function initAuth() {
@@ -67,9 +94,18 @@ export function initAuth() {
 
   let extraSnapshotStop: (() => void) | null = null
 
+  probableUser$.next(JSON.parse(getLocalConfig("login_state") ?? "null"))
+
   onAuthStateChanged(auth, (user) => {
     /** Whether the user was logged in before */
     const wasLoggedIn = currentUser$.value !== null
+
+    if (user) {
+      probableUser$.next(user)
+    } else {
+      probableUser$.next(null)
+      removeLocalConfig("login_state")
+    }
 
     if (!user && extraSnapshotStop) {
       extraSnapshotStop()
@@ -135,10 +171,16 @@ export function initAuth() {
         newToken: authIdToken$.value,
         user: currentUser$.value!!, // Force not-null because user is defined
       })
+
+      setLocalConfig("login_state", JSON.stringify(user))
     } else {
       authIdToken$.next(null)
     }
   })
+}
+
+export function getAuthIDToken(): string | null {
+  return authIdToken$.getValue()
 }
 
 /**
@@ -248,6 +290,28 @@ export async function setProviderInfo(id: string, token: string) {
       doc(getFirestore(), "users", currentUser$.value.uid),
       us
     ).catch((e) => console.error("error updating", us, e))
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Sets the user's display name
+ *
+ * @param name - The new display name
+ */
+export async function setDisplayName(name: string) {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  const us = {
+    displayName: name,
+  }
+
+  try {
+    await updateProfile(currentUser$.value, us).catch((e) =>
+      console.error("error updating", us, e)
+    )
   } catch (e) {
     console.error("error updating", e)
     throw e

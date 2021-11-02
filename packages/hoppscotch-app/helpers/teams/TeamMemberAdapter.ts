@@ -4,7 +4,7 @@ import cloneDeep from "lodash/cloneDeep"
 import * as Apollo from "@apollo/client/core"
 import { apolloClient } from "~/helpers/apollo"
 
-interface TeamsTeamMember {
+export interface TeamsTeamMember {
   membershipID: string
   user: {
     uid: string

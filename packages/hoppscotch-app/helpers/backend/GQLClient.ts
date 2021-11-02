@@ -7,6 +7,7 @@ import {
   watchSyncEffect,
   WatchStopHandle,
   set,
+  isRef,
 } from "@nuxtjs/composition-api"
 import {
   createClient,
@@ -120,8 +121,8 @@ const createHoppClient = () =>
       }),
       fetchExchange,
       subscriptionExchange({
-        // @ts-expect-error: An issue with the Urql typing
         forwardSubscription: (operation) =>
+          // @ts-expect-error: An issue with the Urql typing
           subscriptionClient.request(operation),
       }),
     ],
@@ -259,39 +260,42 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
           onEnd(() => {
             loading.value = false
             isStale.value = false
+            console.log("end")
           }),
           subscribe((res) => {
-            data.value = pipe(
-              // The target
-              res.data as DocType | undefined,
-              // Define what happens if data does not exist (it is an error)
-              E.fromNullable(
-                pipe(
-                  // Take the network error value
-                  res.error?.networkError,
-                  // If it null, set the left to the generic error name
-                  E.fromNullable(res.error?.message),
-                  E.match(
-                    // The left case (network error was null)
-                    (gqlErr) =>
-                      <GQLError<DocErrorType>>{
-                        type: "gql_error",
-                        error: parseGQLErrorString(
-                          gqlErr ?? ""
-                        ) as DocErrorType,
-                      },
-                    // The right case (it was a GraphQL Error)
-                    (networkErr) =>
-                      <GQLError<DocErrorType>>{
-                        type: "network_error",
-                        error: networkErr,
-                      }
+            if (res.operation.key === request.value.key) {
+              data.value = pipe(
+                // The target
+                res.data as DocType | undefined,
+                // Define what happens if data does not exist (it is an error)
+                E.fromNullable(
+                  pipe(
+                    // Take the network error value
+                    res.error?.networkError,
+                    // If it null, set the left to the generic error name
+                    E.fromNullable(res.error?.message),
+                    E.match(
+                      // The left case (network error was null)
+                      (gqlErr) =>
+                        <GQLError<DocErrorType>>{
+                          type: "gql_error",
+                          error: parseGQLErrorString(
+                            gqlErr ?? ""
+                          ) as DocErrorType,
+                        },
+                      // The right case (it was a GraphQL Error)
+                      (networkErr) =>
+                        <GQLError<DocErrorType>>{
+                          type: "network_error",
+                          error: networkErr,
+                        }
+                    )
                   )
                 )
               )
-            )
 
-            loading.value = false
+              loading.value = false
+            }
           })
         ).unsubscribe
       )
@@ -302,8 +306,11 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   const execute = (updatedVars?: DocVarType) => {
     if (updatedVars) {
-      set(args, "variables", updatedVars)
-      // args.variables = updatedVars as any
+      if (isRef(args.variables)) {
+        args.variables.value = updatedVars
+      } else {
+        set(args, "variables", updatedVars)
+      }
     }
 
     isPaused.value = false

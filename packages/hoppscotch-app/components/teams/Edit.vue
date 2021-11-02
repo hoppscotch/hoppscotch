@@ -75,7 +75,7 @@
           </div>
           <div v-else>
             <div
-              v-for="(member, index) in teamDetails.data.right.team.teamMembers"
+              v-for="(member, index) in membersList"
               :key="`member-${index}`"
               class="divide-x divide-dividerLight flex"
             >
@@ -83,7 +83,7 @@
                 class="bg-transparent flex flex-1 py-2 px-4"
                 :placeholder="$t('team.email')"
                 :name="'param' + index"
-                :value="member.user.email"
+                :value="member.email"
                 readonly
               />
               <span>
@@ -119,7 +119,7 @@
                     label="OWNER"
                     @click.native="
                       () => {
-                        updateMemberRole(member.user.uid, 'OWNER')
+                        updateMemberRole(member.userID, 'OWNER')
                         memberOptions[index].tippy().hide()
                       }
                     "
@@ -128,7 +128,7 @@
                     label="EDITOR"
                     @click.native="
                       () => {
-                        updateMemberRole(member.user.uid, 'EDITOR')
+                        updateMemberRole(member.userID, 'EDITOR')
                         memberOptions[index].tippy().hide()
                       }
                     "
@@ -137,7 +137,7 @@
                     label="VIEWER"
                     @click.native="
                       () => {
-                        updateMemberRole(member.user.uid, 'VIEWER')
+                        updateMemberRole(member.userID, 'VIEWER')
                         memberOptions[index].tippy().hide()
                       }
                     "
@@ -151,7 +151,7 @@
                   :title="$t('action.remove')"
                   svg="trash"
                   color="red"
-                  @click.native="removeExistingTeamMember(member.user.uid)"
+                  @click.native="removeExistingTeamMember(member.userID)"
                 />
               </div>
             </div>
@@ -187,7 +187,6 @@ import {
   watch,
 } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
-import { TeamsTeamMember } from "~/helpers/teams/TeamMemberAdapter"
 import {
   GetTeamDocument,
   GetTeamQuery,
@@ -224,8 +223,6 @@ const {
   app: { i18n },
 } = useContext()
 const t = i18n.t.bind(i18n)
-
-const members = ref<TeamsTeamMember[]>([])
 
 const name = toRef(props.editingTeam, "name")
 
@@ -278,9 +275,73 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
   }),
 })
 
+const roleUpdates = ref<
+  {
+    userID: string
+    role: TeamMemberRole
+  }[]
+>([])
+
+watch(
+  () => teamDetails,
+  () => {
+    if (teamDetails.loading) return
+
+    const data = teamDetails.data
+
+    if (E.isRight(data)) {
+      const members = data.right.team?.teamMembers ?? []
+
+      // Remove deleted members
+      roleUpdates.value = roleUpdates.value.filter(
+        (update) =>
+          members.findIndex((y) => y.user.uid === update.userID) !== -1
+      )
+    }
+  }
+)
+
 const updateMemberRole = (userID: string, role: TeamMemberRole) => {
-  members.value[userID].role = role
+  const updateIndex = roleUpdates.value.findIndex(
+    (item) => item.userID === userID
+  )
+  if (updateIndex !== -1) {
+    // Role Update exists
+    roleUpdates.value[updateIndex].role = role
+  } else {
+    // Role Update does not exist
+    roleUpdates.value.push({
+      userID,
+      role,
+    })
+  }
 }
+
+const membersList = computed(() => {
+  if (teamDetails.loading) return []
+
+  const data = teamDetails.data
+
+  if (E.isLeft(data)) return []
+
+  if (E.isRight(data)) {
+    const members = (data.right.team?.teamMembers ?? []).map((member) => {
+      const updatedRole = roleUpdates.value.find(
+        (update) => update.userID === member.user.uid
+      )
+
+      return {
+        userID: member.user.uid,
+        email: member.user.email!,
+        role: updatedRole?.role ?? member.role,
+      }
+    })
+
+    return members
+  }
+
+  return []
+})
 
 const removeExistingTeamMember = async (userID: string) => {
   const removeTeamMemberResult = await removeTeamMember(
@@ -310,30 +371,24 @@ const saveTeam = async () => {
           icon: "error",
         })
       } else {
-        $toast.success(t("team.name_updated"), {
-          icon: "done",
-        })
-        members.value.forEach(
-          async (element: { user: { uid: any }; role: any }) => {
-            const updateMemberRoleResult = await updateTeamMemberRole(
-              element.user.uid,
-              props.editingTeamID,
-              element.role
-            )()
-            if (E.isLeft(updateMemberRoleResult)) {
-              $toast.error(t("error.something_went_wrong"), {
-                icon: "error",
-              })
-              console.error(updateMemberRoleResult.left.error)
-            } else {
-              $toast.success(t("team.member_role_updated"), {
-                icon: "done",
-              })
-            }
+        roleUpdates.value.forEach(async (update) => {
+          const updateMemberRoleResult = await updateTeamMemberRole(
+            update.userID,
+            props.editingTeamID,
+            update.role
+          )()
+          if (E.isLeft(updateMemberRoleResult)) {
+            $toast.error(t("error.something_went_wrong"), {
+              icon: "error",
+            })
+            console.error(updateMemberRoleResult.left.error)
           }
-        )
+        })
       }
       hideModal()
+      $toast.success(t("team.saved"), {
+        icon: "done",
+      })
     } else {
       return $toast.error(t("team.name_length_insufficient"), {
         icon: "error_outline",

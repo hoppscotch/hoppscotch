@@ -187,19 +187,17 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   const pollerTick: Ref<boolean> = ref(true)
 
   stops.push(
-    watchEffect(
-      (onInvalidate) => {
-        if (pollDuration.value !== null && !isPaused.value) {
-          const handle = setInterval(() => {
-            pollerTick.value = !pollerTick.value
-          }, pollDuration.value)
+    watchEffect((onInvalidate) => {
+      if (pollDuration.value !== null && !isPaused.value) {
+        const handle = setInterval(() => {
+          pollerTick.value = !pollerTick.value
+        }, pollDuration.value)
 
-          onInvalidate(() => {
-            clearInterval(handle)
-          })
-        }
+        onInvalidate(() => {
+          clearInterval(handle)
+        })
       }
-    )
+    })
   )
 
   stops.push(
@@ -222,6 +220,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
     watchEffect(
       () => {
         // Just listen to the polling ticks
+        // eslint-disable-next-line no-unused-expressions
         pollerTick.value
 
         source.value = !isPaused.value

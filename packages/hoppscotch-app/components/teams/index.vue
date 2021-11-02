@@ -35,7 +35,9 @@
       <div
         v-else-if="!myTeams.loading && E.isRight(myTeams.data)"
         class="grid gap-4"
-        :class="modal ? 'grid-cols-1' : 'sm:grid-cols-3 md:grid-cols-4'"
+        :class="
+          modal ? 'grid-cols-1' : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
+        "
       >
         <TeamsTeam
           v-for="(team, index) in myTeams.data.right.myTeams"

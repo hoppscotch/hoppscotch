@@ -204,32 +204,40 @@ useCodemirror(bulkEditor, bulkParams, {
 
 const params$ = useReadonlyStream(restParams$, [])
 
-watch(
-  params$,
-  (newValue) => {
-    if (
-      (newValue[newValue.length - 1]?.key !== "" ||
-        newValue[newValue.length - 1]?.value !== "") &&
-      newValue.length
+const editBulkParamLine = (index: number, item?: HoppRESTParam) => {
+  const params = bulkParams.value.split("\n")
+
+  if (item !== null)
+    params.splice(
+      index,
+      1,
+      `${!item.active ? "// " : ""}${item.key}: ${item.value}`
     )
-      addParam()
-  },
-  { deep: true }
-)
+  else params.splice(index, 1)
+
+  bulkParams.value = params.join("\n")
+}
+
+const clearBulkEditor = () => {
+  bulkParams.value = ""
+}
 
 const addParam = () => {
   addRESTParam({ key: "", value: "", active: true })
 }
 
 const updateParam = (index: number, item: HoppRESTParam) => {
+  editBulkParamLine(index, item)
   updateRESTParam(index, item)
 }
 
 const deleteParam = (index: number) => {
+  editBulkParamLine(index, null)
   deleteRESTParam(index)
 }
 
 const clearContent = () => {
+  clearBulkEditor()
   deleteAllRESTParams()
 }
 </script>

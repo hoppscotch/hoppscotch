@@ -15,7 +15,7 @@ COPY . .
 
 RUN npm install -g pnpm
 
-RUN pnpm i
+RUN pnpm i --unsafe-perm=true
 
 ENV HOST 0.0.0.0
 EXPOSE 3000

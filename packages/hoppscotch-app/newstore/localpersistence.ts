@@ -3,6 +3,8 @@
 import clone from "lodash/clone"
 import assign from "lodash/assign"
 import isEmpty from "lodash/isEmpty"
+import * as O from "fp-ts/Option"
+import { pipe } from "fp-ts/function"
 import {
   settingsStore,
   bulkApplySettings,
@@ -189,12 +191,24 @@ function setupEnvironmentsPersistence() {
 
 function setupSelectedEnvPersistence() {
   const selectedEnvIndex =
-    window.localStorage.getItem("selectedEnvIndex") || "-1"
+    pipe(
+      // Value from local storage can be nullable
+      O.fromNullable(
+        window.localStorage.getItem("selectedEnvIndex")
+      ),
+      O.map(parseInt), // If not null, parse to integer
+      O.chain(
+        O.fromPredicate(
+          Number.isInteger // Check if the number is proper int (not NaN)
+        )
+      ),
+      O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
+    )
 
-  setCurrentEnvironment(selectedEnvIndex * 1)
+  setCurrentEnvironment(selectedEnvIndex)
 
   selectedEnvIndex$.subscribe((index) => {
-    window.localStorage.setItem("selectedEnvIndex", index)
+    window.localStorage.setItem("selectedEnvIndex", index.toString())
   })
 }
 

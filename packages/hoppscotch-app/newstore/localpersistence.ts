@@ -3,6 +3,8 @@
 import clone from "lodash/clone"
 import assign from "lodash/assign"
 import isEmpty from "lodash/isEmpty"
+import * as O from "fp-ts/Option"
+import { pipe } from "fp-ts/function"
 import {
   settingsStore,
   bulkApplySettings,
@@ -34,6 +36,8 @@ import {
   addGlobalEnvVariable,
   setGlobalEnvVariables,
   globalEnv$,
+  selectedEnvIndex$,
+  setCurrentEnvironment,
 } from "./environments"
 import { restRequest$, setRESTRequest } from "./RESTSession"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
@@ -185,6 +189,29 @@ function setupEnvironmentsPersistence() {
   })
 }
 
+function setupSelectedEnvPersistence() {
+  const selectedEnvIndex =
+    pipe(
+      // Value from local storage can be nullable
+      O.fromNullable(
+        window.localStorage.getItem("selectedEnvIndex")
+      ),
+      O.map(parseInt), // If not null, parse to integer
+      O.chain(
+        O.fromPredicate(
+          Number.isInteger // Check if the number is proper int (not NaN)
+        )
+      ),
+      O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
+    )
+
+  setCurrentEnvironment(selectedEnvIndex)
+
+  selectedEnvIndex$.subscribe((index) => {
+    window.localStorage.setItem("selectedEnvIndex", index.toString())
+  })
+}
+
 function setupGlobalEnvsPersistence() {
   const globals: Environment["variables"] = JSON.parse(
     window.localStorage.getItem("globalEnv") || "[]"
@@ -221,6 +248,7 @@ export function setupLocalPersistence() {
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()
   setupEnvironmentsPersistence()
+  setupSelectedEnvPersistence()
 }
 
 /**

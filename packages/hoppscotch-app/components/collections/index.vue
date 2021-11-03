@@ -108,6 +108,11 @@
       v-if="filteredCollections.length === 0 && filterText.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
+      <img
+        :src="`/images/states/${$colorMode.value}/pack.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+      />
       <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>

@@ -59,7 +59,18 @@
               justify-center
             "
           >
-            <SmartIcon class="opacity-75 pb-2" name="users" />
+            <img
+              :src="`/images/states/${$colorMode.value}/add_group.svg`"
+              loading="lazy"
+              class="
+                flex-col
+                my-4
+                object-contain object-center
+                h-16
+                w-16
+                inline-flex
+              "
+            />
             <span class="text-center pb-4">
               {{ $t("empty.members") }}
             </span>

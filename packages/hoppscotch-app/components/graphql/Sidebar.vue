@@ -42,9 +42,20 @@
             justify-center
           "
         >
-          <i class="opacity-75 pb-2 material-icons">link</i>
+          <img
+            :src="`/images/states/${$colorMode.value}/add_comment.svg`"
+            loading="lazy"
+            class="
+              flex-col
+              my-4
+              object-contain object-center
+              h-16
+              w-16
+              inline-flex
+            "
+          />
           <span class="text-center">
-            {{ $t("empty.schema") }}
+            {{ $t("empty.documentation") }}
           </span>
         </div>
         <div v-else>
@@ -198,7 +209,18 @@
             justify-center
           "
         >
-          <i class="opacity-75 pb-2 material-icons">link</i>
+          <img
+            :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+            loading="lazy"
+            class="
+              flex-col
+              my-4
+              object-contain object-center
+              h-16
+              w-16
+              inline-flex
+            "
+          />
           <span class="text-center">
             {{ $t("empty.schema") }}
           </span>

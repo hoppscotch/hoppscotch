@@ -155,7 +155,18 @@
             justify-center
           "
         >
-          <i class="opacity-75 pb-2 material-icons">folder_open</i>
+          <img
+            :src="`/images/states/${$colorMode.value}/pack.svg`"
+            loading="lazy"
+            class="
+              flex-col
+              mb-4
+              object-contain object-center
+              h-16
+              w-16
+              inline-flex
+            "
+          />
           <span class="text-center">
             {{ $t("empty.collection") }}
           </span>

@@ -128,7 +128,7 @@ const t = i18n.t.bind(i18n)
  * that can be called to show the user the installation
  * prompt.
  */
-const showInstallPrompt = ref<undefined | null>(null)
+const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
 const showSupport = ref(false)
 const showSearch = ref(false)
@@ -156,9 +156,7 @@ onMounted(async () => {
 
   // Initializes the PWA code - checks if the app is installed,
   // etc.
-  // TODO: @liyasthomas, check this out (initializePwa is a () => Promise<void>)
-  await intializePwa()
-  showInstallPrompt.value = undefined
+  showInstallPrompt.value = intializePwa()
 
   const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
   if (!cookiesAllowed) {

@@ -210,7 +210,7 @@ const editBulkParamLine = (index: number, item?: HoppRESTParam) => {
     params.splice(
       index,
       1,
-      `${!item.active ? "// " : ""}${item.key}: ${item.value}`
+      `${item.active ? "" : "//"}${item.key}: ${item.value}`
     )
   else params.splice(index, 1)
 
@@ -222,21 +222,25 @@ const clearBulkEditor = () => {
 }
 
 const addParam = () => {
-  addRESTParam({ key: "", value: "", active: true })
+  const empty = { key: "", value: "", active: true }
+  const index = params$.value.length
+
+  addRESTParam(empty)
+  editBulkParamLine(index, empty)
 }
 
 const updateParam = (index: number, item: HoppRESTParam) => {
-  editBulkParamLine(index, item)
   updateRESTParam(index, item)
+  editBulkParamLine(index, item)
 }
 
 const deleteParam = (index: number) => {
-  editBulkParamLine(index, null)
   deleteRESTParam(index)
+  editBulkParamLine(index, null)
 }
 
 const clearContent = () => {
-  clearBulkEditor()
   deleteAllRESTParams()
+  clearBulkEditor()
 }
 </script>

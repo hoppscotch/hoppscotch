@@ -146,7 +146,18 @@
                 justify-center
               "
             >
-              <i class="opacity-75 pb-2 material-icons">topic</i>
+              <img
+                :src="`/images/states/${$colorMode.value}/add_category.svg`"
+                loading="lazy"
+                class="
+                  flex-col
+                  my-4
+                  object-contain object-center
+                  h-16
+                  w-16
+                  inline-flex
+                "
+              />
               <span class="text-center">
                 {{ $t("empty.protocols") }}
               </span>

@@ -137,6 +137,7 @@
     "body": "This request does not have a body",
     "collection": "Collection is empty",
     "collections": "Collections are empty",
+    "documentation": "Connect to a GraphQL endpoint to view documentation",
     "environments": "Environments are empty",
     "folder": "Folder is empty",
     "headers": "This request does not have any headers",
@@ -146,9 +147,9 @@
     "parameters": "This request does not have any parameters",
     "pending_invites": "There are no pending invites for this team",
     "protocols": "Protocols are empty",
-    "schema": "Connect to a GraphQL endpoint",
+    "schema": "Connect to a GraphQL endpoint to view schema",
     "team_name": "Team name empty",
-    "teams": "Teams are empty",
+    "teams": "You don't belong to any teams",
     "tests": "There are no tests for this request"
   },
   "environment": {

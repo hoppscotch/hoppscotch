@@ -131,7 +131,6 @@
                 justify-center
               "
             >
-              <SmartIcon class="opacity-75 pb-2" name="users" />
               <span class="text-center">
                 {{ $t("empty.pending_invites") }}
               </span>
@@ -250,7 +249,18 @@
               justify-center
             "
           >
-            <SmartIcon class="opacity-75 pb-2" name="user-plus" />
+            <img
+              :src="`/images/states/${$colorMode.value}/add_group.svg`"
+              loading="lazy"
+              class="
+                flex-col
+                mb-4
+                object-contain object-center
+                h-16
+                w-16
+                inline-flex
+              "
+            />
             <span class="text-center pb-4">
               {{ $t("empty.invites") }}
             </span>
@@ -348,7 +358,12 @@
           @click.native="
             () => {
               sendInvitesResult = []
-              newInvites = []
+              newInvites = [
+                {
+                  key: '',
+                  value: 'VIEWRER',
+                },
+              ]
             }
           "
         />
@@ -473,7 +488,12 @@ const removeInvitee = async (id: string) => {
   }
 }
 
-const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([])
+const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([
+  {
+    key: "",
+    value: TeamMemberRole.Viewer,
+  },
+])
 
 const addNewInvitee = () => {
   newInvites.value.push({
@@ -580,7 +600,12 @@ const getErrorMessage = (error: SendInvitesErrorType) => {
 const hideModal = () => {
   sendingInvites.value = false
   sendInvitesResult.value = []
-  newInvites.value = []
+  newInvites.value = [
+    {
+      key: "",
+      value: TeamMemberRole.Viewer,
+    },
+  ]
   emit("hide-modal")
 }
 </script>

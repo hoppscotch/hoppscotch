@@ -68,11 +68,22 @@
           justify-center
         "
       >
-        <i class="opacity-75 pb-2 material-icons">cloud_off</i>
-        <span class="text-center pb-2">
+        <img
+          :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
+          loading="lazy"
+          class="
+            flex-col
+            my-4
+            object-contain object-center
+            h-32
+            w-32
+            inline-flex
+          "
+        />
+        <span class="text-center mb-2">
           {{ $t("error.network_fail") }}
         </span>
-        <span class="text-center pb-4">
+        <span class="text-center mb-4 max-w-sm">
           {{ $t("helpers.network_fail") }}
         </span>
         <ButtonSecondary

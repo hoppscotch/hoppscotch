@@ -27,10 +27,26 @@
           justify-center
         "
       >
-        <i class="opacity-75 pb-2 material-icons">help_outline</i>
-        <span class="text-center">
+        <img
+          :src="`/images/states/${$colorMode.value}/add_group.svg`"
+          loading="lazy"
+          class="
+            flex-col
+            mb-8
+            object-contain object-center
+            h-16
+            w-16
+            inline-flex
+          "
+        />
+        <span class="text-center mb-4">
           {{ $t("empty.teams") }}
         </span>
+        <ButtonSecondary
+          :label="`${$t('team.create_new')}`"
+          filled
+          @click.native="displayModalAdd(true)"
+        />
       </div>
       <div
         v-else-if="!myTeams.loading && E.isRight(myTeams.data)"

@@ -65,6 +65,11 @@
       v-if="contentType == null"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
+      <img
+        :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+      />
       <span class="text-center pb-4">
         {{ $t("empty.body") }}
       </span>

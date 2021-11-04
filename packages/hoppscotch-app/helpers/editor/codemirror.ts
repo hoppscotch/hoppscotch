@@ -26,8 +26,15 @@ import "codemirror/addon/dialog/dialog"
 import "codemirror/addon/selection/active-line"
 
 import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
-import { LinterDefinition } from "./linting/linter"
+
+import { EditorState, Compartment, StateField } from "@codemirror/state"
+import { EditorView, keymap, ViewPlugin, ViewUpdate } from "@codemirror/view"
+import { defaultKeymap } from "@codemirror/commands"
+import { basicSetup } from "@codemirror/basic-setup"
+import { javascript } from "@codemirror/lang-javascript"
+import { onBeforeUnmount } from "@vue/runtime-dom"
 import { Completer } from "./completion"
+import { LinterDefinition } from "./linting/linter"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
@@ -210,6 +217,111 @@ export function useCodemirror(
 
   return {
     cm,
+    cursor,
+  }
+}
+
+const getEditorLanguage = (mode: string) => {
+  if (mode === "application/javascript") {
+    return javascript()
+  } else {
+    return StateField.define({
+      create() {
+        return null
+      },
+      update() {},
+    })
+  }
+}
+
+export function useNewCodemirror(
+  el: Ref<any | null>,
+  value: Ref<string>,
+  options: CodeMirrorOptions
+): { cursor: Ref<{ line: number; ch: number }> } {
+  const language = new Compartment()
+
+  const cursor = ref({
+    line: 0,
+    ch: 0,
+  })
+  const cachedValue = ref(value.value)
+
+  const state = EditorState.create({
+    doc: value.value,
+    extensions: [
+      basicSetup,
+      ViewPlugin.fromClass(
+        class {
+          update(update: ViewUpdate) {
+            if (update.selectionSet) {
+              const cursorPos = update.state.selection.main.head
+
+              const line = update.state.doc.lineAt(cursorPos)
+
+              cursor.value = {
+                line: line.number,
+                ch: cursorPos - line.from + 1,
+              }
+            }
+
+            if (update.docChanged) {
+              // Expensive on big files ?
+              cachedValue.value = update.state.doc
+                .toJSON()
+                .join(update.state.lineBreak)
+              value.value = cachedValue.value
+            }
+          }
+        }
+      ),
+      language.of(
+        getEditorLanguage((options.extendedEditorConfig.mode as any) ?? "")
+      ),
+      keymap.of(defaultKeymap),
+    ],
+  })
+
+  const view = ref<EditorView>()
+
+  onMounted(() => {
+    view.value = new EditorView({
+      state,
+      parent: el.value,
+    })
+  })
+
+  onBeforeUnmount(() => {
+    if (view.value) view.value.destroy()
+  })
+
+  watch(el, (newEl) => {
+    if (view.value) {
+      view.value.destroy()
+      view.value = undefined
+    }
+
+    if (newEl) {
+      view.value = new EditorView({
+        state,
+        parent: newEl,
+      })
+    }
+  })
+
+  watch(value, (newVal) => {
+    if (cachedValue.value !== newVal) {
+      state.update({
+        changes: {
+          from: 0,
+          to: state.doc.length,
+          insert: newVal,
+        },
+      })
+    }
+  })
+
+  return {
     cursor,
   }
 }

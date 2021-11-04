@@ -190,20 +190,17 @@ function setupEnvironmentsPersistence() {
 }
 
 function setupSelectedEnvPersistence() {
-  const selectedEnvIndex =
-    pipe(
-      // Value from local storage can be nullable
-      O.fromNullable(
-        window.localStorage.getItem("selectedEnvIndex")
-      ),
-      O.map(parseInt), // If not null, parse to integer
-      O.chain(
-        O.fromPredicate(
-          Number.isInteger // Check if the number is proper int (not NaN)
-        )
-      ),
-      O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
-    )
+  const selectedEnvIndex = pipe(
+    // Value from local storage can be nullable
+    O.fromNullable(window.localStorage.getItem("selectedEnvIndex")),
+    O.map(parseInt), // If not null, parse to integer
+    O.chain(
+      O.fromPredicate(
+        Number.isInteger // Check if the number is proper int (not NaN)
+      )
+    ),
+    O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
+  )
 
   setCurrentEnvironment(selectedEnvIndex)
 

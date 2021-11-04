@@ -4,7 +4,7 @@ import "@relmify/jest-fp-ts"
 const fakeResponse: TestResponse = {
   status: 200,
   body: "hoi",
-  headers: []
+  headers: [],
 }
 
 describe("toBeLevel2xx", () => {
@@ -14,10 +14,12 @@ describe("toBeLevel2xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to be 200-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to be 200-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -29,10 +31,12 @@ describe("toBeLevel2xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to be 200-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to be 200-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -43,11 +47,14 @@ describe("toBeLevel2xx", () => {
       execTestScript(`pw.expect("foo").toBeLevel2xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 200-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 200-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 
@@ -57,10 +64,12 @@ describe("toBeLevel2xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to not be 200-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to not be 200-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -72,10 +81,12 @@ describe("toBeLevel2xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to not be 200-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to not be 200-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -86,11 +97,14 @@ describe("toBeLevel2xx", () => {
       execTestScript(`pw.expect("foo").not.toBeLevel2xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 200-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 200-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 })
@@ -102,10 +116,12 @@ describe("toBeLevel3xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to be 300-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to be 300-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -117,10 +133,12 @@ describe("toBeLevel3xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to be 300-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to be 300-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -131,11 +149,14 @@ describe("toBeLevel3xx", () => {
       execTestScript(`pw.expect("foo").toBeLevel3xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 300-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 300-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 
@@ -145,10 +166,12 @@ describe("toBeLevel3xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to not be 300-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to not be 300-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -160,10 +183,12 @@ describe("toBeLevel3xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to not be 300-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to not be 300-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -174,14 +199,16 @@ describe("toBeLevel3xx", () => {
       execTestScript(`pw.expect("foo").not.toBeLevel3xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 300-level status but could not parse value 'foo'",
-        }]
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 300-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
-
 })
 
 describe("toBeLevel4xx", () => {
@@ -191,10 +218,12 @@ describe("toBeLevel4xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to be 400-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to be 400-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -206,10 +235,12 @@ describe("toBeLevel4xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to be 400-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to be 400-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -220,11 +251,14 @@ describe("toBeLevel4xx", () => {
       execTestScript(`pw.expect("foo").toBeLevel4xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 400-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 400-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 
@@ -234,10 +268,12 @@ describe("toBeLevel4xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to not be 400-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to not be 400-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -249,10 +285,12 @@ describe("toBeLevel4xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to not be 400-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to not be 400-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -263,11 +301,14 @@ describe("toBeLevel4xx", () => {
       execTestScript(`pw.expect("foo").not.toBeLevel4xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 400-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 400-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 })
@@ -279,10 +320,12 @@ describe("toBeLevel5xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to be 500-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to be 500-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -294,10 +337,12 @@ describe("toBeLevel5xx", () => {
         execTestScript(`pw.expect(${i}).toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to be 500-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to be 500-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -308,11 +353,14 @@ describe("toBeLevel5xx", () => {
       execTestScript(`pw.expect("foo").toBeLevel5xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 500-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 500-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 
@@ -322,10 +370,12 @@ describe("toBeLevel5xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: `Expected '${i}' to not be 500-level status`,
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: `Expected '${i}' to not be 500-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -337,10 +387,12 @@ describe("toBeLevel5xx", () => {
         execTestScript(`pw.expect(${i}).not.toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: `Expected '${i}' to not be 500-level status`,
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: `Expected '${i}' to not be 500-level status`,
+            },
+          ],
         }),
       ])
     }
@@ -351,11 +403,14 @@ describe("toBeLevel5xx", () => {
       execTestScript(`pw.expect("foo").not.toBeLevel5xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
-        expectResults: [{
-          status: "error",
-          message: "Expected 500-level status but could not parse value 'foo'",
-        }],
-      })
+        expectResults: [
+          {
+            status: "error",
+            message:
+              "Expected 500-level status but could not parse value 'foo'",
+          },
+        ],
+      }),
     ])
   })
 })

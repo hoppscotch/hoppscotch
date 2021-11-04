@@ -268,7 +268,7 @@ export default defineComponent({
       else this.$refs.versionOptions.tippy().enable()
     },
   },
-  mounted() {
+  created() {
     if (process.browser) {
       this.worker = this.$worker.createRejexWorker()
       this.worker.addEventListener("message", this.workerResponseHandler)

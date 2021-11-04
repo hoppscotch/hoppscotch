@@ -8,11 +8,14 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("bob", "newbob")
         `,
-        [{ key: "bob", value: "oldbob" }, { key: "foo", value: "bar" }]
+        [
+          { key: "bob", value: "oldbob" },
+          { key: "foo", value: "bar" },
+        ]
       )()
     ).resolves.toEqualRight([
       { key: "bob", value: "newbob" },
-      { key: "foo", value: "bar" }
+      { key: "foo", value: "bar" },
     ])
   })
 
@@ -22,7 +25,10 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set(10, "newbob")
         `,
-        [{ key: "bob", value: "oldbob" }, { key: "foo", value: "bar" }]
+        [
+          { key: "bob", value: "oldbob" },
+          { key: "foo", value: "bar" },
+        ]
       )()
     ).resolves.toBeLeft()
   })
@@ -33,7 +39,10 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("bob", 10)
         `,
-        [{ key: "bob", value: "oldbob" }, { key: "foo", value: "bar" }]
+        [
+          { key: "bob", value: "oldbob" },
+          { key: "foo", value: "bar" },
+        ]
       )()
     ).resolves.toBeLeft()
   })
@@ -44,7 +53,10 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("bob", 
         `,
-        [{ key: "bob", value: "oldbob" }, { key: "foo", value: "bar" }]
+        [
+          { key: "bob", value: "oldbob" },
+          { key: "foo", value: "bar" },
+        ]
       )()
     ).resolves.toBeLeft()
   })
@@ -57,8 +69,6 @@ describe("execPreRequestScript", () => {
         `,
         []
       )()
-    ).resolves.toEqualRight(
-      [{ key: "foo", value: "bar" }]
-    )
+    ).resolves.toEqualRight([{ key: "foo", value: "bar" }])
   })
 })

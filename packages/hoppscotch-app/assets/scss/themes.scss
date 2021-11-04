@@ -1,374 +1,245 @@
-@mixin baseTheme {
+@mixin base-theme {
   --font-sans: "Inter", sans-serif;
   --font-mono: "Roboto Mono", monospace;
   --font-icon: "Material Icons";
 }
 
-@mixin darkTheme {
-  // Background color
+@mixin dark-theme {
   --primary-color: theme("colors.true-gray.900");
-  // Light Background color
   --primary-light-color: theme("colors.dark.600");
-  // Dark Background color
   --primary-dark-color: theme("colors.true-gray.800");
-  // Text color
   --secondary-color: theme("colors.true-gray.400");
-  // Light Text color
   --secondary-light-color: theme("colors.true-gray.500");
-  // Dark Text color
   --secondary-dark-color: theme("colors.true-gray.100");
-  // Border color
   --divider-color: theme("colors.true-gray.800");
-  // Light Border color
   --divider-light-color: theme("colors.dark.500");
-  // Dark Border color
   --divider-dark-color: theme("colors.dark.300");
-  // Error color
   --error-color: theme("colors.warm-gray.800");
-  // Tooltip color
   --tooltip-color: theme("colors.true-gray.100");
-  // Popover color
   --popover-color: theme("colors.dark.700");
-  // Editor theme
   --editor-theme: "merbivore_soft";
 }
 
-@mixin lightTheme {
-  // Background color
+@mixin light-theme {
   --primary-color: theme("colors.white");
-  // Light Background color
   --primary-light-color: theme("colors.true-gray.50");
-  // Dark Background color
   --primary-dark-color: theme("colors.true-gray.100");
-  // Text color
   --secondary-color: theme("colors.true-gray.500");
-  // Light Text color
   --secondary-light-color: theme("colors.true-gray.400");
-  // Dark Text color
   --secondary-dark-color: theme("colors.true-gray.900");
-  // Border color
   --divider-color: theme("colors.true-gray.200");
-  // Light Border color
   --divider-light-color: theme("colors.true-gray.100");
-  // Dark Border color
   --divider-dark-color: theme("colors.true-gray.300");
-  // Error color
   --error-color: theme("colors.yellow.100");
-  // Tooltip color
   --tooltip-color: theme("colors.true-gray.800");
-  // Popover color
   --popover-color: theme("colors.white");
-  // Editor theme
   --editor-theme: "textmate";
 }
 
-@mixin blackTheme {
-  // Background color
+@mixin black-theme {
   --primary-color: theme("colors.dark.900");
-  // Light Background color
   --primary-light-color: theme("colors.true-gray.900");
-  // Dark Background color
   --primary-dark-color: theme("colors.dark.800");
-  // Text color
   --secondary-color: theme("colors.true-gray.400");
-  // Light Text color
   --secondary-light-color: theme("colors.true-gray.500");
-  // Dark Text color
   --secondary-dark-color: theme("colors.true-gray.100");
-  // Border color
   --divider-color: theme("colors.true-gray.800");
-  // Light Border color
   --divider-light-color: theme("colors.dark.700");
-  // Dark Border color
   --divider-dark-color: theme("colors.dark.300");
-  // Error color
   --error-color: theme("colors.warm-gray.900");
-  // Tooltip color
   --tooltip-color: theme("colors.true-gray.100");
-  // Popover color
   --popover-color: theme("colors.dark.700");
-  // Editor theme
   --editor-theme: "twilight";
 }
 
-@mixin greenTheme {
-  // Accent color
+@mixin green-theme {
   --accent-color: theme("colors.green.500");
-  // Light Accent color
   --accent-light-color: theme("colors.green.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.green.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.green.200");
-  // Gradient via
   --gradient-via-color: theme("colors.green.400");
-  // Gradient to
   --gradient-to-color: theme("colors.green.600");
 }
 
-@mixin tealTheme {
-  // Accent color
+@mixin teal-theme {
   --accent-color: theme("colors.teal.500");
-  // Light Accent color
   --accent-light-color: theme("colors.teal.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.teal.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.teal.200");
-  // Gradient via
   --gradient-via-color: theme("colors.teal.400");
-  // Gradient to
   --gradient-to-color: theme("colors.teal.600");
 }
 
-@mixin blueTheme {
-  // Accent color
+@mixin blue-theme {
   --accent-color: theme("colors.blue.500");
-  // Light Accent color
   --accent-light-color: theme("colors.blue.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.blue.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.blue.200");
-  // Gradient via
   --gradient-via-color: theme("colors.blue.400");
-  // Gradient to
   --gradient-to-color: theme("colors.blue.600");
 }
 
-@mixin indigoTheme {
-  // Accent color
+@mixin indigo-theme {
   --accent-color: theme("colors.indigo.500");
-  // Light Accent color
   --accent-light-color: theme("colors.indigo.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.indigo.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.indigo.200");
-  // Gradient via
   --gradient-via-color: theme("colors.indigo.400");
-  // Gradient to
   --gradient-to-color: theme("colors.indigo.600");
 }
 
-@mixin purpleTheme {
-  // Accent color
+@mixin purple-theme {
   --accent-color: theme("colors.purple.500");
-  // Light Accent color
   --accent-light-color: theme("colors.purple.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.purple.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.purple.200");
-  // Gradient via
   --gradient-via-color: theme("colors.purple.400");
-  // Gradient to
   --gradient-to-color: theme("colors.purple.600");
 }
 
-@mixin yellowTheme {
-  // Accent color
+@mixin yellow-theme {
   --accent-color: theme("colors.yellow.500");
-  // Light Accent color
   --accent-light-color: theme("colors.yellow.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.yellow.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.yellow.200");
-  // Gradient via
   --gradient-via-color: theme("colors.yellow.400");
-  // Gradient to
   --gradient-to-color: theme("colors.yellow.600");
 }
 
-@mixin orangeTheme {
-  // Accent color
+@mixin orange-theme {
   --accent-color: theme("colors.orange.500");
-  // Light Accent color
   --accent-light-color: theme("colors.orange.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.orange.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.orange.200");
-  // Gradient via
   --gradient-via-color: theme("colors.orange.400");
-  // Gradient to
   --gradient-to-color: theme("colors.orange.600");
 }
 
-@mixin redTheme {
-  // Accent color
+@mixin red-theme {
   --accent-color: theme("colors.red.500");
-  // Light Accent color
   --accent-light-color: theme("colors.red.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.red.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.red.200");
-  // Gradient via
   --gradient-via-color: theme("colors.red.400");
-  // Gradient to
   --gradient-to-color: theme("colors.red.600");
 }
 
-@mixin pinkTheme {
-  // Accent color
+@mixin pink-theme {
   --accent-color: theme("colors.pink.500");
-  // Light Accent color
   --accent-light-color: theme("colors.pink.400");
-  // Dark Accent color
   --accent-dark-color: theme("colors.pink.600");
-  // Light Contrast color
   --accent-contrast-color: theme("colors.white");
-  // Gradient from
   --gradient-from-color: theme("colors.pink.200");
-  // Gradient via
   --gradient-via-color: theme("colors.pink.400");
-  // Gradient to
   --gradient-to-color: theme("colors.pink.600");
 }
 
 :root {
-  @include baseTheme;
-  @include darkTheme;
-  @include greenTheme;
+  @include base-theme;
+  @include dark-theme;
+  @include green-theme;
 }
 
 :root.light {
-  @include lightTheme;
+  @include light-theme;
 }
 
 :root.dark {
-  @include darkTheme;
+  @include dark-theme;
 }
 
 :root.black {
-  @include blackTheme;
+  @include black-theme;
 }
 
 :root[data-accent="blue"] {
-  @include blueTheme;
+  @include blue-theme;
 }
 
 :root[data-accent="green"] {
-  @include greenTheme;
+  @include green-theme;
 }
 
 :root[data-accent="teal"] {
-  @include tealTheme;
+  @include teal-theme;
 }
 
 :root[data-accent="indigo"] {
-  @include indigoTheme;
+  @include indigo-theme;
 }
 
 :root[data-accent="purple"] {
-  @include purpleTheme;
+  @include purple-theme;
 }
 
 :root[data-accent="orange"] {
-  @include orangeTheme;
+  @include orange-theme;
 }
 
 :root[data-accent="pink"] {
-  @include pinkTheme;
+  @include pink-theme;
 }
 
 :root[data-accent="red"] {
-  @include redTheme;
+  @include red-theme;
 }
 
 :root[data-accent="yellow"] {
-  @include yellowTheme;
+  @include yellow-theme;
 }
 
-@mixin fontSmall {
-  // Font size
+@mixin font-small {
   --body-font-size: 0.75rem;
-  // Line height
   --body-line-height: 1rem;
-  // Upper primary sticky fold
   --upper-primary-sticky-fold: 4.125rem;
-  // Upper secondary sticky fold
   --upper-secondary-sticky-fold: 6.125rem;
-  // Upper tertiary sticky fold
   --upper-tertiary-sticky-fold: 8.188rem;
-  // Lower primary sticky fold
   --lower-primary-sticky-fold: 3rem;
-  // Lower secondary sticky fold
   --lower-secondary-sticky-fold: 5rem;
-  // Sidebar primary sticky fold
   --sidebar-primary-sticky-fold: 2rem;
-  // Sidebar secondary sticky fold
   --sidebar-secondary-sticky-fold: 4rem;
 }
 
-@mixin fontMedium {
-  // Font size
+@mixin font-medium {
   --body-font-size: 0.875rem;
-  // Line height
   --body-line-height: 1.25rem;
-  // Upper primary sticky fold
   --upper-primary-sticky-fold: 4.375rem;
-  // Upper secondary sticky fold
   --upper-secondary-sticky-fold: 6.625rem;
-  // Upper tertiary sticky fold
   --upper-tertiary-sticky-fold: 8.813rem;
-  // Lower primary sticky fold
   --lower-primary-sticky-fold: 3.25rem;
-  // Lower secondary sticky fold
   --lower-secondary-sticky-fold: 5.5rem;
-  // Sidebar primary sticky fold
   --sidebar-primary-sticky-fold: 2.25rem;
-  // Sidebar secondary sticky fold
   --sidebar-secondary-sticky-fold: 4.5rem;
 }
 
-@mixin fontLarge {
-  // Font size
+@mixin font-large {
   --body-font-size: 1rem;
-  // Line height
   --body-line-height: 1.5rem;
-  // Upper primary sticky fold
   --upper-primary-sticky-fold: 4.625rem;
-  // Upper secondary sticky fold
   --upper-secondary-sticky-fold: 7.125rem;
-  // Upper tertiary sticky fold
   --upper-tertiary-sticky-fold: 9.5rem;
-  // Lower primary sticky fold
   --lower-primary-sticky-fold: 3.5rem;
-  // Lower secondary sticky fold
   --lower-secondary-sticky-fold: 6rem;
-  // Sidebar primary sticky fold
   --sidebar-primary-sticky-fold: 2.5rem;
-  // Sidebar secondary sticky fold
   --sidebar-secondary-sticky-fold: 5rem;
 }
 
 :root[data-font-size="small"] {
-  @include fontSmall;
+  @include font-small;
 }
 
 :root[data-font-size="medium"] {
-  @include fontMedium;
+  @include font-medium;
 }
 
 :root[data-font-size="large"] {
-  @include fontLarge;
+  @include font-large;
 }

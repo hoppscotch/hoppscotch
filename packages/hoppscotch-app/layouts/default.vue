@@ -52,7 +52,6 @@ import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
-import { initializeFirebase } from "~/helpers/fb"
 import { useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
@@ -189,7 +188,6 @@ export default defineComponent({
       })
     }
 
-    initializeFirebase()
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)

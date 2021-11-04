@@ -194,7 +194,7 @@ export default defineComponent({
       this.debouncer()
     },
   },
-  mounted() {
+  created() {
     if (process.browser) {
       this.worker = this.$worker.createRejexWorker()
       this.worker.addEventListener("message", this.workerResponseHandler)

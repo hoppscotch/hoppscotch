@@ -1,7 +1,10 @@
-import { Either, left, right } from "fp-ts/lib/Either";
-import * as QuickJS from "quickjs-emscripten";
+import { Either, left, right } from "fp-ts/lib/Either"
+import * as QuickJS from "quickjs-emscripten"
 
-export function marshalObjectToVM(vm: QuickJS.QuickJSVm, obj: object): Either<string, QuickJS.QuickJSHandle> {
+export function marshalObjectToVM(
+  vm: QuickJS.QuickJSVm,
+  obj: object
+): Either<string, QuickJS.QuickJSHandle> {
   let jsonString
 
   try {
@@ -15,7 +18,11 @@ export function marshalObjectToVM(vm: QuickJS.QuickJSVm, obj: object): Either<st
   const jsonHandle = vm.getProp(vm.global, "JSON")
   const parseFuncHandle = vm.getProp(jsonHandle, "parse")
 
-  const parseResultHandle = vm.callFunction(parseFuncHandle, vm.undefined, vmStringHandle)
+  const parseResultHandle = vm.callFunction(
+    parseFuncHandle,
+    vm.undefined,
+    vmStringHandle
+  )
 
   if (parseResultHandle.error) {
     parseResultHandle.error.dispose()
@@ -27,6 +34,6 @@ export function marshalObjectToVM(vm: QuickJS.QuickJSVm, obj: object): Either<st
   vmStringHandle.dispose()
   parseFuncHandle.dispose()
   jsonHandle.dispose()
-  
+
   return right(resultHandle)
 }

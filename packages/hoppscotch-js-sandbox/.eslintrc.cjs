@@ -25,5 +25,6 @@ module.exports = {
     "import/no-named-as-default": "off",
     "no-undef": "off",
     "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
   },
 }

@@ -69,11 +69,11 @@ body {
 
 @keyframes fade {
   0% {
-    opacity: 0;
+    @apply opacity-0;
   }
 
   100% {
-    opacity: 1;
+    @apply opacity-100;
   }
 }
 
@@ -182,10 +182,6 @@ a {
   @apply max-h-46;
   @apply items-stretch;
   @apply overflow-y-auto;
-
-  // &::-webkit-scrollbar {
-  //   @apply hidden;
-  // }
 }
 
 hr {

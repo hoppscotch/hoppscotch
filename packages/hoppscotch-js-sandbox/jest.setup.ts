@@ -1,1 +1,1 @@
-require('@relmify/jest-fp-ts');
+require("@relmify/jest-fp-ts")

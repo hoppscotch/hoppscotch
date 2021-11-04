@@ -402,6 +402,9 @@ import {
   TeamInvitationAddedDocument,
   TeamInvitationRemovedDocument,
   TeamMemberRole,
+  GetPendingInvitesDocument,
+  GetPendingInvitesQuery,
+  GetPendingInvitesQueryVariables,
 } from "../../helpers/backend/graphql"
 import {
   createTeamInvitation,
@@ -409,11 +412,6 @@ import {
   revokeTeamInvitation,
 } from "../../helpers/backend/mutations/TeamInvitation"
 import { GQLError, useGQLQuery } from "~/helpers/backend/GQLClient"
-import {
-  GetPendingInvitesDocument,
-  GetPendingInvitesQuery,
-  GetPendingInvitesQueryVariables,
-} from "~/helpers/backend/graphql"
 
 const {
   $toast,

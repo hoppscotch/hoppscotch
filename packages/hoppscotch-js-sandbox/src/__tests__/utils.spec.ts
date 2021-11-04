@@ -15,16 +15,15 @@ afterAll(() => {
 })
 
 describe("marshalObjectToVM", () => {
-
   test("successfully marshals simple object into the vm", () => {
     const testObj = {
-      a: 1
+      a: 1,
     }
 
     const objVMHandle: QuickJS.QuickJSHandle | null = pipe(
       marshalObjectToVM(vm, testObj),
       match(
-        (e) => null,
+        () => null,
         (result) => result
       )
     )
@@ -38,7 +37,7 @@ describe("marshalObjectToVM", () => {
   test("fails marshalling cyclic object into vm", () => {
     const testObj = {
       a: 1,
-      b: null as any
+      b: null as any,
     }
 
     testObj.b = testObj
@@ -46,12 +45,11 @@ describe("marshalObjectToVM", () => {
     const objVMHandle: QuickJS.QuickJSHandle | null = pipe(
       marshalObjectToVM(vm, testObj),
       match(
-        (e) => null,
+        () => null,
         (result) => result
       )
     )
 
     expect(objVMHandle).toBeNull()
   })
-
 })

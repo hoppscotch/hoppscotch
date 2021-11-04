@@ -1,15 +1,13 @@
 import { runTestScript } from "./index"
 import { TestResponse } from "./test-runner"
 
-
 const dummyResponse: TestResponse = {
   status: 200,
   body: "hoi",
-  headers: []
-};
-
+  headers: [],
+}
 // eslint-disable-next-line prettier/prettier
-(async () => {
+;(async () => {
   console.dir(
     await runTestScript(
       `
@@ -46,7 +44,7 @@ const dummyResponse: TestResponse = {
       pw.expect(arr).not.toHaveLength(4);
     });
     `,
-    dummyResponse
+      dummyResponse
     ),
     {
       depth: 100,

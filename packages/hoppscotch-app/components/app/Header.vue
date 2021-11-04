@@ -146,7 +146,7 @@ defineActionHandler("modals.search.toggle", () => {
   showSearch.value = !showSearch.value
 })
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener("online", () => {
     isOnLine.value = true
   })

@@ -1,1 +1,1 @@
-import '@relmify/jest-fp-ts';
+import "@relmify/jest-fp-ts"

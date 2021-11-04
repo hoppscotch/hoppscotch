@@ -9,9 +9,9 @@ import { marshalObjectToVM } from "./utils"
  */
 export type TestResponse = {
   /** Status Code of the response */
-  status: number,
+  status: number
   /** List of headers returned */
-  headers: { key: string, value: string }[],
+  headers: { key: string; value: string }[]
   /**
    * Body of the response, this will be the JSON object if it is a JSON content type, else body string
    */
@@ -21,8 +21,7 @@ export type TestResponse = {
 /**
  * The result of an expectation statement
  */
-type ExpectResult =
-  | { status: "pass" | "fail" | "error", message: string } // The expectation failed (fail) or errored (error)
+type ExpectResult = { status: "pass" | "fail" | "error"; message: string } // The expectation failed (fail) or errored (error)
 
 /**
  * An object defining the result of the execution of a
@@ -68,14 +67,18 @@ function createExpectation(
     if (negated) assertion = !assertion
 
     if (assertion) {
-      currTestStack[currTestStack.length - 1].expectResults.push({ 
+      currTestStack[currTestStack.length - 1].expectResults.push({
         status: "pass",
-        message: `Expected '${expectVal}' to${negated ? " not" : ""} be '${expectedVal}'`
+        message: `Expected '${expectVal}' to${
+          negated ? " not" : ""
+        } be '${expectedVal}'`,
       })
     } else {
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "fail",
-        message: `Expected '${expectVal}' to${negated ? " not" : ""} be '${expectedVal}'`,
+        message: `Expected '${expectVal}' to${
+          negated ? " not" : ""
+        } be '${expectedVal}'`,
       })
     }
 
@@ -91,13 +94,16 @@ function createExpectation(
       if (assertion) {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "pass",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be 200-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 200-level status`,
         })
       } else {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "fail",
-          message:
-            `Expected '${expectVal}' to${negated ? " not" : ""} be 200-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 200-level status`,
         })
       }
     } else {
@@ -119,13 +125,16 @@ function createExpectation(
       if (assertion) {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "pass",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be 300-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 300-level status`,
         })
       } else {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "fail",
-          message:
-            `Expected '${expectVal}' to${negated ? " not" : ""} be 300-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 300-level status`,
         })
       }
     } else {
@@ -147,13 +156,16 @@ function createExpectation(
       if (assertion) {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "pass",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be 400-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 400-level status`,
         })
       } else {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "fail",
-          message:
-            `Expected '${expectVal}' to${negated ? " not" : ""} be 400-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 400-level status`,
         })
       }
     } else {
@@ -175,12 +187,16 @@ function createExpectation(
       if (assertion) {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "pass",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be 500-level status`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 500-level status`,
         })
       } else {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "fail",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be 500-level status`
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be 500-level status`,
         })
       }
     } else {
@@ -189,7 +205,7 @@ function createExpectation(
         message: `Expected 500-level status but could not parse value '${expectVal}'`,
       })
     }
-    
+
     return { value: vm.undefined }
   })
 
@@ -197,25 +213,40 @@ function createExpectation(
     const expectedType = vm.dump(expectedValHandle)
 
     // Check if the expectation param is a valid type name string, else error
-    if (["string", "boolean", "number", "object", "undefined", "bigint", "symbol", "function"].includes(expectedType)) {
+    if (
+      [
+        "string",
+        "boolean",
+        "number",
+        "object",
+        "undefined",
+        "bigint",
+        "symbol",
+        "function",
+      ].includes(expectedType)
+    ) {
       let assertion = typeof expectVal === expectedType
       if (negated) assertion = !assertion
 
       if (assertion) {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "pass",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be type '${expectedType}'`
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be type '${expectedType}'`,
         })
       } else {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "fail",
-          message: `Expected '${expectVal}' to${negated ? " not" : ""} be type '${expectedType}'`,
+          message: `Expected '${expectVal}' to${
+            negated ? " not" : ""
+          } be type '${expectedType}'`,
         })
       }
     } else {
       currTestStack[currTestStack.length - 1].expectResults.push({
         status: "error",
-        message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`
+        message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
       })
     }
 
@@ -240,25 +271,29 @@ function createExpectation(
       if (typeof expectedLength === "number" && !Number.isNaN(expectedLength)) {
         let assertion = (expectVal as any[]).length === expectedLength
         if (negated) assertion = !assertion
-        
+
         if (assertion) {
           currTestStack[currTestStack.length - 1].expectResults.push({
             status: "pass",
-            message: `Expected the array to${negated ? " not" : ""} be of length '${expectedLength}'`,
+            message: `Expected the array to${
+              negated ? " not" : ""
+            } be of length '${expectedLength}'`,
           })
         } else {
           currTestStack[currTestStack.length - 1].expectResults.push({
             status: "fail",
-            message: `Expected the array to${negated ? " not" : ""} be of length '${expectedLength}'`
+            message: `Expected the array to${
+              negated ? " not" : ""
+            } be of length '${expectedLength}'`,
           })
         }
       } else {
         currTestStack[currTestStack.length - 1].expectResults.push({
           status: "error",
-          message: `Argument for toHaveLength should be a number`
+          message: `Argument for toHaveLength should be a number`,
         })
       }
-      
+
       return { value: vm.undefined }
     }
   )
@@ -291,77 +326,81 @@ function createExpectation(
 export const execTestScript = (
   testScript: string,
   response: TestResponse
-): TaskEither<string, TestDescriptor[]> => pipe(
-  tryCatch(
-    async () => await qjs.getQuickJS(),
-    (reason) => `QuickJS initialization failed: ${reason}`
-  ),
-  chain(
-    // TODO: Make this more functional ?
-    (QuickJS) => {
-      const vm = QuickJS.createVm()
+): TaskEither<string, TestDescriptor[]> =>
+  pipe(
+    tryCatch(
+      async () => await qjs.getQuickJS(),
+      (reason) => `QuickJS initialization failed: ${reason}`
+    ),
+    chain(
+      // TODO: Make this more functional ?
+      (QuickJS) => {
+        const vm = QuickJS.createVm()
 
-      const pwHandle = vm.newObject()
+        const pwHandle = vm.newObject()
 
-      const testRunStack: TestDescriptor[] = [
-        { descriptor: "root", expectResults: [], children: [] },
-      ]
+        const testRunStack: TestDescriptor[] = [
+          { descriptor: "root", expectResults: [], children: [] },
+        ]
 
-      const testFuncHandle = vm.newFunction(
-        "test",
-        (descriptorHandle, testFuncHandle) => {
-          const descriptor = vm.getString(descriptorHandle)
+        const testFuncHandle = vm.newFunction(
+          "test",
+          (descriptorHandle, testFuncHandle) => {
+            const descriptor = vm.getString(descriptorHandle)
 
-          testRunStack.push({
-            descriptor,
-            expectResults: [],
-            children: [],
-          })
+            testRunStack.push({
+              descriptor,
+              expectResults: [],
+              children: [],
+            })
 
-          const result = vm.unwrapResult(vm.callFunction(testFuncHandle, vm.null))
-          result.dispose()
+            const result = vm.unwrapResult(
+              vm.callFunction(testFuncHandle, vm.null)
+            )
+            result.dispose()
 
-          const child = testRunStack.pop() as TestDescriptor
-          testRunStack[testRunStack.length - 1].children.push(child)
+            const child = testRunStack.pop() as TestDescriptor
+            testRunStack[testRunStack.length - 1].children.push(child)
+          }
+        )
+
+        const expectFnHandle = vm.newFunction("expect", (expectValueHandle) => {
+          const expectVal = vm.dump(expectValueHandle)
+
+          return {
+            value: createExpectation(vm, expectVal, false, testRunStack),
+          }
+        })
+
+        // Marshal response object
+        const responseObjHandle = marshalObjectToVM(vm, response)
+        if (isLeft(responseObjHandle))
+          return left(`Response marshalling failed: ${responseObjHandle.left}`)
+
+        vm.setProp(pwHandle, "response", responseObjHandle.right)
+        responseObjHandle.right.dispose()
+
+        vm.setProp(pwHandle, "expect", expectFnHandle)
+        expectFnHandle.dispose()
+
+        vm.setProp(pwHandle, "test", testFuncHandle)
+        testFuncHandle.dispose()
+
+        vm.setProp(vm.global, "pw", pwHandle)
+        pwHandle.dispose()
+
+        const evalRes = vm.evalCode(testScript)
+
+        if (evalRes.error) {
+          const errorData = vm.dump(evalRes.error)
+          evalRes.error.dispose()
+
+          return left(`Script evaluation failed: ${errorData}`)
         }
-      )
 
-      const expectFnHandle = vm.newFunction("expect", (expectValueHandle) => {
-        const expectVal = vm.dump(expectValueHandle)
+        vm.dispose()
 
-        return {
-          value: createExpectation(vm, expectVal, false, testRunStack),
-        }
-      })
-
-      // Marshal response object
-      const responseObjHandle = marshalObjectToVM(vm, response)
-      if (isLeft(responseObjHandle)) return left(`Response marshalling failed: ${responseObjHandle.left}`)
-
-      vm.setProp(pwHandle, "response", responseObjHandle.right)
-      responseObjHandle.right.dispose()
-
-      vm.setProp(pwHandle, "expect", expectFnHandle)
-      expectFnHandle.dispose()
-
-      vm.setProp(pwHandle, "test", testFuncHandle)
-      testFuncHandle.dispose()
-
-      vm.setProp(vm.global, "pw", pwHandle)
-      pwHandle.dispose()
-
-      const evalRes = vm.evalCode(testScript)
-
-      if (evalRes.error) {
-        const errorData = vm.dump(evalRes.error)
-        evalRes.error.dispose()
-
-        return left(`Script evaluation failed: ${errorData}`)
+        return right(testRunStack)
       }
-
-      vm.dispose()
-
-      return right(testRunStack)
-    }
+    )
   )
-)

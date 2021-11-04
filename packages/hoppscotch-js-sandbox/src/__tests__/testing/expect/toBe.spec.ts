@@ -4,7 +4,7 @@ import "@relmify/jest-fp-ts"
 const fakeResponse: TestResponse = {
   status: 200,
   body: "hoi",
-  headers: []
+  headers: [],
 }
 
 describe("toBe", () => {
@@ -19,7 +19,9 @@ describe("toBe", () => {
         )()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{ status: "pass", message: "Expected '2' to be '2'" }],
+          expectResults: [
+            { status: "pass", message: "Expected '2' to be '2'" },
+          ],
         }),
       ])
     })
@@ -34,7 +36,9 @@ describe("toBe", () => {
         )()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{ status: "fail", message: "Expected '2' to be '4'" }],
+          expectResults: [
+            { status: "fail", message: "Expected '2' to be '4'" },
+          ],
         }),
       ])
     })
@@ -51,10 +55,12 @@ describe("toBe", () => {
         )()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "fail",
-            message: "Expected '2' to not be '2'",
-          }],
+          expectResults: [
+            {
+              status: "fail",
+              message: "Expected '2' to not be '2'",
+            },
+          ],
         }),
       ])
     })
@@ -69,10 +75,12 @@ describe("toBe", () => {
         )()
       ).resolves.toEqualRight([
         expect.objectContaining({
-          expectResults: [{
-            status: "pass",
-            message: "Expected '2' to not be '4'",
-          }],
+          expectResults: [
+            {
+              status: "pass",
+              message: "Expected '2' to not be '4'",
+            },
+          ],
         }),
       ])
     })
@@ -85,14 +93,16 @@ test("strict checks types", () => {
       `
           pw.expect(2).toBe("2")
         `,
-        fakeResponse
+      fakeResponse
     )()
   ).resolves.toEqualRight([
     expect.objectContaining({
-      expectResults: [{
-        status: "fail",
-        message: "Expected '2' to be '2'",
-      }],
+      expectResults: [
+        {
+          status: "fail",
+          message: "Expected '2' to be '2'",
+        },
+      ],
     }),
   ])
 })

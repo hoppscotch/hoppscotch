@@ -3,7 +3,7 @@ import { execTestScript, TestResponse } from "../../../test-runner"
 const fakeResponse: TestResponse = {
   status: 200,
   body: "hoi",
-  headers: []
+  headers: [],
 }
 
 describe("toBeType", () => {
@@ -16,16 +16,23 @@ describe("toBeType", () => {
           pw.expect(true).toBeType("boolean")
           pw.expect({}).toBeType("object")
           pw.expect(undefined).toBeType("undefined")
-        `, fakeResponse
+        `,
+        fakeResponse
       )()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "pass", message: `Expected '2' to be type 'number'` }, 
+          { status: "pass", message: `Expected '2' to be type 'number'` },
           { status: "pass", message: `Expected '2' to be type 'string'` },
           { status: "pass", message: `Expected 'true' to be type 'boolean'` },
-          { status: "pass", message: `Expected '[object Object]' to be type 'object'` }, 
-          { status: "pass", message: `Expected 'undefined' to be type 'undefined'` },
+          {
+            status: "pass",
+            message: `Expected '[object Object]' to be type 'object'`,
+          },
+          {
+            status: "pass",
+            message: `Expected 'undefined' to be type 'undefined'`,
+          },
         ],
       }),
     ])
@@ -46,11 +53,17 @@ describe("toBeType", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "fail", message: `Expected '2' to be type 'string'`},
-          { status: "fail", message: `Expected '2' to be type 'number'`},
-          { status: "fail", message: `Expected 'true' to be type 'string'`},
-          { status: "fail", message: `Expected '[object Object]' to be type 'number'`},
-          { status: "fail", message: `Expected 'undefined' to be type 'number'`},
+          { status: "fail", message: `Expected '2' to be type 'string'` },
+          { status: "fail", message: `Expected '2' to be type 'number'` },
+          { status: "fail", message: `Expected 'true' to be type 'string'` },
+          {
+            status: "fail",
+            message: `Expected '[object Object]' to be type 'number'`,
+          },
+          {
+            status: "fail",
+            message: `Expected 'undefined' to be type 'number'`,
+          },
         ],
       }),
     ])
@@ -65,16 +78,26 @@ describe("toBeType", () => {
           pw.expect(true).not.toBeType("boolean")
           pw.expect({}).not.toBeType("object")
           pw.expect(undefined).not.toBeType("undefined")
-        `, fakeResponse
+        `,
+        fakeResponse
       )()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
           { status: "fail", message: `Expected '2' to not be type 'number'` },
           { status: "fail", message: `Expected '2' to not be type 'string'` },
-          { status: "fail", message: `Expected 'true' to not be type 'boolean'` },
-          { status: "fail", message: `Expected '[object Object]' to not be type 'object'` },
-          { status: "fail", message: `Expected 'undefined' to not be type 'undefined'` },
+          {
+            status: "fail",
+            message: `Expected 'true' to not be type 'boolean'`,
+          },
+          {
+            status: "fail",
+            message: `Expected '[object Object]' to not be type 'object'`,
+          },
+          {
+            status: "fail",
+            message: `Expected 'undefined' to not be type 'undefined'`,
+          },
         ],
       }),
     ])
@@ -97,9 +120,18 @@ describe("toBeType", () => {
         expectResults: [
           { status: "pass", message: `Expected '2' to not be type 'string'` },
           { status: "pass", message: `Expected '2' to not be type 'number'` },
-          { status: "pass", message: `Expected 'true' to not be type 'string'` },
-          { status: "pass", message: `Expected '[object Object]' to not be type 'number'` },
-          { status: "pass", message: `Expected 'undefined' to not be type 'number'` },
+          {
+            status: "pass",
+            message: `Expected 'true' to not be type 'string'`,
+          },
+          {
+            status: "pass",
+            message: `Expected '[object Object]' to not be type 'number'`,
+          },
+          {
+            status: "pass",
+            message: `Expected 'undefined' to not be type 'number'`,
+          },
         ],
       }),
     ])
@@ -120,13 +152,28 @@ describe("toBeType", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-        ]
-      })
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+        ],
+      }),
     ])
   })
 
@@ -145,13 +192,28 @@ describe("toBeType", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-          { status: "error", message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"` },
-        ]
-      })
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+          {
+            status: "error",
+            message: `Argument for toBeType should be "string", "boolean", "number", "object", "undefined", "bigint", "symbol" or "function"`,
+          },
+        ],
+      }),
     ])
   })
 })

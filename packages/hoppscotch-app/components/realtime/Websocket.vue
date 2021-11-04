@@ -272,7 +272,7 @@ export default defineComponent({
       deep: true,
     },
   },
-  mounted() {
+  created() {
     if (process.browser) {
       this.worker = this.$worker.createRejexWorker()
       this.worker.addEventListener("message", this.workerResponseHandler)

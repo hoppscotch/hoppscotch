@@ -3,7 +3,7 @@ import { execTestScript, TestResponse } from "../../../test-runner"
 const fakeResponse: TestResponse = {
   status: 200,
   body: "hoi",
-  headers: []
+  headers: [],
 }
 
 describe("toHaveLength", () => {
@@ -20,7 +20,7 @@ describe("toHaveLength", () => {
       expect.objectContaining({
         expectResults: [
           { status: "pass", message: "Expected the array to be of length '4'" },
-          { status: "pass", message: "Expected the array to be of length '0'"  },
+          { status: "pass", message: "Expected the array to be of length '0'" },
         ],
       }),
     ])
@@ -57,8 +57,14 @@ describe("toHaveLength", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "fail", message: "Expected the array to not be of length '4'" },
-          { status: "fail", message: "Expected the array to not be of length '0'" },
+          {
+            status: "fail",
+            message: "Expected the array to not be of length '4'",
+          },
+          {
+            status: "fail",
+            message: "Expected the array to not be of length '0'",
+          },
         ],
       }),
     ])
@@ -76,8 +82,14 @@ describe("toHaveLength", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "pass", message: "Expected the array to not be of length '4'" },
-          { status: "pass", message: "Expected the array to not be of length '0'" },
+          {
+            status: "pass",
+            message: "Expected the array to not be of length '4'",
+          },
+          {
+            status: "pass",
+            message: "Expected the array to not be of length '0'",
+          },
         ],
       }),
     ])
@@ -95,10 +107,18 @@ describe("toHaveLength", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "error", message: "Expected toHaveLength to be called for an array or string" },
-          { status: "error", message: "Expected toHaveLength to be called for an array or string" },
-        ]
-      })
+          {
+            status: "error",
+            message:
+              "Expected toHaveLength to be called for an array or string",
+          },
+          {
+            status: "error",
+            message:
+              "Expected toHaveLength to be called for an array or string",
+          },
+        ],
+      }),
     ])
   })
 
@@ -114,10 +134,18 @@ describe("toHaveLength", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "error", message: "Expected toHaveLength to be called for an array or string" },
-          { status: "error", message: "Expected toHaveLength to be called for an array or string" },
-        ]
-      })
+          {
+            status: "error",
+            message:
+              "Expected toHaveLength to be called for an array or string",
+          },
+          {
+            status: "error",
+            message:
+              "Expected toHaveLength to be called for an array or string",
+          },
+        ],
+      }),
     ])
   })
 
@@ -132,9 +160,12 @@ describe("toHaveLength", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "error", message: "Argument for toHaveLength should be a number" },
+          {
+            status: "error",
+            message: "Argument for toHaveLength should be a number",
+          },
         ],
-      })
+      }),
     ])
   })
 
@@ -149,9 +180,12 @@ describe("toHaveLength", () => {
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
-          { status: "error", message: "Argument for toHaveLength should be a number" },
+          {
+            status: "error",
+            message: "Argument for toHaveLength should be a number",
+          },
         ],
-      })
+      }),
     ])
   })
 })

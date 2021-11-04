@@ -28,8 +28,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
           svg="trash-2"
-          :disabled="bulkMode"
-          @click.native="clearContent"
+          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -216,32 +215,44 @@ useCodemirror(bulkEditor, bulkParams, {
 
 const params$ = useReadonlyStream(restParams$, [])
 
-watch(
-  params$,
-  (newValue) => {
-    if (
-      (newValue[newValue.length - 1]?.key !== "" ||
-        newValue[newValue.length - 1]?.value !== "") &&
-      newValue.length
+const editBulkParamLine = (index: number, item?: HoppRESTParam) => {
+  const params = bulkParams.value.split("\n")
+
+  if (item !== null)
+    params.splice(
+      index,
+      1,
+      `${item.active ? "" : "//"}${item.key}: ${item.value}`
     )
-      addParam()
-  },
-  { deep: true }
-)
+  else params.splice(index, 1)
+
+  bulkParams.value = params.join("\n")
+}
+
+const clearBulkEditor = () => {
+  bulkParams.value = ""
+}
 
 const addParam = () => {
-  addRESTParam({ key: "", value: "", active: true })
+  const empty = { key: "", value: "", active: true }
+  const index = params$.value.length
+
+  addRESTParam(empty)
+  editBulkParamLine(index, empty)
 }
 
 const updateParam = (index: number, item: HoppRESTParam) => {
   updateRESTParam(index, item)
+  editBulkParamLine(index, item)
 }
 
 const deleteParam = (index: number) => {
   deleteRESTParam(index)
+  editBulkParamLine(index, null)
 }
 
 const clearContent = () => {
   deleteAllRESTParams()
+  clearBulkEditor()
 }
 </script>

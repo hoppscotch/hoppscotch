@@ -397,15 +397,15 @@ const editBulkHeadersLine = (
     active: boolean
   }
 ) => {
-  const headers = bulkHeaders.value.split("\n")
-  if (item !== null)
-    headers.splice(
-      index,
-      1,
-      `${item.active ? "" : "//"}${item.key}: ${item.value}`
-    )
-  else headers.splice(index, 1)
-  bulkHeaders.value = headers.join("\n")
+  bulkHeaders.value = headers.value
+    .reduce((all, header, pIndex) => {
+      const current =
+        index === pIndex && item !== null
+          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
+          : `${header.active ? "" : "//"}${header.key}: ${header.value}`
+      return [...all, current]
+    }, [])
+    .join("\n")
 }
 
 const clearBulkEditor = () => {

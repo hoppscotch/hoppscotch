@@ -163,7 +163,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch } from "@nuxtjs/composition-api"
+import { ref, useContext, watch, onMounted } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -215,18 +215,20 @@ useCodemirror(bulkEditor, bulkParams, {
 
 const params$ = useReadonlyStream(restParams$, [])
 
+onMounted(() => editBulkParamsLine(-1, null))
+
 const editBulkParamsLine = (index: number, item?: HoppRESTParam) => {
-  const params = bulkParams.value.split("\n")
+  const params = params$.value
 
-  if (item !== null)
-    params.splice(
-      index,
-      1,
-      `${item.active ? "" : "//"}${item.key}: ${item.value}`
-    )
-  else params.splice(index, 1)
-
-  bulkParams.value = params.join("\n")
+  bulkParams.value = params
+    .reduce((all, param, pIndex) => {
+      const current =
+        index === pIndex && item !== null
+          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
+          : `${param.active ? "" : "//"}${param.key}: ${param.value}`
+      return [...all, current]
+    }, [])
+    .join("\n")
 }
 
 const clearBulkEditor = () => {

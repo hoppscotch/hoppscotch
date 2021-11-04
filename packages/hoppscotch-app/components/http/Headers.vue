@@ -28,8 +28,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
           svg="trash-2"
-          :disabled="bulkMode"
-          @click.native="clearContent"
+          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -222,32 +221,42 @@ watch(bulkHeaders, () => {
 
 const headers$ = useReadonlyStream(restHeaders$, [])
 
-watch(
-  headers$,
-  (newValue) => {
-    if (
-      (newValue[newValue.length - 1]?.key !== "" ||
-        newValue[newValue.length - 1]?.value !== "") &&
-      newValue.length
+const editBulkHeadersLine = (index: number, item?: HoppRESTHeader) => {
+  const headers = bulkHeaders.value.split("\n")
+  if (item !== null)
+    headers.splice(
+      index,
+      1,
+      `${item.active ? "" : "//"}${item.key}: ${item.value}`
     )
-      addHeader()
-  },
-  { deep: true }
-)
+  else headers.splice(index, 1)
+  bulkHeaders.value = headers.join("\n")
+}
+
+const clearBulkEditor = () => {
+  bulkHeaders.value = ""
+}
 
 const addHeader = () => {
-  addRESTHeader({ key: "", value: "", active: true })
+  const empty = { key: "", value: "", active: true }
+  const index = headers$.value.length
+
+  addRESTHeader(empty)
+  editBulkHeadersLine(index, empty)
 }
 
 const updateHeader = (index: number, item: HoppRESTHeader) => {
   updateRESTHeader(index, item)
+  editBulkHeadersLine(index, item)
 }
 
 const deleteHeader = (index: number) => {
   deleteRESTHeader(index)
+  editBulkHeadersLine(index, null)
 }
 
 const clearContent = () => {
   deleteAllRESTHeaders()
+  clearBulkEditor()
 }
 </script>

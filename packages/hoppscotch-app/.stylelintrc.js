@@ -1,4 +1,5 @@
 module.exports = {
+  ignoreFiles: ["/**/*.vue"],
   extends: [
     "stylelint-config-standard",
     "stylelint-config-prettier",

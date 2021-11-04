@@ -16,6 +16,7 @@
     "test": "npx jest",
     "build": "npx tsc",
     "clean": "npx tsc --build --clean",
+    "postinstall": "pnpm run build",
     "prepublish": "pnpm run build",
     "do-lint": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix",

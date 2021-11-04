@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch } from "@nuxtjs/composition-api"
+import { ref, useContext, watch, onMounted } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   addRESTHeader,
@@ -221,16 +221,20 @@ watch(bulkHeaders, () => {
 
 const headers$ = useReadonlyStream(restHeaders$, [])
 
-const editBulkHeadersLine = (index: number, item?: HoppRESTHeader) => {
-  const headers = bulkHeaders.value.split("\n")
-  if (item !== null)
-    headers.splice(
-      index,
-      1,
-      `${item.active ? "" : "//"}${item.key}: ${item.value}`
-    )
-  else headers.splice(index, 1)
-  bulkHeaders.value = headers.join("\n")
+onMounted(() => editBulkHeadersLine(-1, null))
+
+const editBulkHeadersLine = (index: number, item?: HoppRESTParam) => {
+  const headers = headers$.value
+
+  bulkHeaders.value = headers
+    .reduce((all, header, pIndex) => {
+      const current =
+        index === pIndex && item !== null
+          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
+          : `${header.active ? "" : "//"}${header.key}: ${header.value}`
+      return [...all, current]
+    }, [])
+    .join("\n")
 }
 
 const clearBulkEditor = () => {

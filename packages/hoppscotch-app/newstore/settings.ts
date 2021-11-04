@@ -35,7 +35,6 @@ export type SettingsType = {
 
   PROXY_ENABLED: boolean
   PROXY_URL: string
-  PROXY_KEY: string
   EXTENSIONS_ENABLED: boolean
   URL_EXCLUDES: {
     auth: boolean
@@ -47,8 +46,9 @@ export type SettingsType = {
   THEME_COLOR: HoppAccentColor
   BG_COLOR: HoppBgColor
   TELEMETRY_ENABLED: boolean
-  LEFT_SIDEBAR: boolean
-  RIGHT_SIDEBAR: boolean
+  EXPAND_NAVIGATION: boolean
+  SIDEBAR: boolean
+  SIDEBAR_ON_LEFT: boolean
   ZEN_MODE: boolean
   FONT_SIZE: HoppFontSize
   COLUMN_LAYOUT: boolean
@@ -61,7 +61,6 @@ export const defaultSettings: SettingsType = {
 
   PROXY_ENABLED: false,
   PROXY_URL: "https://proxy.hoppscotch.io/",
-  PROXY_KEY: "",
   EXTENSIONS_ENABLED: true,
   URL_EXCLUDES: {
     auth: true,
@@ -73,8 +72,9 @@ export const defaultSettings: SettingsType = {
   THEME_COLOR: "indigo",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
-  LEFT_SIDEBAR: true,
-  RIGHT_SIDEBAR: true,
+  EXPAND_NAVIGATION: true,
+  SIDEBAR: true,
+  SIDEBAR_ON_LEFT: false,
   ZEN_MODE: false,
   FONT_SIZE: "small",
   COLUMN_LAYOUT: true,

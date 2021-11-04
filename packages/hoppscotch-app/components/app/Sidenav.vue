@@ -14,9 +14,9 @@
         <div v-if="navigation.svg">
           <SmartIcon :name="navigation.svg" class="svg-icons" />
         </div>
-        <span v-if="LEFT_SIDEBAR">{{ navigation.title }}</span>
+        <span v-if="EXPAND_NAVIGATION">{{ navigation.title }}</span>
         <tippy
-          v-if="!LEFT_SIDEBAR"
+          v-if="!EXPAND_NAVIGATION"
           :placement="windowInnerWidth.x.value >= 768 ? 'right' : 'bottom'"
           theme="tooltip"
           :content="navigation.title"
@@ -35,7 +35,7 @@ export default defineComponent({
   setup() {
     return {
       windowInnerWidth: useWindowSize(),
-      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+      EXPAND_NAVIGATION: useSetting("EXPAND_NAVIGATION"),
     }
   },
   data() {

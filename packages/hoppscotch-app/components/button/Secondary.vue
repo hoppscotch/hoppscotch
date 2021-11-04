@@ -28,7 +28,7 @@
         'border border-divider hover:border-dividerDark focus-visible:border-dividerDark':
           outline,
       },
-      { 'bg-primaryDark': filled },
+      { '!bg-primaryDark': filled },
     ]"
     :disabled="disabled"
     tabindex="0"

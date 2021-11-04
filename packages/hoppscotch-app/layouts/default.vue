@@ -60,7 +60,7 @@ import { defineActionHandler } from "~/helpers/actions"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function appLayout() {
-  const rightSidebar = useSetting("RIGHT_SIDEBAR")
+  const rightSidebar = useSetting("SIDEBAR")
   const columnLayout = useSetting("COLUMN_LAYOUT")
   const windowInnerWidth = useWindowSize()
 

@@ -4,10 +4,11 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="LEFT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
+          :title="EXPAND_NAVIGATION ? $t('hide.sidebar') : $t('show.sidebar')"
           svg="sidebar"
-          :class="{ 'transform -rotate-180': !LEFT_SIDEBAR }"
-          @click.native="LEFT_SIDEBAR = !LEFT_SIDEBAR"
+          class="transform"
+          :class="{ '-rotate-180': !EXPAND_NAVIGATION }"
+          @click.native="EXPAND_NAVIGATION = !EXPAND_NAVIGATION"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -133,14 +134,21 @@
           :class="{ 'rotate-90': !COLUMN_LAYOUT }"
           @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="RIGHT_SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
-          svg="sidebar"
-          class="transform rotate-180"
-          :class="{ 'rotate-360': !RIGHT_SIDEBAR }"
-          @click.native="RIGHT_SIDEBAR = !RIGHT_SIDEBAR"
-        />
+        <span
+          class="transform transition"
+          :class="{
+            'rotate-180': SIDEBAR_ON_LEFT,
+          }"
+        >
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
+            svg="sidebar"
+            class="transform"
+            :class="{ 'rotate-180': !SIDEBAR }"
+            @click.native="SIDEBAR = !SIDEBAR"
+          />
+        </span>
       </div>
     </div>
     <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
@@ -168,10 +176,11 @@ export default defineComponent({
     })
 
     return {
-      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
-      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      EXPAND_NAVIGATION: useSetting("EXPAND_NAVIGATION"),
+      SIDEBAR: useSetting("SIDEBAR"),
       ZEN_MODE: useSetting("ZEN_MODE"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
+      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
 
       navigatorShare: !!navigator.share,
 
@@ -181,7 +190,7 @@ export default defineComponent({
   },
   watch: {
     ZEN_MODE() {
-      this.LEFT_SIDEBAR = !this.ZEN_MODE
+      this.EXPAND_NAVIGATION = !this.ZEN_MODE
     },
   },
   methods: {

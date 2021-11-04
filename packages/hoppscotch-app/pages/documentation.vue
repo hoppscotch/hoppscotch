@@ -1,15 +1,14 @@
 <template>
   <Splitpanes
     class="smart-splitter"
-    :dbl-click-splitter="false"
+    :rtl="SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768"
+    :class="{
+      '!flex-row-reverse': SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768,
+    }"
     :horizontal="!(windowInnerWidth.x.value >= 768)"
   >
-    <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes
-        class="smart-splitter"
-        :dbl-click-splitter="false"
-        :horizontal="COLUMN_LAYOUT"
-      >
+    <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
+      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="import">
             <div class="flex p-4 items-start justify-between">
@@ -157,8 +156,7 @@
       </Splitpanes>
     </Pane>
     <Pane
-      v-if="RIGHT_SIDEBAR"
-      max-size="35"
+      v-if="SIDEBAR"
       size="25"
       min-size="20"
       class="hide-scrollbar !overflow-auto"
@@ -193,9 +191,10 @@ export default defineComponent({
   setup() {
     return {
       windowInnerWidth: useWindowSize(),
-      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      SIDEBAR: useSetting("SIDEBAR"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       currentUser: useReadonlyStream(currentUser$, null),
+      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
     }
   },
   data() {

@@ -72,28 +72,27 @@
               <div class="flex items-center">
                 <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
                   {{ $t("settings.telemetry") }}
-                  {{
-                    TELEMETRY_ENABLED
-                      ? $t("state.enabled")
-                      : $t("state.disabled")
-                  }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
                 <SmartToggle
-                  :on="LEFT_SIDEBAR"
-                  @change="toggleSetting('LEFT_SIDEBAR')"
+                  :on="EXPAND_NAVIGATION"
+                  @change="toggleSetting('EXPAND_NAVIGATION')"
                 >
-                  {{ $t("settings.navigation_sidebar") }}
-                  {{
-                    LEFT_SIDEBAR ? $t("state.enabled") : $t("state.disabled")
-                  }}
+                  {{ $t("settings.expand_navigation") }}
+                </SmartToggle>
+              </div>
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="SIDEBAR_ON_LEFT"
+                  @change="toggleSetting('SIDEBAR_ON_LEFT')"
+                >
+                  {{ $t("settings.sidebar_on_left") }}
                 </SmartToggle>
               </div>
               <div class="flex items-center">
                 <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
                   {{ $t("layout.zen_mode") }}
-                  {{ ZEN_MODE ? $t("state.enabled") : $t("state.disabled") }}
                 </SmartToggle>
               </div>
             </div>
@@ -258,11 +257,10 @@ export default defineComponent({
     return {
       PROXY_ENABLED: useSetting("PROXY_ENABLED"),
       PROXY_URL: useSetting("PROXY_URL"),
-      PROXY_KEY: useSetting("PROXY_KEY"),
       EXTENSIONS_ENABLED: useSetting("EXTENSIONS_ENABLED"),
-      EXPERIMENTAL_URL_BAR_ENABLED: useSetting("EXPERIMENTAL_URL_BAR_ENABLED"),
       TELEMETRY_ENABLED: useSetting("TELEMETRY_ENABLED"),
-      LEFT_SIDEBAR: useSetting("LEFT_SIDEBAR"),
+      EXPAND_NAVIGATION: useSetting("EXPAND_NAVIGATION"),
+      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
       ZEN_MODE: useSetting("ZEN_MODE"),
     }
   },
@@ -287,22 +285,20 @@ export default defineComponent({
     }
   },
   computed: {
-    proxySettings(): { url: string; key: string } {
+    proxySettings(): { url: string } {
       return {
         url: this.PROXY_URL,
-        key: this.PROXY_KEY,
       }
     },
   },
   watch: {
     ZEN_MODE(ZEN_MODE) {
-      this.applySetting("LEFT_SIDEBAR", !ZEN_MODE)
+      this.applySetting("EXPAND_NAVIGATION", !ZEN_MODE)
     },
     proxySettings: {
       deep: true,
-      handler({ url, key }) {
+      handler({ url }) {
         this.applySetting("PROXY_URL", url)
-        this.applySetting("PROXY_KEY", key)
       },
     },
   },

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
       class="
         bg-primary
@@ -172,7 +172,6 @@ const togglePreview = () => {
 <style lang="scss" scoped>
 .covers-response {
   @apply bg-white;
-  @apply min-h-64;
   @apply h-full;
   @apply w-full;
   @apply border;

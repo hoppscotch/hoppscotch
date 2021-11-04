@@ -6,6 +6,7 @@
       :key="`lens-${index}`"
       :label="$t(lens.lensName)"
       :selected="index === 0"
+      class="flex flex-col flex-1"
     >
       <component :is="lens.renderer" :response="response" />
     </SmartTab>
@@ -14,6 +15,7 @@
       id="headers"
       :label="$t('response.headers')"
       :info="`${headerLength}`"
+      class="flex flex-col flex-1"
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>
@@ -26,6 +28,7 @@
           ? true
           : false
       "
+      class="flex flex-col flex-1"
     >
       <HttpTestResult />
     </SmartTab>

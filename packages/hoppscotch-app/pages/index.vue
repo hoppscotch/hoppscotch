@@ -52,7 +52,7 @@
             </SmartTab>
           </SmartTabs>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane class="hide-scrollbar !overflow-auto flex flex-col">
           <HttpResponse ref="response" />
         </Pane>
       </Splitpanes>

@@ -94,9 +94,9 @@ const dispatchers = defineDispatchers({
     { settingKey }: { settingKey: KeysMatching<SettingsType, boolean> }
   ) {
     if (!has(currentState, settingKey)) {
-      console.log(
-        `Toggling of a non-existent setting key '${settingKey}' ignored.`
-      )
+      // console.log(
+      //   `Toggling of a non-existent setting key '${settingKey}' ignored`
+      // )
       return {}
     }
 
@@ -110,9 +110,9 @@ const dispatchers = defineDispatchers({
     { settingKey, value }: { settingKey: K; value: SettingsType[K] }
   ) {
     if (!validKeys.includes(settingKey)) {
-      console.log(
-        `Ignoring non-existent setting key '${settingKey}' assignment`
-      )
+      // console.log(
+      //   `Ignoring non-existent setting key '${settingKey}' assignment`
+      // )
       return {}
     }
 

@@ -17,7 +17,7 @@
         {{ title }}
       </label>
     </div>
-    <div name="log" class="realtime-log">
+    <div ref="logsRef" name="log" class="realtime-log">
       <span v-if="log" class="space-y-2">
         <span
           v-for="(entry, index) in log"
@@ -31,14 +31,37 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { getSourcePrefix as source } from "~/helpers/utils/string"
 
-defineProps({
-  log: { type: Array, default: () => [] },
-  title: {
-    type: String,
-    default: "",
+// when scroll distance to the bottom edge is less than this value
+// there will be scroll to the bottom on logs update
+const BOTTOM_SCROLL_DIST_INNACURACY = 25
+
+export default defineComponent({
+  props: {
+    log: { type: Array, default: () => [] },
+    title: {
+      type: String,
+      default: "",
+    },
+  },
+  setup() {
+    return { logsRef: ref<HTMLDivElement>() }
+  },
+  watch: {
+    log() {
+      const { logsRef: ref } = this
+      if (!ref) return
+      const distToBottom = ref.scrollHeight - ref.scrollTop - ref.clientHeight
+      if (distToBottom < BOTTOM_SCROLL_DIST_INNACURACY) {
+        this.$nextTick(() => (ref.scrollTop = ref.scrollHeight))
+      }
+    },
+  },
+  methods: {
+    source,
   },
 })
 </script>

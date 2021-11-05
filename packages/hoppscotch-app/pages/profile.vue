@@ -67,8 +67,9 @@
                     />
                     <ButtonPrimary
                       :label="$t('action.save').toString()"
-                      class="ml-2"
+                      class="ml-2 min-w-16"
                       type="submit"
+                      :loading="updatingDisplayName"
                     />
                   </form>
                 </div>
@@ -146,9 +147,13 @@ const SYNC_HISTORY = useSetting("syncHistory")
 const currentUser = useReadonlyStream(currentUser$, null)
 
 const displayName = ref(currentUser$.value?.displayName)
+const updatingDisplayName = ref(false)
 
 const updateDisplayName = () => {
-  setDisplayName(displayName.value)
+  updatingDisplayName.value = true
+  setDisplayName(displayName.value).finally(() => {
+    updatingDisplayName.value = false
+  })
 }
 
 useMeta({

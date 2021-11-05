@@ -55,7 +55,7 @@
         v-if="response.type === 'loading'"
         class="flex flex-col items-center justify-center"
       >
-        <SmartSpinner class="mb-4" />
+        <SmartSpinner class="my-4" />
         <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
       </div>
       <div

@@ -67,7 +67,7 @@ const subscriptionClient = new SubscriptionClient(
 )
 
 authIdToken$.subscribe(() => {
-  subscriptionClient.client.close()
+  subscriptionClient.client?.close()
 })
 
 const createHoppClient = () =>

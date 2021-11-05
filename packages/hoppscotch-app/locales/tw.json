@@ -220,8 +220,8 @@
     "title": "匯入"
   },
   "layout": {
-    "column": "Vertical layout",
-    "row": "Horizontal layout",
+    "column": "垂直佈局",
+    "row": "水平佈局",
     "zen_mode": "禪意模式"
   },
   "modal": {
@@ -432,7 +432,7 @@
   },
   "support": {
     "changelog": "閱讀更多有關最新版本的內容",
-    "chat": "有問題？來和我們交談吧！",
+    "chat": "有問題？來和我們交流吧！",
     "community": "提問與互助",
     "documentation": "閱讀更多有關 Hoppscotch 的內容",
     "forum": "答疑解惑",

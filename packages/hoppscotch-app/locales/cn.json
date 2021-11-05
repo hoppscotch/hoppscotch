@@ -220,8 +220,8 @@
     "title": "导入"
   },
   "layout": {
-    "column": "Vertical layout",
-    "row": "Horizontal layout",
+    "column": "垂直布局",
+    "row": "水平布局",
     "zen_mode": "禅意模式"
   },
   "modal": {
@@ -432,7 +432,7 @@
   },
   "support": {
     "changelog": "阅读更多有关最新版本的内容",
-    "chat": "有问题？来和我们交谈吧！",
+    "chat": "有问题？来和我们交流吧！",
     "community": "提问与互助",
     "documentation": "阅读更多有关 Hoppscotch 的内容",
     "forum": "答疑解惑",

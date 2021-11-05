@@ -157,11 +157,11 @@ export default defineComponent({
   },
   async mounted() {
     performMigrations()
-    console.log(
+    console.info(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
     )
-    console.log(
+    console.info(
       "%cContribute: https://github.com/hoppscotch/hoppscotch",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )

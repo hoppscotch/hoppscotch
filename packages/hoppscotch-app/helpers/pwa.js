@@ -46,9 +46,9 @@ export default () => {
       const outcome = await deferredPrompt.userChoice
 
       if (outcome === "accepted") {
-        console.log("Hoppscotch was installed successfully.")
+        console.info("Hoppscotch was installed successfully.")
       } else {
-        console.log(
+        console.info(
           "Hoppscotch could not be installed. (Installation rejected by user.)"
         )
       }

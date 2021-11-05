@@ -299,6 +299,14 @@ export default {
     parallel: true,
     cache: true,
     // hardSource: true,
+    terser: {
+      terserOptions: {
+        // https://github.com/terser/terser#compress-options
+        compress: {
+          pure_funcs: ["console.log", "console.debug", "console.warn"],
+        },
+      },
+    },
   },
 
   // Generate configuration (https://nuxtjs.org/api/configuration-generate)

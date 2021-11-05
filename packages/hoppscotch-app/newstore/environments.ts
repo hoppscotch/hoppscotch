@@ -37,9 +37,9 @@ const dispatchers = defineDispatchers({
     { newIndex }: { newIndex: number }
   ) {
     if (newIndex >= environments.length || newIndex <= -2) {
-      console.log(
-        `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
-      )
+      // console.log(
+      //   `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
+      // )
       return {}
     }
 

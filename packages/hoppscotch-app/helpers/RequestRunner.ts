@@ -1,9 +1,10 @@
 import { Observable } from "rxjs"
 import { filter } from "rxjs/operators"
 import { chain, right, TaskEither } from "fp-ts/lib/TaskEither"
-import { pipe } from "fp-ts/lib/function"
+import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
 import { runTestScript, TestDescriptor } from "@hoppscotch/js-sandbox"
-import { isRight } from "fp-ts/lib/Either"
+import { isRight } from "fp-ts/Either"
 import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
@@ -20,12 +21,24 @@ const getTestableBody = (res: HoppRESTResponse & { type: "success" }) => {
     (h) => h.key.toLowerCase() === "content-type"
   )
 
-  const rawBody = new TextDecoder("utf-8").decode(res.body)
+  const rawBody = new TextDecoder("utf-8")
+    .decode(res.body)
+    .replaceAll("\x00", "")
 
-  if (!contentTypeHeader || !isJSONContentType(contentTypeHeader.value))
-    return rawBody
+  const x = pipe(
+    // This pipeline just decides whether JSON parses or not
+    contentTypeHeader && isJSONContentType(contentTypeHeader.value)
+      ? O.of(rawBody)
+      : O.none,
 
-  return JSON.parse(rawBody)
+    // Try parsing, if failed, go to the fail option
+    O.chain((body) => O.tryCatch(() => JSON.parse(body))),
+
+    // If JSON, return that (get), else return just the body string (else)
+    O.getOrElse<any | string>(() => rawBody)
+  )
+
+  return x
 }
 
 export const runRESTRequest$ = (): TaskEither<

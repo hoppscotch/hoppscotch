@@ -8,7 +8,7 @@
             :title="$t('settings.choose_language')"
             class="pr-8"
             outline
-            svg="globe"
+            svg="languages"
             :label="`${
               $i18n.locales.find(({ code }) => code == $i18n.locale).name
             }`"

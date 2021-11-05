@@ -89,7 +89,7 @@ const {
 const t = i18n.t.bind(i18n)
 
 const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
-const prettifyIcon = ref("align-left")
+const prettifyIcon = ref("wand")
 
 const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(props.contentType)
@@ -137,7 +137,7 @@ const prettifyRequestBody = () => {
     const jsonObj = JSON.parse(rawParamsBody.value)
     rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
     prettifyIcon.value = "check"
-    setTimeout(() => (prettifyIcon.value = "align-left"), 1000)
+    setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
     $toast.error(`${t("error.json_prettify_invalid_body")}`, {

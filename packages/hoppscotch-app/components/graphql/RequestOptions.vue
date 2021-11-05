@@ -45,15 +45,15 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.copy')"
-                :svg="`${copyQueryIcon}`"
-                @click.native="copyQuery"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.prettify')"
                 :svg="`${prettifyQueryIcon}`"
                 @click.native="prettifyQuery"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('action.copy')"
+                :svg="`${copyQueryIcon}`"
+                @click.native="copyQuery"
               />
             </div>
           </div>
@@ -385,7 +385,7 @@ useCodemirror(queryEditor, gqlQueryString, {
 })
 
 const copyQueryIcon = ref("copy")
-const prettifyQueryIcon = ref("align-left")
+const prettifyQueryIcon = ref("wand")
 const copyVariablesIcon = ref("copy")
 
 const showSaveRequestModal = ref(false)
@@ -500,7 +500,7 @@ const prettifyQuery = () => {
     })
   }
   prettifyQueryIcon.value = "check"
-  setTimeout(() => (prettifyQueryIcon.value = "align-left"), 1000)
+  setTimeout(() => (prettifyQueryIcon.value = "wand"), 1000)
 }
 
 const saveRequest = () => {

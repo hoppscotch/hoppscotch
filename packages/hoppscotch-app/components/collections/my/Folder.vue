@@ -174,6 +174,7 @@
               w-16
               inline-flex
             "
+            :alt="$t('empty.folder')"
           />
           <span class="text-center">
             {{ $t("empty.folder") }}

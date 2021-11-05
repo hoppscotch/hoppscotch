@@ -156,6 +156,7 @@
                   w-16
                   inline-flex
                 "
+                :alt="$t('empty.protocols')"
               />
               <span class="text-center">
                 {{ $t("empty.protocols") }}

@@ -166,6 +166,7 @@
               w-16
               inline-flex
             "
+            :alt="$t('empty.collection')"
           />
           <span class="text-center">
             {{ $t("empty.collection") }}

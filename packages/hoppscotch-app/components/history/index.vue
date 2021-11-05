@@ -64,6 +64,7 @@
         :src="`/images/states/${$colorMode.value}/history.svg`"
         loading="lazy"
         class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.history')"
       />
       <span class="text-center">
         {{ $t("empty.history") }}

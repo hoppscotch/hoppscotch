@@ -30,6 +30,8 @@
     <img
       class="border-b border-dividerLight flex max-w-full flex-1"
       :src="imageSource"
+      loading="lazy"
+      :alt="imageSource"
     />
   </div>
 </template>

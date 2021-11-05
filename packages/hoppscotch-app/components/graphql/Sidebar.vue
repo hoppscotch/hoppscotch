@@ -53,6 +53,7 @@
               w-16
               inline-flex
             "
+            :alt="$t('empty.documentation')"
           />
           <span class="text-center">
             {{ $t("empty.documentation") }}
@@ -220,6 +221,7 @@
               w-16
               inline-flex
             "
+            :alt="$t('empty.schema')"
           />
           <span class="text-center">
             {{ $t("empty.schema") }}

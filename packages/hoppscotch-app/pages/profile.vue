@@ -18,6 +18,7 @@
               v-if="currentUser.photoURL"
               :src="currentUser.photoURL"
               class="rounded-lg ring-4 ring-primary h-16 w-16"
+              :alt="currentUser.displayName"
             />
             <SmartIcon v-else name="user" class="svg-icons" />
             <div class="ml-4">
@@ -25,7 +26,7 @@
                 {{ currentUser.displayName || $t("state.nothing_found") }}
               </label>
               <p class="flex text-secondaryLight items-center">
-                {{ currentUser.email || $t("state.nothing_found") }}
+                {{ currentUser.email }}
                 <SmartIcon
                   v-if="currentUser.emailVerified"
                   name="verified"

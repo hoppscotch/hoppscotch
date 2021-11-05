@@ -82,6 +82,7 @@
         :src="`/images/states/${$colorMode.value}/validation.svg`"
         loading="lazy"
         class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.tests')"
       />
       <span class="text-center pb-2">
         {{ $t("empty.tests") }}

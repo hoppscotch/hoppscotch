@@ -33,6 +33,7 @@
             :src="member.user.photoURL || undefined"
             :alt="member.user.displayName"
             class="rounded-full h-5 ring-primary ring-2 w-5 inline-block"
+            loading="lazy"
           />
         </div>
       </div>

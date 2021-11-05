@@ -38,6 +38,7 @@
             w-16
             inline-flex
           "
+          :alt="$t('empty.teams')"
         />
         <span class="text-center mb-4">
           {{ $t("empty.teams") }}

@@ -253,6 +253,7 @@
                   w-16
                   inline-flex
                 "
+                :alt="$t('empty.headers')"
               />
               <span class="text-center pb-4">
                 {{ $t("empty.headers") }}

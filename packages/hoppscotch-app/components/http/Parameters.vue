@@ -147,6 +147,7 @@
             w-16
             inline-flex
           "
+          :alt="$t('empty.parameters')"
         />
         <span class="text-center pb-4">
           {{ $t("empty.parameters") }}

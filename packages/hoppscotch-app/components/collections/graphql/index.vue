@@ -62,6 +62,7 @@
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
+        @duplicate-request="duplicateRequest($event)"
         @select-collection="$emit('use-collection', collection)"
         @select="$emit('select', $event)"
       />
@@ -136,7 +137,11 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-import { graphqlCollections$, addGraphqlFolder } from "~/newstore/collections"
+import {
+  graphqlCollections$,
+  addGraphqlFolder,
+  saveGraphqlRequestAs,
+} from "~/newstore/collections"
 
 export default defineComponent({
   props: {
@@ -282,6 +287,9 @@ export default defineComponent({
       this.$data.editingFolderIndex = undefined
       this.$data.editingRequest = undefined
       this.$data.editingRequestIndex = undefined
+    },
+    duplicateRequest({ folderPath, request }) {
+      saveGraphqlRequestAs(folderPath, request)
     },
   },
 })

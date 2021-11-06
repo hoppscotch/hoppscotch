@@ -146,6 +146,7 @@
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
           @remove-request="$emit('remove-request', $event)"
         />
@@ -162,7 +163,8 @@
           :save-request="saveRequest"
           :collections-type="collectionsType"
           :picked="picked"
-          @edit-request="editRequest($event)"
+          @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
           @remove-request="$emit('remove-request', $event)"
         />
@@ -251,9 +253,6 @@ export default defineComponent({
     },
   },
   methods: {
-    editRequest(event) {
-      this.$emit("edit-request", event)
-    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {

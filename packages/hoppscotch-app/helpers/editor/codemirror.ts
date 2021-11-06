@@ -27,12 +27,20 @@ import "codemirror/addon/selection/active-line"
 
 import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 
-import { EditorState, Compartment, StateField } from "@codemirror/state"
+import {
+  EditorState,
+  Compartment,
+  StateField,
+  EditorSelection,
+  TransactionSpec,
+} from "@codemirror/state"
 import { EditorView, keymap, ViewPlugin, ViewUpdate } from "@codemirror/view"
 import { defaultKeymap } from "@codemirror/commands"
 import { basicSetup } from "@codemirror/basic-setup"
 import { javascript } from "@codemirror/lang-javascript"
+import { json } from "@codemirror/lang-json"
 import { onBeforeUnmount } from "@vue/runtime-dom"
+import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 
@@ -222,7 +230,9 @@ export function useCodemirror(
 }
 
 const getEditorLanguage = (mode: string) => {
-  if (mode === "application/javascript") {
+  if (isJSONContentType(mode)) {
+    return json()
+  } else if (mode === "application/javascript") {
     return javascript()
   } else {
     return StateField.define({
@@ -241,6 +251,10 @@ export function useNewCodemirror(
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const language = new Compartment()
 
+  const cachedCursor = ref({
+    line: 0,
+    ch: 0,
+  })
   const cursor = ref({
     line: 0,
     ch: 0,
@@ -259,14 +273,19 @@ export function useNewCodemirror(
 
               const line = update.state.doc.lineAt(cursorPos)
 
+              cachedCursor.value = {
+                line: line.number - 1,
+                ch: cursorPos - line.from,
+              }
+
               cursor.value = {
-                line: line.number,
-                ch: cursorPos - line.from + 1,
+                line: cachedCursor.value.line,
+                ch: cachedCursor.value.ch,
               }
             }
-
             if (update.docChanged) {
               // Expensive on big files ?
+              console.log("doc change")
               cachedValue.value = update.state.doc
                 .toJSON()
                 .join(update.state.lineBreak)
@@ -275,6 +294,7 @@ export function useNewCodemirror(
           }
         }
       ),
+      EditorState.changeFilter.of(() => !options.extendedEditorConfig.readOnly),
       language.of(
         getEditorLanguage((options.extendedEditorConfig.mode as any) ?? "")
       ),
@@ -283,6 +303,9 @@ export function useNewCodemirror(
   })
 
   const view = ref<EditorView>()
+
+  const dispatch = (t: TransactionSpec) =>
+    view.value ? view.value.dispatch(t) : state.update(t)
 
   onMounted(() => {
     view.value = new EditorView({
@@ -294,6 +317,35 @@ export function useNewCodemirror(
   onBeforeUnmount(() => {
     if (view.value) view.value.destroy()
   })
+
+  watch(cursor, (newPos) => {
+    if (
+      cachedCursor.value.line !== newPos.line ||
+      cachedCursor.value.ch !== newPos.ch
+    ) {
+      const line = state.doc.line(newPos.line + 1)
+      const selUpdate = EditorSelection.cursor(line.from + newPos.ch - 1)
+
+      view.value?.focus()
+
+      dispatch({
+        scrollIntoView: true,
+        selection: selUpdate,
+        effects: EditorView.scrollTo.of(selUpdate),
+      })
+    }
+  })
+
+  watch(
+    () => options.extendedEditorConfig.mode,
+    (newMode) => {
+      dispatch({
+        effects: language.reconfigure(
+          getEditorLanguage((newMode as any) ?? "")
+        ),
+      })
+    }
+  )
 
   watch(el, (newEl) => {
     if (view.value) {
@@ -311,7 +363,7 @@ export function useNewCodemirror(
 
   watch(value, (newVal) => {
     if (cachedValue.value !== newVal) {
-      state.update({
+      dispatch({
         changes: {
           from: 0,
           to: state.doc.length,

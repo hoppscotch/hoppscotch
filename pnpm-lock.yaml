@@ -24,6 +24,7 @@ importers:
       '@codemirror/commands': ^0.19.5
       '@codemirror/gutter': ^0.19.4
       '@codemirror/lang-javascript': ^0.19.2
+      '@codemirror/lang-json': ^0.19.1
       '@codemirror/language': ^0.19.3
       '@codemirror/state': ^0.19.3
       '@codemirror/text': ^0.19.5
@@ -137,6 +138,7 @@ importers:
       '@codemirror/commands': 0.19.5
       '@codemirror/gutter': 0.19.4
       '@codemirror/lang-javascript': 0.19.2
+      '@codemirror/lang-json': 0.19.1
       '@codemirror/language': 0.19.3
       '@codemirror/state': 0.19.3
       '@codemirror/text': 0.19.5
@@ -1815,6 +1817,14 @@ packages:
       '@codemirror/state': 0.19.3
       '@codemirror/view': 0.19.12
       '@lezer/javascript': 0.15.0
+    dev: false
+
+  /@codemirror/lang-json/0.19.1:
+    resolution: {integrity: sha512-66K5TT9HO0ODtpjY+3Ub6t3r0OB1d27P+Kl5oygk4tDavHUBpsyHTJRFw/CdeRM2VwjbpBfctGm/cTrSthFDZg==}
+    dependencies:
+      '@codemirror/highlight': 0.19.6
+      '@codemirror/language': 0.19.3
+      '@lezer/json': 0.15.0
     dev: false
 
   /@codemirror/language/0.19.3:
@@ -3690,6 +3700,12 @@ packages:
       '@lezer/lr': 0.15.4
     dev: false
 
+  /@lezer/json/0.15.0:
+    resolution: {integrity: sha512-OsMjjBkTkeQ15iMCu5U1OiBubRC4V9Wm03zdIlUgNZ20aUPx5DWDRqUc5wG41JXVSj7Lxmo+idlFCfBBdxB8sw==}
+    dependencies:
+      '@lezer/lr': 0.15.4
+    dev: false
+
   /@lezer/lr/0.15.4:
     resolution: {integrity: sha512-vwgG80sihEGJn6wJp6VijXrnzVai/KPva/OzYKaWvIx0IiXKjoMQ8UAwcgpSBwfS4Fbz3IKOX/cCNXU3r1FvpQ==}
     dependencies:
@@ -3896,8 +3912,8 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27267163.9b8d44d:
-    resolution: {integrity: sha512-Skw7Es5w+tCDX0K0oB/aX6OzyZ8zEFq3aUasv5rGjQlztAv/BtvBHEK1kprP2nR7xiXKMpyUphMOy3qFtHamfg==}
+  /@nuxt/kit-edge/3.0.0-27267816.6bd7186:
+    resolution: {integrity: sha512-OCinQR1TBeZmgU61of/YM55JvY+3emO6D4BwfTNYe8KwqIpynYcrZJxlxAYRYZKzqfZhtqLnD1B8DJ1f2b6thQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       consola: 2.15.3
@@ -14020,7 +14036,7 @@ packages:
   /nuxt-windicss/2.0.11:
     resolution: {integrity: sha512-/vAEmKLq1Iomuj4lz751dsoXdlGVAoiEGSh3JVxuZJMkqc/yrHTQrNhtMaOQzx5heuVsQ+E2bIF+Q/tfxicOFQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27267163.9b8d44d
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27267816.6bd7186
       defu: 5.0.0
       h3: 0.3.3
       listhen: 0.2.5

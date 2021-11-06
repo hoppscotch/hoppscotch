@@ -39,7 +39,7 @@
           svg="upload-cloud"
           :label="$t('header.save_workspace')"
           filled
-          class="hidden !font-semibold md:flex"
+          class="hidden md:flex"
           @click.native="showLogin = true"
         />
         <ButtonPrimary
@@ -56,8 +56,8 @@
             class="
               !bg-green-500
               !text-green-500
-              !bg-opacity-10
-              !hover:bg-opacity-10 !hover:text-green-400 !hover:bg-green-400
+              !bg-opacity-15
+              !hover:bg-opacity-10 !hover:text-green-600 !hover:bg-green-400
             "
             @click.native="showTeamsModal = true"
           />

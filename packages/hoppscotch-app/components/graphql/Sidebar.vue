@@ -55,7 +55,7 @@
             "
             :alt="$t('empty.documentation')"
           />
-          <span class="text-center">
+          <span class="text-center mb-4">
             {{ $t("empty.documentation") }}
           </span>
         </div>
@@ -223,7 +223,7 @@
             "
             :alt="$t('empty.schema')"
           />
-          <span class="text-center">
+          <span class="text-center mb-4">
             {{ $t("empty.schema") }}
           </span>
         </div>

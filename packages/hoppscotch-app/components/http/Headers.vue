@@ -163,6 +163,7 @@
           filled
           :label="`${$t('add.new')}`"
           svg="plus"
+          class="mb-4"
           @click.native="addHeader"
         />
       </div>

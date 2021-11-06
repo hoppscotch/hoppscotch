@@ -34,7 +34,7 @@
           <div
             class="
               bg-primary
-              shadow-xl
+              shadow-lg
               text-left
               w-full
               transform

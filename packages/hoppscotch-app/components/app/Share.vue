@@ -108,6 +108,7 @@ export default defineComponent({
   @apply p-4;
   @apply items-center;
   @apply justify-center;
+  @apply font-semibold;
   @apply hover:(bg-primaryLight text-secondaryDark);
   @apply focus:outline-none;
   @apply focus-visible:border-divider;

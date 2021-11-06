@@ -262,6 +262,7 @@
                 :label="`${$t('add.new')}`"
                 filled
                 svg="plus"
+                class="mb-4"
                 @click.native="addRequestHeader"
               />
             </div>

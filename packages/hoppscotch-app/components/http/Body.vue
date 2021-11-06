@@ -81,6 +81,7 @@
         blank
         svg="external-link"
         reverse
+        class="mb-4"
       />
     </div>
   </div>

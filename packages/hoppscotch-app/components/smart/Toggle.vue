@@ -6,7 +6,7 @@
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
-    <label class="cursor-pointer pl-0 align-middle">
+    <label class="cursor-pointer pl-0 align-middle font-semibold">
       <slot></slot>
     </label>
   </div>

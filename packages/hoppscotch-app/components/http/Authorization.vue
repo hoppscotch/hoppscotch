@@ -111,6 +111,7 @@
         blank
         svg="external-link"
         reverse
+        class="mb-4"
       />
     </div>
     <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">

@@ -16,7 +16,6 @@
                 <input
                   id="mqtt-url"
                   v-model="url"
-                  v-focus
                   type="url"
                   autocomplete="off"
                   spellcheck="false"

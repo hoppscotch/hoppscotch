@@ -1,5 +1,5 @@
 <template>
-  <div key="outputHash">
+  <div key="outputHash" class="flex flex-col">
     <AppPowerSearchEntry
       v-for="(shortcut, shortcutIndex) in searchResults"
       :key="`shortcut-${shortcutIndex}`"

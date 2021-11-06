@@ -156,6 +156,7 @@
           :label="`${$t('add.new')}`"
           svg="plus"
           filled
+          class="mb-4"
           @click.native="addParam"
         />
       </div>

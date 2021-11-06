@@ -60,7 +60,7 @@
         justify-center
       "
     >
-      <div class="flex space-x-2 pb-4">
+      <div class="flex space-x-2 pb-4 my-4">
         <div class="flex flex-col space-y-4 text-right items-end">
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.command_menu") }}

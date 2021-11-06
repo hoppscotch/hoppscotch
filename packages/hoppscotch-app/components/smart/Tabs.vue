@@ -18,7 +18,6 @@
               :key="`tab-${index}`"
               class="tab"
               :class="[{ active: tab.active }, { vertical: vertical }]"
-              tabindex="0"
               :aria-label="tab.label"
               @keyup.enter="selectTab(tab)"
               @click="selectTab(tab)"

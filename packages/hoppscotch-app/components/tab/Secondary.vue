@@ -4,7 +4,7 @@
     :exact="exact"
     :blank="blank"
     class="
-      font-medium
+      font-semibold
       flex-1
       py-2
       transition

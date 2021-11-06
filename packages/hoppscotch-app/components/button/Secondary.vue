@@ -4,7 +4,7 @@
     :exact="exact"
     :blank="blank"
     class="
-      font-medium
+      font-semibold
       py-2
       transition
       inline-flex
@@ -31,7 +31,6 @@
       { '!bg-primaryDark': filled },
     ]"
     :disabled="disabled"
-    tabindex="0"
   >
     <i
       v-if="icon"

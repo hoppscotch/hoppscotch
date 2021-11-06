@@ -16,7 +16,6 @@
                 <input
                   id="websocket-url"
                   v-model="url"
-                  v-focus
                   class="
                     bg-primaryLight
                     border border-divider
@@ -158,7 +157,7 @@
                 "
                 :alt="$t('empty.protocols')"
               />
-              <span class="text-center">
+              <span class="text-center mb-4">
                 {{ $t("empty.protocols") }}
               </span>
             </div>

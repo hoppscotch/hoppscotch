@@ -6,7 +6,6 @@
     class="
       rounded
       transition
-      font-medium
       flex-shrink-0
       py-2
       px-4
@@ -59,10 +58,13 @@
       class="flex-1 inline-flex truncate items-start"
       :class="{ 'flex-col': description }"
     >
-      <div class="truncate">
+      <div class="truncate font-semibold">
         {{ label }}
       </div>
-      <p v-if="description" class="my-2 text-left text-secondaryLight">
+      <p
+        v-if="description"
+        class="my-2 font-medium text-left text-secondaryLight"
+      >
         {{ description }}
       </p>
     </div>

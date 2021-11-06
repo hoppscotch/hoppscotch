@@ -87,7 +87,7 @@
               loading="lazy"
               class="
                 flex-col
-                mb-4
+                my-4
                 object-contain object-center
                 h-16
                 w-16
@@ -101,6 +101,7 @@
             <ButtonSecondary
               :label="`${$t('add.new')}`"
               filled
+              class="mb-4"
               @click.native="addEnvironmentVariable"
             />
           </div>

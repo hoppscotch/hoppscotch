@@ -23,7 +23,7 @@
                 border-t border-dividerLight
                 cursor-pointer
                 flex
-                font-medium
+                font-semibold
                 w-full
                 py-2
                 px-4

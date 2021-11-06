@@ -143,7 +143,7 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
-            svg="sidebar"
+            svg="sidebar-open"
             class="transform"
             :class="{ 'rotate-180': !SIDEBAR }"
             @click.native="SIDEBAR = !SIDEBAR"

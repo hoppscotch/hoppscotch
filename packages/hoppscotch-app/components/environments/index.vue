@@ -118,6 +118,7 @@
       <ButtonSecondary
         :label="`${$t('add.new')}`"
         filled
+        class="mb-4"
         @click.native="displayModalAdd(true)"
       />
     </div>

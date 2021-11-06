@@ -97,6 +97,7 @@
         blank
         svg="external-link"
         reverse
+        class="my-4"
       />
     </div>
   </AppSection>

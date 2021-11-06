@@ -126,12 +126,14 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('team.no_access')"
         :label="$t('add.new')"
+        class="mb-4"
         filled
       />
       <ButtonSecondary
         v-else
         :label="$t('add.new')"
         filled
+        class="mb-4"
         @click.native="displayModalAdd(true)"
       />
     </div>

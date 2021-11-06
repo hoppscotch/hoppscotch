@@ -39,7 +39,11 @@
           hide-scrollbar
         "
       >
-        <div v-for="(map, mapIndex) in mappings" :key="`map-${mapIndex}`">
+        <div
+          v-for="(map, mapIndex) in mappings"
+          :key="`map-${mapIndex}`"
+          class="flex flex-col"
+        >
           <h5 class="my-2 text-secondaryLight py-2 px-6">
             {{ $t(map.section) }}
           </h5>

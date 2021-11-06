@@ -23,7 +23,6 @@
         <div class="flex flex-col my-4 mx-6">
           <input
             v-model="filterText"
-            v-focus
             type="search"
             autocomplete="off"
             class="

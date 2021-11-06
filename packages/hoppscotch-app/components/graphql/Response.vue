@@ -4,7 +4,7 @@
       v-if="responseString === 'loading'"
       class="flex flex-col p-4 items-center justify-center"
     >
-      <SmartSpinner class="mb-4" />
+      <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
     </div>
     <div v-else-if="responseString">
@@ -60,7 +60,7 @@
         justify-center
       "
     >
-      <div class="flex space-x-2 pb-4">
+      <div class="flex space-x-2 pb-4 my-4">
         <div class="flex flex-col space-y-4 text-right items-end">
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.general.command_menu") }}

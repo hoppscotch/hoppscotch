@@ -99,7 +99,7 @@
           </template>
           <SmartItem
             :label="`${$t('import.curl')}`"
-            svg="terminal"
+            svg="file-code"
             @click.native="
               () => {
                 showCurlImportModal = !showCurlImportModal
@@ -109,7 +109,7 @@
           />
           <SmartItem
             :label="`${$t('show.code')}`"
-            svg="code"
+            svg="code-2"
             @click.native="
               () => {
                 showCodegenModal = !showCodegenModal

@@ -95,6 +95,21 @@
               "
             />
             <SmartItem
+              svg="copy"
+              :label="$t('action.duplicate')"
+              @click.native="
+                $emit('duplicate-request', {
+                  collectionIndex,
+                  folderIndex,
+                  folderName,
+                  request,
+                  requestIndex,
+                  folderPath,
+                })
+                $refs.options.tippy().hide()
+              "
+            />
+            <SmartItem
               svg="trash-2"
               color="red"
               :label="$t('action.delete')"

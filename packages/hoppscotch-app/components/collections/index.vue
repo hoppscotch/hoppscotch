@@ -95,6 +95,7 @@
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
+        @duplicate-request="duplicateRequest($event)"
         @update-team-collections="updateTeamCollections"
         @select-collection="$emit('use-collection', collection)"
         @unselect-collection="$emit('remove-collection', collection)"
@@ -201,6 +202,7 @@ import {
   editRESTFolder,
   removeRESTRequest,
   editRESTRequest,
+  saveRESTRequestAs,
 } from "~/newstore/collections"
 import {
   useReadonlyStream,
@@ -681,6 +683,9 @@ export default defineComponent({
             console.error(e)
           })
       }
+    },
+    duplicateRequest({ folderPath, request }) {
+      saveRESTRequestAs(folderPath, request)
     },
   },
 })

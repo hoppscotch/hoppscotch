@@ -127,6 +127,7 @@
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
           @update-team-collections="$emit('update-team-collections')"
           @select="$emit('select', $event)"
           @remove-request="removeRequest"
@@ -145,6 +146,7 @@
           :save-request="saveRequest"
           :collections-type="collectionsType"
           @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
           @remove-request="removeRequest"
         />

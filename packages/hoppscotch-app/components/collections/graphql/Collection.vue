@@ -126,6 +126,7 @@
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
         />
         <CollectionsGraphqlRequest
@@ -141,6 +142,7 @@
           :request-index="index"
           :doc="doc"
           @edit-request="$emit('edit-request', $event)"
+          @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
         />
         <div

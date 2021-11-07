@@ -289,7 +289,10 @@ export default defineComponent({
       this.$data.editingRequestIndex = undefined
     },
     duplicateRequest({ folderPath, request }) {
-      saveGraphqlRequestAs(folderPath, request)
+      saveGraphqlRequestAs(folderPath, {
+        ...request,
+        name: request.name + "-Copy",
+      })
     },
   },
 })

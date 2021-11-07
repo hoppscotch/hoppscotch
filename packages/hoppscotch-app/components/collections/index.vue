@@ -687,7 +687,10 @@ export default defineComponent({
       }
     },
     duplicateRequest({ folderPath, request }) {
-      saveRESTRequestAs(folderPath, request)
+      saveRESTRequestAs(folderPath, {
+        ...request,
+        name: request.name + "-Copy",
+      })
     },
   },
 })

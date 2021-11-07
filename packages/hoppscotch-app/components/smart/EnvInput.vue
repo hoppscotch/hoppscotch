@@ -461,7 +461,8 @@ export default defineComponent({
       return "choose an environment"
     },
     getEnvValue(value) {
-      if (value) return value
+      if (value) return value.replace(/"/g, "&quot;")
+      // it does not filter special characters before adding them to HTML.
       return "not found"
     },
   },

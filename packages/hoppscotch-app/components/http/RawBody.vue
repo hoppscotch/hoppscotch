@@ -121,14 +121,21 @@ useCodemirror(
 
 const envVariables = useReadonlyStream(aggregateEnvs$, [])
 
-watch(rawBodyData, (newValue) => {
-  newValue = newValue.replace(/<<\w+>>/g, (key) => {
+const updateBody = (newValue) => {
+  rawParamsBody.value = newValue.replace(/<<\w+>>/g, (key) => {
     const found = envVariables.value.find(
       (envVar) => envVar.key === key.replace(/[<>]/g, "")
     )
     return found ? found.value : key
   })
-  rawParamsBody.value = newValue
+}
+
+watch(envVariables, () => {
+  updateBody(rawBodyData.value)
+})
+
+watch(rawBodyData, (newValue) => {
+  updateBody(newValue)
 })
 
 const clearContent = () => {

@@ -280,10 +280,24 @@
             py-4
             rounded
             border border-dividerLight
-            bg-primaryLight
+            flex flex-col
+            items-start
           "
         >
-          <span class="pb-2 flex items-center font-semibold">
+          <span
+            class="
+              mb-4
+              px-2
+              py-1
+              flex
+              justify-center
+              items-center
+              font-semibold
+              rounded-full
+              bg-primaryDark
+              border border-divider
+            "
+          >
             <i class="text-secondaryLight mr-2 material-icons">help_outline</i>
             {{ $t("profile.roles") }}
           </span>

@@ -13,29 +13,42 @@
             class="bg-primaryLight h-24 md:h-32 -mb-11 rounded"
             style="background-image: url('/images/cover.svg')"
           ></div>
-          <div class="flex px-4 items-end">
-            <img
-              v-if="currentUser.photoURL"
-              :src="currentUser.photoURL"
-              class="rounded-lg ring-4 ring-primary h-16 w-16"
-              :alt="currentUser.displayName"
-            />
-            <SmartIcon v-else name="user" class="svg-icons" />
-            <div class="ml-4">
-              <label class="heading">
-                {{ currentUser.displayName || $t("state.nothing_found") }}
-              </label>
-              <p class="flex text-secondaryLight items-center">
-                {{ currentUser.email }}
-                <SmartIcon
-                  v-if="currentUser.emailVerified"
-                  name="verified"
-                  class="ml-2 text-green-500 svg-icons"
+          <div class="flex px-4 flex-col md:flex-row space-y-8 justify-between">
+            <div class="flex items-end">
+              <img
+                v-if="currentUser.photoURL"
+                :src="currentUser.photoURL"
+                class="rounded-lg ring-4 ring-primary h-16 w-16"
+                :alt="currentUser.displayName"
+              />
+              <SmartIcon v-else name="user" class="svg-icons" />
+              <div class="ml-4">
+                <label class="heading">
+                  {{ currentUser.displayName || $t("state.nothing_found") }}
+                </label>
+                <p class="flex text-secondaryLight items-center">
+                  {{ currentUser.email }}
+                  <SmartIcon
+                    v-if="currentUser.emailVerified"
+                    name="verified"
+                    class="ml-2 text-green-500 svg-icons"
+                  />
+                </p>
+              </div>
+            </div>
+            <div class="flex space-x-2 items-end">
+              <div>
+                <SmartItem
+                  to="/settings"
+                  svg="settings"
+                  :label="$t('profile.app_settings')"
+                  outline
                 />
-              </p>
+              </div>
+              <FirebaseLogout outline />
             </div>
           </div>
-          <SmartTabs styles="sticky bg-primary z-10 top-0">
+          <SmartTabs>
             <SmartTab
               :id="'sync'"
               :label="$t('settings.account')"

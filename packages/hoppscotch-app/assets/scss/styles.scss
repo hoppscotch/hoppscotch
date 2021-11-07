@@ -420,7 +420,7 @@ input[type="checkbox"] {
   @apply inset-0;
   @apply bg-dividerLight;
   @apply opacity-0;
-  @apply z-30;
+  @apply z-20;
   @apply transition;
 
   content: "";
@@ -429,7 +429,7 @@ input[type="checkbox"] {
 .smart-splitter .splitpanes__splitter::after {
   @apply absolute;
   @apply inset-0;
-  @apply z-30;
+  @apply z-20;
   @apply transition;
   @apply flex;
   @apply items-center;

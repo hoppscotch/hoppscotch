@@ -250,6 +250,7 @@ export function useNewCodemirror(
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const language = new Compartment()
+  const lineWrapping = new Compartment()
 
   const cachedCursor = ref({
     line: 0,
@@ -298,6 +299,11 @@ export function useNewCodemirror(
       language.of(
         getEditorLanguage((options.extendedEditorConfig.mode as any) ?? "")
       ),
+      lineWrapping.of(
+        options.extendedEditorConfig.lineWrapping
+          ? [EditorView.lineWrapping]
+          : []
+      ),
       keymap.of(defaultKeymap),
     ],
   })
@@ -335,6 +341,17 @@ export function useNewCodemirror(
       })
     }
   })
+
+  watch(
+    () => options.extendedEditorConfig.lineWrapping,
+    (newMode) => {
+      dispatch({
+        effects: lineWrapping.reconfigure(
+          newMode ? [EditorView.lineWrapping] : []
+        ),
+      })
+    }
+  )
 
   watch(
     () => options.extendedEditorConfig.mode,

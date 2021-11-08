@@ -40,6 +40,7 @@
     "@codemirror/lang-javascript": "^0.19.2",
     "@codemirror/lang-json": "^0.19.1",
     "@codemirror/language": "^0.19.3",
+    "@codemirror/lint": "^0.19.2",
     "@codemirror/state": "^0.19.3",
     "@codemirror/text": "^0.19.5",
     "@codemirror/view": "^0.19.12",

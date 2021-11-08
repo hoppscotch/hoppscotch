@@ -26,6 +26,7 @@ importers:
       '@codemirror/lang-javascript': ^0.19.2
       '@codemirror/lang-json': ^0.19.1
       '@codemirror/language': ^0.19.3
+      '@codemirror/lint': ^0.19.2
       '@codemirror/state': ^0.19.3
       '@codemirror/text': ^0.19.5
       '@codemirror/view': ^0.19.12
@@ -140,6 +141,7 @@ importers:
       '@codemirror/lang-javascript': 0.19.2
       '@codemirror/lang-json': 0.19.1
       '@codemirror/language': 0.19.3
+      '@codemirror/lint': 0.19.2
       '@codemirror/state': 0.19.3
       '@codemirror/text': 0.19.5
       '@codemirror/view': 0.19.12
@@ -3912,8 +3914,8 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27267816.6bd7186:
-    resolution: {integrity: sha512-OCinQR1TBeZmgU61of/YM55JvY+3emO6D4BwfTNYe8KwqIpynYcrZJxlxAYRYZKzqfZhtqLnD1B8DJ1f2b6thQ==}
+  /@nuxt/kit-edge/3.0.0-27268729.5b8e10f:
+    resolution: {integrity: sha512-m7bzSe8NRuR7ZcZqKwBQfOb1y3AlmGIiNMibZVO4r0ggIfT4fmkzVwfdZm+oWNhOYlZET7Kyk08rSjwShENukQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       consola: 2.15.3
@@ -3934,7 +3936,7 @@ packages:
       std-env: 3.0.0
       ufo: 0.7.9
       unctx: 1.0.2
-      untyped: 0.2.11
+      untyped: 0.2.12
     dev: true
 
   /@nuxt/loading-screen/2.0.4:
@@ -14036,7 +14038,7 @@ packages:
   /nuxt-windicss/2.0.11:
     resolution: {integrity: sha512-/vAEmKLq1Iomuj4lz751dsoXdlGVAoiEGSh3JVxuZJMkqc/yrHTQrNhtMaOQzx5heuVsQ+E2bIF+Q/tfxicOFQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27267816.6bd7186
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27268729.5b8e10f
       defu: 5.0.0
       h3: 0.3.3
       listhen: 0.2.5
@@ -18167,8 +18169,8 @@ packages:
       has-value: 0.3.1
       isobject: 3.0.1
 
-  /untyped/0.2.11:
-    resolution: {integrity: sha512-KVNcu9jB+mlnQJiunAzmqpnnn9R+yniT+AkOk9ZgCIsThwh0nlP6wO+O7mJjHM7Y2yplEu3v6NNtRvb82+uGxw==}
+  /untyped/0.2.12:
+    resolution: {integrity: sha512-mdMpwUHnJUQDpEmuByMuLxYdrPVlA98a1/b8MgoFoasR5tJTfsNbhAPfceAgFqMd/E05427T7MXgJGqdtDF/bQ==}
     dev: true
 
   /upath/1.2.0:

@@ -30,16 +30,20 @@ import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 import {
   EditorState,
   Compartment,
-  StateField,
   EditorSelection,
   TransactionSpec,
+  Extension,
 } from "@codemirror/state"
 import { EditorView, keymap, ViewPlugin, ViewUpdate } from "@codemirror/view"
 import { defaultKeymap } from "@codemirror/commands"
 import { basicSetup } from "@codemirror/basic-setup"
-import { javascript } from "@codemirror/lang-javascript"
-import { json } from "@codemirror/lang-json"
+import { javascriptLanguage } from "@codemirror/lang-javascript"
+import { Language, LanguageSupport } from "@codemirror/language"
+import { linter } from "@codemirror/lint"
+import { jsonLanguage } from "@codemirror/lang-json"
 import { onBeforeUnmount } from "@vue/runtime-dom"
+import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
@@ -229,20 +233,55 @@ export function useCodemirror(
   }
 }
 
-const getEditorLanguage = (mode: string) => {
-  if (isJSONContentType(mode)) {
-    return json()
-  } else if (mode === "application/javascript") {
-    return javascript()
-  } else {
-    return StateField.define({
-      create() {
-        return null
-      },
-      update() {},
+const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
+  return linter(async (view) => {
+    // Requires full document scan, hence expensive on big files, force disable on big files ?
+    const linterResult = await hoppLinter(
+      view.state.doc.toJSON().join(view.state.lineBreak)
+    )
+
+    return linterResult.map((result) => {
+      const startPos =
+        view.state.doc.line(result.from.line + 1).from + result.from.ch
+      const endPos = view.state.doc.line(result.to.line + 1).from + result.to.ch
+
+      return {
+        from: startPos,
+        to: endPos,
+        message: result.message,
+        severity: result.severity,
+      }
     })
-  }
+  })
 }
+
+const hoppLang = (
+  language: Language,
+  linter?: LinterDefinition | undefined
+) => {
+  return new LanguageSupport(language, linter ? [hoppLinterExt(linter)] : [])
+}
+
+const getLanguage = (langMime: string): Language | null => {
+  if (isJSONContentType(langMime)) {
+    return jsonLanguage
+  } else if (langMime === "application/javascript") {
+    return javascriptLanguage
+  }
+
+  // None matched, so return null
+  return null
+}
+
+const getEditorLanguage = (
+  langMime: string,
+  linter: LinterDefinition | undefined
+): Extension =>
+  pipe(
+    O.fromNullable(getLanguage(langMime)),
+    O.map((lang) => hoppLang(lang, linter)),
+    O.getOrElseW(() => [])
+  )
 
 export function useNewCodemirror(
   el: Ref<any | null>,
@@ -297,7 +336,10 @@ export function useNewCodemirror(
       ),
       EditorState.changeFilter.of(() => !options.extendedEditorConfig.readOnly),
       language.of(
-        getEditorLanguage((options.extendedEditorConfig.mode as any) ?? "")
+        getEditorLanguage(
+          (options.extendedEditorConfig.mode as any) ?? "",
+          options.linter ?? undefined
+        )
       ),
       lineWrapping.of(
         options.extendedEditorConfig.lineWrapping
@@ -354,11 +396,14 @@ export function useNewCodemirror(
   )
 
   watch(
-    () => options.extendedEditorConfig.mode,
-    (newMode) => {
+    () => [options.extendedEditorConfig.mode, options.linter],
+    () => {
       dispatch({
         effects: language.reconfigure(
-          getEditorLanguage((newMode as any) ?? "")
+          getEditorLanguage(
+            (options.extendedEditorConfig.mode as any) ?? "",
+            options.linter ?? undefined
+          )
         ),
       })
     }

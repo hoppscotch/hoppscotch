@@ -48,6 +48,7 @@ import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
+import baseTheme from "./themes/baseTheme"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
@@ -341,6 +342,7 @@ export function useNewCodemirror(
     doc: value.value,
     extensions: [
       basicSetup,
+      baseTheme,
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {

@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.4.16",
+    "@codemirror/autocomplete": "^0.19.4",
     "@codemirror/basic-setup": "^0.19.0",
     "@codemirror/commands": "^0.19.5",
     "@codemirror/gutter": "^0.19.4",

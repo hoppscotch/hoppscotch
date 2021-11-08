@@ -20,6 +20,7 @@ importers:
       '@apollo/client': ^3.4.16
       '@babel/core': ^7.16.0
       '@babel/preset-env': ^7.16.0
+      '@codemirror/autocomplete': ^0.19.4
       '@codemirror/basic-setup': ^0.19.0
       '@codemirror/commands': ^0.19.5
       '@codemirror/gutter': ^0.19.4
@@ -135,6 +136,7 @@ importers:
       yargs-parser: ^20.2.9
     dependencies:
       '@apollo/client': 3.4.16_f3f7eb5e21785ef7d5faca94c1a68824
+      '@codemirror/autocomplete': 0.19.4
       '@codemirror/basic-setup': 0.19.0
       '@codemirror/commands': 0.19.5
       '@codemirror/gutter': 0.19.4

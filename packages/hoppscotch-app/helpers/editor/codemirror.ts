@@ -41,6 +41,7 @@ import { javascriptLanguage } from "@codemirror/lang-javascript"
 import { Language, LanguageSupport } from "@codemirror/language"
 import { linter } from "@codemirror/lint"
 import { jsonLanguage } from "@codemirror/lang-json"
+import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { onBeforeUnmount } from "@vue/runtime-dom"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
@@ -233,6 +234,34 @@ export function useCodemirror(
   }
 }
 
+const hoppCompleterExt = (completer: Completer): Extension => {
+  return autocompletion({
+    override: [
+      async (context) => {
+        // Expensive operation! Disable on bigger files ?
+        const text = context.state.doc.toJSON().join(context.state.lineBreak)
+
+        const line = context.state.doc.lineAt(context.pos).from
+        const ch = context.pos - line
+
+        const result = await completer(text, { line, ch })
+
+        // Use more completion features ?
+        const completions =
+          result?.completions.map<Completion>((comp) => ({
+            label: comp.text,
+            detail: comp.meta,
+          })) ?? []
+
+        return {
+          from: context.state.wordAt(context.pos)?.from ?? context.pos,
+          options: completions,
+        }
+      },
+    ],
+  })
+}
+
 const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
   return linter(async (view) => {
     // Requires full document scan, hence expensive on big files, force disable on big files ?
@@ -257,9 +286,15 @@ const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
 
 const hoppLang = (
   language: Language,
-  linter?: LinterDefinition | undefined
+  linter?: LinterDefinition | undefined,
+  completer?: Completer | undefined
 ) => {
-  return new LanguageSupport(language, linter ? [hoppLinterExt(linter)] : [])
+  const exts: Extension[] = []
+
+  if (linter) exts.push(hoppLinterExt(linter))
+  if (completer) exts.push(hoppCompleterExt(completer))
+
+  return new LanguageSupport(language, exts)
 }
 
 const getLanguage = (langMime: string): Language | null => {
@@ -275,11 +310,12 @@ const getLanguage = (langMime: string): Language | null => {
 
 const getEditorLanguage = (
   langMime: string,
-  linter: LinterDefinition | undefined
+  linter: LinterDefinition | undefined,
+  completer: Completer | undefined
 ): Extension =>
   pipe(
     O.fromNullable(getLanguage(langMime)),
-    O.map((lang) => hoppLang(lang, linter)),
+    O.map((lang) => hoppLang(lang, linter, completer)),
     O.getOrElseW(() => [])
   )
 
@@ -338,7 +374,8 @@ export function useNewCodemirror(
       language.of(
         getEditorLanguage(
           (options.extendedEditorConfig.mode as any) ?? "",
-          options.linter ?? undefined
+          options.linter ?? undefined,
+          options.completer ?? undefined
         )
       ),
       lineWrapping.of(
@@ -396,13 +433,18 @@ export function useNewCodemirror(
   )
 
   watch(
-    () => [options.extendedEditorConfig.mode, options.linter],
+    () => [
+      options.extendedEditorConfig.mode,
+      options.linter,
+      options.completer,
+    ],
     () => {
       dispatch({
         effects: language.reconfigure(
           getEditorLanguage(
             (options.extendedEditorConfig.mode as any) ?? "",
-            options.linter ?? undefined
+            options.linter ?? undefined,
+            options.completer ?? undefined
           )
         ),
       })

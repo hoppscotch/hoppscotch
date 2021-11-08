@@ -55,7 +55,7 @@
     "firebase": "^9.3.0",
     "fp-ts": "^2.11.5",
     "fuse.js": "^6.4.6",
-    "graphql": "^15.7.2",
+    "graphql": "^16.0.1",
     "graphql-language-service-interface": "^2.8.4",
     "graphql-language-service-parser": "^1.9.3",
     "graphql-tag": "^2.12.6",

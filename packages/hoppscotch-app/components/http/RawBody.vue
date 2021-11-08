@@ -67,18 +67,11 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  reactive,
-  ref,
-  useContext,
-  watch,
-} from "@nuxtjs/composition-api"
+import { computed, reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
-import { pluckRef, useReadonlyStream } from "~/helpers/utils/composables"
+import { pluckRef } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
-import { aggregateEnvs$ } from "~/newstore/environments"
 import "codemirror/mode/yaml/yaml"
 import "codemirror/mode/xml/xml"
 import "codemirror/mode/css/css"
@@ -97,7 +90,6 @@ const t = i18n.t.bind(i18n)
 
 const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
 const prettifyIcon = ref("wand")
-const rawBodyData = ref("")
 
 const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(props.contentType)
@@ -107,7 +99,7 @@ const rawBodyParameters = ref<any | null>(null)
 
 useCodemirror(
   rawBodyParameters,
-  rawBodyData,
+  rawParamsBody,
   reactive({
     extendedEditorConfig: {
       lineWrapping: linewrapEnabled,
@@ -118,25 +110,6 @@ useCodemirror(
     completer: null,
   })
 )
-
-const envVariables = useReadonlyStream(aggregateEnvs$, [])
-
-const updateBody = (newValue) => {
-  rawParamsBody.value = newValue.replace(/<<\w+>>/g, (key) => {
-    const found = envVariables.value.find(
-      (envVar) => envVar.key === key.replace(/[<>]/g, "")
-    )
-    return found ? found.value : key
-  })
-}
-
-watch(envVariables, () => {
-  updateBody(rawBodyData.value)
-})
-
-watch(rawBodyData, (newValue) => {
-  updateBody(newValue)
-})
 
 const clearContent = () => {
   rawParamsBody.value = ""

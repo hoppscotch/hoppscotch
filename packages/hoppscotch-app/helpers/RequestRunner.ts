@@ -41,6 +41,13 @@ const getTestableBody = (res: HoppRESTResponse & { type: "success" }) => {
   return x
 }
 
+const handelInBodyEnvVars = (request, envs) => {
+  return request.effectiveFinalBody.replace(/<<\w+>>/g, (key) => {
+    const found = envs.find((envVar) => envVar.key === key.replace(/[<>]/g, ""))
+    return found ? found.value : key
+  })
+}
+
 export const runRESTRequest$ = (): TaskEither<
   string,
   Observable<HoppRESTResponse>
@@ -55,6 +62,11 @@ export const runRESTRequest$ = (): TaskEither<
         name: "Env",
         variables: envs,
       })
+
+      effectiveRequest.effectiveFinalBody = handelInBodyEnvVars(
+        effectiveRequest,
+        envs
+      )
 
       const stream = createRESTNetworkRequestStream(effectiveRequest)
 

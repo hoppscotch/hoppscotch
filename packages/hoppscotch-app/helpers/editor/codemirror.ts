@@ -43,6 +43,7 @@ import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
 
 import { javascriptLanguage } from "@codemirror/lang-javascript"
 import { jsonLanguage } from "@codemirror/lang-json"
+import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { onBeforeUnmount } from "@vue/runtime-dom"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
@@ -304,6 +305,8 @@ const getLanguage = (langMime: string): Language | null => {
     return jsonLanguage
   } else if (langMime === "application/javascript") {
     return javascriptLanguage
+  } else if (langMime === "graphql") {
+    return GQLLanguage
   }
 
   // None matched, so return null

@@ -1,0 +1,368 @@
+@top SourceFile {
+  Document
+}
+
+@precedence {
+  fieldDef @right,
+  typeDef @right
+}
+
+Document {
+  Definition+
+}
+
+Definition {
+  ExecutableDefinition |
+  TypeSystemDefinition |
+  TypeSystemExtension
+}
+
+ExecutableDefinition {
+  OperationDefinition |
+  FragmentDefinition
+}
+
+TypeSystemDefinition {
+  SchemaDefinition |
+  TypeDefinition |
+  DirectiveDefinition
+}
+
+TypeSystemExtension {
+  SchemaExtension |
+  TypeExtension
+}
+
+SchemaDefinition {
+  Description? @specialize<Name, "schema"> Directives? "{" RootOperationTypeDefinition+ "}"
+}
+
+SchemaExtension {
+  @specialize<Name, "extend"> @specialize<Name, "schema"> Directives? "{" RootOperationTypeDefinition "}"
+}
+
+TypeExtension {
+  ScalarTypeExtension |
+  ObjectTypeExtension |
+  InterfaceTypeExtension |
+  UnionTypeExtension |
+  EnumTypeExtension |
+  InputObjectTypeExtension
+}
+
+ScalarTypeExtension {
+  @specialize<Name, "extend"> @specialize<Name, "scalar"> Name Directives
+}
+
+ObjectTypeExtension /* precedence: right 0 */ {
+  @specialize<Name, "extend"> @specialize<Name, "type"> Name ImplementsInterfaces? Directives? !typeDef FieldsDefinition |
+  @specialize<Name, "extend"> @specialize<Name, "type"> Name ImplementsInterfaces? Directives?
+}
+
+InterfaceTypeExtension /* precedence: right 0 */ {
+  @specialize<Name, "extend"> @specialize<Name, "interface"> Name ImplementsInterfaces? Directives? FieldsDefinition |
+  @specialize<Name, "extend"> @specialize<Name, "interface"> Name ImplementsInterfaces? Directives?
+}
+
+UnionTypeExtension /* precedence: right 0 */ {
+  @specialize<Name, "extend"> @specialize<Name, "union"> Name Directives? UnionMemberTypes |
+  @specialize<Name, "extend"> @specialize<Name, "union"> Name Directives?
+}
+
+EnumTypeExtension /* precedence: right 0 */ {
+  @specialize<Name, "extend"> @specialize<Name, "enum"> Name Directives? !typeDef EnumValuesDefinition |
+  @specialize<Name, "extend"> @specialize<Name, "enum"> Name Directives?
+}
+
+InputObjectTypeExtension /* precedence: right 0 */ {
+  @specialize<Name, "extend"> @specialize<Name, "input"> Name Directives? InputFieldsDefinition+ |
+  @specialize<Name, "extend"> @specialize<Name, "input"> Name Directives?
+}
+
+InputFieldsDefinition {
+  !fieldDef "{" InputValueDefinition+ "}"
+}
+
+EnumValuesDefinition {
+  !fieldDef "{" EnumValueDefinition+ "}"
+}
+
+EnumValueDefinition {
+  Description? EnumValue Directives?
+}
+
+ImplementsInterfaces {
+  ImplementsInterfaces "&" NamedType |
+  @specialize<Name, "implements"> "&"? NamedType
+}
+
+FieldsDefinition {
+  !fieldDef "{" FieldDefinition+ "}"
+}
+
+FieldDefinition {
+  Description? Name ArgumentsDefinition? ":" Type Directives?
+}
+
+ArgumentsDefinition {
+  "(" InputValueDefinition+ ")"
+}
+
+InputValueDefinition {
+  Description? Name ":" Type DefaultValue? Directives?
+}
+
+DefaultValue {
+  "=" Value
+}
+
+UnionMemberTypes {
+  UnionMemberTypes "|" NamedType |
+  "=" "|"? NamedType
+}
+
+RootOperationTypeDefinition {
+  OperationType ":" NamedType
+}
+
+OperationDefinition {
+  SelectionSet |
+  OperationType Name? VariableDefinitions? Directives? SelectionSet
+}
+
+TypeDefinition {
+  ScalarTypeDefinition |
+  ObjectTypeDefinition |
+  InterfaceTypeDefinition |
+  UnionTypeDefinition |
+  EnumTypeDefinition |
+  InputObjectTypeDefinition
+}
+
+ScalarTypeDefinition /* precedence: right 0 */ {
+  Description? @specialize<Name, "scalar"> Name Directives?
+}
+
+ObjectTypeDefinition /* precedence: right 0 */ {
+  Description? @specialize<Name, "type"> Name ImplementsInterfaces? Directives? FieldsDefinition?
+}
+
+InterfaceTypeDefinition /* precedence: right 0 */ {
+  Description? @specialize<Name, "interface"> Name ImplementsInterfaces? Directives? FieldsDefinition?
+}
+
+UnionTypeDefinition /* precedence: right 0 */ {
+  Description? @specialize<Name, "union"> Name Directives? UnionMemberTypes?
+}
+
+EnumTypeDefinition /* precedence: right 0 */ {
+  Description? @specialize<Name, "enum"> Name Directives? !typeDef EnumValuesDefinition?
+}
+
+InputObjectTypeDefinition /* precedence: right 0 */ {
+  Description? @specialize<Name, "input"> Name Directives? !typeDef InputFieldsDefinition?
+}
+
+VariableDefinitions {
+  "(" VariableDefinition+ ")"
+}
+
+VariableDefinition {
+  Variable ":" Type DefaultValue? Directives? Comma?
+}
+
+SelectionSet {
+  "{" Selection+ "}"
+}
+
+Selection {
+  Field |
+  InlineFragment |
+  FragmentSpread
+}
+
+Field {
+  Alias? Name Arguments? Directive? SelectionSet?
+}
+
+Alias {
+  Name ":"
+}
+
+Arguments {
+  "(" Argument+ ")"
+}
+
+Argument {
+  Name ":" Value
+}
+
+Value {
+  Variable |
+  StringValue |
+  IntValue |
+  FloatValue |
+  BooleanValue |
+  NullValue |
+  EnumValue |
+  ListValue |
+  ObjectValue
+}
+
+Variable {
+  "$" Name
+}
+
+EnumValue {
+  Name
+}
+
+ListValue {
+  "[" Value* "]"
+}
+
+ObjectValue {
+  "{" ObjectField* "}"
+}
+
+ObjectField {
+  Name ":" Value Comma?
+}
+
+FragmentSpread {
+  "..." FragmentName Directives?
+}
+
+FragmentDefinition {
+  @specialize<Name, "fragment"> FragmentName TypeCondition Directives? SelectionSet
+}
+
+FragmentName {
+  Name
+}
+
+InlineFragment {
+  "..." TypeCondition? Directives? SelectionSet
+}
+
+TypeCondition {
+  @specialize<Name, "on"> NamedType
+}
+
+Directives {
+  Directive+
+}
+
+Directive {
+  "@" Name Arguments?
+}
+
+DirectiveDefinition /* precedence: right 1 */ {
+  Description? @specialize<Name, "directive"> "@" Name ArgumentsDefinition? @specialize<Name, "repeatable"> ? @specialize<Name, "on"> DirectiveLocations
+}
+
+DirectiveLocations {
+  DirectiveLocations "|" DirectiveLocation |
+  "|"? DirectiveLocation
+}
+
+DirectiveLocation {
+  ExecutableDirectiveLocation |
+  TypeSystemDirectiveLocation
+}
+
+Type {
+  NamedType |
+  ListType |
+  NonNullType
+}
+
+NamedType {
+  Name
+}
+
+ListType {
+  "[" Type "]"
+}
+
+NonNullType {
+  NamedType "!" |
+  ListType "!"
+}
+
+Description {
+  StringValue
+}
+
+OperationType {
+  @specialize<Name, "query"> 
+  | @specialize<Name, "mutation"> 
+  | @specialize<Name, "subscription">
+}
+
+BooleanValue {
+  @specialize<Name, "true">
+  | @specialize<Name, "false">
+}
+
+NullValue {
+  @specialize<Name, "null">
+}
+
+ExecutableDirectiveLocation {
+  @specialize<Name, "QUERY">
+  | @specialize<Name, "MUTATION">
+  | @specialize<Name, "SUBSCRIPTION">
+  | @specialize<Name, "FIELD"> 
+  | @specialize<Name, "FRAGMENT_DEFINITION">
+  | @specialize<Name, "FRAGMENT_SPREAD">
+  | @specialize<Name, "INLINE_FRAGMENT">
+  | @specialize<Name, "VARIABLE_DEFINITION">
+}
+
+TypeSystemDirectiveLocation {
+  @specialize<Name, "SCHEMA">
+  | @specialize<Name, "SCALAR">
+  | @specialize<Name, "OBJECT">
+  | @specialize<Name, "FIELD_DEFINITION">
+  | @specialize<Name, "ARGUMENT_DEFINITION">
+  | @specialize<Name, "INTERFACE">
+  | @specialize<Name, "UNION">
+  | @specialize<Name, "ENUM">
+  | @specialize<Name, "ENUM_VALUE">
+  | @specialize<Name, "INPUT_OBJECT">
+  | @specialize<Name, "INPUT_FIELD_DEFINITION">
+}
+
+@skip { Whitespace | Comment }
+
+@tokens {
+  Whitespace {
+    std.whitespace
+  }
+  StringValue {
+    "\"\"\"" (!["] | "\\n" | "\"" "\""? !["])* "\"\"\"" | "\"" !["\\\n]* "\""
+  }
+  IntValue {
+    "-"? "0"
+    | "-"? std.digit+
+  }
+
+  FloatValue {
+    IntValue ("." std.digit+ | ("e" | "E") IntValue+) 
+  }
+
+  @precedence { IntValue, FloatValue }
+
+  Name {
+    $[_A-Za-z] $[_0-9A-Za-z]*
+  }
+  Comment {
+    "#" ![\n]*
+  }
+  Comma {
+    ","
+  }
+}
+
+@detectDelim

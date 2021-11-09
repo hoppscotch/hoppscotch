@@ -25,30 +25,54 @@ import "codemirror/addon/search/jump-to-line"
 import "codemirror/addon/dialog/dialog"
 import "codemirror/addon/selection/active-line"
 
-import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
-
 import {
+  keymap,
+  highlightSpecialChars,
+  drawSelection,
+  highlightActiveLine,
+  EditorView,
+  ViewPlugin,
+  ViewUpdate,
+} from "@codemirror/view"
+import {
+  Extension,
   EditorState,
   Compartment,
   EditorSelection,
   TransactionSpec,
-  Extension,
 } from "@codemirror/state"
-import { EditorView, keymap, ViewPlugin, ViewUpdate } from "@codemirror/view"
+import { history, historyKeymap } from "@codemirror/history"
+import { foldKeymap } from "@codemirror/fold"
+import { indentOnInput, Language, LanguageSupport } from "@codemirror/language"
+import { lineNumbers, highlightActiveLineGutter } from "@codemirror/gutter"
 import { defaultKeymap } from "@codemirror/commands"
-import { basicSetup } from "@codemirror/basic-setup"
+import { bracketMatching } from "@codemirror/matchbrackets"
+import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets"
+import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
+import {
+  completionKeymap,
+  Completion,
+  autocompletion,
+} from "@codemirror/autocomplete"
+import { commentKeymap } from "@codemirror/comment"
+import { rectangularSelection } from "@codemirror/rectangular-selection"
+import { defaultHighlightStyle } from "@codemirror/highlight"
+import { lintKeymap, linter } from "@codemirror/lint"
+
+import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
+
 import { javascriptLanguage } from "@codemirror/lang-javascript"
-import { Language, LanguageSupport } from "@codemirror/language"
-import { linter } from "@codemirror/lint"
 import { jsonLanguage } from "@codemirror/lang-json"
-import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { onBeforeUnmount } from "@vue/runtime-dom"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
-import baseTheme from "./themes/baseTheme"
+import { baseThemeFoldStyle } from "./themes/baseTheme"
+import { darkTheme, darkHighlightStyle } from "./themes/darkTheme"
+import { lightTheme, lightHighlightStyle } from "./themes/lightTheme"
+import { blackTheme, blackHighlightStyle } from "./themes/blackTheme"
 import { HoppBgColor } from "~/newstore/settings"
 
 type CodeMirrorOptions = {
@@ -236,6 +260,34 @@ export function useCodemirror(
   }
 }
 
+export const basicSetup: Extension = [
+  lineNumbers(),
+  highlightActiveLineGutter(),
+  highlightSpecialChars(),
+  history(),
+  baseThemeFoldStyle,
+  drawSelection(),
+  EditorState.allowMultipleSelections.of(true),
+  indentOnInput(),
+  defaultHighlightStyle.fallback,
+  bracketMatching(),
+  closeBrackets(),
+  autocompletion(),
+  rectangularSelection(),
+  highlightActiveLine(),
+  highlightSelectionMatches(),
+  keymap.of([
+    ...closeBracketsKeymap,
+    ...defaultKeymap,
+    ...searchKeymap,
+    ...historyKeymap,
+    ...foldKeymap,
+    ...commentKeymap,
+    ...completionKeymap,
+    ...lintKeymap,
+  ]),
+]
+
 const hoppCompleterExt = (completer: Completer): Extension => {
   return autocompletion({
     override: [
@@ -321,11 +373,29 @@ const getEditorLanguage = (
     O.getOrElseW(() => [])
   )
 
-const getThemeExt = (mode: HoppBgColor) => {
-  // TODO: Implement more themes here
+const getHightlightMode = (mode: HoppBgColor): Extension => {
   switch (mode) {
+    case "light":
+      return lightHighlightStyle
+    case "dark":
+      return darkHighlightStyle
+    case "black":
+      return blackHighlightStyle
     default:
-      return baseTheme
+      return darkHighlightStyle
+  }
+}
+
+const getThemeExt = (mode: HoppBgColor): Extension => {
+  switch (mode) {
+    case "dark":
+      return darkTheme
+    case "black":
+      return blackTheme
+    case "light":
+      return lightTheme
+    case "system":
+      return darkTheme
   }
 }
 
@@ -339,6 +409,7 @@ export function useNewCodemirror(
   const language = new Compartment()
   const lineWrapping = new Compartment()
   const theming = new Compartment()
+  const highlightStyle = new Compartment()
 
   const cachedCursor = ref({
     line: 0,
@@ -355,6 +426,7 @@ export function useNewCodemirror(
     extensions: [
       basicSetup,
       theming.of(getThemeExt($colorMode.value)),
+      highlightStyle.of(getHightlightMode($colorMode.value)),
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
@@ -469,7 +541,10 @@ export function useNewCodemirror(
     () => $colorMode.value,
     (newVal) => {
       dispatch({
-        effects: theming.reconfigure(getThemeExt(newVal)),
+        effects: [
+          theming.reconfigure(getThemeExt(newVal)),
+          highlightStyle.reconfigure(getHightlightMode(newVal)),
+        ],
       })
     }
   )

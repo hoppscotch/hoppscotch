@@ -1,22 +1,9 @@
-import { EditorView } from "@codemirror/view"
+import { Extension } from "@codemirror/state"
+import { foldGutter } from "@codemirror/fold"
 
-const baseTheme = EditorView.theme({
-  "&": {
-    fontSize: "var(--body-font-size)",
-  },
-  ".cm-content": {
-    fontFamily: "var(--font-mono)",
-    backgroundColor: "var(--primary-color)",
-  },
-  ".cm-gutters": {
-    fontFamily: "var(--font-mono)",
-    backgroundColor: "var(--primary-color)",
-    borderColor: "var(--divider-light-color)",
-  },
-  ".cm-lineNumbers": {
-    minWidth: "3em",
-    color: "var(--secondary-light-color)",
-  },
+export const baseThemeFoldStyle = foldGutter({
+  openText: "▾",
+  closedText: "▸",
 })
 
-export default baseTheme
+export const baseTheme: Extension = [baseThemeFoldStyle]

@@ -21,13 +21,20 @@ importers:
       '@babel/core': ^7.16.0
       '@babel/preset-env': ^7.16.0
       '@codemirror/autocomplete': ^0.19.4
-      '@codemirror/basic-setup': ^0.19.0
+      '@codemirror/closebrackets': ^0.19.0
       '@codemirror/commands': ^0.19.5
+      '@codemirror/comment': ^0.19.0
+      '@codemirror/fold': ^0.19.1
       '@codemirror/gutter': ^0.19.4
+      '@codemirror/highlight': ^0.19.6
+      '@codemirror/history': ^0.19.0
       '@codemirror/lang-javascript': ^0.19.2
       '@codemirror/lang-json': ^0.19.1
       '@codemirror/language': ^0.19.3
       '@codemirror/lint': ^0.19.2
+      '@codemirror/matchbrackets': ^0.19.3
+      '@codemirror/rectangular-selection': ^0.19.1
+      '@codemirror/search': ^0.19.2
       '@codemirror/state': ^0.19.3
       '@codemirror/text': ^0.19.5
       '@codemirror/view': ^0.19.12
@@ -137,13 +144,20 @@ importers:
     dependencies:
       '@apollo/client': 3.4.16_f3f7eb5e21785ef7d5faca94c1a68824
       '@codemirror/autocomplete': 0.19.4
-      '@codemirror/basic-setup': 0.19.0
+      '@codemirror/closebrackets': 0.19.0
       '@codemirror/commands': 0.19.5
+      '@codemirror/comment': 0.19.0
+      '@codemirror/fold': 0.19.1
       '@codemirror/gutter': 0.19.4
+      '@codemirror/highlight': 0.19.6
+      '@codemirror/history': 0.19.0
       '@codemirror/lang-javascript': 0.19.2
       '@codemirror/lang-json': 0.19.1
       '@codemirror/language': 0.19.3
       '@codemirror/lint': 0.19.2
+      '@codemirror/matchbrackets': 0.19.3
+      '@codemirror/rectangular-selection': 0.19.1
+      '@codemirror/search': 0.19.2
       '@codemirror/state': 0.19.3
       '@codemirror/text': 0.19.5
       '@codemirror/view': 0.19.12
@@ -1724,26 +1738,6 @@ packages:
       '@codemirror/tooltip': 0.19.4
       '@codemirror/view': 0.19.12
       '@lezer/common': 0.15.7
-    dev: false
-
-  /@codemirror/basic-setup/0.19.0:
-    resolution: {integrity: sha512-Yhrf7fIz8+INHWOhpWeRwbs8fpc0KsydX9baD7TyYqniLVWyTi0Hwm52mr0f5O+k4YaJPeHAgT3x9gzDXZIvOw==}
-    dependencies:
-      '@codemirror/autocomplete': 0.19.4
-      '@codemirror/closebrackets': 0.19.0
-      '@codemirror/commands': 0.19.5
-      '@codemirror/comment': 0.19.0
-      '@codemirror/fold': 0.19.1
-      '@codemirror/gutter': 0.19.4
-      '@codemirror/highlight': 0.19.6
-      '@codemirror/history': 0.19.0
-      '@codemirror/language': 0.19.3
-      '@codemirror/lint': 0.19.2
-      '@codemirror/matchbrackets': 0.19.3
-      '@codemirror/rectangular-selection': 0.19.1
-      '@codemirror/search': 0.19.2
-      '@codemirror/state': 0.19.3
-      '@codemirror/view': 0.19.12
     dev: false
 
   /@codemirror/closebrackets/0.19.0:
@@ -3916,8 +3910,8 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27268729.5b8e10f:
-    resolution: {integrity: sha512-m7bzSe8NRuR7ZcZqKwBQfOb1y3AlmGIiNMibZVO4r0ggIfT4fmkzVwfdZm+oWNhOYlZET7Kyk08rSjwShENukQ==}
+  /@nuxt/kit-edge/3.0.0-27274229.29599f0:
+    resolution: {integrity: sha512-8GyQaBXQh6RelLe5ahXBTZWugaBYKd3cESc+GqxoHlFVy0i2HqZkUggFShDEoT7FCckzfGHTZF5uV04k87D73w==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       consola: 2.15.3
@@ -3935,7 +3929,7 @@ packages:
       rc9: 1.2.0
       scule: 0.2.1
       semver: 7.3.5
-      std-env: 3.0.0
+      std-env: 3.0.1
       ufo: 0.7.9
       unctx: 1.0.2
       untyped: 0.2.12
@@ -14040,7 +14034,7 @@ packages:
   /nuxt-windicss/2.0.11:
     resolution: {integrity: sha512-/vAEmKLq1Iomuj4lz751dsoXdlGVAoiEGSh3JVxuZJMkqc/yrHTQrNhtMaOQzx5heuVsQ+E2bIF+Q/tfxicOFQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27268729.5b8e10f
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27274229.29599f0
       defu: 5.0.0
       h3: 0.3.3
       listhen: 0.2.5
@@ -16867,8 +16861,8 @@ packages:
       ci-info: 3.2.0
     dev: false
 
-  /std-env/3.0.0:
-    resolution: {integrity: sha512-GoFEqAGzhaexp/T01rIiLOK9LHa6HmVwEUyeU4cwdSnOhfxpw9IMeAFi44SHWbCErEs29qEh7vAOUbtUmoycjA==}
+  /std-env/3.0.1:
+    resolution: {integrity: sha512-mC1Ps9l77/97qeOZc+HrOL7TIaOboHqMZ24dGVQrlxFcpPpfCHpH+qfUT7Dz+6mlG8+JPA1KfBQo19iC/+Ngcw==}
     dev: true
 
   /stream-browserify/2.0.2:

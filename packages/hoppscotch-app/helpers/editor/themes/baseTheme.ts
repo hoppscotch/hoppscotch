@@ -2,66 +2,64 @@ import { EditorView } from "@codemirror/view"
 import { HighlightStyle, tags as t } from "@codemirror/highlight"
 import { foldGutter } from "@codemirror/fold"
 
-export const baseTheme = EditorView.theme(
-  {
-    "&": {
-      fontSize: "var(--body-font-size)",
-    },
-    ".cm-content": {
-      caretColor: "var(--secondary-light-color)",
-      fontFamily: "var(--font-mono)",
-      backgroundColor: "var(--primary-color)",
-    },
-    "&.cm-focused .cm-cursor": {
-      borderLeftColor: "var(--secondary-light-color)",
-    },
-    "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: "var(--primary-light-color)" },
-    ".cm-panels": {
-      backgroundColor: "var(--primary-dark-color)",
-      color: "var(--secondary-light-color)",
-    },
-    ".cm-panels.cm-panels-top": { borderBottom: "2px solid black" },
-    ".cm-panels.cm-panels-bottom": { borderTop: "2px solid black" },
-
-    ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
-    ".cm-searchMatch": {
-      backgroundColor: "var(--accent-light-color)",
-      outline: "1px solid var(--accent-dark-color)",
-    },
-    ".cm-selectionMatch": { backgroundColor: "#aafe661a" },
-    "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
-      backgroundColor: "#bad0f847",
-      outline: "1px solid #515a6b",
-    },
-    ".cm-gutters": {
-      fontFamily: "var(--font-mono)",
-      backgroundColor: "var(--primary-color)",
-      borderColor: "var(--divider-light-color)",
-    },
-    ".cm-lineNumbers": {
-      minWidth: "3em",
-      color: "var(--secondary-light-color)",
-    },
-    ".cm-foldGutter": {
-      minWidth: "2em",
-      color: "var(--secondary-light-color)",
-    },
-    ".cm-foldGutter .cm-gutterElement": {
-      textAlign: "center",
-    },
-    ".cm-line": {
-      paddingLeft: "0.5em",
-      paddingRight: "0.5em",
-    },
-    ".cm-activeLineGutter": {
-      backgroundColor: "var(--primary-dark-color)",
-    },
+export const baseTheme = EditorView.theme({
+  "&": {
+    fontSize: "var(--body-font-size)",
   },
-  {
-    dark: !!"var(--editor-dark-mode)",
-  }
-)
+  ".cm-content": {
+    caretColor: "var(--secondary-light-color)",
+    fontFamily: "var(--font-mono)",
+    backgroundColor: "var(--primary-color)",
+  },
+  "&.cm-focused .cm-cursor": {
+    borderLeftColor: "var(--secondary-light-color)",
+  },
+  "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
+    { backgroundColor: "var(--primary-light-color)" },
+  ".cm-panels": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-panels.cm-panels-top": {
+    borderBottom: "1px solid var(--divider-light-color)",
+  },
+  ".cm-panels.cm-panels-bottom": {
+    borderTop: "1px solid var(--divider-light-color)",
+  },
+  ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
+  ".cm-searchMatch": {
+    backgroundColor: "var(--accent-light-color)",
+    outline: "1px solid var(--accent-dark-color)",
+  },
+  ".cm-selectionMatch": { backgroundColor: "var(--accent-color)" },
+  "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
+    backgroundColor: "var(--accent-dark-color)",
+    outline: "1px solid var(--accent-dark-color)",
+  },
+  ".cm-gutters": {
+    fontFamily: "var(--font-mono)",
+    backgroundColor: "var(--primary-color)",
+    borderColor: "var(--divider-light-color)",
+  },
+  ".cm-lineNumbers": {
+    minWidth: "3em",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-foldGutter": {
+    minWidth: "2em",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-foldGutter .cm-gutterElement": {
+    textAlign: "center",
+  },
+  ".cm-line": {
+    paddingLeft: "0.5em",
+    paddingRight: "0.5em",
+  },
+  ".cm-activeLineGutter": {
+    backgroundColor: "var(--primary-dark-color)",
+  },
+})
 
 const editorTypeColor = "var(--editor-type-color)"
 const editorNameColor = "var(--editor-name-color)"

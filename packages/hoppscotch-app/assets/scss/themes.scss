@@ -54,35 +54,35 @@
 
 @mixin dark-editor-theme {
   --editor-type-color: theme("colors.gray.800");
-  --editor-name-color: theme("colors.gray.600");
+  --editor-name-color: theme("colors.blue.500");
   --editor-operator-color: theme("colors.gray.600");
   --editor-invalid-color: theme("colors.red.500");
   --editor-separator-color: theme("colors.gray.500");
   --editor-meta-color: theme("colors.gray.500");
   --editor-variable-color: theme("colors.gray.500");
   --editor-link-color: theme("colors.blue.500");
-  --editor-process-color: theme("colors.blue.500");
+  --editor-process-color: theme("colors.gray.400");
   --editor-constant-color: theme("colors.blue.500");
   --editor-keyword-color: theme("colors.blue.500");
 }
 
 @mixin light-editor-theme {
   --editor-type-color: theme("colors.gray.800");
-  --editor-name-color: theme("colors.gray.600");
+  --editor-name-color: theme("colors.red.600");
   --editor-operator-color: theme("colors.gray.600");
   --editor-invalid-color: theme("colors.red.500");
   --editor-separator-color: theme("colors.gray.500");
   --editor-meta-color: theme("colors.gray.500");
   --editor-variable-color: theme("colors.gray.500");
   --editor-link-color: theme("colors.blue.500");
-  --editor-process-color: theme("colors.blue.500");
+  --editor-process-color: theme("colors.blue.600");
   --editor-constant-color: theme("colors.blue.500");
   --editor-keyword-color: theme("colors.blue.500");
 }
 
 @mixin black-editor-theme {
   --editor-type-color: theme("colors.gray.800");
-  --editor-name-color: theme("colors.gray.600");
+  --editor-name-color: theme("colors.gray.400");
   --editor-operator-color: theme("colors.gray.600");
   --editor-invalid-color: theme("colors.red.500");
   --editor-separator-color: theme("colors.gray.500");

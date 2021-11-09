@@ -12,84 +12,64 @@ const malibu = "#61afef"
 const sage = "#98c379"
 const whiskey = "#d19a66"
 const violet = "#c678dd"
-const darkBackground = "#21252b"
-const highlightBackground = "#2c313a"
-const background = "#282c34"
-const tooltipBackground = "#353a42"
-const selection = "#3E4451"
-const cursor = "#528bff"
 
 export const lightTheme = EditorView.theme(
   {
     "&": {
-      color: ivory,
-      backgroundColor: background,
+      fontSize: "var(--body-font-size)",
     },
-
     ".cm-content": {
-      caretColor: cursor,
+      caretColor: "var(--secondary-light-color)",
+      fontFamily: "var(--font-mono)",
+      backgroundColor: "var(--primary-color)",
     },
-
-    "&.cm-focused .cm-cursor": { borderLeftColor: cursor },
+    "&.cm-focused .cm-cursor": {
+      borderLeftColor: "var(--secondary-light-color)",
+    },
     "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-      { backgroundColor: selection },
-
-    ".cm-panels": { backgroundColor: darkBackground, color: ivory },
+      { backgroundColor: "var(--primary-light-color)" },
+    ".cm-panels": {
+      backgroundColor: "var(--primary-dark-color)",
+      color: "var(--secondary-light-color)",
+    },
     ".cm-panels.cm-panels-top": { borderBottom: "2px solid black" },
     ".cm-panels.cm-panels-bottom": { borderTop: "2px solid black" },
 
+    ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
     ".cm-searchMatch": {
       backgroundColor: "#72a1ff59",
       outline: "1px solid #457dff",
     },
-    ".cm-searchMatch.cm-searchMatch-selected": {
-      backgroundColor: "#6199ff2f",
-    },
-
-    ".cm-activeLine": { backgroundColor: highlightBackground },
     ".cm-selectionMatch": { backgroundColor: "#aafe661a" },
-
     "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
       backgroundColor: "#bad0f847",
       outline: "1px solid #515a6b",
     },
-
     ".cm-gutters": {
-      backgroundColor: background,
-      color: stone,
-      border: "none",
+      fontFamily: "var(--font-mono)",
+      backgroundColor: "var(--primary-color)",
+      borderColor: "var(--divider-light-color)",
     },
-
+    ".cm-lineNumbers": {
+      minWidth: "3em",
+      color: "var(--secondary-light-color)",
+    },
+    ".cm-foldGutter": {
+      minWidth: "2em",
+      color: "var(--secondary-light-color)",
+    },
+    ".cm-foldGutter .cm-gutterElement": {
+      textAlign: "center",
+    },
+    ".cm-line": {
+      paddingLeft: "0.5em",
+      paddingRight: "0.5em",
+    },
     ".cm-activeLineGutter": {
-      backgroundColor: highlightBackground,
-    },
-
-    ".cm-foldPlaceholder": {
-      backgroundColor: "transparent",
-      border: "none",
-      color: "#ddd",
-    },
-
-    ".cm-tooltip": {
-      border: "none",
-      backgroundColor: tooltipBackground,
-    },
-    ".cm-tooltip .cm-tooltip-arrow:before": {
-      borderTopColor: "transparent",
-      borderBottomColor: "transparent",
-    },
-    ".cm-tooltip .cm-tooltip-arrow:after": {
-      borderTopColor: tooltipBackground,
-      borderBottomColor: tooltipBackground,
-    },
-    ".cm-tooltip-autocomplete": {
-      "& > ul > li[aria-selected]": {
-        backgroundColor: highlightBackground,
-        color: ivory,
-      },
+      backgroundColor: "var(--primary-dark-color)",
     },
   },
-  { dark: true }
+  { dark: false }
 )
 
 export const lightHighlightStyle = HighlightStyle.define([

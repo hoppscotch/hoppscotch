@@ -49,6 +49,7 @@ import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import baseTheme from "./themes/baseTheme"
+import { HoppBgColor } from "~/newstore/settings"
 
 type CodeMirrorOptions = {
   extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
@@ -320,13 +321,24 @@ const getEditorLanguage = (
     O.getOrElseW(() => [])
   )
 
+const getThemeExt = (mode: HoppBgColor) => {
+  // TODO: Implement more themes here
+  switch (mode) {
+    default:
+      return baseTheme
+  }
+}
+
 export function useNewCodemirror(
   el: Ref<any | null>,
   value: Ref<string>,
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
+  const { $colorMode } = useContext() as any
+
   const language = new Compartment()
   const lineWrapping = new Compartment()
+  const theming = new Compartment()
 
   const cachedCursor = ref({
     line: 0,
@@ -342,7 +354,7 @@ export function useNewCodemirror(
     doc: value.value,
     extensions: [
       basicSetup,
-      baseTheme,
+      theming.of(getThemeExt($colorMode.value)),
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
@@ -449,6 +461,15 @@ export function useNewCodemirror(
             options.completer ?? undefined
           )
         ),
+      })
+    }
+  )
+
+  watch(
+    () => $colorMode.value,
+    (newVal) => {
+      dispatch({
+        effects: theming.reconfigure(getThemeExt(newVal)),
       })
     }
   )

@@ -52,6 +52,48 @@
   --editor-theme: "twilight";
 }
 
+@mixin dark-editor-theme {
+  --editor-type-color: theme("colors.gray.800");
+  --editor-name-color: theme("colors.gray.600");
+  --editor-operator-color: theme("colors.gray.600");
+  --editor-invalid-color: theme("colors.red.500");
+  --editor-separator-color: theme("colors.gray.500");
+  --editor-meta-color: theme("colors.gray.500");
+  --editor-variable-color: theme("colors.gray.500");
+  --editor-link-color: theme("colors.blue.500");
+  --editor-process-color: theme("colors.blue.500");
+  --editor-constant-color: theme("colors.blue.500");
+  --editor-keyword-color: theme("colors.blue.500");
+}
+
+@mixin light-editor-theme {
+  --editor-type-color: theme("colors.gray.800");
+  --editor-name-color: theme("colors.gray.600");
+  --editor-operator-color: theme("colors.gray.600");
+  --editor-invalid-color: theme("colors.red.500");
+  --editor-separator-color: theme("colors.gray.500");
+  --editor-meta-color: theme("colors.gray.500");
+  --editor-variable-color: theme("colors.gray.500");
+  --editor-link-color: theme("colors.blue.500");
+  --editor-process-color: theme("colors.blue.500");
+  --editor-constant-color: theme("colors.blue.500");
+  --editor-keyword-color: theme("colors.blue.500");
+}
+
+@mixin black-editor-theme {
+  --editor-type-color: theme("colors.gray.800");
+  --editor-name-color: theme("colors.gray.600");
+  --editor-operator-color: theme("colors.gray.600");
+  --editor-invalid-color: theme("colors.red.500");
+  --editor-separator-color: theme("colors.gray.500");
+  --editor-meta-color: theme("colors.gray.500");
+  --editor-variable-color: theme("colors.gray.500");
+  --editor-link-color: theme("colors.blue.500");
+  --editor-process-color: theme("colors.blue.500");
+  --editor-constant-color: theme("colors.blue.500");
+  --editor-keyword-color: theme("colors.blue.500");
+}
+
 @mixin green-theme {
   --accent-color: theme("colors.green.500");
   --accent-light-color: theme("colors.green.400");
@@ -146,18 +188,22 @@
   @include base-theme;
   @include dark-theme;
   @include green-theme;
+  @include dark-editor-theme;
 }
 
 :root.light {
   @include light-theme;
+  @include light-editor-theme;
 }
 
 :root.dark {
   @include dark-theme;
+  @include dark-editor-theme;
 }
 
 :root.black {
   @include black-theme;
+  @include black-editor-theme;
 }
 
 :root[data-accent="blue"] {

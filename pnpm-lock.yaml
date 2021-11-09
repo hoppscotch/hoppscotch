@@ -21,20 +21,13 @@ importers:
       '@babel/core': ^7.16.0
       '@babel/preset-env': ^7.16.0
       '@codemirror/autocomplete': ^0.19.4
-      '@codemirror/closebrackets': ^0.19.0
+      '@codemirror/basic-setup': ^0.19.0
       '@codemirror/commands': ^0.19.5
-      '@codemirror/comment': ^0.19.0
-      '@codemirror/fold': ^0.19.1
       '@codemirror/gutter': ^0.19.4
-      '@codemirror/highlight': ^0.19.6
-      '@codemirror/history': ^0.19.0
       '@codemirror/lang-javascript': ^0.19.2
       '@codemirror/lang-json': ^0.19.1
       '@codemirror/language': ^0.19.3
       '@codemirror/lint': ^0.19.2
-      '@codemirror/matchbrackets': ^0.19.3
-      '@codemirror/rectangular-selection': ^0.19.1
-      '@codemirror/search': ^0.19.2
       '@codemirror/state': ^0.19.3
       '@codemirror/text': ^0.19.5
       '@codemirror/view': ^0.19.12
@@ -144,20 +137,13 @@ importers:
     dependencies:
       '@apollo/client': 3.4.16_f3f7eb5e21785ef7d5faca94c1a68824
       '@codemirror/autocomplete': 0.19.4
-      '@codemirror/closebrackets': 0.19.0
+      '@codemirror/basic-setup': 0.19.0
       '@codemirror/commands': 0.19.5
-      '@codemirror/comment': 0.19.0
-      '@codemirror/fold': 0.19.1
       '@codemirror/gutter': 0.19.4
-      '@codemirror/highlight': 0.19.6
-      '@codemirror/history': 0.19.0
       '@codemirror/lang-javascript': 0.19.2
       '@codemirror/lang-json': 0.19.1
       '@codemirror/language': 0.19.3
       '@codemirror/lint': 0.19.2
-      '@codemirror/matchbrackets': 0.19.3
-      '@codemirror/rectangular-selection': 0.19.1
-      '@codemirror/search': 0.19.2
       '@codemirror/state': 0.19.3
       '@codemirror/text': 0.19.5
       '@codemirror/view': 0.19.12
@@ -1738,6 +1724,26 @@ packages:
       '@codemirror/tooltip': 0.19.4
       '@codemirror/view': 0.19.12
       '@lezer/common': 0.15.7
+    dev: false
+
+  /@codemirror/basic-setup/0.19.0:
+    resolution: {integrity: sha512-Yhrf7fIz8+INHWOhpWeRwbs8fpc0KsydX9baD7TyYqniLVWyTi0Hwm52mr0f5O+k4YaJPeHAgT3x9gzDXZIvOw==}
+    dependencies:
+      '@codemirror/autocomplete': 0.19.4
+      '@codemirror/closebrackets': 0.19.0
+      '@codemirror/commands': 0.19.5
+      '@codemirror/comment': 0.19.0
+      '@codemirror/fold': 0.19.1
+      '@codemirror/gutter': 0.19.4
+      '@codemirror/highlight': 0.19.6
+      '@codemirror/history': 0.19.0
+      '@codemirror/language': 0.19.3
+      '@codemirror/lint': 0.19.2
+      '@codemirror/matchbrackets': 0.19.3
+      '@codemirror/rectangular-selection': 0.19.1
+      '@codemirror/search': 0.19.2
+      '@codemirror/state': 0.19.3
+      '@codemirror/view': 0.19.12
     dev: false
 
   /@codemirror/closebrackets/0.19.0:

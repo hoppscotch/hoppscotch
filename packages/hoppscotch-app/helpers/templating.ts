@@ -1,6 +1,16 @@
 import { Environment } from "~/newstore/environments"
 
-export default function parseTemplateString(
+export function parseBodyEnvVariables(
+  body: string,
+  env: Environment["variables"]
+) {
+  return body.replace(/<<\w+>>/g, (key) => {
+    const found = env.find((envVar) => envVar.key === key.replace(/[<>]/g, ""))
+    return found ? found.value : key
+  })
+}
+
+export function parseTemplateString(
   str: string,
   variables: Environment["variables"]
 ) {

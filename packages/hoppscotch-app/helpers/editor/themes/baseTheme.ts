@@ -11,13 +11,16 @@ export const baseTheme = EditorView.theme({
     fontFamily: "var(--font-mono)",
     backgroundColor: "var(--primary-color)",
   },
-  "&.cm-focused .cm-cursor": {
+  ".cm-focused .cm-cursor": {
     borderLeftColor: "var(--secondary-light-color)",
   },
-  "&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
-    { backgroundColor: "var(--primary-light-color)" },
+  ".cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content::selection, .cm-line::selection":
+    {
+      backgroundColor: "var(--accent-dark-color)!important",
+      color: "var(--secondary-dark-color)",
+    },
   ".cm-panels": {
-    backgroundColor: "var(--primary-dark-color)",
+    backgroundColor: "var(--primary-light-color)",
     color: "var(--secondary-light-color)",
   },
   ".cm-panels.cm-panels-top": {
@@ -26,13 +29,23 @@ export const baseTheme = EditorView.theme({
   ".cm-panels.cm-panels-bottom": {
     borderTop: "1px solid var(--divider-light-color)",
   },
+  ".cm-textfield": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-button": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-light-color)",
+    backgroundImage: "none",
+    border: "none",
+  },
   ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
   ".cm-searchMatch": {
     backgroundColor: "var(--accent-light-color)",
     outline: "1px solid var(--accent-dark-color)",
   },
   ".cm-selectionMatch": { backgroundColor: "var(--accent-color)" },
-  "&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket": {
+  ".cm-focused .cm-matchingBracket, .cm-focused .cm-nonmatchingBracket": {
     backgroundColor: "var(--accent-dark-color)",
     outline: "1px solid var(--accent-dark-color)",
   },
@@ -58,6 +71,9 @@ export const baseTheme = EditorView.theme({
   },
   ".cm-activeLineGutter": {
     backgroundColor: "var(--primary-dark-color)",
+  },
+  ".cm-scroller::-webkit-scrollbar": {
+    display: "none",
   },
 })
 

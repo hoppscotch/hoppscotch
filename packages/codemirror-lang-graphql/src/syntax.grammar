@@ -338,7 +338,7 @@ TypeSystemDirectiveLocation {
 
 @tokens {
   Whitespace {
-    std.whitespace
+    std.whitespace+
   }
   StringValue {
     "\"\"\"" (!["] | "\\n" | "\"" "\""? !["])* "\"\"\"" | "\"" !["\\\n]* "\""

@@ -5,7 +5,8 @@
     "module": "es2020",
     "newLine": "lf",
     "declaration": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "allowJs": true,
   },
-  "include": ["src/*.ts"]
+  "include": ["src/*"]
 }

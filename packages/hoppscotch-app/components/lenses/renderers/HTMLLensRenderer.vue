@@ -66,10 +66,6 @@
 import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import "codemirror/mode/xml/xml"
-import "codemirror/mode/javascript/javascript"
-import "codemirror/mode/css/css"
-import "codemirror/mode/htmlmixed/htmlmixed"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 const props = defineProps<{

@@ -85,8 +85,7 @@
 import { reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { usePreRequestScript } from "~/newstore/RESTSession"
 import snippets from "~/helpers/preRequestScriptSnippets"
-import "codemirror/mode/javascript/javascript"
-import { useNewCodemirror as useCodemirror } from "~/helpers/editor/codemirror"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import linter from "~/helpers/editor/linting/preRequest"
 import completer from "~/helpers/editor/completion/preRequest"
 

@@ -252,7 +252,6 @@ import {
   setGQLURL,
   setGQLVariables,
 } from "~/newstore/GQLSession"
-import "~/helpers/editor/modes/graphql"
 
 function isTextFoundInGraphqlFieldObject(
   text: string,

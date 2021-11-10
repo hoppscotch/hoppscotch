@@ -85,7 +85,6 @@
 import { reactive, ref, useContext } from "@nuxtjs/composition-api"
 import { useTestScript } from "~/newstore/RESTSession"
 import testSnippets from "~/helpers/testSnippets"
-import "codemirror/mode/javascript/javascript"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import linter from "~/helpers/editor/linting/testScript"
 import completer from "~/helpers/editor/completion/testScript"

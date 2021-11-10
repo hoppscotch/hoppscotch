@@ -99,8 +99,6 @@ importers:
       axios: ^0.24.0
       babel-core: ^7.0.0-bridge.0
       babel-jest: ^27.3.1
-      codemirror: ^5.63.3
-      codemirror-theme-github: ^1.0.0
       core-js: ^3.19.1
       eslint: ^8.1.0
       eslint-config-prettier: ^8.3.0
@@ -186,8 +184,6 @@ importers:
       acorn: 8.5.0
       acorn-walk: 8.2.0
       axios: 0.24.0
-      codemirror: 5.63.3
-      codemirror-theme-github: 1.0.0
       core-js: 3.19.1
       esprima: 4.0.1
       firebase: 9.2.0
@@ -7914,14 +7910,6 @@ packages:
   /code-point-at/1.1.0:
     resolution: {integrity: sha1-DQcLTQQ6W+ozovGkDi7bPZpMz3c=}
     engines: {node: '>=0.10.0'}
-
-  /codemirror-theme-github/1.0.0:
-    resolution: {integrity: sha512-suheFec2wlI4klyqn61MOFXjjrKPZiNY7d2py0OvTd5Z+7AsNxoGKDaS/HI59y7EAG1SkkXW/JQ1Rt2gDMxHfA==}
-    dev: false
-
-  /codemirror/5.63.3:
-    resolution: {integrity: sha512-1C+LELr+5grgJYqwZKqxrcbPsHFHapVaVAloBsFBASbpLnQqLw1U8yXJ3gT5D+rhxIiSpo+kTqN+hQ+9ialIXw==}
-    dev: false
 
   /collect-v8-coverage/1.0.1:
     resolution: {integrity: sha512-iBPtljfCNcTKNAto0KEtDfZ3qzjJvqE3aTGZsbhjSBlorqpXJlaWWtPO35D+ZImoC3KWejX64o+yPGxhWSTzfg==}

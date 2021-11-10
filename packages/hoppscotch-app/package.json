@@ -60,8 +60,6 @@
     "acorn": "^8.5.0",
     "acorn-walk": "^8.2.0",
     "axios": "^0.24.0",
-    "codemirror": "^5.63.3",
-    "codemirror-theme-github": "^1.0.0",
     "core-js": "^3.19.1",
     "esprima": "^4.0.1",
     "firebase": "^9.2.0",

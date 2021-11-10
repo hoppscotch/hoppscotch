@@ -175,7 +175,6 @@ import {
   deleteAllRESTParams,
   setRESTParams,
 } from "~/newstore/RESTSession"
-import "codemirror/mode/yaml/yaml"
 
 const {
   $toast,

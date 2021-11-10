@@ -53,45 +53,45 @@
 }
 
 @mixin dark-editor-theme {
-  --editor-type-color: theme("colors.purple.800");
+  --editor-type-color: theme("colors.purple.500");
   --editor-name-color: theme("colors.blue.500");
-  --editor-operator-color: theme("colors.indigo.600");
+  --editor-operator-color: theme("colors.indigo.500");
   --editor-invalid-color: theme("colors.red.500");
   --editor-separator-color: theme("colors.gray.500");
   --editor-meta-color: theme("colors.gray.500");
   --editor-variable-color: theme("colors.green.500");
   --editor-link-color: theme("colors.cyan.500");
   --editor-process-color: theme("colors.gray.400");
-  --editor-constant-color: theme("colors.indigo.500");
+  --editor-constant-color: theme("colors.fuchsia.500");
   --editor-keyword-color: theme("colors.pink.500");
 }
 
 @mixin light-editor-theme {
-  --editor-type-color: theme("colors.purple.800");
+  --editor-type-color: theme("colors.purple.600");
   --editor-name-color: theme("colors.red.600");
   --editor-operator-color: theme("colors.indigo.600");
-  --editor-invalid-color: theme("colors.red.500");
-  --editor-separator-color: theme("colors.gray.500");
-  --editor-meta-color: theme("colors.gray.500");
-  --editor-variable-color: theme("colors.green.500");
-  --editor-link-color: theme("colors.cyan.500");
+  --editor-invalid-color: theme("colors.red.600");
+  --editor-separator-color: theme("colors.gray.600");
+  --editor-meta-color: theme("colors.gray.600");
+  --editor-variable-color: theme("colors.green.600");
+  --editor-link-color: theme("colors.cyan.600");
   --editor-process-color: theme("colors.blue.600");
-  --editor-constant-color: theme("colors.indigo.500");
-  --editor-keyword-color: theme("colors.pink.500");
+  --editor-constant-color: theme("colors.fuchsia.600");
+  --editor-keyword-color: theme("colors.pink.600");
 }
 
 @mixin black-editor-theme {
-  --editor-type-color: theme("colors.purple.800");
+  --editor-type-color: theme("colors.purple.400");
   --editor-name-color: theme("colors.gray.400");
-  --editor-operator-color: theme("colors.indigo.600");
-  --editor-invalid-color: theme("colors.red.500");
-  --editor-separator-color: theme("colors.gray.500");
-  --editor-meta-color: theme("colors.gray.500");
-  --editor-variable-color: theme("colors.green.500");
-  --editor-link-color: theme("colors.cyan.500");
-  --editor-process-color: theme("colors.blue.500");
-  --editor-constant-color: theme("colors.indigo.500");
-  --editor-keyword-color: theme("colors.pink.500");
+  --editor-operator-color: theme("colors.indigo.400");
+  --editor-invalid-color: theme("colors.red.400");
+  --editor-separator-color: theme("colors.gray.400");
+  --editor-meta-color: theme("colors.gray.400");
+  --editor-variable-color: theme("colors.green.400");
+  --editor-link-color: theme("colors.cyan.400");
+  --editor-process-color: theme("colors.blue.400");
+  --editor-constant-color: theme("colors.fuchsia.400");
+  --editor-keyword-color: theme("colors.pink.400");
 }
 
 @mixin green-theme {

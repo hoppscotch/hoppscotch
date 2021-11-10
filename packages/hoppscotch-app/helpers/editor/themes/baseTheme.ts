@@ -11,14 +11,13 @@ export const baseTheme = EditorView.theme({
     fontFamily: "var(--font-mono)",
     backgroundColor: "var(--primary-color)",
   },
-  ".cm-focused .cm-cursor": {
-    borderLeftColor: "var(--secondary-light-color)",
+  ".cm-cursor": {
+    borderColor: "var(--secondary-color)",
   },
-  ".cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content::selection, .cm-line::selection":
-    {
-      backgroundColor: "var(--accent-dark-color)!important",
-      color: "var(--secondary-dark-color)",
-    },
+  ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
+    backgroundColor: "var(--accent-dark-color)",
+    color: "var(--accent-contrast-color)",
+  },
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
     color: "var(--secondary-light-color)",
@@ -41,13 +40,14 @@ export const baseTheme = EditorView.theme({
   },
   ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
   ".cm-searchMatch": {
-    backgroundColor: "var(--accent-light-color)",
     outline: "1px solid var(--accent-dark-color)",
   },
-  ".cm-selectionMatch": { backgroundColor: "var(--accent-color)" },
-  ".cm-focused .cm-matchingBracket, .cm-focused .cm-nonmatchingBracket": {
-    backgroundColor: "var(--accent-dark-color)",
+  ".cm-selectionMatch": {
     outline: "1px solid var(--accent-dark-color)",
+  },
+  ".cm-matchingBracket, .cm-nonmatchingBracket": {
+    backgroundColor: "var(--accent-dark-color)",
+    color: "var(--accent-contrast-color)",
   },
   ".cm-gutters": {
     fontFamily: "var(--font-mono)",
@@ -68,6 +68,7 @@ export const baseTheme = EditorView.theme({
   ".cm-line": {
     paddingLeft: "0.5em",
     paddingRight: "0.5em",
+    color: "var(--secondary-dark-color)",
   },
   ".cm-activeLineGutter": {
     backgroundColor: "var(--primary-dark-color)",

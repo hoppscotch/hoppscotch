@@ -87,14 +87,12 @@ const dispatchers = defineDispatchers({
         environments,
       }
     }
-    const index =
-      environments.filter((env) => env.name === newEnvironment.name).length + 1
     return {
       environments: [
         ...environments,
         {
           ...cloneDeep(newEnvironment),
-          name: `${newEnvironment.name} ${index}`,
+          name: `${newEnvironment.name} - Duplicate`,
         },
       ],
     }

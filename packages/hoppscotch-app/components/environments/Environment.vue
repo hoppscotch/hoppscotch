@@ -108,7 +108,7 @@ export default defineComponent({
     },
     duplicateEnvironment() {
       if (this.environmentIndex === "Global") {
-        createEnvironment("Global-Copy")
+        createEnvironment(`Global - ${this.$t("action.duplicate")}`)
         setEnvironmentVariables(
           environmentsStore.value.environments.length - 1,
           getGlobalVariables().reduce((gVars, gVar) => {

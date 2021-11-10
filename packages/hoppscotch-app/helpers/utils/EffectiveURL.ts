@@ -1,7 +1,7 @@
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 import { FormDataKeyValue, HoppRESTRequest } from "../types/HoppRESTRequest"
-import parseTemplateString from "../templating"
+import { parseTemplateString, parseBodyEnvVariables } from "../templating"
 import { Environment, getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -46,7 +46,7 @@ function getFinalBodyFromRequest(
       })
 
     return formData
-  } else return request.body.body
+  } else return parseBodyEnvVariables(request.body.body, env.variables)
 }
 
 /**

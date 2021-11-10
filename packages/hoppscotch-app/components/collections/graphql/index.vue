@@ -291,7 +291,7 @@ export default defineComponent({
     duplicateRequest({ folderPath, request }) {
       saveGraphqlRequestAs(folderPath, {
         ...request,
-        name: request.name + "-Copy",
+        name: request.name + " - Copy",
       })
     },
   },

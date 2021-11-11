@@ -293,7 +293,18 @@ completedRESTResponse$.subscribe((res) => {
 
     addRESTHistoryEntry(
       makeRESTHistoryEntry({
-        request: res.req,
+        request: {
+          auth: res.req.auth,
+          body: res.req.body,
+          endpoint: res.req.endpoint,
+          headers: res.req.headers,
+          method: res.req.method,
+          name: res.req.name,
+          params: res.req.params,
+          preRequestScript: res.req.preRequestScript,
+          testScript: res.req.testScript,
+          v: res.req.v,
+        },
         responseMeta: {
           duration: res.meta.responseDuration,
           statusCode: res.statusCode,

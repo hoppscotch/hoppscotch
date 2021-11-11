@@ -8,6 +8,7 @@ import {
   Subscription,
 } from "rxjs"
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore"
+import cloneDeep from "lodash/cloneDeep"
 import {
   HoppRESTRequest,
   translateToNewRequest,
@@ -22,10 +23,22 @@ import { restRequest$ } from "~/newstore/RESTSession"
  * @param request The request to write to the request sync
  */
 function writeCurrentRequest(user: HoppUser, request: HoppRESTRequest) {
-  return setDoc(
-    doc(getFirestore(), "users", user.uid, "requests", "rest"),
-    request
-  )
+  const req = cloneDeep(request)
+
+  // Remove FormData entries because those can't be stored on Firestore
+  if (req.body.contentType === "multipart/form-data") {
+    req.body.body = req.body.body.map((formData) => {
+      if (!formData.isFile) return formData
+
+      return {
+        active: formData.active,
+        isFile: false,
+        key: formData.key,
+        value: "",
+      }
+    })
+  }
+  return setDoc(doc(getFirestore(), "users", user.uid, "requests", "rest"), req)
 }
 
 /**

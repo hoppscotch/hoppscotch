@@ -172,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch, onMounted } from "@nuxtjs/composition-api"
+import { ref, useContext, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   addRESTHeader,
@@ -223,7 +223,7 @@ watch(bulkHeaders, () => {
 
 const headers$ = useReadonlyStream(restHeaders$, [])
 
-onMounted(() => editBulkHeadersLine(-1, null))
+onBeforeUpdate(() => editBulkHeadersLine(-1, null))
 
 const editBulkHeadersLine = (index: number, item?: HoppRESTParam) => {
   const headers = headers$.value

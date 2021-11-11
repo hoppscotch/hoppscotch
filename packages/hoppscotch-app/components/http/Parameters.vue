@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch, onMounted } from "@nuxtjs/composition-api"
+import { ref, useContext, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -217,7 +217,7 @@ useCodemirror(bulkEditor, bulkParams, {
 
 const params$ = useReadonlyStream(restParams$, [])
 
-onMounted(() => editBulkParamsLine(-1, null))
+onBeforeUpdate(() => editBulkParamsLine(-1, null))
 
 const editBulkParamsLine = (index: number, item?: HoppRESTParam) => {
   const params = params$.value

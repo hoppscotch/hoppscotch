@@ -382,6 +382,9 @@ const saveRequest = () => {
 
   if (saveCtx.originLocation === "user-collection") {
     editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
+    $toast.success(`${t("request.saved")}`, {
+      icon: "playlist_add_check",
+    })
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
 
@@ -393,14 +396,24 @@ const saveRequest = () => {
         req.name,
         saveCtx.requestID
       )
+        .then(() => {
+          $toast.success(`${t("request.saved")}`, {
+            icon: "playlist_add_check",
+          })
+        })
+        .catch(() => {
+          $toast.error(t("profile.no_permission").toString(), {
+            icon: "error_outline",
+          })
+        })
     } catch (error) {
       showSaveRequestModal.value = true
-      return
+      $toast.error(t("error.something_went_wrong").toString(), {
+        icon: "error_outline",
+      })
+      console.error(error)
     }
   }
-  $toast.success(`${t("request.saved")}`, {
-    icon: "playlist_add_check",
-  })
 }
 
 defineActionHandler("request.send-cancel", () => {

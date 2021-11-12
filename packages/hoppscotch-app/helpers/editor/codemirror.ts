@@ -4,19 +4,23 @@ import {
   EditorState,
   Compartment,
   EditorSelection,
-  TransactionSpec,
 } from "@codemirror/state"
 import { Language, LanguageSupport } from "@codemirror/language"
 import { defaultKeymap } from "@codemirror/commands"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
 
-import { watch, onMounted, ref, Ref } from "@nuxtjs/composition-api"
+import {
+  watch,
+  ref,
+  Ref,
+  onMounted,
+  onBeforeUnmount,
+} from "@nuxtjs/composition-api"
 
 import { javascriptLanguage } from "@codemirror/lang-javascript"
 import { jsonLanguage } from "@codemirror/lang-json"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
-import { onBeforeUnmount } from "@vue/runtime-dom"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
@@ -140,104 +144,100 @@ export function useCodemirror(
     line: 0,
     ch: 0,
   })
+
   const cachedValue = ref(value.value)
-
-  const state = EditorState.create({
-    doc: value.value,
-    extensions: [
-      basicSetup,
-      baseTheme,
-      baseHighlightStyle,
-      ViewPlugin.fromClass(
-        class {
-          update(update: ViewUpdate) {
-            if (update.selectionSet) {
-              const cursorPos = update.state.selection.main.head
-
-              const line = update.state.doc.lineAt(cursorPos)
-
-              cachedCursor.value = {
-                line: line.number - 1,
-                ch: cursorPos - line.from,
-              }
-
-              cursor.value = {
-                line: cachedCursor.value.line,
-                ch: cachedCursor.value.ch,
-              }
-            }
-            if (update.docChanged) {
-              // Expensive on big files ?
-              console.log("doc change")
-              cachedValue.value = update.state.doc
-                .toJSON()
-                .join(update.state.lineBreak)
-              value.value = cachedValue.value
-            }
-          }
-        }
-      ),
-      EditorState.changeFilter.of(() => !options.extendedEditorConfig.readOnly),
-      language.of(
-        getEditorLanguage(
-          options.extendedEditorConfig.mode ?? "",
-          options.linter ?? undefined,
-          options.completer ?? undefined
-        )
-      ),
-      lineWrapping.of(
-        options.extendedEditorConfig.lineWrapping
-          ? [EditorView.lineWrapping]
-          : []
-      ),
-      keymap.of(defaultKeymap),
-    ],
-  })
 
   const view = ref<EditorView>()
 
-  const dispatch = (t: TransactionSpec) =>
-    view.value ? view.value.dispatch(t) : state.update(t)
+  const initView = (el: any) => {
+    view.value = new EditorView({
+      parent: el,
+      state: EditorState.create({
+        doc: value.value,
+        extensions: [
+          basicSetup,
+          baseTheme,
+          baseHighlightStyle,
+          ViewPlugin.fromClass(
+            class {
+              update(update: ViewUpdate) {
+                if (update.selectionSet) {
+                  const cursorPos = update.state.selection.main.head
+
+                  const line = update.state.doc.lineAt(cursorPos)
+
+                  cachedCursor.value = {
+                    line: line.number - 1,
+                    ch: cursorPos - line.from,
+                  }
+
+                  cursor.value = {
+                    line: cachedCursor.value.line,
+                    ch: cachedCursor.value.ch,
+                  }
+                }
+                if (update.docChanged) {
+                  // Expensive on big files ?
+                  console.log("doc change")
+                  cachedValue.value = update.state.doc
+                    .toJSON()
+                    .join(update.state.lineBreak)
+                  value.value = cachedValue.value
+                }
+              }
+            }
+          ),
+          EditorState.changeFilter.of(
+            () => !options.extendedEditorConfig.readOnly
+          ),
+          language.of(
+            getEditorLanguage(
+              options.extendedEditorConfig.mode ?? "",
+              options.linter ?? undefined,
+              options.completer ?? undefined
+            )
+          ),
+          lineWrapping.of(
+            options.extendedEditorConfig.lineWrapping
+              ? [EditorView.lineWrapping]
+              : []
+          ),
+          keymap.of(defaultKeymap),
+        ],
+      }),
+    })
+  }
 
   onMounted(() => {
-    view.value = new EditorView({
-      state,
-      parent: el.value,
-    })
+    if (el.value) {
+      if (!view.value) initView(el.value)
+    }
+  })
+
+  watch(el, () => {
+    if (el.value) {
+      if (!view.value) initView(el.value)
+    } else {
+      view.value?.destroy()
+      view.value = undefined
+    }
   })
 
   onBeforeUnmount(() => {
-    if (view.value) view.value.destroy()
+    view.value?.destroy()
   })
 
-  watch(cursor, (newPos) => {
-    if (
-      cachedCursor.value.line !== newPos.line ||
-      cachedCursor.value.ch !== newPos.ch
-    ) {
-      const line = state.doc.line(newPos.line + 1)
-      const selUpdate = EditorSelection.cursor(line.from + newPos.ch - 1)
-
-      view.value?.focus()
-
-      dispatch({
-        scrollIntoView: true,
-        selection: selUpdate,
-        effects: EditorView.scrollTo.of(selUpdate),
+  watch(value, (newVal) => {
+    if (cachedValue.value !== newVal) {
+      view.value?.dispatch({
+        changes: {
+          from: 0,
+          to: view.value.state.doc.length,
+          insert: newVal,
+        },
       })
     }
   })
-
-  watch(
-    () => options.extendedEditorConfig.lineWrapping,
-    (newMode) => {
-      dispatch({
-        effects: lineWrapping.reconfigure(
-          newMode ? [EditorView.lineWrapping] : []
-        ),
-      })
-    }
-  )
 
   watch(
     () => [
@@ -246,7 +246,7 @@ export function useCodemirror(
       options.completer,
     ],
     () => {
-      dispatch({
+      view.value?.dispatch({
         effects: language.reconfigure(
           getEditorLanguage(
             (options.extendedEditorConfig.mode as any) ?? "",
@@ -258,29 +258,34 @@ export function useCodemirror(
     }
   )
 
-  watch(el, (newEl) => {
+  watch(
+    () => options.extendedEditorConfig.lineWrapping,
+    (newMode) => {
+      view.value?.dispatch({
+        effects: lineWrapping.reconfigure(
+          newMode ? [EditorView.lineWrapping] : []
+        ),
+      })
+    }
+  )
+
+  watch(cursor, (newPos) => {
     if (view.value) {
-      view.value.destroy()
-      view.value = undefined
-    }
+      if (
+        cachedCursor.value.line !== newPos.line ||
+        cachedCursor.value.ch !== newPos.ch
+      ) {
+        const line = view.value.state.doc.line(newPos.line + 1)
+        const selUpdate = EditorSelection.cursor(line.from + newPos.ch - 1)
 
-    if (newEl) {
-      view.value = new EditorView({
-        state,
-        parent: newEl,
-      })
-    }
-  })
+        view.value?.focus()
 
-  watch(value, (newVal) => {
-    if (cachedValue.value !== newVal) {
-      dispatch({
-        changes: {
-          from: 0,
-          to: state.doc.length,
-          insert: newVal,
-        },
-      })
+        view.value.dispatch({
+          scrollIntoView: true,
+          selection: selUpdate,
+          effects: EditorView.scrollTo.of(selUpdate),
+        })
+      }
     }
   })
 

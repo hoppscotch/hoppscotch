@@ -58,6 +58,7 @@
       ref="previewFrame"
       class="covers-response"
       src="about:blank"
+      loading="lazy"
     ></iframe>
   </div>
 </template>

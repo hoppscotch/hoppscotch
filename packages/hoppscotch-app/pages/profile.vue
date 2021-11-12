@@ -62,7 +62,7 @@
                   {{ $t("settings.profile_description") }}
                 </div>
                 <div class="py-4">
-                  <label for="selectLabelTeamAdd">
+                  <label for="displayName">
                     {{ $t("settings.profile_name") }}
                   </label>
                   <form
@@ -70,7 +70,7 @@
                     @submit.prevent="updateDisplayName"
                   >
                     <input
-                      id="selectLabelTeamAdd"
+                      id="displayName"
                       v-model="displayName"
                       class="input"
                       :placeholder="$t('settings.profile_name')"

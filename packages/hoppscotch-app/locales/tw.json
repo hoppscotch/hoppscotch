@@ -10,6 +10,7 @@
     "disconnect": "斷開連線",
     "dismiss": "忽略",
     "download_file": "下載檔案",
+    "duplicate": "重複",
     "edit": "編輯",
     "go_back": "返回",
     "label": "標籤",
@@ -43,7 +44,7 @@
     "copy": "複製",
     "documentation": "幫助文件",
     "github": "GitHub",
-    "help": "幫助與反饋",
+    "help": "幫助與回饋",
     "home": "主頁",
     "invite": "邀請",
     "invite_description": "Hoppscotch 是一個開源的 API 開發生態系統。我們設計了簡單而直觀的介面來建立和管理你的 API。Hoppscotch 是一個幫助你構建、測試、記錄與分享你的 API 的工具。",
@@ -68,7 +69,7 @@
     "wiki": "幫助"
   },
   "auth": {
-    "account_exists": "Account exists with different credential - Login to link both accounts",
+    "account_exists": "帳戶存在不同的憑證 - 登入後可連結兩個帳戶",
     "all_sign_in_options": "所有登入選項",
     "continue_with_email": "使用電子郵箱登入",
     "continue_with_github": "使用 GitHub 登入",
@@ -91,7 +92,7 @@
     "learn": "瞭解更多",
     "password": "密碼",
     "token": "令牌",
-    "type": "授權型別",
+    "type": "授權類型",
     "username": "使用者名稱"
   },
   "collection": {
@@ -101,7 +102,7 @@
     "my_collections": "我的組合",
     "name": "我的新組合",
     "new": "新建組合",
-    "renamed": "組合已更名",
+    "renamed": "組合已重新命名",
     "save_as": "另存為",
     "select": "選擇一個組合",
     "select_location": "選擇位置",
@@ -116,8 +117,8 @@
     "remove_history": "你確定要永久刪除全部歷史記錄嗎？",
     "remove_request": "你確定要永久刪除該請求嗎？",
     "remove_team": "你確定要刪除該團隊嗎？",
-    "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
-    "sync": "您確定要同步該工作區嗎？"
+    "remove_telemetry": "你確定要退出遙測服務嗎？",
+    "sync": "你想從雲端恢復你的工作區嗎？這將丟棄你的本地進度。"
   },
   "count": {
     "header": "請求頭 {count}",
@@ -163,7 +164,7 @@
     "check_console_details": "檢查控制檯日誌以獲悉詳情",
     "curl_invalid_format": "cURL 格式不正確",
     "empty_req_name": "空請求名稱",
-    "f12_details": "(F12 詳情)",
+    "f12_details": "（F12 詳情）",
     "gql_prettify_invalid_query": "無法美化無效的查詢，處理查詢語法錯誤並重試",
     "json_prettify_invalid_body": "無法美化無效的請求頭，處理 JSON 語法錯誤並重試",
     "network_fail": "無法傳送請求",
@@ -200,7 +201,7 @@
     "network_fail": "無法到達 API 端點。請檢查網路連線並重試。",
     "offline": "你似乎處於離線狀態，該工作區中的資料可能不是最新。",
     "offline_short": "你似乎處於離線狀態。",
-    "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到響應後執行。",
+    "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到回應後執行。",
     "pre_request_script": "預請求指令碼使用 JavaScript 編寫，並在請求傳送前執行。",
     "tests": "編寫測試指令碼以自動除錯。"
   },
@@ -220,15 +221,15 @@
     "title": "匯入"
   },
   "layout": {
-    "column": "Vertical layout",
-    "row": "Horizontal layout",
+    "column": "垂直布局",
+    "row": "水平布局",
     "zen_mode": "禪意模式"
   },
   "modal": {
     "collections": "組合",
     "confirm": "確認",
     "edit_request": "編輯請求",
-    "import_export": "匯入/匯出"
+    "import_export": "匯入／匯出"
   },
   "mqtt": {
     "communication": "通訊",
@@ -238,7 +239,7 @@
     "subscribe": "訂閱",
     "topic": "主題",
     "topic_name": "主題名稱",
-    "topic_title": "釋出/訂閱主題",
+    "topic_title": "釋出／訂閱主題",
     "unsubscribe": "取消訂閱",
     "url": "網址"
   },
@@ -263,7 +264,7 @@
     "authorization": "授權",
     "body": "請求體",
     "choose_language": "選擇語言",
-    "content_type": "內容型別",
+    "content_type": "內容類型",
     "copy_link": "複製連結",
     "duration": "持續時間",
     "enter_curl": "輸入 cURL",
@@ -285,13 +286,13 @@
     "saved": "請求已儲存",
     "share": "分享",
     "title": "請求",
-    "type": "請求型別",
+    "type": "請求類型",
     "url": "URL",
     "variables": "變數"
   },
   "response": {
-    "body": "響應體",
-    "headers": "響應頭",
+    "body": "回應體",
+    "headers": "回應頭",
     "html": "HTML",
     "image": "影象",
     "json": "JSON",
@@ -300,16 +301,16 @@
     "size": "大小",
     "status": "狀態",
     "time": "時間",
-    "title": "響應",
+    "title": "回應",
     "waiting_for_connection": "等待連線",
     "xml": "XML"
   },
   "settings": {
     "accent_color": "強調色",
     "account": "帳戶",
-    "account_description": "自定義您的帳戶設定。",
-    "account_email_description": "您的主要電子郵件地址。",
-    "account_name_description": "這是您的顯示名稱。",
+    "account_description": "自定義你的帳戶設定。",
+    "account_email_description": "你的主要電子郵件地址。",
+    "account_name_description": "這是你的顯示名稱。",
     "background": "背景",
     "black_mode": "黑色",
     "change_font_size": "更改字型大小",
@@ -338,15 +339,15 @@
     "reset_default": "重置為預設",
     "sync": "同步",
     "sync_collections": "組合",
-    "sync_description": "這些設定會同步到雲。",
+    "sync_description": "這些設定會同步到雲端。",
     "sync_environments": "環境",
     "sync_history": "歷史",
     "system_mode": "系統",
-    "telemetry": "Telemetry",
-    "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",
+    "telemetry": "遙測服務",
+    "telemetry_helps_us": "遙測服務幫助我們進行個性化操作，為你提供最佳體驗。",
     "theme": "主題",
-    "theme_description": "自定義您的應用程式主題。",
-    "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
+    "theme_description": "自定義你的應用程式主題。",
+    "use_experimental_url_bar": "使用帶有環境高亮的實驗性 URL 欄",
     "user": "使用者"
   },
   "shortcut": {
@@ -401,7 +402,7 @@
     "url": "URL"
   },
   "sse": {
-    "event_type": "事件型別",
+    "event_type": "事件類型",
     "log": "日誌",
     "url": "URL"
   },
@@ -432,7 +433,7 @@
   },
   "support": {
     "changelog": "閱讀更多有關最新版本的內容",
-    "chat": "有問題？來和我們交談吧！",
+    "chat": "有問題？來和我們交流吧！",
     "community": "提問與互助",
     "documentation": "閱讀更多有關 Hoppscotch 的內容",
     "forum": "答疑解惑",
@@ -453,10 +454,11 @@
     "pre_request_script": "預請求指令碼",
     "queries": "查詢",
     "query": "查詢",
+    "schema": "模式",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "測試",
-    "types": "型別",
+    "types": "類型",
     "variables": "變數",
     "websocket": "WebSocket"
   },
@@ -484,8 +486,10 @@
     "title": "團隊"
   },
   "test": {
+    "failed": "測試未通過",
     "javascript_code": "JavaScript 程式碼",
     "learn": "閱讀文件",
+    "passed": "測試通過",
     "report": "測試報告",
     "results": "測試結果",
     "script": "指令碼",

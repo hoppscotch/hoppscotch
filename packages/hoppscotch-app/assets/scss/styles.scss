@@ -31,8 +31,11 @@
 }
 
 ::selection {
-  @apply bg-accent;
-  @apply text-accentContrast;
+  @apply bg-divider;
+}
+
+.cm-focused {
+  @apply !outline-none;
 }
 
 input::placeholder,

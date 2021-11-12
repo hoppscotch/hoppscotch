@@ -1,6 +1,28 @@
-import { EditorView } from "@codemirror/view"
-import { HighlightStyle, tags as t } from "@codemirror/highlight"
-import { foldGutter } from "@codemirror/fold"
+import {
+  EditorView,
+  keymap,
+  highlightSpecialChars,
+  highlightActiveLine,
+} from "@codemirror/view"
+import {
+  HighlightStyle,
+  tags as t,
+  defaultHighlightStyle,
+} from "@codemirror/highlight"
+import { foldKeymap, foldGutter } from "@codemirror/fold"
+
+import { Extension, EditorState } from "@codemirror/state"
+import { history, historyKeymap } from "@codemirror/history"
+import { indentOnInput } from "@codemirror/language"
+import { lineNumbers, highlightActiveLineGutter } from "@codemirror/gutter"
+import { defaultKeymap } from "@codemirror/commands"
+import { bracketMatching } from "@codemirror/matchbrackets"
+import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets"
+import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
+import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
+import { commentKeymap } from "@codemirror/comment"
+import { rectangularSelection } from "@codemirror/rectangular-selection"
+import { lintKeymap } from "@codemirror/lint"
 
 export const baseTheme = EditorView.theme({
   "&": {
@@ -15,8 +37,7 @@ export const baseTheme = EditorView.theme({
     borderColor: "var(--secondary-color)",
   },
   ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
-    backgroundColor: "var(--accent-dark-color)",
-    color: "var(--accent-contrast-color)",
+    backgroundColor: "var(--divider-color)",
   },
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
@@ -46,8 +67,8 @@ export const baseTheme = EditorView.theme({
     outline: "1px solid var(--accent-dark-color)",
   },
   ".cm-matchingBracket, .cm-nonmatchingBracket": {
-    backgroundColor: "var(--accent-dark-color)",
-    color: "var(--accent-contrast-color)",
+    backgroundColor: "var(--divider-color)",
+    outline: "1px solid var(--accent-dark-color)",
   },
   ".cm-gutters": {
     fontFamily: "var(--font-mono)",
@@ -147,7 +168,34 @@ export const baseHighlightStyle = HighlightStyle.define([
   { tag: t.invalid, color: editorInvalidColor },
 ])
 
-export const baseFoldStyle = foldGutter({
+const baseFoldStyle = foldGutter({
   openText: "▾",
   closedText: "▸",
 })
+
+export const basicSetup: Extension = [
+  lineNumbers(),
+  highlightActiveLineGutter(),
+  highlightSpecialChars(),
+  history(),
+  baseFoldStyle,
+  EditorState.allowMultipleSelections.of(true),
+  indentOnInput(),
+  defaultHighlightStyle.fallback,
+  bracketMatching(),
+  closeBrackets(),
+  autocompletion(),
+  rectangularSelection(),
+  highlightActiveLine(),
+  highlightSelectionMatches(),
+  keymap.of([
+    ...closeBracketsKeymap,
+    ...defaultKeymap,
+    ...searchKeymap,
+    ...historyKeymap,
+    ...foldKeymap,
+    ...commentKeymap,
+    ...completionKeymap,
+    ...lintKeymap,
+  ]),
+]

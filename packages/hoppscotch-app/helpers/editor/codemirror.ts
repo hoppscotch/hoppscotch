@@ -8,7 +8,6 @@ import {
 } from "@codemirror/state"
 import { Language, LanguageSupport } from "@codemirror/language"
 import { defaultKeymap } from "@codemirror/commands"
-import { basicSetup } from "@codemirror/basic-setup"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
 
@@ -23,7 +22,7 @@ import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
-import { baseTheme, baseHighlightStyle } from "./themes/baseTheme"
+import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
 
 type ExtendedEditorConfig = {
   mode: string

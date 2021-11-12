@@ -68,10 +68,13 @@ const purgeFormDataFromRequest = (req: RESTHistoryEntry): RESTHistoryEntry => {
 }
 
 async function writeHistory(
-  entry: RESTHistoryEntry,
+  entry: RESTHistoryEntry | GQLHistoryEntry,
   col: HistoryFBCollections
 ) {
-  const processedEntry = purgeFormDataFromRequest(entry)
+  const processedEntry =
+    col === "history"
+      ? purgeFormDataFromRequest(entry as RESTHistoryEntry)
+      : entry
 
   if (currentUser$.value == null)
     throw new Error("User not logged in to sync history")
@@ -93,7 +96,7 @@ async function writeHistory(
 }
 
 async function deleteHistory(
-  entry: RESTHistoryEntry & { id: string },
+  entry: (RESTHistoryEntry | GQLHistoryEntry) & { id: string },
   col: HistoryFBCollections
 ) {
   if (currentUser$.value == null)
@@ -120,7 +123,10 @@ async function clearHistory(col: HistoryFBCollections) {
   await Promise.all(docs.map((e) => deleteHistory(e as any, col)))
 }
 
-async function toggleStar(entry: any, col: HistoryFBCollections) {
+async function toggleStar(
+  entry: (RESTHistoryEntry | GQLHistoryEntry) & { id: string },
+  col: HistoryFBCollections
+) {
   if (currentUser$.value == null)
     throw new Error("User not logged in to toggle star")
 

@@ -1,18 +1,26 @@
 import {parser} from "./syntax.grammar"
-import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside, delimitedIndent} from "@codemirror/language"
+import {LRLanguage, LanguageSupport, indentNodeProp, foldNodeProp, foldInside,  delimitedIndent} from "@codemirror/language"
 import {styleTags, tags as t} from "@codemirror/highlight"
 
 export const GQLLanguage = LRLanguage.define({
   parser: parser.configure({
     props: [
       indentNodeProp.add({
-        Application: delimitedIndent({closing: ")", align: false})
+        "SelectionSet FieldsDefinition ObjectValue SchemaDefinition RootTypeDef": delimitedIndent({ closing: "}", align: true }),
       }),
       foldNodeProp.add({
-        Application: foldInside
+        Application: foldInside,
+        "SelectionSet FieldsDefinition ObjectValue RootOperationTypeDefinition RootTypeDef": (node) => {
+          return {
+            from: node.from,
+            to: node.to
+          }
+
+        }
       }),
       styleTags({
-        Name: t.propertyName,
+        Name: t.definition(t.variableName),
+        "OperationDefinition/Name": t.definition(t.function(t.variableName)),
         OperationType: t.keyword,
         BooleanValue: t.bool,
         StringValue: t.string,

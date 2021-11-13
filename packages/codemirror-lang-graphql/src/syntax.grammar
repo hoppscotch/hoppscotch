@@ -34,11 +34,15 @@ TypeSystemExtension {
 }
 
 SchemaDefinition {
-  Description? @specialize<Name, "schema"> Directives? "{" RootOperationTypeDefinition+ "}"
+  Description? @specialize<Name, "schema"> Directives? RootTypeDef
+}
+
+RootTypeDef {
+  "{" RootOperationTypeDefinition+ "}"
 }
 
 SchemaExtension {
-  @specialize<Name, "extend"> @specialize<Name, "schema"> Directives? "{" RootOperationTypeDefinition "}"
+  @specialize<Name, "extend"> @specialize<Name, "schema"> Directives? RootTypeDef
 }
 
 TypeExtension {
@@ -172,7 +176,7 @@ VariableDefinition {
 }
 
 SelectionSet {
-  "{" Selection+ "}"
+  "{" Selection* "}"
 }
 
 Selection {

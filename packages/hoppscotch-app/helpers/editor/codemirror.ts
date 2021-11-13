@@ -48,10 +48,19 @@ const hoppCompleterExt = (completer: Completer): Extension => {
         // Expensive operation! Disable on bigger files ?
         const text = context.state.doc.toJSON().join(context.state.lineBreak)
 
-        const line = context.state.doc.lineAt(context.pos).from
-        const ch = context.pos - line
+        const line = context.state.doc.lineAt(context.pos)
+        const lineStart = line.from
+        const lineNo = line.number - 1
+        const ch = context.pos - lineStart
 
-        const result = await completer(text, { line, ch })
+        // Only do trigger on type when typing a word token, else stop (unless explicit)
+        if (!context.matchBefore(/\w+/) && !context.explicit)
+          return {
+            from: context.pos,
+            options: [],
+          }
+
+        const result = await completer(text, { line: lineNo, ch })
 
         // Use more completion features ?
         const completions =

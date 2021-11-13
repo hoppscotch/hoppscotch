@@ -68,7 +68,7 @@
     "wiki": "帮助"
   },
   "auth": {
-    "account_exists": "当前帐号已存在 - 登录以链接两个帐号",
+    "account_exists": "帐号存在不同的凭证 - 登录后可链接两个帐号",
     "all_sign_in_options": "所有登录选项",
     "continue_with_email": "使用电子邮箱登录",
     "continue_with_github": "使用 GitHub 登录",
@@ -101,7 +101,7 @@
     "my_collections": "我的组合",
     "name": "我的新组合",
     "new": "新建组合",
-    "renamed": "组合已更名",
+    "renamed": "组合已重命名",
     "save_as": "另存为",
     "select": "选择一个组合",
     "select_location": "选择位置",
@@ -116,8 +116,8 @@
     "remove_history": "你确定要永久删除全部历史记录吗？",
     "remove_request": "你确定要永久删除该请求吗？",
     "remove_team": "你确定要删除该团队吗？",
-    "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
-    "sync": "您确定要同步该工作区吗？"
+    "remove_telemetry": "你确定要退出遥测服务吗？",
+    "sync": "你确定要从云端恢复你的工作区吗？这将丢弃你的本地进度。"
   },
   "count": {
     "header": "请求头 {count}",
@@ -307,9 +307,9 @@
   "settings": {
     "accent_color": "强调色",
     "account": "帐户",
-    "account_description": "自定义您的帐户设置。",
-    "account_email_description": "您的主要电子邮件地址。",
-    "account_name_description": "这是您的显示名称。",
+    "account_description": "自定义你的帐户设置。",
+    "account_email_description": "你的主要电子邮件地址。",
+    "account_name_description": "这是你的显示名称。",
     "background": "背景",
     "black_mode": "黑色",
     "change_font_size": "更改字体大小",
@@ -342,11 +342,11 @@
     "sync_environments": "环境",
     "sync_history": "历史",
     "system_mode": "系统",
-    "telemetry": "Telemetry",
-    "telemetry_helps_us": "Telemetry helps us to personalize our operations and deliver the best experience to you.",
+    "telemetry": "遥测服务",
+    "telemetry_helps_us": "遥测服务帮助我们进行个性化操作，为你提供最佳体验。",
     "theme": "主题",
-    "theme_description": "自定义您的应用程序主题。",
-    "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
+    "theme_description": "自定义你的应用程序主题。",
+    "use_experimental_url_bar": "使用带有环境高亮的实验性 URL 栏",
     "user": "用户"
   },
   "shortcut": {

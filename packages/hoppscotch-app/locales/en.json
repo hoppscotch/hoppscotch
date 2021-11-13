@@ -203,7 +203,7 @@
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",
     "generate_documentation_first": "Generate documentation first",
-    "network_fail": "Unable to reach the API endpoint. Check your network connection and try again.",
+    "network_fail": "Unable to reach the API endpoint. Check your network connection or turn on Proxy Interceptor and try again.",
     "offline": "You seem to be offline. Data in this workspace might not be up to date.",
     "offline_short": "You seem to be offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
@@ -339,7 +339,7 @@
     "experiments_notice": "This is a collection of experiments we're working on that might turn out to be useful, fun, both, or neither. They're not final and may not be stable, so if something overly weird happens, don't panic. Just turn the dang thing off. Jokes aside, ",
     "extension_ver_not_reported": "Not Reported",
     "extension_version": "Extension Version",
-    "extensions": "Extensions",
+    "extensions": "Browser extensions",
     "extensions_use_toggle": "Use the browser extension to send requests (if present)",
     "font_size": "Font size",
     "font_size_large": "Large",

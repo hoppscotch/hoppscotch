@@ -60,13 +60,7 @@
       </div>
       <div
         v-if="response.type === 'network_fail'"
-        class="
-          flex flex-col flex-1
-          text-secondaryLight
-          p-4
-          items-center
-          justify-center
-        "
+        class="flex flex-col flex-1 p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
@@ -81,21 +75,13 @@
           "
           :alt="$t('empty.network_fail')"
         />
-        <span class="text-center mb-2">
+        <span class="text-center font-semibold mb-2">
           {{ $t("error.network_fail") }}
         </span>
-        <span class="text-center mb-4 max-w-sm">
+        <span class="text-center text-secondaryLight mb-4 max-w-sm">
           {{ $t("helpers.network_fail") }}
         </span>
-        <ButtonSecondary
-          outline
-          :label="$t('action.learn_more')"
-          to="https://docs.hoppscotch.io"
-          blank
-          svg="external-link"
-          reverse
-          class="my-4"
-        />
+        <AppInterceptor />
       </div>
       <div
         v-if="response.type === 'success' || 'fail'"

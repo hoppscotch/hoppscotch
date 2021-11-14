@@ -391,6 +391,19 @@ const copyVariablesIcon = ref("copy")
 
 const showSaveRequestModal = ref(false)
 
+watch(
+  headers,
+  () => {
+    if (
+      (headers.value[headers.value.length - 1]?.key !== "" ||
+        headers.value[headers.value.length - 1]?.value !== "") &&
+      headers.value.length
+    )
+      addRequestHeader()
+  },
+  { deep: true }
+)
+
 const editBulkHeadersLine = (
   index: number,
   item?: {

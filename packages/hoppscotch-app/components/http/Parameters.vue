@@ -217,6 +217,19 @@ useCodemirror(bulkEditor, bulkParams, {
 
 const params$ = useReadonlyStream(restParams$, [])
 
+watch(
+  params$,
+  (newValue) => {
+    if (
+      (newValue[newValue.length - 1]?.key !== "" ||
+        newValue[newValue.length - 1]?.value !== "") &&
+      newValue.length
+    )
+      addParam()
+  },
+  { deep: true }
+)
+
 onBeforeUpdate(() => editBulkParamsLine(-1, null))
 
 const editBulkParamsLine = (index: number, item?: HoppRESTParam) => {

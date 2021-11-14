@@ -223,6 +223,19 @@ watch(bulkHeaders, () => {
 
 const headers$ = useReadonlyStream(restHeaders$, [])
 
+watch(
+  headers$,
+  (newValue) => {
+    if (
+      (newValue[newValue.length - 1]?.key !== "" ||
+        newValue[newValue.length - 1]?.value !== "") &&
+      newValue.length
+    )
+      addHeader()
+  },
+  { deep: true }
+)
+
 onBeforeUpdate(() => editBulkHeadersLine(-1, null))
 
 const editBulkHeadersLine = (index: number, item?: HoppRESTParam) => {

@@ -339,7 +339,7 @@
     "experiments_notice": "This is a collection of experiments we're working on that might turn out to be useful, fun, both, or neither. They're not final and may not be stable, so if something overly weird happens, don't panic. Just turn the dang thing off. Jokes aside, ",
     "extension_ver_not_reported": "Not Reported",
     "extension_version": "Extension Version",
-    "extensions": "Browser extensions",
+    "extensions": "Browser extension",
     "extensions_use_toggle": "Use the browser extension to send requests (if present)",
     "font_size": "Font size",
     "font_size_large": "Large",

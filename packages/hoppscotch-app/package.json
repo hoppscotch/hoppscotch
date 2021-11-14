@@ -33,7 +33,7 @@
     "gql-codegen": "graphql-codegen --config gql-codegen.yml"
   },
   "dependencies": {
-    "@apollo/client": "^3.4.16",
+    "@apollo/client": "^3.4.17",
     "@hoppscotch/js-sandbox": "workspace:^1.0.0",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/composition-api": "^0.30.0",
@@ -52,12 +52,12 @@
     "codemirror-theme-github": "^1.0.0",
     "core-js": "^3.19.1",
     "esprima": "^4.0.1",
-    "firebase": "^9.3.0",
+    "firebase": "^9.4.1",
     "fp-ts": "^2.11.5",
     "fuse.js": "^6.4.6",
     "graphql": "^15.7.2",
-    "graphql-language-service-interface": "^2.8.4",
-    "graphql-language-service-parser": "^1.9.3",
+    "graphql-language-service-interface": "^2.9.1",
+    "graphql-language-service-parser": "^1.10.0",
     "graphql-tag": "^2.12.6",
     "io-ts": "^2.2.16",
     "json-loader": "^0.5.7",
@@ -80,7 +80,7 @@
     "vue-functional-data-merge": "^3.1.0",
     "vue-github-button": "^1.3.0",
     "vue-textarea-autosize": "^1.1.1",
-    "vue-tippy": "^4.12.0",
+    "vue-tippy": "^4.13.0",
     "vuejs-auto-complete": "^0.9.0",
     "wonka": "^4.0.15",
     "yargs-parser": "^20.2.9"
@@ -126,7 +126,7 @@
     "jest": "^27.3.1",
     "jest-serializer-vue": "^2.0.2",
     "npm-run-all": "^4.1.5",
-    "nuxt-windicss": "^2.0.11",
+    "nuxt-windicss": "^2.0.12",
     "prettier": "^2.4.1",
     "pretty-quick": "^3.1.1",
     "raw-loader": "^4.0.2",
@@ -138,7 +138,7 @@
     "stylelint-config-standard-scss": "^2.0.1",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4",
-    "unplugin-vue2-script-setup": "^0.6.13",
+    "unplugin-vue2-script-setup": "^0.6.16",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
   }

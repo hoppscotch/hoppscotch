@@ -289,37 +289,6 @@ pre.ace_editor {
   }
 }
 
-input[type="checkbox"].checkbox {
-  @apply hidden;
-
-  &,
-  & + label {
-    @apply align-middle;
-    @apply cursor-pointer;
-
-    &::before {
-      @apply border-divider border-2;
-      @apply rounded;
-      @apply inline-flex;
-      @apply items-center;
-      @apply justify-center;
-      @apply text-transparent;
-      @apply h-4;
-      @apply w-4;
-      @apply font-icon;
-
-      content: "\e876";
-      margin: 8px 8px 8px 0;
-    }
-  }
-
-  &:checked + label::before {
-    @apply bg-accent;
-    @apply border-accent;
-    @apply text-primary;
-  }
-}
-
 .info-response {
   @apply text-pink-500;
 }

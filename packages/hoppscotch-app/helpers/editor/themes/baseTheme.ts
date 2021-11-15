@@ -49,6 +49,17 @@ export const baseTheme = EditorView.theme({
   ".cm-panels.cm-panels-bottom": {
     borderTop: "1px solid var(--divider-light-color)",
   },
+  ".cm-search": {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "nowrap",
+    flexShrink: 0,
+    overflow: "auto",
+  },
+  ".cm-search label": {
+    display: "inline-flex",
+    alignItems: "center",
+  },
   ".cm-textfield": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
@@ -70,7 +81,7 @@ export const baseTheme = EditorView.theme({
   ".cm-completionLabel": {
     color: "var(--secondary-color)",
   },
-  ".cm-tooltip-autocomplete ul": {
+  ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
   },
   ".cm-tooltip-autocomplete ul li[aria-selected]": {

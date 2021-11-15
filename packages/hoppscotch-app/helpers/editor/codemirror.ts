@@ -194,7 +194,6 @@ export function useCodemirror(
                 }
                 if (update.docChanged) {
                   // Expensive on big files ?
-                  console.log("doc change")
                   cachedValue.value = update.state.doc
                     .toJSON()
                     .join(update.state.lineBreak)

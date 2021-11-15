@@ -30,7 +30,6 @@ import {
   makeRESTRequest,
 } from "~/helpers/types/HoppRESTRequest"
 import { setRESTRequest } from "~/newstore/RESTSession"
-import "codemirror/mode/shell/shell"
 
 const {
   $toast,

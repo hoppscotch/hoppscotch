@@ -147,7 +147,6 @@
 import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import "codemirror/mode/javascript/javascript"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
 import { getJSONOutlineAtPos } from "~/helpers/newOutline"

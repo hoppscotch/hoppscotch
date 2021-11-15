@@ -1,215 +1,324 @@
-import CodeMirror from "codemirror"
+import {
+  keymap,
+  EditorView,
+  ViewPlugin,
+  ViewUpdate,
+  placeholder,
+} from "@codemirror/view"
+import {
+  Extension,
+  EditorState,
+  Compartment,
+  EditorSelection,
+} from "@codemirror/state"
+import { Language, LanguageSupport } from "@codemirror/language"
+import { defaultKeymap } from "@codemirror/commands"
+import { Completion, autocompletion } from "@codemirror/autocomplete"
+import { linter } from "@codemirror/lint"
 
-import "codemirror-theme-github/theme/github.css"
-import "codemirror/theme/base16-dark.css"
-import "codemirror/theme/tomorrow-night-bright.css"
+import {
+  watch,
+  ref,
+  Ref,
+  onMounted,
+  onBeforeUnmount,
+} from "@nuxtjs/composition-api"
 
-import "codemirror/lib/codemirror.css"
-import "codemirror/addon/lint/lint.css"
-import "codemirror/addon/dialog/dialog.css"
-import "codemirror/addon/hint/show-hint.css"
-
-import "codemirror/addon/fold/foldgutter.css"
-import "codemirror/addon/fold/foldgutter"
-import "codemirror/addon/fold/brace-fold"
-import "codemirror/addon/fold/comment-fold"
-import "codemirror/addon/fold/indent-fold"
-import "codemirror/addon/display/autorefresh"
-import "codemirror/addon/lint/lint"
-import "codemirror/addon/hint/show-hint"
-import "codemirror/addon/display/placeholder"
-import "codemirror/addon/edit/closebrackets"
-import "codemirror/addon/search/search"
-import "codemirror/addon/search/searchcursor"
-import "codemirror/addon/search/jump-to-line"
-import "codemirror/addon/dialog/dialog"
-import "codemirror/addon/selection/active-line"
-
-import { watch, onMounted, ref, Ref, useContext } from "@nuxtjs/composition-api"
-import { LinterDefinition } from "./linting/linter"
+import { javascriptLanguage } from "@codemirror/lang-javascript"
+import { jsonLanguage } from "@codemirror/lang-json"
+import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
+import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
+import { LinterDefinition } from "./linting/linter"
+import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
+
+type ExtendedEditorConfig = {
+  mode: string
+  placeholder: string
+  readOnly: boolean
+  lineWrapping: boolean
+}
 
 type CodeMirrorOptions = {
-  extendedEditorConfig: Omit<CodeMirror.EditorConfiguration, "value">
+  extendedEditorConfig: Partial<ExtendedEditorConfig>
   linter: LinterDefinition | null
   completer: Completer | null
 }
 
-const DEFAULT_EDITOR_CONFIG: CodeMirror.EditorConfiguration = {
-  autoRefresh: true,
-  lineNumbers: true,
-  foldGutter: true,
-  autoCloseBrackets: true,
-  gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-  extraKeys: {
-    "Ctrl-Space": "autocomplete",
-  },
-  viewportMargin: Infinity,
-  styleActiveLine: true,
+const hoppCompleterExt = (completer: Completer): Extension => {
+  return autocompletion({
+    override: [
+      async (context) => {
+        // Expensive operation! Disable on bigger files ?
+        const text = context.state.doc.toJSON().join(context.state.lineBreak)
+
+        const line = context.state.doc.lineAt(context.pos)
+        const lineStart = line.from
+        const lineNo = line.number - 1
+        const ch = context.pos - lineStart
+
+        // Only do trigger on type when typing a word token, else stop (unless explicit)
+        if (!context.matchBefore(/\w+/) && !context.explicit)
+          return {
+            from: context.pos,
+            options: [],
+          }
+
+        const result = await completer(text, { line: lineNo, ch })
+
+        // Use more completion features ?
+        const completions =
+          result?.completions.map<Completion>((comp) => ({
+            label: comp.text,
+            detail: comp.meta,
+          })) ?? []
+
+        return {
+          from: context.state.wordAt(context.pos)?.from ?? context.pos,
+          options: completions,
+        }
+      },
+    ],
+  })
 }
 
-/**
- * A Vue composable to mount and use Codemirror
- *
- * NOTE: Make sure to import all the necessary Codemirror modules,
- * as this function doesn't import any other than the core
- * @param el Reference to the dom node to attach to
- * @param value Reference to value to read/write to
- * @param options CodeMirror options to pass
- */
+const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
+  return linter(async (view) => {
+    // Requires full document scan, hence expensive on big files, force disable on big files ?
+    const linterResult = await hoppLinter(
+      view.state.doc.toJSON().join(view.state.lineBreak)
+    )
+
+    return linterResult.map((result) => {
+      const startPos =
+        view.state.doc.line(result.from.line + 1).from + result.from.ch
+      const endPos = view.state.doc.line(result.to.line + 1).from + result.to.ch
+
+      return {
+        from: startPos,
+        to: endPos,
+        message: result.message,
+        severity: result.severity,
+      }
+    })
+  })
+}
+
+const hoppLang = (
+  language: Language,
+  linter?: LinterDefinition | undefined,
+  completer?: Completer | undefined
+) => {
+  const exts: Extension[] = []
+
+  if (linter) exts.push(hoppLinterExt(linter))
+  if (completer) exts.push(hoppCompleterExt(completer))
+
+  return new LanguageSupport(language, exts)
+}
+
+const getLanguage = (langMime: string): Language | null => {
+  if (isJSONContentType(langMime)) {
+    return jsonLanguage
+  } else if (langMime === "application/javascript") {
+    return javascriptLanguage
+  } else if (langMime === "graphql") {
+    return GQLLanguage
+  }
+
+  // None matched, so return null
+  return null
+}
+
+const getEditorLanguage = (
+  langMime: string,
+  linter: LinterDefinition | undefined,
+  completer: Completer | undefined
+): Extension =>
+  pipe(
+    O.fromNullable(getLanguage(langMime)),
+    O.map((lang) => hoppLang(lang, linter, completer)),
+    O.getOrElseW(() => [])
+  )
+
 export function useCodemirror(
   el: Ref<any | null>,
   value: Ref<string>,
   options: CodeMirrorOptions
-): { cm: Ref<CodeMirror.Position | null>; cursor: Ref<CodeMirror.Position> } {
-  const { $colorMode } = useContext() as any
+): { cursor: Ref<{ line: number; ch: number }> } {
+  const language = new Compartment()
+  const lineWrapping = new Compartment()
+  const placeholderConfig = new Compartment()
 
-  const cm = ref<CodeMirror.Editor | null>(null)
-  const cursor = ref<CodeMirror.Position>({ line: 0, ch: 0 })
+  const cachedCursor = ref({
+    line: 0,
+    ch: 0,
+  })
+  const cursor = ref({
+    line: 0,
+    ch: 0,
+  })
 
-  const updateEditorConfig = () => {
-    Object.keys(options.extendedEditorConfig).forEach((key) => {
-      // Only update options which need updating
-      if (
-        cm.value &&
-        cm.value?.getOption(key as any) !==
-          (options.extendedEditorConfig as any)[key]
-      ) {
-        cm.value?.setOption(
-          key as any,
-          (options.extendedEditorConfig as any)[key]
-        )
-      }
+  const cachedValue = ref(value.value)
+
+  const view = ref<EditorView>()
+
+  const initView = (el: any) => {
+    view.value = new EditorView({
+      parent: el,
+      state: EditorState.create({
+        doc: value.value,
+        extensions: [
+          basicSetup,
+          baseTheme,
+          baseHighlightStyle,
+          ViewPlugin.fromClass(
+            class {
+              update(update: ViewUpdate) {
+                if (update.selectionSet) {
+                  const cursorPos = update.state.selection.main.head
+
+                  const line = update.state.doc.lineAt(cursorPos)
+
+                  cachedCursor.value = {
+                    line: line.number - 1,
+                    ch: cursorPos - line.from,
+                  }
+
+                  cursor.value = {
+                    line: cachedCursor.value.line,
+                    ch: cachedCursor.value.ch,
+                  }
+                }
+                if (update.docChanged) {
+                  // Expensive on big files ?
+                  cachedValue.value = update.state.doc
+                    .toJSON()
+                    .join(update.state.lineBreak)
+                  if (!options.extendedEditorConfig.readOnly)
+                    value.value = cachedValue.value
+                }
+              }
+            }
+          ),
+          EditorState.changeFilter.of(
+            () => !options.extendedEditorConfig.readOnly
+          ),
+          placeholderConfig.of(
+            placeholder(options.extendedEditorConfig.placeholder ?? "")
+          ),
+          language.of(
+            getEditorLanguage(
+              options.extendedEditorConfig.mode ?? "",
+              options.linter ?? undefined,
+              options.completer ?? undefined
+            )
+          ),
+          lineWrapping.of(
+            options.extendedEditorConfig.lineWrapping
+              ? [EditorView.lineWrapping]
+              : []
+          ),
+          keymap.of(defaultKeymap),
+        ],
+      }),
     })
   }
 
-  const updateLinterConfig = () => {
-    if (options.linter) {
-      cm.value?.setOption("lint", options.linter)
+  onMounted(() => {
+    if (el.value) {
+      if (!view.value) initView(el.value)
     }
-  }
+  })
 
-  const updateCompleterConfig = () => {
-    if (options.completer) {
-      cm.value?.setOption("hintOptions", {
-        completeSingle: false,
-        hint: async (editor: CodeMirror.Editor) => {
-          const pos = editor.getCursor()
-          const text = editor.getValue()
+  watch(el, () => {
+    if (el.value) {
+      if (!view.value) initView(el.value)
+    } else {
+      view.value?.destroy()
+      view.value = undefined
+    }
+  })
 
-          const token = editor.getTokenAt(pos)
-          // It's not a word token, so, just increment to skip to next
-          if (token.string.toUpperCase() === token.string.toLowerCase())
-            token.start += 1
+  onBeforeUnmount(() => {
+    view.value?.destroy()
+  })
 
-          const result = await options.completer!(text, pos)
-
-          if (!result) return null
-
-          return <CodeMirror.Hints>{
-            from: { line: pos.line, ch: token.start },
-            to: { line: pos.line, ch: token.end },
-            list: result.completions
-              .sort((a, b) => a.score - b.score)
-              .map((x) => x.text),
-          }
+  watch(value, (newVal) => {
+    if (cachedValue.value !== newVal) {
+      view.value?.dispatch({
+        filter: false,
+        changes: {
+          from: 0,
+          to: view.value.state.doc.length,
+          insert: newVal,
         },
       })
     }
-  }
-
-  const initialize = () => {
-    if (!el.value) return
-
-    cm.value = CodeMirror(el.value!, DEFAULT_EDITOR_CONFIG)
-
-    cm.value.setValue(value.value)
-
-    setTheme()
-    updateEditorConfig()
-    updateLinterConfig()
-    updateCompleterConfig()
-
-    cm.value.on("change", (instance) => {
-      // External update propagation (via watchers) should be ignored
-      if (instance.getValue() !== value.value) {
-        value.value = instance.getValue()
-      }
-    })
-
-    cm.value.on("cursorActivity", (instance) => {
-      cursor.value = instance.getCursor()
-    })
-  }
-
-  // Boot-up CodeMirror, set the value and listeners
-  onMounted(() => {
-    initialize()
   })
 
-  // Reinitialize if the target ref updates
-  watch(el, () => {
-    if (cm.value) {
-      const parent = cm.value.getWrapperElement()
-      parent.remove()
-      cm.value = null
+  watch(
+    () => [
+      options.extendedEditorConfig.mode,
+      options.linter,
+      options.completer,
+    ],
+    () => {
+      view.value?.dispatch({
+        effects: language.reconfigure(
+          getEditorLanguage(
+            (options.extendedEditorConfig.mode as any) ?? "",
+            options.linter ?? undefined,
+            options.completer ?? undefined
+          )
+        ),
+      })
     }
-    initialize()
-  })
+  )
 
-  const setTheme = () => {
-    if (cm.value) {
-      cm.value?.setOption("theme", getThemeName($colorMode.value))
+  watch(
+    () => options.extendedEditorConfig.lineWrapping,
+    (newMode) => {
+      view.value?.dispatch({
+        effects: lineWrapping.reconfigure(
+          newMode ? [EditorView.lineWrapping] : []
+        ),
+      })
     }
-  }
+  )
 
-  const getThemeName = (mode: string) => {
-    switch (mode) {
-      case "system":
-        return "default"
-      case "light":
-        return "github"
-      case "dark":
-        return "base16-dark"
-      case "black":
-        return "tomorrow-night-bright"
-      default:
-        return "default"
+  watch(
+    () => options.extendedEditorConfig.placeholder,
+    (newValue) => {
+      view.value?.dispatch({
+        effects: placeholderConfig.reconfigure(placeholder(newValue ?? "")),
+      })
     }
-  }
+  )
 
-  // If the editor properties are reactive, watch for updates
-  watch(() => options.extendedEditorConfig, updateEditorConfig, {
-    immediate: true,
-    deep: true,
-  })
-  watch(() => options.linter, updateLinterConfig, { immediate: true })
-  watch(() => options.completer, updateCompleterConfig, { immediate: true })
+  watch(cursor, (newPos) => {
+    if (view.value) {
+      if (
+        cachedCursor.value.line !== newPos.line ||
+        cachedCursor.value.ch !== newPos.ch
+      ) {
+        const line = view.value.state.doc.line(newPos.line + 1)
+        const selUpdate = EditorSelection.cursor(line.from + newPos.ch - 1)
 
-  // Watch value updates
-  watch(value, (newVal) => {
-    // Check if we are mounted
-    if (cm.value) {
-      // Don't do anything on internal updates
-      if (cm.value.getValue() !== newVal) {
-        cm.value.setValue(newVal)
+        view.value?.focus()
+
+        view.value.dispatch({
+          scrollIntoView: true,
+          selection: selUpdate,
+          effects: EditorView.scrollTo.of(selUpdate),
+        })
       }
     }
   })
-
-  // Push cursor updates
-  watch(cursor, (value) => {
-    if (value !== cm.value?.getCursor()) {
-      cm.value?.focus()
-      cm.value?.setCursor(value)
-    }
-  })
-
-  // Watch color mode updates and update theme
-  watch(() => $colorMode.value, setTheme)
 
   return {
-    cm,
     cursor,
   }
 }

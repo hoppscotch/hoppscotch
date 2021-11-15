@@ -72,11 +72,6 @@ import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { pluckRef } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
-import "codemirror/mode/yaml/yaml"
-import "codemirror/mode/xml/xml"
-import "codemirror/mode/css/css"
-import "codemirror/mode/htmlmixed/htmlmixed"
-import "codemirror/mode/javascript/javascript"
 
 const props = defineProps<{
   contentType: string

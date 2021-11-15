@@ -52,12 +52,33 @@ export const baseTheme = EditorView.theme({
   ".cm-textfield": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
+    borderColor: "var(--divider-light-color)",
+    borderRadius: "3px",
   },
   ".cm-button": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
     backgroundImage: "none",
     border: "none",
+  },
+  ".cm-tooltip": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-light-color)",
+    border: "none",
+    borderRadius: "3px",
+  },
+  ".cm-completionLabel": {
+    color: "var(--secondary-color)",
+  },
+  ".cm-tooltip-autocomplete ul": {
+    fontFamily: "var(--font-mono)",
+  },
+  ".cm-tooltip-autocomplete ul li[aria-selected]": {
+    backgroundColor: "var(--accent-dark-color)",
+    color: "var(--accent-contrast-color)",
+  },
+  ".cm-tooltip-autocomplete ul li[aria-selected] .cm-completionLabel": {
+    color: "var(--accent-contrast-color)",
   },
   ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
   ".cm-searchMatch": {

@@ -1,4 +1,10 @@
-import { keymap, EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view"
+import {
+  keymap,
+  EditorView,
+  ViewPlugin,
+  ViewUpdate,
+  placeholder,
+} from "@codemirror/view"
 import {
   Extension,
   EditorState,
@@ -144,6 +150,7 @@ export function useCodemirror(
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const language = new Compartment()
   const lineWrapping = new Compartment()
+  const placeholderConfig = new Compartment()
 
   const cachedCursor = ref({
     line: 0,
@@ -198,6 +205,9 @@ export function useCodemirror(
           ),
           EditorState.changeFilter.of(
             () => !options.extendedEditorConfig.readOnly
+          ),
+          placeholderConfig.of(
+            placeholder(options.extendedEditorConfig.placeholder ?? "")
           ),
           language.of(
             getEditorLanguage(
@@ -274,6 +284,15 @@ export function useCodemirror(
         effects: lineWrapping.reconfigure(
           newMode ? [EditorView.lineWrapping] : []
         ),
+      })
+    }
+  )
+
+  watch(
+    () => options.extendedEditorConfig.placeholder,
+    (newValue) => {
+      view.value?.dispatch({
+        effects: placeholderConfig.reconfigure(placeholder(newValue ?? "")),
       })
     }
   )

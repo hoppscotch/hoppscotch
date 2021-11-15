@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "description": "GraphQL language support for CodeMirror",
   "scripts": {
-    "test": "mocha test/test.js",
     "prepare": "rollup -c"
   },
   "type": "module",

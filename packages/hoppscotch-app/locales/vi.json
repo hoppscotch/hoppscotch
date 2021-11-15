@@ -146,6 +146,7 @@
     "members": "Đội trống",
     "parameters": "Yêu cầu này không có bất kỳ thông số nào",
     "pending_invites": "There are no pending invites for this team",
+    "profile": "Login in to view your profile",
     "protocols": "Giao thức trống",
     "schema": "Kết nối với một điểm cuối GraphQL",
     "team_name": "Tên đội trống",

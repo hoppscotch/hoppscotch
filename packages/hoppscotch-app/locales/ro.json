@@ -146,6 +146,7 @@
     "members": "Echipa este goală",
     "parameters": "Această solicitare nu are niciun parametru",
     "pending_invites": "There are no pending invites for this team",
+    "profile": "Login in to view your profile",
     "protocols": "Protocoalele sunt goale",
     "schema": "Conectați-vă la un punct final GraphQL",
     "team_name": "Numele echipei este gol",

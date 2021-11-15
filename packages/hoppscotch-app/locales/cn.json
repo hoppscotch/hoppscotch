@@ -146,6 +146,7 @@
     "members": "团队为空",
     "parameters": "该请求没有任何参数",
     "pending_invites": "There are no pending invites for this team",
+    "profile": "Login in to view your profile",
     "protocols": "协议为空",
     "schema": "连接至 GraphQL 端点",
     "team_name": "团队名称为空",

@@ -146,6 +146,7 @@
     "members": "팀이 비어 있습니다.",
     "parameters": "이 요청에는 매개변수가 없습니다.",
     "pending_invites": "There are no pending invites for this team",
+    "profile": "Login in to view your profile",
     "protocols": "프로토콜이 비어 있습니다.",
     "schema": "GraphQL 스키마에 연결",
     "team_name": "팀 이름이 비어 있습니다.",

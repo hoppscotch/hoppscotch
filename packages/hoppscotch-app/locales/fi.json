@@ -146,6 +146,7 @@
     "members": "Joukkue on tyhjä",
     "parameters": "Tässä pyynnössä ei ole parametreja",
     "pending_invites": "There are no pending invites for this team",
+    "profile": "Login in to view your profile",
     "protocols": "Protokollat ovat tyhjiä",
     "schema": "Muodosta yhteys GraphQL -päätepisteeseen",
     "team_name": "Joukkueen nimi tyhjä",

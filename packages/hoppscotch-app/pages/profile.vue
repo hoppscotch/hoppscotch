@@ -2,9 +2,29 @@
   <div>
     <div class="container">
       <div class="p-4">
-        <div v-if="currentUser === null">
+        <div
+          v-if="currentUser === null"
+          class="flex flex-col items-center justify-center"
+        >
+          <img
+            :src="`/images/states/${$colorMode.value}/login.svg`"
+            loading="lazy"
+            class="
+              flex-col
+              my-4
+              object-contain object-center
+              h-24
+              w-24
+              inline-flex
+            "
+            :alt="$t('empty.parameters')"
+          />
+          <p class="text-center pb-4 text-secondaryLight">
+            {{ $t("empty.profile") }}
+          </p>
           <ButtonPrimary
             :label="$t('auth.login')"
+            class="mb-4"
             @click.native="showLogin = true"
           />
         </div>

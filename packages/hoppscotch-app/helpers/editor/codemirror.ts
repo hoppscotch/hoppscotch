@@ -197,7 +197,8 @@ export function useCodemirror(
                   cachedValue.value = update.state.doc
                     .toJSON()
                     .join(update.state.lineBreak)
-                  value.value = cachedValue.value
+                  if (!options.extendedEditorConfig.readOnly)
+                    value.value = cachedValue.value
                 }
               }
             }
@@ -248,6 +249,7 @@ export function useCodemirror(
   watch(value, (newVal) => {
     if (cachedValue.value !== newVal) {
       view.value?.dispatch({
+        filter: false,
         changes: {
           from: 0,
           to: view.value.state.doc.length,

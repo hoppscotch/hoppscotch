@@ -40,6 +40,7 @@ import {
   setCurrentEnvironment,
 } from "./environments"
 import { restRequest$, setRESTRequest } from "./RESTSession"
+import { WSRequest$, setWSRequest } from "./WSSession"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 
 function checkAndMigrateOldSettings() {
@@ -209,6 +210,18 @@ function setupSelectedEnvPersistence() {
   })
 }
 
+function setupWebsocketPersistence() {
+  const request = JSON.parse(
+    window.localStorage.getItem("WebsocketRequest") || "null"
+  )
+
+  setWSRequest(request)
+
+  WSRequest$.subscribe((req) => {
+    window.localStorage.setItem("WebsocketRequest", JSON.stringify(req))
+  })
+}
+
 function setupGlobalEnvsPersistence() {
   const globals: Environment["variables"] = JSON.parse(
     window.localStorage.getItem("globalEnv") || "[]"
@@ -246,6 +259,7 @@ export function setupLocalPersistence() {
   setupGlobalEnvsPersistence()
   setupEnvironmentsPersistence()
   setupSelectedEnvPersistence()
+  setupWebsocketPersistence()
 }
 
 /**

@@ -134,8 +134,6 @@ export default {
     "@nuxtjs/dotenv",
     // https://github.com/nuxt-community/composition-api
     "@nuxtjs/composition-api/module",
-    // https://github.com/antfu/unplugin-vue2-script-setup
-    "unplugin-vue2-script-setup/nuxt",
     "~/modules/emit-volar-types.ts",
   ],
 

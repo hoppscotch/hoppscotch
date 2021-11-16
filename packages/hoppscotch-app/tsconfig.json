@@ -15,13 +15,7 @@
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "types": [
-      "@types/node",
-      "@nuxt/types",
-      "@nuxtjs/i18n",
-      "@nuxtjs/toast",
-      "unplugin-vue2-script-setup/types"
-    ]
+    "types": ["@types/node", "@nuxt/types", "@nuxtjs/i18n", "@nuxtjs/toast"]
   },
   "exclude": ["node_modules", ".nuxt", "dist"],
   "vueCompilerOptions": {

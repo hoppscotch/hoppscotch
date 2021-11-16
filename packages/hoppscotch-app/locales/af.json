@@ -452,9 +452,7 @@
     "loading": "Laai tans ...",
     "none": "Geen",
     "nothing_found": "Niks gevind vir",
-    "waiting_send_request": "Wag om versoek te stuur",
-    "header_deleted": "Opskrif is suksesvol uitgevee",
-    "param_deleted": "Parameter suksesvol uitgevee"
+    "waiting_send_request": "Wag om versoek te stuur"
   },
   "support": {
     "changelog": "Lees meer oor die nuutste uitgawes",

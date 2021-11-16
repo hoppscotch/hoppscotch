@@ -452,9 +452,7 @@
     "loading": "Läser in...",
     "none": "Ingen",
     "nothing_found": "Inget hittat för",
-    "waiting_send_request": "Väntar på att skicka förfrågan",
-    "header_deleted": "Rubrik har tagits bort",
-    "param_deleted": "Parameter raderades framgångsrikt"
+    "waiting_send_request": "Väntar på att skicka förfrågan"
   },
   "support": {
     "changelog": "Läs mer om de senaste utgåvorna",

@@ -452,9 +452,7 @@
     "loading": "読み込んでいます...",
     "none": "なし",
     "nothing_found": "何も見つかりません",
-    "waiting_send_request": "リクエストの送信を待機中",
-    "header_deleted": "ヘッダーが正常に削除されました",
-    "param_deleted": "パラメータが正常に削除されました"
+    "waiting_send_request": "リクエストの送信を待機中"
   },
   "support": {
     "changelog": "最新リリースについてもっと読む",

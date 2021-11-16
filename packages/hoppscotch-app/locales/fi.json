@@ -452,9 +452,7 @@
     "loading": "Ladataan...",
     "none": "Ei mitään",
     "nothing_found": "Mitään ei löytynyt",
-    "waiting_send_request": "Odottaa pyynnön lähettämistä",
-    "header_deleted": "Otsikko poistettu onnistuneesti",
-    "param_deleted": "Parametri poistettu onnistuneesti"
+    "waiting_send_request": "Odottaa pyynnön lähettämistä"
   },
   "support": {
     "changelog": "Lue lisää uusimmista julkaisuista",

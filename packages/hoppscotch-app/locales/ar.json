@@ -452,9 +452,7 @@
     "loading": "تحميل...",
     "none": "لا أحد",
     "nothing_found": "وجدت شيئا ل",
-    "waiting_send_request": "في انتظار إرسال الطلب",
-    "header_deleted": "تم حذف العنوان بنجاح",
-    "param_deleted": "تم حذف المعلمة بنجاح"
+    "waiting_send_request": "في انتظار إرسال الطلب"
   },
   "support": {
     "changelog": "اقرأ المزيد عن أحدث الإصدارات",

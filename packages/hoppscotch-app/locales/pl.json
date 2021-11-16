@@ -452,9 +452,7 @@
     "loading": "Ładowanie...",
     "none": "Brak",
     "nothing_found": "Nic nie znaleziono dla",
-    "waiting_send_request": "Czekam na wysłanie żądania",
-    "header_deleted": "Nagłówek został pomyślnie usunięty",
-    "param_deleted": "Parametr został pomyślnie usunięty"
+    "waiting_send_request": "Czekam na wysłanie żądania"
   },
   "support": {
     "changelog": "Przeczytaj więcej o najnowszych wydaniach",

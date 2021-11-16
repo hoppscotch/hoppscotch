@@ -277,16 +277,18 @@ const deleteHeader = (index: number) => {
 
   const deletedItem = headersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    const toast = $toast.info(t("state.header_deleted"), {
+    $toast.success(t("state.deleted").toString(), {
       icon: "delete",
-      action: {
-        text: t("action.undo"),
-        onClick() {
-          setRESTHeaders(headersBeforeDeletion as HoppRESTHeader[])
-          editBulkHeadersLine(index, deletedItem)
-          toast.goAway(0)
+      action: [
+        {
+          text: t("action.undo").toString(),
+          onClick: (_, toastObject) => {
+            setRESTHeaders(headersBeforeDeletion as HoppRESTHeader[])
+            editBulkHeadersLine(index, deletedItem)
+            toastObject.goAway(0)
+          },
         },
-      },
+      ],
     })
   }
 }

@@ -452,9 +452,7 @@
     "loading": "Bezig met laden...",
     "none": "Geen",
     "nothing_found": "Niets gevonden voor",
-    "waiting_send_request": "Wachten om verzoek te versturen",
-    "header_deleted": "Header succesvol verwijderd",
-    "param_deleted": "Parameter succesvol verwijderd"
+    "waiting_send_request": "Wachten om verzoek te versturen"
   },
   "support": {
     "changelog": "Lees meer over de nieuwste releases",

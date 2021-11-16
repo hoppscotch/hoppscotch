@@ -452,9 +452,7 @@
     "loading": "Wird geladen...",
     "none": "Keiner",
     "nothing_found": "Nichts gefunden für",
-    "waiting_send_request": "Warten auf Anfrage senden",
-    "header_deleted": "Header erfolgreich gelöscht",
-    "param_deleted": "Parameter erfolgreich gelöscht"
+    "waiting_send_request": "Warten auf Anfrage senden"
   },
   "support": {
     "changelog": "Lesen Sie mehr über die neuesten Versionen",

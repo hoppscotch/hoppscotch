@@ -452,9 +452,7 @@
     "loading": "Đang tải...",
     "none": "Không có",
     "nothing_found": "Không tìm thấy kết quả cho",
-    "waiting_send_request": "Đang chờ gửi yêu cầu",
-    "header_deleted": "Đã xóa tiêu đề thành công",
-    "param_deleted": "Đã xóa thông số thành công"
+    "waiting_send_request": "Đang chờ gửi yêu cầu"
   },
   "support": {
     "changelog": "Đọc thêm về các bản phát hành mới nhất",

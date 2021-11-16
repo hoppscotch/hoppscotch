@@ -452,9 +452,7 @@
     "loading": "S'està carregant ...",
     "none": "Cap",
     "nothing_found": "No s'ha trobat res",
-    "waiting_send_request": "S'està esperant l'enviament de la sol·licitud",
-    "header_deleted": "La capçalera s'ha suprimit correctament",
-    "param_deleted": "El paràmetre s'ha suprimit correctament"
+    "waiting_send_request": "S'està esperant l'enviament de la sol·licitud"
   },
   "support": {
     "changelog": "Llegiu més sobre les darreres versions",

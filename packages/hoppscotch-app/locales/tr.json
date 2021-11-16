@@ -452,9 +452,7 @@
     "loading": "Yükleniyor...",
     "none": "Hiçbiri",
     "nothing_found": "için hiçbir şey bulunamadı",
-    "waiting_send_request": "istek göndermek için bekliyorum",
-    "header_deleted": "Başlık başarıyla silindi",
-    "param_deleted": "Parametre başarıyla silindi"
+    "waiting_send_request": "istek göndermek için bekliyorum"
   },
   "support": {
     "changelog": "En son sürümler hakkında daha fazla bilgi edin",

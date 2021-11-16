@@ -270,16 +270,18 @@ const deleteParam = (index: number) => {
 
   const deletedItem = parametersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    const toast = $toast.info(t("state.param_deleted"), {
+    $toast.success(t("state.deleted").toString(), {
       icon: "delete",
-      action: {
-        text: t("action.undo"),
-        onClick() {
-          setRESTParams(parametersBeforeDeletion as HoppRESTParam[])
-          editBulkParamsLine(index, deletedItem)
-          toast.goAway(0)
+      action: [
+        {
+          text: t("action.undo").toString(),
+          onClick: (_, toastObject) => {
+            setRESTParams(parametersBeforeDeletion as HoppRESTParam[])
+            editBulkParamsLine(index, deletedItem)
+            toastObject.goAway(0)
+          },
         },
-      },
+      ],
     })
   }
 }

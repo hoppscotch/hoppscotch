@@ -452,9 +452,7 @@
     "loading": "Cargando...",
     "none": "Ninguno",
     "nothing_found": "Nada encontrado para",
-    "waiting_send_request": "Esperando enviar petición",
-    "header_deleted": "Encabezado eliminado correctamente",
-    "param_deleted": "Parámetro eliminado correctamente"
+    "waiting_send_request": "Esperando enviar petición"
   },
   "support": {
     "changelog": "Leer más sobre los últimos lanzamientos",

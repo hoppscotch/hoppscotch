@@ -452,9 +452,7 @@
     "loading": "로드 중...",
     "none": "없음",
     "nothing_found": "에 대한 검색 결과가 없습니다.",
-    "waiting_send_request": "요청 전송 대기 중",
-    "header_deleted": "헤더가 성공적으로 삭제되었습니다",
-    "param_deleted": "매개변수가 성공적으로 삭제되었습니다."
+    "waiting_send_request": "요청 전송 대기 중"
   },
   "support": {
     "changelog": "최신 릴리스에 대해 자세히 알아보기",

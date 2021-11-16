@@ -452,9 +452,7 @@
     "loading": "Betöltés...",
     "none": "Egyik sem",
     "nothing_found": "Nem talált semmit",
-    "waiting_send_request": "Várakozás a kérés elküldésére",
-    "header_deleted": "A fejléc sikeresen törölve",
-    "param_deleted": "A paraméter sikeresen törölve"
+    "waiting_send_request": "Várakozás a kérés elküldésére"
   },
   "support": {
     "changelog": "Olvasson többet a legújabb kiadásokról",

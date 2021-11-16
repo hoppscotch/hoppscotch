@@ -452,9 +452,7 @@
     "loading": "טעינה...",
     "none": "אף אחד",
     "nothing_found": "שום דבר לא נמצא עבור",
-    "waiting_send_request": "מחכה לשלוח בקשה",
-    "header_deleted": "הכותרת נמחקה בהצלחה",
-    "param_deleted": "הפרמטר נמחק בהצלחה"
+    "waiting_send_request": "מחכה לשלוח בקשה"
   },
   "support": {
     "changelog": "קרא עוד על המהדורות האחרונות",

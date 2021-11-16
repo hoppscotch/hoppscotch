@@ -124,6 +124,13 @@ function getCodegenAuth(
   }
 }
 
+function addhttps(url: string) {
+  if (!/^(?:f|ht)tps?:\/\//.test(url)) {
+    url = "https://" + url
+  }
+  return url
+}
+
 function getCodegenGeneralRESTInfo(
   request: EffectiveHoppRESTRequest
 ): Pick<
@@ -137,7 +144,12 @@ function getCodegenGeneralRESTInfo(
   | "params"
   | "headers"
 > {
-  const urlObj = new URL(request.effectiveFinalURL)
+  let urlObj: URL
+  try {
+    urlObj = new URL(request.effectiveFinalURL)
+  } catch (error) {
+    urlObj = new URL(addhttps(request.effectiveFinalURL))
+  }
   request.effectiveFinalParams.forEach(({ key, value }) => {
     urlObj.searchParams.append(key, value)
   })

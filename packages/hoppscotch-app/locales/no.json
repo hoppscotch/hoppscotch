@@ -452,7 +452,9 @@
     "loading": "Laster inn ...",
     "none": "Ingen",
     "nothing_found": "Ingenting funnet for",
-    "waiting_send_request": "Venter på å sende forespørsel"
+    "waiting_send_request": "Venter på å sende forespørsel",
+    "header_deleted": "Overskrift ble slettet",
+    "param_deleted": "Parameteren ble slettet"
   },
   "support": {
     "changelog": "Les mer om de siste utgivelsene",

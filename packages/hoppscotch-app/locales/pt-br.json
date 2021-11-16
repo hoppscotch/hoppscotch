@@ -452,7 +452,9 @@
     "loading": "Carregando...",
     "none": "Nenhum",
     "nothing_found": "Nada encontrado para",
-    "waiting_send_request": "Esperando para enviar pedido"
+    "waiting_send_request": "Esperando para enviar pedido",
+    "header_deleted": "Cabeçalho excluído com sucesso",
+    "param_deleted": "Parâmetro excluído com sucesso"
   },
   "support": {
     "changelog": "Leia mais sobre os últimos lançamentos",

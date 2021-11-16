@@ -452,7 +452,9 @@
     "loading": "Chargement...",
     "none": "Rien",
     "nothing_found": "Rien trouvé pour",
-    "waiting_send_request": "En attente d'envoi de la requête"
+    "waiting_send_request": "En attente d'envoi de la requête",
+    "header_deleted": "En-tête supprimée avec succès",
+    "param_deleted": "Paramètre supprimé avec succès"
   },
   "support": {
     "changelog": "En savoir plus sur les dernières versions",

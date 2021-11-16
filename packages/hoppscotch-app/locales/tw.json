@@ -452,7 +452,9 @@
     "loading": "正在載入……",
     "none": "無",
     "nothing_found": "沒有找到",
-    "waiting_send_request": "等待發送請求"
+    "waiting_send_request": "等待發送請求",
+    "header_deleted": "標題刪除成功",
+    "param_deleted": "參數刪除成功"
   },
   "support": {
     "changelog": "閱讀更多有關最新版本的內容",

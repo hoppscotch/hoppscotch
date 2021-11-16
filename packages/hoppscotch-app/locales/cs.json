@@ -452,7 +452,9 @@
     "loading": "Načítání...",
     "none": "Žádný",
     "nothing_found": "Nic nebylo nalezeno pro",
-    "waiting_send_request": "Čekání na odeslání požadavku"
+    "waiting_send_request": "Čekání na odeslání požadavku",
+    "header_deleted": "Záhlaví bylo úspěšně smazáno",
+    "param_deleted": "Parametr byl úspěšně smazán"
   },
   "support": {
     "changelog": "Přečtěte si více o nejnovějších verzích",

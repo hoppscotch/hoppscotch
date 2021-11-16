@@ -452,7 +452,9 @@
     "loading": "Caricamento in corso...",
     "none": "Nessuno",
     "nothing_found": "Niente trovato per",
-    "waiting_send_request": "In attesa di inviare richiesta"
+    "waiting_send_request": "In attesa di inviare richiesta",
+    "header_deleted": "Intestazione eliminata con successo",
+    "param_deleted": "Parametro eliminato con successo"
   },
   "support": {
     "changelog": "Maggiori informazioni sulle ultime versioni",

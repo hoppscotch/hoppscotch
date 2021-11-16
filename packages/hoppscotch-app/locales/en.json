@@ -452,7 +452,9 @@
     "loading": "Loading...",
     "none": "None",
     "nothing_found": "Nothing found for",
-    "waiting_send_request": "Waiting to send request"
+    "waiting_send_request": "Waiting to send request",
+    "header_deleted": "Header deleted successfully",
+    "param_deleted": "Parameter deleted successfully"
   },
   "support": {
     "changelog": "Read more about latest releases",

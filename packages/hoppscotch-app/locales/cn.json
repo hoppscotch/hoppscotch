@@ -452,7 +452,9 @@
     "loading": "正在加载……",
     "none": "无",
     "nothing_found": "没有找到",
-    "waiting_send_request": "等待发送请求"
+    "waiting_send_request": "等待发送请求",
+    "header_deleted": "标题删除成功",
+    "param_deleted": "参数删除成功"
   },
   "support": {
     "changelog": "阅读更多有关最新版本的内容",

@@ -452,7 +452,9 @@
     "loading": "Se încarcă...",
     "none": "Nici unul",
     "nothing_found": "Nimic găsit pentru",
-    "waiting_send_request": "Se așteaptă trimiterea cererii"
+    "waiting_send_request": "Se așteaptă trimiterea cererii",
+    "header_deleted": "Antetul a fost șters cu succes",
+    "param_deleted": "Parametrul a fost șters cu succes"
   },
   "support": {
     "changelog": "Citiți mai multe despre ultimele versiuni",

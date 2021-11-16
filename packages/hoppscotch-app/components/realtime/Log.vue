@@ -17,7 +17,7 @@
         {{ title }}
       </label>
     </div>
-    <div name="log" class="realtime-log">
+    <div ref="logsRef" name="log" class="realtime-log">
       <span v-if="log" class="space-y-2">
         <span
           v-for="(entry, index) in log"
@@ -32,15 +32,33 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick, ref, watch } from "@nuxtjs/composition-api"
 import { getSourcePrefix as source } from "~/helpers/utils/string"
 
-defineProps({
+const props = defineProps({
   log: { type: Array, default: () => [] },
   title: {
     type: String,
     default: "",
   },
 })
+
+const logsRef = ref<any | null>(null)
+const BOTTOM_SCROLL_DIST_INNACURACY = 5
+
+watch(
+  () => props.log,
+  () => {
+    if (!logsRef.value) return
+    const distToBottom =
+      logsRef.value.scrollHeight -
+      logsRef.value.scrollTop -
+      logsRef.value.clientHeight
+    if (distToBottom < BOTTOM_SCROLL_DIST_INNACURACY) {
+      nextTick(() => (logsRef.value.scrollTop = logsRef.value.scrollHeight))
+    }
+  }
+)
 </script>
 
 <style scoped lang="scss">

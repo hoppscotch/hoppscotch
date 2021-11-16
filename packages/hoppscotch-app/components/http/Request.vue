@@ -168,12 +168,11 @@
           />
           <SmartItem
             ref="copyRequest"
-            :label="`${$t('request.copy_link')}`"
-            :svg="hasNavigatorShare ? 'share-2' : 'copy'"
+            :label="shareLink ? shareLink : `${$t('request.copy_link')}`"
+            :svg="copyLinkIcon"
             @click.native="
               () => {
                 copyRequest()
-                saveOptions.tippy().hide()
               }
             "
           />
@@ -327,7 +326,12 @@ const clearContent = () => {
   resetRESTRequest()
 }
 
+const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
+const shareLink = ref("")
+
 const copyRequest = () => {
+  shareLink.value = new URL(window.location.href).pathname
+
   if (navigator.share) {
     const time = new Date().toLocaleTimeString()
     const date = new Date().toLocaleDateString()
@@ -340,10 +344,12 @@ const copyRequest = () => {
       .then(() => {})
       .catch(() => {})
   } else {
+    copyLinkIcon.value = "check"
     copyToClipboard(window.location.href)
     $toast.success(`${t("state.copied_to_clipboard")}`, {
       icon: "content_paste",
     })
+    setTimeout(() => (copyLinkIcon.value = "copy"), 1000)
   }
 }
 

@@ -290,7 +290,7 @@ export default defineComponent({
     },
     duplicateRequest({ folderPath, request }) {
       saveGraphqlRequestAs(folderPath, {
-        ...request,
+        ...cloneDeep(request),
         name: `${request.name} - ${this.$t("action.duplicate")}`,
       })
     },

@@ -688,7 +688,7 @@ export default defineComponent({
     },
     duplicateRequest({ folderPath, request }) {
       saveRESTRequestAs(folderPath, {
-        ...request,
+        ...cloneDeep(request),
         name: `${request.name} - ${this.$t("action.duplicate")}`,
       })
     },

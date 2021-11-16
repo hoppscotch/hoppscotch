@@ -172,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
+import { onBeforeUpdate, ref, useContext, watch } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   addRESTHeader,
@@ -238,13 +238,13 @@ watch(
 
 onBeforeUpdate(() => editBulkHeadersLine(-1, null))
 
-const editBulkHeadersLine = (index: number, item?: HoppRESTParam) => {
+const editBulkHeadersLine = (index: number, item?: HoppRESTHeader | null) => {
   const headers = headers$.value
 
   bulkHeaders.value = headers
     .reduce((all, header, pIndex) => {
       const current =
-        index === pIndex && item !== null
+        index === pIndex && item != null
           ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
           : `${header.active ? "" : "//"}${header.key}: ${header.value}`
       return [...all, current]
@@ -270,8 +270,27 @@ const updateHeader = (index: number, item: HoppRESTHeader) => {
 }
 
 const deleteHeader = (index: number) => {
+  const headersBeforeDeletion = headers$.value
+
   deleteRESTHeader(index)
   editBulkHeadersLine(index, null)
+
+  const deletedItem = headersBeforeDeletion[index]
+  if (deletedItem.key || deletedItem.value) {
+    $toast.success(t("state.deleted").toString(), {
+      icon: "delete",
+      action: [
+        {
+          text: t("action.undo").toString(),
+          onClick: (_, toastObject) => {
+            setRESTHeaders(headersBeforeDeletion as HoppRESTHeader[])
+            editBulkHeadersLine(index, deletedItem)
+            toastObject.goAway(0)
+          },
+        },
+      ],
+    })
+  }
 }
 
 const clearContent = () => {

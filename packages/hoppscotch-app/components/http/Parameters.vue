@@ -231,13 +231,13 @@ watch(
 
 onBeforeUpdate(() => editBulkParamsLine(-1, null))
 
-const editBulkParamsLine = (index: number, item?: HoppRESTParam) => {
+const editBulkParamsLine = (index: number, item?: HoppRESTParam | null) => {
   const params = params$.value
 
   bulkParams.value = params
     .reduce((all, param, pIndex) => {
       const current =
-        index === pIndex && item !== null
+        index === pIndex && item != null
           ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
           : `${param.active ? "" : "//"}${param.key}: ${param.value}`
       return [...all, current]
@@ -263,8 +263,27 @@ const updateParam = (index: number, item: HoppRESTParam) => {
 }
 
 const deleteParam = (index: number) => {
+  const parametersBeforeDeletion = params$.value
+
   deleteRESTParam(index)
   editBulkParamsLine(index, null)
+
+  const deletedItem = parametersBeforeDeletion[index]
+  if (deletedItem.key || deletedItem.value) {
+    $toast.success(t("state.deleted").toString(), {
+      icon: "delete",
+      action: [
+        {
+          text: t("action.undo").toString(),
+          onClick: (_, toastObject) => {
+            setRESTParams(parametersBeforeDeletion as HoppRESTParam[])
+            editBulkParamsLine(index, deletedItem)
+            toastObject.goAway(0)
+          },
+        },
+      ],
+    })
+  }
 }
 
 const clearContent = () => {

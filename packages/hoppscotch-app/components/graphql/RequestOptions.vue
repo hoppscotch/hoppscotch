@@ -308,7 +308,7 @@ import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { GQLHeader, makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
@@ -402,18 +402,11 @@ watch(
   { deep: true }
 )
 
-const editBulkHeadersLine = (
-  index: number,
-  item?: {
-    key: string
-    value: string
-    active: boolean
-  }
-) => {
+const editBulkHeadersLine = (index: number, item?: GQLHeader | null) => {
   bulkHeaders.value = headers.value
     .reduce((all, header, pIndex) => {
       const current =
-        index === pIndex && item !== null
+        index === pIndex && item != null
           ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
           : `${header.active ? "" : "//"}${header.key}: ${header.value}`
       return [...all, current]
@@ -542,8 +535,27 @@ const updateRequestHeader = (
 }
 
 const removeRequestHeader = (index: number) => {
+  const headersBeforeDeletion = headers.value
+
   removeGQLHeader(index)
   editBulkHeadersLine(index, null)
+
+  const deletedItem = headersBeforeDeletion[index]
+  if (deletedItem.key || deletedItem.value) {
+    $toast.success(t("state.deleted").toString(), {
+      icon: "delete",
+      action: [
+        {
+          text: t("action.undo").toString(),
+          onClick: (_, toastObject) => {
+            setGQLHeaders(headersBeforeDeletion as GQLHeader[])
+            editBulkHeadersLine(index, deletedItem)
+            toastObject.goAway(0)
+          },
+        },
+      ],
+    })
+  }
 }
 
 const clearContent = () => {

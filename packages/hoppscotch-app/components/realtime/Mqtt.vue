@@ -11,7 +11,9 @@
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
-            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+            <div
+              class="bg-primary flex flex-col space-y-4 p-4 top-0 z-10 sticky"
+            >
               <div class="space-x-2 flex-1 inline-flex">
                 <input
                   id="mqtt-url"
@@ -33,6 +35,7 @@
                   "
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
+                  @keyup.enter="validUrl ? toggleConnection() : null"
                 />
                 <ButtonPrimary
                   id="connect"
@@ -45,6 +48,24 @@
                   "
                   :loading="connectingState"
                   @click.native="toggleConnection"
+                />
+              </div>
+              <div class="flex space-x-4">
+                <input
+                  id="mqtt-username"
+                  v-model="username"
+                  type="text"
+                  spellcheck="false"
+                  class="input"
+                  :placeholder="$t('authorization.username')"
+                />
+                <input
+                  id="mqtt-password"
+                  v-model="password"
+                  type="password"
+                  spellcheck="false"
+                  class="input"
+                  :placeholder="$t('authorization.password')"
                 />
               </div>
             </div>
@@ -175,6 +196,8 @@ export default defineComponent({
       log: null,
       manualDisconnect: false,
       subscriptionState: false,
+      username: "",
+      password: "",
     }
   },
   computed: {
@@ -225,11 +248,18 @@ export default defineComponent({
         parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
         "hoppscotch"
       )
-      this.client.connect({
+      const connectOptions = {
         onSuccess: this.onConnectionSuccess,
         onFailure: this.onConnectionFailure,
-        useSSL: true,
-      })
+        useSSL: parseUrl.protocol !== "ws:",
+      }
+      if (this.username !== "") {
+        connectOptions.userName = this.username
+      }
+      if (this.password !== "") {
+        connectOptions.password = this.password
+      }
+      this.client.connect(connectOptions)
       this.client.onConnectionLost = this.onConnectionLost
       this.client.onMessageArrived = this.onMessageArrived
 

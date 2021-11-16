@@ -98,6 +98,7 @@
                     "
                     spellcheck="false"
                     :disabled="connectionState"
+                    @keyup.enter="urlValid ? toggleConnection() : null"
                   />
                 </div>
                 <ButtonPrimary

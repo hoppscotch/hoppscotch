@@ -57,6 +57,7 @@
               "
               spellcheck="false"
               :disabled="connectionSSEState"
+              @keyup.enter="serverValid ? toggleSSEConnection() : null"
             />
           </div>
           <ButtonPrimary

@@ -41,6 +41,7 @@ import {
 } from "./environments"
 import { restRequest$, setRESTRequest } from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WSSession"
+import { SIORequest$, setSIORequest } from "./SIOSession"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 
 function checkAndMigrateOldSettings() {
@@ -222,6 +223,18 @@ function setupWebsocketPersistence() {
   })
 }
 
+function setupSocketIOPersistence() {
+  const request = JSON.parse(
+    window.localStorage.getItem("SocketIORequest") || "null"
+  )
+
+  setSIORequest(request)
+
+  SIORequest$.subscribe((req) => {
+    window.localStorage.setItem("SocketIORequest", JSON.stringify(req))
+  })
+}
+
 function setupGlobalEnvsPersistence() {
   const globals: Environment["variables"] = JSON.parse(
     window.localStorage.getItem("globalEnv") || "[]"
@@ -260,6 +273,7 @@ export function setupLocalPersistence() {
   setupEnvironmentsPersistence()
   setupSelectedEnvPersistence()
   setupWebsocketPersistence()
+  setupSocketIOPersistence()
 }
 
 /**

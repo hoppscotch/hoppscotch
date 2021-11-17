@@ -244,7 +244,9 @@ export default defineComponent({
       ]
       const parseUrl = new URL(this.url)
       this.client = new Paho.Client(
-        parseUrl.hostname,
+        `${parseUrl.hostname}${
+          parseUrl.pathname !== "/" ? parseUrl.pathname : ""
+        }`,
         parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
         "hoppscotch"
       )

@@ -82,7 +82,7 @@
     "logout": "Disconnettersi",
     "re_enter_email": "Reinserisci l'email",
     "send_magic_link": "Invia un link magico",
-    "sync": "Sincronizzazione",
+    "sync": "Sincronizza",
     "we_sent_magic_link": "Ti abbiamo inviato un link magico!",
     "we_sent_magic_link_description": "Controlla la tua casella di posta: abbiamo inviato un'email a {email}. Contiene un collegamento magico che ti consentirà di accedere."
   },
@@ -90,24 +90,24 @@
     "generate_token": "Genera token",
     "include_in_url": "Includi nell'URL",
     "learn": "Impara come",
-    "password": "Parola d'ordine",
-    "token": "Gettone",
+    "password": "Password",
+    "token": "Token",
     "type": "Tipo di autorizzazione",
     "username": "Nome utente"
   },
   "collection": {
-    "created": "Collezione creata",
+    "created": "Raccolta creata",
     "edit": "Modifica raccolta",
     "invalid_name": "Si prega di fornire un nome valido per la raccolta",
-    "my_collections": "Le mie collezioni",
-    "name": "La mia nuova collezione",
-    "new": "Nuova collezione",
-    "renamed": "Collezione rinominata",
+    "my_collections": "Le mie raccolte",
+    "name": "La mia nuova raccolta",
+    "new": "Nuova raccolta",
+    "renamed": "Raccolta rinominata",
     "save_as": "Salva come",
-    "select": "Seleziona una collezione",
+    "select": "Seleziona una raccolta",
     "select_location": "Seleziona la posizione",
-    "select_team": "Seleziona una squadra",
-    "team_collections": "Collezioni squadra"
+    "select_team": "Seleziona un team",
+    "team_collections": "Raccolte di team"
   },
   "confirm": {
     "logout": "Sei sicuro di voler uscire?",

@@ -172,6 +172,22 @@ import debounce from "lodash/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import {
+  MQTTEndpoint$,
+  setMQTTEndpoint,
+  MQTTConnectingState$,
+  MQTTConnectionState$,
+  setMQTTConnectingState,
+  setMQTTConnectionState,
+  MQTTSubscriptionState$,
+  setMQTTSubscriptionState,
+  MQTTSocket$,
+  setMQTTSocket,
+  MQTTLog$,
+  setMQTTLog,
+  addMQTTLogLine,
+} from "~/newstore/MQTTSession"
+import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
@@ -181,21 +197,33 @@ export default defineComponent({
       SIDEBAR: useSetting("SIDEBAR"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
+      url: useStream(MQTTEndpoint$, "", setMQTTEndpoint),
+      connectionState: useStream(
+        MQTTConnectionState$,
+        false,
+        setMQTTConnectionState
+      ),
+      connectingState: useStream(
+        MQTTConnectingState$,
+        false,
+        setMQTTConnectingState
+      ),
+      subscriptionState: useStream(
+        MQTTSubscriptionState$,
+        false,
+        setMQTTSubscriptionState
+      ),
+      log: useStream(MQTTLog$, null, setMQTTLog),
+      client: useStream(MQTTSocket$, null, setMQTTSocket),
     }
   },
   data() {
     return {
-      url: "wss://test.mosquitto.org:8081",
       isUrlValid: true,
-      client: null,
       pub_topic: "",
       sub_topic: "",
       msg: "",
-      connectionState: false,
-      connectingState: false,
-      log: null,
       manualDisconnect: false,
-      subscriptionState: false,
       username: "",
       password: "",
     }
@@ -272,7 +300,7 @@ export default defineComponent({
     onConnectionFailure() {
       this.connectingState = false
       this.connectionState = false
-      this.log.push({
+      addMQTTLogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
@@ -282,7 +310,7 @@ export default defineComponent({
     onConnectionSuccess() {
       this.connectingState = false
       this.connectionState = true
-      this.log.push({
+      addMQTTLogLine({
         payload: this.$t("state.connected_to", { name: this.url }),
         source: "info",
         color: "var(--accent-color)",
@@ -291,7 +319,7 @@ export default defineComponent({
       this.$toast.success(this.$t("state.connected"))
     },
     onMessageArrived({ payloadString, destinationName }) {
-      this.log.push({
+      addMQTTLogLine({
         payload: `Message: ${payloadString} arrived on topic: ${destinationName}`,
         source: "info",
         color: "var(--accent-color)",
@@ -308,7 +336,7 @@ export default defineComponent({
     disconnect() {
       this.manualDisconnect = true
       this.client.disconnect()
-      this.log.push({
+      addMQTTLogLine({
         payload: this.$t("state.disconnected_from", { name: this.url }),
         source: "info",
         color: "#ff5555",
@@ -329,14 +357,14 @@ export default defineComponent({
     publish() {
       try {
         this.client.publish(this.pub_topic, this.msg, 0, false)
-        this.log.push({
+        addMQTTLogLine({
           payload: `Published message: ${this.msg} to topic: ${this.pub_topic}`,
           ts: new Date().toLocaleTimeString(),
           source: "info",
           color: "var(--accent-color)",
         })
       } catch (e) {
-        this.log.push({
+        addMQTTLogLine({
           payload:
             this.$t("error.something_went_wrong") +
             `while publishing msg: ${this.msg} to topic:  ${this.pub_topic}`,
@@ -360,7 +388,7 @@ export default defineComponent({
           onFailure: this.usubFailure,
         })
       } catch (e) {
-        this.log.push({
+        addMQTTLogLine({
           payload:
             this.$t("error.something_went_wrong") +
             `while subscribing to topic:  ${this.sub_topic}`,
@@ -372,7 +400,7 @@ export default defineComponent({
     },
     usubSuccess() {
       this.subscriptionState = !this.subscriptionState
-      this.log.push({
+      addMQTTLogLine({
         payload:
           `Successfully ` +
           (this.subscriptionState ? "subscribed" : "unsubscribed") +
@@ -383,7 +411,7 @@ export default defineComponent({
       })
     },
     usubFailure() {
-      this.log.push({
+      addMQTTLogLine({
         payload:
           `Failed to ` +
           (this.subscriptionState ? "unsubscribe" : "subscribe") +

@@ -76,7 +76,7 @@
     "continue_with_google": "Continua con Google",
     "email": "E-mail",
     "logged_out": "Disconnesso",
-    "login": "Login",
+    "login": "Accedi",
     "login_success": "Accesso effettuato con successo",
     "login_to_hoppscotch": "Accedi a Hoppscotch",
     "logout": "Disconnettersi",
@@ -164,24 +164,24 @@
     "variable_list": "Elenco variabili"
   },
   "error": {
-    "browser_support_sse": "Questo browser non sembra supportare gli eventi inviati dal server.",
-    "check_console_details": "Controlla il registro della console per i dettagli.",
+    "browser_support_sse": "Questo browser non sembra supportare gli eventi inviati dal server (Server Sent Events).",
+    "check_console_details": "Controlla il log della console per i dettagli.",
     "curl_invalid_format": "cURL non è formattato correttamente",
     "empty_req_name": "Nome richiesta vuoto",
     "f12_details": "(F12 per i dettagli)",
     "gql_prettify_invalid_query": "Impossibile abbellire una query non valida, risolvere gli errori di sintassi della query e riprovare",
-    "incorrect_email": "Incorrect email",
-    "json_prettify_invalid_body": "Impossibile abbellire un corpo non valido, risolvere gli errori di sintassi json e riprovare",
-    "network_error": "There seems to be a network error. Please try again.",
+    "incorrect_email": "Indirizzo email errato",
+    "json_prettify_invalid_body": "Impossibile abbellire un corpo non valido, risolvere gli errori di sintassi JSON e riprovare",
+    "network_error": "Sembra ci sia un problema di rete. Per favore prova di nuovo.",
     "network_fail": "Impossibile inviare la richiesta",
     "no_duration": "Nessuna durata",
     "something_went_wrong": "Qualcosa è andato storto"
   },
   "export": {
     "as_json": "Esporta come JSON",
-    "create_secret_gist": "Crea un segreto Gist",
+    "create_secret_gist": "Crea un Gist segreto",
     "gist_created": "Gist creato",
-    "require_github": "Accedi con GitHub per creare un segreto"
+    "require_github": "Accedi con GitHub per creare un Gist segreto"
   },
   "folder": {
     "created": "Cartella creata",
@@ -191,14 +191,14 @@
     "renamed": "Cartella rinominata"
   },
   "graphql": {
-    "mutations": "mutazioni",
+    "mutations": "Mutazioni",
     "schema": "Schema",
-    "subscriptions": "Abbonamenti"
+    "subscriptions": "Sottoscrizioni"
   },
   "header": {
     "account": "Account",
     "install_pwa": "Installa l'applicazione",
-    "login": "Login",
+    "login": "Accedi",
     "save_workspace": "Salva il mio spazio di lavoro"
   },
   "helpers": {

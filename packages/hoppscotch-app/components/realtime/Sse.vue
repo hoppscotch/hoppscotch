@@ -78,7 +78,7 @@
       <AppSection label="response">
         <ul>
           <li>
-            <RealtimeLog :title="$t('sse.log')" :log="events.log" />
+            <RealtimeLog :title="$t('sse.log')" :log="log" />
             <div id="result"></div>
           </li>
         </ul>
@@ -94,26 +94,47 @@ import "splitpanes/dist/splitpanes.css"
 import debounce from "lodash/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
+import {
+  SSEEndpoint$,
+  setSSEEndpoint,
+  SSEEventType$,
+  setSSEEventType,
+  SSESocket$,
+  setSSESocket,
+  SSEConnectingState$,
+  SSEConnectionState$,
+  setSSEConnectionState,
+  setSSEConnectingState,
+  SSELog$,
+  setSSELog,
+  addSSELogLine,
+} from "~/newstore/SSESession"
+import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     return {
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
+      connectionSSEState: useStream(
+        SSEConnectionState$,
+        false,
+        setSSEConnectionState
+      ),
+      connectingState: useStream(
+        SSEConnectingState$,
+        false,
+        setSSEConnectingState
+      ),
+      server: useStream(SSEEndpoint$, "", setSSEEndpoint),
+      eventType: useStream(SSEEventType$, "", setSSEEventType),
+      sse: useStream(SSESocket$, null, setSSESocket),
+      log: useStream(SSELog$, [], setSSELog),
     }
   },
   data() {
     return {
-      connectionSSEState: false,
-      connectingState: false,
-      server: "https://express-eventsource.herokuapp.com/events",
       isUrlValid: true,
-      sse: null,
-      events: {
-        log: null,
-        input: "",
-      },
-      eventType: "data",
     }
   },
   computed: {
@@ -150,7 +171,7 @@ export default defineComponent({
     },
     start() {
       this.connectingState = true
-      this.events.log = [
+      this.log = [
         {
           payload: this.$t("state.connecting_to", { name: this.server }),
           source: "info",
@@ -163,7 +184,7 @@ export default defineComponent({
           this.sse.onopen = () => {
             this.connectingState = false
             this.connectionSSEState = true
-            this.events.log = [
+            this.log = [
               {
                 payload: this.$t("state.connected_to", { name: this.server }),
                 source: "info",
@@ -178,7 +199,7 @@ export default defineComponent({
           }
           this.sse.onclose = () => {
             this.connectionSSEState = false
-            this.events.log.push({
+            addSSELogLine({
               payload: this.$t("state.disconnected_from", {
                 name: this.server,
               }),
@@ -189,7 +210,7 @@ export default defineComponent({
             this.$toast.error(this.$t("state.disconnected"))
           }
           this.sse.addEventListener(this.eventType, ({ data }) => {
-            this.events.log.push({
+            addSSELogLine({
               payload: data,
               source: "server",
               ts: new Date().toLocaleTimeString(),
@@ -200,7 +221,7 @@ export default defineComponent({
           this.$toast.error(this.$t("error.something_went_wrong"))
         }
       } else {
-        this.events.log = [
+        this.log = [
           {
             payload: this.$t("error.browser_support_sse"),
             source: "info",
@@ -217,14 +238,14 @@ export default defineComponent({
     handleSSEError(error) {
       this.stop()
       this.connectionSSEState = false
-      this.events.log.push({
+      addSSELogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
       })
       if (error !== null)
-        this.events.log.push({
+        addSSELogLine({
           payload: error,
           source: "info",
           color: "#ff5555",

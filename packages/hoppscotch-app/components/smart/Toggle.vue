@@ -12,17 +12,15 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-
-export default defineComponent({
-  props: {
-    on: {
-      type: Boolean,
-      default: false,
-    },
-  },
-})
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    on: Boolean
+  }>(),
+  {
+    on: false,
+  }
+)
 </script>
 
 <style scoped lang="scss">

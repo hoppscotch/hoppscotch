@@ -252,7 +252,7 @@
   "navigation": {
     "doc": "Documenti",
     "graphql": "GraphQL",
-    "profile": "Profile",
+    "profile": "Profilo",
     "realtime": "Tempo reale",
     "rest": "REST",
     "settings": "Impostazioni"
@@ -261,19 +261,19 @@
     "javascript_code": "Codice JavaScript",
     "learn": "Leggi la documentazione",
     "script": "Script di pre-richiesta",
-    "snippets": "frammenti"
+    "snippets": "Frammenti"
   },
   "profile": {
-    "app_settings": "App Settings",
-    "editor": "Editor",
-    "editor_description": "Editors can add, edit, and delete requests.",
-    "no_permission": "You do not have permission to perform this action.",
-    "owner": "Owner",
-    "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
-    "roles": "Roles",
-    "roles_description": "Roles are used to control access to the shared collections.",
-    "viewer": "Viewer",
-    "viewer_description": "Viewers can only view and use requests."
+    "app_settings": "Impostazioni della app",
+    "editor": "Autore",
+    "editor_description": "Gli Autori possono aggiungere, modificare e cancellare richieste.",
+    "no_permission": "Non hai i permessi per compiere questa azione.",
+    "owner": "Proprietario",
+    "owner_description": "I Proprietari possono aggiungere, modificare e cancellare richieste, raccolte e membri del team.",
+    "roles": "Ruoli",
+    "roles_description": "I ruoli sono usati per controllare l'accesso alle raccolte condivise.",
+    "viewer": "Visualizzatore",
+    "viewer_description": "I Visualizzatori possono soltanto vedere e invocare richieste."
   },
   "remove": {
     "star": "Rimuovi stella"

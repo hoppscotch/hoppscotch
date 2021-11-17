@@ -116,9 +116,9 @@
     "remove_folder": "Sei sicuro di voler eliminare definitivamente questa cartella?",
     "remove_history": "Sei sicuro di voler eliminare definitivamente tutta la cronologia?",
     "remove_request": "Sei sicuro di voler eliminare definitivamente questa richiesta?",
-    "remove_team": "Sei sicuro di voler eliminare questa squadra?",
+    "remove_team": "Sei sicuro di voler eliminare questo team?",
     "remove_telemetry": "Sei sicuro di voler disattivare la telemetria?",
-    "sync": "Sei sicuro di voler sincronizzare questo spazio di lavoro?"
+    "sync": "Vuoi ripristinare il tuo spazio di lavoro con quello del cloud? Questo annullerà le tue modifiche fatte in locale."
   },
   "count": {
     "header": "Intestazione {count}",
@@ -130,27 +130,27 @@
   },
   "documentation": {
     "generate": "Genera documentazione",
-    "generate_message": "Importa qualsiasi collezione Hoppscotch per generare documentazione API in movimento."
+    "generate_message": "Importa qualsiasi raccolta Hoppscotch per generare documentazione API al volo."
   },
   "empty": {
     "authorization": "Questa richiesta non utilizza alcuna autorizzazione",
     "body": "Questa richiesta non ha un corpo",
     "collection": "La raccolta è vuota",
     "collections": "Le raccolte sono vuote",
-    "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "documentation": "Connetti ad un endpoint GraphQL per mostrare la documentazione",
     "environments": "Gli ambienti sono vuoti",
     "folder": "La cartella è vuota",
     "headers": "Questa richiesta non ha intestazioni",
-    "history": "La storia è vuota",
-    "invites": "Invite list is empty",
-    "members": "La squadra è vuota",
+    "history": "La cronologia è vuota",
+    "invites": "La lista degli inviti è vuota",
+    "members": "Il team non ha membri",
     "parameters": "Questa richiesta non ha parametri",
-    "pending_invites": "There are no pending invites for this team",
-    "profile": "Login in to view your profile",
+    "pending_invites": "Non ci sono inviti pendenti per questo team",
+    "profile": "Accedi per mostrare il tuo profilo",
     "protocols": "I protocolli sono vuoti",
-    "schema": "Connettiti a un endpoint GraphQL",
-    "team_name": "Nome della squadra vuoto",
-    "teams": "Le squadre sono vuote",
+    "schema": "Connettiti a un endpoint GraphQL per mostrare lo schema",
+    "team_name": "Il nome del team è vuoto",
+    "teams": "I team sono vuoti",
     "tests": "Non ci sono test per questa richiesta"
   },
   "environment": {

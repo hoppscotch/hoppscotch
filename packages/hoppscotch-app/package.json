@@ -154,6 +154,7 @@
     "stylelint-config-standard-scss": "^2.0.1",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4",
+    "unplugin-vue2-script-setup": "^0.6.16",
     "vue-jest": "^3.0.7",
     "worker-loader": "^3.0.8"
   }

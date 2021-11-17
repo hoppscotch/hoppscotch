@@ -534,18 +534,18 @@
     "we_sent_invite_link_description": "Chiedi a tutti gli invitati di controllare la loro casella email. Cliccando sul link possono entrare nel team."
   },
   "test": {
-    "failed": "test failed",
+    "failed": "Test fallito",
     "javascript_code": "Codice JavaScript",
     "learn": "Leggi la documentazione",
-    "passed": "test passed",
-    "report": "Rapporto di prova",
+    "passed": "Test superato",
+    "report": "Report del test",
     "results": "Risultati del test",
-    "script": "sceneggiatura",
-    "snippets": "frammenti"
+    "script": "Script",
+    "snippets": "Frammenti"
   },
   "websocket": {
     "communication": "Comunicazione",
-    "log": "Tronco d'albero",
+    "log": "Log",
     "message": "Messaggio",
     "protocols": "Protocolli",
     "url": "URL"

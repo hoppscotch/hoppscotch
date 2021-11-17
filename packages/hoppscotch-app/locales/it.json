@@ -99,7 +99,7 @@
     "created": "Raccolta creata",
     "edit": "Modifica raccolta",
     "invalid_name": "Si prega di fornire un nome valido per la raccolta",
-    "my_collections": "Le mie raccolte",
+    "my_collections": "Le Mie Raccolte",
     "name": "La mia nuova raccolta",
     "new": "Nuova raccolta",
     "renamed": "Raccolta rinominata",
@@ -202,9 +202,9 @@
     "save_workspace": "Salva il mio spazio di lavoro"
   },
   "helpers": {
-    "authorization": "L'intestazione dell'autorizzazione verrà generata automaticamente quando invii la richiesta.",
+    "authorization": "L'intestazione di autorizzazione verrà generata automaticamente quando invii la richiesta.",
     "generate_documentation_first": "Generare prima la documentazione",
-    "network_fail": "Impossibile raggiungere l'endpoint API. Controlla la tua connessione di rete e riprova.",
+    "network_fail": "Impossibile raggiungere l'endpoint API. Controlla la tua connessione di rete o accendi il Proxy Interceptor e riprova.",
     "offline": "Sembra che tu sia offline. I dati in questo spazio di lavoro potrebbero non essere aggiornati.",
     "offline_short": "Sembra che tu sia offline.",
     "post_request_tests": "Gli script di test sono scritti in JavaScript e vengono eseguiti dopo aver ricevuto la risposta.",
@@ -217,36 +217,36 @@
     "sidebar": "Nascondi barra laterale"
   },
   "import": {
-    "collections": "Importa collezioni",
+    "collections": "Importa raccolte",
     "curl": "Importa cURL",
     "failed": "Importazione non riuscita",
     "from_gist": "Importa da Gist",
-    "from_my_collections": "Importa da Le mie raccolte",
-    "gist_url": "Inserisci l'URL principale",
+    "from_my_collections": "Importa da Le Mie Raccolte",
+    "gist_url": "Inserisci l'URL del Gist",
     "json": "Importa da JSON",
-    "title": "Importare"
+    "title": "Importa"
   },
   "layout": {
-    "column": "Vertical layout",
-    "row": "Horizontal layout",
-    "zen_mode": "Modalità Zen"
+    "column": "Disposizione verticale",
+    "row": "Disposizione orizzontale",
+    "zen_mode": "Modalità zen"
   },
   "modal": {
-    "collections": "Collezioni",
-    "confirm": "Confermare",
+    "collections": "Raccolte",
+    "confirm": "Conferma",
     "edit_request": "Modifica richiesta",
     "import_export": "Importa/Esporta"
   },
   "mqtt": {
     "communication": "Comunicazione",
-    "log": "Tronco d'albero",
+    "log": "Log",
     "message": "Messaggio",
-    "publish": "Pubblicare",
-    "subscribe": "sottoscrivi",
+    "publish": "Pubblica",
+    "subscribe": "Sottoscrivi",
     "topic": "Argomento",
     "topic_name": "Nome argomento",
     "topic_title": "Pubblica / Sottoscrivi argomento",
-    "unsubscribe": "Annulla l'iscrizione",
+    "unsubscribe": "Annulla la sottoscrizione",
     "url": "URL"
   },
   "navigation": {

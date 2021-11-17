@@ -156,61 +156,54 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, watch } from "@nuxtjs/composition-api"
 import { defineActionHandler } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 import { useSetting } from "~/newstore/settings"
 
-export default defineComponent({
-  setup() {
-    const showShortcuts = ref(false)
-    const showShare = ref(false)
+const showShortcuts = ref(false)
+const showShare = ref(false)
 
-    defineActionHandler("flyouts.keybinds.toggle", () => {
-      showShortcuts.value = !showShortcuts.value
-    })
-
-    defineActionHandler("modals.share.toggle", () => {
-      showShare.value = !showShare.value
-    })
-
-    return {
-      EXPAND_NAVIGATION: useSetting("EXPAND_NAVIGATION"),
-      SIDEBAR: useSetting("SIDEBAR"),
-      ZEN_MODE: useSetting("ZEN_MODE"),
-      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
-      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
-
-      navigatorShare: !!navigator.share,
-
-      showShortcuts,
-      showShare,
-    }
-  },
-  watch: {
-    ZEN_MODE() {
-      this.EXPAND_NAVIGATION = !this.ZEN_MODE
-    },
-  },
-  methods: {
-    nativeShare() {
-      if (navigator.share) {
-        navigator
-          .share({
-            title: "Hoppscotch",
-            text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
-            url: "https://hoppscotch.io",
-          })
-          .then(() => {})
-          .catch(console.error)
-      } else {
-        // fallback
-      }
-    },
-    chatWithUs() {
-      showChat()
-    },
-  },
+defineActionHandler("flyouts.keybinds.toggle", () => {
+  showShortcuts.value = !showShortcuts.value
 })
+
+defineActionHandler("modals.share.toggle", () => {
+  showShare.value = !showShare.value
+})
+
+const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
+const SIDEBAR = useSetting("SIDEBAR")
+const ZEN_MODE = useSetting("ZEN_MODE")
+const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
+const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
+
+const navigatorShare = !!navigator.share
+
+watch(
+  () => ZEN_MODE.value,
+  () => {
+    EXPAND_NAVIGATION.value = !ZEN_MODE.value
+  }
+)
+
+const nativeShare = () => {
+  if (navigator.share) {
+    navigator
+      .share({
+        title: "Hoppscotch",
+        text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
+        url: "https://hoppscotch.io",
+      })
+      .then(() => {})
+      .catch(console.error)
+  } else {
+    // fallback
+  }
+}
+
+const chatWithUs = () => {
+  showChat()
+}
 </script>

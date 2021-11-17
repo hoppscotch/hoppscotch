@@ -23,10 +23,7 @@
           :description="$t('support.shortcuts')"
           info-icon="chevron_right"
           active
-          @click.native="
-            showShortcuts()
-            hideModal()
-          "
+          @click.native="showShortcuts()"
         />
         <SmartItem
           svg="gift"
@@ -44,10 +41,7 @@
           :description="$t('support.chat')"
           info-icon="chevron_right"
           active
-          @click.native="
-            chatWithUs()
-            hideModal()
-          "
+          @click.native="chatWithUs()"
         />
         <SmartItem
           svg="brands/discord"
@@ -74,25 +68,28 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import { invokeAction } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  methods: {
-    chatWithUs() {
-      showChat()
-    },
-    showShortcuts() {
-      invokeAction("flyouts.keybinds.toggle")
-    },
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-  },
-})
+defineProps<{
+  show: Boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const chatWithUs = () => {
+  showChat()
+  hideModal()
+}
+
+const showShortcuts = () => {
+  invokeAction("flyouts.keybinds.toggle")
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

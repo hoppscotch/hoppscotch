@@ -32,8 +32,8 @@
   </span>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { useContext } from "@nuxtjs/composition-api"
 import {
   HoppFontSizes,
   HoppFontSize,
@@ -41,21 +41,20 @@ import {
   useSetting,
 } from "~/newstore/settings"
 
-export default defineComponent({
-  setup() {
-    return {
-      fontSizes: HoppFontSizes,
-      active: useSetting("FONT_SIZE"),
-    }
-  },
-  methods: {
-    getFontSizeName(size: HoppFontSize) {
-      return this.$t(`settings.font_size_${size}`)
-    },
-    setActiveFont(size: HoppFontSize) {
-      document.documentElement.setAttribute("data-font-size", size)
-      applySetting("FONT_SIZE", size)
-    },
-  },
-})
+const {
+  app: { i18n },
+} = useContext()
+const t = i18n.t.bind(i18n)
+
+const fontSizes = HoppFontSizes
+const active = useSetting("FONT_SIZE")
+
+const getFontSizeName = (size: HoppFontSize) => {
+  return t(`settings.font_size_${size}`)
+}
+
+const setActiveFont = (size: HoppFontSize) => {
+  document.documentElement.setAttribute("data-font-size", size)
+  applySetting("FONT_SIZE", size)
+}
 </script>

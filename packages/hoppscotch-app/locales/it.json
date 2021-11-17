@@ -390,32 +390,32 @@
       "documentation": "Vai alla pagina della documentazione",
       "forward": "Vai alla pagina successiva",
       "graphql": "Vai alla pagina GraphQL",
-      "realtime": "Vai alla pagina in tempo reale",
+      "realtime": "Vai alla pagina Real Time",
       "rest": "Vai alla pagina REST",
       "settings": "Vai alla pagina Impostazioni",
       "title": "Navigazione"
     },
     "request": {
-      "copy_request_link": "Copia link richiesta",
-      "delete_method": "Seleziona il metodo ELIMINA",
-      "get_method": "Seleziona il metodo OTTIENI",
+      "copy_request_link": "Copia il link alla richiesta",
+      "delete_method": "Seleziona il metodo DELETE",
+      "get_method": "Seleziona il metodo GET",
       "head_method": "Seleziona il metodo HEAD",
       "method": "Metodo",
       "next_method": "Seleziona il metodo successivo",
-      "path": "Il percorso",
+      "path": "Percorso",
       "post_method": "Seleziona il metodo POST",
       "previous_method": "Seleziona il metodo precedente",
       "put_method": "Seleziona il metodo PUT",
-      "reset_request": "Richiesta di ripristino",
+      "reset_request": "Resetta la richiesta",
       "save_to_collections": "Salva nelle raccolte",
       "send_request": "Invia richiesta",
       "title": "Richiesta"
     }
   },
   "show": {
-    "code": "Mostra codice",
+    "code": "Mostra il codice",
     "more": "Mostra di più",
-    "sidebar": "Mostra barra laterale"
+    "sidebar": "Mostra la barra laterale"
   },
   "socketio": {
     "communication": "Comunicazione",

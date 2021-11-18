@@ -1,26 +1,21 @@
 <template>
-  <SmartModal
-    v-if="show"
-    :title="$t('team.select_a_team')"
-    @close="$emit('hide-modal')"
-  >
+  <SmartModal v-if="show" :title="$t('team.select_a_team')" @close="hideModal">
     <template #body>
       <Teams :modal="true" />
     </template>
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+defineProps<{
+  show: Boolean
+}>()
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  methods: {
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-  },
-})
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

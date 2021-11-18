@@ -431,6 +431,7 @@ pre.ace_editor {
 }
 
 .cm-focused {
+  @apply select-auto;
   @apply !outline-none;
 
   .cm-activeLine {

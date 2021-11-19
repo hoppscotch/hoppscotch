@@ -5,6 +5,7 @@ import {
   readonly,
   Ref,
   ref,
+  useContext,
   watch,
   wrapProperty,
 } from "@nuxtjs/composition-api"
@@ -131,4 +132,11 @@ export function useStreamSubscriber() {
   return {
     subscribeToStream: runAndSubscribe,
   }
+}
+
+export function useI18n() {
+  const {
+    app: { i18n },
+  } = useContext()
+  return i18n.t.bind(i18n)
 }

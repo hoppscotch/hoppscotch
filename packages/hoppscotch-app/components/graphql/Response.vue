@@ -128,6 +128,7 @@ const copyResponseIcon = ref("copy")
 const copyResponse = () => {
   copyToClipboard(responseString.value!)
   copyResponseIcon.value = "check"
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyResponseIcon.value = "copy"), 1000)
 }
 
@@ -141,9 +142,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadResponseIcon.value = "check"
-  $toast.success(`${t("state.download_started")}`, {
-    icon: "downloading",
-  })
+  $toast.success(`${t("state.download_started")}`)
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)

@@ -250,9 +250,7 @@ export default defineComponent({
       }
 
       removeGraphqlFolder(this.folderPath)
-      this.$toast.success(`${this.$t("state.deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
     dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging

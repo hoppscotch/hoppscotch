@@ -313,7 +313,7 @@ pre.ace_editor {
     &.toasted-primary {
       @apply bg-tooltip;
       @apply text-primary;
-      @apply justify-start;
+      @apply justify-between;
       @apply shadow;
       @apply font-medium;
       @apply transition;

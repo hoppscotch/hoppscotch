@@ -196,9 +196,7 @@ watch(bulkParams, () => {
     }))
     setRESTParams(transformation as HoppRESTParam[])
   } catch (e) {
-    $toast.error(`${t("error.something_went_wrong")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.something_went_wrong")}`)
     console.error(e)
   }
 })
@@ -271,11 +269,10 @@ const deleteParam = (index: number) => {
 
   const deletedItem = parametersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    $toast.success(t("state.deleted").toString(), {
-      icon: "delete",
+    $toast.success(`${t("state.deleted")}`, {
       action: [
         {
-          text: t("action.undo").toString(),
+          text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
             setRESTParams(parametersBeforeDeletion as HoppRESTParam[])
             editBulkParamsLine(index, deletedItem)

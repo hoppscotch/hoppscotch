@@ -449,9 +449,7 @@ const downloadSchema = () => {
   document.body.appendChild(a)
   a.click()
   downloadSchemaIcon.value = "check"
-  $toast.success(`${t("state.download_started")}`, {
-    icon: "downloading",
-  })
+  $toast.success(`${t("state.download_started")}`)
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)

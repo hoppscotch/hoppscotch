@@ -177,9 +177,7 @@ export default defineComponent({
     clearContent() {
       this.vars = []
       this.clearIcon = "check"
-      this.$toast.success(`${this.$t("state.cleared")}`, {
-        icon: "clear_all",
-      })
+      this.$toast.success(`${this.$t("state.cleared")}`)
       setTimeout(() => (this.clearIcon = "trash-2"), 1000)
     },
     addEnvironmentVariable() {
@@ -193,9 +191,7 @@ export default defineComponent({
     },
     saveEnvironment() {
       if (!this.name) {
-        this.$toast.error(`${this.$t("environment.invalid_name")}`, {
-          icon: "error_outline",
-        })
+        this.$toast.error(`${this.$t("environment.invalid_name")}`)
         return
       }
 

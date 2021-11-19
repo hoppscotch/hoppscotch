@@ -126,9 +126,7 @@ const hideModal = () => emit("hide-modal")
 const copyRequestCode = () => {
   copyToClipboard(requestCode.value)
   copyIcon.value = "check"
-  $toast.success(`${t("state.copied_to_clipboard")}`, {
-    icon: "content_paste",
-  })
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>

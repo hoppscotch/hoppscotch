@@ -52,9 +52,7 @@ export default defineComponent({
   methods: {
     addNewEnvironment() {
       if (!this.name) {
-        this.$toast.error(`${this.$t("environment.invalid_name")}`, {
-          icon: "error_outline",
-        })
+        this.$toast.error(`${this.$t("environment.invalid_name")}`)
         return
       }
       createEnvironment(this.name)

@@ -123,9 +123,7 @@ const handleImport = () => {
     )
   } catch (e) {
     console.error(e)
-    $toast.error(`${t("error.curl_invalid_format")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.curl_invalid_format")}`)
   }
   hideModal()
 }

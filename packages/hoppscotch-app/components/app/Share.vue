@@ -92,9 +92,7 @@ const platforms = [
 const copyAppLink = () => {
   copyToClipboard(url)
   copyIcon.value = "check"
-  $toast.success(t("state.copied_to_clipboard").toString(), {
-    icon: "content_paste",
-  })
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 

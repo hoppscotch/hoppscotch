@@ -361,13 +361,9 @@ const removeExistingTeamMember = async (userID: string) => {
     props.editingTeamID
   )()
   if (E.isLeft(removeTeamMemberResult)) {
-    $toast.error(t("error.something_went_wrong"), {
-      icon: "error",
-    })
+    $toast.error(`${t("error.something_went_wrong")}`)
   } else {
-    $toast.success(t("team.member_removed"), {
-      icon: "done",
-    })
+    $toast.success(`${t("team.member_removed")}`)
   }
 }
 
@@ -379,9 +375,7 @@ const saveTeam = async () => {
         name.value
       )()
       if (E.isLeft(updateTeamNameResult)) {
-        $toast.error(t("error.something_went_wrong"), {
-          icon: "error",
-        })
+        $toast.error(`${t("error.something_went_wrong")}`)
       } else {
         roleUpdates.value.forEach(async (update) => {
           const updateMemberRoleResult = await updateTeamMemberRole(
@@ -390,26 +384,18 @@ const saveTeam = async () => {
             update.role
           )()
           if (E.isLeft(updateMemberRoleResult)) {
-            $toast.error(t("error.something_went_wrong"), {
-              icon: "error",
-            })
+            $toast.error(`${t("error.something_went_wrong")}`)
             console.error(updateMemberRoleResult.left.error)
           }
         })
       }
       hideModal()
-      $toast.success(t("team.saved"), {
-        icon: "done",
-      })
+      $toast.success(`${t("team.saved")}`)
     } else {
-      return $toast.error(t("team.name_length_insufficient"), {
-        icon: "error_outline",
-      })
+      return $toast.error(`${t("team.name_length_insufficient")}`)
     }
   } else {
-    return $toast.error(t("empty.team_name"), {
-      icon: "error_outline",
-    })
+    return $toast.error(`${t("empty.team_name")}`)
   }
 }
 

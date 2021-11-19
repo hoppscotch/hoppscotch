@@ -319,9 +319,7 @@ export default defineComponent({
               ts: new Date().toLocaleTimeString(),
             },
           ]
-          this.$toast.success(this.$t("state.connected"), {
-            icon: "sync",
-          })
+          this.$toast.success(this.$t("state.connected"))
         }
         this.socket.onerror = () => {
           this.handleError()
@@ -334,9 +332,7 @@ export default defineComponent({
             color: "#ff5555",
             ts: new Date().toLocaleTimeString(),
           })
-          this.$toast.error(this.$t("state.disconnected"), {
-            icon: "sync_disabled",
-          })
+          this.$toast.error(this.$t("state.disconnected"))
         }
         this.socket.onmessage = ({ data }) => {
           this.communication.log.push({
@@ -347,9 +343,7 @@ export default defineComponent({
         }
       } catch (e) {
         this.handleError(e)
-        this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("error.something_went_wrong"))
       }
 
       logHoppRequestRunToAnalytics({
@@ -433,7 +427,6 @@ export default defineComponent({
       const oldProtocols = this.protocols.slice()
       this.$delete(this.protocols, index)
       this.$toast.success(this.$t("state.deleted"), {
-        icon: "delete",
         action: {
           text: this.$t("action.undo"),
           duration: 4000,

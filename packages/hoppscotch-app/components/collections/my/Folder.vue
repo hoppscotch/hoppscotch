@@ -262,9 +262,7 @@ export default defineComponent({
         this.$emit("select", { picked: null })
       }
       removeRESTFolder(this.folderPath)
-      this.$toast.success(this.$t("state.deleted"), {
-        icon: "delete",
-      })
+      this.$toast.success(this.$t("state.deleted"))
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging

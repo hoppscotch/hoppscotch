@@ -491,13 +491,9 @@ watch(
 const removeInvitee = async (id: string) => {
   const result = await revokeTeamInvitation(id)()
   if (E.isLeft(result)) {
-    $toast.error(`${t("error.something_went_wrong")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.something_went_wrong")}`)
   } else {
-    $toast.success(`${t("team.member_removed")}`, {
-      icon: "person",
-    })
+    $toast.success(`${t("team.member_removed")}`)
   }
 }
 
@@ -557,9 +553,7 @@ const sendInvites = async () => {
 
   if (O.isNone(validationResult)) {
     // Error handling for no validation
-    $toast.error(`${t("error.incorrect_email")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.incorrect_email")}`)
     return
   }
 

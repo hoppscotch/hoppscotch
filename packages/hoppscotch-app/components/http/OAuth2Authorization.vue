@@ -97,9 +97,7 @@ export default {
         oidcDiscoveryURL.value === "" &&
         (authURL.value === "" || accessTokenURL.value === "")
       ) {
-        $toast.error(`${$t("complete_config_urls")}`, {
-          icon: "error",
-        })
+        $toast.error(`${$t("complete_config_urls")}`)
         return
       }
       try {
@@ -113,9 +111,7 @@ export default {
         }
         await tokenRequest(tokenReqParams)
       } catch (e) {
-        $toast.error(`${e}`, {
-          icon: "code",
-        })
+        $toast.error(`${e}`)
       }
     }
 

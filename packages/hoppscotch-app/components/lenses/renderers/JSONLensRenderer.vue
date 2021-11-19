@@ -234,9 +234,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadIcon.value = "check"
-  $toast.success(`${t("state.download_started")}`, {
-    icon: "downloading",
-  })
+  $toast.success(`${t("state.download_started")}`)
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
@@ -256,9 +254,7 @@ const outlinePath = computed(() => {
 const copyResponse = () => {
   copyToClipboard(responseBodyText.value)
   copyIcon.value = "check"
-  $toast.success(`${t("state.copied_to_clipboard")}`, {
-    icon: "content_paste",
-  })
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>

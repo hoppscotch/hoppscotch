@@ -44,7 +44,7 @@
           v-if="team.myRole === 'OWNER'"
           svg="edit"
           class="rounded-none"
-          :label="$t('action.edit').toString()"
+          :label="$t('action.edit')"
           @click.native="
             () => {
               $emit('edit-team')
@@ -75,7 +75,7 @@
           <SmartItem
             v-if="team.myRole === 'OWNER'"
             svg="edit"
-            :label="$t('action.edit').toString()"
+            :label="$t('action.edit')"
             @click.native="
               () => {
                 $emit('edit-team')
@@ -87,7 +87,7 @@
             v-if="team.myRole === 'OWNER'"
             svg="trash-2"
             color="red"
-            :label="$t('action.delete').toString()"
+            :label="$t('action.delete')"
             @click.native="
               () => {
                 deleteTeam()
@@ -98,7 +98,7 @@
           <SmartItem
             v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
             svg="trash"
-            :label="$t('team.exit').toString()"
+            :label="$t('team.exit')"
             @click.native="
               () => {
                 exitTeam()
@@ -150,22 +150,18 @@ const {
 const t = i18n.t.bind(i18n)
 
 const deleteTeam = () => {
-  if (!confirm(t("confirm.remove_team").toString())) return
+  if (!confirm(`${t("confirm.remove_team")}`)) return
 
   pipe(
     backendDeleteTeam(props.teamID),
     TE.match(
       (err) => {
         // TODO: Better errors ? We know the possible errors now
-        $toast.error(t("error.something_went_wrong").toString(), {
-          icon: "error_outline",
-        })
+        $toast.error(`${t("error.something_went_wrong")}`)
         console.error(err)
       },
       () => {
-        $toast.success(t("team.deleted").toString(), {
-          icon: "done",
-        })
+        $toast.success(`${t("team.deleted")}`)
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned
@@ -179,23 +175,17 @@ const exitTeam = () => {
     TE.match(
       (err) => {
         // TODO: Better errors ?
-        $toast.error(t("error.something_went_wrong").toString(), {
-          icon: "error_outline",
-        })
+        $toast.error(`${t("error.something_went_wrong")}`)
         console.error(err)
       },
       () => {
-        $toast.success(t("team.left").toString(), {
-          icon: "done",
-        })
+        $toast.success(`${t("team.left")}`)
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned
 }
 
 const noPermission = () => {
-  $toast.error(t("profile.no_permission").toString(), {
-    icon: "error_outline",
-  })
+  $toast.error(`${t("profile.no_permission")}`)
 }
 </script>

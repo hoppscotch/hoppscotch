@@ -160,12 +160,11 @@ onMounted(() => {
 
   const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
   if (!cookiesAllowed) {
-    $toast.show(t("app.we_use_cookies").toString(), {
-      icon: "cookie",
+    $toast.show(`${t("app.we_use_cookies")}`, {
       duration: 0,
       action: [
         {
-          text: t("action.learn_more").toString(),
+          text: `${t("action.learn_more")}`,
           onClick: (_, toastObject) => {
             setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)
@@ -173,7 +172,7 @@ onMounted(() => {
           },
         },
         {
-          text: t("action.dismiss").toString(),
+          text: `${t("action.dismiss")}`,
           onClick: (_, toastObject) => {
             setLocalConfig("cookiesAllowed", "yes")
             toastObject.goAway(0)

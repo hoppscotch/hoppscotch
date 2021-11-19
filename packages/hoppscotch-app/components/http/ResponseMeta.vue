@@ -73,7 +73,7 @@
             w-32
             inline-flex
           "
-          :alt="$t('empty.network_fail')"
+          :alt="$t('error.network_fail')"
         />
         <span class="text-center font-semibold mb-2">
           {{ $t("error.network_fail") }}

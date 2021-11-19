@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="$t('team.new').toString()" @close="hideModal">
+  <SmartModal v-if="show" :title="$t('team.new')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -19,12 +19,9 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary
-          :label="$t('action.save').toString()"
-          @click.native="addNewTeam"
-        />
+        <ButtonPrimary :label="$t('action.save')" @click.native="addNewTeam" />
         <ButtonSecondary
-          :label="$t('action.cancel').toString()"
+          :label="$t('action.cancel')"
           @click.native="hideModal"
         />
       </span>
@@ -66,9 +63,7 @@ const addNewTeam = () =>
       (err) => {
         // err is of type "invalid_name" | GQLError<Err>
         if (err === "invalid_name") {
-          $toast.error(t("team.name_length_insufficient").toString(), {
-            icon: "error_outline",
-          })
+          $toast.error(`${t("team.name_length_insufficient")}`)
         } else {
           // Handle GQL errors (use err obj)
         }

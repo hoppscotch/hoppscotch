@@ -341,9 +341,7 @@ const copyRequest = () => {
       .catch(() => {})
   } else {
     copyToClipboard(window.location.href)
-    $toast.success(`${t("state.copied_to_clipboard")}`, {
-      icon: "content_paste",
-    })
+    $toast.success(`${t("state.copied_to_clipboard")}`)
   }
 }
 
@@ -382,9 +380,7 @@ const saveRequest = () => {
 
   if (saveCtx.originLocation === "user-collection") {
     editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
-    $toast.success(`${t("request.saved")}`, {
-      icon: "playlist_add_check",
-    })
+    $toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
 
@@ -397,20 +393,14 @@ const saveRequest = () => {
         saveCtx.requestID
       )
         .then(() => {
-          $toast.success(`${t("request.saved")}`, {
-            icon: "playlist_add_check",
-          })
+          $toast.success(`${t("request.saved")}`)
         })
         .catch(() => {
-          $toast.error(t("profile.no_permission").toString(), {
-            icon: "error_outline",
-          })
+          $toast.error(`${t("profile.no_permission")}`)
         })
     } catch (error) {
       showSaveRequestModal.value = true
-      $toast.error(t("error.something_went_wrong").toString(), {
-        icon: "error_outline",
-      })
+      $toast.error(`${t("error.something_went_wrong")}`)
       console.error(error)
     }
   }

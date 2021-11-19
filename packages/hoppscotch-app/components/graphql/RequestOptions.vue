@@ -337,9 +337,7 @@ watch(bulkHeaders, () => {
     }))
     setGQLHeaders(transformation as GQLHeader[])
   } catch (e) {
-    $toast.error(`${t("error.something_went_wrong")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.something_went_wrong")}`)
     console.error(e)
   }
 })
@@ -428,6 +426,7 @@ onMounted(() => {
 const copyQuery = () => {
   copyToClipboard(gqlQueryString.value)
   copyQueryIcon.value = "check"
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
 }
 
@@ -471,18 +470,14 @@ const runQuery = async () => {
       })
     )
 
-    $toast.success(`${t("state.finished_in", { duration })}`, {
-      icon: "done",
-    })
+    $toast.success(`${t("state.finished_in", { duration })}`)
   } catch (e: any) {
     response.value = `${e}`
     nuxt.value.$loading.finish()
 
     $toast.error(
       `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
-      {
-        icon: "error_outline",
-      }
+      {}
     )
     console.error(e)
   }
@@ -500,12 +495,11 @@ const hideRequestModal = () => {
 const prettifyQuery = () => {
   try {
     gqlQueryString.value = gql.print(gql.parse(gqlQueryString.value))
+    prettifyQueryIcon.value = "check"
   } catch (e) {
-    $toast.error(`${t("error.gql_prettify_invalid_query")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.gql_prettify_invalid_query")}`)
+    prettifyQueryIcon.value = "info"
   }
-  prettifyQueryIcon.value = "check"
   setTimeout(() => (prettifyQueryIcon.value = "wand"), 1000)
 }
 
@@ -516,6 +510,7 @@ const saveRequest = () => {
 const copyVariables = () => {
   copyToClipboard(variableString.value)
   copyVariablesIcon.value = "check"
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyVariablesIcon.value = "copy"), 1000)
 }
 
@@ -543,11 +538,10 @@ const removeRequestHeader = (index: number) => {
 
   const deletedItem = headersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    $toast.success(t("state.deleted").toString(), {
-      icon: "delete",
+    $toast.success(`${t("state.deleted")}`, {
       action: [
         {
-          text: t("action.undo").toString(),
+          text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
             setGQLHeaders(headersBeforeDeletion as GQLHeader[])
             editBulkHeadersLine(index, deletedItem)

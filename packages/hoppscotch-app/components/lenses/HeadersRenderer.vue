@@ -89,9 +89,7 @@ const copyIcon = ref("copy")
 const copyHeaders = () => {
   copyToClipboard(JSON.stringify(props.headers))
   copyIcon.value = "check"
-  $toast.success(t("state.copied_to_clipboard").toString(), {
-    icon: "content_paste",
-  })
+  $toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>

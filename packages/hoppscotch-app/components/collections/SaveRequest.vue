@@ -194,15 +194,11 @@ const hideModal = () => {
 
 const saveRequestAs = async () => {
   if (!requestName.value) {
-    $toast.error(`${t("error.empty_req_name")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.empty_req_name")}`)
     return
   }
   if (picked.value === null) {
-    $toast.error(`${t("collection.select")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("collection.select")}`)
     return
   }
 
@@ -283,9 +279,7 @@ const saveRequestAs = async () => {
         requestSaved()
       })
       .catch((error) => {
-        $toast.error(t("profile.no_permission").toString(), {
-          icon: "error_outline",
-        })
+        $toast.error(`${t("profile.no_permission")}`)
         throw new Error(error)
       })
 
@@ -320,9 +314,7 @@ const saveRequestAs = async () => {
 
       requestSaved()
     } catch (error) {
-      $toast.error(t("profile.no_permission").toString(), {
-        icon: "error_outline",
-      })
+      $toast.error(`${t("profile.no_permission")}`)
       console.error(error)
     }
   } else if (picked.value.pickedType === "teams-collection") {
@@ -352,9 +344,7 @@ const saveRequestAs = async () => {
 
       requestSaved()
     } catch (error) {
-      $toast.error(t("profile.no_permission").toString(), {
-        icon: "error_outline",
-      })
+      $toast.error(`${t("profile.no_permission")}`)
       console.error(error)
     }
   } else if (picked.value.pickedType === "gql-my-request") {
@@ -386,9 +376,7 @@ const saveRequestAs = async () => {
 }
 
 const requestSaved = () => {
-  $toast.success(`${t("request.added")}`, {
-    icon: "post_add",
-  })
+  $toast.success(`${t("request.added")}`)
   hideModal()
 }
 

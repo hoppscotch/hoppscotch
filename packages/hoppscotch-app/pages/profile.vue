@@ -99,7 +99,7 @@
                       required
                     />
                     <ButtonPrimary
-                      :label="$t('action.save').toString()"
+                      :label="$t('action.save')"
                       class="ml-2 min-w-16"
                       type="submit"
                       :loading="updatingDisplayName"

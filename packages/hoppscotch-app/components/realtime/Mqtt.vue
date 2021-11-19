@@ -288,9 +288,7 @@ export default defineComponent({
         color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
-      this.$toast.success(this.$t("state.connected"), {
-        icon: "sync",
-      })
+      this.$toast.success(this.$t("state.connected"))
     },
     onMessageArrived({ payloadString, destinationName }) {
       this.log.push({
@@ -321,13 +319,9 @@ export default defineComponent({
       this.connectingState = false
       this.connectionState = false
       if (this.manualDisconnect) {
-        this.$toast.error(this.$t("state.disconnected"), {
-          icon: "sync_disabled",
-        })
+        this.$toast.error(this.$t("state.disconnected"))
       } else {
-        this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("error.something_went_wrong"))
       }
       this.manualDisconnect = false
       this.subscriptionState = false

@@ -171,7 +171,6 @@ export default defineComponent({
       workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {
           this.$toast.show(`${this.$t("app.new_version_found")}`, {
-            icon: "download_for_offline",
             duration: 0,
             action: [
               {

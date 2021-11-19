@@ -238,9 +238,7 @@ export default defineComponent({
         TE.matchW(
           () => {
             this.loading = false
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(`${this.$t("error.something_went_wrong")}`)
           },
           () => {
             this.joinTeamSuccess = true

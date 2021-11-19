@@ -103,9 +103,7 @@ export default defineComponent({
       document.body.appendChild(a)
       a.click()
       this.downloadIcon = "check"
-      this.$toast.success(this.$t("state.download_started"), {
-        icon: "downloading",
-      })
+      this.$toast.success(this.$t("state.download_started"))
       setTimeout(() => {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)

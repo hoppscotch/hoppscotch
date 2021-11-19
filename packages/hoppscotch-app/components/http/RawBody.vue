@@ -118,13 +118,9 @@ const uploadPayload = (e: InputEvent) => {
       rawParamsBody.value = target?.result
     }
     reader.readAsText(file)
-    $toast.success(`${t("state.file_imported")}`, {
-      icon: "attach_file",
-    })
+    $toast.success(`${t("state.file_imported")}`)
   } else {
-    $toast.error(`${t("action.choose_file")}`, {
-      icon: "attach_file",
-    })
+    $toast.error(`${t("action.choose_file")}`)
   }
 }
 const prettifyRequestBody = () => {
@@ -135,9 +131,7 @@ const prettifyRequestBody = () => {
     setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
-    $toast.error(`${t("error.json_prettify_invalid_body")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
 }
 </script>

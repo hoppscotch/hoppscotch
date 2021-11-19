@@ -214,9 +214,7 @@ watch(bulkHeaders, () => {
     }))
     setRESTHeaders(transformation as HoppRESTHeader[])
   } catch (e) {
-    $toast.error(`${t("error.something_went_wrong")}`, {
-      icon: "error_outline",
-    })
+    $toast.error(`${t("error.something_went_wrong")}`)
     console.error(e)
   }
 })
@@ -278,11 +276,10 @@ const deleteHeader = (index: number) => {
 
   const deletedItem = headersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    $toast.success(t("state.deleted").toString(), {
-      icon: "delete",
+    $toast.success(`${t("state.deleted")}`, {
       action: [
         {
-          text: t("action.undo").toString(),
+          text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
             setRESTHeaders(headersBeforeDeletion as HoppRESTHeader[])
             editBulkHeadersLine(index, deletedItem)

@@ -28,7 +28,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
           svg="trash-2"
-          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
+          @click.native="clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -194,7 +194,7 @@ watch(bulkParams, () => {
       value: item.substring(item.indexOf(":") + 1).trim(),
       active: !item.trim().startsWith("//"),
     }))
-    setRESTParams(transformation)
+    setRESTParams(transformation as HoppRESTParam[])
   } catch (e) {
     $toast.error(`${t("error.something_went_wrong")}`, {
       icon: "error_outline",
@@ -219,12 +219,13 @@ const params$ = useReadonlyStream(restParams$, [])
 watch(
   params$,
   (newValue) => {
-    if (
-      (newValue[newValue.length - 1]?.key !== "" ||
-        newValue[newValue.length - 1]?.value !== "") &&
-      newValue.length
-    )
-      addParam()
+    if (!bulkMode.value)
+      if (
+        (newValue[newValue.length - 1]?.key !== "" ||
+          newValue[newValue.length - 1]?.value !== "") &&
+        newValue.length
+      )
+        addParam()
   },
   { deep: true }
 )

@@ -28,7 +28,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
           svg="trash-2"
-          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
+          @click.native="clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -212,7 +212,7 @@ watch(bulkHeaders, () => {
       value: item.substring(item.indexOf(":") + 1).trim(),
       active: !item.trim().startsWith("//"),
     }))
-    setRESTHeaders(transformation)
+    setRESTHeaders(transformation as HoppRESTHeader[])
   } catch (e) {
     $toast.error(`${t("error.something_went_wrong")}`, {
       icon: "error_outline",
@@ -226,12 +226,13 @@ const headers$ = useReadonlyStream(restHeaders$, [])
 watch(
   headers$,
   (newValue) => {
-    if (
-      (newValue[newValue.length - 1]?.key !== "" ||
-        newValue[newValue.length - 1]?.value !== "") &&
-      newValue.length
-    )
-      addHeader()
+    if (!bulkMode.value)
+      if (
+        (newValue[newValue.length - 1]?.key !== "" ||
+          newValue[newValue.length - 1]?.value !== "") &&
+        newValue.length
+      )
+        addHeader()
   },
   { deep: true }
 )

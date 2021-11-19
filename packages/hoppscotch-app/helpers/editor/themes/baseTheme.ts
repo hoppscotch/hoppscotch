@@ -128,6 +128,11 @@ export const baseTheme = EditorView.theme({
   ".cm-scroller::-webkit-scrollbar": {
     display: "none",
   },
+  ".cm-foldPlaceholder": {
+    backgroundColor: "var(--divider-light-color)",
+    color: "var(--secondary-dark-color)",
+    borderColor: "var(--divider-dark-color)",
+  },
 })
 
 const editorTypeColor = "var(--editor-type-color)"

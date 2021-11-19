@@ -129,7 +129,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.clear_all')"
                 svg="trash-2"
-                @click.native="bulkMode ? clearBulkEditor() : clearContent()"
+                @click.native="clearContent()"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
@@ -335,7 +335,7 @@ watch(bulkHeaders, () => {
       value: item.substring(item.indexOf(":") + 1).trim(),
       active: !item.trim().startsWith("//"),
     }))
-    setGQLHeaders(transformation)
+    setGQLHeaders(transformation as GQLHeader[])
   } catch (e) {
     $toast.error(`${t("error.something_went_wrong")}`, {
       icon: "error_outline",
@@ -392,12 +392,13 @@ const showSaveRequestModal = ref(false)
 watch(
   headers,
   () => {
-    if (
-      (headers.value[headers.value.length - 1]?.key !== "" ||
-        headers.value[headers.value.length - 1]?.value !== "") &&
-      headers.value.length
-    )
-      addRequestHeader()
+    if (!bulkMode.value)
+      if (
+        (headers.value[headers.value.length - 1]?.key !== "" ||
+          headers.value[headers.value.length - 1]?.value !== "") &&
+        headers.value.length
+      )
+        addRequestHeader()
   },
   { deep: true }
 )

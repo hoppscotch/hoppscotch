@@ -170,6 +170,7 @@
             ref="copyRequest"
             :label="shareLink ? shareLink : `${$t('request.copy_link')}`"
             :svg="copyLinkIcon"
+            :loading="fetchingShareLink"
             @click.native="
               () => {
                 copyRequest()
@@ -328,8 +329,11 @@ const clearContent = () => {
 
 const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
 const shareLink = ref("")
+const fetchingShareLink = ref(false)
 
 const copyRequest = () => {
+  fetchingShareLink.value = true
+  setTimeout(() => (fetchingShareLink.value = false), 1000)
   shareLink.value = new URL(window.location.href).pathname
 
   if (navigator.share) {
@@ -349,7 +353,7 @@ const copyRequest = () => {
     $toast.success(`${t("state.copied_to_clipboard")}`, {
       icon: "content_paste",
     })
-    setTimeout(() => (copyLinkIcon.value = "copy"), 1000)
+    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
 }
 

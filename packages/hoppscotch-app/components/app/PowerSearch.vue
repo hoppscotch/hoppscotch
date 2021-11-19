@@ -13,7 +13,7 @@
         type="text"
         autocomplete="off"
         name="command"
-        :placeholder="`${$t('app.type_a_command_search')}`"
+        :placeholder="`${t('app.type_a_command_search')}`"
         class="
           bg-transparent
           border-b border-dividerLight
@@ -45,7 +45,7 @@
           class="flex flex-col"
         >
           <h5 class="my-2 text-secondaryLight py-2 px-6">
-            {{ $t(map.section) }}
+            {{ t(map.section) }}
           </h5>
           <AppPowerSearchEntry
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
@@ -66,6 +66,9 @@ import { ref, computed, watch } from "@nuxtjs/composition-api"
 import { HoppAction, invokeAction } from "~/helpers/actions"
 import { spotlight as mappings, fuse } from "~/helpers/shortcuts"
 import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps<{
   show: boolean

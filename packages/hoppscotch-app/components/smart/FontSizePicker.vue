@@ -5,12 +5,12 @@
         <span class="select-wrapper">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('settings.change_font_size')"
+            :title="t('settings.change_font_size')"
             class="pr-8"
             svg="type"
             outline
             :label="`${getFontSizeName(
-              fontSizes.find((size) => size == active)
+              fontSizes.find((size) => size === active)
             )}`"
           />
         </span>
@@ -33,18 +33,15 @@
 </template>
 
 <script setup lang="ts">
-import { useContext } from "@nuxtjs/composition-api"
 import {
   HoppFontSizes,
   HoppFontSize,
   applySetting,
   useSetting,
 } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
 
-const {
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
 
 const fontSizes = HoppFontSizes
 const active = useSetting("FONT_SIZE")

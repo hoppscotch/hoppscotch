@@ -1,12 +1,12 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('app.invite_your_friends')"
+    :title="t('app.invite_your_friends')"
     @close="hideModal"
   >
     <template #body>
       <p class="text-secondaryLight mb-8 px-2">
-        {{ $t("app.invite_description") }}
+        {{ t("app.invite_description") }}
       </p>
       <div class="flex flex-col space-y-2 px-2">
         <div class="grid gap-4 grid-cols-3">
@@ -25,7 +25,7 @@
           <button class="share-link" @click="copyAppLink">
             <SmartIcon class="h-6 text-xl w-6" :name="copyIcon" />
             <span class="mt-3">
-              {{ $t("app.copy") }}
+              {{ t("app.copy") }}
             </span>
           </button>
         </div>
@@ -35,14 +35,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext } from "@nuxtjs/composition-api"
+import { ref } from "@nuxtjs/composition-api"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
+
+const toast = useToast()
 
 defineProps<{
   show: Boolean
@@ -92,7 +91,7 @@ const platforms = [
 const copyAppLink = () => {
   copyToClipboard(url)
   copyIcon.value = "check"
-  $toast.success(`${t("state.copied_to_clipboard")}`)
+  toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 

@@ -14,32 +14,32 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("request.header_list") }}
+        {{ t("request.header_list") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/headers"
           blank
-          :title="$t('app.wiki')"
+          :title="t('app.wiki')"
           svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.clear_all')"
+          :title="t('action.clear_all')"
           svg="trash-2"
           @click.native="clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('state.bulk_mode')"
+          :title="t('state.bulk_mode')"
           svg="edit"
           :class="{ '!text-accent': bulkMode }"
           @click.native="bulkMode = !bulkMode"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('add.new')"
+          :title="t('add.new')"
           svg="plus"
           :disabled="bulkMode"
           @click.native="addHeader"
@@ -54,7 +54,7 @@
         class="divide-x divide-dividerLight border-b border-dividerLight flex"
       >
         <SmartAutoComplete
-          :placeholder="`${$t('count.header', { count: index + 1 })}`"
+          :placeholder="`${t('count.header', { count: index + 1 })}`"
           :source="commonHeaders"
           :spellcheck="false"
           :value="header.key"
@@ -78,7 +78,7 @@
         />
         <SmartEnvInput
           v-model="header.value"
-          :placeholder="`${$t('count.value', { count: index + 1 })}`"
+          :placeholder="`${t('count.value', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -100,9 +100,9 @@
             :title="
               header.hasOwnProperty('active')
                 ? header.active
-                  ? $t('action.turn_off')
-                  : $t('action.turn_on')
-                : $t('action.turn_off')
+                  ? t('action.turn_off')
+                  : t('action.turn_on')
+                : t('action.turn_off')
             "
             :svg="
               header.hasOwnProperty('active')
@@ -126,7 +126,7 @@
         <span>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.remove')"
+            :title="t('action.remove')"
             svg="trash"
             color="red"
             @click.native="deleteHeader(index)"
@@ -154,14 +154,14 @@
             w-16
             inline-flex
           "
-          :alt="$t('empty.headers')"
+          :alt="`${t('empty.headers')}`"
         />
         <span class="text-center pb-4">
-          {{ $t("empty.headers") }}
+          {{ t("empty.headers") }}
         </span>
         <ButtonSecondary
           filled
-          :label="`${$t('add.new')}`"
+          :label="`${t('add.new')}`"
           svg="plus"
           class="mb-4"
           @click.native="addHeader"
@@ -172,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUpdate, ref, useContext, watch } from "@nuxtjs/composition-api"
+import { onBeforeUpdate, ref, watch } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   addRESTHeader,
@@ -183,14 +183,16 @@ import {
   updateRESTHeader,
 } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useReadonlyStream,
+  useI18n,
+  useToast,
+} from "~/helpers/utils/composables"
 import { HoppRESTHeader } from "~/helpers/types/HoppRESTRequest"
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
+
+const toast = useToast()
 
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
@@ -214,7 +216,7 @@ watch(bulkHeaders, () => {
     }))
     setRESTHeaders(transformation as HoppRESTHeader[])
   } catch (e) {
-    $toast.error(`${t("error.something_went_wrong")}`)
+    toast.error(`${t("error.something_went_wrong")}`)
     console.error(e)
   }
 })
@@ -276,7 +278,7 @@ const deleteHeader = (index: number) => {
 
   const deletedItem = headersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    $toast.success(`${t("state.deleted")}`, {
+    toast.success(`${t("state.deleted")}`, {
       action: [
         {
           text: `${t("action.undo")}`,

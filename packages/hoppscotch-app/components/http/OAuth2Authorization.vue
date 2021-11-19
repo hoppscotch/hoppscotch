@@ -48,7 +48,7 @@
     <div class="p-2">
       <ButtonSecondary
         filled
-        :label="`${$t('authorization.generate_token')}`"
+        :label="`${t('authorization.generate_token')}`"
         @click.native="handleAccessTokenRequest()"
       />
     </div>
@@ -56,19 +56,21 @@
 </template>
 
 <script lang="ts">
-import { Ref, useContext } from "@nuxtjs/composition-api"
-import { pluckRef, useStream } from "~/helpers/utils/composables"
+import { Ref } from "@nuxtjs/composition-api"
+import {
+  pluckRef,
+  useI18n,
+  useStream,
+  useToast,
+} from "~/helpers/utils/composables"
 import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
 import { tokenRequest } from "~/helpers/oauth"
 
 export default {
   setup() {
-    const {
-      $toast,
-      app: { i18n },
-    } = useContext()
-    const $t = i18n.t.bind(i18n)
+    const t = useI18n()
+    const toast = useToast()
 
     const auth = useStream(
       restAuth$,
@@ -97,7 +99,7 @@ export default {
         oidcDiscoveryURL.value === "" &&
         (authURL.value === "" || accessTokenURL.value === "")
       ) {
-        $toast.error(`${$t("complete_config_urls")}`)
+        toast.error(`${t("complete_config_urls")}`)
         return
       }
       try {
@@ -111,7 +113,7 @@ export default {
         }
         await tokenRequest(tokenReqParams)
       } catch (e) {
-        $toast.error(`${e}`)
+        toast.error(`${e}`)
       }
     }
 

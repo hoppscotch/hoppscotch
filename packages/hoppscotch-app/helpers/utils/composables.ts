@@ -140,3 +140,8 @@ export function useI18n() {
   } = useContext()
   return i18n.t.bind(i18n)
 }
+
+export function useToast() {
+  const { $toast } = useContext()
+  return $toast
+}

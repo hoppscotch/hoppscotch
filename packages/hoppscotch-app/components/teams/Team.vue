@@ -22,7 +22,7 @@
           class="font-semibold text-secondaryDark"
           :class="{ 'cursor-pointer': compact && team.myRole === 'OWNER' }"
         >
-          {{ team.name || $t("state.nothing_found") }}
+          {{ team.name || t("state.nothing_found") }}
         </label>
         <div class="flex -space-x-1 mt-2 overflow-hidden">
           <img
@@ -44,7 +44,7 @@
           v-if="team.myRole === 'OWNER'"
           svg="edit"
           class="rounded-none"
-          :label="$t('action.edit')"
+          :label="t('action.edit')"
           @click.native="
             () => {
               $emit('edit-team')
@@ -55,7 +55,7 @@
           v-if="team.myRole === 'OWNER'"
           svg="user-plus"
           class="rounded-none"
-          :label="$t('team.invite')"
+          :label="t('team.invite')"
           @click.native="
             () => {
               emit('invite-team')
@@ -68,14 +68,14 @@
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('action.more')"
+              :title="t('action.more')"
               svg="more-vertical"
             />
           </template>
           <SmartItem
             v-if="team.myRole === 'OWNER'"
             svg="edit"
-            :label="$t('action.edit')"
+            :label="t('action.edit')"
             @click.native="
               () => {
                 $emit('edit-team')
@@ -87,7 +87,7 @@
             v-if="team.myRole === 'OWNER'"
             svg="trash-2"
             color="red"
-            :label="$t('action.delete')"
+            :label="t('action.delete')"
             @click.native="
               () => {
                 deleteTeam()
@@ -98,7 +98,7 @@
           <SmartItem
             v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
             svg="trash"
-            :label="$t('team.exit')"
+            :label="t('team.exit')"
             @click.native="
               () => {
                 exitTeam()
@@ -113,7 +113,6 @@
 </template>
 
 <script setup lang="ts">
-import { useContext } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { TeamMemberRole } from "~/helpers/backend/graphql"
@@ -121,6 +120,9 @@ import {
   deleteTeam as backendDeleteTeam,
   leaveTeam,
 } from "~/helpers/backend/mutations/Team"
+import { useI18n, useToast } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps<{
   team: {
@@ -142,12 +144,7 @@ const emit = defineEmits<{
   (e: "edit-team"): void
 }>()
 
-const {
-  app: { i18n },
-  $toast,
-} = useContext()
-
-const t = i18n.t.bind(i18n)
+const toast = useToast()
 
 const deleteTeam = () => {
   if (!confirm(`${t("confirm.remove_team")}`)) return
@@ -157,11 +154,11 @@ const deleteTeam = () => {
     TE.match(
       (err) => {
         // TODO: Better errors ? We know the possible errors now
-        $toast.error(`${t("error.something_went_wrong")}`)
+        toast.error(`${t("error.something_went_wrong")}`)
         console.error(err)
       },
       () => {
-        $toast.success(`${t("team.deleted")}`)
+        toast.success(`${t("team.deleted")}`)
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned
@@ -175,17 +172,17 @@ const exitTeam = () => {
     TE.match(
       (err) => {
         // TODO: Better errors ?
-        $toast.error(`${t("error.something_went_wrong")}`)
+        toast.error(`${t("error.something_went_wrong")}`)
         console.error(err)
       },
       () => {
-        $toast.success(`${t("team.left")}`)
+        toast.success(`${t("team.left")}`)
       }
     )
   )() // Tasks (and TEs) are lazy, so call the function returned
 }
 
 const noPermission = () => {
-  $toast.error(`${t("profile.no_permission")}`)
+  toast.error(`${t("profile.no_permission")}`)
 }
 </script>

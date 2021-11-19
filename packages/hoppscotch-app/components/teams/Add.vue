@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="$t('team.new')" @close="hideModal">
+  <SmartModal v-if="show" :title="t('team.new')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input
@@ -13,15 +13,15 @@
           @keyup.enter="addNewTeam"
         />
         <label for="selectLabelTeamAdd">
-          {{ $t("action.label") }}
+          {{ t("action.label") }}
         </label>
       </div>
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="addNewTeam" />
+        <ButtonPrimary :label="t('action.save')" @click.native="addNewTeam" />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="t('action.cancel')"
           @click.native="hideModal"
         />
       </span>
@@ -30,18 +30,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext } from "@nuxtjs/composition-api"
+import { ref } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { createTeam } from "~/helpers/backend/mutations/Team"
 import { TeamNameCodec } from "~/helpers/backend/types/TeamName"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-const {
-  app: { i18n },
-  $toast,
-} = useContext()
+const t = useI18n()
 
-const t = i18n.t.bind(i18n)
+const toast = useToast()
 
 defineProps<{
   show: boolean
@@ -63,7 +61,7 @@ const addNewTeam = () =>
       (err) => {
         // err is of type "invalid_name" | GQLError<Err>
         if (err === "invalid_name") {
-          $toast.error(`${t("team.name_length_insufficient")}`)
+          toast.error(`${t("team.name_length_insufficient")}`)
         } else {
           // Handle GQL errors (use err obj)
         }

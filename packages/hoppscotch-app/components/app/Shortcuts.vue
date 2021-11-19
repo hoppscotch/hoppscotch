@@ -14,7 +14,7 @@
           justify-between
         "
       >
-        <h3 class="ml-4 heading">{{ $t("app.shortcuts") }}</h3>
+        <h3 class="ml-4 heading">{{ t("app.shortcuts") }}</h3>
         <div class="flex">
           <ButtonSecondary svg="x" class="rounded" @click.native="close()" />
         </div>
@@ -35,7 +35,7 @@
               px-4
               focus-visible:border-divider
             "
-            :placeholder="`${$t('action.search')}`"
+            :placeholder="`${t('action.search')}`"
           />
         </div>
       </div>
@@ -46,7 +46,7 @@
           class="space-y-4 py-4 px-6"
         >
           <h1 class="font-semibold text-secondaryDark">
-            {{ $t(map.item.section) }}
+            {{ t(map.item.section) }}
           </h1>
           <AppShortcutsEntry
             v-for="(shortcut, index) in map.item.shortcuts"
@@ -66,7 +66,7 @@
         >
           <i class="opacity-75 pb-2 material-icons">manage_search</i>
           <span class="text-center">
-            {{ $t("state.nothing_found") }} "{{ filterText }}"
+            {{ t("state.nothing_found") }} "{{ filterText }}"
           </span>
         </div>
       </div>
@@ -85,7 +85,7 @@
           class="space-y-4 py-4 px-6"
         >
           <h1 class="font-semibold text-secondaryDark">
-            {{ $t(map.section) }}
+            {{ t(map.section) }}
           </h1>
           <AppShortcutsEntry
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
@@ -102,6 +102,9 @@
 import { computed, ref } from "@nuxtjs/composition-api"
 import Fuse from "fuse.js"
 import mappings from "~/helpers/shortcuts"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 defineProps<{
   show: boolean

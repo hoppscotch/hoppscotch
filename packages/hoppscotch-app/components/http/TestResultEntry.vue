@@ -28,7 +28,7 @@
         <span class="text-secondaryLight">
           {{
             ` \xA0 — \xA0 ${
-              result.status === "pass" ? $t("test.passed") : $t("test.failed")
+              result.status === "pass" ? t("test.passed") : t("test.failed")
             }`
           }}
         </span>
@@ -40,6 +40,9 @@
 <script setup lang="ts">
 import { PropType } from "@nuxtjs/composition-api"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 defineProps({
   testResults: {

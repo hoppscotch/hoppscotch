@@ -4,7 +4,7 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="EXPAND_NAVIGATION ? $t('hide.sidebar') : $t('show.sidebar')"
+          :title="EXPAND_NAVIGATION ? t('hide.sidebar') : t('show.sidebar')"
           svg="sidebar"
           class="transform"
           :class="{ '-rotate-180': !EXPAND_NAVIGATION }"
@@ -12,9 +12,9 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="`${
-            ZEN_MODE ? $t('action.turn_off') : $t('action.turn_on')
-          } ${$t('layout.zen_mode')}`"
+          :title="`${ZEN_MODE ? t('action.turn_off') : t('action.turn_on')} ${t(
+            'layout.zen_mode'
+          )}`"
           :svg="ZEN_MODE ? 'minimize' : 'maximize'"
           :class="{
             '!text-accent !focus-visible:text-accentDark !hover:text-accentDark':
@@ -36,20 +36,20 @@
               <ButtonSecondary
                 svg="help-circle"
                 class="!rounded-none"
-                :label="`${$t('app.help')}`"
+                :label="`${t('app.help')}`"
               />
             </template>
             <div class="flex flex-col">
               <SmartItem
                 svg="book"
-                :label="`${$t('app.documentation')}`"
+                :label="`${t('app.documentation')}`"
                 to="https://docs.hoppscotch.io"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="zap"
-                :label="`${$t('app.keyboard_shortcuts')}`"
+                :label="`${t('app.keyboard_shortcuts')}`"
                 @click.native="
                   () => {
                     showShortcuts = true
@@ -59,14 +59,14 @@
               />
               <SmartItem
                 svg="gift"
-                :label="`${$t('app.whats_new')}`"
+                :label="`${t('app.whats_new')}`"
                 to="https://docs.hoppscotch.io/changelog"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="message-circle"
-                :label="`${$t('app.chat_with_us')}`"
+                :label="`${t('app.chat_with_us')}`"
                 @click.native="
                   () => {
                     chatWithUs()
@@ -77,21 +77,21 @@
               <hr />
               <SmartItem
                 svg="github"
-                :label="`${$t('app.github')}`"
+                :label="`${t('app.github')}`"
                 to="https://github.com/hoppscotch/hoppscotch"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="twitter"
-                :label="`${$t('app.twitter')}`"
+                :label="`${t('app.twitter')}`"
                 to="https://hoppscotch.io/twitter"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
                 svg="user-plus"
-                :label="`${$t('app.invite')}`"
+                :label="`${t('app.invite')}`"
                 @click.native="
                   () => {
                     showShare = true
@@ -101,14 +101,14 @@
               />
               <SmartItem
                 svg="lock"
-                :label="`${$t('app.terms_and_privacy')}`"
+                :label="`${t('app.terms_and_privacy')}`"
                 to="https://docs.hoppscotch.io/privacy"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />
-              <!-- <SmartItem :label="$t('app.status')" /> -->
+              <!-- <SmartItem :label="t('app.status')" /> -->
               <div class="flex opacity-50 py-2 px-4">
-                {{ `${$t("app.name")} ${$t("app.version")}` }}
+                {{ `${t("app.name")} ${t("app.version")}` }}
               </div>
             </div>
           </tippy>
@@ -116,19 +116,19 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           svg="zap"
-          :title="$t('app.shortcuts')"
+          :title="t('app.shortcuts')"
           @click.native="showShortcuts = true"
         />
         <ButtonSecondary
           v-if="navigatorShare"
           v-tippy="{ theme: 'tooltip' }"
           svg="share-2"
-          :title="$t('request.share')"
+          :title="t('request.share')"
           @click.native="nativeShare()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="COLUMN_LAYOUT ? $t('layout.row') : $t('layout.column')"
+          :title="COLUMN_LAYOUT ? t('layout.row') : t('layout.column')"
           svg="columns"
           class="transform"
           :class="{ 'rotate-90': !COLUMN_LAYOUT }"
@@ -142,7 +142,7 @@
         >
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="SIDEBAR ? $t('hide.sidebar') : $t('show.sidebar')"
+            :title="SIDEBAR ? t('hide.sidebar') : t('show.sidebar')"
             svg="sidebar-open"
             class="transform"
             :class="{ 'rotate-180': !SIDEBAR }"
@@ -161,7 +161,9 @@ import { ref, watch } from "@nuxtjs/composition-api"
 import { defineActionHandler } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 import { useSetting } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
 
+const t = useI18n()
 const showShortcuts = ref(false)
 const showShare = ref(false)
 

@@ -4,17 +4,17 @@
       :on="PROXY_ENABLED"
       @change="toggleSettingKey('PROXY_ENABLED')"
     >
-      {{ $t("settings.proxy") }}
+      {{ t("settings.proxy") }}
     </SmartToggle>
     <SmartToggle
       :on="EXTENSIONS_ENABLED"
       @change="toggleSettingKey('EXTENSIONS_ENABLED')"
     >
-      {{ $t("settings.extensions") }}:
+      {{ t("settings.extensions") }}:
       {{
         extensionVersion != null
           ? `v${extensionVersion.major}.${extensionVersion.minor}`
-          : $t("settings.extension_ver_not_reported")
+          : t("settings.extension_ver_not_reported")
       }}
     </SmartToggle>
   </div>
@@ -25,6 +25,9 @@ import { defineComponent } from "@nuxtjs/composition-api"
 import { KeysMatching } from "~/types/ts-utils"
 import { SettingsType, toggleSetting, useSetting } from "~/newstore/settings"
 import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const PROXY_ENABLED = useSetting("PROXY_ENABLED")
 const EXTENSIONS_ENABLED = useSetting("EXTENSIONS_ENABLED")

@@ -27,14 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import { useContext } from "@nuxtjs/composition-api"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 import { useSetting } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
 
-const {
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
 
 const windowInnerWidth = useWindowSize()
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")

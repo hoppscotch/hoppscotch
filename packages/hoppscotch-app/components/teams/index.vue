@@ -2,7 +2,7 @@
   <AppSection label="teams">
     <div class="space-y-4 p-4">
       <ButtonSecondary
-        :label="`${$t('team.create_new')}`"
+        :label="`${t('team.create_new')}`"
         outline
         @click.native="displayModalAdd(true)"
       />
@@ -11,7 +11,7 @@
         class="flex flex-col items-center justify-center"
       >
         <SmartSpinner class="mb-4" />
-        <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <div
         v-if="
@@ -38,13 +38,13 @@
             w-16
             inline-flex
           "
-          :alt="$t('empty.teams')"
+          :alt="`${t('empty.teams')}`"
         />
         <span class="text-center mb-4">
-          {{ $t("empty.teams") }}
+          {{ t("empty.teams") }}
         </span>
         <ButtonSecondary
-          :label="`${$t('team.create_new')}`"
+          :label="`${t('team.create_new')}`"
           filled
           @click.native="displayModalAdd(true)"
         />
@@ -71,7 +71,7 @@
         class="flex flex-col items-center"
       >
         <i class="mb-4 material-icons">help_outline</i>
-        {{ $t("error.something_went_wrong") }}
+        {{ t("error.something_went_wrong") }}
       </div>
     </div>
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
@@ -114,6 +114,9 @@ import {
   MyTeamsQueryVariables,
 } from "~/helpers/backend/graphql"
 import { MyTeamsQueryError } from "~/helpers/backend/QueryErrors"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 defineProps<{
   modal: boolean

@@ -24,7 +24,7 @@
       class="flex flex-1 mr-4 font-medium transition"
       :class="{ 'text-secondaryDark': active }"
     >
-      {{ $t(shortcut.label) }}
+      {{ t(shortcut.label) }}
     </span>
     <span
       v-for="(key, keyIndex) in shortcut.keys"
@@ -37,6 +37,10 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
+
 defineProps<{
   shortcut: Object
   active: Boolean

@@ -4,7 +4,7 @@
       v-for="(color, index) of colors"
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"
-      :title="$t(getColorModeName(color))"
+      :title="t(getColorModeName(color))"
       :class="{
         'bg-primaryLight !text-accent hover:text-accent': color === active,
       }"
@@ -22,6 +22,9 @@ import {
   HoppBgColors,
   useSetting,
 } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const colors = HoppBgColors
 const active = useSetting("BG_COLOR")

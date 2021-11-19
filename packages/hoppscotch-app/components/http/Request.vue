@@ -168,7 +168,7 @@
           />
           <SmartItem
             ref="copyRequest"
-            :label="shareLink ? shareLink : `${$t('request.copy_link')}`"
+            :label="shareLinkStatus"
             :svg="copyLinkIcon"
             :loading="fetchingShareLink"
             @click.native="
@@ -329,13 +329,17 @@ const clearContent = () => {
 
 const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
 const shareLink = ref("")
+const shareLinkStatus = ref(t("request.copy_link"))
 const fetchingShareLink = ref(false)
 
 const copyRequest = () => {
+  shareLink.value = ""
   fetchingShareLink.value = true
-  setTimeout(() => (fetchingShareLink.value = false), 1000)
-  shareLink.value = new URL(window.location.href).pathname
-
+  // 1. init loading
+  shareLinkStatus.value = t("state.loading")
+  // 2. TODO: fetch short code
+  shareLink.value = "/abcdefghij"
+  // 3. share / copy link to clipboard
   if (navigator.share) {
     const time = new Date().toLocaleTimeString()
     const date = new Date().toLocaleDateString()
@@ -343,18 +347,21 @@ const copyRequest = () => {
       .share({
         title: "Hoppscotch",
         text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-        url: window.location.href,
+        url: shareLink.value,
       })
       .then(() => {})
       .catch(() => {})
   } else {
     copyLinkIcon.value = "check"
-    copyToClipboard(window.location.href)
+    copyToClipboard(shareLink.value)
     $toast.success(`${t("state.copied_to_clipboard")}`, {
       icon: "content_paste",
     })
     setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
+  // 4. hide loading
+  fetchingShareLink.value = false
+  shareLinkStatus.value = shareLink.value
 }
 
 const cycleUpMethod = () => {

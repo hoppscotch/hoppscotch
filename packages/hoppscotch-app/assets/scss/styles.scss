@@ -386,7 +386,7 @@ pre.ace_editor {
 .smart-splitter .splitpanes__splitter::before {
   @apply absolute;
   @apply inset-0;
-  @apply bg-dividerLight;
+  @apply bg-accentLight;
   @apply opacity-0;
   @apply z-20;
   @apply transition;

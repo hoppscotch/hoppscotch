@@ -38,7 +38,7 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io"
+                to="https://docs.hoppscotch.io/graphql/#queries"
                 blank
                 :title="t('app.wiki')"
                 svg="help-circle"
@@ -82,7 +82,7 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io"
+                to="https://docs.hoppscotch.io/graphql/#queries"
                 blank
                 :title="t('app.wiki')"
                 svg="help-circle"
@@ -120,7 +120,7 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io"
+                to="https://docs.hoppscotch.io/graphql/#headers"
                 blank
                 :title="t('app.wiki')"
                 svg="help-circle"

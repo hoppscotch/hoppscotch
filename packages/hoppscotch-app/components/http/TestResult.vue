@@ -91,7 +91,7 @@
       <ButtonSecondary
         outline
         :label="`${t('action.learn_more')}`"
-        to="https://docs.hoppscotch.io"
+        to="https://docs.hoppscotch.io/features/tests"
         blank
         svg="external-link"
         reverse

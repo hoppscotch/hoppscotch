@@ -1,0 +1,28 @@
+name: Feature request
+description: Suggest a feature to improve Hoppscotch
+title: "[feature]: "
+labels: [feature]
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thank you for taking the time to request a feature for Hoppscotch
+- type: checkboxes
+  attributes:
+    label: Is there an existing issue for this?
+    description: Please search to see if an issue related to this feature request already exists
+    options:
+    - label: I have searched the existing issues
+      required: true
+- type: textarea
+  attributes:
+    label: Summary
+    description: One paragraph description of the feature
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Why should this be worked on?
+    description: A concise description of the problems or use cases for this feature request
+  validations:
+    required: true

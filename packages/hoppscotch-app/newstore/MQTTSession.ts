@@ -1,24 +1,29 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
+import { Client as MQTTClient } from "paho-mqtt"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import {
+  HoppRealtimeLog,
+  HoppRealtimeLogLine,
+} from "~/helpers/types/HoppRealtimeLog"
 
-type MQTTRequest = {
+type HoppMQTTRequest = {
   endpoint: string
 }
 
-type MQTTSession = {
-  request: MQTTRequest
+type HoppMQTTSession = {
+  request: HoppMQTTRequest
   connectingState: boolean
   connectionState: boolean
   subscriptionState: boolean
-  log: Array
-  socket
+  log: HoppRealtimeLog
+  socket?: MQTTClient
 }
 
-const defaultMQTTRequest: MQTTRequest = {
+const defaultMQTTRequest: HoppMQTTRequest = {
   endpoint: "wss://test.mosquitto.org:8081",
 }
 
-const defaultMQTTSession: MQTTSession = {
+const defaultMQTTSession: HoppMQTTSession = {
   request: defaultMQTTRequest,
   connectionState: false,
   connectingState: false,
@@ -28,44 +33,47 @@ const defaultMQTTSession: MQTTSession = {
 }
 
 const dispatchers = defineDispatchers({
-  setRequest(_, { newRequest }: { newRequest: MQTTRequest }) {
+  setRequest(
+    _: HoppMQTTSession,
+    { newRequest }: { newRequest: HoppMQTTRequest }
+  ) {
     return {
       request: newRequest,
     }
   },
-  setEndpoint(_, { newEndpoint }: { newEndpoint: string }) {
+  setEndpoint(_: HoppMQTTSession, { newEndpoint }: { newEndpoint: string }) {
     return {
       request: {
         endpoint: newEndpoint,
       },
     }
   },
-  setSocket(_, { socket }) {
+  setSocket(_: HoppMQTTSession, { socket }: { socket: MQTTClient }) {
     return {
       socket,
     }
   },
-  setConnectionState(_, { state }: { state: boolean }) {
+  setConnectionState(_: HoppMQTTSession, { state }: { state: boolean }) {
     return {
       connectionState: state,
     }
   },
-  setConnectingState(_, { state }: { state: boolean }) {
+  setConnectingState(_: HoppMQTTSession, { state }: { state: boolean }) {
     return {
       connectingState: state,
     }
   },
-  setSubscriptionState(_, { state }: { state: boolean }) {
+  setSubscriptionState(_: HoppMQTTSession, { state }: { state: boolean }) {
     return {
       subscriptionState: state,
     }
   },
-  setLog(_, { log }) {
+  setLog(_: HoppMQTTSession, { log }: { log: HoppRealtimeLog }) {
     return {
       log,
     }
   },
-  addLogLine(curr: MQTTSession, { line }) {
+  addLogLine(curr: HoppMQTTSession, { line }: { line: HoppRealtimeLogLine }) {
     return {
       log: [...curr.log, line],
     }
@@ -74,7 +82,7 @@ const dispatchers = defineDispatchers({
 
 const MQTTSessionStore = new DispatchingStore(defaultMQTTSession, dispatchers)
 
-export function setMQTTRequest(newRequest?: MQTTRequest) {
+export function setMQTTRequest(newRequest?: HoppMQTTRequest) {
   MQTTSessionStore.dispatch({
     dispatcher: "setRequest",
     payload: {
@@ -92,7 +100,7 @@ export function setMQTTEndpoint(newEndpoint: string) {
   })
 }
 
-export function setMQTTSocket(socket) {
+export function setMQTTSocket(socket: MQTTClient) {
   MQTTSessionStore.dispatch({
     dispatcher: "setSocket",
     payload: {
@@ -128,7 +136,7 @@ export function setMQTTSubscriptionState(state: boolean) {
   })
 }
 
-export function setMQTTLog(log) {
+export function setMQTTLog(log: HoppRealtimeLog) {
   MQTTSessionStore.dispatch({
     dispatcher: "setLog",
     payload: {
@@ -137,7 +145,7 @@ export function setMQTTLog(log) {
   })
 }
 
-export function addMQTTLogLine(line) {
+export function addMQTTLogLine(line: HoppRealtimeLogLine) {
   MQTTSessionStore.dispatch({
     dispatcher: "addLogLine",
     payload: {

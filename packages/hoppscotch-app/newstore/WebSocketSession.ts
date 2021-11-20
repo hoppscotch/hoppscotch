@@ -1,30 +1,34 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import {
+  HoppRealtimeLog,
+  HoppRealtimeLogLine,
+} from "~/helpers/types/HoppRealtimeLog"
 
-type WSProtocol = {
+type HoppWSProtocol = {
   value: string
   active: boolean
 }
 
-type WSRequest = {
+type HoppWSRequest = {
   endpoint: string
-  protocols: WSProtocol[]
+  protocols: HoppWSProtocol[]
 }
 
-type WSSession = {
-  request: WSRequest
+export type HoppWSSession = {
+  request: HoppWSRequest
   connectingState: boolean
   connectionState: boolean
-  log
-  socket
+  log: HoppRealtimeLog
+  socket: WebSocket
 }
 
-const defaultWSRequest: WSRequest = {
+const defaultWSRequest: HoppWSRequest = {
   endpoint: "wss://hoppscotch-websocket.herokuapp.com",
   protocols: [],
 }
 
-const defaultWSSession: WSSession = {
+const defaultWSSession: HoppWSSession = {
   request: defaultWSRequest,
   connectionState: false,
   connectingState: false,
@@ -33,12 +37,12 @@ const defaultWSSession: WSSession = {
 }
 
 const dispatchers = defineDispatchers({
-  setRequest(_, { newRequest }: { newRequest: WSRequest }) {
+  setRequest(_, { newRequest }: { newRequest: HoppWSRequest }) {
     return {
       request: newRequest,
     }
   },
-  setEndpoint(curr: WSSession, { newEndpoint }: { newEndpoint: string }) {
+  setEndpoint(curr: HoppWSSession, { newEndpoint }: { newEndpoint: string }) {
     return {
       request: {
         protocols: curr.request.protocols,
@@ -46,7 +50,10 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setProtocols(curr: WSSession, { protocols }: { protocols: WSProtcol[] }) {
+  setProtocols(
+    curr: HoppWSSession,
+    { protocols }: { protocols: HoppWSProtocol[] }
+  ) {
     return {
       request: {
         protocols,
@@ -54,7 +61,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  addProtocol(curr: WSSession, { protocol }: { protocol: WSProtcol }) {
+  addProtocol(curr: HoppWSSession, { protocol }: { protocol: HoppWSProtocol }) {
     return {
       request: {
         endpoint: curr.request.endpoint,
@@ -62,7 +69,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  deleteProtocol(curr: WSSession, { index }: { index: number }) {
+  deleteProtocol(curr: HoppWSSession, { index }: { index: number }) {
     return {
       request: {
         endpoint: curr.request.endpoint,
@@ -70,7 +77,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  deleteAllProtocols(curr: WSSession) {
+  deleteAllProtocols(curr: HoppWSSession) {
     return {
       request: {
         endpoint: curr.request.endpoint,
@@ -79,8 +86,11 @@ const dispatchers = defineDispatchers({
     }
   },
   updateProtocol(
-    curr: WSSession,
-    { index, updatedProtocol }: { index: number; updatedProtocol: WSProtcol }
+    curr: HoppWSSession,
+    {
+      index,
+      updatedProtocol,
+    }: { index: number; updatedProtocol: HoppWSProtocol }
   ) {
     return {
       request: {
@@ -91,27 +101,27 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setSocket(_, { socket }) {
+  setSocket(_: HoppWSSession, { socket }: { socket: WebSocket }) {
     return {
       socket,
     }
   },
-  setConnectionState(_, { state }: { state: boolean }) {
+  setConnectionState(_: HoppWSSession, { state }: { state: boolean }) {
     return {
       connectionState: state,
     }
   },
-  setConnectingState(_, { state }: { state: boolean }) {
+  setConnectingState(_: HoppWSSession, { state }: { state: boolean }) {
     return {
       connectingState: state,
     }
   },
-  setLog(_, { log }) {
+  setLog(_: HoppWSSession, { log }: { log: HoppRealtimeLog }) {
     return {
       log,
     }
   },
-  addLogLine(curr: WSSession, { line }) {
+  addLogLine(curr: HoppWSSession, { line }: { line: HoppRealtimeLogLine }) {
     return {
       log: [...curr.log, line],
     }
@@ -120,7 +130,7 @@ const dispatchers = defineDispatchers({
 
 const WSSessionStore = new DispatchingStore(defaultWSSession, dispatchers)
 
-export function setWSRequest(newRequest?: WSRequest) {
+export function setWSRequest(newRequest?: HoppWSRequest) {
   WSSessionStore.dispatch({
     dispatcher: "setRequest",
     payload: {
@@ -138,7 +148,7 @@ export function setWSEndpoint(newEndpoint: string) {
   })
 }
 
-export function setWSProtocols(protocols: WSProtocol[]) {
+export function setWSProtocols(protocols: HoppWSProtocol[]) {
   WSSessionStore.dispatch({
     dispatcher: "setProtocols",
     payload: {
@@ -147,7 +157,7 @@ export function setWSProtocols(protocols: WSProtocol[]) {
   })
 }
 
-export function addWSProtocol(protocol: WSProtocol) {
+export function addWSProtocol(protocol: HoppWSProtocol) {
   WSSessionStore.dispatch({
     dispatcher: "addProtocol",
     payload: {
@@ -172,7 +182,10 @@ export function deleteAllWSProtocols() {
   })
 }
 
-export function updateWSProtocol(index: number, updatedProtocol: WSProtocol) {
+export function updateWSProtocol(
+  index: number,
+  updatedProtocol: HoppWSProtocol
+) {
   WSSessionStore.dispatch({
     dispatcher: "updateProtocol",
     payload: {
@@ -182,7 +195,7 @@ export function updateWSProtocol(index: number, updatedProtocol: WSProtocol) {
   })
 }
 
-export function setWSSocket(socket) {
+export function setWSSocket(socket: WebSocket) {
   WSSessionStore.dispatch({
     dispatcher: "setSocket",
     payload: {
@@ -208,7 +221,7 @@ export function setWSConnectingState(state: boolean) {
   })
 }
 
-export function setWSLog(log) {
+export function setWSLog(log: HoppRealtimeLog) {
   WSSessionStore.dispatch({
     dispatcher: "setLog",
     payload: {
@@ -217,7 +230,7 @@ export function setWSLog(log) {
   })
 }
 
-export function addWSLogLine(line) {
+export function addWSLogLine(line: HoppRealtimeLogLine) {
   WSSessionStore.dispatch({
     dispatcher: "addLogLine",
     payload: {

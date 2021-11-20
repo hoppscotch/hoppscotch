@@ -1,27 +1,36 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
+import { Socket as SocketV2 } from "socket.io-client-v2"
+import { Socket as SocketV3 } from "socket.io-client-v3"
+import { Socket as SocketV4 } from "socket.io-client-v4"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import {
+  HoppRealtimeLog,
+  HoppRealtimeLogLine,
+} from "~/helpers/types/HoppRealtimeLog"
 
-type SIORequest = {
+type SocketIO = SocketV2 | SocketV3 | SocketV4
+
+type HoppSIORequest = {
   endpoint: string
   path: string
   version: string
 }
 
-type SIOSession = {
-  request: SIORequest
+type HoppSIOSession = {
+  request: HoppSIORequest
   connectingState: boolean
   connectionState: boolean
-  log: Array
-  socket
+  log: HoppRealtimeLog
+  socket?: SocketIO
 }
 
-const defaultSIORequest: SIORequest = {
+const defaultSIORequest: HoppSIORequest = {
   endpoint: "wss://hoppscotch-socketio.herokuapp.com",
   path: "/socket.io",
   version: "v4",
 }
 
-const defaultSIOSession: SIOSession = {
+const defaultSIOSession: HoppSIOSession = {
   request: defaultSIORequest,
   connectionState: false,
   connectingState: false,
@@ -30,12 +39,15 @@ const defaultSIOSession: SIOSession = {
 }
 
 const dispatchers = defineDispatchers({
-  setRequest(_, { newRequest }: { newRequest: SIORequest }) {
+  setRequest(
+    _: HoppSIOSession,
+    { newRequest }: { newRequest: HoppSIORequest }
+  ) {
     return {
       request: newRequest,
     }
   },
-  setEndpoint(curr: SIOSession, { newEndpoint }: { newEndpoint: string }) {
+  setEndpoint(curr: HoppSIOSession, { newEndpoint }: { newEndpoint: string }) {
     return {
       request: {
         ...curr.request,
@@ -43,7 +55,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setPath(curr: SIOSession, { newPath }: { newPath: string }) {
+  setPath(curr: HoppSIOSession, { newPath }: { newPath: string }) {
     return {
       request: {
         ...curr.request,
@@ -51,7 +63,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setVersion(curr: SIOSession, { newVersion }: { newVersion: string }) {
+  setVersion(curr: HoppSIOSession, { newVersion }: { newVersion: string }) {
     return {
       request: {
         ...curr.request,
@@ -59,27 +71,27 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setSocket(_, { socket }) {
+  setSocket(_: HoppSIOSession, { socket }: { socket: SocketIO }) {
     return {
       socket,
     }
   },
-  setConnectionState(_, { state }: { state: boolean }) {
+  setConnectionState(_: HoppSIOSession, { state }: { state: boolean }) {
     return {
       connectionState: state,
     }
   },
-  setConnectingState(_, { state }: { state: boolean }) {
+  setConnectingState(_: HoppSIOSession, { state }: { state: boolean }) {
     return {
       connectingState: state,
     }
   },
-  setLog(_, { log }) {
+  setLog(_: HoppSIOSession, { log }: { log: HoppRealtimeLog }) {
     return {
       log,
     }
   },
-  addLogLine(curr: SIOSession, { line }) {
+  addLogLine(curr: HoppSIOSession, { line }: { line: HoppRealtimeLogLine }) {
     return {
       log: [...curr.log, line],
     }
@@ -88,7 +100,7 @@ const dispatchers = defineDispatchers({
 
 const SIOSessionStore = new DispatchingStore(defaultSIOSession, dispatchers)
 
-export function setSIORequest(newRequest?: SIORequest) {
+export function setSIORequest(newRequest?: HoppSIORequest) {
   SIOSessionStore.dispatch({
     dispatcher: "setRequest",
     payload: {
@@ -124,7 +136,7 @@ export function setSIOPath(newPath: string) {
   })
 }
 
-export function setSIOSocket(socket) {
+export function setSIOSocket(socket: SocketIO) {
   SIOSessionStore.dispatch({
     dispatcher: "setSocket",
     payload: {
@@ -150,7 +162,7 @@ export function setSIOConnectingState(state: boolean) {
   })
 }
 
-export function setSIOLog(log) {
+export function setSIOLog(log: HoppRealtimeLog) {
   SIOSessionStore.dispatch({
     dispatcher: "setLog",
     payload: {
@@ -159,7 +171,7 @@ export function setSIOLog(log) {
   })
 }
 
-export function addSIOLogLine(line) {
+export function addSIOLogLine(line: HoppRealtimeLogLine) {
   SIOSessionStore.dispatch({
     dispatcher: "addLogLine",
     payload: {

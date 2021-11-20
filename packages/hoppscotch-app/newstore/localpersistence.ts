@@ -40,8 +40,8 @@ import {
   setCurrentEnvironment,
 } from "./environments"
 import { restRequest$, setRESTRequest } from "./RESTSession"
-import { WSRequest$, setWSRequest } from "./WSSession"
-import { SIORequest$, setSIORequest } from "./SIOSession"
+import { WSRequest$, setWSRequest } from "./WebSocketSession"
+import { SIORequest$, setSIORequest } from "./SocketIOSession"
 import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"

@@ -245,7 +245,7 @@ import {
   addWSLogLine,
   WSLog$,
   setWSLog,
-} from "~/newstore/WSSession"
+} from "~/newstore/WebSocketSession"
 import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({

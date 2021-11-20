@@ -235,7 +235,7 @@ import {
   SIOLog$,
   setSIOLog,
   addSIOLogLine,
-} from "~/newstore/SIOSession"
+} from "~/newstore/SocketIOSession"
 import { useStream } from "~/helpers/utils/composables"
 
 const socketIoClients = {

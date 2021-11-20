@@ -1,25 +1,29 @@
 import { pluck, distinctUntilChanged } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import {
+  HoppRealtimeLog,
+  HoppRealtimeLogLine,
+} from "~/helpers/types/HoppRealtimeLog"
 
-type SSERequest = {
+type HoppSSERequest = {
   endpoint: string
   eventType: string
 }
 
-type SSESession = {
-  request: SSERequest
+type HoppSSESession = {
+  request: HoppSSERequest
   connectingState: boolean
   connectionState: boolean
-  log: Array
-  socket
+  log: HoppRealtimeLog
+  socket?: EventSource
 }
 
-const defaultSSERequest: SSERequest = {
+const defaultSSERequest: HoppSSERequest = {
   endpoint: "https://express-eventsource.herokuapp.com/events",
   eventType: "data",
 }
 
-const defaultSSESession: SSESession = {
+const defaultSSESession: HoppSSESession = {
   request: defaultSSERequest,
   connectionState: false,
   connectingState: false,
@@ -28,12 +32,15 @@ const defaultSSESession: SSESession = {
 }
 
 const dispatchers = defineDispatchers({
-  setRequest(_, { newRequest }: { newRequest: SSERequest }) {
+  setRequest(
+    _: HoppSSESession,
+    { newRequest }: { newRequest: HoppSSERequest }
+  ) {
     return {
       request: newRequest,
     }
   },
-  setEndpoint(curr: SSESession, { newEndpoint }: { newEndpoint: string }) {
+  setEndpoint(curr: HoppSSESession, { newEndpoint }: { newEndpoint: string }) {
     return {
       request: {
         eventType: curr.request.eventType,
@@ -41,7 +48,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setEventType(curr: SSESession, { newType }: { newType: string }) {
+  setEventType(curr: HoppSSESession, { newType }: { newType: string }) {
     return {
       request: {
         endpoint: curr.request.endpoint,
@@ -49,27 +56,27 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setSocket(_, { socket }) {
+  setSocket(_: HoppSSESession, { socket }: { socket: EventSource }) {
     return {
       socket,
     }
   },
-  setConnectionState(_, { state }: { state: boolean }) {
+  setConnectionState(_: HoppSSESession, { state }: { state: boolean }) {
     return {
       connectionState: state,
     }
   },
-  setConnectingState(_, { state }: { state: boolean }) {
+  setConnectingState(_: HoppSSESession, { state }: { state: boolean }) {
     return {
       connectingState: state,
     }
   },
-  setLog(_, { log }) {
+  setLog(_: HoppSSESession, { log }: { log: HoppRealtimeLog }) {
     return {
       log,
     }
   },
-  addLogLine(curr: SSESession, { line }) {
+  addLogLine(curr: HoppSSESession, { line }: { line: HoppRealtimeLogLine }) {
     return {
       log: [...curr.log, line],
     }
@@ -78,7 +85,7 @@ const dispatchers = defineDispatchers({
 
 const SSESessionStore = new DispatchingStore(defaultSSESession, dispatchers)
 
-export function setSSERequest(newRequest?: SSERequest) {
+export function setSSERequest(newRequest?: HoppSSERequest) {
   SSESessionStore.dispatch({
     dispatcher: "setRequest",
     payload: {
@@ -105,7 +112,7 @@ export function setSSEEventType(newType: string) {
   })
 }
 
-export function setSSESocket(socket) {
+export function setSSESocket(socket: EventSource) {
   SSESessionStore.dispatch({
     dispatcher: "setSocket",
     payload: {
@@ -131,7 +138,7 @@ export function setSSEConnectingState(state: boolean) {
   })
 }
 
-export function setSSELog(log) {
+export function setSSELog(log: HoppRealtimeLog) {
   SSESessionStore.dispatch({
     dispatcher: "setLog",
     payload: {
@@ -140,7 +147,7 @@ export function setSSELog(log) {
   })
 }
 
-export function addSSELogLine(line) {
+export function addSSELogLine(line: HoppRealtimeLogLine) {
   SSESessionStore.dispatch({
     dispatcher: "addLogLine",
     payload: {

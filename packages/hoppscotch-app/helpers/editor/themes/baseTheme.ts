@@ -94,9 +94,11 @@ export const baseTheme = EditorView.theme({
   ".cm-activeLine": { backgroundColor: "transparent" },
   ".cm-searchMatch": {
     outline: "1px solid var(--accent-dark-color)",
+    backgroundColor: "var(--divider-dark-color)",
   },
   ".cm-selectionMatch": {
     outline: "1px solid var(--accent-dark-color)",
+    backgroundColor: "var(--divider-light-color)",
   },
   ".cm-matchingBracket, .cm-nonmatchingBracket": {
     backgroundColor: "var(--divider-color)",

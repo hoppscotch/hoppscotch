@@ -1,5 +1,18 @@
 <template>
-  <div class="bg-primary flex p-4 top-0 z-10 sticky items-center">
+  <div
+    class="
+      bg-primary
+      flex
+      p-4
+      top-0
+      z-10
+      sticky
+      items-center
+      overflow-auto
+      hide-scrollbar
+      whitespace-nowrap
+    "
+  >
     <div
       v-if="response == null"
       class="

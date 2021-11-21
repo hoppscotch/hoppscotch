@@ -210,6 +210,7 @@
 <script setup lang="ts">
 import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
 import { isRight } from "fp-ts/lib/Either"
+import * as E from "fp-ts/Either"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -234,6 +235,7 @@ import { useSetting } from "~/newstore/settings"
 import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 
 const methods = [
   "GET",
@@ -332,36 +334,39 @@ const shareLink = ref("")
 const shareLinkStatus = ref(t("request.copy_link"))
 const fetchingShareLink = ref(false)
 
-const copyRequest = () => {
+const copyRequest = async () => {
   shareLink.value = ""
   fetchingShareLink.value = true
-  // 1. init loading
   shareLinkStatus.value = t("state.loading")
-  // 2. TODO: fetch short code
-  shareLink.value = "/abcdefghij"
-  // 3. share / copy link to clipboard
-  if (navigator.share) {
-    const time = new Date().toLocaleTimeString()
-    const date = new Date().toLocaleDateString()
-    navigator
-      .share({
-        title: "Hoppscotch",
-        text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-        url: shareLink.value,
+  const request = getRESTRequest()
+  const shortcodeResult = await createShortcode(request)()
+  if (E.isLeft(shortcodeResult)) {
+    $toast.error(`${shortcodeResult.left.error}`)
+    shareLink.value = `${t("error.something_went_wrong")}`
+  } else if (E.isRight(shortcodeResult)) {
+    shareLink.value = shortcodeResult.right.createShortcode.id
+    if (navigator.share) {
+      const time = new Date().toLocaleTimeString()
+      const date = new Date().toLocaleDateString()
+      navigator
+        .share({
+          title: "Hoppscotch",
+          text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
+          url: `https://hopp.sh/r/${shareLink.value}`,
+        })
+        .then(() => {})
+        .catch(() => {})
+    } else {
+      copyLinkIcon.value = "check"
+      copyToClipboard(`https://hopp.sh/r/${shareLink.value}`)
+      $toast.success(`${t("state.copied_to_clipboard")}`, {
+        icon: "content_paste",
       })
-      .then(() => {})
-      .catch(() => {})
-  } else {
-    copyLinkIcon.value = "check"
-    copyToClipboard(shareLink.value)
-    $toast.success(`${t("state.copied_to_clipboard")}`, {
-      icon: "content_paste",
-    })
-    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
+      setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
+    }
   }
-  // 4. hide loading
   fetchingShareLink.value = false
-  shareLinkStatus.value = shareLink.value
+  shareLinkStatus.value = `/${shareLink.value}`
 }
 
 const cycleUpMethod = () => {

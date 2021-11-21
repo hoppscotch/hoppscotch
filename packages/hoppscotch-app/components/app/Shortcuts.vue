@@ -39,7 +39,15 @@
           />
         </div>
       </div>
-      <div v-if="filterText">
+      <div
+        v-if="filterText"
+        class="
+          divide-y divide-dividerLight
+          flex flex-col flex-1
+          overflow-auto
+          hide-scrollbar
+        "
+      >
         <div
           v-for="(map, mapIndex) in searchResults"
           :key="`map-${mapIndex}`"

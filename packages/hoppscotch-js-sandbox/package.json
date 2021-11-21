@@ -30,7 +30,7 @@
     "apis",
     "test-runner"
   ],
-  "author": "The Hoppscotch Team <support@hoppscotch.io> (https://hoppscotch.com/)",
+  "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
   "dependencies": {
     "fp-ts": "^2.11.5",
@@ -40,18 +40,18 @@
   "devDependencies": {
     "@digitak/esrun": "^1.2.8",
     "@relmify/jest-fp-ts": "^1.1.1",
-    "@types/jest": "^27.0.2",
-    "@types/lodash": "^4.14.176",
-    "@types/node": "^16.11.7",
-    "@typescript-eslint/eslint-plugin": "^5.3.1",
-    "@typescript-eslint/parser": "^5.3.1",
-    "eslint": "^8.2.0",
+    "@types/jest": "^27.0.3",
+    "@types/lodash": "^4.14.177",
+    "@types/node": "^16.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.3.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "io-ts": "^2.2.16",
     "jest": "^27.3.1",
     "prettier": "^2.4.1",
     "ts-jest": "^27.0.7",
-    "typescript": "^4.4.4"
+    "typescript": "^4.5.2"
   }
 }

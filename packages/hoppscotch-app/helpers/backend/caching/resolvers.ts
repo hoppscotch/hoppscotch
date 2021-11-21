@@ -14,5 +14,9 @@ export const resolversDef: GraphCacheResolvers = {
       __typename: "TeamInvitation",
       id: args.inviteID,
     }),
+    shortcode: (_parent, args, _cache, _info) => ({
+      __typename: "Shortcode",
+      id: args.code,
+    }),
   },
 }

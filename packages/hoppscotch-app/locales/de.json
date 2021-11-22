@@ -171,6 +171,8 @@
     "f12_details": "(F12 für Details)",
     "gql_prettify_invalid_query": "Eine ungültige Abfrage konnte nicht verschönert werden, Fehler in der Abfragesyntax konnten nicht behoben und erneut versucht werden",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Ein ungültiger Text konnte nicht verschönert werden, Json-Syntaxfehler beheben und erneut versuchen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Anfrage konnte nicht gesendet werden",

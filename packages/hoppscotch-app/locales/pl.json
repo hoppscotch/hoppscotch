@@ -171,6 +171,8 @@
     "f12_details": "(F12 po szczegóły)",
     "gql_prettify_invalid_query": "Nie można poprawić czytelności nieprawidłowego zapytania, napraw błędy składni zapytania i spróbuj ponownie",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Nie można poprawić czytelności nieprawidłowej treści, napraw błędy składni json i spróbuj ponownie",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nie udało się wysłać zapytania",

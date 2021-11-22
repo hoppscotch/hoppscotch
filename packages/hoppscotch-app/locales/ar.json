@@ -171,6 +171,8 @@
     "f12_details": "(للحصول على تفاصيل F12)",
     "gql_prettify_invalid_query": "تعذر تحسين استعلام غير صالح وحل أخطاء بنية الاستعلام وحاول مرة أخرى",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "تعذر تجميل جسم غير صالح وحل أخطاء بناء جملة json وحاول مرة أخرى",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "تعذر إرسال الطلب",

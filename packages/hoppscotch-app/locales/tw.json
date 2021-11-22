@@ -171,6 +171,8 @@
     "f12_details": "（F12 詳情）",
     "gql_prettify_invalid_query": "無法美化無效的查詢，處理查詢語法錯誤並重試",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "無法美化無效的請求頭，處理 JSON 語法錯誤並重試",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "無法傳送請求",

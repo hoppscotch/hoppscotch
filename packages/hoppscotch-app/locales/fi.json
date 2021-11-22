@@ -171,6 +171,8 @@
     "f12_details": "(F12 lisätietoja)",
     "gql_prettify_invalid_query": "Virheellistä kyselyä ei voitu määrittää, ratkaista kyselyn syntaksivirheet ja yrittää uudelleen",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Virheellistä runkoa ei voitu määrittää, ratkaista json -syntaksivirheitä ja yrittää uudelleen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Pyyntöä ei voitu lähettää",

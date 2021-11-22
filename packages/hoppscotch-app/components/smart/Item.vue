@@ -53,7 +53,7 @@
         class="svg-icons"
       />
     </span>
-    <SmartSpinner v-else class="mr-4" />
+    <SmartSpinner v-else class="mr-4 text-secondaryDark" />
     <div
       class="flex-1 inline-flex truncate items-start"
       :class="{ 'flex-col': description }"

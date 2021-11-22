@@ -171,6 +171,8 @@
     "f12_details": "(Ф12 за детаље)",
     "gql_prettify_invalid_query": "Није могуће унапредити неважећи упит, решити грешке у синтакси упита и покушати поново",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Није могуће унапредити неважеће тело, решити грешке у синтакси јсон -а и покушати поново",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Слање захтева није успело",

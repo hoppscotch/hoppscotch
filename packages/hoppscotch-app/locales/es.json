@@ -171,6 +171,8 @@
     "f12_details": "(F12 para más detalles)",
     "gql_prettify_invalid_query": "No se puede aplicar prettify a una consulta no válida, resuelva los errores de sintaxis de la consulta y vuelva a intentarlo",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "No se puede aplicar prettify a un cuerpo inválido, resuelva errores de sintaxis json y vuelva a intentarlo",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No se pudo enviar la petición",

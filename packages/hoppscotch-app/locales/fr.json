@@ -171,6 +171,8 @@
     "f12_details": "(F12 pour les détails)",
     "gql_prettify_invalid_query": "Impossible de formater une requête non valide, résolvez les erreurs de syntaxe de la requête et réessayer",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Impossible de formater un corps non valide, résolvez les erreurs de syntaxe json et réessayez",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Impossible d'envoyer la requête",

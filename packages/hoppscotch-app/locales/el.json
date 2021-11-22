@@ -171,6 +171,8 @@
     "f12_details": "(F12 για λεπτομέρειες)",
     "gql_prettify_invalid_query": "Δεν ήταν δυνατή η προεπιλογή ενός μη έγκυρου ερωτήματος, η επίλυση σφαλμάτων σύνταξης ερωτήματος και η δοκιμή ξανά",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Δεν ήταν δυνατή η ομορφιά ενός μη έγκυρου σώματος, η επίλυση σφαλμάτων σύνταξης json και η προσπάθεια ξανά",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Δεν ήταν δυνατή η αποστολή του αιτήματος",

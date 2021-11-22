@@ -171,6 +171,8 @@
     "f12_details": "(Ayrıntılar için F12)",
     "gql_prettify_invalid_query": "Geçersiz bir sorgu güzelleştirilemedi, sorgu sözdizimi hatalarını çözüp tekrar deneyin",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Geçersiz bir gövde güzelleştirilemedi, json sözdizimi hatalarını çözüp tekrar deneyin",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "istek gönderilemedi",

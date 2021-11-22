@@ -171,6 +171,8 @@
     "f12_details": "(F12 pro podrobnosti)",
     "gql_prettify_invalid_query": "Neplatný dotaz nelze předběžně upravit, vyřešit chyby syntaxe dotazu a zkusit to znovu",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Nelze předtifikovat neplatné tělo, vyřešit chyby syntaxe json a zkusit to znovu",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Žádost nelze odeslat",

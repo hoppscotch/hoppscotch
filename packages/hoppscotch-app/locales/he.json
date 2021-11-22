@@ -171,6 +171,8 @@
     "f12_details": "(F12 לפרטים)",
     "gql_prettify_invalid_query": "לא ניתן היה לייפות שאילתה לא חוקית, לפתור שגיאות תחביר שאילתות ולנסות שוב",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "לא ניתן היה לייפות גוף לא חוקי, לפתור שגיאות תחביר של json ולנסות שוב",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "לא ניתן היה לשלוח בקשה",

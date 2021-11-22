@@ -171,6 +171,8 @@
     "f12_details": "(F12 for detaljer)",
     "gql_prettify_invalid_query": "Kunne ikke forskjønne en ugyldig spørring, løse spørringssyntaksfeil og prøve igjen",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Kunne ikke forskjønne et ugyldig brødtekst, løse json -syntaksfeil og prøve igjen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kunne ikke sende forespørsel",

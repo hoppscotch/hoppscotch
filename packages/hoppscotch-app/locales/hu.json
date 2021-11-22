@@ -171,6 +171,8 @@
     "f12_details": "(F12 a részletekért)",
     "gql_prettify_invalid_query": "Nem sikerült azonosítani egy érvénytelen lekérdezést, megoldani a lekérdezés szintaktikai hibáit, és megpróbálni újra",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Nem sikerült azonosítani egy érvénytelen törzset, megoldani a json szintaktikai hibákat, és megpróbálni újra",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nem sikerült elküldeni a kérést",

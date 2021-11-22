@@ -171,6 +171,8 @@
     "f12_details": "（詳細はF12）",
     "gql_prettify_invalid_query": "無効なクエリをプリティファイし、クエリ構文エラーを解決して、再試行できませんでした",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "無効な本文をプリティファイし、json構文エラーを解決して再試行できませんでした",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "リクエストを送信できませんでした",

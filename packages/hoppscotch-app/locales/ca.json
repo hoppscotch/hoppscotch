@@ -171,6 +171,8 @@
     "f12_details": "(F12 per obtenir més informació)",
     "gql_prettify_invalid_query": "No s'ha pogut definir una consulta no vàlida, resoldre els errors de sintaxi de la consulta i tornar-ho a provar",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resoldre errors de sintaxi json i tornar-ho a provar",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",

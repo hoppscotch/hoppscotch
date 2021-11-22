@@ -171,6 +171,8 @@
     "f12_details": "(F12 för detaljer)",
     "gql_prettify_invalid_query": "Det gick inte att pryda en ogiltig fråga, lösa frågesyntaxfel och försök igen",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Det gick inte att pryda en ogiltig kropp, lösa json -syntaxfel och försök igen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Det gick inte att skicka förfrågan",

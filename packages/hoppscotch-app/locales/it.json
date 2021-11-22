@@ -171,6 +171,8 @@
     "f12_details": "(F12 per i dettagli)",
     "gql_prettify_invalid_query": "Impossibile abbellire una query non valida, risolvere gli errori di sintassi della query e riprovare",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Impossibile abbellire un corpo non valido, risolvere gli errori di sintassi json e riprovare",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Impossibile inviare la richiesta",

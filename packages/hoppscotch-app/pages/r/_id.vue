@@ -24,9 +24,12 @@
           v-if="!shortcodeDetails.loading && E.isLeft(shortcodeDetails.data)"
           class="flex flex-col p-4 items-center"
         >
-          <i class="mb-4 material-icons">error_outline</i>
-          <p>
-            {{ shortcodeDetails.data.left }}
+          <i class="opacity-75 pb-2 material-icons">error_outline</i>
+          <h1 class="heading text-center">
+            {{ $t("error.invalid_link") }}
+          </h1>
+          <p class="text-center mt-2">
+            {{ $t("error.invalid_link_description") }}
           </p>
           <p class="mt-4">
             <ButtonSecondary to="/" svg="home" filled :label="$t('app.home')" />

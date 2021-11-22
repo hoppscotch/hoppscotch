@@ -333,40 +333,51 @@ const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
 const shareLink = ref("")
 const shareLinkStatus = ref(t("request.copy_link"))
 const fetchingShareLink = ref(false)
+const shareLinkAvailable = ref(false)
 
 const copyRequest = async () => {
-  shareLink.value = ""
-  fetchingShareLink.value = true
-  shareLinkStatus.value = t("state.loading")
-  const request = getRESTRequest()
-  const shortcodeResult = await createShortcode(request)()
-  if (E.isLeft(shortcodeResult)) {
-    $toast.error(`${shortcodeResult.left.error}`)
-    shareLink.value = `${t("error.something_went_wrong")}`
-  } else if (E.isRight(shortcodeResult)) {
-    shareLink.value = shortcodeResult.right.createShortcode.id
-    if (navigator.share) {
-      const time = new Date().toLocaleTimeString()
-      const date = new Date().toLocaleDateString()
-      navigator
-        .share({
-          title: "Hoppscotch",
-          text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-          url: `https://hopp.sh/r/${shareLink.value}`,
-        })
-        .then(() => {})
-        .catch(() => {})
-    } else {
-      copyLinkIcon.value = "check"
-      copyToClipboard(`https://hopp.sh/r/${shareLink.value}`)
-      $toast.success(`${t("state.copied_to_clipboard")}`, {
-        icon: "content_paste",
-      })
-      setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
+  if (shareLinkAvailable.value) {
+    copyShareLink(shareLink.value)
+  } else {
+    shareLink.value = ""
+    fetchingShareLink.value = true
+    shareLinkStatus.value = t("state.loading")
+    const request = getRESTRequest()
+    const shortcodeResult = await createShortcode(request)()
+    if (E.isLeft(shortcodeResult)) {
+      $toast.error(`${shortcodeResult.left.error}`)
+      shareLink.value = `${t("error.something_went_wrong")}`
+      shareLinkAvailable.value = false
+    } else if (E.isRight(shortcodeResult)) {
+      shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
+      shareLinkAvailable.value = true
+      copyShareLink(shareLink.value)
     }
+    fetchingShareLink.value = false
+    shareLinkStatus.value = shareLink.value
   }
-  fetchingShareLink.value = false
-  shareLinkStatus.value = `/${shareLink.value}`
+}
+
+const copyShareLink = (shareLink: string) => {
+  if (navigator.share) {
+    const time = new Date().toLocaleTimeString()
+    const date = new Date().toLocaleDateString()
+    navigator
+      .share({
+        title: "Hoppscotch",
+        text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
+        url: `https://hopp.sh/r${shareLink}`,
+      })
+      .then(() => {})
+      .catch(() => {})
+  } else {
+    copyLinkIcon.value = "check"
+    copyToClipboard(`https://hopp.sh/r${shareLink}`)
+    $toast.success(`${t("state.copied_to_clipboard")}`, {
+      icon: "content_paste",
+    })
+    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
+  }
 }
 
 const cycleUpMethod = () => {

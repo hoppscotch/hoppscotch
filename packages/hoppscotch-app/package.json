@@ -108,7 +108,7 @@
     "@graphql-codegen/add": "^3.1.0",
     "@graphql-codegen/cli": "2.2.2",
     "@graphql-codegen/typed-document-node": "^2.2.0",
-    "@graphql-codegen/typescript": "2.3.1",
+    "@graphql-codegen/typescript": "2.4.1",
     "@graphql-codegen/typescript-operations": "^2.2.0",
     "@graphql-codegen/typescript-urql-graphcache": "^2.2.1",
     "@graphql-codegen/urql-introspection": "^2.1.0",

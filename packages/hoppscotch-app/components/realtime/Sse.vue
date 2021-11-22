@@ -171,9 +171,7 @@ export default defineComponent({
                 ts: new Date().toLocaleTimeString(),
               },
             ]
-            this.$toast.success(this.$t("state.connected"), {
-              icon: "sync",
-            })
+            this.$toast.success(this.$t("state.connected"))
           }
           this.sse.onerror = () => {
             this.handleSSEError()
@@ -188,9 +186,7 @@ export default defineComponent({
               color: "#ff5555",
               ts: new Date().toLocaleTimeString(),
             })
-            this.$toast.error(this.$t("state.disconnected"), {
-              icon: "sync_disabled",
-            })
+            this.$toast.error(this.$t("state.disconnected"))
           }
           this.sse.addEventListener(this.eventType, ({ data }) => {
             this.events.log.push({
@@ -201,9 +197,7 @@ export default defineComponent({
           })
         } catch (e) {
           this.handleSSEError(e)
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
+          this.$toast.error(this.$t("error.something_went_wrong"))
         }
       } else {
         this.events.log = [

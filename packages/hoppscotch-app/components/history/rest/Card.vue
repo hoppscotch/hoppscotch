@@ -49,13 +49,9 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  PropType,
-  useContext,
-} from "@nuxtjs/composition-api"
+import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
 import findStatusGroup from "~/helpers/findStatusGroup"
+import { useI18n } from "~/helpers/utils/composables"
 import { RESTHistoryEntry } from "~/newstore/history"
 
 export default defineComponent({
@@ -64,10 +60,7 @@ export default defineComponent({
     showMore: Boolean,
   },
   setup(props) {
-    const {
-      app: { i18n },
-    } = useContext()
-    const $t = i18n.t.bind(i18n)
+    const t = useI18n()
 
     const duration = computed(() => {
       if (props.entry.responseMeta.duration) {
@@ -75,9 +68,9 @@ export default defineComponent({
         if (!responseDuration) return ""
 
         return responseDuration > 0
-          ? `${$t("request.duration")}: ${responseDuration}ms`
-          : $t("error.no_duration")
-      } else return $t("error.no_duration")
+          ? `${t("request.duration")}: ${responseDuration}ms`
+          : t("error.no_duration")
+      } else return t("error.no_duration")
     })
 
     const entryStatus = computed(() => {

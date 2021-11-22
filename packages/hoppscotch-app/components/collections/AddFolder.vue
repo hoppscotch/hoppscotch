@@ -51,9 +51,7 @@ export default defineComponent({
   methods: {
     addFolder() {
       if (!this.name) {
-        this.$toast.error(this.$t("folder.invalid_name"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("folder.invalid_name"))
         return
       }
       this.$emit("add-folder", {

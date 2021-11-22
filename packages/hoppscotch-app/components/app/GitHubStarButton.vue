@@ -18,19 +18,13 @@
   </transition>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import GithubButton from "vue-github-button"
 
-export default defineComponent({
-  components: {
-    GithubButton,
-  },
-  props: {
-    size: {
-      type: String,
-      default: undefined,
-    },
+defineProps({
+  size: {
+    type: String,
+    default: undefined,
   },
 })
 </script>

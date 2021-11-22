@@ -48,9 +48,7 @@ export default defineComponent({
   methods: {
     saveCollection() {
       if (!this.name) {
-        this.$toast.error(this.$t("collection.invalid_name"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("collection.invalid_name"))
         return
       }
       this.$emit("submit", this.name)

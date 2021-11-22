@@ -251,9 +251,7 @@ export default defineComponent({
         this.$emit("select", { picked: null })
       }
       removeGraphqlCollection(this.collectionIndex)
-      this.$toast.success(`${this.$t("state.deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
     dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging

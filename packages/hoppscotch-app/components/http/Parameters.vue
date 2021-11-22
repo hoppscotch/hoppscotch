@@ -14,32 +14,32 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("request.parameter_list") }}
+        {{ t("request.parameter_list") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/parameters"
           blank
-          :title="$t('app.wiki')"
+          :title="t('app.wiki')"
           svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.clear_all')"
+          :title="t('action.clear_all')"
           svg="trash-2"
-          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
+          @click.native="clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('state.bulk_mode')"
+          :title="t('state.bulk_mode')"
           svg="edit"
           :class="{ '!text-accent': bulkMode }"
           @click.native="bulkMode = !bulkMode"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('add.new')"
+          :title="t('add.new')"
           svg="plus"
           :disabled="bulkMode"
           @click.native="addParam"
@@ -55,7 +55,7 @@
       >
         <SmartEnvInput
           v-model="param.key"
-          :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
+          :placeholder="`${t('count.parameter', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -73,7 +73,7 @@
         />
         <SmartEnvInput
           v-model="param.value"
-          :placeholder="`${$t('count.value', { count: index + 1 })}`"
+          :placeholder="`${t('count.value', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
@@ -95,9 +95,9 @@
             :title="
               param.hasOwnProperty('active')
                 ? param.active
-                  ? $t('action.turn_off')
-                  : $t('action.turn_on')
-                : $t('action.turn_off')
+                  ? t('action.turn_off')
+                  : t('action.turn_on')
+                : t('action.turn_off')
             "
             :svg="
               param.hasOwnProperty('active')
@@ -119,7 +119,7 @@
         <span>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.remove')"
+            :title="t('action.remove')"
             svg="trash"
             color="red"
             @click.native="deleteParam(index)"
@@ -147,13 +147,13 @@
             w-16
             inline-flex
           "
-          :alt="$t('empty.parameters')"
+          :alt="`${t('empty.parameters')}`"
         />
         <span class="text-center pb-4">
-          {{ $t("empty.parameters") }}
+          {{ t("empty.parameters") }}
         </span>
         <ButtonSecondary
-          :label="`${$t('add.new')}`"
+          :label="`${t('add.new')}`"
           svg="plus"
           filled
           class="mb-4"
@@ -165,10 +165,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
+import { ref, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useReadonlyStream,
+  useI18n,
+  useToast,
+} from "~/helpers/utils/composables"
 import {
   restParams$,
   addRESTParam,
@@ -178,11 +182,9 @@ import {
   setRESTParams,
 } from "~/newstore/RESTSession"
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
+
+const toast = useToast()
 
 const bulkMode = ref(false)
 const bulkParams = ref("")
@@ -194,11 +196,9 @@ watch(bulkParams, () => {
       value: item.substring(item.indexOf(":") + 1).trim(),
       active: !item.trim().startsWith("//"),
     }))
-    setRESTParams(transformation)
+    setRESTParams(transformation as HoppRESTParam[])
   } catch (e) {
-    $toast.error(`${t("error.something_went_wrong")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("error.something_went_wrong")}`)
     console.error(e)
   }
 })
@@ -219,12 +219,13 @@ const params$ = useReadonlyStream(restParams$, [])
 watch(
   params$,
   (newValue) => {
-    if (
-      (newValue[newValue.length - 1]?.key !== "" ||
-        newValue[newValue.length - 1]?.value !== "") &&
-      newValue.length
-    )
-      addParam()
+    if (!bulkMode.value)
+      if (
+        (newValue[newValue.length - 1]?.key !== "" ||
+          newValue[newValue.length - 1]?.value !== "") &&
+        newValue.length
+      )
+        addParam()
   },
   { deep: true }
 )
@@ -270,11 +271,10 @@ const deleteParam = (index: number) => {
 
   const deletedItem = parametersBeforeDeletion[index]
   if (deletedItem.key || deletedItem.value) {
-    $toast.success(t("state.deleted").toString(), {
-      icon: "delete",
+    toast.success(`${t("state.deleted")}`, {
       action: [
         {
-          text: t("action.undo").toString(),
+          text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
             setRESTParams(parametersBeforeDeletion as HoppRESTParam[])
             editBulkParamsLine(index, deletedItem)

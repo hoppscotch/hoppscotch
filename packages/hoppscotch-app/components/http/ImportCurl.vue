@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="`${$t('import.curl')}`" @close="hideModal">
+  <SmartModal v-if="show" :title="`${t('import.curl')}`" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <div ref="curlEditor" class="border border-dividerLight rounded"></div>
@@ -8,11 +8,11 @@
     <template #footer>
       <span class="flex">
         <ButtonPrimary
-          :label="`${$t('import.title')}`"
+          :label="`${t('import.title')}`"
           @click.native="handleImport"
         />
         <ButtonSecondary
-          :label="`${$t('action.cancel')}`"
+          :label="`${t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext } from "@nuxtjs/composition-api"
+import { ref } from "@nuxtjs/composition-api"
 import parseCurlCommand from "~/helpers/curlparser"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
@@ -30,12 +30,11 @@ import {
   makeRESTRequest,
 } from "~/helpers/types/HoppRESTRequest"
 import { setRESTRequest } from "~/newstore/RESTSession"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
+
+const toast = useToast()
 
 const curl = ref("")
 
@@ -123,9 +122,7 @@ const handleImport = () => {
     )
   } catch (e) {
     console.error(e)
-    $toast.error(`${t("error.curl_invalid_format")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("error.curl_invalid_format")}`)
   }
   hideModal()
 }

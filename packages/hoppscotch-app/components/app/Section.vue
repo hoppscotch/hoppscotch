@@ -4,15 +4,11 @@
   </section>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-
-export default defineComponent({
-  props: {
-    label: {
-      type: String,
-      default: "Section",
-    },
+<script setup lang="ts">
+defineProps({
+  label: {
+    type: String,
+    default: "Section",
   },
 })
 </script>

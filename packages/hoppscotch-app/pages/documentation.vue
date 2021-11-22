@@ -230,15 +230,11 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          this.$toast.success(this.$t("export.gist_created"), {
-            icon: "done",
-          })
+          this.$toast.success(this.$t("export.gist_created"))
           window.open(res.html_url)
         })
         .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
+          this.$toast.error(this.$t("error.something_went_wrong"))
           console.error(e)
         })
     },
@@ -251,13 +247,9 @@ export default defineComponent({
           this.collectionJSON = target.result
         }
         reader.readAsText(file)
-        this.$toast.success(this.$t("state.file_imported"), {
-          icon: "attach_file",
-        })
+        this.$toast.success(this.$t("state.file_imported"))
       } else {
-        this.$toast.error(this.$t("action.choose_file"), {
-          icon: "attach_file",
-        })
+        this.$toast.error(this.$t("action.choose_file"))
       }
       this.$refs.collectionUpload.value = ""
     },
@@ -288,9 +280,7 @@ export default defineComponent({
         this.items = JSON.parse(this.collectionJSON)
         this.assignIDs(this.items, "", "#")
         this.$toast.clear()
-        this.$toast.success(this.$t("state.docs_generated"), {
-          icon: "book",
-        })
+        this.$toast.success(this.$t("state.docs_generated"))
         const docsMarkdown = Mustache.render(
           DocsTemplate,
           {
@@ -325,9 +315,7 @@ export default defineComponent({
         this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n\n")
       } catch (e) {
         console.error(e)
-        this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("error.something_went_wrong"))
       }
     },
 

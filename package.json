@@ -4,6 +4,7 @@
   "description": "Open source API development ecosystem",
   "author": "Hoppscotch (support@hoppscotch.io)",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
@@ -20,10 +21,10 @@
   ],
   "dependencies": {
     "husky": "^7.0.4",
-    "lint-staged": "^12.0.2"
+    "lint-staged": "^12.0.3"
   },
   "devDependencies": {
-    "@commitlint/cli": "^14.1.0",
-    "@commitlint/config-conventional": "^14.1.0"
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0"
   }
 }

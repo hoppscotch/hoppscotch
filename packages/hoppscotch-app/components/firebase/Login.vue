@@ -155,9 +155,7 @@ export default defineComponent({
   },
   methods: {
     showLoginSuccess() {
-      this.$toast.success(`${this.$t("auth.login_success")}`, {
-        icon: "vpn_key",
-      })
+      this.$toast.success(`${this.$t("auth.login_success")}`)
     },
     async signInWithGoogle() {
       this.signingInWithGoogle = true
@@ -174,7 +172,6 @@ export default defineComponent({
           // The pending Google credential.
           const pendingCred = e.credential
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
-            icon: "vpn_key",
             duration: 0,
             closeOnSwipe: false,
             action: {
@@ -190,9 +187,7 @@ export default defineComponent({
             },
           })
         } else {
-          this.$toast.error(`${this.$t("error.something_went_wrong")}`, {
-            icon: "error_outline",
-          })
+          this.$toast.error(`${this.$t("error.something_went_wrong")}`)
         }
       }
 
@@ -218,7 +213,6 @@ export default defineComponent({
           // The pending Google credential.
           const pendingCred = e.credential
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
-            icon: "vpn_key",
             duration: 0,
             closeOnSwipe: false,
             action: {
@@ -234,9 +228,7 @@ export default defineComponent({
             },
           })
         } else {
-          this.$toast.error(`${this.$t("error.something_went_wrong")}`, {
-            icon: "error_outline",
-          })
+          this.$toast.error(`${this.$t("error.something_went_wrong")}`)
         }
       }
 
@@ -256,9 +248,7 @@ export default defineComponent({
         })
         .catch((e) => {
           console.error(e)
-          this.$toast.error(e.message, {
-            icon: "error_outline",
-          })
+          this.$toast.error(e.message)
           this.signingInWithEmail = false
         })
         .finally(() => {

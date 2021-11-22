@@ -17,13 +17,13 @@
               w-24
               inline-flex
             "
-            :alt="$t('empty.parameters')"
+            :alt="`${t('empty.parameters')}`"
           />
           <p class="text-center pb-4 text-secondaryLight">
-            {{ $t("empty.profile") }}
+            {{ t("empty.profile") }}
           </p>
           <ButtonPrimary
-            :label="$t('auth.login')"
+            :label="t('auth.login')"
             class="mb-4"
             @click.native="showLogin = true"
           />
@@ -44,7 +44,7 @@
               <SmartIcon v-else name="user" class="svg-icons" />
               <div class="ml-4">
                 <label class="heading">
-                  {{ currentUser.displayName || $t("state.nothing_found") }}
+                  {{ currentUser.displayName || t("state.nothing_found") }}
                 </label>
                 <p class="flex text-secondaryLight items-center">
                   {{ currentUser.email }}
@@ -61,7 +61,7 @@
                 <SmartItem
                   to="/settings"
                   svg="settings"
-                  :label="$t('profile.app_settings')"
+                  :label="t('profile.app_settings')"
                   outline
                 />
               </div>
@@ -71,19 +71,19 @@
           <SmartTabs>
             <SmartTab
               :id="'sync'"
-              :label="$t('settings.account')"
+              :label="t('settings.account')"
               :selected="true"
             >
               <section class="p-4">
                 <h4 class="font-semibold text-secondaryDark">
-                  {{ $t("settings.profile") }}
+                  {{ t("settings.profile") }}
                 </h4>
                 <div class="mt-1 text-secondaryLight">
-                  {{ $t("settings.profile_description") }}
+                  {{ t("settings.profile_description") }}
                 </div>
                 <div class="py-4">
                   <label for="displayName">
-                    {{ $t("settings.profile_name") }}
+                    {{ t("settings.profile_name") }}
                   </label>
                   <form
                     class="flex md:max-w-sm mt-2"
@@ -93,13 +93,13 @@
                       id="displayName"
                       v-model="displayName"
                       class="input"
-                      :placeholder="$t('settings.profile_name')"
+                      :placeholder="`${t('settings.profile_name')}`"
                       type="text"
                       autocomplete="off"
                       required
                     />
                     <ButtonPrimary
-                      :label="$t('action.save').toString()"
+                      :label="t('action.save')"
                       class="ml-2 min-w-16"
                       type="submit"
                       :loading="updatingDisplayName"
@@ -109,10 +109,10 @@
               </section>
               <section class="p-4">
                 <h4 class="font-semibold text-secondaryDark">
-                  {{ $t("settings.sync") }}
+                  {{ t("settings.sync") }}
                 </h4>
                 <div class="mt-1 text-secondaryLight">
-                  {{ $t("settings.sync_description") }}
+                  {{ t("settings.sync_description") }}
                 </div>
                 <div class="space-y-4 py-4">
                   <div class="flex items-center">
@@ -120,7 +120,7 @@
                       :on="SYNC_COLLECTIONS"
                       @change="toggleSetting('syncCollections')"
                     >
-                      {{ $t("settings.sync_collections") }}
+                      {{ t("settings.sync_collections") }}
                     </SmartToggle>
                   </div>
                   <div class="flex items-center">
@@ -128,7 +128,7 @@
                       :on="SYNC_ENVIRONMENTS"
                       @change="toggleSetting('syncEnvironments')"
                     >
-                      {{ $t("settings.sync_environments") }}
+                      {{ t("settings.sync_environments") }}
                     </SmartToggle>
                   </div>
                   <div class="flex items-center">
@@ -136,13 +136,13 @@
                       :on="SYNC_HISTORY"
                       @change="toggleSetting('syncHistory')"
                     >
-                      {{ $t("settings.sync_history") }}
+                      {{ t("settings.sync_history") }}
                     </SmartToggle>
                   </div>
                 </div>
               </section>
             </SmartTab>
-            <SmartTab :id="'teams'" :label="$t('team.title')">
+            <SmartTab :id="'teams'" :label="t('team.title')">
               <AppSection label="teams">
                 <Teams :modal="false" />
               </AppSection>
@@ -156,21 +156,12 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  useContext,
-  useMeta,
-  defineComponent,
-} from "@nuxtjs/composition-api"
+import { ref, useMeta, defineComponent } from "@nuxtjs/composition-api"
 import { currentUser$, setDisplayName } from "~/helpers/fb/auth"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
 
-const {
-  app: { i18n },
-} = useContext()
-
-const t = i18n.t.bind(i18n)
+const t = useI18n()
 
 const showLogin = ref(false)
 

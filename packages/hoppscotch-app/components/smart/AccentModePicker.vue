@@ -23,8 +23,7 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import {
   HoppAccentColors,
   HoppAccentColor,
@@ -32,18 +31,11 @@ import {
   useSetting,
 } from "~/newstore/settings"
 
-export default defineComponent({
-  setup() {
-    return {
-      accentColors: HoppAccentColors,
-      active: useSetting("THEME_COLOR"),
-    }
-  },
-  methods: {
-    setActiveColor(color: HoppAccentColor) {
-      document.documentElement.setAttribute("data-accent", color)
-      applySetting("THEME_COLOR", color)
-    },
-  },
-})
+const accentColors = HoppAccentColors
+const active = useSetting("THEME_COLOR")
+
+const setActiveColor = (color: HoppAccentColor) => {
+  document.documentElement.setAttribute("data-accent", color)
+  applySetting("THEME_COLOR", color)
+}
 </script>

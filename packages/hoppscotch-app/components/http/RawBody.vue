@@ -14,26 +14,26 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("request.raw_body") }}
+        {{ t("request.raw_body") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/body"
           blank
-          :title="$t('app.wiki')"
+          :title="t('app.wiki')"
           svg="help-circle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('state.linewrap')"
+          :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
           svg="corner-down-left"
           @click.native.prevent="linewrapEnabled = !linewrapEnabled"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.clear')"
+          :title="t('action.clear')"
           svg="trash-2"
           @click.native="clearContent"
         />
@@ -41,14 +41,14 @@
           v-if="contentType && contentType.endsWith('json')"
           ref="prettifyRequest"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.prettify')"
+          :title="t('action.prettify')"
           :svg="prettifyIcon"
           @click.native="prettifyRequestBody"
         />
         <label for="payload">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('import.json')"
+            :title="t('import.json')"
             svg="file-plus"
             @click.native="$refs.payload.click()"
           />
@@ -67,21 +67,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref, useContext } from "@nuxtjs/composition-api"
+import { computed, reactive, ref } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
-import { pluckRef } from "~/helpers/utils/composables"
+import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
+
+const t = useI18n()
 
 const props = defineProps<{
   contentType: string
 }>()
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const toast = useToast()
 
 const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
 const prettifyIcon = ref("wand")
@@ -118,13 +116,9 @@ const uploadPayload = (e: InputEvent) => {
       rawParamsBody.value = target?.result
     }
     reader.readAsText(file)
-    $toast.success(`${t("state.file_imported")}`, {
-      icon: "attach_file",
-    })
+    toast.success(`${t("state.file_imported")}`)
   } else {
-    $toast.error(`${t("action.choose_file")}`, {
-      icon: "attach_file",
-    })
+    toast.error(`${t("action.choose_file")}`)
   }
 }
 const prettifyRequestBody = () => {
@@ -135,9 +129,7 @@ const prettifyRequestBody = () => {
     setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
-    $toast.error(`${t("error.json_prettify_invalid_body")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
 }
 </script>

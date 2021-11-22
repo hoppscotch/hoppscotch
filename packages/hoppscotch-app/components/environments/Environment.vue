@@ -102,9 +102,7 @@ export default defineComponent({
     removeEnvironment() {
       if (this.environmentIndex !== "Global")
         deleteEnvironment(this.environmentIndex)
-      this.$toast.success(`${this.$t("state.deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
     duplicateEnvironment() {
       if (this.environmentIndex === "Global") {

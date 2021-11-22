@@ -1,12 +1,12 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('app.invite_your_friends')"
-    @close="$emit('hide-modal')"
+    :title="t('app.invite_your_friends')"
+    @close="hideModal"
   >
     <template #body>
       <p class="text-secondaryLight mb-8 px-2">
-        {{ $t("app.invite_description") }}
+        {{ t("app.invite_description") }}
       </p>
       <div class="flex flex-col space-y-2 px-2">
         <div class="grid gap-4 grid-cols-3">
@@ -25,7 +25,7 @@
           <button class="share-link" @click="copyAppLink">
             <SmartIcon class="h-6 text-xl w-6" :name="copyIcon" />
             <span class="mt-3">
-              {{ $t("app.copy") }}
+              {{ t("app.copy") }}
             </span>
           </button>
         </div>
@@ -34,70 +34,70 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  data() {
-    const url = "https://hoppscotch.io"
-    const text = "Hoppscotch - Open source API development ecosystem."
-    const description =
-      "Helps you create requests faster, saving precious time on development."
-    const subject =
-      "Checkout Hoppscotch - an open source API development ecosystem"
-    const summary = `Hi there!%0D%0A%0D%0AI thought you’ll like this new platform that I joined called Hoppscotch - https://hoppscotch.io.%0D%0AIt is a simple and intuitive interface for creating and managing your APIs. You can build, test, document, and share your APIs.%0D%0A%0D%0AThe best part about Hoppscotch is that it is open source and free to get started.%0D%0A%0D%0A`
-    const twitter = "hoppscotch_io"
+const t = useI18n()
 
-    return {
-      url: "https://hoppscotch.io",
-      copyIcon: "copy",
-      platforms: [
-        {
-          name: "Email",
-          icon: "mail",
-          link: `mailto:?subject=${subject}&body=${summary}`,
-        },
-        {
-          name: "Twitter",
-          icon: "brands/twitter",
-          link: `https://twitter.com/intent/tweet?text=${text} ${description}&url=${url}&via=${twitter}`,
-        },
-        {
-          name: "Facebook",
-          icon: "brands/facebook",
-          link: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
-        },
-        {
-          name: "Reddit",
-          icon: "brands/reddit",
-          link: `https://www.reddit.com/submit?url=${url}&title=${text}`,
-        },
-        {
-          name: "LinkedIn",
-          icon: "brands/linkedin",
-          link: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
-        },
-      ],
-    }
+const toast = useToast()
+
+defineProps<{
+  show: Boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const url = "https://hoppscotch.io"
+const text = "Hoppscotch - Open source API development ecosystem."
+const description =
+  "Helps you create requests faster, saving precious time on development."
+const subject = "Checkout Hoppscotch - an open source API development ecosystem"
+const summary = `Hi there!%0D%0A%0D%0AI thought you’ll like this new platform that I joined called Hoppscotch - https://hoppscotch.io.%0D%0AIt is a simple and intuitive interface for creating and managing your APIs. You can build, test, document, and share your APIs.%0D%0A%0D%0AThe best part about Hoppscotch is that it is open source and free to get started.%0D%0A%0D%0A`
+const twitter = "hoppscotch_io"
+
+const copyIcon = ref("copy")
+const platforms = [
+  {
+    name: "Email",
+    icon: "mail",
+    link: `mailto:?subject=${subject}&body=${summary}`,
   },
-  methods: {
-    copyAppLink() {
-      copyToClipboard(this.url)
-      this.copyIcon = "check"
-      this.$toast.success(this.$t("state.copied_to_clipboard"), {
-        icon: "content_paste",
-      })
-      setTimeout(() => (this.copyIcon = "copy"), 1000)
-    },
-    hideModal() {
-      this.$emit("hide-modal")
-    },
+  {
+    name: "Twitter",
+    icon: "brands/twitter",
+    link: `https://twitter.com/intent/tweet?text=${text} ${description}&url=${url}&via=${twitter}`,
   },
-})
+  {
+    name: "Facebook",
+    icon: "brands/facebook",
+    link: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+  },
+  {
+    name: "Reddit",
+    icon: "brands/reddit",
+    link: `https://www.reddit.com/submit?url=${url}&title=${text}`,
+  },
+  {
+    name: "LinkedIn",
+    icon: "brands/linkedin",
+    link: `https://www.linkedin.com/sharing/share-offsite/?url=${url}`,
+  },
+]
+
+const copyAppLink = () => {
+  copyToClipboard(url)
+  copyIcon.value = "check"
+  toast.success(`${t("state.copied_to_clipboard")}`)
+  setTimeout(() => (copyIcon.value = "copy"), 1000)
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>
 
 <style lang="scss" scoped>

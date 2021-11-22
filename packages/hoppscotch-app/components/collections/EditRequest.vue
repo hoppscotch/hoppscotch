@@ -47,9 +47,7 @@ export default defineComponent({
   methods: {
     saveRequest() {
       if (!this.requestUpdateData.name) {
-        this.$toast.error(this.$t("request.invalid_name"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("request.invalid_name"))
         return
       }
       this.$emit("submit", this.requestUpdateData)

@@ -35,13 +35,8 @@
   @apply bg-divider;
 }
 
-.cm-focused {
-  @apply !outline-none;
-}
-
 input::placeholder,
-textarea::placeholder,
-.CodeMirror-empty {
+textarea::placeholder {
   @apply text-secondary;
   @apply opacity-25;
 }
@@ -318,7 +313,7 @@ pre.ace_editor {
     &.toasted-primary {
       @apply bg-tooltip;
       @apply text-primary;
-      @apply justify-start;
+      @apply justify-between;
       @apply shadow;
       @apply font-medium;
       @apply transition;
@@ -391,7 +386,7 @@ pre.ace_editor {
 .smart-splitter .splitpanes__splitter::before {
   @apply absolute;
   @apply inset-0;
-  @apply bg-dividerLight;
+  @apply bg-accentLight;
   @apply opacity-0;
   @apply z-20;
   @apply transition;
@@ -435,29 +430,16 @@ pre.ace_editor {
   @apply w-full;
 }
 
-.CodeMirror {
-  @apply !h-auto;
+.cm-focused {
+  @apply select-auto;
+  @apply !outline-none;
 
-  font-size: var(--body-font-size);
-
-  &:not(.CodeMirror-focused) .CodeMirror-activeline-background {
-    background: transparent !important;
-  }
-
-  .CodeMirror-dialog-top {
+  .cm-activeLine {
     @apply bg-primaryLight;
-    @apply border-dividerLight;
-    @apply px-4;
-    @apply py-2;
-    @apply z-5;
   }
 
-  .CodeMirror-scroll {
-    @apply min-h-64;
-  }
-
-  * {
-    font-family: "Roboto Mono", monospace;
+  .cm-activeLineGutter {
+    @apply bg-primaryDark;
   }
 }
 

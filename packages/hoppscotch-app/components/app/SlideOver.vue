@@ -33,37 +33,34 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { onMounted, watch } from "@nuxtjs/composition-api"
 
-export default defineComponent({
-  props: {
-    show: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
-  },
-  watch: {
-    show: {
-      immediate: true,
-      handler(show) {
-        if (process.client) {
-          if (show) document.body.style.setProperty("overflow", "hidden")
-          else document.body.style.removeProperty("overflow")
-        }
-      },
-    },
-  },
-  mounted() {
-    document.addEventListener("keydown", (e) => {
-      if (e.keyCode === 27 && this.show) this.close()
-    })
-  },
-  methods: {
-    close() {
-      this.$emit("close")
-    },
-  },
+const props = defineProps<{
+  show: Boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "close"): void
+}>()
+
+watch(
+  () => props.show,
+  (show) => {
+    if (process.client) {
+      if (show) document.body.style.setProperty("overflow", "hidden")
+      else document.body.style.removeProperty("overflow")
+    }
+  }
+)
+
+onMounted(() => {
+  document.addEventListener("keydown", (e) => {
+    if (e.keyCode === 27 && props.show) close()
+  })
 })
+
+const close = () => {
+  emit("close")
+}
 </script>

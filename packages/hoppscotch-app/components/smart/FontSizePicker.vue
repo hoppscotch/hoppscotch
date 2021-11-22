@@ -5,12 +5,12 @@
         <span class="select-wrapper">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('settings.change_font_size')"
+            :title="t('settings.change_font_size')"
             class="pr-8"
             svg="type"
             outline
             :label="`${getFontSizeName(
-              fontSizes.find((size) => size == active)
+              fontSizes.find((size) => size === active)
             )}`"
           />
         </span>
@@ -32,30 +32,26 @@
   </span>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import {
   HoppFontSizes,
   HoppFontSize,
   applySetting,
   useSetting,
 } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  setup() {
-    return {
-      fontSizes: HoppFontSizes,
-      active: useSetting("FONT_SIZE"),
-    }
-  },
-  methods: {
-    getFontSizeName(size: HoppFontSize) {
-      return this.$t(`settings.font_size_${size}`)
-    },
-    setActiveFont(size: HoppFontSize) {
-      document.documentElement.setAttribute("data-font-size", size)
-      applySetting("FONT_SIZE", size)
-    },
-  },
-})
+const t = useI18n()
+
+const fontSizes = HoppFontSizes
+const active = useSetting("FONT_SIZE")
+
+const getFontSizeName = (size: HoppFontSize) => {
+  return t(`settings.font_size_${size}`)
+}
+
+const setActiveFont = (size: HoppFontSize) => {
+  document.documentElement.setAttribute("data-font-size", size)
+  applySetting("FONT_SIZE", size)
+}
 </script>

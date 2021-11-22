@@ -361,14 +361,10 @@ export default defineComponent({
             this.collectionsType.selectedTeam.id
           )
           .then(() => {
-            this.$toast.success(this.$t("collection.created"), {
-              icon: "done",
-            })
+            this.$toast.success(this.$t("collection.created"))
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           })
       }
@@ -377,9 +373,7 @@ export default defineComponent({
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {
       if (!newName) {
-        this.$toast.error(this.$t("collection.invalid_name"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("collection.invalid_name"))
         return
       }
       if (this.collectionsType.type === "my-collections") {
@@ -396,14 +390,10 @@ export default defineComponent({
         teamUtils
           .renameCollection(this.$apollo, newName, this.editingCollection.id)
           .then(() => {
-            this.$toast.success(this.$t("collection.renamed"), {
-              icon: "done",
-            })
+            this.$toast.success(this.$t("collection.renamed"))
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           })
       }
@@ -420,14 +410,10 @@ export default defineComponent({
         teamUtils
           .renameCollection(this.$apollo, name, this.editingFolder.id)
           .then(() => {
-            this.$toast.success(this.$t("folder.renamed"), {
-              icon: "done",
-            })
+            this.$toast.success(this.$t("folder.renamed"))
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           })
       }
@@ -460,15 +446,11 @@ export default defineComponent({
             this.editingRequestIndex
           )
           .then(() => {
-            this.$toast.success(this.$t("request.renamed"), {
-              icon: "done",
-            })
+            this.$toast.success(this.$t("request.renamed"))
             this.$emit("update-team-collections")
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           })
       }
@@ -533,15 +515,11 @@ export default defineComponent({
               },
             })
             .then(() => {
-              this.$toast.success(this.$t("folder.created"), {
-                icon: "done",
-              })
+              this.$toast.success(this.$t("folder.created"))
               this.$emit("update-team-collections")
             })
             .catch((e) => {
-              this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error_outline",
-              })
+              this.$toast.error(this.$t("error.something_went_wrong"))
               console.error(e)
             })
         }
@@ -605,9 +583,7 @@ export default defineComponent({
         }
 
         removeRESTCollection(collectionIndex)
-        this.$toast.success(this.$t("state.deleted"), {
-          icon: "delete",
-        })
+        this.$toast.success(this.$t("state.deleted"))
       } else if (collectionsType.type === "team-collections") {
         // Cancel pick if picked collection is deleted
         if (
@@ -633,14 +609,10 @@ export default defineComponent({
               },
             })
             .then(() => {
-              this.$toast.success(this.$t("state.deleted"), {
-                icon: "delete",
-              })
+              this.$toast.success(this.$t("state.deleted"))
             })
             .catch((e) => {
-              this.$toast.error(this.$t("error.something_went_wrong"), {
-                icon: "error_outline",
-              })
+              this.$toast.error(this.$t("error.something_went_wrong"))
               console.error(e)
             })
         }
@@ -658,9 +630,7 @@ export default defineComponent({
           this.$emit("select", { picked: null })
         }
         removeRESTRequest(folderPath, requestIndex)
-        this.$toast.success(this.$t("state.deleted"), {
-          icon: "delete",
-        })
+        this.$toast.success(this.$t("state.deleted"))
       } else if (this.collectionsType.type === "team-collections") {
         // Cancel pick if the picked item is being deleted
         if (
@@ -674,14 +644,10 @@ export default defineComponent({
         teamUtils
           .deleteRequest(this.$apollo, requestIndex)
           .then(() => {
-            this.$toast.success(this.$t("state.deleted"), {
-              icon: "delete",
-            })
+            this.$toast.success(this.$t("state.deleted"))
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           })
       }

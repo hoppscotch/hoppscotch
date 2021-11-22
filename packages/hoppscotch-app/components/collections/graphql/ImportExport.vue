@@ -140,15 +140,11 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          this.$toast.success(this.$t("export.gist_created"), {
-            icon: "done",
-          })
+          this.$toast.success(this.$t("export.gist_created"))
           window.open(res.html_url)
         })
         .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
+          this.$toast.error(this.$t("error.something_went_wrong"))
           console.error(e)
         })
     },
@@ -252,23 +248,17 @@ export default defineComponent({
       a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.json`
       document.body.appendChild(a)
       a.click()
-      this.$toast.success(this.$t("state.download_started"), {
-        icon: "downloading",
-      })
+      this.$toast.success(this.$t("state.download_started"))
       setTimeout(() => {
         document.body.removeChild(a)
         URL.revokeObjectURL(url)
       }, 1000)
     },
     fileImported() {
-      this.$toast.success(this.$t("state.file_imported"), {
-        icon: "folder_shared",
-      })
+      this.$toast.success(this.$t("state.file_imported"))
     },
     failedImport() {
-      this.$toast.error(this.$t("import.failed"), {
-        icon: "error_outline",
-      })
+      this.$toast.error(this.$t("import.failed"))
     },
     parsePostmanCollection({ info, name, item }) {
       const hoppscotchCollection = {

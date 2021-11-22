@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('collection.save_as')}`"
+    :title="`${t('collection.save_as')}`"
     @close="hideModal"
   >
     <template #body>
@@ -18,11 +18,11 @@
             @keyup.enter="saveRequestAs"
           />
           <label for="selectLabelSaveReq">
-            {{ $t("request.name") }}
+            {{ t("request.name") }}
           </label>
         </div>
         <label class="p-4">
-          {{ $t("collection.select_location") }}
+          {{ t("collection.select_location") }}
         </label>
         <CollectionsGraphql
           v-if="mode === 'graphql'"
@@ -45,11 +45,11 @@
     <template #footer>
       <span>
         <ButtonPrimary
-          :label="`${$t('action.save')}`"
+          :label="`${t('action.save')}`"
           @click.native="saveRequestAs"
         />
         <ButtonSecondary
-          :label="`${$t('action.cancel')}`"
+          :label="`${t('action.cancel')}`"
           @click.native="hideModal"
         />
       </span>
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, useContext, watch } from "@nuxtjs/composition-api"
+import { reactive, ref, watch } from "@nuxtjs/composition-api"
 import { isHoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import {
   editGraphqlRequest,
@@ -75,6 +75,9 @@ import {
 import * as teamUtils from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { useI18n, useToast } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 type CollectionType =
   | {
@@ -137,12 +140,7 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-
-const t = i18n.t.bind(i18n)
+const toast = useToast()
 
 // TODO: Use a better implementation with computed ?
 // This implementation can't work across updates to mode prop (which won't happen tho)
@@ -194,15 +192,11 @@ const hideModal = () => {
 
 const saveRequestAs = async () => {
   if (!requestName.value) {
-    $toast.error(`${t("error.empty_req_name")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("error.empty_req_name")}`)
     return
   }
   if (picked.value === null) {
-    $toast.error(`${t("collection.select")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("collection.select")}`)
     return
   }
 
@@ -283,9 +277,7 @@ const saveRequestAs = async () => {
         requestSaved()
       })
       .catch((error) => {
-        $toast.error(t("profile.no_permission").toString(), {
-          icon: "error_outline",
-        })
+        toast.error(`${t("profile.no_permission")}`)
         throw new Error(error)
       })
 
@@ -320,9 +312,7 @@ const saveRequestAs = async () => {
 
       requestSaved()
     } catch (error) {
-      $toast.error(t("profile.no_permission").toString(), {
-        icon: "error_outline",
-      })
+      toast.error(`${t("profile.no_permission")}`)
       console.error(error)
     }
   } else if (picked.value.pickedType === "teams-collection") {
@@ -352,9 +342,7 @@ const saveRequestAs = async () => {
 
       requestSaved()
     } catch (error) {
-      $toast.error(t("profile.no_permission").toString(), {
-        icon: "error_outline",
-      })
+      toast.error(`${t("profile.no_permission")}`)
       console.error(error)
     }
   } else if (picked.value.pickedType === "gql-my-request") {
@@ -386,9 +374,7 @@ const saveRequestAs = async () => {
 }
 
 const requestSaved = () => {
-  $toast.success(`${t("request.added")}`, {
-    icon: "post_add",
-  })
+  toast.success(`${t("request.added")}`)
   hideModal()
 }
 

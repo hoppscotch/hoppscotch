@@ -15,7 +15,7 @@
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-center">
-        {{ $t("state.nothing_found") }} "{{ search }}"
+        {{ t("state.nothing_found") }} "{{ search }}"
       </span>
     </div>
   </div>
@@ -26,6 +26,9 @@ import { computed, onUnmounted, onMounted } from "@nuxtjs/composition-api"
 import Fuse from "fuse.js"
 import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
 import { HoppAction } from "~/helpers/actions"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps<{
   input: Record<string, any>[]

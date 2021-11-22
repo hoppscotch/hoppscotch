@@ -5,7 +5,7 @@
       class="flex flex-col p-4 items-center justify-center"
     >
       <SmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div v-else-if="responseString">
       <div
@@ -22,12 +22,12 @@
         "
       >
         <label class="font-semibold text-secondaryLight">
-          {{ $t("response.title") }}
+          {{ t("response.title") }}
         </label>
         <div class="flex">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('state.linewrap')"
+            :title="t('state.linewrap')"
             :class="{ '!text-accent': linewrapEnabled }"
             svg="corner-down-left"
             @click.native.prevent="linewrapEnabled = !linewrapEnabled"
@@ -35,14 +35,14 @@
           <ButtonSecondary
             ref="downloadResponse"
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.download_file')"
+            :title="t('action.download_file')"
             :svg="downloadResponseIcon"
             @click.native="downloadResponse"
           />
           <ButtonSecondary
             ref="copyResponseButton"
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.copy')"
+            :title="t('action.copy')"
             :svg="copyResponseIcon"
             @click.native="copyResponse"
           />
@@ -63,10 +63,10 @@
       <div class="flex space-x-2 pb-4 my-4">
         <div class="flex flex-col space-y-4 text-right items-end">
           <span class="flex flex-1 items-center">
-            {{ $t("shortcut.general.command_menu") }}
+            {{ t("shortcut.general.command_menu") }}
           </span>
           <span class="flex flex-1 items-center">
-            {{ $t("shortcut.general.help_menu") }}
+            {{ t("shortcut.general.help_menu") }}
           </span>
         </div>
         <div class="flex flex-col space-y-4">
@@ -79,8 +79,8 @@
         </div>
       </div>
       <ButtonSecondary
-        :label="`${$t('app.documentation')}`"
-        to="https://docs.hoppscotch.io"
+        :label="`${t('app.documentation')}`"
+        to="https://docs.hoppscotch.io/features/response"
         svg="external-link"
         blank
         outline
@@ -91,17 +91,19 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, useContext } from "@nuxtjs/composition-api"
+import { reactive, ref } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useReadonlyStream,
+  useI18n,
+  useToast,
+} from "~/helpers/utils/composables"
 import { gqlResponse$ } from "~/newstore/GQLSession"
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
+
+const toast = useToast()
 
 const responseString = useReadonlyStream(gqlResponse$, "")
 
@@ -128,6 +130,7 @@ const copyResponseIcon = ref("copy")
 const copyResponse = () => {
   copyToClipboard(responseString.value!)
   copyResponseIcon.value = "check"
+  toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyResponseIcon.value = "copy"), 1000)
 }
 
@@ -141,9 +144,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadResponseIcon.value = "check"
-  $toast.success(`${t("state.download_started")}`, {
-    icon: "downloading",
-  })
+  toast.success(`${t("state.download_started")}`)
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)

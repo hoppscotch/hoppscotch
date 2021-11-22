@@ -26,50 +26,43 @@
   </aside>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import useWindowSize from "~/helpers/utils/useWindowSize"
 import { useSetting } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  setup() {
-    return {
-      windowInnerWidth: useWindowSize(),
-      EXPAND_NAVIGATION: useSetting("EXPAND_NAVIGATION"),
-    }
+const t = useI18n()
+
+const windowInnerWidth = useWindowSize()
+const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
+
+const primaryNavigation = [
+  {
+    target: "index",
+    svg: "link-2",
+    title: t("navigation.rest"),
   },
-  data() {
-    return {
-      primaryNavigation: [
-        {
-          target: "index",
-          svg: "link-2",
-          title: this.$t("navigation.rest"),
-        },
-        {
-          target: "graphql",
-          svg: "graphql",
-          title: this.$t("navigation.graphql"),
-        },
-        {
-          target: "realtime",
-          svg: "globe",
-          title: this.$t("navigation.realtime"),
-        },
-        {
-          target: "documentation",
-          svg: "book-open",
-          title: this.$t("navigation.doc"),
-        },
-        {
-          target: "settings",
-          svg: "settings",
-          title: this.$t("navigation.settings"),
-        },
-      ],
-    }
+  {
+    target: "graphql",
+    svg: "graphql",
+    title: t("navigation.graphql"),
   },
-})
+  {
+    target: "realtime",
+    svg: "globe",
+    title: t("navigation.realtime"),
+  },
+  {
+    target: "documentation",
+    svg: "book-open",
+    title: t("navigation.doc"),
+  },
+  {
+    target: "settings",
+    svg: "settings",
+    title: t("navigation.settings"),
+  },
+]
 </script>
 
 <style scoped lang="scss">

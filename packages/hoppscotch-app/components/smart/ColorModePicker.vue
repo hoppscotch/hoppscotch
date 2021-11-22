@@ -4,7 +4,7 @@
       v-for="(color, index) of colors"
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"
-      :title="$t(getColorModeName(color))"
+      :title="t(getColorModeName(color))"
       :class="{
         'bg-primaryLight !text-accent hover:text-accent': color === active,
       }"
@@ -15,54 +15,51 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import {
   applySetting,
   HoppBgColor,
   HoppBgColors,
   useSetting,
 } from "~/newstore/settings"
+import { useI18n } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  setup() {
-    return {
-      colors: HoppBgColors,
-      active: useSetting("BG_COLOR"),
-    }
-  },
-  methods: {
-    setBGMode(color: HoppBgColor) {
-      applySetting("BG_COLOR", color)
-    },
-    getIcon(color: HoppBgColor) {
-      switch (color) {
-        case "system":
-          return "monitor"
-        case "light":
-          return "sun"
-        case "dark":
-          return "cloud"
-        case "black":
-          return "moon"
-        default:
-          return "monitor"
-      }
-    },
-    getColorModeName(colorMode: string) {
-      switch (colorMode) {
-        case "system":
-          return "settings.system_mode"
-        case "light":
-          return "settings.light_mode"
-        case "dark":
-          return "settings.dark_mode"
-        case "black":
-          return "settings.black_mode"
-        default:
-          return "settings.system_mode"
-      }
-    },
-  },
-})
+const t = useI18n()
+
+const colors = HoppBgColors
+const active = useSetting("BG_COLOR")
+
+const setBGMode = (color: HoppBgColor) => {
+  applySetting("BG_COLOR", color)
+}
+
+const getIcon = (color: HoppBgColor) => {
+  switch (color) {
+    case "system":
+      return "monitor"
+    case "light":
+      return "sun"
+    case "dark":
+      return "cloud"
+    case "black":
+      return "moon"
+    default:
+      return "monitor"
+  }
+}
+
+const getColorModeName = (colorMode: string) => {
+  switch (colorMode) {
+    case "system":
+      return "settings.system_mode"
+    case "light":
+      return "settings.light_mode"
+    case "dark":
+      return "settings.dark_mode"
+    case "black":
+      return "settings.black_mode"
+    default:
+      return "settings.system_mode"
+  }
+}
 </script>

@@ -194,9 +194,7 @@ export default defineComponent({
       }
 
       removeGraphqlRequest(this.folderPath, this.requestIndex)
-      this.$toast.success(`${this.$t("state.deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
   },
 })

@@ -253,15 +253,11 @@ export default defineComponent({
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {
-            this.$toast.success(this.$t("state.deleted"), {
-              icon: "delete",
-            })
+            this.$toast.success(this.$t("state.deleted"))
             this.$emit("update-team-collections")
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"), {
-              icon: "error_outline",
-            })
+            this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           })
         this.$emit("update-team-collections")

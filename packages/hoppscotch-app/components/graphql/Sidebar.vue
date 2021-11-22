@@ -3,7 +3,7 @@
     <SmartTab
       :id="'history'"
       icon="clock"
-      :label="`${$t('tab.history')}`"
+      :label="`${t('tab.history')}`"
       :selected="true"
     >
       <History
@@ -16,7 +16,7 @@
     <SmartTab
       :id="'collections'"
       icon="folder"
-      :label="`${$t('tab.collections')}`"
+      :label="`${t('tab.collections')}`"
     >
       <CollectionsGraphql />
     </SmartTab>
@@ -24,7 +24,7 @@
     <SmartTab
       :id="'docs'"
       icon="book-open"
-      :label="`${$t('tab.documentation')}`"
+      :label="`${t('tab.documentation')}`"
     >
       <AppSection label="docs">
         <div
@@ -53,10 +53,10 @@
               w-16
               inline-flex
             "
-            :alt="$t('empty.documentation')"
+            :alt="`${t('empty.documentation')}`"
           />
           <span class="text-center mb-4">
-            {{ $t("empty.documentation") }}
+            {{ t("empty.documentation") }}
           </span>
         </div>
         <div v-else>
@@ -65,7 +65,7 @@
               v-model="graphqlFieldsFilterText"
               type="search"
               autocomplete="off"
-              :placeholder="`${$t('action.search')}`"
+              :placeholder="`${t('action.search')}`"
               class="bg-transparent flex w-full p-4 py-2"
             />
             <div class="flex">
@@ -73,7 +73,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 to="https://docs.hoppscotch.io/quickstart/graphql"
                 blank
-                :title="$t('app.wiki')"
+                :title="t('app.wiki')"
                 svg="help-circle"
               />
             </div>
@@ -86,7 +86,7 @@
               <SmartTab
                 v-if="queryFields.length > 0"
                 :id="'queries'"
-                :label="`${$t('tab.queries')}`"
+                :label="`${t('tab.queries')}`"
                 :selected="true"
                 class="divide-y divide-dividerLight"
               >
@@ -101,7 +101,7 @@
               <SmartTab
                 v-if="mutationFields.length > 0"
                 :id="'mutations'"
-                :label="`${$t('graphql.mutations')}`"
+                :label="`${t('graphql.mutations')}`"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlField
@@ -115,7 +115,7 @@
               <SmartTab
                 v-if="subscriptionFields.length > 0"
                 :id="'subscriptions'"
-                :label="`${$t('graphql.subscriptions')}`"
+                :label="`${t('graphql.subscriptions')}`"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlField
@@ -130,7 +130,7 @@
                 v-if="graphqlTypes.length > 0"
                 :id="'types'"
                 ref="typesTab"
-                :label="`${$t('tab.types')}`"
+                :label="`${t('tab.types')}`"
                 class="divide-y divide-dividerLight"
               >
                 <GraphqlType
@@ -149,7 +149,7 @@
       </AppSection>
     </SmartTab>
 
-    <SmartTab :id="'schema'" icon="box" :label="`${$t('tab.schema')}`">
+    <SmartTab :id="'schema'" icon="box" :label="`${t('tab.schema')}`">
       <AppSection ref="schema" label="schema">
         <div
           v-if="schemaString"
@@ -166,19 +166,19 @@
           "
         >
           <label class="font-semibold text-secondaryLight">
-            {{ $t("graphql.schema") }}
+            {{ t("graphql.schema") }}
           </label>
           <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/quickstart/graphql"
               blank
-              :title="$t('app.wiki')"
+              :title="t('app.wiki')"
               svg="help-circle"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('state.linewrap')"
+              :title="t('state.linewrap')"
               :class="{ '!text-accent': linewrapEnabled }"
               svg="corner-down-left"
               @click.native.prevent="linewrapEnabled = !linewrapEnabled"
@@ -186,14 +186,14 @@
             <ButtonSecondary
               ref="downloadSchema"
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('action.download_file')"
+              :title="t('action.download_file')"
               :svg="downloadSchemaIcon"
               @click.native="downloadSchema"
             />
             <ButtonSecondary
               ref="copySchemaCode"
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('action.copy')"
+              :title="t('action.copy')"
               :svg="copySchemaIcon"
               @click.native="copySchema"
             />
@@ -221,10 +221,10 @@
               w-16
               inline-flex
             "
-            :alt="$t('empty.schema')"
+            :alt="`${t('empty.schema')}`"
           />
           <span class="text-center mb-4">
-            {{ $t("empty.schema") }}
+            {{ t("empty.schema") }}
           </span>
         </div>
       </AppSection>
@@ -233,20 +233,18 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  nextTick,
-  reactive,
-  ref,
-  useContext,
-} from "@nuxtjs/composition-api"
+import { computed, nextTick, reactive, ref } from "@nuxtjs/composition-api"
 import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { GQLHeader } from "~/helpers/types/HoppGQLRequest"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useReadonlyStream,
+  useI18n,
+  useToast,
+} from "~/helpers/utils/composables"
 import {
   setGQLHeaders,
   setGQLQuery,
@@ -254,6 +252,8 @@ import {
   setGQLURL,
   setGQLVariables,
 } from "~/newstore/GQLSession"
+
+const t = useI18n()
 
 function isTextFoundInGraphqlFieldObject(
   text: string,
@@ -321,11 +321,7 @@ const props = defineProps<{
   conn: GQLConnection
 }>()
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const toast = useToast()
 
 const queryFields = useReadonlyStream(
   props.conn.queryFields$.pipe(map((x) => x ?? [])),
@@ -449,9 +445,7 @@ const downloadSchema = () => {
   document.body.appendChild(a)
   a.click()
   downloadSchemaIcon.value = "check"
-  $toast.success(`${t("state.download_started")}`, {
-    icon: "downloading",
-  })
+  toast.success(`${t("state.download_started")}`)
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)

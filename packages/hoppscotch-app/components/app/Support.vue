@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="$t('support.title')"
+    :title="t('support.title')"
     max-width="sm:max-w-md"
     @close="$emit('hide-modal')"
   >
@@ -9,9 +9,9 @@
       <div class="flex flex-col space-y-2">
         <SmartItem
           svg="book"
-          :label="$t('app.documentation')"
+          :label="t('app.documentation')"
           to="https://docs.hoppscotch.io"
-          :description="$t('support.documentation')"
+          :description="t('support.documentation')"
           info-icon="chevron_right"
           active
           blank
@@ -19,20 +19,17 @@
         />
         <SmartItem
           svg="zap"
-          :label="$t('app.keyboard_shortcuts')"
-          :description="$t('support.shortcuts')"
+          :label="t('app.keyboard_shortcuts')"
+          :description="t('support.shortcuts')"
           info-icon="chevron_right"
           active
-          @click.native="
-            showShortcuts()
-            hideModal()
-          "
+          @click.native="showShortcuts()"
         />
         <SmartItem
           svg="gift"
-          :label="$t('app.whats_new')"
+          :label="t('app.whats_new')"
           to="https://docs.hoppscotch.io/changelog"
-          :description="$t('support.changelog')"
+          :description="t('support.changelog')"
           info-icon="chevron_right"
           active
           blank
@@ -40,31 +37,28 @@
         />
         <SmartItem
           svg="message-circle"
-          :label="$t('app.chat_with_us')"
-          :description="$t('support.chat')"
+          :label="t('app.chat_with_us')"
+          :description="t('support.chat')"
           info-icon="chevron_right"
           active
-          @click.native="
-            chatWithUs()
-            hideModal()
-          "
+          @click.native="chatWithUs()"
         />
         <SmartItem
           svg="brands/discord"
-          :label="$t('app.join_discord_community')"
+          :label="t('app.join_discord_community')"
           to="https://hoppscotch.io/discord"
           blank
-          :description="$t('support.community')"
+          :description="t('support.community')"
           info-icon="chevron_right"
           active
           @click.native="hideModal()"
         />
         <SmartItem
           svg="brands/twitter"
-          :label="$t('app.twitter')"
+          :label="t('app.twitter')"
           to="https://hoppscotch.io/twitter"
           blank
-          :description="$t('support.twitter')"
+          :description="t('support.twitter')"
           info-icon="chevron_right"
           active
           @click.native="hideModal()"
@@ -74,25 +68,32 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import { invokeAction } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
+import { useI18n } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  methods: {
-    chatWithUs() {
-      showChat()
-    },
-    showShortcuts() {
-      invokeAction("flyouts.keybinds.toggle")
-    },
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-  },
-})
+const t = useI18n()
+
+defineProps<{
+  show: Boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const chatWithUs = () => {
+  showChat()
+  hideModal()
+}
+
+const showShortcuts = () => {
+  invokeAction("flyouts.keybinds.toggle")
+  hideModal()
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

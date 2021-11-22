@@ -140,9 +140,7 @@ export default defineComponent({
     clearHistory() {
       if (this.page === "rest") clearRESTHistory()
       else clearGraphqlHistory()
-      this.$toast.success(`${this.$t("state.history_deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.history_deleted")}`)
     },
     useHistory(entry: any) {
       if (this.page === "rest") setRESTRequest(entry.request)
@@ -150,9 +148,7 @@ export default defineComponent({
     deleteHistory(entry: any) {
       if (this.page === "rest") deleteRESTHistoryEntry(entry)
       else deleteGraphqlHistoryEntry(entry)
-      this.$toast.success(`${this.$t("state.deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
     toggleStar(entry: any) {
       if (this.page === "rest") toggleRESTHistoryEntryStar(entry)

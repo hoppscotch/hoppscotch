@@ -26,7 +26,7 @@
           >{{ entry.ts }}{{ source(entry.source) }}{{ entry.payload }}</span
         >
       </span>
-      <span v-else>{{ $t("response.waiting_for_connection") }}</span>
+      <span v-else>{{ t("response.waiting_for_connection") }}</span>
     </div>
   </div>
 </template>
@@ -34,6 +34,9 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "@nuxtjs/composition-api"
 import { getSourcePrefix as source } from "~/helpers/utils/string"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps({
   log: { type: Array, default: () => [] },

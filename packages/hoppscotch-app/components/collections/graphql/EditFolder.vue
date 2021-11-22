@@ -54,9 +54,7 @@ export default defineComponent({
   methods: {
     editFolder() {
       if (!this.name) {
-        this.$toast.error(`${this.$t("collection.invalid_name")}`, {
-          icon: "error_outline",
-        })
+        this.$toast.error(`${this.$t("collection.invalid_name")}`)
         return
       }
       editGraphqlFolder(this.folderPath, {

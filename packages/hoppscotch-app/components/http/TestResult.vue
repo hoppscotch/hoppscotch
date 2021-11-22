@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="`${$t('test.results')}`">
+  <AppSection :label="`${t('test.results')}`">
     <div
       v-if="
         testResults &&
@@ -20,11 +20,11 @@
         "
       >
         <label class="font-semibold text-secondaryLight">
-          {{ $t("test.report") }}
+          {{ t("test.report") }}
         </label>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.clear')"
+          :title="t('action.clear')"
           svg="trash-2"
           @click.native="clearContent()"
         />
@@ -64,9 +64,7 @@
             <span class="text-secondaryLight">
               {{
                 ` \xA0 — \xA0 ${
-                  result.status === "pass"
-                    ? $t("test.passed")
-                    : $t("test.failed")
+                  result.status === "pass" ? t("test.passed") : t("test.failed")
                 }`
               }}
             </span>
@@ -82,18 +80,18 @@
         :src="`/images/states/${$colorMode.value}/validation.svg`"
         loading="lazy"
         class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
-        :alt="$t('empty.tests')"
+        :alt="`${t('empty.tests')}`"
       />
       <span class="text-center pb-2">
-        {{ $t("empty.tests") }}
+        {{ t("empty.tests") }}
       </span>
       <span class="text-center pb-4">
-        {{ $t("helpers.tests") }}
+        {{ t("helpers.tests") }}
       </span>
       <ButtonSecondary
         outline
-        :label="`${$t('action.learn_more')}`"
-        to="https://docs.hoppscotch.io"
+        :label="`${t('action.learn_more')}`"
+        to="https://docs.hoppscotch.io/features/tests"
         blank
         svg="external-link"
         reverse
@@ -104,8 +102,10 @@
 </template>
 
 <script setup lang="ts">
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
+
+const t = useI18n()
 
 const testResults = useReadonlyStream(restTestResults$, null)
 

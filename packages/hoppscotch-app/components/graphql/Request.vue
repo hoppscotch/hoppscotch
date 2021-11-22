@@ -18,14 +18,14 @@
           hover:border-dividerDark
           focus-visible:bg-transparent focus-visible:border-dividerDark
         "
-        :placeholder="$t('request.url')"
+        :placeholder="`${t('request.url')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"
       />
       <ButtonPrimary
         id="get"
         name="get"
-        :label="!connected ? $t('action.connect') : $t('action.disconnect')"
+        :label="!connected ? t('action.connect') : t('action.disconnect')"
         class="w-32"
         @click.native="onConnectClick"
       />
@@ -37,8 +37,14 @@
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { useReadonlyStream, useStream } from "~/helpers/utils/composables"
+import {
+  useReadonlyStream,
+  useStream,
+  useI18n,
+} from "~/helpers/utils/composables"
 import { gqlHeaders$, gqlURL$, setGQLURL } from "~/newstore/GQLSession"
+
+const t = useI18n()
 
 const props = defineProps<{
   conn: GQLConnection

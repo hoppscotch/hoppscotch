@@ -107,7 +107,7 @@
       <ButtonSecondary
         outline
         :label="$t('app.documentation')"
-        to="https://docs.hoppscotch.io"
+        to="https://docs.hoppscotch.io/features/authorization"
         blank
         svg="external-link"
         reverse
@@ -151,7 +151,7 @@
           <SmartAnchor
             class="link"
             :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/"
+            to="https://docs.hoppscotch.io/features/authorization"
             blank
           />
         </div>
@@ -187,7 +187,7 @@
           <SmartAnchor
             class="link"
             :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/"
+            to="https://docs.hoppscotch.io/features/authorization"
             blank
           />
         </div>
@@ -227,7 +227,7 @@
           <SmartAnchor
             class="link"
             :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/"
+            to="https://docs.hoppscotch.io/features/authorization"
             blank
           />
         </div>

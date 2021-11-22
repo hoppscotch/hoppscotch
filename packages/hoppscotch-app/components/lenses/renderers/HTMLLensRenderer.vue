@@ -14,13 +14,13 @@
       "
     >
       <label class="font-semibold text-secondaryLight">
-        {{ $t("response.body") }}
+        {{ t("response.body") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('state.linewrap')"
+          :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
           svg="corner-down-left"
           @click.native.prevent="linewrapEnabled = !linewrapEnabled"
@@ -29,7 +29,7 @@
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="
-            previewEnabled ? $t('hide.preview') : $t('response.preview_html')
+            previewEnabled ? t('hide.preview') : t('response.preview_html')
           "
           :svg="!previewEnabled ? 'eye' : 'eye-off'"
           @click.native.prevent="togglePreview"
@@ -38,7 +38,7 @@
           v-if="response.body"
           ref="downloadResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.download_file')"
+          :title="t('action.download_file')"
           :svg="downloadIcon"
           @click.native="downloadResponse"
         />
@@ -46,7 +46,7 @@
           v-if="response.body"
           ref="copyResponse"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.copy')"
+          :title="t('action.copy')"
           :svg="copyIcon"
           @click.native="copyResponse"
         />
@@ -64,20 +64,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
+import { computed, ref, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { useI18n, useToast } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const toast = useToast()
 
 const responseBodyText = computed(() => {
   if (
@@ -127,9 +126,7 @@ const downloadResponse = () => {
   document.body.appendChild(a)
   a.click()
   downloadIcon.value = "check"
-  $toast.success(`${t("state.download_started")}`, {
-    icon: "downloading",
-  })
+  toast.success(`${t("state.download_started")}`)
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
@@ -140,9 +137,7 @@ const downloadResponse = () => {
 const copyResponse = () => {
   copyToClipboard(responseBodyText.value)
   copyIcon.value = "check"
-  $toast.success(`${t("state.copied_to_clipboard")}`, {
-    icon: "content_paste",
-  })
+  toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 

@@ -2,20 +2,14 @@
   <component :is="src" />
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed } from "@nuxtjs/composition-api"
 
-export default defineComponent({
-  props: {
-    name: {
-      type: String,
-      required: true,
-    },
-  },
-  computed: {
-    src() {
-      return require(`~/assets/icons/${this.name}.svg?inline`)
-    },
-  },
+const props = defineProps<{
+  name: String
+}>()
+
+const src = computed(() => {
+  return require(`~/assets/icons/${props.name}.svg?inline`)
 })
 </script>

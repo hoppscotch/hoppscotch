@@ -91,12 +91,14 @@ export const baseTheme = EditorView.theme({
   ".cm-tooltip-autocomplete ul li[aria-selected] .cm-completionLabel": {
     color: "var(--accent-contrast-color)",
   },
-  ".cm-activeLine": { backgroundColor: "var(--primary-light-color)" },
+  ".cm-activeLine": { backgroundColor: "transparent" },
   ".cm-searchMatch": {
     outline: "1px solid var(--accent-dark-color)",
+    backgroundColor: "var(--divider-dark-color)",
   },
   ".cm-selectionMatch": {
     outline: "1px solid var(--accent-dark-color)",
+    backgroundColor: "var(--divider-light-color)",
   },
   ".cm-matchingBracket, .cm-nonmatchingBracket": {
     backgroundColor: "var(--divider-color)",
@@ -121,13 +123,17 @@ export const baseTheme = EditorView.theme({
   ".cm-line": {
     paddingLeft: "0.5em",
     paddingRight: "0.5em",
-    color: "var(--secondary-dark-color)",
   },
   ".cm-activeLineGutter": {
-    backgroundColor: "var(--primary-dark-color)",
+    backgroundColor: "transparent",
   },
   ".cm-scroller::-webkit-scrollbar": {
     display: "none",
+  },
+  ".cm-foldPlaceholder": {
+    backgroundColor: "var(--divider-light-color)",
+    color: "var(--secondary-dark-color)",
+    borderColor: "var(--divider-dark-color)",
   },
 })
 

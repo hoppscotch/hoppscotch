@@ -43,7 +43,7 @@
                   "
                   :value="newMethod"
                   :readonly="!isCustomMethod"
-                  :placeholder="`${$t('request.method')}`"
+                  :placeholder="`${t('request.method')}`"
                   @input="onSelectMethod($event.target.value)"
                 />
               </span>
@@ -60,7 +60,7 @@
       <div class="flex flex-1">
         <SmartEnvInput
           v-model="newEndpoint"
-          :placeholder="`${$t('request.url')}`"
+          :placeholder="`${t('request.url')}`"
           styles="
             bg-primaryLight
             border border-divider
@@ -83,7 +83,7 @@
       <ButtonPrimary
         id="send"
         class="rounded-r-none flex-1 min-w-20"
-        :label="`${!loading ? $t('action.send') : $t('action.cancel')}`"
+        :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -98,7 +98,7 @@
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
           <SmartItem
-            :label="`${$t('import.curl')}`"
+            :label="`${t('import.curl')}`"
             svg="file-code"
             @click.native="
               () => {
@@ -108,7 +108,7 @@
             "
           />
           <SmartItem
-            :label="`${$t('show.code')}`"
+            :label="`${t('show.code')}`"
             svg="code-2"
             @click.native="
               () => {
@@ -119,7 +119,7 @@
           />
           <SmartItem
             ref="clearAll"
-            :label="`${$t('action.clear_all')}`"
+            :label="`${t('action.clear_all')}`"
             svg="rotate-ccw"
             @click.native="
               () => {
@@ -134,7 +134,7 @@
         class="rounded rounded-r-none ml-2"
         :label="
           windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
-            ? `${$t('request.save')}`
+            ? `${t('request.save')}`
             : ''
         "
         filled
@@ -159,7 +159,7 @@
           <input
             id="request-name"
             v-model="requestName"
-            :placeholder="`${$t('request.name')}`"
+            :placeholder="`${t('request.name')}`"
             name="request-name"
             type="text"
             autocomplete="off"
@@ -179,7 +179,7 @@
           />
           <SmartItem
             ref="saveRequest"
-            :label="`${$t('request.save_as')}`"
+            :label="`${t('request.save_as')}`"
             svg="folder-plus"
             @click.native="
               () => {
@@ -208,7 +208,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
+import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
 import {
@@ -228,6 +228,8 @@ import {
   useStreamSubscriber,
   useStream,
   useNuxt,
+  useI18n,
+  useToast,
 } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -236,6 +238,8 @@ import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
+
+const t = useI18n()
 
 const methods = [
   "GET",
@@ -250,12 +254,9 @@ const methods = [
   "CUSTOM",
 ]
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
+const toast = useToast()
 const nuxt = useNuxt()
-const t = i18n.t.bind(i18n)
+
 const { subscribeToStream } = useStreamSubscriber()
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
@@ -373,7 +374,7 @@ const copyShareLink = (shareLink: string) => {
   } else {
     copyLinkIcon.value = "check"
     copyToClipboard(`https://hopp.sh/r${shareLink}`)
-    $toast.success(`${t("state.copied_to_clipboard")}`, {
+    toast.success(`${t("state.copied_to_clipboard")}`, {
       icon: "content_paste",
     })
     setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
@@ -415,9 +416,7 @@ const saveRequest = () => {
 
   if (saveCtx.originLocation === "user-collection") {
     editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
-    $toast.success(`${t("request.saved")}`, {
-      icon: "playlist_add_check",
-    })
+    toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
 
@@ -430,20 +429,14 @@ const saveRequest = () => {
         saveCtx.requestID
       )
         .then(() => {
-          $toast.success(`${t("request.saved")}`, {
-            icon: "playlist_add_check",
-          })
+          toast.success(`${t("request.saved")}`)
         })
         .catch(() => {
-          $toast.error(t("profile.no_permission").toString(), {
-            icon: "error_outline",
-          })
+          toast.error(`${t("profile.no_permission")}`)
         })
     } catch (error) {
       showSaveRequestModal.value = true
-      $toast.error(t("error.something_went_wrong").toString(), {
-        icon: "error_outline",
-      })
+      toast.error(`${t("error.something_went_wrong")}`)
       console.error(error)
     }
   }

@@ -328,9 +328,7 @@ export default defineComponent({
     resetProxy() {
       applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
       this.clearIcon = "check"
-      this.$toast.success(`${this.$t("state.cleared")}`, {
-        icon: "clear_all",
-      })
+      this.$toast.success(`${this.$t("state.cleared")}`)
       setTimeout(() => (this.clearIcon = "rotate-ccw"), 1000)
     },
     getColorModeName(colorMode: string) {

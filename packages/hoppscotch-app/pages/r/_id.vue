@@ -62,11 +62,11 @@ import {
 import * as E from "fp-ts/Either"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
-  GetRequestFromShortcodeDocument,
-  GetRequestFromShortcodeQuery,
-  GetRequestFromShortcodeQueryVariables,
+  ResolveShortcodeDocument,
+  ResolveShortcodeQuery,
+  ResolveShortcodeQueryVariables,
 } from "~/helpers/backend/graphql"
-import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
+import { makeRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import { setRESTRequest } from "~/newstore/RESTSession"
 
 export default defineComponent({
@@ -76,13 +76,13 @@ export default defineComponent({
     const { localePath } = useContext() as any
 
     const shortcodeDetails = useGQLQuery<
-      GetRequestFromShortcodeQuery,
-      GetRequestFromShortcodeQueryVariables,
+      ResolveShortcodeQuery,
+      ResolveShortcodeQueryVariables,
       ""
     >({
-      query: GetRequestFromShortcodeDocument,
+      query: ResolveShortcodeDocument,
       variables: {
-        shortcode: route.value.params.id as string,
+        code: route.value.params.id as string,
       },
     })
 
@@ -96,7 +96,7 @@ export default defineComponent({
         if (E.isRight(data)) {
           const request = JSON.parse(data.right.shortcode?.request as string)
 
-          setRESTRequest(request as unknown as HoppRESTRequest)
+          setRESTRequest(makeRESTRequest(request))
           router.push({ path: localePath("/") })
         }
       }

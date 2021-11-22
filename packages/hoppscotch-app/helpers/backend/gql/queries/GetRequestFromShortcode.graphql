@@ -1,6 +1,0 @@
-query GetRequestFromShortcode($shortcode: ID!) {
-  shortcode(code: $shortcode) {
-    request
-    id
-  }
-}

@@ -168,7 +168,7 @@
           />
           <SmartItem
             ref="copyRequest"
-            :label="shareLinkStatus"
+            :label="shareButtonText"
             :svg="copyLinkIcon"
             :loading="fetchingShareLink"
             @click.native="
@@ -221,6 +221,7 @@ import {
   useRESTRequestName,
   getRESTSaveContext,
   getRESTRequest,
+  restRequest$,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -230,6 +231,7 @@ import {
   useNuxt,
   useI18n,
   useToast,
+  useReadonlyStream,
 } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -331,31 +333,41 @@ const clearContent = () => {
 }
 
 const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
-const shareLink = ref("")
-const shareLinkStatus = ref(t("request.copy_link"))
+const shareLink = ref<string | null>("")
 const fetchingShareLink = ref(false)
-const shareLinkAvailable = ref(false)
+
+const shareButtonText = computed(() => {
+  if (shareLink.value) {
+    return shareLink.value
+  } else if (fetchingShareLink.value) {
+    return t("state.loading")
+  } else {
+    return t("request.copy_link")
+  }
+})
+
+const request = useReadonlyStream(restRequest$, getRESTRequest())
+
+watch(request, () => {
+  shareLink.value = null
+})
 
 const copyRequest = async () => {
-  if (shareLinkAvailable.value) {
+  if (shareLink.value) {
     copyShareLink(shareLink.value)
   } else {
     shareLink.value = ""
     fetchingShareLink.value = true
-    shareLinkStatus.value = t("state.loading")
     const request = getRESTRequest()
     const shortcodeResult = await createShortcode(request)()
     if (E.isLeft(shortcodeResult)) {
-      $toast.error(`${shortcodeResult.left.error}`)
+      toast.error(`${shortcodeResult.left.error}`)
       shareLink.value = `${t("error.something_went_wrong")}`
-      shareLinkAvailable.value = false
     } else if (E.isRight(shortcodeResult)) {
       shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
-      shareLinkAvailable.value = true
       copyShareLink(shareLink.value)
     }
     fetchingShareLink.value = false
-    shareLinkStatus.value = shareLink.value
   }
 }
 

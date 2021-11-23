@@ -138,6 +138,7 @@
     "collection": "組合為空",
     "collections": "組合為空",
     "documentation": "連接至 GraphQL 端點以檢視文檔",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "環境為空",
     "folder": "資料夾為空",
     "headers": "該請求沒有任何請求頭",

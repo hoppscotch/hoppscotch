@@ -138,6 +138,7 @@
     "collection": "A gyűjtemény üres",
     "collections": "A gyűjtemények üresek",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "A környezet üres",
     "folder": "A mappa üres",
     "headers": "Ennek a kérésnek nincs fejléce",

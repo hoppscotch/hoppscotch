@@ -138,6 +138,7 @@
     "collection": "المجموعة فارغة",
     "collections": "المجموعات فارغة",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "البيئات فارغة",
     "folder": "مجلد فارغ",
     "headers": "لا يحتوي هذا الطلب على أية رؤوس",

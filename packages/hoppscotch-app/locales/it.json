@@ -138,6 +138,7 @@
     "collection": "La raccolta è vuota",
     "collections": "Le raccolte sono vuote",
     "documentation": "Connetti ad un endpoint GraphQL per mostrare la documentazione",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Gli ambienti sono vuoti",
     "folder": "La cartella è vuota",
     "headers": "Questa richiesta non ha intestazioni",

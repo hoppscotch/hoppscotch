@@ -138,6 +138,7 @@
     "collection": "コレクションは空です",
     "collections": "コレクションは空です",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "環境は空です",
     "folder": "フォルダが空です",
     "headers": "このリクエストにはヘッダーがありません",

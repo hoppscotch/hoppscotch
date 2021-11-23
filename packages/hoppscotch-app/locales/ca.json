@@ -138,6 +138,7 @@
     "collection": "La col·lecció està buida",
     "collections": "Les col·leccions estan buides",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Els entorns estan buits",
     "folder": "La carpeta està buida",
     "headers": "Aquesta sol·licitud no té cap capçalera",

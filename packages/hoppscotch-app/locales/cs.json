@@ -138,6 +138,7 @@
     "collection": "Sbírka je prázdná",
     "collections": "Sbírky jsou prázdné",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Prostředí je prázdné",
     "folder": "Složka je prázdná",
     "headers": "Tento požadavek nemá žádná záhlaví",

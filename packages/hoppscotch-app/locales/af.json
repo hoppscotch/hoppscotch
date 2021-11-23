@@ -138,6 +138,7 @@
     "collection": "Versameling is leeg",
     "collections": "Versamelings is leeg",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Omgewings is leeg",
     "folder": "Vouer is leeg",
     "headers": "Hierdie versoek bevat geen opskrifte nie",

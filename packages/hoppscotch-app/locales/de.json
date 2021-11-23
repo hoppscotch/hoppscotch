@@ -138,6 +138,7 @@
     "collection": "Sammlung ist leer",
     "collections": "Sammlungen sind leer",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Umgebungen sind leer",
     "folder": "Der Ordner ist leer",
     "headers": "Diese Anfrage hat keine Header",

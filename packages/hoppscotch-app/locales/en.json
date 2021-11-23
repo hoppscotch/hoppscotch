@@ -138,6 +138,7 @@
     "collection": "Collection is empty",
     "collections": "Collections are empty",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Environments are empty",
     "folder": "Folder is empty",
     "headers": "This request does not have any headers",

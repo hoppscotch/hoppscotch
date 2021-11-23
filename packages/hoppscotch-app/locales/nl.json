@@ -138,6 +138,7 @@
     "collection": "Collectie is leeg",
     "collections": "Collecties zijn leeg",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Omgevingen zijn leeg",
     "folder": "Map is leeg",
     "headers": "Dit verzoek heeft geen headers",

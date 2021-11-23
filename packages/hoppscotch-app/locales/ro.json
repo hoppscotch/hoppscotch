@@ -138,6 +138,7 @@
     "collection": "Colecția este goală",
     "collections": "Colecțiile sunt goale",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Mediile sunt goale",
     "folder": "Dosarul este gol",
     "headers": "Această solicitare nu are anteturi",

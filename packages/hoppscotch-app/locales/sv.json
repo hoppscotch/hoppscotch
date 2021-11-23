@@ -138,6 +138,7 @@
     "collection": "Samlingen är tom",
     "collections": "Samlingar är tomma",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Miljöer är tomma",
     "folder": "Mappen är tom",
     "headers": "Denna begäran har inga rubriker",

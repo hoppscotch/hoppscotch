@@ -138,6 +138,7 @@
     "collection": "Kokoelma on tyhjä",
     "collections": "Kokoelmat ovat tyhjiä",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Ympäristöt ovat tyhjiä",
     "folder": "Kansio on tyhjä",
     "headers": "Tässä pyynnössä ei ole otsikoita",

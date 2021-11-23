@@ -138,6 +138,7 @@
     "collection": "Kolekcja jest pusta",
     "collections": "Kolekcje są puste",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Środowiska są puste",
     "folder": "Folder jest pusty",
     "headers": "To żądanie nie ma żadnych nagłówków",

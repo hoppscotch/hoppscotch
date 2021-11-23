@@ -138,6 +138,7 @@
     "collection": "Збирка је празна",
     "collections": "Збирке су празне",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Окружења су празна",
     "folder": "Мапа је празна",
     "headers": "Овај захтев нема заглавља",

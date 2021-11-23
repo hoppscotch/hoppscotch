@@ -288,6 +288,11 @@ watch(loading, () => {
 })
 
 const newSendRequest = async () => {
+  if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
+    toast.error(`${t("empty.endpoint")}`)
+    return
+  }
+
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
@@ -387,9 +392,7 @@ const copyShareLink = (shareLink: string) => {
   } else {
     copyLinkIcon.value = "check"
     copyToClipboard(`https://hopp.sh/r${shareLink}`)
-    toast.success(`${t("state.copied_to_clipboard")}`, {
-      icon: "content_paste",
-    })
+    toast.success(`${t("state.copied_to_clipboard")}`)
     setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
 }

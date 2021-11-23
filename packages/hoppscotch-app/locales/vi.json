@@ -138,6 +138,7 @@
     "collection": "Bộ sưu tập trống",
     "collections": "Bộ sưu tập trống",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Môi trường trống",
     "folder": "Tệp này rỗng",
     "headers": "Yêu cầu này không có bất kỳ tiêu đề nào",

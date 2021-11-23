@@ -138,6 +138,7 @@
     "collection": "Η συλλογή είναι άδεια",
     "collections": "Οι συλλογές είναι άδειες",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Τα περιβάλλοντα είναι άδεια",
     "folder": "Ο φάκελος είναι άδειος",
     "headers": "Αυτό το αίτημα δεν έχει κεφαλίδες",

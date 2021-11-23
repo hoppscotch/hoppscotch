@@ -138,6 +138,7 @@
     "collection": "모음집이 비어 있습니다.",
     "collections": "모음집이 비어 있습니다.",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "환경이 비어 있습니다.",
     "folder": "폴더가 비어 있습니다.",
     "headers": "이 요청에는 헤더가 없습니다.",

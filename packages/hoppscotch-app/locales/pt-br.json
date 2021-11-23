@@ -138,6 +138,7 @@
     "collection": "Coleção está vazia",
     "collections": "Coleções estão vazias",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Ambientes estão vazios",
     "folder": "Pasta está vazia",
     "headers": "Esta solicitação não possui cabeçalhos",

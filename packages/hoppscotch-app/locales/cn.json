@@ -138,6 +138,7 @@
     "collection": "组合为空",
     "collections": "组合为空",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "环境为空",
     "folder": "文件夹为空",
     "headers": "该请求没有任何请求头",

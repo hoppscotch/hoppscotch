@@ -138,6 +138,7 @@
     "collection": "האוסף ריק",
     "collections": "האוספים ריקים",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "הסביבה ריקה",
     "folder": "התיקייה ריקה",
     "headers": "לבקשה זו אין כותרות",

@@ -138,6 +138,7 @@
     "collection": "Коллекция пуста",
     "collections": "Коллекции пустые",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Окружения пусты",
     "folder": "Папка пуста",
     "headers": "У этого запроса нет заголовков",

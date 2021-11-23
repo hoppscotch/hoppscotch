@@ -138,6 +138,7 @@
     "collection": "Koleksiyon boş",
     "collections": "Koleksiyonlar boş",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Ortamlar boş",
     "folder": "Klasör boş",
     "headers": "Bu isteğin herhangi bir başlığı yok",

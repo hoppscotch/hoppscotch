@@ -138,6 +138,7 @@
     "collection": "La collection est vide",
     "collections": "Les collections sont vides",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Les environnements sont vides",
     "folder": "Le dossier est vide",
     "headers": "Cette requête n'a pas d'en-tête",

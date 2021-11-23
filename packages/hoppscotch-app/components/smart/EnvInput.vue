@@ -486,7 +486,7 @@ export default defineComponent({
 
     &::before {
       @apply text-secondary;
-      @apply opacity-25;
+      @apply opacity-35;
       @apply pointer-events-none;
 
       content: attr(placeholder);

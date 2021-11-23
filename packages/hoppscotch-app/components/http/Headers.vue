@@ -150,6 +150,7 @@
 
 <script setup lang="ts">
 import { onBeforeUpdate, ref, watch } from "@nuxtjs/composition-api"
+import { HoppRESTHeader } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   addRESTHeader,
@@ -165,7 +166,6 @@ import {
   useI18n,
   useToast,
 } from "~/helpers/utils/composables"
-import { HoppRESTHeader } from "~/helpers/types/HoppRESTRequest"
 
 const t = useI18n()
 

@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "@nuxtjs/composition-api"
-import { isHoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
+import { HoppGQLRequest, isHoppRESTRequest } from "@hoppscotch/data"
 import {
   editGraphqlRequest,
   editRESTRequest,
@@ -74,7 +74,6 @@ import {
 } from "~/newstore/RESTSession"
 import * as teamUtils from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
-import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 
 const t = useI18n()

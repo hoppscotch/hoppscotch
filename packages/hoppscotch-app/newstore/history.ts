@@ -1,15 +1,13 @@
 import eq from "lodash/eq"
 import { pluck } from "rxjs/operators"
-import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { completedRESTResponse$ } from "./RESTSession"
 import {
   HoppRESTRequest,
   translateToNewRequest,
-} from "~/helpers/types/HoppRESTRequest"
-import {
   HoppGQLRequest,
   translateToGQLRequest,
-} from "~/helpers/types/HoppGQLRequest"
+} from "@hoppscotch/data"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { completedRESTResponse$ } from "./RESTSession"
 
 export type RESTHistoryEntry = {
   v: number

@@ -1,5 +1,5 @@
 import clone from "lodash/clone"
-import { FormDataKeyValue, HoppRESTRequest } from "./types/HoppRESTRequest"
+import { FormDataKeyValue, HoppRESTRequest } from "@hoppscotch/data"
 import { isJSONContentType } from "./utils/contenttypes"
 import { defaultRESTRequest } from "~/newstore/RESTSession"
 

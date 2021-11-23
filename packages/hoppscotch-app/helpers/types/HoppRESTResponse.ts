@@ -1,4 +1,4 @@
-import { HoppRESTRequest } from "./HoppRESTRequest"
+import { HoppRESTRequest } from "@hoppscotch/data"
 
 export type HoppRESTResponse =
   | { type: "loading"; req: HoppRESTRequest }

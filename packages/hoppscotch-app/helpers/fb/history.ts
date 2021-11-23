@@ -11,7 +11,7 @@ import {
   query,
   updateDoc,
 } from "firebase/firestore"
-import { FormDataKeyValue } from "../types/HoppRESTRequest"
+import { FormDataKeyValue } from "@hoppscotch/data"
 import { currentUser$ } from "./auth"
 import { settingsStore } from "~/newstore/settings"
 import {

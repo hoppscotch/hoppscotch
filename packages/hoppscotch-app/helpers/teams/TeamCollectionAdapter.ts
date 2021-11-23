@@ -2,7 +2,7 @@ import { BehaviorSubject } from "rxjs"
 import { gql } from "graphql-tag"
 import pull from "lodash/pull"
 import remove from "lodash/remove"
-import { translateToNewRequest } from "../types/HoppRESTRequest"
+import { translateToNewRequest } from "@hoppscotch/data"
 import { TeamCollection } from "./TeamCollection"
 import { TeamRequest } from "./TeamRequest"
 import {

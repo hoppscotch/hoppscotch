@@ -56,7 +56,7 @@ import {
   PropType,
   ref,
 } from "@nuxtjs/composition-api"
-import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { makeGQLRequest } from "@hoppscotch/data"
 import { setGQLSession } from "~/newstore/GQLSession"
 import { GQLHistoryEntry } from "~/newstore/history"
 

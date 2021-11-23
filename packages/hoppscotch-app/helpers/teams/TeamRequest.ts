@@ -1,4 +1,4 @@
-import { HoppRESTRequest } from "../types/HoppRESTRequest"
+import { HoppRESTRequest } from "@hoppscotch/data"
 
 /**
  * Defines how a Teams request is represented in TeamCollectionAdapter

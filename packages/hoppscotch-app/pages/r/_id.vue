@@ -63,13 +63,13 @@ import {
   watch,
 } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import { makeRESTRequest } from "@hoppscotch/data"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   ResolveShortcodeDocument,
   ResolveShortcodeQuery,
   ResolveShortcodeQueryVariables,
 } from "~/helpers/backend/graphql"
-import { makeRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import { setRESTRequest } from "~/newstore/RESTSession"
 
 export default defineComponent({

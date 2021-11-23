@@ -1,11 +1,7 @@
 import { distinctUntilChanged, pluck } from "rxjs/operators"
+import { GQLHeader, HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { useStream } from "~/helpers/utils/composables"
-import {
-  GQLHeader,
-  HoppGQLRequest,
-  makeGQLRequest,
-} from "~/helpers/types/HoppGQLRequest"
 
 type GQLSession = {
   request: HoppGQLRequest

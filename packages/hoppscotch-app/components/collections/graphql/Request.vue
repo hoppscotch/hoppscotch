@@ -102,7 +102,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@nuxtjs/composition-api"
-import { HoppGQLRequest, makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { removeGraphqlRequest } from "~/newstore/collections"
 import { setGQLSession } from "~/newstore/GQLSession"
 

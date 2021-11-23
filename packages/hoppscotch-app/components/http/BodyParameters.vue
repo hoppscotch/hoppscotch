@@ -165,7 +165,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, Ref, watch } from "@nuxtjs/composition-api"
-import { FormDataKeyValue } from "~/helpers/types/HoppRESTRequest"
+import { FormDataKeyValue } from "@hoppscotch/data"
 import { pluckRef } from "~/helpers/utils/composables"
 import {
   addFormDataEntry,

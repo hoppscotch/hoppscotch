@@ -5,6 +5,7 @@ import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { runTestScript, TestDescriptor } from "@hoppscotch/js-sandbox"
 import { isRight } from "fp-ts/Either"
+import { isJSONContentType } from "@hoppscotch/data"
 import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
@@ -13,7 +14,6 @@ import { getEffectiveRESTRequest } from "./utils/EffectiveURL"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { createRESTNetworkRequestStream } from "./network"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
-import { isJSONContentType } from "./utils/contenttypes"
 import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 
 const getTestableBody = (res: HoppRESTResponse & { type: "success" }) => {

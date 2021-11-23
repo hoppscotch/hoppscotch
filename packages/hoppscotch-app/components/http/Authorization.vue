@@ -202,7 +202,7 @@ import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
   HoppRESTAuthOAuth2,
-} from "~/helpers/types/HoppRESTAuth"
+} from "@hoppscotch/data"
 import { pluckRef, useStream } from "~/helpers/utils/composables"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
 import { useSetting } from "~/newstore/settings"

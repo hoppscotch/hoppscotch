@@ -235,6 +235,7 @@
 import { onMounted, ref, watch } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import * as gql from "graphql"
+import { GQLHeader, makeGQLRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useNuxt,
@@ -262,7 +263,6 @@ import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { GQLHeader, makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"

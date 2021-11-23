@@ -10,8 +10,8 @@ import {
   GraphQLInterfaceType,
 } from "graphql"
 import { distinctUntilChanged, map } from "rxjs/operators"
+import { GQLHeader } from "@hoppscotch/data"
 import { sendNetworkRequest } from "./network"
-import { GQLHeader } from "./types/HoppGQLRequest"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 

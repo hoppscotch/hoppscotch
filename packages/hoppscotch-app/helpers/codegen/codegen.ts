@@ -2,7 +2,7 @@ import {
   FormDataKeyValue,
   HoppRESTHeader,
   HoppRESTParam,
-} from "../types/HoppRESTRequest"
+} from "@hoppscotch/data"
 import { EffectiveHoppRESTRequest } from "../utils/EffectiveURL"
 import { CLibcurlCodegen } from "./generators/c-libcurl"
 import { CsRestsharpCodegen } from "./generators/cs-restsharp"

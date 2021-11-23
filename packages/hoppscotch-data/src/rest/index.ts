@@ -1,5 +1,8 @@
-import { ValidContentTypes } from "../utils/contenttypes"
+import { ValidContentTypes } from "./content-types"
 import { HoppRESTAuth } from "./HoppRESTAuth"
+
+export * from "./content-types"
+export * from "./HoppRESTAuth"
 
 export const RESTReqSchemaVersion = "1"
 

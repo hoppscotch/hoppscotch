@@ -120,6 +120,7 @@ import "splitpanes/dist/splitpanes.css"
 import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
 import isEqual from "lodash/isEqual"
+import { HoppRESTRequest, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import { useSetting } from "~/newstore/settings"
 import {
   restActiveParamsCount$,
@@ -137,9 +138,7 @@ import {
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
-import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import { oauthRedirect } from "~/helpers/oauth"
-import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function bindRequestToURLParams() {

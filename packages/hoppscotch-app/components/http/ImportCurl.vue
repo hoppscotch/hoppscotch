@@ -22,13 +22,13 @@
 
 <script setup lang="ts">
 import { ref } from "@nuxtjs/composition-api"
-import parseCurlCommand from "~/helpers/curlparser"
-import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   HoppRESTHeader,
   HoppRESTParam,
   makeRESTRequest,
-} from "~/helpers/types/HoppRESTRequest"
+} from "@hoppscotch/data"
+import parseCurlCommand from "~/helpers/curlparser"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 

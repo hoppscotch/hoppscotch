@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@nuxtjs/composition-api"
-import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { HoppGQLRequest } from "@hoppscotch/data"
 import { editGraphqlRequest } from "~/newstore/collections"
 
 export default defineComponent({

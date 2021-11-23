@@ -1,6 +1,6 @@
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
-import { FormDataKeyValue, HoppRESTRequest } from "../types/HoppRESTRequest"
+import { FormDataKeyValue, HoppRESTRequest } from "@hoppscotch/data"
 import { parseTemplateString, parseBodyEnvVariables } from "../templating"
 import { Environment, getGlobalVariables } from "~/newstore/environments"
 

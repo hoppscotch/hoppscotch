@@ -57,13 +57,13 @@
 
 <script lang="ts">
 import { Ref } from "@nuxtjs/composition-api"
+import { HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import {
   pluckRef,
   useI18n,
   useStream,
   useToast,
 } from "~/helpers/utils/composables"
-import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
 import { tokenRequest } from "~/helpers/oauth"
 

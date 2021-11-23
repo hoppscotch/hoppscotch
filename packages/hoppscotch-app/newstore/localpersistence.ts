@@ -5,6 +5,7 @@ import assign from "lodash/assign"
 import isEmpty from "lodash/isEmpty"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
+import { translateToNewRequest } from "@hoppscotch/data"
 import {
   settingsStore,
   bulkApplySettings,
@@ -44,7 +45,6 @@ import { WSRequest$, setWSRequest } from "./WebSocketSession"
 import { SIORequest$, setSIORequest } from "./SocketIOSession"
 import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
-import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")

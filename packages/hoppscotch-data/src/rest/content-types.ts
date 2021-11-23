@@ -1,8 +1,4 @@
-import { ValidContentTypes } from "@hoppscotch/data"
-
-export type Content = "json" | "xml" | "multipart" | "html" | "plain"
-
-export const knownContentTypes: Record<ValidContentTypes, Content> = {
+export const knownContentTypes = {
   "application/json": "json",
   "application/ld+json": "json",
   "application/hal+json": "json",
@@ -14,6 +10,4 @@ export const knownContentTypes: Record<ValidContentTypes, Content> = {
   "text/plain": "plain",
 }
 
-export function isJSONContentType(contentType: string) {
-  return /\bjson\b/i.test(contentType)
-}
+export type ValidContentTypes = keyof typeof knownContentTypes

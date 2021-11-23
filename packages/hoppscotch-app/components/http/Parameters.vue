@@ -143,8 +143,8 @@
 
 <script setup lang="ts">
 import { ref, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
+import { HoppRESTParam } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
 import {
   useReadonlyStream,
   useI18n,

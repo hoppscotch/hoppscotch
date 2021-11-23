@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-upperTertiaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <label class="font-semibold text-secondaryLight">

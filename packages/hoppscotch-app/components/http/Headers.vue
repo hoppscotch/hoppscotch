@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-upperSecondaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <label class="font-semibold text-secondaryLight">
@@ -51,7 +53,7 @@
       <div
         v-for="(header, index) in headers$"
         :key="`header-${index}`"
-        class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        class="flex border-b divide-dividerLight border-dividerLight divide-x"
       >
         <SmartAutoComplete
           :placeholder="`${t('count.header', { count: index + 1 })}`"
@@ -136,27 +138,29 @@
       <div
         v-if="headers$.length === 0"
         class="
-          flex flex-col
+          flex
           text-secondaryLight
-          p-4
+          flex-col
           items-center
           justify-center
+          p-4
         "
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_category.svg`"
           loading="lazy"
           class="
-            flex-col
-            my-4
-            object-contain object-center
-            h-16
-            w-16
+            object-contain
             inline-flex
+            flex-col
+            object-center
+            w-16
+            h-16
+            my-4
           "
           :alt="`${t('empty.headers')}`"
         />
-        <span class="text-center pb-4">
+        <span class="pb-4 text-center">
           {{ t("empty.headers") }}
         </span>
         <ButtonSecondary

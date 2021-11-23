@@ -1,15 +1,15 @@
 <template>
   <div
-    class="flex flex-nowrap flex-1 h-full"
+    class="flex flex-1 h-full flex-nowrap"
     :class="{ 'flex-col h-auto': !vertical }"
   >
     <div
-      class="tabs hide-scrollbar relative"
+      class="relative tabs hide-scrollbar"
       :class="[{ 'border-r border-dividerLight': vertical }, styles]"
     >
       <div class="flex flex-1">
         <div
-          class="flex flex-1 justify-between"
+          class="flex justify-between flex-1"
           :class="{ 'flex-col': vertical }"
         >
           <div class="flex" :class="{ 'flex-col space-y-2 p-2': vertical }">
@@ -35,18 +35,18 @@
               </span>
               <span
                 v-if="tab.indicator"
-                class="bg-accentLight h-1 w-1 ml-2 rounded-full"
+                class="w-1 h-1 ml-2 rounded-full bg-accentLight"
               ></span>
             </button>
           </div>
-          <div class="flex justify-center items-center">
+          <div class="flex items-center justify-center">
             <slot name="actions"></slot>
           </div>
         </div>
       </div>
     </div>
     <div
-      class="contents h-full w-full"
+      class="w-full h-full contents"
       :class="{
         '!flex flex-col flex-1 overflow-y-auto hide-scrollbar': vertical,
       }"

@@ -1,26 +1,26 @@
 <template>
-  <div class="flex flex-col min-h-screen items-center justify-between">
+  <div class="flex flex-col items-center justify-between min-h-screen">
     <div
       v-if="invalidLink"
-      class="flex flex-1 items-center justify-center flex-col"
+      class="flex flex-col items-center justify-center flex-1"
     >
-      <i class="opacity-75 pb-2 material-icons">error_outline</i>
-      <h1 class="heading text-center">
+      <i class="pb-2 opacity-75 material-icons">error_outline</i>
+      <h1 class="text-center heading">
         {{ $t("team.invalid_invite_link") }}
       </h1>
-      <p class="text-center mt-2">
+      <p class="mt-2 text-center">
         {{ $t("team.invalid_invite_link_description") }}
       </p>
     </div>
     <div
       v-else-if="loadingCurrentUser"
-      class="flex-col flex-1 p-4 flex items-center justify-center"
+      class="flex flex-col items-center justify-center flex-1 p-4"
     >
       <SmartSpinner />
     </div>
     <div
       v-else-if="currentUser === null"
-      class="flex-col flex-1 p-4 flex items-center justify-center"
+      class="flex flex-col items-center justify-center flex-1 p-4"
     >
       <h1 class="heading">{{ $t("team.login_to_continue") }}</h1>
       <p class="mt-2">{{ $t("team.login_to_continue_description") }}</p>
@@ -30,17 +30,17 @@
         @click.native="showLogin = true"
       />
     </div>
-    <div v-else class="flex-col flex-1 p-4 flex items-center justify-center">
+    <div v-else class="flex flex-col items-center justify-center flex-1 p-4">
       <div
         v-if="inviteDetails.loading"
-        class="flex-col flex-1 p-4 flex items-center justify-center"
+        class="flex flex-col items-center justify-center flex-1 p-4"
       >
         <SmartSpinner />
       </div>
       <div v-else>
         <div
           v-if="!inviteDetails.loading && E.isLeft(inviteDetails.data)"
-          class="flex flex-col p-4 items-center"
+          class="flex flex-col items-center p-4"
         >
           <i class="mb-4 material-icons">error_outline</i>
           <p>
@@ -48,13 +48,14 @@
           </p>
           <p
             class="
-              p-4
-              items-center
-              mt-8
-              rounded
-              flex-col
-              border border-dividerLight
               flex
+              border-dividerLight
+              flex-col
+              items-center
+              p-4
+              mt-8
+              border
+              rounded
             "
           >
             <span class="mb-4">
@@ -74,7 +75,7 @@
             E.isRight(inviteDetails.data) &&
             !joinTeamSuccess
           "
-          class="flex-col flex-1 p-4 flex items-center justify-center"
+          class="flex flex-col items-center justify-center flex-1 p-4"
         >
           <h1 class="heading">
             {{
@@ -83,7 +84,7 @@
               })
             }}
           </h1>
-          <p class="text-secondaryLight mt-2">
+          <p class="mt-2 text-secondaryLight">
             {{
               $t("team.invited_to_team", {
                 owner:
@@ -111,7 +112,7 @@
             E.isRight(inviteDetails.data) &&
             joinTeamSuccess
           "
-          class="flex-col flex-1 p-4 flex items-center justify-center"
+          class="flex flex-col items-center justify-center flex-1 p-4"
         >
           <h1 class="heading">
             {{
@@ -120,7 +121,7 @@
               })
             }}
           </h1>
-          <p class="text-secondaryLight mt-2">
+          <p class="mt-2 text-secondaryLight">
             {{
               $t("team.joined_team_description", {
                 team: inviteDetails.data.right.teamInvitation.team.name,

@@ -4,17 +4,17 @@
     :exact="exact"
     :blank="blank"
     class="
-      font-semibold
-      flex-1
-      py-2
-      transition
-      transform
-      inline-flex
-      items-center
-      truncate
       hover:translate-x-2
       focus:outline-none
       focus-visible:translate-x-2
+      inline-flex
+      items-center
+      flex-1
+      py-2
+      font-semibold
+      truncate
+      transition
+      transform
     "
     :class="[
       label ? 'px-3' : 'px-2',

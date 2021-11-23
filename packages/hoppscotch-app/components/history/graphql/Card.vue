@@ -3,14 +3,15 @@
     <div class="flex items-center">
       <span
         class="
-          cursor-pointer
-          flex flex-1
+          flex
+          group-hover:text-secondaryDark
+          flex-1
           min-w-0
           py-2
-          pr-2
           pl-4
+          pr-2
           transition
-          group-hover:text-secondaryDark
+          cursor-pointer
         "
         data-testid="restore_history_entry"
         @click="useEntry"
@@ -49,7 +50,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="cursor-pointer text-secondaryLight px-4 whitespace-pre truncate"
+        class="px-4 truncate whitespace-pre cursor-pointer text-secondaryLight"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span

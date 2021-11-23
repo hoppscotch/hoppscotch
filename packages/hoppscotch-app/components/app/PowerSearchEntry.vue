@@ -1,14 +1,15 @@
 <template>
   <button
     class="
-      cursor-pointer
-      flex flex-1
-      py-2
-      px-6
-      transition
-      items-center
       search-entry
       focus:outline-none
+      flex
+      items-center
+      flex-1
+      px-6
+      py-2
+      transition
+      cursor-pointer
     "
     :class="{ active: active }"
     tabindex="-1"
@@ -16,7 +17,7 @@
     @keydown.enter="$emit('action', shortcut.action)"
   >
     <SmartIcon
-      class="mr-4 opacity-50 transition svg-icons"
+      class="mr-4 opacity-50 svg-icons transition"
       :class="{ 'opacity-100 text-secondaryDark': active }"
       :name="shortcut.icon"
     />

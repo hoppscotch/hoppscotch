@@ -2,38 +2,40 @@
   <div
     class="
       bg-primary
-      flex
-      p-4
-      top-0
-      z-10
-      sticky
-      items-center
-      overflow-auto
       hide-scrollbar
       whitespace-nowrap
+      sticky
+      top-0
+      z-10
+      flex
+      items-center
+      p-4
+      overflow-auto
     "
   >
     <div
       v-if="response == null"
       class="
-        flex flex-col flex-1
+        flex
         text-secondaryLight
+        flex-col
         items-center
         justify-center
+        flex-1
       "
     >
-      <div class="flex space-x-2 pb-4 my-4">
-        <div class="flex flex-col space-y-4 text-right items-end">
-          <span class="flex flex-1 items-center">
+      <div class="flex pb-4 my-4 space-x-2">
+        <div class="flex flex-col items-end text-right space-y-4">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.request.send_request") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.show_all") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.help_menu") }}
           </span>
         </div>
@@ -73,25 +75,26 @@
       </div>
       <div
         v-if="response.type === 'network_fail'"
-        class="flex flex-col flex-1 p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center flex-1 p-4"
       >
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
           class="
-            flex-col
-            my-4
-            object-contain object-center
-            h-32
-            w-32
+            object-contain
             inline-flex
+            flex-col
+            object-center
+            w-32
+            h-32
+            my-4
           "
           :alt="`${t('error.network_fail')}`"
         />
-        <span class="text-center font-semibold mb-2">
+        <span class="mb-2 font-semibold text-center">
           {{ t("error.network_fail") }}
         </span>
-        <span class="text-center text-secondaryLight mb-4 max-w-sm">
+        <span class="max-w-sm mb-4 text-center text-secondaryLight">
           {{ t("helpers.network_fail") }}
         </span>
         <AppInterceptor />

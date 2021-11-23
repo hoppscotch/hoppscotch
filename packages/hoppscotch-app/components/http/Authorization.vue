@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-upperSecondaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <span class="flex items-center">
@@ -27,7 +29,7 @@
           <template #trigger>
             <span class="select-wrapper">
               <ButtonSecondary
-                class="rounded-none ml-2 pr-8"
+                class="pr-8 ml-2 rounded-none"
                 :label="authName"
               />
             </span>
@@ -93,15 +95,15 @@
     </div>
     <div
       v-if="authType === 'none'"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/login.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.authorization')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.authorization") }}
       </span>
       <ButtonSecondary
@@ -114,16 +116,16 @@
         class="mb-4"
       />
     </div>
-    <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
+    <div v-if="authType === 'basic'" class="flex border-b border-dividerLight">
+      <div class="w-2/3 border-r border-dividerLight">
+        <div class="flex border-b border-dividerLight">
           <SmartEnvInput
             v-model="basicUsername"
             :placeholder="$t('authorization.username')"
             styles="bg-transparent flex flex-1 py-1 px-4"
           />
         </div>
-        <div class="border-b border-dividerLight flex">
+        <div class="flex border-b border-dividerLight">
           <SmartEnvInput
             v-model="basicPassword"
             :placeholder="$t('authorization.password')"
@@ -134,18 +136,18 @@
       <div
         class="
           bg-primary
-          h-full
           top-upperTertiaryStickyFold
           min-w-46
           max-w-1/3
-          p-4
           z-9
           sticky
+          h-full
+          p-4
           overflow-auto
         "
       >
         <div class="p-2">
-          <div class="text-secondaryLight pb-2">
+          <div class="pb-2 text-secondaryLight">
             {{ $t("helpers.authorization") }}
           </div>
           <SmartAnchor
@@ -157,9 +159,9 @@
         </div>
       </div>
     </div>
-    <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
+    <div v-if="authType === 'bearer'" class="flex border-b border-dividerLight">
+      <div class="w-2/3 border-r border-dividerLight">
+        <div class="flex border-b border-dividerLight">
           <SmartEnvInput
             v-model="bearerToken"
             placeholder="Token"
@@ -170,18 +172,18 @@
       <div
         class="
           bg-primary
-          h-full
           top-upperTertiaryStickyFold
           min-w-46
           max-w-1/3
-          p-4
           z-9
           sticky
+          h-full
+          p-4
           overflow-auto
         "
       >
         <div class="p-2">
-          <div class="text-secondaryLight pb-2">
+          <div class="pb-2 text-secondaryLight">
             {{ $t("helpers.authorization") }}
           </div>
           <SmartAnchor
@@ -195,10 +197,10 @@
     </div>
     <div
       v-if="authType === 'oauth-2'"
-      class="border-b border-dividerLight flex"
+      class="flex border-b border-dividerLight"
     >
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
+      <div class="w-2/3 border-r border-dividerLight">
+        <div class="flex border-b border-dividerLight">
           <SmartEnvInput
             v-model="oauth2Token"
             placeholder="Token"
@@ -210,18 +212,18 @@
       <div
         class="
           bg-primary
-          h-full
           top-upperTertiaryStickyFold
           min-w-46
           max-w-1/3
-          p-4
           z-9
           sticky
+          h-full
+          p-4
           overflow-auto
         "
       >
         <div class="p-2">
-          <div class="text-secondaryLight pb-2">
+          <div class="pb-2 text-secondaryLight">
             {{ $t("helpers.authorization") }}
           </div>
           <SmartAnchor

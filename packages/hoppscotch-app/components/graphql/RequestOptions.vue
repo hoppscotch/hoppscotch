@@ -21,15 +21,17 @@
           <div
             class="
               bg-primary
-              border-b border-dividerLight
-              flex flex-1
+              border-dividerLight
               top-upperSecondaryStickyFold
-              pl-4
-              z-10
+              gqlRunQuery
               sticky
+              z-10
+              flex
               items-center
               justify-between
-              gqlRunQuery
+              flex-1
+              pl-4
+              border-b
             "
           >
             <label class="font-semibold text-secondaryLight">
@@ -66,14 +68,16 @@
           <div
             class="
               bg-primary
-              border-b border-dividerLight
-              flex flex-1
+              border-dividerLight
               top-upperSecondaryStickyFold
-              pl-4
-              z-10
               sticky
+              z-10
+              flex
               items-center
               justify-between
+              flex-1
+              pl-4
+              border-b
             "
           >
             <label class="font-semibold text-secondaryLight">
@@ -104,14 +108,16 @@
           <div
             class="
               bg-primary
-              border-b border-dividerLight
-              flex flex-1
+              border-dividerLight
               top-upperSecondaryStickyFold
-              pl-4
-              z-10
               sticky
+              z-10
+              flex
               items-center
               justify-between
+              flex-1
+              pl-4
+              border-b
             "
           >
             <label class="font-semibold text-secondaryLight">
@@ -153,9 +159,11 @@
               v-for="(header, index) in headers"
               :key="`header-${String(index)}`"
               class="
-                divide-x divide-dividerLight
-                border-b border-dividerLight
+                divide-dividerLight
+                border-dividerLight
                 flex
+                border-b
+                divide-x
               "
             >
               <SmartAutoComplete
@@ -182,7 +190,7 @@
                 "
               />
               <input
-                class="bg-transparent flex flex-1 py-2 px-4"
+                class="flex flex-1 px-4 py-2 bg-transparent"
                 :placeholder="`${t('count.value', { count: index + 1 })}`"
                 :name="`value ${String(index)}`"
                 :value="header.value"
@@ -235,27 +243,29 @@
             <div
               v-if="headers.length === 0"
               class="
-                flex flex-col
+                flex
                 text-secondaryLight
-                p-4
+                flex-col
                 items-center
                 justify-center
+                p-4
               "
             >
               <img
                 :src="`/images/states/${$colorMode.value}/add_category.svg`"
                 loading="lazy"
                 class="
-                  flex-col
-                  my-4
-                  object-contain object-center
-                  h-16
-                  w-16
+                  object-contain
                   inline-flex
+                  flex-col
+                  object-center
+                  w-16
+                  h-16
+                  my-4
                 "
                 :alt="`${t('empty.headers')}`"
               />
-              <span class="text-center pb-4">
+              <span class="pb-4 text-center">
                 {{ t("empty.headers") }}
               </span>
               <ButtonSecondary

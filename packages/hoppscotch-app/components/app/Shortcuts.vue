@@ -4,14 +4,15 @@
       <div
         class="
           bg-primary
-          border-b border-dividerLight
-          flex
-          p-2
+          border-dividerLight
+          sticky
           top-0
           z-10
+          flex
           items-center
-          sticky
           justify-between
+          p-2
+          border-b
         "
       >
         <h3 class="ml-4 heading">{{ t("app.shortcuts") }}</h3>
@@ -19,21 +20,22 @@
           <ButtonSecondary svg="x" class="rounded" @click.native="close()" />
         </div>
       </div>
-      <div class="bg-primary border-b border-dividerLight">
-        <div class="flex flex-col my-4 mx-6">
+      <div class="border-b bg-primary border-dividerLight">
+        <div class="flex flex-col mx-6 my-4">
           <input
             v-model="filterText"
             type="search"
             autocomplete="off"
             class="
               bg-primaryLight
-              border border-dividerLight
-              rounded
+              border-dividerLight
+              focus-visible:border-divider
               flex
               w-full
-              py-2
               px-4
-              focus-visible:border-divider
+              py-2
+              border
+              rounded
             "
             :placeholder="`${t('action.search')}`"
           />
@@ -42,16 +44,18 @@
       <div
         v-if="filterText"
         class="
-          divide-y divide-dividerLight
-          flex flex-col flex-1
-          overflow-auto
+          flex flex-col
+          divide-dividerLight
           hide-scrollbar
+          flex-1
+          overflow-auto
+          divide-y
         "
       >
         <div
           v-for="(map, mapIndex) in searchResults"
           :key="`map-${mapIndex}`"
-          class="space-y-4 py-4 px-6"
+          class="px-6 py-4 space-y-4"
         >
           <h1 class="font-semibold text-secondaryDark">
             {{ t(map.item.section) }}
@@ -65,14 +69,15 @@
         <div
           v-if="searchResults.length === 0"
           class="
-            flex flex-col
+            flex
             text-secondaryLight
-            p-4
+            flex-col
             items-center
             justify-center
+            p-4
           "
         >
-          <i class="opacity-75 pb-2 material-icons">manage_search</i>
+          <i class="pb-2 opacity-75 material-icons">manage_search</i>
           <span class="text-center">
             {{ t("state.nothing_found") }} "{{ filterText }}"
           </span>
@@ -81,16 +86,18 @@
       <div
         v-else
         class="
-          divide-y divide-dividerLight
-          flex flex-col flex-1
-          overflow-auto
+          flex flex-col
+          divide-dividerLight
           hide-scrollbar
+          flex-1
+          overflow-auto
+          divide-y
         "
       >
         <div
           v-for="(map, mapIndex) in mappings"
           :key="`map-${mapIndex}`"
-          class="space-y-4 py-4 px-6"
+          class="px-6 py-4 space-y-4"
         >
           <h1 class="font-semibold text-secondaryDark">
             {{ t(map.section) }}

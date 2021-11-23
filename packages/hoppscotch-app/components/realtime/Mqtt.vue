@@ -12,9 +12,9 @@
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
             <div
-              class="bg-primary flex flex-col space-y-4 p-4 top-0 z-10 sticky"
+              class="sticky top-0 z-10 flex flex-col p-4 bg-primary space-y-4"
             >
-              <div class="space-x-2 flex-1 inline-flex">
+              <div class="inline-flex flex-1 space-x-2">
                 <input
                   id="mqtt-url"
                   v-model="url"
@@ -23,15 +23,16 @@
                   spellcheck="false"
                   class="
                     bg-primaryLight
-                    border border-divider
-                    rounded
+                    border-divider
                     text-secondaryDark
-                    w-full
-                    py-2
-                    px-4
                     hover:border-dividerDark
                     focus-visible:bg-transparent
                     focus-visible:border-dividerDark
+                    w-full
+                    px-4
+                    py-2
+                    border
+                    rounded
                   "
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
@@ -85,7 +86,7 @@
       class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <div class="flex flex-col flex-1 p-4 inline-flex">
+        <div class="flex inline-flex flex-col flex-1 p-4">
           <label for="pub_topic" class="font-semibold text-secondaryLight">
             {{ $t("mqtt.topic") }}
           </label>
@@ -101,12 +102,12 @@
             spellcheck="false"
           />
         </div>
-        <div class="flex flex-1 p-4 items-center justify-between">
+        <div class="flex items-center justify-between flex-1 p-4">
           <label for="mqtt-message" class="font-semibold text-secondaryLight">
             {{ $t("mqtt.communication") }}
           </label>
         </div>
-        <div class="flex space-x-2 px-4">
+        <div class="flex px-4 space-x-2">
           <input
             id="mqtt-message"
             v-model="msg"
@@ -126,18 +127,21 @@
         </div>
         <div
           class="
-            border-t border-dividerLight
-            flex flex-col flex-1
-            mt-4
-            p-4
+            flex-col
+            border-dividerLight
+            flex
             inline-flex
+            flex-1
+            p-4
+            mt-4
+            border-t
           "
         >
           <label for="sub_topic" class="font-semibold text-secondaryLight">
             {{ $t("mqtt.topic") }}
           </label>
         </div>
-        <div class="flex space-x-2 px-4">
+        <div class="flex px-4 space-x-2">
           <input
             id="sub_topic"
             v-model="sub_topic"

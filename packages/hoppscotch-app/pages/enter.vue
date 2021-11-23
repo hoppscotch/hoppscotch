@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col min-h-screen items-center justify-center">
+  <div class="flex flex-col items-center justify-center min-h-screen">
     <SmartSpinner v-if="signingInWithEmail" />
     <SmartLoadingIndicator v-else />
     <pre v-if="error">{{ error }}</pre>

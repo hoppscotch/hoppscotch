@@ -7,7 +7,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2 px-2">
+      <div v-if="mode === 'sign-in'" class="flex flex-col px-2 space-y-2">
         <SmartItem
           :loading="signingInWithGitHub"
           svg="auth/github"
@@ -56,9 +56,9 @@
         />
       </form>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
-        <div class="flex flex-col max-w-md justify-center items-center">
-          <SmartIcon class="h-6 text-accent w-6" name="inbox" />
-          <h3 class="my-2 text-center text-lg">
+        <div class="flex flex-col items-center justify-center max-w-md">
+          <SmartIcon class="text-accent w-6 h-6" name="inbox" />
+          <h3 class="my-2 text-lg text-center">
             {{ $t("auth.we_sent_magic_link") }}
           </h3>
           <p class="text-center">
@@ -95,7 +95,7 @@
       </p>
       <p
         v-if="mode === 'email-sent'"
-        class="flex flex-1 text-secondaryLight justify-between"
+        class="text-secondaryLight flex justify-between flex-1"
       >
         <SmartAnchor
           class="link"

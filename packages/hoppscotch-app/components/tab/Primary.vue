@@ -4,14 +4,14 @@
     :exact="exact"
     :blank="blank"
     class="
-      rounded
-      py-2
-      transition
-      px-4
+      focus:outline-none
       inline-flex
       items-center
+      px-4
+      py-2
       truncate
-      focus:outline-none
+      transition
+      rounded
     "
     :class="[
       color

@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-lowerSecondaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <label class="font-semibold text-secondaryLight">
@@ -28,7 +30,7 @@
       </div>
     </div>
     <img
-      class="border-b border-dividerLight flex max-w-full flex-1"
+      class="flex flex-1 max-w-full border-b border-dividerLight"
       :src="imageSource"
       loading="lazy"
       :alt="imageSource"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="divide-y divide-dividerLight container space-y-8">
+    <div class="container divide-dividerLight space-y-8 divide-y">
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
@@ -10,7 +10,7 @@
             {{ $t("settings.theme_description") }}
           </p>
         </div>
-        <div class="space-y-8 p-8 md:col-span-2">
+        <div class="p-8 md:col-span-2 space-y-8">
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.background") }}
@@ -68,7 +68,7 @@
                 {{ $t("app.contact_us") }} </SmartLink
               >.
             </div>
-            <div class="space-y-4 py-4">
+            <div class="py-4 space-y-4">
               <div class="flex items-center">
                 <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
                   {{ $t("settings.telemetry") }}
@@ -109,7 +109,7 @@
             {{ $t("settings.interceptor_description") }}
           </p>
         </div>
-        <div class="space-y-8 p-8 md:col-span-2">
+        <div class="p-8 md:col-span-2 space-y-8">
           <section>
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.extensions") }}
@@ -127,7 +127,7 @@
                 {{ $t("settings.extension_ver_not_reported") }}
               </span>
             </div>
-            <div class="flex flex-col space-y-2 py-4">
+            <div class="flex flex-col py-4 space-y-2">
               <span>
                 <SmartItem
                   to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
@@ -151,7 +151,7 @@
                 />
               </span>
             </div>
-            <div class="space-y-4 py-4">
+            <div class="py-4 space-y-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="EXTENSIONS_ENABLED"
@@ -180,7 +180,7 @@
                 {{ $t("app.proxy_privacy_policy") }} </SmartLink
               >.
             </div>
-            <div class="space-y-4 py-4">
+            <div class="py-4 space-y-4">
               <div class="flex items-center">
                 <SmartToggle
                   :on="PROXY_ENABLED"
@@ -190,8 +190,8 @@
                 </SmartToggle>
               </div>
             </div>
-            <div class="flex space-x-2 py-4 items-center">
-              <div class="flex flex-1 flex-col relative">
+            <div class="flex items-center py-4 space-x-2">
+              <div class="relative flex flex-col flex-1">
                 <input
                   id="url"
                   v-model="PROXY_URL"

@@ -10,13 +10,13 @@
     >
       <span
         class="
-          cursor-pointer
           flex
-          px-2
-          w-16
-          justify-center
           items-center
+          justify-center
+          w-16
+          px-2
           truncate
+          cursor-pointer
         "
         @click="!doc ? selectRequest() : {}"
       >
@@ -28,13 +28,14 @@
       </span>
       <span
         class="
-          cursor-pointer
-          flex flex-1
+          flex
+          group-hover:text-secondaryDark
+          flex-1
           min-w-0
           py-2
           pr-2
           transition
-          group-hover:text-secondaryDark
+          cursor-pointer
         "
         @click="!doc ? selectRequest() : {}"
       >

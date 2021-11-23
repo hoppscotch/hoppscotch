@@ -35,38 +35,40 @@
             graphqlTypes.length === 0
           "
           class="
-            flex flex-col
+            flex
             text-secondaryLight
-            p-4
+            flex-col
             items-center
             justify-center
+            p-4
           "
         >
           <img
             :src="`/images/states/${$colorMode.value}/add_comment.svg`"
             loading="lazy"
             class="
-              flex-col
-              my-4
-              object-contain object-center
-              h-16
-              w-16
+              object-contain
               inline-flex
+              flex-col
+              object-center
+              w-16
+              h-16
+              my-4
             "
             :alt="`${t('empty.documentation')}`"
           />
-          <span class="text-center mb-4">
+          <span class="mb-4 text-center">
             {{ t("empty.documentation") }}
           </span>
         </div>
         <div v-else>
-          <div class="bg-primary flex top-0 z-10 sticky">
+          <div class="sticky top-0 z-10 flex bg-primary">
             <input
               v-model="graphqlFieldsFilterText"
               type="search"
               autocomplete="off"
               :placeholder="`${t('action.search')}`"
-              class="bg-transparent flex w-full p-4 py-2"
+              class="flex w-full p-4 py-2 bg-transparent"
             />
             <div class="flex">
               <ButtonSecondary
@@ -88,7 +90,7 @@
                 :id="'queries'"
                 :label="`${t('tab.queries')}`"
                 :selected="true"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlField
                   v-for="(field, index) in filteredQueryFields"
@@ -102,7 +104,7 @@
                 v-if="mutationFields.length > 0"
                 :id="'mutations'"
                 :label="`${t('graphql.mutations')}`"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlField
                   v-for="(field, index) in filteredMutationFields"
@@ -116,7 +118,7 @@
                 v-if="subscriptionFields.length > 0"
                 :id="'subscriptions'"
                 :label="`${t('graphql.subscriptions')}`"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlField
                   v-for="(field, index) in filteredSubscriptionFields"
@@ -131,7 +133,7 @@
                 :id="'types'"
                 ref="typesTab"
                 :label="`${t('tab.types')}`"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlType
                   v-for="(type, index) in filteredGraphqlTypes"
@@ -155,14 +157,16 @@
           v-if="schemaString"
           class="
             bg-primary
-            flex flex-1
-            top-0
-            pl-4
-            z-10
+            border-dividerLight
             sticky
+            top-0
+            z-10
+            flex
             items-center
             justify-between
-            border-b border-dividerLight
+            flex-1
+            pl-4
+            border-b
           "
         >
           <label class="font-semibold text-secondaryLight">
@@ -203,27 +207,29 @@
         <div
           v-else
           class="
-            flex flex-col
+            flex
             text-secondaryLight
-            p-4
+            flex-col
             items-center
             justify-center
+            p-4
           "
         >
           <img
             :src="`/images/states/${$colorMode.value}/blockchain.svg`"
             loading="lazy"
             class="
-              flex-col
-              my-4
-              object-contain object-center
-              h-16
-              w-16
+              object-contain
               inline-flex
+              flex-col
+              object-center
+              w-16
+              h-16
+              my-4
             "
             :alt="`${t('empty.schema')}`"
           />
-          <span class="text-center mb-4">
+          <span class="mb-4 text-center">
             {{ t("empty.schema") }}
           </span>
         </div>

@@ -11,18 +11,18 @@
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="import">
-            <div class="flex p-4 items-start justify-between">
+            <div class="flex items-start justify-between p-4">
               <label>
                 {{ $t("documentation.generate_message") }}
               </label>
               <span
                 class="
                   bg-accentDark
-                  rounded
                   text-accentContrast
-                  py-1
-                  px-2
                   inline-flex
+                  px-2
+                  py-1
+                  rounded
                 "
               >
                 BETA
@@ -31,13 +31,14 @@
             <div
               class="
                 bg-primary
-                border-b border-dividerLight
-                flex
+                border-dividerLight
+                sticky
                 top-0
                 z-10
+                flex
                 items-start
                 justify-between
-                sticky
+                border-b
               "
             >
               <label for="collectionUpload">
@@ -67,21 +68,23 @@
             <textarea-autosize
               id="import-curl"
               v-model="collectionJSON"
-              class="font-mono p-4 bg-primary"
+              class="p-4 font-mono bg-primary"
               autofocus
               rows="8"
             />
             <div
               class="
+                border-t
                 bg-primary
-                border-t border-b border-dividerLight
-                flex
-                p-4
+                border-dividerLight
+                sticky
                 bottom-0
                 z-10
-                justify-between
+                flex
                 items-start
-                sticky
+                justify-between
+                p-4
+                border-b
               "
             >
               <ButtonPrimary
@@ -97,14 +100,15 @@
               <div
                 v-if="items.length === 0"
                 class="
-                  flex flex-col
+                  flex
                   text-secondaryLight
-                  p-4
+                  flex-col
                   items-center
                   justify-center
+                  p-4
                 "
               >
-                <i class="opacity-75 pb-2 material-icons">topic</i>
+                <i class="pb-2 opacity-75 material-icons">topic</i>
                 <span class="text-center">
                   {{ $t("helpers.generate_documentation_first") }}
                 </span>
@@ -112,13 +116,15 @@
               <div
                 v-else
                 class="
+                  flex
                   bg-primary
-                  border-b border-dividerLight
-                  flex flex-1
-                  p-4
+                  border-dividerLight
+                  sticky
                   top-0
                   z-10
-                  sticky
+                  flex-1
+                  p-4
+                  border-b
                 "
               >
                 <span

@@ -11,8 +11,8 @@
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
-            <div class="bg-primary flex p-4 top-0 z-10 sticky">
-              <div class="space-x-2 flex-1 inline-flex">
+            <div class="sticky top-0 z-10 flex p-4 bg-primary">
+              <div class="inline-flex flex-1 space-x-2">
                 <div class="flex flex-1">
                   <label for="client-version">
                     <tippy
@@ -30,18 +30,19 @@
                             title="socket.io-client version"
                             class="
                               bg-primaryLight
-                              border border-divider
-                              rounded-l
-                              cursor-pointer
-                              flex
-                              font-semibold
+                              border-divider
                               text-secondaryDark
-                              py-2
-                              px-4
                               w-26
                               hover:border-dividerDark
                               focus-visible:bg-transparent
                               focus-visible:border-dividerDark
+                              flex
+                              px-4
+                              py-2
+                              font-semibold
+                              border
+                              rounded-l
+                              cursor-pointer
                             "
                             :value="`Client ${clientVersion}`"
                             readonly
@@ -65,16 +66,18 @@
                     spellcheck="false"
                     :class="{ error: !urlValid }"
                     class="
+                      flex
                       bg-primaryLight
-                      border border-divider
-                      flex flex-1
+                      border-divider
                       text-secondaryDark
-                      w-full
-                      py-2
-                      px-4
                       hover:border-dividerDark
                       focus-visible:bg-transparent
                       focus-visible:border-dividerDark
+                      flex-1
+                      w-full
+                      px-4
+                      py-2
+                      border
                     "
                     :placeholder="$t('socketio.url')"
                     :disabled="connectionState"
@@ -84,17 +87,19 @@
                     id="socketio-path"
                     v-model="path"
                     class="
+                      flex
                       bg-primaryLight
-                      border border-divider
-                      rounded-r
-                      flex flex-1
+                      border-divider
                       text-secondaryDark
-                      w-full
-                      py-2
-                      px-4
                       hover:border-dividerDark
                       focus-visible:bg-transparent
                       focus-visible:border-dividerDark
+                      flex-1
+                      w-full
+                      px-4
+                      py-2
+                      border
+                      rounded-r
                     "
                     spellcheck="false"
                     :disabled="connectionState"
@@ -132,7 +137,7 @@
       class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <div class="flex flex-col flex-1 p-4 inline-flex">
+        <div class="flex inline-flex flex-col flex-1 p-4">
           <label for="events" class="font-semibold text-secondaryLight">
             {{ $t("socketio.events") }}
           </label>
@@ -149,7 +154,7 @@
             :disabled="!connectionState"
           />
         </div>
-        <div class="flex flex-1 p-4 items-center justify-between">
+        <div class="flex items-center justify-between flex-1 p-4">
           <label class="font-semibold text-secondaryLight">
             {{ $t("socketio.communication") }}
           </label>
@@ -163,7 +168,7 @@
             />
           </div>
         </div>
-        <div class="flex flex-col space-y-2 px-4 pb-4">
+        <div class="flex flex-col px-4 pb-4 space-y-2">
           <div
             v-for="(input, index) of communication.inputs"
             :key="`input-${index}`"

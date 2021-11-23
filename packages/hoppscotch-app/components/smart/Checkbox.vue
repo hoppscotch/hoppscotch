@@ -1,14 +1,14 @@
 <template>
   <div
     class="
-      cursor-pointer
       flex-nowrap
       group
+      hover:text-secondaryDark
       inline-flex
       items-center
       justify-center
       transition
-      hover:text-secondaryDark
+      cursor-pointer
     "
     @click="$emit('change')"
   >
@@ -21,7 +21,7 @@
     />
     <label
       for="checkbox"
-      class="cursor-pointer pl-0 align-middle font-semibold"
+      class="pl-0 font-semibold align-middle cursor-pointer"
     >
       <slot></slot>
     </label>

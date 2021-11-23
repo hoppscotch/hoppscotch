@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-lowerSecondaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <label class="font-semibold text-secondaryLight">{{
@@ -47,15 +49,18 @@
     <div
       v-if="outlinePath"
       class="
+        flex
         bg-primaryLight
-        border-t border-dividerLight
-        flex flex-nowrap flex-1
-        px-2
+        border-dividerLight
+        flex-nowrap
+        hide-scrollbar
+        sticky
         bottom-0
         z-10
-        sticky
+        flex-1
+        px-2
         overflow-auto
-        hide-scrollbar
+        border-t
       "
     >
       <div
@@ -135,7 +140,7 @@
         </tippy>
         <i
           v-if="index + 1 !== outlinePath.length"
-          class="text-secondaryLight opacity-50 material-icons"
+          class="opacity-50 text-secondaryLight material-icons"
           >chevron_right</i
         >
       </div>

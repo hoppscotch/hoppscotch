@@ -11,9 +11,9 @@
     />
     <div
       v-if="searchResults.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
-      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <i class="material-icons pb-2 opacity-75">manage_search</i>
       <span class="text-center">
         {{ t("state.nothing_found") }} "{{ search }}"
       </span>

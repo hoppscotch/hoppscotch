@@ -1,6 +1,6 @@
 <template>
   <AppSection label="teams">
-    <div class="space-y-4 p-4">
+    <div class="p-4 space-y-4">
       <ButtonSecondary
         :label="`${t('team.create_new')}`"
         outline
@@ -20,27 +20,29 @@
           myTeams.data.right.myTeams.length === 0
         "
         class="
-          flex flex-col
+          flex
           text-secondaryLight
-          p-4
+          flex-col
           items-center
           justify-center
+          p-4
         "
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_group.svg`"
           loading="lazy"
           class="
-            flex-col
-            mb-8
-            object-contain object-center
-            h-16
-            w-16
+            object-contain
             inline-flex
+            flex-col
+            object-center
+            w-16
+            h-16
+            mb-8
           "
           :alt="`${t('empty.teams')}`"
         />
-        <span class="text-center mb-4">
+        <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
         <ButtonSecondary

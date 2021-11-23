@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-lowerSecondaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <label class="font-semibold text-secondaryLight">
@@ -31,37 +33,41 @@
       v-for="(header, index) in headers"
       :key="`header-${index}`"
       class="
-        divide-x divide-dividerLight
-        border-b border-dividerLight
-        flex
+        divide-dividerLight
+        border-dividerLight
         group
+        flex
+        border-b
+        divide-x
       "
     >
       <span
         class="
-          flex flex-1
-          min-w-0
-          py-2
-          px-4
-          transition
+          flex
           group-hover:text-secondaryDark
+          flex-1
+          min-w-0
+          px-4
+          py-2
+          transition
         "
       >
-        <span class="rounded-sm select-all truncate">
+        <span class="truncate rounded-sm select-all">
           {{ header.key }}
         </span>
       </span>
       <span
         class="
-          flex flex-1
-          min-w-0
-          py-2
-          px-4
-          transition
+          flex
           group-hover:text-secondaryDark
+          flex-1
+          min-w-0
+          px-4
+          py-2
+          transition
         "
       >
-        <span class="rounded-sm select-all truncate">
+        <span class="truncate rounded-sm select-all">
           {{ header.value }}
         </span>
       </span>

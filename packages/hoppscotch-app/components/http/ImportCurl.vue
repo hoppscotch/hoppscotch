@@ -2,7 +2,7 @@
   <SmartModal v-if="show" :title="`${t('import.curl')}`" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
-        <div ref="curlEditor" class="border border-dividerLight rounded"></div>
+        <div ref="curlEditor" class="border rounded border-dividerLight"></div>
       </div>
     </template>
     <template #footer>

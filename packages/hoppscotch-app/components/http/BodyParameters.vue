@@ -3,14 +3,16 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
+        border-dividerLight
         top-upperTertiaryStickyFold
-        pl-4
-        z-10
         sticky
+        z-10
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
       <label class="font-semibold text-secondaryLight">
@@ -41,7 +43,7 @@
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
-      class="divide-x divide-dividerLight border-b border-dividerLight flex"
+      class="flex border-b divide-dividerLight border-dividerLight divide-x"
     >
       <SmartEnvInput
         v-model="param.key"
@@ -63,7 +65,7 @@
         "
       />
       <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
-        <div class="space-x-2 file-chips-wrapper">
+        <div class="file-chips-wrapper space-x-2">
           <SmartDeletableChip
             v-for="(file, fileIndex) in param.value"
             :key="`param-${index}-file-${fileIndex}`"
@@ -151,15 +153,15 @@
     </div>
     <div
       v-if="bodyParams.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.body')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.body") }}
       </span>
       <ButtonSecondary

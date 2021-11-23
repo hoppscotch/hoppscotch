@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <div class="flex items-center group">
       <span
-        class="cursor-pointer flex px-4 justify-center items-center"
+        class="flex items-center justify-center px-4 cursor-pointer"
         @click="toggleShowChildren()"
       >
         <SmartIcon
@@ -13,13 +13,14 @@
       </span>
       <span
         class="
-          cursor-pointer
-          flex flex-1
+          flex
+          group-hover:text-secondaryDark
+          flex-1
           min-w-0
           py-2
           pr-2
           transition
-          group-hover:text-secondaryDark
+          cursor-pointer
         "
         @click="toggleShowChildren()"
       >
@@ -151,23 +152,25 @@
             (folder.requests == undefined || folder.requests.length === 0)
           "
           class="
-            flex flex-col
+            flex
             text-secondaryLight
-            p-4
+            flex-col
             items-center
             justify-center
+            p-4
           "
         >
           <img
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
             class="
-              flex-col
-              mb-4
-              object-contain object-center
-              h-16
-              w-16
+              object-contain
               inline-flex
+              flex-col
+              object-center
+              w-16
+              h-16
+              mb-4
             "
             :alt="$t('empty.folder')"
           />

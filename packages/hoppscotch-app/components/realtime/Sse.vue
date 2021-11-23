@@ -1,8 +1,8 @@
 <template>
   <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
     <Pane class="hide-scrollbar !overflow-auto">
-      <div class="bg-primary flex p-4 top-0 z-10 sticky">
-        <div class="space-x-2 flex-1 inline-flex">
+      <div class="sticky top-0 z-10 flex p-4 bg-primary">
+        <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
             <input
               id="server"
@@ -11,16 +11,18 @@
               autocomplete="off"
               :class="{ error: !serverValid }"
               class="
+                flex
                 bg-primaryLight
-                border border-divider
-                rounded-l
-                flex flex-1
+                border-divider
                 text-secondaryDark
-                w-full
-                py-2
-                px-4
                 hover:border-dividerDark
                 focus-visible:bg-transparent focus-visible:border-dividerDark
+                flex-1
+                w-full
+                px-4
+                py-2
+                border
+                rounded-l
               "
               :placeholder="$t('sse.url')"
               :disabled="connectionSSEState"
@@ -29,13 +31,15 @@
             <label
               for="event-type"
               class="
+                border-t
                 bg-primaryLight
-                border-t border-b border-divider
-                font-semibold
+                border-divider
                 text-secondaryLight
-                py-2
                 px-4
+                py-2
+                font-semibold
                 truncate
+                border-b
               "
             >
               {{ $t("sse.event_type") }}
@@ -44,16 +48,18 @@
               id="event-type"
               v-model="eventType"
               class="
+                flex
                 bg-primaryLight
-                border border-divider
-                rounded-r
-                flex flex-1
+                border-divider
                 text-secondaryDark
-                w-full
-                py-2
-                px-4
                 hover:border-dividerDark
                 focus-visible:bg-transparent focus-visible:border-dividerDark
+                flex-1
+                w-full
+                px-4
+                py-2
+                border
+                rounded-r
               "
               spellcheck="false"
               :disabled="connectionSSEState"

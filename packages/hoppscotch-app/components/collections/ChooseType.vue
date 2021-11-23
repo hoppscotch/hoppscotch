@@ -19,16 +19,17 @@
               autocomplete="off"
               autofocus
               class="
-                bg-transparent
-                border-t border-dividerLight
-                cursor-pointer
-                flex
-                font-semibold
-                w-full
-                py-2
-                px-4
-                appearance-none
+                border-dividerLight
                 hover:bg-primaryDark
+                flex
+                w-full
+                px-4
+                py-2
+                font-semibold
+                bg-transparent
+                border-t
+                appearance-none
+                cursor-pointer
               "
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >

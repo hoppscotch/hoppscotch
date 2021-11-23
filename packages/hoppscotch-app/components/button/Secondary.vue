@@ -4,16 +4,16 @@
     :exact="exact"
     :blank="blank"
     class="
-      font-semibold
-      py-2
-      transition
-      inline-flex
-      items-center
-      justify-center
       whitespace-nowrap
       hover:bg-primaryDark
       focus:outline-none
       focus-visible:bg-primaryDark
+      inline-flex
+      items-center
+      justify-center
+      py-2
+      font-semibold
+      transition
     "
     :class="[
       color
@@ -58,11 +58,11 @@
         :key="`key-${index}`"
         class="
           bg-dividerLight
-          rounded
           text-secondaryLight
-          ml-1
-          px-1
           inline-flex
+          px-1
+          ml-1
+          rounded
         "
       >
         {{ key }}

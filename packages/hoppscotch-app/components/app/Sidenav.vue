@@ -1,6 +1,6 @@
 <template>
-  <aside class="flex h-full justify-between md:flex-col">
-    <nav class="flex flex-nowrap md:flex-col flex-1 md:flex-none">
+  <aside class="md:flex-col flex justify-between h-full">
+    <nav class="flex-nowrap md:flex-col md:flex-none flex flex-1">
       <NuxtLink
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"

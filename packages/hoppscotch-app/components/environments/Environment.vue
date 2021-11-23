@@ -1,20 +1,21 @@
 <template>
   <div class="flex items-center group">
     <span
-      class="cursor-pointer flex px-4 justify-center items-center"
+      class="flex items-center justify-center px-4 cursor-pointer"
       @click="$emit('edit-environment')"
     >
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
       class="
-        cursor-pointer
-        flex flex-1
+        flex
+        group-hover:text-secondaryDark
+        flex-1
         min-w-0
         py-2
         pr-2
         transition
-        group-hover:text-secondaryDark
+        cursor-pointer
       "
       @click="$emit('edit-environment')"
     >

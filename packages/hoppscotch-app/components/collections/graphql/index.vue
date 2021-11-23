@@ -5,12 +5,15 @@
   >
     <div
       class="
-        divide-y divide-dividerLight
-        border-b border-dividerLight
-        flex flex-col
+        flex
+        divide-dividerLight
+        border-dividerLight
+        sticky
         top-0
         z-10
-        sticky
+        flex-col
+        border-b
+        divide-y
       "
       :class="{ 'bg-primary': !savingMode }"
     >
@@ -20,9 +23,9 @@
         type="search"
         autocomplete="off"
         :placeholder="$t('action.search')"
-        class="bg-transparent flex w-full py-2 px-4"
+        class="flex w-full px-4 py-2 bg-transparent"
       />
-      <div class="flex flex-1 justify-between">
+      <div class="flex justify-between flex-1">
         <ButtonSecondary
           svg="plus"
           :label="$t('action.new')"
@@ -69,15 +72,15 @@
     </div>
     <div
       v-if="collections.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.collections')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
@@ -88,9 +91,9 @@
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
-      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <i class="pb-2 opacity-75 material-icons">manage_search</i>
       <span class="text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>

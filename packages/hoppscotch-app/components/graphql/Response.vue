@@ -2,7 +2,7 @@
   <AppSection ref="response" label="response">
     <div
       v-if="responseString === 'loading'"
-      class="flex flex-col p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
@@ -11,14 +11,16 @@
       <div
         class="
           bg-primary
-          border-b border-dividerLight
-          flex flex-1
-          pl-4
+          border-dividerLight
+          sticky
           top-0
           z-10
-          sticky
+          flex
           items-center
           justify-between
+          flex-1
+          pl-4
+          border-b
         "
       >
         <label class="font-semibold text-secondaryLight">
@@ -53,19 +55,21 @@
     <div
       v-else
       class="
-        flex flex-col flex-1
+        flex
         text-secondaryLight
-        p-4
+        flex-col
         items-center
         justify-center
+        flex-1
+        p-4
       "
     >
-      <div class="flex space-x-2 pb-4 my-4">
-        <div class="flex flex-col space-y-4 text-right items-end">
-          <span class="flex flex-1 items-center">
+      <div class="flex pb-4 my-4 space-x-2">
+        <div class="flex flex-col items-end text-right space-y-4">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.help_menu") }}
           </span>
         </div>

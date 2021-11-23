@@ -3,17 +3,19 @@
     <div
       class="
         bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        pl-4
+        border-dividerLight
+        sticky
         top-0
         z-10
-        sticky
+        flex
         items-center
         justify-between
+        flex-1
+        pl-4
+        border-b
       "
     >
-      <label for="log" class="font-semibold text-secondaryLight py-2">
+      <label for="log" class="py-2 font-semibold text-secondaryLight">
         {{ title }}
       </label>
     </div>

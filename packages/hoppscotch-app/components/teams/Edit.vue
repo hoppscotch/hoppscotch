@@ -2,7 +2,7 @@
   <SmartModal v-if="show" :title="t('team.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="flex relative">
+        <div class="relative flex">
           <input
             id="selectLabelTeamEdit"
             v-model="name"
@@ -17,7 +17,7 @@
             {{ t("action.label") }}
           </label>
         </div>
-        <div class="flex pt-4 flex-1 justify-between items-center">
+        <div class="flex items-center justify-between flex-1 pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}
           </label>
@@ -47,32 +47,34 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="divide-y divide-dividerLight border-divider border rounded"
+          class="border rounded divide-dividerLight border-divider divide-y"
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"
             class="
-              flex flex-col
+              flex
               text-secondaryLight
-              p-4
+              flex-col
               items-center
               justify-center
+              p-4
             "
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
               class="
-                flex-col
-                my-4
-                object-contain object-center
-                h-16
-                w-16
+                object-contain
                 inline-flex
+                flex-col
+                object-center
+                w-16
+                h-16
+                my-4
               "
               :alt="`${t('empty.members')}`"
             />
-            <span class="text-center pb-4">
+            <span class="pb-4 text-center">
               {{ t("empty.members") }}
             </span>
             <ButtonSecondary
@@ -89,10 +91,10 @@
             <div
               v-for="(member, index) in membersList"
               :key="`member-${index}`"
-              class="divide-x divide-dividerLight flex"
+              class="flex divide-dividerLight divide-x"
             >
               <input
-                class="bg-transparent flex flex-1 py-2 px-4"
+                class="flex flex-1 px-4 py-2 bg-transparent"
                 :placeholder="`${t('team.email')}`"
                 :name="'param' + index"
                 :value="member.email"
@@ -110,11 +112,11 @@
                     <span class="select-wrapper">
                       <input
                         class="
+                          flex flex-1
+                          px-4
+                          py-2
                           bg-transparent
                           cursor-pointer
-                          flex flex-1
-                          py-2
-                          px-4
                         "
                         :placeholder="`${t('team.permissions')}`"
                         :name="'value' + index"

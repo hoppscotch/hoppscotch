@@ -4,14 +4,14 @@
     :exact="exact"
     :blank="blank"
     class="
-      font-bold
-      py-2
-      transition
+      focus:outline-none
+      focus-visible:bg-accentDark
       inline-flex
       items-center
       justify-center
-      focus:outline-none
-      focus-visible:bg-accentDark
+      py-2
+      font-bold
+      transition
     "
     :class="[
       color
@@ -65,7 +65,7 @@
         <kbd
           v-for="(key, index) in shortcut"
           :key="`key-${index}`"
-          class="bg-accentLight rounded ml-1 px-1 inline-flex"
+          class="inline-flex px-1 ml-1 rounded bg-accentLight"
         >
           {{ key }}
         </kbd>

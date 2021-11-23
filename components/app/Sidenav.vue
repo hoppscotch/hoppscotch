@@ -71,8 +71,11 @@
       <a v-tooltip.right="$t('options')" href="#options">
         <i class="material-icons">toc</i>
       </a>
-      <a v-tooltip.right="$t('response')" href="#response">
-        <i class="material-icons">cloud_download</i>
+      <a
+        v-tooltip.right="$t('response')"
+        href="#response"
+        style="margin-top: 150px"
+      >        <i class="material-icons">cloud_download</i>
       </a>
     </nav>
     <nav v-else-if="$route.path.includes('/realtime')" class="secondary-nav">

@@ -10,7 +10,7 @@
       </label>
     </div>
     <div class="flex flex-col lg:flex-row">
-      <label class="flex-1">
+      <label class="flex-1" style="text-align: right">
         {{ $t("status") + `: \xA0 ` }}
         <span :class="statusCategory ? statusCategory.className : ''">
           {{ response.status || $t("waiting_send_req") }}

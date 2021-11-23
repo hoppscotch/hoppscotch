@@ -71,7 +71,11 @@
       <a v-tooltip.right="$t('options')" href="#options">
         <i class="material-icons">toc</i>
       </a>
-      <a v-tooltip.right="$t('response')" href="#response">
+      <a
+        v-tooltip.right="$t('response')"
+        href="#response"
+        style="margin-top: 150px"
+      >
         <i class="material-icons">cloud_download</i>
       </a>
     </nav>

@@ -18,6 +18,7 @@
       </span>
       <span>
         <a
+          style="background-color: black"
           href="https://appwrite.io/?utm_source=hoppscotch&utm_medium=banner&utm_campaign=hello"
           target="_blank"
           rel="noopener"

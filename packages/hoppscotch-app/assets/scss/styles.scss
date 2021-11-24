@@ -27,6 +27,11 @@
   @apply h-4;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
   @apply hidden;
 }
@@ -61,7 +66,6 @@ body {
   animation: fade 300ms forwards;
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
-  overflow: overlay;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }

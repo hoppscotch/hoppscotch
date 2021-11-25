@@ -110,6 +110,7 @@
     "team_collections": "Kolekcje zespołowe"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Czy na pewno chcesz się wylogować?",
     "remove_collection": "Czy na pewno chcesz trwale usunąć tę kolekcję?",
     "remove_environment": "Czy na pewno chcesz trwale usunąć to środowisko?",

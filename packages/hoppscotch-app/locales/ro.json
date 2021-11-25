@@ -110,6 +110,7 @@
     "team_collections": "Colecții de echipă"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Sigur doriți să vă deconectați?",
     "remove_collection": "Sigur doriți să ștergeți definitiv această colecție?",
     "remove_environment": "Sigur doriți să ștergeți definitiv acest mediu?",

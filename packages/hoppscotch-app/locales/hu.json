@@ -110,6 +110,7 @@
     "team_collections": "Csapatgyűjtemények"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Biztosan ki szeretne jelentkezni?",
     "remove_collection": "Biztosan véglegesen törölni szeretné ezt a gyűjteményt?",
     "remove_environment": "Biztosan véglegesen törölni szeretné ezt a környezetet?",

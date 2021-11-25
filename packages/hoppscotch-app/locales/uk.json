@@ -110,6 +110,7 @@
     "team_collections": "Колекції команд"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Ви впевнені, що хочете вийти?",
     "remove_collection": "Ви впевнені, що хочете назавжди видалити цю колекцію?",
     "remove_environment": "Ви впевнені, що хочете назавжди видалити це середовище?",

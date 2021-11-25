@@ -110,6 +110,7 @@
     "team_collections": "Team Collections"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Are you sure you want to logout?",
     "remove_collection": "Are you sure you want to permanently delete this collection?",
     "remove_environment": "Are you sure you want to permanently delete this environment?",

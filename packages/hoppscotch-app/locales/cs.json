@@ -110,6 +110,7 @@
     "team_collections": "Týmové sbírky"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Opravdu se chcete odhlásit?",
     "remove_collection": "Opravdu chcete tuto sbírku trvale smazat?",
     "remove_environment": "Opravdu chcete toto prostředí trvale odstranit?",

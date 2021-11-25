@@ -110,6 +110,7 @@
     "team_collections": "Colecciones de equipo"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "¿Está seguro de que desea cerrar la sesión?",
     "remove_collection": "¿Está seguro de que desea eliminar esta colección de forma permanente?",
     "remove_environment": "¿Está seguro de que desea eliminar este entorno de forma permanente?",

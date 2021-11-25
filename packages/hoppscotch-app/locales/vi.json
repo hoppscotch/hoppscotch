@@ -110,6 +110,7 @@
     "team_collections": "Bộ sưu tập nhóm"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Bạn có chắc chắn bạn muốn thoát?",
     "remove_collection": "Bạn có chắc chắn muốn xóa vĩnh viễn bộ sưu tập này không?",
     "remove_environment": "Bạn có chắc chắn muốn xóa vĩnh viễn môi trường này không?",

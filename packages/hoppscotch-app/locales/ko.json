@@ -110,6 +110,7 @@
     "team_collections": "팀 모음집"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "로그아웃하시겠습니까?",
     "remove_collection": "이 모음집을 영구적으로 삭제하시겠습니까?",
     "remove_environment": "이 환경을 영구적으로 삭제하시겠습니까?",

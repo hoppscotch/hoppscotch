@@ -110,6 +110,7 @@
     "team_collections": "團隊組合"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "你確定要登出嗎？",
     "remove_collection": "你確定要永久刪除該組合嗎？",
     "remove_environment": "你確定要永久刪除該環境嗎？",

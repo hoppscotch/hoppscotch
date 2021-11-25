@@ -110,6 +110,7 @@
     "team_collections": "Joukkuekokoelmat"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Haluatko varmasti kirjautua ulos?",
     "remove_collection": "Haluatko varmasti poistaa tämän kokoelman pysyvästi?",
     "remove_environment": "Haluatko varmasti poistaa tämän ympäristön pysyvästi?",

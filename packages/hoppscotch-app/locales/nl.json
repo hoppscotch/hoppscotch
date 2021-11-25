@@ -110,6 +110,7 @@
     "team_collections": "Teamcollecties"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Weet u zeker dat u wilt uitloggen?",
     "remove_collection": "Weet je zeker dat je deze collectie definitief wilt verwijderen?",
     "remove_environment": "Weet u zeker dat u deze omgeving permanent wilt verwijderen?",

@@ -110,6 +110,7 @@
     "team_collections": "Takım Koleksiyonları"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Oturumu kapatmak istediğinizden emin misiniz?",
     "remove_collection": "Bu koleksiyonu kalıcı olarak silmek istediğinizden emin misiniz?",
     "remove_environment": "Bu ortamı kalıcı olarak silmek istediğinizden emin misiniz?",

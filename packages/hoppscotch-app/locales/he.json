@@ -110,6 +110,7 @@
     "team_collections": "אוספי צוות"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "האם אתה בטוח שאתה רוצה להתנתק?",
     "remove_collection": "האם אתה בטוח שברצונך למחוק את האוסף הזה לצמיתות?",
     "remove_environment": "האם אתה בטוח שברצונך למחוק סביבה זו לצמיתות?",

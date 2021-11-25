@@ -110,6 +110,7 @@
     "team_collections": "Spanversamelings"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Weet u seker dat u wil afmeld?",
     "remove_collection": "Weet u seker dat u hierdie versameling permanent wil uitvee?",
     "remove_environment": "Is u seker dat u hierdie omgewing permanent wil uitvee?",

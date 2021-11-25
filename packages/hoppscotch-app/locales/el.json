@@ -110,6 +110,7 @@
     "team_collections": "Συλλογές ομάδων"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Είστε βέβαιοι ότι θέλετε να αποσυνδεθείτε?",
     "remove_collection": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτήν τη συλλογή;",
     "remove_environment": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτό το περιβάλλον;",

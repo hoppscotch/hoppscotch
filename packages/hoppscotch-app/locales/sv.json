@@ -110,6 +110,7 @@
     "team_collections": "Lagsamlingar"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Är du säker på att du vill logga ut?",
     "remove_collection": "Är du säker på att du vill radera denna samling permanent?",
     "remove_environment": "Är du säker på att du vill ta bort den här miljön permanent?",

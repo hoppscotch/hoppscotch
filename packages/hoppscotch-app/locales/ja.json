@@ -110,6 +110,7 @@
     "team_collections": "チームコレクション"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "ログアウトしてもよろしいですか？",
     "remove_collection": "このコレクションを完全に削除してもよろしいですか？",
     "remove_environment": "この環境を完全に削除してもよろしいですか？",

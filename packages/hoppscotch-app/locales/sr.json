@@ -110,6 +110,7 @@
     "team_collections": "Збирке тима"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Јесте ли сигурни да се желите одјавити?",
     "remove_collection": "Јесте ли сигурни да желите трајно да избришете ову колекцију?",
     "remove_environment": "Јесте ли сигурни да желите трајно да избришете ово окружење?",

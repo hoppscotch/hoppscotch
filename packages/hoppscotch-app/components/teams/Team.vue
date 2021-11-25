@@ -90,7 +90,7 @@
             :label="t('action.delete')"
             @click.native="
               () => {
-                deleteTeam()
+                confirmRemove = true
                 $refs.options.tippy().hide()
               }
             "
@@ -101,7 +101,7 @@
             :label="t('team.exit')"
             @click.native="
               () => {
-                exitTeam()
+                confirmExit = true
                 $refs.options.tippy().hide()
               }
             "
@@ -109,10 +109,23 @@
         </tippy>
       </span>
     </div>
+    <SmartConfirmModal
+      :show="confirmRemove"
+      :title="t('confirm.remove_team')"
+      @hide-modal="confirmRemove = false"
+      @resolve="deleteTeam()"
+    />
+    <SmartConfirmModal
+      :show="confirmExit"
+      :title="t('confirm.exit_team')"
+      @hide-modal="confirmExit = false"
+      @resolve="exitTeam()"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { TeamMemberRole } from "~/helpers/backend/graphql"
@@ -146,9 +159,10 @@ const emit = defineEmits<{
 
 const toast = useToast()
 
-const deleteTeam = () => {
-  if (!confirm(`${t("confirm.remove_team")}`)) return
+const confirmRemove = ref(false)
+const confirmExit = ref(false)
 
+const deleteTeam = () => {
   pipe(
     backendDeleteTeam(props.teamID),
     TE.match(
@@ -165,8 +179,6 @@ const deleteTeam = () => {
 }
 
 const exitTeam = () => {
-  if (!confirm("Are you sure you want to exit this team?")) return
-
   pipe(
     leaveTeam(props.teamID),
     TE.match(

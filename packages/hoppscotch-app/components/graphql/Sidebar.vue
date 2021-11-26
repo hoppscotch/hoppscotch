@@ -410,12 +410,25 @@ const handleJumpToType = async (type: GraphQLType) => {
   await nextTick()
 
   const rootTypeName = resolveRootType(type).name
-
   const target = document.getElementById(`type_${rootTypeName}`)
   if (target) {
-    gqlTabs.value.$el
-      .querySelector(".gqlTabs")
-      .scrollTo({ top: target.offsetTop, behavior: "smooth" })
+    target.scrollIntoView({ block: "center", behavior: "smooth" })
+    target.classList.add(
+      "transition-all",
+      "ring-inset",
+      "ring-accentLight",
+      "ring-4"
+    )
+    setTimeout(
+      () =>
+        target.classList.remove(
+          "ring-inset",
+          "ring-accentLight",
+          "ring-4",
+          "transition-all"
+        ),
+      2000
+    )
   }
 }
 

@@ -9,9 +9,12 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
-            <div class="sticky top-0 z-10 flex p-4 bg-primary">
+            <div class="bg-primary sticky top-0 z-10 flex p-4">
               <div class="inline-flex flex-1 space-x-2">
                 <div class="flex flex-1">
                   <label for="client-version">
@@ -28,22 +31,7 @@
                             id="client-version"
                             v-tippy="{ theme: 'tooltip' }"
                             title="socket.io-client version"
-                            class="
-                              bg-primaryLight
-                              border-divider
-                              text-secondaryDark
-                              w-26
-                              hover:border-dividerDark
-                              focus-visible:bg-transparent
-                              focus-visible:border-dividerDark
-                              flex
-                              px-4
-                              py-2
-                              font-semibold
-                              border
-                              rounded-l
-                              cursor-pointer
-                            "
+                            class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
                             :value="`Client ${clientVersion}`"
                             readonly
                             :disabled="connectionState"
@@ -65,20 +53,7 @@
                     autocomplete="off"
                     spellcheck="false"
                     :class="{ error: !urlValid }"
-                    class="
-                      flex
-                      bg-primaryLight
-                      border-divider
-                      text-secondaryDark
-                      hover:border-dividerDark
-                      focus-visible:bg-transparent
-                      focus-visible:border-dividerDark
-                      flex-1
-                      w-full
-                      px-4
-                      py-2
-                      border
-                    "
+                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border"
                     :placeholder="$t('socketio.url')"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -86,21 +61,7 @@
                   <input
                     id="socketio-path"
                     v-model="path"
-                    class="
-                      flex
-                      bg-primaryLight
-                      border-divider
-                      text-secondaryDark
-                      hover:border-dividerDark
-                      focus-visible:bg-transparent
-                      focus-visible:border-dividerDark
-                      flex-1
-                      w-full
-                      px-4
-                      py-2
-                      border
-                      rounded-r
-                    "
+                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
                     spellcheck="false"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -123,7 +84,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog :title="$t('socketio.log')" :log="communication.log" />
           </AppSection>
@@ -138,7 +102,7 @@
     >
       <AppSection label="messages">
         <div class="flex inline-flex flex-col flex-1 p-4">
-          <label for="events" class="font-semibold text-secondaryLight">
+          <label for="events" class="text-secondaryLight font-semibold">
             {{ $t("socketio.events") }}
           </label>
         </div>
@@ -155,7 +119,7 @@
           />
         </div>
         <div class="flex items-center justify-between flex-1 p-4">
-          <label class="font-semibold text-secondaryLight">
+          <label class="text-secondaryLight font-semibold">
             {{ $t("socketio.communication") }}
           </label>
           <div class="flex">

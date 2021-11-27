@@ -9,37 +9,23 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="import">
             <div class="flex items-start justify-between p-4">
               <label>
                 {{ $t("documentation.generate_message") }}
               </label>
               <span
-                class="
-                  bg-accentDark
-                  text-accentContrast
-                  inline-flex
-                  px-2
-                  py-1
-                  rounded
-                "
+                class="bg-accentDark text-accentContrast inline-flex px-2 py-1 rounded"
               >
                 BETA
               </span>
             </div>
             <div
-              class="
-                bg-primary
-                border-dividerLight
-                sticky
-                top-0
-                z-10
-                flex
-                items-start
-                justify-between
-                border-b
-              "
+              class="bg-primary border-dividerLight sticky top-0 z-10 flex items-start justify-between border-b"
             >
               <label for="collectionUpload">
                 <ButtonSecondary
@@ -68,24 +54,12 @@
             <textarea-autosize
               id="import-curl"
               v-model="collectionJSON"
-              class="p-4 font-mono bg-primary"
+              class="bg-primary p-4 font-mono"
               autofocus
               rows="8"
             />
             <div
-              class="
-                border-t
-                bg-primary
-                border-dividerLight
-                sticky
-                bottom-0
-                z-10
-                flex
-                items-start
-                justify-between
-                p-4
-                border-b
-              "
+              class="bg-primary border-dividerLight sticky bottom-0 z-10 flex items-start justify-between p-4 border-t border-b"
             >
               <ButtonPrimary
                 :label="$t('documentation.generate')"
@@ -94,38 +68,24 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="documentation">
             <div class="flex flex-col">
               <div
                 v-if="items.length === 0"
-                class="
-                  flex
-                  text-secondaryLight
-                  flex-col
-                  items-center
-                  justify-center
-                  p-4
-                "
+                class="text-secondaryLight flex flex-col items-center justify-center p-4"
               >
-                <i class="pb-2 opacity-75 material-icons">topic</i>
+                <i class="material-icons pb-2 opacity-75">topic</i>
                 <span class="text-center">
                   {{ $t("helpers.generate_documentation_first") }}
                 </span>
               </div>
               <div
                 v-else
-                class="
-                  flex
-                  bg-primary
-                  border-dividerLight
-                  sticky
-                  top-0
-                  z-10
-                  flex-1
-                  p-4
-                  border-b
-                "
+                class="bg-primary border-dividerLight sticky top-0 z-10 flex flex-1 p-4 border-b"
               >
                 <span
                   v-tippy="{ theme: 'tooltip' }"

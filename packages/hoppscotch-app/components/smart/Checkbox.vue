@@ -1,15 +1,6 @@
 <template>
   <div
-    class="
-      flex-nowrap
-      group
-      hover:text-secondaryDark
-      inline-flex
-      items-center
-      justify-center
-      transition
-      cursor-pointer
-    "
+    class="flex-nowrap group hover:text-secondaryDark inline-flex items-center justify-center transition cursor-pointer"
     @click="$emit('change')"
   >
     <input

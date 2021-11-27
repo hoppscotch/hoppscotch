@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="flex items-center group"
+      class="group flex items-center"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
@@ -9,15 +9,7 @@
       @dragend="dragging = false"
     >
       <span
-        class="
-          flex
-          items-center
-          justify-center
-          w-16
-          px-2
-          truncate
-          cursor-pointer
-        "
+        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
         @click="!doc ? selectRequest() : {}"
       >
         <SmartIcon
@@ -27,16 +19,7 @@
         />
       </span>
       <span
-        class="
-          flex
-          group-hover:text-secondaryDark
-          flex-1
-          min-w-0
-          py-2
-          pr-2
-          transition
-          cursor-pointer
-        "
+        class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
         @click="!doc ? selectRequest() : {}"
       >
         <span class="truncate"> {{ request.name }} </span>
@@ -47,7 +30,7 @@
           v-tippy="{ theme: 'tooltip' }"
           svg="rotate-ccw"
           :title="$t('action.restore')"
-          class="hidden group-hover:inline-flex"
+          class="group-hover:inline-flex hidden"
           @click.native="!doc ? selectRequest() : {}"
         />
         <span>

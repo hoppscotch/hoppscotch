@@ -1,18 +1,12 @@
 <template>
   <AppSection :label="`${$t('environment.title')}`">
-    <div class="sticky top-0 z-10 flex flex-col rounded-t bg-primary">
+    <div class="bg-primary sticky top-0 z-10 flex flex-col rounded-t">
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>
         <template #trigger>
           <span
             v-tippy="{ theme: 'tooltip' }"
             :title="`${$t('environment.select')}`"
-            class="
-              border-dividerLight
-              select-wrapper
-              flex-1
-              bg-transparent
-              border-b
-            "
+            class="border-dividerLight select-wrapper flex-1 bg-transparent border-b"
           >
             <ButtonSecondary
               v-if="selectedEnvironmentIndex !== -1"
@@ -51,7 +45,7 @@
           "
         />
       </tippy>
-      <div class="flex justify-between flex-1 border-b border-dividerLight">
+      <div class="border-dividerLight flex justify-between flex-1 border-b">
         <ButtonSecondary
           svg="plus"
           :label="`${$t('action.new')}`"
@@ -92,7 +86,7 @@
       <EnvironmentsEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
-        class="border-b border-dashed border-dividerLight"
+        class="border-dividerLight border-b border-dashed"
         @edit-environment="editEnvironment('Global')"
       />
       <EnvironmentsEnvironment
@@ -105,7 +99,7 @@
     </div>
     <div
       v-if="environments.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/blockchain.svg`"

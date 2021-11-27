@@ -1,21 +1,9 @@
 <template>
   <AppSection id="script" :label="`${t('preRequest.script')}`">
     <div
-      class="
-        bg-primary
-        border-dividerLight
-        top-upperSecondaryStickyFold
-        sticky
-        z-10
-        flex
-        items-center
-        justify-between
-        flex-1
-        pl-4
-        border-b
-      "
+      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
-      <label class="font-semibold text-secondaryLight">
+      <label class="text-secondaryLight font-semibold">
         {{ t("preRequest.javascript_code") }}
       </label>
       <div class="flex">
@@ -41,24 +29,14 @@
         />
       </div>
     </div>
-    <div class="flex border-b border-dividerLight">
-      <div class="w-2/3 border-r border-dividerLight">
+    <div class="border-dividerLight flex border-b">
+      <div class="border-dividerLight w-2/3 border-r">
         <div ref="preRrequestEditor"></div>
       </div>
       <div
-        class="
-          bg-primary
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          z-9
-          sticky
-          h-full
-          p-4
-          overflow-auto
-        "
+        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
       >
-        <div class="pb-2 text-secondaryLight">
+        <div class="text-secondaryLight pb-2">
           {{ t("helpers.pre_request_script") }}
         </div>
         <SmartAnchor
@@ -66,7 +44,7 @@
           to="https://docs.hoppscotch.io/features/pre-request-script"
           blank
         />
-        <h4 class="pt-6 font-bold text-secondaryLight">
+        <h4 class="text-secondaryLight pt-6 font-bold">
           {{ t("preRequest.snippets") }}
         </h4>
         <div class="flex flex-col pt-4">

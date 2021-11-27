@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center group">
+  <div class="group flex items-center">
     <span
       class="flex items-center justify-center px-4 cursor-pointer"
       @click="$emit('edit-environment')"
@@ -7,16 +7,7 @@
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
-      class="
-        flex
-        group-hover:text-secondaryDark
-        flex-1
-        min-w-0
-        py-2
-        pr-2
-        transition
-        cursor-pointer
-      "
+      class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
       @click="$emit('edit-environment')"
     >
       <span class="truncate">

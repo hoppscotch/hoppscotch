@@ -3,7 +3,7 @@
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
         <div class="flex flex-col items-center justify-center max-w-md">
-          <SmartIcon class="w-6 h-6 text-accent" name="users" />
+          <SmartIcon class="text-accent w-6 h-6" name="users" />
           <h3 class="my-2 text-lg text-center">
             {{ t("team.we_sent_invite_link") }}
           </h3>
@@ -12,16 +12,7 @@
           </p>
         </div>
         <div
-          class="
-            flex
-            border-dividerLight
-            flex-col
-            p-4
-            mt-8
-            space-y-6
-            border
-            rounded
-          "
+          class="border-dividerLight flex flex-col p-4 mt-8 space-y-6 border rounded"
         >
           <div
             v-for="(invitee, index) in sendInvitesResult"
@@ -29,7 +20,7 @@
           >
             <p class="flex items-center">
               <i
-                class="mr-4 material-icons"
+                class="material-icons mr-4"
                 :class="
                   invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
                 "
@@ -60,7 +51,7 @@
             {{ t("team.pending_invites") }}
           </label>
         </div>
-        <div class="border rounded divide-dividerLight border-divider divide-y">
+        <div class="divide-dividerLight border-divider border divide-y rounded">
           <div
             v-if="pendingInvites.loading"
             class="flex items-center justify-center p-4"
@@ -75,32 +66,18 @@
                 v-for="(invitee, index) in pendingInvites.data.right.team
                   .teamInvitations"
                 :key="`invitee-${index}`"
-                class="flex divide-dividerLight divide-x"
+                class="divide-dividerLight flex divide-x"
               >
                 <input
                   v-if="invitee"
-                  class="
-                    flex
-                    text-secondaryLight
-                    flex-1
-                    px-4
-                    py-2
-                    bg-transparent
-                  "
+                  class="text-secondaryLight flex flex-1 px-4 py-2 bg-transparent"
                   :placeholder="`${t('team.email')}`"
                   :name="'param' + index"
                   :value="invitee.inviteeEmail"
                   readonly
                 />
                 <input
-                  class="
-                    flex
-                    text-secondaryLight
-                    flex-1
-                    px-4
-                    py-2
-                    bg-transparent
-                  "
+                  class="text-secondaryLight flex flex-1 px-4 py-2 bg-transparent"
                   :placeholder="`${t('team.permissions')}`"
                   :name="'value' + index"
                   :value="
@@ -126,14 +103,7 @@
                 E.isRight(pendingInvites.data) &&
                 pendingInvites.data.right.team.teamInvitations.length === 0
               "
-              class="
-                flex
-                text-secondaryLight
-                flex-col
-                items-center
-                justify-center
-                p-4
-              "
+              class="text-secondaryLight flex flex-col items-center justify-center p-4"
             >
               <span class="text-center">
                 {{ t("empty.pending_invites") }}
@@ -143,7 +113,7 @@
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
               class="flex flex-col items-center p-4"
             >
-              <i class="mb-4 material-icons">help_outline</i>
+              <i class="material-icons mb-4">help_outline</i>
               {{ t("error.something_went_wrong") }}
             </div>
           </div>
@@ -161,11 +131,11 @@
             />
           </div>
         </div>
-        <div class="border rounded divide-dividerLight border-divider divide-y">
+        <div class="divide-dividerLight border-divider border divide-y rounded">
           <div
             v-for="(invitee, index) in newInvites"
             :key="`new-invitee-${index}`"
-            class="flex divide-dividerLight divide-x"
+            class="divide-dividerLight flex divide-x"
           >
             <input
               v-model="invitee.key"
@@ -185,13 +155,7 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="
-                        flex flex-1
-                        px-4
-                        py-2
-                        bg-transparent
-                        cursor-pointer
-                      "
+                      class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
                       :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
                       :value="
@@ -245,27 +209,12 @@
           </div>
           <div
             v-if="newInvites.length === 0"
-            class="
-              flex
-              text-secondaryLight
-              flex-col
-              items-center
-              justify-center
-              p-4
-            "
+            class="text-secondaryLight flex flex-col items-center justify-center p-4"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="
-                object-contain
-                inline-flex
-                flex-col
-                object-center
-                w-16
-                h-16
-                mb-4
-              "
+              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
               :alt="`${t('empty.invites')}`"
             />
             <span class="pb-4 text-center">
@@ -280,34 +229,12 @@
         </div>
         <div
           v-if="newInvites.length"
-          class="
-            flex
-            border-dividerLight
-            flex-col
-            items-start
-            px-4
-            py-4
-            mt-4
-            border
-            rounded
-          "
+          class="border-dividerLight flex flex-col items-start px-4 py-4 mt-4 border rounded"
         >
           <span
-            class="
-              bg-primaryDark
-              border-divider
-              flex
-              items-center
-              justify-center
-              px-2
-              py-1
-              mb-4
-              font-semibold
-              border
-              rounded-full
-            "
+            class="bg-primaryDark border-divider flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full"
           >
-            <i class="mr-2 text-secondaryLight material-icons">help_outline</i>
+            <i class="text-secondaryLight material-icons mr-2">help_outline</i>
             {{ t("profile.roles") }}
           </span>
           <p>
@@ -318,14 +245,7 @@
           <ul class="mt-4 space-y-4">
             <li class="flex">
               <span
-                class="
-                  text-secondaryDark
-                  max-w-16
-                  w-1/4
-                  font-semibold
-                  uppercase
-                  truncate
-                "
+                class="text-secondaryDark max-w-16 w-1/4 font-semibold uppercase truncate"
               >
                 {{ t("profile.owner") }}
               </span>
@@ -335,14 +255,7 @@
             </li>
             <li class="flex">
               <span
-                class="
-                  text-secondaryDark
-                  max-w-16
-                  w-1/4
-                  font-semibold
-                  uppercase
-                  truncate
-                "
+                class="text-secondaryDark max-w-16 w-1/4 font-semibold uppercase truncate"
               >
                 {{ t("profile.editor") }}
               </span>
@@ -352,14 +265,7 @@
             </li>
             <li class="flex">
               <span
-                class="
-                  text-secondaryDark
-                  max-w-16
-                  w-1/4
-                  font-semibold
-                  uppercase
-                  truncate
-                "
+                class="text-secondaryDark max-w-16 w-1/4 font-semibold uppercase truncate"
               >
                 {{ t("profile.viewer") }}
               </span>
@@ -374,7 +280,7 @@
     <template #footer>
       <p
         v-if="sendInvitesResult.length"
-        class="flex justify-between flex-1 text-secondaryLight"
+        class="text-secondaryLight flex justify-between flex-1"
       >
         <SmartAnchor
           class="link"

@@ -3,30 +3,14 @@
     <transition v-if="show" name="fade" appear>
       <div class="fixed inset-0 z-20 transition-opacity" @keydown.esc="close()">
         <div
-          class="absolute inset-0 bg-primaryLight opacity-90"
+          class="bg-primaryLight opacity-90 absolute inset-0"
           tabindex="0"
           @click="close()"
         ></div>
       </div>
     </transition>
     <aside
-      class="
-        flex
-        bg-primary
-        w-96
-        fixed
-        top-0
-        right-0
-        z-30
-        flex-col
-        h-full
-        max-w-full
-        overflow-auto
-        transition
-        duration-300
-        ease-in-out
-        transform
-      "
+      class="bg-primary w-96 fixed top-0 right-0 z-30 flex flex-col h-full max-w-full overflow-auto transition duration-300 ease-in-out transform"
       :class="show ? 'shadow-xl translate-x-0' : 'translate-x-full'"
     >
       <slot name="content"></slot>

@@ -43,11 +43,11 @@
             />
           </div>
         </div>
-        <div class="border rounded divide-dividerLight border-divider divide-y">
+        <div class="divide-dividerLight border-divider border divide-y rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
-            class="flex divide-dividerLight divide-x"
+            class="divide-dividerLight flex divide-x"
           >
             <input
               v-model="variable.key"
@@ -74,27 +74,12 @@
           </div>
           <div
             v-if="vars.length === 0"
-            class="
-              flex
-              text-secondaryLight
-              flex-col
-              items-center
-              justify-center
-              p-4
-            "
+            class="text-secondaryLight flex flex-col items-center justify-center p-4"
           >
             <img
               :src="`/images/states/${$colorMode.value}/blockchain.svg`"
               loading="lazy"
-              class="
-                object-contain
-                inline-flex
-                flex-col
-                object-center
-                w-16
-                h-16
-                my-4
-              "
+              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="$t('empty.environments')"
             />
             <span class="pb-4 text-center">

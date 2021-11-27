@@ -19,27 +19,12 @@
           E.isRight(myTeams.data) &&
           myTeams.data.right.myTeams.length === 0
         "
-        class="
-          flex
-          text-secondaryLight
-          flex-col
-          items-center
-          justify-center
-          p-4
-        "
+        class="text-secondaryLight flex flex-col items-center justify-center p-4"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_group.svg`"
           loading="lazy"
-          class="
-            object-contain
-            inline-flex
-            flex-col
-            object-center
-            w-16
-            h-16
-            mb-8
-          "
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
           :alt="`${t('empty.teams')}`"
         />
         <span class="mb-4 text-center">
@@ -72,7 +57,7 @@
         v-if="!myTeams.loading && E.isLeft(myTeams.data)"
         class="flex flex-col items-center"
       >
-        <i class="mb-4 material-icons">help_outline</i>
+        <i class="material-icons mb-4">help_outline</i>
         {{ t("error.something_went_wrong") }}
       </div>
     </div>

@@ -4,19 +4,7 @@
     :class="{ 'rounded border border-divider': saveRequest }"
   >
     <div
-      class="
-        flex
-        divide-dividerLight
-        bg-primary
-        border-dividerLight
-        sticky
-        top-0
-        z-10
-        flex-col
-        border-b
-        divide-y
-        rounded-t
-      "
+      class="divide-dividerLight bg-primary border-dividerLight sticky top-0 z-10 flex flex-col border-b divide-y rounded-t"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input
@@ -110,7 +98,7 @@
     </div>
     <div
       v-if="filteredCollections.length === 0 && filterText.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
@@ -143,9 +131,9 @@
     </div>
     <div
       v-if="filterText.length !== 0 && filteredCollections.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
-      <i class="pb-2 opacity-75 material-icons">manage_search</i>
+      <i class="material-icons pb-2 opacity-75">manage_search</i>
       <span class="text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>

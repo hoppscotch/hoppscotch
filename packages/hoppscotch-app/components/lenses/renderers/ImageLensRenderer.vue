@@ -1,21 +1,9 @@
 <template>
   <div>
     <div
-      class="
-        bg-primary
-        border-dividerLight
-        top-lowerSecondaryStickyFold
-        sticky
-        z-10
-        flex
-        items-center
-        justify-between
-        flex-1
-        pl-4
-        border-b
-      "
+      class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
-      <label class="font-semibold text-secondaryLight">
+      <label class="text-secondaryLight font-semibold">
         {{ $t("response.body") }}
       </label>
       <div class="flex">
@@ -30,7 +18,7 @@
       </div>
     </div>
     <img
-      class="flex flex-1 max-w-full border-b border-dividerLight"
+      class="border-dividerLight flex flex-1 max-w-full border-b"
       :src="imageSource"
       loading="lazy"
       :alt="imageSource"

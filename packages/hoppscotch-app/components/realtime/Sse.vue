@@ -1,7 +1,7 @@
 <template>
   <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-    <Pane class="hide-scrollbar !overflow-auto">
-      <div class="sticky top-0 z-10 flex p-4 bg-primary">
+    <Pane :size="COLUMN_LAYOUT ? 45 : 50" class="hide-scrollbar !overflow-auto">
+      <div class="bg-primary sticky top-0 z-10 flex p-4">
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
             <input
@@ -10,57 +10,21 @@
               type="url"
               autocomplete="off"
               :class="{ error: !serverValid }"
-              class="
-                flex
-                bg-primaryLight
-                border-divider
-                text-secondaryDark
-                hover:border-dividerDark
-                focus-visible:bg-transparent focus-visible:border-dividerDark
-                flex-1
-                w-full
-                px-4
-                py-2
-                border
-                rounded-l
-              "
+              class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-l"
               :placeholder="$t('sse.url')"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
             />
             <label
               for="event-type"
-              class="
-                border-t
-                bg-primaryLight
-                border-divider
-                text-secondaryLight
-                px-4
-                py-2
-                font-semibold
-                truncate
-                border-b
-              "
+              class="bg-primaryLight border-divider text-secondaryLight px-4 py-2 font-semibold truncate border-t border-b"
             >
               {{ $t("sse.event_type") }}
             </label>
             <input
               id="event-type"
               v-model="eventType"
-              class="
-                flex
-                bg-primaryLight
-                border-divider
-                text-secondaryDark
-                hover:border-dividerDark
-                focus-visible:bg-transparent focus-visible:border-dividerDark
-                flex-1
-                w-full
-                px-4
-                py-2
-                border
-                rounded-r
-              "
+              class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
               spellcheck="false"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
@@ -80,7 +44,7 @@
         </div>
       </div>
     </Pane>
-    <Pane class="hide-scrollbar !overflow-auto">
+    <Pane :size="COLUMN_LAYOUT ? 65 : 50" class="hide-scrollbar !overflow-auto">
       <AppSection label="response">
         <ul>
           <li>

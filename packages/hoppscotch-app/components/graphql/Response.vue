@@ -9,21 +9,9 @@
     </div>
     <div v-else-if="responseString">
       <div
-        class="
-          bg-primary
-          border-dividerLight
-          sticky
-          top-0
-          z-10
-          flex
-          items-center
-          justify-between
-          flex-1
-          pl-4
-          border-b
-        "
+        class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b"
       >
-        <label class="font-semibold text-secondaryLight">
+        <label class="text-secondaryLight font-semibold">
           {{ t("response.title") }}
         </label>
         <div class="flex">
@@ -54,18 +42,10 @@
     </div>
     <div
       v-else
-      class="
-        flex
-        text-secondaryLight
-        flex-col
-        items-center
-        justify-center
-        flex-1
-        p-4
-      "
+      class="text-secondaryLight flex flex-col items-center justify-center flex-1 p-4"
     >
       <div class="flex pb-4 my-4 space-x-2">
-        <div class="flex flex-col items-end text-right space-y-4">
+        <div class="flex flex-col items-end space-y-4 text-right">
           <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>

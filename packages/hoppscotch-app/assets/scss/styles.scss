@@ -37,7 +37,8 @@
 }
 
 ::selection {
-  @apply bg-divider;
+  @apply bg-accentDark;
+  @apply text-accentContrast;
 }
 
 input::placeholder,

@@ -53,12 +53,7 @@
             :title="t('team.invite_tooltip')"
             :label="t('team.invite')"
             svg="user-plus"
-            class="
-              !bg-green-500
-              !text-green-500
-              !bg-opacity-15
-              !hover:bg-opacity-10 !hover:text-green-600 !hover:bg-green-400
-            "
+            class="!bg-green-500 !text-green-500 !bg-opacity-15 !hover:bg-opacity-10 !hover:text-green-600 !hover:bg-green-400"
             @click.native="showTeamsModal = true"
           />
           <span class="px-2">

@@ -1,16 +1,6 @@
 <template>
   <div
-    class="
-      bg-primary
-      hide-scrollbar
-      sticky
-      top-0
-      z-10
-      flex
-      p-4
-      space-x-2
-      overflow-x-auto
-    "
+    class="bg-primary hide-scrollbar sticky top-0 z-10 flex p-4 space-x-2 overflow-x-auto"
   >
     <div class="flex flex-1">
       <div class="relative flex">
@@ -26,22 +16,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="
-                    bg-primaryLight
-                    border-divider
-                    text-secondaryDark
-                    w-26
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                    flex
-                    px-4
-                    py-2
-                    font-semibold
-                    border
-                    rounded-l
-                    cursor-pointer
-                  "
+                  class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -83,7 +58,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="flex-1 rounded-r-none min-w-20"
+        class="min-w-20 flex-1 rounded-r-none"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
@@ -164,7 +139,7 @@
             name="request-name"
             type="text"
             autocomplete="off"
-            class="mb-2 input"
+            class="input mb-2"
             @keyup.enter="saveOptions.tippy().hide()"
           />
           <SmartItem

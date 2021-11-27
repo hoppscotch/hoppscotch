@@ -47,31 +47,16 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="border rounded divide-dividerLight border-divider divide-y"
+          class="divide-dividerLight border-divider border divide-y rounded"
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"
-            class="
-              flex
-              text-secondaryLight
-              flex-col
-              items-center
-              justify-center
-              p-4
-            "
+            class="text-secondaryLight flex flex-col items-center justify-center p-4"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="
-                object-contain
-                inline-flex
-                flex-col
-                object-center
-                w-16
-                h-16
-                my-4
-              "
+              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="`${t('empty.members')}`"
             />
             <span class="pb-4 text-center">
@@ -91,7 +76,7 @@
             <div
               v-for="(member, index) in membersList"
               :key="`member-${index}`"
-              class="flex divide-dividerLight divide-x"
+              class="divide-dividerLight flex divide-x"
             >
               <input
                 class="flex flex-1 px-4 py-2 bg-transparent"
@@ -111,13 +96,7 @@
                   <template #trigger>
                     <span class="select-wrapper">
                       <input
-                        class="
-                          flex flex-1
-                          px-4
-                          py-2
-                          bg-transparent
-                          cursor-pointer
-                        "
+                        class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
                         :placeholder="`${t('team.permissions')}`"
                         :name="'value' + index"
                         :value="
@@ -175,7 +154,7 @@
           v-if="!teamDetails.loading && E.isLeft(teamDetails.data)"
           class="flex flex-col items-center"
         >
-          <i class="mb-4 material-icons">help_outline</i>
+          <i class="material-icons mb-4">help_outline</i>
           {{ t("error.something_went_wrong") }}
         </div>
       </div>

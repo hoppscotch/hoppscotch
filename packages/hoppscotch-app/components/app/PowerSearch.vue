@@ -14,16 +14,7 @@
         autocomplete="off"
         name="command"
         :placeholder="`${t('app.type_a_command_search')}`"
-        class="
-          flex
-          border-dividerLight
-          text-secondaryDark
-          flex-shrink-0
-          p-6
-          text-base
-          bg-transparent
-          border-b
-        "
+        class="border-dividerLight text-secondaryDark flex flex-shrink-0 p-6 text-base bg-transparent border-b"
       />
       <AppFuse
         v-if="search && show"
@@ -33,22 +24,14 @@
       />
       <div
         v-else
-        class="
-          flex flex-col
-          divide-dividerLight
-          hide-scrollbar
-          flex-1
-          space-y-4
-          overflow-auto
-          divide-y
-        "
+        class="divide-dividerLight hide-scrollbar flex flex-col flex-1 space-y-4 overflow-auto divide-y"
       >
         <div
           v-for="(map, mapIndex) in mappings"
           :key="`map-${mapIndex}`"
           class="flex flex-col"
         >
-          <h5 class="px-6 py-2 my-2 text-secondaryLight">
+          <h5 class="text-secondaryLight px-6 py-2 my-2">
             {{ t(map.section) }}
           </h5>
           <AppPowerSearchEntry

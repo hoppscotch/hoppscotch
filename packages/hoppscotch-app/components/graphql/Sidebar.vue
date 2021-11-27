@@ -34,27 +34,12 @@
             subscriptionFields.length === 0 &&
             graphqlTypes.length === 0
           "
-          class="
-            flex
-            text-secondaryLight
-            flex-col
-            items-center
-            justify-center
-            p-4
-          "
+          class="text-secondaryLight flex flex-col items-center justify-center p-4"
         >
           <img
             :src="`/images/states/${$colorMode.value}/add_comment.svg`"
             loading="lazy"
-            class="
-              object-contain
-              inline-flex
-              flex-col
-              object-center
-              w-16
-              h-16
-              my-4
-            "
+            class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
             :alt="`${t('empty.documentation')}`"
           />
           <span class="mb-4 text-center">
@@ -62,7 +47,7 @@
           </span>
         </div>
         <div v-else>
-          <div class="sticky top-0 z-10 flex bg-primary">
+          <div class="bg-primary sticky top-0 z-10 flex">
             <input
               v-model="graphqlFieldsFilterText"
               type="search"
@@ -155,21 +140,9 @@
       <AppSection ref="schema" label="schema">
         <div
           v-if="schemaString"
-          class="
-            bg-primary
-            border-dividerLight
-            sticky
-            top-0
-            z-10
-            flex
-            items-center
-            justify-between
-            flex-1
-            pl-4
-            border-b
-          "
+          class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b"
         >
-          <label class="font-semibold text-secondaryLight">
+          <label class="text-secondaryLight font-semibold">
             {{ t("graphql.schema") }}
           </label>
           <div class="flex">
@@ -206,27 +179,12 @@
         <div v-if="schemaString" ref="schemaEditor"></div>
         <div
           v-else
-          class="
-            flex
-            text-secondaryLight
-            flex-col
-            items-center
-            justify-center
-            p-4
-          "
+          class="text-secondaryLight flex flex-col items-center justify-center p-4"
         >
           <img
             :src="`/images/states/${$colorMode.value}/blockchain.svg`"
             loading="lazy"
-            class="
-              object-contain
-              inline-flex
-              flex-col
-              object-center
-              w-16
-              h-16
-              my-4
-            "
+            class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
             :alt="`${t('empty.schema')}`"
           />
           <span class="mb-4 text-center">

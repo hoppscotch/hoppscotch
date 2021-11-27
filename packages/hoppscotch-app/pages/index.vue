@@ -9,7 +9,10 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <HttpRequest />
           <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
             <SmartTab
@@ -52,7 +55,10 @@
             </SmartTab>
           </SmartTabs>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto flex flex-col">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto flex flex-col"
+        >
           <HttpResponse ref="response" />
         </Pane>
       </Splitpanes>

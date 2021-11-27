@@ -4,8 +4,8 @@
       v-if="invalidLink"
       class="flex flex-col items-center justify-center flex-1"
     >
-      <i class="pb-2 opacity-75 material-icons">error_outline</i>
-      <h1 class="text-center heading">
+      <i class="material-icons pb-2 opacity-75">error_outline</i>
+      <h1 class="heading text-center">
         {{ $t("team.invalid_invite_link") }}
       </h1>
       <p class="mt-2 text-center">
@@ -42,21 +42,12 @@
           v-if="!inviteDetails.loading && E.isLeft(inviteDetails.data)"
           class="flex flex-col items-center p-4"
         >
-          <i class="mb-4 material-icons">error_outline</i>
+          <i class="material-icons mb-4">error_outline</i>
           <p>
             {{ getErrorMessage(inviteDetails.data.left) }}
           </p>
           <p
-            class="
-              flex
-              border-dividerLight
-              flex-col
-              items-center
-              p-4
-              mt-8
-              border
-              rounded
-            "
+            class="border-dividerLight flex flex-col items-center p-4 mt-8 border rounded"
           >
             <span class="mb-4">
               {{ $t("team.logout_and_try_again") }}
@@ -84,7 +75,7 @@
               })
             }}
           </h1>
-          <p class="mt-2 text-secondaryLight">
+          <p class="text-secondaryLight mt-2">
             {{
               $t("team.invited_to_team", {
                 owner:
@@ -121,7 +112,7 @@
               })
             }}
           </h1>
-          <p class="mt-2 text-secondaryLight">
+          <p class="text-secondaryLight mt-2">
             {{
               $t("team.joined_team_description", {
                 team: inviteDetails.data.right.teamInvitation.team.name,

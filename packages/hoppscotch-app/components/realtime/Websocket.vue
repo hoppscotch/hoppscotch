@@ -9,26 +9,17 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
-            <div class="sticky top-0 z-10 flex p-4 bg-primary">
+            <div class="bg-primary sticky top-0 z-10 flex p-4">
               <div class="inline-flex flex-1 space-x-2">
                 <input
                   id="websocket-url"
                   v-model="url"
-                  class="
-                    bg-primaryLight
-                    border-divider
-                    text-secondaryDark
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                    w-full
-                    px-4
-                    py-2
-                    border
-                    rounded
-                  "
+                  class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
@@ -53,21 +44,9 @@
               </div>
             </div>
             <div
-              class="
-                bg-primary
-                border-dividerLight
-                top-upperPrimaryStickyFold
-                sticky
-                z-10
-                flex
-                items-center
-                justify-between
-                flex-1
-                pl-4
-                border-b
-              "
+              class="bg-primary border-dividerLight top-upperPrimaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
             >
-              <label class="font-semibold text-secondaryLight">
+              <label class="text-secondaryLight font-semibold">
                 {{ $t("websocket.protocols") }}
               </label>
               <div class="flex">
@@ -88,13 +67,7 @@
             <div
               v-for="(protocol, index) of protocols"
               :key="`protocol-${index}`"
-              class="
-                divide-dividerLight
-                border-dividerLight
-                flex
-                border-b
-                divide-x
-              "
+              class="divide-dividerLight border-dividerLight flex border-b divide-x"
             >
               <input
                 v-model="protocol.value"
@@ -141,27 +114,12 @@
             </div>
             <div
               v-if="protocols.length === 0"
-              class="
-                flex
-                text-secondaryLight
-                flex-col
-                items-center
-                justify-center
-                p-4
-              "
+              class="text-secondaryLight flex flex-col items-center justify-center p-4"
             >
               <img
                 :src="`/images/states/${$colorMode.value}/add_category.svg`"
                 loading="lazy"
-                class="
-                  object-contain
-                  inline-flex
-                  flex-col
-                  object-center
-                  w-16
-                  h-16
-                  my-4
-                "
+                class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
                 :alt="$t('empty.protocols')"
               />
               <span class="mb-4 text-center">
@@ -170,7 +128,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog
               :title="$t('websocket.log')"
@@ -190,7 +151,7 @@
         <div class="flex inline-flex flex-col flex-1 p-4">
           <label
             for="websocket-message"
-            class="font-semibold text-secondaryLight"
+            class="text-secondaryLight font-semibold"
           >
             {{ $t("websocket.communication") }}
           </label>

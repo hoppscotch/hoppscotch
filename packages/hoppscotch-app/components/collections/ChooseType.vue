@@ -18,19 +18,7 @@
               type="text"
               autocomplete="off"
               autofocus
-              class="
-                border-dividerLight
-                hover:bg-primaryDark
-                flex
-                w-full
-                px-4
-                py-2
-                font-semibold
-                bg-transparent
-                border-t
-                appearance-none
-                cursor-pointer
-              "
+              class="border-dividerLight hover:bg-primaryDark flex w-full px-4 py-2 font-semibold bg-transparent border-t appearance-none cursor-pointer"
               @change="updateSelectedTeam(myTeams[$event.target.value])"
             >
               <option

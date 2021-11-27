@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex items-center group">
+    <div class="group flex items-center">
       <span
         class="flex items-center justify-center px-4 cursor-pointer"
         @click="toggleShowChildren()"
@@ -12,16 +12,7 @@
         />
       </span>
       <span
-        class="
-          flex
-          group-hover:text-secondaryDark
-          flex-1
-          min-w-0
-          py-2
-          pr-2
-          transition
-          cursor-pointer
-        "
+        class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
         @click="toggleShowChildren()"
       >
         <span class="truncate"> {{ collection.title }} </span>
@@ -48,7 +39,7 @@
           v-tippy="{ theme: 'tooltip' }"
           svg="folder-plus"
           :title="$t('folder.new')"
-          class="hidden group-hover:inline-flex"
+          class="group-hover:inline-flex hidden"
           @click.native="
             $emit('add-folder', {
               folder: collection,
@@ -115,16 +106,7 @@
     </div>
     <div v-if="showChildren || isFiltered" class="flex">
       <div
-        class="
-          flex
-          w-1
-          transform
-          transition
-          cursor-nsResize
-          ml-5.5
-          bg-dividerLight
-          hover:scale-x-125 hover:bg-dividerDark
-        "
+        class="flex w-1 transform transition cursor-nsResize ml-5.5 bg-dividerLight hover:scale-x-125 hover:bg-dividerDark"
         @click="toggleShowChildren()"
       ></div>
       <div class="flex flex-col flex-1 truncate">
@@ -170,27 +152,12 @@
             (collection.requests == undefined ||
               collection.requests.length === 0)
           "
-          class="
-            flex
-            text-secondaryLight
-            flex-col
-            items-center
-            justify-center
-            p-4
-          "
+          class="text-secondaryLight flex flex-col items-center justify-center p-4"
         >
           <img
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
-            class="
-              object-contain
-              inline-flex
-              flex-col
-              object-center
-              w-16
-              h-16
-              mb-4
-            "
+            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
             :alt="$t('empty.collection')"
           />
           <span class="text-center">

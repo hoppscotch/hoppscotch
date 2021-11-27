@@ -9,10 +9,13 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
             <div
-              class="sticky top-0 z-10 flex flex-col p-4 bg-primary space-y-4"
+              class="bg-primary sticky top-0 z-10 flex flex-col p-4 space-y-4"
             >
               <div class="inline-flex flex-1 space-x-2">
                 <input
@@ -21,19 +24,7 @@
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
-                  class="
-                    bg-primaryLight
-                    border-divider
-                    text-secondaryDark
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                    w-full
-                    px-4
-                    py-2
-                    border
-                    rounded
-                  "
+                  class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
                   @keyup.enter="validUrl ? toggleConnection() : null"
@@ -72,7 +63,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog :title="$t('mqtt.log')" :log="log" />
           </AppSection>
@@ -87,7 +81,7 @@
     >
       <AppSection label="messages">
         <div class="flex inline-flex flex-col flex-1 p-4">
-          <label for="pub_topic" class="font-semibold text-secondaryLight">
+          <label for="pub_topic" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.topic") }}
           </label>
         </div>
@@ -103,7 +97,7 @@
           />
         </div>
         <div class="flex items-center justify-between flex-1 p-4">
-          <label for="mqtt-message" class="font-semibold text-secondaryLight">
+          <label for="mqtt-message" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.communication") }}
           </label>
         </div>
@@ -126,18 +120,9 @@
           />
         </div>
         <div
-          class="
-            flex-col
-            border-dividerLight
-            flex
-            inline-flex
-            flex-1
-            p-4
-            mt-4
-            border-t
-          "
+          class="border-dividerLight flex inline-flex flex-col flex-1 p-4 mt-4 border-t"
         >
-          <label for="sub_topic" class="font-semibold text-secondaryLight">
+          <label for="sub_topic" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.topic") }}
           </label>
         </div>

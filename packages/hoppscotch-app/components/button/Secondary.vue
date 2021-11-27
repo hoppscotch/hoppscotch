@@ -3,18 +3,7 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="
-      whitespace-nowrap
-      hover:bg-primaryDark
-      focus:outline-none
-      focus-visible:bg-primaryDark
-      inline-flex
-      items-center
-      justify-center
-      py-2
-      font-semibold
-      transition
-    "
+    class="whitespace-nowrap hover:bg-primaryDark focus:outline-none focus-visible:bg-primaryDark inline-flex items-center justify-center py-2 font-semibold transition"
     :class="[
       color
         ? `text-${color}-500 hover:(text-${color}-600 text-${color}-600)`
@@ -28,7 +17,7 @@
         'border border-divider hover:border-dividerDark focus-visible:border-dividerDark':
           outline,
       },
-      { '!bg-primaryDark': filled },
+      { '!bg-primaryLight !hover:bg-primaryDark': filled },
     ]"
     :disabled="disabled"
   >
@@ -56,14 +45,7 @@
       <kbd
         v-for="(key, index) in shortcut"
         :key="`key-${index}`"
-        class="
-          bg-dividerLight
-          text-secondaryLight
-          inline-flex
-          px-1
-          ml-1
-          rounded
-        "
+        class="bg-dividerLight text-secondaryLight inline-flex px-1 ml-1 rounded"
       >
         {{ key }}
       </kbd>

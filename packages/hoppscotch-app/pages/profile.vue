@@ -9,18 +9,10 @@
           <img
             :src="`/images/states/${$colorMode.value}/login.svg`"
             loading="lazy"
-            class="
-              object-contain
-              inline-flex
-              flex-col
-              object-center
-              w-24
-              h-24
-              my-4
-            "
+            class="inline-flex flex-col object-contain object-center w-24 h-24 my-4"
             :alt="`${t('empty.parameters')}`"
           />
-          <p class="pb-4 text-center text-secondaryLight">
+          <p class="text-secondaryLight pb-4 text-center">
             {{ t("empty.profile") }}
           </p>
           <ButtonPrimary
@@ -31,15 +23,15 @@
         </div>
         <div v-else class="space-y-8">
           <div
-            class="h-24 rounded bg-primaryLight md:h-32 -mb-11"
+            class="bg-primaryLight md:h-32 -mb-11 h-24 rounded"
             style="background-image: url('/images/cover.svg')"
           ></div>
-          <div class="flex flex-col justify-between px-4 md:flex-row space-y-8">
+          <div class="md:flex-row flex flex-col justify-between px-4 space-y-8">
             <div class="flex items-end">
               <img
                 v-if="currentUser.photoURL"
                 :src="currentUser.photoURL"
-                class="w-16 h-16 rounded-lg ring-4 ring-primary"
+                class="ring-4 ring-primary w-16 h-16 rounded-lg"
                 :alt="currentUser.displayName"
               />
               <SmartIcon v-else name="user" class="svg-icons" />
@@ -47,12 +39,12 @@
                 <label class="heading">
                   {{ currentUser.displayName || t("state.nothing_found") }}
                 </label>
-                <p class="flex items-center text-secondaryLight">
+                <p class="text-secondaryLight flex items-center">
                   {{ currentUser.email }}
                   <SmartIcon
                     v-if="currentUser.emailVerified"
                     name="verified"
-                    class="ml-2 text-green-500 svg-icons"
+                    class="svg-icons ml-2 text-green-500"
                   />
                 </p>
               </div>
@@ -76,10 +68,10 @@
               :selected="true"
             >
               <section class="p-4">
-                <h4 class="font-semibold text-secondaryDark">
+                <h4 class="text-secondaryDark font-semibold">
                   {{ t("settings.profile") }}
                 </h4>
-                <div class="mt-1 text-secondaryLight">
+                <div class="text-secondaryLight mt-1">
                   {{ t("settings.profile_description") }}
                 </div>
                 <div class="py-4">
@@ -87,7 +79,7 @@
                     {{ t("settings.profile_name") }}
                   </label>
                   <form
-                    class="flex mt-2 md:max-w-sm"
+                    class="md:max-w-sm flex mt-2"
                     @submit.prevent="updateDisplayName"
                   >
                     <input
@@ -101,7 +93,7 @@
                     />
                     <ButtonPrimary
                       :label="t('action.save')"
-                      class="ml-2 min-w-16"
+                      class="min-w-16 ml-2"
                       type="submit"
                       :loading="updatingDisplayName"
                     />
@@ -109,10 +101,10 @@
                 </div>
               </section>
               <section class="p-4">
-                <h4 class="font-semibold text-secondaryDark">
+                <h4 class="text-secondaryDark font-semibold">
                   {{ t("settings.sync") }}
                 </h4>
-                <div class="mt-1 text-secondaryLight">
+                <div class="text-secondaryLight mt-1">
                   {{ t("settings.sync_description") }}
                 </div>
                 <div class="py-4 space-y-4">

@@ -1,21 +1,9 @@
 <template>
   <div class="flex flex-col">
     <div
-      class="
-        bg-primary
-        border-dividerLight
-        sticky
-        top-0
-        z-10
-        flex
-        items-center
-        justify-between
-        flex-1
-        pl-4
-        border-b
-      "
+      class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
-      <label for="log" class="py-2 font-semibold text-secondaryLight">
+      <label for="log" class="text-secondaryLight py-2 font-semibold">
         {{ title }}
       </label>
     </div>

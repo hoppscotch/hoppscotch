@@ -7,21 +7,9 @@
       "
     >
       <div
-        class="
-          bg-primary
-          border-dividerLight
-          top-lowerSecondaryStickyFold
-          sticky
-          z-10
-          flex
-          items-center
-          justify-between
-          flex-1
-          pl-4
-          border-b
-        "
+        class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
       >
-        <label class="font-semibold text-secondaryLight">
+        <label class="text-secondaryLight font-semibold">
           {{ t("test.report") }}
         </label>
         <ButtonSecondary
@@ -31,7 +19,7 @@
           @click.native="clearContent()"
         />
       </div>
-      <div class="border-b divide-dividerLight border-dividerLight divide-y-4">
+      <div class="divide-dividerLight border-dividerLight border-b divide-y-4">
         <div v-if="testResults.tests" class="divide-dividerLight divide-y-4">
           <HttpTestResultEntry
             v-for="(result, index) in testResults.tests"
@@ -53,7 +41,7 @@
             class="flex items-center px-4 py-2"
           >
             <i
-              class="mr-4 material-icons"
+              class="material-icons mr-4"
               :class="
                 result.status === 'pass' ? 'text-green-500' : 'text-red-500'
               "
@@ -76,7 +64,7 @@
     </div>
     <div
       v-else
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/validation.svg`"

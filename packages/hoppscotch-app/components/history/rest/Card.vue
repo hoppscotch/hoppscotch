@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center group">
+  <div class="group flex items-center">
     <span
       class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
       :class="entryStatus.className"
@@ -10,16 +10,7 @@
       {{ entry.request.method }}
     </span>
     <span
-      class="
-        flex
-        group-hover:text-secondaryDark
-        flex-1
-        min-w-0
-        py-2
-        pr-2
-        transition
-        cursor-pointer
-      "
+      class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
       data-testid="restore_history_entry"
       :title="`${duration}`"
       @click="$emit('use-entry')"
@@ -33,7 +24,7 @@
       svg="trash"
       color="red"
       :title="$t('action.remove')"
-      class="hidden group-hover:inline-flex"
+      class="group-hover:inline-flex hidden"
       data-testid="delete_history_entry"
       @click.native="$emit('delete-entry')"
     />

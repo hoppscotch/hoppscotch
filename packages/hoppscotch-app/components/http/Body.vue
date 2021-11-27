@@ -1,22 +1,10 @@
 <template>
   <div>
     <div
-      class="
-        bg-primary
-        border-dividerLight
-        top-upperSecondaryStickyFold
-        sticky
-        z-10
-        flex
-        items-center
-        justify-between
-        flex-1
-        pl-4
-        border-b
-      "
+      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">
+        <label class="text-secondaryLight font-semibold">
           {{ $t("request.content_type") }}
         </label>
         <tippy
@@ -65,7 +53,7 @@
     <HttpRawBody v-else-if="contentType !== null" :content-type="contentType" />
     <div
       v-if="contentType == null"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"

@@ -2,14 +2,14 @@
   <transition name="fade" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="fixed inset-0 z-10 z-50 overflow-y-auto hide-scrollbar transition"
+      class="hide-scrollbar fixed inset-0 z-10 z-50 overflow-y-auto transition"
     >
       <div
-        class="flex items-end justify-center min-h-screen text-center sm:block"
+        class="sm:block flex items-end justify-center min-h-screen text-center"
       >
         <transition name="fade" appear>
           <div
-            class="fixed inset-0 bg-primaryLight opacity-90 transition"
+            class="bg-primaryLight opacity-90 fixed inset-0 transition"
             @touchstart="!dialog ? close() : null"
             @touchend="!dialog ? close() : null"
             @mouseup="!dialog ? close() : null"
@@ -18,7 +18,7 @@
         </transition>
         <span
           v-if="placement === 'center'"
-          class="hidden sm:h-screen sm:inline-block sm:align-middle"
+          class="sm:h-screen sm:inline-block sm:align-middle hidden"
           aria-hidden="true"
           >&#8203;</span
         >
@@ -32,18 +32,7 @@
           leave-to-class="scale-95 translate-y-4"
         >
           <div
-            class="
-              bg-primary
-              sm:align-middle sm:rounded-xl
-              inline-block
-              w-full
-              overflow-hidden
-              text-left
-              align-bottom
-              transition-all
-              transform
-              shadow-lg
-            "
+            class="bg-primary sm:align-middle sm:rounded-xl inline-block w-full overflow-hidden text-left align-bottom transition-all transform shadow-lg"
             :class="[
               { 'mt-24 md:mb-8': placement === 'top' },
               { 'p-4': !fullWidth },
@@ -66,7 +55,7 @@
               </span>
             </div>
             <div
-              class="flex flex-col overflow-y-auto max-h-md hide-scrollbar"
+              class="max-h-md hide-scrollbar flex flex-col overflow-y-auto"
               :class="{ 'py-2': !fullWidth }"
             >
               <slot name="body"></slot>

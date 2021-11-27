@@ -1,21 +1,9 @@
 <template>
   <div>
     <div
-      class="
-        bg-primary
-        border-dividerLight
-        top-upperTertiaryStickyFold
-        sticky
-        z-10
-        flex
-        items-center
-        justify-between
-        flex-1
-        pl-4
-        border-b
-      "
+      class="bg-primary border-dividerLight top-upperTertiaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
-      <label class="font-semibold text-secondaryLight">
+      <label class="text-secondaryLight font-semibold">
         {{ t("request.raw_body") }}
       </label>
       <div class="flex">

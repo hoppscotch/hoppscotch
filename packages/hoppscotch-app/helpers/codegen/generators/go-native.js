@@ -29,13 +29,12 @@ export const GoNativeCodegen = {
       )
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      genHeaders.push(`req.Header.Set("Content-Type", "${contentType}")\n`)
       if (isJSONContentType(contentType)) {
         requestString.push(`var reqBody = []byte(\`${requestBody}\`)\n\n`)
         requestString.push(
           `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", bytes.NewBuffer(reqBody))\n`
         )
-      } else if (contentType.includes("x-www-form-urlencoded")) {
+      } else if (contentType && contentType.includes("x-www-form-urlencoded")) {
         requestString.push(
           `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", strings.NewReader("${requestBody}"))\n`
         )

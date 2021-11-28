@@ -28,6 +28,7 @@ export const CLibcurlCodegen = {
     )
     requestString.push(`struct curl_slist *headers = NULL;`)
 
+    // append header attributes
     if (headers) {
       headers.forEach(({ key, value }) => {
         if (key)
@@ -50,22 +51,27 @@ export const CLibcurlCodegen = {
       )
     }
 
+    // set headers
+    if (headers?.length) {
+      requestString.push("curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);")
+    }
+
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
 
-      if (contentType.includes("x-www-form-urlencoded")) {
+      if (contentType && contentType.includes("x-www-form-urlencoded")) {
         requestBody = `"${requestBody}"`
-      } else requestBody = JSON.stringify(requestBody)
+      } else {
+        requestBody = requestBody ? JSON.stringify(requestBody) : null
+      }
 
-      requestString.push(
-        `headers = curl_slist_append(headers, "Content-Type: ${contentType}");`
-      )
-      requestString.push("curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);")
-      requestString.push(
-        `curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, ${requestBody});`
-      )
-    } else
-      requestString.push("curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);")
+      // set request-body
+      if (requestBody) {
+        requestString.push(
+          `curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, ${requestBody});`
+        )
+      }
+    }
 
     requestString.push(`CURLcode ret = curl_easy_perform(hnd);`)
     return requestString.join("\n")

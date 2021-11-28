@@ -25,18 +25,26 @@ export const GoNativeCodegen = {
     const requestBody = rawInput ? rawParams : rawRequestBody
     if (method === "GET") {
       requestString.push(
-        `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}")\n`
+        `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", nil)\n`
       )
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      if (isJSONContentType(contentType)) {
+      if (isJSONContentType(contentType) && requestBody) {
         requestString.push(`var reqBody = []byte(\`${requestBody}\`)\n\n`)
         requestString.push(
           `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", bytes.NewBuffer(reqBody))\n`
         )
-      } else if (contentType && contentType.includes("x-www-form-urlencoded")) {
+      } else if (
+        contentType &&
+        contentType.includes("x-www-form-urlencoded") &&
+        requestBody
+      ) {
         requestString.push(
           `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", strings.NewReader("${requestBody}"))\n`
+        )
+      } else {
+        requestString.push(
+          `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", nil)\n`
         )
       }
     }

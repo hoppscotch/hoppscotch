@@ -42,7 +42,7 @@ const getTestableBody = (res: HoppRESTResponse & { type: "success" }) => {
 }
 
 export const runRESTRequest$ = (): TaskEither<
-  string,
+  string | Error,
   Observable<HoppRESTResponse>
 > =>
   pipe(

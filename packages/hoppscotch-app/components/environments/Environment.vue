@@ -7,7 +7,15 @@
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
-      class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
+      class="
+        group-hover:text-secondaryDark
+        flex flex-1
+        min-w-0
+        py-2
+        pr-2
+        transition
+        cursor-pointer
+      "
       @click="$emit('edit-environment')"
     >
       <span class="truncate">

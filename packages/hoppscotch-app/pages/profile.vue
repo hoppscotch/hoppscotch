@@ -9,7 +9,14 @@
           <img
             :src="`/images/states/${$colorMode.value}/login.svg`"
             loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-24 h-24 my-4"
+            class="
+              inline-flex
+              flex-col
+              object-contain object-center
+              w-24
+              h-24
+              my-4
+            "
             :alt="`${t('empty.parameters')}`"
           />
           <p class="text-secondaryLight pb-4 text-center">

@@ -7,7 +7,18 @@
         type="url"
         autocomplete="off"
         spellcheck="false"
-        class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
+        class="
+          bg-primaryLight
+          border-divider
+          text-secondaryDark
+          hover:border-dividerDark
+          focus-visible:bg-transparent focus-visible:border-dividerDark
+          w-full
+          px-4
+          py-2
+          border
+          rounded
+        "
         :placeholder="`${t('request.url')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"

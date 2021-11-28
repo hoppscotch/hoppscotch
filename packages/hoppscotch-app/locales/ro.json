@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Nu s-a putut pregăti un corp nevalid, a rezolva erorile de sintaxă json și a încerca din nou",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nu s-a putut trimite solicitarea",
+    "script_fail": "Nu s-a putut executa scriptul de pre-cerere",
     "no_duration": "Fără durată",
     "something_went_wrong": "Ceva n-a mers bine"
   },
@@ -209,6 +210,7 @@
     "authorization": "Antetul autorizației va fi generat automat la trimiterea cererii.",
     "generate_documentation_first": "Generați mai întâi documentația",
     "network_fail": "Imposibil de atins punctul final API. Verificați conexiunea la rețea și încercați din nou.",
+    "script_fail": "Se pare că există o eroare în scriptul de pre-cerere. Verificați eroarea de mai jos și remediați scriptul în consecință.",
     "offline": "Pari să fii offline. Este posibil ca datele din acest spațiu de lucru să nu fie actualizate.",
     "offline_short": "Pari să fii offline.",
     "post_request_tests": "Scripturile de testare sunt scrise în JavaScript și se execută după primirea răspunsului.",

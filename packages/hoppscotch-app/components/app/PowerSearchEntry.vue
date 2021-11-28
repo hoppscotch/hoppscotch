@@ -1,6 +1,16 @@
 <template>
   <button
-    class="search-entry focus:outline-none flex items-center flex-1 px-6 py-2 transition cursor-pointer"
+    class="
+      search-entry
+      focus:outline-none
+      flex
+      items-center
+      flex-1
+      px-6
+      py-2
+      transition
+      cursor-pointer
+    "
     :class="{ active: active }"
     tabindex="-1"
     @click="$emit('action', shortcut.action)"

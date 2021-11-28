@@ -10,21 +10,54 @@
               type="url"
               autocomplete="off"
               :class="{ error: !serverValid }"
-              class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-l"
+              class="
+                bg-primaryLight
+                border-divider
+                text-secondaryDark
+                hover:border-dividerDark
+                focus-visible:bg-transparent focus-visible:border-dividerDark
+                flex flex-1
+                w-full
+                px-4
+                py-2
+                border
+                rounded-l
+              "
               :placeholder="$t('sse.url')"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
             />
             <label
               for="event-type"
-              class="bg-primaryLight border-divider text-secondaryLight px-4 py-2 font-semibold truncate border-t border-b"
+              class="
+                bg-primaryLight
+                border-divider
+                text-secondaryLight
+                px-4
+                py-2
+                font-semibold
+                truncate
+                border-t border-b
+              "
             >
               {{ $t("sse.event_type") }}
             </label>
             <input
               id="event-type"
               v-model="eventType"
-              class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
+              class="
+                bg-primaryLight
+                border-divider
+                text-secondaryDark
+                hover:border-dividerDark
+                focus-visible:bg-transparent focus-visible:border-dividerDark
+                flex flex-1
+                w-full
+                px-4
+                py-2
+                border
+                rounded-r
+              "
               spellcheck="false"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"

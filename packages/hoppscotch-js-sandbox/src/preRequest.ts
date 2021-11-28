@@ -71,7 +71,7 @@ export const execPreRequestScript = (
         const errorData = vm.dump(evalRes.error)
         evalRes.error.dispose()
 
-        return left(`Script evaluation failed: ${errorData}`)
+        return left(errorData)
       }
 
       vm.dispose()

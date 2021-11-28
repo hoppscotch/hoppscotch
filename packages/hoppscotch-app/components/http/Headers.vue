@@ -1,7 +1,19 @@
 <template>
   <AppSection label="headers">
     <div
-      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="
+        bg-primary
+        border-dividerLight
+        top-upperSecondaryStickyFold
+        sticky
+        z-10
+        flex
+        items-center
+        justify-between
+        flex-1
+        pl-4
+        border-b
+      "
     >
       <label class="text-secondaryLight font-semibold">
         {{ t("request.header_list") }}
@@ -125,12 +137,25 @@
       </div>
       <div
         v-if="headers$.length === 0"
-        class="text-secondaryLight flex flex-col items-center justify-center p-4"
+        class="
+          text-secondaryLight
+          flex flex-col
+          items-center
+          justify-center
+          p-4
+        "
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_category.svg`"
           loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+          class="
+            inline-flex
+            flex-col
+            object-contain object-center
+            w-16
+            h-16
+            my-4
+          "
           :alt="`${t('empty.headers')}`"
         />
         <span class="pb-4 text-center">

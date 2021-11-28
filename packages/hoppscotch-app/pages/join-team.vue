@@ -47,7 +47,15 @@
             {{ getErrorMessage(inviteDetails.data.left) }}
           </p>
           <p
-            class="border-dividerLight flex flex-col items-center p-4 mt-8 border rounded"
+            class="
+              border-dividerLight
+              flex flex-col
+              items-center
+              p-4
+              mt-8
+              border
+              rounded
+            "
           >
             <span class="mb-4">
               {{ $t("team.logout_and_try_again") }}

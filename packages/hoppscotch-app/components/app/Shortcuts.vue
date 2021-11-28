@@ -2,7 +2,18 @@
   <AppSlideOver :show="show" @close="close()">
     <template #content>
       <div
-        class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between p-2 border-b"
+        class="
+          bg-primary
+          border-dividerLight
+          sticky
+          top-0
+          z-10
+          flex
+          items-center
+          justify-between
+          p-2
+          border-b
+        "
       >
         <h3 class="heading ml-4">{{ t("app.shortcuts") }}</h3>
         <div class="flex">
@@ -15,14 +26,30 @@
             v-model="filterText"
             type="search"
             autocomplete="off"
-            class="bg-primaryLight border-dividerLight focus-visible:border-divider flex w-full px-4 py-2 border rounded"
+            class="
+              bg-primaryLight
+              border-dividerLight
+              focus-visible:border-divider
+              flex
+              w-full
+              px-4
+              py-2
+              border
+              rounded
+            "
             :placeholder="`${t('action.search')}`"
           />
         </div>
       </div>
       <div
         v-if="filterText"
-        class="divide-dividerLight hide-scrollbar flex flex-col flex-1 overflow-auto divide-y"
+        class="
+          divide-dividerLight
+          hide-scrollbar
+          flex flex-col flex-1
+          overflow-auto
+          divide-y
+        "
       >
         <div
           v-for="(map, mapIndex) in searchResults"
@@ -40,7 +67,13 @@
         </div>
         <div
           v-if="searchResults.length === 0"
-          class="text-secondaryLight flex flex-col items-center justify-center p-4"
+          class="
+            text-secondaryLight
+            flex flex-col
+            items-center
+            justify-center
+            p-4
+          "
         >
           <i class="material-icons pb-2 opacity-75">manage_search</i>
           <span class="text-center">
@@ -50,7 +83,13 @@
       </div>
       <div
         v-else
-        class="divide-dividerLight hide-scrollbar flex flex-col flex-1 overflow-auto divide-y"
+        class="
+          divide-dividerLight
+          hide-scrollbar
+          flex flex-col flex-1
+          overflow-auto
+          divide-y
+        "
       >
         <div
           v-for="(map, mapIndex) in mappings"

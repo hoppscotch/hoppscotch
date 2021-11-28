@@ -27,7 +27,16 @@
     </div>
     <div
       v-if="gqlField.isDeprecated"
-      class="field-deprecated inline-block px-2 py-1 my-1 text-black bg-yellow-200 rounded"
+      class="
+        field-deprecated
+        inline-block
+        px-2
+        py-1
+        my-1
+        text-black
+        bg-yellow-200
+        rounded
+      "
     >
       {{ $t("state.deprecated") }}
     </div>

@@ -4,7 +4,16 @@
     :class="{ 'rounded border border-divider': savingMode }"
   >
     <div
-      class="divide-dividerLight border-dividerLight sticky top-0 z-10 flex flex-col border-b divide-y"
+      class="
+        divide-dividerLight
+        border-dividerLight
+        sticky
+        top-0
+        z-10
+        flex flex-col
+        border-b
+        divide-y
+      "
       :class="{ 'bg-primary': !savingMode }"
     >
       <input

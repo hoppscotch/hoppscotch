@@ -1,10 +1,27 @@
 <template>
   <div
-    class="bg-primary hide-scrollbar whitespace-nowrap sticky top-0 z-10 flex items-center p-4 overflow-auto"
+    class="
+      bg-primary
+      hide-scrollbar
+      whitespace-nowrap
+      sticky
+      top-0
+      z-10
+      flex
+      items-center
+      p-4
+      overflow-auto
+    "
   >
     <div
       v-if="response == null"
-      class="text-secondaryLight flex flex-col items-center justify-center flex-1"
+      class="
+        text-secondaryLight
+        flex flex-col
+        items-center
+        justify-center
+        flex-1
+      "
     >
       <div class="flex pb-4 my-4 space-x-2">
         <div class="flex flex-col items-end space-y-4 text-right">
@@ -62,7 +79,14 @@
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-32 h-32 my-4"
+          class="
+            inline-flex
+            flex-col
+            object-contain object-center
+            w-32
+            h-32
+            my-4
+          "
           :alt="`${t('error.network_fail')}`"
         />
         <span class="mb-2 font-semibold text-center">
@@ -72,6 +96,35 @@
           {{ t("helpers.network_fail") }}
         </span>
         <AppInterceptor />
+      </div>
+      <div
+        v-if="response.type === 'script_fail'"
+        class="flex flex-col items-center justify-center flex-1 p-4"
+      >
+        <img
+          :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
+          loading="lazy"
+          class="
+            object-contain
+            inline-flex
+            flex-col
+            object-center
+            w-32
+            h-32
+            my-4
+          "
+          :alt="`${t('error.script_fail')}`"
+        />
+        <span class="mb-2 font-semibold text-center">
+          {{ t("error.script_fail") }}
+        </span>
+        <span class="max-w-sm mb-4 text-center text-secondaryLight">
+          {{ t("helpers.script_fail") }}
+        </span>
+        <div class="error text-left text-red-400 full-with">
+          {{ response.error.name }}: {{ response.error.message }}<br />
+          {{ response.error.stack }}
+        </div>
       </div>
       <div
         v-if="response.type === 'success' || 'fail'"

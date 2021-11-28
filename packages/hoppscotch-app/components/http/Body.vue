@@ -1,7 +1,19 @@
 <template>
   <div>
     <div
-      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="
+        bg-primary
+        border-dividerLight
+        top-upperSecondaryStickyFold
+        sticky
+        z-10
+        flex
+        items-center
+        justify-between
+        flex-1
+        pl-4
+        border-b
+      "
     >
       <span class="flex items-center">
         <label class="text-secondaryLight font-semibold">

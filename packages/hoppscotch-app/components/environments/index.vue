@@ -6,7 +6,13 @@
           <span
             v-tippy="{ theme: 'tooltip' }"
             :title="`${$t('environment.select')}`"
-            class="border-dividerLight select-wrapper flex-1 bg-transparent border-b"
+            class="
+              border-dividerLight
+              select-wrapper
+              flex-1
+              bg-transparent
+              border-b
+            "
           >
             <ButtonSecondary
               v-if="selectedEnvironmentIndex !== -1"

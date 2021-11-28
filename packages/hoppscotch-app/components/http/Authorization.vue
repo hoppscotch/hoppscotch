@@ -1,7 +1,19 @@
 <template>
   <div>
     <div
-      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="
+        bg-primary
+        border-dividerLight
+        top-upperSecondaryStickyFold
+        sticky
+        z-10
+        flex
+        items-center
+        justify-between
+        flex-1
+        pl-4
+        border-b
+      "
     >
       <span class="flex items-center">
         <label class="text-secondaryLight font-semibold">
@@ -122,7 +134,17 @@
         </div>
       </div>
       <div
-        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
+        class="
+          bg-primary
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          z-9
+          sticky
+          h-full
+          p-4
+          overflow-auto
+        "
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -148,7 +170,17 @@
         </div>
       </div>
       <div
-        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
+        class="
+          bg-primary
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          z-9
+          sticky
+          h-full
+          p-4
+          overflow-auto
+        "
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -178,7 +210,17 @@
         <HttpOAuth2Authorization />
       </div>
       <div
-        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
+        class="
+          bg-primary
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          z-9
+          sticky
+          h-full
+          p-4
+          overflow-auto
+        "
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">

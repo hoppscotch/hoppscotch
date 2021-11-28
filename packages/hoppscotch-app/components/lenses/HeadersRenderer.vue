@@ -1,7 +1,19 @@
 <template>
   <div>
     <div
-      class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="
+        bg-primary
+        border-dividerLight
+        top-lowerSecondaryStickyFold
+        sticky
+        z-10
+        flex
+        items-center
+        justify-between
+        flex-1
+        pl-4
+        border-b
+      "
     >
       <label class="text-secondaryLight font-semibold">
         {{ t("request.header_list") }}
@@ -20,17 +32,38 @@
     <div
       v-for="(header, index) in headers"
       :key="`header-${index}`"
-      class="divide-dividerLight border-dividerLight group flex border-b divide-x"
+      class="
+        divide-dividerLight
+        border-dividerLight
+        group
+        flex
+        border-b
+        divide-x
+      "
     >
       <span
-        class="group-hover:text-secondaryDark flex flex-1 min-w-0 px-4 py-2 transition"
+        class="
+          group-hover:text-secondaryDark
+          flex flex-1
+          min-w-0
+          px-4
+          py-2
+          transition
+        "
       >
         <span class="truncate rounded-sm select-all">
           {{ header.key }}
         </span>
       </span>
       <span
-        class="group-hover:text-secondaryDark flex flex-1 min-w-0 px-4 py-2 transition"
+        class="
+          group-hover:text-secondaryDark
+          flex flex-1
+          min-w-0
+          px-4
+          py-2
+          transition
+        "
       >
         <span class="truncate rounded-sm select-all">
           {{ header.value }}

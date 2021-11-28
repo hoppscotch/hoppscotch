@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Kunne ikke forskjønne et ugyldig brødtekst, løse json -syntaksfeil og prøve igjen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kunne ikke sende forespørsel",
+    "script_fail": "Kunne ikke kjøre forhåndsforespørselsskript",
     "no_duration": "Ingen varighet",
     "something_went_wrong": "Noe gikk galt"
   },
@@ -209,6 +210,7 @@
     "authorization": "Autorisasjonsoverskriften genereres automatisk når du sender forespørselen.",
     "generate_documentation_first": "Lag dokumentasjon først",
     "network_fail": "Kan ikke nå API-endepunktet. Kontroller nettverkstilkoblingen og prøv igjen.",
+    "script_fail": "Det ser ut til at det er en feil i forhåndsforespørselsskriptet. Sjekk feilen nedenfor og fiks skriptet deretter.",
     "offline": "Du ser ut til å være frakoblet. Data i dette arbeidsområdet er kanskje ikke oppdatert.",
     "offline_short": "Du ser ut til å være frakoblet.",
     "post_request_tests": "Testskript er skrevet i JavaScript og kjøres etter at svaret er mottatt.",

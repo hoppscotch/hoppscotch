@@ -19,13 +19,30 @@
                 {{ $t("documentation.generate_message") }}
               </label>
               <span
-                class="bg-accentDark text-accentContrast inline-flex px-2 py-1 rounded"
+                class="
+                  bg-accentDark
+                  text-accentContrast
+                  inline-flex
+                  px-2
+                  py-1
+                  rounded
+                "
               >
                 BETA
               </span>
             </div>
             <div
-              class="bg-primary border-dividerLight sticky top-0 z-10 flex items-start justify-between border-b"
+              class="
+                bg-primary
+                border-dividerLight
+                sticky
+                top-0
+                z-10
+                flex
+                items-start
+                justify-between
+                border-b
+              "
             >
               <label for="collectionUpload">
                 <ButtonSecondary
@@ -59,7 +76,18 @@
               rows="8"
             />
             <div
-              class="bg-primary border-dividerLight sticky bottom-0 z-10 flex items-start justify-between p-4 border-t border-b"
+              class="
+                bg-primary
+                border-dividerLight
+                sticky
+                bottom-0
+                z-10
+                flex
+                items-start
+                justify-between
+                p-4
+                border-t border-b
+              "
             >
               <ButtonPrimary
                 :label="$t('documentation.generate')"
@@ -76,7 +104,13 @@
             <div class="flex flex-col">
               <div
                 v-if="items.length === 0"
-                class="text-secondaryLight flex flex-col items-center justify-center p-4"
+                class="
+                  text-secondaryLight
+                  flex flex-col
+                  items-center
+                  justify-center
+                  p-4
+                "
               >
                 <i class="material-icons pb-2 opacity-75">topic</i>
                 <span class="text-center">
@@ -85,7 +119,16 @@
               </div>
               <div
                 v-else
-                class="bg-primary border-dividerLight sticky top-0 z-10 flex flex-1 p-4 border-b"
+                class="
+                  bg-primary
+                  border-dividerLight
+                  sticky
+                  top-0
+                  z-10
+                  flex flex-1
+                  p-4
+                  border-b
+                "
               >
                 <span
                   v-tippy="{ theme: 'tooltip' }"

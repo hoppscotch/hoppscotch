@@ -51,12 +51,25 @@
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"
-            class="text-secondaryLight flex flex-col items-center justify-center p-4"
+            class="
+              text-secondaryLight
+              flex flex-col
+              items-center
+              justify-center
+              p-4
+            "
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+              class="
+                inline-flex
+                flex-col
+                object-contain object-center
+                w-16
+                h-16
+                my-4
+              "
               :alt="`${t('empty.members')}`"
             />
             <span class="pb-4 text-center">
@@ -96,7 +109,13 @@
                   <template #trigger>
                     <span class="select-wrapper">
                       <input
-                        class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
+                        class="
+                          flex flex-1
+                          px-4
+                          py-2
+                          bg-transparent
+                          cursor-pointer
+                        "
                         :placeholder="`${t('team.permissions')}`"
                         :name="'value' + index"
                         :value="

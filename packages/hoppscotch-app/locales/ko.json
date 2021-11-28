@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "잘못된 본문을 예쁘게 만들 수 없습니다. json 구문 오류를 해결하고 다시 시도하십시오.",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "요청을 보낼 수 없습니다",
+    "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "no_duration": "기간 없음",
     "something_went_wrong": "문제가 발생했습니다."
   },
@@ -209,6 +210,7 @@
     "authorization": "요청을 보낼 때 인증 헤더가 자동으로 생성됩니다.",
     "generate_documentation_first": "먼저 문서 생성",
     "network_fail": "API 엔드포인트에 연결할 수 없습니다. 네트워크 연결을 확인하고 다시 시도하십시오.",
+    "script_fail": "사전 요청 스크립트에 결함이 있는 것 같습니다. 아래 오류를 확인하고 그에 따라 스크립트를 수정하십시오.",
     "offline": "오프라인 상태인 것 같습니다. 이 작업 공간의 데이터는 최신이 아닐 수 있습니다.",
     "offline_short": "오프라인 상태인 것 같습니다.",
     "post_request_tests": "테스트 스크립트는 JavaScript로 작성되었으며 응답을 받은 후 실행됩니다.",

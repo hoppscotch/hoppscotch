@@ -34,12 +34,25 @@
             subscriptionFields.length === 0 &&
             graphqlTypes.length === 0
           "
-          class="text-secondaryLight flex flex-col items-center justify-center p-4"
+          class="
+            text-secondaryLight
+            flex flex-col
+            items-center
+            justify-center
+            p-4
+          "
         >
           <img
             :src="`/images/states/${$colorMode.value}/add_comment.svg`"
             loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+            class="
+              inline-flex
+              flex-col
+              object-contain object-center
+              w-16
+              h-16
+              my-4
+            "
             :alt="`${t('empty.documentation')}`"
           />
           <span class="mb-4 text-center">
@@ -140,7 +153,19 @@
       <AppSection ref="schema" label="schema">
         <div
           v-if="schemaString"
-          class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b"
+          class="
+            bg-primary
+            border-dividerLight
+            sticky
+            top-0
+            z-10
+            flex
+            items-center
+            justify-between
+            flex-1
+            pl-4
+            border-b
+          "
         >
           <label class="text-secondaryLight font-semibold">
             {{ t("graphql.schema") }}
@@ -179,12 +204,25 @@
         <div v-if="schemaString" ref="schemaEditor"></div>
         <div
           v-else
-          class="text-secondaryLight flex flex-col items-center justify-center p-4"
+          class="
+            text-secondaryLight
+            flex flex-col
+            items-center
+            justify-center
+            p-4
+          "
         >
           <img
             :src="`/images/states/${$colorMode.value}/blockchain.svg`"
             loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+            class="
+              inline-flex
+              flex-col
+              object-contain object-center
+              w-16
+              h-16
+              my-4
+            "
             :alt="`${t('empty.schema')}`"
           />
           <span class="mb-4 text-center">

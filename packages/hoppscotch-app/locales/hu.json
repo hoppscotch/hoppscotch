@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Nem sikerült azonosítani egy érvénytelen törzset, megoldani a json szintaktikai hibákat, és megpróbálni újra",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nem sikerült elküldeni a kérést",
+    "script_fail": "Nem sikerült végrehajtani az előzetes kérés szkriptet",
     "no_duration": "Nincs időtartam",
     "something_went_wrong": "Valami elromlott"
   },
@@ -209,6 +210,7 @@
     "authorization": "A jogosultság fejléce automatikusan létrejön a kérelem elküldésekor.",
     "generate_documentation_first": "Először hozzon létre dokumentációt",
     "network_fail": "Nem érhető el az API végpontja. Ellenőrizze a hálózati kapcsolatot, és próbálja újra.",
+    "script_fail": "Úgy tűnik, hiba van az előzetes kérés szkriptjében. Ellenőrizze az alábbi hibát, és ennek megfelelően javítsa ki a szkriptet.",
     "offline": "Úgy tűnik, offline vagy. Előfordulhat, hogy a munkaterület adatai nem naprakészek.",
     "offline_short": "Úgy tűnik, offline vagy.",
     "post_request_tests": "A teszt szkriptek JavaScriptben íródnak, és a válasz megérkezése után futnak.",

@@ -32,7 +32,18 @@
           leave-to-class="scale-95 translate-y-4"
         >
           <div
-            class="bg-primary sm:align-middle sm:rounded-xl inline-block w-full overflow-hidden text-left align-bottom transition-all transform shadow-lg"
+            class="
+              bg-primary
+              sm:align-middle sm:rounded-xl
+              inline-block
+              w-full
+              overflow-hidden
+              text-left
+              align-bottom
+              transition-all
+              transform
+              shadow-lg
+            "
             :class="[
               { 'mt-24 md:mb-8': placement === 'top' },
               { 'p-4': !fullWidth },

@@ -31,7 +31,22 @@
                             id="client-version"
                             v-tippy="{ theme: 'tooltip' }"
                             title="socket.io-client version"
-                            class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
+                            class="
+                              bg-primaryLight
+                              border-divider
+                              text-secondaryDark
+                              w-26
+                              hover:border-dividerDark
+                              focus-visible:bg-transparent
+                              focus-visible:border-dividerDark
+                              flex
+                              px-4
+                              py-2
+                              font-semibold
+                              border
+                              rounded-l
+                              cursor-pointer
+                            "
                             :value="`Client ${clientVersion}`"
                             readonly
                             :disabled="connectionState"
@@ -53,7 +68,19 @@
                     autocomplete="off"
                     spellcheck="false"
                     :class="{ error: !urlValid }"
-                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border"
+                    class="
+                      bg-primaryLight
+                      border-divider
+                      text-secondaryDark
+                      hover:border-dividerDark
+                      focus-visible:bg-transparent
+                      focus-visible:border-dividerDark
+                      flex flex-1
+                      w-full
+                      px-4
+                      py-2
+                      border
+                    "
                     :placeholder="$t('socketio.url')"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -61,7 +88,20 @@
                   <input
                     id="socketio-path"
                     v-model="path"
-                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
+                    class="
+                      bg-primaryLight
+                      border-divider
+                      text-secondaryDark
+                      hover:border-dividerDark
+                      focus-visible:bg-transparent
+                      focus-visible:border-dividerDark
+                      flex flex-1
+                      w-full
+                      px-4
+                      py-2
+                      border
+                      rounded-r
+                    "
                     spellcheck="false"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"

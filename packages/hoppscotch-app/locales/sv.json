@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Det gick inte att pryda en ogiltig kropp, lösa json -syntaxfel och försök igen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Det gick inte att skicka förfrågan",
+    "script_fail": "Det gick inte att köra skriptet för förhandsbegäran",
     "no_duration": "Ingen varaktighet",
     "something_went_wrong": "Något gick fel"
   },
@@ -209,6 +210,7 @@
     "authorization": "Auktoriseringsrubriken genereras automatiskt när du skickar begäran.",
     "generate_documentation_first": "Skapa dokumentation först",
     "network_fail": "Det gick inte att nå API -slutpunkten. Kontrollera din nätverksanslutning och försök igen.",
+    "script_fail": "Det verkar finnas ett fel i skriptet för förhandsbegäran. Kontrollera felet nedan och fixa skriptet därefter.",
     "offline": "Du verkar vara offline. Data i denna arbetsyta är kanske inte uppdaterad.",
     "offline_short": "Du verkar vara offline.",
     "post_request_tests": "Testskript skrivs i JavaScript och körs efter att svaret har mottagits.",

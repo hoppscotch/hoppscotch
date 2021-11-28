@@ -4,7 +4,18 @@
     :class="{ 'rounded border border-divider': saveRequest }"
   >
     <div
-      class="divide-dividerLight bg-primary border-dividerLight sticky top-0 z-10 flex flex-col border-b divide-y rounded-t"
+      class="
+        divide-dividerLight
+        bg-primary
+        border-dividerLight
+        sticky
+        top-0
+        z-10
+        flex flex-col
+        border-b
+        divide-y
+        rounded-t
+      "
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input

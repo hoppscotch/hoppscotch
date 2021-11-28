@@ -1,6 +1,16 @@
 <template>
   <div
-    class="bg-primary hide-scrollbar sticky top-0 z-10 flex p-4 space-x-2 overflow-x-auto"
+    class="
+      bg-primary
+      hide-scrollbar
+      sticky
+      top-0
+      z-10
+      flex
+      p-4
+      space-x-2
+      overflow-x-auto
+    "
   >
     <div class="flex flex-1">
       <div class="relative flex">
@@ -16,7 +26,22 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
+                  class="
+                    bg-primaryLight
+                    border-divider
+                    text-secondaryDark
+                    w-26
+                    hover:border-dividerDark
+                    focus-visible:bg-transparent
+                    focus-visible:border-dividerDark
+                    flex
+                    px-4
+                    py-2
+                    font-semibold
+                    border
+                    rounded-l
+                    cursor-pointer
+                  "
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -185,7 +210,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
-import { isRight } from "fp-ts/lib/Either"
+import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
 import {
   updateRESTResponse,
@@ -291,6 +316,21 @@ const newSendRequest = async () => {
         loading.value = false
       }
     )
+  } else if (isLeft(streamResult)) {
+    loading.value = false
+    toast.error(`${t("error.script_fail")}`)
+    console.log(typeof streamResult.left)
+    console.log(streamResult.left)
+    let error: Error
+    if (typeof streamResult.left === "string") {
+      error = { name: "RequestFailure", message: streamResult.left }
+    } else {
+      error = streamResult.left
+    }
+    updateRESTResponse({
+      type: "script_fail",
+      error,
+    })
   }
 }
 

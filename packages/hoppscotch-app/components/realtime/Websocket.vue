@@ -19,7 +19,19 @@
                 <input
                   id="websocket-url"
                   v-model="url"
-                  class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
+                  class="
+                    bg-primaryLight
+                    border-divider
+                    text-secondaryDark
+                    hover:border-dividerDark
+                    focus-visible:bg-transparent
+                    focus-visible:border-dividerDark
+                    w-full
+                    px-4
+                    py-2
+                    border
+                    rounded
+                  "
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
@@ -44,7 +56,19 @@
               </div>
             </div>
             <div
-              class="bg-primary border-dividerLight top-upperPrimaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+              class="
+                bg-primary
+                border-dividerLight
+                top-upperPrimaryStickyFold
+                sticky
+                z-10
+                flex
+                items-center
+                justify-between
+                flex-1
+                pl-4
+                border-b
+              "
             >
               <label class="text-secondaryLight font-semibold">
                 {{ $t("websocket.protocols") }}
@@ -67,7 +91,13 @@
             <div
               v-for="(protocol, index) of protocols"
               :key="`protocol-${index}`"
-              class="divide-dividerLight border-dividerLight flex border-b divide-x"
+              class="
+                divide-dividerLight
+                border-dividerLight
+                flex
+                border-b
+                divide-x
+              "
             >
               <input
                 v-model="protocol.value"
@@ -114,12 +144,25 @@
             </div>
             <div
               v-if="protocols.length === 0"
-              class="text-secondaryLight flex flex-col items-center justify-center p-4"
+              class="
+                text-secondaryLight
+                flex flex-col
+                items-center
+                justify-center
+                p-4
+              "
             >
               <img
                 :src="`/images/states/${$colorMode.value}/add_category.svg`"
                 loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+                class="
+                  inline-flex
+                  flex-col
+                  object-contain object-center
+                  w-16
+                  h-16
+                  my-4
+                "
                 :alt="$t('empty.protocols')"
               />
               <span class="mb-4 text-center">

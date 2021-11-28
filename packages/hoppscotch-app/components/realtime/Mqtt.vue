@@ -24,7 +24,19 @@
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
-                  class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
+                  class="
+                    bg-primaryLight
+                    border-divider
+                    text-secondaryDark
+                    hover:border-dividerDark
+                    focus-visible:bg-transparent
+                    focus-visible:border-dividerDark
+                    w-full
+                    px-4
+                    py-2
+                    border
+                    rounded
+                  "
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
                   @keyup.enter="validUrl ? toggleConnection() : null"
@@ -120,7 +132,15 @@
           />
         </div>
         <div
-          class="border-dividerLight flex inline-flex flex-col flex-1 p-4 mt-4 border-t"
+          class="
+            border-dividerLight
+            flex
+            inline-flex
+            flex-col flex-1
+            p-4
+            mt-4
+            border-t
+          "
         >
           <label for="sub_topic" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.topic") }}

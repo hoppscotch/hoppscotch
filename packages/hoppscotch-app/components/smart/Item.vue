@@ -3,7 +3,18 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="hover:bg-primaryDark hover:text-secondaryDark focus:outline-none focus-visible:bg-primaryDark focus-visible:text-secondaryDark inline-flex items-center flex-shrink-0 px-4 py-2 transition rounded"
+    class="
+      hover:bg-primaryDark hover:text-secondaryDark
+      focus:outline-none
+      focus-visible:bg-primaryDark focus-visible:text-secondaryDark
+      inline-flex
+      items-center
+      flex-shrink-0
+      px-4
+      py-2
+      transition
+      rounded
+    "
     :class="[
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },

@@ -1,7 +1,19 @@
 <template>
   <AppSection id="script" :label="`${t('test.script')}`">
     <div
-      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="
+        bg-primary
+        border-dividerLight
+        top-upperSecondaryStickyFold
+        sticky
+        z-10
+        flex
+        items-center
+        justify-between
+        flex-1
+        pl-4
+        border-b
+      "
     >
       <label class="text-secondaryLight font-semibold">
         {{ t("test.javascript_code") }}
@@ -34,7 +46,17 @@
         <div ref="testScriptEditor"></div>
       </div>
       <div
-        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
+        class="
+          bg-primary
+          top-upperTertiaryStickyFold
+          min-w-46
+          max-w-1/3
+          z-9
+          sticky
+          h-full
+          p-4
+          overflow-auto
+        "
       >
         <div class="text-secondaryLight pb-2">
           {{ t("helpers.post_request_tests") }}

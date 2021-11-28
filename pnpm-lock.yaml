@@ -285,7 +285,7 @@ importers:
 
   packages/hoppscotch-js-sandbox:
     specifiers:
-      '@digitak/esrun': ^1.2.16
+      '@digitak/esrun': ^2.0.1
       '@relmify/jest-fp-ts': ^1.1.1
       '@types/jest': ^27.0.3
       '@types/lodash': ^4.14.177
@@ -308,7 +308,7 @@ importers:
       lodash: 4.17.21
       quickjs-emscripten: 0.13.0
     devDependencies:
-      '@digitak/esrun': 1.2.16
+      '@digitak/esrun': 2.0.1
       '@relmify/jest-fp-ts': 1.1.1_fp-ts@2.11.5+io-ts@2.2.16
       '@types/jest': 27.0.3
       '@types/lodash': 4.14.177
@@ -1976,19 +1976,19 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: false
 
-  /@digitak/esrun/1.2.16:
-    resolution: {integrity: sha512-KqNn3hNP0BTkYr5C3m22slvazQEYsDFCBQx9fk8NFo7jqcmzvk0YcdAz5j0QleJRzDH4olUlNdVdf3ccJHD7VA==}
+  /@digitak/esrun/2.0.1:
+    resolution: {integrity: sha512-m9/HCBIDHAjf68UckywurpYC6BwkZhzuoWpDwRaWUeQxVe84htDhiLUBZmgLnRZusBsIHynIwtyYlKPpA2D4mw==}
     engines: {node: '>=14.0'}
     hasBin: true
     dependencies:
-      '@digitak/grubber': 1.0.3
+      '@digitak/grubber': 2.0.4
       anymatch: 3.1.2
       chokidar: 3.5.2
       esbuild: 0.12.29
     dev: true
 
-  /@digitak/grubber/1.0.3:
-    resolution: {integrity: sha512-CD24zO8BpOjcxq1sIx1xweoBxtm8lJ/kmapsJI4aWnASmJ8tBuIPt3U/yBsyYEl/OLJYjmvilMZ6meIHtm4d7w==}
+  /@digitak/grubber/2.0.4:
+    resolution: {integrity: sha512-4mq2EqQ5WsM34fy5y/Z+LUr5I0xO6bNhwReTCnrDzhsuRtXKiGM+V2ZY1XdAjv4X9p+46kyUksp6W4xr9X1d6Q==}
     dev: true
 
   /@endemolshinegroup/cosmiconfig-typescript-loader/3.0.2_b67f536f129c730ed129a6d21d223ba9:

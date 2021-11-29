@@ -35,14 +35,13 @@ export const JavascriptFetchCodegen = {
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
-      if (isJSONContentType(contentType) && requestBody) {
-        requestBody = `JSON.stringify(${requestBody})`
-      } else if (
-        contentType &&
-        contentType.includes("x-www-form-urlencoded") &&
-        requestBody
-      ) {
-        requestBody = `"${requestBody}"`
+
+      if (contentType && requestBody) {
+        if (isJSONContentType(contentType)) {
+          requestBody = `JSON.stringify(${requestBody})`
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          requestBody = `"${requestBody}"`
+        }
       }
 
       if (requestBody) {

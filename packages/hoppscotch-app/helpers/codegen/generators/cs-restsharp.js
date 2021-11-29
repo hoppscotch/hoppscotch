@@ -64,13 +64,6 @@ export const CsRestsharpCodegen = {
       )
     }
 
-    // content type
-    if (contentType) {
-      requestString.push(
-        `request.AddHeader("Content-Type", "${contentType}");\n`
-      )
-    }
-
     // custom headers
     if (headers) {
       headers.forEach(({ key, value }) => {
@@ -93,6 +86,8 @@ export const CsRestsharpCodegen = {
     const verb = verbs.find((v) => v.verb === method)
     if (verb) {
       requestString.push(`var response = client.${verb.csMethod}(request);\n\n`)
+    } else {
+      return ""
     }
 
     // analyse result

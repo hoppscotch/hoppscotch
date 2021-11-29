@@ -13,6 +13,7 @@ export const JavascriptJqueryCodegen = {
     method,
     rawInput,
     rawParams,
+    contentType,
     rawRequestBody,
     headers,
   }) => {
@@ -25,8 +26,12 @@ export const JavascriptJqueryCodegen = {
     requestString.push(`,\n  method: "${method.toUpperCase()}"`)
     let requestBody = rawInput ? rawParams : rawRequestBody
 
-    if (requestBody && requestBody.length !== 0) {
-      requestBody = requestBody.replace("}", "  }")
+    if (requestBody && method !== "GET") {
+      if (contentType && contentType.includes("x-www-form-urlencoded")) {
+        requestBody = `"${requestBody}"`
+      } else {
+        requestBody = requestBody.replace("}", "  }")
+      }
       requestString.push(`,\n  data: ${requestBody}`)
     }
     if (headers) {

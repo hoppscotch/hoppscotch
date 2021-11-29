@@ -56,10 +56,12 @@ export const JavaUnirestCodegen = {
 
     // set body
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      if (contentType && contentType.includes("x-www-form-urlencoded")) {
-        requestBody = `"${requestBody}"`
-      } else {
-        requestBody = requestBody ? JSON.stringify(requestBody) : null
+      if (contentType && requestBody) {
+        if (contentType.includes("x-www-form-urlencoded")) {
+          requestBody = `"${requestBody}"`
+        } else {
+          requestBody = JSON.stringify(requestBody)
+        }
       }
       if (requestBody) {
         requestString.push(`.body(${requestBody})\n`)

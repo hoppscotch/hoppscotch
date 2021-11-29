@@ -35,14 +35,19 @@ export const JavascriptFetchCodegen = {
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
-      if (isJSONContentType(contentType)) {
+      if (isJSONContentType(contentType) && requestBody) {
         requestBody = `JSON.stringify(${requestBody})`
-      } else if (contentType.includes("x-www-form-urlencoded")) {
+      } else if (
+        contentType &&
+        contentType.includes("x-www-form-urlencoded") &&
+        requestBody
+      ) {
         requestBody = `"${requestBody}"`
       }
 
-      requestString.push(`  body: ${requestBody},\n`)
-      genHeaders.push(`    "Content-Type": "${contentType}; charset=utf-8",\n`)
+      if (requestBody) {
+        requestString.push(`  body: ${requestBody},\n`)
+      }
     }
     if (headers) {
       headers.forEach(({ key, value }) => {
@@ -50,13 +55,11 @@ export const JavascriptFetchCodegen = {
       })
     }
     genHeaders = genHeaders.join("").slice(0, -2)
-    requestString.push(`  headers: {\n${genHeaders}\n  },\n`)
+    if (genHeaders) {
+      requestString.push(`  headers: {\n${genHeaders}\n  },\n`)
+    }
     requestString.push('  credentials: "same-origin"\n')
     requestString.push("}).then(function(response) {\n")
-    requestString.push("  response.status\n")
-    requestString.push("  response.statusText\n")
-    requestString.push("  response.headers\n")
-    requestString.push("  response.url\n\n")
     requestString.push("  return response.text()\n")
     requestString.push("}).catch(function(e) {\n")
     requestString.push("  console.error(e)\n")

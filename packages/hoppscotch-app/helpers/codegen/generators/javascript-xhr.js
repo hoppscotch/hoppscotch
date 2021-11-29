@@ -21,6 +21,9 @@ export const JavascriptXhrCodegen = {
   }) => {
     const requestString = []
     requestString.push("const xhr = new XMLHttpRequest()")
+    requestString.push(`xhr.addEventListener("readystatechange", function() {`)
+    requestString.push(`  if(this.readyState === 4) {`)
+    requestString.push(`      console.log(this.responseText)\n  }\n})`)
 
     const user = auth === "Basic Auth" ? `'${httpUser}'` : null
     const password = auth === "Basic Auth" ? `'${httpPassword}'` : null
@@ -40,14 +43,16 @@ export const JavascriptXhrCodegen = {
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
-      if (isJSONContentType(contentType)) {
+      if (isJSONContentType(contentType) && requestBody) {
         requestBody = `JSON.stringify(${requestBody})`
-      } else if (contentType.includes("x-www-form-urlencoded")) {
+      } else if (
+        contentType &&
+        contentType.includes("x-www-form-urlencoded") &&
+        requestBody
+      ) {
         requestBody = `"${requestBody}"`
       }
-      requestString.push(
-        `xhr.setRequestHeader('Content-Type', '${contentType}; charset=utf-8')`
-      )
+      requestBody = requestBody || ""
       requestString.push(`xhr.send(${requestBody})`)
     } else {
       requestString.push("xhr.send()")

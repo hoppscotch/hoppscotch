@@ -379,25 +379,25 @@
   },
   "shortcut": {
     "general": {
-      "close_current_menu": "Close current menu",
-      "command_menu": "Search & command menu",
-      "help_menu": "Help menu",
-      "show_all": "Keyboard shortcuts",
-      "title": "General"
+      "close_current_menu": "നിലവിലെ മെനു അടയ്‌ക്കുക",
+      "command_menu": "തിരയൽ & കമാൻഡ് മെനു",
+      "help_menu": "സഹായ മെനു",
+      "show_all": "കീബോർഡ് കുറുക്കുവഴികൾ",
+      "title": "ജനറൽ"
     },
     "miscellaneous": {
-      "invite": "Invite people to Hoppscotch",
-      "title": "Miscellaneous"
+      "invite": "ഹോപ്സ്കോച്ച്-ലേക്ക് ആളുകളെ ക്ഷണിക്കുക",
+      "title": "വിവിധ"
     },
     "navigation": {
-      "back": "Go back to previous page",
-      "documentation": "Go to Documentation page",
-      "forward": "Go forward to next page",
-      "graphql": "Go to GraphQL page",
-      "realtime": "Go to Realtime page",
+      "back": "മുമ്പത്തെ പേജിലേക്ക് മടങ്ങുക",
+      "documentation": "ഡോക്യുമെന്റേഷൻ പേജിലേക്ക് പോകുക",
+      "forward": "അടുത്ത പേജിലേക്ക് പോകുക",
+      "graphql": "GraphQL പേജിലേക്ക് പോകുക",
+      "realtime": "Realtime പേജിലേക്ക് പോകുക",
       "rest": "Go to REST page",
       "settings": "Go to Settings page",
-      "title": "Navigation"
+      "title": "നാവിഗേഷൻ"
     },
     "request": {
       "copy_request_link": "Copy Request Link",

@@ -69,25 +69,28 @@ export const PythonHttpClientCodegen = {
       requestString.push(`payload = ''\n`)
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      genHeaders.push(`'Content-Type': '${contentType}'`)
       requestString.push(...printHeaders(genHeaders))
 
-      if (isJSONContentType(contentType)) {
-        requestBody = JSON.stringify(requestBody)
-        requestString.push(`payload = ${requestBody}\n`)
-      } else if (contentType.includes("x-www-form-urlencoded")) {
-        const formData = []
-        if (requestBody.includes("=")) {
-          requestBody.split("&").forEach((rq) => {
-            const [key, val] = rq.split("=")
-            formData.push(`('${key}', '${val}')`)
-          })
-        }
-        if (formData.length) {
-          requestString.push(`payload = [${formData.join(",\n      ")}]\n`)
+      if (contentType && requestBody) {
+        if (isJSONContentType(contentType)) {
+          requestBody = JSON.stringify(requestBody)
+          requestString.push(`payload = ${requestBody}\n`)
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          const formData = []
+          if (requestBody.includes("=")) {
+            requestBody.split("&").forEach((rq) => {
+              const [key, val] = rq.split("=")
+              formData.push(`('${key}', '${val}')`)
+            })
+          }
+          if (formData.length) {
+            requestString.push(`payload = [${formData.join(",\n      ")}]\n`)
+          }
+        } else {
+          requestString.push(`paylod = '''${requestBody}'''\n`)
         }
       } else {
-        requestString.push(`paylod = '''${requestBody}'''\n`)
+        requestString.push(`payload = ''\n`)
       }
     }
     requestString.push(

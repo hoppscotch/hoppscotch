@@ -42,31 +42,30 @@ export const NodejsUnirestCodegen = {
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
       let reqBodyType = "formData"
-      if (isJSONContentType(contentType)) {
-        requestBody = `\`${requestBody}\``
-        reqBodyType = "send"
-      } else if (contentType.includes("x-www-form-urlencoded")) {
-        const formData = []
-        if (requestBody.includes("=")) {
-          requestBody.split("&").forEach((rq) => {
-            const [key, val] = rq.split("=")
-            formData.push(`"${key}": "${val}"`)
-          })
+      if (contentType && requestBody) {
+        if (isJSONContentType(contentType)) {
+          requestBody = `\`${requestBody}\``
+          reqBodyType = "send"
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          const formData = []
+          if (requestBody.includes("=")) {
+            requestBody.split("&").forEach((rq) => {
+              const [key, val] = rq.split("=")
+              formData.push(`"${key}": "${val}"`)
+            })
+          }
+          if (formData.length) {
+            requestBody = `{${formData.join(", ")}}`
+          }
+          reqBodyType = "send"
+        } else if (contentType.includes("application/xml")) {
+          requestBody = `\`${requestBody}\``
+          reqBodyType = "send"
         }
-        if (formData.length) {
-          requestBody = `{${formData.join(", ")}}`
-        }
-        reqBodyType = "send"
-      } else if (contentType.includes("application/xml")) {
-        requestBody = `\`${requestBody}\``
-        reqBodyType = "send"
       }
-      if (contentType) {
-        genHeaders.push(
-          `    "Content-Type": "${contentType}; charset=utf-8",\n`
-        )
+      if (requestBody) {
+        requestString.push(`\n.${reqBodyType}( ${requestBody})`)
       }
-      requestString.push(`.\n  ${reqBodyType}( ${requestBody})`)
     }
 
     if (headers.length > 0) {
@@ -76,11 +75,10 @@ export const NodejsUnirestCodegen = {
     }
     if (genHeaders.length > 0 || headers.length > 0) {
       requestString.push(
-        `.\n  headers({\n${genHeaders.join("").slice(0, -2)}\n  }`
+        `\n.headers({\n${genHeaders.join("").slice(0, -2)}\n  })`
       )
     }
 
-    requestString.push(`\n)`)
     requestString.push(`\n.end(function (res) {\n`)
     requestString.push(`  if (res.error) throw new Error(res.error);\n`)
     requestString.push(`  console.log(res.raw_body);\n });\n`)

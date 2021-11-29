@@ -179,5 +179,11 @@
     "file": "cn.json",
     "iso": "zh-CN",
     "name": "简体中文"
+  },
+  {
+    "code": "ml",
+    "file": "ml.json",
+    "iso": "ml-ML",
+    "name": "മലയാളം"
   }
 ]

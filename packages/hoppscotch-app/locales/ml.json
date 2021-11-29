@@ -2,8 +2,8 @@
   "action": {
     "cancel": "റദ്ദാക്കുക",
     "choose_file": "ഒരു ഫയൽ തിരഞ്ഞെടുക്കുക",
-    "clear": "Clear",
-    "clear_all": "Clear all",
+    "clear": "ക്ലിയർ",
+    "clear_all": "എല്ലാം ക്ലിയർ ചെയുക",
     "connect": "ബന്ധിപ്പിക്കുക",
     "copy": "പകർത്തുക",
     "delete": "ഇല്ലാതാക്കുക",
@@ -161,9 +161,9 @@
     "invalid_name": "എൻവിറോണ്മെന് ഒരു പേര് നൽകുകt",
     "new": "പുതിയ എൻവിറോണ്മെന്",
     "no_environment": "എൻവിറോണ്മെന് യില്ല",
-    "select": "Select environment",
-    "title": "Environments",
-    "variable_list": "Variable List"
+    "select": "എൻവിറോണ്മെന് തിരഞ്ഞെടുക്കുക",
+    "title": "എൻവിറോണ്മെന്റ്സ് ",
+    "variable_list": "വേരിയബിൾ ലിസ്റ്റ്"
   },
   "error": {
     "browser_support_sse": "ഈ ബ്രൗസറിന് സെർവർ അയച്ച ഇവന്റുകൾ പിന്തുണയുള്ളതായി തോന്നുന്നില്ല.",
@@ -227,8 +227,8 @@
     "from_gist": "Gist-ൽ നിന്ന് ഇമ്പോർട്ട്  ചെയ്യുക",
     "from_my_collections": "എന്റെ ശേഖരങ്ങളിൽ നിന്ന് ഇമ്പോർട്ട് ചെയ്യുക",
     "gist_url": "Gist URL നൽകുക",
-    "json": "Import from JSON",
-    "title": "Import"
+    "json": "JSON-ൽ നിന്ന് ഇമ്പോർട്ട് ചെയ്യുക",
+    "title": "ഇമ്പോർട്ട്"
   },
   "layout": {
     "column": "ലംബ ലേഔട്ട്",
@@ -239,7 +239,7 @@
     "collections": "ശേഖരങ്ങൾ",
     "confirm": "സ്ഥിരീകരിക്കുക",
     "edit_request": "അഭ്യർത്ഥന എഡിറ്റ് ചെയ്യുക",
-    "import_export": "Import / Export"
+    "import_export": "ഇമ്പോർട്ട് / എക്പോസ്ർട്"
   },
   "mqtt": {
     "communication": "ആശയവിനിമയം",
@@ -449,7 +449,7 @@
     "docs_generated": "ഡോക്യുമെന്റേഷൻ സൃഷ്ടിച്ചു",
     "download_started": "ഡൗൺലോഡ് ആരംഭിച്ചു",
     "enabled": "പ്രവർത്തനക്ഷമമാക്കി",
-    "file_imported": "File imported",
+    "file_imported": "ഫയൽ ഇമ്പോർട്ട് ചെയ്തു",
     "finished_in": "{duration}ms-ൽ പൂർത്തിയാക്കി",
     "history_deleted": "ചരിത്രം ഇല്ലാതാക്കി",
     "linewrap": "Wrap lines",

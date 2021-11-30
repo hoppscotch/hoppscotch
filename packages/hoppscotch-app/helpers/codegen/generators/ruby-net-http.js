@@ -23,7 +23,7 @@ export const RubyNetHttpCodeGen = {
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
     if (requestBody) {
-      requestBody = requestBody.replace(/'/g, "\\'") // escape single-quotes for single-quoted string compatibility
+      requestBody = requestBody.replaceAll(/'/g, "\\'") // escape single-quotes for single-quoted string compatibility
     }
 
     const verbs = [

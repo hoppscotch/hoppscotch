@@ -29,8 +29,10 @@ export const PowershellRestmethodCodegen = {
     )
     const requestBody = rawInput ? rawParams : rawRequestBody
 
-    if (requestBody && includeBody) {
-      variables = variables.concat(`$body = @'\n${requestBody}\n'@\n\n`)
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      if (requestBody && includeBody) {
+        variables = variables.concat(`$body = @'\n${requestBody}\n'@\n\n`)
+      }
     }
     if (headers) {
       headers.forEach(({ key, value }) => {

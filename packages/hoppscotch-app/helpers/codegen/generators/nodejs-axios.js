@@ -21,13 +21,17 @@ export const NodejsAxiosCodegen = {
     const genHeaders = []
     let requestBody = rawInput ? rawParams : rawRequestBody
 
-    if (
-      contentType &&
-      contentType.includes("x-www-form-urlencoded") &&
-      requestBody
-    ) {
-      requestString.push(`var params = new URLSearchParams("${requestBody}")\n`)
-      requestBody = "params"
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      if (
+        contentType &&
+        contentType.includes("x-www-form-urlencoded") &&
+        requestBody
+      ) {
+        requestString.push(
+          `var params = new URLSearchParams("${requestBody}")\n`
+        )
+        requestBody = "params"
+      }
     }
     requestString.push(
       `axios.${method.toLowerCase()}('${url}${pathName}?${queryString}'`
@@ -50,11 +54,12 @@ export const NodejsAxiosCodegen = {
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
     }
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      requestString.push(`${requestBody},`)
+    }
     if (genHeaders.length > 0) {
       requestString.push(
-        `${requestBody},{ \n headers : {${genHeaders
-          .join("")
-          .slice(0, -1)}\n }\n}`
+        `{ \n headers : {${genHeaders.join("").slice(0, -1)}\n }\n}`
       )
     }
     requestString.push(").then(response => {\n")

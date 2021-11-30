@@ -1,0 +1,13 @@
+button:
+  about: Su di me
+  back: Indietro
+  go: Vai
+  home: Home
+  toggle_dark: Attiva/disattiva modalità scura
+  toggle_langs: Cambia lingua
+intro:
+  desc: Modello per una Applicazione Vite
+  dynamic-route: Demo di rotta dinamica
+  hi: Ciao, {name}!
+  whats-your-name: Come ti chiami?
+not-found: Non trovato

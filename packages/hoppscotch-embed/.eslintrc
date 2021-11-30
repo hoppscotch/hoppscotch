@@ -1,0 +1,7 @@
+{
+  "extends": ["@antfu"],
+  "rules": {
+    "semi": [2, "never"],
+    "quotes": ["error", "double"]
+  }
+}

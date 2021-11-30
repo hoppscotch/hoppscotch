@@ -1,0 +1,14 @@
+button:
+  about: Über
+  back: Zurück
+  go: Los
+  home: Startseite
+  toggle_dark: Dunkelmodus umschalten
+  toggle_langs: Sprachen ändern
+intro:
+  desc: Vite Startvorlage mit Vorlieben
+  dynamic-route: Demo einer dynamischen Route
+  hi: Hi, {name}!
+  aka: Auch bekannt als
+  whats-your-name: Wie heißt du?
+not-found: Nicht gefunden

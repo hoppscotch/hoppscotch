@@ -1,0 +1,13 @@
+button:
+  about: Về
+  back: Quay lại
+  go: Đi
+  home: Khởi đầu
+  toggle_dark: Chuyển đổi chế độ tối
+  toggle_langs: Thay đổi ngôn ngữ
+intro:
+  desc: Ý kiến cá nhân Vite Template để bắt đầu
+  dynamic-route: Bản giới thiệu về dynamic route
+  hi: Hi, {name}!
+  whats-your-name: Tên bạn là gì?
+not-found: Không tìm thấy

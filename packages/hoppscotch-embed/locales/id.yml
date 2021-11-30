@@ -1,0 +1,14 @@
+button:
+  about: Tentang
+  back: Kembali
+  go: Pergi
+  home: Beranda
+  toggle_dark: Ubah ke mode gelap
+  toggle_langs: Ubah bahasa
+intro:
+  desc: Template awal vite
+  dynamic-route: Contoh rute dinamik
+  hi: Halo, {name}!
+  aka: Juga diketahui sebagai
+  whats-your-name: Siapa nama anda?
+not-found: Tidak ditemukan

@@ -1,0 +1,14 @@
+button:
+  about: Sobre
+  back: Voltar
+  go: Ir
+  home: Início
+  toggle_dark: Alternar modo escuro
+  toggle_langs: Mudar de idioma
+intro:
+  desc: Modelo Opinativo de Partida de Vite
+  dynamic-route: Demonstração de rota dinâmica
+  hi: Olá, {name}!
+  aka: Também conhecido como
+  whats-your-name: Qual é o seu nome?
+not-found: Não encontrado

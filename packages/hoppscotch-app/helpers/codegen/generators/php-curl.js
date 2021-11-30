@@ -47,31 +47,33 @@ export const PhpCurlCodegen = {
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
 
-      if (
-        !isJSONContentType(contentType) &&
-        rawInput &&
-        !contentType.includes("x-www-form-urlencoded")
-      ) {
-        const toRemove = /[\n {}]/gim
-        const toReplace = /:/gim
-        const parts = requestBody.replace(toRemove, "").replace(toReplace, "=>")
-        requestBody = `array(${parts})`
-      } else if (isJSONContentType(contentType)) {
-        requestBody = JSON.stringify(requestBody)
-      } else if (contentType.includes("x-www-form-urlencoded")) {
-        if (requestBody.includes("=")) {
-          requestBody = `"${requestBody}"`
-        } else {
-          const requestObject = JSON.parse(requestBody)
-          requestBody = `"${Object.keys(requestObject)
-            .map((key) => `${key}=${requestObject[key]}`)
-            .join("&")}"`
+      if (contentType && requestBody) {
+        if (
+          !isJSONContentType(contentType) &&
+          rawInput &&
+          !contentType.includes("x-www-form-urlencoded")
+        ) {
+          const toRemove = /[\n {}]/gim
+          const toReplace = /:/gim
+          const parts = requestBody
+            .replace(toRemove, "")
+            .replace(toReplace, "=>")
+          requestBody = `array(${parts})`
+        } else if (isJSONContentType(contentType)) {
+          requestBody = JSON.stringify(requestBody)
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          if (requestBody.includes("=")) {
+            requestBody = `"${requestBody}"`
+          } else {
+            const requestObject = JSON.parse(requestBody)
+            requestBody = `"${Object.keys(requestObject)
+              .map((key) => `${key}=${requestObject[key]}`)
+              .join("&")}"`
+          }
         }
+
+        requestString.push(`  CURLOPT_POSTFIELDS => ${requestBody},\n`)
       }
-      if (contentType) {
-        genHeaders.push(`    "Content-Type: ${contentType}; charset=utf-8",\n`)
-      }
-      requestString.push(`  CURLOPT_POSTFIELDS => ${requestBody},\n`)
     }
 
     if (headers.length > 0) {

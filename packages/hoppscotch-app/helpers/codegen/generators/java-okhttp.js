@@ -26,16 +26,26 @@ export const JavaOkhttpCodegen = {
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
 
-      if (contentType.includes("x-www-form-urlencoded")) {
+      if (contentType && contentType.includes("x-www-form-urlencoded")) {
         requestBody = `"${requestBody}"`
-      } else requestBody = JSON.stringify(requestBody)
+      } else {
+        requestBody = requestBody ? JSON.stringify(requestBody) : null
+      }
 
-      requestString.push(
-        `MediaType mediaType = MediaType.parse("${contentType}");`
-      )
-      requestString.push(
-        `RequestBody body = RequestBody.create(mediaType,${requestBody});`
-      )
+      if (contentType) {
+        requestString.push(
+          `MediaType mediaType = MediaType.parse("${contentType}");`
+        )
+      }
+      if (requestBody) {
+        requestString.push(
+          `RequestBody body = RequestBody.create(mediaType,${requestBody});`
+        )
+      } else {
+        requestString.push(
+          "RequestBody body = RequestBody.create(null, new byte[0]);"
+        )
+      }
     }
 
     requestString.push("Request request = new Request.Builder()")

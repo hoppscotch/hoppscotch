@@ -14,10 +14,10 @@ export const ShellWgetCodegen = {
     rawInput,
     rawParams,
     rawRequestBody,
-    contentType,
     headers,
   }) => {
     const requestString = []
+    const requestBody = rawInput ? rawParams : rawRequestBody
     requestString.push(`wget -O - --method=${method}`)
     requestString.push(`  '${url}${pathName}?${queryString}'`)
     if (auth === "Basic Auth") {
@@ -35,11 +35,7 @@ export const ShellWgetCodegen = {
         if (key) requestString.push(`  --header='${key}: ${value}'`)
       })
     }
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      const requestBody = rawInput ? rawParams : rawRequestBody
-      requestString.push(
-        `  --header='Content-Type: ${contentType}; charset=utf-8'`
-      )
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method) && requestBody) {
       requestString.push(`  --body-data='${requestBody}'`)
     }
     return requestString.join(" \\\n")

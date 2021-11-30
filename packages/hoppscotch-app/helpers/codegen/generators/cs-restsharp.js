@@ -23,7 +23,9 @@ export const CsRestsharpCodegen = {
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    requestBody = requestBody.replace(/"/g, '""') // escape quotes for C# verbatim string compatibility
+    if (requestBody) {
+      requestBody = requestBody.replace(/"/g, '""') // escape quotes for C# verbatim string compatibility
+    }
 
     // prepare data
     let requestDataFormat
@@ -62,13 +64,6 @@ export const CsRestsharpCodegen = {
       )
     }
 
-    // content type
-    if (contentType) {
-      requestString.push(
-        `request.AddHeader("Content-Type", "${contentType}");\n`
-      )
-    }
-
     // custom headers
     if (headers) {
       headers.forEach(({ key, value }) => {
@@ -81,7 +76,7 @@ export const CsRestsharpCodegen = {
     requestString.push(`\n`)
 
     // set body
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method) && requestBody) {
       requestString.push(
         `request.AddParameter("${requestContentType}", @"${requestBody}", ParameterType.RequestBody);\n\n`
       )
@@ -89,7 +84,11 @@ export const CsRestsharpCodegen = {
 
     // process
     const verb = verbs.find((v) => v.verb === method)
-    requestString.push(`var response = client.${verb.csMethod}(request);\n\n`)
+    if (verb) {
+      requestString.push(`var response = client.${verb.csMethod}(request);\n\n`)
+    } else {
+      return ""
+    }
 
     // analyse result
     requestString.push(

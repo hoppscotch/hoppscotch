@@ -14,7 +14,6 @@ export const RubyNetHttpCodeGen = {
     rawInput,
     rawParams,
     rawRequestBody,
-    contentType,
     headers,
   }) => {
     const requestString = []
@@ -23,7 +22,9 @@ export const RubyNetHttpCodeGen = {
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    requestBody = requestBody.replace(/'/g, "\\'") // escape single-quotes for single-quoted string compatibility
+    if (requestBody) {
+      requestBody = requestBody.replaceAll(/'/g, "\\'") // escape single-quotes for single-quoted string compatibility
+    }
 
     const verbs = [
       { verb: "GET", rbMethod: "Get" },
@@ -35,13 +36,9 @@ export const RubyNetHttpCodeGen = {
 
     // create URI and request
     const verb = verbs.find((v) => v.verb === method)
+    if (!verb) return ""
     requestString.push(`uri = URI.parse('${url}${pathName}?${queryString}')\n`)
     requestString.push(`request = Net::HTTP::${verb.rbMethod}.new(uri)`)
-
-    // content type
-    if (contentType) {
-      requestString.push(`request['Content-Type'] = '${contentType}'`)
-    }
 
     // custom headers
     if (headers) {
@@ -60,7 +57,7 @@ export const RubyNetHttpCodeGen = {
     }
 
     // set body
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method) && requestBody) {
       requestString.push(`request.body = '${requestBody}'\n`)
     }
 

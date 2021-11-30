@@ -23,23 +23,28 @@ export const GoNativeCodegen = {
     let genHeaders = []
     // initial request setup
     const requestBody = rawInput ? rawParams : rawRequestBody
-    if (method === "GET") {
-      requestString.push(
-        `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}")\n`
-      )
-    }
+
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      genHeaders.push(`req.Header.Set("Content-Type", "${contentType}")\n`)
-      if (isJSONContentType(contentType)) {
-        requestString.push(`var reqBody = []byte(\`${requestBody}\`)\n\n`)
+      if (contentType && requestBody) {
+        if (isJSONContentType(contentType)) {
+          requestString.push(`var reqBody = []byte(\`${requestBody}\`)\n\n`)
+          requestString.push(
+            `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", bytes.NewBuffer(reqBody))\n`
+          )
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          requestString.push(
+            `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", strings.NewReader("${requestBody}"))\n`
+          )
+        }
+      } else {
         requestString.push(
-          `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", bytes.NewBuffer(reqBody))\n`
-        )
-      } else if (contentType.includes("x-www-form-urlencoded")) {
-        requestString.push(
-          `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", strings.NewReader("${requestBody}"))\n`
+          `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", nil)\n`
         )
       }
+    } else {
+      requestString.push(
+        `req, err := http.NewRequest("${method}", "${url}${pathName}?${queryString}", nil)\n`
+      )
     }
 
     // headers

@@ -14,7 +14,6 @@ export const ShellHttpieCodegen = {
     rawInput,
     rawParams,
     rawRequestBody,
-    contentType,
     headers,
   }) => {
     const methodsWithBody = ["POST", "PUT", "PATCH", "DELETE"]
@@ -22,8 +21,9 @@ export const ShellHttpieCodegen = {
     const requestString = []
 
     let requestBody = rawInput ? rawParams : rawRequestBody
-    requestBody = requestBody.replace(/'/g, "\\'")
-    if (requestBody.length !== 0 && includeBody) {
+    if (requestBody && includeBody) {
+      requestBody = requestBody.replace(/'/g, "\\'")
+
       // Send request body via redirected input
       requestString.push(`echo -n $'${requestBody}' | `)
     }
@@ -40,11 +40,6 @@ export const ShellHttpieCodegen = {
     let escapedUrl = `${url}${pathName}?${queryString}`
     escapedUrl = escapedUrl.replace(/'/g, "\\'")
     requestString.push(` ${method} $'${escapedUrl}'`)
-
-    // All headers
-    if (contentType) {
-      requestString.push(` 'Content-Type:${contentType}; charset=utf-8'`)
-    }
 
     if (headers) {
       headers.forEach(({ key, value }) => {

@@ -25,7 +25,7 @@ watchEffect(() => {
     </p>
 
     <template v-if="user.otherNames.length">
-      <p class="text-sm mt-4">
+      <p class="mt-4 text-sm">
         <span class="opacity-75">{{ t('intro.aka') }}:</span>
         <ul>
           <li v-for="otherName in user.otherNames" :key="otherName">
@@ -39,7 +39,7 @@ watchEffect(() => {
 
     <div>
       <button
-        class="btn m-3 text-sm mt-6"
+        class="m-3 mt-6 text-sm btn"
         @click="router.back()"
       >
         {{ t('button.back') }}

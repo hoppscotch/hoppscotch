@@ -14,12 +14,12 @@
           class="hide-scrollbar !overflow-auto"
         >
           <AppSection label="request">
-            <div class="bg-primary sticky top-0 z-10 flex p-4">
-              <div class="inline-flex flex-1 space-x-2">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+              <div class="space-x-2 flex-1 inline-flex">
                 <input
                   id="websocket-url"
                   v-model="url"
-                  class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
+                  class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
@@ -44,9 +44,9 @@
               </div>
             </div>
             <div
-              class="bg-primary border-dividerLight top-upperPrimaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+              class="bg-primary border-b border-dividerLight flex flex-1 top-upperPrimaryStickyFold pl-4 z-10 sticky items-center justify-between"
             >
-              <label class="text-secondaryLight font-semibold">
+              <label class="font-semibold text-secondaryLight">
                 {{ $t("websocket.protocols") }}
               </label>
               <div class="flex">
@@ -67,11 +67,11 @@
             <div
               v-for="(protocol, index) of protocols"
               :key="`protocol-${index}`"
-              class="divide-dividerLight border-dividerLight flex border-b divide-x"
+              class="divide-dividerLight divide-x border-b border-dividerLight flex"
             >
               <input
                 v-model="protocol.value"
-                class="flex flex-1 px-4 py-2 bg-transparent"
+                class="bg-transparent flex flex-1 py-2 px-4"
                 :placeholder="$t('count.protocol', { count: index + 1 })"
                 name="message"
                 type="text"
@@ -114,15 +114,15 @@
             </div>
             <div
               v-if="protocols.length === 0"
-              class="text-secondaryLight flex flex-col items-center justify-center p-4"
+              class="flex flex-col text-secondaryLight p-4 items-center justify-center"
             >
               <img
                 :src="`/images/states/${$colorMode.value}/add_category.svg`"
                 loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+                class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
                 :alt="$t('empty.protocols')"
               />
-              <span class="mb-4 text-center">
+              <span class="text-center mb-4">
                 {{ $t("empty.protocols") }}
               </span>
             </div>
@@ -148,15 +148,15 @@
       class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <div class="flex inline-flex flex-col flex-1 p-4">
+        <div class="flex flex-col flex-1 p-4 inline-flex">
           <label
             for="websocket-message"
-            class="text-secondaryLight font-semibold"
+            class="font-semibold text-secondaryLight"
           >
             {{ $t("websocket.communication") }}
           </label>
         </div>
-        <div class="flex px-4 space-x-2">
+        <div class="flex space-x-2 px-4">
           <input
             id="websocket-message"
             v-model="communication.input"

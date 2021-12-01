@@ -14,8 +14,8 @@
           class="hide-scrollbar !overflow-auto"
         >
           <AppSection label="request">
-            <div class="bg-primary sticky top-0 z-10 flex p-4">
-              <div class="inline-flex flex-1 space-x-2">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+              <div class="space-x-2 flex-1 inline-flex">
                 <div class="flex flex-1">
                   <label for="client-version">
                     <tippy
@@ -31,7 +31,7 @@
                             id="client-version"
                             v-tippy="{ theme: 'tooltip' }"
                             title="socket.io-client version"
-                            class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
+                            class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                             :value="`Client ${clientVersion}`"
                             readonly
                             :disabled="connectionState"
@@ -53,7 +53,7 @@
                     autocomplete="off"
                     spellcheck="false"
                     :class="{ error: !urlValid }"
-                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border"
+                    class="bg-primaryLight border border-divider flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                     :placeholder="$t('socketio.url')"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -61,7 +61,7 @@
                   <input
                     id="socketio-path"
                     v-model="path"
-                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
+                    class="bg-primaryLight border border-divider rounded-r flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                     spellcheck="false"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -101,8 +101,8 @@
       class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <div class="flex inline-flex flex-col flex-1 p-4">
-          <label for="events" class="text-secondaryLight font-semibold">
+        <div class="flex flex-col flex-1 p-4 inline-flex">
+          <label for="events" class="font-semibold text-secondaryLight">
             {{ $t("socketio.events") }}
           </label>
         </div>
@@ -118,8 +118,8 @@
             :disabled="!connectionState"
           />
         </div>
-        <div class="flex items-center justify-between flex-1 p-4">
-          <label class="text-secondaryLight font-semibold">
+        <div class="flex flex-1 p-4 items-center justify-between">
+          <label class="font-semibold text-secondaryLight">
             {{ $t("socketio.communication") }}
           </label>
           <div class="flex">
@@ -132,7 +132,7 @@
             />
           </div>
         </div>
-        <div class="flex flex-col px-4 pb-4 space-y-2">
+        <div class="flex flex-col space-y-2 px-4 pb-4">
           <div
             v-for="(input, index) of communication.inputs"
             :key="`input-${index}`"

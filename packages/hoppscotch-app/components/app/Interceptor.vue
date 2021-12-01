@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-start p-4 space-y-4">
+  <div class="flex flex-col space-y-4 p-4 items-start">
     <SmartToggle
       :on="PROXY_ENABLED"
       @change="toggleSettingKey('PROXY_ENABLED')"

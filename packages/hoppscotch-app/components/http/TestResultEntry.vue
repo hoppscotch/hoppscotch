@@ -2,7 +2,7 @@
   <div>
     <span
       v-if="testResults.description"
-      class="flex items-center px-4 py-2 font-bold text-secondaryDark"
+      class="flex font-bold text-secondaryDark py-2 px-4 items-center"
     >
       {{ testResults.description }}
     </span>
@@ -14,7 +14,7 @@
       <div
         v-for="(result, index) in testResults.expectResults"
         :key="`result-${index}`"
-        class="flex items-center px-4 py-2"
+        class="flex py-2 px-4 items-center"
       >
         <i
           class="mr-4 material-icons"

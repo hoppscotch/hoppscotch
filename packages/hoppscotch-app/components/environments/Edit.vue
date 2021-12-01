@@ -6,7 +6,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="relative flex">
+        <div class="flex relative">
           <input
             id="selectLabelEnvEdit"
             v-model="name"
@@ -22,7 +22,7 @@
             {{ $t("action.label") }}
           </label>
         </div>
-        <div class="flex items-center justify-between flex-1">
+        <div class="flex flex-1 items-center justify-between">
           <label for="variableList" class="p-4">
             {{ $t("environment.variable_list") }}
           </label>
@@ -43,21 +43,21 @@
             />
           </div>
         </div>
-        <div class="divide-dividerLight border-divider border divide-y rounded">
+        <div class="divide-dividerLight divide-y border border-divider rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
-            class="divide-dividerLight flex divide-x"
+            class="divide-dividerLight divide-x flex"
           >
             <input
               v-model="variable.key"
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="`${$t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
             <input
               v-model="variable.value"
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="`${$t('count.value', { count: index + 1 })}`"
               :name="'value' + index"
             />
@@ -74,15 +74,15 @@
           </div>
           <div
             v-if="vars.length === 0"
-            class="text-secondaryLight flex flex-col items-center justify-center p-4"
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
           >
             <img
               :src="`/images/states/${$colorMode.value}/blockchain.svg`"
               loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
               :alt="$t('empty.environments')"
             />
-            <span class="pb-4 text-center">
+            <span class="text-center pb-4">
               {{ $t("empty.environments") }}
             </span>
             <ButtonSecondary

@@ -6,7 +6,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="relative flex">
+        <div class="flex relative">
           <input
             id="selectLabelSaveReq"
             v-model="requestName"

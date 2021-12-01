@@ -3,7 +3,7 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="hover:bg-primaryDark hover:text-secondaryDark focus:outline-none focus-visible:bg-primaryDark focus-visible:text-secondaryDark inline-flex items-center flex-shrink-0 px-4 py-2 transition rounded"
+    class="rounded flex-shrink-0 py-2 px-4 transition inline-flex items-center hover:bg-primaryDark hover:text-secondaryDark focus:outline-none focus-visible:bg-primaryDark focus-visible:text-secondaryDark"
     :class="[
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
@@ -42,9 +42,9 @@
         class="svg-icons"
       />
     </span>
-    <SmartSpinner v-else class="text-secondaryDark mr-4" />
+    <SmartSpinner v-else class="mr-4 text-secondaryDark" />
     <div
-      class="inline-flex items-start flex-1 truncate"
+      class="flex-1 inline-flex items-start truncate"
       :class="{ 'flex-col': description }"
     >
       <div class="font-semibold truncate">
@@ -52,14 +52,14 @@
       </div>
       <p
         v-if="description"
-        class="text-secondaryLight my-2 font-medium text-left"
+        class="font-medium my-2 text-left text-secondaryLight"
       >
         {{ description }}
       </p>
     </div>
     <i
       v-if="infoIcon"
-      class="material-icons items-center self-center ml-6"
+      class="ml-6 items-center self-center material-icons"
       :class="{ 'text-accent': activeInfoIcon }"
     >
       {{ infoIcon }}

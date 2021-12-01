@@ -1,9 +1,9 @@
 <template>
   <div>
     <header
-      class="flex items-center justify-between flex-1 px-2 py-2 space-x-2"
+      class="flex space-x-2 flex-1 py-2 px-2 items-center justify-between"
     >
-      <div class="inline-flex items-center space-x-2">
+      <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark"
           label="HOPPSCOTCH"
@@ -11,7 +11,7 @@
         />
         <AppGitHubStarButton class="mt-1.5 transition hidden sm:flex" />
       </div>
-      <div class="inline-flex items-center space-x-2">
+      <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
           id="installPWA"
           v-tippy="{ theme: 'tooltip' }"
@@ -39,7 +39,7 @@
           svg="upload-cloud"
           :label="t('header.save_workspace')"
           filled
-          class="md:flex hidden"
+          class="hidden md:flex"
           @click.native="showLogin = true"
         />
         <ButtonPrimary
@@ -47,13 +47,13 @@
           :label="t('header.login')"
           @click.native="showLogin = true"
         />
-        <div v-else class="inline-flex items-center space-x-2">
+        <div v-else class="space-x-2 inline-flex items-center">
           <ButtonPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
             :label="t('team.invite')"
             svg="user-plus"
-            class="!bg-green-500 !text-green-500 !bg-opacity-15 !hover:bg-opacity-10 !hover:text-green-600 !hover:bg-green-400"
+            class="!bg-green-500 !bg-opacity-15 !text-green-500 !hover:bg-opacity-10 !hover:bg-green-400 !hover:text-green-600"
             @click.native="showTeamsModal = true"
           />
           <span class="px-2">

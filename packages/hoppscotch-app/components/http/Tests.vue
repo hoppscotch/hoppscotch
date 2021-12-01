@@ -1,9 +1,9 @@
 <template>
   <AppSection id="script" :label="`${t('test.script')}`">
     <div
-      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
-      <label class="text-secondaryLight font-semibold">
+      <label class="font-semibold text-secondaryLight">
         {{ t("test.javascript_code") }}
       </label>
       <div class="flex">
@@ -29,12 +29,12 @@
         />
       </div>
     </div>
-    <div class="border-dividerLight flex border-b">
-      <div class="border-dividerLight w-2/3 border-r">
+    <div class="border-b border-dividerLight flex">
+      <div class="border-r border-dividerLight w-2/3">
         <div ref="testScriptEditor"></div>
       </div>
       <div
-        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
+        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
         <div class="text-secondaryLight pb-2">
           {{ t("helpers.post_request_tests") }}
@@ -44,7 +44,7 @@
           to="https://docs.hoppscotch.io/features/tests"
           blank
         />
-        <h4 class="text-secondaryLight pt-6 font-bold">
+        <h4 class="font-bold text-secondaryLight pt-6">
           {{ t("test.snippets") }}
         </h4>
         <div class="flex flex-col pt-4">

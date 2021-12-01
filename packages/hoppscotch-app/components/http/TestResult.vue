@@ -7,9 +7,9 @@
       "
     >
       <div
-        class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+        class="bg-primary border-b border-dividerLight flex flex-1 top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
       >
-        <label class="text-secondaryLight font-semibold">
+        <label class="font-semibold text-secondaryLight">
           {{ t("test.report") }}
         </label>
         <ButtonSecondary
@@ -19,7 +19,7 @@
           @click.native="clearContent()"
         />
       </div>
-      <div class="divide-dividerLight border-dividerLight border-b divide-y-4">
+      <div class="divide-dividerLight border-b border-dividerLight divide-y-4">
         <div v-if="testResults.tests" class="divide-dividerLight divide-y-4">
           <HttpTestResultEntry
             v-for="(result, index) in testResults.tests"
@@ -38,10 +38,10 @@
           <div
             v-for="(result, index) in testResults.expectResults"
             :key="`result-${index}`"
-            class="flex items-center px-4 py-2"
+            class="flex py-2 px-4 items-center"
           >
             <i
-              class="material-icons mr-4"
+              class="mr-4 material-icons"
               :class="
                 result.status === 'pass' ? 'text-green-500' : 'text-red-500'
               "
@@ -64,18 +64,18 @@
     </div>
     <div
       v-else
-      class="text-secondaryLight flex flex-col items-center justify-center p-4"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <img
         :src="`/images/states/${$colorMode.value}/validation.svg`"
         loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="`${t('empty.tests')}`"
       />
-      <span class="pb-2 text-center">
+      <span class="text-center pb-2">
         {{ t("empty.tests") }}
       </span>
-      <span class="pb-4 text-center">
+      <span class="text-center pb-4">
         {{ t("helpers.tests") }}
       </span>
       <ButtonSecondary

@@ -1,11 +1,11 @@
 <template>
   <AppSection label="history">
-    <div class="sticky top-0 z-10 flex border-b bg-primary border-dividerLight">
+    <div class="bg-primary border-b border-dividerLight flex top-0 z-10 sticky">
       <input
         v-model="filterText"
         type="search"
         autocomplete="off"
-        class="flex w-full p-4 py-2 bg-transparent"
+        class="bg-transparent flex w-full p-4 py-2"
         :placeholder="`${$t('action.search')}`"
       />
       <div class="flex">
@@ -49,24 +49,24 @@
     </div>
     <div
       v-if="!(filteredHistory.length !== 0 || history.length === 0)"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="pb-2 opacity-75 material-icons">manage_search</i>
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <div
       v-if="history.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <img
         :src="`/images/states/${$colorMode.value}/history.svg`"
         loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.history')"
       />
-      <span class="mb-4 text-center">
+      <span class="text-center mb-4">
         {{ $t("empty.history") }}
       </span>
     </div>

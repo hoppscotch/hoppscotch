@@ -1,23 +1,23 @@
 <template>
   <div
-    class="bg-primary hide-scrollbar whitespace-nowrap sticky top-0 z-10 flex items-center p-4 overflow-auto"
+    class="bg-primary flex p-4 top-0 z-10 sticky items-center overflow-auto hide-scrollbar whitespace-nowrap"
   >
     <div
       v-if="response == null"
-      class="text-secondaryLight flex flex-col items-center justify-center flex-1"
+      class="flex flex-col flex-1 text-secondaryLight items-center justify-center"
     >
-      <div class="flex pb-4 my-4 space-x-2">
-        <div class="flex flex-col items-end space-y-4 text-right">
-          <span class="flex items-center flex-1">
+      <div class="flex space-x-2 my-4 pb-4">
+        <div class="flex flex-col space-y-4 text-right items-end">
+          <span class="flex flex-1 items-center">
             {{ t("shortcut.request.send_request") }}
           </span>
-          <span class="flex items-center flex-1">
+          <span class="flex flex-1 items-center">
             {{ t("shortcut.general.show_all") }}
           </span>
-          <span class="flex items-center flex-1">
+          <span class="flex flex-1 items-center">
             {{ t("shortcut.general.command_menu") }}
           </span>
-          <span class="flex items-center flex-1">
+          <span class="flex flex-1 items-center">
             {{ t("shortcut.general.help_menu") }}
           </span>
         </div>
@@ -57,18 +57,18 @@
       </div>
       <div
         v-if="response.type === 'network_fail'"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-col flex-1 p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-32 h-32 my-4"
+          class="flex-col object-contain object-center h-32 my-4 w-32 inline-flex"
           :alt="`${t('error.network_fail')}`"
         />
-        <span class="mb-2 font-semibold text-center">
+        <span class="font-semibold text-center mb-2">
           {{ t("error.network_fail") }}
         </span>
-        <span class="text-secondaryLight max-w-sm mb-4 text-center">
+        <span class="max-w-sm text-center text-secondaryLight mb-4">
           {{ t("helpers.network_fail") }}
         </span>
         <AppInterceptor />
@@ -76,7 +76,7 @@
       <div
         v-if="response.type === 'success' || 'fail'"
         :class="statusCategory.className"
-        class="space-x-4 font-semibold"
+        class="font-semibold space-x-4"
       >
         <span v-if="response.statusCode">
           <span class="text-secondary"> {{ t("response.status") }}: </span>

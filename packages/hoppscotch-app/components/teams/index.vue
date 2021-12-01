@@ -1,6 +1,6 @@
 <template>
   <AppSection label="teams">
-    <div class="p-4 space-y-4">
+    <div class="space-y-4 p-4">
       <ButtonSecondary
         :label="`${t('team.create_new')}`"
         outline
@@ -19,15 +19,15 @@
           E.isRight(myTeams.data) &&
           myTeams.data.right.myTeams.length === 0
         "
-        class="text-secondaryLight flex flex-col items-center justify-center p-4"
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_group.svg`"
           loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
+          class="flex-col object-contain object-center h-16 mb-8 w-16 inline-flex"
           :alt="`${t('empty.teams')}`"
         />
-        <span class="mb-4 text-center">
+        <span class="text-center mb-4">
           {{ t("empty.teams") }}
         </span>
         <ButtonSecondary
@@ -57,7 +57,7 @@
         v-if="!myTeams.loading && E.isLeft(myTeams.data)"
         class="flex flex-col items-center"
       >
-        <i class="material-icons mb-4">help_outline</i>
+        <i class="mb-4 material-icons">help_outline</i>
         {{ t("error.something_went_wrong") }}
       </div>
     </div>

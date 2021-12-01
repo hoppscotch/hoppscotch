@@ -33,7 +33,7 @@
             "
           />
         </tippy>
-        <div class="flex justify-between flex-1">
+        <div class="flex flex-1 justify-between">
           <label for="generatedCode" class="p-4">
             {{ t("request.generated_code") }}
           </label>
@@ -41,7 +41,7 @@
         <div
           v-if="codegenType"
           ref="generatedCode"
-          class="border rounded border-dividerLight"
+          class="border border-dividerLight rounded"
         ></div>
       </div>
     </template>

@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Kon nie 'n ongeldige liggaam mooi maak nie, los json -sintaksisfoute op en probeer weer",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kon nie versoek stuur nie",
+    "script_fail": "Kon nie voorafversoekskrip uitvoer nie",
     "no_duration": "Geen duur nie",
     "something_went_wrong": "Iets het verkeerd geloop"
   },
@@ -209,6 +210,7 @@
     "authorization": "Die magtigingskop sal outomaties gegenereer word wanneer u die versoek stuur.",
     "generate_documentation_first": "Genereer eers dokumentasie",
     "network_fail": "Kon nie die API -eindpunt bereik nie. Kontroleer u netwerkverbinding en probeer weer.",
+    "script_fail": "Dit blyk dat daar 'n fout in die voorversoekskrif is. Kontroleer die fout hieronder en maak die skrif dienooreenkomstig reg.",
     "offline": "Dit lyk asof u vanlyn is. Data in hierdie werkruimte is moontlik nie op datum nie.",
     "offline_short": "Dit lyk asof u vanlyn is.",
     "post_request_tests": "Toetsskrifte word in JavaScript geskryf en word uitgevoer nadat die antwoord ontvang is.",

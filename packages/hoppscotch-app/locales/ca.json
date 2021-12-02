@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resoldre errors de sintaxi json i tornar-ho a provar",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",
+    "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "no_duration": "Sense durada",
     "something_went_wrong": "Alguna cosa ha anat malament"
   },
@@ -209,6 +210,7 @@
     "authorization": "La capçalera de l'autorització es generarà automàticament quan envieu la sol·licitud.",
     "generate_documentation_first": "Genereu documentació primer",
     "network_fail": "No es pot arribar al punt final de l'API. Comproveu la connexió de xarxa i torneu-ho a provar.",
+    "script_fail": "Sembla que hi ha un error a l'script de sol·licitud prèvia. Comproveu l'error a continuació i solucioneu l'script en conseqüència.",
     "offline": "Sembla que estàs fora de línia. És possible que les dades d’aquest espai de treball no estiguin actualitzades.",
     "offline_short": "Sembla que estàs fora de línia.",
     "post_request_tests": "Els scripts de prova s’escriuen en JavaScript i s’executen després de rebre la resposta.",

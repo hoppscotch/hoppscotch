@@ -448,6 +448,10 @@ pre.ace_editor {
   }
 }
 
+.full-with {
+  width: 100%;
+}
+
 @media (max-width: 767px) {
   main {
     margin-bottom: env(safe-area-inset-bottom);

@@ -74,6 +74,27 @@
         <AppInterceptor />
       </div>
       <div
+        v-if="response.type === 'script_fail'"
+        class="flex flex-col items-center justify-center flex-1 p-4"
+      >
+        <img
+          :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
+          loading="lazy"
+          class="object-contain inline-flex flex-col object-center w-32 h-32 my-4"
+          :alt="`${t('error.script_fail')}`"
+        />
+        <span class="mb-2 font-semibold text-center">
+          {{ t("error.script_fail") }}
+        </span>
+        <span class="max-w-sm mb-4 text-center text-secondaryLight">
+          {{ t("helpers.script_fail") }}
+        </span>
+        <div class="error text-left text-red-400 full-with">
+          {{ response.error.name }}: {{ response.error.message }}<br />
+          {{ response.error.stack }}
+        </div>
+      </div>
+      <div
         v-if="response.type === 'success' || 'fail'"
         :class="statusCategory.className"
         class="space-x-4 font-semibold"

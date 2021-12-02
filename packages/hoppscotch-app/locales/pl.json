@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Nie można poprawić czytelności nieprawidłowej treści, napraw błędy składni json i spróbuj ponownie",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nie udało się wysłać zapytania",
+    "script_fail": "Nie można wykonać skryptu żądania wstępnego",
     "no_duration": "Brak czasu trwania",
     "something_went_wrong": "Coś poszło nie tak"
   },
@@ -209,6 +210,7 @@
     "authorization": "Nagłówek autoryzacji zostanie wygenerowany automatycznie po wysłaniu żądania.",
     "generate_documentation_first": "Najpierw wygeneruj dokumentację",
     "network_fail": "Nie można połączyć się z punktem końcowym interfejsu API. Sprawdź połączenie sieciowe i spróbuj ponownie.",
+    "script_fail": "Wygląda na to, że w skrypcie żądania wstępnego jest usterka. Sprawdź poniższy błąd i odpowiednio napraw skrypt.",
     "offline": "Wygląda na to, że jesteś offline. Dane w tym obszarze roboczym mogą być nieaktualne.",
     "offline_short": "Wygląda na to, że jesteś offline.",
     "post_request_tests": "Skrypty testowe są pisane w języku JavaScript i są uruchamiane po otrzymaniu odpowiedzi.",

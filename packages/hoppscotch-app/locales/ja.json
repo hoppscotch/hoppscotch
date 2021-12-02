@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "無効な本文をプリティファイし、json構文エラーを解決して再試行できませんでした",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "リクエストを送信できませんでした",
+    "script_fail": "事前リクエストスクリプトを実行できませんでした",
     "no_duration": "期間なし",
     "something_went_wrong": "何かがうまくいかなかった"
   },
@@ -209,6 +210,7 @@
     "authorization": "リクエストを送信すると、認証ヘッダーが自動的に生成されます。",
     "generate_documentation_first": "最初にドキュメントを生成する",
     "network_fail": "APIエンドポイントに到達できません。ネットワーク接続を確認して、再試行してください。",
+    "script_fail": "事前リクエストスクリプトに不具合があるようです。以下のエラーを確認し、それに応じてスクリプトを修正してください。",
     "offline": "オフラインのようです。このワークスペースのデータは最新ではない可能性があります。",
     "offline_short": "オフラインのようです。",
     "post_request_tests": "テストスクリプトはJavaScriptで記述されており、応答を受信した後に実行されます。",

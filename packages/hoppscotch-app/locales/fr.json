@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Impossible de formater un corps non valide, résolvez les erreurs de syntaxe json et réessayez",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Impossible d'envoyer la requête",
+    "script_fail": "Impossible d&#39;exécuter le script de pré-requête",
     "no_duration": "Pas de durée",
     "something_went_wrong": "Quelque chose s'est mal passé"
   },
@@ -209,6 +210,7 @@
     "authorization": "L'en-tête d'autorisation sera généré automatiquement lors de l'envoi de la requête.",
     "generate_documentation_first": "Générez d'abord la documentation",
     "network_fail": "Impossible d'atteindre le point de terminaison de l'API. Vérifiez votre connexion réseau et réessayez.",
+    "script_fail": "Il semble qu&#39;il y ait un problème dans le script de pré-requête. Vérifiez l&#39;erreur ci-dessous et corrigez le script en conséquence.",
     "offline": "Vous semblez être hors ligne. Les données de cet espace de travail peuvent ne pas être à jour.",
     "offline_short": "Vous semblez être hors ligne.",
     "post_request_tests": "Les scripts de test sont écrits en JavaScript et sont exécutés après réception de la réponse.",

@@ -185,7 +185,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
-import { isRight } from "fp-ts/lib/Either"
+import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
 import {
   updateRESTResponse,
@@ -273,7 +273,6 @@ const newSendRequest = async () => {
   // Double calling is because the function returns a TaskEither than should be executed
   const streamResult = await runRESTRequest$()()
 
-  // TODO: What if stream fetching failed (script execution errors ?) (isLeft)
   if (isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,
@@ -291,6 +290,19 @@ const newSendRequest = async () => {
         loading.value = false
       }
     )
+  } else if (isLeft(streamResult)) {
+    loading.value = false
+    toast.error(`${t("error.script_fail")}`)
+    let error: Error
+    if (typeof streamResult.left === "string") {
+      error = { name: "RequestFailure", message: streamResult.left }
+    } else {
+      error = streamResult.left
+    }
+    updateRESTResponse({
+      type: "script_fail",
+      error,
+    })
   }
 }
 

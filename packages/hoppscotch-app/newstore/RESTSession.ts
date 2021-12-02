@@ -689,7 +689,10 @@ export const restResponse$ = restSessionStore.subject$.pipe(
 export const completedRESTResponse$ = restResponse$.pipe(
   filter(
     (res) =>
-      res !== null && res.type !== "loading" && res.type !== "network_fail"
+      res !== null &&
+      res.type !== "loading" &&
+      res.type !== "network_fail" &&
+      res.type !== "script_fail"
   )
 )
 

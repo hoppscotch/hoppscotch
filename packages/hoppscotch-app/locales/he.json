@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "לא ניתן היה לייפות גוף לא חוקי, לפתור שגיאות תחביר של json ולנסות שוב",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "לא ניתן היה לשלוח בקשה",
+    "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
     "no_duration": "אין משך זמן",
     "something_went_wrong": "משהו השתבש"
   },
@@ -209,6 +210,7 @@
     "authorization": "כותרת ההרשאה תיווצר אוטומטית בעת שליחת הבקשה.",
     "generate_documentation_first": "צור קודם כל תיעוד",
     "network_fail": "לא ניתן להגיע לנקודת הסיום של ה- API. בדוק את חיבור הרשת שלך ונסה שוב.",
+    "script_fail": "נראה שיש תקלה בסקריפט שלפני הבקשה. בדוק את השגיאה למטה ותקן את הסקריפט בהתאם.",
     "offline": "נראה שאתה מחובר לאינטרנט. יתכן שהנתונים בסביבת עבודה זו אינם מעודכנים.",
     "offline_short": "נראה שאתה מחובר לאינטרנט.",
     "post_request_tests": "סקריפטים לבדיקה נכתבים ב- JavaScript ומופעלים לאחר קבלת התגובה.",

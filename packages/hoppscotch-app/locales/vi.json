@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Không thể kiểm tra nội dung không hợp lệ, hãy giải quyết lỗi cú pháp json và thử lại",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Không thể gửi yêu cầu",
+    "script_fail": "Không thể thực thi tập lệnh yêu cầu trước",
     "no_duration": "Không có thời lượng",
     "something_went_wrong": "Đã xảy ra sự cố"
   },
@@ -209,6 +210,7 @@
     "authorization": "Tiêu đề ủy quyền sẽ được tạo tự động khi bạn gửi yêu cầu.",
     "generate_documentation_first": "Tạo tài liệu trước tiên",
     "network_fail": "Không thể truy cập điểm cuối API. Kiểm tra kết nối mạng của bạn và thử lại.",
+    "script_fail": "Có vẻ như có trục trặc trong tập lệnh yêu cầu trước. Kiểm tra lỗi bên dưới và sửa tập lệnh cho phù hợp.",
     "offline": "Có vẻ như bạn đang ngoại tuyến. Dữ liệu trong không gian làm việc này có thể không được cập nhật.",
     "offline_short": "Có vẻ như bạn đang ngoại tuyến.",
     "post_request_tests": "Các tập lệnh kiểm tra được viết bằng JavaScript và được chạy sau khi nhận được phản hồi.",

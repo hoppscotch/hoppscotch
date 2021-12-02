@@ -9,10 +9,10 @@
           <img
             :src="`/images/states/${$colorMode.value}/login.svg`"
             loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-24 h-24 my-4"
+            class="flex-col object-contain object-center h-24 my-4 w-24 inline-flex"
             :alt="`${t('empty.parameters')}`"
           />
-          <p class="text-secondaryLight pb-4 text-center">
+          <p class="text-center text-secondaryLight pb-4">
             {{ t("empty.profile") }}
           </p>
           <ButtonPrimary
@@ -23,15 +23,15 @@
         </div>
         <div v-else class="space-y-8">
           <div
-            class="bg-primaryLight md:h-32 -mb-11 h-24 rounded"
+            class="bg-primaryLight rounded h-24 -mb-11 md:h-32"
             style="background-image: url('/images/cover.svg')"
           ></div>
-          <div class="md:flex-row flex flex-col justify-between px-4 space-y-8">
+          <div class="flex flex-col space-y-8 px-4 justify-between md:flex-row">
             <div class="flex items-end">
               <img
                 v-if="currentUser.photoURL"
                 :src="currentUser.photoURL"
-                class="ring-4 ring-primary w-16 h-16 rounded-lg"
+                class="rounded-lg h-16 ring-primary ring-4 w-16"
                 :alt="currentUser.displayName"
               />
               <SmartIcon v-else name="user" class="svg-icons" />
@@ -39,17 +39,17 @@
                 <label class="heading">
                   {{ currentUser.displayName || t("state.nothing_found") }}
                 </label>
-                <p class="text-secondaryLight flex items-center">
+                <p class="flex text-secondaryLight items-center">
                   {{ currentUser.email }}
                   <SmartIcon
                     v-if="currentUser.emailVerified"
                     name="verified"
-                    class="svg-icons ml-2 text-green-500"
+                    class="ml-2 text-green-500 svg-icons"
                   />
                 </p>
               </div>
             </div>
-            <div class="flex items-end space-x-2">
+            <div class="flex space-x-2 items-end">
               <div>
                 <SmartItem
                   to="/settings"
@@ -68,10 +68,10 @@
               :selected="true"
             >
               <section class="p-4">
-                <h4 class="text-secondaryDark font-semibold">
+                <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.profile") }}
                 </h4>
-                <div class="text-secondaryLight mt-1">
+                <div class="mt-1 text-secondaryLight">
                   {{ t("settings.profile_description") }}
                 </div>
                 <div class="py-4">
@@ -79,7 +79,7 @@
                     {{ t("settings.profile_name") }}
                   </label>
                   <form
-                    class="md:max-w-sm flex mt-2"
+                    class="flex mt-2 md:max-w-sm"
                     @submit.prevent="updateDisplayName"
                   >
                     <input
@@ -93,7 +93,7 @@
                     />
                     <ButtonPrimary
                       :label="t('action.save')"
-                      class="min-w-16 ml-2"
+                      class="ml-2 min-w-16"
                       type="submit"
                       :loading="updatingDisplayName"
                     />
@@ -101,13 +101,13 @@
                 </div>
               </section>
               <section class="p-4">
-                <h4 class="text-secondaryDark font-semibold">
+                <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.sync") }}
                 </h4>
-                <div class="text-secondaryLight mt-1">
+                <div class="mt-1 text-secondaryLight">
                   {{ t("settings.sync_description") }}
                 </div>
-                <div class="py-4 space-y-4">
+                <div class="space-y-4 py-4">
                   <div class="flex items-center">
                     <SmartToggle
                       :on="SYNC_COLLECTIONS"

@@ -1,8 +1,8 @@
 <template>
-  <div class="group flex flex-col">
+  <div class="flex flex-col group">
     <div class="flex items-center">
       <span
-        class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pl-4 pr-2 transition cursor-pointer"
+        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 pl-4 transition group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
         @click="useEntry"
       >
@@ -15,7 +15,7 @@
         svg="trash"
         color="red"
         :title="$t('action.remove')"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         data-testid="delete_history_entry"
         @click.native="$emit('delete-entry')"
       />
@@ -23,7 +23,7 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? $t('hide.more') : $t('show.more')"
         :svg="expand ? 'minimize-2' : 'maximize-2'"
-        class="group-hover:inline-flex hidden"
+        class="hidden group-hover:inline-flex"
         @click.native="expand = !expand"
       />
       <ButtonSecondary
@@ -40,7 +40,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="text-secondaryLight px-4 truncate whitespace-pre cursor-pointer"
+        class="cursor-pointer text-secondaryLight px-4 truncate whitespace-pre"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span

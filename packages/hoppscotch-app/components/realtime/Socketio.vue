@@ -14,8 +14,8 @@
           class="hide-scrollbar !overflow-auto"
         >
           <AppSection label="request">
-            <div class="bg-primary sticky top-0 z-10 flex p-4">
-              <div class="inline-flex flex-1 space-x-2">
+            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+              <div class="space-x-2 flex-1 inline-flex">
                 <div class="flex flex-1">
                   <label for="client-version">
                     <tippy
@@ -31,7 +31,7 @@
                             id="client-version"
                             v-tippy="{ theme: 'tooltip' }"
                             title="socket.io-client version"
-                            class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
+                            class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                             :value="`Client ${clientVersion}`"
                             readonly
                             :disabled="connectionState"
@@ -53,7 +53,7 @@
                     autocomplete="off"
                     spellcheck="false"
                     :class="{ error: !urlValid }"
-                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border"
+                    class="bg-primaryLight border border-divider flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                     :placeholder="$t('socketio.url')"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -61,7 +61,7 @@
                   <input
                     id="socketio-path"
                     v-model="path"
-                    class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
+                    class="bg-primaryLight border border-divider rounded-r flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                     spellcheck="false"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -89,7 +89,7 @@
           class="hide-scrollbar !overflow-auto"
         >
           <AppSection label="response">
-            <RealtimeLog :title="$t('socketio.log')" :log="communication.log" />
+            <RealtimeLog :title="$t('socketio.log')" :log="log" />
           </AppSection>
         </Pane>
       </Splitpanes>
@@ -101,8 +101,8 @@
       class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <div class="flex inline-flex flex-col flex-1 p-4">
-          <label for="events" class="text-secondaryLight font-semibold">
+        <div class="flex flex-col flex-1 p-4 inline-flex">
+          <label for="events" class="font-semibold text-secondaryLight">
             {{ $t("socketio.events") }}
           </label>
         </div>
@@ -118,8 +118,8 @@
             :disabled="!connectionState"
           />
         </div>
-        <div class="flex items-center justify-between flex-1 p-4">
-          <label class="text-secondaryLight font-semibold">
+        <div class="flex flex-1 p-4 items-center justify-between">
+          <label class="font-semibold text-secondaryLight">
             {{ $t("socketio.communication") }}
           </label>
           <div class="flex">
@@ -132,7 +132,7 @@
             />
           </div>
         </div>
-        <div class="flex flex-col px-4 pb-4 space-y-2">
+        <div class="flex flex-col space-y-2 px-4 pb-4">
           <div
             v-for="(input, index) of communication.inputs"
             :key="`input-${index}`"
@@ -188,6 +188,24 @@ import debounce from "lodash/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import {
+  SIOEndpoint$,
+  setSIOEndpoint,
+  SIOVersion$,
+  setSIOVersion,
+  SIOPath$,
+  setSIOPath,
+  SIOConnectionState$,
+  SIOConnectingState$,
+  setSIOConnectionState,
+  setSIOConnectingState,
+  SIOSocket$,
+  setSIOSocket,
+  SIOLog$,
+  setSIOLog,
+  addSIOLogLine,
+} from "~/newstore/SocketIOSession"
+import { useStream } from "~/helpers/utils/composables"
 
 const socketIoClients = {
   v4: ClientV4,
@@ -204,20 +222,27 @@ export default defineComponent({
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
       socketIoClients,
+      url: useStream(SIOEndpoint$, "", setSIOEndpoint),
+      clientVersion: useStream(SIOVersion$, "", setSIOVersion),
+      path: useStream(SIOPath$, "", setSIOPath),
+      connectingState: useStream(
+        SIOConnectingState$,
+        false,
+        setSIOConnectingState
+      ),
+      connectionState: useStream(
+        SIOConnectionState$,
+        false,
+        setSIOConnectionState
+      ),
+      io: useStream(SIOSocket$, null, setSIOSocket),
+      log: useStream(SIOLog$, [], setSIOLog),
     }
   },
   data() {
     return {
-      // default version is set to v4
-      clientVersion: "v4",
-      url: "wss://hoppscotch-socketio.herokuapp.com",
-      path: "/socket.io",
       isUrlValid: true,
-      connectingState: false,
-      connectionState: false,
-      io: null,
       communication: {
-        log: null,
         eventName: "",
         inputs: [""],
       },
@@ -267,7 +292,7 @@ export default defineComponent({
     },
     connect() {
       this.connectingState = true
-      this.communication.log = [
+      this.log = [
         {
           payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
@@ -286,7 +311,7 @@ export default defineComponent({
         this.io.on("connect", () => {
           this.connectingState = false
           this.connectionState = true
-          this.communication.log = [
+          this.log = [
             {
               payload: this.$t("state.connected_to", { name: this.url }),
               source: "info",
@@ -298,7 +323,7 @@ export default defineComponent({
         })
         this.io.on("*", ({ data }) => {
           const [eventName, message] = data
-          this.communication.log.push({
+          addSIOLogLine({
             payload: `[${eventName}] ${message ? JSON.stringify(message) : ""}`,
             source: "server",
             ts: new Date().toLocaleTimeString(),
@@ -316,7 +341,7 @@ export default defineComponent({
         this.io.on("disconnect", () => {
           this.connectingState = false
           this.connectionState = false
-          this.communication.log.push({
+          addSIOLogLine({
             payload: this.$t("state.disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
@@ -340,14 +365,14 @@ export default defineComponent({
       this.disconnect()
       this.connectingState = false
       this.connectionState = false
-      this.communication.log.push({
+      addSIOLogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
       })
       if (error !== null)
-        this.communication.log.push({
+        addSIOLogLine({
           payload: error,
           source: "info",
           color: "#ff5555",
@@ -369,14 +394,14 @@ export default defineComponent({
       if (this.io) {
         this.io.emit(eventName, ...messages, (data) => {
           // receive response from server
-          this.communication.log.push({
+          addSIOLogLine({
             payload: `[${eventName}] ${JSON.stringify(data)}`,
             source: "server",
             ts: new Date().toLocaleTimeString(),
           })
         })
 
-        this.communication.log.push({
+        addSIOLogLine({
           payload: `[${eventName}] ${JSON.stringify(messages)}`,
           source: "client",
           ts: new Date().toLocaleTimeString(),

@@ -3,7 +3,7 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="hover:translate-x-2 focus:outline-none focus-visible:translate-x-2 inline-flex items-center flex-1 py-2 font-semibold truncate transition transform"
+    class="font-semibold flex-1 py-2 transform transition inline-flex items-center truncate hover:translate-x-2 focus:outline-none focus-visible:translate-x-2"
     :class="[
       label ? 'px-3' : 'px-2',
       active

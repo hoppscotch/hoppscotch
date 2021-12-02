@@ -1,12 +1,12 @@
 <template>
-  <div class="relative flex items-center justify-center w-5 h-5 cursor-pointer">
+  <div class="cursor-pointer flex h-5 w-5 relative items-center justify-center">
     <img
-      class="bg-primaryDark absolute object-cover object-center w-5 h-5 transition rounded-full"
+      class="bg-primaryDark rounded-full object-cover object-center h-5 transition w-5 absolute"
       :src="url"
       :alt="alt"
       loading="lazy"
     />
-    <div class="absolute inset-0 rounded-full shadow-inner"></div>
+    <div class="rounded-full shadow-inner inset-0 absolute"></div>
     <span
       v-if="indicator"
       class="border-primary rounded-full border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute"

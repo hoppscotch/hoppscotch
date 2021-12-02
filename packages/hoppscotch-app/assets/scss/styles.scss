@@ -19,7 +19,8 @@
   @apply bg-divider bg-clip-content;
   @apply rounded-full;
   @apply border-solid border-transparent border-4;
-  @apply hover:(bg-dividerDark bg-clip-content);
+  @apply hover:bg-dividerDark;
+  @apply hover:bg-clip-content;
 }
 
 ::-webkit-scrollbar {
@@ -130,7 +131,8 @@ a {
     @apply text-accent;
     @apply rounded;
     @apply hover:text-accentDark;
-    @apply focus-visible:(ring ring-accent);
+    @apply focus-visible:ring;
+    @apply focus-visible:ring-accent;
   }
 }
 
@@ -336,7 +338,8 @@ pre.ace_editor {
         @apply rounded;
         @apply text-current;
         @apply normal-case;
-        @apply hover:(bg-opacity-20 no-underline);
+        @apply hover:bg-opacity-20;
+        @apply hover:no-underline;
         @apply font-medium;
 
         font-size: var(--body-font-size);

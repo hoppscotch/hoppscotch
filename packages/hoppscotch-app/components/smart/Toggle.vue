@@ -1,12 +1,12 @@
 <template>
   <div
-    class="inline-flex items-center justify-center cursor-pointer flex-nowrap"
+    class="cursor-pointer flex-nowrap inline-flex items-center justify-center"
     @click="$emit('change')"
   >
     <label ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </label>
-    <label class="pl-0 font-semibold align-middle cursor-pointer">
+    <label class="cursor-pointer font-semibold pl-0 align-middle">
       <slot></slot>
     </label>
   </div>

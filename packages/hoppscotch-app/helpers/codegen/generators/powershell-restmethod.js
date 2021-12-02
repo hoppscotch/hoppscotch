@@ -14,7 +14,6 @@ export const PowershellRestmethodCodegen = {
     rawInput,
     rawParams,
     rawRequestBody,
-    contentType,
     headers,
   }) => {
     const methodsWithBody = ["Put", "Post", "Delete"]
@@ -30,18 +29,15 @@ export const PowershellRestmethodCodegen = {
     )
     const requestBody = rawInput ? rawParams : rawRequestBody
 
-    if (requestBody.length !== 0 && includeBody) {
-      variables = variables.concat(`$body = @'\n${requestBody}\n'@\n\n`)
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      if (requestBody && includeBody) {
+        variables = variables.concat(`$body = @'\n${requestBody}\n'@\n\n`)
+      }
     }
     if (headers) {
       headers.forEach(({ key, value }) => {
         if (key) genHeaders.push(`  '${key}' = '${value}'\n`)
       })
-    }
-
-    if (contentType) {
-      genHeaders.push(`  'Content-Type' = '${contentType}; charset=utf-8'\n`)
-      requestString.push(` -ContentType '${contentType}; charset=utf-8'`)
     }
 
     if (auth === "Basic Auth") {
@@ -55,11 +51,13 @@ export const PowershellRestmethodCodegen = {
       genHeaders.push(`  'Authorization' = 'Bearer ${bearerToken}'\n`)
     }
     genHeaders = genHeaders.join("").slice(0, -1)
-    variables = variables.concat(`$headers = @{\n${genHeaders}\n}\n`)
-    requestString.push(` -Headers $headers`)
-    if (includeBody) {
+    if (genHeaders) {
+      variables = variables.concat(`$headers = @{\n${genHeaders}\n}\n`)
+      requestString.push(` -Headers $headers`)
+    }
+    if (requestBody && includeBody) {
       requestString.push(` -Body $body`)
     }
-    return `${variables}\n${requestString.join("")}`
+    return `${variables}${requestString.join("")}`
   },
 }

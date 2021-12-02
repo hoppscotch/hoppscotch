@@ -1,9 +1,9 @@
 <template>
   <div>
     <div
-      class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="bg-primary border-b border-dividerLight flex flex-1 top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
-      <label class="text-secondaryLight font-semibold">
+      <label class="font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
       </label>
       <div class="flex">
@@ -20,19 +20,19 @@
     <div
       v-for="(header, index) in headers"
       :key="`header-${index}`"
-      class="divide-dividerLight border-dividerLight group flex border-b divide-x"
+      class="divide-dividerLight divide-x border-b border-dividerLight flex group"
     >
       <span
-        class="group-hover:text-secondaryDark flex flex-1 min-w-0 px-4 py-2 transition"
+        class="flex flex-1 min-w-0 py-2 px-4 transition group-hover:text-secondaryDark"
       >
-        <span class="truncate rounded-sm select-all">
+        <span class="rounded-sm truncate select-all">
           {{ header.key }}
         </span>
       </span>
       <span
-        class="group-hover:text-secondaryDark flex flex-1 min-w-0 px-4 py-2 transition"
+        class="flex flex-1 min-w-0 py-2 px-4 transition group-hover:text-secondaryDark"
       >
-        <span class="truncate rounded-sm select-all">
+        <span class="rounded-sm truncate select-all">
           {{ header.value }}
         </span>
       </span>

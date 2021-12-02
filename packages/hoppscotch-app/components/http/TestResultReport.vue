@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center p-2">
+  <div class="flex p-2 items-center">
     <SmartProgressRing
       class="text-red-500"
       :radius="16"

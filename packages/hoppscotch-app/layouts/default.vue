@@ -1,5 +1,5 @@
 <template>
-  <div class="flex w-screen h-screen">
+  <div class="flex h-screen w-screen">
     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
       <Pane v-if="!ZEN_MODE" style="height: auto">
         <AppHeader />

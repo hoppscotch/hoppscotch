@@ -14,7 +14,6 @@ export const CurlCodegen = {
     rawInput,
     rawParams,
     rawRequestBody,
-    contentType,
     headers,
   }) => {
     const requestString = []
@@ -36,8 +35,9 @@ export const CurlCodegen = {
       })
     }
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      const requestBody = rawInput ? rawParams : rawRequestBody
-      requestString.push(`  -H 'Content-Type: ${contentType}; charset=utf-8'`)
+      let requestBody = rawInput ? rawParams : rawRequestBody
+      requestBody = requestBody || ""
+
       requestString.push(`  -d '${requestBody}'`)
     }
     return requestString.join(" \\\n")

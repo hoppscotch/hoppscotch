@@ -31,8 +31,9 @@ export const JavaUnirestCodegen = {
     ]
     // create client and request
     const verb = verbs.find((v) => v.verb === method)
+    const unirestMethod = verb.unirestMethod || "get"
     requestString.push(
-      `HttpResponse<String> response = Unirest.${verb.unirestMethod}("${url}${pathName}?${queryString}")\n`
+      `HttpResponse<String> response = Unirest.${unirestMethod}("${url}${pathName}?${queryString}")\n`
     )
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
@@ -52,21 +53,21 @@ export const JavaUnirestCodegen = {
         }
       })
     }
-    if (contentType) {
-      requestString.push(`.header("Content-Type", "${contentType}")\n`)
-    }
 
     // set body
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      if (contentType.includes("x-www-form-urlencoded")) {
-        requestBody = `"${requestBody}"`
-      } else {
-        requestBody = JSON.stringify(requestBody)
+      if (contentType && requestBody) {
+        if (contentType.includes("x-www-form-urlencoded")) {
+          requestBody = `"${requestBody}"`
+        } else {
+          requestBody = JSON.stringify(requestBody)
+        }
       }
-
-      requestString.push(`.body(${requestBody})`)
+      if (requestBody) {
+        requestString.push(`.body(${requestBody})\n`)
+      }
     }
-    requestString.push(`\n.asString();\n`)
+    requestString.push(`.asString();\n`)
     return requestString.join("")
   },
 }

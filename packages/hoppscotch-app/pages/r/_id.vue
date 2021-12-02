@@ -2,30 +2,30 @@
   <div class="flex flex-col items-center justify-between">
     <div
       v-if="invalidLink"
-      class="flex flex-col items-center justify-center flex-1"
+      class="flex flex-col flex-1 items-center justify-center"
     >
-      <i class="material-icons pb-2 opacity-75">error_outline</i>
-      <h1 class="heading text-center">
+      <i class="opacity-75 pb-2 material-icons">error_outline</i>
+      <h1 class="text-center heading">
         {{ $t("error.invalid_link") }}
       </h1>
       <p class="mt-2 text-center">
         {{ $t("error.invalid_link_description") }}
       </p>
     </div>
-    <div v-else class="flex flex-col items-center justify-center flex-1 p-4">
+    <div v-else class="flex flex-col flex-1 p-4 items-center justify-center">
       <div
         v-if="shortcodeDetails.loading"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-col flex-1 p-4 items-center justify-center"
       >
         <SmartSpinner />
       </div>
       <div v-else>
         <div
           v-if="!shortcodeDetails.loading && E.isLeft(shortcodeDetails.data)"
-          class="flex flex-col items-center p-4"
+          class="flex flex-col p-4 items-center"
         >
-          <i class="material-icons pb-2 opacity-75">error_outline</i>
-          <h1 class="heading text-center">
+          <i class="opacity-75 pb-2 material-icons">error_outline</i>
+          <h1 class="text-center heading">
             {{ $t("error.invalid_link") }}
           </h1>
           <p class="mt-2 text-center">
@@ -43,7 +43,7 @@
         </div>
         <div
           v-if="!shortcodeDetails.loading && E.isRight(shortcodeDetails.data)"
-          class="flex flex-col items-center justify-center flex-1 p-4"
+          class="flex flex-col flex-1 p-4 items-center justify-center"
         >
           <h1 class="heading">
             {{ $t("state.loading") }}

@@ -54,36 +54,39 @@ export const PythonRequestsCodegen = {
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    if (method === "GET") {
-      requestString.push(...printHeaders(genHeaders))
-      requestString.push(`response = requests.request(\n`)
-      requestString.push(`  '${method}',\n`)
-      requestString.push(`  '${url}${pathName}?${queryString}',\n`)
-    }
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
-      genHeaders.push(`'Content-Type': '${contentType}'`)
-      requestString.push(...printHeaders(genHeaders))
+    let requestDataObj = ""
+    requestString.push(...printHeaders(genHeaders))
 
-      if (isJSONContentType(contentType)) {
-        requestBody = JSON.stringify(requestBody)
-        requestString.push(`data = ${requestBody}\n`)
-      } else if (contentType.includes("x-www-form-urlencoded")) {
-        const formData = []
-        if (requestBody.includes("=")) {
-          requestBody.split("&").forEach((rq) => {
-            const [key, val] = rq.split("=")
-            formData.push(`('${key}', '${val}')`)
-          })
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      if (contentType && requestBody) {
+        if (isJSONContentType(contentType)) {
+          requestBody = JSON.stringify(requestBody)
+          requestDataObj = `data = ${requestBody}\n`
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          const formData = []
+          if (requestBody.includes("=")) {
+            requestBody.split("&").forEach((rq) => {
+              const [key, val] = rq.split("=")
+              formData.push(`('${key}', '${val}')`)
+            })
+          }
+          if (formData.length) {
+            requestDataObj = `data = [${formData.join(",\n      ")}]\n`
+          }
+        } else {
+          requestDataObj = `data = '''${requestBody}'''\n`
         }
-        if (formData.length) {
-          requestString.push(`data = [${formData.join(",\n      ")}]\n`)
-        }
-      } else {
-        requestString.push(`data = '''${requestBody}'''\n`)
       }
-      requestString.push(`response = requests.request(\n`)
-      requestString.push(`  '${method}',\n`)
-      requestString.push(`  '${url}${pathName}?${queryString}',\n`)
+    }
+    if (requestDataObj) {
+      requestString.push(requestDataObj)
+    }
+
+    requestString.push(`response = requests.request(\n`)
+    requestString.push(`  '${method}',\n`)
+    requestString.push(`  '${url}${pathName}?${queryString}',\n`)
+
+    if (requestDataObj && requestBody) {
       requestString.push(`  data=data,\n`)
     }
 

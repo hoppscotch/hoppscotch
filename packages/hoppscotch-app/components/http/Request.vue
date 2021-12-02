@@ -273,7 +273,6 @@ const newSendRequest = async () => {
   // Double calling is because the function returns a TaskEither than should be executed
   const streamResult = await runRESTRequest$()()
 
-  // TODO: What if stream fetching failed (script execution errors ?) (isLeft)
   if (isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,

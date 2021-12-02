@@ -68,28 +68,34 @@
         <span class="font-semibold text-center mb-2">
           {{ t("error.network_fail") }}
         </span>
-        <span class="max-w-sm text-center text-secondaryLight mb-4">
+        <span
+          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+        >
           {{ t("helpers.network_fail") }}
         </span>
         <AppInterceptor />
       </div>
       <div
         v-if="response.type === 'script_fail'"
-        class="flex flex-col items-center justify-center flex-1 p-4"
+        class="flex flex-col flex-1 p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
-          class="object-contain inline-flex flex-col object-center w-32 h-32 my-4"
+          class="flex-col object-contain object-center h-32 my-4 w-32 inline-flex"
           :alt="`${t('error.script_fail')}`"
         />
-        <span class="mb-2 font-semibold text-center">
+        <span class="font-semibold text-center mb-2">
           {{ t("error.script_fail") }}
         </span>
-        <span class="max-w-sm mb-4 text-center text-secondaryLight">
+        <span
+          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+        >
           {{ t("helpers.script_fail") }}
         </span>
-        <div class="error text-left text-red-400 full-with">
+        <div
+          class="bg-primaryLight rounded font-mono w-full py-2 px-4 text-red-400 overflow-auto whitespace-normal"
+        >
           {{ response.error.name }}: {{ response.error.message }}<br />
           {{ response.error.stack }}
         </div>

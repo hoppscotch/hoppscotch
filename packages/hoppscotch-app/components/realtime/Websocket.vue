@@ -76,6 +76,12 @@
                 name="message"
                 type="text"
                 autocomplete="off"
+                @change="
+                  updateProtocol(index, {
+                    value: $event.target.value,
+                    active: protocol.active,
+                  })
+                "
               />
               <span>
                 <ButtonSecondary
@@ -96,9 +102,10 @@
                   "
                   color="green"
                   @click.native="
-                    protocol.active = protocol.hasOwnProperty('active')
-                      ? !protocol.active
-                      : false
+                    updateProtocol(index, {
+                      value: protocol.value,
+                      active: !protocol.active,
+                    })
                   "
                 />
               </span>
@@ -133,10 +140,7 @@
           class="hide-scrollbar !overflow-auto"
         >
           <AppSection label="response">
-            <RealtimeLog
-              :title="$t('websocket.log')"
-              :log="communication.log"
-            />
+            <RealtimeLog :title="$t('websocket.log')" :log="log" />
           </AppSection>
         </Pane>
       </Splitpanes>
@@ -191,6 +195,26 @@ import debounce from "lodash/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 import { useSetting } from "~/newstore/settings"
+import {
+  setWSEndpoint,
+  WSEndpoint$,
+  WSProtocols$,
+  setWSProtocols,
+  addWSProtocol,
+  deleteWSProtocol,
+  updateWSProtocol,
+  deleteAllWSProtocols,
+  WSSocket$,
+  setWSSocket,
+  setWSConnectionState,
+  setWSConnectingState,
+  WSConnectionState$,
+  WSConnectingState$,
+  addWSLogLine,
+  WSLog$,
+  setWSLog,
+} from "~/newstore/WebSocketSession"
+import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
@@ -200,21 +224,29 @@ export default defineComponent({
       SIDEBAR: useSetting("SIDEBAR"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
+      url: useStream(WSEndpoint$, "", setWSEndpoint),
+      protocols: useStream(WSProtocols$, [], setWSProtocols),
+      connectionState: useStream(
+        WSConnectionState$,
+        false,
+        setWSConnectionState
+      ),
+      connectingState: useStream(
+        WSConnectingState$,
+        false,
+        setWSConnectingState
+      ),
+      socket: useStream(WSSocket$, null, setWSSocket),
+      log: useStream(WSLog$, [], setWSLog),
     }
   },
   data() {
     return {
-      connectionState: false,
-      connectingState: false,
-      url: "wss://hoppscotch-websocket.herokuapp.com",
       isUrlValid: true,
-      socket: null,
       communication: {
-        log: null,
         input: "",
       },
       currentIndex: -1, // index of the message log array to put in input box
-      protocols: [],
       activeProtocols: [],
     }
   },
@@ -251,7 +283,7 @@ export default defineComponent({
   },
   methods: {
     clearContent() {
-      this.protocols = []
+      deleteAllWSProtocols()
     },
     debouncer: debounce(function () {
       this.worker.postMessage({ type: "ws", url: this.url })
@@ -266,7 +298,7 @@ export default defineComponent({
       else return this.disconnect()
     },
     connect() {
-      this.communication.log = [
+      this.log = [
         {
           payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
@@ -279,7 +311,7 @@ export default defineComponent({
         this.socket.onopen = () => {
           this.connectingState = false
           this.connectionState = true
-          this.communication.log = [
+          this.log = [
             {
               payload: this.$t("state.connected_to", { name: this.url }),
               source: "info",
@@ -294,7 +326,7 @@ export default defineComponent({
         }
         this.socket.onclose = () => {
           this.connectionState = false
-          this.communication.log.push({
+          addWSLogLine({
             payload: this.$t("state.disconnected_from", { name: this.url }),
             source: "info",
             color: "#ff5555",
@@ -303,7 +335,7 @@ export default defineComponent({
           this.$toast.error(this.$t("state.disconnected"))
         }
         this.socket.onmessage = ({ data }) => {
-          this.communication.log.push({
+          addWSLogLine({
             payload: data,
             source: "server",
             ts: new Date().toLocaleTimeString(),
@@ -328,14 +360,14 @@ export default defineComponent({
     handleError(error) {
       this.disconnect()
       this.connectionState = false
-      this.communication.log.push({
+      addWSLogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
       })
       if (error !== null)
-        this.communication.log.push({
+        addWSLogLine({
           payload: error,
           source: "info",
           color: "#ff5555",
@@ -345,7 +377,7 @@ export default defineComponent({
     sendMessage() {
       const message = this.communication.input
       this.socket.send(message)
-      this.communication.log.push({
+      addWSLogLine({
         payload: message,
         source: "client",
         ts: new Date().toLocaleTimeString(),
@@ -353,7 +385,7 @@ export default defineComponent({
       this.communication.input = ""
     },
     walkHistory(direction) {
-      const clientMessages = this.communication.log.filter(
+      const clientMessages = this.log.filter(
         ({ source }) => source === "client"
       )
       const length = clientMessages.length
@@ -389,11 +421,11 @@ export default defineComponent({
       }
     },
     addProtocol() {
-      this.protocols.push({ value: "", active: true })
+      addWSProtocol({ value: "", active: true })
     },
     deleteProtocol({ index }) {
       const oldProtocols = this.protocols.slice()
-      this.$delete(this.protocols, index)
+      deleteWSProtocol(index)
       this.$toast.success(this.$t("state.deleted"), {
         action: {
           text: this.$t("action.undo"),
@@ -404,6 +436,9 @@ export default defineComponent({
           },
         },
       })
+    },
+    updateProtocol(index, updated) {
+      updateWSProtocol(index, updated)
     },
   },
 })

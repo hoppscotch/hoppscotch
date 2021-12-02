@@ -20,7 +20,7 @@ export type HoppWSSession = {
   connectingState: boolean
   connectionState: boolean
   log: HoppRealtimeLog
-  socket: WebSocket
+  socket: WebSocket | null
 }
 
 const defaultWSRequest: HoppWSRequest = {
@@ -37,7 +37,7 @@ const defaultWSSession: HoppWSSession = {
 }
 
 const dispatchers = defineDispatchers({
-  setRequest(_, { newRequest }: { newRequest: HoppWSRequest }) {
+  setRequest(_: HoppWSSession, { newRequest }: { newRequest: HoppWSRequest }) {
     return {
       request: newRequest,
     }

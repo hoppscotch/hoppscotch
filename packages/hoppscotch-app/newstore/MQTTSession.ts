@@ -16,7 +16,7 @@ type HoppMQTTSession = {
   connectionState: boolean
   subscriptionState: boolean
   log: HoppRealtimeLog
-  socket?: MQTTClient
+  socket: MQTTClient | null
 }
 
 const defaultMQTTRequest: HoppMQTTRequest = {

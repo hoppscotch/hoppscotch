@@ -15,7 +15,7 @@ type HoppSSESession = {
   connectingState: boolean
   connectionState: boolean
   log: HoppRealtimeLog
-  socket?: EventSource
+  socket: EventSource | null
 }
 
 const defaultSSERequest: HoppSSERequest = {

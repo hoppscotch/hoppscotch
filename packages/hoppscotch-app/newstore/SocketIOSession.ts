@@ -21,7 +21,7 @@ type HoppSIOSession = {
   connectingState: boolean
   connectionState: boolean
   log: HoppRealtimeLog
-  socket?: SocketIO
+  socket: SocketIO | null
 }
 
 const defaultSIORequest: HoppSIORequest = {

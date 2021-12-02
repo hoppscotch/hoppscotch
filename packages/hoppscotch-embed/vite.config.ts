@@ -11,6 +11,7 @@ import WindiCSS from "vite-plugin-windicss"
 import { VitePWA } from "vite-plugin-pwa"
 import VueI18n from "@intlify/vite-plugin-vue-i18n"
 import Inspect from "vite-plugin-inspect"
+import ViteFonts from "vite-plugin-fonts"
 
 export default defineConfig({
   resolve: {
@@ -112,6 +113,13 @@ export default defineConfig({
     Inspect({
       // change this to enable inspect for debugging
       enabled: false,
+    }),
+
+    // https://github.com/stafyniaksacha/vite-plugin-fonts
+    ViteFonts({
+      google: {
+        families: ["Inter", "Roboto Mono"],
+      },
     }),
   ],
 

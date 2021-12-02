@@ -308,6 +308,7 @@ importers:
       unplugin-icons: ^0.12.22
       unplugin-vue-components: ^0.17.2
       vite: ^2.6.14
+      vite-plugin-fonts: ^0.2.2
       vite-plugin-inspect: ^0.3.11
       vite-plugin-md: ^0.11.4
       vite-plugin-pages: ^0.19.0-beta.6
@@ -349,6 +350,7 @@ importers:
       unplugin-icons: 0.12.22_9417d93c2d611a99e242fff8baf59806
       unplugin-vue-components: 0.17.2_vite@2.6.14+vue@3.2.23
       vite: 2.6.14
+      vite-plugin-fonts: 0.2.2_vite@2.6.14
       vite-plugin-inspect: 0.3.11_vite@2.6.14
       vite-plugin-md: 0.11.4_vite@2.6.14
       vite-plugin-pages: 0.19.0-beta.6_9417d93c2d611a99e242fff8baf59806
@@ -18848,6 +18850,14 @@ packages:
       assert-plus: 1.0.0
       core-util-is: 1.0.2
       extsprintf: 1.3.0
+    dev: true
+
+  /vite-plugin-fonts/0.2.2_vite@2.6.14:
+    resolution: {integrity: sha512-fhzhsrTiuzlDjSO6g5sV5EVIIvbb8lmsaIY6eUTBM4lcF55x40UBpHrcyvNwIhQG211g0lu83XC7oZlkmvdkMA==}
+    peerDependencies:
+      vite: ^2.0.0
+    dependencies:
+      vite: 2.6.14
     dev: true
 
   /vite-plugin-inspect/0.3.11_vite@2.6.14:

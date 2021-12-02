@@ -5,7 +5,9 @@
 declare module "vue" {
   export interface GlobalComponents {
     CarbonCampsite: typeof import("~icons/carbon/campsite")["default"]
+    CarbonCircleDash: typeof import("~icons/carbon/circle-dash")["default"]
     CarbonDicomOverlay: typeof import("~icons/carbon/dicom-overlay")["default"]
+    CarbonHome: typeof import("~icons/carbon/home")["default"]
     CarbonLanguage: typeof import("~icons/carbon/language")["default"]
     CarbonLogoGithub: typeof import("~icons/carbon/logo-github")["default"]
     CarbonMoon: typeof import("~icons/carbon/moon")["default"]
@@ -14,6 +16,11 @@ declare module "vue" {
     CarbonWarning: typeof import("~icons/carbon/warning")["default"]
     Footer: typeof import("./components/Footer.vue")["default"]
     README: typeof import("./components/README.md")["default"]
+    Request: typeof import("./components/Request.vue")["default"]
+    "Request copy": typeof import("./components/Response.vueue")["default"]
+    RequestOptions: typeof import("./components/RequestOptions.vue")["default"]
+    Response: typeof import("./components/Response.vue")["default"]
+    Spinner: typeof import("./components/Spinner.vue")["default"]
   }
 }
 

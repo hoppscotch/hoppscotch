@@ -1,5 +1,8 @@
 <template>
-  <main class="text-gray-700 dark:text-gray-200">
-    <router-view />
+  <main>
+    <Header />
+    <div class="p-2">
+      <router-view />
+    </div>
   </main>
 </template>

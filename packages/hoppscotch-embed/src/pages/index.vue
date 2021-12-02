@@ -4,10 +4,10 @@ const { t } = useI18n()
 
 <template>
   <div>
-    <h1 class="font-semibold text-2xl">
+    <h1 class="font-semibold text-secondaryDark text-2xl">
       {{ t("app.title") }}
     </h1>
-    <p class="mt-2 text-gray-400 dark:text-gray-500">
+    <p class="mt-2 text-secondaryLight">
       {{ t("app.description") }}
     </p>
   </div>

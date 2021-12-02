@@ -12,9 +12,9 @@ const toggleLocales = () => {
 
 <template>
   <nav class="mt-6 text-xl">
-    <router-link class="mx-2 icon-btn" to="/" :title="t('button.home')">
+    <RouterLink class="mx-2 icon-btn" to="/" :title="t('button.home')">
       <carbon-home />
-    </router-link>
+    </RouterLink>
 
     <button
       class="mx-2 icon-btn !outline-none"

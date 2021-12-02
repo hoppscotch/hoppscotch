@@ -3,7 +3,7 @@
     <img
       :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
       loading="lazy"
-      class="flex-col my-4 object-contain object-center h-46 w-46 inline-flex"
+      class="flex-col object-contain object-center h-46 my-4 w-46 inline-flex"
       :alt="message"
     />
     <h1 class="mb-4 text-4xl heading">{{ statusCode }}</h1>

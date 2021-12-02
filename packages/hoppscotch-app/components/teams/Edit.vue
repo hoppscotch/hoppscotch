@@ -17,7 +17,7 @@
             {{ t("action.label") }}
           </label>
         </div>
-        <div class="flex pt-4 flex-1 justify-between items-center">
+        <div class="flex flex-1 pt-4 items-center justify-between">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}
           </label>
@@ -47,29 +47,16 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="divide-y divide-dividerLight border-divider border rounded"
+          class="divide-dividerLight divide-y border border-divider rounded"
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="
-                flex-col
-                my-4
-                object-contain object-center
-                h-16
-                w-16
-                inline-flex
-              "
+              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
               :alt="`${t('empty.members')}`"
             />
             <span class="text-center pb-4">
@@ -89,7 +76,7 @@
             <div
               v-for="(member, index) in membersList"
               :key="`member-${index}`"
-              class="divide-x divide-dividerLight flex"
+              class="divide-dividerLight divide-x flex"
             >
               <input
                 class="bg-transparent flex flex-1 py-2 px-4"
@@ -109,13 +96,7 @@
                   <template #trigger>
                     <span class="select-wrapper">
                       <input
-                        class="
-                          bg-transparent
-                          cursor-pointer
-                          flex flex-1
-                          py-2
-                          px-4
-                        "
+                        class="bg-transparent cursor-pointer flex flex-1 py-2 px-4"
                         :placeholder="`${t('team.permissions')}`"
                         :name="'value' + index"
                         :value="

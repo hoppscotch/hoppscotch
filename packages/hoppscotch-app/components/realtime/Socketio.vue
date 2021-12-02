@@ -9,7 +9,10 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="space-x-2 flex-1 inline-flex">
@@ -28,21 +31,7 @@
                             id="client-version"
                             v-tippy="{ theme: 'tooltip' }"
                             title="socket.io-client version"
-                            class="
-                              bg-primaryLight
-                              border border-divider
-                              rounded-l
-                              cursor-pointer
-                              flex
-                              font-semibold
-                              text-secondaryDark
-                              py-2
-                              px-4
-                              w-26
-                              hover:border-dividerDark
-                              focus-visible:bg-transparent
-                              focus-visible:border-dividerDark
-                            "
+                            class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                             :value="`Client ${clientVersion}`"
                             readonly
                             :disabled="connectionState"
@@ -64,18 +53,7 @@
                     autocomplete="off"
                     spellcheck="false"
                     :class="{ error: !urlValid }"
-                    class="
-                      bg-primaryLight
-                      border border-divider
-                      flex flex-1
-                      text-secondaryDark
-                      w-full
-                      py-2
-                      px-4
-                      hover:border-dividerDark
-                      focus-visible:bg-transparent
-                      focus-visible:border-dividerDark
-                    "
+                    class="bg-primaryLight border border-divider flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                     :placeholder="$t('socketio.url')"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -83,19 +61,7 @@
                   <input
                     id="socketio-path"
                     v-model="path"
-                    class="
-                      bg-primaryLight
-                      border border-divider
-                      rounded-r
-                      flex flex-1
-                      text-secondaryDark
-                      w-full
-                      py-2
-                      px-4
-                      hover:border-dividerDark
-                      focus-visible:bg-transparent
-                      focus-visible:border-dividerDark
-                    "
+                    class="bg-primaryLight border border-divider rounded-r flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                     spellcheck="false"
                     :disabled="connectionState"
                     @keyup.enter="urlValid ? toggleConnection() : null"
@@ -118,7 +84,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog :title="$t('socketio.log')" :log="log" />
           </AppSection>

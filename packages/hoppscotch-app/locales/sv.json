@@ -110,6 +110,7 @@
     "team_collections": "Lagsamlingar"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Är du säker på att du vill logga ut?",
     "remove_collection": "Är du säker på att du vill radera denna samling permanent?",
     "remove_environment": "Är du säker på att du vill ta bort den här miljön permanent?",
@@ -138,6 +139,7 @@
     "collection": "Samlingen är tom",
     "collections": "Samlingar är tomma",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Miljöer är tomma",
     "folder": "Mappen är tom",
     "headers": "Denna begäran har inga rubriker",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 för detaljer)",
     "gql_prettify_invalid_query": "Det gick inte att pryda en ogiltig fråga, lösa frågesyntaxfel och försök igen",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Det gick inte att pryda en ogiltig kropp, lösa json -syntaxfel och försök igen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Det gick inte att skicka förfrågan",

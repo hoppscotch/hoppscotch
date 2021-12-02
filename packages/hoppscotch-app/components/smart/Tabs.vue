@@ -1,10 +1,10 @@
 <template>
   <div
-    class="flex flex-nowrap flex-1 h-full"
+    class="flex flex-nowrap h-full flex-1"
     :class="{ 'flex-col h-auto': !vertical }"
   >
     <div
-      class="tabs hide-scrollbar relative"
+      class="relative tabs hide-scrollbar"
       :class="[{ 'border-r border-dividerLight': vertical }, styles]"
     >
       <div class="flex flex-1">
@@ -35,18 +35,18 @@
               </span>
               <span
                 v-if="tab.indicator"
-                class="bg-accentLight h-1 w-1 ml-2 rounded-full"
+                class="bg-accentLight rounded-full h-1 ml-2 w-1"
               ></span>
             </button>
           </div>
-          <div class="flex justify-center items-center">
+          <div class="flex items-center justify-center">
             <slot name="actions"></slot>
           </div>
         </div>
       </div>
     </div>
     <div
-      class="contents h-full w-full"
+      class="h-full w-full contents"
       :class="{
         '!flex flex-col flex-1 overflow-y-auto hide-scrollbar': vertical,
       }"
@@ -128,7 +128,7 @@ export default defineComponent({
     @apply flex-shrink-0;
     @apply items-center;
     @apply justify-center;
-    @apply px-4 py-2;
+    @apply py-2 px-4;
     @apply text-secondary;
     @apply font-semibold;
     @apply cursor-pointer;

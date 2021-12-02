@@ -2,17 +2,7 @@
   <AppSlideOver :show="show" @close="close()">
     <template #content>
       <div
-        class="
-          bg-primary
-          border-b border-dividerLight
-          flex
-          p-2
-          top-0
-          z-10
-          items-center
-          sticky
-          justify-between
-        "
+        class="bg-primary border-b border-dividerLight flex p-2 top-0 z-10 sticky items-center justify-between"
       >
         <h3 class="ml-4 heading">{{ t("app.shortcuts") }}</h3>
         <div class="flex">
@@ -25,21 +15,15 @@
             v-model="filterText"
             type="search"
             autocomplete="off"
-            class="
-              bg-primaryLight
-              border border-dividerLight
-              rounded
-              flex
-              w-full
-              py-2
-              px-4
-              focus-visible:border-divider
-            "
+            class="bg-primaryLight border border-dividerLight rounded flex w-full py-2 px-4 focus-visible:border-divider"
             :placeholder="`${t('action.search')}`"
           />
         </div>
       </div>
-      <div v-if="filterText">
+      <div
+        v-if="filterText"
+        class="divide-dividerLight divide-y flex flex-col flex-1 overflow-auto hide-scrollbar"
+      >
         <div
           v-for="(map, mapIndex) in searchResults"
           :key="`map-${mapIndex}`"
@@ -56,13 +40,7 @@
         </div>
         <div
           v-if="searchResults.length === 0"
-          class="
-            flex flex-col
-            text-secondaryLight
-            p-4
-            items-center
-            justify-center
-          "
+          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
         >
           <i class="opacity-75 pb-2 material-icons">manage_search</i>
           <span class="text-center">
@@ -72,12 +50,7 @@
       </div>
       <div
         v-else
-        class="
-          divide-y divide-dividerLight
-          flex flex-col flex-1
-          overflow-auto
-          hide-scrollbar
-        "
+        class="divide-dividerLight divide-y flex flex-col flex-1 overflow-auto hide-scrollbar"
       >
         <div
           v-for="(map, mapIndex) in mappings"

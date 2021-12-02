@@ -110,6 +110,7 @@
     "team_collections": "Colecții de echipă"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Sigur doriți să vă deconectați?",
     "remove_collection": "Sigur doriți să ștergeți definitiv această colecție?",
     "remove_environment": "Sigur doriți să ștergeți definitiv acest mediu?",
@@ -138,6 +139,7 @@
     "collection": "Colecția este goală",
     "collections": "Colecțiile sunt goale",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Mediile sunt goale",
     "folder": "Dosarul este gol",
     "headers": "Această solicitare nu are anteturi",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 pentru detalii)",
     "gql_prettify_invalid_query": "Nu am putut preta o interogare nevalidă, rezolvarea erorilor de sintaxă a interogării și încercați din nou",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Nu s-a putut pregăti un corp nevalid, a rezolva erorile de sintaxă json și a încerca din nou",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nu s-a putut trimite solicitarea",

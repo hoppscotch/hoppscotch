@@ -1,17 +1,7 @@
 <template>
   <div>
     <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        top-upperSecondaryStickyFold
-        pl-4
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -98,7 +88,7 @@
       <img
         :src="`/images/states/${$colorMode.value}/login.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.authorization')"
       />
       <span class="text-center pb-4">
@@ -132,17 +122,7 @@
         </div>
       </div>
       <div
-        class="
-          bg-primary
-          h-full
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          p-4
-          z-9
-          sticky
-          overflow-auto
-        "
+        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -168,17 +148,7 @@
         </div>
       </div>
       <div
-        class="
-          bg-primary
-          h-full
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          p-4
-          z-9
-          sticky
-          overflow-auto
-        "
+        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -208,17 +178,7 @@
         <HttpOAuth2Authorization />
       </div>
       <div
-        class="
-          bg-primary
-          h-full
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          p-4
-          z-9
-          sticky
-          overflow-auto
-        "
+        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">

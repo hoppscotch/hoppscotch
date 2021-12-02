@@ -110,6 +110,7 @@
     "team_collections": "Bộ sưu tập nhóm"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Bạn có chắc chắn bạn muốn thoát?",
     "remove_collection": "Bạn có chắc chắn muốn xóa vĩnh viễn bộ sưu tập này không?",
     "remove_environment": "Bạn có chắc chắn muốn xóa vĩnh viễn môi trường này không?",
@@ -138,6 +139,7 @@
     "collection": "Bộ sưu tập trống",
     "collections": "Bộ sưu tập trống",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Môi trường trống",
     "folder": "Tệp này rỗng",
     "headers": "Yêu cầu này không có bất kỳ tiêu đề nào",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 để biết chi tiết)",
     "gql_prettify_invalid_query": "Không thể xác minh trước một truy vấn không hợp lệ, hãy giải quyết các lỗi cú pháp truy vấn và thử lại",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Không thể kiểm tra nội dung không hợp lệ, hãy giải quyết lỗi cú pháp json và thử lại",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Không thể gửi yêu cầu",

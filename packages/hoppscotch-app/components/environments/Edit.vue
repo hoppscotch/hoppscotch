@@ -22,7 +22,7 @@
             {{ $t("action.label") }}
           </label>
         </div>
-        <div class="flex flex-1 justify-between items-center">
+        <div class="flex flex-1 items-center justify-between">
           <label for="variableList" class="p-4">
             {{ $t("environment.variable_list") }}
           </label>
@@ -43,11 +43,11 @@
             />
           </div>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div class="divide-dividerLight divide-y border border-divider rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
-            class="divide-x divide-dividerLight flex"
+            class="divide-dividerLight divide-x flex"
           >
             <input
               v-model="variable.key"
@@ -74,25 +74,12 @@
           </div>
           <div
             v-if="vars.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
           >
             <img
               :src="`/images/states/${$colorMode.value}/blockchain.svg`"
               loading="lazy"
-              class="
-                flex-col
-                my-4
-                object-contain object-center
-                h-16
-                w-16
-                inline-flex
-              "
+              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
               :alt="$t('empty.environments')"
             />
             <span class="text-center pb-4">

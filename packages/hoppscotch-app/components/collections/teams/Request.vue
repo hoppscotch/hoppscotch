@@ -2,15 +2,7 @@
   <div class="flex flex-col">
     <div class="flex items-center group">
       <span
-        class="
-          cursor-pointer
-          flex
-          px-2
-          w-16
-          justify-center
-          items-center
-          truncate
-        "
+        class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
         :class="getRequestLabelColor(request.method)"
         @click="!doc ? selectRequest() : {}"
       >
@@ -25,16 +17,7 @@
         </span>
       </span>
       <span
-        class="
-          cursor-pointer
-          flex flex-1
-          min-w-0
-          py-2
-          pr-2
-          transition
-          items-center
-          group-hover:text-secondaryDark
-        "
+        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition items-center group-hover:text-secondaryDark"
         @click="!doc ? selectRequest() : {}"
       >
         <span class="truncate"> {{ request.name }} </span>

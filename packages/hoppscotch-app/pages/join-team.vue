@@ -2,25 +2,25 @@
   <div class="flex flex-col min-h-screen items-center justify-between">
     <div
       v-if="invalidLink"
-      class="flex flex-1 items-center justify-center flex-col"
+      class="flex flex-col flex-1 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">error_outline</i>
-      <h1 class="heading text-center">
+      <h1 class="text-center heading">
         {{ $t("team.invalid_invite_link") }}
       </h1>
-      <p class="text-center mt-2">
+      <p class="mt-2 text-center">
         {{ $t("team.invalid_invite_link_description") }}
       </p>
     </div>
     <div
       v-else-if="loadingCurrentUser"
-      class="flex-col flex-1 p-4 flex items-center justify-center"
+      class="flex flex-col flex-1 p-4 items-center justify-center"
     >
       <SmartSpinner />
     </div>
     <div
       v-else-if="currentUser === null"
-      class="flex-col flex-1 p-4 flex items-center justify-center"
+      class="flex flex-col flex-1 p-4 items-center justify-center"
     >
       <h1 class="heading">{{ $t("team.login_to_continue") }}</h1>
       <p class="mt-2">{{ $t("team.login_to_continue_description") }}</p>
@@ -30,10 +30,10 @@
         @click.native="showLogin = true"
       />
     </div>
-    <div v-else class="flex-col flex-1 p-4 flex items-center justify-center">
+    <div v-else class="flex flex-col flex-1 p-4 items-center justify-center">
       <div
         v-if="inviteDetails.loading"
-        class="flex-col flex-1 p-4 flex items-center justify-center"
+        class="flex flex-col flex-1 p-4 items-center justify-center"
       >
         <SmartSpinner />
       </div>
@@ -47,15 +47,7 @@
             {{ getErrorMessage(inviteDetails.data.left) }}
           </p>
           <p
-            class="
-              p-4
-              items-center
-              mt-8
-              rounded
-              flex-col
-              border border-dividerLight
-              flex
-            "
+            class="border border-dividerLight rounded flex flex-col mt-8 p-4 items-center"
           >
             <span class="mb-4">
               {{ $t("team.logout_and_try_again") }}
@@ -74,7 +66,7 @@
             E.isRight(inviteDetails.data) &&
             !joinTeamSuccess
           "
-          class="flex-col flex-1 p-4 flex items-center justify-center"
+          class="flex flex-col flex-1 p-4 items-center justify-center"
         >
           <h1 class="heading">
             {{
@@ -83,7 +75,7 @@
               })
             }}
           </h1>
-          <p class="text-secondaryLight mt-2">
+          <p class="mt-2 text-secondaryLight">
             {{
               $t("team.invited_to_team", {
                 owner:
@@ -111,7 +103,7 @@
             E.isRight(inviteDetails.data) &&
             joinTeamSuccess
           "
-          class="flex-col flex-1 p-4 flex items-center justify-center"
+          class="flex flex-col flex-1 p-4 items-center justify-center"
         >
           <h1 class="heading">
             {{
@@ -120,7 +112,7 @@
               })
             }}
           </h1>
-          <p class="text-secondaryLight mt-2">
+          <p class="mt-2 text-secondaryLight">
             {{
               $t("team.joined_team_description", {
                 team: inviteDetails.data.right.teamInvitation.team.name,

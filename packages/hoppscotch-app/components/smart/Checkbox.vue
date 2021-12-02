@@ -1,15 +1,6 @@
 <template>
   <div
-    class="
-      cursor-pointer
-      flex-nowrap
-      group
-      inline-flex
-      items-center
-      justify-center
-      transition
-      hover:text-secondaryDark
-    "
+    class="cursor-pointer flex-nowrap transition inline-flex items-center justify-center group hover:text-secondaryDark"
     @click="$emit('change')"
   >
     <input
@@ -21,7 +12,7 @@
     />
     <label
       for="checkbox"
-      class="cursor-pointer pl-0 align-middle font-semibold"
+      class="cursor-pointer font-semibold pl-0 align-middle"
     >
       <slot></slot>
     </label>

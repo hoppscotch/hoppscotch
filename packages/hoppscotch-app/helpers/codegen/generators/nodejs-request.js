@@ -40,31 +40,30 @@ export const NodejsRequestCodegen = {
     if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
       let requestBody = rawInput ? rawParams : rawRequestBody
       let reqBodyType = "formData"
-      if (isJSONContentType(contentType)) {
-        requestBody = `JSON.stringify(${requestBody})`
-        reqBodyType = "body"
-      } else if (contentType.includes("x-www-form-urlencoded")) {
-        const formData = []
-        if (requestBody.includes("=")) {
-          requestBody.split("&").forEach((rq) => {
-            const [key, val] = rq.split("=")
-            formData.push(`"${key}": "${val}"`)
-          })
+      if (contentType && requestBody) {
+        if (isJSONContentType(contentType)) {
+          requestBody = `JSON.stringify(${requestBody})`
+          reqBodyType = "body"
+        } else if (contentType.includes("x-www-form-urlencoded")) {
+          const formData = []
+          if (requestBody.includes("=")) {
+            requestBody.split("&").forEach((rq) => {
+              const [key, val] = rq.split("=")
+              formData.push(`"${key}": "${val}"`)
+            })
+          }
+          if (formData.length) {
+            requestBody = `{${formData.join(", ")}}`
+          }
+          reqBodyType = "form"
+        } else if (contentType.includes("application/xml")) {
+          requestBody = `\`${requestBody}\``
+          reqBodyType = "body"
         }
-        if (formData.length) {
-          requestBody = `{${formData.join(", ")}}`
-        }
-        reqBodyType = "form"
-      } else if (contentType.includes("application/xml")) {
-        requestBody = `\`${requestBody}\``
-        reqBodyType = "body"
       }
-      if (contentType) {
-        genHeaders.push(
-          `    "Content-Type": "${contentType}; charset=utf-8",\n`
-        )
+      if (requestBody) {
+        requestString.push(`,\n  ${reqBodyType}: ${requestBody}`)
       }
-      requestString.push(`,\n  ${reqBodyType}: ${requestBody}`)
     }
 
     if (headers.length > 0) {

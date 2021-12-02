@@ -110,6 +110,7 @@
     "team_collections": "Lagsamlinger"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Er du sikker på at du vil logge deg av?",
     "remove_collection": "Er du sikker på at du vil slette denne samlingen permanent?",
     "remove_environment": "Er du sikker på at du vil slette dette miljøet for godt?",
@@ -138,6 +139,7 @@
     "collection": "Samlingen er tom",
     "collections": "Samlingene er tomme",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Miljøer er tomme",
     "folder": "Mappen er tom",
     "headers": "Denne forespørselen har ingen overskrifter",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 for detaljer)",
     "gql_prettify_invalid_query": "Kunne ikke forskjønne en ugyldig spørring, løse spørringssyntaksfeil og prøve igjen",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Kunne ikke forskjønne et ugyldig brødtekst, løse json -syntaksfeil og prøve igjen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kunne ikke sende forespørsel",

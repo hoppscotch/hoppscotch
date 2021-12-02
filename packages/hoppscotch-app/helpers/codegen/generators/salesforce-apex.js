@@ -14,17 +14,18 @@ export const SalesforceApexCodegen = {
     rawInput,
     rawParams,
     rawRequestBody,
-    contentType,
     headers,
   }) => {
     const requestString = []
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    requestBody = JSON.stringify(requestBody)
-      .replace(/^"|"$/g, "")
-      .replace(/\\"/g, '"')
-      .replace(/'/g, "\\'") // Apex uses single quotes for strings
+    if (requestBody) {
+      requestBody = JSON.stringify(requestBody)
+        .replace(/^"|"$/g, "")
+        .replace(/\\"/g, '"')
+        .replace(/'/g, "\\'") // Apex uses single quotes for strings
+    }
 
     // create request
     requestString.push(`HttpRequest request = new HttpRequest();\n`)
@@ -47,13 +48,6 @@ export const SalesforceApexCodegen = {
       )
     }
 
-    // content type
-    if (contentType) {
-      requestString.push(
-        `request.setHeader('Content-Type', '${contentType}');\n`
-      )
-    }
-
     // custom headers
     if (headers) {
       headers.forEach(({ key, value }) => {
@@ -66,7 +60,7 @@ export const SalesforceApexCodegen = {
     requestString.push(`\n`)
 
     // set body
-    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method) && requestBody) {
       requestString.push(`request.setBody('${requestBody}');\n\n`)
     }
 

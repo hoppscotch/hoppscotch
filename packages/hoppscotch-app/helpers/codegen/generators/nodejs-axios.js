@@ -19,21 +19,30 @@ export const NodejsAxiosCodegen = {
   }) => {
     const requestString = []
     const genHeaders = []
-    const requestBody = rawInput ? rawParams : rawRequestBody
+    let requestBody = rawInput ? rawParams : rawRequestBody
 
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      if (
+        contentType &&
+        contentType.includes("x-www-form-urlencoded") &&
+        requestBody
+      ) {
+        requestString.push(
+          `var params = new URLSearchParams("${requestBody}")\n`
+        )
+        requestBody = "params"
+      }
+    }
     requestString.push(
       `axios.${method.toLowerCase()}('${url}${pathName}?${queryString}'`
     )
-    if (requestBody.length !== 0) {
+    if (requestBody && requestBody.length !== 0) {
       requestString.push(", ")
     }
     if (headers) {
       headers.forEach(({ key, value }) => {
-        if (key) genHeaders.push(`    "${key}": "${value}",\n`)
+        if (key) genHeaders.push(`\n    "${key}": "${value}",`)
       })
-    }
-    if (contentType) {
-      genHeaders.push(`"Content-Type": "${contentType}; charset=utf-8",\n`)
     }
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
@@ -45,10 +54,15 @@ export const NodejsAxiosCodegen = {
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`    "Authorization": "Bearer ${bearerToken}",\n`)
     }
-    requestString.push(
-      `${requestBody},{ \n headers : {${genHeaders.join("").slice(0, -2)}}\n})`
-    )
-    requestString.push(".then(response => {\n")
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+      requestString.push(`${requestBody},`)
+    }
+    if (genHeaders.length > 0) {
+      requestString.push(
+        `{ \n headers : {${genHeaders.join("").slice(0, -1)}\n }\n}`
+      )
+    }
+    requestString.push(").then(response => {\n")
     requestString.push("    console.log(response);\n")
     requestString.push("})")
     requestString.push(".catch(e => {\n")

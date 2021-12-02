@@ -110,6 +110,7 @@
     "team_collections": "Collections de l'équipe"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Êtes-vous sûr de vouloir vous déconnecter?",
     "remove_collection": "Voulez-vous vraiment supprimer définitivement cette collection ?",
     "remove_environment": "Voulez-vous vraiment supprimer définitivement cet environnement ?",
@@ -138,6 +139,7 @@
     "collection": "La collection est vide",
     "collections": "Les collections sont vides",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Les environnements sont vides",
     "folder": "Le dossier est vide",
     "headers": "Cette requête n'a pas d'en-tête",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 pour les détails)",
     "gql_prettify_invalid_query": "Impossible de formater une requête non valide, résolvez les erreurs de syntaxe de la requête et réessayer",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Impossible de formater un corps non valide, résolvez les erreurs de syntaxe json et réessayez",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Impossible d'envoyer la requête",

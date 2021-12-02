@@ -110,6 +110,7 @@
     "team_collections": "Colecciones de equipo"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "¿Está seguro de que desea cerrar la sesión?",
     "remove_collection": "¿Está seguro de que desea eliminar esta colección de forma permanente?",
     "remove_environment": "¿Está seguro de que desea eliminar este entorno de forma permanente?",
@@ -138,6 +139,7 @@
     "collection": "La colección está vacía",
     "collections": "Las colecciones están vacías",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Los entornos están vacíos",
     "folder": "La carpeta está vacía",
     "headers": "Esta petición no tiene encabezados",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 para más detalles)",
     "gql_prettify_invalid_query": "No se puede aplicar prettify a una consulta no válida, resuelva los errores de sintaxis de la consulta y vuelva a intentarlo",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "No se puede aplicar prettify a un cuerpo inválido, resuelva errores de sintaxis json y vuelva a intentarlo",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No se pudo enviar la petición",

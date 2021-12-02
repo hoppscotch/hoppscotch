@@ -110,6 +110,7 @@
     "team_collections": "Csapatgyűjtemények"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Biztosan ki szeretne jelentkezni?",
     "remove_collection": "Biztosan véglegesen törölni szeretné ezt a gyűjteményt?",
     "remove_environment": "Biztosan véglegesen törölni szeretné ezt a környezetet?",
@@ -138,6 +139,7 @@
     "collection": "A gyűjtemény üres",
     "collections": "A gyűjtemények üresek",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "A környezet üres",
     "folder": "A mappa üres",
     "headers": "Ennek a kérésnek nincs fejléce",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 a részletekért)",
     "gql_prettify_invalid_query": "Nem sikerült azonosítani egy érvénytelen lekérdezést, megoldani a lekérdezés szintaktikai hibáit, és megpróbálni újra",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Nem sikerült azonosítani egy érvénytelen törzset, megoldani a json szintaktikai hibákat, és megpróbálni újra",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nem sikerült elküldeni a kérést",

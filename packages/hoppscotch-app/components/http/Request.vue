@@ -1,16 +1,6 @@
 <template>
   <div
-    class="
-      bg-primary
-      flex
-      space-x-2
-      p-4
-      top-0
-      z-10
-      sticky
-      overflow-x-auto
-      hide-scrollbar
-    "
+    class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky overflow-x-auto hide-scrollbar"
   >
     <div class="flex flex-1">
       <div class="flex relative">
@@ -26,21 +16,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded-l
-                    cursor-pointer
-                    flex
-                    font-semibold
-                    text-secondaryDark
-                    py-2
-                    px-4
-                    w-26
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                  "
+                  class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -168,12 +144,12 @@
           />
           <SmartItem
             ref="copyRequest"
-            :label="`${t('request.copy_link')}`"
-            :svg="hasNavigatorShare ? 'share-2' : 'copy'"
+            :label="shareButtonText"
+            :svg="copyLinkIcon"
+            :loading="fetchingShareLink"
             @click.native="
               () => {
                 copyRequest()
-                saveOptions.tippy().hide()
               }
             "
           />
@@ -210,6 +186,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isRight } from "fp-ts/lib/Either"
+import * as E from "fp-ts/Either"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -220,6 +197,7 @@ import {
   useRESTRequestName,
   getRESTSaveContext,
   getRESTRequest,
+  restRequest$,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -229,6 +207,7 @@ import {
   useNuxt,
   useI18n,
   useToast,
+  useReadonlyStream,
 } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -236,6 +215,7 @@ import { useSetting } from "~/newstore/settings"
 import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 
 const t = useI18n()
 
@@ -283,6 +263,11 @@ watch(loading, () => {
 })
 
 const newSendRequest = async () => {
+  if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
+    toast.error(`${t("empty.endpoint")}`)
+    return
+  }
+
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
@@ -328,7 +313,46 @@ const clearContent = () => {
   resetRESTRequest()
 }
 
-const copyRequest = () => {
+const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
+const shareLink = ref<string | null>("")
+const fetchingShareLink = ref(false)
+
+const shareButtonText = computed(() => {
+  if (shareLink.value) {
+    return shareLink.value
+  } else if (fetchingShareLink.value) {
+    return t("state.loading")
+  } else {
+    return t("request.copy_link")
+  }
+})
+
+const request = useReadonlyStream(restRequest$, getRESTRequest())
+
+watch(request, () => {
+  shareLink.value = null
+})
+
+const copyRequest = async () => {
+  if (shareLink.value) {
+    copyShareLink(shareLink.value)
+  } else {
+    shareLink.value = ""
+    fetchingShareLink.value = true
+    const request = getRESTRequest()
+    const shortcodeResult = await createShortcode(request)()
+    if (E.isLeft(shortcodeResult)) {
+      toast.error(`${shortcodeResult.left.error}`)
+      shareLink.value = `${t("error.something_went_wrong")}`
+    } else if (E.isRight(shortcodeResult)) {
+      shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
+      copyShareLink(shareLink.value)
+    }
+    fetchingShareLink.value = false
+  }
+}
+
+const copyShareLink = (shareLink: string) => {
   if (navigator.share) {
     const time = new Date().toLocaleTimeString()
     const date = new Date().toLocaleDateString()
@@ -336,13 +360,15 @@ const copyRequest = () => {
       .share({
         title: "Hoppscotch",
         text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-        url: window.location.href,
+        url: `https://hopp.sh/r${shareLink}`,
       })
       .then(() => {})
       .catch(() => {})
   } else {
-    copyToClipboard(window.location.href)
+    copyLinkIcon.value = "check"
+    copyToClipboard(`https://hopp.sh/r${shareLink}`)
     toast.success(`${t("state.copied_to_clipboard")}`)
+    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
 }
 

@@ -56,9 +56,9 @@
         />
       </form>
       <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
-        <div class="flex flex-col max-w-md justify-center items-center">
+        <div class="flex flex-col max-w-md items-center justify-center">
           <SmartIcon class="h-6 text-accent w-6" name="inbox" />
-          <h3 class="my-2 text-center text-lg">
+          <h3 class="my-2 text-lg text-center">
             {{ $t("auth.we_sent_magic_link") }}
           </h3>
           <p class="text-center">

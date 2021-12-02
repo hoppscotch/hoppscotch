@@ -63,7 +63,7 @@
       <img
         :src="`/images/states/${$colorMode.value}/history.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.history')"
       />
       <span class="text-center mb-4">

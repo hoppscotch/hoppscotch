@@ -1,3 +1,4 @@
+import { gql } from "@urql/core"
 import { GraphCacheUpdaters, MyTeamsDocument } from "../graphql"
 
 export const updatesDef: GraphCacheUpdaters = {
@@ -167,6 +168,20 @@ export const updatesDef: GraphCacheUpdaters = {
           newInvites
         )
       }
+    },
+    createShortcode: (result, _args, cache, _info) => {
+      cache.writeFragment(
+        gql`
+          fragment _ on Shortcode {
+            id
+            request
+          }
+        `,
+        {
+          id: result.createShortcode.id,
+          request: result.createShortcode.request,
+        }
+      )
     },
   },
 }

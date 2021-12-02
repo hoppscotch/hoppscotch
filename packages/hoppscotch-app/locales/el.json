@@ -110,6 +110,7 @@
     "team_collections": "Συλλογές ομάδων"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Είστε βέβαιοι ότι θέλετε να αποσυνδεθείτε?",
     "remove_collection": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτήν τη συλλογή;",
     "remove_environment": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτό το περιβάλλον;",
@@ -138,6 +139,7 @@
     "collection": "Η συλλογή είναι άδεια",
     "collections": "Οι συλλογές είναι άδειες",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Τα περιβάλλοντα είναι άδεια",
     "folder": "Ο φάκελος είναι άδειος",
     "headers": "Αυτό το αίτημα δεν έχει κεφαλίδες",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 για λεπτομέρειες)",
     "gql_prettify_invalid_query": "Δεν ήταν δυνατή η προεπιλογή ενός μη έγκυρου ερωτήματος, η επίλυση σφαλμάτων σύνταξης ερωτήματος και η δοκιμή ξανά",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Δεν ήταν δυνατή η ομορφιά ενός μη έγκυρου σώματος, η επίλυση σφαλμάτων σύνταξης json και η προσπάθεια ξανά",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Δεν ήταν δυνατή η αποστολή του αιτήματος",

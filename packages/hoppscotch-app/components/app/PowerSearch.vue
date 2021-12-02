@@ -14,13 +14,7 @@
         autocomplete="off"
         name="command"
         :placeholder="`${t('app.type_a_command_search')}`"
-        class="
-          bg-transparent
-          border-b border-dividerLight
-          flex flex-shrink-0
-          text-secondaryDark text-base
-          p-6
-        "
+        class="bg-transparent border-b border-dividerLight flex flex-shrink-0 text-base text-secondaryDark p-6"
       />
       <AppFuse
         v-if="search && show"
@@ -30,14 +24,7 @@
       />
       <div
         v-else
-        class="
-          divide-y divide-dividerLight
-          flex flex-col
-          space-y-4
-          flex-1
-          overflow-auto
-          hide-scrollbar
-        "
+        class="divide-dividerLight divide-y flex flex-col space-y-4 flex-1 overflow-auto hide-scrollbar"
       >
         <div
           v-for="(map, mapIndex) in mappings"

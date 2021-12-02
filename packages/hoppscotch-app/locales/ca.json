@@ -110,6 +110,7 @@
     "team_collections": "Col·leccions per equips"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Esteu segur que voleu tancar la sessió?",
     "remove_collection": "Esteu segur que voleu suprimir permanentment aquesta col·lecció?",
     "remove_environment": "Esteu segur que voleu suprimir permanentment aquest entorn?",
@@ -138,6 +139,7 @@
     "collection": "La col·lecció està buida",
     "collections": "Les col·leccions estan buides",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Els entorns estan buits",
     "folder": "La carpeta està buida",
     "headers": "Aquesta sol·licitud no té cap capçalera",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 per obtenir més informació)",
     "gql_prettify_invalid_query": "No s'ha pogut definir una consulta no vàlida, resoldre els errors de sintaxi de la consulta i tornar-ho a provar",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resoldre errors de sintaxi json i tornar-ho a provar",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",

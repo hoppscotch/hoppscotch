@@ -9,7 +9,10 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
             <div
               class="bg-primary flex flex-col space-y-4 p-4 top-0 z-10 sticky"
@@ -21,18 +24,7 @@
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded
-                    text-secondaryDark
-                    w-full
-                    py-2
-                    px-4
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                  "
+                  class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
                   @keyup.enter="validUrl ? toggleConnection() : null"
@@ -71,7 +63,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog :title="$t('mqtt.log')" :log="log" />
           </AppSection>
@@ -125,13 +120,7 @@
           />
         </div>
         <div
-          class="
-            border-t border-dividerLight
-            flex flex-col flex-1
-            mt-4
-            p-4
-            inline-flex
-          "
+          class="border-t border-dividerLight flex flex-col flex-1 mt-4 p-4 inline-flex"
         >
           <label for="sub_topic" class="font-semibold text-secondaryLight">
             {{ $t("mqtt.topic") }}

@@ -34,25 +34,12 @@
             subscriptionFields.length === 0 &&
             graphqlTypes.length === 0
           "
-          class="
-            flex flex-col
-            text-secondaryLight
-            p-4
-            items-center
-            justify-center
-          "
+          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
         >
           <img
             :src="`/images/states/${$colorMode.value}/add_comment.svg`"
             loading="lazy"
-            class="
-              flex-col
-              my-4
-              object-contain object-center
-              h-16
-              w-16
-              inline-flex
-            "
+            class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
             :alt="`${t('empty.documentation')}`"
           />
           <span class="text-center mb-4">
@@ -88,7 +75,7 @@
                 :id="'queries'"
                 :label="`${t('tab.queries')}`"
                 :selected="true"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlField
                   v-for="(field, index) in filteredQueryFields"
@@ -102,7 +89,7 @@
                 v-if="mutationFields.length > 0"
                 :id="'mutations'"
                 :label="`${t('graphql.mutations')}`"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlField
                   v-for="(field, index) in filteredMutationFields"
@@ -116,7 +103,7 @@
                 v-if="subscriptionFields.length > 0"
                 :id="'subscriptions'"
                 :label="`${t('graphql.subscriptions')}`"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlField
                   v-for="(field, index) in filteredSubscriptionFields"
@@ -131,7 +118,7 @@
                 :id="'types'"
                 ref="typesTab"
                 :label="`${t('tab.types')}`"
-                class="divide-y divide-dividerLight"
+                class="divide-dividerLight divide-y"
               >
                 <GraphqlType
                   v-for="(type, index) in filteredGraphqlTypes"
@@ -153,17 +140,7 @@
       <AppSection ref="schema" label="schema">
         <div
           v-if="schemaString"
-          class="
-            bg-primary
-            flex flex-1
-            top-0
-            pl-4
-            z-10
-            sticky
-            items-center
-            justify-between
-            border-b border-dividerLight
-          "
+          class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-0 z-10 sticky items-center justify-between"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("graphql.schema") }}
@@ -202,25 +179,12 @@
         <div v-if="schemaString" ref="schemaEditor"></div>
         <div
           v-else
-          class="
-            flex flex-col
-            text-secondaryLight
-            p-4
-            items-center
-            justify-center
-          "
+          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
         >
           <img
             :src="`/images/states/${$colorMode.value}/blockchain.svg`"
             loading="lazy"
-            class="
-              flex-col
-              my-4
-              object-contain object-center
-              h-16
-              w-16
-              inline-flex
-            "
+            class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
             :alt="`${t('empty.schema')}`"
           />
           <span class="text-center mb-4">
@@ -404,12 +368,25 @@ const handleJumpToType = async (type: GraphQLType) => {
   await nextTick()
 
   const rootTypeName = resolveRootType(type).name
-
   const target = document.getElementById(`type_${rootTypeName}`)
   if (target) {
-    gqlTabs.value.$el
-      .querySelector(".gqlTabs")
-      .scrollTo({ top: target.offsetTop, behavior: "smooth" })
+    target.scrollIntoView({ block: "center", behavior: "smooth" })
+    target.classList.add(
+      "transition-all",
+      "ring-inset",
+      "ring-accentLight",
+      "ring-4"
+    )
+    setTimeout(
+      () =>
+        target.classList.remove(
+          "ring-inset",
+          "ring-accentLight",
+          "ring-4",
+          "transition-all"
+        ),
+      2000
+    )
   }
 }
 

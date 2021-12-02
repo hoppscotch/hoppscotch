@@ -110,6 +110,7 @@
     "team_collections": "Takım Koleksiyonları"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Oturumu kapatmak istediğinizden emin misiniz?",
     "remove_collection": "Bu koleksiyonu kalıcı olarak silmek istediğinizden emin misiniz?",
     "remove_environment": "Bu ortamı kalıcı olarak silmek istediğinizden emin misiniz?",
@@ -138,6 +139,7 @@
     "collection": "Koleksiyon boş",
     "collections": "Koleksiyonlar boş",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Ortamlar boş",
     "folder": "Klasör boş",
     "headers": "Bu isteğin herhangi bir başlığı yok",
@@ -171,6 +173,8 @@
     "f12_details": "(Ayrıntılar için F12)",
     "gql_prettify_invalid_query": "Geçersiz bir sorgu güzelleştirilemedi, sorgu sözdizimi hatalarını çözüp tekrar deneyin",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Geçersiz bir gövde güzelleştirilemedi, json sözdizimi hatalarını çözüp tekrar deneyin",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "istek gönderilemedi",

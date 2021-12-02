@@ -110,6 +110,7 @@
     "team_collections": "Колекції команд"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Ви впевнені, що хочете вийти?",
     "remove_collection": "Ви впевнені, що хочете назавжди видалити цю колекцію?",
     "remove_environment": "Ви впевнені, що хочете назавжди видалити це середовище?",
@@ -138,6 +139,7 @@
     "collection": "Колекція порожня",
     "collections": "Колекції порожні",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Середовища порожні",
     "folder": "Папка порожня",
     "headers": "Цей запит не має заголовків",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 для деталей)",
     "gql_prettify_invalid_query": "Не вдалося попередньо визначити недійсний запит, вирішити синтаксичні помилки запиту та повторити спробу",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Не вдалося заздалегідь визначити недійсне тіло, вирішити синтаксичні помилки json і повторити спробу",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Не вдалося надіслати запит",

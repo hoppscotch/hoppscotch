@@ -110,6 +110,7 @@
     "team_collections": "Raccolte di team"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Sei sicuro di voler uscire?",
     "remove_collection": "Sei sicuro di voler eliminare definitivamente questa raccolta?",
     "remove_environment": "Sei sicuro di voler eliminare definitivamente questo ambiente?",
@@ -138,6 +139,7 @@
     "collection": "La raccolta è vuota",
     "collections": "Le raccolte sono vuote",
     "documentation": "Connetti ad un endpoint GraphQL per mostrare la documentazione",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Gli ambienti sono vuoti",
     "folder": "La cartella è vuota",
     "headers": "Questa richiesta non ha intestazioni",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 per i dettagli)",
     "gql_prettify_invalid_query": "Impossibile abbellire una query non valida, risolvere gli errori di sintassi della query e riprovare",
     "incorrect_email": "Indirizzo email errato",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Impossibile abbellire un corpo non valido, risolvere gli errori di sintassi JSON e riprovare",
     "network_error": "Sembra ci sia un problema di rete. Per favore prova di nuovo.",
     "network_fail": "Impossibile inviare la richiesta",

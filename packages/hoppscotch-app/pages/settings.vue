@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="divide-y divide-dividerLight container space-y-8">
+    <div class="container divide-dividerLight divide-y space-y-8">
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
@@ -191,7 +191,7 @@
               </div>
             </div>
             <div class="flex space-x-2 py-4 items-center">
-              <div class="flex flex-1 flex-col relative">
+              <div class="flex flex-col flex-1 relative">
                 <input
                   id="url"
                   v-model="PROXY_URL"

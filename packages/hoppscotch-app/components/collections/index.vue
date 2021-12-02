@@ -4,16 +4,7 @@
     :class="{ 'rounded border border-divider': saveRequest }"
   >
     <div
-      class="
-        divide-y divide-dividerLight
-        bg-primary
-        border-b border-dividerLight
-        rounded-t
-        flex flex-col
-        top-0
-        z-10
-        sticky
-      "
+      class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col top-0 z-10 sticky"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input
@@ -112,7 +103,7 @@
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.collections')"
       />
       <span class="text-center pb-4">

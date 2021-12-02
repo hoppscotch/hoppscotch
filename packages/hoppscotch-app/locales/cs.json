@@ -110,6 +110,7 @@
     "team_collections": "Týmové sbírky"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Opravdu se chcete odhlásit?",
     "remove_collection": "Opravdu chcete tuto sbírku trvale smazat?",
     "remove_environment": "Opravdu chcete toto prostředí trvale odstranit?",
@@ -138,6 +139,7 @@
     "collection": "Sbírka je prázdná",
     "collections": "Sbírky jsou prázdné",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Prostředí je prázdné",
     "folder": "Složka je prázdná",
     "headers": "Tento požadavek nemá žádná záhlaví",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 pro podrobnosti)",
     "gql_prettify_invalid_query": "Neplatný dotaz nelze předběžně upravit, vyřešit chyby syntaxe dotazu a zkusit to znovu",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Nelze předtifikovat neplatné tělo, vyřešit chyby syntaxe json a zkusit to znovu",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Žádost nelze odeslat",

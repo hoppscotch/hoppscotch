@@ -1,15 +1,7 @@
 <template>
   <div class="cursor-pointer flex h-5 w-5 relative items-center justify-center">
     <img
-      class="
-        bg-primaryDark bg-primaryLight
-        rounded-full
-        object-cover object-center
-        h-5
-        transition
-        w-5
-        absolute
-      "
+      class="bg-primaryDark rounded-full object-cover object-center h-5 transition w-5 absolute"
       :src="url"
       :alt="alt"
       loading="lazy"
@@ -17,16 +9,7 @@
     <div class="rounded-full shadow-inner inset-0 absolute"></div>
     <span
       v-if="indicator"
-      class="
-        border-primary
-        rounded-full
-        border-2
-        h-2.5
-        -top-0.5
-        -right-0.5
-        w-2.5
-        absolute
-      "
+      class="border-primary rounded-full border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute"
       :class="indicatorStyles"
     ></span>
   </div>

@@ -1,17 +1,7 @@
 <template>
   <AppSection label="parameters">
     <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        top-upperSecondaryStickyFold
-        pl-4
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("request.parameter_list") }}
@@ -51,7 +41,7 @@
       <div
         v-for="(param, index) in params$"
         :key="`param-${index}`"
-        class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        class="divide-dividerLight divide-x border-b border-dividerLight flex"
       >
         <SmartEnvInput
           v-model="param.key"
@@ -128,25 +118,12 @@
       </div>
       <div
         v-if="params$.length === 0"
-        class="
-          flex flex-col
-          text-secondaryLight
-          p-4
-          items-center
-          justify-center
-        "
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_files.svg`"
           loading="lazy"
-          class="
-            flex-col
-            my-4
-            object-contain object-center
-            h-16
-            w-16
-            inline-flex
-          "
+          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
           :alt="`${t('empty.parameters')}`"
         />
         <span class="text-center pb-4">

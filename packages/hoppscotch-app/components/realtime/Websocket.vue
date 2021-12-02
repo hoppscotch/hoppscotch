@@ -9,25 +9,17 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="space-x-2 flex-1 inline-flex">
                 <input
                   id="websocket-url"
                   v-model="url"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded
-                    text-secondaryDark
-                    w-full
-                    py-2
-                    px-4
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                  "
+                  class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
@@ -52,17 +44,7 @@
               </div>
             </div>
             <div
-              class="
-                bg-primary
-                border-b border-dividerLight
-                flex flex-1
-                top-upperPrimaryStickyFold
-                pl-4
-                z-10
-                sticky
-                items-center
-                justify-between
-              "
+              class="bg-primary border-b border-dividerLight flex flex-1 top-upperPrimaryStickyFold pl-4 z-10 sticky items-center justify-between"
             >
               <label class="font-semibold text-secondaryLight">
                 {{ $t("websocket.protocols") }}
@@ -85,11 +67,7 @@
             <div
               v-for="(protocol, index) of protocols"
               :key="`protocol-${index}`"
-              class="
-                divide-x divide-dividerLight
-                border-b border-dividerLight
-                flex
-              "
+              class="divide-dividerLight divide-x border-b border-dividerLight flex"
             >
               <input
                 v-model="protocol.value"
@@ -143,25 +121,12 @@
             </div>
             <div
               v-if="protocols.length === 0"
-              class="
-                flex flex-col
-                text-secondaryLight
-                p-4
-                items-center
-                justify-center
-              "
+              class="flex flex-col text-secondaryLight p-4 items-center justify-center"
             >
               <img
                 :src="`/images/states/${$colorMode.value}/add_category.svg`"
                 loading="lazy"
-                class="
-                  flex-col
-                  my-4
-                  object-contain object-center
-                  h-16
-                  w-16
-                  inline-flex
-                "
+                class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
                 :alt="$t('empty.protocols')"
               />
               <span class="text-center mb-4">
@@ -170,7 +135,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog :title="$t('websocket.log')" :log="log" />
           </AppSection>

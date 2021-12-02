@@ -2,7 +2,7 @@
   <transition name="fade" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="inset-0 transition z-10 z-50 fixed hide-scrollbar overflow-y-auto"
+      class="inset-0 transition z-10 z-50 fixed overflow-y-auto hide-scrollbar"
     >
       <div
         class="flex min-h-screen text-center items-end justify-center sm:block"
@@ -25,25 +25,14 @@
         <transition
           appear
           enter-active-class="transition"
-          enter-class="translate-y-4 scale-95"
-          enter-to-class="translate-y-0 scale-100"
+          enter-class="scale-95 translate-y-4"
+          enter-to-class="scale-100 translate-y-0"
           leave-active-class="transition"
-          leave-class="translate-y-0 scale-100"
-          leave-to-class="translate-y-4 scale-95"
+          leave-class="scale-100 translate-y-0"
+          leave-to-class="scale-95 translate-y-4"
         >
           <div
-            class="
-              bg-primary
-              shadow-lg
-              text-left
-              w-full
-              transform
-              transition-all
-              inline-block
-              align-bottom
-              overflow-hidden
-              sm:align-middle sm:rounded-xl
-            "
+            class="bg-primary shadow-lg text-left w-full transform transition-all inline-block overflow-hidden align-bottom sm:rounded-xl sm:align-middle"
             :class="[
               { 'mt-24 md:mb-8': placement === 'top' },
               { 'p-4': !fullWidth },

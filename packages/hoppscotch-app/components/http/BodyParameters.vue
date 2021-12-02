@@ -1,17 +1,7 @@
 <template>
   <AppSection label="bodyParameters">
     <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        top-upperTertiaryStickyFold
-        pl-4
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperTertiaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
       <label class="font-semibold text-secondaryLight">
         {{ $t("request.body") }}
@@ -41,7 +31,7 @@
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
-      class="divide-x divide-dividerLight border-b border-dividerLight flex"
+      class="divide-dividerLight divide-x border-b border-dividerLight flex"
     >
       <SmartEnvInput
         v-model="param.key"
@@ -156,7 +146,7 @@
       <img
         :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.body')"
       />
       <span class="text-center pb-4">

@@ -110,6 +110,7 @@
     "team_collections": "Teamcollecties"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Weet u zeker dat u wilt uitloggen?",
     "remove_collection": "Weet je zeker dat je deze collectie definitief wilt verwijderen?",
     "remove_environment": "Weet u zeker dat u deze omgeving permanent wilt verwijderen?",
@@ -138,6 +139,7 @@
     "collection": "Collectie is leeg",
     "collections": "Collecties zijn leeg",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Omgevingen zijn leeg",
     "folder": "Map is leeg",
     "headers": "Dit verzoek heeft geen headers",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 voor details)",
     "gql_prettify_invalid_query": "Kon een ongeldige zoekopdracht niet mooier maken, syntaxisfouten in de query oplossen en opnieuw proberen",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Kon een ongeldige hoofdtekst niet mooier maken, json-syntaxisfouten oplossen en opnieuw proberen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kan verzoek niet versturen",

@@ -2,9 +2,9 @@
   <SmartModal v-if="show" :title="t('team.invite')" @close="hideModal">
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
-        <div class="flex flex-col max-w-md justify-center items-center">
+        <div class="flex flex-col max-w-md items-center justify-center">
           <SmartIcon class="h-6 text-accent w-6" name="users" />
-          <h3 class="my-2 text-center text-lg">
+          <h3 class="my-2 text-lg text-center">
             {{ t("team.we_sent_invite_link") }}
           </h3>
           <p class="text-center">
@@ -12,15 +12,7 @@
           </p>
         </div>
         <div
-          class="
-            flex
-            border border-dividerLight
-            mt-8
-            rounded
-            flex-col
-            space-y-6
-            p-4
-          "
+          class="border border-dividerLight rounded flex flex-col space-y-6 mt-8 p-4"
         >
           <div
             v-for="(invitee, index) in sendInvitesResult"
@@ -28,7 +20,7 @@
           >
             <p class="flex items-center">
               <i
-                class="material-icons mr-4"
+                class="mr-4 material-icons"
                 :class="
                   invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
                 "
@@ -41,7 +33,7 @@
               </i>
               <span class="truncate">{{ invitee.email }}</span>
             </p>
-            <p v-if="invitee.status === 'error'" class="ml-8 text-red-500 mt-2">
+            <p v-if="invitee.status === 'error'" class="mt-2 ml-8 text-red-500">
               {{ getErrorMessage(invitee.error) }}
             </p>
           </div>
@@ -54,12 +46,12 @@
         <SmartSpinner />
       </div>
       <div v-else class="flex flex-col px-2">
-        <div class="flex flex-1 justify-between items-center">
-          <label for="memberList" class="pb-4 px-4">
+        <div class="flex flex-1 items-center justify-between">
+          <label for="memberList" class="px-4 pb-4">
             {{ t("team.pending_invites") }}
           </label>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div class="divide-dividerLight divide-y border border-divider rounded">
           <div
             v-if="pendingInvites.loading"
             class="flex p-4 items-center justify-center"
@@ -74,30 +66,18 @@
                 v-for="(invitee, index) in pendingInvites.data.right.team
                   .teamInvitations"
                 :key="`invitee-${index}`"
-                class="divide-x divide-dividerLight flex"
+                class="divide-dividerLight divide-x flex"
               >
                 <input
                   v-if="invitee"
-                  class="
-                    bg-transparent
-                    flex flex-1
-                    text-secondaryLight
-                    py-2
-                    px-4
-                  "
+                  class="bg-transparent flex flex-1 text-secondaryLight py-2 px-4"
                   :placeholder="`${t('team.email')}`"
                   :name="'param' + index"
                   :value="invitee.inviteeEmail"
                   readonly
                 />
                 <input
-                  class="
-                    bg-transparent
-                    flex flex-1
-                    text-secondaryLight
-                    py-2
-                    px-4
-                  "
+                  class="bg-transparent flex flex-1 text-secondaryLight py-2 px-4"
                   :placeholder="`${t('team.permissions')}`"
                   :name="'value' + index"
                   :value="
@@ -123,13 +103,7 @@
                 E.isRight(pendingInvites.data) &&
                 pendingInvites.data.right.team.teamInvitations.length === 0
               "
-              class="
-                flex flex-col
-                text-secondaryLight
-                p-4
-                items-center
-                justify-center
-              "
+              class="flex flex-col text-secondaryLight p-4 items-center justify-center"
             >
               <span class="text-center">
                 {{ t("empty.pending_invites") }}
@@ -144,7 +118,7 @@
             </div>
           </div>
         </div>
-        <div class="flex pt-4 flex-1 justify-between items-center">
+        <div class="flex flex-1 pt-4 items-center justify-between">
           <label for="memberList" class="p-4">
             {{ t("team.invite_tooltip") }}
           </label>
@@ -157,11 +131,11 @@
             />
           </div>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div class="divide-dividerLight divide-y border border-divider rounded">
           <div
             v-for="(invitee, index) in newInvites"
             :key="`new-invitee-${index}`"
-            class="divide-x divide-dividerLight flex"
+            class="divide-dividerLight divide-x flex"
           >
             <input
               v-model="invitee.key"
@@ -181,13 +155,7 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="
-                        bg-transparent
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
+                      class="bg-transparent cursor-pointer flex flex-1 py-2 px-4"
                       :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
                       :value="
@@ -241,25 +209,12 @@
           </div>
           <div
             v-if="newInvites.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="
-                flex-col
-                mb-4
-                object-contain object-center
-                h-16
-                w-16
-                inline-flex
-              "
+              class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
               :alt="`${t('empty.invites')}`"
             />
             <span class="text-center pb-4">
@@ -274,31 +229,12 @@
         </div>
         <div
           v-if="newInvites.length"
-          class="
-            px-4
-            mt-4
-            py-4
-            rounded
-            border border-dividerLight
-            flex flex-col
-            items-start
-          "
+          class="border border-dividerLight rounded flex flex-col mt-4 py-4 px-4 items-start"
         >
           <span
-            class="
-              mb-4
-              px-2
-              py-1
-              flex
-              justify-center
-              items-center
-              font-semibold
-              rounded-full
-              bg-primaryDark
-              border border-divider
-            "
+            class="bg-primaryDark border border-divider rounded-full flex font-semibold mb-4 py-1 px-2 items-center justify-center"
           >
-            <i class="text-secondaryLight mr-2 material-icons">help_outline</i>
+            <i class="mr-2 text-secondaryLight material-icons">help_outline</i>
             {{ t("profile.roles") }}
           </span>
           <p>
@@ -306,17 +242,10 @@
               {{ t("profile.roles_description") }}
             </span>
           </p>
-          <ul class="mt-4 space-y-4">
+          <ul class="space-y-4 mt-4">
             <li class="flex">
               <span
-                class="
-                  font-semibold
-                  text-secondaryDark
-                  uppercase
-                  truncate
-                  max-w-16
-                  w-1/4
-                "
+                class="font-semibold text-secondaryDark max-w-16 w-1/4 uppercase truncate"
               >
                 {{ t("profile.owner") }}
               </span>
@@ -326,14 +255,7 @@
             </li>
             <li class="flex">
               <span
-                class="
-                  font-semibold
-                  text-secondaryDark
-                  uppercase
-                  truncate
-                  max-w-16
-                  w-1/4
-                "
+                class="font-semibold text-secondaryDark max-w-16 w-1/4 uppercase truncate"
               >
                 {{ t("profile.editor") }}
               </span>
@@ -343,14 +265,7 @@
             </li>
             <li class="flex">
               <span
-                class="
-                  font-semibold
-                  text-secondaryDark
-                  uppercase
-                  truncate
-                  max-w-16
-                  w-1/4
-                "
+                class="font-semibold text-secondaryDark max-w-16 w-1/4 uppercase truncate"
               >
                 {{ t("profile.viewer") }}
               </span>

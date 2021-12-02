@@ -6,7 +6,7 @@
     >
       {{ testResults.description }}
     </span>
-    <div v-if="testResults.expectResults" class="divide-y divide-dividerLight">
+    <div v-if="testResults.expectResults" class="divide-dividerLight divide-y">
       <HttpTestResultReport
         v-if="testResults.expectResults.length"
         :test-results="testResults"

@@ -110,6 +110,7 @@
     "team_collections": "Збирке тима"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Јесте ли сигурни да се желите одјавити?",
     "remove_collection": "Јесте ли сигурни да желите трајно да избришете ову колекцију?",
     "remove_environment": "Јесте ли сигурни да желите трајно да избришете ово окружење?",
@@ -138,6 +139,7 @@
     "collection": "Збирка је празна",
     "collections": "Збирке су празне",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Окружења су празна",
     "folder": "Мапа је празна",
     "headers": "Овај захтев нема заглавља",
@@ -171,6 +173,8 @@
     "f12_details": "(Ф12 за детаље)",
     "gql_prettify_invalid_query": "Није могуће унапредити неважећи упит, решити грешке у синтакси упита и покушати поново",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Није могуће унапредити неважеће тело, решити грешке у синтакси јсон -а и покушати поново",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Слање захтева није успело",

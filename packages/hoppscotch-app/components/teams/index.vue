@@ -19,25 +19,12 @@
           E.isRight(myTeams.data) &&
           myTeams.data.right.myTeams.length === 0
         "
-        class="
-          flex flex-col
-          text-secondaryLight
-          p-4
-          items-center
-          justify-center
-        "
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_group.svg`"
           loading="lazy"
-          class="
-            flex-col
-            mb-8
-            object-contain object-center
-            h-16
-            w-16
-            inline-flex
-          "
+          class="flex-col object-contain object-center h-16 mb-8 w-16 inline-flex"
           :alt="`${t('empty.teams')}`"
         />
         <span class="text-center mb-4">

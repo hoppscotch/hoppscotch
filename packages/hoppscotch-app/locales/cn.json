@@ -110,6 +110,7 @@
     "team_collections": "团队组合"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "你确定要登出吗？",
     "remove_collection": "你确定要永久删除该组合吗？",
     "remove_environment": "你确定要永久删除该环境吗？",
@@ -138,6 +139,7 @@
     "collection": "组合为空",
     "collections": "组合为空",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "环境为空",
     "folder": "文件夹为空",
     "headers": "该请求没有任何请求头",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 详情)",
     "gql_prettify_invalid_query": "无法美化无效的查询，处理查询语法错误并重试",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "无法美化无效的请求头，处理 JSON 语法错误并重试",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "无法发送请求",

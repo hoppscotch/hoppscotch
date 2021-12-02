@@ -1,17 +1,7 @@
 <template>
   <AppSection label="headers">
     <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        top-upperSecondaryStickyFold
-        pl-4
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
@@ -51,7 +41,7 @@
       <div
         v-for="(header, index) in headers$"
         :key="`header-${index}`"
-        class="divide-x divide-dividerLight border-b border-dividerLight flex"
+        class="divide-dividerLight divide-x border-b border-dividerLight flex"
       >
         <SmartAutoComplete
           :placeholder="`${t('count.header', { count: index + 1 })}`"
@@ -67,7 +57,7 @@
             px-4
             truncate
           "
-          class="!flex flex-1"
+          class="flex-1 !flex"
           @input="
             updateHeader(index, {
               key: $event,
@@ -135,25 +125,12 @@
       </div>
       <div
         v-if="headers$.length === 0"
-        class="
-          flex flex-col
-          text-secondaryLight
-          p-4
-          items-center
-          justify-center
-        "
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_category.svg`"
           loading="lazy"
-          class="
-            flex-col
-            my-4
-            object-contain object-center
-            h-16
-            w-16
-            inline-flex
-          "
+          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
           :alt="`${t('empty.headers')}`"
         />
         <span class="text-center pb-4">

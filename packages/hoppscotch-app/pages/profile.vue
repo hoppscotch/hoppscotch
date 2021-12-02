@@ -9,17 +9,10 @@
           <img
             :src="`/images/states/${$colorMode.value}/login.svg`"
             loading="lazy"
-            class="
-              flex-col
-              my-4
-              object-contain object-center
-              h-24
-              w-24
-              inline-flex
-            "
+            class="flex-col object-contain object-center h-24 my-4 w-24 inline-flex"
             :alt="`${t('empty.parameters')}`"
           />
-          <p class="text-center pb-4 text-secondaryLight">
+          <p class="text-center text-secondaryLight pb-4">
             {{ t("empty.profile") }}
           </p>
           <ButtonPrimary
@@ -30,15 +23,15 @@
         </div>
         <div v-else class="space-y-8">
           <div
-            class="bg-primaryLight h-24 md:h-32 -mb-11 rounded"
+            class="bg-primaryLight rounded h-24 -mb-11 md:h-32"
             style="background-image: url('/images/cover.svg')"
           ></div>
-          <div class="flex px-4 flex-col md:flex-row space-y-8 justify-between">
+          <div class="flex flex-col space-y-8 px-4 justify-between md:flex-row">
             <div class="flex items-end">
               <img
                 v-if="currentUser.photoURL"
                 :src="currentUser.photoURL"
-                class="rounded-lg ring-4 ring-primary h-16 w-16"
+                class="rounded-lg h-16 ring-primary ring-4 w-16"
                 :alt="currentUser.displayName"
               />
               <SmartIcon v-else name="user" class="svg-icons" />
@@ -86,7 +79,7 @@
                     {{ t("settings.profile_name") }}
                   </label>
                   <form
-                    class="flex md:max-w-sm mt-2"
+                    class="flex mt-2 md:max-w-sm"
                     @submit.prevent="updateDisplayName"
                   >
                     <input

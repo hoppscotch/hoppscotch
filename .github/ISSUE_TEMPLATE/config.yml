@@ -1,0 +1,7 @@
+contact_links:
+  - name: Help and support
+    url: https://github.com/hoppscotch/hoppscotch#support
+    about: Reach out to us on our Discord server or Telegram group or GitHub discussions.
+  - name: Dedicated support
+    url: mailto:support@hoppscotch.io
+    about: Write to us if you'd like dedicated support using Hoppscotch

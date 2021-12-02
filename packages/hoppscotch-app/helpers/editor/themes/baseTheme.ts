@@ -37,7 +37,8 @@ export const baseTheme = EditorView.theme({
     borderColor: "var(--secondary-color)",
   },
   ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
-    backgroundColor: "var(--divider-color)",
+    backgroundColor: "var(--accent-color)",
+    color: "var(--accent-contrast-color)",
   },
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",

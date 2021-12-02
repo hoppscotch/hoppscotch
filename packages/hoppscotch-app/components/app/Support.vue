@@ -90,6 +90,7 @@ const chatWithUs = () => {
 
 const showShortcuts = () => {
   invokeAction("flyouts.keybinds.toggle")
+  hideModal()
 }
 
 const hideModal = () => {

@@ -1,15 +1,6 @@
 <template>
   <button
-    class="
-      cursor-pointer
-      flex flex-1
-      py-2
-      px-6
-      transition
-      items-center
-      search-entry
-      focus:outline-none
-    "
+    class="cursor-pointer flex flex-1 py-2 px-6 transition items-center search-entry focus:outline-none"
     :class="{ active: active }"
     tabindex="-1"
     @click="$emit('action', shortcut.action)"
@@ -21,7 +12,7 @@
       :name="shortcut.icon"
     />
     <span
-      class="flex flex-1 mr-4 font-medium transition"
+      class="flex font-medium flex-1 mr-4 transition"
       :class="{ 'text-secondaryDark': active }"
     >
       {{ t(shortcut.label) }}

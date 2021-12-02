@@ -1,28 +1,12 @@
 <template>
   <div
-    class="
-      bg-primary
-      flex
-      p-4
-      top-0
-      z-10
-      sticky
-      items-center
-      overflow-auto
-      hide-scrollbar
-      whitespace-nowrap
-    "
+    class="bg-primary flex p-4 top-0 z-10 sticky items-center overflow-auto hide-scrollbar whitespace-nowrap"
   >
     <div
       v-if="response == null"
-      class="
-        flex flex-col flex-1
-        text-secondaryLight
-        items-center
-        justify-center
-      "
+      class="flex flex-col flex-1 text-secondaryLight items-center justify-center"
     >
-      <div class="flex space-x-2 pb-4 my-4">
+      <div class="flex space-x-2 my-4 pb-4">
         <div class="flex flex-col space-y-4 text-right items-end">
           <span class="flex flex-1 items-center">
             {{ t("shortcut.request.send_request") }}
@@ -78,20 +62,13 @@
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
-          class="
-            flex-col
-            my-4
-            object-contain object-center
-            h-32
-            w-32
-            inline-flex
-          "
+          class="flex-col object-contain object-center h-32 my-4 w-32 inline-flex"
           :alt="`${t('error.network_fail')}`"
         />
-        <span class="text-center font-semibold mb-2">
+        <span class="font-semibold text-center mb-2">
           {{ t("error.network_fail") }}
         </span>
-        <span class="text-center text-secondaryLight mb-4 max-w-sm">
+        <span class="max-w-sm text-center text-secondaryLight mb-4">
           {{ t("helpers.network_fail") }}
         </span>
         <AppInterceptor />

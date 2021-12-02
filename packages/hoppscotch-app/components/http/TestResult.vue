@@ -7,17 +7,7 @@
       "
     >
       <div
-        class="
-          bg-primary
-          border-dividerLight border-b
-          flex flex-1
-          top-lowerSecondaryStickyFold
-          pl-4
-          z-10
-          sticky
-          items-center
-          justify-between
-        "
+        class="bg-primary border-b border-dividerLight flex flex-1 top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
       >
         <label class="font-semibold text-secondaryLight">
           {{ t("test.report") }}
@@ -29,7 +19,7 @@
           @click.native="clearContent()"
         />
       </div>
-      <div class="divide-dividerLight border-dividerLight border-b divide-y-4">
+      <div class="divide-dividerLight border-b border-dividerLight divide-y-4">
         <div v-if="testResults.tests" class="divide-dividerLight divide-y-4">
           <HttpTestResultEntry
             v-for="(result, index) in testResults.tests"
@@ -79,7 +69,7 @@
       <img
         :src="`/images/states/${$colorMode.value}/validation.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="`${t('empty.tests')}`"
       />
       <span class="text-center pb-2">

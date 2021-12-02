@@ -27,16 +27,7 @@
     </div>
     <div
       v-if="gqlField.isDeprecated"
-      class="
-        rounded
-        bg-yellow-200
-        my-1
-        text-black
-        py-1
-        px-2
-        inline-block
-        field-deprecated
-      "
+      class="rounded bg-yellow-200 my-1 text-black py-1 px-2 inline-block field-deprecated"
     >
       {{ $t("state.deprecated") }}
     </div>
@@ -86,7 +77,7 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .field-highlighted {
-  @apply border-b-2 border-accent;
+  @apply border-accent border-b-2;
 }
 
 .field-title {

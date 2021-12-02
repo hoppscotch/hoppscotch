@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <div class="flex items-center group">
       <span
-        class="cursor-pointer flex px-4 justify-center items-center"
+        class="cursor-pointer flex px-4 items-center justify-center"
         @click="toggleShowChildren()"
       >
         <SmartIcon
@@ -12,15 +12,7 @@
         />
       </span>
       <span
-        class="
-          cursor-pointer
-          flex flex-1
-          min-w-0
-          py-2
-          pr-2
-          transition
-          group-hover:text-secondaryDark
-        "
+        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
         @click="toggleShowChildren()"
       >
         <span class="truncate">
@@ -97,16 +89,7 @@
     </div>
     <div v-if="showChildren || isFiltered" class="flex">
       <div
-        class="
-          flex
-          w-1
-          transform
-          transition
-          cursor-nsResize
-          ml-5.5
-          bg-dividerLight
-          hover:scale-x-125 hover:bg-dividerDark
-        "
+        class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
         @click="toggleShowChildren()"
       ></div>
       <div class="flex flex-col flex-1 truncate">
@@ -150,25 +133,12 @@
             (folder.children == undefined || folder.children.length === 0) &&
             (folder.requests == undefined || folder.requests.length === 0)
           "
-          class="
-            flex flex-col
-            text-secondaryLight
-            p-4
-            items-center
-            justify-center
-          "
+          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
         >
           <img
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
-            class="
-              flex-col
-              mb-4
-              object-contain object-center
-              h-16
-              w-16
-              inline-flex
-            "
+            class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
             :alt="$t('empty.folder')"
           />
           <span class="text-center">

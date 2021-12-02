@@ -7,17 +7,7 @@
         type="url"
         autocomplete="off"
         spellcheck="false"
-        class="
-          bg-primaryLight
-          border border-divider
-          rounded
-          text-secondaryDark
-          w-full
-          py-2
-          px-4
-          hover:border-dividerDark
-          focus-visible:bg-transparent focus-visible:border-dividerDark
-        "
+        class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
         :placeholder="`${t('request.url')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"

@@ -110,6 +110,7 @@
     "team_collections": "Spanversamelings"
   },
   "confirm": {
+    "exit_team": "Are you sure you want to leave this team?",
     "logout": "Weet u seker dat u wil afmeld?",
     "remove_collection": "Weet u seker dat u hierdie versameling permanent wil uitvee?",
     "remove_environment": "Is u seker dat u hierdie omgewing permanent wil uitvee?",
@@ -138,6 +139,7 @@
     "collection": "Versameling is leeg",
     "collections": "Versamelings is leeg",
     "documentation": "Connect to a GraphQL endpoint to view documentation",
+    "endpoint": "Endpoint cannot be empty",
     "environments": "Omgewings is leeg",
     "folder": "Vouer is leeg",
     "headers": "Hierdie versoek bevat geen opskrifte nie",
@@ -171,6 +173,8 @@
     "f12_details": "(F12 vir meer inligting)",
     "gql_prettify_invalid_query": "Kon nie 'n ongeldige navraag mooi maak nie, los sintaksisfoute op en probeer weer",
     "incorrect_email": "Incorrect email",
+    "invalid_link": "Invalid link",
+    "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Kon nie 'n ongeldige liggaam mooi maak nie, los json -sintaksisfoute op en probeer weer",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kon nie versoek stuur nie",

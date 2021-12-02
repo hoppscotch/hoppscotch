@@ -2,6 +2,7 @@
   "name": "@hoppscotch/codemirror-lang-graphql",
   "version": "0.1.0",
   "description": "GraphQL language support for CodeMirror",
+  "author": "Hoppscotch (support@hoppscotch.io)",
   "scripts": {
     "prepare": "rollup -c"
   },
@@ -15,17 +16,17 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "@codemirror/highlight": "^0.19.0",
-    "@codemirror/language": "^0.19.0",
+    "@codemirror/highlight": "^0.19.6",
+    "@codemirror/language": "^0.19.6",
     "@lezer/lr": "^0.15.0"
   },
   "devDependencies": {
     "@lezer/generator": "^0.15.0",
     "mocha": "^9.0.1",
-    "rollup": "^2.35.1",
-    "rollup-plugin-dts": "^3.0.2",
-    "rollup-plugin-ts": "^1.4.0",
-    "typescript": "^4.3.4"
+    "rollup": "^2.60.1",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-ts": "^2.0.4",
+    "typescript": "^4.5.2"
   },
   "license": "MIT"
 }

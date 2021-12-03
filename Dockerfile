@@ -3,8 +3,10 @@ FROM node:lts-alpine
 LABEL maintainer="Hoppscotch (support@hoppscotch.io)"
 
 # Add git as the prebuild target requires it to parse version information
-RUN apk add --update --no-cache \
-  git
+RUN apk add --no-cache --virtual .gyp \
+  python3 \
+  make \
+  g++
 
 # Create app directory
 WORKDIR /app

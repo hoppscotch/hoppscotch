@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Impossibile abbellire un corpo non valido, risolvere gli errori di sintassi JSON e riprovare",
     "network_error": "Sembra ci sia un problema di rete. Per favore prova di nuovo.",
     "network_fail": "Impossibile inviare la richiesta",
+    "script_fail": "Impossibile eseguire lo script di pre-richiesta",
     "no_duration": "Nessuna durata",
     "something_went_wrong": "Qualcosa è andato storto"
   },
@@ -209,6 +210,7 @@
     "authorization": "L'intestazione di autorizzazione verrà generata automaticamente quando invii la richiesta.",
     "generate_documentation_first": "Generare prima la documentazione",
     "network_fail": "Impossibile raggiungere l'endpoint API. Controlla la tua connessione di rete o accendi il Proxy Interceptor e riprova.",
+    "script_fail": "Sembra che ci sia un errore nello script di pre-richiesta. Controllare l&#39;errore di seguito e correggere lo script di conseguenza.",
     "offline": "Sembra che tu sia offline. I dati in questo spazio di lavoro potrebbero non essere aggiornati.",
     "offline_short": "Sembra che tu sia offline.",
     "post_request_tests": "Gli script di test sono scritti in JavaScript e vengono eseguiti dopo aver ricevuto la risposta.",

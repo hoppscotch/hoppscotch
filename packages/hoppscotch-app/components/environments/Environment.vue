@@ -1,13 +1,13 @@
 <template>
-  <div class="group flex items-center">
+  <div class="flex items-center group">
     <span
-      class="flex items-center justify-center px-4 cursor-pointer"
+      class="cursor-pointer flex px-4 items-center justify-center"
       @click="$emit('edit-environment')"
     >
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
-      class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
+      class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
       @click="$emit('edit-environment')"
     >
       <span class="truncate">

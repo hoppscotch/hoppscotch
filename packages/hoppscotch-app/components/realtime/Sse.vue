@@ -1,8 +1,8 @@
 <template>
   <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
     <Pane :size="COLUMN_LAYOUT ? 45 : 50" class="hide-scrollbar !overflow-auto">
-      <div class="bg-primary sticky top-0 z-10 flex p-4">
-        <div class="inline-flex flex-1 space-x-2">
+      <div class="bg-primary flex p-4 top-0 z-10 sticky">
+        <div class="space-x-2 flex-1 inline-flex">
           <div class="flex flex-1">
             <input
               id="server"
@@ -10,21 +10,21 @@
               type="url"
               autocomplete="off"
               :class="{ error: !serverValid }"
-              class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-l"
+              class="bg-primaryLight border border-divider rounded-l flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
               :placeholder="$t('sse.url')"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
             />
             <label
               for="event-type"
-              class="bg-primaryLight border-divider text-secondaryLight px-4 py-2 font-semibold truncate border-t border-b"
+              class="bg-primaryLight border-t border-b border-divider font-semibold text-secondaryLight py-2 px-4 truncate"
             >
               {{ $t("sse.event_type") }}
             </label>
             <input
               id="event-type"
               v-model="eventType"
-              class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex flex-1 w-full px-4 py-2 border rounded-r"
+              class="bg-primaryLight border border-divider rounded-r flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
               spellcheck="false"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
@@ -48,7 +48,7 @@
       <AppSection label="response">
         <ul>
           <li>
-            <RealtimeLog :title="$t('sse.log')" :log="events.log" />
+            <RealtimeLog :title="$t('sse.log')" :log="log" />
             <div id="result"></div>
           </li>
         </ul>
@@ -64,26 +64,47 @@ import "splitpanes/dist/splitpanes.css"
 import debounce from "lodash/debounce"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
+import {
+  SSEEndpoint$,
+  setSSEEndpoint,
+  SSEEventType$,
+  setSSEEventType,
+  SSESocket$,
+  setSSESocket,
+  SSEConnectingState$,
+  SSEConnectionState$,
+  setSSEConnectionState,
+  setSSEConnectingState,
+  SSELog$,
+  setSSELog,
+  addSSELogLine,
+} from "~/newstore/SSESession"
+import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
     return {
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
+      connectionSSEState: useStream(
+        SSEConnectionState$,
+        false,
+        setSSEConnectionState
+      ),
+      connectingState: useStream(
+        SSEConnectingState$,
+        false,
+        setSSEConnectingState
+      ),
+      server: useStream(SSEEndpoint$, "", setSSEEndpoint),
+      eventType: useStream(SSEEventType$, "", setSSEEventType),
+      sse: useStream(SSESocket$, null, setSSESocket),
+      log: useStream(SSELog$, [], setSSELog),
     }
   },
   data() {
     return {
-      connectionSSEState: false,
-      connectingState: false,
-      server: "https://express-eventsource.herokuapp.com/events",
       isUrlValid: true,
-      sse: null,
-      events: {
-        log: null,
-        input: "",
-      },
-      eventType: "data",
     }
   },
   computed: {
@@ -120,7 +141,7 @@ export default defineComponent({
     },
     start() {
       this.connectingState = true
-      this.events.log = [
+      this.log = [
         {
           payload: this.$t("state.connecting_to", { name: this.server }),
           source: "info",
@@ -133,7 +154,7 @@ export default defineComponent({
           this.sse.onopen = () => {
             this.connectingState = false
             this.connectionSSEState = true
-            this.events.log = [
+            this.log = [
               {
                 payload: this.$t("state.connected_to", { name: this.server }),
                 source: "info",
@@ -148,7 +169,7 @@ export default defineComponent({
           }
           this.sse.onclose = () => {
             this.connectionSSEState = false
-            this.events.log.push({
+            addSSELogLine({
               payload: this.$t("state.disconnected_from", {
                 name: this.server,
               }),
@@ -159,7 +180,7 @@ export default defineComponent({
             this.$toast.error(this.$t("state.disconnected"))
           }
           this.sse.addEventListener(this.eventType, ({ data }) => {
-            this.events.log.push({
+            addSSELogLine({
               payload: data,
               source: "server",
               ts: new Date().toLocaleTimeString(),
@@ -170,7 +191,7 @@ export default defineComponent({
           this.$toast.error(this.$t("error.something_went_wrong"))
         }
       } else {
-        this.events.log = [
+        this.log = [
           {
             payload: this.$t("error.browser_support_sse"),
             source: "info",
@@ -187,14 +208,14 @@ export default defineComponent({
     handleSSEError(error) {
       this.stop()
       this.connectionSSEState = false
-      this.events.log.push({
+      addSSELogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
         color: "#ff5555",
         ts: new Date().toLocaleTimeString(),
       })
       if (error !== null)
-        this.events.log.push({
+        addSSELogLine({
           payload: error,
           source: "info",
           color: "#ff5555",

@@ -1,9 +1,9 @@
 <template>
   <AppSection label="bodyParameters">
     <div
-      class="bg-primary border-dividerLight top-upperTertiaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperTertiaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
-      <label class="text-secondaryLight font-semibold">
+      <label class="font-semibold text-secondaryLight">
         {{ $t("request.body") }}
       </label>
       <div class="flex">
@@ -31,7 +31,7 @@
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
-      class="divide-dividerLight border-dividerLight flex border-b divide-x"
+      class="divide-dividerLight divide-x border-b border-dividerLight flex"
     >
       <SmartEnvInput
         v-model="param.key"
@@ -53,7 +53,7 @@
         "
       />
       <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
-        <div class="file-chips-wrapper space-x-2">
+        <div class="space-x-2 file-chips-wrapper">
           <SmartDeletableChip
             v-for="(file, fileIndex) in param.value"
             :key="`param-${index}-file-${fileIndex}`"
@@ -141,15 +141,15 @@
     </div>
     <div
       v-if="bodyParams.length === 0"
-      class="text-secondaryLight flex flex-col items-center justify-center p-4"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <img
         :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
         loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.body')"
       />
-      <span class="pb-4 text-center">
+      <span class="text-center pb-4">
         {{ $t("empty.body") }}
       </span>
       <ButtonSecondary

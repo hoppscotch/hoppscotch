@@ -1,5 +1,5 @@
 <template>
   <div class="text-sm text-secondaryLight animate-pulse">
-    <AppLogo class="w-8 h-8" />
+    <AppLogo class="h-8 w-8" />
   </div>
 </template>

@@ -107,7 +107,7 @@
                 @click.native="$refs.options.tippy().hide()"
               />
               <!-- <SmartItem :label="t('app.status')" /> -->
-              <div class="flex px-4 py-2 opacity-50">
+              <div class="flex opacity-50 py-2 px-4">
                 {{ `${t("app.name")} ${t("app.version")}` }}
               </div>
             </div>
@@ -135,7 +135,7 @@
           @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />
         <span
-          class="transition transform"
+          class="transform transition"
           :class="{
             'rotate-180': SIDEBAR_ON_LEFT,
           }"

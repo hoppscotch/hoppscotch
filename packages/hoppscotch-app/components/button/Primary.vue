@@ -3,7 +3,7 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="focus:outline-none focus-visible:bg-accentDark inline-flex items-center justify-center py-2 font-bold transition"
+    class="font-bold py-2 transition inline-flex items-center justify-center focus:outline-none focus-visible:bg-accentDark"
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus-visible:(text-${color}-900 bg-${color}-300)`
@@ -29,7 +29,7 @@
   >
     <span
       v-if="!loading"
-      class="whitespace-nowrap inline-flex items-center justify-center"
+      class="inline-flex items-center justify-center whitespace-nowrap"
       :class="{ 'flex-row-reverse': reverse }"
     >
       <i
@@ -56,7 +56,7 @@
         <kbd
           v-for="(key, index) in shortcut"
           :key="`key-${index}`"
-          class="bg-accentLight inline-flex px-1 ml-1 rounded"
+          class="bg-accentLight rounded ml-1 px-1 inline-flex"
         >
           {{ key }}
         </kbd>

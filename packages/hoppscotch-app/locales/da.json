@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Kunne ikke pryde et ugyldigt brødtekst, løse json -syntaksfejl og prøve igen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Anmodningen kunne ikke sendes",
+    "script_fail": "Kunne ikke udføre pre-request script",
     "no_duration": "Ingen varighed",
     "something_went_wrong": "Noget gik galt"
   },
@@ -209,6 +210,7 @@
     "authorization": "Autorisationsoverskriften genereres automatisk, når du sender anmodningen.",
     "generate_documentation_first": "Generer først dokumentation",
     "network_fail": "Kunne ikke nå API -slutpunktet. Kontroller din netværksforbindelse, og prøv igen.",
+    "script_fail": "Det ser ud til, at der er en fejl i pre-request-scriptet. Tjek fejlen nedenfor, og ret scriptet i overensstemmelse hermed.",
     "offline": "Du ser ud til at være offline. Data i dette arbejdsområde er muligvis ikke opdaterede.",
     "offline_short": "Du ser ud til at være offline.",
     "post_request_tests": "Test scripts er skrevet i JavaScript og køres efter at svaret er modtaget.",

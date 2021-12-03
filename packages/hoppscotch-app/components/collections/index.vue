@@ -4,7 +4,7 @@
     :class="{ 'rounded border border-divider': saveRequest }"
   >
     <div
-      class="divide-dividerLight bg-primary border-dividerLight sticky top-0 z-10 flex flex-col border-b divide-y rounded-t"
+      class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col top-0 z-10 sticky"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input
@@ -12,7 +12,7 @@
           type="search"
           autocomplete="off"
           :placeholder="$t('action.search')"
-          class="flex w-full py-2 pl-4 pr-2 bg-transparent"
+          class="bg-transparent flex w-full py-2 pr-2 pl-4"
         />
       </div>
       <CollectionsChooseType
@@ -22,7 +22,7 @@
         @update-collection-type="updateCollectionType"
         @update-selected-team="updateSelectedTeam"
       />
-      <div class="flex justify-between flex-1">
+      <div class="flex flex-1 justify-between">
         <ButtonSecondary
           v-if="
             collectionsType.type == 'team-collections' &&
@@ -98,15 +98,15 @@
     </div>
     <div
       v-if="filteredCollections.length === 0 && filterText.length === 0"
-      class="text-secondaryLight flex flex-col items-center justify-center p-4"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
         loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.collections')"
       />
-      <span class="pb-4 text-center">
+      <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
@@ -131,9 +131,9 @@
     </div>
     <div
       v-if="filterText.length !== 0 && filteredCollections.length === 0"
-      class="text-secondaryLight flex flex-col items-center justify-center p-4"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons pb-2 opacity-75">manage_search</i>
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
       <span class="text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>

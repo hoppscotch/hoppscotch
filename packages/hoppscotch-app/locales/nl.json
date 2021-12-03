@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Kon een ongeldige hoofdtekst niet mooier maken, json-syntaxisfouten oplossen en opnieuw proberen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kan verzoek niet versturen",
+    "script_fail": "Kon pre-aanvraagscript niet uitvoeren",
     "no_duration": "Geen duur",
     "something_went_wrong": "Er is iets fout gegaan"
   },
@@ -209,6 +210,7 @@
     "authorization": "De autorisatieheader wordt automatisch gegenereerd wanneer u het verzoek verzendt.",
     "generate_documentation_first": "Genereer eerst documentatie",
     "network_fail": "Kan het API-eindpunt niet bereiken. Controleer uw netwerkverbinding en probeer het opnieuw.",
+    "script_fail": "Het lijkt erop dat er een storing is in het pre-request script. Controleer de onderstaande fout en corrigeer het script dienovereenkomstig.",
     "offline": "Je lijkt offline te zijn. Gegevens in deze werkruimte zijn mogelijk niet up-to-date.",
     "offline_short": "Je lijkt offline te zijn.",
     "post_request_tests": "Testscripts zijn geschreven in JavaScript en worden uitgevoerd nadat het antwoord is ontvangen.",

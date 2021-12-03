@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "No se puede aplicar prettify a un cuerpo inválido, resuelva errores de sintaxis json y vuelva a intentarlo",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No se pudo enviar la petición",
+    "script_fail": "No se pudo ejecutar el script de solicitud previa",
     "no_duration": "Sin duración",
     "something_went_wrong": "Algo salió mal"
   },
@@ -209,6 +210,7 @@
     "authorization": "El encabezado de autorización se generará automáticamente cuando envíe la petición.",
     "generate_documentation_first": "Genere la documentación primero",
     "network_fail": "No se puede acceder a la API. Verifique su conexión de red y vuelva a intentarlo.",
+    "script_fail": "Parece que hay un problema técnico en el script de solicitud previa. Verifique el error a continuación y corrija el script en consecuencia.",
     "offline": "Parece estar desconectado. Es posible que los datos de este espacio de trabajo no estén actualizados.",
     "offline_short": "Pareces estar desconectado.",
     "post_request_tests": "Los scripts de prueba están escritos en JavaScript y se ejecutan después de recibir la respuesta.",

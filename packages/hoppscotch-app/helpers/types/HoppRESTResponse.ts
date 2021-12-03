@@ -22,6 +22,10 @@ export type HoppRESTResponse =
       req: HoppRESTRequest
     }
   | {
+      type: "script_fail"
+      error: Error
+    }
+  | {
       type: "success"
       headers: { key: string; value: string }[]
       body: ArrayBuffer

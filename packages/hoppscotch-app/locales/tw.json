@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "無法美化無效的請求頭，處理 JSON 語法錯誤並重試",
     "network_error": "似乎有網路錯誤。請再試一次。",
     "network_fail": "無法傳送請求",
+    "script_fail": "Could not execute pre-request script",
     "no_duration": "無持續時間",
     "something_went_wrong": "發生了一些錯誤"
   },
@@ -209,6 +210,7 @@
     "authorization": "授權頭將會在你傳送請求時自動生成。",
     "generate_documentation_first": "請先生成文件",
     "network_fail": "無法到達 API 端點。請檢查網路連線並重試。",
+    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "offline": "你似乎處於離線狀態，該工作區中的資料可能不是最新。",
     "offline_short": "你似乎處於離線狀態。",
     "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到回應後執行。",

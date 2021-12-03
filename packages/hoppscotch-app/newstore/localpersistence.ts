@@ -40,6 +40,10 @@ import {
   setCurrentEnvironment,
 } from "./environments"
 import { restRequest$, setRESTRequest } from "./RESTSession"
+import { WSRequest$, setWSRequest } from "./WebSocketSession"
+import { SIORequest$, setSIORequest } from "./SocketIOSession"
+import { SSERequest$, setSSERequest } from "./SSESession"
+import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
 import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
 
 function checkAndMigrateOldSettings() {
@@ -209,6 +213,54 @@ function setupSelectedEnvPersistence() {
   })
 }
 
+function setupWebsocketPersistence() {
+  const request = JSON.parse(
+    window.localStorage.getItem("WebsocketRequest") || "null"
+  )
+
+  setWSRequest(request)
+
+  WSRequest$.subscribe((req) => {
+    window.localStorage.setItem("WebsocketRequest", JSON.stringify(req))
+  })
+}
+
+function setupSocketIOPersistence() {
+  const request = JSON.parse(
+    window.localStorage.getItem("SocketIORequest") || "null"
+  )
+
+  setSIORequest(request)
+
+  SIORequest$.subscribe((req) => {
+    window.localStorage.setItem("SocketIORequest", JSON.stringify(req))
+  })
+}
+
+function setupSSEPersistence() {
+  const request = JSON.parse(
+    window.localStorage.getItem("SSERequest") || "null"
+  )
+
+  setSSERequest(request)
+
+  SSERequest$.subscribe((req) => {
+    window.localStorage.setItem("SSERequest", JSON.stringify(req))
+  })
+}
+
+function setupMQTTPersistence() {
+  const request = JSON.parse(
+    window.localStorage.getItem("MQTTRequest") || "null"
+  )
+
+  setMQTTRequest(request)
+
+  MQTTRequest$.subscribe((req) => {
+    window.localStorage.setItem("MQTTRequest", JSON.stringify(req))
+  })
+}
+
 function setupGlobalEnvsPersistence() {
   const globals: Environment["variables"] = JSON.parse(
     window.localStorage.getItem("globalEnv") || "[]"
@@ -246,6 +298,10 @@ export function setupLocalPersistence() {
   setupGlobalEnvsPersistence()
   setupEnvironmentsPersistence()
   setupSelectedEnvPersistence()
+  setupWebsocketPersistence()
+  setupSocketIOPersistence()
+  setupSSEPersistence()
+  setupMQTTPersistence()
 }
 
 /**

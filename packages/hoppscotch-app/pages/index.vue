@@ -57,7 +57,7 @@
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="hide-scrollbar !overflow-auto flex flex-col"
+          class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <HttpResponse ref="response" />
         </Pane>

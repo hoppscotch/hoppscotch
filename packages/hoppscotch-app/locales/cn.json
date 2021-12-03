@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "无法美化无效的请求头，处理 JSON 语法错误并重试",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "无法发送请求",
+    "script_fail": "无法执行预请求脚本",
     "no_duration": "无持续时间",
     "something_went_wrong": "发生了一些错误"
   },
@@ -209,6 +210,7 @@
     "authorization": "授权头将会在你发送请求时自动生成。",
     "generate_documentation_first": "请先生成文档",
     "network_fail": "无法到达 API 端点。请检查网络连接并重试。",
+    "script_fail": "预请求脚本中似乎存在故障。 检查下面的错误并相应地修复脚本。",
     "offline": "你似乎处于离线状态，该工作区中的数据可能不是最新。",
     "offline_short": "你似乎处于离线状态。",
     "post_request_tests": "测试脚本使用 JavaScript 编写，并在收到响应后执行。",

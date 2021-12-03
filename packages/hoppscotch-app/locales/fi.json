@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Virheellistä runkoa ei voitu määrittää, ratkaista json -syntaksivirheitä ja yrittää uudelleen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Pyyntöä ei voitu lähettää",
+    "script_fail": "Ennakkopyyntöskriptiä ei voitu suorittaa",
     "no_duration": "Ei kestoa",
     "something_went_wrong": "Jotain meni pieleen"
   },
@@ -209,6 +210,7 @@
     "authorization": "Valtuutusotsikko luodaan automaattisesti, kun lähetät pyynnön.",
     "generate_documentation_first": "Luo asiakirjat ensin",
     "network_fail": "Sovellusliittymän päätepistettä ei voi saavuttaa. Tarkista verkkoyhteys ja yritä uudelleen.",
+    "script_fail": "Vaikuttaa siltä, että ennakkopyyntöskriptissä on virhe. Tarkista alla oleva virhe ja korjaa komentosarja sen mukaisesti.",
     "offline": "Näytät olevan offline -tilassa. Tämän työtilan tiedot eivät ehkä ole ajan tasalla.",
     "offline_short": "Näytät olevan offline -tilassa.",
     "post_request_tests": "Testikomentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan vastauksen vastaanottamisen jälkeen.",

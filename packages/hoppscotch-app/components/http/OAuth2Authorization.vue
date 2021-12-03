@@ -1,46 +1,46 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex border-b border-dividerLight">
+    <div class="border-b border-dividerLight flex">
       <input
         id="oidcDiscoveryURL"
         v-model="oidcDiscoveryURL"
-        class="flex flex-1 px-4 py-2 bg-transparent"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="OpenID Connect Discovery URL"
         name="oidcDiscoveryURL"
       />
     </div>
-    <div class="flex border-b border-dividerLight">
+    <div class="border-b border-dividerLight flex">
       <input
         id="authURL"
         v-model="authURL"
-        class="flex flex-1 px-4 py-2 bg-transparent"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Authentication URL"
         name="authURL"
       />
     </div>
-    <div class="flex border-b border-dividerLight">
+    <div class="border-b border-dividerLight flex">
       <input
         id="accessTokenURL"
         v-model="accessTokenURL"
-        class="flex flex-1 px-4 py-2 bg-transparent"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Access Token URL"
         name="accessTokenURL"
       />
     </div>
-    <div class="flex border-b border-dividerLight">
+    <div class="border-b border-dividerLight flex">
       <input
         id="clientID"
         v-model="clientID"
-        class="flex flex-1 px-4 py-2 bg-transparent"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Client ID"
         name="clientID"
       />
     </div>
-    <div class="flex border-b border-dividerLight">
+    <div class="border-b border-dividerLight flex">
       <input
         id="scope"
         v-model="scope"
-        class="flex flex-1 px-4 py-2 bg-transparent"
+        class="bg-transparent flex flex-1 py-2 px-4"
         placeholder="Scope"
         name="scope"
       />

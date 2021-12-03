@@ -178,6 +178,7 @@
     "json_prettify_invalid_body": "Geçersiz bir gövde güzelleştirilemedi, json sözdizimi hatalarını çözüp tekrar deneyin",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "istek gönderilemedi",
+    "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "no_duration": "Süre yok",
     "something_went_wrong": "Bir şeyler yanlış gitti"
   },
@@ -209,6 +210,7 @@
     "authorization": "Yetkilendirme başlığı, isteği gönderdiğinizde otomatik olarak oluşturulur.",
     "generate_documentation_first": "Önce belgeleri oluşturun",
     "network_fail": "API uç noktasına ulaşılamıyor. Ağ bağlantınızı kontrol edin ve tekrar deneyin.",
+    "script_fail": "Ön istek komut dosyasında bir aksaklık var gibi görünüyor. Aşağıdaki hatayı kontrol edin ve komut dosyasını buna göre düzeltin.",
     "offline": "Çevrimdışı görünüyorsun. Bu çalışma alanındaki veriler güncel olmayabilir.",
     "offline_short": "Çevrimdışı görünüyorsun.",
     "post_request_tests": "Test komut dosyaları JavaScript'te yazılır ve yanıt alındıktan sonra çalıştırılır.",

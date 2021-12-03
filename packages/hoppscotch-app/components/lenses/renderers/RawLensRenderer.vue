@@ -1,9 +1,9 @@
 <template>
   <div>
     <div
-      class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="bg-primary border-b border-dividerLight flex flex-1 top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
-      <label class="text-secondaryLight font-semibold">
+      <label class="font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
       <div class="flex">

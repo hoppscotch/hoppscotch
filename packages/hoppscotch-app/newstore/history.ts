@@ -287,7 +287,12 @@ export function toggleGraphqlHistoryEntryStar(entry: GQLHistoryEntry) {
 // Listen to completed responses to add to history
 completedRESTResponse$.subscribe((res) => {
   if (res !== null) {
-    if (res.type === "loading" || res.type === "network_fail") return
+    if (
+      res.type === "loading" ||
+      res.type === "network_fail" ||
+      res.type === "script_fail"
+    )
+      return
 
     addRESTHistoryEntry(
       makeRESTHistoryEntry({

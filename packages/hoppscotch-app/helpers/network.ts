@@ -1,5 +1,6 @@
 import { AxiosRequestConfig } from "axios"
 import { BehaviorSubject, Observable } from "rxjs"
+import cloneDeep from "lodash/cloneDeep"
 import AxiosStrategy, {
   cancelRunningAxiosRequest,
 } from "./strategies/AxiosStrategy"
@@ -49,8 +50,9 @@ export const sendNetworkRequest = (req: any) =>
   runAppropriateStrategy(req).finally(() => window.$nuxt.$loading.finish())
 
 export function createRESTNetworkRequestStream(
-  req: EffectiveHoppRESTRequest
+  request: EffectiveHoppRESTRequest
 ): Observable<HoppRESTResponse> {
+  const req = cloneDeep(request)
   const response = new BehaviorSubject<HoppRESTResponse>({
     type: "loading",
     req,

@@ -19,7 +19,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
             :class="{ '!text-accent': linewrapEnabled }"
-            svg="corner-down-left"
+            svg="wrap-text"
             @click.native.prevent="linewrapEnabled = !linewrapEnabled"
           />
           <ButtonSecondary

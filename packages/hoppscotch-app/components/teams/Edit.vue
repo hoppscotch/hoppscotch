@@ -99,17 +99,18 @@
                         class="bg-transparent cursor-pointer flex flex-1 py-2 px-4"
                         :placeholder="`${t('team.permissions')}`"
                         :name="'value' + index"
-                        :value="
-                          typeof member.role === 'string'
-                            ? member.role
-                            : JSON.stringify(member.role)
-                        "
+                        :value="member.role"
                         readonly
                       />
                     </span>
                   </template>
                   <SmartItem
                     label="OWNER"
+                    :icon="
+                      member.role === 'OWNER'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
                     @click.native="
                       () => {
                         updateMemberRole(member.userID, 'OWNER')
@@ -119,6 +120,11 @@
                   />
                   <SmartItem
                     label="EDITOR"
+                    :icon="
+                      member.role === 'EDITOR'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
                     @click.native="
                       () => {
                         updateMemberRole(member.userID, 'EDITOR')
@@ -128,6 +134,11 @@
                   />
                   <SmartItem
                     label="VIEWER"
+                    :icon="
+                      member.role === 'VIEWER'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
                     @click.native="
                       () => {
                         updateMemberRole(member.userID, 'VIEWER')

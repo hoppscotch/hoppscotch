@@ -5,7 +5,7 @@
     >
       <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
-          class="tracking-wide !font-bold !text-secondaryDark"
+          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           label="HOPPSCOTCH"
           to="/"
         />
@@ -17,21 +17,21 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('header.install_pwa')"
           svg="download"
-          class="rounded"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="showInstallPrompt()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('app.search')} <kbd>/</kbd>`"
           svg="search"
-          class="rounded"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="showSearch = true"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('support.title')} <kbd>?</kbd>`"
           svg="life-buoy"
-          class="rounded"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="showSupport = true"
         />
         <ButtonSecondary
@@ -74,7 +74,7 @@
                   v-else
                   v-tippy="{ theme: 'tooltip' }"
                   :title="t('header.account')"
-                  class="rounded"
+                  class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
                   svg="user"
                 />
               </template>

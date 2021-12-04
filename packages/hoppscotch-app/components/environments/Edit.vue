@@ -31,14 +31,12 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.clear_all')"
               :svg="clearIcon"
-              class="rounded"
               @click.native="clearContent()"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               svg="plus"
               :title="$t('add.new')"
-              class="rounded"
               @click.native="addEnvironmentVariable"
             />
           </div>

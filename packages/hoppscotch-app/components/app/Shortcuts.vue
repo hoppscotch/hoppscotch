@@ -6,7 +6,7 @@
       >
         <h3 class="ml-4 heading">{{ t("app.shortcuts") }}</h3>
         <div class="flex">
-          <ButtonSecondary svg="x" class="rounded" @click.native="close()" />
+          <ButtonSecondary svg="x" @click.native="close()" />
         </div>
       </div>
       <div class="bg-primary border-b border-dividerLight">

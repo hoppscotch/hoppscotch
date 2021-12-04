@@ -80,11 +80,7 @@
                   class="bg-transparent flex flex-1 text-secondaryLight py-2 px-4"
                   :placeholder="`${t('team.permissions')}`"
                   :name="'value' + index"
-                  :value="
-                    typeof invitee.inviteeRole === 'string'
-                      ? invitee.inviteeRole
-                      : JSON.stringify(invitee.inviteeRole)
-                  "
+                  :value="invitee.inviteeRole"
                   readonly
                 />
                 <div class="flex">
@@ -158,17 +154,18 @@
                       class="bg-transparent cursor-pointer flex flex-1 py-2 px-4"
                       :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
-                      :value="
-                        typeof invitee.value === 'string'
-                          ? invitee.value
-                          : JSON.stringify(invitee.value)
-                      "
+                      :value="invitee.value"
                       readonly
                     />
                   </span>
                 </template>
                 <SmartItem
                   label="OWNER"
+                  :icon="
+                    invitee.value === 'OWNER'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
+                  "
                   @click.native="
                     () => {
                       updateNewInviteeRole(index, 'OWNER')
@@ -178,6 +175,11 @@
                 />
                 <SmartItem
                   label="EDITOR"
+                  :icon="
+                    invitee.value === 'EDITOR'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
+                  "
                   @click.native="
                     () => {
                       updateNewInviteeRole(index, 'EDITOR')
@@ -187,6 +189,11 @@
                 />
                 <SmartItem
                   label="VIEWER"
+                  :icon="
+                    invitee.value === 'VIEWER'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
+                  "
                   @click.native="
                     () => {
                       updateNewInviteeRole(index, 'VIEWER')

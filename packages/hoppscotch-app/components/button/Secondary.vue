@@ -3,10 +3,10 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="font-semibold py-2 transition inline-flex items-center justify-center whitespace-nowrap hover:bg-primaryDark focus:outline-none focus-visible:bg-primaryDark"
+    class="font-semibold py-2 transition inline-flex items-center justify-center whitespace-nowrap focus:outline-none"
     :class="[
       color
-        ? `text-${color}-500 hover:(text-${color}-600 text-${color}-600)`
+        ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
         : 'text-secondary hover:text-secondaryDark focus-visible:text-secondaryDark',
       label ? 'rounded px-4' : 'px-2',
       { 'rounded-full': rounded },
@@ -18,7 +18,7 @@
           outline,
       },
       {
-        '!bg-primaryLight !hover:bg-primaryDark !focus-visible:bg-primaryDark':
+        'bg-primaryLight hover:bg-primaryDark focus-visible:bg-primaryDark':
           filled,
       },
     ]"

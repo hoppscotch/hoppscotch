@@ -12,7 +12,6 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.more')"
-              class="rounded"
               svg="more-vertical"
             />
           </template>

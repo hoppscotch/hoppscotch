@@ -24,6 +24,11 @@
           </template>
           <SmartItem
             label="None"
+            :icon="
+              authName === 'None'
+                ? 'radio_button_checked'
+                : 'radio_button_unchecked'
+            "
             @click.native="
               authType = 'none'
               $refs.authTypeOptions.tippy().hide()
@@ -31,6 +36,11 @@
           />
           <SmartItem
             label="Basic Auth"
+            :icon="
+              authName === 'Basic Auth'
+                ? 'radio_button_checked'
+                : 'radio_button_unchecked'
+            "
             @click.native="
               authType = 'basic'
               $refs.authTypeOptions.tippy().hide()
@@ -38,6 +48,11 @@
           />
           <SmartItem
             label="Bearer Token"
+            :icon="
+              authName === 'Bearer'
+                ? 'radio_button_checked'
+                : 'radio_button_unchecked'
+            "
             @click.native="
               authType = 'bearer'
               $refs.authTypeOptions.tippy().hide()
@@ -45,6 +60,11 @@
           />
           <SmartItem
             label="OAuth 2.0"
+            :icon="
+              authName === 'OAuth 2.0'
+                ? 'radio_button_checked'
+                : 'radio_button_unchecked'
+            "
             @click.native="
               authType = 'oauth-2'
               $refs.authTypeOptions.tippy().hide()

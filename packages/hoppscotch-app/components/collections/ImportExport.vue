@@ -10,7 +10,6 @@
         v-if="mode == 'import_from_my_collections'"
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('action.go_back')"
-        class="rounded"
         svg="arrow-left"
         @click.native="
           () => {
@@ -34,7 +33,6 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.more')"
-              class="rounded"
               svg="more-vertical"
             />
           </template>

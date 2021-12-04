@@ -1,6 +1,6 @@
 <template>
   <div
-    class="cursor-pointer flex-nowrap inline-flex items-center justify-center"
+    class="cursor-pointer flex-nowrap transition inline-flex items-center justify-center group hover:text-secondaryDark"
     @click="$emit('change')"
   >
     <label ref="toggle" class="toggle" :class="{ on: on }">
@@ -28,7 +28,7 @@ export default defineComponent({
 <style scoped lang="scss">
 $useBorder: true;
 $borderColor: var(--divider-color);
-$activeColor: var(--divider-color);
+$activeColor: var(--divider-dark-color);
 $inactiveColor: var(--divider-color);
 $inactiveHandleColor: var(--secondary-light-color);
 $activeHandleColor: var(--accent-color);
@@ -49,6 +49,8 @@ $transition: all 0.2s ease-in-out;
   @apply mr-4;
   @apply cursor-pointer;
   @apply flex-shrink-0;
+  @apply group-hover:border-accentDark;
+  @apply transition;
 
   width: $width;
   height: $height;

@@ -127,7 +127,6 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('add.new')"
               svg="plus"
-              class="rounded"
               @click.native="addCommunicationInput"
             />
           </div>
@@ -153,7 +152,6 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.remove')"
                 svg="trash"
-                class="rounded"
                 color="red"
                 outline
                 @click.native="removeCommunicationInput({ index })"

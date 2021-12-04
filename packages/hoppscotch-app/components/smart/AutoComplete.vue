@@ -18,7 +18,7 @@
     />
     <ul
       v-if="suggestions.length > 0 && suggestionsVisible"
-      class="suggestions"
+      class="suggestions hide-scrollbar"
       :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }"
     >
       <li
@@ -101,8 +101,8 @@ export default defineComponent({
           )
           // Cut off the part that's already been typed.
           .map((entry) => entry.substring(this.selectionStart))
-          // We only want the top 6 suggestions.
-          .slice(0, 6)
+          // We only want the top 10 suggestions.
+          .slice(0, 10)
       )
     },
   },
@@ -215,6 +215,8 @@ export default defineComponent({
     @apply left-0;
     @apply z-50;
     @apply shadow-lg;
+    @apply max-h-46;
+    @apply overflow-y-auto;
 
     top: calc(100% - 4px);
     border-radius: 0 0 8px 8px;

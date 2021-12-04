@@ -210,7 +210,7 @@ export default defineComponent({
     getCollectionIcon() {
       if (this.isSelected) return "check-circle"
       else if (!this.showChildren && !this.isFiltered) return "folder"
-      else if (this.showChildren || this.isFiltered) return "folder-minus"
+      else if (this.showChildren || this.isFiltered) return "folder-open"
       else return "folder"
     },
   },

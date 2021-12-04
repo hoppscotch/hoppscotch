@@ -19,8 +19,9 @@
         v-for="(size, index) in fontSizes"
         :key="`size-${index}`"
         :label="`${getFontSizeName(size)}`"
-        :info-icon="size === active ? 'done' : ''"
-        :active-info-icon="size === active"
+        :icon="
+          size === active ? 'radio_button_checked' : 'radio_button_unchecked'
+        "
         @click.native="
           () => {
             setActiveFont(size)

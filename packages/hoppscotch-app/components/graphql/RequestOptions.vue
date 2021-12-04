@@ -1,21 +1,6 @@
 <template>
   <div>
     <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-      <template #actions>
-        <ButtonSecondary
-          :label="`${t('request.run')}`"
-          svg="play"
-          class="rounded-none !text-accent"
-          @click.native="runQuery()"
-        />
-        <ButtonSecondary
-          ref="saveRequest"
-          :label="`${t('request.save')}`"
-          class="rounded-none"
-          @click.native="saveRequest"
-        />
-      </template>
-
       <SmartTab :id="'query'" :label="`${t('tab.query')}`" :selected="true">
         <AppSection label="query">
           <div
@@ -26,8 +11,21 @@
             </label>
             <div class="flex">
               <ButtonSecondary
+                :label="`${t('request.run')}`"
+                svg="play"
+                class="rounded-none !text-accent !hover:text-accentDark"
+                @click.native="runQuery()"
+              />
+              <ButtonSecondary
+                ref="saveRequest"
+                :label="`${t('request.save')}`"
+                svg="save"
+                class="rounded-none"
+                @click.native="saveRequest"
+              />
+              <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/graphql/#queries"
+                to="https://docs.hoppscotch.io/graphql"
                 blank
                 :title="t('app.wiki')"
                 svg="help-circle"
@@ -61,7 +59,7 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/graphql/#queries"
+                to="https://docs.hoppscotch.io/graphql"
                 blank
                 :title="t('app.wiki')"
                 svg="help-circle"
@@ -89,7 +87,7 @@
             <div class="flex">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/graphql/#headers"
+                to="https://docs.hoppscotch.io/graphql"
                 blank
                 :title="t('app.wiki')"
                 svg="help-circle"

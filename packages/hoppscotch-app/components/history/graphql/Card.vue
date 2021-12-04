@@ -40,7 +40,7 @@
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="cursor-pointer text-secondaryLight px-4 truncate whitespace-pre"
+        class="cursor-pointer font-mono text-secondaryLight px-4 truncate whitespace-pre"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span

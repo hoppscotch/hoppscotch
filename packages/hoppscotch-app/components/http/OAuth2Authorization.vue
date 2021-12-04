@@ -124,6 +124,7 @@ export default {
       clientID,
       scope,
       handleAccessTokenRequest,
+      t,
     }
   },
 }

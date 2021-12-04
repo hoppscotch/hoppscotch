@@ -4,7 +4,7 @@ import {
   getFirestore,
   onSnapshot,
   setDoc,
-} from "@firebase/firestore"
+} from "firebase/firestore"
 import { currentUser$ } from "./auth"
 import { applySetting, settingsStore, SettingsType } from "~/newstore/settings"
 

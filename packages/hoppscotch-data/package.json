@@ -27,6 +27,6 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "tsup": "^5.9.0"
+    "tsup": "^5.10.1"
   }
 }

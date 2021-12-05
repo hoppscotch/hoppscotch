@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="flex items-center group"
+      class="flex items-stretch group"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop

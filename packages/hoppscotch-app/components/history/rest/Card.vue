@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center group">
+  <div class="flex items-stretch group">
     <span
       class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
       :class="entryStatus.className"

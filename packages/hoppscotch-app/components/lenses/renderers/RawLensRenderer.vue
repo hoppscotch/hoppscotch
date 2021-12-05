@@ -54,7 +54,7 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const responseBodyText = useResponseBody(props.response)
+const { responseBodyText } = useResponseBody(props.response)
 
 const responseType = computed(() => {
   return (

@@ -73,7 +73,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, onBeforeUnmount } from "@nuxtjs/composition-api"
 import { useKeybindingDisabler } from "~/helpers/keybindings"
 
 const PORTAL_DOM_ID = "hoppscotch-modal-portal"
@@ -118,9 +118,12 @@ export default defineComponent({
   setup() {
     const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
 
+    onBeforeUnmount(() => {
+      enableKeybindings()
+    })
+
     return {
       disableKeybindings,
-      enableKeybindings,
     }
   },
   data() {
@@ -154,7 +157,6 @@ export default defineComponent({
   methods: {
     close() {
       this.$emit("close")
-      this.enableKeybindings()
     },
     onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape" && this.stackId === stack.peek()) {

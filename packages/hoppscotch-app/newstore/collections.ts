@@ -744,6 +744,12 @@ export function editRESTRequest(
   requestIndex: number,
   requestNew: HoppRESTRequest
 ) {
+  const indexPaths = path.split("/").map((x) => parseInt(x))
+  if (
+    !navigateToFolderWithIndexPath(restCollectionStore.value.state, indexPaths)
+  )
+    throw new Error("Path not found")
+
   restCollectionStore.dispatch({
     dispatcher: "editRequest",
     payload: {

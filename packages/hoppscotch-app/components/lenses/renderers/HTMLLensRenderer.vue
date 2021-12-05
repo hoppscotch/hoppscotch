@@ -70,27 +70,22 @@ const props = defineProps<{
 }>()
 
 const toast = useToast()
-const downloadIcon = ref("download")
-const copyIcon = ref("copy")
-const previewFrame = ref<any | null>(null)
 const url = ref("")
 const htmlResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
 const { responseBodyText } = useResponseBody(props.response)
-const { downloadResponse } = useDownloadResponse(
+const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseBodyText,
-  downloadIcon,
   toast,
   t
 )
-const { previewEnabled, togglePreview } = usePreview(
+const { previewFrame, previewEnabled, togglePreview } = usePreview(
   false,
-  previewFrame,
   url,
   responseBodyText
 )
-const { copyResponse } = useCopyResponse(responseBodyText, copyIcon, toast, t)
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText, toast, t)
 
 useCodemirror(
   htmlResponse,

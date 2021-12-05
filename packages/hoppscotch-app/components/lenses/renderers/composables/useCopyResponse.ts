@@ -1,12 +1,13 @@
-import { Ref } from "@nuxtjs/composition-api"
+import { Ref, ref } from "@nuxtjs/composition-api"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 
 export default function useCopyResponse(
   responseBodyText: Ref<any>,
-  copyIcon: Ref<any>,
   toast: any,
   t: any
-): { [key: string]: () => void } {
+): { [key: string]: (() => void) | Ref<any> } {
+  const copyIcon = ref("copy")
+
   const copyResponse = () => {
     copyToClipboard(responseBodyText.value)
     copyIcon.value = "check"
@@ -15,6 +16,7 @@ export default function useCopyResponse(
   }
 
   return {
+    copyIcon,
     copyResponse,
   }
 }

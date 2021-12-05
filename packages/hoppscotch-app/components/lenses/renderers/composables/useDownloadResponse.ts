@@ -1,11 +1,14 @@
-import { Ref } from "@nuxtjs/composition-api"
+import { Ref, ref } from "@nuxtjs/composition-api"
+
+export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export default function useDownloadResponse(
   responseBodyText: Ref<any>,
-  downloadIcon: Ref<any>,
   toast: any,
   t: any
-): { [key: string]: () => void } {
+): { [key: string]: downloadResponseReturnType } {
+  const downloadIcon = ref("download")
+
   const downloadResponse = () => {
     const dataToWrite = responseBodyText.value
     const file = new Blob([dataToWrite], { type: "text/html" })
@@ -25,6 +28,7 @@ export default function useDownloadResponse(
     }, 1000)
   }
   return {
+    downloadIcon,
     downloadResponse,
   }
 }

@@ -2,10 +2,10 @@ import { ref, Ref } from "@nuxtjs/composition-api"
 
 export default function usePreview(
   previewEnabledDefault: boolean,
-  previewFrame: Ref<any>,
   url: Ref<any>,
   responseBodyText: Ref<any>
 ): any {
+  const previewFrame = ref<any | null>(null)
   const previewEnabled = ref(previewEnabledDefault)
 
   const togglePreview = () => {
@@ -28,6 +28,7 @@ export default function usePreview(
   }
 
   return {
+    previewFrame,
     previewEnabled,
     togglePreview,
   }

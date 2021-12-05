@@ -76,6 +76,7 @@ const linewrapEnabled = ref(true)
 
 const { responseBodyText } = useResponseBody(props.response)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "text/html",
   responseBodyText,
   toast,
   t

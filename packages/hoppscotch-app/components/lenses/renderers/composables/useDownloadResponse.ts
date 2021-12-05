@@ -3,6 +3,7 @@ import { Ref, ref } from "@nuxtjs/composition-api"
 export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export default function useDownloadResponse(
+  contentType: string,
   responseBodyText: Ref<any>,
   toast: any,
   t: any
@@ -11,7 +12,7 @@ export default function useDownloadResponse(
 
   const downloadResponse = () => {
     const dataToWrite = responseBodyText.value
-    const file = new Blob([dataToWrite], { type: "text/html" })
+    const file = new Blob([dataToWrite], { type: contentType })
     const a = document.createElement("a")
     const url = URL.createObjectURL(file)
     a.href = url

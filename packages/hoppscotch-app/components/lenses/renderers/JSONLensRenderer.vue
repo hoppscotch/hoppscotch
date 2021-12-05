@@ -126,7 +126,6 @@
 <script setup lang="ts">
 import { computed, ref, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
 import { getJSONOutlineAtPos } from "~/helpers/newOutline"
@@ -135,6 +134,9 @@ import {
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
 import { useI18n, useToast } from "~/helpers/utils/composables"
+import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
+import useResponseBody from "~/components/lenses/renderers/composables/useResponseBody"
+import useDownloadResponse from "~/components/lenses/renderers/composables/useDownloadResponse"
 
 const t = useI18n()
 
@@ -144,22 +146,16 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const responseBodyText = computed(() => {
-  if (
-    props.response.type === "loading" ||
-    props.response.type === "network_fail"
-  )
-    return ""
-  if (typeof props.response.body === "string") return props.response.body
-  else {
-    const res = new TextDecoder("utf-8").decode(props.response.body)
-    // HACK: Temporary trailing null character issue from the extension fix
-    return res.replace(/\0+$/, "")
-  }
-})
+const { responseBodyText } = useResponseBody(props.response)
 
-const downloadIcon = ref("download")
-const copyIcon = ref("copy")
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText, toast, t)
+
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "application/json",
+  responseBodyText,
+  toast,
+  t
+)
 
 const jsonBodyText = computed(() => {
   try {
@@ -202,25 +198,6 @@ const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
   cursor.value = pos
 }
 
-const downloadResponse = () => {
-  const dataToWrite = responseBodyText.value
-  const file = new Blob([dataToWrite], { type: "application/json" })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-  // TODO get uri from meta
-  a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-  document.body.appendChild(a)
-  a.click()
-  downloadIcon.value = "check"
-  toast.success(`${t("state.download_started")}`)
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    downloadIcon.value = "download"
-  }, 1000)
-}
-
 const outlinePath = computed(() => {
   if (ast.value) {
     return getJSONOutlineAtPos(
@@ -229,13 +206,6 @@ const outlinePath = computed(() => {
     )
   } else return null
 })
-
-const copyResponse = () => {
-  copyToClipboard(responseBodyText.value)
-  copyIcon.value = "check"
-  toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
-}
 </script>
 
 <style lang="scss" scoped>

@@ -2,11 +2,11 @@ import { ref, Ref } from "@nuxtjs/composition-api"
 
 export default function usePreview(
   previewEnabledDefault: boolean,
-  url: Ref<any>,
   responseBodyText: Ref<any>
 ): any {
   const previewFrame = ref<any | null>(null)
   const previewEnabled = ref(previewEnabledDefault)
+  const url = ref("")
 
   const togglePreview = () => {
     previewEnabled.value = !previewEnabled.value

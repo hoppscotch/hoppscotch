@@ -70,7 +70,6 @@ const props = defineProps<{
 }>()
 
 const toast = useToast()
-const url = ref("")
 const htmlResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
@@ -83,7 +82,6 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 )
 const { previewFrame, previewEnabled, togglePreview } = usePreview(
   false,
-  url,
   responseBodyText
 )
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText, toast, t)

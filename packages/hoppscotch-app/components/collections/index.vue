@@ -5,7 +5,7 @@
   >
     <div
       class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col z-10 sticky"
-      style="top: calc(-1 * var(--body-font-size))"
+      :style="saveRequest ? 'top: calc(-1 * var(--body-font-size))' : 'top: 0'"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input

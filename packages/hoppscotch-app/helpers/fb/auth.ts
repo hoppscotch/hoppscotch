@@ -17,6 +17,9 @@ import {
   AuthCredential,
   UserCredential,
   updateProfile,
+  updateEmail,
+  sendEmailVerification,
+  reauthenticateWithCredential,
 } from "firebase/auth"
 import {
   onSnapshot,
@@ -312,6 +315,78 @@ export async function setDisplayName(name: string) {
     await updateProfile(currentUser$.value, us).catch((e) =>
       console.error("error updating", us, e)
     )
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Send user's email address verification mail
+ */
+export async function verifyEmailAddress() {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  try {
+    await sendEmailVerification(currentUser$.value).catch((e) =>
+      console.error("error updating", e)
+    )
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Sets the user's email address
+ *
+ * @param email - The new email address
+ */
+export async function setEmailAddress(email: string) {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  try {
+    await updateEmail(currentUser$.value, email).catch(async (e) => {
+      await reauthenticateUser()
+      console.error("error updating", email, e)
+    })
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Reauthenticate the user with the given credential
+ */
+async function reauthenticateUser() {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+  const currentAuthMethod = await fetchSignInMethodsForEmail(
+    getAuth(),
+    currentUser$.value.email as string
+  )
+  console.log(currentAuthMethod)
+
+  let credential
+  if (currentAuthMethod.includes("github.com")) {
+    const result = await signInUserWithGithub()
+    credential = GithubAuthProvider.credentialFromResult(result)
+  } else if (currentAuthMethod.includes("google.com")) {
+    const result = await signInUserWithGoogle()
+    credential = GoogleAuthProvider.credentialFromResult(result)
+  } else if (currentAuthMethod.includes("emailLink")) {
+    const email = prompt("Email:")
+    const actionCodeSettings = {
+      url: `${process.env.BASE_URL}/enter`,
+      handleCodeInApp: true,
+    }
+    await signInWithEmail(email as string, actionCodeSettings)
+  }
+  try {
+    await reauthenticateWithCredential(
+      currentUser$.value,
+      credential as AuthCredential
+    ).catch((e) => console.error("error updating", e))
   } catch (e) {
     console.error("error updating", e)
     throw e

@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Could not send request",
-    "script_fail": "Could not execute pre-request script",
     "no_duration": "No duration",
+    "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "The authorization header will be automatically generated when you send the request.",
     "generate_documentation_first": "Generate documentation first",
     "network_fail": "Unable to reach the API endpoint. Check your network connection or turn on Proxy Interceptor and try again.",
-    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "offline": "You seem to be offline. Data in this workspace might not be up to date.",
     "offline_short": "You seem to be offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
+    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "tests": "Write a test script to automate debugging."
   },
   "hide": {
@@ -273,6 +273,7 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
@@ -359,6 +360,7 @@
     "official_proxy_hosting": "Official Proxy is hosted by Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
@@ -377,7 +379,8 @@
     "theme": "Theme",
     "theme_description": "Customize your application theme.",
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
-    "user": "User"
+    "user": "User",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

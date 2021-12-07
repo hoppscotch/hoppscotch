@@ -46,6 +46,15 @@
                     name="verified"
                     class="ml-2 text-green-500 svg-icons"
                   />
+                  <ButtonSecondary
+                    v-else
+                    :label="t('settings.verify_email')"
+                    svg="verified"
+                    class="ml-2"
+                    filled
+                    :loading="verifyingEmailAddress"
+                    @click.native="sendEmailVerification"
+                  />
                 </p>
               </div>
             </div>
@@ -96,6 +105,31 @@
                       class="ml-2 min-w-16"
                       type="submit"
                       :loading="updatingDisplayName"
+                    />
+                  </form>
+                </div>
+                <div class="py-4">
+                  <label for="emailAddress">
+                    {{ t("settings.profile_email") }}
+                  </label>
+                  <form
+                    class="flex mt-2 md:max-w-sm"
+                    @submit.prevent="updateEmailAddress"
+                  >
+                    <input
+                      id="emailAddress"
+                      v-model="emailAddress"
+                      class="input"
+                      :placeholder="`${t('settings.profile_name')}`"
+                      type="email"
+                      autocomplete="off"
+                      required
+                    />
+                    <ButtonPrimary
+                      :label="t('action.save')"
+                      class="ml-2 min-w-16"
+                      type="submit"
+                      :loading="updatingEmailAddress"
                     />
                   </form>
                 </div>
@@ -150,11 +184,21 @@
 
 <script setup lang="ts">
 import { ref, useMeta, defineComponent } from "@nuxtjs/composition-api"
-import { currentUser$, setDisplayName } from "~/helpers/fb/auth"
-import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
+import {
+  currentUser$,
+  setDisplayName,
+  setEmailAddress,
+  verifyEmailAddress,
+} from "~/helpers/fb/auth"
+import {
+  useReadonlyStream,
+  useI18n,
+  useToast,
+} from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
 
 const t = useI18n()
+const toast = useToast()
 
 const showLogin = ref(false)
 
@@ -168,8 +212,28 @@ const updatingDisplayName = ref(false)
 
 const updateDisplayName = () => {
   updatingDisplayName.value = true
-  setDisplayName(displayName.value).finally(() => {
+  setDisplayName(displayName.value as string).finally(() => {
     updatingDisplayName.value = false
+  })
+}
+
+const emailAddress = ref(currentUser$.value?.email)
+const updatingEmailAddress = ref(false)
+
+const updateEmailAddress = () => {
+  updatingEmailAddress.value = true
+  setEmailAddress(emailAddress.value as string).finally(() => {
+    updatingEmailAddress.value = false
+  })
+}
+
+const verifyingEmailAddress = ref(false)
+
+const sendEmailVerification = () => {
+  verifyingEmailAddress.value = true
+  verifyEmailAddress().finally(() => {
+    verifyingEmailAddress.value = false
+    toast.success(`${t("profile.email_verification_mail")}`)
   })
 }
 

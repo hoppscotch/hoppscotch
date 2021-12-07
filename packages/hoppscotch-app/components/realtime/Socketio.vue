@@ -13,6 +13,7 @@
           :size="COLUMN_LAYOUT ? 45 : 50"
           class="hide-scrollbar !overflow-auto"
         >
+          <AppSection label="header"></AppSection>
           <AppSection label="request">
             <div class="bg-primary flex p-4 top-0 z-10 sticky">
               <div class="space-x-2 flex-1 inline-flex">

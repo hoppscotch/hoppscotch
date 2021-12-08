@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Не удалось определить недопустимое тело, устранить синтаксические ошибки json и повторить попытку.",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Не удалось отправить запрос",
-    "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "no_duration": "Без продолжительности",
+    "script_fail": "Не удалось выполнить сценарий предварительного запроса",
     "something_went_wrong": "Что-то пошло не так"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Заголовок авторизации будет автоматически сгенерирован при отправке запроса.",
     "generate_documentation_first": "Сначала создайте документацию",
     "network_fail": "Невозможно достичь конечной точки API. Проверьте подключение к сети и попробуйте еще раз.",
-    "script_fail": "Похоже, в скрипте предварительного запроса есть сбой. Проверьте ошибку ниже и исправьте скрипт соответствующим образом.",
     "offline": "Кажется, вы не в сети. Данные в этой рабочей области могут быть устаревшими.",
     "offline_short": "Кажется, вы не в сети.",
     "post_request_tests": "Сценарии тестирования написаны на JavaScript и запускаются после получения ответа.",
     "pre_request_script": "Скрипты предварительного запроса написаны на JavaScript и запускаются перед отправкой запроса.",
+    "script_fail": "Похоже, в скрипте предварительного запроса есть сбой. Проверьте ошибку ниже и исправьте скрипт соответствующим образом.",
     "tests": "Напишите тестовый сценарий для автоматизации отладки."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Официальный прокси-сервер размещен на Hoppscotch.",
     "profile": "Профиль",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Прокси",
     "proxy_url": "URL прокси",
@@ -377,7 +380,8 @@
     "theme": "Тема",
     "theme_description": "Настройте тему своего приложения.",
     "use_experimental_url_bar": "Использовать экспериментальную строку URL с выделением среды",
-    "user": "Пользователь"
+    "user": "Пользователь",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

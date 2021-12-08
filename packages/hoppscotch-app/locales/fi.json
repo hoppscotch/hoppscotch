@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Virheellistä runkoa ei voitu määrittää, ratkaista json -syntaksivirheitä ja yrittää uudelleen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Pyyntöä ei voitu lähettää",
-    "script_fail": "Ennakkopyyntöskriptiä ei voitu suorittaa",
     "no_duration": "Ei kestoa",
+    "script_fail": "Ennakkopyyntöskriptiä ei voitu suorittaa",
     "something_went_wrong": "Jotain meni pieleen"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Valtuutusotsikko luodaan automaattisesti, kun lähetät pyynnön.",
     "generate_documentation_first": "Luo asiakirjat ensin",
     "network_fail": "Sovellusliittymän päätepistettä ei voi saavuttaa. Tarkista verkkoyhteys ja yritä uudelleen.",
-    "script_fail": "Vaikuttaa siltä, että ennakkopyyntöskriptissä on virhe. Tarkista alla oleva virhe ja korjaa komentosarja sen mukaisesti.",
     "offline": "Näytät olevan offline -tilassa. Tämän työtilan tiedot eivät ehkä ole ajan tasalla.",
     "offline_short": "Näytät olevan offline -tilassa.",
     "post_request_tests": "Testikomentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan vastauksen vastaanottamisen jälkeen.",
     "pre_request_script": "Pyyntöä edeltävät komentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan ennen pyynnön lähettämistä.",
+    "script_fail": "Vaikuttaa siltä, että ennakkopyyntöskriptissä on virhe. Tarkista alla oleva virhe ja korjaa komentosarja sen mukaisesti.",
     "tests": "Kirjoita testikomentosarja virheenkorjauksen automatisoimiseksi."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Virallista välityspalvelinta isännöi Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Välityspalvelin",
     "proxy_url": "Välityspalvelimen URL -osoite",
@@ -377,7 +380,8 @@
     "theme": "Teema",
     "theme_description": "Mukauta sovellusteemaa.",
     "use_experimental_url_bar": "Käytä kokeellista URL -palkkia ympäristön korostamisen kanssa",
-    "user": "Käyttäjä"
+    "user": "Käyttäjä",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

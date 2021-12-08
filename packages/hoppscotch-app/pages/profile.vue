@@ -50,8 +50,7 @@
                     v-else
                     :label="t('settings.verify_email')"
                     svg="verified"
-                    class="ml-2"
-                    filled
+                    class="ml-2 py-0 px-1"
                     :loading="verifyingEmailAddress"
                     @click.native="sendEmailVerification"
                   />
@@ -100,7 +99,9 @@
                       autocomplete="off"
                       required
                     />
-                    <ButtonPrimary
+                    <ButtonSecondary
+                      filled
+                      outline
                       :label="t('action.save')"
                       class="ml-2 min-w-16"
                       type="submit"
@@ -125,7 +126,9 @@
                       autocomplete="off"
                       required
                     />
-                    <ButtonPrimary
+                    <ButtonSecondary
+                      filled
+                      outline
                       :label="t('action.save')"
                       class="ml-2 min-w-16"
                       type="submit"
@@ -212,9 +215,16 @@ const updatingDisplayName = ref(false)
 
 const updateDisplayName = () => {
   updatingDisplayName.value = true
-  setDisplayName(displayName.value as string).finally(() => {
-    updatingDisplayName.value = false
-  })
+  setDisplayName(displayName.value as string)
+    .then(() => {
+      toast.success(`${t("profile.updated")}`)
+    })
+    .catch(() => {
+      toast.error(`${t("error.something_went_wrong")}`)
+    })
+    .finally(() => {
+      updatingDisplayName.value = false
+    })
 }
 
 const emailAddress = ref(currentUser$.value?.email)
@@ -222,19 +232,32 @@ const updatingEmailAddress = ref(false)
 
 const updateEmailAddress = () => {
   updatingEmailAddress.value = true
-  setEmailAddress(emailAddress.value as string).finally(() => {
-    updatingEmailAddress.value = false
-  })
+  setEmailAddress(emailAddress.value as string)
+    .then(() => {
+      toast.success(`${t("profile.updated")}`)
+    })
+    .catch(() => {
+      toast.error(`${t("error.something_went_wrong")}`)
+    })
+    .finally(() => {
+      updatingEmailAddress.value = false
+    })
 }
 
 const verifyingEmailAddress = ref(false)
 
 const sendEmailVerification = () => {
   verifyingEmailAddress.value = true
-  verifyEmailAddress().finally(() => {
-    verifyingEmailAddress.value = false
-    toast.success(`${t("profile.email_verification_mail")}`)
-  })
+  verifyEmailAddress()
+    .then(() => {
+      toast.success(`${t("profile.email_verification_mail")}`)
+    })
+    .catch(() => {
+      toast.error(`${t("error.something_went_wrong")}`)
+    })
+    .finally(() => {
+      verifyingEmailAddress.value = false
+    })
 }
 
 useMeta({

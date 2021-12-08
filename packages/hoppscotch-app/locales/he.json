@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "לא ניתן היה לייפות גוף לא חוקי, לפתור שגיאות תחביר של json ולנסות שוב",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "לא ניתן היה לשלוח בקשה",
-    "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
     "no_duration": "אין משך זמן",
+    "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
     "something_went_wrong": "משהו השתבש"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "כותרת ההרשאה תיווצר אוטומטית בעת שליחת הבקשה.",
     "generate_documentation_first": "צור קודם כל תיעוד",
     "network_fail": "לא ניתן להגיע לנקודת הסיום של ה- API. בדוק את חיבור הרשת שלך ונסה שוב.",
-    "script_fail": "נראה שיש תקלה בסקריפט שלפני הבקשה. בדוק את השגיאה למטה ותקן את הסקריפט בהתאם.",
     "offline": "נראה שאתה מחובר לאינטרנט. יתכן שהנתונים בסביבת עבודה זו אינם מעודכנים.",
     "offline_short": "נראה שאתה מחובר לאינטרנט.",
     "post_request_tests": "סקריפטים לבדיקה נכתבים ב- JavaScript ומופעלים לאחר קבלת התגובה.",
     "pre_request_script": "סקריפטים לבקשה מראש נכתבים ב- JavaScript ומופעלים לפני שליחת הבקשה.",
+    "script_fail": "נראה שיש תקלה בסקריפט שלפני הבקשה. בדוק את השגיאה למטה ותקן את הסקריפט בהתאם.",
     "tests": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "פרוקסי הרשמי מתארח אצל הופסקוטש.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "פרוקסי",
     "proxy_url": "כתובת URL של פרוקסי",
@@ -377,7 +380,8 @@
     "theme": "נושא",
     "theme_description": "התאם אישית את נושא היישום שלך.",
     "use_experimental_url_bar": "השתמש בשורת כתובת URL ניסיונית עם הדגשת סביבה",
-    "user": "מִשׁתַמֵשׁ"
+    "user": "מִשׁתַמֵשׁ",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

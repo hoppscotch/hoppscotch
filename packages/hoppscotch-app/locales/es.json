@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "No se puede aplicar prettify a un cuerpo inválido, resuelva errores de sintaxis json y vuelva a intentarlo",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No se pudo enviar la petición",
-    "script_fail": "No se pudo ejecutar el script de solicitud previa",
     "no_duration": "Sin duración",
+    "script_fail": "No se pudo ejecutar el script de solicitud previa",
     "something_went_wrong": "Algo salió mal"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "El encabezado de autorización se generará automáticamente cuando envíe la petición.",
     "generate_documentation_first": "Genere la documentación primero",
     "network_fail": "No se puede acceder a la API. Verifique su conexión de red y vuelva a intentarlo.",
-    "script_fail": "Parece que hay un problema técnico en el script de solicitud previa. Verifique el error a continuación y corrija el script en consecuencia.",
     "offline": "Parece estar desconectado. Es posible que los datos de este espacio de trabajo no estén actualizados.",
     "offline_short": "Pareces estar desconectado.",
     "post_request_tests": "Los scripts de prueba están escritos en JavaScript y se ejecutan después de recibir la respuesta.",
     "pre_request_script": "Los scripts previos a la petición están escritos en JavaScript y se ejecutan antes de que se envíe la petición.",
+    "script_fail": "Parece que hay un problema técnico en el script de solicitud previa. Verifique el error a continuación y corrija el script en consecuencia.",
     "tests": "Escriba un script de prueba para automatizar la depuración."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "El proxy oficial está alojado en Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "URL de proxy",
@@ -377,7 +380,8 @@
     "theme": "Tema",
     "theme_description": "Personaliza el tema de tu aplicación.",
     "use_experimental_url_bar": "Utilice la barra de URL experimental con resaltado del entorno",
-    "user": "Usuario"
+    "user": "Usuario",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

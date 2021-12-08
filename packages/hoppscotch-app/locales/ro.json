@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Nu s-a putut pregăti un corp nevalid, a rezolva erorile de sintaxă json și a încerca din nou",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nu s-a putut trimite solicitarea",
-    "script_fail": "Nu s-a putut executa scriptul de pre-cerere",
     "no_duration": "Fără durată",
+    "script_fail": "Nu s-a putut executa scriptul de pre-cerere",
     "something_went_wrong": "Ceva n-a mers bine"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Antetul autorizației va fi generat automat la trimiterea cererii.",
     "generate_documentation_first": "Generați mai întâi documentația",
     "network_fail": "Imposibil de atins punctul final API. Verificați conexiunea la rețea și încercați din nou.",
-    "script_fail": "Se pare că există o eroare în scriptul de pre-cerere. Verificați eroarea de mai jos și remediați scriptul în consecință.",
     "offline": "Pari să fii offline. Este posibil ca datele din acest spațiu de lucru să nu fie actualizate.",
     "offline_short": "Pari să fii offline.",
     "post_request_tests": "Scripturile de testare sunt scrise în JavaScript și se execută după primirea răspunsului.",
     "pre_request_script": "Scripturile de cerere prealabilă sunt scrise în JavaScript și sunt rulate înainte de trimiterea cererii.",
+    "script_fail": "Se pare că există o eroare în scriptul de pre-cerere. Verificați eroarea de mai jos și remediați scriptul în consecință.",
     "tests": "Scrieți un script de test pentru automatizarea depanării."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Proxy oficial este găzduit de Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "URL proxy",
@@ -377,7 +380,8 @@
     "theme": "Temă",
     "theme_description": "Personalizați tema aplicației.",
     "use_experimental_url_bar": "Utilizați bara URL experimentală cu evidențierea mediului",
-    "user": "Utilizator"
+    "user": "Utilizator",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

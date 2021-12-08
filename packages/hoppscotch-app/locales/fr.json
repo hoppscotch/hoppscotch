@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Impossible de formater un corps non valide, résolvez les erreurs de syntaxe json et réessayez",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Impossible d'envoyer la requête",
-    "script_fail": "Impossible d&#39;exécuter le script de pré-requête",
     "no_duration": "Pas de durée",
+    "script_fail": "Impossible d&#39;exécuter le script de pré-requête",
     "something_went_wrong": "Quelque chose s'est mal passé"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "L'en-tête d'autorisation sera généré automatiquement lors de l'envoi de la requête.",
     "generate_documentation_first": "Générez d'abord la documentation",
     "network_fail": "Impossible d'atteindre le point de terminaison de l'API. Vérifiez votre connexion réseau et réessayez.",
-    "script_fail": "Il semble qu&#39;il y ait un problème dans le script de pré-requête. Vérifiez l&#39;erreur ci-dessous et corrigez le script en conséquence.",
     "offline": "Vous semblez être hors ligne. Les données de cet espace de travail peuvent ne pas être à jour.",
     "offline_short": "Vous semblez être hors ligne.",
     "post_request_tests": "Les scripts de test sont écrits en JavaScript et sont exécutés après réception de la réponse.",
     "pre_request_script": "Les scripts de pré-requête sont écrits en JavaScript et sont exécutés avant l'envoi de la requête.",
+    "script_fail": "Il semble qu&#39;il y ait un problème dans le script de pré-requête. Vérifiez l&#39;erreur ci-dessous et corrigez le script en conséquence.",
     "tests": "Ecrivez un script de test pour automatiser le débogage."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Le proxy officiel est hébergé par Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "URL du proxy",
@@ -377,7 +380,8 @@
     "theme": "Thème",
     "theme_description": "Personnalisez le thème de votre application.",
     "use_experimental_url_bar": "Utiliser la barre d'URL expérimentale avec mise en évidence de l'environnement",
-    "user": "Utilisateur"
+    "user": "Utilisateur",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

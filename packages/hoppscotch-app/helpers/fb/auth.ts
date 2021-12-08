@@ -312,9 +312,7 @@ export async function setDisplayName(name: string) {
   }
 
   try {
-    await updateProfile(currentUser$.value, us).catch((e) =>
-      console.error("error updating", us, e)
-    )
+    await updateProfile(currentUser$.value, us)
   } catch (e) {
     console.error("error updating", e)
     throw e
@@ -328,9 +326,7 @@ export async function verifyEmailAddress() {
   if (!currentUser$.value) throw new Error("No user has logged in")
 
   try {
-    await sendEmailVerification(currentUser$.value).catch((e) =>
-      console.error("error updating", e)
-    )
+    await sendEmailVerification(currentUser$.value)
   } catch (e) {
     console.error("error updating", e)
     throw e
@@ -346,11 +342,9 @@ export async function setEmailAddress(email: string) {
   if (!currentUser$.value) throw new Error("No user has logged in")
 
   try {
-    await updateEmail(currentUser$.value, email).catch(async (e) => {
-      await reauthenticateUser()
-      console.error("error updating", email, e)
-    })
+    await updateEmail(currentUser$.value, email)
   } catch (e) {
+    await reauthenticateUser()
     console.error("error updating", e)
     throw e
   }
@@ -361,32 +355,39 @@ export async function setEmailAddress(email: string) {
  */
 async function reauthenticateUser() {
   if (!currentUser$.value) throw new Error("No user has logged in")
-  const currentAuthMethod = await fetchSignInMethodsForEmail(
-    getAuth(),
-    currentUser$.value.email as string
-  )
-  console.log(currentAuthMethod)
-
+  const currentAuthMethod = currentUser$.value.provider
   let credential
-  if (currentAuthMethod.includes("github.com")) {
+  if (currentAuthMethod === "google.com") {
     const result = await signInUserWithGithub()
     credential = GithubAuthProvider.credentialFromResult(result)
-  } else if (currentAuthMethod.includes("google.com")) {
+  } else if (currentAuthMethod === "github.com") {
     const result = await signInUserWithGoogle()
     credential = GoogleAuthProvider.credentialFromResult(result)
-  } else if (currentAuthMethod.includes("emailLink")) {
-    const email = prompt("Email:")
+  } else if (currentAuthMethod === "password") {
+    const email = prompt(
+      "Reauthenticate your account using your current email:"
+    )
     const actionCodeSettings = {
       url: `${process.env.BASE_URL}/enter`,
       handleCodeInApp: true,
     }
     await signInWithEmail(email as string, actionCodeSettings)
+      .then(() =>
+        alert(
+          `Check your inbox - we sent an email to ${email}. It contains a magic link that will reauthenticate your account.`
+        )
+      )
+      .catch((e) => {
+        alert(`Error: ${e.message}`)
+        console.error(e)
+      })
+    return
   }
   try {
     await reauthenticateWithCredential(
       currentUser$.value,
       credential as AuthCredential
-    ).catch((e) => console.error("error updating", e))
+    )
   } catch (e) {
     console.error("error updating", e)
     throw e

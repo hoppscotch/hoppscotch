@@ -51,6 +51,7 @@
     "@codemirror/search": "^0.19.4",
     "@codemirror/state": "^0.19.6",
     "@codemirror/text": "^0.19.5",
+    "@codemirror/tooltip": "^0.19.10",
     "@codemirror/view": "^0.19.26",
     "@hoppscotch/codemirror-lang-graphql": "workspace:^0.1.0",
     "@hoppscotch/data": "workspace:^0.1.0",

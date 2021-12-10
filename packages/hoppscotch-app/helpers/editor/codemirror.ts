@@ -33,6 +33,7 @@ import { isJSONContentType } from "../utils/contenttypes"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
+import { environmentTooltip } from "./extensions/environmentTooltip"
 
 type ExtendedEditorConfig = {
   mode: string
@@ -174,6 +175,7 @@ export function useCodemirror(
           basicSetup,
           baseTheme,
           baseHighlightStyle,
+          environmentTooltip,
           ViewPlugin.fromClass(
             class {
               update(update: ViewUpdate) {

@@ -186,7 +186,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useMeta, defineComponent } from "@nuxtjs/composition-api"
+import {
+  ref,
+  useMeta,
+  defineComponent,
+  watchEffect,
+} from "@nuxtjs/composition-api"
 import {
   currentUser$,
   setDisplayName,
@@ -210,8 +215,9 @@ const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
 const SYNC_HISTORY = useSetting("syncHistory")
 const currentUser = useReadonlyStream(currentUser$, null)
 
-const displayName = ref(currentUser$.value?.displayName)
+const displayName = ref(currentUser.value?.displayName)
 const updatingDisplayName = ref(false)
+watchEffect(() => (displayName.value = currentUser.value?.displayName))
 
 const updateDisplayName = () => {
   updatingDisplayName.value = true
@@ -227,8 +233,9 @@ const updateDisplayName = () => {
     })
 }
 
-const emailAddress = ref(currentUser$.value?.email)
+const emailAddress = ref(currentUser.value?.email)
 const updatingEmailAddress = ref(false)
+watchEffect(() => (emailAddress.value = currentUser.value?.email))
 
 const updateEmailAddress = () => {
   updatingEmailAddress.value = true

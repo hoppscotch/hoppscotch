@@ -96,6 +96,7 @@
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
+      :editing-collection-name="editingCollection ? editingCollection.name : ''"
       @hide-modal="displayModalEdit(false)"
     />
     <CollectionsGraphqlAddFolder
@@ -110,6 +111,7 @@
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
       :folder-path="editingFolderPath"
+      :editing-folder-name="editingFolder ? editingFolder.name : ''"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsGraphqlEditRequest
@@ -117,6 +119,7 @@
       :folder-path="editingFolderPath"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :editing-request-name="editingRequest ? editingRequest.name : ''"
       @hide-modal="displayModalEditRequest(false)"
     />
     <CollectionsGraphqlImportExport

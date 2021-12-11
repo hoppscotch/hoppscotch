@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-stretch group">
+  <div
+    class="flex items-stretch group"
+    @contextmenu.prevent="$refs.options.tippy().show()"
+  >
     <span
       class="cursor-pointer flex px-4 items-center justify-center"
       @click="$emit('edit-environment')"

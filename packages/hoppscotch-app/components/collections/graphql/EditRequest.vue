@@ -47,6 +47,7 @@ export default defineComponent({
     folderPath: { type: String, default: null },
     request: { type: Object as PropType<HoppGQLRequest>, default: () => {} },
     requestIndex: { type: Number, default: null },
+    editingRequestName: { type: String, default: null },
   },
   data() {
     return {
@@ -54,6 +55,11 @@ export default defineComponent({
         name: null as any | null,
       },
     }
+  },
+  watch: {
+    editingRequestName(val) {
+      this.requestUpdateData.name = val
+    },
   },
   methods: {
     saveRequest() {

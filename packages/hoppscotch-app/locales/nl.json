@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Kon een ongeldige hoofdtekst niet mooier maken, json-syntaxisfouten oplossen en opnieuw proberen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kan verzoek niet versturen",
-    "script_fail": "Kon pre-aanvraagscript niet uitvoeren",
     "no_duration": "Geen duur",
+    "script_fail": "Kon pre-aanvraagscript niet uitvoeren",
     "something_went_wrong": "Er is iets fout gegaan"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "De autorisatieheader wordt automatisch gegenereerd wanneer u het verzoek verzendt.",
     "generate_documentation_first": "Genereer eerst documentatie",
     "network_fail": "Kan het API-eindpunt niet bereiken. Controleer uw netwerkverbinding en probeer het opnieuw.",
-    "script_fail": "Het lijkt erop dat er een storing is in het pre-request script. Controleer de onderstaande fout en corrigeer het script dienovereenkomstig.",
     "offline": "Je lijkt offline te zijn. Gegevens in deze werkruimte zijn mogelijk niet up-to-date.",
     "offline_short": "Je lijkt offline te zijn.",
     "post_request_tests": "Testscripts zijn geschreven in JavaScript en worden uitgevoerd nadat het antwoord is ontvangen.",
     "pre_request_script": "Pre-request scripts zijn geschreven in JavaScript en worden uitgevoerd voordat het verzoek wordt verzonden.",
+    "script_fail": "Het lijkt erop dat er een storing is in het pre-request script. Controleer de onderstaande fout en corrigeer het script dienovereenkomstig.",
     "tests": "Schrijf een testscript om foutopsporing te automatiseren."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Officiële proxy wordt gehost door Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Proxy-URL",
@@ -377,7 +380,8 @@
     "theme": "Thema",
     "theme_description": "Pas uw toepassingsthema aan.",
     "use_experimental_url_bar": "Experimentele URL-balk gebruiken met omgevingsmarkering",
-    "user": "Gebruiker"
+    "user": "Gebruiker",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

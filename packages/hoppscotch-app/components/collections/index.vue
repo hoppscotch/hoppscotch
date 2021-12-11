@@ -5,7 +5,7 @@
   >
     <div
       class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col z-10 sticky"
-      style="top: calc(-1 * var(--body-font-size))"
+      :style="saveRequest ? 'top: calc(-1 * var(--body-font-size))' : 'top: 0'"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input
@@ -146,8 +146,11 @@
     />
     <CollectionsEdit
       :show="showModalEdit"
-      :editing-coll-name="editingCollection ? editingCollection.name : ''"
-      :placeholder-coll-name="editingCollection ? editingCollection.name : ''"
+      :editing-collection-name="
+        editingCollection
+          ? editingCollection.name || editingCollection.title
+          : ''
+      "
       @hide-modal="displayModalEdit(false)"
       @submit="updateEditingCollection"
     />
@@ -160,12 +163,15 @@
     />
     <CollectionsEditFolder
       :show="showModalEditFolder"
+      :editing-folder-name="
+        editingFolder ? editingFolder.name || editingFolder.title : ''
+      "
       @submit="updateEditingFolder"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsEditRequest
       :show="showModalEditRequest"
-      :placeholder-req-name="editingRequest ? editingRequest.name : ''"
+      :editing-request-name="editingRequest ? editingRequest.name : ''"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
     />

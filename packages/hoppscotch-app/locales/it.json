@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Impossibile abbellire un corpo non valido, risolvere gli errori di sintassi JSON e riprovare",
     "network_error": "Sembra ci sia un problema di rete. Per favore prova di nuovo.",
     "network_fail": "Impossibile inviare la richiesta",
-    "script_fail": "Impossibile eseguire lo script di pre-richiesta",
     "no_duration": "Nessuna durata",
+    "script_fail": "Impossibile eseguire lo script di pre-richiesta",
     "something_went_wrong": "Qualcosa è andato storto"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "L'intestazione di autorizzazione verrà generata automaticamente quando invii la richiesta.",
     "generate_documentation_first": "Generare prima la documentazione",
     "network_fail": "Impossibile raggiungere l'endpoint API. Controlla la tua connessione di rete o accendi il Proxy Interceptor e riprova.",
-    "script_fail": "Sembra che ci sia un errore nello script di pre-richiesta. Controllare l&#39;errore di seguito e correggere lo script di conseguenza.",
     "offline": "Sembra che tu sia offline. I dati in questo spazio di lavoro potrebbero non essere aggiornati.",
     "offline_short": "Sembra che tu sia offline.",
     "post_request_tests": "Gli script di test sono scritti in JavaScript e vengono eseguiti dopo aver ricevuto la risposta.",
     "pre_request_script": "Gli script di pre-richiesta sono scritti in JavaScript e vengono eseguiti prima dell'invio della richiesta.",
+    "script_fail": "Sembra che ci sia un errore nello script di pre-richiesta. Controllare l&#39;errore di seguito e correggere lo script di conseguenza.",
     "tests": "Scrivi uno script di test per automatizzare il debug."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "Impostazioni della app",
     "editor": "Autore",
     "editor_description": "Gli Autori possono aggiungere, modificare e cancellare richieste.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "Non hai i permessi per compiere questa azione.",
     "owner": "Proprietario",
     "owner_description": "I Proprietari possono aggiungere, modificare e cancellare richieste, raccolte e membri del team.",
     "roles": "Ruoli",
     "roles_description": "I ruoli sono usati per controllare l'accesso alle raccolte condivise.",
+    "updated": "Profile updated",
     "viewer": "Visualizzatore",
     "viewer_description": "I Visualizzatori possono soltanto vedere e invocare richieste."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Il proxy ufficiale è ospitato da Hoppscotch.",
     "profile": "Profilo",
     "profile_description": "Aggiorna i dettagli del tuo profilo",
+    "profile_email": "Email address",
     "profile_name": "Nome del profilo",
     "proxy": "Proxy",
     "proxy_url": "URL del proxy",
@@ -377,7 +380,8 @@
     "theme": "Tema",
     "theme_description": "Personalizza il tema della tua applicazione.",
     "use_experimental_url_bar": "Usa la barra degli URL sperimentale con l'evidenziazione dell'ambiente",
-    "user": "Utente"
+    "user": "Utente",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

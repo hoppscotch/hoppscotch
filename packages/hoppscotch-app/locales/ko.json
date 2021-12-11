@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "잘못된 본문을 예쁘게 만들 수 없습니다. json 구문 오류를 해결하고 다시 시도하십시오.",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "요청을 보낼 수 없습니다",
-    "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "no_duration": "기간 없음",
+    "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "something_went_wrong": "문제가 발생했습니다."
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "요청을 보낼 때 인증 헤더가 자동으로 생성됩니다.",
     "generate_documentation_first": "먼저 문서 생성",
     "network_fail": "API 엔드포인트에 연결할 수 없습니다. 네트워크 연결을 확인하고 다시 시도하십시오.",
-    "script_fail": "사전 요청 스크립트에 결함이 있는 것 같습니다. 아래 오류를 확인하고 그에 따라 스크립트를 수정하십시오.",
     "offline": "오프라인 상태인 것 같습니다. 이 작업 공간의 데이터는 최신이 아닐 수 있습니다.",
     "offline_short": "오프라인 상태인 것 같습니다.",
     "post_request_tests": "테스트 스크립트는 JavaScript로 작성되었으며 응답을 받은 후 실행됩니다.",
     "pre_request_script": "사전 요청 스크립트는 JavaScript로 작성되며 요청이 전송되기 전에 실행됩니다.",
+    "script_fail": "사전 요청 스크립트에 결함이 있는 것 같습니다. 아래 오류를 확인하고 그에 따라 스크립트를 수정하십시오.",
     "tests": "디버깅을 자동화하는 테스트 스크립트를 작성하십시오."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "공식 프록시는 Hoppscotch에서 호스팅합니다.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "프록시",
     "proxy_url": "프록시 URL",
@@ -377,7 +380,8 @@
     "theme": "테마",
     "theme_description": "응용 프로그램 테마를 사용자 지정합니다.",
     "use_experimental_url_bar": "환경 강조 표시와 함께 실험용 URL 표시줄 사용",
-    "user": "사용자"
+    "user": "사용자",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

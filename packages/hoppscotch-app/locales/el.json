@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Δεν ήταν δυνατή η ομορφιά ενός μη έγκυρου σώματος, η επίλυση σφαλμάτων σύνταξης json και η προσπάθεια ξανά",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Δεν ήταν δυνατή η αποστολή του αιτήματος",
-    "script_fail": "Δεν ήταν δυνατή η εκτέλεση του σεναρίου πριν από το αίτημα",
     "no_duration": "Χωρίς διάρκεια",
+    "script_fail": "Δεν ήταν δυνατή η εκτέλεση του σεναρίου πριν από το αίτημα",
     "something_went_wrong": "Κάτι πήγε στραβά"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Η κεφαλίδα εξουσιοδότησης θα δημιουργηθεί αυτόματα κατά την αποστολή του αιτήματος.",
     "generate_documentation_first": "Δημιουργήστε πρώτα έγγραφα",
     "network_fail": "Δεν είναι δυνατή η πρόσβαση στο τελικό σημείο API. Ελέγξτε τη σύνδεση δικτύου και δοκιμάστε ξανά.",
-    "script_fail": "Φαίνεται ότι υπάρχει ένα σφάλμα στο σενάριο πριν από το αίτημα. Ελέγξτε το παρακάτω σφάλμα και διορθώστε το σενάριο ανάλογα.",
     "offline": "Φαίνεται ότι είστε εκτός σύνδεσης. Τα δεδομένα σε αυτόν τον χώρο εργασίας ενδέχεται να μην είναι ενημερωμένα.",
     "offline_short": "Φαίνεται ότι είστε εκτός σύνδεσης.",
     "post_request_tests": "Τα σενάρια δοκιμής γράφονται σε JavaScript και εκτελούνται μετά τη λήψη της απάντησης.",
     "pre_request_script": "Τα σενάρια προ-αίτησης είναι γραμμένα σε JavaScript και εκτελούνται πριν από την αποστολή του αιτήματος.",
+    "script_fail": "Φαίνεται ότι υπάρχει ένα σφάλμα στο σενάριο πριν από το αίτημα. Ελέγξτε το παρακάτω σφάλμα και διορθώστε το σενάριο ανάλογα.",
     "tests": "Γράψτε ένα δοκιμαστικό σενάριο για να αυτοματοποιήσετε τον εντοπισμό σφαλμάτων."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Το Official Proxy φιλοξενείται από το Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Πληρεξούσιο",
     "proxy_url": "URL διακομιστή μεσολάβησης",
@@ -377,7 +380,8 @@
     "theme": "Θέμα",
     "theme_description": "Προσαρμόστε το θέμα της εφαρμογής σας.",
     "use_experimental_url_bar": "Χρήση πειραματικής γραμμής URL με ανάδειξη περιβάλλοντος",
-    "user": "Χρήστης"
+    "user": "Χρήστης",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

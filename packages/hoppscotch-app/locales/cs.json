@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Nelze předtifikovat neplatné tělo, vyřešit chyby syntaxe json a zkusit to znovu",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Žádost nelze odeslat",
-    "script_fail": "Skript předběžného požadavku nelze spustit",
     "no_duration": "Žádné trvání",
+    "script_fail": "Skript předběžného požadavku nelze spustit",
     "something_went_wrong": "Něco se pokazilo"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Autorizační hlavička se automaticky vygeneruje při odeslání požadavku.",
     "generate_documentation_first": "Nejprve vytvořte dokumentaci",
     "network_fail": "Nelze dosáhnout koncového bodu API. Zkontrolujte připojení k síti a zkuste to znovu.",
-    "script_fail": "Zdá se, že ve skriptu předběžného požadavku je chyba. Zkontrolujte níže uvedenou chybu a opravte skript odpovídajícím způsobem.",
     "offline": "Zdá se, že jste offline. Data v tomto pracovním prostoru nemusí být aktuální.",
     "offline_short": "Zdá se, že jste offline.",
     "post_request_tests": "Testovací skripty jsou napsány v JavaScriptu a jsou spuštěny po přijetí odpovědi.",
     "pre_request_script": "Skripty před požadavkem jsou napsány v JavaScriptu a jsou spuštěny před odesláním požadavku.",
+    "script_fail": "Zdá se, že ve skriptu předběžného požadavku je chyba. Zkontrolujte níže uvedenou chybu a opravte skript odpovídajícím způsobem.",
     "tests": "Napište testovací skript pro automatizaci ladění."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Oficiální proxy je hostitelem Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
@@ -377,7 +380,8 @@
     "theme": "Téma",
     "theme_description": "Přizpůsobte si motiv aplikace.",
     "use_experimental_url_bar": "Použijte experimentální lištu URL se zvýrazněním prostředí",
-    "user": "Uživatel"
+    "user": "Uživatel",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

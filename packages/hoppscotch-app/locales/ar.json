@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "تعذر تجميل جسم غير صالح وحل أخطاء بناء جملة json وحاول مرة أخرى",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "تعذر إرسال الطلب",
-    "script_fail": "تعذر تنفيذ نص الطلب المسبق",
     "no_duration": "لا مدة",
+    "script_fail": "تعذر تنفيذ نص الطلب المسبق",
     "something_went_wrong": "هناك خطأ ما"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "سيتم إنشاء رأس التفويض تلقائيًا عند إرسال الطلب.",
     "generate_documentation_first": "قم بإنشاء الوثائق أولاً",
     "network_fail": "تعذر الوصول إلى نقطة نهاية API. تحقق من اتصالك بالشبكة وحاول مرة أخرى.",
-    "script_fail": "يبدو أن هناك خللًا في نص الطلب المسبق. تحقق من الخطأ أدناه وقم بإصلاح البرنامج النصي وفقًا لذلك.",
     "offline": "يبدو أنك غير متصل بالإنترنت. قد لا تكون البيانات الموجودة في مساحة العمل هذه محدثة.",
     "offline_short": "يبدو أنك غير متصل بالإنترنت.",
     "post_request_tests": "تتم كتابة نصوص الاختبار بلغة JavaScript ، ويتم تشغيلها بعد تلقي الاستجابة.",
     "pre_request_script": "تتم كتابة البرامج النصية للطلب المسبق بلغة JavaScript ، ويتم تشغيلها قبل إرسال الطلب.",
+    "script_fail": "يبدو أن هناك خللًا في نص الطلب المسبق. تحقق من الخطأ أدناه وقم بإصلاح البرنامج النصي وفقًا لذلك.",
     "tests": "اكتب نص اختبار لأتمتة تصحيح الأخطاء."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "يستضيف Hoppscotch الوكيل الرسمي.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "الوكيل",
     "proxy_url": "وكيل URL",
@@ -377,7 +380,8 @@
     "theme": "سمة",
     "theme_description": "تخصيص موضوع التطبيق الخاص بك.",
     "use_experimental_url_bar": "استخدم شريط URL التجريبي مع تمييز البيئة",
-    "user": "المستعمل"
+    "user": "المستعمل",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

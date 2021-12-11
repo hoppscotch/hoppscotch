@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col">
-    <div class="flex items-stretch group">
+    <div
+      class="flex items-stretch group"
+      @contextmenu.prevent="$refs.options.tippy().show()"
+    >
       <span
         class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
         :class="getRequestLabelColor(request.method)"

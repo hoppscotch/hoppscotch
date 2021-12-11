@@ -45,11 +45,17 @@ export default defineComponent({
     show: Boolean,
     folder: { type: Object, default: () => {} },
     folderPath: { type: String, default: null },
+    editingFolderName: { type: String, default: null },
   },
   data() {
     return {
       name: "",
     }
+  },
+  watch: {
+    editingFolderName(val) {
+      this.name = val
+    },
   },
   methods: {
     editFolder() {

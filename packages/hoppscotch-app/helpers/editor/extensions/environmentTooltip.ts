@@ -1,14 +1,6 @@
 import { Extension } from "@codemirror/state"
 import { hoverTooltip } from "@codemirror/tooltip"
-import {
-  Decoration,
-  EditorView,
-  MatchDecorator,
-  PluginField,
-  ViewPlugin,
-  ViewUpdate,
-  WidgetType,
-} from "@codemirror/view"
+import { Decoration, MatchDecorator, ViewPlugin } from "@codemirror/view"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { aggregateEnvs$ } from "~/newstore/environments"
 
@@ -64,35 +56,36 @@ function getEnvValue(value: string) {
   return "not found"
 }
 
-const environmentDecorator = new MatchDecorator({
-  // eslint-disable-next-line prefer-regex-literals
-  regexp: new RegExp(/(<<\w+>>)/g),
-  decoration: () =>
-    Decoration.replace({
-      widget: new (class extends WidgetType {
-        toDOM(_view: EditorView) {
-          const element = document.createElement("span")
-          element.textContent = "view"
-          return element
-        }
-      })(),
-      inclusive: false,
-    }),
+function checkEnv(env: string) {
+  const envHighlight =
+    "cursor-help transition rounded px-1 focus:outline-none mx-0.5"
+  const envFound = "bg-accentDark text-accentContrast hover:bg-accent"
+  const envNotFound = "bg-red-400 text-red-50 hover:bg-red-600"
+  const aggregateEnvs = useReadonlyStream(aggregateEnvs$, null)
+  const className =
+    aggregateEnvs.value.find((k: { key: string }) => k.key === env.slice(2, -2))
+      ?.value === undefined
+      ? envNotFound
+      : envFound
+  return Decoration.mark({
+    class: `${envHighlight} ${className}`,
+  })
+}
+
+const decorator = new MatchDecorator({
+  regexp: /(<<\w+>>)/g,
+  decoration: (m) => checkEnv(m[0]),
 })
 
 export const environmentHighlightStyle = ViewPlugin.define(
-  (view: EditorView) => ({
-    decorations: environmentDecorator.createDeco(view),
-    update(_update: ViewUpdate) {
-      this.decorations = environmentDecorator.updateDeco(
-        _update,
-        this.decorations
-      )
+  (view) => ({
+    decorations: decorator.createDeco(view),
+    update(u) {
+      this.decorations = decorator.updateDeco(u, this.decorations)
     },
   }),
   {
     decorations: (v) => v.decorations,
-    provide: PluginField.atomicRanges.from((v) => v.decorations),
   }
 )
 

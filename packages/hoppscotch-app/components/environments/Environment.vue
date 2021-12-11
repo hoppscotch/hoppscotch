@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-stretch items-center group">
+  <div class="flex items-stretch group">
     <span
       class="cursor-pointer flex px-4 items-center justify-center"
       @click="$emit('edit-environment')"

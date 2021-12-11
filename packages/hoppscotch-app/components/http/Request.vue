@@ -198,6 +198,7 @@ import {
   getRESTSaveContext,
   getRESTRequest,
   restRequest$,
+  setRESTSaveContext,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -418,8 +419,17 @@ const saveRequest = () => {
   }
 
   if (saveCtx.originLocation === "user-collection") {
-    editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
-    toast.success(`${t("request.saved")}`)
+    try {
+      editRESTRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        getRESTRequest()
+      )
+      toast.success(`${t("request.saved")}`)
+    } catch (e) {
+      setRESTSaveContext(null)
+      saveRequest()
+    }
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
 

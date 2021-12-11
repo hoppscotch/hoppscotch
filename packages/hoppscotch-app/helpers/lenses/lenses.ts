@@ -16,7 +16,13 @@ export const lenses: Lens[] = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
 
 export function getSuitableLenses(response: HoppRESTResponse): Lens[] {
   // return empty array if response is loading or error
-  if (response.type === "loading" || response.type === "network_fail") return []
+  if (
+    response.type === "loading" ||
+    response.type === "network_fail" ||
+    response.type === "script_fail" ||
+    response.type === "fail"
+  )
+    return []
 
   const contentType = response.headers.find((h) => h.key === "content-type")
 

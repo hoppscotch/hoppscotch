@@ -5,7 +5,12 @@ export default function useResponseBody(response: HoppRESTResponse): {
   [key: string]: Ref<any>
 } {
   const responseBodyText = computed(() => {
-    if (response.type === "loading" || response.type === "network_fail")
+    if (
+      response.type === "loading" ||
+      response.type === "network_fail" ||
+      response.type === "script_fail" ||
+      response.type === "fail"
+    )
       return ""
     if (typeof response.body === "string") return response.body
     else {

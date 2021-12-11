@@ -7,6 +7,7 @@
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @contextmenu.prevent="$refs.options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"

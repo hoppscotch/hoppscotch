@@ -285,7 +285,7 @@ export const currentEnvironment$ = combineLatest([
   })
 )
 
-type AggregateEnvironment = {
+export type AggregateEnvironment = {
   key: string
   value: string
   sourceEnv: string
@@ -313,6 +313,29 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
   }),
   distinctUntilChanged(isEqual)
 )
+
+export function getAggregateEnvs() {
+  const currentEnv = getCurrentEnvironment()
+
+  return [
+    ...currentEnv.variables.map(
+      (x) =>
+        <AggregateEnvironment>{
+          key: x.key,
+          value: x.value,
+          sourceEnv: currentEnv.name,
+        }
+    ),
+    ...getGlobalVariables().map(
+      (x) =>
+        <AggregateEnvironment>{
+          key: x.key,
+          value: x.value,
+          sourceEnv: "Global",
+        }
+    ),
+  ]
+}
 
 export function getCurrentEnvironment(): Environment {
   if (environmentsStore.value.currentEnvironmentIndex === -1) {

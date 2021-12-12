@@ -47,6 +47,7 @@ useCodemirror(curlEditor, curl, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: false,
 })
 
 defineProps<{ show: boolean }>()

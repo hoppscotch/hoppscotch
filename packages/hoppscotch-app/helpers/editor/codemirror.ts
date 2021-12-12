@@ -30,9 +30,11 @@ import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
+import { useStreamSubscriber } from "../utils/composables"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
+import { HoppEnvironmentPlugin } from "./extensions/HoppEnvironment"
 
 type ExtendedEditorConfig = {
   mode: string
@@ -45,6 +47,9 @@ type CodeMirrorOptions = {
   extendedEditorConfig: Partial<ExtendedEditorConfig>
   linter: LinterDefinition | null
   completer: Completer | null
+
+  // NOTE: This property is not reactive
+  environmentHighlights: boolean
 }
 
 const hoppCompleterExt = (completer: Completer): Extension => {
@@ -148,6 +153,8 @@ export function useCodemirror(
   value: Ref<string>,
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
+  const { subscribeToStream } = useStreamSubscriber()
+
   const language = new Compartment()
   const lineWrapping = new Compartment()
   const placeholderConfig = new Compartment()
@@ -165,64 +172,70 @@ export function useCodemirror(
 
   const view = ref<EditorView>()
 
+  const environmentTooltip = options.environmentHighlights
+    ? new HoppEnvironmentPlugin(subscribeToStream, view)
+    : null
+
   const initView = (el: any) => {
+    const extensions = [
+      basicSetup,
+      baseTheme,
+      baseHighlightStyle,
+      ViewPlugin.fromClass(
+        class {
+          update(update: ViewUpdate) {
+            if (update.selectionSet) {
+              const cursorPos = update.state.selection.main.head
+
+              const line = update.state.doc.lineAt(cursorPos)
+
+              cachedCursor.value = {
+                line: line.number - 1,
+                ch: cursorPos - line.from,
+              }
+
+              cursor.value = {
+                line: cachedCursor.value.line,
+                ch: cachedCursor.value.ch,
+              }
+            }
+            if (update.docChanged) {
+              // Expensive on big files ?
+              cachedValue.value = update.state.doc
+                .toJSON()
+                .join(update.state.lineBreak)
+              if (!options.extendedEditorConfig.readOnly)
+                value.value = cachedValue.value
+            }
+          }
+        }
+      ),
+      EditorState.changeFilter.of(() => !options.extendedEditorConfig.readOnly),
+      placeholderConfig.of(
+        placeholder(options.extendedEditorConfig.placeholder ?? "")
+      ),
+      language.of(
+        getEditorLanguage(
+          options.extendedEditorConfig.mode ?? "",
+          options.linter ?? undefined,
+          options.completer ?? undefined
+        )
+      ),
+      lineWrapping.of(
+        options.extendedEditorConfig.lineWrapping
+          ? [EditorView.lineWrapping]
+          : []
+      ),
+      keymap.of(defaultKeymap),
+    ]
+
+    if (environmentTooltip) extensions.push(environmentTooltip.extension)
+
     view.value = new EditorView({
       parent: el,
       state: EditorState.create({
         doc: value.value,
-        extensions: [
-          basicSetup,
-          baseTheme,
-          baseHighlightStyle,
-          ViewPlugin.fromClass(
-            class {
-              update(update: ViewUpdate) {
-                if (update.selectionSet) {
-                  const cursorPos = update.state.selection.main.head
-
-                  const line = update.state.doc.lineAt(cursorPos)
-
-                  cachedCursor.value = {
-                    line: line.number - 1,
-                    ch: cursorPos - line.from,
-                  }
-
-                  cursor.value = {
-                    line: cachedCursor.value.line,
-                    ch: cachedCursor.value.ch,
-                  }
-                }
-                if (update.docChanged) {
-                  // Expensive on big files ?
-                  cachedValue.value = update.state.doc
-                    .toJSON()
-                    .join(update.state.lineBreak)
-                  if (!options.extendedEditorConfig.readOnly)
-                    value.value = cachedValue.value
-                }
-              }
-            }
-          ),
-          EditorState.changeFilter.of(
-            () => !options.extendedEditorConfig.readOnly
-          ),
-          placeholderConfig.of(
-            placeholder(options.extendedEditorConfig.placeholder ?? "")
-          ),
-          language.of(
-            getEditorLanguage(
-              options.extendedEditorConfig.mode ?? "",
-              options.linter ?? undefined,
-              options.completer ?? undefined
-            )
-          ),
-          lineWrapping.of(
-            options.extendedEditorConfig.lineWrapping
-              ? [EditorView.lineWrapping]
-              : []
-          ),
-          keymap.of(defaultKeymap),
-        ],
+        extensions,
       }),
     })
   }

@@ -100,11 +100,20 @@ export function pluckMultipleFromRef<T, K extends Array<keyof T>>(
   return Object.fromEntries(keys.map((x) => [x, pluckRef(sourceRef, x)])) as any
 }
 
+export type StreamSubscriberFunc = <T>(
+  stream: Observable<T>,
+  next?: ((value: T) => void) | undefined,
+  error?: ((e: any) => void) | undefined,
+  complete?: (() => void) | undefined
+) => void
+
 /**
  * A composable that provides the ability to run streams
  * and subscribe to them and respect the component lifecycle.
  */
-export function useStreamSubscriber() {
+export function useStreamSubscriber(): {
+  subscribeToStream: StreamSubscriberFunc
+} {
   const subs: Subscription[] = []
 
   const runAndSubscribe = <T>(

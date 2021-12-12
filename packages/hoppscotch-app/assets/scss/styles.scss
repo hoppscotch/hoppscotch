@@ -136,44 +136,43 @@ a {
   }
 }
 
-.tippy-popper {
-  .tooltip-theme {
-    @apply bg-tooltip;
-    @apply text-primary;
-    @apply font-semibold;
-    @apply py-1 px-2;
+.tooltip-theme {
+  @apply bg-tooltip;
+  @apply text-primary;
+  @apply font-semibold;
+  @apply py-1 px-2;
+  @apply rounded;
+  @apply truncate;
+  @apply shadow;
+
+  font-size: 88%;
+  line-height: var(--body-line-height);
+
+  kbd {
+    @apply inline-flex;
+    @apply font-sans;
+    @apply bg-gray-500;
+    @apply bg-opacity-45;
+    @apply text-primaryLight;
+    @apply rounded-sm;
+    @apply px-1;
+    @apply ml-1;
     @apply truncate;
-    @apply shadow;
-
-    font-size: 88%;
-    line-height: var(--body-line-height);
-
-    kbd {
-      @apply inline-flex;
-      @apply font-sans;
-      @apply bg-gray-500;
-      @apply bg-opacity-45;
-      @apply text-primaryLight;
-      @apply rounded-sm;
-      @apply px-1;
-      @apply ml-1;
-      @apply truncate;
-    }
   }
+}
 
-  .popover-theme {
-    @apply bg-popover;
-    @apply text-secondary;
-    @apply p-2;
-    @apply shadow-lg;
-    @apply focus:outline-none;
+.popover-theme {
+  @apply bg-popover;
+  @apply text-secondary;
+  @apply p-2;
+  @apply shadow-lg;
+  @apply focus:outline-none;
 
-    font-size: var(--body-font-size);
-    line-height: var(--body-line-height);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
 
-    .tippy-roundarrow svg {
-      @apply fill-popover;
-    }
+  .tippy-roundarrow svg {
+    @apply fill-popover;
   }
 }
 

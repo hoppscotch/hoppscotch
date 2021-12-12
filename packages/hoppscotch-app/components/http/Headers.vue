@@ -182,6 +182,7 @@ useCodemirror(bulkEditor, bulkHeaders, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: true,
 })
 
 watch(bulkHeaders, () => {

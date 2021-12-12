@@ -60,6 +60,7 @@ importers:
       '@codemirror/search': ^0.19.4
       '@codemirror/state': ^0.19.6
       '@codemirror/text': ^0.19.5
+      '@codemirror/tooltip': ^0.19.10
       '@codemirror/view': ^0.19.26
       '@graphql-codegen/add': ^3.1.0
       '@graphql-codegen/cli': 2.3.0
@@ -180,6 +181,7 @@ importers:
       '@codemirror/search': 0.19.4
       '@codemirror/state': 0.19.6
       '@codemirror/text': 0.19.5
+      '@codemirror/tooltip': 0.19.10
       '@codemirror/view': 0.19.26
       '@hoppscotch/codemirror-lang-graphql': link:../codemirror-lang-graphql
       '@hoppscotch/data': link:../hoppscotch-data
@@ -1746,7 +1748,7 @@ packages:
       '@codemirror/panel': 0.19.0
       '@codemirror/rangeset': 0.19.2
       '@codemirror/state': 0.19.6
-      '@codemirror/tooltip': 0.19.8
+      '@codemirror/tooltip': 0.19.10
       '@codemirror/view': 0.19.26
       crelt: 1.0.5
     dev: false
@@ -1810,13 +1812,6 @@ packages:
 
   /@codemirror/tooltip/0.19.10:
     resolution: {integrity: sha512-xqIhCHr+IYoamdNLvBnU/oDh92zPnsbT1zLaFtKTFi9GI9SxOfBhWY3jfMENlK0j1C9rk8+AvwpXblPGvY/O6w==}
-    dependencies:
-      '@codemirror/state': 0.19.6
-      '@codemirror/view': 0.19.26
-    dev: false
-
-  /@codemirror/tooltip/0.19.8:
-    resolution: {integrity: sha512-Xg1H50utH3z1rmyzk5l/dfE0Lko+5pkxzaVlVzAbcqHlDsG9vARDkgRX+fEEpWg/rrvR83GVQhdKwl+wNxjOAg==}
     dependencies:
       '@codemirror/state': 0.19.6
       '@codemirror/view': 0.19.26
@@ -3506,11 +3501,11 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27307420.6a25d3e:
-    resolution: {integrity: sha512-JieTRigkV52VEQy+oqa6OqR/qOuL9ZmoaH9fDHNwHJXN7hLmil4HbRQ9502G7ura7hkHeAhjZTthXdQDKx1Q5Q==}
+  /@nuxt/kit-edge/3.0.0-27319101.3e82f0f:
+    resolution: {integrity: sha512-WASRt4RJp1Zdrm9AbW+diEVss6qv89cCuPbbqnqdmZMQPYepfXfB75dB/GiULeoy5sIokXJLNz7WqSCSL0INjw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27307420.6a25d3e
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27319101.3e82f0f
       consola: 2.15.3
       defu: 5.0.0
       dotenv: 10.0.0
@@ -3531,7 +3526,7 @@ packages:
   /@nuxt/kit/0.8.1-edge:
     resolution: {integrity: sha512-7kU+mYxRy3w9UohFK/rfrPkKXM9A4LWsTqpFN3MH7mxohy98SFBkf87B6nqE6ulXmztInK+MptS0Lr+VQa0E6w==}
     dependencies:
-      '@nuxt/kit-edge': 3.0.0-27307420.6a25d3e
+      '@nuxt/kit-edge': 3.0.0-27319101.3e82f0f
     dev: true
 
   /@nuxt/loading-screen/2.0.4:
@@ -3554,8 +3549,8 @@ packages:
       node-fetch: 2.6.6
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27307420.6a25d3e:
-    resolution: {integrity: sha512-QB6zMvxMQ+H5kwqd/6vZO7UAxGLIMZGV5zEc9rlYIyoilNnMO3opBJWuaUaokDLW7JpA1bGOfakLWWg8e8LGgQ==}
+  /@nuxt/schema-edge/3.0.0-27319101.3e82f0f:
+    resolution: {integrity: sha512-D5ekvoG6KV85Ko40+8j4jUtv8JifgeXoD44gY1b/dOZu++UkwH7COr+zU80UCa3hTaIcKFwQ0yRg7CTl1susTA==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       create-require: 1.1.1

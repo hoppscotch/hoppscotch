@@ -307,6 +307,7 @@ useCodemirror(bulkEditor, bulkHeaders, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: false,
 })
 
 const variableEditor = ref<any | null>(null)
@@ -318,6 +319,7 @@ useCodemirror(variableEditor, variableString, {
   },
   linter: jsonLinter,
   completer: null,
+  environmentHighlights: false,
 })
 
 const queryEditor = ref<any | null>(null)
@@ -330,6 +332,7 @@ useCodemirror(queryEditor, gqlQueryString, {
   },
   linter: createGQLQueryLinter(schemaString),
   completer: queryCompleter(schemaString),
+  environmentHighlights: false,
 })
 
 const copyQueryIcon = ref("copy")

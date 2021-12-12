@@ -30,6 +30,7 @@ import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { isJSONContentType } from "../utils/contenttypes"
+import { useStreamSubscriber } from "../utils/composables"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
@@ -152,6 +153,7 @@ export function useCodemirror(
   value: Ref<string>,
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
+  const { subscribeToStream } = useStreamSubscriber()
   const language = new Compartment()
   const lineWrapping = new Compartment()
   const placeholderConfig = new Compartment()
@@ -178,7 +180,7 @@ export function useCodemirror(
           basicSetup,
           baseTheme,
           baseHighlightStyle,
-          environmentTooltip,
+          environmentTooltip(subscribeToStream),
           environmentHighlightStyle,
           ViewPlugin.fromClass(
             class {

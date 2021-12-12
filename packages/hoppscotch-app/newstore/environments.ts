@@ -1,6 +1,6 @@
 import { cloneDeep } from "lodash"
 import isEqual from "lodash/isEqual"
-import { combineLatest } from "rxjs"
+import { combineLatest, Observable } from "rxjs"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import DispatchingStore, {
   defineDispatchers,
@@ -285,17 +285,22 @@ export const currentEnvironment$ = combineLatest([
   })
 )
 
+type AggregateEnvironment = {
+  key: string
+  value: string
+  sourceEnv: string
+}
+
 /**
  * Stream returning all the environment variables accessible in
  * the current state (Global + The Selected Environment).
  * NOTE: The source environment attribute will be "Global" for Global Env as source.
  */
-export const aggregateEnvs$ = combineLatest([
-  currentEnvironment$,
-  globalEnv$,
-]).pipe(
+export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
+  [currentEnvironment$, globalEnv$]
+).pipe(
   map(([selectedEnv, globalVars]) => {
-    const results: { key: string; value: string; sourceEnv: string }[] = []
+    const results: AggregateEnvironment[] = []
 
     selectedEnv.variables.forEach(({ key, value }) =>
       results.push({ key, value, sourceEnv: selectedEnv.name })

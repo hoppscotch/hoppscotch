@@ -1,56 +1,64 @@
 import { Extension } from "@codemirror/state"
 import { hoverTooltip } from "@codemirror/tooltip"
 import { Decoration, MatchDecorator, ViewPlugin } from "@codemirror/view"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  StreamSubscriberFunc,
+  useReadonlyStream,
+} from "~/helpers/utils/composables"
 import { aggregateEnvs$ } from "~/newstore/environments"
 
-const cursorTooltipField = hoverTooltip((view, pos, side) => {
-  const { from, to, text } = view.state.doc.lineAt(pos)
-  let start = pos
-  let end = pos
+const cursorTooltipField = (subscribeToStream: StreamSubscriberFunc) =>
+  hoverTooltip((view, pos, side) => {
+    const { from, to, text } = view.state.doc.lineAt(pos)
+    let start = pos
+    let end = pos
 
-  while (start > from && /\w/.test(text[start - from - 1])) start--
-  while (end < to && /\w/.test(text[end - from])) end++
+    while (start > from && /\w/.test(text[start - from - 1])) start--
+    while (end < to && /\w/.test(text[end - from])) end++
 
-  if (
-    (start === pos && side < 0) ||
-    (end === pos && side > 0) ||
-    !/(<<\w+>>)/g.test(text.slice(start - from - 2, end - from + 2))
-  )
-    return null
+    if (
+      (start === pos && side < 0) ||
+      (end === pos && side > 0) ||
+      !/(<<\w+>>)/g.test(text.slice(start - from - 2, end - from + 2))
+    )
+      return null
 
-  const aggregateEnvs = useReadonlyStream(aggregateEnvs$, null)
-  const envName = getEnvName(
-    aggregateEnvs.value?.find(
-      (env: { key: string }) => env.key === text.slice(start - from, end - from)
-    )?.sourceEnv
-  )
-  const envValue = getEnvValue(
-    aggregateEnvs.value?.find(
-      (env: { key: string }) => env.key === text.slice(start - from, end - from)
-    )?.value
-  )
-  const textContent = `${envName} <kbd>${envValue}</kbd>`
+    let textContent: string
+    subscribeToStream(aggregateEnvs$, (envs) => {
+      const envName = getEnvName(
+        envs.find(
+          (env: { key: string }) =>
+            env.key === text.slice(start - from, end - from)
+        )?.sourceEnv
+      )
+      const envValue = getEnvValue(
+        envs.find(
+          (env: { key: string }) =>
+            env.key === text.slice(start - from, end - from)
+        )?.value
+      )
+      textContent = `${envName} <kbd>${envValue}</kbd>`
+    })
 
-  return {
-    pos: start,
-    end,
-    above: true,
-    create() {
-      const dom = document.createElement("span")
-      dom.innerHTML = textContent
-      dom.className = "tooltip-theme"
-      return { dom }
-    },
-  }
-})
+    return {
+      pos: start,
+      end,
+      above: true,
+      create() {
+        const dom = document.createElement("span")
+        dom.innerHTML = textContent
+        dom.className = "tooltip-theme"
+        return { dom }
+      },
+    }
+  })
 
 function getEnvName(name: any) {
   if (name) return name
   return "choose an environment"
 }
 
-function getEnvValue(value: string) {
+function getEnvValue(value: string | undefined) {
   if (value) return value.replace(/"/g, "&quot;")
   // it does not filter special characters before adding them to HTML.
   return "not found"
@@ -63,8 +71,9 @@ function checkEnv(env: string) {
   const envNotFound = "bg-red-400 text-red-50 hover:bg-red-600"
   const aggregateEnvs = useReadonlyStream(aggregateEnvs$, null)
   const className =
-    aggregateEnvs.value.find((k: { key: string }) => k.key === env.slice(2, -2))
-      ?.value === undefined
+    aggregateEnvs.value?.find(
+      (k: { key: string }) => k.key === env.slice(2, -2)
+    )?.value === undefined
       ? envNotFound
       : envFound
   return Decoration.mark({
@@ -89,7 +98,8 @@ export const environmentHighlightStyle = ViewPlugin.define(
   }
 )
 
-export const environmentTooltip: Extension = [
-  cursorTooltipField,
-  environmentHighlightStyle,
-]
+export const environmentTooltip: (
+  subscribeToStream: StreamSubscriberFunc
+) => Extension = (subscribeToStream: StreamSubscriberFunc) => {
+  return [cursorTooltipField(subscribeToStream), environmentHighlightStyle]
+}

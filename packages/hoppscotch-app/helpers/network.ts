@@ -120,70 +120,50 @@ export function createRESTNetworkRequestStream(
     TE.Do,
 
     // Get a deep clone of the request
-    TE.bind("req", () => {
-      debugger
-      return TE.of(cloneDeep(request))
-    }),
+    TE.bind("req", () => TE.of(cloneDeep(request))),
 
     // Assembling headers object
-    TE.bind("headers", ({ req }) => {
-      debugger
-      return TE.of(
+    TE.bind("headers", ({ req }) =>
+      TE.of(
         req.effectiveFinalHeaders.reduce((acc, { key, value }) => {
           return Object.assign(acc, { [key]: value })
         }, {})
       )
-    }),
+    ),
 
     // Assembling params object
-    TE.bind("params", ({ req }) => {
-      debugger
-      return TE.of(
+    TE.bind("params", ({ req }) =>
+      TE.of(
         req.effectiveFinalParams.reduce((acc, { key, value }) => {
           return Object.assign(acc, { [key]: value })
         }, {})
       )
-    }),
+    ),
 
     // Keeping the backup start time
-    TE.bind("backupTimeStart", () => {
-      debugger
-      return TE.of(Date.now())
-    }),
+    TE.bind("backupTimeStart", () => TE.of(Date.now())),
 
     // Running the request and getting the response
-    TE.bind("res", ({ req, headers, params }) => {
-      debugger
-      return runAppropriateStrategy({
+    TE.bind("res", ({ req, headers, params }) =>
+      runAppropriateStrategy({
         method: req.method as any,
         url: req.effectiveFinalURL,
         headers,
         params,
         data: req.effectiveFinalBody,
       })
-    }),
+    ),
 
     // Getting the backup end time
-    TE.bind("backupTimeEnd", () => {
-      debugger
-      return TE.of(Date.now())
-    }),
+    TE.bind("backupTimeEnd", () => TE.of(Date.now())),
 
     // Assemble the final response object
-    TE.chainW(({ req, res, backupTimeEnd, backupTimeStart }) => {
-      debugger
-      return processResponse(
-        res,
-        req,
-        backupTimeStart,
-        backupTimeEnd,
-        "success"
-      )
-    }),
+    TE.chainW(({ req, res, backupTimeEnd, backupTimeStart }) =>
+      processResponse(res, req, backupTimeStart, backupTimeEnd, "success")
+    ),
 
     // Writing success state to the stream
     TE.chain((res) => {
-      debugger
       response.next(res)
       response.complete()
 
@@ -192,7 +172,6 @@ export function createRESTNetworkRequestStream(
 
     // Package the error type
     TE.getOrElseW((e) => {
-      debugger
       const obj: HoppRESTResponse = {
         type: "network_fail",
         error: e,

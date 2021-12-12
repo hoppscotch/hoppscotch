@@ -1,6 +1,9 @@
-import { AxiosRequestConfig } from "axios"
+import { AxiosResponse, AxiosRequestConfig } from "axios"
 import { BehaviorSubject, Observable } from "rxjs"
 import cloneDeep from "lodash/cloneDeep"
+import * as T from "fp-ts/Task"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import AxiosStrategy, {
   cancelRunningAxiosRequest,
 } from "./strategies/AxiosStrategy"
@@ -11,6 +14,19 @@ import ExtensionStrategy, {
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { EffectiveHoppRESTRequest } from "./utils/EffectiveURL"
 import { settingsStore } from "~/newstore/settings"
+
+export type NetworkResponse = AxiosResponse<any> & {
+  config?: {
+    timeData?: {
+      startTime: number
+      endTime: number
+    }
+  }
+}
+
+export type NetworkStrategy = (
+  req: AxiosRequestConfig
+) => TE.TaskEither<any, NetworkResponse>
 
 export const cancelRunningRequest = () => {
   if (isExtensionsAllowed() && hasExtensionInstalled()) {
@@ -34,110 +50,161 @@ const runAppropriateStrategy = (req: AxiosRequestConfig) => {
  * Returns an identifier for how a request will be ran
  * if the system is asked to fire a request
  *
- * @returns {"normal" | "extension" | "proxy"}
  */
 export function getCurrentStrategyID() {
   if (isExtensionsAllowed() && hasExtensionInstalled()) {
-    return "extension"
+    return "extension" as const
   } else if (settingsStore.value.PROXY_ENABLED) {
-    return "proxy"
+    return "proxy" as const
   } else {
-    return "normal"
+    return "normal" as const
   }
 }
 
 export const sendNetworkRequest = (req: any) =>
-  runAppropriateStrategy(req).finally(() => window.$nuxt.$loading.finish())
+  pipe(
+    runAppropriateStrategy(req),
+    TE.getOrElse((e) => {
+      throw e
+    })
+  )()
+
+const processResponse = (
+  res: NetworkResponse,
+  req: EffectiveHoppRESTRequest,
+  backupTimeStart: number,
+  backupTimeEnd: number,
+  successState: HoppRESTResponse["type"]
+) =>
+  pipe(
+    TE.Do,
+
+    // Calculate the content length
+    TE.bind("contentLength", () =>
+      TE.of(
+        res.headers["content-length"]
+          ? parseInt(res.headers["content-length"])
+          : (res.data as ArrayBuffer).byteLength
+      )
+    ),
+
+    // Building the final response object
+    TE.map(
+      ({ contentLength }) =>
+        <HoppRESTResponse>{
+          type: successState,
+          statusCode: res.status,
+          body: res.data,
+          headers: Object.keys(res.headers).map((x) => ({
+            key: x,
+            value: res.headers[x],
+          })),
+          meta: {
+            responseSize: contentLength,
+            responseDuration: backupTimeEnd - backupTimeStart,
+          },
+          req,
+        }
+    )
+  )
 
 export function createRESTNetworkRequestStream(
   request: EffectiveHoppRESTRequest
 ): Observable<HoppRESTResponse> {
-  const req = cloneDeep(request)
   const response = new BehaviorSubject<HoppRESTResponse>({
     type: "loading",
-    req,
+    req: request,
   })
 
-  const headers = req.effectiveFinalHeaders.reduce((acc, { key, value }) => {
-    return Object.assign(acc, { [key]: value })
-  }, {})
+  pipe(
+    TE.Do,
 
-  const params = req.effectiveFinalParams.reduce((acc, { key, value }) => {
-    return Object.assign(acc, { [key]: value })
-  }, {})
+    // Get a deep clone of the request
+    TE.bind("req", () => {
+      debugger
+      return TE.of(cloneDeep(request))
+    }),
 
-  const timeStart = Date.now()
+    // Assembling headers object
+    TE.bind("headers", ({ req }) => {
+      debugger
+      return TE.of(
+        req.effectiveFinalHeaders.reduce((acc, { key, value }) => {
+          return Object.assign(acc, { [key]: value })
+        }, {})
+      )
+    }),
 
-  runAppropriateStrategy({
-    method: req.method as any,
-    url: req.effectiveFinalURL,
-    headers,
-    params,
-    data: req.effectiveFinalBody,
-  })
-    .then((res: any) => {
-      const timeEnd = Date.now()
+    // Assembling params object
+    TE.bind("params", ({ req }) => {
+      debugger
+      return TE.of(
+        req.effectiveFinalParams.reduce((acc, { key, value }) => {
+          return Object.assign(acc, { [key]: value })
+        }, {})
+      )
+    }),
 
-      const contentLength = res.headers["content-length"]
-        ? parseInt(res.headers["content-length"])
-        : (res.data as ArrayBuffer).byteLength
+    // Keeping the backup start time
+    TE.bind("backupTimeStart", () => {
+      debugger
+      return TE.of(Date.now())
+    }),
 
-      const resObj: HoppRESTResponse = {
-        type: "success",
-        statusCode: res.status,
-        body: res.data,
-        headers: Object.keys(res.headers).map((x) => ({
-          key: x,
-          value: res.headers[x],
-        })),
-        meta: {
-          responseSize: contentLength,
-          responseDuration: timeEnd - timeStart,
-        },
+    // Running the request and getting the response
+    TE.bind("res", ({ req, headers, params }) => {
+      debugger
+      return runAppropriateStrategy({
+        method: req.method as any,
+        url: req.effectiveFinalURL,
+        headers,
+        params,
+        data: req.effectiveFinalBody,
+      })
+    }),
+
+    // Getting the backup end time
+    TE.bind("backupTimeEnd", () => {
+      debugger
+      return TE.of(Date.now())
+    }),
+
+    // Assemble the final response object
+    TE.chainW(({ req, res, backupTimeEnd, backupTimeStart }) => {
+      debugger
+      return processResponse(
+        res,
         req,
-      }
-      response.next(resObj)
+        backupTimeStart,
+        backupTimeEnd,
+        "success"
+      )
+    }),
 
+    // Writing success state to the stream
+    TE.chain((res) => {
+      debugger
+      response.next(res)
       response.complete()
-    })
-    .catch((e) => {
-      if (e.response) {
-        const timeEnd = Date.now()
 
-        const contentLength = e.response.headers["content-length"]
-          ? parseInt(e.response.headers["content-length"])
-          : (e.response.data as ArrayBuffer).byteLength
+      return TE.of(res)
+    }),
 
-        const resObj: HoppRESTResponse = {
-          type: "fail",
-          body: e.response.data,
-          headers: Object.keys(e.response.headers).map((x) => ({
-            key: x,
-            value: e.response.headers[x],
-          })),
-          meta: {
-            responseDuration: timeEnd - timeStart,
-            responseSize: contentLength,
-          },
-          req,
-          statusCode: e.response.status,
-        }
-
-        response.next(resObj)
-
-        response.complete()
-      } else {
-        const resObj: HoppRESTResponse = {
-          type: "network_fail",
-          error: e,
-          req,
-        }
-
-        response.next(resObj)
-
-        response.complete()
+    // Package the error type
+    TE.getOrElseW((e) => {
+      debugger
+      const obj: HoppRESTResponse = {
+        type: "network_fail",
+        error: e,
+        req: request,
       }
+
+      response.next(obj)
+      response.complete()
+
+      return T.of(obj)
     })
+  )()
 
   return response
 }

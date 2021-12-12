@@ -96,6 +96,7 @@ importers:
       '@types/esprima': ^4.0.3
       '@types/lodash': ^4.14.177
       '@types/splitpanes': ^2.2.1
+      '@types/uuid': ^8.3.3
       '@urql/core': ^2.3.5
       '@urql/devtools': ^2.0.3
       '@urql/exchange-auth': ^0.1.6
@@ -258,6 +259,7 @@ importers:
       '@types/esprima': 4.0.3
       '@types/lodash': 4.14.177
       '@types/splitpanes': 2.2.1
+      '@types/uuid': 8.3.3
       '@urql/devtools': 2.0.3_@urql+core@2.3.5+graphql@15.7.2
       '@vue/runtime-dom': 3.2.23
       '@vue/test-utils': 1.3.0
@@ -3506,11 +3508,11 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27307420.6a25d3e:
-    resolution: {integrity: sha512-JieTRigkV52VEQy+oqa6OqR/qOuL9ZmoaH9fDHNwHJXN7hLmil4HbRQ9502G7ura7hkHeAhjZTthXdQDKx1Q5Q==}
+  /@nuxt/kit-edge/3.0.0-27313139.1c88580:
+    resolution: {integrity: sha512-QQwmTaF5YkP1dZZ38DC7A3tCH2SQUlzsXN3QgNqys+WzZnZB0dPuyvSqgD6L/Ts7MwIFrooOEIRz0i9iwnJPMQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27307420.6a25d3e
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27313139.1c88580
       consola: 2.15.3
       defu: 5.0.0
       dotenv: 10.0.0
@@ -3531,7 +3533,7 @@ packages:
   /@nuxt/kit/0.8.1-edge:
     resolution: {integrity: sha512-7kU+mYxRy3w9UohFK/rfrPkKXM9A4LWsTqpFN3MH7mxohy98SFBkf87B6nqE6ulXmztInK+MptS0Lr+VQa0E6w==}
     dependencies:
-      '@nuxt/kit-edge': 3.0.0-27307420.6a25d3e
+      '@nuxt/kit-edge': 3.0.0-27313139.1c88580
     dev: true
 
   /@nuxt/loading-screen/2.0.4:
@@ -3554,8 +3556,8 @@ packages:
       node-fetch: 2.6.6
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27307420.6a25d3e:
-    resolution: {integrity: sha512-QB6zMvxMQ+H5kwqd/6vZO7UAxGLIMZGV5zEc9rlYIyoilNnMO3opBJWuaUaokDLW7JpA1bGOfakLWWg8e8LGgQ==}
+  /@nuxt/schema-edge/3.0.0-27313139.1c88580:
+    resolution: {integrity: sha512-RW4jvMAQK/PK2UdAskRaEnLetafm2n/0g82QymZJi8MsbdpgNbo/6hWx6cGDbljueUhMc/EBrTpYeGSC4FMC1A==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       create-require: 1.1.1
@@ -4550,6 +4552,10 @@ packages:
     resolution: {integrity: sha512-O3MmRAk6ZuAKa9CHgg0Pr0+lUOqoMLpc9AS4R8ano2auvsg7IE8syF3Xh/NPr26TWklxYcqoEEFdzLLs1fV9PQ==}
     dependencies:
       source-map: 0.6.1
+
+  /@types/uuid/8.3.3:
+    resolution: {integrity: sha512-0LbEEx1zxrYB3pgpd1M5lEhLcXjKJnYghvhTRgaBeUivLHMDM1TzF3IJ6hXU2+8uA4Xz+5BA63mtZo5DjVT8iA==}
+    dev: true
 
   /@types/webpack-bundle-analyzer/3.9.3:
     resolution: {integrity: sha512-l/vaDMWGcXiMB3CbczpyICivLTB07/JNtn1xebsRXE9tPaUDEHgX3x7YP6jfznG5TOu7I4w0Qx1tZz61znmPmg==}

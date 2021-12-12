@@ -38,20 +38,20 @@
     "quickjs-emscripten": "^0.13.0"
   },
   "devDependencies": {
-    "@digitak/esrun": "^2.0.5",
+    "@digitak/esrun": "^2.0.6",
     "@relmify/jest-fp-ts": "^1.1.1",
     "@types/jest": "^27.0.3",
-    "@types/lodash": "^4.14.177",
-    "@types/node": "^16.11.11",
-    "@typescript-eslint/eslint-plugin": "^5.5.0",
-    "@typescript-eslint/parser": "^5.5.0",
-    "eslint": "^8.4.0",
+    "@types/lodash": "^4.14.178",
+    "@types/node": "^16.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "io-ts": "^2.2.16",
-    "jest": "^27.4.3",
+    "jest": "^27.4.4",
     "prettier": "^2.5.1",
-    "ts-jest": "^27.1.0",
-    "typescript": "^4.5.2"
+    "ts-jest": "^27.1.1",
+    "typescript": "^4.5.3"
   }
 }

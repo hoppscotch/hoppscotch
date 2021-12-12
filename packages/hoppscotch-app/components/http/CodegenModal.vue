@@ -109,6 +109,7 @@ useCodemirror(generatedCode, requestCode, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: false,
 })
 
 watch(

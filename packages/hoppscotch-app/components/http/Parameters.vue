@@ -189,6 +189,7 @@ useCodemirror(bulkEditor, bulkParams, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: true,
 })
 
 const params$ = useReadonlyStream(restParams$, [])

@@ -88,6 +88,7 @@ useCodemirror(
     },
     linter,
     completer,
+    environmentHighlights: false,
   })
 )
 

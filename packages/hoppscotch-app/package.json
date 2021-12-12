@@ -131,6 +131,7 @@
     "@types/esprima": "^4.0.3",
     "@types/lodash": "^4.14.177",
     "@types/splitpanes": "^2.2.1",
+    "@types/uuid": "^8.3.3",
     "@urql/devtools": "^2.0.3",
     "@vue/runtime-dom": "^3.2.26",
     "@vue/test-utils": "^1.3.0",

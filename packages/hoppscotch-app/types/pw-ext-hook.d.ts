@@ -1,21 +1,10 @@
-interface PWExtensionRequestInfo {
-  method: string
-  url: string
-  data: any & { wantsBinary: boolean }
-}
+import { AxiosRequestConfig } from "axios"
+import { NetworkResponse } from "~/helpers/network"
 
-interface PWExtensionResponse {
-  data: any
-  config?: {
-    timeData?: {
-      startTime: number
-      endTime: number
-    }
-  }
-}
-
-interface PWExtensionHook {
+export interface PWExtensionHook {
   getVersion: () => { major: number; minor: number }
-  sendRequest: (req: PWExtensionRequestInfo) => Promise<PWExtensionResponse>
+  sendRequest: (
+    req: AxiosRequestConfig & { wantsBinary: boolean }
+  ) => Promise<NetworkResponse>
   cancelRunningRequest: () => void
 }

@@ -1,3 +1,5 @@
+import { PWExtensionHook } from "./pw-ext-hook"
+
 export {}
 
 declare global {

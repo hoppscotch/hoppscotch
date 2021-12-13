@@ -137,14 +137,3 @@ const downloadResponse = () => {
   }, 1000)
 }
 </script>
-
-<style lang="scss" scoped>
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
-}
-</style>

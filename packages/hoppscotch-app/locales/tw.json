@@ -103,6 +103,7 @@
     "name": "我的新組合",
     "new": "建立組合",
     "renamed": "組合已重新命名",
+    "request_in_use": "Request in use",
     "save_as": "另存為",
     "select": "選擇一個組合",
     "select_location": "選擇位置",

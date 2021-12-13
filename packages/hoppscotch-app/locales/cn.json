@@ -103,6 +103,7 @@
     "name": "我的新组合",
     "new": "新建组合",
     "renamed": "组合已更名",
+    "request_in_use": "Request in use",
     "save_as": "另存为",
     "select": "选择一个组合",
     "select_location": "选择位置",

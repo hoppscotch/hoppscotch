@@ -103,6 +103,7 @@
     "name": "내 새 모음집",
     "new": "새 모음집",
     "renamed": "모음집 이름이 변경됨",
+    "request_in_use": "Request in use",
     "save_as": "다른 이름으로 저장",
     "select": "모음집 선택",
     "select_location": "위치 선택",

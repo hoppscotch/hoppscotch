@@ -77,7 +77,6 @@
             <SmartItem
               v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
               svg="trash-2"
-              color="red"
               :label="$t('action.delete')"
               @click.native="
                 () => {

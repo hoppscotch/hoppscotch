@@ -103,6 +103,7 @@
     "name": "My New Collection",
     "new": "New Collection",
     "renamed": "Collection renamed",
+    "request_in_use": "Request in use",
     "save_as": "Save as",
     "select": "Select a Collection",
     "select_location": "Select location",

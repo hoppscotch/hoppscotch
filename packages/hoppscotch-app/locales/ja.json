@@ -103,6 +103,7 @@
     "name": "私の新しいコレクション",
     "new": "新しいコレクション",
     "renamed": "コレクションの名前が変更されました",
+    "request_in_use": "Request in use",
     "save_as": "名前を付けて保存",
     "select": "コレクションを選択する",
     "select_location": "場所を選択",

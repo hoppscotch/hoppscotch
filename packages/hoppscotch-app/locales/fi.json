@@ -103,6 +103,7 @@
     "name": "Uusi kokoelmani",
     "new": "Uusi kokoelma",
     "renamed": "Kokoelma nimetty uudelleen",
+    "request_in_use": "Request in use",
     "save_as": "Tallenna nimellä",
     "select": "Valitse kokoelma",
     "select_location": "Valitse sijainti",

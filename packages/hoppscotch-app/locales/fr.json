@@ -103,6 +103,7 @@
     "name": "Ma nouvelle collection",
     "new": "Nouvelle collection",
     "renamed": "Collection renommée",
+    "request_in_use": "Request in use",
     "save_as": "Enregistrer sous",
     "select": "Sélectionnez une collection",
     "select_location": "Sélectionnez l'emplacement",

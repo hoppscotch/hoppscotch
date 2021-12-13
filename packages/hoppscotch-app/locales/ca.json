@@ -103,6 +103,7 @@
     "name": "La meva nova col·lecció",
     "new": "Nova col · lecció",
     "renamed": "S'ha canviat el nom de la col·lecció",
+    "request_in_use": "Request in use",
     "save_as": "Guardar com",
     "select": "Seleccioneu una col·lecció",
     "select_location": "Seleccioneu la ubicació",

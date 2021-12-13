@@ -30,7 +30,9 @@
             active.originLocation === 'team-collection' &&
             active.requestID === requestIndex
           "
+          v-tippy="{ theme: 'tooltip' }"
           class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
+          :title="`${$t('collection.request_in_use')}`"
         ></span>
       </span>
       <div class="flex">
@@ -74,7 +76,6 @@
             />
             <SmartItem
               svg="trash-2"
-              color="red"
               :label="$t('action.delete')"
               @click.native="
                 confirmRemove = true

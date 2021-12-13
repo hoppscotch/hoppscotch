@@ -49,7 +49,6 @@
         <SmartItem
           v-if="!(environmentIndex === 'Global')"
           svg="trash-2"
-          color="red"
           :label="`${$t('action.delete')}`"
           @click.native="
             () => {

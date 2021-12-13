@@ -450,6 +450,15 @@ pre.ace_editor {
   }
 }
 
+.shortcut-key {
+  @apply bg-dividerLight;
+  @apply rounded;
+  @apply ml-2;
+  @apply py-1;
+  @apply px-2;
+  @apply inline-flex;
+}
+
 @media (max-width: 767px) {
   main {
     margin-bottom: env(safe-area-inset-bottom);

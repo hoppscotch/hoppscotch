@@ -1,6 +1,5 @@
 import axios from "axios"
 import axiosStrategy from "../AxiosStrategy"
-import { JsonFormattedError } from "~/helpers/utils/JsonFormattedError"
 
 jest.mock("axios")
 jest.mock("~/newstore/settings", () => {
@@ -20,7 +19,7 @@ axios.mockResolvedValue({})
 describe("axiosStrategy", () => {
   describe("No-Proxy Requests", () => {
     test("sends request to the actual sender if proxy disabled", async () => {
-      await axiosStrategy({ url: "test" })
+      await axiosStrategy({ url: "test" })()
 
       expect(axios).toBeCalledWith(
         expect.objectContaining({
@@ -30,7 +29,7 @@ describe("axiosStrategy", () => {
     })
 
     test("asks axios to return data as arraybuffer", async () => {
-      await axiosStrategy({ url: "test" })
+      await axiosStrategy({ url: "test" })()
 
       expect(axios).toBeCalledWith(
         expect.objectContaining({
@@ -40,24 +39,24 @@ describe("axiosStrategy", () => {
     })
 
     test("resolves successful requests", async () => {
-      await expect(axiosStrategy({})).resolves.toBeDefined()
+      expect(await axiosStrategy({})()).toBeRight()
     })
 
     test("rejects cancel errors with text 'cancellation'", async () => {
       axios.isCancel.mockReturnValueOnce(true)
       axios.mockRejectedValue("err")
 
-      await expect(axiosStrategy({})).rejects.toBe("cancellation")
+      expect(await axiosStrategy({})()).toEqualLeft("cancellation")
     })
 
     test("rejects non-cancellation errors as-is", async () => {
       axios.isCancel.mockReturnValueOnce(false)
       axios.mockRejectedValue("err")
 
-      await expect(axiosStrategy({})).rejects.toBe("err")
+      expect(await axiosStrategy({})()).toEqualLeft("err")
     })
 
-    test("non-cancellation errors that have response data are thrown", async () => {
+    test("non-cancellation errors that have response data are right", async () => {
       const errorResponse = { error: "errr" }
       axios.isCancel.mockReturnValueOnce(false)
       axios.mockRejectedValue({
@@ -68,9 +67,9 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({})).rejects.toMatchObject(
-        new JsonFormattedError(errorResponse)
-      )
+      expect(await axiosStrategy({})()).toSubsetEqualRight({
+        data: "eyJlcnJvciI6ImVycnIifQ==",
+      })
     })
   })
 })

@@ -91,6 +91,7 @@ importers:
       '@nuxtjs/stylelint-module': ^4.1.0
       '@nuxtjs/svg': ^0.3.0
       '@nuxtjs/toast': ^3.3.1
+      '@relmify/jest-fp-ts': ^1.1.1
       '@testing-library/jest-dom': ^5.16.0
       '@types/codemirror': ^5.60.5
       '@types/cookie': ^0.4.1
@@ -255,6 +256,7 @@ importers:
       '@nuxtjs/pwa': 3.3.5
       '@nuxtjs/stylelint-module': 4.1.0_stylelint@14.1.0
       '@nuxtjs/svg': 0.3.0
+      '@relmify/jest-fp-ts': 1.1.1_fp-ts@2.11.5+io-ts@2.2.16
       '@testing-library/jest-dom': 5.16.1
       '@types/codemirror': 5.60.5
       '@types/cookie': 0.4.1
@@ -370,13 +372,6 @@ packages:
       tslib: 2.3.1
       zen-observable-ts: 1.2.3
     dev: false
-
-  /@babel/code-frame/7.15.8:
-    resolution: {integrity: sha512-2IAnmn8zbvC/jKYhq5Ki9I+DwjlrtMPUCH/CpHvqI4dNnlwHwsxoIhlc8WcYY5LSYknXQtAlFYuHfqAFCvQ4Wg==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/highlight': 7.14.5
-    dev: true
 
   /@babel/code-frame/7.16.0:
     resolution: {integrity: sha512-IF4EOMEV+bfYwOmNxGzSnjR2EmQod7f1UXOpZM3l4i4o4QNwzjtJAu/HxdjHq0aYBvdqMuQEY1eg0nqW9ZPORA==}
@@ -666,15 +661,6 @@ packages:
       '@babel/types': 7.16.0
     transitivePeerDependencies:
       - supports-color
-
-  /@babel/highlight/7.14.5:
-    resolution: {integrity: sha512-qf9u2WFWVV0MppaL877j2dBtQIDgmidgjGk5VIMw3OadXvYaXn66U1BFlH2t4+t3i+8PhedppRv+i40ABzd+gg==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      '@babel/helper-validator-identifier': 7.15.7
-      chalk: 2.4.2
-      js-tokens: 4.0.0
-    dev: true
 
   /@babel/highlight/7.16.0:
     resolution: {integrity: sha512-t8MH41kUQylBtu2+4IQA3atqevA2lRgqA2wyVB/YiWmsDSuylZZuXOUy9ric30hfzauEFfdsuk/eXTRrGrfd0g==}
@@ -11001,7 +10987,7 @@ packages:
     resolution: {integrity: sha512-rGiLePzQ3AzwUshu2+Rn+UMFk0pHN58sOG+IaJbk5Jxuqo3NYO1U2/MIR4S1sKgsoYSXSzdtSa0TgrmtUwEbmA==}
     engines: {node: '>= 10.14.2'}
     dependencies:
-      '@babel/code-frame': 7.15.8
+      '@babel/code-frame': 7.16.0
       '@jest/types': 26.6.2
       '@types/stack-utils': 2.0.1
       chalk: 4.1.2

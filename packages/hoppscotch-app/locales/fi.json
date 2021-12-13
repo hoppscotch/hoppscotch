@@ -400,6 +400,7 @@
       "documentation": "Siirry dokumentaatiosivulle",
       "forward": "Siirry seuraavalle sivulle",
       "graphql": "Siirry GraphQL -sivulle",
+      "profile": "Go to Profile page",
       "realtime": "Siirry Realtime -sivulle",
       "rest": "Siirry REST -sivulle",
       "settings": "Siirry Asetukset -sivulle",

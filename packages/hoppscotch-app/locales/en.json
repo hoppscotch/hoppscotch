@@ -400,6 +400,7 @@
       "documentation": "Go to Documentation page",
       "forward": "Go forward to next page",
       "graphql": "Go to GraphQL page",
+      "profile": "Go to Profile page",
       "realtime": "Go to Realtime page",
       "rest": "Go to REST page",
       "settings": "Go to Settings page",

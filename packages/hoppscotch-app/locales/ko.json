@@ -400,6 +400,7 @@
       "documentation": "문서 페이지로 이동",
       "forward": "다음 페이지로 이동",
       "graphql": "GraphQL 페이지로 이동",
+      "profile": "Go to Profile page",
       "realtime": "실시간 페이지로 이동",
       "rest": "REST 페이지로 이동",
       "settings": "설정 페이지로 이동",

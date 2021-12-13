@@ -400,6 +400,7 @@
       "documentation": "前往文档页面",
       "forward": "前往下一页面",
       "graphql": "前往 GraphQL 页面",
+      "profile": "Go to Profile page",
       "realtime": "前往实时页面",
       "rest": "前往 REST 页面",
       "settings": "前往设置页面",

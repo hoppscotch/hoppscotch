@@ -124,6 +124,9 @@ function defineJumpActions() {
   defineActionHandler("navigation.jump.settings", () => {
     router.push({ path: localePath("/settings") })
   })
+  defineActionHandler("navigation.jump.profile", () => {
+    router.push({ path: localePath("/profile") })
+  })
 }
 
 export default defineComponent({

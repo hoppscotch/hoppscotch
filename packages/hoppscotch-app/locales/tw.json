@@ -397,6 +397,7 @@
       "documentation": "前往文件頁面",
       "forward": "前往下一頁面",
       "graphql": "前往 GraphQL 頁面",
+      "profile": "Go to Profile page",
       "realtime": "前往實時頁面",
       "rest": "前往 REST 頁面",
       "settings": "前往設定頁面",

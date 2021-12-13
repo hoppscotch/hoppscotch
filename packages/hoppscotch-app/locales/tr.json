@@ -400,6 +400,7 @@
       "documentation": "Belgeler sayfasına git",
       "forward": "Sonraki sayfaya ilerle",
       "graphql": "GraphQL sayfasına git",
+      "profile": "Go to Profile page",
       "realtime": "Gerçek Zamanlı sayfasına git",
       "rest": "REST sayfasına git",
       "settings": "Ayarlar sayfasına git",

@@ -400,6 +400,7 @@
       "documentation": "ドキュメントページに移動",
       "forward": "次のページに進む",
       "graphql": "GraphQLページに移動します",
+      "profile": "Go to Profile page",
       "realtime": "リアルタイムページに移動",
       "rest": "RESTページに移動します",
       "settings": "設定ページに移動します",

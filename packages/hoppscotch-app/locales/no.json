@@ -400,6 +400,7 @@
       "documentation": "Gå til Dokumentasjonsside",
       "forward": "Gå videre til neste side",
       "graphql": "Gå til GraphQL-siden",
+      "profile": "Go to Profile page",
       "realtime": "Gå til sanntid-siden",
       "rest": "Gå til REST-siden",
       "settings": "Gå til Innstillinger-siden",

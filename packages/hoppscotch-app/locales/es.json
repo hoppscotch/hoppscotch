@@ -400,6 +400,7 @@
       "documentation": "Ir a la página de documentación",
       "forward": "Avanzar a la siguiente página",
       "graphql": "Ir a la página GraphQL",
+      "profile": "Go to Profile page",
       "realtime": "Ir a la página en tiempo real",
       "rest": "Ir a la página REST",
       "settings": "Ir a la página de configuración",

@@ -11,7 +11,7 @@ type GQLSession = {
 
 export const defaultGQLSession: GQLSession = {
   request: makeGQLRequest({
-    name: "",
+    name: "Untitled request",
     url: "https://echo.hoppscotch.io/graphql",
     headers: [],
     variables: `{ "id": "1" }`,
@@ -213,7 +213,7 @@ export function setGQLSession(session: GQLSession) {
 }
 
 export function useGQLRequestName() {
-  return useStream(gqlName$, "", (newName) => {
+  return useStream(gqlName$, gqlSessionStore.value.request.name, (newName) => {
     gqlSessionStore.dispatch({
       dispatcher: "setName",
       payload: { newName },

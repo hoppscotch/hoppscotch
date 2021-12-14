@@ -131,6 +131,7 @@
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
+import cloneDeep from "lodash/cloneDeep"
 import clone from "lodash/clone"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {

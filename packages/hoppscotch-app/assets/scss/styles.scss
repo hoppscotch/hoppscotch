@@ -64,10 +64,10 @@ body {
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
+  @apply text-body;
+  @apply leading-body;
 
   animation: fade 300ms forwards;
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -103,15 +103,15 @@ body {
 .material-icons {
   @apply flex-shrink-0;
 
-  font-size: var(--body-line-height) !important;
-  width: var(--body-line-height);
+  font-size: var(--line-height-body) !important;
+  width: var(--line-height-body);
 }
 
 .svg-icons {
   @apply flex-shrink-0;
 
-  height: var(--body-line-height);
-  width: var(--body-line-height);
+  height: var(--line-height-body);
+  width: var(--line-height-body);
 }
 
 a {
@@ -120,9 +120,8 @@ a {
   @apply no-underline;
   @apply outline-none;
   @apply transition;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
+  @apply text-body;
+  @apply leading-body;
 
   &.link {
     @apply items-center;
@@ -144,9 +143,9 @@ a {
   @apply rounded;
   @apply truncate;
   @apply shadow;
+  @apply leading-body;
 
   font-size: 88%;
-  line-height: var(--body-line-height);
 
   kbd {
     @apply inline-flex;
@@ -166,10 +165,9 @@ a {
   @apply text-secondary;
   @apply p-2;
   @apply shadow-lg;
+  @apply text-body;
+  @apply leading-body;
   @apply focus:outline-none;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
 
   .tippy-roundarrow svg {
     @apply fill-popover;
@@ -216,13 +214,12 @@ input,
 select,
 textarea,
 button {
-  @apply focus:outline-none;
   @apply truncate;
   @apply transition;
+  @apply text-body;
+  @apply leading-body;
+  @apply focus:outline-none;
   @apply disabled:cursor-not-allowed;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
 }
 
 .input[type="file"],
@@ -323,9 +320,8 @@ pre.ace_editor {
       @apply shadow;
       @apply font-medium;
       @apply transition;
-
-      font-size: var(--body-font-size);
-      line-height: var(--body-line-height);
+      @apply text-body;
+      @apply leading-body;
 
       .action {
         @apply bg-gray-500;
@@ -337,12 +333,11 @@ pre.ace_editor {
         @apply rounded;
         @apply text-current;
         @apply normal-case;
+        @apply font-medium;
+        @apply text-body;
+        @apply leading-body;
         @apply hover:bg-opacity-20;
         @apply hover:no-underline;
-        @apply font-medium;
-
-        font-size: var(--body-font-size);
-        line-height: var(--body-line-height);
       }
     }
 
@@ -451,6 +446,7 @@ pre.ace_editor {
 }
 
 .shortcut-key {
+  @apply font-sans;
   @apply bg-dividerLight;
   @apply rounded;
   @apply ml-2;

@@ -3,9 +3,9 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="font-semibold flex-1 py-2 transform transition inline-flex items-center truncate hover:translate-x-2 focus:outline-none focus-visible:translate-x-2"
+    class="font-semibold py-2 transform transition inline-flex items-center hover:translate-x-2 focus:outline-none focus-visible:translate-x-2"
     :class="[
-      label ? 'px-3' : 'px-2',
+      label ? 'px-4' : 'px-2',
       active
         ? color
           ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
@@ -32,7 +32,9 @@
       :class="label ? 'mr-4 opacity-75' : ''"
       class="svg-icons"
     />
-    {{ label }}
+    <span class="truncate">
+      {{ label }}
+    </span>
   </SmartLink>
 </template>
 

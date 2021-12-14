@@ -103,9 +103,8 @@ const primaryNavigation = [
 
   span {
     @apply mt-2;
-    @apply font-font-medium;
-
-    font-size: calc(var(--body-font-size) - 0.062rem);
+    @apply font-medium;
+    @apply text-tiny;
   }
 
   &.exact-active-link {

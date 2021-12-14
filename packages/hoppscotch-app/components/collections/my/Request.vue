@@ -17,7 +17,7 @@
         <SmartIcon
           v-if="isSelected"
           class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
+          :class="{ 'text-accent': isSelected }"
           name="check-circle"
         />
         <span v-else class="truncate">
@@ -28,7 +28,9 @@
         class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition items-center group-hover:text-secondaryDark"
         @click="!doc ? selectRequest() : {}"
       >
-        <span class="truncate"> {{ request.name }} </span>
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
+          {{ request.name }}
+        </span>
         <span
           v-if="
             active &&

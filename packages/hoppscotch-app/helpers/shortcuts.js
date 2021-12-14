@@ -17,7 +17,7 @@ export default [
         label: "shortcut.general.show_all",
       },
       {
-        keys: ["Esc"],
+        keys: ["ESC"],
         label: "shortcut.general.close_current_menu",
       },
     ],

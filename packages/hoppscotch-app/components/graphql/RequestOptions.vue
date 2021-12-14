@@ -1,7 +1,12 @@
 <template>
   <div>
     <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-      <SmartTab :id="'query'" :label="`${t('tab.query')}`" :selected="true">
+      <SmartTab
+        :id="'query'"
+        :label="`${t('tab.query')}`"
+        :selected="true"
+        :indicator="gqlQueryString.length > 0"
+      >
         <AppSection label="query">
           <div
             class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between gqlRunQuery"
@@ -32,6 +37,12 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.clear_all')"
+                svg="trash-2"
+                @click.native="clearGQLQuery()"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.prettify')"
                 :svg="`${prettifyQueryIcon}`"
                 @click.native="prettifyQuery"
@@ -48,7 +59,11 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'variables'" :label="`${t('tab.variables')}`">
+      <SmartTab
+        :id="'variables'"
+        :label="`${t('tab.variables')}`"
+        :indicator="variableString.length > 0"
+      >
         <AppSection label="variables">
           <div
             class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
@@ -66,6 +81,12 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.clear_all')"
+                svg="trash-2"
+                @click.native="clearGQLVariables()"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.copy')"
                 :svg="`${copyVariablesIcon}`"
                 @click.native="copyVariables"
@@ -76,7 +97,11 @@
         </AppSection>
       </SmartTab>
 
-      <SmartTab :id="'headers'" :label="`${t('tab.headers')}`">
+      <SmartTab
+        :id="'headers'"
+        :label="`${t('tab.headers')}`"
+        :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
+      >
         <AppSection label="headers">
           <div
             class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
@@ -96,7 +121,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.clear_all')"
                 svg="trash-2"
-                @click.native="clearContent()"
+                @click.native="clearHeaders()"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
@@ -230,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "@nuxtjs/composition-api"
+import { computed, onMounted, ref, watch } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import * as gql from "graphql"
 import { GQLHeader, makeGQLRequest } from "@hoppscotch/data"
@@ -309,6 +334,12 @@ useCodemirror(bulkEditor, bulkHeaders, {
   completer: null,
   environmentHighlights: false,
 })
+
+const activeGQLHeadersCount = computed(
+  () =>
+    headers.value.filter((x) => x.active && (x.key !== "" || x.value !== ""))
+      .length
+)
 
 const variableEditor = ref<any | null>(null)
 
@@ -507,8 +538,16 @@ const removeRequestHeader = (index: number) => {
   }
 }
 
-const clearContent = () => {
+const clearHeaders = () => {
   headers.value = []
   clearBulkEditor()
+}
+
+const clearGQLQuery = () => {
+  gqlQueryString.value = ""
+}
+
+const clearGQLVariables = () => {
+  variableString.value = ""
 }
 </script>

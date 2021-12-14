@@ -29,6 +29,9 @@
     "send": "Lähettää",
     "start": "alkaa",
     "stop": "Lopettaa",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Sammuttaa",
     "turn_on": "Kiihottua",
     "undo": "Kumoa",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Ehdot ja yksityisyys",
     "twitter": "Viserrys",
     "type_a_command_search": "Kirjoita komento tai hae…",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Käytämme evästeitä",
     "whats_new": "Mikä on uutta?",
     "wiki": "Wiki"

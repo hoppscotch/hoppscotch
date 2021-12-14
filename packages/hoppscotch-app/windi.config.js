@@ -41,6 +41,13 @@ export default defineConfig({
         mono: "var(--font-mono)",
         icon: "var(--font-icon)",
       },
+      fontSize: {
+        tiny: "var(--font-size-tiny)",
+        body: "var(--font-size-body)",
+      },
+      lineHeight: {
+        body: "var(--line-height-body)",
+      },
       cursor: {
         nsResize: "ns-resize",
       },

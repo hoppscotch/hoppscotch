@@ -79,7 +79,7 @@
                 <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.profile") }}
                 </h4>
-                <div class="mt-1 text-secondaryLight">
+                <div class="my-1 text-secondaryLight">
                   {{ t("settings.profile_description") }}
                 </div>
                 <div class="py-4">
@@ -141,7 +141,7 @@
                 <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.sync") }}
                 </h4>
-                <div class="mt-1 text-secondaryLight">
+                <div class="my-1 text-secondaryLight">
                   {{ t("settings.sync_description") }}
                 </div>
                 <div class="space-y-4 py-4">

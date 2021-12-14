@@ -29,6 +29,9 @@
     "send": "Sende",
     "start": "Start",
     "stop": "Stoppe",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Skru av",
     "turn_on": "Slå på",
     "undo": "Angre",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Vilkår og personvern",
     "twitter": "Twitter",
     "type_a_command_search": "Skriv inn en kommando eller søk ...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Vi bruker informasjonskapsler",
     "whats_new": "Hva er nytt?",
     "wiki": "Wiki"

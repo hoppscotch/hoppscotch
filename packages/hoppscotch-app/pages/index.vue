@@ -46,11 +46,16 @@
             <SmartTab
               :id="'preRequestScript'"
               :label="`${$t('tab.pre_request_script')}`"
+              :indicator="preRequestScript.length > 0"
             >
               <HttpPreRequestScript />
             </SmartTab>
 
-            <SmartTab :id="'tests'" :label="`${$t('tab.tests')}`">
+            <SmartTab
+              :id="'tests'"
+              :label="`${$t('tab.tests')}`"
+              :indicator="testScript.length > 0"
+            >
               <HttpTests />
             </SmartTab>
           </SmartTabs>
@@ -129,6 +134,8 @@ import {
   setRESTRequest,
   setRESTAuth,
   restAuth$,
+  useTestScript,
+  usePreRequestScript,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
@@ -211,6 +218,9 @@ export default defineComponent({
   setup() {
     const requestForSync = ref<HoppRESTRequest | null>(null)
 
+    const testScript = useTestScript()
+    const preRequestScript = usePreRequestScript()
+
     const confirmSync = ref(false)
 
     const syncRequest = () => {
@@ -247,6 +257,8 @@ export default defineComponent({
       syncRequest,
       oAuthURL,
       requestForSync,
+      testScript,
+      preRequestScript,
     }
   },
 })

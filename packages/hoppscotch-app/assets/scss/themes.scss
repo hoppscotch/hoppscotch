@@ -2,6 +2,7 @@
   --font-sans: "Inter", sans-serif;
   --font-mono: "Roboto Mono", monospace;
   --font-icon: "Material Icons";
+  --font-size-tiny: calc(var(--font-size-body) - 0.062rem);
 }
 
 @mixin dark-theme {
@@ -243,8 +244,8 @@
 }
 
 @mixin font-small {
-  --body-font-size: 0.75rem;
-  --body-line-height: 1rem;
+  --font-size-body: 0.75rem;
+  --line-height-body: 1rem;
   --upper-primary-sticky-fold: 4.125rem;
   --upper-secondary-sticky-fold: 6.125rem;
   --upper-tertiary-sticky-fold: 8.188rem;
@@ -255,8 +256,8 @@
 }
 
 @mixin font-medium {
-  --body-font-size: 0.875rem;
-  --body-line-height: 1.25rem;
+  --font-size-body: 0.875rem;
+  --line-height-body: 1.25rem;
   --upper-primary-sticky-fold: 4.375rem;
   --upper-secondary-sticky-fold: 6.625rem;
   --upper-tertiary-sticky-fold: 8.813rem;
@@ -267,8 +268,8 @@
 }
 
 @mixin font-large {
-  --body-font-size: 1rem;
-  --body-line-height: 1.5rem;
+  --font-size-body: 1rem;
+  --line-height-body: 1.5rem;
   --upper-primary-sticky-fold: 4.625rem;
   --upper-secondary-sticky-fold: 7.125rem;
   --upper-tertiary-sticky-fold: 9.5rem;

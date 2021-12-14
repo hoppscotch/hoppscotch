@@ -29,6 +29,9 @@
     "send": "Stuur",
     "start": "Begin",
     "stop": "Stop",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Skakel af",
     "turn_on": "Sit aan",
     "undo": "Ontdoen",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Bepalings en privaatheid",
     "twitter": "Twitter",
     "type_a_command_search": "Tik 'n opdrag of soek ...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Ons gebruik koekies",
     "whats_new": "Wat's nuut?",
     "wiki": "Wiki"

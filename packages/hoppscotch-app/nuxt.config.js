@@ -11,7 +11,7 @@ export const options = {
   keywords:
     "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
   loading: {
-    color: "var(--accent-color)",
+    color: "var(--divider-light-color)",
     background: "var(--primary-color)",
   },
   app: {

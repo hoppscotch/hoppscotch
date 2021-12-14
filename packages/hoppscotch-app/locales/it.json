@@ -29,6 +29,9 @@
     "send": "Invia",
     "start": "Avvia",
     "stop": "Interrompi",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Spegni",
     "turn_on": "Accendi",
     "undo": "Annulla",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Termini e privacy",
     "twitter": "Twitter",
     "type_a_command_search": "Digita un comando o cerca...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Utilizziamo i cookie",
     "whats_new": "Cosa c'è di nuovo?",
     "wiki": "Wiki"

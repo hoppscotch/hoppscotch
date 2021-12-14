@@ -6,7 +6,7 @@
           <h3 class="heading">
             {{ $t("settings.theme") }}
           </h3>
-          <p class="mt-1 text-secondaryLight">
+          <p class="my-1 text-secondaryLight">
             {{ $t("settings.theme_description") }}
           </p>
         </div>
@@ -15,7 +15,7 @@
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.background") }}
             </h4>
-            <div class="mt-1 text-secondaryLight">
+            <div class="my-1 text-secondaryLight">
               <ColorScheme placeholder="..." tag="span">
                 {{ $t(getColorModeName($colorMode.preference)) }}
                 <span v-if="$colorMode.preference === 'system'">
@@ -31,7 +31,7 @@
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.accent_color") }}
             </h4>
-            <div class="mt-1 text-secondaryLight">
+            <div class="my-1 text-secondaryLight">
               {{ active.charAt(0).toUpperCase() + active.slice(1) }}
             </div>
             <div class="mt-4">
@@ -58,7 +58,7 @@
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.experiments") }}
             </h4>
-            <div class="mt-1 text-secondaryLight">
+            <div class="my-1 text-secondaryLight">
               {{ $t("settings.experiments_notice") }}
               <SmartLink
                 class="link"
@@ -105,7 +105,7 @@
           <h3 class="heading">
             {{ $t("settings.interceptor") }}
           </h3>
-          <p class="mt-1 text-secondaryLight">
+          <p class="my-1 text-secondaryLight">
             {{ $t("settings.interceptor_description") }}
           </p>
         </div>
@@ -114,7 +114,7 @@
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.extensions") }}
             </h4>
-            <div class="mt-1 text-secondaryLight">
+            <div class="my-1 text-secondaryLight">
               <span v-if="extensionVersion != null">
                 {{
                   `${$t("settings.extension_version")}: v${
@@ -166,7 +166,7 @@
             <h4 class="font-semibold text-secondaryDark">
               {{ $t("settings.proxy") }}
             </h4>
-            <div class="mt-1 text-secondaryLight">
+            <div class="my-1 text-secondaryLight">
               {{
                 `${$t("settings.official_proxy_hosting")} ${$t(
                   "settings.read_the"

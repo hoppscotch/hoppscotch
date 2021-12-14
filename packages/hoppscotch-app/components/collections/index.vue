@@ -5,7 +5,7 @@
   >
     <div
       class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col z-10 sticky"
-      :style="saveRequest ? 'top: calc(-1 * var(--body-font-size))' : 'top: 0'"
+      :style="saveRequest ? 'top: calc(-1 * var(--font-size-body))' : 'top: 0'"
     >
       <div v-if="!saveRequest" class="search-wrappe">
         <input
@@ -135,7 +135,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
-      <span class="text-center">
+      <span class="text-center my-2">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>

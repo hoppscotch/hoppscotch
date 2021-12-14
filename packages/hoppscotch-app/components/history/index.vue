@@ -52,7 +52,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
-      <span class="text-center">
+      <span class="text-center my-2">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>

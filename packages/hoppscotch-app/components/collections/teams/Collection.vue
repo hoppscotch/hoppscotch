@@ -10,7 +10,7 @@
       >
         <SmartIcon
           class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
+          :class="{ 'text-accent': isSelected }"
           :name="getCollectionIcon"
         />
       </span>
@@ -18,7 +18,9 @@
         class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
         @click="toggleShowChildren()"
       >
-        <span class="truncate"> {{ collection.title }} </span>
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
+          {{ collection.title }}
+        </span>
       </span>
       <div class="flex">
         <ButtonSecondary

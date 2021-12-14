@@ -14,8 +14,29 @@
         autocomplete="off"
         name="command"
         :placeholder="`${t('app.type_a_command_search')}`"
-        class="bg-transparent border-b border-dividerLight flex flex-shrink-0 text-base text-secondaryDark p-6"
+        class="bg-transparent flex flex-shrink-0 text-base text-secondaryDark p-6"
       />
+      <div
+        class="flex pb-4 px-4 border-b text-tiny border-dividerLight justify-between text-secondaryLight whitespace-nowrap overflow-auto flex-shrink-0 hide-scrollbar"
+      >
+        <div class="flex items-center">
+          <kbd class="shortcut-key">↑</kbd>
+          <kbd class="shortcut-key">↓</kbd>
+          <span class="truncate ml-2">
+            {{ t("action.to_navigate") }}
+          </span>
+          <kbd class="shortcut-key">↩</kbd>
+          <span class="truncate ml-2">
+            {{ t("action.to_select") }}
+          </span>
+        </div>
+        <div class="flex items-center">
+          <kbd class="shortcut-key">ESC</kbd>
+          <span class="truncate ml-2">
+            {{ t("action.to_close") }}
+          </span>
+        </div>
+      </div>
       <AppFuse
         v-if="search && show"
         :input="fuse"

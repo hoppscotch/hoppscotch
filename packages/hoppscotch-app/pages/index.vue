@@ -46,7 +46,9 @@
             <SmartTab
               :id="'preRequestScript'"
               :label="`${$t('tab.pre_request_script')}`"
-              :indicator="preRequestScript.length > 0"
+              :indicator="
+                preRequestScript && preRequestScript.length > 0 ? true : false
+              "
             >
               <HttpPreRequestScript />
             </SmartTab>
@@ -54,7 +56,7 @@
             <SmartTab
               :id="'tests'"
               :label="`${$t('tab.tests')}`"
-              :indicator="testScript.length > 0"
+              :indicator="testScript && testScript.length > 0 ? true : false"
             >
               <HttpTests />
             </SmartTab>

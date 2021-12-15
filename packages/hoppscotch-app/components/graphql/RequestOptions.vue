@@ -5,7 +5,7 @@
         :id="'query'"
         :label="`${t('tab.query')}`"
         :selected="true"
-        :indicator="gqlQueryString.length > 0"
+        :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
         <div
           class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between gqlRunQuery"
@@ -60,7 +60,7 @@
       <SmartTab
         :id="'variables'"
         :label="`${t('tab.variables')}`"
-        :indicator="variableString.length > 0"
+        :indicator="variableString && variableString.length > 0 ? true : false"
       >
         <div
           class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"

@@ -255,7 +255,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "@nuxtjs/composition-api"
+import {
+  computed,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import * as gql from "graphql"
 import { GQLHeader, makeGQLRequest } from "@hoppscotch/data"
@@ -343,15 +349,21 @@ const activeGQLHeadersCount = computed(
 
 const variableEditor = ref<any | null>(null)
 
-useCodemirror(variableEditor, variableString, {
-  extendedEditorConfig: {
-    mode: "application/ld+json",
-    placeholder: `${t("request.variables")}`,
-  },
-  linter: jsonLinter,
-  completer: null,
-  environmentHighlights: false,
-})
+useCodemirror(
+  variableEditor,
+  variableString,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/ld+json",
+      placeholder: `${t("request.variables")}`,
+    },
+    linter: computed(() =>
+      variableString.value.length > 0 ? jsonLinter : null
+    ),
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 const queryEditor = ref<any | null>(null)
 const schemaString = useReadonlyStream(props.conn.schema$, null)
@@ -394,7 +406,7 @@ const editBulkHeadersLine = (index: number, item?: GQLHeader | null) => {
           ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
           : `${header.active ? "" : "//"}${header.key}: ${header.value}`
       return [...all, current]
-    }, [])
+    }, [] as string[])
     .join("\n")
 }
 

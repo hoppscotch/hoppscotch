@@ -102,8 +102,8 @@ const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
       const endPos = view.state.doc.line(result.to.line).from + result.to.ch - 1
 
       return {
-        from: startPos,
-        to: endPos,
+        from: startPos < 0 ? 0 : startPos,
+        to: endPos > view.state.doc.length ? view.state.doc.length : endPos,
         message: result.message,
         severity: result.severity,
       }

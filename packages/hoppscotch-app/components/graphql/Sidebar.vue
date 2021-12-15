@@ -26,125 +26,34 @@
       icon="book-open"
       :label="`${t('tab.documentation')}`"
     >
-      <AppSection label="docs">
-        <div
-          v-if="
-            queryFields.length === 0 &&
-            mutationFields.length === 0 &&
-            subscriptionFields.length === 0 &&
-            graphqlTypes.length === 0
-          "
-          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
-        >
-          <img
-            :src="`/images/states/${$colorMode.value}/add_comment.svg`"
-            loading="lazy"
-            class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
-            :alt="`${t('empty.documentation')}`"
+      <div
+        v-if="
+          queryFields.length === 0 &&
+          mutationFields.length === 0 &&
+          subscriptionFields.length === 0 &&
+          graphqlTypes.length === 0
+        "
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      >
+        <img
+          :src="`/images/states/${$colorMode.value}/add_comment.svg`"
+          loading="lazy"
+          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+          :alt="`${t('empty.documentation')}`"
+        />
+        <span class="text-center mb-4">
+          {{ t("empty.documentation") }}
+        </span>
+      </div>
+      <div v-else>
+        <div class="bg-primary flex top-0 z-10 sticky">
+          <input
+            v-model="graphqlFieldsFilterText"
+            type="search"
+            autocomplete="off"
+            :placeholder="`${t('action.search')}`"
+            class="bg-transparent flex w-full p-4 py-2"
           />
-          <span class="text-center mb-4">
-            {{ t("empty.documentation") }}
-          </span>
-        </div>
-        <div v-else>
-          <div class="bg-primary flex top-0 z-10 sticky">
-            <input
-              v-model="graphqlFieldsFilterText"
-              type="search"
-              autocomplete="off"
-              :placeholder="`${t('action.search')}`"
-              class="bg-transparent flex w-full p-4 py-2"
-            />
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/quickstart/graphql"
-                blank
-                :title="t('app.wiki')"
-                svg="help-circle"
-              />
-            </div>
-          </div>
-          <SmartTabs
-            ref="gqlTabs"
-            styles="border-t border-b border-dividerLight bg-primary sticky z-10 top-sidebarPrimaryStickyFold"
-          >
-            <div class="gqlTabs">
-              <SmartTab
-                v-if="queryFields.length > 0"
-                :id="'queries'"
-                :label="`${t('tab.queries')}`"
-                :selected="true"
-                class="divide-dividerLight divide-y"
-              >
-                <GraphqlField
-                  v-for="(field, index) in filteredQueryFields"
-                  :key="`field-${index}`"
-                  :gql-field="field"
-                  :jump-type-callback="handleJumpToType"
-                  class="p-4"
-                />
-              </SmartTab>
-              <SmartTab
-                v-if="mutationFields.length > 0"
-                :id="'mutations'"
-                :label="`${t('graphql.mutations')}`"
-                class="divide-dividerLight divide-y"
-              >
-                <GraphqlField
-                  v-for="(field, index) in filteredMutationFields"
-                  :key="`field-${index}`"
-                  :gql-field="field"
-                  :jump-type-callback="handleJumpToType"
-                  class="p-4"
-                />
-              </SmartTab>
-              <SmartTab
-                v-if="subscriptionFields.length > 0"
-                :id="'subscriptions'"
-                :label="`${t('graphql.subscriptions')}`"
-                class="divide-dividerLight divide-y"
-              >
-                <GraphqlField
-                  v-for="(field, index) in filteredSubscriptionFields"
-                  :key="`field-${index}`"
-                  :gql-field="field"
-                  :jump-type-callback="handleJumpToType"
-                  class="p-4"
-                />
-              </SmartTab>
-              <SmartTab
-                v-if="graphqlTypes.length > 0"
-                :id="'types'"
-                ref="typesTab"
-                :label="`${t('tab.types')}`"
-                class="divide-dividerLight divide-y"
-              >
-                <GraphqlType
-                  v-for="(type, index) in filteredGraphqlTypes"
-                  :key="`type-${index}`"
-                  :gql-type="type"
-                  :gql-types="graphqlTypes"
-                  :is-highlighted="isGqlTypeHighlighted(type)"
-                  :highlighted-fields="getGqlTypeHighlightedFields(type)"
-                  :jump-type-callback="handleJumpToType"
-                />
-              </SmartTab>
-            </div>
-          </SmartTabs>
-        </div>
-      </AppSection>
-    </SmartTab>
-
-    <SmartTab :id="'schema'" icon="box" :label="`${t('tab.schema')}`">
-      <AppSection ref="schema" label="schema">
-        <div
-          v-if="schemaString"
-          class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-0 z-10 sticky items-center justify-between"
-        >
-          <label class="font-semibold text-secondaryLight">
-            {{ t("graphql.schema") }}
-          </label>
           <div class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -153,45 +62,132 @@
               :title="t('app.wiki')"
               svg="help-circle"
             />
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('state.linewrap')"
-              :class="{ '!text-accent': linewrapEnabled }"
-              svg="wrap-text"
-              @click.native.prevent="linewrapEnabled = !linewrapEnabled"
-            />
-            <ButtonSecondary
-              ref="downloadSchema"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.download_file')"
-              :svg="downloadSchemaIcon"
-              @click.native="downloadSchema"
-            />
-            <ButtonSecondary
-              ref="copySchemaCode"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.copy')"
-              :svg="copySchemaIcon"
-              @click.native="copySchema"
-            />
           </div>
         </div>
-        <div v-if="schemaString" ref="schemaEditor"></div>
-        <div
-          v-else
-          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+        <SmartTabs
+          ref="gqlTabs"
+          styles="border-t border-b border-dividerLight bg-primary sticky z-10 top-sidebarPrimaryStickyFold"
         >
-          <img
-            :src="`/images/states/${$colorMode.value}/blockchain.svg`"
-            loading="lazy"
-            class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
-            :alt="`${t('empty.schema')}`"
+          <div class="gqlTabs">
+            <SmartTab
+              v-if="queryFields.length > 0"
+              :id="'queries'"
+              :label="`${t('tab.queries')}`"
+              :selected="true"
+              class="divide-dividerLight divide-y"
+            >
+              <GraphqlField
+                v-for="(field, index) in filteredQueryFields"
+                :key="`field-${index}`"
+                :gql-field="field"
+                :jump-type-callback="handleJumpToType"
+                class="p-4"
+              />
+            </SmartTab>
+            <SmartTab
+              v-if="mutationFields.length > 0"
+              :id="'mutations'"
+              :label="`${t('graphql.mutations')}`"
+              class="divide-dividerLight divide-y"
+            >
+              <GraphqlField
+                v-for="(field, index) in filteredMutationFields"
+                :key="`field-${index}`"
+                :gql-field="field"
+                :jump-type-callback="handleJumpToType"
+                class="p-4"
+              />
+            </SmartTab>
+            <SmartTab
+              v-if="subscriptionFields.length > 0"
+              :id="'subscriptions'"
+              :label="`${t('graphql.subscriptions')}`"
+              class="divide-dividerLight divide-y"
+            >
+              <GraphqlField
+                v-for="(field, index) in filteredSubscriptionFields"
+                :key="`field-${index}`"
+                :gql-field="field"
+                :jump-type-callback="handleJumpToType"
+                class="p-4"
+              />
+            </SmartTab>
+            <SmartTab
+              v-if="graphqlTypes.length > 0"
+              :id="'types'"
+              ref="typesTab"
+              :label="`${t('tab.types')}`"
+              class="divide-dividerLight divide-y"
+            >
+              <GraphqlType
+                v-for="(type, index) in filteredGraphqlTypes"
+                :key="`type-${index}`"
+                :gql-type="type"
+                :gql-types="graphqlTypes"
+                :is-highlighted="isGqlTypeHighlighted(type)"
+                :highlighted-fields="getGqlTypeHighlightedFields(type)"
+                :jump-type-callback="handleJumpToType"
+              />
+            </SmartTab>
+          </div>
+        </SmartTabs>
+      </div>
+    </SmartTab>
+
+    <SmartTab :id="'schema'" icon="box" :label="`${t('tab.schema')}`">
+      <div
+        v-if="schemaString"
+        class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-0 z-10 sticky items-center justify-between"
+      >
+        <label class="font-semibold text-secondaryLight">
+          {{ t("graphql.schema") }}
+        </label>
+        <div class="flex">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            to="https://docs.hoppscotch.io/quickstart/graphql"
+            blank
+            :title="t('app.wiki')"
+            svg="help-circle"
           />
-          <span class="text-center mb-4">
-            {{ t("empty.schema") }}
-          </span>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('state.linewrap')"
+            :class="{ '!text-accent': linewrapEnabled }"
+            svg="wrap-text"
+            @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+          />
+          <ButtonSecondary
+            ref="downloadSchema"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.download_file')"
+            :svg="downloadSchemaIcon"
+            @click.native="downloadSchema"
+          />
+          <ButtonSecondary
+            ref="copySchemaCode"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.copy')"
+            :svg="copySchemaIcon"
+            @click.native="copySchema"
+          />
         </div>
-      </AppSection>
+      </div>
+      <div v-if="schemaString" ref="schemaEditor"></div>
+      <div
+        v-else
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      >
+        <img
+          :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+          loading="lazy"
+          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+          :alt="`${t('empty.schema')}`"
+        />
+        <span class="text-center mb-4">
+          {{ t("empty.schema") }}
+        </span>
+      </div>
     </SmartTab>
   </SmartTabs>
 </template>

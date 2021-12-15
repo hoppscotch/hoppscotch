@@ -173,9 +173,7 @@
               </section>
             </SmartTab>
             <SmartTab :id="'teams'" :label="t('team.title')">
-              <AppSection label="teams">
-                <Teams :modal="false" />
-              </AppSection>
+              <Teams :modal="false" />
             </SmartTab>
           </SmartTabs>
         </div>

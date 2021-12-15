@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="`${$t('environment.title')}`">
+  <div>
     <div class="bg-primary rounded-t flex flex-col top-0 z-10 sticky">
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>
         <template #trigger>
@@ -69,19 +69,6 @@
         </div>
       </div>
     </div>
-    <EnvironmentsAdd
-      :show="showModalAdd"
-      @hide-modal="displayModalAdd(false)"
-    />
-    <EnvironmentsEdit
-      :show="showModalEdit"
-      :editing-environment-index="editingEnvironmentIndex"
-      @hide-modal="displayModalEdit(false)"
-    />
-    <EnvironmentsImportExport
-      :show="showModalImportExport"
-      @hide-modal="displayModalImportExport(false)"
-    />
     <div class="flex flex-col">
       <EnvironmentsEnvironment
         environment-index="Global"
@@ -117,7 +104,20 @@
         @click.native="displayModalAdd(true)"
       />
     </div>
-  </AppSection>
+    <EnvironmentsAdd
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+    />
+    <EnvironmentsEdit
+      :show="showModalEdit"
+      :editing-environment-index="editingEnvironmentIndex"
+      @hide-modal="displayModalEdit(false)"
+    />
+    <EnvironmentsImportExport
+      :show="showModalImportExport"
+      @hide-modal="displayModalImportExport(false)"
+    />
+  </div>
 </template>
 
 <script lang="ts">

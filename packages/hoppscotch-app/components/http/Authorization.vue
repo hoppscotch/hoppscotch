@@ -109,7 +109,7 @@
         :src="`/images/states/${$colorMode.value}/login.svg`"
         loading="lazy"
         class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
-        :alt="$t('empty.authorization')"
+        :alt="`${$t('empty.authorization')}`"
       />
       <span class="text-center pb-4">
         {{ $t("empty.authorization") }}

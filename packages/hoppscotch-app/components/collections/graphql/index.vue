@@ -1,8 +1,5 @@
 <template>
-  <AppSection
-    label="collections"
-    :class="{ 'rounded border border-divider': savingMode }"
-  >
+  <div :class="{ 'rounded border border-divider': savingMode }">
     <div
       class="divide-dividerLight divide-y border-b border-dividerLight flex flex-col top-0 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
@@ -13,7 +10,7 @@
         type="search"
         autocomplete="off"
         :placeholder="$t('action.search')"
-        class="bg-transparent flex w-full py-2 px-4"
+        class="bg-transparent flex py-2 px-4"
       />
       <div class="flex flex-1 justify-between">
         <ButtonSecondary
@@ -84,7 +81,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
-      <span class="text-center my-2">
+      <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -126,7 +123,7 @@
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script>

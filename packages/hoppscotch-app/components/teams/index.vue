@@ -1,5 +1,5 @@
 <template>
-  <AppSection label="teams">
+  <div>
     <div class="space-y-4 p-4">
       <ButtonSecondary
         :label="`${t('team.create_new')}`"
@@ -88,7 +88,7 @@
       :editing-team-i-d="editingTeamID"
       @hide-modal="displayModalInvite(false)"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script setup lang="ts">

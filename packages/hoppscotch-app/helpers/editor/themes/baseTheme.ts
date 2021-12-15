@@ -31,6 +31,7 @@ import { lintKeymap } from "@codemirror/lint"
 export const baseTheme = EditorView.theme({
   "&": {
     fontSize: "var(--font-size-body)",
+    height: "100%",
   },
   ".cm-content": {
     caretColor: "var(--secondary-light-color)",

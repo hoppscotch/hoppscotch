@@ -1,19 +1,16 @@
 <template>
-  <AppSection
-    label="collections"
-    :class="{ 'rounded border border-divider': saveRequest }"
-  >
+  <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
       class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col z-10 sticky"
       :style="saveRequest ? 'top: calc(-1 * var(--font-size-body))' : 'top: 0'"
     >
-      <div v-if="!saveRequest" class="search-wrappe">
+      <div v-if="!saveRequest" class="flex flex-col">
         <input
           v-model="filterText"
           type="search"
           autocomplete="off"
           :placeholder="$t('action.search')"
-          class="bg-transparent flex w-full py-2 pr-2 pl-4"
+          class="bg-transparent py-2 pr-2 pl-4"
         />
       </div>
       <CollectionsChooseType
@@ -135,7 +132,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
-      <span class="text-center my-2">
+      <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -181,7 +178,7 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script>

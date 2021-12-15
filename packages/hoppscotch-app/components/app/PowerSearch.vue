@@ -17,22 +17,22 @@
         class="bg-transparent flex flex-shrink-0 text-base text-secondaryDark p-6"
       />
       <div
-        class="flex pb-4 px-4 border-b text-tiny border-dividerLight justify-between text-secondaryLight whitespace-nowrap overflow-auto flex-shrink-0 hide-scrollbar"
+        class="border-b border-dividerLight flex flex-shrink-0 text-tiny text-secondaryLight px-4 pb-4 justify-between whitespace-nowrap overflow-auto hide-scrollbar"
       >
         <div class="flex items-center">
           <kbd class="shortcut-key">↑</kbd>
           <kbd class="shortcut-key">↓</kbd>
-          <span class="truncate ml-2">
+          <span class="ml-2 truncate">
             {{ t("action.to_navigate") }}
           </span>
           <kbd class="shortcut-key">↩</kbd>
-          <span class="truncate ml-2">
+          <span class="ml-2 truncate">
             {{ t("action.to_select") }}
           </span>
         </div>
         <div class="flex items-center">
           <kbd class="shortcut-key">ESC</kbd>
-          <span class="truncate ml-2">
+          <span class="ml-2 truncate">
             {{ t("action.to_close") }}
           </span>
         </div>

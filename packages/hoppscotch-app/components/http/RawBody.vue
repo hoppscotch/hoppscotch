@@ -117,10 +117,11 @@ const prettifyRequestBody = () => {
     const jsonObj = JSON.parse(rawParamsBody.value)
     rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
     prettifyIcon.value = "check"
-    setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
+    prettifyIcon.value = "info"
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
+  setTimeout(() => (prettifyIcon.value = "wand"), 1000)
 }
 </script>

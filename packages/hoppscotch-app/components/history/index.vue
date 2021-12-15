@@ -1,5 +1,5 @@
 <template>
-  <AppSection label="history">
+  <div>
     <div class="bg-primary border-b border-dividerLight flex top-0 z-10 sticky">
       <input
         v-model="filterText"
@@ -52,7 +52,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
-      <span class="text-center my-2">
+      <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -64,7 +64,7 @@
         :src="`/images/states/${$colorMode.value}/history.svg`"
         loading="lazy"
         class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
-        :alt="$t('empty.history')"
+        :alt="`${$t('empty.history')}`"
       />
       <span class="text-center mb-4">
         {{ $t("empty.history") }}
@@ -76,7 +76,7 @@
       @hide-modal="confirmRemove = false"
       @resolve="clearHistory"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script lang="ts">

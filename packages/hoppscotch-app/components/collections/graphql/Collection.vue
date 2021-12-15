@@ -140,7 +140,7 @@
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
             class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
-            :alt="$t('empty.collection')"
+            :alt="`${$t('empty.collection')}`"
           />
           <span class="text-center">
             {{ $t("empty.collection") }}

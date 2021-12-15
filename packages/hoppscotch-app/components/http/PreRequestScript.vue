@@ -1,5 +1,5 @@
 <template>
-  <AppSection id="script" :label="`${t('preRequest.script')}`">
+  <div>
     <div
       class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
@@ -58,7 +58,7 @@
         </div>
       </div>
     </div>
-  </AppSection>
+  </div>
 </template>
 
 <script setup lang="ts">

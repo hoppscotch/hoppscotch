@@ -1,5 +1,5 @@
 <template>
-  <AppSection ref="response" label="response">
+  <div>
     <div
       v-if="responseString === 'loading'"
       class="flex flex-col p-4 items-center justify-center"
@@ -71,7 +71,7 @@
         reverse
       />
     </div>
-  </AppSection>
+  </div>
 </template>
 
 <script setup lang="ts">

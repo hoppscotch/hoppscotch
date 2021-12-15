@@ -1,11 +1,11 @@
 <template>
-  <AppSection label="response">
+  <div>
     <HttpResponseMeta :response="response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       :response="response"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script lang="ts">

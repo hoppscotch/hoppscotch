@@ -45,14 +45,7 @@
       </div>
     </Pane>
     <Pane :size="COLUMN_LAYOUT ? 65 : 50" class="hide-scrollbar !overflow-auto">
-      <AppSection label="response">
-        <ul>
-          <li>
-            <RealtimeLog :title="$t('sse.log')" :log="log" />
-            <div id="result"></div>
-          </li>
-        </ul>
-      </AppSection>
+      <RealtimeLog :title="$t('sse.log')" :log="log" />
     </Pane>
   </Splitpanes>
 </template>

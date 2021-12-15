@@ -98,8 +98,8 @@ const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
 
     return linterResult.map((result) => {
       const startPos =
-        view.state.doc.line(result.from.line + 1).from + result.from.ch
-      const endPos = view.state.doc.line(result.to.line + 1).from + result.to.ch
+        view.state.doc.line(result.from.line).from + result.from.ch - 1
+      const endPos = view.state.doc.line(result.to.line).from + result.to.ch - 1
 
       return {
         from: startPos,

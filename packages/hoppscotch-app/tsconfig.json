@@ -15,7 +15,13 @@
       "~/*": ["./*"],
       "@/*": ["./*"]
     },
-    "types": ["@types/node", "@nuxt/types", "@nuxtjs/i18n", "@nuxtjs/toast"]
+    "types": [
+      "@types/node",
+      "@nuxt/types",
+      "@nuxtjs/i18n",
+      "@nuxtjs/toast",
+      "@nuxtjs/sentry"
+    ]
   },
   "exclude": ["node_modules", ".nuxt", "dist"],
   "vueCompilerOptions": {

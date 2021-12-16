@@ -14,7 +14,9 @@ export const defaultGQLSession: GQLSession = {
     name: "Untitled request",
     url: "https://echo.hoppscotch.io/graphql",
     headers: [],
-    variables: `{ "id": "1" }`,
+    variables: `{
+  "id": "1"
+}`,
     query: `query Request {
   method
   url

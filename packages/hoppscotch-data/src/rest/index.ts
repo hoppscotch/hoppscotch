@@ -88,12 +88,12 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
     return x
   } else {
     // Old format
-    const endpoint: string = `${x.url}${x.path}`
+    const endpoint: string = `${x?.url ?? ""}${x?.path ?? ""}`
 
-    const headers: HoppRESTHeader[] = x.headers ?? []
+    const headers: HoppRESTHeader[] = x?.headers ?? []
 
     // Remove old keys from params
-    const params: HoppRESTParam[] = (x.params ?? []).map(
+    const params: HoppRESTParam[] = (x?.params ?? []).map(
       ({
         key,
         value,
@@ -109,11 +109,11 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       })
     )
 
-    const name = x.name
-    const method = x.method
+    const name = x?.name ?? "Untitled request"
+    const method = x?.method ?? ""
 
-    const preRequestScript = x.preRequestScript
-    const testScript = x.testScript
+    const preRequestScript = x?.preRequestScript ?? ""
+    const testScript = x?.testScript ?? ""
 
     const body = parseRequestBody(x)
 

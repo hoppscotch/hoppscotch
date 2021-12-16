@@ -178,6 +178,7 @@
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
+import { translateToNewRequest } from "@hoppscotch/data"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -544,7 +545,7 @@ export default defineComponent({
           pwRequest.rawParams = request.body.raw
         }
       }
-      return pwRequest
+      return translateToNewRequest(pwRequest)
     },
     hasFolder(item) {
       return Object.prototype.hasOwnProperty.call(item, "item")

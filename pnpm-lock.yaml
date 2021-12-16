@@ -93,6 +93,7 @@ importers:
       '@nuxtjs/svg': ^0.3.0
       '@nuxtjs/toast': ^3.3.1
       '@relmify/jest-fp-ts': ^1.1.1
+      '@sentry/browser': ^6.16.1
       '@testing-library/jest-dom': ^5.16.0
       '@types/codemirror': ^5.60.5
       '@types/cookie': ^0.4.1
@@ -259,6 +260,7 @@ importers:
       '@nuxtjs/stylelint-module': 4.1.0_stylelint@14.1.0
       '@nuxtjs/svg': 0.3.0
       '@relmify/jest-fp-ts': 1.1.1_fp-ts@2.11.5+io-ts@2.2.16
+      '@sentry/browser': 6.16.1
       '@testing-library/jest-dom': 5.16.1
       '@types/codemirror': 5.60.5
       '@types/cookie': 0.4.1
@@ -4159,7 +4161,6 @@ packages:
       '@sentry/types': 6.16.1
       '@sentry/utils': 6.16.1
       tslib: 1.14.1
-    dev: false
 
   /@sentry/cli/1.71.0:
     resolution: {integrity: sha512-Z8TzH7PkiRfjWSzjXOfPWWp6wxjr+n39Jdrt26OcInVQZM1sx/gZULrDiQZ1L2dy9Fe9AR4SF4nt2/7h2GmLQQ==}
@@ -4186,7 +4187,6 @@ packages:
       '@sentry/types': 6.16.1
       '@sentry/utils': 6.16.1
       tslib: 1.14.1
-    dev: false
 
   /@sentry/hub/6.16.1:
     resolution: {integrity: sha512-4PGtg6AfpqMkreTpL7ymDeQ/U1uXv03bKUuFdtsSTn/FRf9TLS4JB0KuTZCxfp1IRgAA+iFg6B784dDkT8R9eg==}
@@ -4195,7 +4195,6 @@ packages:
       '@sentry/types': 6.16.1
       '@sentry/utils': 6.16.1
       tslib: 1.14.1
-    dev: false
 
   /@sentry/integrations/6.16.1:
     resolution: {integrity: sha512-YobbH3jWMRJxCeFzr8USlju1Up0EJoxaAT4y+LQQ0ZLfyfOdPX0d0iFnWMCar8gwR1nRujFS0HM0BBKY3an0LA==}
@@ -4214,7 +4213,6 @@ packages:
       '@sentry/hub': 6.16.1
       '@sentry/types': 6.16.1
       tslib: 1.14.1
-    dev: false
 
   /@sentry/node/6.16.1:
     resolution: {integrity: sha512-SeDDoug2kUxeF1D7JGPa3h5EXxKtmA01mITBPYx5xbJ0sMksnv5I5bC1SJ8arRRzq6+W1C4IEeDBQtrVCk6ixA==}
@@ -4247,7 +4245,6 @@ packages:
   /@sentry/types/6.16.1:
     resolution: {integrity: sha512-Wh354g30UsJ5kYJbercektGX4ZMc9MHU++1NjeN2bTMnbofEcpUDWIiKeulZEY65IC1iU+1zRQQgtYO+/hgCUQ==}
     engines: {node: '>=6'}
-    dev: false
 
   /@sentry/utils/6.16.1:
     resolution: {integrity: sha512-7ngq/i4R8JZitJo9Sl8PDnjSbDehOxgr1vsoMmerIsyRZ651C/8B+jVkMhaAPgSdyJ0AlE3O7DKKTP1FXFw9qw==}
@@ -4255,7 +4252,6 @@ packages:
     dependencies:
       '@sentry/types': 6.16.1
       tslib: 1.14.1
-    dev: false
 
   /@sentry/webpack-plugin/1.18.3:
     resolution: {integrity: sha512-Qk3Jevislc5DZK0X/WwRVcOtO7iatnWARsEgTV/TuXvDN+fUDDpD/2MytAWAbpLaLy3xEB/cXGeLsbv6d1XNkQ==}

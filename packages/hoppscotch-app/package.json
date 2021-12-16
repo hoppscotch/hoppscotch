@@ -127,6 +127,7 @@
     "@nuxtjs/stylelint-module": "^4.1.0",
     "@nuxtjs/svg": "^0.3.0",
     "@relmify/jest-fp-ts": "^1.1.1",
+    "@sentry/browser": "^6.16.1",
     "@testing-library/jest-dom": "^5.16.0",
     "@types/codemirror": "^5.60.5",
     "@types/cookie": "^0.4.1",

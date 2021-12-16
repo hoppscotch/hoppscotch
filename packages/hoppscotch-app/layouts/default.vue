@@ -57,6 +57,7 @@ import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import { useSentry } from "~/helpers/sentry"
 
 function appLayout() {
   const rightSidebar = useSetting("SIDEBAR")
@@ -78,6 +79,23 @@ function appLayout() {
       columnLayout.value = true
     }
   })
+}
+
+function setupSentry() {
+  const sentry = useSentry()
+  const telemetryEnabled = useSetting("TELEMETRY_ENABLED")
+
+  // Disable sentry error reporting if no telemetry allowed
+  watch(
+    telemetryEnabled,
+    () => {
+      const client = sentry.getCurrentHub()?.getClient()
+      if (!client) return
+
+      client.getOptions().enabled = telemetryEnabled.value
+    },
+    { immediate: true }
+  )
 }
 
 function updateThemes() {
@@ -140,6 +158,7 @@ export default defineComponent({
 
     updateThemes()
 
+    setupSentry()
     return {
       windowInnerWidth: useWindowSize(),
       ZEN_MODE: useSetting("ZEN_MODE"),

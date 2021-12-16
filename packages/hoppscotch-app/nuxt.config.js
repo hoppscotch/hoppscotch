@@ -202,7 +202,7 @@ export default {
   // Sentry module configuration
   sentry: {
     dsn: process.env.SENTRY_DSN,
-    lazy: true,
+    // lazy: true,
   },
 
   // Sitemap module configuration (https://github.com/nuxt-community/sitemap-module)

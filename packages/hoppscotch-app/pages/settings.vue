@@ -249,6 +249,7 @@ import {
   hasFirefoxExtensionInstalled,
 } from "~/helpers/strategies/ExtensionStrategy"
 import { getLocalConfig } from "~/newstore/localpersistence"
+import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 
 const t = useI18n()
 const toast = useToast()
@@ -262,19 +263,30 @@ const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ZEN_MODE = useSetting("ZEN_MODE")
 
-const extensionVersion = usePolled(5000, () =>
-  hasExtensionInstalled()
+const extensionVersion = usePolled(5000, (stopPolling) => {
+  const result = hasExtensionInstalled()
     ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
     : null
-)
 
-const hasChromeExtInstalled = usePolled(5000, () =>
-  hasChromeExtensionInstalled()
-)
+  // We don't need to poll anymore after we get value
+  if (result) stopPolling()
 
-const hasFirefoxExtInstalled = usePolled(5000, () =>
-  hasFirefoxExtensionInstalled()
-)
+  return result
+})
+
+const hasChromeExtInstalled = usePolled(5000, (stopPolling) => {
+  // If not Chrome, we don't need to worry about this value changing
+  if (!browserIsChrome()) stopPolling()
+
+  return hasChromeExtensionInstalled()
+})
+
+const hasFirefoxExtInstalled = usePolled(5000, (stopPolling) => {
+  // If not Chrome, we don't need to worry about this value changing
+  if (!browserIsFirefox()) stopPolling()
+
+  return hasFirefoxExtensionInstalled()
+})
 
 const clearIcon = ref("rotate-ccw")
 

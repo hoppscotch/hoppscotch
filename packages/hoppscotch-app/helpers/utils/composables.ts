@@ -164,16 +164,29 @@ export function useColorMode() {
 
 export function usePolled<T>(
   pollDurationMS: number,
-  pollFunc: () => T
+  pollFunc: (stopPolling: () => void) => T
 ): Ref<T> {
-  const result = shallowRef(pollFunc())
+  let polling = true
+  let handle: ReturnType<typeof setInterval> | undefined
 
-  const handle = setInterval(() => {
-    result.value = pollFunc()
-  }, pollDurationMS)
+  const stopPolling = () => {
+    if (handle) {
+      clearInterval(handle)
+      handle = undefined
+      polling = false
+    }
+  }
+
+  const result = shallowRef(pollFunc(stopPolling))
+
+  if (polling) {
+    handle = setInterval(() => {
+      result.value = pollFunc(stopPolling)
+    }, pollDurationMS)
+  }
 
   onBeforeUnmount(() => {
-    clearInterval(handle)
+    if (polling) stopPolling()
   })
 
   return result

@@ -20,7 +20,8 @@
       "@nuxt/types",
       "@nuxtjs/i18n",
       "@nuxtjs/toast",
-      "@nuxtjs/sentry"
+      "@nuxtjs/sentry",
+      "@nuxtjs/color-mode"
     ]
   },
   "exclude": ["node_modules", ".nuxt", "dist"],

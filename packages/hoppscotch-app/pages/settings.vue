@@ -237,7 +237,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, defineComponent } from "@nuxtjs/composition-api"
 import { applySetting, toggleSetting, useSetting } from "~/newstore/settings"
-import { useToast, useI18n, useColorMode } from "~/helpers/utils/composables"
+import {
+  useToast,
+  useI18n,
+  useColorMode,
+  usePolled,
+} from "~/helpers/utils/composables"
 import {
   hasExtensionInstalled,
   hasChromeExtensionInstalled,
@@ -257,13 +262,19 @@ const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ZEN_MODE = useSetting("ZEN_MODE")
 
-const extensionVersion = hasExtensionInstalled()
-  ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
-  : null
+const extensionVersion = usePolled(5000, () =>
+  hasExtensionInstalled()
+    ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+    : null
+)
 
-const hasChromeExtInstalled = hasChromeExtensionInstalled()
+const hasChromeExtInstalled = usePolled(5000, () =>
+  hasChromeExtensionInstalled()
+)
 
-const hasFirefoxExtInstalled = hasFirefoxExtensionInstalled()
+const hasFirefoxExtInstalled = usePolled(5000, () =>
+  hasFirefoxExtensionInstalled()
+)
 
 const clearIcon = ref("rotate-ccw")
 

@@ -57,7 +57,11 @@ import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+<<<<<<< HEAD
 import { useSentry } from "~/helpers/sentry"
+=======
+import { useColorMode } from "~/helpers/utils/composables"
+>>>>>>> refactor: update color-mode usage to new composable
 
 function appLayout() {
   const rightSidebar = useSetting("SIDEBAR")
@@ -99,7 +103,7 @@ function setupSentry() {
 }
 
 function updateThemes() {
-  const { $colorMode } = useContext() as any
+  const $colorMode = useColorMode()
 
   // Apply theme updates
   const themeColor = useSetting("THEME_COLOR")

@@ -70,6 +70,18 @@
               $refs.authTypeOptions.tippy().hide()
             "
           />
+          <SmartItem
+            label="API key"
+            :icon="
+              authName === 'API key'
+                ? 'radio_button_checked'
+                : 'radio_button_unchecked'
+            "
+            @click.native="
+              authType = 'api-key'
+              $refs.authTypeOptions.tippy().hide()
+            "
+          />
         </tippy>
       </span>
       <div class="flex">
@@ -213,6 +225,77 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="authType === 'api-key'"
+      class="border-b border-dividerLight flex"
+    >
+      <div class="border-r border-dividerLight w-2/3">
+        <div class="border-b border-dividerLight flex">
+          <SmartEnvInput
+            v-model="apiKey"
+            placeholder="Key"
+            styles="bg-transparent flex flex-1 py-1 px-4"
+          />
+        </div>
+        <div class="border-b border-dividerLight flex">
+          <SmartEnvInput
+            v-model="apiValue"
+            placeholder="Value"
+            styles="bg-transparent flex flex-1 py-1 px-4"
+          />
+        </div>
+        <div class="border-b border-dividerLight flex items-center">
+          <label class="text-secondaryLight ml-4">
+            {{ $t("authorization.pass_key_by") }}
+          </label>
+          <tippy
+            ref="addToOptions"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+          >
+            <template #trigger>
+              <span class="select-wrapper">
+                <ButtonSecondary
+                  :label="addTo || 'Header'"
+                  class="rounded-none ml-2 pr-8"
+                />
+              </span>
+            </template>
+            <SmartItem
+              :label="'Header'"
+              @click.native="
+                addTo = 'Header'
+                $refs.addToOptions.tippy().hide()
+              "
+            />
+            <SmartItem
+              :label="'Query params'"
+              @click.native="
+                addTo = 'Query params'
+                $refs.addToOptions.tippy().hide()
+              "
+            />
+          </tippy>
+        </div>
+      </div>
+      <div
+        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
+      >
+        <div class="p-2">
+          <div class="text-secondaryLight pb-2">
+            {{ $t("helpers.authorization") }}
+          </div>
+          <SmartAnchor
+            class="link"
+            :label="`${$t('authorization.learn')} \xA0 →`"
+            to="https://docs.hoppscotch.io/features/authorization"
+            blank
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -222,6 +305,7 @@ import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
   HoppRESTAuthOAuth2,
+  HoppRESTAuthApiKey,
 } from "@hoppscotch/data"
 import { pluckRef, useStream } from "~/helpers/utils/composables"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
@@ -239,6 +323,7 @@ export default defineComponent({
       if (authType.value === "basic") return "Basic Auth"
       else if (authType.value === "bearer") return "Bearer"
       else if (authType.value === "oauth-2") return "OAuth 2.0"
+      else if (authType.value === "api-key") return "API key"
       else return "None"
     })
     const authActive = pluckRef(auth, "authActive")
@@ -246,6 +331,9 @@ export default defineComponent({
     const basicPassword = pluckRef(auth as Ref<HoppRESTAuthBasic>, "password")
     const bearerToken = pluckRef(auth as Ref<HoppRESTAuthBearer>, "token")
     const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
+    const apiKey = pluckRef(auth as Ref<HoppRESTAuthApiKey>, "key")
+    const apiValue = pluckRef(auth as Ref<HoppRESTAuthApiKey>, "value")
+    const addTo = pluckRef(auth as Ref<HoppRESTAuthApiKey>, "addTo")
     const URLExcludes = useSetting("URL_EXCLUDES")
     const clearContent = () => {
       auth.value = {
@@ -264,6 +352,9 @@ export default defineComponent({
       oauth2Token,
       URLExcludes,
       clearContent,
+      apiKey,
+      apiValue,
+      addTo,
     }
   },
 })

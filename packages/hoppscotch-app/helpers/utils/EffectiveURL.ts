@@ -100,6 +100,47 @@ export function getEffectiveRESTRequest(
           envVariables
         )}`,
       })
+    } else if (request.auth.authType === "api-key") {
+      const { key, value, addTo } = request.auth
+
+      if (addTo === "Header") {
+        effectiveFinalHeaders.push({
+          active: true,
+          key,
+          value: parseTemplateString(value, envVariables),
+        })
+
+        const paramIdx = request.params.findIndex((el) => el.key === key)
+
+        request.params[paramIdx] = {
+          ...request.params[paramIdx],
+          active: false,
+        }
+      } else if (addTo === "Query params") {
+        const paramIdx = request.params.findIndex((el) => el.key === key)
+
+        if (paramIdx === -1) {
+          request.params.pop()
+          request.params.push({
+            active: true,
+            key,
+            value: parseTemplateString(value, envVariables),
+          })
+        } else {
+          request.params[paramIdx] = {
+            ...request.params[paramIdx],
+            active: true,
+          }
+        }
+      }
+    }
+  } else {
+    const key = request.auth?.key
+    const paramIdx = request.params.findIndex((el) => el.key === key)
+
+    request.params[paramIdx] = {
+      ...request.params[paramIdx],
+      active: false,
     }
   }
 

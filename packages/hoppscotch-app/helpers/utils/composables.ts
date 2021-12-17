@@ -5,6 +5,7 @@ import {
   readonly,
   Ref,
   ref,
+  shallowRef,
   useContext,
   watch,
   wrapProperty,
@@ -153,4 +154,27 @@ export function useI18n() {
 export function useToast() {
   const { $toast } = useContext()
   return $toast
+}
+
+export function useColorMode() {
+  const { $colorMode } = useContext()
+
+  return $colorMode
+}
+
+export function usePolled<T>(
+  pollDurationMS: number,
+  pollFunc: () => T
+): Ref<T> {
+  const result = shallowRef(pollFunc())
+
+  const handle = setInterval(() => {
+    result.value = pollFunc()
+  }, pollDurationMS)
+
+  onBeforeUnmount(() => {
+    clearInterval(handle)
+  })
+
+  return result
 }

@@ -1,17 +1,16 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { NetworkResponse, NetworkStrategy } from "../network"
+import { browserIsChrome, browserIsFirefox } from "../utils/userAgent"
 
 export const hasExtensionInstalled = () =>
   typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined"
 
 export const hasChromeExtensionInstalled = () =>
-  hasExtensionInstalled() &&
-  /Chrome/i.test(navigator.userAgent) &&
-  /Google/i.test(navigator.vendor)
+  hasExtensionInstalled() && browserIsChrome()
 
 export const hasFirefoxExtensionInstalled = () =>
-  hasExtensionInstalled() && /Firefox/i.test(navigator.userAgent)
+  hasExtensionInstalled() && browserIsFirefox()
 
 export const cancelRunningExtensionRequest = () => {
   if (

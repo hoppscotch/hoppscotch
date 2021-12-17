@@ -76,6 +76,18 @@ export function getEffectiveRESTRequest(
       value: parseTemplateString(x.value, envVariables),
     }))
 
+  const effectiveFinalParams = request.params
+    .filter(
+      (x) =>
+        x.key !== "" && // Remove empty keys
+        x.active // Only active
+    )
+    .map((x) => ({
+      active: true,
+      key: parseTemplateString(x.key, envVariables),
+      value: parseTemplateString(x.value, envVariables),
+    }))
+
   // Authentication
   if (request.auth.authActive) {
     // TODO: Support a better b64 implementation than btoa ?
@@ -109,38 +121,13 @@ export function getEffectiveRESTRequest(
           key,
           value: parseTemplateString(value, envVariables),
         })
-
-        const paramIdx = request.params.findIndex((el) => el.key === key)
-
-        request.params[paramIdx] = {
-          ...request.params[paramIdx],
-          active: false,
-        }
       } else if (addTo === "Query params") {
-        const paramIdx = request.params.findIndex((el) => el.key === key)
-
-        if (paramIdx === -1) {
-          request.params.pop()
-          request.params.push({
-            active: true,
-            key,
-            value: parseTemplateString(value, envVariables),
-          })
-        } else {
-          request.params[paramIdx] = {
-            ...request.params[paramIdx],
-            active: true,
-          }
-        }
+        effectiveFinalParams.push({
+          active: true,
+          key,
+          value,
+        })
       }
-    }
-  } else {
-    const key = request.auth?.key
-    const paramIdx = request.params.findIndex((el) => el.key === key)
-
-    request.params[paramIdx] = {
-      ...request.params[paramIdx],
-      active: false,
     }
   }
 
@@ -156,17 +143,7 @@ export function getEffectiveRESTRequest(
     ...request,
     effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
     effectiveFinalHeaders,
-    effectiveFinalParams: request.params
-      .filter(
-        (x) =>
-          x.key !== "" && // Remove empty keys
-          x.active // Only active
-      )
-      .map((x) => ({
-        active: true,
-        key: parseTemplateString(x.key, envVariables),
-        value: parseTemplateString(x.value, envVariables),
-      })),
+    effectiveFinalParams,
     effectiveFinalBody,
   }
 }

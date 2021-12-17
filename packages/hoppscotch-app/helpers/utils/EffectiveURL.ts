@@ -118,14 +118,14 @@ export function getEffectiveRESTRequest(
       if (addTo === "Header") {
         effectiveFinalHeaders.push({
           active: true,
-          key: parseTemplateString(key, envVariables),,
+          key: parseTemplateString(key, envVariables),
           value: parseTemplateString(value, envVariables),
         })
       } else if (addTo === "Query params") {
         effectiveFinalParams.push({
           active: true,
-          key,
-          value,
+          key: parseTemplateString(key, envVariables),
+          value: parseTemplateString(value, envVariables),
         })
       }
     }

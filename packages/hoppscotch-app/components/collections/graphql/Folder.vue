@@ -137,7 +137,7 @@
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
             class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
-            :alt="$t('empty.folder')"
+            :alt="`${$t('empty.folder')}`"
           />
           <span class="text-center">
             {{ $t("empty.folder") }}
@@ -226,7 +226,6 @@ export default defineComponent({
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-
       moveGraphqlRequest(folderPath, requestIndex, this.folderPath)
     },
   },

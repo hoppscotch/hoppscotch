@@ -156,17 +156,15 @@
       <div
         class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
-        <div class="p-2">
-          <div class="text-secondaryLight pb-2">
-            {{ $t("helpers.authorization") }}
-          </div>
-          <SmartAnchor
-            class="link"
-            :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/features/authorization"
-            blank
-          />
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
         </div>
+        <SmartAnchor
+          class="link"
+          :label="`${$t('authorization.learn')} \xA0 →`"
+          to="https://docs.hoppscotch.io/features/authorization"
+          blank
+        />
       </div>
     </div>
     <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
@@ -182,17 +180,15 @@
       <div
         class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
-        <div class="p-2">
-          <div class="text-secondaryLight pb-2">
-            {{ $t("helpers.authorization") }}
-          </div>
-          <SmartAnchor
-            class="link"
-            :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/features/authorization"
-            blank
-          />
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
         </div>
+        <SmartAnchor
+          class="link"
+          :label="`${$t('authorization.learn')} \xA0 →`"
+          to="https://docs.hoppscotch.io/features/authorization"
+          blank
+        />
       </div>
     </div>
     <div
@@ -212,17 +208,15 @@
       <div
         class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
-        <div class="p-2">
-          <div class="text-secondaryLight pb-2">
-            {{ $t("helpers.authorization") }}
-          </div>
-          <SmartAnchor
-            class="link"
-            :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/features/authorization"
-            blank
-          />
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
         </div>
+        <SmartAnchor
+          class="link"
+          :label="`${$t('authorization.learn')} \xA0 →`"
+          to="https://docs.hoppscotch.io/features/authorization"
+          blank
+        />
       </div>
     </div>
     <div
@@ -258,19 +252,29 @@
             <template #trigger>
               <span class="select-wrapper">
                 <ButtonSecondary
-                  :label="addTo || 'Header'"
+                  :label="addTo || $t('state.none')"
                   class="rounded-none ml-2 pr-8"
                 />
               </span>
             </template>
             <SmartItem
-              :label="'Header'"
+              :icon="
+                addTo === 'Headers'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
+              :label="'Headers'"
               @click.native="
-                addTo = 'Header'
+                addTo = 'Headers'
                 $refs.addToOptions.tippy().hide()
               "
             />
             <SmartItem
+              :icon="
+                addTo === 'Query params'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
               :label="'Query params'"
               @click.native="
                 addTo = 'Query params'
@@ -283,17 +287,15 @@
       <div
         class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
       >
-        <div class="p-2">
-          <div class="text-secondaryLight pb-2">
-            {{ $t("helpers.authorization") }}
-          </div>
-          <SmartAnchor
-            class="link"
-            :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/features/authorization"
-            blank
-          />
+        <div class="text-secondaryLight pb-2">
+          {{ $t("helpers.authorization") }}
         </div>
+        <SmartAnchor
+          class="link"
+          :label="`${$t('authorization.learn')} \xA0 →`"
+          to="https://docs.hoppscotch.io/features/authorization"
+          blank
+        />
       </div>
     </div>
   </div>
@@ -305,7 +307,7 @@ import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
   HoppRESTAuthOAuth2,
-  HoppRESTAuthApiKey,
+  HoppRESTAuthAPIKey,
 } from "@hoppscotch/data"
 import { pluckRef, useStream } from "~/helpers/utils/composables"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
@@ -331,9 +333,15 @@ export default defineComponent({
     const basicPassword = pluckRef(auth as Ref<HoppRESTAuthBasic>, "password")
     const bearerToken = pluckRef(auth as Ref<HoppRESTAuthBearer>, "token")
     const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
-    const apiKey = pluckRef(auth as Ref<HoppRESTAuthApiKey>, "key")
-    const apiValue = pluckRef(auth as Ref<HoppRESTAuthApiKey>, "value")
-    const addTo = pluckRef(auth as Ref<HoppRESTAuthApiKey>, "addTo")
+    const apiKey = pluckRef(auth as Ref<HoppRESTAuthAPIKey>, "key")
+    const apiValue = pluckRef(auth as Ref<HoppRESTAuthAPIKey>, "value")
+    const addTo = pluckRef(auth as Ref<HoppRESTAuthAPIKey>, "addTo")
+    if (typeof addTo.value === "undefined") {
+      addTo.value = "Headers"
+      apiKey.value = ""
+      apiValue.value = ""
+    }
+
     const URLExcludes = useSetting("URL_EXCLUDES")
     const clearContent = () => {
       auth.value = {

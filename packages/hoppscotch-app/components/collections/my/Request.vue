@@ -71,38 +71,44 @@
               svg="edit"
               :label="$t('action.edit')"
               @click.native="
-                $emit('edit-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('edit-request', {
+                    collectionIndex,
+                    folderIndex,
+                    folderName,
+                    request,
+                    requestIndex,
+                    folderPath,
+                  })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
               svg="copy"
               :label="$t('action.duplicate')"
               @click.native="
-                $emit('duplicate-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
+                () => {
+                  $emit('duplicate-request', {
+                    collectionIndex,
+                    folderIndex,
+                    folderName,
+                    request,
+                    requestIndex,
+                    folderPath,
+                  })
+                  $refs.options.tippy().hide()
+                }
               "
             />
             <SmartItem
               svg="trash-2"
               :label="$t('action.delete')"
               @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
+                () => {
+                  confirmRemove = true
+                  $refs.options.tippy().hide()
+                }
               "
             />
           </tippy>

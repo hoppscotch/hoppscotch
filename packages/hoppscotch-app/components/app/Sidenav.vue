@@ -8,9 +8,6 @@
         class="nav-link"
         tabindex="0"
       >
-        <i v-if="navigation.icon" class="material-icons">
-          {{ navigation.icon }}
-        </i>
         <div v-if="navigation.svg">
           <SmartIcon :name="navigation.svg" class="svg-icons" />
         </div>

@@ -114,8 +114,7 @@ export function getEffectiveRESTRequest(
       })
     } else if (request.auth.authType === "api-key") {
       const { key, value, addTo } = request.auth
-
-      if (addTo === "Header") {
+      if (addTo === "Headers") {
         effectiveFinalHeaders.push({
           active: true,
           key: parseTemplateString(key, envVariables),

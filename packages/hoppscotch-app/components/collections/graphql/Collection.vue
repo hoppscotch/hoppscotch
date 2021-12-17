@@ -227,10 +227,8 @@ export default defineComponent({
     },
     dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
-
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-
       moveGraphqlRequest(folderPath, requestIndex, `${this.collectionIndex}`)
     },
   },

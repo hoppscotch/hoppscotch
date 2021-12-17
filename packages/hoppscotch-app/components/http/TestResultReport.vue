@@ -20,12 +20,16 @@
 
 <script setup lang="ts">
 import { computed, PropType } from "@nuxtjs/composition-api"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import {
+  HoppTestExpectResult,
+  HoppTestResult,
+} from "~/helpers/types/HoppTestResult"
 
 const props = defineProps({
   testResults: {
     type: Object as PropType<HoppTestResult>,
     required: true,
+    expectResults: [] as HoppTestExpectResult[],
   },
 })
 

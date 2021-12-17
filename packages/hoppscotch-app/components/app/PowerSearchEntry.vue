@@ -33,7 +33,12 @@ import { useI18n } from "~/helpers/utils/composables"
 const t = useI18n()
 
 defineProps<{
-  shortcut: Object
+  shortcut: {
+    label: string
+    keys: string[]
+    action: string
+    icon: string
+  }
   active: Boolean
 }>()
 </script>

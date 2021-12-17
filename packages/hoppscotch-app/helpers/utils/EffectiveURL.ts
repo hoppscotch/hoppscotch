@@ -76,6 +76,18 @@ export function getEffectiveRESTRequest(
       value: parseTemplateString(x.value, envVariables),
     }))
 
+  const effectiveFinalParams = request.params
+    .filter(
+      (x) =>
+        x.key !== "" && // Remove empty keys
+        x.active // Only active
+    )
+    .map((x) => ({
+      active: true,
+      key: parseTemplateString(x.key, envVariables),
+      value: parseTemplateString(x.value, envVariables),
+    }))
+
   // Authentication
   if (request.auth.authActive) {
     // TODO: Support a better b64 implementation than btoa ?
@@ -100,6 +112,22 @@ export function getEffectiveRESTRequest(
           envVariables
         )}`,
       })
+    } else if (request.auth.authType === "api-key") {
+      const { key, value, addTo } = request.auth
+
+      if (addTo === "Header") {
+        effectiveFinalHeaders.push({
+          active: true,
+          key: parseTemplateString(key, envVariables),
+          value: parseTemplateString(value, envVariables),
+        })
+      } else if (addTo === "Query params") {
+        effectiveFinalParams.push({
+          active: true,
+          key: parseTemplateString(key, envVariables),
+          value: parseTemplateString(value, envVariables),
+        })
+      }
     }
   }
 
@@ -115,17 +143,7 @@ export function getEffectiveRESTRequest(
     ...request,
     effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
     effectiveFinalHeaders,
-    effectiveFinalParams: request.params
-      .filter(
-        (x) =>
-          x.key !== "" && // Remove empty keys
-          x.active // Only active
-      )
-      .map((x) => ({
-        active: true,
-        key: parseTemplateString(x.key, envVariables),
-        value: parseTemplateString(x.value, envVariables),
-      })),
+    effectiveFinalParams,
     effectiveFinalBody,
   }
 }

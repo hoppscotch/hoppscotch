@@ -187,6 +187,8 @@
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 
 export default defineComponent({
   props: {
@@ -258,11 +260,15 @@ export default defineComponent({
     expandCollection(collectionID) {
       this.$emit("expand-collection", collectionID)
     },
-    dropEvent({ dataTransfer }) {
+    async dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging
       const requestIndex = dataTransfer.getData("requestIndex")
-      console.log(requestIndex, this.collection.id)
-      // moveRESTTeamRequest(`${this.collectionIndex}`, requestIndex)
+      const moveRequestResult = await moveRESTTeamRequest(
+        requestIndex,
+        this.collection.id
+      )()
+      if (E.isLeft(moveRequestResult))
+        this.$toast.error(this.$t("error.something_went_wrong"))
     },
     removeRequest({ collectionIndex, folderName, requestIndex }) {
       this.$emit("remove-request", {

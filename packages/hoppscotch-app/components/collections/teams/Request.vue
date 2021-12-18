@@ -179,7 +179,6 @@ export default defineComponent({
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
       dataTransfer.setData("requestIndex", this.requestIndex)
-      console.log(dataTransfer)
     },
     removeRequest() {
       this.$emit("remove-request", {

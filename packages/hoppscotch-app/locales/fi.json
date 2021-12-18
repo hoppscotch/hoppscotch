@@ -96,7 +96,8 @@
     "password": "Salasana",
     "token": "Token",
     "type": "Valtuustyyppi",
-    "username": "Käyttäjätunnus"
+    "username": "Käyttäjätunnus",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Kokoelma luotu",

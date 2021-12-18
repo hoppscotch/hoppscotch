@@ -96,7 +96,8 @@
     "password": "كلمة المرور",
     "token": "رمز",
     "type": "نوع التفويض",
-    "username": "اسم المستخدم"
+    "username": "اسم المستخدم",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "تم إنشاء المجموعة",

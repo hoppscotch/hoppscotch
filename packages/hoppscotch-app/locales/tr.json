@@ -96,7 +96,8 @@
     "password": "Parola",
     "token": "Jeton",
     "type": "Yetki Türü",
-    "username": "Kullanıcı adı"
+    "username": "Kullanıcı adı",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Koleksiyon oluşturuldu",

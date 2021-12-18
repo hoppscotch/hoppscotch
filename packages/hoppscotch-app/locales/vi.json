@@ -96,7 +96,8 @@
     "password": "Mật khẩu",
     "token": "Mã thông báo",
     "type": "Loại ủy quyền",
-    "username": "tên tài khoản"
+    "username": "tên tài khoản",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Bộ sưu tập đã được tạo",

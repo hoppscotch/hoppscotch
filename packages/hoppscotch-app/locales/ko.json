@@ -96,7 +96,8 @@
     "password": "비밀번호",
     "token": "토큰",
     "type": "인증 유형",
-    "username": "사용자 이름"
+    "username": "사용자 이름",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "모음집 생성됨",

@@ -96,7 +96,8 @@
     "password": "Contrasenya",
     "token": "Testimoni",
     "type": "Tipus d'autorització",
-    "username": "Nom d'usuari"
+    "username": "Nom d'usuari",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "S'ha creat la col·lecció",

@@ -96,7 +96,8 @@
     "password": "Passord",
     "token": "Nøkkel",
     "type": "Godkjenningstype",
-    "username": "Brukernavn"
+    "username": "Brukernavn",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Samlingen er opprettet",

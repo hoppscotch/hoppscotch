@@ -96,7 +96,8 @@
     "password": "Adgangskode",
     "token": "Polet",
     "type": "Godkendelse Type",
-    "username": "Brugernavn"
+    "username": "Brugernavn",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Samlingen er oprettet",

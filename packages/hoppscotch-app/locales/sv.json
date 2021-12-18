@@ -96,7 +96,8 @@
     "password": "Lösenord",
     "token": "Tecken",
     "type": "Godkännande typ",
-    "username": "Användarnamn"
+    "username": "Användarnamn",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Samlingen skapad",

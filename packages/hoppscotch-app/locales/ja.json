@@ -96,7 +96,8 @@
     "password": "パスワード",
     "token": "トークン",
     "type": "承認タイプ",
-    "username": "ユーザー名"
+    "username": "ユーザー名",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "コレクションが作成されました",

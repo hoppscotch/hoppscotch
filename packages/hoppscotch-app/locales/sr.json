@@ -96,7 +96,8 @@
     "password": "Лозинка",
     "token": "Токен",
     "type": "Врста овлашћења",
-    "username": "Корисничко име"
+    "username": "Корисничко име",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Колекција је направљена",

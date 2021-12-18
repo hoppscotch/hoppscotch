@@ -96,7 +96,8 @@
     "password": "Jelszó",
     "token": "Jelképes",
     "type": "Engedélyezés típusa",
-    "username": "Felhasználónév"
+    "username": "Felhasználónév",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Gyűjtemény létrehozva",

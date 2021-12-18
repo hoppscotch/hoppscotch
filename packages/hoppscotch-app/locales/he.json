@@ -96,7 +96,8 @@
     "password": "סיסמה",
     "token": "אֲסִימוֹן",
     "type": "סוג הרשאה",
-    "username": "שם משתמש"
+    "username": "שם משתמש",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "אוסף נוצר",

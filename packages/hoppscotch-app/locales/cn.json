@@ -96,7 +96,8 @@
     "password": "密码",
     "token": "令牌",
     "type": "授权类型",
-    "username": "用户名"
+    "username": "用户名",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "组合已创建",

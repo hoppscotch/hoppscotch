@@ -136,152 +136,103 @@
         class="mb-4"
       />
     </div>
-    <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
+    <div v-else class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
-          <SmartEnvInput
-            v-model="basicUsername"
-            :placeholder="$t('authorization.username')"
-            styles="bg-transparent flex flex-1 py-1 px-4"
-          />
-        </div>
-        <div class="border-b border-dividerLight flex">
-          <SmartEnvInput
-            v-model="basicPassword"
-            :placeholder="$t('authorization.password')"
-            styles="bg-transparent flex flex-1 py-1 px-4"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
-      >
-        <div class="text-secondaryLight pb-2">
-          {{ $t("helpers.authorization") }}
-        </div>
-        <SmartAnchor
-          class="link"
-          :label="`${$t('authorization.learn')} \xA0 →`"
-          to="https://docs.hoppscotch.io/features/authorization"
-          blank
-        />
-      </div>
-    </div>
-    <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
-          <SmartEnvInput
-            v-model="bearerToken"
-            placeholder="Token"
-            styles="bg-transparent flex flex-1 py-1 px-4"
-          />
-        </div>
-      </div>
-      <div
-        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
-      >
-        <div class="text-secondaryLight pb-2">
-          {{ $t("helpers.authorization") }}
-        </div>
-        <SmartAnchor
-          class="link"
-          :label="`${$t('authorization.learn')} \xA0 →`"
-          to="https://docs.hoppscotch.io/features/authorization"
-          blank
-        />
-      </div>
-    </div>
-    <div
-      v-if="authType === 'oauth-2'"
-      class="border-b border-dividerLight flex"
-    >
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
-          <SmartEnvInput
-            v-model="oauth2Token"
-            placeholder="Token"
-            styles="bg-transparent flex flex-1 py-1 px-4"
-          />
-        </div>
-        <HttpOAuth2Authorization />
-      </div>
-      <div
-        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
-      >
-        <div class="text-secondaryLight pb-2">
-          {{ $t("helpers.authorization") }}
-        </div>
-        <SmartAnchor
-          class="link"
-          :label="`${$t('authorization.learn')} \xA0 →`"
-          to="https://docs.hoppscotch.io/features/authorization"
-          blank
-        />
-      </div>
-    </div>
-    <div
-      v-if="authType === 'api-key'"
-      class="border-b border-dividerLight flex"
-    >
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
-          <SmartEnvInput
-            v-model="apiKey"
-            placeholder="Key"
-            styles="bg-transparent flex flex-1 py-1 px-4"
-          />
-        </div>
-        <div class="border-b border-dividerLight flex">
-          <SmartEnvInput
-            v-model="apiValue"
-            placeholder="Value"
-            styles="bg-transparent flex flex-1 py-1 px-4"
-          />
-        </div>
-        <div class="border-b border-dividerLight flex items-center">
-          <label class="text-secondaryLight ml-4">
-            {{ $t("authorization.pass_key_by") }}
-          </label>
-          <tippy
-            ref="addToOptions"
-            interactive
-            trigger="click"
-            theme="popover"
-            arrow
-          >
-            <template #trigger>
-              <span class="select-wrapper">
-                <ButtonSecondary
-                  :label="addTo || $t('state.none')"
-                  class="rounded-none ml-2 pr-8"
-                />
-              </span>
-            </template>
-            <SmartItem
-              :icon="
-                addTo === 'Headers'
-                  ? 'radio_button_checked'
-                  : 'radio_button_unchecked'
-              "
-              :label="'Headers'"
-              @click.native="
-                addTo = 'Headers'
-                $refs.addToOptions.tippy().hide()
-              "
+        <div v-if="authType === 'basic'">
+          <div class="border-b border-dividerLight flex">
+            <SmartEnvInput
+              v-model="basicUsername"
+              :placeholder="$t('authorization.username')"
+              styles="bg-transparent flex flex-1 py-1 px-4"
             />
-            <SmartItem
-              :icon="
-                addTo === 'Query params'
-                  ? 'radio_button_checked'
-                  : 'radio_button_unchecked'
-              "
-              :label="'Query params'"
-              @click.native="
-                addTo = 'Query params'
-                $refs.addToOptions.tippy().hide()
-              "
+          </div>
+          <div class="border-b border-dividerLight flex">
+            <SmartEnvInput
+              v-model="basicPassword"
+              :placeholder="$t('authorization.password')"
+              styles="bg-transparent flex flex-1 py-1 px-4"
             />
-          </tippy>
+          </div>
+        </div>
+        <div v-if="authType === 'bearer'">
+          <div class="border-b border-dividerLight flex">
+            <SmartEnvInput
+              v-model="bearerToken"
+              placeholder="Token"
+              styles="bg-transparent flex flex-1 py-1 px-4"
+            />
+          </div>
+        </div>
+        <div v-if="authType === 'oauth-2'">
+          <div class="border-b border-dividerLight flex">
+            <SmartEnvInput
+              v-model="oauth2Token"
+              placeholder="Token"
+              styles="bg-transparent flex flex-1 py-1 px-4"
+            />
+          </div>
+          <HttpOAuth2Authorization />
+        </div>
+        <div v-if="authType === 'api-key'">
+          <div class="border-b border-dividerLight flex">
+            <SmartEnvInput
+              v-model="apiKey"
+              placeholder="Key"
+              styles="bg-transparent flex flex-1 py-1 px-4"
+            />
+          </div>
+          <div class="border-b border-dividerLight flex">
+            <SmartEnvInput
+              v-model="apiValue"
+              placeholder="Value"
+              styles="bg-transparent flex flex-1 py-1 px-4"
+            />
+          </div>
+          <div class="border-b border-dividerLight flex items-center">
+            <label class="text-secondaryLight ml-4">
+              {{ $t("authorization.pass_key_by") }}
+            </label>
+            <tippy
+              ref="addToOptions"
+              interactive
+              trigger="click"
+              theme="popover"
+              arrow
+            >
+              <template #trigger>
+                <span class="select-wrapper">
+                  <ButtonSecondary
+                    :label="addTo || $t('state.none')"
+                    class="rounded-none ml-2 pr-8"
+                  />
+                </span>
+              </template>
+              <SmartItem
+                :icon="
+                  addTo === 'Headers'
+                    ? 'radio_button_checked'
+                    : 'radio_button_unchecked'
+                "
+                :label="'Headers'"
+                @click.native="
+                  addTo = 'Headers'
+                  $refs.addToOptions.tippy().hide()
+                "
+              />
+              <SmartItem
+                :icon="
+                  addTo === 'Query params'
+                    ? 'radio_button_checked'
+                    : 'radio_button_unchecked'
+                "
+                :label="'Query params'"
+                @click.native="
+                  addTo = 'Query params'
+                  $refs.addToOptions.tippy().hide()
+                "
+              />
+            </tippy>
+          </div>
         </div>
       </div>
       <div

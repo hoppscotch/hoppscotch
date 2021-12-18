@@ -96,7 +96,8 @@
     "password": "Heslo",
     "token": "Žeton",
     "type": "Typ autorizace",
-    "username": "Uživatelské jméno"
+    "username": "Uživatelské jméno",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Kolekce vytvořena",

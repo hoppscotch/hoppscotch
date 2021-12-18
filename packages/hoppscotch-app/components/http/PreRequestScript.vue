@@ -31,7 +31,7 @@
     </div>
     <div class="border-b border-dividerLight flex">
       <div class="border-r border-dividerLight w-2/3">
-        <div ref="preRrequestEditor"></div>
+        <div ref="preRrequestEditor" class="h-full"></div>
       </div>
       <div
         class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"

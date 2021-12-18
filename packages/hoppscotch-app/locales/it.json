@@ -96,7 +96,8 @@
     "password": "Password",
     "token": "Token",
     "type": "Tipo di autorizzazione",
-    "username": "Nome utente"
+    "username": "Nome utente",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Raccolta creata",

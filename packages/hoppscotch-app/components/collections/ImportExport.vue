@@ -41,7 +41,7 @@
             :label="$t('import.from_gist')"
             @click.native="
               () => {
-                readCollectionGist
+                readCollectionGist()
                 $refs.options.tippy().hide()
               }
             "

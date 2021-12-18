@@ -96,7 +96,8 @@
     "password": "Пароль",
     "token": "Токен",
     "type": "Тип авторизации",
-    "username": "Имя пользователя"
+    "username": "Имя пользователя",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Коллекция создана",

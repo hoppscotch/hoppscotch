@@ -96,7 +96,8 @@
     "password": "密碼",
     "token": "權杖",
     "type": "授權類型",
-    "username": "使用者名稱"
+    "username": "使用者名稱",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "組合已建立",

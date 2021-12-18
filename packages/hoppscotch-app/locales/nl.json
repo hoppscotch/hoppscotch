@@ -96,7 +96,8 @@
     "password": "Wachtwoord",
     "token": "token",
     "type": "Autorisatietype:",
-    "username": "Gebruikersnaam"
+    "username": "Gebruikersnaam",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Collectie gemaakt",

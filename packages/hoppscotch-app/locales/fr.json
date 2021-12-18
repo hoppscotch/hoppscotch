@@ -96,7 +96,8 @@
     "password": "Mot de passe",
     "token": "Jeton",
     "type": "Type d'autorisation",
-    "username": "Nom d'utilisateur"
+    "username": "Nom d'utilisateur",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Collection créée",

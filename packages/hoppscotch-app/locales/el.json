@@ -96,7 +96,8 @@
     "password": "Κωδικός πρόσβασης",
     "token": "Ενδειξη",
     "type": "Τύπος εξουσιοδότησης",
-    "username": "Όνομα χρήστη"
+    "username": "Όνομα χρήστη",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Η συλλογή δημιουργήθηκε",

@@ -96,7 +96,8 @@
     "password": "Parola",
     "token": "Jeton",
     "type": "Tipul de autorizare",
-    "username": "Nume de utilizator"
+    "username": "Nume de utilizator",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Colecție creată",

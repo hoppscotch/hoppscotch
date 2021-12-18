@@ -96,7 +96,8 @@
     "password": "Wagwoord",
     "token": "Teken",
     "type": "Magtigingstipe",
-    "username": "Gebruikersnaam"
+    "username": "Gebruikersnaam",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Versameling geskep",

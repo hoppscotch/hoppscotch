@@ -2,6 +2,12 @@
   <div class="flex flex-col">
     <div
       class="flex items-stretch group"
+      @dragover.prevent
+      @drop.prevent="dropEvent"
+      @dragover="dragging = true"
+      @drop="dragging = false"
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
       @contextmenu.prevent="$refs.options.tippy().show()"
     >
       <span
@@ -196,6 +202,7 @@ export default defineComponent({
   data() {
     return {
       showChildren: false,
+      dragging: false,
       selectedFolder: {},
       confirmRemove: false,
       prevCursor: "",
@@ -250,6 +257,12 @@ export default defineComponent({
     },
     expandCollection(collectionID) {
       this.$emit("expand-collection", collectionID)
+    },
+    dropEvent({ dataTransfer }) {
+      this.dragging = !this.dragging
+      const requestIndex = dataTransfer.getData("requestIndex")
+      console.log(requestIndex, this.collection.id)
+      // moveRESTTeamRequest(`${this.collectionIndex}`, requestIndex)
     },
     removeRequest({ collectionIndex, folderName, requestIndex }) {
       this.$emit("remove-request", {

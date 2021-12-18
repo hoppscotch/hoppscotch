@@ -1,7 +1,13 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
       class="flex items-stretch group"
+      @dragover.prevent
+      @drop.prevent="dropEvent"
+      @dragover="dragging = true"
+      @drop="dragging = false"
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
       @contextmenu.prevent="$refs.options.tippy().show()"
     >
       <span
@@ -178,6 +184,7 @@ export default defineComponent({
   data() {
     return {
       showChildren: false,
+      dragging: false,
       confirmRemove: false,
       prevCursor: "",
       cursor: "",
@@ -237,6 +244,12 @@ export default defineComponent({
     },
     expandCollection(collectionID) {
       this.$emit("expand-collection", collectionID)
+    },
+    dropEvent({ dataTransfer }) {
+      this.dragging = !this.dragging
+      const requestIndex = dataTransfer.getData("requestIndex")
+      console.log(requestIndex, this.folder.id)
+      // moveRESTTeamRequest(this.folder.id, requestIndex)
     },
     removeRequest({ collectionIndex, folderName, requestIndex }) {
       this.$emit("remove-request", {

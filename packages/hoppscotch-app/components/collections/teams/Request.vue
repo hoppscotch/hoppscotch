@@ -1,7 +1,12 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
       class="flex items-stretch group"
+      draggable="true"
+      @dragstart="dragStart"
+      @dragover.stop
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
       @contextmenu.prevent="$refs.options.tippy().show()"
     >
       <span
@@ -128,6 +133,7 @@ export default defineComponent({
   },
   data() {
     return {
+      dragging: false,
       requestMethodLabels: {
         get: "text-green-500",
         post: "text-yellow-500",
@@ -169,6 +175,11 @@ export default defineComponent({
           originLocation: "team-collection",
           requestID: this.requestIndex as string,
         })
+    },
+    dragStart({ dataTransfer }) {
+      this.dragging = !this.dragging
+      dataTransfer.setData("requestIndex", this.requestIndex)
+      console.log(dataTransfer)
     },
     removeRequest() {
       this.$emit("remove-request", {

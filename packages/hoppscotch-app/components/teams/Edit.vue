@@ -153,7 +153,7 @@
                   id="member"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="t('action.remove')"
-                  svg="trash"
+                  svg="user-minus"
                   color="red"
                   @click.native="removeExistingTeamMember(member.userID)"
                 />

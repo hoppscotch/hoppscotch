@@ -55,7 +55,7 @@
         <kbd
           v-for="(key, index) in shortcut"
           :key="`key-${index}`"
-          class="bg-dividerLight rounded text-secondaryLight ml-1 px-1 inline-flex"
+          class="shortcut-key"
         >
           {{ key }}
         </kbd>

@@ -18,7 +18,14 @@
       </span>
     </span>
     <span>
-      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+      <tippy
+        ref="options"
+        interactive
+        trigger="click"
+        theme="popover"
+        arrow
+        :on-shown="() => $refs.tippyActions.focus()"
+      >
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -26,37 +33,54 @@
             svg="more-vertical"
           />
         </template>
-        <SmartItem
-          svg="edit"
-          :label="`${$t('action.edit')}`"
-          @click.native="
-            () => {
-              $emit('edit-environment')
-              $refs.options.tippy().hide()
-            }
+        <div
+          ref="tippyActions"
+          class="flex flex-col focus:outline-none"
+          tabindex="0"
+          @keyup.e="$refs.edit.$el.click()"
+          @keyup.d="$refs.duplicate.$el.click()"
+          @keyup.delete="
+            !(environmentIndex === 'Global') ? $refs.delete.$el.click() : null
           "
-        />
-        <SmartItem
-          svg="copy"
-          :label="`${$t('action.duplicate')}`"
-          @click.native="
-            () => {
-              duplicateEnvironment()
-              $refs.options.tippy().hide()
-            }
-          "
-        />
-        <SmartItem
-          v-if="!(environmentIndex === 'Global')"
-          svg="trash-2"
-          :label="`${$t('action.delete')}`"
-          @click.native="
-            () => {
-              confirmRemove = true
-              $refs.options.tippy().hide()
-            }
-          "
-        />
+        >
+          <SmartItem
+            ref="edit"
+            svg="edit"
+            :label="`${$t('action.edit')}`"
+            :shortcut="['E']"
+            @click.native="
+              () => {
+                $emit('edit-environment')
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+          <SmartItem
+            ref="duplicate"
+            svg="copy"
+            :label="`${$t('action.duplicate')}`"
+            :shortcut="['D']"
+            @click.native="
+              () => {
+                duplicateEnvironment()
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+          <SmartItem
+            v-if="!(environmentIndex === 'Global')"
+            ref="delete"
+            svg="trash-2"
+            :label="`${$t('action.delete')}`"
+            :shortcut="['⌫']"
+            @click.native="
+              () => {
+                confirmRemove = true
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+        </div>
       </tippy>
     </span>
     <SmartConfirmModal

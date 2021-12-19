@@ -446,13 +446,14 @@ pre.ace_editor {
 }
 
 .shortcut-key {
+  @apply inline-flex;
   @apply font-sans;
-  @apply bg-dividerLight;
+  @apply font-medium;
+  @apply text-tiny;
+  @apply bg-divider;
   @apply rounded;
   @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
+  @apply px-1;
 }
 
 @media (max-width: 767px) {

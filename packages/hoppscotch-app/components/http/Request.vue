@@ -69,41 +69,56 @@
           trigger="click"
           theme="popover"
           arrow
+          :on-shown="() => $refs.sendTippyActions.focus()"
         >
           <template #trigger>
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
-          <SmartItem
-            :label="`${t('import.curl')}`"
-            svg="file-code"
-            @click.native="
-              () => {
-                showCurlImportModal = !showCurlImportModal
-                sendOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            :label="`${t('show.code')}`"
-            svg="code-2"
-            @click.native="
-              () => {
-                showCodegenModal = !showCodegenModal
-                sendOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            ref="clearAll"
-            :label="`${t('action.clear_all')}`"
-            svg="rotate-ccw"
-            @click.native="
-              () => {
-                clearContent()
-                sendOptions.tippy().hide()
-              }
-            "
-          />
+          <div
+            ref="sendTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.c="$refs.import.$el.click()"
+            @keyup.s="$refs.show.$el.click()"
+            @keyup.delete="$refs.clearAll.$el.click()"
+          >
+            <SmartItem
+              ref="import"
+              :label="`${t('import.curl')}`"
+              svg="file-code"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  showCurlImportModal = !showCurlImportModal
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="show"
+              :label="`${t('show.code')}`"
+              svg="code-2"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showCodegenModal = !showCodegenModal
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="clearAll"
+              :label="`${t('action.clear_all')}`"
+              svg="rotate-ccw"
+              :shortcut="['⌫']"
+              @click.native="
+                () => {
+                  clearContent()
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
       <ButtonSecondary
@@ -124,6 +139,7 @@
           trigger="click"
           theme="popover"
           arrow
+          :on-shown="() => $refs.saveTippyActions.focus()"
         >
           <template #trigger>
             <ButtonSecondary
@@ -132,38 +148,48 @@
               class="rounded rounded-l-none"
             />
           </template>
-          <input
-            id="request-name"
-            v-model="requestName"
-            :placeholder="`${t('request.name')}`"
-            name="request-name"
-            type="text"
-            autocomplete="off"
-            class="mb-2 input"
-            @keyup.enter="saveOptions.tippy().hide()"
-          />
-          <SmartItem
-            ref="copyRequest"
-            :label="shareButtonText"
-            :svg="copyLinkIcon"
-            :loading="fetchingShareLink"
-            @click.native="
-              () => {
-                copyRequest()
-              }
-            "
-          />
-          <SmartItem
-            ref="saveRequest"
-            :label="`${t('request.save_as')}`"
-            svg="folder-plus"
-            @click.native="
-              () => {
-                showSaveRequestModal = true
-                saveOptions.tippy().hide()
-              }
-            "
-          />
+          <div
+            ref="saveTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.c="$refs.copyRequest.$el.click()"
+            @keyup.s="$refs.saveRequest.$el.click()"
+          >
+            <input
+              id="request-name"
+              v-model="requestName"
+              :placeholder="`${t('request.name')}`"
+              name="request-name"
+              type="text"
+              autocomplete="off"
+              class="mb-2 input"
+              @keyup.enter="saveOptions.tippy().hide()"
+            />
+            <SmartItem
+              ref="copyRequest"
+              :label="shareButtonText"
+              :svg="copyLinkIcon"
+              :loading="fetchingShareLink"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  copyRequest()
+                }
+              "
+            />
+            <SmartItem
+              ref="saveRequest"
+              :label="`${t('request.save_as')}`"
+              svg="folder-plus"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showSaveRequestModal = true
+                  saveOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
     </div>

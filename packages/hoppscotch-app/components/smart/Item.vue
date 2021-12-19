@@ -64,6 +64,15 @@
     >
       {{ infoIcon }}
     </i>
+    <div v-if="shortcut.length" class="ml-2">
+      <kbd
+        v-for="(key, index) in shortcut"
+        :key="`key-${index}`"
+        class="shortcut-key -mr-2"
+      >
+        {{ key }}
+      </kbd>
+    </div>
   </SmartLink>
 </template>
 
@@ -115,6 +124,10 @@ export default defineComponent({
     outline: {
       type: Boolean,
       default: false,
+    },
+    shortcut: {
+      type: Array,
+      default: () => [],
     },
     active: {
       type: Boolean,

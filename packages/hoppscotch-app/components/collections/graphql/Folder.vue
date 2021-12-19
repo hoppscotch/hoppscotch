@@ -43,6 +43,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => $refs.tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -51,36 +52,51 @@
                 svg="more-vertical"
               />
             </template>
-            <SmartItem
-              svg="folder-plus"
-              :label="`${$t('folder.new')}`"
-              @click.native="
-                () => {
-                  $emit('add-folder', { folder, path: folderPath })
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
-            <SmartItem
-              svg="edit"
-              :label="`${$t('action.edit')}`"
-              @click.native="
-                () => {
-                  $emit('edit-folder', { folder, folderPath })
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
-            <SmartItem
-              svg="trash-2"
-              :label="`${$t('action.delete')}`"
-              @click.native="
-                () => {
-                  confirmRemove = true
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.n="$refs.folder.$el.click()"
+              @keyup.e="$refs.edit.$el.click()"
+              @keyup.delete="$refs.delete.$el.click()"
+            >
+              <SmartItem
+                ref="folder"
+                svg="folder-plus"
+                :label="`${$t('folder.new')}`"
+                :shortcut="['N']"
+                @click.native="
+                  () => {
+                    $emit('add-folder', { folder, path: folderPath })
+                    $refs.options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="edit"
+                svg="edit"
+                :label="`${$t('action.edit')}`"
+                :shortcut="['E']"
+                @click.native="
+                  () => {
+                    $emit('edit-folder', { folder, folderPath })
+                    $refs.options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="delete"
+                svg="trash-2"
+                :label="`${$t('action.delete')}`"
+                :shortcut="['⌫']"
+                @click.native="
+                  () => {
+                    confirmRemove = true
+                    $refs.options.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </tippy>
         </span>
       </div>

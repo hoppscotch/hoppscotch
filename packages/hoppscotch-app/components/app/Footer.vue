@@ -31,6 +31,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => $refs.tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -39,17 +40,28 @@
                 :label="`${t('app.help')}`"
               />
             </template>
-            <div class="flex flex-col">
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.d="$refs.documentation.$el.click()"
+              @keyup.s="$refs.shortcuts.$el.click()"
+              @keyup.c="$refs.chat.$el.click()"
+            >
               <SmartItem
+                ref="documentation"
                 svg="book"
                 :label="`${t('app.documentation')}`"
                 to="https://docs.hoppscotch.io"
                 blank
+                :shortcut="['D']"
                 @click.native="$refs.options.tippy().hide()"
               />
               <SmartItem
+                ref="shortcuts"
                 svg="zap"
                 :label="`${t('app.keyboard_shortcuts')}`"
+                :shortcut="['S']"
                 @click.native="
                   () => {
                     showShortcuts = true
@@ -58,15 +70,10 @@
                 "
               />
               <SmartItem
-                svg="gift"
-                :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/changelog"
-                blank
-                @click.native="$refs.options.tippy().hide()"
-              />
-              <SmartItem
+                ref="chat"
                 svg="message-circle"
                 :label="`${t('app.chat_with_us')}`"
+                :shortcut="['C']"
                 @click.native="
                   () => {
                     chatWithUs()
@@ -103,6 +110,13 @@
                 svg="lock"
                 :label="`${t('app.terms_and_privacy')}`"
                 to="https://docs.hoppscotch.io/privacy"
+                blank
+                @click.native="$refs.options.tippy().hide()"
+              />
+              <SmartItem
+                svg="gift"
+                :label="`${t('app.whats_new')}`"
+                to="https://docs.hoppscotch.io/changelog"
                 blank
                 @click.native="$refs.options.tippy().hide()"
               />

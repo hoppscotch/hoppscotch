@@ -57,7 +57,14 @@
             @click.native="showTeamsModal = true"
           />
           <span class="px-2">
-            <tippy ref="user" interactive trigger="click" theme="popover" arrow>
+            <tippy
+              ref="user"
+              interactive
+              trigger="click"
+              theme="popover"
+              arrow
+              :on-shown="() => $refs.tippyActions.focus()"
+            >
               <template #trigger>
                 <ProfilePicture
                   v-if="currentUser.photoURL"
@@ -78,19 +85,36 @@
                   svg="user"
                 />
               </template>
-              <SmartItem
-                to="/profile"
-                svg="user"
-                :label="t('navigation.profile')"
-                @click.native="$refs.user.tippy().hide()"
-              />
-              <SmartItem
-                to="/settings"
-                svg="settings"
-                :label="t('navigation.settings')"
-                @click.native="$refs.user.tippy().hide()"
-              />
-              <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
+              <div
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.enter="$refs.profile.$el.click()"
+                @keyup.s="$refs.settings.$el.click()"
+                @keyup.l="$refs.logout.$el.click()"
+              >
+                <SmartItem
+                  ref="profile"
+                  to="/profile"
+                  svg="user"
+                  :label="t('navigation.profile')"
+                  :shortcut="['↩']"
+                  @click.native="$refs.user.tippy().hide()"
+                />
+                <SmartItem
+                  ref="settings"
+                  to="/settings"
+                  svg="settings"
+                  :label="t('navigation.settings')"
+                  :shortcut="['S']"
+                  @click.native="$refs.user.tippy().hide()"
+                />
+                <FirebaseLogout
+                  ref="logout"
+                  :shortcut="['L']"
+                  @confirm-logout="$refs.user.tippy().hide()"
+                />
+              </div>
             </tippy>
           </span>
         </div>

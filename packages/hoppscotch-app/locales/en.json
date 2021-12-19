@@ -230,7 +230,7 @@
   "import": {
     "collections": "Import collections",
     "curl": "Import cURL",
-    "failed": "Import failed",
+    "failed": "Error while importing: format not recognized",
     "from_gist": "Import from Gist",
     "from_my_collections": "Import from My Collections",
     "gist_url": "Enter Gist URL",

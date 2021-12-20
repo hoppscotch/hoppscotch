@@ -58,12 +58,12 @@
           />
           <span class="px-2">
             <tippy
-              ref="user"
+              ref="options"
               interactive
               trigger="click"
               theme="popover"
               arrow
-              :on-shown="() => $refs.tippyActions.focus()"
+              :on-shown="() => tippyActions.focus()"
             >
               <template #trigger>
                 <ProfilePicture
@@ -89,9 +89,10 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.enter="$refs.profile.$el.click()"
-                @keyup.s="$refs.settings.$el.click()"
-                @keyup.l="$refs.logout.$el.click()"
+                @keyup.enter="profile.$el.click()"
+                @keyup.s="settings.$el.click()"
+                @keyup.l="logout.$el.click()"
+                @keyup.escape="options.tippy().hide()"
               >
                 <SmartItem
                   ref="profile"
@@ -99,7 +100,7 @@
                   svg="user"
                   :label="t('navigation.profile')"
                   :shortcut="['↩']"
-                  @click.native="$refs.user.tippy().hide()"
+                  @click.native="options.tippy().hide()"
                 />
                 <SmartItem
                   ref="settings"
@@ -107,12 +108,12 @@
                   svg="settings"
                   :label="t('navigation.settings')"
                   :shortcut="['S']"
-                  @click.native="$refs.user.tippy().hide()"
+                  @click.native="options.tippy().hide()"
                 />
                 <FirebaseLogout
                   ref="logout"
                   :shortcut="['L']"
-                  @confirm-logout="$refs.user.tippy().hide()"
+                  @confirm-logout="options.tippy().hide()"
                 />
               </div>
             </tippy>
@@ -203,4 +204,11 @@ onMounted(() => {
     })
   }
 })
+
+// Template refs
+const tippyActions = ref<any | null>(null)
+const profile = ref<any | null>(null)
+const settings = ref<any | null>(null)
+const logout = ref<any | null>(null)
+const options = ref<any | null>(null)
 </script>

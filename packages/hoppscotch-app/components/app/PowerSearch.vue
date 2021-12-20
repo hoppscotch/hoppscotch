@@ -6,35 +6,37 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <input
-        id="command"
-        v-model="search"
-        v-focus
-        type="text"
-        autocomplete="off"
-        name="command"
-        :placeholder="`${t('app.type_a_command_search')}`"
-        class="bg-transparent flex flex-shrink-0 text-base text-secondaryDark p-6"
-      />
-      <div
-        class="border-b border-dividerLight flex flex-shrink-0 text-tiny text-secondaryLight px-4 pb-4 justify-between whitespace-nowrap overflow-auto hide-scrollbar"
-      >
-        <div class="flex items-center">
-          <kbd class="shortcut-key">↑</kbd>
-          <kbd class="shortcut-key">↓</kbd>
-          <span class="ml-2 truncate">
-            {{ t("action.to_navigate") }}
-          </span>
-          <kbd class="shortcut-key">↩</kbd>
-          <span class="ml-2 truncate">
-            {{ t("action.to_select") }}
-          </span>
-        </div>
-        <div class="flex items-center">
-          <kbd class="shortcut-key">ESC</kbd>
-          <span class="ml-2 truncate">
-            {{ t("action.to_close") }}
-          </span>
+      <div class="flex flex-col border-b border-dividerLight">
+        <input
+          id="command"
+          v-model="search"
+          v-focus
+          type="text"
+          autocomplete="off"
+          name="command"
+          :placeholder="`${t('app.type_a_command_search')}`"
+          class="bg-transparent flex flex-shrink-0 text-base text-secondaryDark p-6"
+        />
+        <div
+          class="flex flex-shrink-0 text-tiny text-secondaryLight px-4 pb-4 justify-between whitespace-nowrap overflow-auto hide-scrollbar <sm:hidden"
+        >
+          <div class="flex items-center">
+            <kbd class="shortcut-key">↑</kbd>
+            <kbd class="shortcut-key">↓</kbd>
+            <span class="ml-2 truncate">
+              {{ t("action.to_navigate") }}
+            </span>
+            <kbd class="shortcut-key">↩</kbd>
+            <span class="ml-2 truncate">
+              {{ t("action.to_select") }}
+            </span>
+          </div>
+          <div class="flex items-center">
+            <kbd class="shortcut-key">ESC</kbd>
+            <span class="ml-2 truncate">
+              {{ t("action.to_close") }}
+            </span>
+          </div>
         </div>
       </div>
       <AppFuse

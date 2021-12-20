@@ -7,7 +7,7 @@
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="$refs.options.tippy().show()"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
@@ -59,7 +59,7 @@
             trigger="click"
             theme="popover"
             arrow
-            :on-shown="() => $refs.tippyActions.focus()"
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -72,8 +72,9 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.e="$refs.edit.$el.click()"
-              @keyup.delete="$refs.delete.$el.click()"
+              @keyup.e="edit.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
                 ref="edit"
@@ -81,24 +82,28 @@
                 :label="$t('action.edit')"
                 :shortcut="['E']"
                 @click.native="
-                  $emit('edit-request', {
-                    collectionIndex,
-                    folderIndex,
-                    folderName,
-                    request,
-                    requestIndex,
-                  })
-                  $refs.options.tippy().hide()
+                  () => {
+                    $emit('edit-request', {
+                      collectionIndex,
+                      folderIndex,
+                      folderName,
+                      request,
+                      requestIndex,
+                    })
+                    options.tippy().hide()
+                  }
                 "
               />
               <SmartItem
-                ref="delete"
+                ref="deleteAction"
                 svg="trash-2"
                 :label="$t('action.delete')"
                 :shortcut="['⌫']"
                 @click.native="
-                  confirmRemove = true
-                  $refs.options.tippy().hide()
+                  () => {
+                    confirmRemove = true
+                    options.tippy().hide()
+                  }
                 "
               />
             </div>
@@ -116,7 +121,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -142,6 +147,10 @@ export default defineComponent({
     const active = useReadonlyStream(restSaveContext$, null)
     return {
       active,
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
     }
   },
   data() {

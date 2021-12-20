@@ -69,7 +69,7 @@
           trigger="click"
           theme="popover"
           arrow
-          :on-shown="() => $refs.sendTippyActions.focus()"
+          :on-shown="() => sendTippyActions.focus()"
         >
           <template #trigger>
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
@@ -78,12 +78,13 @@
             ref="sendTippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
-            @keyup.c="$refs.import.$el.click()"
-            @keyup.s="$refs.show.$el.click()"
-            @keyup.delete="$refs.clearAll.$el.click()"
+            @keyup.c="curl.$el.click()"
+            @keyup.s="show.$el.click()"
+            @keyup.delete="clearAll.$el.click()"
+            @keyup.escape="sendOptions.tippy().hide()"
           >
             <SmartItem
-              ref="import"
+              ref="curl"
               :label="`${t('import.curl')}`"
               svg="file-code"
               :shortcut="['C']"
@@ -139,7 +140,7 @@
           trigger="click"
           theme="popover"
           arrow
-          :on-shown="() => $refs.saveTippyActions.focus()"
+          :on-shown="() => saveTippyActions.focus()"
         >
           <template #trigger>
             <ButtonSecondary
@@ -152,8 +153,9 @@
             ref="saveTippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
-            @keyup.c="$refs.copyRequest.$el.click()"
-            @keyup.s="$refs.saveRequest.$el.click()"
+            @keyup.c="copyRequestAction.$el.click()"
+            @keyup.s="saveRequestAction.$el.click()"
+            @keyup.escape="saveOptions.tippy().hide()"
           >
             <input
               id="request-name"
@@ -166,7 +168,7 @@
               @keyup.enter="saveOptions.tippy().hide()"
             />
             <SmartItem
-              ref="copyRequest"
+              ref="copyRequestAction"
               :label="shareButtonText"
               :svg="copyLinkIcon"
               :loading="fetchingShareLink"
@@ -178,7 +180,7 @@
               "
             />
             <SmartItem
-              ref="saveRequest"
+              ref="saveRequestAction"
               :label="`${t('request.save_as')}`"
               svg="folder-plus"
               :shortcut="['S']"
@@ -279,6 +281,13 @@ const hasNavigatorShare = !!navigator.share
 const methodOptions = ref<any | null>(null)
 const saveOptions = ref<any | null>(null)
 const sendOptions = ref<any | null>(null)
+const sendTippyActions = ref<any | null>(null)
+const saveTippyActions = ref<any | null>(null)
+const curl = ref<any | null>(null)
+const show = ref<any | null>(null)
+const clearAll = ref<any | null>(null)
+const copyRequestAction = ref<any | null>(null)
+const saveRequestAction = ref<any | null>(null)
 
 // Update Nuxt Loading bar
 watch(loading, () => {

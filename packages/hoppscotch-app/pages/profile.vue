@@ -32,7 +32,7 @@
                 v-if="currentUser.photoURL"
                 :src="currentUser.photoURL"
                 class="rounded-lg h-16 ring-primary ring-4 w-16"
-                :alt="currentUser.displayName"
+                :alt="`${currentUser.displayName}`"
               />
               <SmartIcon v-else name="user" class="svg-icons" />
               <div class="ml-4">

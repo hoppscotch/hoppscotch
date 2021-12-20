@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex items-stretch group"
-    @contextmenu.prevent="$refs.options.tippy().show()"
+    @contextmenu.prevent="options.tippy().show()"
   >
     <span
       class="cursor-pointer flex px-4 items-center justify-center"
@@ -24,7 +24,7 @@
         trigger="click"
         theme="popover"
         arrow
-        :on-shown="() => $refs.tippyActions.focus()"
+        :on-shown="() => tippyActions.focus()"
       >
         <template #trigger>
           <ButtonSecondary
@@ -37,11 +37,12 @@
           ref="tippyActions"
           class="flex flex-col focus:outline-none"
           tabindex="0"
-          @keyup.e="$refs.edit.$el.click()"
-          @keyup.d="$refs.duplicate.$el.click()"
+          @keyup.e="edit.$el.click()"
+          @keyup.d="duplicate.$el.click()"
           @keyup.delete="
-            !(environmentIndex === 'Global') ? $refs.delete.$el.click() : null
+            !(environmentIndex === 'Global') ? deleteAction.$el.click() : null
           "
+          @keyup.escape="options.tippy().hide()"
         >
           <SmartItem
             ref="edit"
@@ -51,7 +52,7 @@
             @click.native="
               () => {
                 $emit('edit-environment')
-                $refs.options.tippy().hide()
+                options.tippy().hide()
               }
             "
           />
@@ -63,20 +64,20 @@
             @click.native="
               () => {
                 duplicateEnvironment()
-                $refs.options.tippy().hide()
+                options.tippy().hide()
               }
             "
           />
           <SmartItem
             v-if="!(environmentIndex === 'Global')"
-            ref="delete"
+            ref="deleteAction"
             svg="trash-2"
             :label="`${$t('action.delete')}`"
             :shortcut="['⌫']"
             @click.native="
               () => {
                 confirmRemove = true
-                $refs.options.tippy().hide()
+                options.tippy().hide()
               }
             "
           />
@@ -93,7 +94,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@nuxtjs/composition-api"
+import { defineComponent, PropType, ref } from "@nuxtjs/composition-api"
 import {
   deleteEnvironment,
   duplicateEnvironment,
@@ -110,6 +111,15 @@ export default defineComponent({
       type: [Number, String] as PropType<number | "Global">,
       default: null,
     },
+  },
+  setup() {
+    return {
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      duplicate: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
+    }
   },
   data() {
     return {

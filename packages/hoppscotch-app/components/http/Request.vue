@@ -149,6 +149,16 @@
               class="rounded rounded-l-none"
             />
           </template>
+          <input
+            id="request-name"
+            v-model="requestName"
+            :placeholder="`${t('request.name')}`"
+            name="request-name"
+            type="text"
+            autocomplete="off"
+            class="mb-2 input"
+            @keyup.enter="saveOptions.tippy().hide()"
+          />
           <div
             ref="saveTippyActions"
             class="flex flex-col focus:outline-none"
@@ -157,16 +167,6 @@
             @keyup.s="saveRequestAction.$el.click()"
             @keyup.escape="saveOptions.tippy().hide()"
           >
-            <input
-              id="request-name"
-              v-model="requestName"
-              :placeholder="`${t('request.name')}`"
-              name="request-name"
-              type="text"
-              autocomplete="off"
-              class="mb-2 input"
-              @keyup.enter="saveOptions.tippy().hide()"
-            />
             <SmartItem
               ref="copyRequestAction"
               :label="shareButtonText"

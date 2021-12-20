@@ -42,7 +42,7 @@
             @click.native="
               () => {
                 readCollectionGist()
-                $refs.options.tippy().hide()
+                options.tippy().hide()
               }
             "
           />
@@ -50,10 +50,10 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser
-                ? $t('export.require_github')
+                ? `${t('export.require_github')}`
                 : currentUser.provider !== 'github.com'
-                ? $t('export.require_github')
-                : null
+                ? `${t('export.require_github')}`
+                : undefined
             "
           >
             <SmartItem
@@ -69,7 +69,7 @@
               @click.native="
                 () => {
                   createCollectionGist()
-                  $refs.options.tippy().hide()
+                  options.tippy().hide()
                 }
               "
             />
@@ -177,394 +177,484 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import { translateToNewRequest } from "@hoppscotch/data"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
+import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
+import { apolloClient } from "~/helpers/apollo"
+import {
+  useAxios,
+  useI18n,
+  useReadonlyStream,
+  useToast,
+} from "~/helpers/utils/composables"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
-import { useReadonlyStream } from "~/helpers/utils/composables"
 import { parseInsomniaCollection } from "~/helpers/utils/parseInsomniaCollection"
 import {
   restCollections$,
   setRESTCollections,
   appendRESTCollections,
+  Collection,
+  makeCollection,
 } from "~/newstore/collections"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    collectionsType: { type: Object, default: () => {} },
-  },
-  setup() {
-    return {
-      myCollections: useReadonlyStream(restCollections$, []),
-      currentUser: useReadonlyStream(currentUser$, null),
-    }
-  },
-  data() {
-    return {
-      showJsonCode: false,
-      mode: "import_export",
-      mySelectedCollectionID: undefined,
-      collectionJson: "",
-    }
-  },
-  methods: {
-    async createCollectionGist() {
-      this.getJSONCollection()
-      await this.$axios
-        .$post(
-          "https://api.github.com/gists",
-          {
-            files: {
-              "hoppscotch-collections.json": {
-                content: this.collectionJson,
-              },
-            },
-          },
-          {
-            headers: {
-              Authorization: `token ${this.currentUser.accessToken}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        )
-        .then((res) => {
-          this.$toast.success(this.$t("export.gist_created"))
-          window.open(res.html_url)
-        })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"))
-          console.error(e)
-        })
-    },
-    async readCollectionGist() {
-      const gist = prompt(this.$t("import.gist_url"))
-      if (!gist) return
-      await this.$axios
-        .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-          },
-        })
-        .then(({ files }) => {
-          const collections = JSON.parse(Object.values(files)[0].content)
-          setRESTCollections(collections)
-          this.fileImported()
-        })
-        .catch((e) => {
-          this.failedImport()
-          console.error(e)
-        })
-    },
-    hideModal() {
-      this.mode = "import_export"
-      this.mySelectedCollectionID = undefined
-      this.$emit("hide-modal")
-    },
-    openDialogChooseFileToReplaceWith() {
-      this.$refs.inputChooseFileToReplaceWith.click()
-    },
-    openDialogChooseFileToImportFrom() {
-      this.$refs.inputChooseFileToImportFrom.click()
-    },
-    replaceWithJSON() {
-      const reader = new FileReader()
-      reader.onload = ({ target }) => {
-        const content = target.result
-        let collections = JSON.parse(content)
-        if (collections[0]) {
-          const [name, folders, requests] = Object.keys(collections[0])
-          if (
-            name === "name" &&
-            folders === "folders" &&
-            requests === "requests"
-          ) {
-            // Do nothing
-          }
-        } else if (
-          collections.info &&
-          collections.info.schema.includes("v2.1.0")
-        ) {
-          collections = [this.parsePostmanCollection(collections)]
-        } else {
-          this.failedImport()
-        }
-        if (this.collectionsType.type === "team-collections") {
-          teamUtils
-            .replaceWithJSON(
-              this.$apollo,
-              collections,
-              this.collectionsType.selectedTeam.id
-            )
-            .then((status) => {
-              if (status) {
-                this.fileImported()
-              } else {
-                this.failedImport()
-              }
-            })
-            .catch((e) => {
-              console.error(e)
-              this.failedImport()
-            })
-        } else {
-          setRESTCollections(collections)
-          this.fileImported()
+const props = defineProps<{
+  show: boolean
+  collectionsType:
+    | {
+        type: "team-collections"
+        selectedTeam: {
+          id: string
         }
       }
-      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
-      this.$refs.inputChooseFileToReplaceWith.value = ""
-    },
-    importFromJSON() {
-      const reader = new FileReader()
-      reader.onload = ({ target }) => {
-        let content = target.result
-        let collections = JSON.parse(content)
-        if (this.isInsomniaCollection(collections)) {
-          collections = parseInsomniaCollection(content)
-          content = JSON.stringify(collections)
+    | { type: "my-collections" }
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "update-team-collections"): void
+}>()
+
+const axios = useAxios()
+const toast = useToast()
+const t = useI18n()
+const myCollections = useReadonlyStream(restCollections$, [])
+const currentUser = useReadonlyStream(currentUser$, null)
+
+const mode = ref("import_export")
+const mySelectedCollectionID = ref(undefined)
+const collectionJson = ref("")
+
+// Template refs
+const options = ref<any>()
+const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
+const inputChooseFileToImportFrom = ref<HTMLInputElement>()
+
+const getJSONCollection = async () => {
+  if (props.collectionsType.type === "my-collections") {
+    collectionJson.value = JSON.stringify(myCollections.value, null, 2)
+  } else {
+    collectionJson.value = await teamUtils.exportAsJSON(
+      apolloClient,
+      props.collectionsType.selectedTeam.id
+    )
+  }
+  return collectionJson.value
+}
+
+const createCollectionGist = async () => {
+  if (!currentUser.value) {
+    toast.error(t("profile.no_permission").toString())
+
+    return
+  }
+
+  getJSONCollection()
+
+  try {
+    const res = await axios.$post(
+      "https://api.github.com/gists",
+      {
+        files: {
+          "hoppscotch-collections.json": {
+            content: collectionJson.value,
+          },
+        },
+      },
+      {
+        headers: {
+          Authorization: `token ${currentUser.value.accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    )
+
+    toast.success(t("export.gist_created").toString())
+    window.open(res.html_url)
+  } catch (e) {
+    toast.error(t("error.something_went_wrong").toString())
+    console.error(e)
+  }
+}
+
+const fileImported = () => {
+  toast.success(t("state.file_imported").toString())
+}
+
+const failedImport = () => {
+  toast.error(t("import.failed").toString())
+}
+
+const readCollectionGist = async () => {
+  const gist = prompt(t("import.gist_url").toString())
+  if (!gist) return
+
+  try {
+    const { files } = (await axios.$get(
+      `https://api.github.com/gists/${gist.split("/").pop()}`,
+      {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    )) as {
+      files: {
+        [fileName: string]: {
+          content: any
         }
-        if (collections[0]) {
-          const [name, folders, requests] = Object.keys(collections[0])
-          if (
-            name === "name" &&
-            folders === "folders" &&
-            requests === "requests"
-          ) {
-            // Do nothing
-          }
-        } else if (
-          collections.info &&
-          collections.info.schema.includes("v2.1.0")
+      }
+    }
+
+    const collections = JSON.parse(Object.values(files)[0].content)
+    setRESTCollections(collections)
+    fileImported()
+  } catch (e) {
+    failedImport()
+    console.error(e)
+  }
+}
+
+const hideModal = () => {
+  mode.value = "import_export"
+  mySelectedCollectionID.value = undefined
+  emit("hide-modal")
+}
+
+const openDialogChooseFileToReplaceWith = () => {
+  if (inputChooseFileToReplaceWith.value)
+    inputChooseFileToReplaceWith.value.click()
+}
+
+const openDialogChooseFileToImportFrom = () => {
+  if (inputChooseFileToImportFrom.value)
+    inputChooseFileToImportFrom.value.click()
+}
+
+const hasFolder = (item: { item?: any }) => {
+  return Object.prototype.hasOwnProperty.call(item, "item")
+}
+
+// TODO: I don't even know what is going on here :/
+type PostmanCollection = {
+  info?: {
+    name: string
+  }
+  name: string
+  item: {
+    name: string
+    request: any
+    item?: any
+  }[]
+  folders?: any
+}
+const parsePostmanCollection = ({ info, name, item }: PostmanCollection) => {
+  const hoppscotchCollection: Collection<HoppRESTRequest> = makeCollection({
+    name: "",
+    folders: [],
+    requests: [],
+  })
+
+  hoppscotchCollection.name = info ? info.name : name
+
+  if (item && item.length > 0) {
+    for (const collectionItem of item) {
+      if (collectionItem.request) {
+        if (
+          Object.prototype.hasOwnProperty.call(hoppscotchCollection, "folders")
         ) {
-          // replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
-          collections = JSON.parse(
-            content.replaceAll(/{{([a-zA-Z_$][a-zA-Z_$0-9]*)}}/gi, "<<$1>>")
+          hoppscotchCollection.name = info ? info.name : name
+          hoppscotchCollection.requests.push(
+            parsePostmanRequest(collectionItem)
           )
-          collections = [this.parsePostmanCollection(collections)]
         } else {
-          this.failedImport()
-          return
+          hoppscotchCollection.name = name || ""
+          hoppscotchCollection.requests.push(
+            parsePostmanRequest(collectionItem)
+          )
         }
-        if (this.collectionsType.type === "team-collections") {
-          teamUtils
-            .importFromJSON(
-              this.$apollo,
-              collections,
-              this.collectionsType.selectedTeam.id
-            )
-            .then((status) => {
-              if (status) {
-                this.$emit("update-team-collections")
-                this.fileImported()
-              } else {
-                this.failedImport()
-              }
-            })
-            .catch((e) => {
-              console.error(e)
-              this.failedImport()
-            })
-        } else {
-          appendRESTCollections(collections)
-          this.fileImported()
-        }
-      }
-      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
-      this.$refs.inputChooseFileToImportFrom.value = ""
-    },
-    importFromMyCollections() {
-      teamUtils
-        .importFromMyCollections(
-          this.$apollo,
-          this.mySelectedCollectionID,
-          this.collectionsType.selectedTeam.id
+      } else if (hasFolder(collectionItem)) {
+        hoppscotchCollection.folders.push(
+          parsePostmanCollection(collectionItem as any)
         )
-        .then((success) => {
-          if (success) {
-            this.fileImported()
-            this.$emit("update-team-collections")
+      } else {
+        hoppscotchCollection.requests.push(parsePostmanRequest(collectionItem))
+      }
+    }
+  }
+  return hoppscotchCollection
+}
+
+// TODO: Rewrite
+const parsePostmanRequest = ({
+  name,
+  request,
+}: {
+  name: string
+  request: any
+}) => {
+  const pwRequest = {
+    url: "",
+    path: "",
+    method: "",
+    auth: "",
+    httpUser: "",
+    httpPassword: "",
+    passwordFieldType: "password",
+    bearerToken: "",
+    headers: [] as { name?: string; type?: string }[],
+    params: [] as { disabled?: boolean }[],
+    bodyParams: [] as { type?: string }[],
+    rawParams: "",
+    rawInput: false,
+    contentType: "",
+    requestType: "",
+    name: "",
+  }
+
+  pwRequest.name = name
+  if (request.url) {
+    const requestObjectUrl = request.url.raw.match(
+      /^(.+:\/\/[^/]+|{[^/]+})(\/[^?]+|).*$/
+    )
+    if (requestObjectUrl) {
+      pwRequest.url = requestObjectUrl[1]
+      pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+    }
+  }
+  pwRequest.method = request.method
+  const itemAuth = request.auth ? request.auth : ""
+  const authType = itemAuth ? itemAuth.type : ""
+  if (authType === "basic") {
+    pwRequest.auth = "Basic Auth"
+    pwRequest.httpUser =
+      itemAuth.basic[0].key === "username"
+        ? itemAuth.basic[0].value
+        : itemAuth.basic[1].value
+    pwRequest.httpPassword =
+      itemAuth.basic[0].key === "password"
+        ? itemAuth.basic[0].value
+        : itemAuth.basic[1].value
+  } else if (authType === "oauth2") {
+    pwRequest.auth = "OAuth 2.0"
+    pwRequest.bearerToken =
+      itemAuth.oauth2[0].key === "accessToken"
+        ? itemAuth.oauth2[0].value
+        : itemAuth.oauth2[1].value
+  } else if (authType === "bearer") {
+    pwRequest.auth = "Bearer Token"
+    pwRequest.bearerToken = itemAuth.bearer[0].value
+  }
+  const requestObjectHeaders = request.header
+  if (requestObjectHeaders) {
+    pwRequest.headers = requestObjectHeaders
+    for (const header of pwRequest.headers) {
+      delete header.name
+      delete header.type
+    }
+  }
+  if (request.url) {
+    const requestObjectParams = request.url.query
+    if (requestObjectParams) {
+      pwRequest.params = requestObjectParams
+      for (const param of pwRequest.params) {
+        delete param.disabled
+      }
+    }
+  }
+  if (request.body) {
+    if (request.body.mode === "urlencoded") {
+      const params = request.body.urlencoded
+      pwRequest.bodyParams = params || []
+      for (const param of pwRequest.bodyParams) {
+        delete param.type
+      }
+    } else if (request.body.mode === "raw") {
+      pwRequest.rawInput = true
+      pwRequest.rawParams = request.body.raw
+    }
+  }
+  return translateToNewRequest(pwRequest)
+}
+
+const replaceWithJSON = () => {
+  if (!inputChooseFileToReplaceWith.value) return
+
+  if (
+    !inputChooseFileToReplaceWith.value.files ||
+    inputChooseFileToReplaceWith.value.files.length === 0
+  ) {
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    let collections = JSON.parse(content)
+
+    // TODO: File validation
+    if (collections[0]) {
+      const [name, folders, requests] = Object.keys(collections[0])
+      if (name === "name" && folders === "folders" && requests === "requests") {
+        // Do nothing
+      }
+    } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
+      collections = [parsePostmanCollection(collections)]
+    } else {
+      failedImport()
+    }
+    if (props.collectionsType.type === "team-collections") {
+      teamUtils
+        .replaceWithJSON(
+          apolloClient,
+          collections,
+          props.collectionsType.selectedTeam.id
+        )
+        .then((status) => {
+          if (status) {
+            fileImported()
           } else {
-            this.failedImport()
+            failedImport()
           }
         })
         .catch((e) => {
           console.error(e)
-          this.failedImport()
+          failedImport()
         })
-    },
-    async getJSONCollection() {
-      if (this.collectionsType.type === "my-collections") {
-        this.collectionJson = JSON.stringify(this.myCollections, null, 2)
-      } else {
-        this.collectionJson = await teamUtils.exportAsJSON(
-          this.$apollo,
-          this.collectionsType.selectedTeam.id
+    } else {
+      setRESTCollections(collections)
+      fileImported()
+    }
+  }
+
+  reader.readAsText(inputChooseFileToReplaceWith.value.files[0])
+  inputChooseFileToReplaceWith.value.value = ""
+}
+
+const isInsomniaCollection = (collection: any) => {
+  if (typeof collection === "object") {
+    return (
+      Object.prototype.hasOwnProperty.call(collection, "__export_source") &&
+      collection.__export_source.includes("insomnia")
+    )
+  }
+  return false
+}
+
+const importFromJSON = () => {
+  if (!inputChooseFileToImportFrom.value) return
+
+  if (
+    !inputChooseFileToImportFrom.value.files ||
+    inputChooseFileToImportFrom.value.files.length === 0
+  ) {
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = ({ target }) => {
+    let content = target!.result as string | null
+
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    let collections = JSON.parse(content)
+    if (isInsomniaCollection(collections)) {
+      collections = parseInsomniaCollection(content)
+      content = JSON.stringify(collections)
+    }
+    if (collections[0]) {
+      const [name, folders, requests] = Object.keys(collections[0])
+      if (name === "name" && folders === "folders" && requests === "requests") {
+        // Do nothing
+      }
+    } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
+      // replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
+      collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
+      collections = [parsePostmanCollection(collections)]
+    } else {
+      failedImport()
+      return
+    }
+    if (props.collectionsType.type === "team-collections") {
+      teamUtils
+        .importFromJSON(
+          apolloClient,
+          collections,
+          props.collectionsType.selectedTeam.id
         )
-      }
-      return this.collectionJson
-    },
-    exportJSON() {
-      this.getJSONCollection()
-      const dataToWrite = this.collectionJson
-      const file = new Blob([dataToWrite], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.$toast.success(this.$t("state.download_started"))
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
-    },
-    fileImported() {
-      this.$toast.success(this.$t("state.file_imported"))
-    },
-    failedImport() {
-      this.$toast.error(this.$t("import.failed"))
-    },
-    parsePostmanCollection({ info, name, item }) {
-      const hoppscotchCollection = {
-        name: "",
-        folders: [],
-        requests: [],
-      }
-
-      hoppscotchCollection.name = info ? info.name : name
-
-      if (item && item.length > 0) {
-        for (const collectionItem of item) {
-          if (collectionItem.request) {
-            if (
-              Object.prototype.hasOwnProperty.call(
-                hoppscotchCollection,
-                "folders"
-              )
-            ) {
-              hoppscotchCollection.name = info ? info.name : name
-              hoppscotchCollection.requests.push(
-                this.parsePostmanRequest(collectionItem)
-              )
-            } else {
-              hoppscotchCollection.name = name || ""
-              hoppscotchCollection.requests.push(
-                this.parsePostmanRequest(collectionItem)
-              )
-            }
-          } else if (this.hasFolder(collectionItem)) {
-            hoppscotchCollection.folders.push(
-              this.parsePostmanCollection(collectionItem)
-            )
+        .then((status) => {
+          if (status) {
+            emit("update-team-collections")
+            fileImported()
           } else {
-            hoppscotchCollection.requests.push(
-              this.parsePostmanRequest(collectionItem)
-            )
+            failedImport()
           }
-        }
-      }
-      return hoppscotchCollection
-    },
-    parsePostmanRequest({ name, request }) {
-      const pwRequest = {
-        url: "",
-        path: "",
-        method: "",
-        auth: "",
-        httpUser: "",
-        httpPassword: "",
-        passwordFieldType: "password",
-        bearerToken: "",
-        headers: [],
-        params: [],
-        bodyParams: [],
-        rawParams: "",
-        rawInput: false,
-        contentType: "",
-        requestType: "",
-        name: "",
-      }
+        })
+        .catch((e) => {
+          console.error(e)
+          failedImport()
+        })
+    } else {
+      appendRESTCollections(collections)
+      fileImported()
+    }
+  }
+  reader.readAsText(inputChooseFileToImportFrom.value.files[0])
+  inputChooseFileToImportFrom.value.value = ""
+}
 
-      pwRequest.name = name
-      if (request.url) {
-        const requestObjectUrl = request.url.raw.match(
-          /^(.+:\/\/[^/]+|{[^/]+})(\/[^?]+|).*$/
-        )
-        if (requestObjectUrl) {
-          pwRequest.url = requestObjectUrl[1]
-          pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
-        }
+const importFromMyCollections = () => {
+  if (props.collectionsType.type !== "team-collections") return
+
+  teamUtils
+    .importFromMyCollections(
+      apolloClient,
+      mySelectedCollectionID.value,
+      props.collectionsType.selectedTeam.id
+    )
+    .then((success) => {
+      if (success) {
+        fileImported()
+        emit("update-team-collections")
+      } else {
+        failedImport()
       }
-      pwRequest.method = request.method
-      const itemAuth = request.auth ? request.auth : ""
-      const authType = itemAuth ? itemAuth.type : ""
-      if (authType === "basic") {
-        pwRequest.auth = "Basic Auth"
-        pwRequest.httpUser =
-          itemAuth.basic[0].key === "username"
-            ? itemAuth.basic[0].value
-            : itemAuth.basic[1].value
-        pwRequest.httpPassword =
-          itemAuth.basic[0].key === "password"
-            ? itemAuth.basic[0].value
-            : itemAuth.basic[1].value
-      } else if (authType === "oauth2") {
-        pwRequest.auth = "OAuth 2.0"
-        pwRequest.bearerToken =
-          itemAuth.oauth2[0].key === "accessToken"
-            ? itemAuth.oauth2[0].value
-            : itemAuth.oauth2[1].value
-      } else if (authType === "bearer") {
-        pwRequest.auth = "Bearer Token"
-        pwRequest.bearerToken = itemAuth.bearer[0].value
-      }
-      const requestObjectHeaders = request.header
-      if (requestObjectHeaders) {
-        pwRequest.headers = requestObjectHeaders
-        for (const header of pwRequest.headers) {
-          delete header.name
-          delete header.type
-        }
-      }
-      if (request.url) {
-        const requestObjectParams = request.url.query
-        if (requestObjectParams) {
-          pwRequest.params = requestObjectParams
-          for (const param of pwRequest.params) {
-            delete param.disabled
-          }
-        }
-      }
-      if (request.body) {
-        if (request.body.mode === "urlencoded") {
-          const params = request.body.urlencoded
-          pwRequest.bodyParams = params || []
-          for (const param of pwRequest.bodyParams) {
-            delete param.type
-          }
-        } else if (request.body.mode === "raw") {
-          pwRequest.rawInput = true
-          pwRequest.rawParams = request.body.raw
-        }
-      }
-      return translateToNewRequest(pwRequest)
-    },
-    hasFolder(item) {
-      return Object.prototype.hasOwnProperty.call(item, "item")
-    },
-    isInsomniaCollection(collection) {
-      if (typeof collection === "object") {
-        return (
-          Object.prototype.hasOwnProperty.call(collection, "__export_source") &&
-          collection.__export_source.includes("insomnia")
-        )
-      }
-      return false
-    },
-  },
-})
+    })
+    .catch((e) => {
+      console.error(e)
+      failedImport()
+    })
+}
+
+const exportJSON = () => {
+  getJSONCollection()
+
+  const dataToWrite = collectionJson.value
+  const file = new Blob([dataToWrite], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  // TODO: get uri from meta
+  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
+}
 </script>

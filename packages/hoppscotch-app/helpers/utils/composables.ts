@@ -162,6 +162,11 @@ export function useColorMode() {
   return $colorMode
 }
 
+export function useAxios() {
+  const { $axios } = useContext()
+  return $axios
+}
+
 export function usePolled<T>(
   pollDurationMS: number,
   pollFunc: (stopPolling: () => void) => T

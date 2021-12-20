@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="$refs.options.tippy().show()"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-4 items-center justify-center"
@@ -47,7 +47,7 @@
             trigger="click"
             theme="popover"
             arrow
-            :on-shown="() => $refs.tippyActions.focus()"
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -60,12 +60,13 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.n="$refs.folder.$el.click()"
-              @keyup.e="$refs.edit.$el.click()"
-              @keyup.delete="$refs.delete.$el.click()"
+              @keyup.n="folderAction.$el.click()"
+              @keyup.e="edit.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
-                ref="folder"
+                ref="folderAction"
                 svg="folder-plus"
                 :label="`${$t('folder.new')}`"
                 :shortcut="['N']"
@@ -74,7 +75,7 @@
                     $emit('add-folder', {
                       path: `${collectionIndex}`,
                     })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -86,19 +87,19 @@
                 @click.native="
                   () => {
                     $emit('edit-collection')
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
               <SmartItem
-                ref="delete"
+                ref="deleteAction"
                 svg="trash-2"
                 :label="`${$t('action.delete')}`"
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
                     confirmRemove = true
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -174,7 +175,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import {
   removeGraphqlCollection,
   moveGraphqlRequest,
@@ -189,6 +190,15 @@ export default defineComponent({
     collection: { type: Object, default: () => {} },
     doc: Boolean,
     isFiltered: Boolean,
+  },
+  setup() {
+    return {
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      folderAction: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
+    }
   },
   data() {
     return {

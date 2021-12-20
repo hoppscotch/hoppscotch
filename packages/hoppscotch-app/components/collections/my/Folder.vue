@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="$refs.options.tippy().show()"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-4 items-center justify-center"
@@ -32,7 +32,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           svg="folder-plus"
-          :title="$t('folder.new')"
+          :title="t('folder.new')"
           class="hidden group-hover:inline-flex"
           @click.native="$emit('add-folder', { folder, path: folderPath })"
         />
@@ -43,12 +43,12 @@
             trigger="click"
             theme="popover"
             arrow
-            :on-shown="() => $refs.tippyActions.focus()"
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.more')"
+                :title="t('action.more')"
                 svg="more-vertical"
               />
             </template>
@@ -56,26 +56,27 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.n="$refs.folder.$el.click()"
-              @keyup.e="$refs.edit.$el.click()"
-              @keyup.delete="$refs.delete.$el.click()"
+              @keyup.n="folderAction.$el.click()"
+              @keyup.e="edit.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
-                ref="folder"
+                ref="folderAction"
                 svg="folder-plus"
-                :label="$t('folder.new')"
+                :label="t('folder.new')"
                 :shortcut="['N']"
                 @click.native="
                   () => {
                     $emit('add-folder', { folder, path: folderPath })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
               <SmartItem
                 ref="edit"
                 svg="edit"
-                :label="$t('action.edit')"
+                :label="t('action.edit')"
                 :shortcut="['E']"
                 @click.native="
                   () => {
@@ -85,19 +86,19 @@
                       collectionIndex,
                       folderPath,
                     })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
               <SmartItem
-                ref="delete"
+                ref="deleteAction"
                 svg="trash-2"
-                :label="$t('action.delete')"
+                :label="t('action.delete')"
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
                     confirmRemove = true
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -162,25 +163,26 @@
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
             class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
-            :alt="$t('empty.folder')"
+            :alt="`${t('empty.folder')}`"
           />
           <span class="text-center">
-            {{ $t("empty.folder") }}
+            {{ t("empty.folder") }}
           </span>
         </div>
       </div>
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('confirm.remove_folder')"
+      :title="t('confirm.remove_folder')"
       @hide-modal="confirmRemove = false"
       @resolve="removeFolder"
     />
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
+import { useI18n } from "~/helpers/utils/composables"
 import {
   removeRESTFolder,
   removeRESTRequest,
@@ -200,6 +202,18 @@ export default defineComponent({
     collectionsType: { type: Object, default: () => {} },
     picked: { type: Object, default: () => {} },
   },
+  setup() {
+    const t = useI18n()
+
+    return {
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      folderAction: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
+      t,
+    }
+  },
   data() {
     return {
       showChildren: false,
@@ -210,7 +224,7 @@ export default defineComponent({
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "my-folder" &&
@@ -248,7 +262,7 @@ export default defineComponent({
         this.$emit("select", { picked: null })
       }
       removeRESTFolder(this.folderPath)
-      this.$toast.success(this.$t("state.deleted"))
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging

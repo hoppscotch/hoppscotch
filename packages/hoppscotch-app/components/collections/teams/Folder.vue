@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="$refs.options.tippy().show()"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-4 items-center justify-center"
@@ -45,7 +45,7 @@
             trigger="click"
             theme="popover"
             arrow
-            :on-shown="() => $refs.tippyActions.focus()"
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -58,19 +58,20 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.n="$refs.folder.$el.click()"
-              @keyup.e="$refs.edit.$el.click()"
-              @keyup.delete="$refs.delete.$el.click()"
+              @keyup.n="folderAction.$el.click()"
+              @keyup.e="edit.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
-                ref="folder"
+                ref="folderAction"
                 svg="folder-plus"
                 :label="$t('folder.new')"
                 :shortcut="['N']"
                 @click.native="
                   () => {
                     $emit('add-folder', { folder, path: folderPath })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -87,19 +88,19 @@
                       collectionIndex,
                       folderPath: '',
                     })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
               <SmartItem
-                ref="delete"
+                ref="deleteAction"
                 svg="trash-2"
                 :label="$t('action.delete')"
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
                     confirmRemove = true
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -160,7 +161,7 @@
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
             class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
-            :alt="$t('empty.folder')"
+            :alt="`${$t('empty.folder')}`"
           />
           <span class="text-center">
             {{ $t("empty.folder") }}
@@ -177,8 +178,8 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import * as teamUtils from "~/helpers/teams/utils"
@@ -196,6 +197,15 @@ export default defineComponent({
     collectionsType: { type: Object, default: () => {} },
     picked: { type: Object, default: () => {} },
   },
+  setup() {
+    return {
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      folderAction: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
+    }
+  },
   data() {
     return {
       showChildren: false,
@@ -206,7 +216,7 @@ export default defineComponent({
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "teams-folder" &&
@@ -247,11 +257,11 @@ export default defineComponent({
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {
-            this.$toast.success(this.$t("state.deleted"))
+            this.$toast.success(`${this.$t("state.deleted")}`)
             this.$emit("update-team-collections")
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"))
+            this.$toast.error(`${this.$t("error.something_went_wrong")}`)
             console.error(e)
           })
         this.$emit("update-team-collections")
@@ -268,7 +278,7 @@ export default defineComponent({
         this.folder.id
       )()
       if (E.isLeft(moveRequestResult))
-        this.$toast.error(this.$t("error.something_went_wrong"))
+        this.$toast.error(`${this.$t("error.something_went_wrong")}`)
     },
     removeRequest({ collectionIndex, folderName, requestIndex }) {
       this.$emit("remove-request", {

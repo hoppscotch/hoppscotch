@@ -7,7 +7,7 @@
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="$refs.options.tippy().show()"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
@@ -59,7 +59,7 @@
             trigger="click"
             theme="popover"
             arrow
-            :on-shown="() => $refs.tippyActions.focus()"
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -72,9 +72,10 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.e="$refs.edit.$el.click()"
-              @keyup.d="$refs.duplicate.$el.click()"
-              @keyup.delete="$refs.delete.$el.click()"
+              @keyup.e="edit.$el.click()"
+              @keyup.d="duplicate.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
                 ref="edit"
@@ -91,7 +92,7 @@
                       requestIndex,
                       folderPath,
                     })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -110,19 +111,19 @@
                       requestIndex,
                       folderPath,
                     })
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
               <SmartItem
-                ref="delete"
+                ref="deleteAction"
                 svg="trash-2"
                 :label="$t('action.delete')"
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
                     confirmRemove = true
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -140,8 +141,8 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -168,6 +169,11 @@ export default defineComponent({
     const active = useReadonlyStream(restSaveContext$, null)
     return {
       active,
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      duplicate: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
     }
   },
   data() {
@@ -184,7 +190,7 @@ export default defineComponent({
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "my-request" &&
@@ -235,7 +241,7 @@ export default defineComponent({
         requestIndex: this.$props.requestIndex,
       })
     },
-    getRequestLabelColor(method) {
+    getRequestLabelColor(method: string): string {
       return (
         this.requestMethodLabels[method.toLowerCase()] ||
         this.requestMethodLabels.default

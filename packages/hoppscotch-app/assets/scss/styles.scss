@@ -148,7 +148,8 @@ a {
   font-size: 88%;
 
   kbd {
-    @apply inline-flex;
+    @apply hidden;
+    @apply sm:inline-flex;
     @apply font-sans;
     @apply bg-gray-500;
     @apply bg-opacity-45;

@@ -30,8 +30,10 @@
                 : 'radio_button_unchecked'
             "
             @click.native="
-              authType = 'none'
-              $refs.authTypeOptions.tippy().hide()
+              () => {
+                authType = 'none'
+                authTypeOptions.tippy().hide()
+              }
             "
           />
           <SmartItem
@@ -42,8 +44,10 @@
                 : 'radio_button_unchecked'
             "
             @click.native="
-              authType = 'basic'
-              $refs.authTypeOptions.tippy().hide()
+              () => {
+                authType = 'basic'
+                authTypeOptions.tippy().hide()
+              }
             "
           />
           <SmartItem
@@ -54,8 +58,10 @@
                 : 'radio_button_unchecked'
             "
             @click.native="
-              authType = 'bearer'
-              $refs.authTypeOptions.tippy().hide()
+              () => {
+                authType = 'bearer'
+                authTypeOptions.tippy().hide()
+              }
             "
           />
           <SmartItem
@@ -66,8 +72,10 @@
                 : 'radio_button_unchecked'
             "
             @click.native="
-              authType = 'oauth-2'
-              $refs.authTypeOptions.tippy().hide()
+              () => {
+                authType = 'oauth-2'
+                authTypeOptions.tippy().hide()
+              }
             "
           />
           <SmartItem
@@ -78,8 +86,10 @@
                 : 'radio_button_unchecked'
             "
             @click.native="
-              authType = 'api-key'
-              $refs.authTypeOptions.tippy().hide()
+              () => {
+                authType = 'api-key'
+                authTypeOptions.tippy().hide()
+              }
             "
           />
         </tippy>
@@ -215,8 +225,10 @@
                 "
                 :label="'Headers'"
                 @click.native="
-                  addTo = 'Headers'
-                  $refs.addToOptions.tippy().hide()
+                  () => {
+                    addTo = 'Headers'
+                    addToOptions.tippy().hide()
+                  }
                 "
               />
               <SmartItem
@@ -227,8 +239,10 @@
                 "
                 :label="'Query params'"
                 @click.native="
-                  addTo = 'Query params'
-                  $refs.addToOptions.tippy().hide()
+                  () => {
+                    addTo = 'Query params'
+                    addToOptions.tippy().hide()
+                  }
                 "
               />
             </tippy>
@@ -253,7 +267,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, Ref } from "@nuxtjs/composition-api"
+import { computed, defineComponent, ref, Ref } from "@nuxtjs/composition-api"
 import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
@@ -314,6 +328,8 @@ export default defineComponent({
       apiKey,
       apiValue,
       addTo,
+      authTypeOptions: ref<any | null>(null),
+      addToOptions: ref<any | null>(null),
     }
   },
 })

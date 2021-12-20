@@ -64,7 +64,7 @@
     >
       {{ infoIcon }}
     </i>
-    <div v-if="shortcut.length" class="ml-2">
+    <div v-if="shortcut.length" class="ml-2 <sm:hidden">
       <kbd
         v-for="(key, index) in shortcut"
         :key="`key-${index}`"
@@ -76,7 +76,7 @@
   </SmartLink>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
 
 export default defineComponent({

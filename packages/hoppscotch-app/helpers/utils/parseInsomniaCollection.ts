@@ -68,7 +68,7 @@ function transformBody(insomniaBody: any) {
     default:
       console.warn(
         "Warning: Body type unsupported; skipped!!! ... " +
-          insomniaBody.mimeType
+        insomniaBody.mimeType
       )
       body.mode = "raw"
       body.raw =
@@ -145,6 +145,18 @@ function generateMaps(insomniaParentChildList: any) {
   return maps
 }
 
+function getCollectionName(insomniaParentChildList: any) {
+  let collectionName = "Untitled"
+
+  insomniaParentChildList.forEach((element: any) => {
+    if (element._type === "workspace") {
+      collectionName = element.name
+    }
+  })
+
+  return collectionName
+}
+
 function generateTreeRecursively(element: any, parentChildrenMap: any) {
   let postmanItem: any = {}
   switch (element._type) {
@@ -178,6 +190,8 @@ function getSubItemTrees(parentChildrenMap: any) {
 export function parseInsomniaCollection(inputDataString: string) {
   const inputData = JSON.parse(inputDataString)
 
+  console.log("Parsing Insomnia collection...", inputData)
+
   if (inputData.__export_format !== 4) {
     console.error(
       "Error: Version (__export_format " +
@@ -198,8 +212,10 @@ export function parseInsomniaCollection(inputDataString: string) {
   }
 
   outputData.info._postman_id = uuidv4()
+  outputData.info.name = getCollectionName(inputData.resources)
 
   const maps = generateMaps(inputData.resources)
+  console.log(maps)
   const parentChildrenMap = maps[0]
   //   const flatMap = maps[1]
 

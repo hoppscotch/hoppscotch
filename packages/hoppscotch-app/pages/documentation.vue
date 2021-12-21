@@ -53,7 +53,7 @@
           <textarea-autosize
             id="import-curl"
             v-model="collectionJSON"
-            class="bg-primary font-mono p-4"
+            class="bg-primary font-mono p-4 w-full"
             autofocus
             rows="8"
           />

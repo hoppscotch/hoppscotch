@@ -1,5 +1,13 @@
 <template>
   <div class="flex flex-col space-y-4 p-4 items-start">
+    <div class="flex flex-col">
+      <h2 class="inline-flex font-semibold text-secondaryDark pb-2">
+        {{ t("settings.interceptor") }}
+      </h2>
+      <p class="inline-flex">
+        {{ t("settings.interceptor_description") }}
+      </p>
+    </div>
     <SmartToggle
       :on="PROXY_ENABLED"
       @change="toggleSettingKey('PROXY_ENABLED')"

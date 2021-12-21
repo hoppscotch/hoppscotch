@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('modal.import_export')} ${$t('modal.collections')}`"
+    :title="`${t('modal.import_export')} ${t('modal.collections')}`"
     max-width="sm:max-w-md"
     @close="hideModal"
   >
@@ -11,17 +11,17 @@
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('action.more')"
+              :title="t('action.more')"
               svg="more-vertical"
             />
           </template>
           <SmartItem
             icon="assignment_returned"
-            :label="$t('import.from_gist')"
+            :label="t('import.from_gist')"
             @click.native="
               () => {
                 readCollectionGist()
-                $refs.options.tippy().hide()
+                options.tippy().hide()
               }
             "
           />
@@ -29,10 +29,10 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser
-                ? $t('export.require_github')
+                ? `${t('export.require_github')}`
                 : currentUser.provider !== 'github.com'
-                ? $t('export.require_github')
-                : null
+                ? `${t('export.require_github')}`
+                : undefined
             "
           >
             <SmartItem
@@ -44,11 +44,11 @@
                   : false
               "
               icon="assignment_turned_in"
-              :label="$t('export.create_secret_gist')"
+              :label="t('export.create_secret_gist')"
               @click.native="
                 () => {
                   createCollectionGist()
-                  $refs.options.tippy().hide()
+                  options.tippy().hide()
                 }
               "
             />
@@ -60,9 +60,9 @@
       <div class="flex flex-col space-y-2 px-2">
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.preserve_current')"
+          :title="t('action.preserve_current')"
           svg="folder-plus"
-          :label="$t('import.json')"
+          :label="t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
         <input
@@ -74,9 +74,9 @@
         />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.replace_current')"
+          :title="t('action.replace_current')"
           svg="file"
-          :label="$t('action.replace_json')"
+          :label="t('action.replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
         <input
@@ -89,9 +89,9 @@
         <hr />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.download_file')"
+          :title="t('action.download_file')"
           svg="download"
-          :label="$t('export.as_json')"
+          :label="t('export.as_json')"
           @click.native="exportJSON"
         />
       </div>
@@ -99,295 +99,221 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed, ref } from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useAxios,
+  useI18n,
+  useReadonlyStream,
+  useToast,
+} from "~/helpers/utils/composables"
 import {
   graphqlCollections$,
   setGraphqlCollections,
   appendGraphqlCollections,
 } from "~/newstore/collections"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  setup() {
-    return {
-      collections: useReadonlyStream(graphqlCollections$, []),
-      currentUser: useReadonlyStream(currentUser$, null),
-    }
-  },
-  computed: {
-    collectionJson() {
-      return JSON.stringify(this.collections, null, 2)
-    },
-  },
-  methods: {
-    async createCollectionGist() {
-      await this.$axios
-        .$post(
-          "https://api.github.com/gists",
-          {
-            files: {
-              "hoppscotch-collections.json": {
-                content: this.collectionJson,
-              },
-            },
-          },
-          {
-            headers: {
-              Authorization: `token ${this.currentUser.accessToken}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        )
-        .then((res) => {
-          this.$toast.success(this.$t("export.gist_created"))
-          window.open(res.html_url)
-        })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"))
-          console.error(e)
-        })
-    },
-    async readCollectionGist() {
-      const gist = prompt(this.$t("import.gist_url"))
-      if (!gist) return
-      await this.$axios
-        .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-          },
-        })
-        .then(({ files }) => {
-          const collections = JSON.parse(Object.values(files)[0].content)
-          setGraphqlCollections(collections)
-          this.fileImported()
-        })
-        .catch((e) => {
-          this.failedImport()
-          console.error(e)
-        })
-    },
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-    openDialogChooseFileToReplaceWith() {
-      this.$refs.inputChooseFileToReplaceWith.click()
-    },
-    openDialogChooseFileToImportFrom() {
-      this.$refs.inputChooseFileToImportFrom.click()
-    },
-    replaceWithJSON() {
-      const reader = new FileReader()
-      reader.onload = ({ target }) => {
-        const content = target.result
-        let collections = JSON.parse(content)
-        if (collections[0]) {
-          const [name, folders, requests] = Object.keys(collections[0])
-          if (
-            name === "name" &&
-            folders === "folders" &&
-            requests === "requests"
-          ) {
-            // Do nothing
-          }
-        } else if (
-          collections.info &&
-          collections.info.schema.includes("v2.1.0")
-        ) {
-          collections = [this.parsePostmanCollection(collections)]
-        } else {
-          this.failedImport()
-          return
-        }
-        setGraphqlCollections(collections)
-        this.fileImported()
-      }
-      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
-      this.$refs.inputChooseFileToReplaceWith.value = ""
-    },
-    importFromJSON() {
-      const reader = new FileReader()
-      reader.onload = ({ target }) => {
-        const content = target.result
-        let collections = JSON.parse(content)
-        if (collections[0]) {
-          const [name, folders, requests] = Object.keys(collections[0])
-          if (
-            name === "name" &&
-            folders === "folders" &&
-            requests === "requests"
-          ) {
-            // Do nothing
-          }
-        } else if (
-          collections.info &&
-          collections.info.schema.includes("v2.1.0")
-        ) {
-          // replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
-          collections = JSON.parse(
-            content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>")
-          )
-          collections = [this.parsePostmanCollection(collections)]
-        } else {
-          this.failedImport()
-          return
-        }
-        appendGraphqlCollections(collections)
-        this.fileImported()
-      }
-      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
-      this.$refs.inputChooseFileToImportFrom.value = ""
-    },
-    exportJSON() {
-      const dataToWrite = this.collectionJson
-      const file = new Blob([dataToWrite], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.$toast.success(this.$t("state.download_started"))
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
-    },
-    fileImported() {
-      this.$toast.success(this.$t("state.file_imported"))
-    },
-    failedImport() {
-      this.$toast.error(this.$t("import.failed"))
-    },
-    parsePostmanCollection({ info, name, item }) {
-      const hoppscotchCollection = {
-        name: "",
-        folders: [],
-        requests: [],
-      }
+defineProps<{
+  show: boolean
+}>()
 
-      hoppscotchCollection.name = info ? info.name : name
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
 
-      if (item && item.length > 0) {
-        for (const collectionItem of item) {
-          if (collectionItem.request) {
-            if (
-              Object.prototype.hasOwnProperty.call(
-                hoppscotchCollection,
-                "folders"
-              )
-            ) {
-              hoppscotchCollection.name = info ? info.name : name
-              hoppscotchCollection.requests.push(
-                this.parsePostmanRequest(collectionItem)
-              )
-            } else {
-              hoppscotchCollection.name = name || ""
-              hoppscotchCollection.requests.push(
-                this.parsePostmanRequest(collectionItem)
-              )
-            }
-          } else if (this.hasFolder(collectionItem)) {
-            hoppscotchCollection.folders.push(
-              this.parsePostmanCollection(collectionItem)
-            )
-          } else {
-            hoppscotchCollection.requests.push(
-              this.parsePostmanRequest(collectionItem)
-            )
-          }
-        }
-      }
-      return hoppscotchCollection
-    },
-    parsePostmanRequest({ name, request }) {
-      const pwRequest = {
-        url: "",
-        path: "",
-        method: "",
-        auth: "",
-        httpUser: "",
-        httpPassword: "",
-        passwordFieldType: "password",
-        bearerToken: "",
-        headers: [],
-        params: [],
-        bodyParams: [],
-        rawParams: "",
-        rawInput: false,
-        contentType: "",
-        requestType: "",
-        name: "",
-      }
+const axios = useAxios()
+const toast = useToast()
+const t = useI18n()
+const collections = useReadonlyStream(graphqlCollections$, [])
+const currentUser = useReadonlyStream(currentUser$, null)
 
-      pwRequest.name = name
-      const requestObjectUrl = request.url.raw.match(
-        /^(.+:\/\/[^/]+|{[^/]+})(\/[^?]+|).*$/
-      )
-      if (requestObjectUrl) {
-        pwRequest.url = requestObjectUrl[1]
-        pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
-      }
-      pwRequest.method = request.method
-      const itemAuth = request.auth ? request.auth : ""
-      const authType = itemAuth ? itemAuth.type : ""
-      if (authType === "basic") {
-        pwRequest.auth = "Basic Auth"
-        pwRequest.httpUser =
-          itemAuth.basic[0].key === "username"
-            ? itemAuth.basic[0].value
-            : itemAuth.basic[1].value
-        pwRequest.httpPassword =
-          itemAuth.basic[0].key === "password"
-            ? itemAuth.basic[0].value
-            : itemAuth.basic[1].value
-      } else if (authType === "oauth2") {
-        pwRequest.auth = "OAuth 2.0"
-        pwRequest.bearerToken =
-          itemAuth.oauth2[0].key === "accessToken"
-            ? itemAuth.oauth2[0].value
-            : itemAuth.oauth2[1].value
-      } else if (authType === "bearer") {
-        pwRequest.auth = "Bearer Token"
-        pwRequest.bearerToken = itemAuth.bearer[0].value
-      }
-      const requestObjectHeaders = request.header
-      if (requestObjectHeaders) {
-        pwRequest.headers = requestObjectHeaders
-        for (const header of pwRequest.headers) {
-          delete header.name
-          delete header.type
-        }
-      }
-      const requestObjectParams = request.url.query
-      if (requestObjectParams) {
-        pwRequest.params = requestObjectParams
-        for (const param of pwRequest.params) {
-          delete param.disabled
-        }
-      }
-      if (request.body) {
-        if (request.body.mode === "urlencoded") {
-          const params = request.body.urlencoded
-          pwRequest.bodyParams = params || []
-          for (const param of pwRequest.bodyParams) {
-            delete param.type
-          }
-        } else if (request.body.mode === "raw") {
-          pwRequest.rawInput = true
-          pwRequest.rawParams = request.body.raw
-        }
-      }
-      return pwRequest
-    },
-    hasFolder(item) {
-      return Object.prototype.hasOwnProperty.call(item, "item")
-    },
-  },
+// Template refs
+const options = ref<any>()
+const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
+const inputChooseFileToImportFrom = ref<HTMLInputElement>()
+
+const collectionJson = computed(() => {
+  return JSON.stringify(collections.value, null, 2)
 })
+
+const createCollectionGist = async () => {
+  if (!currentUser.value) {
+    toast.error(t("profile.no_permission").toString())
+
+    return
+  }
+
+  try {
+    const res = await axios.$post(
+      "https://api.github.com/gists",
+      {
+        files: {
+          "hoppscotch-collections.json": {
+            content: collectionJson.value,
+          },
+        },
+      },
+      {
+        headers: {
+          Authorization: `token ${currentUser.value.accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    )
+
+    toast.success(t("export.gist_created").toString())
+    window.open(res.html_url)
+  } catch (e) {
+    toast.error(t("error.something_went_wrong").toString())
+    console.error(e)
+  }
+}
+
+const fileImported = () => {
+  toast.success(t("state.file_imported").toString())
+}
+
+const failedImport = () => {
+  toast.error(t("import.failed").toString())
+}
+
+const readCollectionGist = async () => {
+  const gist = prompt(t("import.gist_url").toString())
+  if (!gist) return
+
+  try {
+    const { files } = (await axios.$get(
+      `https://api.github.com/gists/${gist.split("/").pop()}`,
+      {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    )) as {
+      files: {
+        [fileName: string]: {
+          content: any
+        }
+      }
+    }
+
+    const collections = JSON.parse(Object.values(files)[0].content)
+    setGraphqlCollections(collections)
+    fileImported()
+  } catch (e) {
+    failedImport()
+    console.error(e)
+  }
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
+
+const openDialogChooseFileToReplaceWith = () => {
+  if (inputChooseFileToReplaceWith.value)
+    inputChooseFileToReplaceWith.value.click()
+}
+
+const openDialogChooseFileToImportFrom = () => {
+  if (inputChooseFileToImportFrom.value)
+    inputChooseFileToImportFrom.value.click()
+}
+
+const replaceWithJSON = () => {
+  if (!inputChooseFileToReplaceWith.value) return
+
+  if (
+    !inputChooseFileToReplaceWith.value.files ||
+    inputChooseFileToReplaceWith.value.files.length === 0
+  ) {
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    const collections = JSON.parse(content)
+
+    // TODO: File validation
+    if (collections[0]) {
+      const [name, folders, requests] = Object.keys(collections[0])
+      if (name === "name" && folders === "folders" && requests === "requests") {
+        // Do nothing
+      }
+    } else {
+      failedImport()
+    }
+    setGraphqlCollections(collections)
+    fileImported()
+  }
+
+  reader.readAsText(inputChooseFileToReplaceWith.value.files[0])
+  inputChooseFileToReplaceWith.value.value = ""
+}
+
+const importFromJSON = () => {
+  if (!inputChooseFileToImportFrom.value) return
+
+  if (
+    !inputChooseFileToImportFrom.value.files ||
+    inputChooseFileToImportFrom.value.files.length === 0
+  ) {
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    const collections = JSON.parse(content)
+    if (collections[0]) {
+      const [name, folders, requests] = Object.keys(collections[0])
+      if (name === "name" && folders === "folders" && requests === "requests") {
+        // Do nothing
+      }
+    } else {
+      failedImport()
+      return
+    }
+    appendGraphqlCollections(collections)
+    fileImported()
+  }
+  reader.readAsText(inputChooseFileToImportFrom.value.files[0])
+  inputChooseFileToImportFrom.value.value = ""
+}
+
+const exportJSON = () => {
+  const dataToWrite = collectionJson.value
+  const file = new Blob([dataToWrite], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  // TODO: get uri from meta
+  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
+}
 </script>

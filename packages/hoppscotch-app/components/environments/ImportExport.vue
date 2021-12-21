@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('modal.import_export')} ${$t('environment.title')}`"
+    :title="`${t('modal.import_export')} ${t('environment.title')}`"
     max-width="sm:max-w-md"
     @close="hideModal"
   >
@@ -11,17 +11,17 @@
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('action.more')"
+              :title="t('action.more')"
               svg="more-vertical"
             />
           </template>
           <SmartItem
             icon="assignment_returned"
-            :label="$t('import.from_gist')"
+            :label="t('import.from_gist')"
             @click.native="
               () => {
                 readEnvironmentGist()
-                $refs.options.tippy().hide()
+                options.tippy().hide()
               }
             "
           />
@@ -29,10 +29,10 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="
               !currentUser
-                ? $t('export.require_github')
+                ? `${t('export.require_github')}`
                 : currentUser.provider !== 'github.com'
-                ? $t('export.require_github')
-                : null
+                ? `${t('export.require_github')}`
+                : undefined
             "
           >
             <SmartItem
@@ -44,11 +44,11 @@
                   : false
               "
               icon="assignment_turned_in"
-              :label="$t('export.create_secret_gist')"
+              :label="t('export.create_secret_gist')"
               @click.native="
                 () => {
                   createEnvironmentGist()
-                  $refs.options.tippy().hide()
+                  options.tippy().hide()
                 }
               "
             />
@@ -60,9 +60,9 @@
       <div class="flex flex-col space-y-2 px-2">
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.preserve_current')"
+          :title="t('action.preserve_current')"
           svg="folder-plus"
-          :label="$t('import.json')"
+          :label="t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
         <input
@@ -74,9 +74,9 @@
         />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.replace_current')"
+          :title="t('action.replace_current')"
           svg="file"
-          :label="$t('action.replace_json')"
+          :label="t('action.replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
         <input
@@ -89,9 +89,9 @@
         <hr />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.download_file')"
+          :title="t('action.download_file')"
           svg="download"
-          :label="$t('export.as_json')"
+          :label="t('export.as_json')"
           @click.native="exportJSON"
         />
       </div>
@@ -99,146 +99,243 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed, ref } from "@nuxtjs/composition-api"
 import { currentUser$ } from "~/helpers/fb/auth"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useAxios,
+  useI18n,
+  useReadonlyStream,
+  useToast,
+} from "~/helpers/utils/composables"
 import {
   environments$,
   replaceEnvironments,
   appendEnvironments,
+  Environment,
 } from "~/newstore/environments"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  setup() {
-    return {
-      environments: useReadonlyStream(environments$, []),
-      currentUser: useReadonlyStream(currentUser$, null),
-    }
-  },
-  computed: {
-    environmentJson() {
-      return JSON.stringify(this.environments, null, 2)
-    },
-  },
-  methods: {
-    async createEnvironmentGist() {
-      await this.$axios
-        .$post(
-          "https://api.github.com/gists",
-          {
-            files: {
-              "hoppscotch-environments.json": {
-                content: this.environmentJson,
-              },
-            },
+defineProps<{
+  show: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const axios = useAxios()
+const toast = useToast()
+const t = useI18n()
+const environments = useReadonlyStream(environments$, [])
+const currentUser = useReadonlyStream(currentUser$, null)
+
+// Template refs
+const options = ref<any>()
+const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
+const inputChooseFileToImportFrom = ref<HTMLInputElement>()
+
+const environmentJson = computed(() => {
+  return JSON.stringify(environments.value, null, 2)
+})
+
+const createEnvironmentGist = async () => {
+  if (!currentUser.value) {
+    toast.error(t("profile.no_permission").toString())
+
+    return
+  }
+
+  try {
+    const res = await axios.$post(
+      "https://api.github.com/gists",
+      {
+        files: {
+          "hoppscotch-environments.json": {
+            content: environmentJson.value,
           },
-          {
-            headers: {
-              Authorization: `token ${this.currentUser.accessToken}`,
-              Accept: "application/vnd.github.v3+json",
-            },
-          }
-        )
-        .then((res) => {
-          this.$toast.success(this.$t("export.gist_created"))
-          window.open(res.html_url)
-        })
-        .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"))
-          console.error(e)
-        })
-    },
-    async readEnvironmentGist() {
-      const gist = prompt(this.$t("import.gist_url"))
-      if (!gist) return
-      await this.$axios
-        .$get(`https://api.github.com/gists/${gist.split("/").pop()}`, {
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-          },
-        })
-        .then(({ files }) => {
-          const environments = JSON.parse(Object.values(files)[0].content)
-          replaceEnvironments(environments)
-          this.fileImported()
-        })
-        .catch((e) => {
-          this.failedImport()
-          console.error(e)
-        })
-    },
-    hideModal() {
-      this.$emit("hide-modal")
-    },
-    openDialogChooseFileToReplaceWith() {
-      this.$refs.inputChooseFileToReplaceWith.click()
-    },
-    openDialogChooseFileToImportFrom() {
-      this.$refs.inputChooseFileToImportFrom.click()
-    },
-    replaceWithJSON() {
-      const reader = new FileReader()
-      reader.onload = ({ target }) => {
-        const content = target.result
-        const environments = JSON.parse(content)
-        replaceEnvironments(environments)
+        },
+      },
+      {
+        headers: {
+          Authorization: `token ${currentUser.value.accessToken}`,
+          Accept: "application/vnd.github.v3+json",
+        },
       }
-      reader.readAsText(this.$refs.inputChooseFileToReplaceWith.files[0])
-      this.fileImported()
-      this.$refs.inputChooseFileToReplaceWith.value = ""
-    },
-    importFromJSON() {
-      const reader = new FileReader()
-      reader.onload = ({ target }) => {
-        const content = target.result
-        const importFileObj = JSON.parse(content)
-        if (
-          importFileObj._postman_variable_scope === "environment" ||
-          importFileObj._postman_variable_scope === "globals"
-        ) {
-          this.importFromPostman(importFileObj)
-        } else {
-          this.importFromHoppscotch(importFileObj)
+    )
+
+    toast.success(t("export.gist_created").toString())
+    window.open(res.html_url)
+  } catch (e) {
+    toast.error(t("error.something_went_wrong").toString())
+    console.error(e)
+  }
+}
+
+const fileImported = () => {
+  toast.success(t("state.file_imported").toString())
+}
+
+const failedImport = () => {
+  toast.error(t("import.failed").toString())
+}
+
+const readEnvironmentGist = async () => {
+  const gist = prompt(t("import.gist_url").toString())
+  if (!gist) return
+
+  try {
+    const { files } = (await axios.$get(
+      `https://api.github.com/gists/${gist.split("/").pop()}`,
+      {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    )) as {
+      files: {
+        [fileName: string]: {
+          content: any
         }
       }
-      reader.readAsText(this.$refs.inputChooseFileToImportFrom.files[0])
-      this.$refs.inputChooseFileToImportFrom.value = ""
-    },
-    importFromHoppscotch(environments) {
-      appendEnvironments(environments)
-      this.fileImported()
-    },
-    importFromPostman({ name, values }) {
-      const environment = { name, variables: [] }
-      values.forEach(({ key, value }) =>
-        environment.variables.push({ key, value })
-      )
-      const environments = [environment]
-      this.importFromHoppscotch(environments)
-    },
-    exportJSON() {
-      const dataToWrite = this.environmentJson
-      const file = new Blob([dataToWrite], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.$toast.success(this.$t("state.download_started"))
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
-    },
-    fileImported() {
-      this.$toast.success(this.$t("state.file_imported"))
-    },
-  },
-})
+    }
+    const environments = JSON.parse(Object.values(files)[0].content)
+    replaceEnvironments(environments)
+    fileImported()
+  } catch (e) {
+    failedImport()
+    console.error(e)
+  }
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
+
+const openDialogChooseFileToReplaceWith = () => {
+  if (inputChooseFileToReplaceWith.value)
+    inputChooseFileToReplaceWith.value.click()
+}
+
+const openDialogChooseFileToImportFrom = () => {
+  if (inputChooseFileToImportFrom.value)
+    inputChooseFileToImportFrom.value.click()
+}
+
+const replaceWithJSON = () => {
+  if (!inputChooseFileToReplaceWith.value) return
+
+  if (
+    !inputChooseFileToReplaceWith.value.files ||
+    inputChooseFileToReplaceWith.value.files.length === 0
+  ) {
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    const environments = JSON.parse(content)
+
+    // TODO: File validation
+    if (environments[0]) {
+      const [name, variables] = Object.keys(environments[0])
+      if (name === "name" && variables === "variables") {
+        // Do nothing
+      }
+    } else {
+      failedImport()
+    }
+
+    replaceEnvironments(environments)
+    fileImported()
+  }
+  reader.readAsText(inputChooseFileToReplaceWith.value.files[0])
+  inputChooseFileToReplaceWith.value.value = ""
+}
+
+const importFromJSON = () => {
+  if (!inputChooseFileToImportFrom.value) return
+
+  if (
+    !inputChooseFileToImportFrom.value.files ||
+    inputChooseFileToImportFrom.value.files.length === 0
+  ) {
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    const environments = JSON.parse(content)
+    if (
+      environments._postman_variable_scope === "environment" ||
+      environments._postman_variable_scope === "globals"
+    ) {
+      importFromPostman(environments)
+    } else if (environments[0]) {
+      const [name, variables] = Object.keys(environments[0])
+      if (name === "name" && variables === "variables") {
+        // Do nothing
+      }
+      importFromHoppscotch(environments)
+    } else {
+      failedImport()
+    }
+  }
+
+  reader.readAsText(inputChooseFileToImportFrom.value.files[0])
+  inputChooseFileToImportFrom.value.value = ""
+}
+
+const importFromHoppscotch = (environments: Environment[]) => {
+  appendEnvironments(environments)
+  fileImported()
+}
+
+const importFromPostman = ({
+  name,
+  values,
+}: {
+  name: string
+  values: { key: string; value: string }[]
+}) => {
+  const environment: Environment = { name, variables: [] }
+  values.forEach(({ key, value }) => environment.variables.push({ key, value }))
+  const environments = [environment]
+  importFromHoppscotch(environments)
+}
+
+const exportJSON = () => {
+  const dataToWrite = environmentJson.value
+  const file = new Blob([dataToWrite], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  // TODO: get uri from meta
+  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
+}
 </script>

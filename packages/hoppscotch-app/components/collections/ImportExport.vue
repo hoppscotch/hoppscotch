@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('modal.import_export')} ${$t('modal.collections')}`"
+    :title="`${t('modal.import_export')} ${t('modal.collections')}`"
     max-width="sm:max-w-md"
     @close="hideModal"
   >
@@ -9,7 +9,7 @@
       <ButtonSecondary
         v-if="mode == 'import_from_my_collections'"
         v-tippy="{ theme: 'tooltip' }"
-        :title="$t('action.go_back')"
+        :title="t('action.go_back')"
         svg="arrow-left"
         @click.native="
           () => {
@@ -32,13 +32,13 @@
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('action.more')"
+              :title="t('action.more')"
               svg="more-vertical"
             />
           </template>
           <SmartItem
             icon="assignment_returned"
-            :label="$t('import.from_gist')"
+            :label="t('import.from_gist')"
             @click.native="
               () => {
                 readCollectionGist()
@@ -65,7 +65,7 @@
                   : false
               "
               icon="assignment_turned_in"
-              :label="$t('export.create_secret_gist')"
+              :label="t('export.create_secret_gist')"
               @click.native="
                 () => {
                   createCollectionGist()
@@ -81,48 +81,46 @@
       <div v-if="mode == 'import_export'" class="flex flex-col space-y-2 px-2">
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.preserve_current')"
+          :title="t('action.preserve_current')"
           svg="folder-plus"
-          :label="$t('import.json')"
+          :label="t('import.json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
         <input
           ref="inputChooseFileToImportFrom"
           class="input"
           type="file"
-          style="display: none"
           accept="application/json"
           @change="importFromJSON"
         />
         <SmartItem
           v-if="collectionsType.type == 'team-collections'"
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.preserve_current')"
+          :title="t('action.preserve_current')"
           svg="user"
-          :label="$t('import.from_my_collections')"
+          :label="t('import.from_my_collections')"
           @click.native="mode = 'import_from_my_collections'"
         />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.replace_current')"
+          :title="t('action.replace_current')"
           svg="file"
-          :label="$t('action.replace_json')"
+          :label="t('action.replace_json')"
           @click.native="openDialogChooseFileToReplaceWith"
         />
         <input
           ref="inputChooseFileToReplaceWith"
           class="input"
           type="file"
-          style="display: none"
           accept="application/json"
           @change="replaceWithJSON"
         />
         <hr />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.download_file')"
+          :title="t('action.download_file')"
           svg="download"
-          :label="$t('export.as_json')"
+          :label="t('export.as_json')"
           @click.native="exportJSON"
         />
       </div>
@@ -168,7 +166,7 @@
           <ButtonPrimary
             :disabled="mySelectedCollectionID == undefined"
             svg="folder-plus"
-            :label="$t('import.title')"
+            :label="t('import.title')"
             @click.native="importFromMyCollections"
           />
         </span>
@@ -347,6 +345,7 @@ type PostmanCollection = {
   }[]
   folders?: any
 }
+
 const parsePostmanCollection = ({ info, name, item }: PostmanCollection) => {
   const hoppscotchCollection: Collection<HoppRESTRequest> = makeCollection({
     name: "",

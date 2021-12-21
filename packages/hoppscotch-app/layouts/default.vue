@@ -151,7 +151,6 @@ function defineJumpActions() {
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
-    console.log(useContext())
     appLayout()
 
     hookKeybindingsListener()

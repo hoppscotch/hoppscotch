@@ -215,7 +215,7 @@ export function parseInsomniaCollection(inputDataString: string) {
   outputData.info.name = getCollectionName(inputData.resources)
 
   const maps = generateMaps(inputData.resources)
-  console.log(maps)
+
   const parentChildrenMap = maps[0]
   //   const flatMap = maps[1]
 

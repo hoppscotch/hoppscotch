@@ -68,7 +68,7 @@ function transformBody(insomniaBody: any) {
     default:
       console.warn(
         "Warning: Body type unsupported; skipped!!! ... " +
-        insomniaBody.mimeType
+          insomniaBody.mimeType
       )
       body.mode = "raw"
       body.raw =

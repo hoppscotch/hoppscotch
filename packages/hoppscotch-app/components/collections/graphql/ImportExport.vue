@@ -57,21 +57,7 @@
       </span>
     </template>
     <template #body>
-      <div class="flex flex-col space-y-2">
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.replace_current')"
-          svg="file"
-          :label="$t('action.replace_json')"
-          @click.native="openDialogChooseFileToReplaceWith"
-        />
-        <input
-          ref="inputChooseFileToReplaceWith"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="replaceWithJSON"
-        />
+      <div class="flex flex-col space-y-2 px-2">
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.preserve_current')"
@@ -86,6 +72,21 @@
           accept="application/json"
           @change="importFromJSON"
         />
+        <SmartItem
+          v-tippy="{ theme: 'tooltip' }"
+          :title="$t('action.replace_current')"
+          svg="file"
+          :label="$t('action.replace_json')"
+          @click.native="openDialogChooseFileToReplaceWith"
+        />
+        <input
+          ref="inputChooseFileToReplaceWith"
+          class="input"
+          type="file"
+          accept="application/json"
+          @change="replaceWithJSON"
+        />
+        <hr />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.download_file')"

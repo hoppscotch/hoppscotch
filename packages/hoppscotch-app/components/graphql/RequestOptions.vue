@@ -15,6 +15,10 @@
           </label>
           <div class="flex">
             <ButtonSecondary
+              v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+              :title="`${t(
+                'request.run'
+              )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
               :label="`${t('request.run')}`"
               svg="play"
               class="rounded-none !text-accent !hover:text-accentDark"
@@ -22,6 +26,10 @@
             />
             <ButtonSecondary
               ref="saveRequest"
+              v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+              :title="`${t(
+                'request.save'
+              )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
               :label="`${t('request.save')}`"
               svg="save"
               class="rounded-none"
@@ -296,6 +304,8 @@ import { useCodemirror } from "~/helpers/editor/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -576,4 +586,8 @@ const clearGQLQuery = () => {
 const clearGQLVariables = () => {
   variableString.value = ""
 }
+
+defineActionHandler("request.send-cancel", runQuery)
+defineActionHandler("request.save", saveRequest)
+defineActionHandler("request.reset", clearGQLQuery)
 </script>

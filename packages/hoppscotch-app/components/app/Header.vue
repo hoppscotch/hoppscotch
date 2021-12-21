@@ -25,7 +25,7 @@
           :title="`${t('app.search')} <kbd>/</kbd>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click.native="showSearch = true"
+          @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -124,7 +124,6 @@
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -139,7 +138,7 @@ import {
   useI18n,
   useToast,
 } from "~/helpers/utils/composables"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -153,7 +152,6 @@ const toast = useToast()
 const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
 const showSupport = ref(false)
-const showSearch = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
@@ -163,9 +161,6 @@ const currentUser = useReadonlyStream(probableUser$, null)
 
 defineActionHandler("modals.support.toggle", () => {
   showSupport.value = !showSupport.value
-})
-defineActionHandler("modals.search.toggle", () => {
-  showSearch.value = !showSearch.value
 })
 
 onMounted(() => {

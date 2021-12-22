@@ -18,103 +18,53 @@
           }
         "
       />
-      <span>
-        <tippy
-          v-if="
-            mode == 'import_export' && collectionsType.type == 'my-collections'
-          "
-          ref="options"
-          interactive
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.more')"
-              svg="more-vertical"
-            />
-          </template>
-          <SmartItem
-            icon="assignment_returned"
-            :label="t('import.from_gist')"
-            @click.native="
-              () => {
-                readCollectionGist()
-                options.tippy().hide()
-              }
-            "
-          />
-          <span
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              !currentUser
-                ? `${t('export.require_github')}`
-                : currentUser.provider !== 'github.com'
-                ? `${t('export.require_github')}`
-                : undefined
-            "
-          >
-            <SmartItem
-              :disabled="
-                !currentUser
-                  ? true
-                  : currentUser.provider !== 'github.com'
-                  ? true
-                  : false
-              "
-              icon="assignment_turned_in"
-              :label="t('export.create_secret_gist')"
-              @click.native="
-                () => {
-                  createCollectionGist()
-                  options.tippy().hide()
-                }
-              "
-            />
-          </span>
-        </tippy>
-      </span>
     </template>
     <template #body>
       <div v-if="mode == 'import_export'" class="flex flex-col space-y-2 px-2">
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.preserve_current')"
-          svg="folder-plus"
-          :label="t('import.json')"
-          @click.native="openDialogChooseFileToImportFrom"
-        />
-        <input
-          ref="inputChooseFileToImportFrom"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="importFromJSON"
-        />
-        <SmartItem
-          v-if="collectionsType.type == 'team-collections'"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.preserve_current')"
-          svg="user"
-          :label="t('import.from_my_collections')"
-          @click.native="mode = 'import_from_my_collections'"
-        />
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.replace_current')"
-          svg="file"
-          :label="t('action.replace_json')"
-          @click.native="openDialogChooseFileToReplaceWith"
-        />
-        <input
-          ref="inputChooseFileToReplaceWith"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="replaceWithJSON"
-        />
+        <SmartExpand>
+          <template #body>
+            <SmartItem
+              svg="folder-plus"
+              :label="t('import.json')"
+              @click.native="openDialogChooseFileToImportFrom"
+            />
+            <input
+              ref="inputChooseFileToImportFrom"
+              class="input"
+              type="file"
+              accept="application/json"
+              @change="importFromJSON"
+            />
+            <SmartItem
+              v-if="collectionsType.type == 'team-collections'"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.preserve_current')"
+              svg="user"
+              :label="t('import.from_my_collections')"
+              @click.native="mode = 'import_from_my_collections'"
+            />
+            <SmartItem svg="link-2" :label="t('import.from_url')" />
+            <SmartItem
+              svg="github"
+              :label="t('import.from_gist')"
+              @click.native="
+                () => {
+                  readCollectionGist()
+                }
+              "
+            />
+            <SmartItem svg="file" :label="t('import.from_openapi')" />
+            <SmartItem svg="insomnia" :label="t('import.from_insomnia')" />
+            <SmartItem svg="postman" :label="t('import.from_postman')" />
+            <input
+              ref="inputChooseFileToReplaceWith"
+              class="input"
+              type="file"
+              accept="application/json"
+              @change="replaceWithJSON"
+            />
+          </template>
+        </SmartExpand>
         <hr />
         <SmartItem
           v-tippy="{ theme: 'tooltip' }"
@@ -123,6 +73,34 @@
           :label="t('export.as_json')"
           @click.native="exportJSON"
         />
+        <span
+          v-tippy="{ theme: 'tooltip' }"
+          :title="
+            !currentUser
+              ? `${t('export.require_github')}`
+              : currentUser.provider !== 'github.com'
+              ? `${t('export.require_github')}`
+              : undefined
+          "
+          class="flex"
+        >
+          <SmartItem
+            :disabled="
+              !currentUser
+                ? true
+                : currentUser.provider !== 'github.com'
+                ? true
+                : false
+            "
+            svg="github"
+            :label="t('export.create_secret_gist')"
+            @click.native="
+              () => {
+                createCollectionGist()
+              }
+            "
+          />
+        </span>
       </div>
       <div
         v-if="mode == 'import_from_my_collections'"
@@ -224,7 +202,6 @@ const mySelectedCollectionID = ref(undefined)
 const collectionJson = ref("")
 
 // Template refs
-const options = ref<any>()
 const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
@@ -319,10 +296,10 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
-const openDialogChooseFileToReplaceWith = () => {
-  if (inputChooseFileToReplaceWith.value)
-    inputChooseFileToReplaceWith.value.click()
-}
+// const openDialogChooseFileToReplaceWith = () => {
+//   if (inputChooseFileToReplaceWith.value)
+//     inputChooseFileToReplaceWith.value.click()
+// }
 
 const openDialogChooseFileToImportFrom = () => {
   if (inputChooseFileToImportFrom.value)

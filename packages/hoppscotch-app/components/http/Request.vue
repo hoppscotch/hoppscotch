@@ -197,7 +197,7 @@
       </span>
     </div>
     <HttpImportCurl
-      :text="newEndpoint"
+      :text="curlText"
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
     />
@@ -269,6 +269,7 @@ const nuxt = useNuxt()
 const { subscribeToStream } = useStreamSubscriber()
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
+let curlText = ref("")
 const newMethod = useStream(restMethod$, "", updateRESTMethod)
 
 const loading = ref(false)
@@ -350,6 +351,8 @@ const onPasteUrl = (e: ClipboardEvent) => {
   const pastedData = clipboardData.getData("Text")
   if (isCURL(pastedData)) {
     showCurlImportModal.value = true
+    curlText.value = pastedData
+    newEndpoint.value = ""
   }
 }
 

@@ -11,6 +11,7 @@
     <template #footer>
       <span class="flex">
         <ButtonPrimary
+          ref="importButton"
           :label="`${t('import.title')}`"
           @click.native="handleImport"
         />
@@ -45,7 +46,7 @@ const curlEditor = ref<any | null>(null)
 
 const props = defineProps<{ show: boolean; text: string }>()
 
-const codeMirror = useCodemirror(curlEditor, curl, {
+useCodemirror(curlEditor, curl, {
   extendedEditorConfig: {
     mode: "application/x-sh",
     placeholder: `${t("request.enter_curl")}`,
@@ -59,9 +60,7 @@ watch(
   () => props.show,
   () => {
     if (props.show) {
-      setTimeout(() => {
-        curl.value = props.text || ""
-      }, 100)
+      curl.value = props.text.toString()
     }
   },
   { immediate: false }

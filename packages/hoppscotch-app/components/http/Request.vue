@@ -269,7 +269,7 @@ const nuxt = useNuxt()
 const { subscribeToStream } = useStreamSubscriber()
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
-let curlText = ref("")
+const curlText = ref("")
 const newMethod = useStream(restMethod$, "", updateRESTMethod)
 
 const loading = ref(false)
@@ -345,14 +345,20 @@ const newSendRequest = async () => {
   }
 }
 
-const onPasteUrl = (e: ClipboardEvent) => {
+const onPasteUrl = (e: { event: ClipboardEvent; previousValue: string }) => {
   if (!e) return
-  const clipboardData = e.clipboardData || (window as any).clipboardData
-  const pastedData = clipboardData.getData("Text")
+
+  const clipboardData = e.event.clipboardData
+
+  const pastedData = clipboardData?.getData("Text")
+
+  if (!pastedData) return
+
   if (isCURL(pastedData)) {
+    e.event.preventDefault()
     showCurlImportModal.value = true
     curlText.value = pastedData
-    newEndpoint.value = ""
+    newEndpoint.value = e.previousValue
   }
 }
 

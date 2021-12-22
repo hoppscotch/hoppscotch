@@ -16,7 +16,7 @@
       @keyup="$emit('keyup', $event)"
       @click="$emit('click', $event)"
       @keydown="$emit('keydown', $event)"
-      @paste="$emit('paste', $event)"
+      @paste="handlePaste"
     ></div>
   </div>
 </template>
@@ -114,6 +114,9 @@ export default defineComponent({
   },
 
   methods: {
+    handlePaste(ev) {
+      this.$emit("paste", { event: ev, previousValue: this.internalValue })
+    },
     handleChange() {
       this.debouncedHandler = debounce(function () {
         if (this.internalValue !== this.$refs.editor.textContent) {

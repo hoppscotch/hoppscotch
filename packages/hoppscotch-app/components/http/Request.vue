@@ -52,6 +52,7 @@
             focus-visible:bg-transparent
           "
           @enter="newSendRequest()"
+          @paste="onPasteUrl($event)"
         />
       </div>
     </div>
@@ -196,6 +197,7 @@
       </span>
     </div>
     <HttpImportCurl
+      :text="newEndpoint"
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
     />
@@ -340,6 +342,19 @@ const newSendRequest = async () => {
       error,
     })
   }
+}
+
+const onPasteUrl = (e: ClipboardEvent) => {
+  if (!e) return
+  const clipboardData = e.clipboardData || (window as any).clipboardData
+  const pastedData = clipboardData.getData("Text")
+  if (isCURL(pastedData)) {
+    showCurlImportModal.value = true
+  }
+}
+
+function isCURL(curl: string) {
+  return curl.includes("curl ")
 }
 
 const cancelRequest = () => {

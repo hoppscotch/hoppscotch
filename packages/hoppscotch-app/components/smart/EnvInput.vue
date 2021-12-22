@@ -16,6 +16,7 @@
       @keyup="$emit('keyup', $event)"
       @click="$emit('click', $event)"
       @keydown="$emit('keydown', $event)"
+      @paste="$emit('paste', $event)"
     ></div>
   </div>
 </template>

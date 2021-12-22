@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref, watch } from "@nuxtjs/composition-api"
 import {
   HoppRESTHeader,
   HoppRESTParam,
@@ -43,7 +43,9 @@ const curl = ref("")
 
 const curlEditor = ref<any | null>(null)
 
-useCodemirror(curlEditor, curl, {
+const props = defineProps<{ show: boolean; text: string }>()
+
+const codeMirror = useCodemirror(curlEditor, curl, {
   extendedEditorConfig: {
     mode: "application/x-sh",
     placeholder: `${t("request.enter_curl")}`,
@@ -53,7 +55,17 @@ useCodemirror(curlEditor, curl, {
   environmentHighlights: false,
 })
 
-defineProps<{ show: boolean }>()
+watch(
+  () => props.show,
+  () => {
+    if (props.show) {
+      setTimeout(() => {
+        curl.value = props.text || ""
+      }, 100)
+    }
+  },
+  { immediate: false }
+)
 
 const emit = defineEmits<{
   (e: "hide-modal"): void

@@ -11,6 +11,7 @@
     <template #footer>
       <span class="flex">
         <ButtonPrimary
+          ref="importButton"
           :label="`${t('import.title')}`"
           @click.native="handleImport"
         />
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref, watch } from "@nuxtjs/composition-api"
 import {
   HoppRESTHeader,
   HoppRESTParam,
@@ -43,6 +44,8 @@ const curl = ref("")
 
 const curlEditor = ref<any | null>(null)
 
+const props = defineProps<{ show: boolean; text: string }>()
+
 useCodemirror(curlEditor, curl, {
   extendedEditorConfig: {
     mode: "application/x-sh",
@@ -53,7 +56,15 @@ useCodemirror(curlEditor, curl, {
   environmentHighlights: false,
 })
 
-defineProps<{ show: boolean }>()
+watch(
+  () => props.show,
+  () => {
+    if (props.show) {
+      curl.value = props.text.toString()
+    }
+  },
+  { immediate: false }
+)
 
 const emit = defineEmits<{
   (e: "hide-modal"): void

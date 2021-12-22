@@ -69,6 +69,11 @@ const parseCurlCommand = (curlCommand: string) => {
     curlCommand = curlCommand.replace(/\\/gi, "")
     curlCommand = curlCommand.replace(/\n/g, "")
   }
+  // replace string for insomnia
+  curlCommand = curlCommand.replace(/--request /, "-X ")
+  curlCommand = curlCommand.replace(/--header /, "-H ")
+  curlCommand = curlCommand.replace(/--url /, " ")
+
   // yargs parses -XPOST as separate arguments. just prescreen for it.
   curlCommand = curlCommand.replace(/ -XPOST/, " -X POST")
   curlCommand = curlCommand.replace(/ -XGET/, " -X GET")

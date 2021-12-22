@@ -52,6 +52,7 @@
             focus-visible:bg-transparent
           "
           @enter="newSendRequest()"
+          @paste="onPasteUrl($event)"
         />
       </div>
     </div>
@@ -196,6 +197,7 @@
       </span>
     </div>
     <HttpImportCurl
+      :text="curlText"
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
     />
@@ -267,6 +269,7 @@ const nuxt = useNuxt()
 const { subscribeToStream } = useStreamSubscriber()
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
+const curlText = ref("")
 const newMethod = useStream(restMethod$, "", updateRESTMethod)
 
 const loading = ref(false)
@@ -340,6 +343,27 @@ const newSendRequest = async () => {
       error,
     })
   }
+}
+
+const onPasteUrl = (e: { event: ClipboardEvent; previousValue: string }) => {
+  if (!e) return
+
+  const clipboardData = e.event.clipboardData
+
+  const pastedData = clipboardData?.getData("Text")
+
+  if (!pastedData) return
+
+  if (isCURL(pastedData)) {
+    e.event.preventDefault()
+    showCurlImportModal.value = true
+    curlText.value = pastedData
+    newEndpoint.value = e.previousValue
+  }
+}
+
+function isCURL(curl: string) {
+  return curl.includes("curl ")
 }
 
 const cancelRequest = () => {

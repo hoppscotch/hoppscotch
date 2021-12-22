@@ -22,112 +22,126 @@
           }"
           @click.native="ZEN_MODE = !ZEN_MODE"
         />
+        <tippy
+          ref="interceptorOptions"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+        >
+          <template #trigger>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('settings.interceptor')"
+              svg="shield-check"
+            />
+          </template>
+          <AppInterceptor />
+        </tippy>
       </div>
       <div class="flex">
-        <span>
-          <tippy
-            ref="options"
-            interactive
-            trigger="click"
-            theme="popover"
-            arrow
-            :on-shown="() => tippyActions.focus()"
+        <tippy
+          ref="options"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+          :on-shown="() => tippyActions.focus()"
+        >
+          <template #trigger>
+            <ButtonSecondary
+              svg="help-circle"
+              class="!rounded-none"
+              :label="`${t('app.help')}`"
+            />
+          </template>
+          <div
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.d="documentation.$el.click()"
+            @keyup.s="shortcuts.$el.click()"
+            @keyup.c="chat.$el.click()"
+            @keyup.escape="options.tippy().hide()"
           >
-            <template #trigger>
-              <ButtonSecondary
-                svg="help-circle"
-                class="!rounded-none"
-                :label="`${t('app.help')}`"
-              />
-            </template>
-            <div
-              ref="tippyActions"
-              class="flex flex-col focus:outline-none"
-              tabindex="0"
-              @keyup.d="documentation.$el.click()"
-              @keyup.s="shortcuts.$el.click()"
-              @keyup.c="chat.$el.click()"
-              @keyup.escape="options.tippy().hide()"
-            >
-              <SmartItem
-                ref="documentation"
-                svg="book"
-                :label="`${t('app.documentation')}`"
-                to="https://docs.hoppscotch.io"
-                blank
-                :shortcut="['D']"
-                @click.native="options.tippy().hide()"
-              />
-              <SmartItem
-                ref="shortcuts"
-                svg="zap"
-                :label="`${t('app.keyboard_shortcuts')}`"
-                :shortcut="['S']"
-                @click.native="
-                  () => {
-                    showShortcuts = true
-                    options.tippy().hide()
-                  }
-                "
-              />
-              <SmartItem
-                ref="chat"
-                svg="message-circle"
-                :label="`${t('app.chat_with_us')}`"
-                :shortcut="['C']"
-                @click.native="
-                  () => {
-                    chatWithUs()
-                    options.tippy().hide()
-                  }
-                "
-              />
-              <hr />
-              <SmartItem
-                svg="github"
-                :label="`${t('app.github')}`"
-                to="https://github.com/hoppscotch/hoppscotch"
-                blank
-                @click.native="options.tippy().hide()"
-              />
-              <SmartItem
-                svg="twitter"
-                :label="`${t('app.twitter')}`"
-                to="https://hoppscotch.io/twitter"
-                blank
-                @click.native="options.tippy().hide()"
-              />
-              <SmartItem
-                svg="user-plus"
-                :label="`${t('app.invite')}`"
-                @click.native="
-                  () => {
-                    showShare = true
-                    options.tippy().hide()
-                  }
-                "
-              />
-              <SmartItem
-                svg="lock"
-                :label="`${t('app.terms_and_privacy')}`"
-                to="https://docs.hoppscotch.io/privacy"
-                blank
-                @click.native="options.tippy().hide()"
-              />
-              <SmartItem
-                svg="gift"
-                :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/changelog"
-                blank
-                @click.native="options.tippy().hide()"
-              />
-              <!-- <SmartItem :label="t('app.status')" /> -->
-              <div class="flex opacity-50 py-2 px-4">
-                {{ `${t("app.name")} ${t("app.version")}` }}
-              </div>
+            <SmartItem
+              ref="documentation"
+              svg="book"
+              :label="`${t('app.documentation')}`"
+              to="https://docs.hoppscotch.io"
+              blank
+              :shortcut="['D']"
+              @click.native="options.tippy().hide()"
+            />
+            <SmartItem
+              ref="shortcuts"
+              svg="zap"
+              :label="`${t('app.keyboard_shortcuts')}`"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showShortcuts = true
+                  options.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="chat"
+              svg="message-circle"
+              :label="`${t('app.chat_with_us')}`"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  chatWithUs()
+                  options.tippy().hide()
+                }
+              "
+            />
+            <hr />
+            <SmartItem
+              svg="github"
+              :label="`${t('app.github')}`"
+              to="https://github.com/hoppscotch/hoppscotch"
+              blank
+              @click.native="options.tippy().hide()"
+            />
+            <SmartItem
+              svg="twitter"
+              :label="`${t('app.twitter')}`"
+              to="https://hoppscotch.io/twitter"
+              blank
+              @click.native="options.tippy().hide()"
+            />
+            <SmartItem
+              svg="user-plus"
+              :label="`${t('app.invite')}`"
+              @click.native="
+                () => {
+                  showShare = true
+                  options.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              svg="lock"
+              :label="`${t('app.terms_and_privacy')}`"
+              to="https://docs.hoppscotch.io/privacy"
+              blank
+              @click.native="options.tippy().hide()"
+            />
+            <SmartItem
+              svg="gift"
+              :label="`${t('app.whats_new')}`"
+              to="https://docs.hoppscotch.io/changelog"
+              blank
+              @click.native="options.tippy().hide()"
+            />
+            <!-- <SmartItem :label="t('app.status')" /> -->
+            <div class="flex opacity-50 py-2 px-4">
+              {{ `${t("app.name")} ${t("app.version")}` }}
             </div>
-          </tippy>
-        </span>
+          </div>
+        </tippy>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           svg="zap"

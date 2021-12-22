@@ -122,25 +122,6 @@
             {{ `${response.meta.responseSize} B` }}
           </span>
         </div>
-        <div class="inline-flex">
-          <tippy
-            ref="options"
-            interactive
-            trigger="click"
-            theme="popover"
-            arrow
-          >
-            <template #trigger>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('settings.interceptor')"
-                svg="globe"
-                class="!p-0"
-              />
-            </template>
-            <AppInterceptor />
-          </tippy>
-        </div>
       </div>
     </div>
   </div>

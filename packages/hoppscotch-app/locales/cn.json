@@ -100,24 +100,24 @@
     "pass_key_by": "传输位置"
   },
   "collection": {
-    "created": "组合已创建",
-    "edit": "编辑组合",
-    "invalid_name": "请提供有效的组合名称",
-    "my_collections": "我的组合",
-    "name": "我的新组合",
-    "new": "新建组合",
-    "renamed": "组合已更名",
+    "created": "集合已创建",
+    "edit": "编辑集合",
+    "invalid_name": "请提供有效的集合名称",
+    "my_collections": "我的集合",
+    "name": "我的新集合",
+    "new": "新建集合",
+    "renamed": "集合已更名",
     "request_in_use": "正在使用该接口",
     "save_as": "另存为",
-    "select": "选择一个组合",
+    "select": "选择一个集合",
     "select_location": "选择位置",
     "select_team": "选择一个团队",
-    "team_collections": "团队组合"
+    "team_collections": "团队集合"
   },
   "confirm": {
     "exit_team": "你确定要离开这个团队吗？",
     "logout": "你确定要登出吗？",
-    "remove_collection": "你确定要永久删除该组合吗？",
+    "remove_collection": "你确定要永久删除该集合吗？",
     "remove_environment": "你确定要永久删除该环境吗？",
     "remove_folder": "你确定要永久删除该文件夹吗？",
     "remove_history": "你确定要永久删除全部历史记录吗？",
@@ -136,13 +136,13 @@
   },
   "documentation": {
     "generate": "生成文档",
-    "generate_message": "导入 Hoppscotch 组合以随时随地生成 API 文档。"
+    "generate_message": "导入 Hoppscotch 集合以随时随地生成 API 文档。"
   },
   "empty": {
     "authorization": "该请求没有使用任何授权",
     "body": "该请求没有任何请求体",
-    "collection": "组合为空",
-    "collections": "组合为空",
+    "collection": "集合为空",
+    "collections": "集合为空",
     "documentation": "连接一个 GraphQL 端点来查看文档",
     "endpoint": "端点不可以为空",
     "environments": "环境为空",
@@ -228,11 +228,11 @@
     "sidebar": "隐藏侧边栏"
   },
   "import": {
-    "collections": "导入组合",
+    "collections": "导入集合",
     "curl": "导入 cURL",
     "failed": "导入失败",
     "from_gist": "从 Gist 导入",
-    "from_my_collections": "从我的组合导入",
+    "from_my_collections": "从我的集合导入",
     "gist_url": "输入 Gist URL",
     "json": "从 JSON 导入",
     "title": "导入"
@@ -243,7 +243,7 @@
     "zen_mode": "禅意模式"
   },
   "modal": {
-    "collections": "组合",
+    "collections": "集合",
     "confirm": "确认",
     "edit_request": "编辑请求",
     "import_export": "导入/导出"
@@ -281,9 +281,9 @@
     "email_verification_mail": "一封验证邮件已发送至你的邮箱。请点击其中的链接来验证你的邮箱地址。",
     "no_permission": "你没有权限进行此操作。",
     "owner": "所有者",
-    "owner_description": "所有者可以添加、编辑和删除请求、组合和团队成员。",
+    "owner_description": "所有者可以添加、编辑和删除请求、集合和团队成员。",
     "roles": "角色",
-    "roles_description": "角色可以用来控制共享组合的访问权限。",
+    "roles_description": "角色可以用来控制共享集合的访问权限。",
     "updated": "个人资料已更新",
     "viewer": "查看者",
     "viewer_description": "查看者只能查看和使用请求。"
@@ -375,7 +375,7 @@
     "reset_default": "重置为默认",
     "sidebar_on_left": "将侧边菜单置于左侧",
     "sync": "同步",
-    "sync_collections": "组合",
+    "sync_collections": "集合",
     "sync_description": "这些设置会同步到云。",
     "sync_environments": "环境",
     "sync_history": "历史",
@@ -423,7 +423,7 @@
       "previous_method": "选择上一个方法",
       "put_method": "选择 PUT 方法",
       "reset_request": "重置请求",
-      "save_to_collections": "保存到组合",
+      "save_to_collections": "保存到集合",
       "send_request": "发送请求",
       "title": "请求"
     }
@@ -484,7 +484,7 @@
   "tab": {
     "authorization": "授权",
     "body": "请求体",
-    "collections": "组合",
+    "collections": "集合",
     "documentation": "帮助文档",
     "headers": "请求头",
     "history": "历史记录",
@@ -538,7 +538,7 @@
     "new": "新团队",
     "new_created": "已创建新团队",
     "new_name": "我的新团队",
-    "no_access": "你没有编辑组合的权限",
+    "no_access": "你没有编辑集合的权限",
     "no_invite_found": "找不到邀请。请联系你的团队所有人。",
     "not_valid_viewer": "你不是有效的查看者。请联系你的团队所有人。",
     "pending_invites": "待定邀请",

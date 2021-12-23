@@ -1,6 +1,6 @@
 import * as TE from "fp-ts/TaskEither"
-import { HoppRESTRequest } from "@hoppscotch/data"
-import { Collection } from "~/newstore/collections"
+import { StepsOutputList } from "../steps"
+import HoppRESTCollImporter from "../import/hopp"
 
 /**
  * The error state to be used when the file formats do not match
@@ -10,14 +10,14 @@ export const IMPORTER_INVALID_FILE_FORMAT =
 
 export type HoppImporterError = typeof IMPORTER_INVALID_FILE_FORMAT
 
-export type HoppImporter<T> = (
-  content: string
+type HoppImporter<T, StepsType> = (
+  stepValues: StepsOutputList<StepsType>
 ) => TE.TaskEither<HoppImporterError, T>
 
 /**
  * Definition for importers
  */
-export type HoppImporterDefintion<T> = {
+type HoppImporterDefintion<T, Y> = {
   /**
    * Name of the importer, shown on the Select Importer dropdown
    */
@@ -26,14 +26,24 @@ export type HoppImporterDefintion<T> = {
   /**
    * The importer function, It is a Promise because its supposed to be loaded in lazily (dynamic imports ?)
    */
-  importer: () => Promise<HoppImporter<T>>
+  importer: HoppImporter<T, Y>
+
+  /**
+   * The steps to fetch information required to run an importer
+   */
+  steps: Y
 }
 
-export const RESTCollectionImporters: HoppImporterDefintion<
-  Collection<HoppRESTRequest>[]
->[] = [
-  {
-    name: "Hoppscotch REST Collection",
-    importer: () => import("./hopp").then((m) => m.default),
-  },
-]
+/**
+ * Defines a Hoppscotch importer
+ */
+export const defineImporter = <ReturnType, StepType>(input: {
+  name: string
+  importer: HoppImporter<ReturnType, StepType>
+  steps: StepType
+}) =>
+  <HoppImporterDefintion<ReturnType, StepType>>{
+    ...input,
+  }
+
+export const RESTCollectionImporters = [HoppRESTCollImporter] as const

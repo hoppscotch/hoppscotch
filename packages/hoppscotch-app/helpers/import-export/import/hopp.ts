@@ -1,23 +1,22 @@
-import { HoppRESTRequest } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as E from "fp-ts/Either"
-import { HoppImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import {
-  Collection,
-  translateToNewRESTCollection,
-} from "~/newstore/collections"
+import { step } from "../steps"
+import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { translateToNewRESTCollection } from "~/newstore/collections"
 
-const importer: HoppImporter<Collection<HoppRESTRequest>[]> = (content) =>
-  pipe(
-    E.tryCatch(
-      () =>
-        JSON.parse(content).map((coll: any) =>
-          translateToNewRESTCollection(coll)
-        ),
-      () => IMPORTER_INVALID_FILE_FORMAT
+export default defineImporter({
+  name: "Hoppscotch REST Collection",
+  steps: [step("FILE_OR_URL_IMPORT", "Select a file or URL")] as const,
+  importer: ([content]) =>
+    pipe(
+      E.tryCatch(
+        () =>
+          JSON.parse(content).map((coll: any) =>
+            translateToNewRESTCollection(coll)
+          ),
+        () => IMPORTER_INVALID_FILE_FORMAT
+      ),
+      TE.fromEither
     ),
-    TE.fromEither
-  )
-
-export default importer
+})

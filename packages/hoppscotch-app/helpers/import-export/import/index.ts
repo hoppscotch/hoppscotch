@@ -30,7 +30,7 @@ export type HoppImporterDefintion<T> = {
 }
 
 export const RESTCollectionImporters: HoppImporterDefintion<
-  Collection<HoppRESTRequest>
+  Collection<HoppRESTRequest>[]
 >[] = [
   {
     name: "Hoppscotch REST Collection",

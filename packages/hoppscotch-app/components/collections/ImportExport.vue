@@ -156,6 +156,7 @@
 <script setup lang="ts">
 import { ref } from "@nuxtjs/composition-api"
 import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
 import { apolloClient } from "~/helpers/apollo"
 import {
   useAxios,
@@ -173,6 +174,7 @@ import {
   Collection,
   makeCollection,
 } from "~/newstore/collections"
+import { RESTCollectionImporters } from "~/helpers/import-export/import"
 
 const props = defineProps<{
   show: boolean
@@ -557,7 +559,7 @@ const importFromJSON = () => {
 
   const reader = new FileReader()
 
-  reader.onload = ({ target }) => {
+  reader.onload = async ({ target }) => {
     let content = target!.result as string | null
 
     if (!content) {
@@ -566,6 +568,8 @@ const importFromJSON = () => {
     }
 
     let collections = JSON.parse(content)
+    await hoppImporterOutput(content)
+
     if (isInsomniaCollection(collections)) {
       collections = parseInsomniaCollection(content)
       content = JSON.stringify(collections)
@@ -652,5 +656,17 @@ const exportJSON = () => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }, 1000)
+}
+
+const hoppImporter = RESTCollectionImporters[0]
+
+const hoppImporterOutput = async (content: string) => {
+  const importedFunc = await hoppImporter.importer()
+  const result = await importedFunc(content)()
+  if (E.isLeft(result)) {
+    console.log("error", result.left)
+  } else if (E.isRight(result)) {
+    console.log("success", result)
+  }
 }
 </script>

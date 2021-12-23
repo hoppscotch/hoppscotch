@@ -8,10 +8,13 @@ import {
   translateToNewRESTCollection,
 } from "~/newstore/collections"
 
-const importer: HoppImporter<Collection<HoppRESTRequest>> = (content) =>
+const importer: HoppImporter<Collection<HoppRESTRequest>[]> = (content) =>
   pipe(
     E.tryCatch(
-      () => translateToNewRESTCollection(content),
+      () =>
+        JSON.parse(content).map((coll: any) =>
+          translateToNewRESTCollection(coll)
+        ),
       () => IMPORTER_INVALID_FILE_FORMAT
     ),
     TE.fromEither

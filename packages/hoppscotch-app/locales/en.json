@@ -236,7 +236,7 @@
     "from_postman": "Import from Postman",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
-    "json": "Import from JSON",
+    "json": "Import from file",
     "title": "Import"
   },
   "layout": {

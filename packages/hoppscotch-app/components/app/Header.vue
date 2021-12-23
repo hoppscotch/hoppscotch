@@ -85,6 +85,15 @@
                   svg="user"
                 />
               </template>
+              <div class="flex px-2 flex-col">
+                <span class="inline-flex truncate font-semibold">
+                  {{ currentUser.displayName }}
+                </span>
+                <span class="inline-flex truncate text-secondaryLight">
+                  {{ currentUser.email }}
+                </span>
+              </div>
+              <hr />
               <div
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"

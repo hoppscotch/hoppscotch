@@ -7,7 +7,14 @@ import { translateToNewRESTCollection } from "~/newstore/collections"
 
 export default defineImporter({
   name: "Hoppscotch REST Collection",
-  steps: [step("FILE_OR_URL_IMPORT", "Select a file or URL")] as const,
+  steps: [
+    step({
+      stepName: "FILE_OR_URL_IMPORT",
+      metadata: {
+        acceptedFileTypes: ["application/json"],
+      },
+    }),
+  ] as const,
   importer: ([content]) =>
     pipe(
       E.tryCatch(

@@ -2,24 +2,44 @@
  * Defines which type of content a Step returns.
  * Add an entry here when you define a step
  */
-export type StepReturnTypes = {
-  FILE_OR_URL_IMPORT: string // String content of the file/url
-  TARGET_MY_COLLECTION: number // folderPath
+export type StepDefinition = {
+  FILE_OR_URL_IMPORT: {
+    returnType: string
+    metadata: {
+      acceptedFileTypes: string[]
+    }
+  } // String content of the file/url
+  TARGET_MY_COLLECTION: {
+    returnType: number
+    metadata: never
+  } // folderPath
 }
 
 /**
  * Defines what the data structure of a step
  */
-export type Step<T extends keyof StepReturnTypes> = {
-  name: T
-  caption?: string
-}
+export type Step<T extends keyof StepDefinition> =
+  StepDefinition[T]["metadata"] extends never
+    ? {
+        name: T
+        caption?: string
+        metadata: undefined
+      }
+    : {
+        name: T
+        caption?: string
+        metadata: StepDefinition[T]["metadata"]
+      }
 
 /**
  * The return output value of an individual step
  */
 export type StepReturnType<T> = T extends Step<infer U>
-  ? StepReturnTypes[U]
+  ? StepDefinition[U]["returnType"]
+  : never
+
+export type StepMetadata<T> = T extends Step<infer U>
+  ? StepDefinition[U]["metadata"]
   : never
 
 /**
@@ -29,12 +49,22 @@ export type StepsOutputList<T> = {
   [K in keyof T]: StepReturnType<T[K]>
 }
 
+type StepFuncInput<T extends keyof StepDefinition> =
+  StepDefinition[T]["metadata"] extends never
+    ? {
+        stepName: T
+        caption?: string
+      }
+    : {
+        stepName: T
+        caption?: string
+        metadata: StepDefinition[T]["metadata"]
+      }
+
 /** Use this function to define a step */
-export const step = <T extends keyof StepReturnTypes>(
-  stepName: T,
-  caption?: string
-) =>
+export const step = <T extends keyof StepDefinition>(input: StepFuncInput<T>) =>
   <Step<T>>{
-    name: stepName,
-    caption,
+    name: input.stepName,
+    metadata: (input as any).metadata ?? undefined,
+    caption: input.caption,
   }

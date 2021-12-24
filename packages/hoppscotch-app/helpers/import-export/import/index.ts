@@ -41,9 +41,10 @@ export const defineImporter = <ReturnType, StepType>(input: {
   name: string
   importer: HoppImporter<ReturnType, StepType>
   steps: StepType
-}) =>
-  <HoppImporterDefintion<ReturnType, StepType>>{
+}) => {
+  return <HoppImporterDefintion<ReturnType, StepType>>{
     ...input,
   }
+}
 
 export const RESTCollectionImporters = [HoppRESTCollImporter] as const

@@ -1,16 +1,16 @@
 <template>
-  <label
-    class="cursor-pointer flex-nowrap transition inline-flex items-center justify-center group hover:text-secondaryDark"
+  <div
+    class="cursor-pointer flex flex-nowrap transition flex-1 items-center group hover:text-secondaryDark"
+    @click="$emit('change', value)"
   >
-    <input
-      type="radio"
-      :value="value"
-      :checked="value === selected"
-      class="appearance-none cursor-pointer mr-4 transition rounded-full h-4 w-4 border-2 border-divider group-hover:border-accentDark checked:border-4 checked:border-accent focus:outline-none"
-      @change="$emit('change', value)"
-    />
-    <span class="font-semibold transition">{{ label }}</span>
-  </label>
+    <span class="inline-flex mr-4">
+      <i v-if="value === selected" class="text-accent material-icons">
+        radio_button_checked
+      </i>
+      <i v-else class="material-icons">radio_button_unchecked</i>
+    </span>
+    <span class="font-semibold inline-flex">{{ label }}</span>
+  </div>
 </template>
 
 <script>

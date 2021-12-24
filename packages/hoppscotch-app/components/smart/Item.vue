@@ -24,22 +24,22 @@
     >
       <i
         v-if="icon"
+        class="opacity-75 material-icons"
         :class="[
-          label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : '',
+          label ? (reverse ? 'ml-4' : 'mr-4') : '',
           { 'text-accent': active },
         ]"
-        class="material-icons"
       >
         {{ icon }}
       </i>
       <SmartIcon
         v-if="svg"
         :name="svg"
+        class="opacity-75 svg-icons"
         :class="[
-          label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : '',
+          label ? (reverse ? 'ml-4' : 'mr-4') : '',
           { 'text-accent': active },
         ]"
-        class="svg-icons"
       />
     </span>
     <SmartSpinner v-else class="mr-4 text-secondaryDark" />

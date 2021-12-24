@@ -166,6 +166,7 @@
                       ? 'radio_button_checked'
                       : 'radio_button_unchecked'
                   "
+                  :active="invitee.value === 'OWNER'"
                   @click.native="
                     () => {
                       updateNewInviteeRole(index, 'OWNER')
@@ -180,6 +181,7 @@
                       ? 'radio_button_checked'
                       : 'radio_button_unchecked'
                   "
+                  :active="invitee.value === 'EDITOR'"
                   @click.native="
                     () => {
                       updateNewInviteeRole(index, 'EDITOR')
@@ -194,6 +196,7 @@
                       ? 'radio_button_checked'
                       : 'radio_button_unchecked'
                   "
+                  :active="invitee.value === 'VIEWER'"
                   @click.native="
                     () => {
                       updateNewInviteeRole(index, 'VIEWER')

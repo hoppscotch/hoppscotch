@@ -97,6 +97,20 @@
                 }
               "
             />
+            <SmartItem
+              svg="gift"
+              :label="`${t('app.whats_new')}`"
+              to="https://docs.hoppscotch.io/changelog"
+              blank
+              @click.native="options.tippy().hide()"
+            />
+            <SmartItem
+              svg="activity"
+              :label="t('app.status')"
+              to="https://status.hoppscotch.io"
+              blank
+              @click.native="options.tippy().hide()"
+            />
             <hr />
             <SmartItem
               svg="github"
@@ -129,14 +143,6 @@
               blank
               @click.native="options.tippy().hide()"
             />
-            <SmartItem
-              svg="gift"
-              :label="`${t('app.whats_new')}`"
-              to="https://docs.hoppscotch.io/changelog"
-              blank
-              @click.native="options.tippy().hide()"
-            />
-            <!-- <SmartItem :label="t('app.status')" /> -->
             <div class="flex opacity-50 py-2 px-4">
               {{ `${t("app.name")} ${t("app.version")}` }}
             </div>

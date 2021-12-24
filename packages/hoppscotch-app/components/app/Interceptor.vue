@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col space-y-4 p-4 items-start">
+  <div class="flex flex-col space-y-4 p-4">
     <div class="flex flex-col">
-      <h2 class="inline-flex font-semibold text-secondaryDark pb-2">
+      <h2 class="inline-flex font-semibold text-secondaryDark pb-1">
         {{ t("settings.interceptor") }}
       </h2>
-      <p class="inline-flex">
+      <p class="inline-flex text-tiny">
         {{ t("settings.interceptor_description") }}
       </p>
     </div>

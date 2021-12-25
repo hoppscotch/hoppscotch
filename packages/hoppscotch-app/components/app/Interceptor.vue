@@ -13,6 +13,27 @@
       :selected="interceptorSelection"
       @change="toggleSettingKey"
     />
+    <div
+      v-if="interceptorSelection == 'EXTENSIONS_ENABLED' && !extensionVersion"
+      class="flex space-x-2"
+    >
+      <ButtonSecondary
+        to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+        blank
+        svg="brands/chrome"
+        label="Chrome"
+        outline
+        class="!flex-1"
+      />
+      <ButtonSecondary
+        to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+        blank
+        svg="brands/firefox"
+        label="Firefox"
+        outline
+        class="!flex-1"
+      />
+    </div>
   </div>
 </template>
 

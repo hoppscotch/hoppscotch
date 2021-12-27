@@ -29,12 +29,15 @@ import { jsonLanguage } from "@codemirror/lang-json"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import { StreamLanguage } from "@codemirror/stream-parser"
+import { html } from "@codemirror/legacy-modes/mode/xml"
 import { isJSONContentType } from "../utils/contenttypes"
 import { useStreamSubscriber } from "../utils/composables"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
 import { HoppEnvironmentPlugin } from "./extensions/HoppEnvironment"
+// TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
   mode: string
@@ -131,6 +134,8 @@ const getLanguage = (langMime: string): Language | null => {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
+  } else if (langMime === "htmlmixed") {
+    return StreamLanguage.define(html)
   }
 
   // None matched, so return null

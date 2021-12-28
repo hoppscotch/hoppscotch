@@ -20,6 +20,10 @@
       />
     </template>
     <template #body>
+      <div v-for="(step, index) in importerSteps" :key="`step-${index}`">
+        {{ step }}
+      </div>
+      <div v-if="importerType > 0">start steps</div>
       <div v-if="mode == 'import_export'" class="flex flex-col space-y-2 px-2">
         <SmartExpand>
           <template #body>
@@ -568,7 +572,7 @@ const importFromJSON = () => {
     }
 
     let collections = JSON.parse(content)
-    await hoppImporterOutput(content)
+    await importerAction(content)
 
     if (isInsomniaCollection(collections)) {
       collections = parseInsomniaCollection(content)
@@ -658,11 +662,12 @@ const exportJSON = () => {
   }, 1000)
 }
 
-const hoppImporter = RESTCollectionImporters[0]
+const importerType = ref(0)
+const importer = RESTCollectionImporters[importerType.value]
+const importerSteps = importer.steps
 
-const hoppImporterOutput = async (content: string) => {
-  const importedFunc = await hoppImporter.importer()
-  const result = await importedFunc(content)()
+const importerAction = async (content: string) => {
+  const result = await importer.importer([content])()
   if (E.isLeft(result)) {
     console.log("error", result.left)
   } else if (E.isRight(result)) {

@@ -115,6 +115,7 @@ export default defineComponent({
 
   methods: {
     handlePaste(ev) {
+      this.handleChange()
       this.$emit("paste", { event: ev, previousValue: this.internalValue })
     },
     handleChange() {

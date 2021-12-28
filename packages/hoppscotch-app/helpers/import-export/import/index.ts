@@ -1,6 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
 import { StepsOutputList } from "../steps"
-import HoppRESTCollImporter from "../import/hopp"
 
 /**
  * The error state to be used when the file formats do not match
@@ -46,5 +45,3 @@ export const defineImporter = <ReturnType, StepType>(input: {
     ...input,
   }
 }
-
-export const RESTCollectionImporters = [HoppRESTCollImporter] as const

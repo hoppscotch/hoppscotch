@@ -178,7 +178,7 @@ import {
   Collection,
   makeCollection,
 } from "~/newstore/collections"
-import { RESTCollectionImporters } from "~/helpers/import-export/import"
+import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 
 const props = defineProps<{
   show: boolean
@@ -663,11 +663,11 @@ const exportJSON = () => {
 }
 
 const importerType = ref(0)
-const importer = RESTCollectionImporters[importerType.value]
-const importerSteps = importer.steps
+const importerModule = RESTCollectionImporters[importerType.value]
+const importerSteps = importerModule.steps
 
 const importerAction = async (content: string) => {
-  const result = await importer.importer([content])()
+  const result = await importerModule.importer([content])()
   if (E.isLeft(result)) {
     console.log("error", result.left)
   } else if (E.isRight(result)) {

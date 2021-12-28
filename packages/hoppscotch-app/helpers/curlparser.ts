@@ -82,6 +82,9 @@ const parseCurlCommand = (curlCommand: string) => {
   curlCommand = curlCommand.replace(/ -XDELETE/, " -X DELETE")
   curlCommand = curlCommand.trim()
   const parsedArguments = parser(curlCommand)
+
+  const rawData = parsedArguments.dataRaw || parsedArguments["data-raw"]
+
   let cookieString
   let cookies
   let url = parsedArguments._[1]
@@ -187,6 +190,21 @@ const parseCurlCommand = (curlCommand: string) => {
     method = "get"
   }
 
+  let body = ""
+
+  if (rawData) {
+    try {
+      const tempBody = JSON.parse(rawData)
+      if (tempBody) {
+        body = JSON.stringify(tempBody, null, 2)
+      }
+    } catch (e) {
+      console.error(
+        "Error parsing JSON data. Please ensure that the data is valid JSON."
+      )
+    }
+  }
+
   const compressed = !!parsedArguments.compressed
   let urlObject = URL.parse(url) // eslint-disable-line
 
@@ -227,6 +245,7 @@ const parseCurlCommand = (curlCommand: string) => {
     query,
     headers,
     method,
+    body,
     cookies,
     cookieString: cookieString?.replace("Cookie: ", ""),
     multipartUploads,

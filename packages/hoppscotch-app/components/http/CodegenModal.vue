@@ -13,21 +13,23 @@
           <template #trigger>
             <span class="select-wrapper">
               <ButtonSecondary
-                :label="codegens.find((x) => x.id === codegenType).name"
+                :label="
+                  CodegenDefinitions.find((x) => x.name === codegenType).caption
+                "
                 outline
                 class="flex-1 pr-8"
               />
             </span>
           </template>
           <SmartItem
-            v-for="(gen, index) in codegens"
-            :key="`gen-${index}`"
-            :label="gen.name"
-            :info-icon="gen.id === codegenType ? 'done' : ''"
-            :active-info-icon="gen.id === codegenType"
+            v-for="codegen in CodegenDefinitions"
+            :key="codegen.name"
+            :label="codegen.caption"
+            :info-icon="codegen.name === codegenType ? 'done' : ''"
+            :active-info-icon="codegen.name === codegenType"
             @click.native="
               () => {
-                codegenType = gen.id
+                codegenType = codegen.name
                 options.tippy().hide()
               }
             "
@@ -63,13 +65,18 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
-import { codegens, generateCodegenContext } from "~/helpers/codegen/codegen"
+import * as O from "fp-ts/Option"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
 import { getCurrentEnvironment } from "~/newstore/environments"
 import { getRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
+import {
+  CodegenDefinitions,
+  CodegenName,
+  generateCode,
+} from "~/helpers/new-codegen"
 
 const t = useI18n()
 
@@ -86,7 +93,7 @@ const toast = useToast()
 const options = ref<any | null>(null)
 
 const request = ref(getRESTRequest())
-const codegenType = ref("curl")
+const codegenType = ref<CodegenName>("shell-curl")
 const copyIcon = ref("copy")
 
 const requestCode = computed(() => {
@@ -95,9 +102,14 @@ const requestCode = computed(() => {
     getCurrentEnvironment()
   )
 
-  return codegens
-    .find((x) => x.id === codegenType.value)!
-    .generator(generateCodegenContext(effectiveRequest))
+  const result = generateCode(codegenType.value, effectiveRequest)
+
+  if (O.isSome(result)) {
+    return result.value
+  } else {
+    // TODO: Error logic?
+    return ""
+  }
 })
 
 const generatedCode = ref<any | null>(null)

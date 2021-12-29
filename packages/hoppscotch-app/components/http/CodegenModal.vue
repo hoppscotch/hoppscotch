@@ -41,7 +41,13 @@
           </label>
         </div>
         <div
-          v-if="codegenType"
+          v-if="!requestCode"
+          class="bg-primaryLight rounded font-mono w-full py-2 px-4 text-red-400 overflow-auto whitespace-normal"
+        >
+          {{ t("error.something_went_wrong") }}
+        </div>
+        <div
+          v-else-if="codegenType"
           ref="generatedCode"
           class="border rounded border-dividerLight"
         ></div>

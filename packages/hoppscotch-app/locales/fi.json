@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Joukkomuokkaus",
-    "bulk_mode_placeholder": "Merkinnät erotetaan rivillä\nAvaimet ja arvot erotetaan toisistaan:\nEsitä // mihin tahansa riviin, jonka haluat lisätä, mutta pidä poissa käytöstä",
+    "bulk_mode_placeholder": "Merkinnät erotetaan rivillä\nAvaimet ja arvot erotetaan toisistaan:\nEsitä # mihin tahansa riviin, jonka haluat lisätä, mutta pidä poissa käytöstä",
     "cleared": "Selvitetty",
     "connected": "Yhdistetty",
     "connected_to": "Yhdistetty kohteeseen {name}",

@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Grootmaatbewerking",
-    "bulk_mode_placeholder": "Inskrywings word geskei deur nuwe lyn\nSleutels en waardes word geskei deur:\nStel // voor op enige ry wat u wil byvoeg, maar hou dit uitgeskakel",
+    "bulk_mode_placeholder": "Inskrywings word geskei deur nuwe lyn\nSleutels en waardes word geskei deur:\nStel # voor op enige ry wat u wil byvoeg, maar hou dit uitgeskakel",
     "cleared": "Uitgevee",
     "connected": "Koppel",
     "connected_to": "Gekoppel aan {naam}",

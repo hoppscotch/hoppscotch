@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Edición masiva",
-    "bulk_mode_placeholder": "Las entradas están separadas por una nueva línea\nLas claves y los valores están separados por:\nAnteponer // a cualquier fila que desee agregar pero mantener deshabilitada",
+    "bulk_mode_placeholder": "Las entradas están separadas por una nueva línea\nLas claves y los valores están separados por:\nAnteponer # a cualquier fila que desee agregar pero mantener deshabilitada",
     "cleared": "Despejado",
     "connected": "Conectado",
     "connected_to": "Conectado a {name}",

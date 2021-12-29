@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Editare în bloc",
-    "bulk_mode_placeholder": "Intrările sunt separate prin linie nouă\nCheile și valorile sunt separate prin:\nPrepend // la orice rând pe care doriți să îl adăugați, dar păstrați-l dezactivat",
+    "bulk_mode_placeholder": "Intrările sunt separate prin linie nouă\nCheile și valorile sunt separate prin:\nPrepend # la orice rând pe care doriți să îl adăugați, dar păstrați-l dezactivat",
     "cleared": "Eliminat",
     "connected": "Conectat",
     "connected_to": "Conectat la {name}",

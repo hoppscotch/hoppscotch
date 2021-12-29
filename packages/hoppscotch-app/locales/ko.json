@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "일괄 수정",
-    "bulk_mode_placeholder": "항목은 줄 바꿈으로 구분됩니다.\n키와 값은 다음으로 구분됩니다.\n// 추가하고 싶지만 비활성화된 상태로 유지되는 행에 추가",
+    "bulk_mode_placeholder": "항목은 줄 바꿈으로 구분됩니다.\n키와 값은 다음으로 구분됩니다.\n# 추가하고 싶지만 비활성화된 상태로 유지되는 행에 추가",
     "cleared": "클리어",
     "connected": "연결됨",
     "connected_to": "{name}에 연결됨",

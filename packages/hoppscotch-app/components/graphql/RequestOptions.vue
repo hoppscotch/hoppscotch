@@ -323,9 +323,9 @@ const bulkHeaders = ref("")
 watch(bulkHeaders, () => {
   try {
     const transformation = bulkHeaders.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^#/, ""),
       value: item.substring(item.indexOf(":") + 1).trim(),
-      active: !item.trim().startsWith("//"),
+      active: !item.trim().startsWith("#"),
     }))
     setGQLHeaders(transformation as GQLHeader[])
   } catch (e) {
@@ -414,8 +414,8 @@ const editBulkHeadersLine = (index: number, item?: GQLHeader | null) => {
     .reduce((all, header, pIndex) => {
       const current =
         index === pIndex && item != null
-          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
-          : `${header.active ? "" : "//"}${header.key}: ${header.value}`
+          ? `${item.active ? "" : "#"}${item.key}: ${item.value}`
+          : `${header.active ? "" : "#"}${header.key}: ${header.value}`
       return [...all, current]
     }, [] as string[])
     .join("\n")

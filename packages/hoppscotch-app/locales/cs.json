@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Hromadná úprava",
-    "bulk_mode_placeholder": "Záznamy jsou odděleny novým řádkem\nKlíče a hodnoty jsou odděleny:\nPředřadte // do libovolného řádku, který chcete přidat, ale ponechte jej deaktivovaný",
+    "bulk_mode_placeholder": "Záznamy jsou odděleny novým řádkem\nKlíče a hodnoty jsou odděleny:\nPředřadte # do libovolného řádku, který chcete přidat, ale ponechte jej deaktivovaný",
     "cleared": "Vymazáno",
     "connected": "Připojeno",
     "connected_to": "Připojeno k {name}",

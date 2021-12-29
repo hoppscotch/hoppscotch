@@ -133,7 +133,7 @@ const handleImport = () => {
         },
         body: {
           contentType: "application/json",
-          body: body,
+          body,
         },
       })
     )

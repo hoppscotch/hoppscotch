@@ -73,6 +73,7 @@ const parseCurlCommand = (curlCommand: string) => {
   curlCommand = curlCommand.replace(/--request /, "-X ")
   curlCommand = curlCommand.replace(/--header /, "-H ")
   curlCommand = curlCommand.replace(/--url /, " ")
+  curlCommand = curlCommand.replace(/-d /, "--data ")
 
   // yargs parses -XPOST as separate arguments. just prescreen for it.
   curlCommand = curlCommand.replace(/ -XPOST/, " -X POST")
@@ -83,7 +84,10 @@ const parseCurlCommand = (curlCommand: string) => {
   curlCommand = curlCommand.trim()
   const parsedArguments = parser(curlCommand)
 
-  const rawData = parsedArguments.dataRaw || parsedArguments["data-raw"]
+  const rawData =
+    parsedArguments.data ||
+    parsedArguments.dataRaw ||
+    parsedArguments["data-raw"]
 
   let cookieString
   let cookies

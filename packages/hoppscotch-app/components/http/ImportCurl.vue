@@ -84,6 +84,7 @@ const handleImport = () => {
     const endpoint = origin + pathname
     const headers: HoppRESTHeader[] = []
     const params: HoppRESTParam[] = []
+    const body = parsedCurl.body
     if (parsedCurl.query) {
       for (const key of Object.keys(parsedCurl.query)) {
         const val = parsedCurl.query[key]!
@@ -114,6 +115,7 @@ const handleImport = () => {
         })
       }
     }
+
     const method = parsedCurl.method.toUpperCase()
 
     setRESTRequest(
@@ -131,7 +133,7 @@ const handleImport = () => {
         },
         body: {
           contentType: "application/json",
-          body: "",
+          body,
         },
       })
     )

@@ -237,6 +237,7 @@
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
     "json": "Import from file",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Import"
   },
   "layout": {

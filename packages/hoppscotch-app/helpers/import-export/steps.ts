@@ -6,7 +6,7 @@ export type StepDefinition = {
   FILE_OR_URL_IMPORT: {
     returnType: string
     metadata: {
-      acceptedFileTypes: string[]
+      acceptedFileTypes: string
     }
   } // String content of the file/url
   TARGET_MY_COLLECTION: {

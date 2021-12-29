@@ -7,6 +7,13 @@
   >
     <template #actions>
       <ButtonSecondary
+        v-if="importerType > 0"
+        v-tippy="{ theme: 'tooltip' }"
+        :title="t('action.go_back')"
+        svg="arrow-left"
+        @click.native="importerType = 0"
+      />
+      <ButtonSecondary
         v-if="mode == 'import_from_my_collections'"
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.go_back')"
@@ -20,24 +27,38 @@
       />
     </template>
     <template #body>
-      <div v-for="(step, index) in importerSteps" :key="`step-${index}`">
-        {{ step }}
+      <div v-if="importerType > 0" class="flex flex-col px-2">
+        <div v-for="(step, index) in importerSteps" :key="`step-${index}`">
+          <div
+            v-if="step.name === 'FILE_OR_URL_IMPORT'"
+            class="flex space-y-4 flex-col"
+          >
+            <p>{{ t("import.json_description") }}</p>
+            <label for="inputChooseFileToImportFrom" class="bg-pink-200">
+              bbb
+            </label>
+            <SmartIcon name="upload" />
+            {{ t("action.choose_file") }}
+            <input
+              id="inputChooseFileToImportFrom"
+              ref="inputChooseFileToImportFrom"
+              name="inputChooseFileToImportFrom"
+              class="input"
+              type="file"
+              :accept="step.metadata.acceptedFileTypes"
+              @change="importFromJSON"
+            />
+            <ButtonPrimary :label="t('import.title')" />
+          </div>
+        </div>
       </div>
-      <div v-if="importerType > 0">start steps</div>
-      <div v-if="mode == 'import_export'" class="flex flex-col space-y-2 px-2">
+      <div v-else class="flex flex-col px-2">
         <SmartExpand>
           <template #body>
             <SmartItem
               svg="folder-plus"
               :label="t('import.json')"
-              @click.native="openDialogChooseFileToImportFrom"
-            />
-            <input
-              ref="inputChooseFileToImportFrom"
-              class="input"
-              type="file"
-              accept="application/json"
-              @change="importFromJSON"
+              @click.native="importerType = 1"
             />
             <SmartItem
               v-if="collectionsType.type == 'team-collections'"
@@ -60,51 +81,44 @@
             <SmartItem svg="file" :label="t('import.from_openapi')" />
             <SmartItem svg="insomnia" :label="t('import.from_insomnia')" />
             <SmartItem svg="postman" :label="t('import.from_postman')" />
-            <input
-              ref="inputChooseFileToReplaceWith"
-              class="input"
-              type="file"
-              accept="application/json"
-              @change="replaceWithJSON"
+            <hr />
+            <SmartItem
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.download_file')"
+              svg="download"
+              :label="t('export.as_json')"
+              @click.native="exportJSON"
             />
+            <span
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                !currentUser
+                  ? `${t('export.require_github')}`
+                  : currentUser.provider !== 'github.com'
+                  ? `${t('export.require_github')}`
+                  : undefined
+              "
+              class="flex"
+            >
+              <SmartItem
+                :disabled="
+                  !currentUser
+                    ? true
+                    : currentUser.provider !== 'github.com'
+                    ? true
+                    : false
+                "
+                svg="github"
+                :label="t('export.create_secret_gist')"
+                @click.native="
+                  () => {
+                    createCollectionGist()
+                  }
+                "
+              />
+            </span>
           </template>
         </SmartExpand>
-        <hr />
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
-          svg="download"
-          :label="t('export.as_json')"
-          @click.native="exportJSON"
-        />
-        <span
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
-            !currentUser
-              ? `${t('export.require_github')}`
-              : currentUser.provider !== 'github.com'
-              ? `${t('export.require_github')}`
-              : undefined
-          "
-          class="flex"
-        >
-          <SmartItem
-            :disabled="
-              !currentUser
-                ? true
-                : currentUser.provider !== 'github.com'
-                ? true
-                : false
-            "
-            svg="github"
-            :label="t('export.create_secret_gist')"
-            @click.native="
-              () => {
-                createCollectionGist()
-              }
-            "
-          />
-        </span>
       </div>
       <div
         v-if="mode == 'import_from_my_collections'"
@@ -208,7 +222,6 @@ const mySelectedCollectionID = ref(undefined)
 const collectionJson = ref("")
 
 // Template refs
-const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const getJSONCollection = async () => {
@@ -300,16 +313,6 @@ const hideModal = () => {
   mode.value = "import_export"
   mySelectedCollectionID.value = undefined
   emit("hide-modal")
-}
-
-// const openDialogChooseFileToReplaceWith = () => {
-//   if (inputChooseFileToReplaceWith.value)
-//     inputChooseFileToReplaceWith.value.click()
-// }
-
-const openDialogChooseFileToImportFrom = () => {
-  if (inputChooseFileToImportFrom.value)
-    inputChooseFileToImportFrom.value.click()
 }
 
 const hasFolder = (item: { item?: any }) => {
@@ -476,68 +479,6 @@ const parsePostmanRequest = ({
     }
   }
   return translateToNewRequest(pwRequest)
-}
-
-const replaceWithJSON = () => {
-  if (!inputChooseFileToReplaceWith.value) return
-
-  if (
-    !inputChooseFileToReplaceWith.value.files ||
-    inputChooseFileToReplaceWith.value.files.length === 0
-  ) {
-    toast.show(t("action.choose_file").toString())
-    return
-  }
-
-  const reader = new FileReader()
-
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-
-    if (!content) {
-      toast.show(t("action.choose_file").toString())
-      return
-    }
-
-    let collections = JSON.parse(content)
-
-    // TODO: File validation
-    if (collections[0]) {
-      const [name, folders, requests] = Object.keys(collections[0])
-      if (name === "name" && folders === "folders" && requests === "requests") {
-        // Do nothing
-      }
-    } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
-      collections = [parsePostmanCollection(collections)]
-    } else {
-      failedImport()
-    }
-    if (props.collectionsType.type === "team-collections") {
-      teamUtils
-        .replaceWithJSON(
-          apolloClient,
-          collections,
-          props.collectionsType.selectedTeam.id
-        )
-        .then((status) => {
-          if (status) {
-            fileImported()
-          } else {
-            failedImport()
-          }
-        })
-        .catch((e) => {
-          console.error(e)
-          failedImport()
-        })
-    } else {
-      setRESTCollections(collections)
-      fileImported()
-    }
-  }
-
-  reader.readAsText(inputChooseFileToReplaceWith.value.files[0])
-  inputChooseFileToReplaceWith.value.value = ""
 }
 
 const isInsomniaCollection = (collection: any) => {

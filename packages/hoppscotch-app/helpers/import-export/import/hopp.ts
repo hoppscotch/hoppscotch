@@ -11,7 +11,7 @@ export default defineImporter({
     step({
       stepName: "FILE_OR_URL_IMPORT",
       metadata: {
-        acceptedFileTypes: ["application/json"],
+        acceptedFileTypes: "application/json",
       },
     }),
   ] as const,

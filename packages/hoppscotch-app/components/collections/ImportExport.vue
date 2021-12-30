@@ -34,11 +34,13 @@
             class="flex space-y-4 flex-col"
           >
             <p>{{ t("import.json_description") }}</p>
-            <label for="inputChooseFileToImportFrom" class="bg-pink-200">
-              bbb
+            <label
+              for="inputChooseFileToImportFrom"
+              class="cursor-pointer text-secondary hover:text-secondaryDark focus-visible:text-secondaryDark border border-divider hover:border-dividerDark focus-visible:border-dividerDark rounded px-4 font-semibold py-2 transition inline-flex items-center justify-center whitespace-nowrap focus:outline-none"
+            >
+              <SmartIcon class="svg-icons mr-2" name="upload" />
+              {{ fileName || t("action.choose_file") }}
             </label>
-            <SmartIcon name="upload" />
-            {{ t("action.choose_file") }}
             <input
               id="inputChooseFileToImportFrom"
               ref="inputChooseFileToImportFrom"
@@ -48,7 +50,10 @@
               :accept="step.metadata.acceptedFileTypes"
               @change="importFromJSON"
             />
-            <ButtonPrimary :label="t('import.title')" />
+            <ButtonPrimary
+              :label="t('import.title')"
+              @click.native="finishImport"
+            />
           </div>
         </div>
       </div>
@@ -186,9 +191,9 @@ import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
 import { parseInsomniaCollection } from "~/helpers/utils/parseInsomniaCollection"
 import {
+  appendRESTCollections,
   restCollections$,
   setRESTCollections,
-  appendRESTCollections,
   Collection,
   makeCollection,
 } from "~/newstore/collections"
@@ -217,12 +222,12 @@ const t = useI18n()
 const myCollections = useReadonlyStream(restCollections$, [])
 const currentUser = useReadonlyStream(currentUser$, null)
 
+// Template refs
 const mode = ref("import_export")
 const mySelectedCollectionID = ref(undefined)
 const collectionJson = ref("")
-
-// Template refs
-const inputChooseFileToImportFrom = ref<HTMLInputElement>()
+const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
+const fileName = ref<string>("")
 
 const getJSONCollection = async () => {
   if (props.collectionsType.type === "my-collections") {
@@ -314,6 +319,8 @@ const hideModal = () => {
   mySelectedCollectionID.value = undefined
   emit("hide-modal")
 }
+
+const stepsValue = ref<string[]>([])
 
 const hasFolder = (item: { item?: any }) => {
   return Object.prototype.hasOwnProperty.call(item, "item")
@@ -492,19 +499,22 @@ const isInsomniaCollection = (collection: any) => {
 }
 
 const importFromJSON = () => {
-  if (!inputChooseFileToImportFrom.value) return
+  if (!inputChooseFileToImportFrom.value[0]) return
 
   if (
-    !inputChooseFileToImportFrom.value.files ||
-    inputChooseFileToImportFrom.value.files.length === 0
+    !inputChooseFileToImportFrom.value[0].files ||
+    inputChooseFileToImportFrom.value[0].files.length === 0
   ) {
+    inputChooseFileToImportFrom.value[0].value = ""
     toast.show(t("action.choose_file").toString())
     return
   }
 
+  fileName.value = inputChooseFileToImportFrom.value[0].files[0].name
+
   const reader = new FileReader()
 
-  reader.onload = async ({ target }) => {
+  reader.onload = ({ target }) => {
     let content = target!.result as string | null
 
     if (!content) {
@@ -513,7 +523,7 @@ const importFromJSON = () => {
     }
 
     let collections = JSON.parse(content)
-    await importerAction(content)
+    stepsValue.value.push(content)
 
     if (isInsomniaCollection(collections)) {
       collections = parseInsomniaCollection(content)
@@ -552,12 +562,11 @@ const importFromJSON = () => {
           failedImport()
         })
     } else {
-      appendRESTCollections(collections)
       fileImported()
     }
   }
-  reader.readAsText(inputChooseFileToImportFrom.value.files[0])
-  inputChooseFileToImportFrom.value.value = ""
+  reader.readAsText(inputChooseFileToImportFrom.value[0].files[0])
+  inputChooseFileToImportFrom.value[0].value = ""
 }
 
 const importFromMyCollections = () => {
@@ -607,12 +616,25 @@ const importerType = ref(0)
 const importerModule = RESTCollectionImporters[importerType.value]
 const importerSteps = importerModule.steps
 
+const finishImport = async () => {
+  await importerAction(stepsValue.value[0])
+    .then(() => {
+      fileImported()
+    })
+    .catch(() => {
+      failedImport()
+    })
+}
+
 const importerAction = async (content: string) => {
   const result = await importerModule.importer([content])()
   if (E.isLeft(result)) {
     console.log("error", result.left)
+    toast.error(t("error.something_went_wrong").toString())
   } else if (E.isRight(result)) {
+    appendRESTCollections(result.right)
     console.log("success", result)
+    toast.success(t("state.file_imported").toString())
   }
 }
 </script>

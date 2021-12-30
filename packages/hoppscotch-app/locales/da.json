@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Masseredigering",
-    "bulk_mode_placeholder": "Indlæg adskilles med ny linje\nNøgler og værdier adskilles af:\nForbered // til enhver række, du vil tilføje, men behold den deaktiveret",
+    "bulk_mode_placeholder": "Indlæg adskilles med ny linje\nNøgler og værdier adskilles af:\nForbered # til enhver række, du vil tilføje, men behold den deaktiveret",
     "cleared": "Ryddet",
     "connected": "Tilsluttet",
     "connected_to": "Forbundet til {name}",

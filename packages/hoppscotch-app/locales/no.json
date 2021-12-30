@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Masse redigering",
-    "bulk_mode_placeholder": "Oppføringer skilles med ny linje\nNøkler og verdier er atskilt med:\nForbered // til hvilken som helst rad du vil legge til, men behold den deaktivert",
+    "bulk_mode_placeholder": "Oppføringer skilles med ny linje\nNøkler og verdier er atskilt med:\nForbered # til hvilken som helst rad du vil legge til, men behold den deaktivert",
     "cleared": "Ryddet",
     "connected": "Tilkoblet",
     "connected_to": "Koblet til {name}",

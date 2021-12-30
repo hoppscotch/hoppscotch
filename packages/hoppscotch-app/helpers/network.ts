@@ -147,7 +147,7 @@ export function createRESTNetworkRequestStream(
     TE.bind("res", ({ req, headers, params }) =>
       runAppropriateStrategy({
         method: req.method as any,
-        url: req.effectiveFinalURL,
+        url: req.effectiveFinalURL.trim(),
         headers,
         params,
         data: req.effectiveFinalBody,

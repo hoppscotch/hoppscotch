@@ -169,9 +169,9 @@ const bulkParams = ref("")
 watch(bulkParams, () => {
   try {
     const transformation = bulkParams.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^#/, ""),
       value: item.substring(item.indexOf(":") + 1).trim(),
-      active: !item.trim().startsWith("//"),
+      active: !item.trim().startsWith("#"),
     }))
     setRESTParams(transformation as HoppRESTParam[])
   } catch (e) {
@@ -211,14 +211,12 @@ watch(
 onBeforeUpdate(() => editBulkParamsLine(-1, null))
 
 const editBulkParamsLine = (index: number, item?: HoppRESTParam | null) => {
-  const params = params$.value
-
-  bulkParams.value = params
+  bulkParams.value = params$.value
     .reduce((all, param, pIndex) => {
       const current =
         index === pIndex && item != null
-          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
-          : `${param.active ? "" : "//"}${param.key}: ${param.value}`
+          ? `${item.active ? "" : "#"}${item.key}: ${item.value}`
+          : `${param.active ? "" : "#"}${param.key}: ${param.value}`
       return [...all, current]
     }, [])
     .join("\n")

@@ -15,16 +15,16 @@
   >
     <i
       v-if="icon"
-      :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
-      class="material-icons"
+      class="opacity-75 material-icons"
+      :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     >
       {{ icon }}
     </i>
     <SmartIcon
       v-if="svg"
       :name="svg"
-      :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
-      class="svg-icons"
+      class="opacity-75 svg-icons"
+      :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     />
     {{ label }}
   </SmartLink>

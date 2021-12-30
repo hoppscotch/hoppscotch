@@ -130,23 +130,23 @@
             <div class="flex flex-col space-y-2 py-4">
               <span>
                 <SmartItem
-                  to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
-                  blank
-                  svg="brands/firefox"
-                  label="Firefox"
-                  :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
-                  :active-info-icon="hasFirefoxExtInstalled"
-                  outline
-                />
-              </span>
-              <span>
-                <SmartItem
                   to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
                   blank
                   svg="brands/chrome"
                   label="Chrome"
                   :info-icon="hasChromeExtInstalled ? 'check_circle' : ''"
                   :active-info-icon="hasChromeExtInstalled"
+                  outline
+                />
+              </span>
+              <span>
+                <SmartItem
+                  to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+                  blank
+                  svg="brands/firefox"
+                  label="Firefox"
+                  :info-icon="hasFirefoxExtInstalled ? 'check_circle' : ''"
+                  :active-info-icon="hasFirefoxExtInstalled"
                   outline
                 />
               </span>

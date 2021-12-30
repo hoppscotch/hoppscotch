@@ -277,6 +277,7 @@ const createCollectionGist = async () => {
 
 const fileImported = () => {
   toast.success(t("state.file_imported").toString())
+  hideModal()
 }
 
 const failedImport = () => {
@@ -403,6 +404,10 @@ const parsePostmanRequest = ({
     headers: [] as { name?: string; type?: string }[],
     params: [] as { disabled?: boolean }[],
     bodyParams: [] as { type?: string }[],
+    body: {
+      body: "",
+      contentType: "application/json",
+    },
     rawParams: "",
     rawInput: false,
     contentType: "",
@@ -418,31 +423,40 @@ const parsePostmanRequest = ({
     if (requestObjectUrl) {
       pwRequest.url = requestObjectUrl[1]
       pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
+    } else {
+      pwRequest.url = request.url.raw
     }
   }
+
   pwRequest.method = request.method
   const itemAuth = request.auth ? request.auth : ""
   const authType = itemAuth ? itemAuth.type : ""
-  if (authType === "basic") {
-    pwRequest.auth = "Basic Auth"
-    pwRequest.httpUser =
-      itemAuth.basic[0].key === "username"
-        ? itemAuth.basic[0].value
-        : itemAuth.basic[1].value
-    pwRequest.httpPassword =
-      itemAuth.basic[0].key === "password"
-        ? itemAuth.basic[0].value
-        : itemAuth.basic[1].value
-  } else if (authType === "oauth2") {
-    pwRequest.auth = "OAuth 2.0"
-    pwRequest.bearerToken =
-      itemAuth.oauth2[0].key === "accessToken"
-        ? itemAuth.oauth2[0].value
-        : itemAuth.oauth2[1].value
-  } else if (authType === "bearer") {
-    pwRequest.auth = "Bearer Token"
-    pwRequest.bearerToken = itemAuth.bearer[0].value
+
+  try {
+    if (authType === "basic") {
+      pwRequest.auth = "Basic Auth"
+      pwRequest.httpUser =
+        itemAuth.basic[0].key === "username"
+          ? itemAuth.basic[0].value
+          : itemAuth.basic[1].value
+      pwRequest.httpPassword =
+        itemAuth.basic[0].key === "password"
+          ? itemAuth.basic[0].value
+          : itemAuth.basic[1].value
+    } else if (authType === "oauth2") {
+      pwRequest.auth = "OAuth 2.0"
+      pwRequest.bearerToken =
+        itemAuth.oauth2[0].key === "accessToken"
+          ? itemAuth.oauth2[0].value
+          : itemAuth.oauth2[1].value
+    } else if (authType === "bearer") {
+      pwRequest.auth = "Bearer Token"
+      pwRequest.bearerToken = itemAuth.bearer[0].value
+    }
+  } catch (error) {
+    console.error(error)
   }
+
   const requestObjectHeaders = request.header
   if (requestObjectHeaders) {
     pwRequest.headers = requestObjectHeaders
@@ -470,6 +484,12 @@ const parsePostmanRequest = ({
     } else if (request.body.mode === "raw") {
       pwRequest.rawInput = true
       pwRequest.rawParams = request.body.raw
+      try {
+        const body = JSON.parse(request.body.raw)
+        pwRequest.body.body = JSON.stringify(body, null, 2)
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
   return translateToNewRequest(pwRequest)

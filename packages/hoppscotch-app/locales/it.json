@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Modifica in blocco",
-    "bulk_mode_placeholder": "Le voci sono separate tramite Invio\nChiavi e valori sono separati da:\nAnteponi // a qualsiasi riga che desideri aggiungere ma lasciare disabilitata",
+    "bulk_mode_placeholder": "Le voci sono separate tramite Invio\nChiavi e valori sono separati da:\nAnteponi # a qualsiasi riga che desideri aggiungere ma lasciare disabilitata",
     "cleared": "Cancellato",
     "connected": "Connesso",
     "connected_to": "Connesso a {nome}",

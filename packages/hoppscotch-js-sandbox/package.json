@@ -35,16 +35,16 @@
   "dependencies": {
     "fp-ts": "^2.11.5",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.13.0"
+    "quickjs-emscripten": "^0.15.0"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.1",
     "@relmify/jest-fp-ts": "^1.1.1",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
-    "@types/node": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.7.0",
-    "@typescript-eslint/parser": "^5.7.0",
+    "@types/node": "^17.0.5",
+    "@typescript-eslint/eslint-plugin": "^5.8.0",
+    "@typescript-eslint/parser": "^5.8.0",
     "eslint": "^8.5.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

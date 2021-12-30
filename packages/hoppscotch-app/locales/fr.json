@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Modification groupée",
-    "bulk_mode_placeholder": "Les entrées sont séparées par une nouvelle ligne\nLes clés et les valeurs sont séparées par :\nAjoutez // à n'importe quelle ligne que vous souhaitez ajouter mais garder désactivée",
+    "bulk_mode_placeholder": "Les entrées sont séparées par une nouvelle ligne\nLes clés et les valeurs sont séparées par :\nAjoutez # à n'importe quelle ligne que vous souhaitez ajouter mais garder désactivée",
     "cleared": "Effacé",
     "connected": "Connecté",
     "connected_to": "Connecté à {nom}",

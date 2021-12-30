@@ -188,9 +188,9 @@ useCodemirror(bulkEditor, bulkHeaders, {
 watch(bulkHeaders, () => {
   try {
     const transformation = bulkHeaders.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^#/, ""),
       value: item.substring(item.indexOf(":") + 1).trim(),
-      active: !item.trim().startsWith("//"),
+      active: !item.trim().startsWith("#"),
     }))
     setRESTHeaders(transformation as HoppRESTHeader[])
   } catch (e) {
@@ -218,14 +218,12 @@ watch(
 onBeforeUpdate(() => editBulkHeadersLine(-1, null))
 
 const editBulkHeadersLine = (index: number, item?: HoppRESTHeader | null) => {
-  const headers = headers$.value
-
-  bulkHeaders.value = headers
+  bulkHeaders.value = headers$.value
     .reduce((all, header, pIndex) => {
       const current =
         index === pIndex && item != null
-          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
-          : `${header.active ? "" : "//"}${header.key}: ${header.value}`
+          ? `${item.active ? "" : "#"}${item.key}: ${item.value}`
+          : `${header.active ? "" : "#"}${header.key}: ${header.value}`
       return [...all, current]
     }, [])
     .join("\n")

@@ -444,7 +444,7 @@
   },
   "state": {
     "bulk_mode": "Massredigering",
-    "bulk_mode_placeholder": "Posterna separeras med ny rad\nNycklar och värden separeras med:\nFörbered // till vilken rad du vill lägga till men behåll inaktiverad",
+    "bulk_mode_placeholder": "Posterna separeras med ny rad\nNycklar och värden separeras med:\nFörbered # till vilken rad du vill lägga till men behåll inaktiverad",
     "cleared": "Rensat",
     "connected": "Ansluten",
     "connected_to": "Ansluten till {name}",

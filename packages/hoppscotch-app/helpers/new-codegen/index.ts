@@ -204,7 +204,9 @@ export const generateCode = (
       // Returns a string if valid, false if not
       new HTTPSnippet({
         ...buildHarRequest(req),
-      }).convert(codegenInfo.lang, codegenInfo.mode)
+      }).convert(codegenInfo.lang, codegenInfo.mode, {
+        indent: "  ",
+      })
     ),
 
     // Only allow string output to pass through, else none

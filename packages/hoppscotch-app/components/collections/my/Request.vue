@@ -7,6 +7,7 @@
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
@@ -16,7 +17,7 @@
         <SmartIcon
           v-if="isSelected"
           class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
+          :class="{ 'text-accent': isSelected }"
           name="check-circle"
         />
         <span v-else class="truncate">
@@ -27,7 +28,9 @@
         class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition items-center group-hover:text-secondaryDark"
         @click="!doc ? selectRequest() : {}"
       >
-        <span class="truncate"> {{ request.name }} </span>
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
+          {{ request.name }}
+        </span>
         <span
           v-if="
             active &&
@@ -35,8 +38,18 @@
             active.folderPath === folderPath &&
             active.requestIndex === requestIndex
           "
-          class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
-        ></span>
+          v-tippy="{ theme: 'tooltip' }"
+          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+          :title="`${$t('collection.request_in_use')}`"
+        >
+          <span
+            class="absolute animate-ping inline-flex flex-shrink-0 h-full w-full rounded-full bg-green-500 opacity-75"
+          >
+          </span>
+          <span
+            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+          ></span>
+        </span>
       </span>
       <div class="flex">
         <ButtonSecondary
@@ -54,6 +67,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -62,45 +76,66 @@
                 svg="more-vertical"
               />
             </template>
-            <SmartItem
-              svg="edit"
-              :label="$t('action.edit')"
-              @click.native="
-                $emit('edit-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
-              "
-            />
-            <SmartItem
-              svg="copy"
-              :label="$t('action.duplicate')"
-              @click.native="
-                $emit('duplicate-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
-              "
-            />
-            <SmartItem
-              svg="trash-2"
-              color="red"
-              :label="$t('action.delete')"
-              @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
-              "
-            />
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.e="edit.$el.click()"
+              @keyup.d="duplicate.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
+            >
+              <SmartItem
+                ref="edit"
+                svg="edit"
+                :label="$t('action.edit')"
+                :shortcut="['E']"
+                @click.native="
+                  () => {
+                    $emit('edit-request', {
+                      collectionIndex,
+                      folderIndex,
+                      folderName,
+                      request,
+                      requestIndex,
+                      folderPath,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="duplicate"
+                svg="copy"
+                :label="$t('action.duplicate')"
+                :shortcut="['D']"
+                @click.native="
+                  () => {
+                    $emit('duplicate-request', {
+                      collectionIndex,
+                      folderIndex,
+                      folderName,
+                      request,
+                      requestIndex,
+                      folderPath,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="deleteAction"
+                svg="trash-2"
+                :label="$t('action.delete')"
+                :shortcut="['⌫']"
+                @click.native="
+                  () => {
+                    confirmRemove = true
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </tippy>
         </span>
       </div>
@@ -114,8 +149,8 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { translateToNewRequest } from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -142,6 +177,11 @@ export default defineComponent({
     const active = useReadonlyStream(restSaveContext$, null)
     return {
       active,
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      duplicate: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
     }
   },
   data() {
@@ -158,7 +198,7 @@ export default defineComponent({
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "my-request" &&
@@ -209,7 +249,7 @@ export default defineComponent({
         requestIndex: this.$props.requestIndex,
       })
     },
-    getRequestLabelColor(method) {
+    getRequestLabelColor(method: string): string {
       return (
         this.requestMethodLabels[method.toLowerCase()] ||
         this.requestMethodLabels.default

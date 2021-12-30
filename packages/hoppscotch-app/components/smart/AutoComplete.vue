@@ -8,7 +8,6 @@
       :placeholder="placeholder"
       :spellcheck="spellcheck"
       :autocapitalize="autocapitalize"
-      :autocorrect="spellcheck"
       :class="styles"
       @input="updateSuggestions"
       @keyup="updateSuggestions"

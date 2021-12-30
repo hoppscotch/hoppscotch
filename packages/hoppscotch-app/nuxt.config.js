@@ -11,7 +11,7 @@ export const options = {
   keywords:
     "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
   loading: {
-    color: "var(--accent-color)",
+    color: "var(--divider-light-color)",
     background: "var(--primary-color)",
   },
   app: {
@@ -145,6 +145,8 @@ export default {
     "@nuxtjs/toast",
     // https://github.com/nuxt-community/i18n-module
     "@nuxtjs/i18n",
+    // https://github.com/nuxt-community/sentry-module
+    "@nuxtjs/sentry",
     // https://github.com/nuxt-community/robots-module
     "@nuxtjs/robots",
     // https://github.com/nuxt-community/sitemap-module
@@ -195,6 +197,12 @@ export default {
   // Google Tag Manager module configuration (https://github.com/nuxt-community/gtm-module)
   gtm: {
     id: process.env.GTM_ID,
+  },
+
+  // Sentry module configuration
+  sentry: {
+    dsn: process.env.SENTRY_DSN,
+    // lazy: true,
   },
 
   // Sitemap module configuration (https://github.com/nuxt-community/sitemap-module)

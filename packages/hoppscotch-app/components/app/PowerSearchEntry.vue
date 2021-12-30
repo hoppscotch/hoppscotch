@@ -1,6 +1,6 @@
 <template>
   <button
-    class="cursor-pointer flex flex-1 py-2 px-6 transition items-center search-entry focus:outline-none"
+    class="cursor-pointer flex flex-1 py-3 px-6 transition items-center search-entry focus:outline-none"
     :class="{ active: active }"
     tabindex="-1"
     @click="$emit('action', shortcut.action)"
@@ -33,7 +33,12 @@ import { useI18n } from "~/helpers/utils/composables"
 const t = useI18n()
 
 defineProps<{
-  shortcut: Object
+  shortcut: {
+    label: string
+    keys: string[]
+    action: string
+    icon: string
+  }
   active: Boolean
 }>()
 </script>
@@ -63,14 +68,5 @@ defineProps<{
       @apply bg-accentLight;
     }
   }
-}
-
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
 }
 </style>

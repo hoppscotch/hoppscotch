@@ -59,7 +59,7 @@
         :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
         loading="lazy"
         class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
-        :alt="$t('empty.body')"
+        :alt="`${$t('empty.body')}`"
       />
       <span class="text-center pb-4">
         {{ $t("empty.body") }}

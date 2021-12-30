@@ -38,12 +38,17 @@ import { defineComponent } from "@nuxtjs/composition-api"
 export default defineComponent({
   props: {
     show: Boolean,
-    placeholderCollName: { type: String, default: null },
+    editingCollectionName: { type: String, default: null },
   },
   data() {
     return {
       name: null,
     }
+  },
+  watch: {
+    editingCollectionName(val) {
+      this.name = val
+    },
   },
   methods: {
     saveCollection() {

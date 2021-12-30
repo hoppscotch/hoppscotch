@@ -29,6 +29,9 @@
     "send": "Send",
     "start": "Start",
     "stop": "Stop",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Turn off",
     "turn_on": "Turn on",
     "undo": "Undo",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Terms and privacy",
     "twitter": "Twitter",
     "type_a_command_search": "Type a command or search…",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "We use cookies",
     "whats_new": "What's new?",
     "wiki": "Wiki"
@@ -93,7 +96,8 @@
     "password": "Password",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username"
+    "username": "Username",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Collection created",
@@ -103,6 +107,7 @@
     "name": "My New Collection",
     "new": "New Collection",
     "renamed": "Collection renamed",
+    "request_in_use": "Request in use",
     "save_as": "Save as",
     "select": "Select a Collection",
     "select_location": "Select location",
@@ -178,8 +183,8 @@
     "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Could not send request",
-    "script_fail": "Could not execute pre-request script",
     "no_duration": "No duration",
+    "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong"
   },
   "export": {
@@ -209,12 +214,12 @@
   "helpers": {
     "authorization": "The authorization header will be automatically generated when you send the request.",
     "generate_documentation_first": "Generate documentation first",
-    "network_fail": "Unable to reach the API endpoint. Check your network connection or turn on Proxy Interceptor and try again.",
-    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
+    "network_fail": "Unable to reach the API endpoint. Check your network connection or select a different Interceptor and try again.",
     "offline": "You seem to be offline. Data in this workspace might not be up to date.",
     "offline_short": "You seem to be offline.",
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
+    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "tests": "Write a test script to automate debugging."
   },
   "hide": {
@@ -225,7 +230,7 @@
   "import": {
     "collections": "Import collections",
     "curl": "Import cURL",
-    "failed": "Import failed",
+    "failed": "Error while importing: format not recognized",
     "from_gist": "Import from Gist",
     "from_my_collections": "Import from My Collections",
     "gist_url": "Enter Gist URL",
@@ -273,11 +278,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +366,7 @@
     "official_proxy_hosting": "Official Proxy is hosted by Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
@@ -377,7 +385,8 @@
     "theme": "Theme",
     "theme_description": "Customize your application theme.",
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
-    "user": "User"
+    "user": "User",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -396,6 +405,7 @@
       "documentation": "Go to Documentation page",
       "forward": "Go forward to next page",
       "graphql": "Go to GraphQL page",
+      "profile": "Go to Profile page",
       "realtime": "Go to Realtime page",
       "rest": "Go to REST page",
       "settings": "Go to Settings page",
@@ -437,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Bulk edit",
-    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend // to any row you want to add but keep disabled",
+    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend # to any row you want to add but keep disabled",
     "cleared": "Cleared",
     "connected": "Connected",
     "connected_to": "Connected to {name}",

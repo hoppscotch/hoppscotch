@@ -39,11 +39,17 @@ import { defineComponent } from "@nuxtjs/composition-api"
 export default defineComponent({
   props: {
     show: Boolean,
+    editingFolderName: { type: String, default: null },
   },
   data() {
     return {
       name: null,
     }
+  },
+  watch: {
+    editingFolderName(val) {
+      this.name = val
+    },
   },
   methods: {
     editFolder() {

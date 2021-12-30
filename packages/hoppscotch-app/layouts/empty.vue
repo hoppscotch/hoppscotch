@@ -3,17 +3,13 @@
 </template>
 
 <script lang="ts">
-import {
-  useContext,
-  onBeforeMount,
-  watch,
-  defineComponent,
-} from "@nuxtjs/composition-api"
+import { onBeforeMount, watch, defineComponent } from "@nuxtjs/composition-api"
+import { useColorMode } from "~/helpers/utils/composables"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { useSetting } from "~/newstore/settings"
 
 function updateThemes() {
-  const { $colorMode } = useContext() as any
+  const $colorMode = useColorMode()
 
   // Apply theme updates
   const themeColor = useSetting("THEME_COLOR")

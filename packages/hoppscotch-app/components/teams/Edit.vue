@@ -111,6 +111,7 @@
                         ? 'radio_button_checked'
                         : 'radio_button_unchecked'
                     "
+                    :active="member.role === 'OWNER'"
                     @click.native="
                       () => {
                         updateMemberRole(member.userID, 'OWNER')
@@ -125,6 +126,7 @@
                         ? 'radio_button_checked'
                         : 'radio_button_unchecked'
                     "
+                    :active="member.role === 'EDITOR'"
                     @click.native="
                       () => {
                         updateMemberRole(member.userID, 'EDITOR')
@@ -139,6 +141,7 @@
                         ? 'radio_button_checked'
                         : 'radio_button_unchecked'
                     "
+                    :active="member.role === 'VIEWER'"
                     @click.native="
                       () => {
                         updateMemberRole(member.userID, 'VIEWER')
@@ -153,7 +156,7 @@
                   id="member"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="t('action.remove')"
-                  svg="trash"
+                  svg="user-minus"
                   color="red"
                   @click.native="removeExistingTeamMember(member.userID)"
                 />

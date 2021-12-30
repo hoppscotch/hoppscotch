@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="`${t('test.results')}`">
+  <div>
     <div
       v-if="
         testResults &&
@@ -88,7 +88,7 @@
         class="my-4"
       />
     </div>
-  </AppSection>
+  </div>
 </template>
 
 <script setup lang="ts">

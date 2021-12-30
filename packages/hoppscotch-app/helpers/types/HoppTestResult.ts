@@ -12,4 +12,5 @@ export type HoppTestData = {
 export type HoppTestResult = {
   tests: HoppTestData[]
   expectResults: HoppTestExpectResult[]
+  description: string
 }

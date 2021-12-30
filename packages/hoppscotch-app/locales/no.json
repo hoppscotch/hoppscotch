@@ -29,6 +29,9 @@
     "send": "Sende",
     "start": "Start",
     "stop": "Stoppe",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Skru av",
     "turn_on": "Slå på",
     "undo": "Angre",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Vilkår og personvern",
     "twitter": "Twitter",
     "type_a_command_search": "Skriv inn en kommando eller søk ...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Vi bruker informasjonskapsler",
     "whats_new": "Hva er nytt?",
     "wiki": "Wiki"
@@ -93,7 +96,8 @@
     "password": "Passord",
     "token": "Nøkkel",
     "type": "Godkjenningstype",
-    "username": "Brukernavn"
+    "username": "Brukernavn",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Samlingen er opprettet",
@@ -103,6 +107,7 @@
     "name": "Min nye samling",
     "new": "Ny kolleksjon",
     "renamed": "Samlingen ble omdøpt",
+    "request_in_use": "Request in use",
     "save_as": "Lagre som",
     "select": "Velg en samling",
     "select_location": "Velg plassering",
@@ -178,8 +183,8 @@
     "json_prettify_invalid_body": "Kunne ikke forskjønne et ugyldig brødtekst, løse json -syntaksfeil og prøve igjen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Kunne ikke sende forespørsel",
-    "script_fail": "Kunne ikke kjøre forhåndsforespørselsskript",
     "no_duration": "Ingen varighet",
+    "script_fail": "Kunne ikke kjøre forhåndsforespørselsskript",
     "something_went_wrong": "Noe gikk galt"
   },
   "export": {
@@ -210,11 +215,11 @@
     "authorization": "Autorisasjonsoverskriften genereres automatisk når du sender forespørselen.",
     "generate_documentation_first": "Lag dokumentasjon først",
     "network_fail": "Kan ikke nå API-endepunktet. Kontroller nettverkstilkoblingen og prøv igjen.",
-    "script_fail": "Det ser ut til at det er en feil i forhåndsforespørselsskriptet. Sjekk feilen nedenfor og fiks skriptet deretter.",
     "offline": "Du ser ut til å være frakoblet. Data i dette arbeidsområdet er kanskje ikke oppdatert.",
     "offline_short": "Du ser ut til å være frakoblet.",
     "post_request_tests": "Testskript er skrevet i JavaScript og kjøres etter at svaret er mottatt.",
     "pre_request_script": "Skript for forespørsel er skrevet i JavaScript og kjøres før forespørselen sendes.",
+    "script_fail": "Det ser ut til at det er en feil i forhåndsforespørselsskriptet. Sjekk feilen nedenfor og fiks skriptet deretter.",
     "tests": "Skriv et testskript for å automatisere feilsøking."
   },
   "hide": {
@@ -273,11 +278,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +366,7 @@
     "official_proxy_hosting": "Official Proxy er vert for Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Fullmakt",
     "proxy_url": "Proxy-URL",
@@ -377,7 +385,8 @@
     "theme": "Tema",
     "theme_description": "Tilpass søknadstemaet ditt.",
     "use_experimental_url_bar": "Bruk en eksperimentell URL-linje med utheving av miljøet",
-    "user": "Bruker"
+    "user": "Bruker",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -396,6 +405,7 @@
       "documentation": "Gå til Dokumentasjonsside",
       "forward": "Gå videre til neste side",
       "graphql": "Gå til GraphQL-siden",
+      "profile": "Go to Profile page",
       "realtime": "Gå til sanntid-siden",
       "rest": "Gå til REST-siden",
       "settings": "Gå til Innstillinger-siden",
@@ -437,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Masse redigering",
-    "bulk_mode_placeholder": "Oppføringer skilles med ny linje\nNøkler og verdier er atskilt med:\nForbered // til hvilken som helst rad du vil legge til, men behold den deaktivert",
+    "bulk_mode_placeholder": "Oppføringer skilles med ny linje\nNøkler og verdier er atskilt med:\nForbered # til hvilken som helst rad du vil legge til, men behold den deaktivert",
     "cleared": "Ryddet",
     "connected": "Tilkoblet",
     "connected_to": "Koblet til {name}",

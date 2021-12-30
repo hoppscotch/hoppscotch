@@ -25,7 +25,7 @@
           :title="`${t('app.search')} <kbd>/</kbd>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click.native="showSearch = true"
+          @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -57,7 +57,14 @@
             @click.native="showTeamsModal = true"
           />
           <span class="px-2">
-            <tippy ref="user" interactive trigger="click" theme="popover" arrow>
+            <tippy
+              ref="options"
+              interactive
+              trigger="click"
+              theme="popover"
+              arrow
+              :on-shown="() => tippyActions.focus()"
+            >
               <template #trigger>
                 <ProfilePicture
                   v-if="currentUser.photoURL"
@@ -78,19 +85,46 @@
                   svg="user"
                 />
               </template>
-              <SmartItem
-                to="/profile"
-                svg="user"
-                :label="t('navigation.profile')"
-                @click.native="$refs.user.tippy().hide()"
-              />
-              <SmartItem
-                to="/settings"
-                svg="settings"
-                :label="t('navigation.settings')"
-                @click.native="$refs.user.tippy().hide()"
-              />
-              <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
+              <div class="flex text-tiny px-2 flex-col">
+                <span class="inline-flex truncate font-semibold">
+                  {{ currentUser.displayName }}
+                </span>
+                <span class="inline-flex truncate text-secondaryLight">
+                  {{ currentUser.email }}
+                </span>
+              </div>
+              <hr />
+              <div
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.enter="profile.$el.click()"
+                @keyup.s="settings.$el.click()"
+                @keyup.l="logout.$el.click()"
+                @keyup.escape="options.tippy().hide()"
+              >
+                <SmartItem
+                  ref="profile"
+                  to="/profile"
+                  svg="user"
+                  :label="t('navigation.profile')"
+                  :shortcut="['↩']"
+                  @click.native="options.tippy().hide()"
+                />
+                <SmartItem
+                  ref="settings"
+                  to="/settings"
+                  svg="settings"
+                  :label="t('navigation.settings')"
+                  :shortcut="['S']"
+                  @click.native="options.tippy().hide()"
+                />
+                <FirebaseLogout
+                  ref="logout"
+                  :shortcut="['L']"
+                  @confirm-logout="options.tippy().hide()"
+                />
+              </div>
             </tippy>
           </span>
         </div>
@@ -99,7 +133,6 @@
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -114,7 +147,7 @@ import {
   useI18n,
   useToast,
 } from "~/helpers/utils/composables"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -128,7 +161,6 @@ const toast = useToast()
 const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
 const showSupport = ref(false)
-const showSearch = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
@@ -138,9 +170,6 @@ const currentUser = useReadonlyStream(probableUser$, null)
 
 defineActionHandler("modals.support.toggle", () => {
   showSupport.value = !showSupport.value
-})
-defineActionHandler("modals.search.toggle", () => {
-  showSearch.value = !showSearch.value
 })
 
 onMounted(() => {
@@ -179,4 +208,11 @@ onMounted(() => {
     })
   }
 })
+
+// Template refs
+const tippyActions = ref<any | null>(null)
+const profile = ref<any | null>(null)
+const settings = ref<any | null>(null)
+const logout = ref<any | null>(null)
+const options = ref<any | null>(null)
 </script>

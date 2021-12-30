@@ -148,7 +148,7 @@ describe("extensionStrategy", () => {
         data: '{"success":true,"data":""}',
       })
 
-      await extensionStrategy({})
+      await extensionStrategy({})()
 
       expect(sendReqFunc).toHaveBeenCalledTimes(1)
     })
@@ -168,7 +168,7 @@ describe("extensionStrategy", () => {
         })
       })
 
-      await extensionStrategy({ url: "test" })
+      await extensionStrategy({ url: "test" })()
 
       expect(passedUrl).toEqual("test")
     })
@@ -188,12 +188,12 @@ describe("extensionStrategy", () => {
         })
       })
 
-      await extensionStrategy({})
+      await extensionStrategy({})()
 
       expect(passedFields).toHaveProperty("wantsBinary")
     })
 
-    test("resolves successful requests", async () => {
+    test("rights successful requests", async () => {
       global.__POSTWOMAN_EXTENSION_HOOK__ = {
         sendRequest: sendReqFunc,
       }
@@ -202,7 +202,7 @@ describe("extensionStrategy", () => {
         data: '{"success":true,"data":""}',
       })
 
-      await expect(extensionStrategy({})).resolves.toBeDefined()
+      expect(await extensionStrategy({})()).toBeRight()
     })
 
     test("rejects errors as-is", async () => {
@@ -212,7 +212,7 @@ describe("extensionStrategy", () => {
 
       sendReqFunc.mockRejectedValue("err")
 
-      await expect(extensionStrategy({})).rejects.toBe("err")
+      expect(await extensionStrategy({})()).toEqualLeft("err")
     })
   })
 })

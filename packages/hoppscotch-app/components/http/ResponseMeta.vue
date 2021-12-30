@@ -69,11 +69,11 @@
           {{ t("error.network_fail") }}
         </span>
         <span
-          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+          class="max-w-sm text-secondaryLight text-center mb-6 whitespace-normal"
         >
           {{ t("helpers.network_fail") }}
         </span>
-        <AppInterceptor />
+        <AppInterceptor class="border border-dividerLight rounded" />
       </div>
       <div
         v-if="response.type === 'script_fail'"
@@ -89,7 +89,7 @@
           {{ t("error.script_fail") }}
         </span>
         <span
-          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+          class="max-w-sm text-secondaryLight text-center mb-6 whitespace-normal"
         >
           {{ t("helpers.script_fail") }}
         </span>
@@ -101,22 +101,27 @@
         </div>
       </div>
       <div
-        v-if="response.type === 'success' || 'fail'"
-        :class="statusCategory.className"
-        class="font-semibold space-x-4"
+        v-if="response.type === 'success' || response.type === 'fail'"
+        class="font-semibold flex items-center text-tiny"
       >
-        <span v-if="response.statusCode">
-          <span class="text-secondary"> {{ t("response.status") }}: </span>
-          {{ response.statusCode || t("state.waiting_send_request") }}
-        </span>
-        <span v-if="response.meta && response.meta.responseDuration">
-          <span class="text-secondary"> {{ t("response.time") }}: </span>
-          {{ `${response.meta.responseDuration} ms` }}
-        </span>
-        <span v-if="response.meta && response.meta.responseSize">
-          <span class="text-secondary"> {{ t("response.size") }}: </span>
-          {{ `${response.meta.responseSize} B` }}
-        </span>
+        <div
+          :class="statusCategory.className"
+          class="space-x-4 inline-flex flex-1"
+        >
+          <span v-if="response.statusCode">
+            <span class="text-secondary"> {{ t("response.status") }}: </span>
+            {{ `${response.statusCode}\xA0 • \xA0`
+            }}{{ getStatusCodeReasonPhrase(response.statusCode) }}
+          </span>
+          <span v-if="response.meta && response.meta.responseDuration">
+            <span class="text-secondary"> {{ t("response.time") }}: </span>
+            {{ `${response.meta.responseDuration} ms` }}
+          </span>
+          <span v-if="response.meta && response.meta.responseSize">
+            <span class="text-secondary"> {{ t("response.size") }}: </span>
+            {{ `${response.meta.responseSize} B` }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -128,6 +133,7 @@ import findStatusGroup from "~/helpers/findStatusGroup"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useI18n } from "~/helpers/utils/composables"
+import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 
 const t = useI18n()
 
@@ -138,20 +144,13 @@ const props = defineProps<{
 const statusCategory = computed(() => {
   if (
     props.response.type === "loading" ||
-    props.response.type === "network_fail"
+    props.response.type === "network_fail" ||
+    props.response.type === "script_fail"
   )
-    return ""
+    return {
+      name: "error",
+      className: "text-red-500",
+    }
   return findStatusGroup(props.response.statusCode)
 })
 </script>
-
-<style lang="scss" scoped>
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
-}
-</style>

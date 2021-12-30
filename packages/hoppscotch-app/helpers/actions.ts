@@ -27,6 +27,7 @@ export type HoppAction =
   | "navigation.jump.realtime" // Jump to realtime page
   | "navigation.jump.documentation" // Jump to documentation page
   | "navigation.jump.settings" // Jump to settings page
+  | "navigation.jump.profile" // Jump to profile page
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

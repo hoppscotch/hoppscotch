@@ -13,135 +13,131 @@
           :size="COLUMN_LAYOUT ? 45 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <AppSection label="request">
-            <div class="bg-primary flex p-4 top-0 z-10 sticky">
-              <div class="space-x-2 flex-1 inline-flex">
-                <input
-                  id="websocket-url"
-                  v-model="url"
-                  class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
-                  type="url"
-                  autocomplete="off"
-                  spellcheck="false"
-                  :class="{ error: !urlValid }"
-                  :placeholder="$t('websocket.url')"
-                  :disabled="connectionState"
-                  @keyup.enter="urlValid ? toggleConnection() : null"
-                />
-                <ButtonPrimary
-                  id="connect"
-                  :disabled="!urlValid"
-                  class="w-32"
-                  name="connect"
-                  :label="
-                    !connectionState
-                      ? $t('action.connect')
-                      : $t('action.disconnect')
-                  "
-                  :loading="connectingState"
-                  @click.native="toggleConnection"
-                />
-              </div>
-            </div>
-            <div
-              class="bg-primary border-b border-dividerLight flex flex-1 top-upperPrimaryStickyFold pl-4 z-10 sticky items-center justify-between"
-            >
-              <label class="font-semibold text-secondaryLight">
-                {{ $t("websocket.protocols") }}
-              </label>
-              <div class="flex">
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="$t('action.clear_all')"
-                  svg="trash-2"
-                  @click.native="clearContent"
-                />
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="$t('add.new')"
-                  svg="plus"
-                  @click.native="addProtocol"
-                />
-              </div>
-            </div>
-            <div
-              v-for="(protocol, index) of protocols"
-              :key="`protocol-${index}`"
-              class="divide-dividerLight divide-x border-b border-dividerLight flex"
-            >
+          <div class="bg-primary flex p-4 top-0 z-10 sticky">
+            <div class="space-x-2 flex-1 inline-flex">
               <input
-                v-model="protocol.value"
-                class="bg-transparent flex flex-1 py-2 px-4"
-                :placeholder="$t('count.protocol', { count: index + 1 })"
-                name="message"
-                type="text"
+                id="websocket-url"
+                v-model="url"
+                class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                type="url"
                 autocomplete="off"
-                @change="
+                spellcheck="false"
+                :class="{ error: !urlValid }"
+                :placeholder="$t('websocket.url')"
+                :disabled="connectionState"
+                @keyup.enter="urlValid ? toggleConnection() : null"
+              />
+              <ButtonPrimary
+                id="connect"
+                :disabled="!urlValid"
+                class="w-32"
+                name="connect"
+                :label="
+                  !connectionState
+                    ? $t('action.connect')
+                    : $t('action.disconnect')
+                "
+                :loading="connectingState"
+                @click.native="toggleConnection"
+              />
+            </div>
+          </div>
+          <div
+            class="bg-primary border-b border-dividerLight flex flex-1 top-upperPrimaryStickyFold pl-4 z-10 sticky items-center justify-between"
+          >
+            <label class="font-semibold text-secondaryLight">
+              {{ $t("websocket.protocols") }}
+            </label>
+            <div class="flex">
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('action.clear_all')"
+                svg="trash-2"
+                @click.native="clearContent"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('add.new')"
+                svg="plus"
+                @click.native="addProtocol"
+              />
+            </div>
+          </div>
+          <div
+            v-for="(protocol, index) of protocols"
+            :key="`protocol-${index}`"
+            class="divide-dividerLight divide-x border-b border-dividerLight flex"
+          >
+            <input
+              v-model="protocol.value"
+              class="bg-transparent flex flex-1 py-2 px-4"
+              :placeholder="$t('count.protocol', { count: index + 1 })"
+              name="message"
+              type="text"
+              autocomplete="off"
+              @change="
+                updateProtocol(index, {
+                  value: $event.target.value,
+                  active: protocol.active,
+                })
+              "
+            />
+            <span>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="
+                  protocol.hasOwnProperty('active')
+                    ? protocol.active
+                      ? $t('action.turn_off')
+                      : $t('action.turn_on')
+                    : $t('action.turn_off')
+                "
+                :svg="
+                  protocol.hasOwnProperty('active')
+                    ? protocol.active
+                      ? 'check-circle'
+                      : 'circle'
+                    : 'check-circle'
+                "
+                color="green"
+                @click.native="
                   updateProtocol(index, {
-                    value: $event.target.value,
-                    active: protocol.active,
+                    value: protocol.value,
+                    active: !protocol.active,
                   })
                 "
               />
-              <span>
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="
-                    protocol.hasOwnProperty('active')
-                      ? protocol.active
-                        ? $t('action.turn_off')
-                        : $t('action.turn_on')
-                      : $t('action.turn_off')
-                  "
-                  :svg="
-                    protocol.hasOwnProperty('active')
-                      ? protocol.active
-                        ? 'check-circle'
-                        : 'circle'
-                      : 'check-circle'
-                  "
-                  color="green"
-                  @click.native="
-                    updateProtocol(index, {
-                      value: protocol.value,
-                      active: !protocol.active,
-                    })
-                  "
-                />
-              </span>
-              <span>
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="$t('action.remove')"
-                  svg="trash"
-                  color="red"
-                  @click.native="deleteProtocol({ index })"
-                />
-              </span>
-            </div>
-            <div
-              v-if="protocols.length === 0"
-              class="flex flex-col text-secondaryLight p-4 items-center justify-center"
-            >
-              <img
-                :src="`/images/states/${$colorMode.value}/add_category.svg`"
-                loading="lazy"
-                class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
-                :alt="$t('empty.protocols')"
+            </span>
+            <span>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('action.remove')"
+                svg="trash"
+                color="red"
+                @click.native="deleteProtocol({ index })"
               />
-              <span class="text-center mb-4">
-                {{ $t("empty.protocols") }}
-              </span>
-            </div>
-          </AppSection>
+            </span>
+          </div>
+          <div
+            v-if="protocols.length === 0"
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+          >
+            <img
+              :src="`/images/states/${$colorMode.value}/add_category.svg`"
+              loading="lazy"
+              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+              :alt="$t('empty.protocols')"
+            />
+            <span class="text-center mb-4">
+              {{ $t("empty.protocols") }}
+            </span>
+          </div>
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <AppSection label="response">
-            <RealtimeLog :title="$t('websocket.log')" :log="log" />
-          </AppSection>
+          <RealtimeLog :title="$t('websocket.log')" :log="log" />
         </Pane>
       </Splitpanes>
     </Pane>
@@ -151,38 +147,36 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <AppSection label="messages">
-        <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label
-            for="websocket-message"
-            class="font-semibold text-secondaryLight"
-          >
-            {{ $t("websocket.communication") }}
-          </label>
-        </div>
-        <div class="flex space-x-2 px-4">
-          <input
-            id="websocket-message"
-            v-model="communication.input"
-            name="message"
-            type="text"
-            autocomplete="off"
-            :disabled="!connectionState"
-            :placeholder="$t('websocket.message')"
-            class="input"
-            @keyup.enter="connectionState ? sendMessage() : null"
-            @keyup.up="connectionState ? walkHistory('up') : null"
-            @keyup.down="connectionState ? walkHistory('down') : null"
-          />
-          <ButtonPrimary
-            id="send"
-            name="send"
-            :disabled="!connectionState"
-            :label="$t('action.send')"
-            @click.native="sendMessage"
-          />
-        </div>
-      </AppSection>
+      <div class="flex flex-col flex-1 p-4 inline-flex">
+        <label
+          for="websocket-message"
+          class="font-semibold text-secondaryLight"
+        >
+          {{ $t("websocket.communication") }}
+        </label>
+      </div>
+      <div class="flex space-x-2 px-4">
+        <input
+          id="websocket-message"
+          v-model="communication.input"
+          name="message"
+          type="text"
+          autocomplete="off"
+          :disabled="!connectionState"
+          :placeholder="$t('websocket.message')"
+          class="input"
+          @keyup.enter="connectionState ? sendMessage() : null"
+          @keyup.up="connectionState ? walkHistory('up') : null"
+          @keyup.down="connectionState ? walkHistory('down') : null"
+        />
+        <ButtonPrimary
+          id="send"
+          name="send"
+          :disabled="!connectionState"
+          :label="$t('action.send')"
+          @click.native="sendMessage"
+        />
+      </div>
     </Pane>
   </Splitpanes>
 </template>

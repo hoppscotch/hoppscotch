@@ -1,5 +1,5 @@
 <template>
-  <AppSection label="parameters">
+  <div>
     <div
       class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
@@ -138,7 +138,7 @@
         />
       </div>
     </div>
-  </AppSection>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -169,9 +169,9 @@ const bulkParams = ref("")
 watch(bulkParams, () => {
   try {
     const transformation = bulkParams.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trim().replace(/^\/\//, ""),
+      key: item.substring(0, item.indexOf(":")).trim().replace(/^#/, ""),
       value: item.substring(item.indexOf(":") + 1).trim(),
-      active: !item.trim().startsWith("//"),
+      active: !item.trim().startsWith("#"),
     }))
     setRESTParams(transformation as HoppRESTParam[])
   } catch (e) {
@@ -189,6 +189,7 @@ useCodemirror(bulkEditor, bulkParams, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: true,
 })
 
 const params$ = useReadonlyStream(restParams$, [])
@@ -210,14 +211,12 @@ watch(
 onBeforeUpdate(() => editBulkParamsLine(-1, null))
 
 const editBulkParamsLine = (index: number, item?: HoppRESTParam | null) => {
-  const params = params$.value
-
-  bulkParams.value = params
+  bulkParams.value = params$.value
     .reduce((all, param, pIndex) => {
       const current =
         index === pIndex && item != null
-          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
-          : `${param.active ? "" : "//"}${param.key}: ${param.value}`
+          ? `${item.active ? "" : "#"}${item.key}: ${item.value}`
+          : `${param.active ? "" : "#"}${param.key}: ${param.value}`
       return [...all, current]
     }, [])
     .join("\n")

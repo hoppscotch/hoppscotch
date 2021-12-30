@@ -1,8 +1,5 @@
 <template>
-  <AppSection
-    label="collections"
-    :class="{ 'rounded border border-divider': savingMode }"
-  >
+  <div :class="{ 'rounded border border-divider': savingMode }">
     <div
       class="divide-dividerLight divide-y border-b border-dividerLight flex flex-col top-0 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
@@ -13,7 +10,7 @@
         type="search"
         autocomplete="off"
         :placeholder="$t('action.search')"
-        class="bg-transparent flex w-full py-2 px-4"
+        class="bg-transparent flex py-2 px-4"
       />
       <div class="flex flex-1 justify-between">
         <ButtonSecondary
@@ -84,7 +81,7 @@
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <i class="opacity-75 pb-2 material-icons">manage_search</i>
-      <span class="text-center">
+      <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -96,6 +93,7 @@
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
+      :editing-collection-name="editingCollection ? editingCollection.name : ''"
       @hide-modal="displayModalEdit(false)"
     />
     <CollectionsGraphqlAddFolder
@@ -110,6 +108,7 @@
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
       :folder-path="editingFolderPath"
+      :editing-folder-name="editingFolder ? editingFolder.name : ''"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsGraphqlEditRequest
@@ -117,17 +116,19 @@
       :folder-path="editingFolderPath"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :editing-request-name="editingRequest ? editingRequest.name : ''"
       @hide-modal="displayModalEditRequest(false)"
     />
     <CollectionsGraphqlImportExport
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
+import cloneDeep from "lodash/cloneDeep"
 import clone from "lodash/clone"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {

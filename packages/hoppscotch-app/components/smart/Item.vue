@@ -24,22 +24,22 @@
     >
       <i
         v-if="icon"
+        class="opacity-75 material-icons"
         :class="[
-          label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : '',
+          label ? (reverse ? 'ml-4' : 'mr-4') : '',
           { 'text-accent': active },
         ]"
-        class="material-icons"
       >
         {{ icon }}
       </i>
       <SmartIcon
         v-if="svg"
         :name="svg"
+        class="opacity-75 svg-icons"
         :class="[
-          label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : '',
+          label ? (reverse ? 'ml-4' : 'mr-4') : '',
           { 'text-accent': active },
         ]"
-        class="svg-icons"
       />
     </span>
     <SmartSpinner v-else class="mr-4 text-secondaryDark" />
@@ -64,10 +64,19 @@
     >
       {{ infoIcon }}
     </i>
+    <div v-if="shortcut.length" class="ml-2 <sm:hidden">
+      <kbd
+        v-for="(key, index) in shortcut"
+        :key="`key-${index}`"
+        class="shortcut-key -mr-2"
+      >
+        {{ key }}
+      </kbd>
+    </div>
   </SmartLink>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
 
 export default defineComponent({
@@ -115,6 +124,10 @@ export default defineComponent({
     outline: {
       type: Boolean,
       default: false,
+    },
+    shortcut: {
+      type: Array,
+      default: () => [],
     },
     active: {
       type: Boolean,

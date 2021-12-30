@@ -17,6 +17,9 @@ import {
   AuthCredential,
   UserCredential,
   updateProfile,
+  updateEmail,
+  sendEmailVerification,
+  reauthenticateWithCredential,
 } from "firebase/auth"
 import {
   onSnapshot,
@@ -309,8 +312,81 @@ export async function setDisplayName(name: string) {
   }
 
   try {
-    await updateProfile(currentUser$.value, us).catch((e) =>
-      console.error("error updating", us, e)
+    await updateProfile(currentUser$.value, us)
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Send user's email address verification mail
+ */
+export async function verifyEmailAddress() {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  try {
+    await sendEmailVerification(currentUser$.value)
+  } catch (e) {
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Sets the user's email address
+ *
+ * @param email - The new email address
+ */
+export async function setEmailAddress(email: string) {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  try {
+    await updateEmail(currentUser$.value, email)
+  } catch (e) {
+    await reauthenticateUser()
+    console.error("error updating", e)
+    throw e
+  }
+}
+
+/**
+ * Reauthenticate the user with the given credential
+ */
+async function reauthenticateUser() {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+  const currentAuthMethod = currentUser$.value.provider
+  let credential
+  if (currentAuthMethod === "google.com") {
+    const result = await signInUserWithGithub()
+    credential = GithubAuthProvider.credentialFromResult(result)
+  } else if (currentAuthMethod === "github.com") {
+    const result = await signInUserWithGoogle()
+    credential = GoogleAuthProvider.credentialFromResult(result)
+  } else if (currentAuthMethod === "password") {
+    const email = prompt(
+      "Reauthenticate your account using your current email:"
+    )
+    const actionCodeSettings = {
+      url: `${process.env.BASE_URL}/enter`,
+      handleCodeInApp: true,
+    }
+    await signInWithEmail(email as string, actionCodeSettings)
+      .then(() =>
+        alert(
+          `Check your inbox - we sent an email to ${email}. It contains a magic link that will reauthenticate your account.`
+        )
+      )
+      .catch((e) => {
+        alert(`Error: ${e.message}`)
+        console.error(e)
+      })
+    return
+  }
+  try {
+    await reauthenticateWithCredential(
+      currentUser$.value,
+      credential as AuthCredential
     )
   } catch (e) {
     console.error("error updating", e)

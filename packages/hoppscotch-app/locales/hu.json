@@ -29,6 +29,9 @@
     "send": "Küld",
     "start": "Rajt",
     "stop": "Álljon meg",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Kikapcsolni",
     "turn_on": "Bekapcsol",
     "undo": "Visszavonás",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Feltételek és adatvédelem",
     "twitter": "Twitter",
     "type_a_command_search": "Írjon be parancsot vagy keresést…",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Sütiket használunk",
     "whats_new": "Mi újság?",
     "wiki": "Wiki"
@@ -93,7 +96,8 @@
     "password": "Jelszó",
     "token": "Jelképes",
     "type": "Engedélyezés típusa",
-    "username": "Felhasználónév"
+    "username": "Felhasználónév",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Gyűjtemény létrehozva",
@@ -103,6 +107,7 @@
     "name": "Új gyűjteményem",
     "new": "Új kollekció",
     "renamed": "A gyűjtemény átnevezett",
+    "request_in_use": "Request in use",
     "save_as": "Mentés másként",
     "select": "Válasszon egy gyűjteményt",
     "select_location": "Válassza ki a helyet",
@@ -178,8 +183,8 @@
     "json_prettify_invalid_body": "Nem sikerült azonosítani egy érvénytelen törzset, megoldani a json szintaktikai hibákat, és megpróbálni újra",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nem sikerült elküldeni a kérést",
-    "script_fail": "Nem sikerült végrehajtani az előzetes kérés szkriptet",
     "no_duration": "Nincs időtartam",
+    "script_fail": "Nem sikerült végrehajtani az előzetes kérés szkriptet",
     "something_went_wrong": "Valami elromlott"
   },
   "export": {
@@ -210,11 +215,11 @@
     "authorization": "A jogosultság fejléce automatikusan létrejön a kérelem elküldésekor.",
     "generate_documentation_first": "Először hozzon létre dokumentációt",
     "network_fail": "Nem érhető el az API végpontja. Ellenőrizze a hálózati kapcsolatot, és próbálja újra.",
-    "script_fail": "Úgy tűnik, hiba van az előzetes kérés szkriptjében. Ellenőrizze az alábbi hibát, és ennek megfelelően javítsa ki a szkriptet.",
     "offline": "Úgy tűnik, offline vagy. Előfordulhat, hogy a munkaterület adatai nem naprakészek.",
     "offline_short": "Úgy tűnik, offline vagy.",
     "post_request_tests": "A teszt szkriptek JavaScriptben íródnak, és a válasz megérkezése után futnak.",
     "pre_request_script": "A kérést megelőző szkriptek JavaScriptben íródnak, és a kérelem elküldése előtt futnak.",
+    "script_fail": "Úgy tűnik, hiba van az előzetes kérés szkriptjében. Ellenőrizze az alábbi hibát, és ennek megfelelően javítsa ki a szkriptet.",
     "tests": "Írjon teszt szkriptet a hibakeresés automatizálására."
   },
   "hide": {
@@ -273,11 +278,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +366,7 @@
     "official_proxy_hosting": "A hivatalos proxyt a Hoppscotch üzemelteti.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Meghatalmazott",
     "proxy_url": "Proxy URL",
@@ -377,7 +385,8 @@
     "theme": "Téma",
     "theme_description": "Testreszabhatja az alkalmazás témáját.",
     "use_experimental_url_bar": "Kísérleti URL -sáv használata a környezet kiemelésével",
-    "user": "Felhasználó"
+    "user": "Felhasználó",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -396,6 +405,7 @@
       "documentation": "Lépjen a Dokumentáció oldalra",
       "forward": "Ugrás a következő oldalra",
       "graphql": "Lépjen a GraphQL oldalra",
+      "profile": "Go to Profile page",
       "realtime": "Lépjen a Valós idejű oldalra",
       "rest": "Lépjen a REST oldalra",
       "settings": "Lépjen a Beállítások oldalra",
@@ -437,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Tömeges szerkesztés",
-    "bulk_mode_placeholder": "A bejegyzéseket új sor választja el\nA kulcsokat és az értékeket a következők választják el egymástól:\nElőtag // bármelyik sorhoz, amelyet hozzá szeretne adni, de továbbra is letiltva",
+    "bulk_mode_placeholder": "A bejegyzéseket új sor választja el\nA kulcsokat és az értékeket a következők választják el egymástól:\nElőtag # bármelyik sorhoz, amelyet hozzá szeretne adni, de továbbra is letiltva",
     "cleared": "Törölt",
     "connected": "csatlakoztatva",
     "connected_to": "Összekapcsolva a következővel: {name}",

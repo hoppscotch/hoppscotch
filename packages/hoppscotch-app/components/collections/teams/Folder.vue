@@ -1,13 +1,22 @@
 <template>
-  <div class="flex flex-col">
-    <div class="flex items-stretch group">
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
+    <div
+      class="flex items-stretch group"
+      @dragover.prevent
+      @drop.prevent="dropEvent"
+      @dragover="dragging = true"
+      @drop="dragging = false"
+      @dragleave="dragging = false"
+      @dragend="dragging = false"
+      @contextmenu.prevent="options.tippy().show()"
+    >
       <span
         class="cursor-pointer flex px-4 items-center justify-center"
         @click="toggleShowChildren()"
       >
         <SmartIcon
           class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
+          :class="{ 'text-accent': isSelected }"
           :name="getCollectionIcon"
         />
       </span>
@@ -15,7 +24,7 @@
         class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
         @click="toggleShowChildren()"
       >
-        <span class="truncate">
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
           {{ folder.name ? folder.name : folder.title }}
         </span>
       </span>
@@ -36,6 +45,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -44,45 +54,57 @@
                 svg="more-vertical"
               />
             </template>
-            <SmartItem
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              svg="folder-plus"
-              :label="$t('folder.new')"
-              @click.native="
-                () => {
-                  $emit('add-folder', { folder, path: folderPath })
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
-            <SmartItem
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              svg="edit"
-              :label="$t('action.edit')"
-              @click.native="
-                () => {
-                  $emit('edit-folder', {
-                    folder,
-                    folderIndex,
-                    collectionIndex,
-                    folderPath: '',
-                  })
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
-            <SmartItem
-              v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
-              svg="trash-2"
-              color="red"
-              :label="$t('action.delete')"
-              @click.native="
-                () => {
-                  confirmRemove = true
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.n="folderAction.$el.click()"
+              @keyup.e="edit.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
+            >
+              <SmartItem
+                ref="folderAction"
+                svg="folder-plus"
+                :label="$t('folder.new')"
+                :shortcut="['N']"
+                @click.native="
+                  () => {
+                    $emit('add-folder', { folder, path: folderPath })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="edit"
+                svg="edit"
+                :label="$t('action.edit')"
+                :shortcut="['E']"
+                @click.native="
+                  () => {
+                    $emit('edit-folder', {
+                      folder,
+                      folderIndex,
+                      collectionIndex,
+                      folderPath: '',
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="deleteAction"
+                svg="trash-2"
+                :label="$t('action.delete')"
+                :shortcut="['⌫']"
+                @click.native="
+                  () => {
+                    confirmRemove = true
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </tippy>
         </span>
       </div>
@@ -139,7 +161,7 @@
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
             class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
-            :alt="$t('empty.folder')"
+            :alt="`${$t('empty.folder')}`"
           />
           <span class="text-center">
             {{ $t("empty.folder") }}
@@ -156,8 +178,10 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import * as teamUtils from "~/helpers/teams/utils"
 
 export default defineComponent({
@@ -173,16 +197,26 @@ export default defineComponent({
     collectionsType: { type: Object, default: () => {} },
     picked: { type: Object, default: () => {} },
   },
+  setup() {
+    return {
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      folderAction: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
+    }
+  },
   data() {
     return {
       showChildren: false,
+      dragging: false,
       confirmRemove: false,
       prevCursor: "",
       cursor: "",
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "teams-folder" &&
@@ -223,11 +257,11 @@ export default defineComponent({
         teamUtils
           .deleteCollection(this.$apollo, this.folder.id)
           .then(() => {
-            this.$toast.success(this.$t("state.deleted"))
+            this.$toast.success(`${this.$t("state.deleted")}`)
             this.$emit("update-team-collections")
           })
           .catch((e) => {
-            this.$toast.error(this.$t("error.something_went_wrong"))
+            this.$toast.error(`${this.$t("error.something_went_wrong")}`)
             console.error(e)
           })
         this.$emit("update-team-collections")
@@ -235,6 +269,16 @@ export default defineComponent({
     },
     expandCollection(collectionID) {
       this.$emit("expand-collection", collectionID)
+    },
+    async dropEvent({ dataTransfer }) {
+      this.dragging = !this.dragging
+      const requestIndex = dataTransfer.getData("requestIndex")
+      const moveRequestResult = await moveRESTTeamRequest(
+        requestIndex,
+        this.folder.id
+      )()
+      if (E.isLeft(moveRequestResult))
+        this.$toast.error(`${this.$t("error.something_went_wrong")}`)
     },
     removeRequest({ collectionIndex, folderName, requestIndex }) {
       this.$emit("remove-request", {

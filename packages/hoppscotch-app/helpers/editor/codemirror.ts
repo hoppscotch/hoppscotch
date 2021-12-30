@@ -29,10 +29,17 @@ import { jsonLanguage } from "@codemirror/lang-json"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import { StreamLanguage } from "@codemirror/stream-parser"
+import { html } from "@codemirror/legacy-modes/mode/xml"
+import { shell } from "@codemirror/legacy-modes/mode/shell"
+import { yaml } from "@codemirror/legacy-modes/mode/yaml"
 import { isJSONContentType } from "../utils/contenttypes"
+import { useStreamSubscriber } from "../utils/composables"
 import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
+import { HoppEnvironmentPlugin } from "./extensions/HoppEnvironment"
+// TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
   mode: string
@@ -45,6 +52,9 @@ type CodeMirrorOptions = {
   extendedEditorConfig: Partial<ExtendedEditorConfig>
   linter: LinterDefinition | null
   completer: Completer | null
+
+  // NOTE: This property is not reactive
+  environmentHighlights: boolean
 }
 
 const hoppCompleterExt = (completer: Completer): Extension => {
@@ -93,12 +103,12 @@ const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
 
     return linterResult.map((result) => {
       const startPos =
-        view.state.doc.line(result.from.line + 1).from + result.from.ch
-      const endPos = view.state.doc.line(result.to.line + 1).from + result.to.ch
+        view.state.doc.line(result.from.line).from + result.from.ch - 1
+      const endPos = view.state.doc.line(result.to.line).from + result.to.ch - 1
 
       return {
-        from: startPos,
-        to: endPos,
+        from: startPos < 0 ? 0 : startPos,
+        to: endPos > view.state.doc.length ? view.state.doc.length : endPos,
         message: result.message,
         severity: result.severity,
       }
@@ -126,6 +136,12 @@ const getLanguage = (langMime: string): Language | null => {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
+  } else if (langMime === "htmlmixed") {
+    return StreamLanguage.define(html)
+  } else if (langMime === "application/x-sh") {
+    return StreamLanguage.define(shell)
+  } else if (langMime === "text/x-yaml") {
+    return StreamLanguage.define(yaml)
   }
 
   // None matched, so return null
@@ -148,6 +164,8 @@ export function useCodemirror(
   value: Ref<string>,
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
+  const { subscribeToStream } = useStreamSubscriber()
+
   const language = new Compartment()
   const lineWrapping = new Compartment()
   const placeholderConfig = new Compartment()
@@ -165,64 +183,70 @@ export function useCodemirror(
 
   const view = ref<EditorView>()
 
+  const environmentTooltip = options.environmentHighlights
+    ? new HoppEnvironmentPlugin(subscribeToStream, view)
+    : null
+
   const initView = (el: any) => {
+    const extensions = [
+      basicSetup,
+      baseTheme,
+      baseHighlightStyle,
+      ViewPlugin.fromClass(
+        class {
+          update(update: ViewUpdate) {
+            if (update.selectionSet) {
+              const cursorPos = update.state.selection.main.head
+
+              const line = update.state.doc.lineAt(cursorPos)
+
+              cachedCursor.value = {
+                line: line.number - 1,
+                ch: cursorPos - line.from,
+              }
+
+              cursor.value = {
+                line: cachedCursor.value.line,
+                ch: cachedCursor.value.ch,
+              }
+            }
+            if (update.docChanged) {
+              // Expensive on big files ?
+              cachedValue.value = update.state.doc
+                .toJSON()
+                .join(update.state.lineBreak)
+              if (!options.extendedEditorConfig.readOnly)
+                value.value = cachedValue.value
+            }
+          }
+        }
+      ),
+      EditorState.changeFilter.of(() => !options.extendedEditorConfig.readOnly),
+      placeholderConfig.of(
+        placeholder(options.extendedEditorConfig.placeholder ?? "")
+      ),
+      language.of(
+        getEditorLanguage(
+          options.extendedEditorConfig.mode ?? "",
+          options.linter ?? undefined,
+          options.completer ?? undefined
+        )
+      ),
+      lineWrapping.of(
+        options.extendedEditorConfig.lineWrapping
+          ? [EditorView.lineWrapping]
+          : []
+      ),
+      keymap.of(defaultKeymap),
+    ]
+
+    if (environmentTooltip) extensions.push(environmentTooltip.extension)
+
     view.value = new EditorView({
       parent: el,
       state: EditorState.create({
         doc: value.value,
-        extensions: [
-          basicSetup,
-          baseTheme,
-          baseHighlightStyle,
-          ViewPlugin.fromClass(
-            class {
-              update(update: ViewUpdate) {
-                if (update.selectionSet) {
-                  const cursorPos = update.state.selection.main.head
-
-                  const line = update.state.doc.lineAt(cursorPos)
-
-                  cachedCursor.value = {
-                    line: line.number - 1,
-                    ch: cursorPos - line.from,
-                  }
-
-                  cursor.value = {
-                    line: cachedCursor.value.line,
-                    ch: cachedCursor.value.ch,
-                  }
-                }
-                if (update.docChanged) {
-                  // Expensive on big files ?
-                  cachedValue.value = update.state.doc
-                    .toJSON()
-                    .join(update.state.lineBreak)
-                  if (!options.extendedEditorConfig.readOnly)
-                    value.value = cachedValue.value
-                }
-              }
-            }
-          ),
-          EditorState.changeFilter.of(
-            () => !options.extendedEditorConfig.readOnly
-          ),
-          placeholderConfig.of(
-            placeholder(options.extendedEditorConfig.placeholder ?? "")
-          ),
-          language.of(
-            getEditorLanguage(
-              options.extendedEditorConfig.mode ?? "",
-              options.linter ?? undefined,
-              options.completer ?? undefined
-            )
-          ),
-          lineWrapping.of(
-            options.extendedEditorConfig.lineWrapping
-              ? [EditorView.lineWrapping]
-              : []
-          ),
-          keymap.of(defaultKeymap),
-        ],
+        extensions,
       }),
     })
   }

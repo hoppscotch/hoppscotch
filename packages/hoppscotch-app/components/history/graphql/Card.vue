@@ -36,7 +36,7 @@
         @click.native="$emit('toggle-star')"
       />
     </div>
-    <div class="flex flex-col">
+    <div class="flex flex-col text-tiny">
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"

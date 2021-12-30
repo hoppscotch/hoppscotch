@@ -29,6 +29,9 @@
     "send": "Skicka",
     "start": "Start",
     "stop": "Sluta",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Stäng av",
     "turn_on": "Sätta på",
     "undo": "Ångra",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Villkor och sekretess",
     "twitter": "Twitter",
     "type_a_command_search": "Skriv ett kommando eller sök ...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Vi använder cookies",
     "whats_new": "Vad är nytt?",
     "wiki": "Wiki"
@@ -93,7 +96,8 @@
     "password": "Lösenord",
     "token": "Tecken",
     "type": "Godkännande typ",
-    "username": "Användarnamn"
+    "username": "Användarnamn",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Samlingen skapad",
@@ -103,6 +107,7 @@
     "name": "Min nya samling",
     "new": "Ny kollektion",
     "renamed": "Samling bytt namn",
+    "request_in_use": "Request in use",
     "save_as": "Spara som",
     "select": "Välj en samling",
     "select_location": "Välj plats",
@@ -278,6 +283,7 @@
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -396,6 +402,7 @@
       "documentation": "Gå till dokumentationssidan",
       "forward": "Gå vidare till nästa sida",
       "graphql": "Gå till GraphQL -sidan",
+      "profile": "Go to Profile page",
       "realtime": "Gå till realtidssidan",
       "rest": "Gå till REST -sidan",
       "settings": "Gå till sidan Inställningar",
@@ -437,7 +444,7 @@
   },
   "state": {
     "bulk_mode": "Massredigering",
-    "bulk_mode_placeholder": "Posterna separeras med ny rad\nNycklar och värden separeras med:\nFörbered // till vilken rad du vill lägga till men behåll inaktiverad",
+    "bulk_mode_placeholder": "Posterna separeras med ny rad\nNycklar och värden separeras med:\nFörbered # till vilken rad du vill lägga till men behåll inaktiverad",
     "cleared": "Rensat",
     "connected": "Ansluten",
     "connected_to": "Ansluten till {name}",

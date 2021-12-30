@@ -5,6 +5,7 @@ import {
   readonly,
   Ref,
   ref,
+  shallowRef,
   useContext,
   watch,
   wrapProperty,
@@ -100,11 +101,20 @@ export function pluckMultipleFromRef<T, K extends Array<keyof T>>(
   return Object.fromEntries(keys.map((x) => [x, pluckRef(sourceRef, x)])) as any
 }
 
+export type StreamSubscriberFunc = <T>(
+  stream: Observable<T>,
+  next?: ((value: T) => void) | undefined,
+  error?: ((e: any) => void) | undefined,
+  complete?: (() => void) | undefined
+) => void
+
 /**
  * A composable that provides the ability to run streams
  * and subscribe to them and respect the component lifecycle.
  */
-export function useStreamSubscriber() {
+export function useStreamSubscriber(): {
+  subscribeToStream: StreamSubscriberFunc
+} {
   const subs: Subscription[] = []
 
   const runAndSubscribe = <T>(
@@ -144,4 +154,45 @@ export function useI18n() {
 export function useToast() {
   const { $toast } = useContext()
   return $toast
+}
+
+export function useColorMode() {
+  const { $colorMode } = useContext()
+
+  return $colorMode
+}
+
+export function useAxios() {
+  const { $axios } = useContext()
+  return $axios
+}
+
+export function usePolled<T>(
+  pollDurationMS: number,
+  pollFunc: (stopPolling: () => void) => T
+): Ref<T> {
+  let polling = true
+  let handle: ReturnType<typeof setInterval> | undefined
+
+  const stopPolling = () => {
+    if (handle) {
+      clearInterval(handle)
+      handle = undefined
+      polling = false
+    }
+  }
+
+  const result = shallowRef(pollFunc(stopPolling))
+
+  if (polling) {
+    handle = setInterval(() => {
+      result.value = pollFunc(stopPolling)
+    }, pollDurationMS)
+  }
+
+  onBeforeUnmount(() => {
+    if (polling) stopPolling()
+  })
+
+  return result
 }

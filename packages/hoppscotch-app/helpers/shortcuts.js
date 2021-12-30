@@ -17,7 +17,7 @@ export default [
         label: "shortcut.general.show_all",
       },
       {
-        keys: ["Esc"],
+        keys: ["ESC"],
         label: "shortcut.general.close_current_menu",
       },
     ],
@@ -102,6 +102,10 @@ export default [
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
       },
+      {
+        keys: [getPlatformAlternateKey(), "P"],
+        label: "shortcut.navigation.profile",
+      },
     ],
   },
   {
@@ -164,6 +168,12 @@ export const spotlight = [
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
         action: "navigation.jump.settings",
+        icon: "arrow-right",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "P"],
+        label: "shortcut.navigation.profile",
+        action: "navigation.jump.profile",
         icon: "arrow-right",
       },
     ],
@@ -255,6 +265,13 @@ export const fuse = [
     action: "navigation.jump.settings",
     icon: "arrow-right",
     tags: ["settings", "jump", "page", "navigation", "account", "theme", "go"],
+  },
+  {
+    keys: [getPlatformAlternateKey(), "P"],
+    label: "shortcut.navigation.profile",
+    action: "navigation.jump.profile",
+    icon: "arrow-right",
+    tags: ["profile", "jump", "page", "navigation", "account", "theme", "go"],
   },
   {
     keys: [getPlatformSpecialKey(), "M"],

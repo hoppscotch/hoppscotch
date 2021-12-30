@@ -29,6 +29,9 @@
     "send": "傳送",
     "start": "開始",
     "stop": "停止",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "關閉",
     "turn_on": "開啟",
     "undo": "復原",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "隱私條款",
     "twitter": "Twitter",
     "type_a_command_search": "輸入命令或搜尋內容……",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "我們使用 cookies",
     "whats_new": "新增內容",
     "wiki": "幫助"
@@ -93,7 +96,8 @@
     "password": "密碼",
     "token": "權杖",
     "type": "授權類型",
-    "username": "使用者名稱"
+    "username": "使用者名稱",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "組合已建立",
@@ -103,6 +107,7 @@
     "name": "我的新組合",
     "new": "建立組合",
     "renamed": "組合已重新命名",
+    "request_in_use": "Request in use",
     "save_as": "另存為",
     "select": "選擇一個組合",
     "select_location": "選擇位置",
@@ -278,6 +283,7 @@
     "owner_description": "擁有者可以新增、編輯和刪除請求、組合和團隊成員。",
     "roles": "角色",
     "roles_description": "角色用來控制對共用組合的存取權。",
+    "updated": "Profile updated",
     "viewer": "檢視者",
     "viewer_description": "檢視者只能檢視和使用請求。"
   },
@@ -396,6 +402,7 @@
       "documentation": "前往文件頁面",
       "forward": "前往下一頁面",
       "graphql": "前往 GraphQL 頁面",
+      "profile": "Go to Profile page",
       "realtime": "前往實時頁面",
       "rest": "前往 REST 頁面",
       "settings": "前往設定頁面",
@@ -437,7 +444,7 @@
   },
   "state": {
     "bulk_mode": "大量編輯",
-    "bulk_mode_placeholder": "條目之間使用換行符分隔\n鍵和值之間使用冒號分隔\n將 // 置於行首以新增該行條目並保持停用",
+    "bulk_mode_placeholder": "條目之間使用換行符分隔\n鍵和值之間使用冒號分隔\n將 # 置於行首以新增該行條目並保持停用",
     "cleared": "已清除",
     "connected": "已連線",
     "connected_to": "已連線到 {name}",

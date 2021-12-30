@@ -370,7 +370,7 @@ export default defineComponent({
       },
       authType: "None",
       bearerToken: "",
-      authActive: false,
+      authActive: true,
     }
   },
   computed: {

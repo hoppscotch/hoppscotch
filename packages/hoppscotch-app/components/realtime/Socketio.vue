@@ -102,7 +102,7 @@
                     <span class="select-wrapper">
                       <ButtonSecondary
                         class="rounded-none ml-2 pr-8"
-                        :label="authName"
+                        :label="authType"
                       />
                     </span>
                   </template>
@@ -133,13 +133,14 @@
                 </tippy>
               </span>
               <div class="flex">
-                <SmartCheckbox
+                <!-- @TODO: Work on Smart Checkbox to enable or disable auth -->
+                <!-- <SmartCheckbox
                   :on="authActive"
                   class="px-2"
                   @change="authActive = !authActive"
                 >
                   {{ $t("state.enabled") }}
-                </SmartCheckbox>
+                </SmartCheckbox> -->
                 <!-- @TODO Work on SocketIO authentication in documentation -->
                 <!-- <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
@@ -373,6 +374,7 @@ export default defineComponent({
         inputs: [""],
       },
       authType: "none",
+      bearerToken: "",
     }
   },
   computed: {
@@ -432,7 +434,17 @@ export default defineComponent({
           this.path = "/socket.io"
         }
         const Client = socketIoClients[this.clientVersion]
-        this.io = new Client(this.url, { path: this.path })
+        if (this.authType === "bearer") {
+          this.io = new Client(this.url, {
+            path: this.path,
+            auth: {
+              token: this.bearerToken,
+            },
+          })
+        } else {
+          this.io = new Client(this.url, { path: this.path })
+        }
+
         // Add ability to listen to all events
         wildcard(Client.Manager)(this.io)
         this.io.on("connect", () => {

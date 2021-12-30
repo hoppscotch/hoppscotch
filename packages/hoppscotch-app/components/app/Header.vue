@@ -85,7 +85,7 @@
                   svg="user"
                 />
               </template>
-              <div class="flex px-2 flex-col">
+              <div class="flex text-tiny px-2 flex-col">
                 <span class="inline-flex truncate font-semibold">
                   {{ currentUser.displayName }}
                 </span>

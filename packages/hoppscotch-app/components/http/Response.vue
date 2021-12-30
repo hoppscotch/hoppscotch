@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-1 flex-col">
     <HttpResponseMeta :response="response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"

@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Tömeges szerkesztés",
-    "bulk_mode_placeholder": "A bejegyzéseket új sor választja el\nA kulcsokat és az értékeket a következők választják el egymástól:\nElőtag // bármelyik sorhoz, amelyet hozzá szeretne adni, de továbbra is letiltva",
+    "bulk_mode_placeholder": "A bejegyzéseket új sor választja el\nA kulcsokat és az értékeket a következők választják el egymástól:\nElőtag # bármelyik sorhoz, amelyet hozzá szeretne adni, de továbbra is letiltva",
     "cleared": "Törölt",
     "connected": "csatlakoztatva",
     "connected_to": "Összekapcsolva a következővel: {name}",

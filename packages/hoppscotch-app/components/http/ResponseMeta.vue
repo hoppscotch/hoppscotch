@@ -69,11 +69,11 @@
           {{ t("error.network_fail") }}
         </span>
         <span
-          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+          class="max-w-sm text-secondaryLight text-center mb-6 whitespace-normal"
         >
           {{ t("helpers.network_fail") }}
         </span>
-        <AppInterceptor />
+        <AppInterceptor class="border border-dividerLight rounded" />
       </div>
       <div
         v-if="response.type === 'script_fail'"
@@ -89,7 +89,7 @@
           {{ t("error.script_fail") }}
         </span>
         <span
-          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+          class="max-w-sm text-secondaryLight text-center mb-6 whitespace-normal"
         >
           {{ t("helpers.script_fail") }}
         </span>

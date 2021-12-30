@@ -444,7 +444,7 @@
   },
   "state": {
     "bulk_mode": "大量編輯",
-    "bulk_mode_placeholder": "條目之間使用換行符分隔\n鍵和值之間使用冒號分隔\n將 // 置於行首以新增該行條目並保持停用",
+    "bulk_mode_placeholder": "條目之間使用換行符分隔\n鍵和值之間使用冒號分隔\n將 # 置於行首以新增該行條目並保持停用",
     "cleared": "已清除",
     "connected": "已連線",
     "connected_to": "已連線到 {name}",

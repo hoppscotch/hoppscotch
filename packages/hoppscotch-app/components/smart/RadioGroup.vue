@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col space-y-4 items-start">
+  <div class="flex flex-col space-y-4">
     <SmartRadio
       v-for="(radio, index) in radios"
       :key="`radio-${index}`"

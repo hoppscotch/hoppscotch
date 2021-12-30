@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Edició massiva",
-    "bulk_mode_placeholder": "Les entrades estan separades per una nova línia\nLes claus i els valors estan separats per:\nPrepara // a qualsevol fila que vulguis afegir, però continua desactivat",
+    "bulk_mode_placeholder": "Les entrades estan separades per una nova línia\nLes claus i els valors estan separats per:\nPrepara # a qualsevol fila que vulguis afegir, però continua desactivat",
     "cleared": "Esborrat",
     "connected": "Connectat",
     "connected_to": "Connectat a {name}",

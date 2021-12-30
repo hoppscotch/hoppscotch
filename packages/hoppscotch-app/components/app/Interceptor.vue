@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col space-y-4 p-4 items-start">
+  <div class="flex flex-col space-y-4 p-4">
     <div class="flex flex-col">
-      <h2 class="inline-flex font-semibold text-secondaryDark pb-2">
+      <h2 class="inline-flex font-semibold text-secondaryDark pb-1">
         {{ t("settings.interceptor") }}
       </h2>
-      <p class="inline-flex">
+      <p class="inline-flex text-tiny">
         {{ t("settings.interceptor_description") }}
       </p>
     </div>
@@ -13,6 +13,27 @@
       :selected="interceptorSelection"
       @change="toggleSettingKey"
     />
+    <div
+      v-if="interceptorSelection == 'EXTENSIONS_ENABLED' && !extensionVersion"
+      class="flex space-x-2"
+    >
+      <ButtonSecondary
+        to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
+        blank
+        svg="brands/chrome"
+        label="Chrome"
+        outline
+        class="!flex-1"
+      />
+      <ButtonSecondary
+        to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
+        blank
+        svg="brands/firefox"
+        label="Firefox"
+        outline
+        class="!flex-1"
+      />
+    </div>
   </div>
 </template>
 

@@ -29,6 +29,7 @@
                 ? 'radio_button_checked'
                 : 'radio_button_unchecked'
             "
+            :active="authName === 'None'"
             @click.native="
               () => {
                 authType = 'none'
@@ -43,6 +44,7 @@
                 ? 'radio_button_checked'
                 : 'radio_button_unchecked'
             "
+            :active="authName === 'Basic Auth'"
             @click.native="
               () => {
                 authType = 'basic'
@@ -57,6 +59,7 @@
                 ? 'radio_button_checked'
                 : 'radio_button_unchecked'
             "
+            :active="authName === 'Bearer'"
             @click.native="
               () => {
                 authType = 'bearer'
@@ -71,6 +74,7 @@
                 ? 'radio_button_checked'
                 : 'radio_button_unchecked'
             "
+            :active="authName === 'OAuth 2.0'"
             @click.native="
               () => {
                 authType = 'oauth-2'
@@ -85,6 +89,7 @@
                 ? 'radio_button_checked'
                 : 'radio_button_unchecked'
             "
+            :active="authName === 'API key'"
             @click.native="
               () => {
                 authType = 'api-key'
@@ -223,6 +228,7 @@
                     ? 'radio_button_checked'
                     : 'radio_button_unchecked'
                 "
+                :active="addTo === 'Headers'"
                 :label="'Headers'"
                 @click.native="
                   () => {
@@ -237,6 +243,7 @@
                     ? 'radio_button_checked'
                     : 'radio_button_unchecked'
                 "
+                :active="addTo === 'Query params'"
                 :label="'Query params'"
                 @click.native="
                   () => {

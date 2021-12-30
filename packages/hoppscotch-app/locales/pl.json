@@ -447,7 +447,7 @@
   },
   "state": {
     "bulk_mode": "Edycja zbiorcza",
-    "bulk_mode_placeholder": "Wpisy są oddzielone znakiem nowej linii\nKlucze i wartości są oddzielone:\nDołącz // do dowolnego wiersza, który chcesz dodać, ale pozostaw wyłączony",
+    "bulk_mode_placeholder": "Wpisy są oddzielone znakiem nowej linii\nKlucze i wartości są oddzielone:\nDołącz # do dowolnego wiersza, który chcesz dodać, ale pozostaw wyłączony",
     "cleared": "Wyczyszczono",
     "connected": "Połączony",
     "connected_to": "Połączony z {name}",

@@ -23,7 +23,7 @@ type RESTSession = {
   saveContext: HoppRequestSaveContext | null
 }
 
-export const defaultRESTRequest: HoppRESTRequest = {
+export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   v: RESTReqSchemaVersion,
   endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
@@ -40,10 +40,10 @@ export const defaultRESTRequest: HoppRESTRequest = {
     contentType: null,
     body: null,
   },
-}
+})
 
 const defaultRESTSession: RESTSession = {
-  request: defaultRESTRequest,
+  request: getDefaultRESTRequest(),
   response: null,
   testResults: null,
   saveContext: null,
@@ -387,7 +387,7 @@ export function getRESTSaveContext() {
 }
 
 export function resetRESTRequest() {
-  setRESTRequest(defaultRESTRequest)
+  setRESTRequest(getDefaultRESTRequest())
 }
 
 export function setRESTEndpoint(newEndpoint: string) {

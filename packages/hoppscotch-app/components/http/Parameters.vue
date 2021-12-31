@@ -224,12 +224,9 @@ watch(bulkParams, () => {
       .split("\n")
       .filter((x) => x.trim().length > 0 && x.includes(":"))
       .map((item) => ({
-        key: item
-          .substring(0, item.indexOf(":"))
-          .trimLeft()
-          .replace(/^\/\//, ""),
+        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
         value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("//"),
+        active: !item.trim().startsWith("#"),
       }))
 
     const filteredParams = workingParams.value.filter((x) => x.key !== "")
@@ -242,15 +239,16 @@ watch(bulkParams, () => {
     console.error(e)
   }
 })
+
 watch(workingParams, (newParamsList) => {
   // If we are in bulk mode, don't apply direct changes
   if (bulkMode.value) return
 
   try {
     const currentBulkParams = bulkParams.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^\/\//, ""),
+      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
       value: item.substring(item.indexOf(":") + 1).trimLeft(),
-      active: !item.trim().startsWith("//"),
+      active: !item.trim().startsWith("#"),
     }))
 
     const filteredParams = newParamsList.filter((x) => x.key !== "")
@@ -258,7 +256,7 @@ watch(workingParams, (newParamsList) => {
     if (!isEqual(currentBulkParams, filteredParams)) {
       bulkParams.value = filteredParams
         .map((param) => {
-          return `${param.active ? "" : "//"}${param.key}: ${param.value}`
+          return `${param.active ? "" : "#"}${param.key}: ${param.value}`
         })
         .join("\n")
     }

@@ -233,12 +233,9 @@ watch(bulkHeaders, () => {
       .split("\n")
       .filter((x) => x.trim().length > 0 && x.includes(":"))
       .map((item) => ({
-        key: item
-          .substring(0, item.indexOf(":"))
-          .trimLeft()
-          .replace(/^\/\//, ""),
+        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
         value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("//"),
+        active: !item.trim().startsWith("#"),
       }))
 
     const filteredHeaders = workingHeaders.value.filter((x) => x.key !== "")
@@ -251,15 +248,16 @@ watch(bulkHeaders, () => {
     console.error(e)
   }
 })
+
 watch(workingHeaders, (newHeadersList) => {
   // If we are in bulk mode, don't apply direct changes
   if (bulkMode.value) return
 
   try {
     const currentBulkHeaders = bulkHeaders.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^\/\//, ""),
+      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
       value: item.substring(item.indexOf(":") + 1).trimLeft(),
-      active: !item.trim().startsWith("//"),
+      active: !item.trim().startsWith("#"),
     }))
 
     const filteredHeaders = newHeadersList.filter((x) => x.key !== "")
@@ -267,7 +265,7 @@ watch(workingHeaders, (newHeadersList) => {
     if (!isEqual(currentBulkHeaders, filteredHeaders)) {
       bulkHeaders.value = filteredHeaders
         .map((header) => {
-          return `${header.active ? "" : "//"}${header.key}: ${header.value}`
+          return `${header.active ? "" : "#"}${header.key}: ${header.value}`
         })
         .join("\n")
     }

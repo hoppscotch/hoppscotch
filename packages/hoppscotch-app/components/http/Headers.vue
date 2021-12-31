@@ -335,5 +335,7 @@ const clearContent = () => {
       active: true,
     },
   ]
+
+  bulkHeaders.value = ""
 }
 </script>

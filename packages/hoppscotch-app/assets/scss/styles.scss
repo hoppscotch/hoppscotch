@@ -102,6 +102,7 @@ body {
 
 .material-icons {
   @apply flex-shrink-0;
+  @apply overflow-hidden;
 
   font-size: var(--line-height-body) !important;
   width: var(--line-height-body);
@@ -109,6 +110,7 @@ body {
 
 .svg-icons {
   @apply flex-shrink-0;
+  @apply overflow-hidden;
 
   height: var(--line-height-body);
   width: var(--line-height-body);
@@ -455,6 +457,10 @@ pre.ace_editor {
   @apply rounded;
   @apply ml-2;
   @apply px-1;
+}
+
+.capitalize-first::first-letter {
+  @apply capitalize;
 }
 
 @media (max-width: 767px) {

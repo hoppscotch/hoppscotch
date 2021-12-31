@@ -1,7 +1,7 @@
 <template>
   <div class="bg-error flex justify-between">
     <span
-      class="flex py-2 px-4 transition justify-center group relative items-center"
+      class="flex py-2 px-4 transition justify-center text-tiny group relative items-center"
     >
       <i class="mr-2 material-icons">info_outline</i>
       <span class="text-secondaryDark">

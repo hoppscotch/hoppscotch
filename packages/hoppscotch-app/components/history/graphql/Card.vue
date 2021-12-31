@@ -9,6 +9,12 @@
         <span class="truncate">
           {{ entry.request.url }}
         </span>
+        <tippy
+          v-if="entry.updatedOn"
+          theme="tooltip"
+          :delay="[500, 20]"
+          :content="`${new Date(entry.updatedOn).toLocaleString()}`"
+        />
       </span>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -49,53 +55,39 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  computed,
-  defineComponent,
-  PropType,
-  ref,
-} from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed, ref } from "@nuxtjs/composition-api"
 import { makeGQLRequest } from "@hoppscotch/data"
 import { setGQLSession } from "~/newstore/GQLSession"
 import { GQLHistoryEntry } from "~/newstore/history"
 
-export default defineComponent({
-  props: {
-    entry: { type: Object as PropType<GQLHistoryEntry>, default: () => {} },
-    showMore: Boolean,
-  },
-  setup(props) {
-    const expand = ref(false)
+const props = defineProps<{
+  entry: GQLHistoryEntry
+  showMore: Boolean
+}>()
 
-    const query = computed(() =>
-      expand.value
-        ? (props.entry.request.query.split("\n") as string[])
-        : (props.entry.request.query
-            .split("\n")
-            .slice(0, 2)
-            .concat(["..."]) as string[])
-    )
+const expand = ref(false)
 
-    const useEntry = () => {
-      setGQLSession({
-        request: makeGQLRequest({
-          name: props.entry.request.name,
-          url: props.entry.request.url,
-          headers: props.entry.request.headers,
-          query: props.entry.request.query,
-          variables: props.entry.request.variables,
-        }),
-        schema: "",
-        response: props.entry.response,
-      })
-    }
+const query = computed(() =>
+  expand.value
+    ? (props.entry.request.query.split("\n") as string[])
+    : (props.entry.request.query
+        .split("\n")
+        .slice(0, 2)
+        .concat(["..."]) as string[])
+)
 
-    return {
-      expand,
-      query,
-      useEntry,
-    }
-  },
-})
+const useEntry = () => {
+  setGQLSession({
+    request: makeGQLRequest({
+      name: props.entry.request.name,
+      url: props.entry.request.url,
+      headers: props.entry.request.headers,
+      query: props.entry.request.query,
+      variables: props.entry.request.variables,
+    }),
+    schema: "",
+    response: props.entry.response,
+  })
+}
 </script>

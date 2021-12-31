@@ -22,6 +22,8 @@ export type RESTHistoryEntry = {
   star: boolean
 
   id?: string // For when Firebase Firestore is set
+
+  updatedOn?: Date
 }
 
 export type GQLHistoryEntry = {
@@ -33,6 +35,8 @@ export type GQLHistoryEntry = {
   star: boolean
 
   id?: string // For when Firestore ID is set
+
+  updatedOn?: Date
 }
 
 export function makeRESTHistoryEntry(
@@ -50,6 +54,7 @@ export function makeGQLHistoryEntry(
   return {
     v: 1,
     ...x,
+    updatedOn: new Date(),
   }
 }
 
@@ -61,7 +66,7 @@ export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
   const star = x.star ?? false
   const duration = x.duration ?? null
   const statusCode = x.status ?? null
-
+  const updatedOn = x.updatedOn ?? null
   const obj: RESTHistoryEntry = makeRESTHistoryEntry({
     request,
     star,
@@ -69,6 +74,7 @@ export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
       duration,
       statusCode,
     },
+    updatedOn,
   })
 
   if (x.id) obj.id = x.id
@@ -83,11 +89,13 @@ export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
   const request = translateToGQLRequest(x)
   const star = x.star ?? false
   const response = x.response ?? ""
+  const updatedOn = x.updatedOn ?? ""
 
   const obj: GQLHistoryEntry = makeGQLHistoryEntry({
     request,
     star,
     response,
+    updatedOn,
   })
 
   if (x.id) obj.id = x.id
@@ -313,6 +321,7 @@ completedRESTResponse$.subscribe((res) => {
           statusCode: res.statusCode,
         },
         star: false,
+        updatedOn: new Date(),
       })
     )
   }

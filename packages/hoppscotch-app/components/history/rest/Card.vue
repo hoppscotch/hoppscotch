@@ -1,6 +1,7 @@
 <template>
   <div class="flex items-stretch group">
     <span
+      v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
       class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
       :class="entryStatus.className"
       data-testid="restore_history_entry"
@@ -12,12 +13,17 @@
     <span
       class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
       data-testid="restore_history_entry"
-      :title="`${duration}`"
       @click="$emit('use-entry')"
     >
       <span class="truncate">
         {{ entry.request.endpoint }}
       </span>
+      <tippy
+        v-if="entry.updatedOn"
+        theme="tooltip"
+        :delay="[500, 20]"
+        :content="`${new Date(entry.updatedOn).toLocaleString()}`"
+      />
     </span>
     <ButtonSecondary
       v-tippy="{ theme: 'tooltip' }"
@@ -40,46 +46,36 @@
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed } from "@nuxtjs/composition-api"
 import findStatusGroup from "~/helpers/findStatusGroup"
 import { useI18n } from "~/helpers/utils/composables"
 import { RESTHistoryEntry } from "~/newstore/history"
 
-export default defineComponent({
-  props: {
-    entry: { type: Object as PropType<RESTHistoryEntry>, default: () => {} },
-    showMore: Boolean,
-  },
-  setup(props) {
-    const t = useI18n()
+const props = defineProps<{
+  entry: RESTHistoryEntry
+  showMore: Boolean
+}>()
 
-    const duration = computed(() => {
-      if (props.entry.responseMeta.duration) {
-        const responseDuration = props.entry.responseMeta.duration
-        if (!responseDuration) return ""
+const t = useI18n()
 
-        return responseDuration > 0
-          ? `${t("request.duration")}: ${responseDuration}ms`
-          : t("error.no_duration")
-      } else return t("error.no_duration")
-    })
+const duration = computed(() => {
+  if (props.entry.responseMeta.duration) {
+    const responseDuration = props.entry.responseMeta.duration
+    if (!responseDuration) return ""
 
-    const entryStatus = computed(() => {
-      const foundStatusGroup = findStatusGroup(
-        props.entry.responseMeta.statusCode
-      )
-      return (
-        foundStatusGroup || {
-          className: "",
-        }
-      )
-    })
+    return responseDuration > 0
+      ? `${t("request.duration")}: ${responseDuration}ms`
+      : t("error.no_duration")
+  } else return t("error.no_duration")
+})
 
-    return {
-      duration,
-      entryStatus,
+const entryStatus = computed(() => {
+  const foundStatusGroup = findStatusGroup(props.entry.responseMeta.statusCode)
+  return (
+    foundStatusGroup || {
+      className: "",
     }
-  },
+  )
 })
 </script>

@@ -96,6 +96,7 @@
     "splitpanes": "^2.3.8",
     "subscriptions-transport-ws": "^0.11.0",
     "tern": "^0.24.3",
+    "timeago.js": "^4.0.2",
     "uuid": "8.3.2",
     "vue-apollo": "^3.1.0",
     "vue-functional-data-merge": "^3.1.0",

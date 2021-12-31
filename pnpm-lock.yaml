@@ -156,6 +156,7 @@ importers:
       stylelint-config-standard-scss: ^3.0.0
       subscriptions-transport-ws: ^0.11.0
       tern: ^0.24.3
+      timeago.js: ^4.0.2
       ts-jest: ^27.1.2
       typescript: ^4.5.4
       uuid: 8.3.2
@@ -233,6 +234,7 @@ importers:
       splitpanes: 2.3.8
       subscriptions-transport-ws: 0.11.0_graphql@15.7.2
       tern: 0.24.3
+      timeago.js: 4.0.2
       uuid: 8.3.2
       vue-apollo: 3.1.0_graphql-tag@2.12.6
       vue-functional-data-merge: 3.1.0
@@ -16682,6 +16684,10 @@ packages:
       webpack: '>=4.0.0'
     dependencies:
       webpack: 4.46.0
+    dev: false
+
+  /timeago.js/4.0.2:
+    resolution: {integrity: sha512-a7wPxPdVlQL7lqvitHGGRsofhdwtkoSXPGATFuSOA2i1ZNQEPLrGnj68vOp2sOJTCFAQVXPeNMX/GctBaO9L2w==}
     dev: false
 
   /timers-browserify/2.0.12:

@@ -2,7 +2,7 @@
   <div class="flex items-stretch group">
     <span
       v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-      class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
+      class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
       :class="entryStatus.className"
       data-testid="restore_history_entry"
       :title="`${duration}`"
@@ -11,7 +11,7 @@
       {{ entry.request.method }}
     </span>
     <span
-      class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
+      class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
       data-testid="restore_history_entry"
       @click="$emit('use-entry')"
     >

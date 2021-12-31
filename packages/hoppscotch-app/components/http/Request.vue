@@ -1,9 +1,9 @@
 <template>
   <div
-    class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky overflow-x-auto hide-scrollbar"
+    class="sticky top-0 z-10 flex p-4 space-x-2 overflow-x-auto bg-primary hide-scrollbar"
   >
     <div class="flex flex-1">
-      <div class="flex relative">
+      <div class="relative flex">
         <label for="method">
           <tippy
             ref="methodOptions"
@@ -16,7 +16,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -59,7 +59,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-r-none flex-1 min-w-20"
+        class="flex-1 rounded-r-none min-w-20"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
@@ -124,7 +124,7 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded rounded-r-none ml-2"
+        class="ml-2 rounded rounded-r-none"
         :label="
           windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
             ? `${t('request.save')}`

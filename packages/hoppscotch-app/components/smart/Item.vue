@@ -50,10 +50,7 @@
       <div class="font-semibold truncate">
         {{ label }}
       </div>
-      <p
-        v-if="description"
-        class="font-medium my-2 text-left text-secondaryLight"
-      >
+      <p v-if="description" class="my-2 text-left text-secondaryLight">
         {{ description }}
       </p>
     </div>
@@ -64,7 +61,7 @@
     >
       {{ infoIcon }}
     </i>
-    <div v-if="shortcut.length" class="ml-2 <sm:hidden">
+    <div v-if="shortcut.length" class="ml-2 <sm:hidden font-medium">
       <kbd
         v-for="(key, index) in shortcut"
         :key="`key-${index}`"

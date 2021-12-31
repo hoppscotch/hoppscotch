@@ -1,5 +1,5 @@
 <template>
-  <div class="flex py-1 items-center">
+  <div class="flex items-center py-1">
     <span class="flex flex-1 mr-4">
       {{ t(shortcut.label) }}
     </span>

@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="bg-primary border-b border-dividerLight flex top-0 z-10 sticky">
+    <div class="sticky top-0 z-10 flex border-b bg-primary border-dividerLight">
       <input
         v-model="filterText"
         type="search"
         autocomplete="off"
-        class="bg-transparent flex w-full p-4 py-2"
+        class="flex w-full p-4 py-2 bg-transparent"
         :placeholder="`${t('action.search')}`"
       />
       <div class="flex">
@@ -27,19 +27,32 @@
       </div>
     </div>
     <div class="flex flex-col">
-      <div
+      <details
         v-for="(filteredHistoryGroup, filteredHistoryGroupIndex) in groupByDate(
           filteredHistory,
           'updatedOn'
         )"
         :key="`filteredHistoryGroup-${filteredHistoryGroupIndex}`"
         class="flex flex-col"
+        open
       >
-        <span
-          class="ml-4 capitalize-first px-3 align-start my-2 py-1 text-secondaryLight bg-primaryLight truncate rounded-l-full flex-inline text-tiny"
+        <summary
+          class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer text-secondaryLight text-tiny group"
         >
-          {{ filteredHistoryGroupIndex }}
-        </span>
+          <span
+            class="px-4 py-2 truncate transition group-hover:text-secondary capitalize-first"
+          >
+            {{ filteredHistoryGroupIndex }}
+          </span>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            svg="trash"
+            color="red"
+            :title="$t('action.remove')"
+            class="hidden group-hover:inline-flex"
+            @click.native="deleteBattleHistoryEntry(filteredHistoryGroup)"
+          />
+        </summary>
         <div
           v-for="(entry, index) in filteredHistoryGroup"
           :key="`entry-${index}`"
@@ -54,28 +67,28 @@
             @use-entry="useHistory(entry)"
           />
         </div>
-      </div>
+      </details>
     </div>
     <div
       v-if="!(filteredHistory.length !== 0 || history.length === 0)"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
-      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <i class="pb-2 opacity-75 material-icons">manage_search</i>
       <span class="my-2 text-center">
         {{ t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
     <div
       v-if="history.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/history.svg`"
         loading="lazy"
-        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${t('empty.history')}`"
       />
-      <span class="text-center mb-4">
+      <span class="mb-4 text-center">
         {{ t("empty.history") }}
       </span>
     </div>
@@ -159,6 +172,19 @@ const clearHistory = () => {
 
 const useHistory = (entry: any) => {
   if (props.page === "rest") setRESTRequest(entry.request)
+}
+
+const deleteBattleHistoryEntry = (entries: number[]) => {
+  if (props.page === "rest") {
+    entries.forEach((entry: any) => {
+      deleteRESTHistoryEntry(entry)
+    })
+  } else {
+    entries.forEach((entry: any) => {
+      deleteGraphqlHistoryEntry(entry)
+    })
+  }
+  toast.success(`${t("state.deleted")}`)
 }
 
 const deleteHistory = (entry: any) => {

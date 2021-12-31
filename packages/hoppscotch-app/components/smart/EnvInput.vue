@@ -484,7 +484,6 @@ export default defineComponent({
 [contenteditable] {
   @apply select-text;
   @apply text-secondaryDark;
-  @apply font-medium;
 
   &:empty {
     @apply leading-loose;

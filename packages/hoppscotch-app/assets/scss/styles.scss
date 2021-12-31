@@ -147,7 +147,7 @@ a {
   @apply shadow;
   @apply leading-body;
 
-  font-size: 88%;
+  font-size: 86%;
 
   kbd {
     @apply hidden;
@@ -232,7 +232,6 @@ button {
 }
 
 .floating-input ~ label {
-  @apply font-medium;
   @apply py-0.5;
   @apply px-2;
   @apply m-2;
@@ -451,7 +450,6 @@ pre.ace_editor {
 .shortcut-key {
   @apply inline-flex;
   @apply font-sans;
-  @apply font-medium;
   @apply text-tiny;
   @apply bg-divider;
   @apply rounded;

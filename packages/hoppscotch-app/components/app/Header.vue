@@ -1,9 +1,9 @@
 <template>
   <div>
     <header
-      class="flex space-x-2 flex-1 py-2 px-2 items-center justify-between"
+      class="flex items-center justify-between flex-1 px-2 py-2 space-x-2"
     >
-      <div class="space-x-2 inline-flex items-center">
+      <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           label="HOPPSCOTCH"
@@ -11,7 +11,7 @@
         />
         <AppGitHubStarButton class="mt-1.5 transition hidden sm:flex" />
       </div>
-      <div class="space-x-2 inline-flex items-center">
+      <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
           id="installPWA"
           v-tippy="{ theme: 'tooltip' }"
@@ -47,7 +47,7 @@
           :label="t('header.login')"
           @click.native="showLogin = true"
         />
-        <div v-else class="space-x-2 inline-flex items-center">
+        <div v-else class="inline-flex items-center space-x-2">
           <ButtonPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
@@ -85,8 +85,8 @@
                   svg="user"
                 />
               </template>
-              <div class="flex text-tiny px-2 flex-col">
-                <span class="inline-flex truncate font-semibold">
+              <div class="flex flex-col px-2 text-tiny">
+                <span class="inline-flex font-semibold truncate">
                   {{ currentUser.displayName }}
                 </span>
                 <span class="inline-flex truncate text-secondaryLight">

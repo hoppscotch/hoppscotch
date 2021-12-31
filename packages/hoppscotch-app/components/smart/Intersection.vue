@@ -3,6 +3,7 @@
     <slot></slot>
   </div>
 </template>
+
 <script lang="ts">
 /*
   Implements a wrapper listening to viewport intersections via

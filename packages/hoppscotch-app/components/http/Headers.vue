@@ -252,6 +252,9 @@ watch(bulkHeaders, () => {
   }
 })
 watch(workingHeaders, (newHeadersList) => {
+  // If we are in bulk mode, don't apply direct changes
+  if (bulkMode.value) return
+
   try {
     const currentBulkHeaders = bulkHeaders.value.split("\n").map((item) => ({
       key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^\/\//, ""),

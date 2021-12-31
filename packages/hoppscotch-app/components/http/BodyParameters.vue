@@ -54,13 +54,12 @@
       />
       <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
         <div class="space-x-2 file-chips-wrapper">
-          <SmartDeletableChip
+          <SmartFileChip
             v-for="(file, fileIndex) in param.value"
             :key="`param-${index}-file-${fileIndex}`"
-            @chip-delete="chipDelete(index, fileIndex)"
           >
             {{ file.name }}
-          </SmartDeletableChip>
+          </SmartFileChip>
         </div>
       </div>
       <span v-else class="flex flex-1">
@@ -85,21 +84,17 @@
         />
       </span>
       <span>
-        <label for="attachment" class="p-0">
-          <ButtonSecondary
-            class="w-full"
-            svg="paperclip"
-            @click.native="$refs.attachment[index].click()"
+        <label :for="`attachment${index}`" class="p-0">
+          <input
+            :id="`attachment${index}`"
+            :ref="`attachment${index}`"
+            :name="`attachment${index}`"
+            type="file"
+            multiple
+            class="p-1 transition cursor-pointer file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+            @change="setRequestAttachment(index, param, $event)"
           />
         </label>
-        <input
-          ref="attachment"
-          class="input"
-          name="attachment"
-          type="file"
-          multiple
-          @change="setRequestAttachment(index, param, $event)"
-        />
       </span>
       <span>
         <ButtonSecondary
@@ -163,8 +158,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, Ref, watch } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { onMounted, Ref, watch } from "@nuxtjs/composition-api"
 import { FormDataKeyValue } from "@hoppscotch/data"
 import { pluckRef } from "~/helpers/utils/composables"
 import {
@@ -175,87 +170,66 @@ import {
   useRESTRequestBody,
 } from "~/newstore/RESTSession"
 
-export default defineComponent({
-  setup() {
-    const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body") as Ref<
-      FormDataKeyValue[]
-    >
+const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body") as Ref<
+  FormDataKeyValue[]
+>
 
-    const addBodyParam = () => {
-      addFormDataEntry({ key: "", value: "", active: true, isFile: false })
-    }
+const addBodyParam = () => {
+  addFormDataEntry({ key: "", value: "", active: true, isFile: false })
+}
 
-    const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
-      updateFormDataEntry(index, entry)
-    }
+const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
+  updateFormDataEntry(index, entry)
+}
 
-    const deleteBodyParam = (index: number) => {
-      deleteFormDataEntry(index)
-    }
+const deleteBodyParam = (index: number) => {
+  deleteFormDataEntry(index)
+}
 
-    const clearContent = () => {
-      deleteAllFormDataEntries()
-    }
+const clearContent = () => {
+  deleteAllFormDataEntries()
+}
 
-    const chipDelete = (paramIndex: number, fileIndex: number) => {
-      const entry = bodyParams.value[paramIndex]
-      if (entry.isFile) {
-        entry.value.splice(fileIndex, 1)
-        if (entry.value.length === 0) {
-          updateFormDataEntry(paramIndex, {
-            ...entry,
-            isFile: false,
-            value: "",
-          })
-          return
-        }
-      }
-
-      updateFormDataEntry(paramIndex, entry)
-    }
-
-    const setRequestAttachment = (
-      index: number,
-      entry: FormDataKeyValue,
-      event: InputEvent
-    ) => {
-      const fileEntry: FormDataKeyValue = {
-        ...entry,
-        isFile: true,
-        value: Array.from((event.target as HTMLInputElement).files!),
-      }
-      updateFormDataEntry(index, fileEntry)
-    }
-
-    watch(
-      bodyParams,
-      () => {
-        if (
-          bodyParams.value.length > 0 &&
-          (bodyParams.value[bodyParams.value.length - 1].key !== "" ||
-            bodyParams.value[bodyParams.value.length - 1].value !== "")
-        )
-          addBodyParam()
-      },
-      { deep: true }
-    )
-
-    onMounted(() => {
-      if (!bodyParams.value?.length) {
-        addBodyParam()
-      }
+const setRequestAttachment = (
+  index: number,
+  entry: FormDataKeyValue,
+  event: InputEvent
+) => {
+  // check if file exists or not
+  if ((event.target as HTMLInputElement).files?.length === 0) {
+    updateFormDataEntry(index, {
+      ...entry,
+      isFile: false,
+      value: "",
     })
+    return
+  }
 
-    return {
-      bodyParams,
-      addBodyParam,
-      updateBodyParam,
-      deleteBodyParam,
-      clearContent,
-      setRequestAttachment,
-      chipDelete,
-    }
+  const fileEntry: FormDataKeyValue = {
+    ...entry,
+    isFile: true,
+    value: Array.from((event.target as HTMLInputElement).files!),
+  }
+  updateFormDataEntry(index, fileEntry)
+}
+
+watch(
+  bodyParams,
+  () => {
+    if (
+      bodyParams.value.length > 0 &&
+      (bodyParams.value[bodyParams.value.length - 1].key !== "" ||
+        bodyParams.value[bodyParams.value.length - 1].value !== "")
+    )
+      addBodyParam()
   },
+  { deep: true }
+)
+
+onMounted(() => {
+  if (!bodyParams.value?.length) {
+    addBodyParam()
+  }
 })
 </script>
 
@@ -268,8 +242,7 @@ export default defineComponent({
 
   .file-chips-wrapper {
     @apply flex;
-    @apply px-4;
-    @apply py-1;
+    @apply p-1;
     @apply w-0;
   }
 }

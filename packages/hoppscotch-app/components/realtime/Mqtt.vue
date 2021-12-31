@@ -13,15 +13,15 @@
           :size="COLUMN_LAYOUT ? 45 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <div class="bg-primary flex flex-col space-y-4 p-4 top-0 z-10 sticky">
-            <div class="space-x-2 flex-1 inline-flex">
+          <div class="sticky top-0 z-10 flex flex-col p-4 space-y-4 bg-primary">
+            <div class="inline-flex flex-1 space-x-2">
               <input
                 id="mqtt-url"
                 v-model="url"
                 type="url"
                 autocomplete="off"
                 spellcheck="false"
-                class="bg-primaryLight border border-divider rounded text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                 :placeholder="$t('mqtt.url')"
                 :disabled="connectionState"
                 @keyup.enter="validUrl ? toggleConnection() : null"
@@ -73,7 +73,7 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <div class="flex flex-col flex-1 p-4 inline-flex">
+      <div class="flex inline-flex flex-col flex-1 p-4">
         <label for="pub_topic" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.topic") }}
         </label>
@@ -89,12 +89,12 @@
           spellcheck="false"
         />
       </div>
-      <div class="flex flex-1 p-4 items-center justify-between">
+      <div class="flex items-center justify-between flex-1 p-4">
         <label for="mqtt-message" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.communication") }}
         </label>
       </div>
-      <div class="flex space-x-2 px-4">
+      <div class="flex px-4 space-x-2">
         <input
           id="mqtt-message"
           v-model="msg"
@@ -113,13 +113,13 @@
         />
       </div>
       <div
-        class="border-t border-dividerLight flex flex-col flex-1 mt-4 p-4 inline-flex"
+        class="flex inline-flex flex-col flex-1 p-4 mt-4 border-t border-dividerLight"
       >
         <label for="sub_topic" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.topic") }}
         </label>
       </div>
-      <div class="flex space-x-2 px-4">
+      <div class="flex px-4 space-x-2">
         <input
           id="sub_topic"
           v-model="sub_topic"

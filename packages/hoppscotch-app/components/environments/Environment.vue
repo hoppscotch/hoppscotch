@@ -4,13 +4,13 @@
     @contextmenu.prevent="options.tippy().show()"
   >
     <span
-      class="cursor-pointer flex px-4 items-center justify-center"
+      class="flex items-center justify-center px-4 cursor-pointer"
       @click="$emit('edit-environment')"
     >
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
-      class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
+      class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
       @click="$emit('edit-environment')"
     >
       <span class="truncate">

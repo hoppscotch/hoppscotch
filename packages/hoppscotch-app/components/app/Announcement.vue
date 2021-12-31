@@ -7,7 +7,7 @@
       <span class="md:hidden">
         {{ t("helpers.offline_short") }}
       </span>
-      <span class="hidden md:inline">
+      <span class="<md:hidden">
         {{ t("helpers.offline") }}
       </span>
     </span>

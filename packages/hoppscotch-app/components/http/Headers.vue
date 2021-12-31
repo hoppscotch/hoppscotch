@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("request.header_list") }}
@@ -41,7 +41,7 @@
       <div
         v-for="(header, index) in headers$"
         :key="`header-${index}`"
-        class="divide-dividerLight divide-x border-b border-dividerLight flex"
+        class="flex border-b divide-x divide-dividerLight border-dividerLight"
       >
         <SmartAutoComplete
           :placeholder="`${t('count.header', { count: index + 1 })}`"
@@ -125,15 +125,15 @@
       </div>
       <div
         v-if="headers$.length === 0"
-        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_category.svg`"
           loading="lazy"
-          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
           :alt="`${t('empty.headers')}`"
         />
-        <span class="text-center pb-4">
+        <span class="pb-4 text-center">
           {{ t("empty.headers") }}
         </span>
         <ButtonSecondary

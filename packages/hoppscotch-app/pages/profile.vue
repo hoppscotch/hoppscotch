@@ -9,10 +9,10 @@
           <img
             :src="`/images/states/${$colorMode.value}/login.svg`"
             loading="lazy"
-            class="flex-col object-contain object-center h-24 my-4 w-24 inline-flex"
+            class="inline-flex flex-col object-contain object-center w-24 h-24 my-4"
             :alt="`${t('empty.parameters')}`"
           />
-          <p class="text-center text-secondaryLight pb-4">
+          <p class="pb-4 text-center text-secondaryLight">
             {{ t("empty.profile") }}
           </p>
           <ButtonPrimary
@@ -23,15 +23,15 @@
         </div>
         <div v-else class="space-y-8">
           <div
-            class="bg-primaryLight rounded h-24 -mb-11 md:h-32"
+            class="h-24 rounded bg-primaryLight -mb-11 md:h-32"
             style="background-image: url('/images/cover.svg')"
           ></div>
-          <div class="flex flex-col space-y-8 px-4 justify-between md:flex-row">
+          <div class="flex flex-col justify-between px-4 space-y-8 md:flex-row">
             <div class="flex items-end">
               <img
                 v-if="currentUser.photoURL"
                 :src="currentUser.photoURL"
-                class="rounded-lg h-16 ring-primary ring-4 w-16"
+                class="w-16 h-16 rounded-lg ring-primary ring-4"
                 :alt="`${currentUser.displayName}`"
               />
               <SmartIcon v-else name="user" class="svg-icons" />
@@ -39,7 +39,7 @@
                 <label class="heading">
                   {{ currentUser.displayName || t("state.nothing_found") }}
                 </label>
-                <p class="flex text-secondaryLight items-center">
+                <p class="flex items-center text-secondaryLight">
                   {{ currentUser.email }}
                   <SmartIcon
                     v-if="currentUser.emailVerified"
@@ -50,14 +50,14 @@
                     v-else
                     :label="t('settings.verify_email')"
                     svg="verified"
-                    class="ml-2 py-0 px-1"
+                    class="px-1 py-0 ml-2"
                     :loading="verifyingEmailAddress"
                     @click.native="sendEmailVerification"
                   />
                 </p>
               </div>
             </div>
-            <div class="flex space-x-2 items-end">
+            <div class="flex items-end space-x-2">
               <div>
                 <SmartItem
                   to="/settings"
@@ -144,7 +144,7 @@
                 <div class="my-1 text-secondaryLight">
                   {{ t("settings.sync_description") }}
                 </div>
-                <div class="space-y-4 py-4">
+                <div class="py-4 space-y-4">
                   <div class="flex items-center">
                     <SmartToggle
                       :on="SYNC_COLLECTIONS"

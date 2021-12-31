@@ -1,15 +1,15 @@
 <template>
   <div
     tabindex="0"
-    class="cursor-pointer flex rounded-full h-5 w-5 relative items-center justify-center focus:outline-none focus-visible:ring focus-visible:ring-primaryDark"
+    class="relative flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring focus-visible:ring-primaryDark"
   >
     <img
-      class="bg-primaryDark rounded-full object-cover object-center h-5 w-5 transition absolute"
+      class="absolute object-cover object-center w-5 h-5 transition rounded-full bg-primaryDark"
       :src="url"
       :alt="alt"
       loading="lazy"
     />
-    <div class="rounded-full shadow-inner inset-0 absolute"></div>
+    <div class="absolute inset-0 rounded-full shadow-inner"></div>
     <span
       v-if="indicator"
       class="border-primary rounded-full border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute"

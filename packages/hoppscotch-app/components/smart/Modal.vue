@@ -2,14 +2,14 @@
   <transition name="fade" appear @leave="onTransitionLeaveStart">
     <div
       ref="modal"
-      class="inset-0 transition z-10 z-50 fixed overflow-y-auto hide-scrollbar"
+      class="fixed inset-0 z-10 z-50 overflow-y-auto transition hide-scrollbar"
     >
       <div
-        class="flex min-h-screen text-center items-end justify-center sm:block"
+        class="flex items-end justify-center min-h-screen text-center sm:block"
       >
         <transition name="fade" appear>
           <div
-            class="bg-primaryLight opacity-90 inset-0 transition fixed"
+            class="fixed inset-0 transition bg-primaryLight opacity-90"
             @touchstart="!dialog ? close() : null"
             @touchend="!dialog ? close() : null"
             @mouseup="!dialog ? close() : null"
@@ -18,7 +18,7 @@
         </transition>
         <span
           v-if="placement === 'center'"
-          class="hidden sm:h-screen sm:inline-block sm:align-middle"
+          class="sm:h-screen <sm:hidden sm:align-middle"
           aria-hidden="true"
           >&#8203;</span
         >
@@ -32,7 +32,7 @@
           leave-to-class="scale-95 translate-y-4"
         >
           <div
-            class="bg-primary shadow-lg text-left w-full transform transition-all inline-block overflow-hidden align-bottom sm:rounded-xl sm:align-middle"
+            class="inline-block w-full overflow-hidden text-left align-bottom transition-all transform shadow-lg bg-primary sm:rounded-xl sm:align-middle"
             :class="[
               { 'mt-24 md:mb-8': placement === 'top' },
               { 'p-4': !fullWidth },
@@ -41,7 +41,7 @@
           >
             <div
               v-if="title"
-              class="flex mb-4 pl-2 items-center justify-between"
+              class="flex items-center justify-between pl-2 mb-4"
             >
               <h3 class="heading">{{ title }}</h3>
               <span class="flex">
@@ -54,14 +54,14 @@
               </span>
             </div>
             <div
-              class="flex flex-col max-h-md overflow-y-auto hide-scrollbar"
+              class="flex flex-col overflow-y-auto max-h-md hide-scrollbar"
               :class="{ 'py-2': !fullWidth }"
             >
               <slot name="body"></slot>
             </div>
             <div
               v-if="hasFooterSlot"
-              class="flex flex-1 mt-4 p-2 items-center justify-between"
+              class="flex items-center justify-between flex-1 p-2 mt-4"
             >
               <slot name="footer"></slot>
             </div>

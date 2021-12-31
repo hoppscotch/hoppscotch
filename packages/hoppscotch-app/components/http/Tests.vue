@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("test.javascript_code") }}
@@ -29,14 +29,14 @@
         />
       </div>
     </div>
-    <div class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight w-2/3">
+    <div class="flex border-b border-dividerLight">
+      <div class="w-2/3 border-r border-dividerLight">
         <div ref="testScriptEditor" class="h-full"></div>
       </div>
       <div
-        class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
+        class="sticky h-full p-4 overflow-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
       >
-        <div class="text-secondaryLight pb-2">
+        <div class="pb-2 text-secondaryLight">
           {{ t("helpers.post_request_tests") }}
         </div>
         <SmartAnchor
@@ -44,7 +44,7 @@
           to="https://docs.hoppscotch.io/features/tests"
           blank
         />
-        <h4 class="font-bold text-secondaryLight pt-6">
+        <h4 class="pt-6 font-bold text-secondaryLight">
           {{ t("test.snippets") }}
         </h4>
         <div class="flex flex-col pt-4">

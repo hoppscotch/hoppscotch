@@ -33,26 +33,26 @@
           subscriptionFields.length === 0 &&
           graphqlTypes.length === 0
         "
-        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_comment.svg`"
           loading="lazy"
-          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
           :alt="`${t('empty.documentation')}`"
         />
-        <span class="text-center mb-4">
+        <span class="mb-4 text-center">
           {{ t("empty.documentation") }}
         </span>
       </div>
       <div v-else>
-        <div class="bg-primary flex top-0 z-10 sticky">
+        <div class="sticky top-0 z-10 flex bg-primary">
           <input
             v-model="graphqlFieldsFilterText"
             type="search"
             autocomplete="off"
             :placeholder="`${t('action.search')}`"
-            class="bg-transparent flex w-full p-4 py-2"
+            class="flex w-full p-4 py-2 bg-transparent"
           />
           <div class="flex">
             <ButtonSecondary
@@ -74,7 +74,7 @@
               :id="'queries'"
               :label="`${t('tab.queries')}`"
               :selected="true"
-              class="divide-dividerLight divide-y"
+              class="divide-y divide-dividerLight"
             >
               <GraphqlField
                 v-for="(field, index) in filteredQueryFields"
@@ -88,7 +88,7 @@
               v-if="mutationFields.length > 0"
               :id="'mutations'"
               :label="`${t('graphql.mutations')}`"
-              class="divide-dividerLight divide-y"
+              class="divide-y divide-dividerLight"
             >
               <GraphqlField
                 v-for="(field, index) in filteredMutationFields"
@@ -102,7 +102,7 @@
               v-if="subscriptionFields.length > 0"
               :id="'subscriptions'"
               :label="`${t('graphql.subscriptions')}`"
-              class="divide-dividerLight divide-y"
+              class="divide-y divide-dividerLight"
             >
               <GraphqlField
                 v-for="(field, index) in filteredSubscriptionFields"
@@ -117,7 +117,7 @@
               :id="'types'"
               ref="typesTab"
               :label="`${t('tab.types')}`"
-              class="divide-dividerLight divide-y"
+              class="divide-y divide-dividerLight"
             >
               <GraphqlType
                 v-for="(type, index) in filteredGraphqlTypes"
@@ -137,7 +137,7 @@
     <SmartTab :id="'schema'" icon="box" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
-        class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-0 z-10 sticky items-center justify-between"
+        class="sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight"
       >
         <label class="font-semibold text-secondaryLight">
           {{ t("graphql.schema") }}
@@ -176,15 +176,15 @@
       <div v-if="schemaString" ref="schemaEditor"></div>
       <div
         v-else
-        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
           :src="`/images/states/${$colorMode.value}/blockchain.svg`"
           loading="lazy"
-          class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
           :alt="`${t('empty.schema')}`"
         />
-        <span class="text-center mb-4">
+        <span class="mb-4 text-center">
           {{ t("empty.schema") }}
         </span>
       </div>

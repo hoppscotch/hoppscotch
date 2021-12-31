@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="bg-primary border-b border-dividerLight flex flex-1 top-upperTertiaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ $t("request.body") }}
@@ -31,7 +31,7 @@
     <div
       v-for="(param, index) in bodyParams"
       :key="`param-${index}`"
-      class="divide-dividerLight divide-x border-b border-dividerLight flex"
+      class="flex border-b divide-x divide-dividerLight border-dividerLight"
     >
       <SmartEnvInput
         v-model="param.key"
@@ -141,15 +141,15 @@
     </div>
     <div
       v-if="bodyParams.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
         loading="lazy"
-        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${$t('empty.body')}`"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.body") }}
       </span>
       <ButtonSecondary

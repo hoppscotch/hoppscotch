@@ -1,10 +1,10 @@
 <template>
   <div
-    class="border border-divider rounded flex flex-col flex-1"
+    class="flex flex-col flex-1 border rounded border-divider"
     @contextmenu.prevent="!compact ? options.tippy().show() : null"
   >
     <div
-      class="flex flex-1 items-start"
+      class="flex items-start flex-1"
       :class="
         compact
           ? team.myRole === 'OWNER'
@@ -27,7 +27,7 @@
         >
           {{ team.name || t("state.nothing_found") }}
         </label>
-        <div class="flex -space-x-1 mt-2 overflow-hidden">
+        <div class="flex mt-2 -space-x-1 overflow-hidden">
           <img
             v-for="(member, index) in team.teamMembers"
             :key="`member-${index}`"
@@ -35,13 +35,13 @@
             :title="member.user.displayName"
             :src="member.user.photoURL || undefined"
             :alt="member.user.displayName"
-            class="rounded-full h-5 ring-primary ring-2 w-5 inline-block"
+            class="inline-block w-5 h-5 rounded-full ring-primary ring-2"
             loading="lazy"
           />
         </div>
       </div>
     </div>
-    <div v-if="!compact" class="flex flex-shrink-0 items-end justify-between">
+    <div v-if="!compact" class="flex items-end justify-between flex-shrink-0">
       <span>
         <ButtonSecondary
           v-if="team.myRole === 'OWNER'"

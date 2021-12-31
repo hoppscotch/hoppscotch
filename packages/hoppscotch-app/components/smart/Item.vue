@@ -3,7 +3,7 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="rounded flex-shrink-0 py-2 px-4 transition inline-flex items-center hover:bg-primaryDark hover:text-secondaryDark focus:outline-none focus-visible:bg-primaryDark focus-visible:text-secondaryDark"
+    class="inline-flex items-center flex-shrink-0 px-4 py-2 transition rounded hover:bg-primaryDark hover:text-secondaryDark focus:outline-none focus-visible:bg-primaryDark focus-visible:text-secondaryDark"
     :class="[
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'pointer-events-none': loading },
@@ -44,7 +44,7 @@
     </span>
     <SmartSpinner v-else class="mr-4 text-secondaryDark" />
     <div
-      class="flex-1 inline-flex items-start truncate"
+      class="inline-flex items-start flex-1 truncate"
       :class="{ 'flex-col': description }"
     >
       <div class="font-semibold truncate">
@@ -56,7 +56,7 @@
     </div>
     <i
       v-if="infoIcon"
-      class="ml-6 items-center self-center material-icons"
+      class="items-center self-center ml-6 material-icons"
       :class="{ 'text-accent': activeInfoIcon }"
     >
       {{ infoIcon }}
@@ -65,7 +65,7 @@
       <kbd
         v-for="(key, index) in shortcut"
         :key="`key-${index}`"
-        class="shortcut-key -mr-2"
+        class="-mr-2 shortcut-key"
       >
         {{ key }}
       </kbd>

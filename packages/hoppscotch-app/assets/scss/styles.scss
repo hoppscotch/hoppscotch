@@ -1,7 +1,9 @@
-*,
-*::before,
-*::after {
+* {
   @apply backface-hidden;
+  @apply before:backface-hidden;
+  @apply after:backface-hidden;
+  @apply selection:bg-accentDark;
+  @apply selection:text-accentContrast;
 }
 
 :root {
@@ -35,11 +37,6 @@
 
 .hide-scrollbar::-webkit-scrollbar {
   @apply hidden;
-}
-
-::selection {
-  @apply bg-accentDark;
-  @apply text-accentContrast;
 }
 
 input::placeholder,
@@ -457,8 +454,8 @@ pre.ace_editor {
   @apply px-1;
 }
 
-.capitalize-first::first-letter {
-  @apply capitalize;
+.capitalize-first {
+  @apply first-letter:capitalize;
 }
 
 @media (max-width: 767px) {

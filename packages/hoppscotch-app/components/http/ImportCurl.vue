@@ -1,10 +1,10 @@
 <template>
   <SmartModal v-if="show" :title="`${t('import.curl')}`" @close="hideModal">
     <template #body>
-      <div class="h-46 px-2">
+      <div class="px-2 h-46">
         <div
           ref="curlEditor"
-          class="border border-dividerLight h-full rounded"
+          class="h-full border rounded border-dividerLight"
         ></div>
       </div>
     </template>

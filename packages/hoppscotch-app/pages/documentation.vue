@@ -13,18 +13,18 @@
           :size="COLUMN_LAYOUT ? 45 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <div class="flex p-4 items-start justify-between">
+          <div class="flex items-start justify-between p-4">
             <label>
               {{ $t("documentation.generate_message") }}
             </label>
             <span
-              class="bg-accentDark rounded text-accentContrast py-1 px-2 inline-flex"
+              class="inline-flex px-2 py-1 rounded bg-accentDark text-accentContrast"
             >
               BETA
             </span>
           </div>
           <div
-            class="bg-primary border-b border-dividerLight flex top-0 z-10 sticky items-start justify-between"
+            class="sticky top-0 z-10 flex items-start justify-between border-b bg-primary border-dividerLight"
           >
             <label for="collectionUpload">
               <ButtonSecondary
@@ -53,12 +53,12 @@
           <textarea-autosize
             id="import-curl"
             v-model="collectionJSON"
-            class="bg-primary font-mono p-4 w-full"
+            class="w-full p-4 font-mono bg-primary"
             autofocus
             rows="8"
           />
           <div
-            class="bg-primary border-t border-b border-dividerLight flex p-4 bottom-0 z-10 sticky items-start justify-between"
+            class="sticky bottom-0 z-10 flex items-start justify-between p-4 border-t border-b bg-primary border-dividerLight"
           >
             <ButtonPrimary
               :label="$t('documentation.generate')"
@@ -73,16 +73,16 @@
           <div class="flex flex-col">
             <div
               v-if="items.length === 0"
-              class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+              class="flex flex-col items-center justify-center p-4 text-secondaryLight"
             >
-              <i class="opacity-75 pb-2 material-icons">topic</i>
+              <i class="pb-2 opacity-75 material-icons">topic</i>
               <span class="text-center">
                 {{ $t("helpers.generate_documentation_first") }}
               </span>
             </div>
             <div
               v-else
-              class="bg-primary border-b border-dividerLight flex flex-1 p-4 top-0 z-10 sticky"
+              class="sticky top-0 z-10 flex flex-1 p-4 border-b bg-primary border-dividerLight"
             >
               <span
                 v-tippy="{ theme: 'tooltip' }"

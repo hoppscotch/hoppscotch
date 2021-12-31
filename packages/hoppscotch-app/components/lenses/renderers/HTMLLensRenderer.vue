@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="bg-primary border-b border-dividerLight flex top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("response.body") }}

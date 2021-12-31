@@ -1,6 +1,6 @@
 <template>
   <div
-    class="cursor-pointer flex flex-nowrap transition flex-1 items-center group hover:text-secondaryDark"
+    class="flex items-center flex-1 transition cursor-pointer flex-nowrap group hover:text-secondaryDark"
     @click="$emit('change', value)"
   >
     <span class="inline-flex mr-4">
@@ -9,7 +9,7 @@
       </i>
       <i v-else class="material-icons">radio_button_unchecked</i>
     </span>
-    <span class="font-semibold inline-flex">{{ label }}</span>
+    <span class="inline-flex font-semibold">{{ label }}</span>
   </div>
 </template>
 

@@ -13,8 +13,8 @@
           :size="COLUMN_LAYOUT ? 45 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <div class="bg-primary flex p-4 top-0 z-10 sticky">
-            <div class="space-x-2 flex-1 inline-flex">
+          <div class="sticky top-0 z-10 flex p-4 bg-primary">
+            <div class="inline-flex flex-1 space-x-2">
               <div class="flex flex-1">
                 <label for="client-version">
                   <tippy
@@ -30,7 +30,7 @@
                           id="client-version"
                           v-tippy="{ theme: 'tooltip' }"
                           title="socket.io-client version"
-                          class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                          class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                           :value="`Client ${clientVersion}`"
                           readonly
                           :disabled="connectionState"
@@ -52,7 +52,7 @@
                   autocomplete="off"
                   spellcheck="false"
                   :class="{ error: !urlValid }"
-                  class="bg-primaryLight border border-divider flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex flex-1 w-full px-4 py-2 border bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   :placeholder="$t('socketio.url')"
                   :disabled="connectionState"
                   @keyup.enter="urlValid ? toggleConnection() : null"
@@ -60,7 +60,7 @@
                 <input
                   id="socketio-path"
                   v-model="path"
-                  class="bg-primaryLight border border-divider rounded-r flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   spellcheck="false"
                   :disabled="connectionState"
                   @keyup.enter="urlValid ? toggleConnection() : null"
@@ -82,7 +82,7 @@
             </div>
           </div>
           <div
-            class="bg-primary border-b border-dividerLight flex flex-1 top-upperPrimaryStickyFold pl-4 z-10 sticky items-center justify-between"
+            class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
           >
             <span class="flex items-center">
               <label class="font-semibold text-secondaryLight">
@@ -98,7 +98,7 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <ButtonSecondary
-                      class="rounded-none ml-2 pr-8"
+                      class="pr-8 ml-2 rounded-none"
                       :label="authType"
                     />
                   </span>
@@ -160,15 +160,15 @@
           </div>
           <div
             v-if="authType === 'None'"
-            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
           >
             <img
               :src="`/images/states/${$colorMode.value}/login.svg`"
               loading="lazy"
-              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="$t('empty.authorization')"
             />
-            <span class="text-center pb-4">
+            <span class="pb-4 text-center">
               This SocketIO connection does not use any authentication.
             </span>
             <ButtonSecondary
@@ -183,10 +183,10 @@
           </div>
           <div
             v-if="authType === 'Bearer'"
-            class="border-b border-dividerLight flex"
+            class="flex border-b border-dividerLight"
           >
-            <div class="border-r border-dividerLight w-2/3">
-              <div class="border-b border-dividerLight flex">
+            <div class="w-2/3 border-r border-dividerLight">
+              <div class="flex border-b border-dividerLight">
                 <SmartEnvInput
                   v-model="bearerToken"
                   placeholder="Token"
@@ -195,10 +195,10 @@
               </div>
             </div>
             <div
-              class="bg-primary h-full top-upperTertiaryStickyFold min-w-46 max-w-1/3 p-4 z-9 sticky overflow-auto"
+              class="sticky h-full p-4 overflow-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
             >
               <div class="p-2">
-                <div class="text-secondaryLight pb-2">
+                <div class="pb-2 text-secondaryLight">
                   {{ $t("helpers.authorization") }}
                 </div>
                 <SmartAnchor
@@ -225,7 +225,7 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <div class="flex flex-col flex-1 p-4 inline-flex">
+      <div class="flex inline-flex flex-col flex-1 p-4">
         <label for="events" class="font-semibold text-secondaryLight">
           {{ $t("socketio.events") }}
         </label>
@@ -242,7 +242,7 @@
           :disabled="!connectionState"
         />
       </div>
-      <div class="flex flex-1 p-4 items-center justify-between">
+      <div class="flex items-center justify-between flex-1 p-4">
         <label class="font-semibold text-secondaryLight">
           {{ $t("socketio.communication") }}
         </label>
@@ -255,7 +255,7 @@
           />
         </div>
       </div>
-      <div class="flex flex-col space-y-2 px-4 pb-4">
+      <div class="flex flex-col px-4 pb-4 space-y-2">
         <div
           v-for="(input, index) of communication.inputs"
           :key="`input-${index}`"

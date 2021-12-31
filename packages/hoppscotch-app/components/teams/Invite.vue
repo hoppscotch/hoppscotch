@@ -2,8 +2,8 @@
   <SmartModal v-if="show" :title="t('team.invite')" @close="hideModal">
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
-        <div class="flex flex-col max-w-md items-center justify-center">
-          <SmartIcon class="h-6 text-accent w-6" name="users" />
+        <div class="flex flex-col items-center justify-center max-w-md">
+          <SmartIcon class="w-6 h-6 text-accent" name="users" />
           <h3 class="my-2 text-lg text-center">
             {{ t("team.we_sent_invite_link") }}
           </h3>
@@ -12,7 +12,7 @@
           </p>
         </div>
         <div
-          class="border border-dividerLight rounded flex flex-col space-y-6 mt-8 p-4"
+          class="flex flex-col p-4 mt-8 space-y-6 border rounded border-dividerLight"
         >
           <div
             v-for="(invitee, index) in sendInvitesResult"
@@ -41,20 +41,20 @@
       </div>
       <div
         v-else-if="sendingInvites"
-        class="flex p-4 items-center justify-center"
+        class="flex items-center justify-center p-4"
       >
         <SmartSpinner />
       </div>
       <div v-else class="flex flex-col px-2">
-        <div class="flex flex-1 items-center justify-between">
+        <div class="flex items-center justify-between flex-1">
           <label for="memberList" class="px-4 pb-4">
             {{ t("team.pending_invites") }}
           </label>
         </div>
-        <div class="divide-dividerLight divide-y border border-divider rounded">
+        <div class="border divide-y rounded divide-dividerLight border-divider">
           <div
             v-if="pendingInvites.loading"
-            class="flex p-4 items-center justify-center"
+            class="flex items-center justify-center p-4"
           >
             <SmartSpinner />
           </div>
@@ -66,18 +66,18 @@
                 v-for="(invitee, index) in pendingInvites.data.right.team
                   .teamInvitations"
                 :key="`invitee-${index}`"
-                class="divide-dividerLight divide-x flex"
+                class="flex divide-x divide-dividerLight"
               >
                 <input
                   v-if="invitee"
-                  class="bg-transparent flex flex-1 text-secondaryLight py-2 px-4"
+                  class="flex flex-1 px-4 py-2 bg-transparent text-secondaryLight"
                   :placeholder="`${t('team.email')}`"
                   :name="'param' + index"
                   :value="invitee.inviteeEmail"
                   readonly
                 />
                 <input
-                  class="bg-transparent flex flex-1 text-secondaryLight py-2 px-4"
+                  class="flex flex-1 px-4 py-2 bg-transparent text-secondaryLight"
                   :placeholder="`${t('team.permissions')}`"
                   :name="'value' + index"
                   :value="invitee.inviteeRole"
@@ -99,7 +99,7 @@
                 E.isRight(pendingInvites.data) &&
                 pendingInvites.data.right.team.teamInvitations.length === 0
               "
-              class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+              class="flex flex-col items-center justify-center p-4 text-secondaryLight"
             >
               <span class="text-center">
                 {{ t("empty.pending_invites") }}
@@ -107,14 +107,14 @@
             </div>
             <div
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
-              class="flex flex-col p-4 items-center"
+              class="flex flex-col items-center p-4"
             >
               <i class="mb-4 material-icons">help_outline</i>
               {{ t("error.something_went_wrong") }}
             </div>
           </div>
         </div>
-        <div class="flex flex-1 pt-4 items-center justify-between">
+        <div class="flex items-center justify-between flex-1 pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.invite_tooltip") }}
           </label>
@@ -127,15 +127,15 @@
             />
           </div>
         </div>
-        <div class="divide-dividerLight divide-y border border-divider rounded">
+        <div class="border divide-y rounded divide-dividerLight border-divider">
           <div
             v-for="(invitee, index) in newInvites"
             :key="`new-invitee-${index}`"
-            class="divide-dividerLight divide-x flex"
+            class="flex divide-x divide-dividerLight"
           >
             <input
               v-model="invitee.key"
-              class="bg-transparent flex flex-1 py-2 px-4"
+              class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${t('team.email')}`"
               :name="'invitee' + index"
               autofocus
@@ -151,7 +151,7 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="bg-transparent cursor-pointer flex flex-1 py-2 px-4"
+                      class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
                       :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
                       :value="invitee.value"
@@ -219,15 +219,15 @@
           </div>
           <div
             v-if="newInvites.length === 0"
-            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
+              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
               :alt="`${t('empty.invites')}`"
             />
-            <span class="text-center pb-4">
+            <span class="pb-4 text-center">
               {{ t("empty.invites") }}
             </span>
             <ButtonSecondary
@@ -239,10 +239,10 @@
         </div>
         <div
           v-if="newInvites.length"
-          class="border border-dividerLight rounded flex flex-col mt-4 py-4 px-4 items-start"
+          class="flex flex-col items-start px-4 py-4 mt-4 border rounded border-dividerLight"
         >
           <span
-            class="bg-primaryDark border border-divider rounded-full flex font-semibold mb-4 py-1 px-2 items-center justify-center"
+            class="flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full bg-primaryDark border-divider"
           >
             <i class="mr-2 text-secondaryLight material-icons">help_outline</i>
             {{ t("profile.roles") }}
@@ -252,10 +252,10 @@
               {{ t("profile.roles_description") }}
             </span>
           </p>
-          <ul class="space-y-4 mt-4">
+          <ul class="mt-4 space-y-4">
             <li class="flex">
               <span
-                class="font-semibold text-secondaryDark max-w-16 w-1/4 uppercase truncate"
+                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
               >
                 {{ t("profile.owner") }}
               </span>
@@ -265,7 +265,7 @@
             </li>
             <li class="flex">
               <span
-                class="font-semibold text-secondaryDark max-w-16 w-1/4 uppercase truncate"
+                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
               >
                 {{ t("profile.editor") }}
               </span>
@@ -275,7 +275,7 @@
             </li>
             <li class="flex">
               <span
-                class="font-semibold text-secondaryDark max-w-16 w-1/4 uppercase truncate"
+                class="w-1/4 font-semibold uppercase truncate text-secondaryDark max-w-16"
               >
                 {{ t("profile.viewer") }}
               </span>
@@ -290,7 +290,7 @@
     <template #footer>
       <p
         v-if="sendInvitesResult.length"
-        class="flex flex-1 text-secondaryLight justify-between"
+        class="flex justify-between flex-1 text-secondaryLight"
       >
         <SmartAnchor
           class="link"

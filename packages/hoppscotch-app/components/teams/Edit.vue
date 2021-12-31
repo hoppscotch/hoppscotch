@@ -2,7 +2,7 @@
   <SmartModal v-if="show" :title="t('team.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="flex relative">
+        <div class="relative flex">
           <input
             id="selectLabelTeamEdit"
             v-model="name"
@@ -17,7 +17,7 @@
             {{ t("action.label") }}
           </label>
         </div>
-        <div class="flex flex-1 pt-4 items-center justify-between">
+        <div class="flex items-center justify-between flex-1 pt-4">
           <label for="memberList" class="p-4">
             {{ t("team.members") }}
           </label>
@@ -47,19 +47,19 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="divide-dividerLight divide-y border border-divider rounded"
+          class="border divide-y rounded divide-dividerLight border-divider"
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"
-            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="`${t('empty.members')}`"
             />
-            <span class="text-center pb-4">
+            <span class="pb-4 text-center">
               {{ t("empty.members") }}
             </span>
             <ButtonSecondary
@@ -76,10 +76,10 @@
             <div
               v-for="(member, index) in membersList"
               :key="`member-${index}`"
-              class="divide-dividerLight divide-x flex"
+              class="flex divide-x divide-dividerLight"
             >
               <input
-                class="bg-transparent flex flex-1 py-2 px-4"
+                class="flex flex-1 px-4 py-2 bg-transparent"
                 :placeholder="`${t('team.email')}`"
                 :name="'param' + index"
                 :value="member.email"
@@ -96,7 +96,7 @@
                   <template #trigger>
                     <span class="select-wrapper">
                       <input
-                        class="bg-transparent cursor-pointer flex flex-1 py-2 px-4"
+                        class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
                         :placeholder="`${t('team.permissions')}`"
                         :name="'value' + index"
                         :value="member.role"

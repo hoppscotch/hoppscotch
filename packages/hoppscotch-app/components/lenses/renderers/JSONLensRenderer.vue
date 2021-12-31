@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="bg-primary border-b border-dividerLight flex top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">{{
         t("response.body")
@@ -36,7 +36,7 @@
     <div ref="jsonResponse"></div>
     <div
       v-if="outlinePath"
-      class="bg-primaryLight border-t border-dividerLight flex flex-nowrap flex-1 px-2 bottom-0 z-10 sticky overflow-auto hide-scrollbar"
+      class="sticky bottom-0 z-10 flex flex-1 px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
     >
       <div
         v-for="(item, index) in outlinePath"
@@ -115,7 +115,7 @@
         </tippy>
         <i
           v-if="index + 1 !== outlinePath.length"
-          class="text-secondaryLight opacity-50 material-icons"
+          class="opacity-50 text-secondaryLight material-icons"
           >chevron_right</i
         >
       </div>

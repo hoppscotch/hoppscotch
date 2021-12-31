@@ -281,6 +281,7 @@ export function useCodemirror(
         },
       })
     }
+    cachedValue.value = newVal
   })
 
   watch(

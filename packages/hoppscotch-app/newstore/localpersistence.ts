@@ -6,6 +6,7 @@ import isEmpty from "lodash/isEmpty"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { translateToNewRequest } from "@hoppscotch/data"
+import { cloneDeep } from "lodash"
 import {
   settingsStore,
   bulkApplySettings,
@@ -284,7 +285,19 @@ function setupRequestPersistence() {
   }
 
   restRequest$.subscribe((req) => {
-    window.localStorage.setItem("restRequest", JSON.stringify(req))
+    const reqClone = cloneDeep(req)
+    if (reqClone.body.contentType === "multipart/form-data") {
+      reqClone.body.body = reqClone.body.body.map((x) => {
+        if (x.isFile)
+          return {
+            ...x,
+            isFile: false,
+            value: "",
+          }
+        else return x
+      })
+    }
+    window.localStorage.setItem("restRequest", JSON.stringify(reqClone))
   })
 }
 

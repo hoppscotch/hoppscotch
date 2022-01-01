@@ -21,19 +21,32 @@
               />
             </span>
           </template>
-          <SmartItem
-            v-for="codegen in CodegenDefinitions"
-            :key="codegen.name"
-            :label="codegen.caption"
-            :info-icon="codegen.name === codegenType ? 'done' : ''"
-            :active-info-icon="codegen.name === codegenType"
-            @click.native="
-              () => {
-                codegenType = codegen.name
-                options.tippy().hide()
-              }
-            "
-          />
+          <div class="flex flex-col space-y-2">
+            <div class="sticky top-0">
+              <input
+                v-model="searchQuery"
+                type="search"
+                autocomplete="off"
+                class="flex w-full p-4 py-2 !bg-popover input"
+                :placeholder="`${t('action.search')}`"
+              />
+            </div>
+            <div class="flex flex-col">
+              <SmartItem
+                v-for="codegen in filteredCodegenDefinitions"
+                :key="codegen.name"
+                :label="codegen.caption"
+                :info-icon="codegen.name === codegenType ? 'done' : ''"
+                :active-info-icon="codegen.name === codegenType"
+                @click.native="
+                  () => {
+                    codegenType = codegen.name
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </div>
+          </div>
         </tippy>
         <div class="flex justify-between flex-1">
           <label for="generatedCode" class="p-4">
@@ -147,4 +160,12 @@ const copyRequestCode = () => {
   toast.success(`${t("state.copied_to_clipboard")}`)
   setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
+
+const searchQuery = ref("")
+
+const filteredCodegenDefinitions = computed(() => {
+  return CodegenDefinitions.filter((obj) =>
+    Object.values(obj).some((val) => val.includes(searchQuery.value))
+  )
+})
 </script>

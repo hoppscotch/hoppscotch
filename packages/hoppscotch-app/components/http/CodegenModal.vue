@@ -54,7 +54,7 @@
           </label>
         </div>
         <div
-          v-if="!requestCode"
+          v-if="errorState"
           class="bg-primaryLight rounded font-mono w-full py-2 px-4 text-red-400 overflow-auto whitespace-normal"
         >
           {{ t("error.something_went_wrong") }}
@@ -114,6 +114,7 @@ const options = ref<any | null>(null)
 const request = ref(getRESTRequest())
 const codegenType = ref<CodegenName>("shell-curl")
 const copyIcon = ref("copy")
+const errorState = ref(false)
 
 const requestCode = computed(() => {
   const effectiveRequest = getEffectiveRESTRequest(
@@ -126,9 +127,10 @@ const requestCode = computed(() => {
   const result = generateCode(codegenType.value, effectiveRequest)
 
   if (O.isSome(result)) {
+    errorState.value = false
     return result.value
   } else {
-    // TODO: Error logic?
+    errorState.value = true
     return ""
   }
 })

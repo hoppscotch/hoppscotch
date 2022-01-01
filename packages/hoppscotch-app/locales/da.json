@@ -29,9 +29,9 @@
     "send": "Sende",
     "start": "Start",
     "stop": "Hold op",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Sluk",
     "turn_on": "Tænde for",
     "undo": "Fortryd",
@@ -93,11 +93,11 @@
     "generate_token": "Generer Token",
     "include_in_url": "Inkluder i URL",
     "learn": "Lær hvordan",
+    "pass_key_by": "Pass by",
     "password": "Adgangskode",
     "token": "Polet",
     "type": "Godkendelse Type",
-    "username": "Brugernavn",
-    "pass_key_by": "Pass by"
+    "username": "Brugernavn"
   },
   "collection": {
     "created": "Samlingen er oprettet",
@@ -426,6 +426,13 @@
       "save_to_collections": "Gem i samlinger",
       "send_request": "Send anmodning",
       "title": "Anmodning"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

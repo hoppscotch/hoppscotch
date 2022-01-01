@@ -29,9 +29,9 @@
     "send": "傳送",
     "start": "開始",
     "stop": "停止",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "關閉",
     "turn_on": "開啟",
     "undo": "復原",
@@ -93,11 +93,11 @@
     "generate_token": "產生權杖",
     "include_in_url": "包含在網址",
     "learn": "瞭解更多",
+    "pass_key_by": "Pass by",
     "password": "密碼",
     "token": "權杖",
     "type": "授權類型",
-    "username": "使用者名稱",
-    "pass_key_by": "Pass by"
+    "username": "使用者名稱"
   },
   "collection": {
     "created": "組合已建立",
@@ -183,8 +183,8 @@
     "json_prettify_invalid_body": "無法美化無效的請求主體，處理 JSON 語法錯誤並重試",
     "network_error": "似乎有網路錯誤。請再試一次。",
     "network_fail": "無法傳送請求",
-    "script_fail": "Could not execute pre-request script",
     "no_duration": "無持續時間",
+    "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "發生了一些錯誤"
   },
   "export": {
@@ -215,11 +215,11 @@
     "authorization": "授權標頭將會在您傳送請求時自動產生。",
     "generate_documentation_first": "請先產生文件",
     "network_fail": "無法到達 API 端點。請檢查網路連線並重試。",
-    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "offline": "您似乎處於離線狀態，該工作區中的資料可能不是最新。",
     "offline_short": "您似乎處於離線狀態。",
     "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到回應後執行。",
     "pre_request_script": "預請求指令碼使用 JavaScript 編寫，並在請求傳送前執行。",
+    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "tests": "編寫測試指令碼以自動除錯。"
   },
   "hide": {
@@ -278,6 +278,7 @@
     "app_settings": "應用程式設定",
     "editor": "編輯者",
     "editor_description": "編輯者可以新增、編輯和刪除請求。",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "您沒有權限執行此操作。",
     "owner": "擁有者",
     "owner_description": "擁有者可以新增、編輯和刪除請求、組合和團隊成員。",
@@ -365,6 +366,7 @@
     "official_proxy_hosting": "官方代理由 Hoppscotch 託管。",
     "profile": "設定檔",
     "profile_description": "更新您的設定檔詳細資料",
+    "profile_email": "Email address",
     "profile_name": "設定檔名稱",
     "proxy": "網路代理",
     "proxy_url": "代理網址",
@@ -383,7 +385,8 @@
     "theme": "主題",
     "theme_description": "自定義您的應用程式主題。",
     "use_experimental_url_bar": "使用帶有環境高亮的實驗性 URL 欄",
-    "user": "使用者"
+    "user": "使用者",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -423,6 +426,13 @@
       "save_to_collections": "儲存到組合",
       "send_request": "傳送請求",
       "title": "請求"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

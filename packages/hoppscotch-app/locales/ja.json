@@ -29,9 +29,9 @@
     "send": "送信",
     "start": "始める",
     "stop": "ストップ",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "消す",
     "turn_on": "オンにする",
     "undo": "元に戻す",
@@ -93,11 +93,11 @@
     "generate_token": "トークンを生成する",
     "include_in_url": "URLに含める",
     "learn": "方法を学びます",
+    "pass_key_by": "Pass by",
     "password": "パスワード",
     "token": "トークン",
     "type": "承認タイプ",
-    "username": "ユーザー名",
-    "pass_key_by": "Pass by"
+    "username": "ユーザー名"
   },
   "collection": {
     "created": "コレクションが作成されました",
@@ -426,6 +426,13 @@
       "save_to_collections": "コレクションに保存",
       "send_request": "リクエストを送信",
       "title": "リクエスト"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

@@ -29,9 +29,9 @@
     "send": "يرسل",
     "start": "يبدأ",
     "stop": "قف",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "اطفئه",
     "turn_on": "شغله",
     "undo": "الغاء التحميل",
@@ -93,11 +93,11 @@
     "generate_token": "توليد رمز",
     "include_in_url": "تضمين في URL",
     "learn": "تعلم كيف",
+    "pass_key_by": "Pass by",
     "password": "كلمة المرور",
     "token": "رمز",
     "type": "نوع التفويض",
-    "username": "اسم المستخدم",
-    "pass_key_by": "Pass by"
+    "username": "اسم المستخدم"
   },
   "collection": {
     "created": "تم إنشاء المجموعة",
@@ -426,6 +426,13 @@
       "save_to_collections": "حفظ في المجموعات",
       "send_request": "ارسل طلب",
       "title": "طلب"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

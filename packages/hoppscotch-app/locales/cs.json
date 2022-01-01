@@ -29,9 +29,9 @@
     "send": "Poslat",
     "start": "Start",
     "stop": "Stop",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Vypnout",
     "turn_on": "Zapnout",
     "undo": "vrátit",
@@ -93,11 +93,11 @@
     "generate_token": "Generovat token",
     "include_in_url": "Zahrnout do adresy URL",
     "learn": "Zjistěte jak",
+    "pass_key_by": "Pass by",
     "password": "Heslo",
     "token": "Žeton",
     "type": "Typ autorizace",
-    "username": "Uživatelské jméno",
-    "pass_key_by": "Pass by"
+    "username": "Uživatelské jméno"
   },
   "collection": {
     "created": "Kolekce vytvořena",
@@ -426,6 +426,13 @@
       "save_to_collections": "Uložit do sbírek",
       "send_request": "Poslat žádost",
       "title": "Žádost"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

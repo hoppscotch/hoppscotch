@@ -29,9 +29,9 @@
     "send": "Stuur",
     "start": "Begin",
     "stop": "Stop",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Skakel af",
     "turn_on": "Sit aan",
     "undo": "Ontdoen",
@@ -93,11 +93,11 @@
     "generate_token": "Genereer teken",
     "include_in_url": "Sluit in by URL",
     "learn": "Leer hoe",
+    "pass_key_by": "Pass by",
     "password": "Wagwoord",
     "token": "Teken",
     "type": "Magtigingstipe",
-    "username": "Gebruikersnaam",
-    "pass_key_by": "Pass by"
+    "username": "Gebruikersnaam"
   },
   "collection": {
     "created": "Versameling geskep",
@@ -426,6 +426,13 @@
       "save_to_collections": "Stoor in versamelings",
       "send_request": "Stuur versoek",
       "title": "Versoek"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

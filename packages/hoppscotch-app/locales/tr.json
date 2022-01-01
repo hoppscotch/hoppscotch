@@ -29,9 +29,9 @@
     "send": "Gönder",
     "start": "Başla",
     "stop": "Dur",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Kapat",
     "turn_on": "Aç",
     "undo": "Geri al",
@@ -93,11 +93,11 @@
     "generate_token": "Jeton Oluştur",
     "include_in_url": "URL'ye dahil et",
     "learn": "Nasıl öğrenilir",
+    "pass_key_by": "Pass by",
     "password": "Parola",
     "token": "Jeton",
     "type": "Yetki Türü",
-    "username": "Kullanıcı adı",
-    "pass_key_by": "Pass by"
+    "username": "Kullanıcı adı"
   },
   "collection": {
     "created": "Koleksiyon oluşturuldu",
@@ -426,6 +426,13 @@
       "save_to_collections": "Koleksiyonlara Kaydet",
       "send_request": "İstek gönder",
       "title": "İstek"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

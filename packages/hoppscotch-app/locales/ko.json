@@ -29,9 +29,9 @@
     "send": "보내기",
     "start": "시작",
     "stop": "정지",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "끄기",
     "turn_on": "켜기",
     "undo": "실행 취소",
@@ -93,11 +93,11 @@
     "generate_token": "토큰 생성",
     "include_in_url": "URL에 포함",
     "learn": "어떻게하는지 배우기",
+    "pass_key_by": "Pass by",
     "password": "비밀번호",
     "token": "토큰",
     "type": "인증 유형",
-    "username": "사용자 이름",
-    "pass_key_by": "Pass by"
+    "username": "사용자 이름"
   },
   "collection": {
     "created": "모음집 생성됨",
@@ -426,6 +426,13 @@
       "save_to_collections": "모음집에 저장",
       "send_request": "요청 보내기",
       "title": "리퀘스트"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

@@ -29,9 +29,9 @@
     "send": "Пошаљи",
     "start": "Почетак",
     "stop": "Зауставити",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Искључити",
     "turn_on": "Укључити",
     "undo": "Поништи",
@@ -93,11 +93,11 @@
     "generate_token": "Генериши токен",
     "include_in_url": "Укључи у УРЛ",
     "learn": "Научите како",
+    "pass_key_by": "Pass by",
     "password": "Лозинка",
     "token": "Токен",
     "type": "Врста овлашћења",
-    "username": "Корисничко име",
-    "pass_key_by": "Pass by"
+    "username": "Корисничко име"
   },
   "collection": {
     "created": "Колекција је направљена",
@@ -426,6 +426,13 @@
       "save_to_collections": "Сачувај у збирке",
       "send_request": "Пошаљите упит",
       "title": "Захтев"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

@@ -29,9 +29,9 @@
     "send": "Wyślij",
     "start": "Rozpocznij",
     "stop": "Zatrzymaj",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Wyłącz",
     "turn_on": "Włącz",
     "undo": "Cofnij",
@@ -93,11 +93,11 @@
     "generate_token": "Wygeneruj token",
     "include_in_url": "Uwzględnij w adresie URL",
     "learn": "Naucz się jak",
+    "pass_key_by": "Pass by",
     "password": "Hasło",
     "token": "Token",
     "type": "Typ autoryzacji",
-    "username": "Nazwa użytkownika",
-    "pass_key_by": "Pass by"
+    "username": "Nazwa użytkownika"
   },
   "collection": {
     "created": "Utworzono kolekcję",
@@ -426,6 +426,13 @@
       "save_to_collections": "Zapisz w kolekcjach",
       "send_request": "Wyślij żądanie",
       "title": "Żądania"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

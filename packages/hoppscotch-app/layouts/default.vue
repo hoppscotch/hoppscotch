@@ -52,7 +52,7 @@ import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
-import { useSetting } from "~/newstore/settings"
+import { applySetting, useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
@@ -145,6 +145,18 @@ function defineJumpActions() {
   })
   defineActionHandler("navigation.jump.profile", () => {
     router.push({ path: localePath("/profile") })
+  })
+  defineActionHandler("settings.theme.system", () => {
+    applySetting("BG_COLOR", "system")
+  })
+  defineActionHandler("settings.theme.light", () => {
+    applySetting("BG_COLOR", "light")
+  })
+  defineActionHandler("settings.theme.dark", () => {
+    applySetting("BG_COLOR", "dark")
+  })
+  defineActionHandler("settings.theme.black", () => {
+    applySetting("BG_COLOR", "black")
   })
 }
 

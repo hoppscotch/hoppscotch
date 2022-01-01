@@ -29,9 +29,9 @@
     "send": "发送",
     "start": "开始",
     "stop": "停止",
+    "to_close": "以关闭",
     "to_navigate": "以定位",
     "to_select": "以选择",
-    "to_close": "以关闭",
     "turn_off": "关闭",
     "turn_on": "开启",
     "undo": "撤消",
@@ -93,11 +93,11 @@
     "generate_token": "生成令牌",
     "include_in_url": "包含在 URL 内",
     "learn": "了解更多",
+    "pass_key_by": "传递方式",
     "password": "密码",
     "token": "令牌",
     "type": "授权类型",
-    "username": "用户名",
-    "pass_key_by": "传递方式"
+    "username": "用户名"
   },
   "collection": {
     "created": "组合已创建",
@@ -426,6 +426,13 @@
       "save_to_collections": "保存到组合",
       "send_request": "发送请求",
       "title": "请求"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

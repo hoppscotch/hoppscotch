@@ -29,9 +29,9 @@
     "send": "לִשְׁלוֹחַ",
     "start": "הַתחָלָה",
     "stop": "תפסיק",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "לכבות",
     "turn_on": "להדליק",
     "undo": "לבטל",
@@ -93,11 +93,11 @@
     "generate_token": "צור אסימון",
     "include_in_url": "כלול בכתובת האתר",
     "learn": "ללמוד איך",
+    "pass_key_by": "Pass by",
     "password": "סיסמה",
     "token": "אֲסִימוֹן",
     "type": "סוג הרשאה",
-    "username": "שם משתמש",
-    "pass_key_by": "Pass by"
+    "username": "שם משתמש"
   },
   "collection": {
     "created": "אוסף נוצר",
@@ -426,6 +426,13 @@
       "save_to_collections": "שמור באוספים",
       "send_request": "שלח בקשה",
       "title": "בַּקָשָׁה"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

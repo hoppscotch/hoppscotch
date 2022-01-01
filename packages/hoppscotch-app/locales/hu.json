@@ -29,9 +29,9 @@
     "send": "Küld",
     "start": "Rajt",
     "stop": "Álljon meg",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Kikapcsolni",
     "turn_on": "Bekapcsol",
     "undo": "Visszavonás",
@@ -93,11 +93,11 @@
     "generate_token": "Token generálása",
     "include_in_url": "Belefoglalás az URL -be",
     "learn": "Megtanulják, hogyan",
+    "pass_key_by": "Pass by",
     "password": "Jelszó",
     "token": "Jelképes",
     "type": "Engedélyezés típusa",
-    "username": "Felhasználónév",
-    "pass_key_by": "Pass by"
+    "username": "Felhasználónév"
   },
   "collection": {
     "created": "Gyűjtemény létrehozva",
@@ -426,6 +426,13 @@
       "save_to_collections": "Mentés a Gyűjtemények közé",
       "send_request": "Felkérést küld",
       "title": "Kérés"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

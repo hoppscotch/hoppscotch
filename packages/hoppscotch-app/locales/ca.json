@@ -29,9 +29,9 @@
     "send": "Envia",
     "start": "Començar",
     "stop": "Atura",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Tanca",
     "turn_on": "Encendre",
     "undo": "Desfés",
@@ -93,11 +93,11 @@
     "generate_token": "Generar testimoni",
     "include_in_url": "Inclou a l'URL",
     "learn": "Aprèn com",
+    "pass_key_by": "Pass by",
     "password": "Contrasenya",
     "token": "Testimoni",
     "type": "Tipus d'autorització",
-    "username": "Nom d'usuari",
-    "pass_key_by": "Pass by"
+    "username": "Nom d'usuari"
   },
   "collection": {
     "created": "S'ha creat la col·lecció",
@@ -426,6 +426,13 @@
       "save_to_collections": "Desa a les col·leccions",
       "send_request": "Enviar sol.licitud",
       "title": "Sol·licitud"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

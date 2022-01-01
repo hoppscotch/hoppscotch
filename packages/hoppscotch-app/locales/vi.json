@@ -29,9 +29,9 @@
     "send": "Gửi",
     "start": "Bắt đầu",
     "stop": "Ngừng lại",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Tắt",
     "turn_on": "Bật",
     "undo": "Hoàn tác",
@@ -93,11 +93,11 @@
     "generate_token": "Tạo mã thông báo",
     "include_in_url": "Bao gồm trong URL",
     "learn": "Học cách",
+    "pass_key_by": "Pass by",
     "password": "Mật khẩu",
     "token": "Mã thông báo",
     "type": "Loại ủy quyền",
-    "username": "tên tài khoản",
-    "pass_key_by": "Pass by"
+    "username": "tên tài khoản"
   },
   "collection": {
     "created": "Bộ sưu tập đã được tạo",
@@ -426,6 +426,13 @@
       "save_to_collections": "Lưu vào Bộ sưu tập",
       "send_request": "Gửi yêu cầu",
       "title": "Yêu cầu"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

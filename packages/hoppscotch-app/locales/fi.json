@@ -29,9 +29,9 @@
     "send": "Lähettää",
     "start": "alkaa",
     "stop": "Lopettaa",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Sammuttaa",
     "turn_on": "Kiihottua",
     "undo": "Kumoa",
@@ -93,11 +93,11 @@
     "generate_token": "Luo tunnus",
     "include_in_url": "Sisällytä URL -osoitteeseen",
     "learn": "Opi kuinka",
+    "pass_key_by": "Pass by",
     "password": "Salasana",
     "token": "Token",
     "type": "Valtuustyyppi",
-    "username": "Käyttäjätunnus",
-    "pass_key_by": "Pass by"
+    "username": "Käyttäjätunnus"
   },
   "collection": {
     "created": "Kokoelma luotu",
@@ -426,6 +426,13 @@
       "save_to_collections": "Tallenna kokoelmiin",
       "send_request": "Lähetä pyyntö",
       "title": "Pyyntö"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

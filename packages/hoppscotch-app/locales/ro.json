@@ -29,9 +29,9 @@
     "send": "Trimite",
     "start": "start",
     "stop": "Stop",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Opriți",
     "turn_on": "Aprinde",
     "undo": "Anula",
@@ -93,11 +93,11 @@
     "generate_token": "Generați token",
     "include_in_url": "Includeți în URL",
     "learn": "Afla cum",
+    "pass_key_by": "Pass by",
     "password": "Parola",
     "token": "Jeton",
     "type": "Tipul de autorizare",
-    "username": "Nume de utilizator",
-    "pass_key_by": "Pass by"
+    "username": "Nume de utilizator"
   },
   "collection": {
     "created": "Colecție creată",
@@ -426,6 +426,13 @@
       "save_to_collections": "Salvați în colecții",
       "send_request": "Trimite cerere",
       "title": "Cerere"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

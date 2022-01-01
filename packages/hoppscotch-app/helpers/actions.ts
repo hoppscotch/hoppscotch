@@ -28,6 +28,10 @@ export type HoppAction =
   | "navigation.jump.documentation" // Jump to documentation page
   | "navigation.jump.settings" // Jump to settings page
   | "navigation.jump.profile" // Jump to profile page
+  | "settings.theme.system" // Use system theme
+  | "settings.theme.light" // Use light theme
+  | "settings.theme.dark" // Use dark theme
+  | "settings.theme.black" // Use black theme
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

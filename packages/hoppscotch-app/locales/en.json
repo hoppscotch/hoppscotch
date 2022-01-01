@@ -29,9 +29,9 @@
     "send": "Send",
     "start": "Start",
     "stop": "Stop",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Turn off",
     "turn_on": "Turn on",
     "undo": "Undo",
@@ -93,11 +93,11 @@
     "generate_token": "Generate Token",
     "include_in_url": "Include in URL",
     "learn": "Learn how",
+    "pass_key_by": "Pass by",
     "password": "Password",
     "token": "Token",
     "type": "Authorization Type",
-    "username": "Username",
-    "pass_key_by": "Pass by"
+    "username": "Username"
   },
   "collection": {
     "created": "Collection created",
@@ -426,6 +426,13 @@
       "save_to_collections": "Save to Collections",
       "send_request": "Send Request",
       "title": "Request"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

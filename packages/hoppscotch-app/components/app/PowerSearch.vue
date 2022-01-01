@@ -6,7 +6,7 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col border-b border-dividerLight">
+      <div class="flex transition flex-col border-b border-dividerLight">
         <input
           id="command"
           v-model="search"

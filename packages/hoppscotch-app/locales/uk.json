@@ -29,9 +29,9 @@
     "send": "Надіслати",
     "start": "Почати",
     "stop": "Стій",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Вимкнути",
     "turn_on": "Ввімкнути",
     "undo": "Скасувати",
@@ -93,11 +93,11 @@
     "generate_token": "Створіть маркер",
     "include_in_url": "Включити в URL",
     "learn": "Дізнайтесь, як",
+    "pass_key_by": "Pass by",
     "password": "Пароль",
     "token": "Токен",
     "type": "Тип авторизації",
-    "username": "Ім'я користувача",
-    "pass_key_by": "Pass by"
+    "username": "Ім'я користувача"
   },
   "collection": {
     "created": "Колекція створена",
@@ -426,6 +426,13 @@
       "save_to_collections": "Зберегти в колекції",
       "send_request": "Відправляти запит",
       "title": "Запит"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

@@ -29,9 +29,9 @@
     "send": "Отправить",
     "start": "Начать",
     "stop": "Стоп",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Выключить",
     "turn_on": "Включить",
     "undo": "Отменить",
@@ -93,11 +93,11 @@
     "generate_token": "Сгенерировать токен",
     "include_in_url": "Добавить в URL",
     "learn": "Узнать больше",
+    "pass_key_by": "Pass by",
     "password": "Пароль",
     "token": "Токен",
     "type": "Метод авторизации",
-    "username": "Имя пользователя",
-    "pass_key_by": "Pass by"
+    "username": "Имя пользователя"
   },
   "collection": {
     "created": "Коллекция создана",
@@ -426,6 +426,13 @@
       "save_to_collections": "Сохранить в коллекции",
       "send_request": "Послать запрос",
       "title": "Запрос"
+    },
+    "theme": {
+      "black": "Black theme",
+      "dark": "Dark theme",
+      "light": "Light theme",
+      "system": "System theme",
+      "title": "Theme"
     }
   },
   "show": {

@@ -1,6 +1,7 @@
 import HTTPSnippet from "httpsnippet"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
+import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { buildHarRequest } from "./har"
 
@@ -200,16 +201,24 @@ export const generateCode = (
   const codegenInfo = CodegenDefinitions.find((v) => v.name === codegen)!
 
   return pipe(
-    O.of(
-      // Returns a string if valid, false if not
-      new HTTPSnippet({
-        ...buildHarRequest(req),
-      }).convert(codegenInfo.lang, codegenInfo.mode, {
-        indent: "  ",
-      })
+    E.tryCatch(
+      () =>
+        new HTTPSnippet({
+          ...buildHarRequest(req),
+        }).convert(codegenInfo.lang, codegenInfo.mode, {
+          indent: "  ",
+        }),
+      (e) => e
     ),
 
     // Only allow string output to pass through, else none
-    O.chain(O.fromPredicate((val): val is string => typeof val === "string"))
+    E.chainW(
+      E.fromPredicate(
+        (val): val is string => typeof val === "string",
+        () => "code generator failed" as const
+      )
+    ),
+
+    O.fromEither
   )
 }

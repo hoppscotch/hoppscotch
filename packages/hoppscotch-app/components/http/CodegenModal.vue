@@ -121,6 +121,8 @@ const requestCode = computed(() => {
     getCurrentEnvironment()
   )
 
+  if (!props.show) return ""
+
   const result = generateCode(codegenType.value, effectiveRequest)
 
   if (O.isSome(result)) {

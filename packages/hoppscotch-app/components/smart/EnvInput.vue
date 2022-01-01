@@ -120,9 +120,11 @@ export default defineComponent({
     },
     handleChange() {
       this.debouncedHandler = debounce(function () {
-        if (this.internalValue !== this.$refs.editor.textContent) {
-          this.internalValue = this.$refs.editor.textContent
-          this.processHighlights()
+        if (this.$refs.editor) {
+          if (this.internalValue !== this.$refs.editor.textContent) {
+            this.internalValue = this.$refs.editor.textContent
+            this.processHighlights()
+          }
         }
       }, 5)
       this.debouncedHandler()

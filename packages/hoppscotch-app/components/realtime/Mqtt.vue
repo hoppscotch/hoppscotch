@@ -73,7 +73,7 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <div class="flex inline-flex flex-col flex-1 p-4">
+      <div class="flex flex-col flex-1 p-4">
         <label for="pub_topic" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.topic") }}
         </label>
@@ -112,9 +112,7 @@
           @click.native="publish"
         />
       </div>
-      <div
-        class="flex inline-flex flex-col flex-1 p-4 mt-4 border-t border-dividerLight"
-      >
+      <div class="flex flex-col flex-1 p-4 mt-4 border-t border-dividerLight">
         <label for="sub_topic" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.topic") }}
         </label>

@@ -225,7 +225,7 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <div class="flex inline-flex flex-col flex-1 p-4">
+      <div class="flex flex-col flex-1 p-4">
         <label for="events" class="font-semibold text-secondaryLight">
           {{ $t("socketio.events") }}
         </label>

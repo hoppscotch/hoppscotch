@@ -459,6 +459,10 @@ pre.ace_editor {
   @apply first-letter:capitalize;
 }
 
+details summary::-webkit-details-marker {
+  @apply hidden;
+}
+
 @media (max-width: 767px) {
   main {
     margin-bottom: env(safe-area-inset-bottom);

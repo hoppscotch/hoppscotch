@@ -147,7 +147,7 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <div class="flex inline-flex flex-col flex-1 p-4">
+      <div class="flex flex-col flex-1 p-4">
         <label
           for="websocket-message"
           class="font-semibold text-secondaryLight"

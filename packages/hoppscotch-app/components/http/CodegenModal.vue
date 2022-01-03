@@ -87,7 +87,10 @@ import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as O from "fp-ts/Option"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { getEffectiveRESTRequest } from "~/helpers/utils/EffectiveURL"
+import {
+  getEffectiveRESTRequest,
+  resolvesEnvsInBody,
+} from "~/helpers/utils/EffectiveURL"
 import { getCurrentEnvironment } from "~/newstore/environments"
 import { getRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
@@ -118,10 +121,8 @@ const copyIcon = ref("copy")
 const errorState = ref(false)
 
 const requestCode = computed(() => {
-  const effectiveRequest = getEffectiveRESTRequest(
-    request.value,
-    getCurrentEnvironment()
-  )
+  const env = getCurrentEnvironment()
+  const effectiveRequest = getEffectiveRESTRequest(request.value, env)
 
   if (!props.show) return ""
 
@@ -129,6 +130,7 @@ const requestCode = computed(() => {
     codegenType.value,
     makeRESTRequest({
       ...effectiveRequest,
+      body: resolvesEnvsInBody(effectiveRequest.body, env),
       headers: effectiveRequest.effectiveFinalHeaders.map((header) => ({
         ...header,
         active: true,

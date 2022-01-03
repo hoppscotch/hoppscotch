@@ -1,6 +1,10 @@
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
-import { FormDataKeyValue, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  FormDataKeyValue,
+  HoppRESTReqBody,
+  HoppRESTRequest,
+} from "@hoppscotch/data"
 import { parseTemplateString, parseBodyEnvVariables } from "../templating"
 import { Environment, getGlobalVariables } from "~/newstore/environments"
 
@@ -14,6 +18,36 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalHeaders: { key: string; value: string }[]
   effectiveFinalParams: { key: string; value: string }[]
   effectiveFinalBody: FormData | string | null
+}
+
+// Resolves environment variables in the body
+export const resolvesEnvsInBody = (
+  body: HoppRESTReqBody,
+  env: Environment
+): HoppRESTReqBody => {
+  if (!body.contentType) return body
+
+  if (body.contentType === "multipart/form-data") {
+    return {
+      contentType: "multipart/form-data",
+      body: body.body.map(
+        (entry) =>
+          <FormDataKeyValue>{
+            active: entry.active,
+            isFile: entry.isFile,
+            key: parseTemplateString(entry.key, env.variables),
+            value: entry.isFile
+              ? entry.value
+              : parseTemplateString(entry.value, env.variables),
+          }
+      ),
+    }
+  } else {
+    return {
+      contentType: body.contentType,
+      body: parseTemplateString(body.body, env.variables),
+    }
+  }
 }
 
 function getFinalBodyFromRequest(

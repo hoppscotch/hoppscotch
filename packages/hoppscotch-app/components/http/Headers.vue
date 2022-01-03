@@ -39,7 +39,7 @@
     <div v-if="bulkMode" ref="bulkEditor"></div>
     <div v-else>
       <div
-        v-for="(header, index) in headers$"
+        v-for="(header, index) in workingHeaders"
         :key="`header-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight"
       >
@@ -106,9 +106,7 @@
               updateHeader(index, {
                 key: header.key,
                 value: header.value,
-                active: header.hasOwnProperty('active')
-                  ? !header.active
-                  : false,
+                active: !header.active,
               })
             "
           />
@@ -124,8 +122,8 @@
         </span>
       </div>
       <div
-        v-if="headers$.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        v-if="workingHeaders.length === 0"
+        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_category.svg`"
@@ -149,31 +147,23 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUpdate, ref, watch } from "@nuxtjs/composition-api"
+import { Ref, ref, watch } from "@nuxtjs/composition-api"
+import isEqual from "lodash/isEqual"
+import clone from "lodash/clone"
 import { HoppRESTHeader } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import {
-  addRESTHeader,
-  deleteAllRESTHeaders,
-  deleteRESTHeader,
-  restHeaders$,
-  setRESTHeaders,
-  updateRESTHeader,
-} from "~/newstore/RESTSession"
+import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
-import {
-  useReadonlyStream,
-  useI18n,
-  useToast,
-} from "~/helpers/utils/composables"
+import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
 
 const t = useI18n()
-
 const toast = useToast()
 
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
+
+const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 useCodemirror(bulkEditor, bulkHeaders, {
   extendedEditorConfig: {
@@ -185,92 +175,165 @@ useCodemirror(bulkEditor, bulkHeaders, {
   environmentHighlights: true,
 })
 
+// The functional headers list (the headers actually in the system)
+const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<
+  HoppRESTHeader[]
+>
+
+// The UI representation of the headers list (has the empty end header)
+const workingHeaders = ref<HoppRESTHeader[]>([
+  {
+    key: "",
+    value: "",
+    active: true,
+  },
+])
+
+// Rule: Working Headers always have one empty header or the last element is always an empty header
+watch(workingHeaders, (headersList) => {
+  if (
+    headersList.length > 0 &&
+    headersList[headersList.length - 1].key !== ""
+  ) {
+    workingHeaders.value.push({
+      key: "",
+      value: "",
+      active: true,
+    })
+  }
+})
+
+// Sync logic between headers and working headers
+watch(
+  headers,
+  (newHeadersList) => {
+    // Sync should overwrite working headers
+    const filteredWorkingHeaders = workingHeaders.value.filter(
+      (e) => e.key !== ""
+    )
+
+    if (!isEqual(newHeadersList, filteredWorkingHeaders)) {
+      workingHeaders.value = newHeadersList
+    }
+  },
+  { immediate: true }
+)
+
+watch(workingHeaders, (newWorkingHeaders) => {
+  const fixedHeaders = newWorkingHeaders.filter((e) => e.key !== "")
+  if (!isEqual(headers.value, fixedHeaders)) {
+    headers.value = fixedHeaders
+  }
+})
+
+// Bulk Editor Syncing with Working Headers
 watch(bulkHeaders, () => {
   try {
-    const transformation = bulkHeaders.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trim().replace(/^#/, ""),
-      value: item.substring(item.indexOf(":") + 1).trim(),
-      active: !item.trim().startsWith("#"),
-    }))
-    setRESTHeaders(transformation as HoppRESTHeader[])
+    const transformation = bulkHeaders.value
+      .split("\n")
+      .filter((x) => x.trim().length > 0 && x.includes(":"))
+      .map((item) => ({
+        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
+        value: item.substring(item.indexOf(":") + 1).trimLeft(),
+        active: !item.trim().startsWith("#"),
+      }))
+
+    const filteredHeaders = workingHeaders.value.filter((x) => x.key !== "")
+
+    if (!isEqual(filteredHeaders, transformation)) {
+      workingHeaders.value = transformation
+    }
   } catch (e) {
     toast.error(`${t("error.something_went_wrong")}`)
     console.error(e)
   }
 })
 
-const headers$ = useReadonlyStream(restHeaders$, [])
+watch(workingHeaders, (newHeadersList) => {
+  // If we are in bulk mode, don't apply direct changes
+  if (bulkMode.value) return
 
-watch(
-  headers$,
-  (newValue) => {
-    if (!bulkMode.value)
-      if (
-        (newValue[newValue.length - 1]?.key !== "" ||
-          newValue[newValue.length - 1]?.value !== "") &&
-        newValue.length
-      )
-        addHeader()
-  },
-  { deep: true }
-)
+  try {
+    const currentBulkHeaders = bulkHeaders.value.split("\n").map((item) => ({
+      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
+      value: item.substring(item.indexOf(":") + 1).trimLeft(),
+      active: !item.trim().startsWith("#"),
+    }))
 
-onBeforeUpdate(() => editBulkHeadersLine(-1, null))
+    const filteredHeaders = newHeadersList.filter((x) => x.key !== "")
 
-const editBulkHeadersLine = (index: number, item?: HoppRESTHeader | null) => {
-  bulkHeaders.value = headers$.value
-    .reduce((all, header, pIndex) => {
-      const current =
-        index === pIndex && item != null
-          ? `${item.active ? "" : "#"}${item.key}: ${item.value}`
-          : `${header.active ? "" : "#"}${header.key}: ${header.value}`
-      return [...all, current]
-    }, [])
-    .join("\n")
-}
-
-const clearBulkEditor = () => {
-  bulkHeaders.value = ""
-}
+    if (!isEqual(currentBulkHeaders, filteredHeaders)) {
+      bulkHeaders.value = filteredHeaders
+        .map((header) => {
+          return `${header.active ? "" : "#"}${header.key}: ${header.value}`
+        })
+        .join("\n")
+    }
+  } catch (e) {
+    toast.error(`${t("error.something_went_wrong")}`)
+    console.error(e)
+  }
+})
 
 const addHeader = () => {
-  const empty = { key: "", value: "", active: true }
-  const index = headers$.value.length
-
-  addRESTHeader(empty)
-  editBulkHeadersLine(index, empty)
+  workingHeaders.value.push({
+    key: "",
+    value: "",
+    active: true,
+  })
 }
 
-const updateHeader = (index: number, item: HoppRESTHeader) => {
-  updateRESTHeader(index, item)
-  editBulkHeadersLine(index, item)
+const updateHeader = (index: number, header: HoppRESTHeader) => {
+  workingHeaders.value = workingHeaders.value.map((h, i) =>
+    i === index ? header : h
+  )
 }
 
 const deleteHeader = (index: number) => {
-  const headersBeforeDeletion = headers$.value
+  const headersBeforeDeletion = clone(workingHeaders.value)
 
-  deleteRESTHeader(index)
-  editBulkHeadersLine(index, null)
+  if (
+    !(
+      headersBeforeDeletion.length > 0 &&
+      index === headersBeforeDeletion.length - 1
+    )
+  ) {
+    if (deletionToast.value) {
+      deletionToast.value.goAway(0)
+      deletionToast.value = null
+    }
 
-  const deletedItem = headersBeforeDeletion[index]
-  if (deletedItem.key || deletedItem.value) {
-    toast.success(`${t("state.deleted")}`, {
+    deletionToast.value = toast.success(`${t("state.deleted")}`, {
       action: [
         {
           text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
-            setRESTHeaders(headersBeforeDeletion as HoppRESTHeader[])
-            editBulkHeadersLine(index, deletedItem)
+            workingHeaders.value = headersBeforeDeletion
             toastObject.goAway(0)
+            deletionToast.value = null
           },
         },
       ],
+
+      onComplete: () => {
+        deletionToast.value = null
+      },
     })
   }
+
+  workingHeaders.value.splice(index, 1)
 }
 
 const clearContent = () => {
-  deleteAllRESTHeaders()
-  clearBulkEditor()
+  // set headers list to the initial state
+  workingHeaders.value = [
+    {
+      key: "",
+      value: "",
+      active: true,
+    },
+  ]
+
+  bulkHeaders.value = ""
 }
 </script>

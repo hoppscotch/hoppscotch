@@ -251,6 +251,11 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    loaders: {
+      vue: {
+        compiler: require("vue-template-babel-compiler"),
+      },
+    },
     // You can extend webpack config here
     extend(config, { isDev, isClient }) {
       // Sets webpack's mode to development if `isDev` is true.

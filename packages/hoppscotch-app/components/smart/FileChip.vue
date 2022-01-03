@@ -1,12 +1,7 @@
 <template>
   <span class="chip">
     <i class="opacity-75 material-icons">attachment</i>
-    <span class="px-2 truncate max-w-64"><slot></slot></span>
-    <ButtonSecondary
-      class="rounded close-button"
-      svg="x"
-      @click.native="$emit('chip-delete')"
-    />
+    <span class="px-2 truncate max-w-32"><slot></slot></span>
   </span>
 </template>
 
@@ -18,11 +13,6 @@
   @apply rounded;
   @apply pl-2;
   @apply pr-0.5;
-  @apply bg-transparent;
-  @apply border border-divider;
-}
-
-.close-button {
-  @apply p-0.5;
+  @apply bg-primaryDark;
 }
 </style>

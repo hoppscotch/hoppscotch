@@ -21,8 +21,8 @@
     "@lezer/lr": "^0.15.5"
   },
   "devDependencies": {
-    "@lezer/generator": "^0.15.0",
-    "mocha": "^9.0.1",
+    "@lezer/generator": "^0.15.2",
+    "mocha": "^9.1.3",
     "rollup": "^2.62.0",
     "rollup-plugin-dts": "^4.1.0",
     "rollup-plugin-ts": "^2.0.4",

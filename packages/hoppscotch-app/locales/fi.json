@@ -428,10 +428,10 @@
       "title": "Pyyntö"
     },
     "theme": {
-      "black": "Black theme",
-      "dark": "Dark theme",
-      "light": "Light theme",
-      "system": "System theme",
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
       "title": "Theme"
     }
   },

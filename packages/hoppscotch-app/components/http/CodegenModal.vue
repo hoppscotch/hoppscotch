@@ -91,7 +91,7 @@ import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import { getCurrentEnvironment } from "~/newstore/environments"
+import { Environment, getAggregateEnvs } from "~/newstore/environments"
 import { getRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import {
@@ -121,7 +121,11 @@ const copyIcon = ref("copy")
 const errorState = ref(false)
 
 const requestCode = computed(() => {
-  const env = getCurrentEnvironment()
+  const aggregateEnvs = getAggregateEnvs()
+  const env: Environment = {
+    name: "Env",
+    variables: aggregateEnvs,
+  }
   const effectiveRequest = getEffectiveRESTRequest(request.value, env)
 
   if (!props.show) return ""

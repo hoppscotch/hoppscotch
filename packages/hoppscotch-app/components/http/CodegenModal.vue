@@ -96,6 +96,7 @@ import {
   CodegenName,
   generateCode,
 } from "~/helpers/new-codegen"
+import { makeRESTRequest } from "~/../hoppscotch-data/dist"
 
 const t = useI18n()
 
@@ -118,13 +119,27 @@ const errorState = ref(false)
 
 const requestCode = computed(() => {
   const effectiveRequest = getEffectiveRESTRequest(
-    request.value as any,
+    request.value,
     getCurrentEnvironment()
   )
 
   if (!props.show) return ""
 
-  const result = generateCode(codegenType.value, effectiveRequest)
+  const result = generateCode(
+    codegenType.value,
+    makeRESTRequest({
+      ...effectiveRequest,
+      headers: effectiveRequest.effectiveFinalHeaders.map((header) => ({
+        ...header,
+        active: true,
+      })),
+      params: effectiveRequest.effectiveFinalParams.map((param) => ({
+        ...param,
+        active: true,
+      })),
+      endpoint: effectiveRequest.effectiveFinalURL,
+    })
+  )
 
   if (O.isSome(result)) {
     errorState.value = false

@@ -2,7 +2,7 @@ import * as Har from "har-format"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { FieldEquals, objectFieldIncludes } from "../typeutils"
 
-// We support HAR Spec 1.2
+// Hoppscotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/
 
 const buildHarHeaders = (req: HoppRESTRequest): Har.Header[] => {
@@ -69,9 +69,6 @@ const buildHarPostParams = (
 const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
   if (!req.body.contentType) return undefined
 
-  if (!objectFieldIncludes(req, "method", ["POST", "PUT"] as const))
-    return undefined
-
   if (
     objectFieldIncludes(req.body, "contentType", [
       "application/x-www-form-urlencoded",
@@ -82,13 +79,11 @@ const buildHarPostData = (req: HoppRESTRequest): Har.PostData | undefined => {
       mimeType: req.body.contentType, // By default assume JSON ?
       params: buildHarPostParams(req as any),
     }
-  } else {
-    if (!req.body.contentType) return undefined
+  }
 
-    return {
-      mimeType: req.body.contentType, // Let's assume by default content type is JSON
-      text: req.body.body,
-    }
+  return {
+    mimeType: req.body.contentType, // Let's assume by default content type is JSON
+    text: req.body.body,
   }
 }
 

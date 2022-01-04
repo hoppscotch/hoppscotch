@@ -647,11 +647,26 @@ export default defineComponent({
           })
       }
     },
-    duplicateRequest({ folderPath, request }) {
-      saveRESTRequestAs(folderPath, {
-        ...cloneDeep(request),
-        name: `${request.name} - ${this.$t("action.duplicate")}`,
-      })
+    duplicateRequest({ folderPath, request, collectionID }) {
+      if (this.collectionsType.type === "team-collections") {
+        const newReq = {
+          ...cloneDeep(request),
+          name: `${request.name} - ${this.$t("action.duplicate")}`,
+        }
+
+        teamUtils.saveRequestAsTeams(
+          this.$apollo,
+          JSON.stringify(newReq),
+          `${request.name} - ${this.$t("action.duplicate")}`,
+          this.collectionsType.selectedTeam.id,
+          collectionID
+        )
+      } else if (this.collectionsType.type === "my-collections") {
+        saveRESTRequestAs(folderPath, {
+          ...cloneDeep(request),
+          name: `${request.name} - ${this.$t("action.duplicate")}`,
+        })
+      }
     },
   },
 })

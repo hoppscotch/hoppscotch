@@ -152,6 +152,7 @@
           @select="$emit('select', $event)"
           @expand-collection="expandCollection"
           @remove-request="removeRequest"
+          @duplicate-request="$emit('duplicate-request', $event)"
         />
         <CollectionsTeamsRequest
           v-for="(request, index) in collection.requests"
@@ -163,11 +164,13 @@
           :request-index="request.id"
           :doc="doc"
           :save-request="saveRequest"
+          :collection-i-d="collection.id"
           :collections-type="collectionsType"
           :picked="picked"
           @edit-request="editRequest($event)"
           @select="$emit('select', $event)"
           @remove-request="removeRequest"
+          @duplicate-request="$emit('duplicate-request', $event)"
         />
         <div
           v-if="

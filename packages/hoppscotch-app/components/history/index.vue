@@ -28,10 +28,9 @@
     </div>
     <div class="flex flex-col">
       <details
-        v-for="(filteredHistoryGroup, filteredHistoryGroupIndex) in groupByDate(
-          filteredHistory,
-          'updatedOn'
-        )"
+        v-for="(
+          filteredHistoryGroup, filteredHistoryGroupIndex
+        ) in filteredHistoryGroups"
         :key="`filteredHistoryGroup-${filteredHistoryGroupIndex}`"
         class="flex flex-col"
         open
@@ -146,23 +145,27 @@ const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
 )
 
 const filteredHistory = computed(() => {
-  const filteringHistory = history as any as Array<
-    RESTHistoryEntry | GQLHistoryEntry
-  >
-
-  return filteringHistory.value.filter(
-    (entry: RESTHistoryEntry | GQLHistoryEntry) => {
-      return Object.keys(entry).some((key) => {
-        let value = entry[key as keyof typeof entry]
-        if (value) {
-          value = `${value}`
-          return value.toLowerCase().includes(filterText.value.toLowerCase())
-        }
-        return false
-      })
+  const regExp = new RegExp(filterText.value, "gi")
+  const check = (obj: any) => {
+    if (obj !== null && typeof obj === "object") {
+      return Object.values(obj).some(check)
     }
+    if (Array.isArray(obj)) {
+      return obj.some(check)
+    }
+    return (
+      (typeof obj === "string" || typeof obj === "number") &&
+      regExp.test(obj as string)
+    )
+  }
+  return (history.value as Array<RESTHistoryEntry | GQLHistoryEntry>).filter(
+    check
   )
 })
+
+const filteredHistoryGroups = computed(() =>
+  groupByDate(filteredHistory.value, "updatedOn")
+)
 
 const clearHistory = () => {
   if (props.page === "rest") clearRESTHistory()

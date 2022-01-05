@@ -127,7 +127,11 @@ import "splitpanes/dist/splitpanes.css"
 import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
 import isEqual from "lodash/isEqual"
-import { HoppRESTRequest, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
+import {
+  HoppRESTRequest,
+  HoppRESTAuthOAuth2,
+  safelyExtractRESTRequest,
+} from "@hoppscotch/data"
 import { useSetting } from "~/newstore/settings"
 import {
   restActiveParamsCount$,
@@ -138,6 +142,7 @@ import {
   restAuth$,
   useTestScript,
   usePreRequestScript,
+  getDefaultRESTRequest,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
@@ -158,7 +163,12 @@ function bindRequestToURLParams() {
     // If query params are empty, or contains code or error param (these are from Oauth Redirect)
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
-    setRESTRequest(translateExtURLParams(query))
+    setRESTRequest(
+      safelyExtractRESTRequest(
+        translateExtURLParams(query),
+        getDefaultRESTRequest()
+      )
+    )
   })
 }
 
@@ -226,7 +236,9 @@ export default defineComponent({
     const confirmSync = ref(false)
 
     const syncRequest = () => {
-      setRESTRequest(requestForSync.value!)
+      setRESTRequest(
+        safelyExtractRESTRequest(requestForSync.value!, getDefaultRESTRequest())
+      )
     }
 
     setupRequestSync(confirmSync, requestForSync)

@@ -5,7 +5,10 @@ import assign from "lodash/assign"
 import isEmpty from "lodash/isEmpty"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { translateToNewRequest } from "@hoppscotch/data"
+import {
+  safelyExtractRESTRequest,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 import {
   settingsStore,
@@ -41,7 +44,11 @@ import {
   selectedEnvIndex$,
   setCurrentEnvironment,
 } from "./environments"
-import { restRequest$, setRESTRequest } from "./RESTSession"
+import {
+  getDefaultRESTRequest,
+  restRequest$,
+  setRESTRequest,
+} from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WebSocketSession"
 import { SIORequest$, setSIORequest } from "./SocketIOSession"
 import { SSERequest$, setSSERequest } from "./SSESession"
@@ -281,7 +288,9 @@ function setupRequestPersistence() {
 
   if (localRequest) {
     const parsedLocal = translateToNewRequest(localRequest)
-    setRESTRequest(parsedLocal)
+    setRESTRequest(
+      safelyExtractRESTRequest(parsedLocal, getDefaultRESTRequest())
+    )
   }
 
   restRequest$.subscribe((req) => {

@@ -151,9 +151,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { translateToNewRequest } from "@hoppscotch/data"
+import {
+  safelyExtractRESTRequest,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
+  getDefaultRESTRequest,
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
@@ -229,11 +233,17 @@ export default defineComponent({
           },
         })
       else {
-        setRESTRequest(translateToNewRequest(this.request), {
-          originLocation: "user-collection",
-          folderPath: this.folderPath,
-          requestIndex: this.requestIndex,
-        })
+        setRESTRequest(
+          safelyExtractRESTRequest(
+            translateToNewRequest(this.request),
+            getDefaultRESTRequest()
+          ),
+          {
+            originLocation: "user-collection",
+            folderPath: this.folderPath,
+            requestIndex: this.requestIndex,
+          }
+        )
       }
     },
     dragStart({ dataTransfer }) {

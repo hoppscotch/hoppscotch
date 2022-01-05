@@ -103,6 +103,7 @@
 <script setup lang="ts">
 import { computed, ref } from "@nuxtjs/composition-api"
 import * as timeago from "timeago.js"
+import { safelyExtractRESTRequest } from "~/../hoppscotch-data/dist"
 import {
   useI18n,
   useReadonlyStream,
@@ -120,7 +121,7 @@ import {
   RESTHistoryEntry,
   GQLHistoryEntry,
 } from "~/newstore/history"
-import { setRESTRequest } from "~/newstore/RESTSession"
+import { getDefaultRESTRequest, setRESTRequest } from "~/newstore/RESTSession"
 
 const props = defineProps<{
   page: "rest" | "graphql"
@@ -174,7 +175,10 @@ const clearHistory = () => {
 }
 
 const useHistory = (entry: any) => {
-  if (props.page === "rest") setRESTRequest(entry.request)
+  if (props.page === "rest")
+    setRESTRequest(
+      safelyExtractRESTRequest(entry.request, getDefaultRESTRequest())
+    )
 }
 
 const deleteBattleHistoryEntry = (entries: number[]) => {

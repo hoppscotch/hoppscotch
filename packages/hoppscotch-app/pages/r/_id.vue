@@ -63,14 +63,14 @@ import {
   watch,
 } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
-import { makeRESTRequest } from "@hoppscotch/data"
+import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   ResolveShortcodeDocument,
   ResolveShortcodeQuery,
   ResolveShortcodeQueryVariables,
 } from "~/helpers/backend/graphql"
-import { setRESTRequest } from "~/newstore/RESTSession"
+import { getDefaultRESTRequest, setRESTRequest } from "~/newstore/RESTSession"
 
 export default defineComponent({
   setup() {
@@ -97,9 +97,14 @@ export default defineComponent({
         const data = shortcodeDetails.data
 
         if (E.isRight(data)) {
-          const request = JSON.parse(data.right.shortcode?.request as string)
+          const request: unknown = JSON.parse(
+            data.right.shortcode?.request as string
+          )
 
-          setRESTRequest(makeRESTRequest(request))
+          setRESTRequest(
+            safelyExtractRESTRequest(request, getDefaultRESTRequest())
+          )
+
           router.push({ path: localePath("/") })
         }
       }

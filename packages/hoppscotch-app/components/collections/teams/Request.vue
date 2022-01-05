@@ -147,9 +147,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { translateToNewRequest } from "@hoppscotch/data"
+import {
+  safelyExtractRESTRequest,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
+  getDefaultRESTRequest,
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
@@ -220,10 +224,16 @@ export default defineComponent({
           },
         })
       else
-        setRESTRequest(translateToNewRequest(this.request), {
-          originLocation: "team-collection",
-          requestID: this.requestIndex as string,
-        })
+        setRESTRequest(
+          safelyExtractRESTRequest(
+            translateToNewRequest(this.request),
+            getDefaultRESTRequest()
+          ),
+          {
+            originLocation: "team-collection",
+            requestID: this.requestIndex as string,
+          }
+        )
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging

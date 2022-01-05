@@ -49,6 +49,7 @@
       class="covers-response"
       src="about:blank"
       loading="lazy"
+      sandbox=""
     ></iframe>
   </div>
 </template>

@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/data",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
   "main": "dist/index.js",
   "module": "true",
@@ -27,6 +27,10 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
+    "@types/lodash": "^4.14.178",
     "tsup": "^5.11.10"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

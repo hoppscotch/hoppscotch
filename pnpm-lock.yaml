@@ -75,7 +75,7 @@ importers:
       '@graphql-codegen/urql-introspection': ^2.1.1
       '@graphql-typed-document-node/core': ^3.1.1
       '@hoppscotch/codemirror-lang-graphql': workspace:^0.1.0
-      '@hoppscotch/data': workspace:^0.1.0
+      '@hoppscotch/data': workspace:^0.2.0
       '@hoppscotch/js-sandbox': workspace:^1.0.0
       '@nuxt/types': ^2.15.8
       '@nuxt/typescript-build': ^2.1.0
@@ -315,8 +315,13 @@ importers:
 
   packages/hoppscotch-data:
     specifiers:
+      '@types/lodash': ^4.14.178
+      lodash: ^4.17.21
       tsup: ^5.11.10
+    dependencies:
+      lodash: 4.17.21
     devDependencies:
+      '@types/lodash': 4.14.178
       tsup: 5.11.10
 
   packages/hoppscotch-js-sandbox:

@@ -17,6 +17,7 @@
       @click="$emit('click', $event)"
       @keydown="$emit('keydown', $event)"
       @paste="handlePaste"
+      @compositionend="handleCompositionEnd"
     ></div>
   </div>
 </template>
@@ -72,7 +73,7 @@ export default defineComponent({
       highlightEnabled: true,
       highlightStyle: "",
       caseSensitive: true,
-      fireOn: "keydown",
+      fireOn: "input",
       fireOnEnabled: true,
     }
   },
@@ -114,11 +115,17 @@ export default defineComponent({
   },
 
   methods: {
+    handleCompositionEnd() {
+      this.handleChange()
+    },
     handlePaste(ev) {
       this.handleChange()
       this.$emit("paste", { event: ev, previousValue: this.internalValue })
     },
-    handleChange() {
+    handleChange(e = null) {
+      if (e && "inputType" in e && e.inputType === "insertCompositionText") {
+        return
+      }
       this.debouncedHandler = debounce(function () {
         if (this.$refs.editor) {
           if (this.internalValue !== this.$refs.editor.textContent) {

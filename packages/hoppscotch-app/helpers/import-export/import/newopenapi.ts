@@ -27,6 +27,7 @@ import { Collection, makeCollection } from "~/newstore/collections"
 
 const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
+// TODO: URL Import Support
 // TODO: YAMLLLLLLL import support!!!!!
 // TODO: Oauth!
 
@@ -252,7 +253,74 @@ const resolveOpenAPIV3SecurityObj = (
       }
     }
   } else if (scheme.type === "oauth2") {
-    // TODO: Implement Oauth
+    // NOTE: We select flow on a first come basis on this order, authorizationCode > implicit > password > clientCredentials
+    if (scheme.flows.authorizationCode) {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: scheme.flows.authorizationCode.tokenUrl ?? "",
+        authURL: scheme.flows.authorizationCode.authorizationUrl ?? "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else if (scheme.flows.implicit) {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        authURL: scheme.flows.implicit.authorizationUrl ?? "",
+        accessTokenURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else if (scheme.flows.password) {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        authURL: "",
+        accessTokenURL: scheme.flows.password.tokenUrl ?? "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else if (scheme.flows.clientCredentials) {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: scheme.flows.clientCredentials.tokenUrl ?? "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    }
+  } else if (scheme.type === "openIdConnect") {
+    return {
+      authType: "oauth-2",
+      authActive: true,
+      accessTokenURL: "",
+      authURL: "",
+      clientID: "",
+      oidcDiscoveryURL: scheme.openIdConnectUrl ?? "",
+      scope: _schemeData.join(" "),
+      token: "",
+    }
   }
 
   return { authType: "none", authActive: true }
@@ -323,7 +391,63 @@ const resolveOpenAPIV2SecurityScheme = (
       value: "",
     }
   } else if (scheme.type === "oauth2") {
-    // TODO: Implement OAuth2
+    // NOTE: We select flow on a first come basis on this order, accessCode > implicit > password > application
+    if (scheme.flow === "accessCode") {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: scheme.tokenUrl ?? "",
+        authURL: scheme.authorizationUrl ?? "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else if (scheme.flow === "implicit") {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: "",
+        authURL: scheme.authorizationUrl ?? "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else if (scheme.flow === "application") {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: scheme.tokenUrl ?? "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else if (scheme.flow === "password") {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: scheme.tokenUrl ?? "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    } else {
+      return {
+        authType: "oauth-2",
+        authActive: true,
+        accessTokenURL: "",
+        authURL: "",
+        clientID: "",
+        oidcDiscoveryURL: "",
+        scope: _schemeData.join(" "),
+        token: "",
+      }
+    }
   }
 
   return { authType: "none", authActive: true }

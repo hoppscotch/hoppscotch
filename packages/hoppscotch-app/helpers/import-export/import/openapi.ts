@@ -557,20 +557,20 @@ const convertPathToHoppReqs = (
 
 const convertOpenApiDocToHopp = (
   doc: OpenAPI.Document
-): TE.TaskEither<never, Collection<HoppRESTRequest>> => {
+): TE.TaskEither<never, Collection<HoppRESTRequest>[]> => {
   const name = doc.info.title
 
   const paths = Object.entries(doc.paths ?? {})
     .map(([pathName, pathObj]) => convertPathToHoppReqs(doc, pathName, pathObj))
     .flat()
 
-  return TE.of(
+  return TE.of([
     makeCollection<HoppRESTRequest>({
       name,
       folders: [],
       requests: paths,
-    })
-  )
+    }),
+  ])
 }
 
 export default defineImporter({

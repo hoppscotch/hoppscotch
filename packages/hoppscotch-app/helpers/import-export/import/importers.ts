@@ -1,7 +1,7 @@
 import HoppRESTCollImporter from "./hopp"
-import NewOpenAPIImporter from "./newopenapi"
+import OpenAPIImporter from "./openapi"
 
 export const RESTCollectionImporters = [
   HoppRESTCollImporter,
-  NewOpenAPIImporter,
+  OpenAPIImporter,
 ] as const

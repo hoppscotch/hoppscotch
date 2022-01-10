@@ -28,7 +28,7 @@
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.178",
-    "tsup": "^5.11.10"
+    "tsup": "^5.11.11"
   },
   "dependencies": {
     "lodash": "^4.17.21"

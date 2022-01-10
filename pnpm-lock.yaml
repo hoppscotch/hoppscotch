@@ -138,6 +138,7 @@ importers:
       io-ts: ^2.2.16
       jest: ^27.4.5
       jest-serializer-vue: ^2.0.2
+      js-yaml: ^4.1.0
       json-loader: ^0.5.7
       lodash: ^4.17.21
       mustache: ^4.2.0
@@ -230,6 +231,7 @@ importers:
       graphql-tag: 2.12.6_graphql@15.7.2
       httpsnippet: 2.0.0
       io-ts: 2.2.16_fp-ts@2.11.5
+      js-yaml: 4.1.0
       json-loader: 0.5.7
       lodash: 4.17.21
       mustache: 4.2.0

@@ -84,6 +84,7 @@
     "graphql-tag": "^2.12.6",
     "httpsnippet": "^2.0.0",
     "io-ts": "^2.2.16",
+    "js-yaml": "^4.1.0",
     "json-loader": "^0.5.7",
     "lodash": "^4.17.21",
     "mustache": "^4.2.0",

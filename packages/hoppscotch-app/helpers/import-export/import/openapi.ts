@@ -5,6 +5,7 @@ import {
   OpenAPIV3_1 as OpenAPIV31,
 } from "openapi-types"
 import SwaggerParser from "@apidevtools/swagger-parser"
+import yaml from "js-yaml"
 import {
   FormDataKeyValue,
   HoppRESTAuth,
@@ -28,10 +29,10 @@ import { Collection, makeCollection } from "~/newstore/collections"
 const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
 // TODO: URL Import Support
-// TODO: YAMLLLLLLL import support!!!!!
-// TODO: Oauth!
 
 const safeParseJSON = (str: string) => O.tryCatch(() => JSON.parse(str))
+
+const safeParseYAML = (str: string) => O.tryCatch(() => yaml.load(str))
 
 const objectHasProperty = <T extends string>(
   obj: unknown,
@@ -573,13 +574,23 @@ const convertOpenApiDocToHopp = (
   ])
 }
 
+const parseOpenAPIDocContent = (str: string) =>
+  pipe(
+    str,
+    safeParseJSON,
+    O.match(
+      () => safeParseYAML(str),
+      (data) => O.of(data)
+    )
+  )
+
 export default defineImporter({
   name: "Swagger/OpenAPI v3 Schema",
   steps: [
     step({
       stepName: "FILE_OR_URL_IMPORT",
       metadata: {
-        acceptedFileTypes: "application/json",
+        acceptedFileTypes: ".json, .yaml, .yml",
       },
     }),
   ] as const,
@@ -587,7 +598,7 @@ export default defineImporter({
     pipe(
       // See if we can parse JSON properly
       fileContent,
-      safeParseJSON,
+      parseOpenAPIDocContent,
       TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
 
       // Try validating, else the importer is invalid file format

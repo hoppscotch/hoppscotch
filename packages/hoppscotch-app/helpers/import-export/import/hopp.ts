@@ -6,7 +6,8 @@ import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 import { translateToNewRESTCollection } from "~/newstore/collections"
 
 export default defineImporter({
-  name: "Hoppscotch REST Collection",
+  name: "import.json",
+  icon: "folder-plus",
   steps: [
     step({
       stepName: "FILE_OR_URL_IMPORT",

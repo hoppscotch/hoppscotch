@@ -180,6 +180,7 @@ const safeParseJSON = (str: string) => O.tryCatch(() => JSON.parse(str))
 
 export default defineImporter({
   name: "Postman Collection",
+  icon: "postman",
   steps: [
     step({
       stepName: "FILE_OR_URL_IMPORT",

@@ -23,6 +23,11 @@ type HoppImporterDefintion<T, Y, E> = {
   name: string
 
   /**
+   * Icon for importer button
+   */
+  icon: string
+
+  /**
    * The importer function, It is a Promise because its supposed to be loaded in lazily (dynamic imports ?)
    */
   importer: HoppImporter<T, Y, E>
@@ -38,6 +43,7 @@ type HoppImporterDefintion<T, Y, E> = {
  */
 export const defineImporter = <ReturnType, StepType, Errors>(input: {
   name: string
+  icon: string
   importer: HoppImporter<ReturnType, StepType, Errors>
   steps: StepType
 }) => {

@@ -585,7 +585,8 @@ const parseOpenAPIDocContent = (str: string) =>
   )
 
 export default defineImporter({
-  name: "Swagger/OpenAPI v3 Schema",
+  name: "import.from_openapi",
+  icon: "file",
   steps: [
     step({
       stepName: "FILE_OR_URL_IMPORT",

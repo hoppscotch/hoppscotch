@@ -7,11 +7,11 @@
   >
     <template #actions>
       <ButtonSecondary
-        v-if="importerType > 0"
+        v-if="importerType !== null"
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.go_back')"
         svg="arrow-left"
-        @click.native="importerType = 0"
+        @click.native="resetImport"
       />
       <ButtonSecondary
         v-if="mode == 'import_from_my_collections'"
@@ -27,7 +27,7 @@
       />
     </template>
     <template #body>
-      <div v-if="importerType > 0" class="relative flex flex-col px-2">
+      <div v-if="importerType !== null" class="relative flex flex-col px-2">
         <div
           class="absolute top-0 w-0.5 bg-primaryDark left-5 -z-1 bottom-1"
         ></div>
@@ -40,6 +40,9 @@
             <p class="flex items-center">
               <span
                 class="inline-flex items-center justify-center flex-shrink-0 mr-4 rounded-full border-5 border-primary text-secondaryLight"
+                :class="{
+                  'text-green-500': hasFile,
+                }"
               >
                 <i class="material-icons">check_circle</i>
               </span>
@@ -55,6 +58,7 @@
                 type="file"
                 class="transition cursor-pointer file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
                 :accept="step.metadata.acceptedFileTypes"
+                @change="onFileChange"
               />
             </p>
           </div>
@@ -62,17 +66,22 @@
         <ButtonPrimary
           :label="t('import.title')"
           class="mt-6"
+          :disabled="enableImportButton"
           @click.native="finishImport"
         />
+        {{ enableImportButton }}
       </div>
       <div v-else class="flex flex-col px-2">
         <SmartExpand>
           <template #body>
             <SmartItem
-              svg="folder-plus"
-              :label="t('import.json')"
-              @click.native="importerType = 1"
+              v-for="(importer, index) in RESTCollectionImporters"
+              :key="`importer-${index}`"
+              :svg="importer.icon"
+              :label="t(`${importer.name}`)"
+              @click.native="importerType = index"
             />
+            ---
             <SmartItem
               v-if="collectionsType.type == 'team-collections'"
               v-tippy="{ theme: 'tooltip' }"
@@ -91,9 +100,6 @@
                 }
               "
             />
-            <SmartItem svg="file" :label="t('import.from_openapi')" />
-            <SmartItem svg="insomnia" :label="t('import.from_insomnia')" />
-            <SmartItem svg="postman" :label="t('import.from_postman')" />
             <hr />
             <SmartItem
               v-tippy="{ theme: 'tooltip' }"
@@ -185,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { computed, ref } from "@nuxtjs/composition-api"
 // import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import { apolloClient } from "~/helpers/apollo"
@@ -325,10 +331,11 @@ const readCollectionGist = async () => {
 const hideModal = () => {
   mode.value = "import_export"
   mySelectedCollectionID.value = undefined
+  resetImport()
   emit("hide-modal")
 }
 
-const stepsValue = ref<string[]>([])
+const stepResults = ref<string[]>([])
 
 const importFromMyCollections = () => {
   if (props.collectionsType.type !== "team-collections") return
@@ -373,12 +380,17 @@ const exportJSON = () => {
   }, 1000)
 }
 
-const importerType = ref(0)
-const importerModule = RESTCollectionImporters[importerType.value]
-const importerSteps = importerModule.steps
+const importerType = ref<number | null>(null)
+
+const importerModule = computed(() =>
+  importerType.value !== null
+    ? RESTCollectionImporters[importerType.value]
+    : null
+)
+const importerSteps = computed(() => importerModule.value?.steps ?? null)
 
 const finishImport = async () => {
-  await importerAction(stepsValue.value[0])
+  await importerAction(stepResults.value)
     .then(() => {
       fileImported()
     })
@@ -387,15 +399,56 @@ const finishImport = async () => {
     })
 }
 
-const importerAction = async (content: string) => {
-  const result = await importerModule.importer([content])()
+const importerAction = async (stepResults: any[]) => {
+  if (!importerModule.value) return
+  const result = await importerModule.value?.importer(stepResults as any)()
   if (E.isLeft(result)) {
     console.log("error", result.left)
     toast.error(t("error.something_went_wrong").toString())
   } else if (E.isRight(result)) {
+    debugger
     appendRESTCollections(result.right)
     console.log("success", result)
-    toast.success(t("state.file_imported").toString())
   }
+}
+
+const hasFile = ref(false)
+
+const onFileChange = () => {
+  if (!inputChooseFileToImportFrom.value[0]) return
+
+  if (
+    !inputChooseFileToImportFrom.value[0].files ||
+    inputChooseFileToImportFrom.value[0].files.length === 0
+  ) {
+    inputChooseFileToImportFrom.value[0].value = ""
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  console.log("filename", inputChooseFileToImportFrom.value[0].files[0].name)
+
+  const reader = new FileReader()
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+    if (!content) {
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    stepResults.value.push(content)
+    hasFile.value = !!content?.length
+  }
+  reader.readAsText(inputChooseFileToImportFrom.value[0].files[0])
+}
+
+const enableImportButton = computed(
+  () => !(stepResults.value.length === importerSteps.value?.length)
+)
+
+const resetImport = () => {
+  stepResults.value = []
+  hasFile.value = false
+  importerType.value = null
 }
 </script>

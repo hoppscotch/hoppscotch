@@ -11,6 +11,7 @@ import { Collection } from "~/newstore/collections"
 
 export default defineImporter({
   name: "Insomnia Collection",
+  icon: "insomnia",
   steps: [
     step({
       stepName: "FILE_OR_URL_IMPORT",

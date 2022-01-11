@@ -1,9 +1,32 @@
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import * as E from "fp-ts/Either"
+import * as TO from "fp-ts/TaskOption"
+import * as O from "fp-ts/Option"
+import axios from "axios"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import { translateToNewRESTCollection } from "~/newstore/collections"
+import { Collection } from "~/newstore/collections"
+
+// TODO: Add validation to output
+const fetchGist = (url: string): TO.TaskOption<Collection<HoppRESTRequest>> =>
+  pipe(
+    TO.tryCatch(() =>
+      axios.get(`https://api.github.com/gists/${url.split("/").pop()}`, {
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+        },
+      })
+    ),
+    TO.chain((res) =>
+      pipe(
+        O.tryCatch(() =>
+          JSON.parse((Object.values(res.data.files)[0] as any).content)
+        ),
+        TO.fromOption
+      )
+    )
+  )
 
 export default defineImporter({
   name: "import.gist",
@@ -18,24 +41,7 @@ export default defineImporter({
   ] as const,
   importer: ([content]) =>
     pipe(
-      E.tryCatch(
-        async () => {
-          await fetch(
-            `https://api.github.com/gists/${content.split("/").pop()}`,
-            {
-              headers: {
-                Accept: "application/vnd.github.v3+json",
-              },
-            }
-          ).then((files) => {
-            debugger
-            return JSON.parse(Object.values(files)[0].content).map(
-              (coll: any) => translateToNewRESTCollection(coll)
-            )
-          })
-        },
-        () => IMPORTER_INVALID_FILE_FORMAT
-      ),
-      TE.fromEither
+      fetchGist(content),
+      TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT)
     ),
 })

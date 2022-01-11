@@ -10,7 +10,7 @@ export default defineImporter({
   icon: "folder-plus",
   steps: [
     step({
-      stepName: "FILE_OR_URL_IMPORT",
+      stepName: "FILE_IMPORT",
       metadata: {
         acceptedFileTypes: "application/json",
       },

@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${t('modal.import_export')} ${t('modal.collections')}`"
+    :title="`${t('modal.collections')}`"
     max-width="sm:max-w-md"
     @close="hideModal"
   >
@@ -27,49 +27,72 @@
       />
     </template>
     <template #body>
-      <div v-if="importerType !== null" class="relative flex flex-col px-2">
-        <div
-          class="absolute top-0 w-0.5 bg-primaryDark left-5 -z-1 bottom-1"
-        ></div>
-        <div
-          v-for="(step, index) in importerSteps"
-          :key="`step-${index}`"
-          class="flex flex-col space-y-8"
-        >
-          <div v-if="step.name === 'FILE_OR_URL_IMPORT'" class="space-y-4">
-            <p class="flex items-center">
-              <span
-                class="inline-flex items-center justify-center flex-shrink-0 mr-4 rounded-full border-5 border-primary text-secondaryLight"
-                :class="{
-                  'text-green-500': hasFile,
-                }"
-              >
-                <i class="material-icons">check_circle</i>
-              </span>
-              <span>
-                {{ t("import.json_description") }}
-              </span>
-            </p>
-            <p class="flex flex-col ml-12">
-              <input
-                id="inputChooseFileToImportFrom"
-                ref="inputChooseFileToImportFrom"
-                name="inputChooseFileToImportFrom"
-                type="file"
-                class="transition cursor-pointer file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
-                :accept="step.metadata.acceptedFileTypes"
-                @change="onFileChange"
-              />
-            </p>
+      <div v-if="importerType !== null" class="flex flex-col">
+        <div class="relative flex pb-6 flex-col px-2">
+          <div
+            class="absolute top-0 w-0.5 bg-primaryDark left-5 -z-1 bottom-1"
+          ></div>
+          <div
+            v-for="(step, index) in importerSteps"
+            :key="`step-${index}`"
+            class="flex flex-col space-y-8"
+          >
+            <div v-if="step.name === 'FILE_IMPORT'" class="space-y-4">
+              <p class="flex items-center">
+                <span
+                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 rounded-full border-5 border-primary text-secondaryLight"
+                  :class="{
+                    'text-green-500': hasFile,
+                  }"
+                >
+                  <i class="material-icons">check_circle</i>
+                </span>
+                <span>
+                  {{ t("import.json_description") }}
+                </span>
+              </p>
+              <p class="flex flex-col ml-11">
+                <input
+                  id="inputChooseFileToImportFrom"
+                  ref="inputChooseFileToImportFrom"
+                  name="inputChooseFileToImportFrom"
+                  type="file"
+                  class="transition cursor-pointer file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                  :accept="step.metadata.acceptedFileTypes"
+                  @change="onFileChange"
+                />
+              </p>
+            </div>
+            <div v-else-if="step.name === 'URL_IMPORT'" class="space-y-4">
+              <p class="flex items-center">
+                <span
+                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 rounded-full border-5 border-primary text-secondaryLight"
+                  :class="{
+                    'text-green-500': hasGist,
+                  }"
+                >
+                  <i class="material-icons">check_circle</i>
+                </span>
+                <span>
+                  {{ t("import.gist_description") }}
+                </span>
+              </p>
+              <p class="flex flex-col ml-10">
+                <input
+                  v-model="inputChooseGistToImportFrom"
+                  type="url"
+                  class="input"
+                  :placeholder="`${$t('import.gist_url')}`"
+                />
+              </p>
+            </div>
           </div>
         </div>
         <ButtonPrimary
           :label="t('import.title')"
-          class="mt-6"
           :disabled="enableImportButton"
           @click.native="finishImport"
         />
-        {{ enableImportButton }}
       </div>
       <div v-else class="flex flex-col px-2">
         <SmartExpand>
@@ -81,7 +104,6 @@
               :label="t(`${importer.name}`)"
               @click.native="importerType = index"
             />
-            ---
             <SmartItem
               v-if="collectionsType.type == 'team-collections'"
               v-tippy="{ theme: 'tooltip' }"
@@ -89,16 +111,6 @@
               svg="user"
               :label="t('import.from_my_collections')"
               @click.native="mode = 'import_from_my_collections'"
-            />
-            <SmartItem svg="link-2" :label="t('import.from_url')" />
-            <SmartItem
-              svg="github"
-              :label="t('import.from_gist')"
-              @click.native="
-                () => {
-                  readCollectionGist()
-                }
-              "
             />
             <hr />
             <SmartItem
@@ -191,8 +203,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "@nuxtjs/composition-api"
-// import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
+import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { apolloClient } from "~/helpers/apollo"
 import {
@@ -203,14 +214,7 @@ import {
 } from "~/helpers/utils/composables"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
-// import { parseInsomniaCollection } from "~/helpers/utils/parseInsomniaCollection"
-import {
-  appendRESTCollections,
-  restCollections$,
-  setRESTCollections,
-  // Collection,
-  // makeCollection,
-} from "~/newstore/collections"
+import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 
 const props = defineProps<{
@@ -241,7 +245,7 @@ const mode = ref("import_export")
 const mySelectedCollectionID = ref(undefined)
 const collectionJson = ref("")
 const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
-// const fileName = ref<string>("")
+const inputChooseGistToImportFrom = ref<string>("")
 
 const getJSONCollection = async () => {
   if (props.collectionsType.type === "my-collections") {
@@ -297,35 +301,6 @@ const fileImported = () => {
 
 const failedImport = () => {
   toast.error(t("import.failed").toString())
-}
-
-const readCollectionGist = async () => {
-  const gist = prompt(t("import.gist_url").toString())
-  if (!gist) return
-
-  try {
-    const { files } = (await axios.$get(
-      `https://api.github.com/gists/${gist.split("/").pop()}`,
-      {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    )) as {
-      files: {
-        [fileName: string]: {
-          content: any
-        }
-      }
-    }
-
-    const collections = JSON.parse(Object.values(files)[0].content)
-    setRESTCollections(collections)
-    fileImported()
-  } catch (e) {
-    failedImport()
-    console.error(e)
-  }
 }
 
 const hideModal = () => {
@@ -413,6 +388,18 @@ const importerAction = async (stepResults: any[]) => {
 }
 
 const hasFile = ref(false)
+const hasGist = ref(false)
+
+watch(inputChooseGistToImportFrom, (v) => {
+  stepResults.value = []
+  if (v === "") {
+    hasGist.value = false
+  } else {
+    hasGist.value = true
+    stepResults.value.push(inputChooseGistToImportFrom.value)
+    console.log(stepResults.value)
+  }
+})
 
 const onFileChange = () => {
   if (!inputChooseFileToImportFrom.value[0]) return
@@ -447,8 +434,11 @@ const enableImportButton = computed(
 )
 
 const resetImport = () => {
-  stepResults.value = []
-  hasFile.value = false
   importerType.value = null
+  stepResults.value = []
+  inputChooseFileToImportFrom.value = ""
+  hasFile.value = false
+  inputChooseGistToImportFrom.value = ""
+  hasGist.value = false
 }
 </script>

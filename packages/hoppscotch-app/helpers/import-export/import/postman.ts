@@ -183,7 +183,7 @@ export default defineImporter({
   icon: "postman",
   steps: [
     step({
-      stepName: "FILE_OR_URL_IMPORT",
+      stepName: "FILE_IMPORT",
       metadata: {
         acceptedFileTypes: ".json",
       },

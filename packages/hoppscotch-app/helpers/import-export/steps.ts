@@ -3,16 +3,22 @@
  * Add an entry here when you define a step
  */
 export type StepDefinition = {
-  FILE_OR_URL_IMPORT: {
+  FILE_IMPORT: {
     returnType: string
     metadata: {
       acceptedFileTypes: string
     }
-  } // String content of the file/url
+  } // String content of the file
   TARGET_MY_COLLECTION: {
     returnType: number
     metadata: never
   } // folderPath
+  URL_IMPORT: {
+    returnType: string
+    metadata: {
+      placeholder: string
+    }
+  } // String content of the url
 }
 
 /**

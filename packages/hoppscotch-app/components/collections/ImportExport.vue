@@ -13,25 +13,10 @@
         svg="arrow-left"
         @click.native="resetImport"
       />
-      <ButtonSecondary
-        v-if="mode == 'import_from_my_collections'"
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('action.go_back')"
-        svg="arrow-left"
-        @click.native="
-          () => {
-            mode = 'import_export'
-            mySelectedCollectionID = undefined
-          }
-        "
-      />
     </template>
     <template #body>
       <div v-if="importerType !== null" class="flex flex-col">
-        <div class="relative flex pb-6 flex-col px-2">
-          <div
-            class="absolute top-0 w-0.5 bg-primaryDark left-5 -z-1 bottom-1"
-          ></div>
+        <div class="flex pb-6 flex-col px-2">
           <div
             v-for="(step, index) in importerSteps"
             :key="`step-${index}`"
@@ -40,9 +25,9 @@
             <div v-if="step.name === 'FILE_IMPORT'" class="space-y-4">
               <p class="flex items-center">
                 <span
-                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 rounded-full border-5 border-primary text-secondaryLight"
+                  class="inline-flex border-4 border-primary items-center justify-center flex-shrink-0 mr-4 rounded-full text-dividerDark"
                   :class="{
-                    'text-green-500': hasFile,
+                    '!text-green-500': hasFile,
                   }"
                 >
                   <i class="material-icons">check_circle</i>
@@ -51,7 +36,7 @@
                   {{ t("import.json_description") }}
                 </span>
               </p>
-              <p class="flex flex-col ml-11">
+              <p class="flex flex-col ml-10">
                 <input
                   id="inputChooseFileToImportFrom"
                   ref="inputChooseFileToImportFrom"
@@ -66,9 +51,9 @@
             <div v-else-if="step.name === 'URL_IMPORT'" class="space-y-4">
               <p class="flex items-center">
                 <span
-                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 rounded-full border-5 border-primary text-secondaryLight"
+                  class="inline-flex border-4 border-primary items-center justify-center flex-shrink-0 mr-4 rounded-full text-dividerDark"
                   :class="{
-                    'text-green-500': hasGist,
+                    '!text-green-500': hasGist,
                   }"
                 >
                   <i class="material-icons">check_circle</i>
@@ -86,11 +71,47 @@
                 />
               </p>
             </div>
+            <div
+              v-else-if="step.name === 'TARGET_MY_COLLECTION'"
+              class="flex flex-col px-2"
+            >
+              <div class="select-wrapper">
+                <select
+                  type="text"
+                  autocomplete="off"
+                  class="select"
+                  autofocus
+                  @change="
+                    ($event) => {
+                      mySelectedCollectionID = $event.target.value
+                    }
+                  "
+                >
+                  <option
+                    :key="undefined"
+                    :value="undefined"
+                    hidden
+                    disabled
+                    selected
+                  >
+                    {{ t("collection.select") }}
+                  </option>
+                  <option
+                    v-for="(collection, collectionIndex) in myCollections"
+                    :key="`collection-${collectionIndex}`"
+                    :value="collectionIndex"
+                  >
+                    {{ collection.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
         <ButtonPrimary
           :label="t('import.title')"
           :disabled="enableImportButton"
+          class="mx-2"
           @click.native="finishImport"
         />
       </div>
@@ -104,99 +125,46 @@
               :label="t(`${importer.name}`)"
               @click.native="importerType = index"
             />
-            <SmartItem
-              v-if="collectionsType.type == 'team-collections'"
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.preserve_current')"
-              svg="user"
-              :label="t('import.from_my_collections')"
-              @click.native="mode = 'import_from_my_collections'"
-            />
-            <hr />
-            <SmartItem
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.download_file')"
-              svg="download"
-              :label="t('export.as_json')"
-              @click.native="exportJSON"
-            />
-            <span
-              v-tippy="{ theme: 'tooltip' }"
-              :title="
-                !currentUser
-                  ? `${t('export.require_github')}`
-                  : currentUser.provider !== 'github.com'
-                  ? `${t('export.require_github')}`
-                  : undefined
-              "
-              class="flex"
-            >
-              <SmartItem
-                :disabled="
-                  !currentUser
-                    ? true
-                    : currentUser.provider !== 'github.com'
-                    ? true
-                    : false
-                "
-                svg="github"
-                :label="t('export.create_secret_gist')"
-                @click.native="
-                  () => {
-                    createCollectionGist()
-                  }
-                "
-              />
-            </span>
           </template>
         </SmartExpand>
-      </div>
-      <div
-        v-if="mode == 'import_from_my_collections'"
-        class="flex flex-col px-2"
-      >
-        <div class="select-wrapper">
-          <select
-            type="text"
-            autocomplete="off"
-            class="select"
-            autofocus
-            @change="
-              ($event) => {
-                mySelectedCollectionID = $event.target.value
-              }
-            "
-          >
-            <option
-              :key="undefined"
-              :value="undefined"
-              hidden
-              disabled
-              selected
-            >
-              Select Collection
-            </option>
-            <option
-              v-for="(collection, index) in myCollections"
-              :key="`collection-${index}`"
-              :value="index"
-            >
-              {{ collection.name }}
-            </option>
-          </select>
-        </div>
-      </div>
-    </template>
-    <template #footer>
-      <div v-if="mode == 'import_from_my_collections'">
-        <span>
-          <ButtonPrimary
-            :disabled="mySelectedCollectionID == undefined"
-            svg="folder-plus"
-            :label="t('import.title')"
-            @click.native="importFromMyCollections"
+        <hr />
+        <div class="flex flex-col space-y-2">
+          <SmartItem
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.download_file')"
+            svg="download"
+            :label="t('export.as_json')"
+            @click.native="exportJSON"
           />
-        </span>
+          <span
+            v-tippy="{ theme: 'tooltip' }"
+            :title="
+              !currentUser
+                ? `${t('export.require_github')}`
+                : currentUser.provider !== 'github.com'
+                ? `${t('export.require_github')}`
+                : undefined
+            "
+            class="flex"
+          >
+            <SmartItem
+              :disabled="
+                !currentUser
+                  ? true
+                  : currentUser.provider !== 'github.com'
+                  ? true
+                  : false
+              "
+              svg="github"
+              :label="t('export.create_secret_gist')"
+              @click.native="
+                () => {
+                  createCollectionGist()
+                }
+              "
+            />
+          </span>
+        </div>
       </div>
     </template>
   </SmartModal>
@@ -312,28 +280,28 @@ const hideModal = () => {
 
 const stepResults = ref<string[]>([])
 
-const importFromMyCollections = () => {
-  if (props.collectionsType.type !== "team-collections") return
+// const importFromMyCollections = () => {
+//   if (props.collectionsType.type !== "team-collections") return
 
-  teamUtils
-    .importFromMyCollections(
-      apolloClient,
-      mySelectedCollectionID.value,
-      props.collectionsType.selectedTeam.id
-    )
-    .then((success) => {
-      if (success) {
-        fileImported()
-        emit("update-team-collections")
-      } else {
-        failedImport()
-      }
-    })
-    .catch((e) => {
-      console.error(e)
-      failedImport()
-    })
-}
+//   teamUtils
+//     .importFromMyCollections(
+//       apolloClient,
+//       mySelectedCollectionID.value,
+//       props.collectionsType.selectedTeam.id
+//     )
+//     .then((success) => {
+//       if (success) {
+//         fileImported()
+//         emit("update-team-collections")
+//       } else {
+//         failedImport()
+//       }
+//     })
+//     .catch((e) => {
+//       console.error(e)
+//       failedImport()
+//     })
+// }
 
 const exportJSON = () => {
   getJSONCollection()
@@ -402,13 +370,17 @@ watch(inputChooseGistToImportFrom, (v) => {
 })
 
 const onFileChange = () => {
-  if (!inputChooseFileToImportFrom.value[0]) return
+  if (!inputChooseFileToImportFrom.value[0]) {
+    hasFile.value = false
+    return
+  }
 
   if (
     !inputChooseFileToImportFrom.value[0].files ||
     inputChooseFileToImportFrom.value[0].files.length === 0
   ) {
     inputChooseFileToImportFrom.value[0].value = ""
+    hasFile.value = false
     toast.show(t("action.choose_file").toString())
     return
   }
@@ -419,6 +391,7 @@ const onFileChange = () => {
   reader.onload = ({ target }) => {
     const content = target!.result as string | null
     if (!content) {
+      hasFile.value = false
       toast.show(t("action.choose_file").toString())
       return
     }
@@ -440,5 +413,6 @@ const resetImport = () => {
   hasFile.value = false
   inputChooseGistToImportFrom.value = ""
   hasGist.value = false
+  mySelectedCollectionID.value = undefined
 }
 </script>

@@ -1,182 +1,233 @@
-import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
-import { pipe } from "fp-ts/function"
+import {
+  Collection as PMCollection,
+  FormParam,
+  Item,
+  ItemGroup,
+  RequestAuthDefinition,
+  VariableDefinition,
+} from "postman-collection"
+import {
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTParam,
+  HoppRESTReqBody,
+  HoppRESTRequest,
+  makeRESTRequest,
+} from "@hoppscotch/data"
+import { pipe, flow } from "fp-ts/function"
+import * as S from "fp-ts/string"
+import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 import { Collection, makeCollection } from "~/newstore/collections"
 
-// TODO: I don't even know what is going on here :/
-type PostmanCollection = {
-  info?: {
-    name: string
+const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
+
+const isPMItem = (x: unknown): x is Item => Item.isItem(x)
+
+const replacePMVarTemplating = flow(
+  S.replace(/{{/g, "<<"),
+  S.replace(/}}/g, ">>")
+)
+
+const isPMItemGroup = (x: unknown): x is ItemGroup<Item> =>
+  ItemGroup.isItemGroup(x)
+
+const readPMCollection = (def: string) =>
+  pipe(
+    def,
+    safeParseJSON,
+    O.chain((data) => O.tryCatch(() => new PMCollection(data)))
+  )
+
+const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
+  pipe(
+    item.request.headers.all(),
+    A.map((header) => {
+      return <HoppRESTHeader>{
+        key: replacePMVarTemplating(header.key),
+        value: replacePMVarTemplating(header.value),
+        active: !header.disabled,
+      }
+    })
+  )
+
+const getHoppReqParams = (item: Item): HoppRESTParam[] =>
+  pipe(
+    item.request.headers.all(),
+    A.map((header) => {
+      return <HoppRESTHeader>{
+        key: replacePMVarTemplating(header.key),
+        value: replacePMVarTemplating(header.value),
+        active: !header.disabled,
+      }
+    })
+  )
+
+type PMRequestAuthDef<
+  AuthType extends RequestAuthDefinition["type"] = RequestAuthDefinition["type"]
+> = AuthType extends RequestAuthDefinition["type"] & string
+  ? // eslint-disable-next-line no-unused-vars
+    { type: AuthType } & { [x in AuthType]: VariableDefinition[] }
+  : { type: AuthType }
+
+const getVariableValue = (defs: VariableDefinition[], key: string) =>
+  defs.find((param) => param.key === key)?.value as string | undefined
+
+const getHoppReqAuth = (item: Item): HoppRESTAuth => {
+  if (!item.request.auth) return { authType: "none", authActive: true }
+
+  // Cast to the type for more stricter checking down the line
+  const auth = item.request.auth as unknown as PMRequestAuthDef
+
+  if (auth.type === "basic") {
+    return {
+      authType: "basic",
+      authActive: true,
+      username: replacePMVarTemplating(
+        getVariableValue(auth.basic, "username") ?? ""
+      ),
+      password: replacePMVarTemplating(
+        getVariableValue(auth.basic, "password") ?? ""
+      ),
+    }
+  } else if (auth.type === "apikey") {
+    return {
+      authType: "api-key",
+      authActive: true,
+      key: replacePMVarTemplating(getVariableValue(auth.apikey, "key") ?? ""),
+      value: replacePMVarTemplating(
+        getVariableValue(auth.apikey, "value") ?? ""
+      ),
+      addTo:
+        (getVariableValue(auth.apikey, "in") ?? "query") === "query"
+          ? "Query params"
+          : "Headers",
+    }
+  } else if (auth.type === "bearer") {
+    return {
+      authType: "bearer",
+      authActive: true,
+      token: replacePMVarTemplating(
+        getVariableValue(auth.bearer, "token") ?? ""
+      ),
+    }
+  } else if (auth.type === "oauth2") {
+    return {
+      authType: "oauth-2",
+      authActive: true,
+      accessTokenURL: replacePMVarTemplating(
+        getVariableValue(auth.oauth2, "accessTokenUrl") ?? ""
+      ),
+      authURL: replacePMVarTemplating(
+        getVariableValue(auth.oauth2, "authUrl") ?? ""
+      ),
+      clientID: replacePMVarTemplating(
+        getVariableValue(auth.oauth2, "clientId") ?? ""
+      ),
+      scope: replacePMVarTemplating(
+        getVariableValue(auth.oauth2, "scope") ?? ""
+      ),
+      token: replacePMVarTemplating(
+        getVariableValue(auth.oauth2, "accessToken") ?? ""
+      ),
+      oidcDiscoveryURL: "",
+    }
   }
-  name: string
-  item: {
-    name: string
-    request: any
-    item?: any
-  }[]
-  folders?: any
+
+  return { authType: "none", authActive: true }
 }
 
-const hasFolder = (item: { item?: any }) => {
-  return Object.prototype.hasOwnProperty.call(item, "item")
+type PMFormDataParamType = FormParam & {
+  type: "file" | "text"
 }
 
-export const parsePostmanCollection = ({
-  info,
-  name,
-  item,
-}: PostmanCollection) => {
-  const hoppscotchCollection: Collection<HoppRESTRequest> = makeCollection({
-    name: "",
-    folders: [],
-    requests: [],
+const getHoppReqBody = (item: Item): HoppRESTReqBody => {
+  if (!item.request.body) return { contentType: null, body: null }
+
+  // TODO: Implement
+  const body = item.request.body
+
+  if (body.mode === "formdata") {
+    return {
+      contentType: "multipart/form-data",
+      body:
+        (body.formdata?.all() as PMFormDataParamType[]).map((param) => ({
+          key: replacePMVarTemplating(param.key),
+          value: replacePMVarTemplating(
+            param.type === "text" ? (param.value as string) : ""
+          ),
+          active: !param.disabled,
+          isFile: false, // TODO: Preserve isFile state ?
+        })) ?? [],
+    }
+  } else if (body.mode === "urlencoded") {
+    return {
+      contentType: "application/x-www-form-urlencoded",
+      body:
+        body.urlencoded
+          ?.all()
+          .map(
+            (param) =>
+              `${replacePMVarTemplating(
+                param.key ?? ""
+              )}: ${replacePMVarTemplating(param.value ?? "")}`
+          )
+          .join("\n") ?? "",
+    }
+  } else if (body.mode === "raw") {
+    // Find content type from the content type header
+    const contentType = getHoppReqHeaders(item).find(
+      ({ key }) => key.toLowerCase() === "content-type"
+    )?.value
+
+    if (contentType && body.raw !== undefined && body.raw !== null)
+      return {
+        contentType: contentType as any,
+        body: replacePMVarTemplating(body.raw),
+      }
+    else return { contentType: null, body: null } // TODO: Any sort of recovery ?
+  }
+
+  // TODO: File
+  // TODO: GraphQL ?
+
+  return { contentType: null, body: null }
+}
+
+const getHoppReqURL = (item: Item): string =>
+  pipe(item.request.url.toString(true), S.replace(/\?.+/g, ""))
+
+const getHoppRequest = (item: Item): HoppRESTRequest => {
+  return makeRESTRequest({
+    name: item.name,
+    endpoint: getHoppReqURL(item),
+    method: item.request.method,
+    headers: getHoppReqHeaders(item),
+    params: getHoppReqParams(item),
+    auth: getHoppReqAuth(item),
+    body: getHoppReqBody(item),
+
+    // TODO: Decide about this
+    preRequestScript: "",
+    testScript: "",
+  })
+}
+
+const getHoppFolder = (ig: ItemGroup<Item>): Collection<HoppRESTRequest> =>
+  makeCollection({
+    name: ig.name,
+    folders: pipe(
+      ig.items.all(),
+      A.filter(isPMItemGroup),
+      A.map(getHoppFolder)
+    ),
+    requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
   })
 
-  hoppscotchCollection.name = info ? info.name : name
-
-  if (item && item.length > 0) {
-    for (const collectionItem of item) {
-      if (collectionItem.request) {
-        if (
-          Object.prototype.hasOwnProperty.call(hoppscotchCollection, "folders")
-        ) {
-          hoppscotchCollection.name = info ? info.name : name
-          hoppscotchCollection.requests.push(
-            parsePostmanRequest(collectionItem)
-          )
-        } else {
-          hoppscotchCollection.name = name || ""
-          hoppscotchCollection.requests.push(
-            parsePostmanRequest(collectionItem)
-          )
-        }
-      } else if (hasFolder(collectionItem)) {
-        hoppscotchCollection.folders.push(
-          parsePostmanCollection(collectionItem as any)
-        )
-      } else {
-        hoppscotchCollection.requests.push(parsePostmanRequest(collectionItem))
-      }
-    }
-  }
-  return hoppscotchCollection
-}
-
-// TODO: Rewrite
-const parsePostmanRequest = ({
-  name,
-  request,
-}: {
-  name: string
-  request: any
-}) => {
-  const pwRequest = {
-    url: "",
-    path: "",
-    method: "",
-    auth: "",
-    httpUser: "",
-    httpPassword: "",
-    passwordFieldType: "password",
-    bearerToken: "",
-    headers: [] as { name?: string; type?: string }[],
-    params: [] as { disabled?: boolean }[],
-    bodyParams: [] as { type?: string }[],
-    body: {
-      body: "",
-      contentType: "application/json",
-    },
-    rawParams: "",
-    rawInput: false,
-    contentType: "",
-    requestType: "",
-    name: "",
-  }
-
-  pwRequest.name = name
-  if (request.url) {
-    const requestObjectUrl = request.url.raw.match(
-      /^(.+:\/\/[^/]+|{[^/]+})(\/[^?]+|).*$/
-    )
-    if (requestObjectUrl) {
-      pwRequest.url = requestObjectUrl[1]
-      pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
-    } else {
-      pwRequest.url = request.url.raw
-    }
-  }
-
-  pwRequest.method = request.method
-  const itemAuth = request.auth ? request.auth : ""
-  const authType = itemAuth ? itemAuth.type : ""
-
-  try {
-    if (authType === "basic") {
-      pwRequest.auth = "Basic Auth"
-      pwRequest.httpUser =
-        itemAuth.basic[0].key === "username"
-          ? itemAuth.basic[0].value
-          : itemAuth.basic[1].value
-      pwRequest.httpPassword =
-        itemAuth.basic[0].key === "password"
-          ? itemAuth.basic[0].value
-          : itemAuth.basic[1].value
-    } else if (authType === "oauth2") {
-      pwRequest.auth = "OAuth 2.0"
-      pwRequest.bearerToken =
-        itemAuth.oauth2[0].key === "accessToken"
-          ? itemAuth.oauth2[0].value
-          : itemAuth.oauth2[1].value
-    } else if (authType === "bearer") {
-      pwRequest.auth = "Bearer Token"
-      pwRequest.bearerToken = itemAuth.bearer[0].value
-    }
-  } catch (error) {
-    console.error(error)
-  }
-
-  const requestObjectHeaders = request.header
-  if (requestObjectHeaders) {
-    pwRequest.headers = requestObjectHeaders
-    for (const header of pwRequest.headers) {
-      delete header.name
-      delete header.type
-    }
-  }
-  if (request.url) {
-    const requestObjectParams = request.url.query
-    if (requestObjectParams) {
-      pwRequest.params = requestObjectParams
-      for (const param of pwRequest.params) {
-        delete param.disabled
-      }
-    }
-  }
-  if (request.body) {
-    if (request.body.mode === "urlencoded") {
-      const params = request.body.urlencoded
-      pwRequest.bodyParams = params || []
-      for (const param of pwRequest.bodyParams) {
-        delete param.type
-      }
-    } else if (request.body.mode === "raw") {
-      pwRequest.rawInput = true
-      pwRequest.rawParams = request.body.raw
-      try {
-        const body = JSON.parse(request.body.raw)
-        pwRequest.body.body = JSON.stringify(body, null, 2)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-  }
-  return translateToNewRequest(pwRequest)
-}
-
-const safeParseJSON = (str: string) => O.tryCatch(() => JSON.parse(str))
+export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)
 
 export default defineImporter({
   name: "Postman Collection",
@@ -191,14 +242,12 @@ export default defineImporter({
   ] as const,
   importer: ([fileContent]) =>
     pipe(
-      // Parse to JSON
+      // Try reading
       fileContent,
-      safeParseJSON,
+      readPMCollection,
 
-      // Parse To Postman Collection
-      O.chain((data) => O.tryCatch(() => parsePostmanCollection(data))),
+      O.map(flow(getHoppCollection, A.of)),
 
-      // Convert Option to Task Either
       TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
     ),
 })

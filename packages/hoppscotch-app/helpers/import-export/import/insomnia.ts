@@ -1,7 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { step } from "../steps"
-import { parsePostmanCollection } from "./postman"
+import { getHoppCollection } from "./postman"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 import { parseInsomniaCollection } from "~/helpers/utils/parseInsomniaCollection"
 import { Collection } from "~/newstore/collections"
@@ -42,7 +42,7 @@ export default defineImporter({
       ) {
         // replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
         collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
-        collections = [parsePostmanCollection(collections)]
+        collections = [getHoppCollection(collections)]
 
         return TE.right(collections as Collection<HoppRESTRequest>[])
       } else {

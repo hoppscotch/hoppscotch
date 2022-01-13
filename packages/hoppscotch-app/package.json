@@ -83,6 +83,7 @@
     "graphql-language-service-parser": "^1.10.4",
     "graphql-tag": "^2.12.6",
     "httpsnippet": "^2.0.0",
+    "insomnia-importers": "^2.4.1",
     "io-ts": "^2.2.16",
     "js-yaml": "^4.1.0",
     "json-loader": "^0.5.7",

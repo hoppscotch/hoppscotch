@@ -180,7 +180,7 @@ const getHoppReqParams = (req: InsomniaRequestResource): HoppRESTParam[] =>
 const getHoppRequest = (req: InsomniaRequestResource): HoppRESTRequest =>
   makeRESTRequest({
     name: req.name ?? "Untitled Request",
-    method: req.method ?? "GET",
+    method: req.method?.toUpperCase() ?? "GET",
     endpoint: replaceVarTemplating(req.url ?? ""),
     auth: getHoppReqAuth(req),
     body: getHoppReqBody(req),

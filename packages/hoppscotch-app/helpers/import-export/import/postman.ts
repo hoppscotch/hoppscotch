@@ -214,7 +214,7 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
   return makeRESTRequest({
     name: item.name,
     endpoint: getHoppReqURL(item),
-    method: item.request.method,
+    method: item.request.method.toUpperCase(),
     headers: getHoppReqHeaders(item),
     params: getHoppReqParams(item),
     auth: getHoppReqAuth(item),

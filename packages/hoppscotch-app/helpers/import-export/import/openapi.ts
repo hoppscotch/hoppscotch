@@ -531,8 +531,8 @@ const convertPathToHoppReqs = (
     // Construct request object
     RA.map(({ method, info }) =>
       makeRESTRequest({
-        name: info.operationId ?? "Untitled Request",
-        method,
+        name: info.operationId ?? info.summary ?? "Untitled Request",
+        method: method.toUpperCase(),
         endpoint: `<<baseUrl>>${replaceOpenApiPathTemplating(pathName)}`, // TODO: Make this proper
 
         // We don't need to worry about reference types as the Dereferencing pass should remove them

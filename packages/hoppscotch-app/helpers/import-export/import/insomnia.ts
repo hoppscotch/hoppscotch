@@ -33,8 +33,8 @@ const parseInsomniaDoc = (content: string) =>
   TO.tryCatch(() => convert(content))
 
 const replaceVarTemplating = flow(
-  S.replace(/{{\s+/g, "<<"),
-  S.replace(/\s+}}/g, ">>")
+  S.replace(/{{\s*/g, "<<"),
+  S.replace(/\s*}}/g, ">>")
 )
 
 const getFoldersIn = (

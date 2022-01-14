@@ -3,6 +3,7 @@ import {
   FormParam,
   Item,
   ItemGroup,
+  QueryParam,
   RequestAuthDefinition,
   VariableDefinition,
 } from "postman-collection"
@@ -28,8 +29,8 @@ const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 const isPMItem = (x: unknown): x is Item => Item.isItem(x)
 
 const replacePMVarTemplating = flow(
-  S.replace(/{{/g, "<<"),
-  S.replace(/}}/g, ">>")
+  S.replace(/{{\s*/g, "<<"),
+  S.replace(/\s*}}/g, ">>")
 )
 
 const isPMItemGroup = (x: unknown): x is ItemGroup<Item> =>
@@ -54,17 +55,22 @@ const getHoppReqHeaders = (item: Item): HoppRESTHeader[] =>
     })
   )
 
-const getHoppReqParams = (item: Item): HoppRESTParam[] =>
-  pipe(
-    item.request.headers.all(),
-    A.map((header) => {
+const getHoppReqParams = (item: Item): HoppRESTParam[] => {
+  return pipe(
+    item.request.url.query.all(),
+    A.filter(
+      (param): param is QueryParam & { key: string } =>
+        param.key !== undefined && param.key !== null && param.key.length > 0
+    ),
+    A.map((param) => {
       return <HoppRESTHeader>{
-        key: replacePMVarTemplating(header.key),
-        value: replacePMVarTemplating(header.value),
-        active: !header.disabled,
+        key: replacePMVarTemplating(param.key),
+        value: replacePMVarTemplating(param.value ?? ""),
+        active: !param.disabled,
       }
     })
   )
+}
 
 type PMRequestAuthDef<
   AuthType extends RequestAuthDefinition["type"] = RequestAuthDefinition["type"]
@@ -198,7 +204,11 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
 }
 
 const getHoppReqURL = (item: Item): string =>
-  pipe(item.request.url.toString(true), S.replace(/\?.+/g, ""))
+  pipe(
+    item.request.url.toString(true),
+    S.replace(/\?.+/g, ""),
+    replacePMVarTemplating
+  )
 
 const getHoppRequest = (item: Item): HoppRESTRequest => {
   return makeRESTRequest({

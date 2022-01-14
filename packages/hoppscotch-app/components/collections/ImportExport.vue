@@ -334,24 +334,17 @@ const importerSteps = computed(() => importerModule.value?.steps ?? null)
 
 const finishImport = async () => {
   await importerAction(stepResults.value)
-    .then(() => {
-      fileImported()
-    })
-    .catch(() => {
-      failedImport()
-    })
 }
 
 const importerAction = async (stepResults: any[]) => {
   if (!importerModule.value) return
   const result = await importerModule.value?.importer(stepResults as any)()
   if (E.isLeft(result)) {
-    console.log("error", result.left)
-    toast.error(t("error.something_went_wrong").toString())
+    failedImport()
+    console.error("error", result.left)
   } else if (E.isRight(result)) {
-    debugger
     appendRESTCollections(result.right)
-    console.log("success", result)
+    fileImported()
   }
 }
 
@@ -365,7 +358,6 @@ watch(inputChooseGistToImportFrom, (v) => {
   } else {
     hasGist.value = true
     stepResults.value.push(inputChooseGistToImportFrom.value)
-    console.log(stepResults.value)
   }
 })
 
@@ -384,8 +376,6 @@ const onFileChange = () => {
     toast.show(t("action.choose_file").toString())
     return
   }
-
-  console.log("filename", inputChooseFileToImportFrom.value[0].files[0].name)
 
   const reader = new FileReader()
   reader.onload = ({ target }) => {

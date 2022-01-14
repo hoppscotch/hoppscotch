@@ -33,7 +33,7 @@
                   <i class="material-icons">check_circle</i>
                 </span>
                 <span>
-                  {{ t("import.json_description") }}
+                  {{ t(`${step.metadata.caption}`) }}
                 </span>
               </p>
               <p class="flex flex-col ml-10">
@@ -59,7 +59,7 @@
                   <i class="material-icons">check_circle</i>
                 </span>
                 <span>
-                  {{ t("import.gist_description") }}
+                  {{ t(`${step.metadata.caption}`) }}
                 </span>
               </p>
               <p class="flex flex-col ml-10">
@@ -77,23 +77,13 @@
             >
               <div class="select-wrapper">
                 <select
+                  v-model="mySelectedCollectionID"
                   type="text"
                   autocomplete="off"
                   class="select"
                   autofocus
-                  @change="
-                    ($event) => {
-                      mySelectedCollectionID = $event.target.value
-                    }
-                  "
                 >
-                  <option
-                    :key="undefined"
-                    :value="undefined"
-                    hidden
-                    disabled
-                    selected
-                  >
+                  <option :key="undefined" :value="undefined" disabled selected>
                     {{ t("collection.select") }}
                   </option>
                   <option
@@ -112,6 +102,7 @@
           :label="t('import.title')"
           :disabled="enableImportButton"
           class="mx-2"
+          :loading="importingMyCollections"
           @click.native="finishImport"
         />
       </div>
@@ -119,7 +110,7 @@
         <SmartExpand>
           <template #body>
             <SmartItem
-              v-for="(importer, index) in RESTCollectionImporters"
+              v-for="(importer, index) in importerModules"
               :key="`importer-${index}`"
               :svg="importer.icon"
               :label="t(`${importer.name}`)"
@@ -182,8 +173,14 @@ import {
 } from "~/helpers/utils/composables"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
-import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
+import {
+  appendRESTCollections,
+  Collection,
+  restCollections$,
+} from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
+import { HoppRESTRequest } from "~/../hoppscotch-data/dist"
+import { StepReturnValue } from "~/helpers/import-export/steps"
 
 const props = defineProps<{
   show: boolean
@@ -210,7 +207,7 @@ const currentUser = useReadonlyStream(currentUser$, null)
 
 // Template refs
 const mode = ref("import_export")
-const mySelectedCollectionID = ref(undefined)
+const mySelectedCollectionID = ref<undefined | number>(undefined)
 const collectionJson = ref("")
 const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
 const inputChooseGistToImportFrom = ref<string>("")
@@ -278,30 +275,39 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
-const stepResults = ref<string[]>([])
+const stepResults = ref<StepReturnValue[]>([])
 
-// const importFromMyCollections = () => {
-//   if (props.collectionsType.type !== "team-collections") return
+watch(mySelectedCollectionID, (newValue) => {
+  if (newValue === undefined) return
+  stepResults.value = []
+  stepResults.value.push(newValue)
+})
 
-//   teamUtils
-//     .importFromMyCollections(
-//       apolloClient,
-//       mySelectedCollectionID.value,
-//       props.collectionsType.selectedTeam.id
-//     )
-//     .then((success) => {
-//       if (success) {
-//         fileImported()
-//         emit("update-team-collections")
-//       } else {
-//         failedImport()
-//       }
-//     })
-//     .catch((e) => {
-//       console.error(e)
-//       failedImport()
-//     })
-// }
+const importingMyCollections = ref(false)
+
+const importToTeams = async (content: Collection<HoppRESTRequest>) => {
+  importingMyCollections.value = true
+  if (props.collectionsType.type !== "team-collections") return
+  await teamUtils
+    .importFromJSON(
+      apolloClient,
+      content,
+      props.collectionsType.selectedTeam.id
+    )
+    .then((status) => {
+      if (status) {
+        emit("update-team-collections")
+      } else {
+        console.error(status)
+      }
+    })
+    .catch((e) => {
+      console.error(e)
+    })
+    .finally(() => {
+      importingMyCollections.value = false
+    })
+}
 
 const exportJSON = () => {
   getJSONCollection()
@@ -323,13 +329,18 @@ const exportJSON = () => {
   }, 1000)
 }
 
+const importerModules = computed(() =>
+  RESTCollectionImporters.filter(
+    (i) => i.applicableTo?.includes(props.collectionsType.type) ?? true
+  )
+)
+
 const importerType = ref<number | null>(null)
 
 const importerModule = computed(() =>
-  importerType.value !== null
-    ? RESTCollectionImporters[importerType.value]
-    : null
+  importerType.value !== null ? importerModules.value[importerType.value] : null
 )
+
 const importerSteps = computed(() => importerModule.value?.steps ?? null)
 
 const finishImport = async () => {
@@ -343,8 +354,13 @@ const importerAction = async (stepResults: any[]) => {
     failedImport()
     console.error("error", result.left)
   } else if (E.isRight(result)) {
-    appendRESTCollections(result.right)
-    fileImported()
+    if (props.collectionsType.type === "team-collections") {
+      importToTeams(result.right)
+      fileImported()
+    } else {
+      appendRESTCollections(result.right)
+      fileImported()
+    }
   }
 }
 
@@ -362,6 +378,7 @@ watch(inputChooseGistToImportFrom, (v) => {
 })
 
 const onFileChange = () => {
+  stepResults.value = []
   if (!inputChooseFileToImportFrom.value[0]) {
     hasFile.value = false
     return

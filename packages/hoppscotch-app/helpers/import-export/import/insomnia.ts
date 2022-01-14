@@ -215,6 +215,7 @@ export default defineImporter({
     step({
       stepName: "FILE_IMPORT",
       metadata: {
+        caption: "import.from_insomnia_description",
         acceptedFileTypes: ".json, .yaml",
       },
     }),

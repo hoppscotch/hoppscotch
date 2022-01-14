@@ -6,20 +6,26 @@ export type StepDefinition = {
   FILE_IMPORT: {
     returnType: string
     metadata: {
+      caption: string
       acceptedFileTypes: string
     }
   } // String content of the file
   TARGET_MY_COLLECTION: {
     returnType: number
-    metadata: never
+    metadata: {
+      caption: string
+    }
   } // folderPath
   URL_IMPORT: {
     returnType: string
     metadata: {
+      caption: string
       placeholder: string
     }
   } // String content of the url
 }
+
+export type StepReturnValue = StepDefinition[keyof StepDefinition]["returnType"]
 
 /**
  * Defines what the data structure of a step

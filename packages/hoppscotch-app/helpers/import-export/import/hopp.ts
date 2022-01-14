@@ -6,12 +6,13 @@ import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 import { translateToNewRESTCollection } from "~/newstore/collections"
 
 export default defineImporter({
-  name: "import.json",
+  name: "import.from_json",
   icon: "folder-plus",
   steps: [
     step({
       stepName: "FILE_IMPORT",
       metadata: {
+        caption: "import.from_json_description",
         acceptedFileTypes: "application/json",
       },
     }),

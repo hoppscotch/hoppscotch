@@ -29,12 +29,13 @@ const fetchGist = (url: string): TO.TaskOption<Collection<HoppRESTRequest>> =>
   )
 
 export default defineImporter({
-  name: "import.gist",
+  name: "import.from_gist",
   icon: "github",
   steps: [
     step({
       stepName: "URL_IMPORT",
       metadata: {
+        caption: "import.from_gist_description",
         placeholder: "import.gist_url",
       },
     }),

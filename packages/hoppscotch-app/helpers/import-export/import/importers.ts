@@ -3,6 +3,7 @@ import OpenAPIImporter from "./openapi"
 import PostmanImporter from "./postman"
 import InsomniaImporter from "./insomnia"
 import GistImporter from "./gist"
+import MyCollectionsImporter from "./myCollections"
 
 export const RESTCollectionImporters = [
   HoppRESTCollImporter,
@@ -10,4 +11,5 @@ export const RESTCollectionImporters = [
   PostmanImporter,
   InsomniaImporter,
   GistImporter,
+  MyCollectionsImporter,
 ] as const

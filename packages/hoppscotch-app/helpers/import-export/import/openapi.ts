@@ -591,6 +591,7 @@ export default defineImporter({
     step({
       stepName: "FILE_IMPORT",
       metadata: {
+        caption: "import.from_openapi_description",
         acceptedFileTypes: ".json, .yaml, .yml",
       },
     }),

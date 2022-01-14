@@ -236,6 +236,7 @@ export default defineImporter({
     step({
       stepName: "FILE_IMPORT",
       metadata: {
+        caption: "import.from_postman_description",
         acceptedFileTypes: ".json",
       },
     }),

@@ -230,7 +230,7 @@ const getHoppFolder = (ig: ItemGroup<Item>): Collection<HoppRESTRequest> =>
 export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)
 
 export default defineImporter({
-  name: "Postman Collection",
+  name: "import.from_postman",
   icon: "postman",
   steps: [
     step({

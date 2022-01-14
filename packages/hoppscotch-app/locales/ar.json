@@ -16,13 +16,11 @@
     "label": "ملصق",
     "learn_more": "يتعلم أكثر",
     "more": "أكثر",
+    "less": "Less",
     "new": "جديد",
     "no": "رقم",
-    "preserve_current": "الحفاظ على التيار",
     "prettify": "جمال",
     "remove": "يزيل",
-    "replace_current": "استبدال التيار",
-    "replace_json": "استبدل بـ JSON",
     "restore": "يعيد",
     "save": "يحفظ",
     "search": "بحث",
@@ -35,7 +33,10 @@
     "turn_off": "اطفئه",
     "turn_on": "شغله",
     "undo": "الغاء التحميل",
-    "yes": "نعم"
+    "yes": "نعم",
+    "preserve_current": "الحفاظ على التيار",
+    "replace_current": "استبدال التيار",
+    "replace_json": "استبدل بـ JSON"
   },
   "add": {
     "new": "اضف جديد",
@@ -231,11 +232,18 @@
     "collections": "مجموعات الاستيراد",
     "curl": "استيراد cURL",
     "failed": "فشل الاستيراد",
-    "from_gist": "الاستيراد من Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "الاستيراد من \"مجموعاتي\"",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "أدخل عنوان URL لـ Gist",
     "json": "استيراد من JSON",
-    "title": "يستورد"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "يستورد",
+    "from_gist": "الاستيراد من Gist"
   },
   "layout": {
     "column": "Vertical layout",

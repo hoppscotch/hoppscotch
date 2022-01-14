@@ -16,13 +16,11 @@
     "label": "이름",
     "learn_more": "더 알아보기",
     "more": "더보기",
+    "less": "Less",
     "new": "추가",
     "no": "아니요",
-    "preserve_current": "현재 보존",
     "prettify": "예쁘게",
     "remove": "제거",
-    "replace_current": "현재 교체",
-    "replace_json": "JSON으로 바꾸기",
     "restore": "복원",
     "save": "저장",
     "search": "검색",
@@ -35,7 +33,10 @@
     "turn_off": "끄기",
     "turn_on": "켜기",
     "undo": "실행 취소",
-    "yes": "예"
+    "yes": "예",
+    "preserve_current": "현재 보존",
+    "replace_current": "현재 교체",
+    "replace_json": "JSON으로 바꾸기"
   },
   "add": {
     "new": "추가",
@@ -231,11 +232,18 @@
     "collections": "모음집 가져오기",
     "curl": "cURL 가져오기",
     "failed": "가져오기 실패",
-    "from_gist": "요점에서 가져오기",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "내 모음집에서 가져오기",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "요점 URL 입력",
     "json": "JSON에서 가져오기",
-    "title": "가저오기"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "가저오기",
+    "from_gist": "요점에서 가져오기"
   },
   "layout": {
     "column": "Vertical layout",

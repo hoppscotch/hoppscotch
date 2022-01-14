@@ -16,13 +16,11 @@
     "label": "Etiketti",
     "learn_more": "Lue lisää",
     "more": "Lisää",
+    "less": "Less",
     "new": "Uusi",
     "no": "Ei",
-    "preserve_current": "Säilytä virta",
     "prettify": "Koristella",
     "remove": "Poista",
-    "replace_current": "Vaihda virta",
-    "replace_json": "Korvaa JSONilla",
     "restore": "Palauttaa",
     "save": "Tallentaa",
     "search": "Hae",
@@ -35,7 +33,10 @@
     "turn_off": "Sammuttaa",
     "turn_on": "Kiihottua",
     "undo": "Kumoa",
-    "yes": "Joo"
+    "yes": "Joo",
+    "preserve_current": "Säilytä virta",
+    "replace_current": "Vaihda virta",
+    "replace_json": "Korvaa JSONilla"
   },
   "add": {
     "new": "Lisää uusi",
@@ -231,11 +232,18 @@
     "collections": "Tuo kokoelmia",
     "curl": "Tuo cURL",
     "failed": "Tuonti epäonnistui",
-    "from_gist": "Tuo Gististä",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Tuo omista kokoelmista",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Anna Gist URL",
     "json": "Tuo JSONista",
-    "title": "Tuonti"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Tuonti",
+    "from_gist": "Tuo Gististä"
   },
   "layout": {
     "column": "Vertical layout",

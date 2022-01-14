@@ -16,13 +16,11 @@
     "label": "Etiket",
     "learn_more": "Lær mere",
     "more": "Mere",
+    "less": "Less",
     "new": "Ny",
     "no": "Ingen",
-    "preserve_current": "Bevar strøm",
     "prettify": "Prettify",
     "remove": "Fjerne",
-    "replace_current": "Udskift strøm",
-    "replace_json": "Udskift med JSON",
     "restore": "Gendan",
     "save": "Gemme",
     "search": "Søg",
@@ -35,7 +33,10 @@
     "turn_off": "Sluk",
     "turn_on": "Tænde for",
     "undo": "Fortryd",
-    "yes": "Ja"
+    "yes": "Ja",
+    "preserve_current": "Bevar strøm",
+    "replace_current": "Udskift strøm",
+    "replace_json": "Udskift med JSON"
   },
   "add": {
     "new": "Tilføj ny",
@@ -231,11 +232,18 @@
     "collections": "Importer samlinger",
     "curl": "Importer cURL",
     "failed": "Import mislykkedes",
-    "from_gist": "Import fra Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Import fra Mine samlinger",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Indtast Gist URL",
     "json": "Import fra JSON",
-    "title": "Importere"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importere",
+    "from_gist": "Import fra Gist"
   },
   "layout": {
     "column": "Vertical layout",

@@ -16,13 +16,11 @@
     "label": "ラベル",
     "learn_more": "もっと詳しく知る",
     "more": "もっと",
+    "less": "Less",
     "new": "新しい",
     "no": "番号",
-    "preserve_current": "現在を維持する",
     "prettify": "きれいにする",
     "remove": "削除する",
-    "replace_current": "現在を交換してください",
-    "replace_json": "JSONに置き換えます",
     "restore": "戻す",
     "save": "保存する",
     "search": "探す",
@@ -35,7 +33,10 @@
     "turn_off": "消す",
     "turn_on": "オンにする",
     "undo": "元に戻す",
-    "yes": "はい"
+    "yes": "はい",
+    "preserve_current": "現在を維持する",
+    "replace_current": "現在を交換してください",
+    "replace_json": "JSONに置き換えます"
   },
   "add": {
     "new": "新しく追加する",
@@ -231,11 +232,18 @@
     "collections": "コレクションをインポートする",
     "curl": "cURLをインポートする",
     "failed": "インポートに失敗しました",
-    "from_gist": "要旨からインポート",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "マイコレクションからインポート",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "要旨URLを入力してください",
     "json": "JSONからインポート",
-    "title": "輸入"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "輸入",
+    "from_gist": "要旨からインポート"
   },
   "layout": {
     "column": "Vertical layout",

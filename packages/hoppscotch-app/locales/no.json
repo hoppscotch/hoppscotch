@@ -16,13 +16,11 @@
     "label": "Merkelapp",
     "learn_more": "Lær mer",
     "more": "Mer",
+    "less": "Less",
     "new": "Ny",
     "no": "Nei",
-    "preserve_current": "Bevar nåværende",
     "prettify": "Forskjønn",
     "remove": "Ta bort",
-    "replace_current": "Bytt ut nåværende",
-    "replace_json": "Erstatt JSON",
     "restore": "Gjenopprett",
     "save": "Lagre",
     "search": "Søk",
@@ -35,7 +33,10 @@
     "turn_off": "Skru av",
     "turn_on": "Slå på",
     "undo": "Angre",
-    "yes": "Ja"
+    "yes": "Ja",
+    "preserve_current": "Bevar nåværende",
+    "replace_current": "Bytt ut nåværende",
+    "replace_json": "Erstatt JSON"
   },
   "add": {
     "new": "Legg til ny",
@@ -231,11 +232,18 @@
     "collections": "Importer samlinger",
     "curl": "Importer cURL",
     "failed": "Import mislyktes",
-    "from_gist": "Import fra Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importer fra Mine samlinger",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Skriv inn Gist URL",
     "json": "Import fra JSON",
-    "title": "Import"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Import",
+    "from_gist": "Import fra Gist"
   },
   "layout": {
     "column": "Vertical layout",

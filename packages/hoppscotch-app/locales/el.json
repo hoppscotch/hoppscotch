@@ -16,13 +16,11 @@
     "label": "Επιγραφή",
     "learn_more": "Μάθε περισσότερα",
     "more": "Περισσότερο",
+    "less": "Less",
     "new": "Νέος",
     "no": "Οχι",
-    "preserve_current": "Διατήρηση ρεύματος",
     "prettify": "Ωραιοποιώ",
     "remove": "Αφαιρώ",
-    "replace_current": "Αντικαταστήστε το ρεύμα",
-    "replace_json": "Αντικαταστήστε με JSON",
     "restore": "Επαναφέρω",
     "save": "Αποθηκεύσετε",
     "search": "Αναζήτηση",
@@ -35,7 +33,10 @@
     "turn_off": "Σβήνω",
     "turn_on": "Ανάβω",
     "undo": "Ξεκάνω",
-    "yes": "Ναί"
+    "yes": "Ναί",
+    "preserve_current": "Διατήρηση ρεύματος",
+    "replace_current": "Αντικαταστήστε το ρεύμα",
+    "replace_json": "Αντικαταστήστε με JSON"
   },
   "add": {
     "new": "Προσθεσε νεο",
@@ -231,11 +232,18 @@
     "collections": "Εισαγωγή συλλογών",
     "curl": "Εισαγωγή cURL",
     "failed": "Η εισαγωγή απέτυχε",
-    "from_gist": "Εισαγωγή από το Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Εισαγωγή από τις Συλλογές μου",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Εισαγάγετε Gist URL",
     "json": "Εισαγωγή από JSON",
-    "title": "Εισαγωγή"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Εισαγωγή",
+    "from_gist": "Εισαγωγή από το Gist"
   },
   "layout": {
     "column": "Vertical layout",

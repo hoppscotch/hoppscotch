@@ -331,7 +331,7 @@ docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 4. Build the release files with `pnpm run generate`.
 5. Find the built project in `packages/hoppscotch-app/dist`.
 
-## **Contributing**
+## **Contributing in this open source**
 
 Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/hoppscotch/hoppscotch/compare).
 

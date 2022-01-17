@@ -85,6 +85,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as O from "fp-ts/Option"
+import { makeRESTRequest } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
@@ -99,7 +100,6 @@ import {
   CodegenName,
   generateCode,
 } from "~/helpers/new-codegen"
-import { makeRESTRequest } from "~/../hoppscotch-data/dist"
 
 const t = useI18n()
 

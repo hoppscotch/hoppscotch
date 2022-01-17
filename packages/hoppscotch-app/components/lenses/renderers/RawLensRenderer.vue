@@ -40,9 +40,11 @@
 <script setup lang="ts">
 import { ref, computed, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useI18n } from "~/helpers/utils/composables"
+import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
+import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
 
 const t = useI18n()
 
@@ -50,24 +52,7 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const toast = useToast()
-
-const responseBodyText = computed(() => {
-  if (
-    props.response.type === "loading" ||
-    props.response.type === "network_fail"
-  )
-    return ""
-  if (typeof props.response.body === "string") return props.response.body
-  else {
-    const res = new TextDecoder("utf-8").decode(props.response.body)
-    // HACK: Temporary trailing null character issue from the extension fix
-    return res.replace(/\0+$/, "")
-  }
-})
-
-const downloadIcon = ref("download")
-const copyIcon = ref("copy")
+const { responseBodyText } = useResponseBody(props.response)
 
 const responseType = computed(() => {
   return (
@@ -77,6 +62,13 @@ const responseType = computed(() => {
     .split(";")[0]
     .toLowerCase()
 })
+
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  responseType.value,
+  responseBodyText
+)
+
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const rawResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
@@ -95,30 +87,4 @@ useCodemirror(
     environmentHighlights: true,
   })
 )
-
-const downloadResponse = () => {
-  const dataToWrite = responseBodyText.value
-  const file = new Blob([dataToWrite], { type: responseType.value })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-  // TODO get uri from meta
-  a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-  document.body.appendChild(a)
-  a.click()
-  downloadIcon.value = "check"
-  toast.success(`${t("state.download_started")}`)
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    downloadIcon.value = "download"
-  }, 1000)
-}
-
-const copyResponse = () => {
-  copyToClipboard(responseBodyText.value)
-  copyIcon.value = "check"
-  toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
-}
 </script>

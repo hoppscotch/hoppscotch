@@ -694,6 +694,10 @@ export function removeRESTCollection(collectionIndex: number) {
   })
 }
 
+export function getRESTCollection(collectionIndex: number) {
+  return restCollectionStore.value.state[collectionIndex]
+}
+
 export function editRESTCollection(
   collectionIndex: number,
   collection: Collection<HoppRESTRequest>

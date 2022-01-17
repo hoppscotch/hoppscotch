@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resoldre errors de sintaxi json i tornar-ho a provar",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",
-    "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "no_duration": "Sense durada",
+    "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "La capçalera de l'autorització es generarà automàticament quan envieu la sol·licitud.",
     "generate_documentation_first": "Genereu documentació primer",
     "network_fail": "No es pot arribar al punt final de l'API. Comproveu la connexió de xarxa i torneu-ho a provar.",
-    "script_fail": "Sembla que hi ha un error a l'script de sol·licitud prèvia. Comproveu l'error a continuació i solucioneu l'script en conseqüència.",
     "offline": "Sembla que estàs fora de línia. És possible que les dades d’aquest espai de treball no estiguin actualitzades.",
     "offline_short": "Sembla que estàs fora de línia.",
     "post_request_tests": "Els scripts de prova s’escriuen en JavaScript i s’executen després de rebre la resposta.",
     "pre_request_script": "Els scripts de sol·licitud prèvia s’escriuen en JavaScript i s’executen abans que s’enviï la sol·licitud.",
+    "script_fail": "Sembla que hi ha un error a l'script de sol·licitud prèvia. Comproveu l'error a continuació i solucioneu l'script en conseqüència.",
     "tests": "Escriviu un script de prova per automatitzar la depuració."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "El servidor intermediari oficial està allotjat per Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Servidor intermediari",
     "proxy_url": "URL del servidor intermediari",
@@ -377,7 +380,8 @@
     "theme": "Tema",
     "theme_description": "Personalitzeu el tema de l'aplicació.",
     "use_experimental_url_bar": "Utilitzeu la barra d’URL experimental amb ressaltat de l’entorn",
-    "user": "Usuari"
+    "user": "Usuari",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

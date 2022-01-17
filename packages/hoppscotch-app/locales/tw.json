@@ -278,6 +278,7 @@
     "owner_description": "擁有者可以新增、編輯和刪除請求、組合和團隊成員。",
     "roles": "角色",
     "roles_description": "角色用來控制對共用組合的存取權。",
+    "updated": "Profile updated",
     "viewer": "檢視者",
     "viewer_description": "檢視者只能檢視和使用請求。"
   },

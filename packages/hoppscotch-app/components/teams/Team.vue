@@ -1,5 +1,8 @@
 <template>
-  <div class="border border-divider rounded flex flex-col flex-1">
+  <div
+    class="border border-divider rounded flex flex-col flex-1"
+    @contextmenu.prevent="!compact ? $refs.options.tippy().show() : null"
+  >
     <div
       class="flex flex-1 items-start"
       :class="

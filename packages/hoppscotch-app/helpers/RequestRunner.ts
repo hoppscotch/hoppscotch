@@ -16,7 +16,9 @@ import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { isJSONContentType } from "./utils/contenttypes"
 import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 
-const getTestableBody = (res: HoppRESTResponse & { type: "success" }) => {
+const getTestableBody = (
+  res: HoppRESTResponse & { type: "success" | "fail" }
+) => {
   const contentTypeHeader = res.headers.find(
     (h) => h.key.toLowerCase() === "content-type"
   )
@@ -60,9 +62,9 @@ export const runRESTRequest$ = (): TaskEither<
 
       // Run Test Script when request ran successfully
       const subscription = stream
-        .pipe(filter((res) => res.type === "success"))
+        .pipe(filter((res) => res.type === "success" || res.type === "fail"))
         .subscribe(async (res) => {
-          if (res.type === "success") {
+          if (res.type === "success" || res.type === "fail") {
             const runResult = await runTestScript(res.req.testScript, {
               status: res.statusCode,
               body: getTestableBody(res),

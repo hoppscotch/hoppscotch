@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "无法美化无效的请求头，处理 JSON 语法错误并重试",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "无法发送请求",
-    "script_fail": "无法执行预请求脚本",
     "no_duration": "无持续时间",
+    "script_fail": "无法执行预请求脚本",
     "something_went_wrong": "发生了一些错误"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "授权头将会在你发送请求时自动生成。",
     "generate_documentation_first": "请先生成文档",
     "network_fail": "无法到达 API 端点。请检查网络连接并重试。",
-    "script_fail": "预请求脚本中似乎存在故障。 检查下面的错误并相应地修复脚本。",
     "offline": "你似乎处于离线状态，该工作区中的数据可能不是最新。",
     "offline_short": "你似乎处于离线状态。",
     "post_request_tests": "测试脚本使用 JavaScript 编写，并在收到响应后执行。",
     "pre_request_script": "预请求脚本使用 JavaScript 编写，并在请求发送前执行。",
+    "script_fail": "预请求脚本中似乎存在故障。 检查下面的错误并相应地修复脚本。",
     "tests": "编写测试脚本以自动调试。"
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "官方代理由 Hoppscotch 托管。",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "网络代理",
     "proxy_url": "代理网址",
@@ -377,7 +380,8 @@
     "theme": "主题",
     "theme_description": "自定义您的应用程序主题。",
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
-    "user": "用户"
+    "user": "用户",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

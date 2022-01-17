@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Không thể kiểm tra nội dung không hợp lệ, hãy giải quyết lỗi cú pháp json và thử lại",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Không thể gửi yêu cầu",
-    "script_fail": "Không thể thực thi tập lệnh yêu cầu trước",
     "no_duration": "Không có thời lượng",
+    "script_fail": "Không thể thực thi tập lệnh yêu cầu trước",
     "something_went_wrong": "Đã xảy ra sự cố"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Tiêu đề ủy quyền sẽ được tạo tự động khi bạn gửi yêu cầu.",
     "generate_documentation_first": "Tạo tài liệu trước tiên",
     "network_fail": "Không thể truy cập điểm cuối API. Kiểm tra kết nối mạng của bạn và thử lại.",
-    "script_fail": "Có vẻ như có trục trặc trong tập lệnh yêu cầu trước. Kiểm tra lỗi bên dưới và sửa tập lệnh cho phù hợp.",
     "offline": "Có vẻ như bạn đang ngoại tuyến. Dữ liệu trong không gian làm việc này có thể không được cập nhật.",
     "offline_short": "Có vẻ như bạn đang ngoại tuyến.",
     "post_request_tests": "Các tập lệnh kiểm tra được viết bằng JavaScript và được chạy sau khi nhận được phản hồi.",
     "pre_request_script": "Các tập lệnh yêu cầu trước được viết bằng JavaScript và được chạy trước khi yêu cầu được gửi đi.",
+    "script_fail": "Có vẻ như có trục trặc trong tập lệnh yêu cầu trước. Kiểm tra lỗi bên dưới và sửa tập lệnh cho phù hợp.",
     "tests": "Viết một kịch bản thử nghiệm để tự động gỡ lỗi."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Proxy chính thức được lưu trữ bởi Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Ủy quyền",
     "proxy_url": "URL proxy",
@@ -377,7 +380,8 @@
     "theme": "Chủ đề",
     "theme_description": "Tùy chỉnh chủ đề ứng dụng của bạn.",
     "use_experimental_url_bar": "Sử dụng thanh URL thử nghiệm với đánh dấu môi trường",
-    "user": "Người sử dụng"
+    "user": "Người sử dụng",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

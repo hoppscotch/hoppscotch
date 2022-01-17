@@ -8,6 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @contextmenu.prevent="$refs.options.tippy().show()"
     >
       <span
         class="cursor-pointer flex px-4 items-center justify-center"

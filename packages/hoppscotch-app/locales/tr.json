@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Geçersiz bir gövde güzelleştirilemedi, json sözdizimi hatalarını çözüp tekrar deneyin",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "istek gönderilemedi",
-    "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "no_duration": "Süre yok",
+    "script_fail": "Ön istek komut dosyası çalıştırılamadı",
     "something_went_wrong": "Bir şeyler yanlış gitti"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Yetkilendirme başlığı, isteği gönderdiğinizde otomatik olarak oluşturulur.",
     "generate_documentation_first": "Önce belgeleri oluşturun",
     "network_fail": "API uç noktasına ulaşılamıyor. Ağ bağlantınızı kontrol edin ve tekrar deneyin.",
-    "script_fail": "Ön istek komut dosyasında bir aksaklık var gibi görünüyor. Aşağıdaki hatayı kontrol edin ve komut dosyasını buna göre düzeltin.",
     "offline": "Çevrimdışı görünüyorsun. Bu çalışma alanındaki veriler güncel olmayabilir.",
     "offline_short": "Çevrimdışı görünüyorsun.",
     "post_request_tests": "Test komut dosyaları JavaScript'te yazılır ve yanıt alındıktan sonra çalıştırılır.",
     "pre_request_script": "Ön istek komut dosyaları JavaScript'te yazılır ve istek gönderilmeden önce çalıştırılır.",
+    "script_fail": "Ön istek komut dosyasında bir aksaklık var gibi görünüyor. Aşağıdaki hatayı kontrol edin ve komut dosyasını buna göre düzeltin.",
     "tests": "Hata ayıklamayı otomatikleştirmek için bir test komut dosyası yazın."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Resmi Proxy, Hoppscotch tarafından barındırılmaktadır.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "vekil",
     "proxy_url": "Proxy URL'si",
@@ -377,7 +380,8 @@
     "theme": "Tema",
     "theme_description": "Uygulama temanızı özelleştirin.",
     "use_experimental_url_bar": "Ortam vurgulamalı deneysel URL çubuğunu kullanın",
-    "user": "kullanıcı"
+    "user": "kullanıcı",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

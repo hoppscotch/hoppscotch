@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Nie można poprawić czytelności nieprawidłowej treści, napraw błędy składni json i spróbuj ponownie",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Nie udało się wysłać zapytania",
-    "script_fail": "Nie można wykonać skryptu żądania wstępnego",
     "no_duration": "Brak czasu trwania",
+    "script_fail": "Nie można wykonać skryptu żądania wstępnego",
     "something_went_wrong": "Coś poszło nie tak"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Nagłówek autoryzacji zostanie wygenerowany automatycznie po wysłaniu żądania.",
     "generate_documentation_first": "Najpierw wygeneruj dokumentację",
     "network_fail": "Nie można połączyć się z punktem końcowym interfejsu API. Sprawdź połączenie sieciowe i spróbuj ponownie.",
-    "script_fail": "Wygląda na to, że w skrypcie żądania wstępnego jest usterka. Sprawdź poniższy błąd i odpowiednio napraw skrypt.",
     "offline": "Wygląda na to, że jesteś offline. Dane w tym obszarze roboczym mogą być nieaktualne.",
     "offline_short": "Wygląda na to, że jesteś offline.",
     "post_request_tests": "Skrypty testowe są pisane w języku JavaScript i są uruchamiane po otrzymaniu odpowiedzi.",
     "pre_request_script": "Skrypty żądań wstępnych są napisane w języku JavaScript i są uruchamiane przed wysłaniem żądania.",
+    "script_fail": "Wygląda na to, że w skrypcie żądania wstępnego jest usterka. Sprawdź poniższy błąd i odpowiednio napraw skrypt.",
     "tests": "Napisz skrypt testowy, aby zautomatyzować debugowanie."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Oficjalne proxy jest obsługiwane przez Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Adres URL proxy",
@@ -377,7 +380,8 @@
     "theme": "Motyw",
     "theme_description": "Dostosuj motyw aplikacji.",
     "use_experimental_url_bar": "Użyj eksperymentalnego paska adresu URL z podświetlaniem środowiska",
-    "user": "Użytkownik"
+    "user": "Użytkownik",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

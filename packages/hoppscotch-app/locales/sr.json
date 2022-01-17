@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Није могуће унапредити неважеће тело, решити грешке у синтакси јсон -а и покушати поново",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Слање захтева није успело",
-    "script_fail": "Није могуће извршити скрипту пре захтева",
     "no_duration": "Нема трајања",
+    "script_fail": "Није могуће извршити скрипту пре захтева",
     "something_went_wrong": "Нешто није у реду"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Заглавље ауторизације ће се аутоматски генерисати када пошаљете захтев.",
     "generate_documentation_first": "Прво направите документацију",
     "network_fail": "Није могуће доћи до крајње тачке АПИ -ја. Проверите мрежну везу и покушајте поново.",
-    "script_fail": "Чини се да постоји грешка у скрипти пре захтева. Проверите грешку у наставку и поправите скрипту у складу са тим.",
     "offline": "Изгледа да сте ван мреже. Подаци у овом радном простору можда нису ажурирани.",
     "offline_short": "Изгледа да сте ван мреже.",
     "post_request_tests": "Тест скрипте су написане у ЈаваСцрипт -у и покрећу се након пријема одговора.",
     "pre_request_script": "Скрипте пред-захтева су написане у ЈаваСцрипт-у и покрећу се пре слања захтева.",
+    "script_fail": "Чини се да постоји грешка у скрипти пре захтева. Проверите грешку у наставку и поправите скрипту у складу са тим.",
     "tests": "Напишите тест скрипту за аутоматизацију отклањања грешака."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Хоппсцотцх угошћује званични проки.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Заступник",
     "proxy_url": "Проки УРЛ",
@@ -377,7 +380,8 @@
     "theme": "Тхеме",
     "theme_description": "Прилагодите тему апликације.",
     "use_experimental_url_bar": "Користите експерименталну УРЛ траку са истицањем окружења",
-    "user": "Корисник"
+    "user": "Корисник",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

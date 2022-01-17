@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "無効な本文をプリティファイし、json構文エラーを解決して再試行できませんでした",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "リクエストを送信できませんでした",
-    "script_fail": "事前リクエストスクリプトを実行できませんでした",
     "no_duration": "期間なし",
+    "script_fail": "事前リクエストスクリプトを実行できませんでした",
     "something_went_wrong": "何かがうまくいかなかった"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "リクエストを送信すると、認証ヘッダーが自動的に生成されます。",
     "generate_documentation_first": "最初にドキュメントを生成する",
     "network_fail": "APIエンドポイントに到達できません。ネットワーク接続を確認して、再試行してください。",
-    "script_fail": "事前リクエストスクリプトに不具合があるようです。以下のエラーを確認し、それに応じてスクリプトを修正してください。",
     "offline": "オフラインのようです。このワークスペースのデータは最新ではない可能性があります。",
     "offline_short": "オフラインのようです。",
     "post_request_tests": "テストスクリプトはJavaScriptで記述されており、応答を受信した後に実行されます。",
     "pre_request_script": "事前リクエストスクリプトはJavaScriptで記述されており、リクエストが送信される前に実行されます。",
+    "script_fail": "事前リクエストスクリプトに不具合があるようです。以下のエラーを確認し、それに応じてスクリプトを修正してください。",
     "tests": "デバッグを自動化するテストスクリプトを作成します。"
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "公式プロキシはHoppscotchによってホストされています。",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "プロキシー",
     "proxy_url": "プロキシURL",
@@ -377,7 +380,8 @@
     "theme": "テーマ",
     "theme_description": "アプリケーションのテーマをカスタマイズします。",
     "use_experimental_url_bar": "環境を強調した実験的なURLバーを使用する",
-    "user": "ユーザー"
+    "user": "ユーザー",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

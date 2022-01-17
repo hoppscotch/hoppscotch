@@ -178,8 +178,8 @@
     "json_prettify_invalid_body": "Kunne ikke pryde et ugyldigt brødtekst, løse json -syntaksfejl og prøve igen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Anmodningen kunne ikke sendes",
-    "script_fail": "Kunne ikke udføre pre-request script",
     "no_duration": "Ingen varighed",
+    "script_fail": "Kunne ikke udføre pre-request script",
     "something_went_wrong": "Noget gik galt"
   },
   "export": {
@@ -210,11 +210,11 @@
     "authorization": "Autorisationsoverskriften genereres automatisk, når du sender anmodningen.",
     "generate_documentation_first": "Generer først dokumentation",
     "network_fail": "Kunne ikke nå API -slutpunktet. Kontroller din netværksforbindelse, og prøv igen.",
-    "script_fail": "Det ser ud til, at der er en fejl i pre-request-scriptet. Tjek fejlen nedenfor, og ret scriptet i overensstemmelse hermed.",
     "offline": "Du ser ud til at være offline. Data i dette arbejdsområde er muligvis ikke opdaterede.",
     "offline_short": "Du ser ud til at være offline.",
     "post_request_tests": "Test scripts er skrevet i JavaScript og køres efter at svaret er modtaget.",
     "pre_request_script": "Forhåndsanmodnings scripts er skrevet i JavaScript og køres før anmodningen sendes.",
+    "script_fail": "Det ser ud til, at der er en fejl i pre-request-scriptet. Tjek fejlen nedenfor, og ret scriptet i overensstemmelse hermed.",
     "tests": "Skriv et test script for at automatisere fejlfinding."
   },
   "hide": {
@@ -273,11 +273,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -359,6 +361,7 @@
     "official_proxy_hosting": "Officiel proxy er hostet af Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Proxy",
     "proxy_url": "Proxy -URL",
@@ -377,7 +380,8 @@
     "theme": "Tema",
     "theme_description": "Tilpas dit applikationstema.",
     "use_experimental_url_bar": "Brug eksperimentel URL -bjælke med miljøfremhævning",
-    "user": "Bruger"
+    "user": "Bruger",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {

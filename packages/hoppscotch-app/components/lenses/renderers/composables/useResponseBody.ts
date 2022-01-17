@@ -1,8 +1,8 @@
-import { computed, Ref } from "@nuxtjs/composition-api"
+import { computed, ComputedRef } from "@nuxtjs/composition-api"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 export default function useResponseBody(response: HoppRESTResponse): {
-  [key: string]: Ref<any>
+  responseBodyText: ComputedRef<string>
 } {
   const responseBodyText = computed(() => {
     if (

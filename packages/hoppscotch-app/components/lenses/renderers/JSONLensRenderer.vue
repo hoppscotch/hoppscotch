@@ -133,7 +133,7 @@ import {
   convertIndexToLineCh,
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useI18n } from "~/helpers/utils/composables"
 import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
 import useResponseBody from "~/components/lenses/renderers/composables/useResponseBody"
 import useDownloadResponse from "~/components/lenses/renderers/composables/useDownloadResponse"
@@ -144,17 +144,13 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const toast = useToast()
-
 const { responseBodyText } = useResponseBody(props.response)
 
-const { copyIcon, copyResponse } = useCopyResponse(responseBodyText, toast, t)
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/json",
-  responseBodyText,
-  toast,
-  t
+  responseBodyText
 )
 
 const jsonBodyText = computed(() => {

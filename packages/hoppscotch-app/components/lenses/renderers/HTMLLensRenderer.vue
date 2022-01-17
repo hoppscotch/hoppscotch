@@ -61,7 +61,7 @@ import useDownloadResponse from "~/components/lenses/renderers/composables/useDo
 import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
 
@@ -69,22 +69,19 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const toast = useToast()
 const htmlResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
 const { responseBodyText } = useResponseBody(props.response)
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   "text/html",
-  responseBodyText,
-  toast,
-  t
+  responseBodyText
 )
 const { previewFrame, previewEnabled, togglePreview } = usePreview(
   false,
   responseBodyText
 )
-const { copyIcon, copyResponse } = useCopyResponse(responseBodyText, toast, t)
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 useCodemirror(
   htmlResponse,

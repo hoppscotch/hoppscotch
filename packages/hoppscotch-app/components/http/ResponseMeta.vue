@@ -137,10 +137,10 @@ const props = defineProps<{
 
 const statusCategory = computed(() => {
   if (
-    response.type === "loading" ||
-    response.type === "network_fail" ||
-    response.type === "script_fail" ||
-    response.type === "fail"
+    props.response.type === "loading" ||
+    props.response.type === "network_fail" ||
+    props.response.type === "script_fail" ||
+    props.response.type === "fail"
   )
     return ""
   return findStatusGroup(props.response.statusCode)

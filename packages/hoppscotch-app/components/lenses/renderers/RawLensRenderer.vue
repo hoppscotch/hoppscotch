@@ -41,7 +41,7 @@
 import { ref, computed, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useI18n } from "~/helpers/utils/composables"
 import useResponseBody from "~/components/lenses/renderers/composables/useResponseBody"
 import useDownloadResponse from "~/components/lenses/renderers/composables/useDownloadResponse"
 import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
@@ -51,8 +51,6 @@ const t = useI18n()
 const props = defineProps<{
   response: HoppRESTResponse
 }>()
-
-const toast = useToast()
 
 const { responseBodyText } = useResponseBody(props.response)
 
@@ -67,12 +65,10 @@ const responseType = computed(() => {
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
-  responseBodyText,
-  toast,
-  t
+  responseBodyText
 )
 
-const { copyIcon, copyResponse } = useCopyResponse(responseBodyText, toast, t)
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 const rawResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)

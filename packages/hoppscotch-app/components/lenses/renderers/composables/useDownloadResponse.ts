@@ -1,14 +1,18 @@
 import { Ref, ref } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
 export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export default function useDownloadResponse(
   contentType: string,
-  responseBodyText: Ref<any>,
-  toast: any,
-  t: any
-): { [key: string]: downloadResponseReturnType } {
+  responseBodyText: Ref<string>
+): {
+  downloadIcon: Ref<string>
+  downloadResponse: () => void
+} {
   const downloadIcon = ref("download")
+  const toast = useToast()
+  const t = useI18n()
 
   const downloadResponse = () => {
     const dataToWrite = responseBodyText.value

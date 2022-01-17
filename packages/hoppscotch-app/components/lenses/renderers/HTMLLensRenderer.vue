@@ -55,10 +55,10 @@
 
 <script setup lang="ts">
 import { ref, reactive } from "@nuxtjs/composition-api"
-import usePreview from "~/components/lenses/renderers/composables/usePreview"
-import useResponseBody from "~/components/lenses/renderers/composables/useResponseBody"
-import useDownloadResponse from "~/components/lenses/renderers/composables/useDownloadResponse"
-import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
+import usePreview from "~/helpers/lenses/composables/usePreview"
+import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
+import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "~/helpers/utils/composables"

@@ -134,9 +134,9 @@ import {
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
 import { useI18n } from "~/helpers/utils/composables"
-import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
-import useResponseBody from "~/components/lenses/renderers/composables/useResponseBody"
-import useDownloadResponse from "~/components/lenses/renderers/composables/useDownloadResponse"
+import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
+import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
 
 const t = useI18n()
 

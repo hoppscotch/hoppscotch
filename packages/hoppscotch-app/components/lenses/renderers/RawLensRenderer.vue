@@ -42,9 +42,9 @@ import { ref, computed, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "~/helpers/utils/composables"
-import useResponseBody from "~/components/lenses/renderers/composables/useResponseBody"
-import useDownloadResponse from "~/components/lenses/renderers/composables/useDownloadResponse"
-import useCopyResponse from "~/components/lenses/renderers/composables/useCopyResponse"
+import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
+import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
 
 const t = useI18n()
 

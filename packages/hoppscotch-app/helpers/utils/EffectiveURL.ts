@@ -61,7 +61,7 @@ function getFinalBodyFromRequest(
   if (request.body.contentType === "multipart/form-data") {
     const formData = new FormData()
 
-    request.body.body
+    const parsedFormData = request.body.body
       .filter((x) => x.key !== "" && x.active) // Remove empty keys
       .map(
         (x) =>
@@ -74,10 +74,15 @@ function getFinalBodyFromRequest(
               : parseTemplateString(x.value, env.variables),
           }
       )
-      .forEach((entry) => {
-        if (!entry.isFile) formData.append(entry.key, entry.value)
-        else entry.value.forEach((blob) => formData.append(entry.key, blob))
-      })
+    parsedFormData.sort((a, b) => {
+      if (a.isFile) return 1
+      if (b.isFile) return -1
+      return 0
+    })
+    parsedFormData.forEach((entry) => {
+      if (!entry.isFile) formData.append(entry.key, entry.value)
+      else entry.value.forEach((blob) => formData.append(entry.key, blob))
+    })
 
     return formData
   } else return parseBodyEnvVariables(request.body.body, env.variables)

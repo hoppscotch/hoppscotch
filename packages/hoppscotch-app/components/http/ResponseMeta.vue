@@ -145,7 +145,8 @@ const statusCategory = computed(() => {
   if (
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
-    props.response.type === "script_fail"
+    props.response.type === "script_fail" ||
+    props.response.type === "fail"
   )
     return {
       name: "error",

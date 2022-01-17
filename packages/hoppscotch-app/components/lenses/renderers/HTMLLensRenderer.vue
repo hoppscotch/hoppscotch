@@ -55,11 +55,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive } from "@nuxtjs/composition-api"
+import { ref, reactive } from "@nuxtjs/composition-api"
+import usePreview from "~/helpers/lenses/composables/usePreview"
+import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
+import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
 
@@ -67,30 +70,19 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const toast = useToast()
-
-const responseBodyText = computed(() => {
-  if (
-    props.response.type === "loading" ||
-    props.response.type === "network_fail"
-  )
-    return ""
-  if (typeof props.response.body === "string") return props.response.body
-  else {
-    const res = new TextDecoder("utf-8").decode(props.response.body)
-    // HACK: Temporary trailing null character issue from the extension fix
-    return res.replace(/\0+$/, "")
-  }
-})
-
-const downloadIcon = ref("download")
-const copyIcon = ref("copy")
-const previewEnabled = ref(false)
-const previewFrame = ref<any | null>(null)
-const url = ref("")
-
 const htmlResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
+
+const { responseBodyText } = useResponseBody(props.response)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "text/html",
+  responseBodyText
+)
+const { previewFrame, previewEnabled, togglePreview } = usePreview(
+  false,
+  responseBodyText
+)
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
 useCodemirror(
   htmlResponse,
@@ -106,51 +98,6 @@ useCodemirror(
     environmentHighlights: true,
   })
 )
-
-const downloadResponse = () => {
-  const dataToWrite = responseBodyText.value
-  const file = new Blob([dataToWrite], { type: "text/html" })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-  // TODO get uri from meta
-  a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-  document.body.appendChild(a)
-  a.click()
-  downloadIcon.value = "check"
-  toast.success(`${t("state.download_started")}`)
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    downloadIcon.value = "download"
-  }, 1000)
-}
-
-const copyResponse = () => {
-  copyToClipboard(responseBodyText.value)
-  copyIcon.value = "check"
-  toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
-}
-
-const togglePreview = () => {
-  previewEnabled.value = !previewEnabled.value
-  if (previewEnabled.value) {
-    if (previewFrame.value.getAttribute("data-previewing-url") === url.value)
-      return
-    // Use DOMParser to parse document HTML.
-    const previewDocument = new DOMParser().parseFromString(
-      responseBodyText.value,
-      "text/html"
-    )
-    // Inject <base href="..."> tag to head, to fix relative CSS/HTML paths.
-    previewDocument.head.innerHTML =
-      `<base href="${url.value}">` + previewDocument.head.innerHTML
-    // Finally, set the iframe source to the resulting HTML.
-    previewFrame.value.srcdoc = previewDocument.documentElement.outerHTML
-    previewFrame.value.setAttribute("data-previewing-url", url.value)
-  }
-}
 </script>
 
 <style lang="scss" scoped>

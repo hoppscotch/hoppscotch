@@ -103,7 +103,7 @@
 <script setup lang="ts">
 import { computed, ref } from "@nuxtjs/composition-api"
 import * as timeago from "timeago.js"
-import { safelyExtractRESTRequest } from "~/../hoppscotch-data/dist"
+import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import {
   useI18n,
   useReadonlyStream,

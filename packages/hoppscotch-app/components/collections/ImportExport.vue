@@ -164,6 +164,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import { HoppRESTRequest } from "@hoppscotch/data"
 import { apolloClient } from "~/helpers/apollo"
 import {
   useAxios,
@@ -179,7 +180,6 @@ import {
   restCollections$,
 } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
-import { HoppRESTRequest } from "~/../hoppscotch-data/dist"
 import { StepReturnValue } from "~/helpers/import-export/steps"
 
 const props = defineProps<{

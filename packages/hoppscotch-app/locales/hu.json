@@ -16,13 +16,11 @@
     "label": "Címke",
     "learn_more": "Tudj meg többet",
     "more": "Több",
+    "less": "Less",
     "new": "Új",
     "no": "Nem",
-    "preserve_current": "Tartsa meg az áramot",
     "prettify": "Szépít",
     "remove": "Eltávolítás",
-    "replace_current": "Cserélje ki az áramot",
-    "replace_json": "Cserélje ki JSON -ra",
     "restore": "visszaállítás",
     "save": "Mentés",
     "search": "Keresés",
@@ -35,7 +33,10 @@
     "turn_off": "Kikapcsolni",
     "turn_on": "Bekapcsol",
     "undo": "Visszavonás",
-    "yes": "Igen"
+    "yes": "Igen",
+    "preserve_current": "Tartsa meg az áramot",
+    "replace_current": "Cserélje ki az áramot",
+    "replace_json": "Cserélje ki JSON -ra"
   },
   "add": {
     "new": "Új hozzáadása",
@@ -231,11 +232,18 @@
     "collections": "Gyűjtemények importálása",
     "curl": "CURL importálása",
     "failed": "Az importálás sikertelen",
-    "from_gist": "Importálás a Gist -ből",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importálás a Saját gyűjteményekből",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Írja be a lényeg URL -jét",
     "json": "Importálás a JSON -ból",
-    "title": "Importálás"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importálás",
+    "from_gist": "Importálás a Gist -ből"
   },
   "layout": {
     "column": "Vertical layout",

@@ -16,13 +16,11 @@
     "label": "Nhãn",
     "learn_more": "Tìm hiểu thêm",
     "more": "Hơn",
+    "less": "Less",
     "new": "Mới mẻ",
     "no": "Không",
-    "preserve_current": "Bảo tồn hiện tại",
     "prettify": "Kiểm tra trước",
     "remove": "Tẩy",
-    "replace_current": "Thay thế hiện tại",
-    "replace_json": "Thay thế bằng JSON",
     "restore": "Khôi phục",
     "save": "Cứu",
     "search": "Tìm kiếm",
@@ -35,7 +33,10 @@
     "turn_off": "Tắt",
     "turn_on": "Bật",
     "undo": "Hoàn tác",
-    "yes": "đúng"
+    "yes": "đúng",
+    "preserve_current": "Bảo tồn hiện tại",
+    "replace_current": "Thay thế hiện tại",
+    "replace_json": "Thay thế bằng JSON"
   },
   "add": {
     "new": "Thêm mới",
@@ -231,11 +232,18 @@
     "collections": "Nhập bộ sưu tập",
     "curl": "Nhập cURL",
     "failed": "Nhập không thành công",
-    "from_gist": "Nhập từ Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Nhập từ Bộ sưu tập của tôi",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Nhập URL Gist",
     "json": "Nhập từ JSON",
-    "title": "Nhập khẩu"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Nhập khẩu",
+    "from_gist": "Nhập từ Gist"
   },
   "layout": {
     "column": "Vertical layout",

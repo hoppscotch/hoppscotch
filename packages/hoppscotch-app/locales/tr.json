@@ -16,13 +16,11 @@
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
     "more": "Daha",
+    "less": "Less",
     "new": "Yeni",
     "no": "Numara",
-    "preserve_current": "Şimdikini koru",
     "prettify": "Güzelleştir",
     "remove": "Kaldır",
-    "replace_current": "Şimdikini değiştir",
-    "replace_json": "JSON ile değiştir",
     "restore": "Onar",
     "save": "Kaydet",
     "search": "Arama",
@@ -35,7 +33,10 @@
     "turn_off": "Kapat",
     "turn_on": "Aç",
     "undo": "Geri al",
-    "yes": "Evet"
+    "yes": "Evet",
+    "preserve_current": "Şimdikini koru",
+    "replace_current": "Şimdikini değiştir",
+    "replace_json": "JSON ile değiştir"
   },
   "add": {
     "new": "Yeni ekle",
@@ -231,11 +232,18 @@
     "collections": "Koleksiyonları içe aktar",
     "curl": "cURL'yi içe aktar",
     "failed": "İçe aktarılamadı",
-    "from_gist": "Gist'ten içe aktar",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Koleksiyonlarımdan İçe Aktar",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Gist URL'sini girin",
     "json": "JSON'dan içe aktar",
-    "title": "İçe aktar"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "İçe aktar",
+    "from_gist": "Gist'ten içe aktar"
   },
   "layout": {
     "column": "Dikey görünüm",

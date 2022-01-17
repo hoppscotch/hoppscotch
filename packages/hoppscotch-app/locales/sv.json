@@ -16,13 +16,11 @@
     "label": "Märka",
     "learn_more": "Läs mer",
     "more": "Mer",
+    "less": "Less",
     "new": "Ny",
     "no": "Nej",
-    "preserve_current": "Behåll ström",
     "prettify": "Försköna",
     "remove": "Avlägsna",
-    "replace_current": "Byt ut ström",
-    "replace_json": "Ersätt med JSON",
     "restore": "Återställ",
     "save": "Spara",
     "search": "Sök",
@@ -35,7 +33,10 @@
     "turn_off": "Stäng av",
     "turn_on": "Sätta på",
     "undo": "Ångra",
-    "yes": "Ja"
+    "yes": "Ja",
+    "preserve_current": "Behåll ström",
+    "replace_current": "Byt ut ström",
+    "replace_json": "Ersätt med JSON"
   },
   "add": {
     "new": "Lägg till ny",
@@ -231,11 +232,18 @@
     "collections": "Importera samlingar",
     "curl": "Importera cURL",
     "failed": "Importen misslyckades",
-    "from_gist": "Importera från Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importera från Mina samlingar",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Ange Gist URL",
     "json": "Importera från JSON",
-    "title": "Importera"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importera",
+    "from_gist": "Importera från Gist"
   },
   "layout": {
     "column": "Vertical layout",

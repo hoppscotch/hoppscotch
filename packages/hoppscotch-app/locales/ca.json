@@ -16,13 +16,11 @@
     "label": "Etiqueta",
     "learn_more": "Aprèn més",
     "more": "Més",
+    "less": "Less",
     "new": "Novetat",
     "no": "No",
-    "preserve_current": "Conservar el corrent",
     "prettify": "Prettify",
     "remove": "Elimina",
-    "replace_current": "Substitueix el corrent",
-    "replace_json": "Substitueix per JSON",
     "restore": "Restaura",
     "save": "Desa",
     "search": "Cerca",
@@ -35,7 +33,10 @@
     "turn_off": "Tanca",
     "turn_on": "Encendre",
     "undo": "Desfés",
-    "yes": "Sí"
+    "yes": "Sí",
+    "preserve_current": "Conservar el corrent",
+    "replace_current": "Substitueix el corrent",
+    "replace_json": "Substitueix per JSON"
   },
   "add": {
     "new": "Afegir nou",
@@ -231,11 +232,18 @@
     "collections": "Importar col·leccions",
     "curl": "Importa cURL",
     "failed": "La importació ha fallat",
-    "from_gist": "Importa de Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importa de Les meves col·leccions",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Introduïu l'URL Gist",
     "json": "Importa de JSON",
-    "title": "Importació"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importació",
+    "from_gist": "Importa de Gist"
   },
   "layout": {
     "column": "Vertical layout",

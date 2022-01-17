@@ -1,50 +1,131 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${t('modal.import_export')} ${t('modal.collections')}`"
+    :title="`${t('modal.collections')}`"
     max-width="sm:max-w-md"
     @close="hideModal"
   >
     <template #actions>
       <ButtonSecondary
-        v-if="mode == 'import_from_my_collections'"
+        v-if="importerType !== null"
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.go_back')"
         svg="arrow-left"
-        @click.native="
-          () => {
-            mode = 'import_export'
-            mySelectedCollectionID = undefined
-          }
-        "
+        @click.native="resetImport"
       />
-      <span>
-        <tippy
-          v-if="
-            mode == 'import_export' && collectionsType.type == 'my-collections'
-          "
-          ref="options"
-          interactive
-          trigger="click"
-          theme="popover"
-          arrow
-        >
-          <template #trigger>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.more')"
-              svg="more-vertical"
+    </template>
+    <template #body>
+      <div v-if="importerType !== null" class="flex flex-col">
+        <div class="flex pb-6 flex-col px-2">
+          <div
+            v-for="(step, index) in importerSteps"
+            :key="`step-${index}`"
+            class="flex flex-col space-y-8"
+          >
+            <div v-if="step.name === 'FILE_IMPORT'" class="space-y-4">
+              <p class="flex items-center">
+                <span
+                  class="inline-flex border-4 border-primary items-center justify-center flex-shrink-0 mr-4 rounded-full text-dividerDark"
+                  :class="{
+                    '!text-green-500': hasFile,
+                  }"
+                >
+                  <i class="material-icons">check_circle</i>
+                </span>
+                <span>
+                  {{ t(`${step.metadata.caption}`) }}
+                </span>
+              </p>
+              <p class="flex flex-col ml-10">
+                <input
+                  id="inputChooseFileToImportFrom"
+                  ref="inputChooseFileToImportFrom"
+                  name="inputChooseFileToImportFrom"
+                  type="file"
+                  class="transition cursor-pointer file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                  :accept="step.metadata.acceptedFileTypes"
+                  @change="onFileChange"
+                />
+              </p>
+            </div>
+            <div v-else-if="step.name === 'URL_IMPORT'" class="space-y-4">
+              <p class="flex items-center">
+                <span
+                  class="inline-flex border-4 border-primary items-center justify-center flex-shrink-0 mr-4 rounded-full text-dividerDark"
+                  :class="{
+                    '!text-green-500': hasGist,
+                  }"
+                >
+                  <i class="material-icons">check_circle</i>
+                </span>
+                <span>
+                  {{ t(`${step.metadata.caption}`) }}
+                </span>
+              </p>
+              <p class="flex flex-col ml-10">
+                <input
+                  v-model="inputChooseGistToImportFrom"
+                  type="url"
+                  class="input"
+                  :placeholder="`${$t('import.gist_url')}`"
+                />
+              </p>
+            </div>
+            <div
+              v-else-if="step.name === 'TARGET_MY_COLLECTION'"
+              class="flex flex-col px-2"
+            >
+              <div class="select-wrapper">
+                <select
+                  v-model="mySelectedCollectionID"
+                  type="text"
+                  autocomplete="off"
+                  class="select"
+                  autofocus
+                >
+                  <option :key="undefined" :value="undefined" disabled selected>
+                    {{ t("collection.select") }}
+                  </option>
+                  <option
+                    v-for="(collection, collectionIndex) in myCollections"
+                    :key="`collection-${collectionIndex}`"
+                    :value="collectionIndex"
+                  >
+                    {{ collection.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ButtonPrimary
+          :label="t('import.title')"
+          :disabled="enableImportButton"
+          class="mx-2"
+          :loading="importingMyCollections"
+          @click.native="finishImport"
+        />
+      </div>
+      <div v-else class="flex flex-col px-2">
+        <SmartExpand>
+          <template #body>
+            <SmartItem
+              v-for="(importer, index) in importerModules"
+              :key="`importer-${index}`"
+              :svg="importer.icon"
+              :label="t(`${importer.name}`)"
+              @click.native="importerType = index"
             />
           </template>
+        </SmartExpand>
+        <hr />
+        <div class="flex flex-col space-y-2">
           <SmartItem
-            icon="assignment_returned"
-            :label="t('import.from_gist')"
-            @click.native="
-              () => {
-                readCollectionGist()
-                options.tippy().hide()
-              }
-            "
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.download_file')"
+            svg="download"
+            :label="t('export.as_json')"
+            @click.native="exportJSON"
           />
           <span
             v-tippy="{ theme: 'tooltip' }"
@@ -55,6 +136,7 @@
                 ? `${t('export.require_github')}`
                 : undefined
             "
+            class="flex"
           >
             <SmartItem
               :disabled="
@@ -64,120 +146,24 @@
                   ? true
                   : false
               "
-              icon="assignment_turned_in"
+              svg="github"
               :label="t('export.create_secret_gist')"
               @click.native="
                 () => {
                   createCollectionGist()
-                  options.tippy().hide()
                 }
               "
             />
           </span>
-        </tippy>
-      </span>
-    </template>
-    <template #body>
-      <div v-if="mode == 'import_export'" class="flex flex-col space-y-2 px-2">
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.preserve_current')"
-          svg="folder-plus"
-          :label="t('import.json')"
-          @click.native="openDialogChooseFileToImportFrom"
-        />
-        <input
-          ref="inputChooseFileToImportFrom"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="importFromJSON"
-        />
-        <SmartItem
-          v-if="collectionsType.type == 'team-collections'"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.preserve_current')"
-          svg="user"
-          :label="t('import.from_my_collections')"
-          @click.native="mode = 'import_from_my_collections'"
-        />
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.replace_current')"
-          svg="file"
-          :label="t('action.replace_json')"
-          @click.native="openDialogChooseFileToReplaceWith"
-        />
-        <input
-          ref="inputChooseFileToReplaceWith"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="replaceWithJSON"
-        />
-        <hr />
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
-          svg="download"
-          :label="t('export.as_json')"
-          @click.native="exportJSON"
-        />
-      </div>
-      <div
-        v-if="mode == 'import_from_my_collections'"
-        class="flex flex-col px-2"
-      >
-        <div class="select-wrapper">
-          <select
-            type="text"
-            autocomplete="off"
-            class="select"
-            autofocus
-            @change="
-              ($event) => {
-                mySelectedCollectionID = $event.target.value
-              }
-            "
-          >
-            <option
-              :key="undefined"
-              :value="undefined"
-              hidden
-              disabled
-              selected
-            >
-              Select Collection
-            </option>
-            <option
-              v-for="(collection, index) in myCollections"
-              :key="`collection-${index}`"
-              :value="index"
-            >
-              {{ collection.name }}
-            </option>
-          </select>
         </div>
-      </div>
-    </template>
-    <template #footer>
-      <div v-if="mode == 'import_from_my_collections'">
-        <span>
-          <ButtonPrimary
-            :disabled="mySelectedCollectionID == undefined"
-            svg="folder-plus"
-            :label="t('import.title')"
-            @click.native="importFromMyCollections"
-          />
-        </span>
       </div>
     </template>
   </SmartModal>
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
-import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
+import { computed, ref, watch } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
 import { apolloClient } from "~/helpers/apollo"
 import {
   useAxios,
@@ -187,14 +173,14 @@ import {
 } from "~/helpers/utils/composables"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
-import { parseInsomniaCollection } from "~/helpers/utils/parseInsomniaCollection"
 import {
-  restCollections$,
-  setRESTCollections,
   appendRESTCollections,
   Collection,
-  makeCollection,
+  restCollections$,
 } from "~/newstore/collections"
+import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
+import { HoppRESTRequest } from "~/../hoppscotch-data/dist"
+import { StepReturnValue } from "~/helpers/import-export/steps"
 
 const props = defineProps<{
   show: boolean
@@ -219,14 +205,12 @@ const t = useI18n()
 const myCollections = useReadonlyStream(restCollections$, [])
 const currentUser = useReadonlyStream(currentUser$, null)
 
-const mode = ref("import_export")
-const mySelectedCollectionID = ref(undefined)
-const collectionJson = ref("")
-
 // Template refs
-const options = ref<any>()
-const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
-const inputChooseFileToImportFrom = ref<HTMLInputElement>()
+const mode = ref("import_export")
+const mySelectedCollectionID = ref<undefined | number>(undefined)
+const collectionJson = ref("")
+const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
+const inputChooseGistToImportFrom = ref<string>("")
 
 const getJSONCollection = async () => {
   if (props.collectionsType.type === "my-collections") {
@@ -284,376 +268,44 @@ const failedImport = () => {
   toast.error(t("import.failed").toString())
 }
 
-const readCollectionGist = async () => {
-  const gist = prompt(t("import.gist_url").toString())
-  if (!gist) return
-
-  try {
-    const { files } = (await axios.$get(
-      `https://api.github.com/gists/${gist.split("/").pop()}`,
-      {
-        headers: {
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    )) as {
-      files: {
-        [fileName: string]: {
-          content: any
-        }
-      }
-    }
-
-    const collections = JSON.parse(Object.values(files)[0].content)
-    setRESTCollections(collections)
-    fileImported()
-  } catch (e) {
-    failedImport()
-    console.error(e)
-  }
-}
-
 const hideModal = () => {
   mode.value = "import_export"
   mySelectedCollectionID.value = undefined
+  resetImport()
   emit("hide-modal")
 }
 
-const openDialogChooseFileToReplaceWith = () => {
-  if (inputChooseFileToReplaceWith.value)
-    inputChooseFileToReplaceWith.value.click()
-}
+const stepResults = ref<StepReturnValue[]>([])
 
-const openDialogChooseFileToImportFrom = () => {
-  if (inputChooseFileToImportFrom.value)
-    inputChooseFileToImportFrom.value.click()
-}
+watch(mySelectedCollectionID, (newValue) => {
+  if (newValue === undefined) return
+  stepResults.value = []
+  stepResults.value.push(newValue)
+})
 
-const hasFolder = (item: { item?: any }) => {
-  return Object.prototype.hasOwnProperty.call(item, "item")
-}
+const importingMyCollections = ref(false)
 
-// TODO: I don't even know what is going on here :/
-type PostmanCollection = {
-  info?: {
-    name: string
-  }
-  name: string
-  item: {
-    name: string
-    request: any
-    item?: any
-  }[]
-  folders?: any
-}
-
-const parsePostmanCollection = ({ info, name, item }: PostmanCollection) => {
-  const hoppscotchCollection: Collection<HoppRESTRequest> = makeCollection({
-    name: "",
-    folders: [],
-    requests: [],
-  })
-
-  hoppscotchCollection.name = info ? info.name : name
-
-  if (item && item.length > 0) {
-    for (const collectionItem of item) {
-      if (collectionItem.request) {
-        if (
-          Object.prototype.hasOwnProperty.call(hoppscotchCollection, "folders")
-        ) {
-          hoppscotchCollection.name = info ? info.name : name
-          hoppscotchCollection.requests.push(
-            parsePostmanRequest(collectionItem)
-          )
-        } else {
-          hoppscotchCollection.name = name || ""
-          hoppscotchCollection.requests.push(
-            parsePostmanRequest(collectionItem)
-          )
-        }
-      } else if (hasFolder(collectionItem)) {
-        hoppscotchCollection.folders.push(
-          parsePostmanCollection(collectionItem as any)
-        )
-      } else {
-        hoppscotchCollection.requests.push(parsePostmanRequest(collectionItem))
-      }
-    }
-  }
-  return hoppscotchCollection
-}
-
-// TODO: Rewrite
-const parsePostmanRequest = ({
-  name,
-  request,
-}: {
-  name: string
-  request: any
-}) => {
-  const pwRequest = {
-    url: "",
-    path: "",
-    method: "",
-    auth: "",
-    httpUser: "",
-    httpPassword: "",
-    passwordFieldType: "password",
-    bearerToken: "",
-    headers: [] as { name?: string; type?: string }[],
-    params: [] as { disabled?: boolean }[],
-    bodyParams: [] as { type?: string }[],
-    body: {
-      body: "",
-      contentType: "application/json",
-    },
-    rawParams: "",
-    rawInput: false,
-    contentType: "",
-    requestType: "",
-    name: "",
-  }
-
-  pwRequest.name = name
-  if (request.url) {
-    const requestObjectUrl = request.url.raw.match(
-      /^(.+:\/\/[^/]+|{[^/]+})(\/[^?]+|).*$/
-    )
-    if (requestObjectUrl) {
-      pwRequest.url = requestObjectUrl[1]
-      pwRequest.path = requestObjectUrl[2] ? requestObjectUrl[2] : ""
-    } else {
-      pwRequest.url = request.url.raw
-    }
-  }
-
-  pwRequest.method = request.method
-  const itemAuth = request.auth ? request.auth : ""
-  const authType = itemAuth ? itemAuth.type : ""
-
-  try {
-    if (authType === "basic") {
-      pwRequest.auth = "Basic Auth"
-      pwRequest.httpUser =
-        itemAuth.basic[0].key === "username"
-          ? itemAuth.basic[0].value
-          : itemAuth.basic[1].value
-      pwRequest.httpPassword =
-        itemAuth.basic[0].key === "password"
-          ? itemAuth.basic[0].value
-          : itemAuth.basic[1].value
-    } else if (authType === "oauth2") {
-      pwRequest.auth = "OAuth 2.0"
-      pwRequest.bearerToken =
-        itemAuth.oauth2[0].key === "accessToken"
-          ? itemAuth.oauth2[0].value
-          : itemAuth.oauth2[1].value
-    } else if (authType === "bearer") {
-      pwRequest.auth = "Bearer Token"
-      pwRequest.bearerToken = itemAuth.bearer[0].value
-    }
-  } catch (error) {
-    console.error(error)
-  }
-
-  const requestObjectHeaders = request.header
-  if (requestObjectHeaders) {
-    pwRequest.headers = requestObjectHeaders
-    for (const header of pwRequest.headers) {
-      delete header.name
-      delete header.type
-    }
-  }
-  if (request.url) {
-    const requestObjectParams = request.url.query
-    if (requestObjectParams) {
-      pwRequest.params = requestObjectParams
-      for (const param of pwRequest.params) {
-        delete param.disabled
-      }
-    }
-  }
-  if (request.body) {
-    if (request.body.mode === "urlencoded") {
-      const params = request.body.urlencoded
-      pwRequest.bodyParams = params || []
-      for (const param of pwRequest.bodyParams) {
-        delete param.type
-      }
-    } else if (request.body.mode === "raw") {
-      pwRequest.rawInput = true
-      pwRequest.rawParams = request.body.raw
-      try {
-        const body = JSON.parse(request.body.raw)
-        pwRequest.body.body = JSON.stringify(body, null, 2)
-      } catch (error) {
-        console.error(error)
-      }
-    }
-  }
-  return translateToNewRequest(pwRequest)
-}
-
-const replaceWithJSON = () => {
-  if (!inputChooseFileToReplaceWith.value) return
-
-  if (
-    !inputChooseFileToReplaceWith.value.files ||
-    inputChooseFileToReplaceWith.value.files.length === 0
-  ) {
-    toast.show(t("action.choose_file").toString())
-    return
-  }
-
-  const reader = new FileReader()
-
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-
-    if (!content) {
-      toast.show(t("action.choose_file").toString())
-      return
-    }
-
-    let collections = JSON.parse(content)
-
-    // TODO: File validation
-    if (collections[0]) {
-      const [name, folders, requests] = Object.keys(collections[0])
-      if (name === "name" && folders === "folders" && requests === "requests") {
-        // Do nothing
-      }
-    } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
-      collections = [parsePostmanCollection(collections)]
-    } else {
-      failedImport()
-    }
-    if (props.collectionsType.type === "team-collections") {
-      teamUtils
-        .replaceWithJSON(
-          apolloClient,
-          collections,
-          props.collectionsType.selectedTeam.id
-        )
-        .then((status) => {
-          if (status) {
-            fileImported()
-          } else {
-            failedImport()
-          }
-        })
-        .catch((e) => {
-          console.error(e)
-          failedImport()
-        })
-    } else {
-      setRESTCollections(collections)
-      fileImported()
-    }
-  }
-
-  reader.readAsText(inputChooseFileToReplaceWith.value.files[0])
-  inputChooseFileToReplaceWith.value.value = ""
-}
-
-const isInsomniaCollection = (collection: any) => {
-  if (typeof collection === "object") {
-    return (
-      Object.prototype.hasOwnProperty.call(collection, "__export_source") &&
-      collection.__export_source.includes("insomnia")
-    )
-  }
-  return false
-}
-
-const importFromJSON = () => {
-  if (!inputChooseFileToImportFrom.value) return
-
-  if (
-    !inputChooseFileToImportFrom.value.files ||
-    inputChooseFileToImportFrom.value.files.length === 0
-  ) {
-    toast.show(t("action.choose_file").toString())
-    return
-  }
-
-  const reader = new FileReader()
-
-  reader.onload = ({ target }) => {
-    let content = target!.result as string | null
-
-    if (!content) {
-      toast.show(t("action.choose_file").toString())
-      return
-    }
-
-    let collections = JSON.parse(content)
-    if (isInsomniaCollection(collections)) {
-      collections = parseInsomniaCollection(content)
-      content = JSON.stringify(collections)
-    }
-    if (collections[0]) {
-      const [name, folders, requests] = Object.keys(collections[0])
-      if (name === "name" && folders === "folders" && requests === "requests") {
-        // Do nothing
-      }
-    } else if (collections.info && collections.info.schema.includes("v2.1.0")) {
-      // replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
-      collections = JSON.parse(content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>"))
-      collections = [parsePostmanCollection(collections)]
-    } else {
-      failedImport()
-      return
-    }
-    if (props.collectionsType.type === "team-collections") {
-      teamUtils
-        .importFromJSON(
-          apolloClient,
-          collections,
-          props.collectionsType.selectedTeam.id
-        )
-        .then((status) => {
-          if (status) {
-            emit("update-team-collections")
-            fileImported()
-          } else {
-            failedImport()
-          }
-        })
-        .catch((e) => {
-          console.error(e)
-          failedImport()
-        })
-    } else {
-      appendRESTCollections(collections)
-      fileImported()
-    }
-  }
-  reader.readAsText(inputChooseFileToImportFrom.value.files[0])
-  inputChooseFileToImportFrom.value.value = ""
-}
-
-const importFromMyCollections = () => {
+const importToTeams = async (content: Collection<HoppRESTRequest>) => {
+  importingMyCollections.value = true
   if (props.collectionsType.type !== "team-collections") return
-
-  teamUtils
-    .importFromMyCollections(
+  await teamUtils
+    .importFromJSON(
       apolloClient,
-      mySelectedCollectionID.value,
+      content,
       props.collectionsType.selectedTeam.id
     )
-    .then((success) => {
-      if (success) {
-        fileImported()
+    .then((status) => {
+      if (status) {
         emit("update-team-collections")
       } else {
-        failedImport()
+        console.error(status)
       }
     })
     .catch((e) => {
       console.error(e)
-      failedImport()
+    })
+    .finally(() => {
+      importingMyCollections.value = false
     })
 }
 
@@ -675,5 +327,99 @@ const exportJSON = () => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }, 1000)
+}
+
+const importerModules = computed(() =>
+  RESTCollectionImporters.filter(
+    (i) => i.applicableTo?.includes(props.collectionsType.type) ?? true
+  )
+)
+
+const importerType = ref<number | null>(null)
+
+const importerModule = computed(() =>
+  importerType.value !== null ? importerModules.value[importerType.value] : null
+)
+
+const importerSteps = computed(() => importerModule.value?.steps ?? null)
+
+const finishImport = async () => {
+  await importerAction(stepResults.value)
+}
+
+const importerAction = async (stepResults: any[]) => {
+  if (!importerModule.value) return
+  const result = await importerModule.value?.importer(stepResults as any)()
+  if (E.isLeft(result)) {
+    failedImport()
+    console.error("error", result.left)
+  } else if (E.isRight(result)) {
+    if (props.collectionsType.type === "team-collections") {
+      importToTeams(result.right)
+      fileImported()
+    } else {
+      appendRESTCollections(result.right)
+      fileImported()
+    }
+  }
+}
+
+const hasFile = ref(false)
+const hasGist = ref(false)
+
+watch(inputChooseGistToImportFrom, (v) => {
+  stepResults.value = []
+  if (v === "") {
+    hasGist.value = false
+  } else {
+    hasGist.value = true
+    stepResults.value.push(inputChooseGistToImportFrom.value)
+  }
+})
+
+const onFileChange = () => {
+  stepResults.value = []
+  if (!inputChooseFileToImportFrom.value[0]) {
+    hasFile.value = false
+    return
+  }
+
+  if (
+    !inputChooseFileToImportFrom.value[0].files ||
+    inputChooseFileToImportFrom.value[0].files.length === 0
+  ) {
+    inputChooseFileToImportFrom.value[0].value = ""
+    hasFile.value = false
+    toast.show(t("action.choose_file").toString())
+    return
+  }
+
+  const reader = new FileReader()
+  reader.onload = ({ target }) => {
+    const content = target!.result as string | null
+    if (!content) {
+      hasFile.value = false
+      toast.show(t("action.choose_file").toString())
+      return
+    }
+
+    stepResults.value.push(content)
+    hasFile.value = !!content?.length
+  }
+  reader.readAsText(inputChooseFileToImportFrom.value[0].files[0])
+}
+
+const enableImportButton = computed(
+  () => !(stepResults.value.length === importerSteps.value?.length)
+)
+
+const resetImport = () => {
+  importerType.value = null
+  stepResults.value = []
+  inputChooseFileToImportFrom.value = ""
+  hasFile.value = false
+  inputChooseGistToImportFrom.value = ""
+  hasGist.value = false
+  mySelectedCollectionID.value = undefined
 }
 </script>

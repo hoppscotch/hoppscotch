@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${t('modal.import_export')} ${t('environment.title')}`"
+    :title="`${t('environment.title')}`"
     max-width="sm:max-w-md"
     @close="hideModal"
   >

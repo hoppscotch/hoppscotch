@@ -16,13 +16,11 @@
     "label": "תווית",
     "learn_more": "למד עוד",
     "more": "יותר",
+    "less": "Less",
     "new": "חָדָשׁ",
     "no": "לא",
-    "preserve_current": "שמור על זרם",
     "prettify": "לְיַפּוֹת",
     "remove": "לְהַסִיר",
-    "replace_current": "החלף זרם",
-    "replace_json": "החלף ב- JSON",
     "restore": "לשחזר",
     "save": "להציל",
     "search": "לחפש",
@@ -35,7 +33,10 @@
     "turn_off": "לכבות",
     "turn_on": "להדליק",
     "undo": "לבטל",
-    "yes": "כן"
+    "yes": "כן",
+    "preserve_current": "שמור על זרם",
+    "replace_current": "החלף זרם",
+    "replace_json": "החלף ב- JSON"
   },
   "add": {
     "new": "הוסף חדש",
@@ -231,11 +232,18 @@
     "collections": "ייבוא אוספים",
     "curl": "ייבא cURL",
     "failed": "הייבוא נכשל",
-    "from_gist": "ייבוא מ- Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "ייבוא מהאוספים שלי",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "הזן Gist URL",
     "json": "ייבוא מ- JSON",
-    "title": "יְבוּא"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "יְבוּא",
+    "from_gist": "ייבוא מ- Gist"
   },
   "layout": {
     "column": "Vertical layout",

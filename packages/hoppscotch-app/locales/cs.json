@@ -16,13 +16,11 @@
     "label": "Označení",
     "learn_more": "Další informace",
     "more": "Více",
+    "less": "Less",
     "new": "Nový",
     "no": "Ne",
-    "preserve_current": "Zachovat proud",
     "prettify": "Prettify",
     "remove": "Odstranit",
-    "replace_current": "Vyměňte proud",
-    "replace_json": "Nahradit za JSON",
     "restore": "Obnovit",
     "save": "Uložit",
     "search": "Vyhledávání",
@@ -35,7 +33,10 @@
     "turn_off": "Vypnout",
     "turn_on": "Zapnout",
     "undo": "vrátit",
-    "yes": "Ano"
+    "yes": "Ano",
+    "preserve_current": "Zachovat proud",
+    "replace_current": "Vyměňte proud",
+    "replace_json": "Nahradit za JSON"
   },
   "add": {
     "new": "Přidat nový",
@@ -231,11 +232,18 @@
     "collections": "Import sbírek",
     "curl": "Importovat cURL",
     "failed": "Import se nezdařil",
-    "from_gist": "Import z Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importovat z mých sbírek",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Zadejte URL adresy",
     "json": "Import z JSON",
-    "title": "Import"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Import",
+    "from_gist": "Import z Gist"
   },
   "layout": {
     "column": "Vertical layout",

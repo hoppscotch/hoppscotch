@@ -16,13 +16,11 @@
     "label": "Название",
     "learn_more": "Узнать больше",
     "more": "Больше",
+    "less": "Less",
     "new": "Создать новый",
     "no": "Нет",
-    "preserve_current": "Сохранить текущий",
     "prettify": "Форматировать",
     "remove": "Удалить",
-    "replace_current": "Заменить текущий",
-    "replace_json": "Заменить на JSON",
     "restore": "Восстановить",
     "save": "Сохранить",
     "search": "Поиск",
@@ -35,7 +33,10 @@
     "turn_off": "Выключить",
     "turn_on": "Включить",
     "undo": "Отменить",
-    "yes": "Да"
+    "yes": "Да",
+    "preserve_current": "Сохранить текущий",
+    "replace_current": "Заменить текущий",
+    "replace_json": "Заменить на JSON"
   },
   "add": {
     "new": "Добавить новое",
@@ -231,11 +232,18 @@
     "collections": "Импортировать коллекции",
     "curl": "Импортировать cURL",
     "failed": "Ошибка импорта",
-    "from_gist": "Импорт из Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Импортировать из моих коллекций",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Введите URL-адрес Gist",
     "json": "Импорт из JSON",
-    "title": "Импортировать"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Импортировать",
+    "from_gist": "Импорт из Gist"
   },
   "layout": {
     "column": "Вертикальное оформление",

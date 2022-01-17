@@ -16,13 +16,11 @@
     "label": "Label",
     "learn_more": "Leer meer",
     "more": "Meer",
+    "less": "Less",
     "new": "Nieuw",
     "no": "Nee",
-    "preserve_current": "Huidige behouden",
     "prettify": "Netter opmaken",
     "remove": "Verwijderen",
-    "replace_current": "Vervang huidige",
-    "replace_json": "Vervang door JSON",
     "restore": "Herstellen",
     "save": "Opslaan",
     "search": "Zoeken",
@@ -35,7 +33,10 @@
     "turn_off": "Uitschakelen",
     "turn_on": "Inschakelen",
     "undo": "Ongedaan maken",
-    "yes": "Ja"
+    "yes": "Ja",
+    "preserve_current": "Huidige behouden",
+    "replace_current": "Vervang huidige",
+    "replace_json": "Vervang door JSON"
   },
   "add": {
     "new": "Nieuwe toevoegen",
@@ -231,11 +232,18 @@
     "collections": "Collecties importeren",
     "curl": "cURL-commando importeren",
     "failed": "Importeren mislukt",
-    "from_gist": "Importeren uit Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importeren uit Mijn collecties",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Vul de hoofd-URL in",
     "json": "Importeren uit JSON",
-    "title": "Importeren"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importeren",
+    "from_gist": "Importeren uit Gist"
   },
   "layout": {
     "column": "Vertical layout",

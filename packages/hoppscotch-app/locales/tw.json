@@ -16,13 +16,11 @@
     "label": "標籤",
     "learn_more": "瞭解更多",
     "more": "更多",
+    "less": "Less",
     "new": "新增",
     "no": "否",
-    "preserve_current": "保持目前",
     "prettify": "美化",
     "remove": "移除",
-    "replace_current": "替換目前",
-    "replace_json": "替換為 JSON",
     "restore": "還原",
     "save": "儲存",
     "search": "搜尋",
@@ -35,7 +33,10 @@
     "turn_off": "關閉",
     "turn_on": "開啟",
     "undo": "復原",
-    "yes": "是"
+    "yes": "是",
+    "preserve_current": "保持目前",
+    "replace_current": "替換目前",
+    "replace_json": "替換為 JSON"
   },
   "add": {
     "new": "新增",
@@ -231,11 +232,18 @@
     "collections": "匯入組合",
     "curl": "匯入 cURL",
     "failed": "匯入失敗",
-    "from_gist": "從 Gist 匯入",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "從我的組合匯入",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "輸入 Gist URL",
     "json": "從 JSON 匯入",
-    "title": "匯入"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "匯入",
+    "from_gist": "從 Gist 匯入"
   },
   "layout": {
     "column": "垂直布局",

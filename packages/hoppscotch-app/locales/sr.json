@@ -16,13 +16,11 @@
     "label": "Ознака",
     "learn_more": "Сазнајте више",
     "more": "Више",
+    "less": "Less",
     "new": "Нова",
     "no": "Не",
-    "preserve_current": "Очувајте струју",
     "prettify": "Преттифи",
     "remove": "Уклони",
-    "replace_current": "Замените струју",
-    "replace_json": "Замените са ЈСОН",
     "restore": "Ресторе",
     "save": "сачувати",
     "search": "Претрага",
@@ -35,7 +33,10 @@
     "turn_off": "Искључити",
     "turn_on": "Укључити",
     "undo": "Поништи",
-    "yes": "да"
+    "yes": "да",
+    "preserve_current": "Очувајте струју",
+    "replace_current": "Замените струју",
+    "replace_json": "Замените са ЈСОН"
   },
   "add": {
     "new": "Додај нови",
@@ -231,11 +232,18 @@
     "collections": "Увоз збирки",
     "curl": "Увези цУРЛ",
     "failed": "Увоз није успео",
-    "from_gist": "Увоз из Гиста",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Увези из Мојих колекција",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Унесите Гист УРЛ",
     "json": "Увези из ЈСОН -а",
-    "title": "Увоз"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Увоз",
+    "from_gist": "Увоз из Гиста"
   },
   "layout": {
     "column": "Vertical layout",

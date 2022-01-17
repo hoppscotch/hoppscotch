@@ -16,13 +16,11 @@
     "label": "Eticheta",
     "learn_more": "Află mai multe",
     "more": "Mai mult",
+    "less": "Less",
     "new": "Nou",
     "no": "Nu",
-    "preserve_current": "Păstrați curentul",
     "prettify": "Dăruiește",
     "remove": "Elimina",
-    "replace_current": "Înlocuiți curentul",
-    "replace_json": "Înlocuiți cu JSON",
     "restore": "Restabili",
     "save": "salva",
     "search": "Căutare",
@@ -35,7 +33,10 @@
     "turn_off": "Opriți",
     "turn_on": "Aprinde",
     "undo": "Anula",
-    "yes": "da"
+    "yes": "da",
+    "preserve_current": "Păstrați curentul",
+    "replace_current": "Înlocuiți curentul",
+    "replace_json": "Înlocuiți cu JSON"
   },
   "add": {
     "new": "Adăuga nou",
@@ -231,11 +232,18 @@
     "collections": "Import colecții",
     "curl": "Importați cURL",
     "failed": "Importul nu a reușit",
-    "from_gist": "Import din Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Import din colecțiile mele",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Introduceți adresa URL Gist",
     "json": "Importați din JSON",
-    "title": "Import"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Import",
+    "from_gist": "Import din Gist"
   },
   "layout": {
     "column": "Vertical layout",

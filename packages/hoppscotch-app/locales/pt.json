@@ -16,13 +16,11 @@
     "label": "Etiqueta",
     "learn_more": "Saber mais",
     "more": "Mais",
+    "less": "Less",
     "new": "Novo",
     "no": "Não",
-    "preserve_current": "Preservar corrente",
     "prettify": "Embelezar",
     "remove": "Remover",
-    "replace_current": "Substitua a corrente",
-    "replace_json": "Substitua por JSON",
     "restore": "Restaurar",
     "save": "Salvar",
     "search": "Procurar",
@@ -35,7 +33,10 @@
     "turn_off": "Desligar",
     "turn_on": "Ligar",
     "undo": "Desfazer",
-    "yes": "sim"
+    "yes": "sim",
+    "preserve_current": "Preservar corrente",
+    "replace_current": "Substitua a corrente",
+    "replace_json": "Substitua por JSON"
   },
   "add": {
     "new": "Adicionar novo",
@@ -231,11 +232,18 @@
     "collections": "Importar coleções",
     "curl": "Importar cURL",
     "failed": "A importação falhou",
-    "from_gist": "Importar do Gist",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "from_insomnia": "Import from Insomnia",
     "from_my_collections": "Importar de minhas coleções",
+    "from_openapi": "Import from OpenAPI",
+    "from_postman": "Import from Postman",
+    "from_url": "Import from URL",
     "gist_url": "Insira o URL da essência",
     "json": "Importar de JSON",
-    "title": "Importar"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importar",
+    "from_gist": "Importar do Gist"
   },
   "layout": {
     "column": "Vertical layout",

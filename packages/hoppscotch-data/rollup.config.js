@@ -1,13 +1,13 @@
-import dts from 'rollup-plugin-dts'
-import esbuild from 'rollup-plugin-esbuild'
-import multi from '@rollup/plugin-multi-entry'
+import dts from "rollup-plugin-dts"
+import esbuild from "rollup-plugin-esbuild"
+import multi from "@rollup/plugin-multi-entry"
 
-const name = require('./package.json').main.replace(/\.js$/, '')
+const name = require("./package.json").main.replace(/\.js$/, "")
 
-const bundle = config => ({
+const bundle = (config) => ({
   ...config,
-  input: 'src/**/*.ts',
-  external: id => !/^[./]/.test(id),
+  input: "src/**/*.ts",
+  external: (id) => !/^[./]/.test(id),
 })
 
 export default [
@@ -16,12 +16,12 @@ export default [
     output: [
       {
         file: `${name}.js`,
-        format: 'cjs',
+        format: "cjs",
         sourcemap: true,
       },
       {
         file: `${name}.mjs`,
-        format: 'es',
+        format: "es",
         sourcemap: true,
       },
     ],
@@ -30,7 +30,7 @@ export default [
     plugins: [dts()],
     output: {
       file: `${name}.d.ts`,
-      format: 'es',
+      format: "es",
     },
   }),
 ]

@@ -1,9 +1,11 @@
 <template>
-  <div class="flex">
+  <div class="flex" @click="$refs.logout.$el.click()">
     <SmartItem
+      ref="logout"
       svg="log-out"
       :label="`${$t('auth.logout')}`"
       :outline="outline"
+      :shortcut="shortcut"
       @click.native="
         () => {
           $emit('confirm-logout')
@@ -29,6 +31,10 @@ export default defineComponent({
     outline: {
       type: Boolean,
       default: false,
+    },
+    shortcut: {
+      type: Array,
+      default: () => [],
     },
   },
   data() {

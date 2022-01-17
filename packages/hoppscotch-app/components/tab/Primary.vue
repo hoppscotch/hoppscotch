@@ -3,7 +3,7 @@
     :to="`${/^\/(?!\/).*$/.test(to) ? localePath(to) : to}`"
     :exact="exact"
     :blank="blank"
-    class="rounded py-2 px-4 transition inline-flex items-center truncate focus:outline-none"
+    class="inline-flex items-center px-4 py-2 truncate transition rounded focus:outline-none"
     :class="[
       color
         ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
@@ -15,16 +15,16 @@
   >
     <i
       v-if="icon"
-      :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
-      class="material-icons"
+      class="opacity-75 material-icons"
+      :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     >
       {{ icon }}
     </i>
     <SmartIcon
       v-if="svg"
       :name="svg"
-      :class="label ? (reverse ? 'ml-4 opacity-75' : 'mr-4 opacity-75') : ''"
-      class="svg-icons"
+      class="opacity-75 svg-icons"
+      :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     />
     {{ label }}
   </SmartLink>

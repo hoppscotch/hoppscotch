@@ -10,11 +10,7 @@
       "~/*": ["./src/*"],
       "@/*": ["./src/*"]
     },
-    "types": [
-      "@types/node",
-      "@types/jest",
-      "@relmify/jest-fp-ts"
-    ],
+    "types": ["@types/node", "@types/jest", "@relmify/jest-fp-ts"],
     "outDir": "./lib/",
     "rootDir": "./src/",
     "declaration": true,

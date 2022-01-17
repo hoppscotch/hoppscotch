@@ -2,13 +2,19 @@
   <div class="flex flex-col group">
     <div class="flex items-center">
       <span
-        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 pl-4 transition group-hover:text-secondaryDark"
+        class="flex flex-1 min-w-0 py-2 pl-4 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
         @click="useEntry"
       >
         <span class="truncate">
           {{ entry.request.url }}
         </span>
+        <tippy
+          v-if="entry.updatedOn"
+          theme="tooltip"
+          :delay="[500, 20]"
+          :content="`${new Date(entry.updatedOn).toLocaleString()}`"
+        />
       </span>
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -36,11 +42,11 @@
         @click.native="$emit('toggle-star')"
       />
     </div>
-    <div class="flex flex-col">
+    <div class="flex flex-col text-tiny">
       <span
         v-for="(line, index) in query"
         :key="`line-${index}`"
-        class="cursor-pointer font-mono text-secondaryLight px-4 truncate whitespace-pre"
+        class="px-4 font-mono truncate whitespace-pre cursor-pointer text-secondaryLight"
         data-testid="restore_history_entry"
         @click="useEntry"
         >{{ line }}</span
@@ -49,53 +55,39 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  computed,
-  defineComponent,
-  PropType,
-  ref,
-} from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed, ref } from "@nuxtjs/composition-api"
 import { makeGQLRequest } from "@hoppscotch/data"
 import { setGQLSession } from "~/newstore/GQLSession"
 import { GQLHistoryEntry } from "~/newstore/history"
 
-export default defineComponent({
-  props: {
-    entry: { type: Object as PropType<GQLHistoryEntry>, default: () => {} },
-    showMore: Boolean,
-  },
-  setup(props) {
-    const expand = ref(false)
+const props = defineProps<{
+  entry: GQLHistoryEntry
+  showMore: Boolean
+}>()
 
-    const query = computed(() =>
-      expand.value
-        ? (props.entry.request.query.split("\n") as string[])
-        : (props.entry.request.query
-            .split("\n")
-            .slice(0, 2)
-            .concat(["..."]) as string[])
-    )
+const expand = ref(false)
 
-    const useEntry = () => {
-      setGQLSession({
-        request: makeGQLRequest({
-          name: props.entry.request.name,
-          url: props.entry.request.url,
-          headers: props.entry.request.headers,
-          query: props.entry.request.query,
-          variables: props.entry.request.variables,
-        }),
-        schema: "",
-        response: props.entry.response,
-      })
-    }
+const query = computed(() =>
+  expand.value
+    ? (props.entry.request.query.split("\n") as string[])
+    : (props.entry.request.query
+        .split("\n")
+        .slice(0, 2)
+        .concat(["..."]) as string[])
+)
 
-    return {
-      expand,
-      query,
-      useEntry,
-    }
-  },
-})
+const useEntry = () => {
+  setGQLSession({
+    request: makeGQLRequest({
+      name: props.entry.request.name,
+      url: props.entry.request.url,
+      headers: props.entry.request.headers,
+      query: props.entry.request.query,
+      variables: props.entry.request.variables,
+    }),
+    schema: "",
+    response: props.entry.response,
+  })
+}
 </script>

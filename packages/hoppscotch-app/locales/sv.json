@@ -16,23 +16,27 @@
     "label": "Märka",
     "learn_more": "Läs mer",
     "more": "Mer",
+    "less": "Less",
     "new": "Ny",
     "no": "Nej",
-    "preserve_current": "Behåll ström",
     "prettify": "Försköna",
     "remove": "Avlägsna",
-    "replace_current": "Byt ut ström",
-    "replace_json": "Ersätt med JSON",
     "restore": "Återställ",
     "save": "Spara",
     "search": "Sök",
     "send": "Skicka",
     "start": "Start",
     "stop": "Sluta",
+    "to_close": "to close",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
     "turn_off": "Stäng av",
     "turn_on": "Sätta på",
     "undo": "Ångra",
-    "yes": "Ja"
+    "yes": "Ja",
+    "preserve_current": "Behåll ström",
+    "replace_current": "Byt ut ström",
+    "replace_json": "Ersätt med JSON"
   },
   "add": {
     "new": "Lägg till ny",
@@ -63,7 +67,7 @@
     "terms_and_privacy": "Villkor och sekretess",
     "twitter": "Twitter",
     "type_a_command_search": "Skriv ett kommando eller sök ...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Vi använder cookies",
     "whats_new": "Vad är nytt?",
     "wiki": "Wiki"
@@ -90,6 +94,7 @@
     "generate_token": "Generera Token",
     "include_in_url": "Inkludera i URL",
     "learn": "Lära sig hur",
+    "pass_key_by": "Pass by",
     "password": "Lösenord",
     "token": "Tecken",
     "type": "Godkännande typ",
@@ -103,6 +108,7 @@
     "name": "Min nya samling",
     "new": "Ny kollektion",
     "renamed": "Samling bytt namn",
+    "request_in_use": "Request in use",
     "save_as": "Spara som",
     "select": "Välj en samling",
     "select_location": "Välj plats",
@@ -178,8 +184,8 @@
     "json_prettify_invalid_body": "Det gick inte att pryda en ogiltig kropp, lösa json -syntaxfel och försök igen",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Det gick inte att skicka förfrågan",
-    "script_fail": "Det gick inte att köra skriptet för förhandsbegäran",
     "no_duration": "Ingen varaktighet",
+    "script_fail": "Det gick inte att köra skriptet för förhandsbegäran",
     "something_went_wrong": "Något gick fel"
   },
   "export": {
@@ -210,11 +216,11 @@
     "authorization": "Auktoriseringsrubriken genereras automatiskt när du skickar begäran.",
     "generate_documentation_first": "Skapa dokumentation först",
     "network_fail": "Det gick inte att nå API -slutpunkten. Kontrollera din nätverksanslutning och försök igen.",
-    "script_fail": "Det verkar finnas ett fel i skriptet för förhandsbegäran. Kontrollera felet nedan och fixa skriptet därefter.",
     "offline": "Du verkar vara offline. Data i denna arbetsyta är kanske inte uppdaterad.",
     "offline_short": "Du verkar vara offline.",
     "post_request_tests": "Testskript skrivs i JavaScript och körs efter att svaret har mottagits.",
     "pre_request_script": "Skript för förfrågan skrivs i JavaScript och körs innan begäran skickas.",
+    "script_fail": "Det verkar finnas ett fel i skriptet för förhandsbegäran. Kontrollera felet nedan och fixa skriptet därefter.",
     "tests": "Skriv ett testskript för att automatisera felsökning."
   },
   "hide": {
@@ -227,10 +233,24 @@
     "curl": "Importera cURL",
     "failed": "Importen misslyckades",
     "from_gist": "Importera från Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Importera från Mina samlingar",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Ange Gist URL",
-    "json": "Importera från JSON",
-    "title": "Importera"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Importera",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "json": "Importera från JSON"
   },
   "layout": {
     "column": "Vertical layout",
@@ -273,6 +293,7 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
@@ -360,6 +381,7 @@
     "official_proxy_hosting": "Officiell proxy är värd av Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Ombud",
     "proxy_url": "Proxy -URL",
@@ -378,7 +400,8 @@
     "theme": "Tema",
     "theme_description": "Anpassa ditt applikationstema.",
     "use_experimental_url_bar": "Använd experimentell URL -fält med miljömarkering",
-    "user": "Användare"
+    "user": "Användare",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -397,6 +420,7 @@
       "documentation": "Gå till dokumentationssidan",
       "forward": "Gå vidare till nästa sida",
       "graphql": "Gå till GraphQL -sidan",
+      "profile": "Go to Profile page",
       "realtime": "Gå till realtidssidan",
       "rest": "Gå till REST -sidan",
       "settings": "Gå till sidan Inställningar",
@@ -417,6 +441,13 @@
       "save_to_collections": "Spara i samlingar",
       "send_request": "Skicka förfrågan",
       "title": "Begäran"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -438,7 +469,7 @@
   },
   "state": {
     "bulk_mode": "Massredigering",
-    "bulk_mode_placeholder": "Posterna separeras med ny rad\nNycklar och värden separeras med:\nFörbered // till vilken rad du vill lägga till men behåll inaktiverad",
+    "bulk_mode_placeholder": "Posterna separeras med ny rad\nNycklar och värden separeras med:\nFörbered # till vilken rad du vill lägga till men behåll inaktiverad",
     "cleared": "Rensat",
     "connected": "Ansluten",
     "connected_to": "Ansluten till {name}",

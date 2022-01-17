@@ -1,17 +1,17 @@
 <template>
   <div>
     <header
-      class="flex space-x-2 flex-1 py-2 px-2 items-center justify-between"
+      class="flex items-center justify-between flex-1 px-2 py-2 space-x-2"
     >
-      <div class="space-x-2 inline-flex items-center">
+      <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           label="HOPPSCOTCH"
           to="/"
         />
-        <AppGitHubStarButton class="mt-1.5 transition hidden sm:flex" />
+        <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
       </div>
-      <div class="space-x-2 inline-flex items-center">
+      <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
           id="installPWA"
           v-tippy="{ theme: 'tooltip' }"
@@ -25,7 +25,7 @@
           :title="`${t('app.search')} <kbd>/</kbd>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click.native="showSearch = true"
+          @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -47,7 +47,7 @@
           :label="t('header.login')"
           @click.native="showLogin = true"
         />
-        <div v-else class="space-x-2 inline-flex items-center">
+        <div v-else class="inline-flex items-center space-x-2">
           <ButtonPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
@@ -57,7 +57,14 @@
             @click.native="showTeamsModal = true"
           />
           <span class="px-2">
-            <tippy ref="user" interactive trigger="click" theme="popover" arrow>
+            <tippy
+              ref="options"
+              interactive
+              trigger="click"
+              theme="popover"
+              arrow
+              :on-shown="() => tippyActions.focus()"
+            >
               <template #trigger>
                 <ProfilePicture
                   v-if="currentUser.photoURL"
@@ -78,19 +85,46 @@
                   svg="user"
                 />
               </template>
-              <SmartItem
-                to="/profile"
-                svg="user"
-                :label="t('navigation.profile')"
-                @click.native="$refs.user.tippy().hide()"
-              />
-              <SmartItem
-                to="/settings"
-                svg="settings"
-                :label="t('navigation.settings')"
-                @click.native="$refs.user.tippy().hide()"
-              />
-              <FirebaseLogout @confirm-logout="$refs.user.tippy().hide()" />
+              <div class="flex flex-col px-2 text-tiny">
+                <span class="inline-flex font-semibold truncate">
+                  {{ currentUser.displayName }}
+                </span>
+                <span class="inline-flex truncate text-secondaryLight">
+                  {{ currentUser.email }}
+                </span>
+              </div>
+              <hr />
+              <div
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.enter="profile.$el.click()"
+                @keyup.s="settings.$el.click()"
+                @keyup.l="logout.$el.click()"
+                @keyup.escape="options.tippy().hide()"
+              >
+                <SmartItem
+                  ref="profile"
+                  to="/profile"
+                  svg="user"
+                  :label="t('navigation.profile')"
+                  :shortcut="['↩']"
+                  @click.native="options.tippy().hide()"
+                />
+                <SmartItem
+                  ref="settings"
+                  to="/settings"
+                  svg="settings"
+                  :label="t('navigation.settings')"
+                  :shortcut="['S']"
+                  @click.native="options.tippy().hide()"
+                />
+                <FirebaseLogout
+                  ref="logout"
+                  :shortcut="['L']"
+                  @confirm-logout="options.tippy().hide()"
+                />
+              </div>
             </tippy>
           </span>
         </div>
@@ -99,7 +133,6 @@
     <AppAnnouncement v-if="!isOnLine" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -114,7 +147,7 @@ import {
   useI18n,
   useToast,
 } from "~/helpers/utils/composables"
-import { defineActionHandler } from "~/helpers/actions"
+import { defineActionHandler, invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -128,7 +161,6 @@ const toast = useToast()
 const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
 const showSupport = ref(false)
-const showSearch = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
@@ -138,9 +170,6 @@ const currentUser = useReadonlyStream(probableUser$, null)
 
 defineActionHandler("modals.support.toggle", () => {
   showSupport.value = !showSupport.value
-})
-defineActionHandler("modals.search.toggle", () => {
-  showSearch.value = !showSearch.value
 })
 
 onMounted(() => {
@@ -179,4 +208,11 @@ onMounted(() => {
     })
   }
 })
+
+// Template refs
+const tippyActions = ref<any | null>(null)
+const profile = ref<any | null>(null)
+const settings = ref<any | null>(null)
+const logout = ref<any | null>(null)
+const options = ref<any | null>(null)
 </script>

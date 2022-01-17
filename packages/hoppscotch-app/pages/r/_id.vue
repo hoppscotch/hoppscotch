@@ -2,9 +2,9 @@
   <div class="flex flex-col items-center justify-between">
     <div
       v-if="invalidLink"
-      class="flex flex-col flex-1 items-center justify-center"
+      class="flex flex-col items-center justify-center flex-1"
     >
-      <i class="opacity-75 pb-2 material-icons">error_outline</i>
+      <i class="pb-2 opacity-75 material-icons">error_outline</i>
       <h1 class="text-center heading">
         {{ $t("error.invalid_link") }}
       </h1>
@@ -12,19 +12,19 @@
         {{ $t("error.invalid_link_description") }}
       </p>
     </div>
-    <div v-else class="flex flex-col flex-1 p-4 items-center justify-center">
+    <div v-else class="flex flex-col items-center justify-center flex-1 p-4">
       <div
         v-if="shortcodeDetails.loading"
-        class="flex flex-col flex-1 p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center flex-1 p-4"
       >
         <SmartSpinner />
       </div>
       <div v-else>
         <div
           v-if="!shortcodeDetails.loading && E.isLeft(shortcodeDetails.data)"
-          class="flex flex-col p-4 items-center"
+          class="flex flex-col items-center p-4"
         >
-          <i class="opacity-75 pb-2 material-icons">error_outline</i>
+          <i class="pb-2 opacity-75 material-icons">error_outline</i>
           <h1 class="text-center heading">
             {{ $t("error.invalid_link") }}
           </h1>
@@ -43,7 +43,7 @@
         </div>
         <div
           v-if="!shortcodeDetails.loading && E.isRight(shortcodeDetails.data)"
-          class="flex flex-col flex-1 p-4 items-center justify-center"
+          class="flex flex-col items-center justify-center flex-1 p-4"
         >
           <h1 class="heading">
             {{ $t("state.loading") }}
@@ -63,14 +63,14 @@ import {
   watch,
 } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
-import { makeRESTRequest } from "@hoppscotch/data"
+import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { useGQLQuery } from "~/helpers/backend/GQLClient"
 import {
   ResolveShortcodeDocument,
   ResolveShortcodeQuery,
   ResolveShortcodeQueryVariables,
 } from "~/helpers/backend/graphql"
-import { setRESTRequest } from "~/newstore/RESTSession"
+import { getDefaultRESTRequest, setRESTRequest } from "~/newstore/RESTSession"
 
 export default defineComponent({
   setup() {
@@ -97,9 +97,14 @@ export default defineComponent({
         const data = shortcodeDetails.data
 
         if (E.isRight(data)) {
-          const request = JSON.parse(data.right.shortcode?.request as string)
+          const request: unknown = JSON.parse(
+            data.right.shortcode?.request as string
+          )
 
-          setRESTRequest(makeRESTRequest(request))
+          setRESTRequest(
+            safelyExtractRESTRequest(request, getDefaultRESTRequest())
+          )
+
           router.push({ path: localePath("/") })
         }
       }

@@ -6,7 +6,7 @@
     "newLine": "lf",
     "declaration": true,
     "moduleResolution": "node",
-    "allowJs": true,
+    "allowJs": true
   },
   "include": ["src/*"]
 }

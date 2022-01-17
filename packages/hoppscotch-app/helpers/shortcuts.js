@@ -17,7 +17,7 @@ export default [
         label: "shortcut.general.show_all",
       },
       {
-        keys: ["Esc"],
+        keys: ["ESC"],
         label: "shortcut.general.close_current_menu",
       },
     ],
@@ -102,6 +102,10 @@ export default [
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
       },
+      {
+        keys: [getPlatformAlternateKey(), "P"],
+        label: "shortcut.navigation.profile",
+      },
     ],
   },
   {
@@ -164,6 +168,12 @@ export const spotlight = [
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
         action: "navigation.jump.settings",
+        icon: "arrow-right",
+      },
+      {
+        keys: [getPlatformAlternateKey(), "P"],
+        label: "shortcut.navigation.profile",
+        action: "navigation.jump.profile",
         icon: "arrow-right",
       },
     ],
@@ -257,10 +267,45 @@ export const fuse = [
     tags: ["settings", "jump", "page", "navigation", "account", "theme", "go"],
   },
   {
+    keys: [getPlatformAlternateKey(), "P"],
+    label: "shortcut.navigation.profile",
+    action: "navigation.jump.profile",
+    icon: "arrow-right",
+    tags: ["profile", "jump", "page", "navigation", "account", "theme", "go"],
+  },
+  {
     keys: [getPlatformSpecialKey(), "M"],
     label: "shortcut.miscellaneous.invite",
     action: "modals.share.toggle",
     icon: "gift",
     tags: ["invite", "share", "app", "friends", "people", "social"],
+  },
+  {
+    keys: [getPlatformAlternateKey(), "0"],
+    label: "shortcut.theme.system",
+    action: "settings.theme.system",
+    icon: "monitor",
+    tags: ["theme", "system"],
+  },
+  {
+    keys: [getPlatformAlternateKey(), "1"],
+    label: "shortcut.theme.light",
+    action: "settings.theme.light",
+    icon: "sun",
+    tags: ["theme", "light"],
+  },
+  {
+    keys: [getPlatformAlternateKey(), "2"],
+    label: "shortcut.theme.dark",
+    action: "settings.theme.dark",
+    icon: "cloud",
+    tags: ["theme", "dark"],
+  },
+  {
+    keys: [getPlatformAlternateKey(), "3"],
+    label: "shortcut.theme.black",
+    action: "settings.theme.black",
+    icon: "moon",
+    tags: ["theme", "black"],
   },
 ]

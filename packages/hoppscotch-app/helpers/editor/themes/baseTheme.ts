@@ -30,7 +30,8 @@ import { lintKeymap } from "@codemirror/lint"
 
 export const baseTheme = EditorView.theme({
   "&": {
-    fontSize: "var(--body-font-size)",
+    fontSize: "var(--font-size-body)",
+    height: "100%",
   },
   ".cm-content": {
     caretColor: "var(--secondary-light-color)",
@@ -67,13 +68,13 @@ export const baseTheme = EditorView.theme({
   },
   ".cm-textfield": {
     backgroundColor: "var(--primary-dark-color)",
-    color: "var(--secondary-light-color)",
+    color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-light-color)",
     borderRadius: "3px",
   },
   ".cm-button": {
     backgroundColor: "var(--primary-dark-color)",
-    color: "var(--secondary-light-color)",
+    color: "var(--secondary-dark-color)",
     backgroundImage: "none",
     border: "none",
   },

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex p-2 items-center">
+  <div class="flex items-center p-2">
     <SmartProgressRing
       class="text-red-500"
       :radius="16"
@@ -20,12 +20,16 @@
 
 <script setup lang="ts">
 import { computed, PropType } from "@nuxtjs/composition-api"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import {
+  HoppTestExpectResult,
+  HoppTestResult,
+} from "~/helpers/types/HoppTestResult"
 
 const props = defineProps({
   testResults: {
     type: Object as PropType<HoppTestResult>,
     required: true,
+    expectResults: [] as HoppTestExpectResult[],
   },
 })
 

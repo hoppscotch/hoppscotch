@@ -1,9 +1,9 @@
 <template>
   <div
-    class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky overflow-x-auto hide-scrollbar"
+    class="sticky top-0 z-10 flex p-4 space-x-2 overflow-x-auto bg-primary hide-scrollbar"
   >
     <div class="flex flex-1">
-      <div class="flex relative">
+      <div class="relative flex">
         <label for="method">
           <tippy
             ref="methodOptions"
@@ -16,7 +16,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -52,13 +52,14 @@
             focus-visible:bg-transparent
           "
           @enter="newSendRequest()"
+          @paste="onPasteUrl($event)"
         />
       </div>
     </div>
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-r-none flex-1 min-w-20"
+        class="flex-1 rounded-r-none min-w-20"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
@@ -69,45 +70,61 @@
           trigger="click"
           theme="popover"
           arrow
+          :on-shown="() => sendTippyActions.focus()"
         >
           <template #trigger>
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
-          <SmartItem
-            :label="`${t('import.curl')}`"
-            svg="file-code"
-            @click.native="
-              () => {
-                showCurlImportModal = !showCurlImportModal
-                sendOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            :label="`${t('show.code')}`"
-            svg="code-2"
-            @click.native="
-              () => {
-                showCodegenModal = !showCodegenModal
-                sendOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            ref="clearAll"
-            :label="`${t('action.clear_all')}`"
-            svg="rotate-ccw"
-            @click.native="
-              () => {
-                clearContent()
-                sendOptions.tippy().hide()
-              }
-            "
-          />
+          <div
+            ref="sendTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.c="curl.$el.click()"
+            @keyup.s="show.$el.click()"
+            @keyup.delete="clearAll.$el.click()"
+            @keyup.escape="sendOptions.tippy().hide()"
+          >
+            <SmartItem
+              ref="curl"
+              :label="`${t('import.curl')}`"
+              svg="file-code"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  showCurlImportModal = !showCurlImportModal
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="show"
+              :label="`${t('show.code')}`"
+              svg="code-2"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showCodegenModal = !showCodegenModal
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="clearAll"
+              :label="`${t('action.clear_all')}`"
+              svg="rotate-ccw"
+              :shortcut="['⌫']"
+              @click.native="
+                () => {
+                  clearContent()
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded rounded-r-none ml-2"
+        class="ml-2 rounded rounded-r-none"
         :label="
           windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
             ? `${t('request.save')}`
@@ -124,6 +141,7 @@
           trigger="click"
           theme="popover"
           arrow
+          :on-shown="() => saveTippyActions.focus()"
         >
           <template #trigger>
             <ButtonSecondary
@@ -142,32 +160,44 @@
             class="mb-2 input"
             @keyup.enter="saveOptions.tippy().hide()"
           />
-          <SmartItem
-            ref="copyRequest"
-            :label="shareButtonText"
-            :svg="copyLinkIcon"
-            :loading="fetchingShareLink"
-            @click.native="
-              () => {
-                copyRequest()
-              }
-            "
-          />
-          <SmartItem
-            ref="saveRequest"
-            :label="`${t('request.save_as')}`"
-            svg="folder-plus"
-            @click.native="
-              () => {
-                showSaveRequestModal = true
-                saveOptions.tippy().hide()
-              }
-            "
-          />
+          <div
+            ref="saveTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.c="copyRequestAction.$el.click()"
+            @keyup.s="saveRequestAction.$el.click()"
+            @keyup.escape="saveOptions.tippy().hide()"
+          >
+            <SmartItem
+              ref="copyRequestAction"
+              :label="shareButtonText"
+              :svg="copyLinkIcon"
+              :loading="fetchingShareLink"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  copyRequest()
+                }
+              "
+            />
+            <SmartItem
+              ref="saveRequestAction"
+              :label="`${t('request.save_as')}`"
+              svg="folder-plus"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showSaveRequestModal = true
+                  saveOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
     </div>
     <HttpImportCurl
+      :text="curlText"
       :show="showCurlImportModal"
       @hide-modal="showCurlImportModal = false"
     />
@@ -239,6 +269,7 @@ const nuxt = useNuxt()
 const { subscribeToStream } = useStreamSubscriber()
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
+const curlText = ref("")
 const newMethod = useStream(restMethod$, "", updateRESTMethod)
 
 const loading = ref(false)
@@ -253,6 +284,13 @@ const hasNavigatorShare = !!navigator.share
 const methodOptions = ref<any | null>(null)
 const saveOptions = ref<any | null>(null)
 const sendOptions = ref<any | null>(null)
+const sendTippyActions = ref<any | null>(null)
+const saveTippyActions = ref<any | null>(null)
+const curl = ref<any | null>(null)
+const show = ref<any | null>(null)
+const clearAll = ref<any | null>(null)
+const copyRequestAction = ref<any | null>(null)
+const saveRequestAction = ref<any | null>(null)
 
 // Update Nuxt Loading bar
 watch(loading, () => {
@@ -305,6 +343,27 @@ const newSendRequest = async () => {
       error,
     })
   }
+}
+
+const onPasteUrl = (e: { event: ClipboardEvent; previousValue: string }) => {
+  if (!e) return
+
+  const clipboardData = e.event.clipboardData
+
+  const pastedData = clipboardData?.getData("Text")
+
+  if (!pastedData) return
+
+  if (isCURL(pastedData)) {
+    e.event.preventDefault()
+    showCurlImportModal.value = true
+    curlText.value = pastedData
+    newEndpoint.value = e.previousValue
+  }
+}
+
+function isCURL(curl: string) {
+  return curl.includes("curl ")
 }
 
 const cancelRequest = () => {

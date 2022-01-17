@@ -6,7 +6,7 @@ interface TeamNameBrand {
 
 export const TeamNameCodec = t.brand(
   t.string,
-  (x): x is t.Branded<string, TeamNameBrand> => x.trim().length > 6,
+  (x): x is t.Branded<string, TeamNameBrand> => x.trim().length >= 6,
   "TeamName"
 )
 

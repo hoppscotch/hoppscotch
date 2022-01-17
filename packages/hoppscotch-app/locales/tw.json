@@ -16,23 +16,27 @@
     "label": "標籤",
     "learn_more": "瞭解更多",
     "more": "更多",
+    "less": "Less",
     "new": "新增",
     "no": "否",
-    "preserve_current": "保持目前",
     "prettify": "美化",
     "remove": "移除",
-    "replace_current": "替換目前",
-    "replace_json": "替換為 JSON",
     "restore": "還原",
     "save": "儲存",
     "search": "搜尋",
     "send": "傳送",
     "start": "開始",
     "stop": "停止",
+    "to_close": "to close",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
     "turn_off": "關閉",
     "turn_on": "開啟",
     "undo": "復原",
-    "yes": "是"
+    "yes": "是",
+    "preserve_current": "保持目前",
+    "replace_current": "替換目前",
+    "replace_json": "替換為 JSON"
   },
   "add": {
     "new": "新增",
@@ -63,7 +67,7 @@
     "terms_and_privacy": "隱私條款",
     "twitter": "Twitter",
     "type_a_command_search": "輸入命令或搜尋內容……",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "我們使用 cookies",
     "whats_new": "新增內容",
     "wiki": "幫助"
@@ -90,6 +94,7 @@
     "generate_token": "產生權杖",
     "include_in_url": "包含在網址",
     "learn": "瞭解更多",
+    "pass_key_by": "Pass by",
     "password": "密碼",
     "token": "權杖",
     "type": "授權類型",
@@ -103,6 +108,7 @@
     "name": "我的新組合",
     "new": "建立組合",
     "renamed": "組合已重新命名",
+    "request_in_use": "Request in use",
     "save_as": "另存為",
     "select": "選擇一個組合",
     "select_location": "選擇位置",
@@ -178,8 +184,8 @@
     "json_prettify_invalid_body": "無法美化無效的請求主體，處理 JSON 語法錯誤並重試",
     "network_error": "似乎有網路錯誤。請再試一次。",
     "network_fail": "無法傳送請求",
-    "script_fail": "Could not execute pre-request script",
     "no_duration": "無持續時間",
+    "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "發生了一些錯誤"
   },
   "export": {
@@ -210,11 +216,11 @@
     "authorization": "授權標頭將會在您傳送請求時自動產生。",
     "generate_documentation_first": "請先產生文件",
     "network_fail": "無法到達 API 端點。請檢查網路連線並重試。",
-    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "offline": "您似乎處於離線狀態，該工作區中的資料可能不是最新。",
     "offline_short": "您似乎處於離線狀態。",
     "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到回應後執行。",
     "pre_request_script": "預請求指令碼使用 JavaScript 編寫，並在請求傳送前執行。",
+    "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
     "tests": "編寫測試指令碼以自動除錯。"
   },
   "hide": {
@@ -227,10 +233,24 @@
     "curl": "匯入 cURL",
     "failed": "匯入失敗",
     "from_gist": "從 Gist 匯入",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "從我的組合匯入",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "輸入 Gist URL",
-    "json": "從 JSON 匯入",
-    "title": "匯入"
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "匯入",
+    "gist": "Import from Gist",
+    "gist_description": "Import a Gist",
+    "json": "從 JSON 匯入"
   },
   "layout": {
     "column": "垂直布局",
@@ -273,6 +293,7 @@
     "app_settings": "應用程式設定",
     "editor": "編輯者",
     "editor_description": "編輯者可以新增、編輯和刪除請求。",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "您沒有權限執行此操作。",
     "owner": "擁有者",
     "owner_description": "擁有者可以新增、編輯和刪除請求、組合和團隊成員。",
@@ -360,6 +381,7 @@
     "official_proxy_hosting": "官方代理由 Hoppscotch 託管。",
     "profile": "設定檔",
     "profile_description": "更新您的設定檔詳細資料",
+    "profile_email": "Email address",
     "profile_name": "設定檔名稱",
     "proxy": "網路代理",
     "proxy_url": "代理網址",
@@ -378,7 +400,8 @@
     "theme": "主題",
     "theme_description": "自定義您的應用程式主題。",
     "use_experimental_url_bar": "使用帶有環境高亮的實驗性 URL 欄",
-    "user": "使用者"
+    "user": "使用者",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -397,6 +420,7 @@
       "documentation": "前往文件頁面",
       "forward": "前往下一頁面",
       "graphql": "前往 GraphQL 頁面",
+      "profile": "Go to Profile page",
       "realtime": "前往實時頁面",
       "rest": "前往 REST 頁面",
       "settings": "前往設定頁面",
@@ -417,6 +441,13 @@
       "save_to_collections": "儲存到組合",
       "send_request": "傳送請求",
       "title": "請求"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -438,7 +469,7 @@
   },
   "state": {
     "bulk_mode": "大量編輯",
-    "bulk_mode_placeholder": "條目之間使用換行符分隔\n鍵和值之間使用冒號分隔\n將 // 置於行首以新增該行條目並保持停用",
+    "bulk_mode_placeholder": "條目之間使用換行符分隔\n鍵和值之間使用冒號分隔\n將 # 置於行首以新增該行條目並保持停用",
     "cleared": "已清除",
     "connected": "已連線",
     "connected_to": "已連線到 {name}",

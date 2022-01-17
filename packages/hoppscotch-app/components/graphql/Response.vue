@@ -1,15 +1,15 @@
 <template>
-  <AppSection ref="response" label="response">
+  <div>
     <div
       v-if="responseString === 'loading'"
-      class="flex flex-col p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div v-else-if="responseString">
       <div
-        class="bg-primary border-b border-dividerLight flex flex-1 pl-4 top-0 z-10 sticky items-center justify-between"
+        class="sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight"
       >
         <label class="font-semibold text-secondaryLight">
           {{ t("response.title") }}
@@ -42,14 +42,14 @@
     </div>
     <div
       v-else
-      class="flex flex-col flex-1 text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center flex-1 p-4 text-secondaryLight"
     >
-      <div class="flex space-x-2 my-4 pb-4">
-        <div class="flex flex-col space-y-4 text-right items-end">
-          <span class="flex flex-1 items-center">
+      <div class="flex pb-4 my-4 space-x-2">
+        <div class="flex flex-col items-end space-y-4 text-right">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.help_menu") }}
           </span>
         </div>
@@ -71,7 +71,7 @@
         reverse
       />
     </div>
-  </AppSection>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -105,6 +105,7 @@ useCodemirror(
     },
     linter: null,
     completer: null,
+    environmentHighlights: false,
   })
 )
 
@@ -136,14 +137,3 @@ const downloadResponse = () => {
   }, 1000)
 }
 </script>
-
-<style lang="scss" scoped>
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
-}
-</style>

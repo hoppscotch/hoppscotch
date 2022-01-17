@@ -1,3 +1,4 @@
+import cloneDeep from "lodash/cloneDeep"
 import { ValidContentTypes } from "./content-types"
 import { HoppRESTAuth } from "./HoppRESTAuth"
 
@@ -56,6 +57,57 @@ export interface HoppRESTRequest {
   body: HoppRESTReqBody
 }
 
+/**
+ * Safely tries to extract REST Request data from an unknown value.
+ * If we fail to detect certain bits, we just resolve it to the default value
+ * @param x The value to extract REST Request data from
+ * @param defaultReq The default REST Request to source from
+ */
+export function safelyExtractRESTRequest(
+  x: unknown,
+  defaultReq: HoppRESTRequest
+): HoppRESTRequest {
+  const req = cloneDeep(defaultReq)
+
+  // TODO: A cleaner way to do this ?
+  if (!!x && typeof x === "object") {
+    if (x.hasOwnProperty("v") && typeof x.v === "string")
+      req.v = x.v
+
+    if (x.hasOwnProperty("id") && typeof x.id === "string")
+      req.id = x.id
+
+    if (x.hasOwnProperty("name") && typeof x.name === "string")
+      req.name = x.name
+
+    if (x.hasOwnProperty("method") && typeof x.method === "string")
+      req.method = x.method
+
+    if (x.hasOwnProperty("endpoint") && typeof x.endpoint === "string")
+      req.endpoint = x.endpoint
+
+    if (x.hasOwnProperty("preRequestScript") && typeof x.preRequestScript === "string")
+      req.preRequestScript = x.preRequestScript
+
+    if (x.hasOwnProperty("testScript") && typeof x.testScript === "string")
+      req.testScript = x.testScript
+
+    if (x.hasOwnProperty("body") && typeof x.body === "object" && !!x.body)
+      req.body = x.body as any // TODO: Deep nested checks
+
+    if (x.hasOwnProperty("auth") && typeof x.auth === "object" && !!x.auth)
+      req.auth = x.auth as any // TODO: Deep nested checks
+
+    if (x.hasOwnProperty("params") && Array.isArray(x.params))
+      req.params = x.params // TODO: Deep nested checks
+
+    if (x.hasOwnProperty("headers") && Array.isArray(x.headers))
+      req.headers = x.headers // TODO: Deep nested checks
+  }
+
+  return req
+}
+
 export function makeRESTRequest(
   x: Omit<HoppRESTRequest, "v">
 ): HoppRESTRequest {
@@ -88,12 +140,12 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
     return x
   } else {
     // Old format
-    const endpoint: string = `${x.url}${x.path}`
+    const endpoint: string = `${x?.url ?? ""}${x?.path ?? ""}`
 
-    const headers: HoppRESTHeader[] = x.headers ?? []
+    const headers: HoppRESTHeader[] = x?.headers ?? []
 
     // Remove old keys from params
-    const params: HoppRESTParam[] = (x.params ?? []).map(
+    const params: HoppRESTParam[] = (x?.params ?? []).map(
       ({
         key,
         value,
@@ -109,11 +161,11 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       })
     )
 
-    const name = x.name
-    const method = x.method
+    const name = x?.name ?? "Untitled request"
+    const method = x?.method ?? ""
 
-    const preRequestScript = x.preRequestScript
-    const testScript = x.testScript
+    const preRequestScript = x?.preRequestScript ?? ""
+    const testScript = x?.testScript ?? ""
 
     const body = parseRequestBody(x)
 

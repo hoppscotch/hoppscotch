@@ -11,6 +11,13 @@ module.exports = {
     "^.+\\.js$": "babel-jest",
     ".*\\.(vue)$": "vue-jest",
   },
+  globals: {
+    "vue-jest": {
+      templateCompiler: {
+        compiler: require("vue-template-babel-compiler"),
+      },
+    },
+  },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   snapshotSerializers: ["jest-serializer-vue"],
   collectCoverage: true,

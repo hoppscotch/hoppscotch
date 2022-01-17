@@ -1,8 +1,5 @@
 import axios from "axios"
-import axiosStrategy, {
-  testables,
-  cancelRunningAxiosRequest,
-} from "../AxiosStrategy"
+import axiosStrategy from "../AxiosStrategy"
 
 jest.mock("../../utils/b64", () => ({
   __esModule: true,
@@ -20,15 +17,6 @@ jest.mock("~/newstore/settings", () => {
   }
 })
 
-describe("cancelRunningAxiosRequest", () => {
-  test("cancels axios request and does that only 1 time", () => {
-    const cancelFunc = jest.spyOn(testables.cancelSource, "cancel")
-
-    cancelRunningAxiosRequest()
-    expect(cancelFunc).toHaveBeenCalledTimes(1)
-  })
-})
-
 describe("axiosStrategy", () => {
   describe("Proxy Requests", () => {
     test("sends POST request to proxy if proxy is enabled", async () => {
@@ -39,7 +27,7 @@ describe("axiosStrategy", () => {
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
 
-      await axiosStrategy({})
+      await axiosStrategy({})()
 
       expect(passedURL).toEqual("test")
     })
@@ -58,7 +46,7 @@ describe("axiosStrategy", () => {
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
 
-      await axiosStrategy(reqFields)
+      await axiosStrategy(reqFields)()
 
       expect(passedFields).toMatchObject(reqFields)
     })
@@ -71,7 +59,7 @@ describe("axiosStrategy", () => {
         return Promise.resolve({ data: { success: true, isBinary: false } })
       })
 
-      await axiosStrategy({})
+      await axiosStrategy({})()
 
       expect(passedFields).toHaveProperty("wantsBinary")
     })
@@ -86,7 +74,7 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({})).rejects.toThrow("test message")
+      expect(await axiosStrategy({})()).toEqualLeft("test message")
     })
 
     test("checks for proxy response success field and throws error 'Proxy Error' for non-success", async () => {
@@ -97,10 +85,10 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({})).rejects.toThrow("Proxy Error")
+      expect(await axiosStrategy({})()).toBeLeft("Proxy Error")
     })
 
-    test("checks for proxy response success and doesn't throw for success", async () => {
+    test("checks for proxy response success and doesn't left for success", async () => {
       jest.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: true,
@@ -108,10 +96,10 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({})).resolves.toBeDefined()
+      expect(await axiosStrategy({})()).toBeRight()
     })
 
-    test("checks isBinary response field and resolve with the converted value if so", async () => {
+    test("checks isBinary response field and right with the converted value if so", async () => {
       jest.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: true,
@@ -120,12 +108,12 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({})).resolves.toMatchObject({
+      expect(await axiosStrategy({})()).toSubsetEqualRight({
         data: "testdata-converted",
       })
     })
 
-    test("checks isBinary response field and resolve with the actual value if not so", async () => {
+    test("checks isBinary response field and right with the actual value if not so", async () => {
       jest.spyOn(axios, "post").mockResolvedValue({
         data: {
           success: true,
@@ -134,23 +122,23 @@ describe("axiosStrategy", () => {
         },
       })
 
-      await expect(axiosStrategy({})).resolves.toMatchObject({
+      expect(await axiosStrategy({})()).toSubsetEqualRight({
         data: "testdata",
       })
     })
 
-    test("cancel errors are thrown with the string 'cancellation'", async () => {
+    test("cancel errors are returned a left with the string 'cancellation'", async () => {
       jest.spyOn(axios, "post").mockRejectedValue("errr")
       jest.spyOn(axios, "isCancel").mockReturnValueOnce(true)
 
-      await expect(axiosStrategy({})).rejects.toBe("cancellation")
+      expect(await axiosStrategy({})()).toEqualLeft("cancellation")
     })
 
-    test("non-cancellation errors are thrown", async () => {
+    test("non-cancellation errors return a left", async () => {
       jest.spyOn(axios, "post").mockRejectedValue("errr")
       jest.spyOn(axios, "isCancel").mockReturnValueOnce(false)
 
-      await expect(axiosStrategy({})).rejects.toBe("errr")
+      expect(await axiosStrategy({})()).toEqualLeft("errr")
     })
   })
 })

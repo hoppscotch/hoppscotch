@@ -1,7 +1,6 @@
-import clone from "lodash/clone"
 import { FormDataKeyValue, HoppRESTRequest } from "@hoppscotch/data"
 import { isJSONContentType } from "./utils/contenttypes"
-import { defaultRESTRequest } from "~/newstore/RESTSession"
+import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 
 /**
  * Handles translations for all the hopp.io REST Shareable URL params
@@ -14,7 +13,7 @@ export function translateExtURLParams(
 }
 
 function parseV0ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
-  const resolvedReq = clone(defaultRESTRequest)
+  const resolvedReq = getDefaultRESTRequest()
 
   if (urlParams.method && typeof urlParams.method === "string") {
     resolvedReq.method = urlParams.method
@@ -91,7 +90,7 @@ function parseV0ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
 }
 
 function parseV1ExtURL(urlParams: Record<string, any>): HoppRESTRequest {
-  const resolvedReq = clone(defaultRESTRequest)
+  const resolvedReq = getDefaultRESTRequest()
 
   if (urlParams.headers && typeof urlParams.headers === "string") {
     resolvedReq.headers = JSON.parse(urlParams.headers)

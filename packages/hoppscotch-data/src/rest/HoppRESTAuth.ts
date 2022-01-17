@@ -26,9 +26,18 @@ export type HoppRESTAuthOAuth2 = {
   scope: string
 }
 
+export type HoppRESTAuthAPIKey = {
+  authType: "api-key"
+
+  key: string
+  value: string
+  addTo: string
+}
+
 export type HoppRESTAuth = { authActive: boolean } & (
   | HoppRESTAuthNone
   | HoppRESTAuthBasic
   | HoppRESTAuthBearer
   | HoppRESTAuthOAuth2
+  | HoppRESTAuthAPIKey
 )

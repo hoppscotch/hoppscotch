@@ -33,7 +33,7 @@
 
 [[redirects]]
   from = "/careers"
-  to = "https://hoppscotch.notion.site/3b9d5d5239a043bfb91701faabf5b8f0"
+  to = "https://company.hoppscotch.io/careers"
   status = 301
   force = true
 
@@ -52,5 +52,11 @@
 [[redirects]]
   from = "/github"
   to = "https://github.com/hoppscotch/hoppscotch"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/announcements"
+  to = "https://company.hoppscotch.io/announcements"
   status = 301
   force = true

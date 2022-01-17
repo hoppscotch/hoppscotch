@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="bg-primary border-b border-dividerLight flex flex-1 top-upperTertiaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("request.raw_body") }}
@@ -91,6 +91,7 @@ useCodemirror(
     },
     linter: null,
     completer: null,
+    environmentHighlights: true,
   })
 )
 
@@ -116,10 +117,11 @@ const prettifyRequestBody = () => {
     const jsonObj = JSON.parse(rawParamsBody.value)
     rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
     prettifyIcon.value = "check"
-    setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
+    prettifyIcon.value = "info"
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
+  setTimeout(() => (prettifyIcon.value = "wand"), 1000)
 }
 </script>

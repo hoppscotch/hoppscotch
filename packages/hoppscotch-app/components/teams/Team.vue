@@ -1,10 +1,10 @@
 <template>
   <div
-    class="border border-divider rounded flex flex-col flex-1"
-    @contextmenu.prevent="!compact ? $refs.options.tippy().show() : null"
+    class="flex flex-col flex-1 border rounded border-divider"
+    @contextmenu.prevent="!compact ? options.tippy().show() : null"
   >
     <div
-      class="flex flex-1 items-start"
+      class="flex items-start flex-1"
       :class="
         compact
           ? team.myRole === 'OWNER'
@@ -27,7 +27,7 @@
         >
           {{ team.name || t("state.nothing_found") }}
         </label>
-        <div class="flex -space-x-1 mt-2 overflow-hidden">
+        <div class="flex mt-2 -space-x-1 overflow-hidden">
           <img
             v-for="(member, index) in team.teamMembers"
             :key="`member-${index}`"
@@ -35,13 +35,13 @@
             :title="member.user.displayName"
             :src="member.user.photoURL || undefined"
             :alt="member.user.displayName"
-            class="rounded-full h-5 ring-primary ring-2 w-5 inline-block"
+            class="inline-block w-5 h-5 rounded-full ring-primary ring-2"
             loading="lazy"
           />
         </div>
       </div>
     </div>
-    <div v-if="!compact" class="flex flex-shrink-0 items-end justify-between">
+    <div v-if="!compact" class="flex items-end justify-between flex-shrink-0">
       <span>
         <ButtonSecondary
           v-if="team.myRole === 'OWNER'"
@@ -67,7 +67,14 @@
         />
       </span>
       <span>
-        <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+        <tippy
+          ref="options"
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+          :on-shown="() => tippyActions.focus()"
+        >
           <template #trigger>
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -75,40 +82,61 @@
               svg="more-vertical"
             />
           </template>
-          <SmartItem
-            v-if="team.myRole === 'OWNER'"
-            svg="edit"
-            :label="t('action.edit')"
-            @click.native="
-              () => {
-                $emit('edit-team')
-                $refs.options.tippy().hide()
-              }
+          <div
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.e="team.myRole === 'OWNER' ? edit.$el.click() : null"
+            @keyup.x="
+              !(team.myRole === 'OWNER' && team.ownersCount == 1)
+                ? exit.$el.click()
+                : null
             "
-          />
-          <SmartItem
-            v-if="team.myRole === 'OWNER'"
-            svg="trash-2"
-            color="red"
-            :label="t('action.delete')"
-            @click.native="
-              () => {
-                confirmRemove = true
-                $refs.options.tippy().hide()
-              }
+            @keyup.delete="
+              team.myRole === 'OWNER' ? deleteAction.$el.click() : null
             "
-          />
-          <SmartItem
-            v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
-            svg="trash"
-            :label="t('team.exit')"
-            @click.native="
-              () => {
-                confirmExit = true
-                $refs.options.tippy().hide()
-              }
-            "
-          />
+            @keyup.escape="options.tippy().hide()"
+          >
+            <SmartItem
+              v-if="team.myRole === 'OWNER'"
+              ref="edit"
+              svg="edit"
+              :label="t('action.edit')"
+              :shortcut="['E']"
+              @click.native="
+                () => {
+                  $emit('edit-team')
+                  options.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
+              ref="exit"
+              svg="user-x"
+              :label="t('team.exit')"
+              :shortcut="['X']"
+              @click.native="
+                () => {
+                  confirmExit = true
+                  options.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              v-if="team.myRole === 'OWNER'"
+              ref="deleteAction"
+              svg="trash-2"
+              :label="t('action.delete')"
+              :shortcut="['⌫']"
+              @click.native="
+                () => {
+                  confirmRemove = true
+                  options.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
     </div>
@@ -200,4 +228,11 @@ const exitTeam = () => {
 const noPermission = () => {
   toast.error(`${t("profile.no_permission")}`)
 }
+
+// Template refs
+const tippyActions = ref<any | null>(null)
+const options = ref<any | null>(null)
+const edit = ref<any | null>(null)
+const deleteAction = ref<any | null>(null)
+const exit = ref<any | null>(null)
 </script>

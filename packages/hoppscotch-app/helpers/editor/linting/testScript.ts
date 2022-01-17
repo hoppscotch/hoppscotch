@@ -10,8 +10,14 @@ const linter: LinterDefinition = async (text) => {
 
   results = results.concat(
     semanticLints.map((lint: any) => ({
-      from: lint.from,
-      to: lint.to,
+      from: {
+        ch: lint.from.ch + 1,
+        line: lint.from.line + 1,
+      },
+      to: {
+        ch: lint.from.ch + 1,
+        line: lint.to.line + 1,
+      },
       severity: "error",
       message: `[semantic] ${lint.message}`,
     }))
@@ -24,12 +30,12 @@ const linter: LinterDefinition = async (text) => {
       results = results.concat(
         res.errors.map((err: any) => {
           const fromPos: { line: number; ch: number } = {
-            line: err.lineNumber - 1,
-            ch: err.column - 1,
+            line: err.lineNumber,
+            ch: err.column,
           }
 
           const toPos: { line: number; ch: number } = {
-            line: err.lineNumber - 1,
+            line: err.lineNumber,
             ch: err.column,
           }
 
@@ -42,14 +48,14 @@ const linter: LinterDefinition = async (text) => {
         })
       )
     }
-  } catch (e) {
+  } catch (e: any) {
     const fromPos: { line: number; ch: number } = {
-      line: e.lineNumber - 1,
-      ch: e.column - 1,
+      line: e.lineNumber,
+      ch: e.column,
     }
 
     const toPos: { line: number; ch: number } = {
-      line: e.lineNumber - 1,
+      line: e.lineNumber,
       ch: e.column,
     }
 

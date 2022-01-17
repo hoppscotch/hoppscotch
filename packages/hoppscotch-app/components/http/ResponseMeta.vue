@@ -1,23 +1,23 @@
 <template>
   <div
-    class="bg-primary flex p-4 top-0 z-10 sticky items-center overflow-auto hide-scrollbar whitespace-nowrap"
+    class="sticky top-0 z-10 flex items-center p-4 overflow-auto bg-primary hide-scrollbar whitespace-nowrap"
   >
     <div
       v-if="response == null"
-      class="flex flex-col flex-1 text-secondaryLight items-center justify-center"
+      class="flex flex-col items-center justify-center flex-1 text-secondaryLight"
     >
-      <div class="flex space-x-2 my-4 pb-4">
-        <div class="flex flex-col space-y-4 text-right items-end">
-          <span class="flex flex-1 items-center">
+      <div class="flex pb-4 my-4 space-x-2">
+        <div class="flex flex-col items-end space-y-4 text-right">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.request.send_request") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.show_all") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>
-          <span class="flex flex-1 items-center">
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.help_menu") }}
           </span>
         </div>
@@ -57,66 +57,71 @@
       </div>
       <div
         v-if="response.type === 'network_fail'"
-        class="flex flex-col flex-1 p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center flex-1 p-4"
       >
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
-          class="flex-col object-contain object-center h-32 my-4 w-32 inline-flex"
+          class="inline-flex flex-col object-contain object-center w-32 h-32 my-4"
           :alt="`${t('error.network_fail')}`"
         />
-        <span class="font-semibold text-center mb-2">
+        <span class="mb-2 font-semibold text-center">
           {{ t("error.network_fail") }}
         </span>
         <span
-          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+          class="max-w-sm mb-6 text-center whitespace-normal text-secondaryLight"
         >
           {{ t("helpers.network_fail") }}
         </span>
-        <AppInterceptor />
+        <AppInterceptor class="border rounded border-dividerLight" />
       </div>
       <div
         v-if="response.type === 'script_fail'"
-        class="flex flex-col flex-1 p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center flex-1 p-4"
       >
         <img
           :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
           loading="lazy"
-          class="flex-col object-contain object-center h-32 my-4 w-32 inline-flex"
+          class="inline-flex flex-col object-contain object-center w-32 h-32 my-4"
           :alt="`${t('error.script_fail')}`"
         />
-        <span class="font-semibold text-center mb-2">
+        <span class="mb-2 font-semibold text-center">
           {{ t("error.script_fail") }}
         </span>
         <span
-          class="max-w-sm text-secondaryLight text-center mb-4 whitespace-normal"
+          class="max-w-sm mb-6 text-center whitespace-normal text-secondaryLight"
         >
           {{ t("helpers.script_fail") }}
         </span>
         <div
-          class="bg-primaryLight rounded font-mono w-full py-2 px-4 text-red-400 overflow-auto whitespace-normal"
+          class="w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
         >
           {{ response.error.name }}: {{ response.error.message }}<br />
           {{ response.error.stack }}
         </div>
       </div>
       <div
-        v-if="response.type === 'success' || 'fail'"
-        :class="statusCategory.className"
-        class="font-semibold space-x-4"
+        v-if="response.type === 'success' || response.type === 'fail'"
+        class="flex items-center font-semibold text-tiny"
       >
-        <span v-if="response.statusCode">
-          <span class="text-secondary"> {{ t("response.status") }}: </span>
-          {{ response.statusCode || t("state.waiting_send_request") }}
-        </span>
-        <span v-if="response.meta && response.meta.responseDuration">
-          <span class="text-secondary"> {{ t("response.time") }}: </span>
-          {{ `${response.meta.responseDuration} ms` }}
-        </span>
-        <span v-if="response.meta && response.meta.responseSize">
-          <span class="text-secondary"> {{ t("response.size") }}: </span>
-          {{ `${response.meta.responseSize} B` }}
-        </span>
+        <div
+          :class="statusCategory.className"
+          class="inline-flex flex-1 space-x-4"
+        >
+          <span v-if="response.statusCode">
+            <span class="text-secondary"> {{ t("response.status") }}: </span>
+            {{ `${response.statusCode}\xA0 • \xA0`
+            }}{{ getStatusCodeReasonPhrase(response.statusCode) }}
+          </span>
+          <span v-if="response.meta && response.meta.responseDuration">
+            <span class="text-secondary"> {{ t("response.time") }}: </span>
+            {{ `${response.meta.responseDuration} ms` }}
+          </span>
+          <span v-if="response.meta && response.meta.responseSize">
+            <span class="text-secondary"> {{ t("response.size") }}: </span>
+            {{ `${response.meta.responseSize} B` }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -128,6 +133,7 @@ import findStatusGroup from "~/helpers/findStatusGroup"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useI18n } from "~/helpers/utils/composables"
+import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 
 const t = useI18n()
 
@@ -142,18 +148,10 @@ const statusCategory = computed(() => {
     props.response.type === "script_fail" ||
     props.response.type === "fail"
   )
-    return ""
+    return {
+      name: "error",
+      className: "text-red-500",
+    }
   return findStatusGroup(props.response.statusCode)
 })
 </script>
-
-<style lang="scss" scoped>
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
-}
-</style>

@@ -206,6 +206,7 @@ export function initHistory() {
           historyRef.forEach((doc) => {
             const entry = doc.data()
             entry.id = doc.id
+            entry.updatedOn = doc.data().updatedOn.toDate()
             history.push(translateToNewRESTHistory(entry))
           })
 
@@ -227,6 +228,7 @@ export function initHistory() {
           historyRef.forEach((doc) => {
             const entry = doc.data()
             entry.id = doc.id
+            entry.updatedOn = doc.data().updatedOn.toDate()
             history.push(translateToNewGQLHistory(entry))
           })
 

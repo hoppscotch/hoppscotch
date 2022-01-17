@@ -1,7 +1,9 @@
-*,
-*::before,
-*::after {
+* {
   @apply backface-hidden;
+  @apply before:backface-hidden;
+  @apply after:backface-hidden;
+  @apply selection:bg-accentDark;
+  @apply selection:text-accentContrast;
 }
 
 :root {
@@ -37,11 +39,6 @@
   @apply hidden;
 }
 
-::selection {
-  @apply bg-accentDark;
-  @apply text-accentContrast;
-}
-
 input::placeholder,
 textarea::placeholder {
   @apply text-secondary;
@@ -64,10 +61,10 @@ body {
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
+  @apply text-body;
+  @apply leading-body;
 
   animation: fade 300ms forwards;
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -102,16 +99,18 @@ body {
 
 .material-icons {
   @apply flex-shrink-0;
+  @apply overflow-hidden;
 
-  font-size: var(--body-line-height) !important;
-  width: var(--body-line-height);
+  font-size: var(--line-height-body) !important;
+  width: var(--line-height-body);
 }
 
 .svg-icons {
   @apply flex-shrink-0;
+  @apply overflow-hidden;
 
-  height: var(--body-line-height);
-  width: var(--body-line-height);
+  height: var(--line-height-body);
+  width: var(--line-height-body);
 }
 
 a {
@@ -120,9 +119,8 @@ a {
   @apply no-underline;
   @apply outline-none;
   @apply transition;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
+  @apply text-body;
+  @apply leading-body;
 
   &.link {
     @apply items-center;
@@ -136,44 +134,43 @@ a {
   }
 }
 
-.tippy-popper {
-  .tooltip-theme {
-    @apply bg-tooltip;
-    @apply text-primary;
-    @apply font-semibold;
-    @apply py-1 px-2;
+.tooltip-theme {
+  @apply bg-tooltip;
+  @apply text-primary;
+  @apply font-semibold;
+  @apply py-1 px-2;
+  @apply rounded;
+  @apply truncate;
+  @apply shadow;
+  @apply leading-body;
+
+  font-size: 86%;
+
+  kbd {
+    @apply hidden;
+    @apply sm:inline-flex;
+    @apply font-sans;
+    @apply bg-gray-500;
+    @apply bg-opacity-45;
+    @apply text-primaryLight;
+    @apply rounded-sm;
+    @apply px-1;
+    @apply ml-1;
     @apply truncate;
-    @apply shadow;
-
-    font-size: 88%;
-    line-height: var(--body-line-height);
-
-    kbd {
-      @apply inline-flex;
-      @apply font-sans;
-      @apply bg-gray-500;
-      @apply bg-opacity-45;
-      @apply text-primaryLight;
-      @apply rounded-sm;
-      @apply px-1;
-      @apply ml-1;
-      @apply truncate;
-    }
   }
+}
 
-  .popover-theme {
-    @apply bg-popover;
-    @apply text-secondary;
-    @apply p-2;
-    @apply shadow-lg;
-    @apply focus:outline-none;
+.popover-theme {
+  @apply bg-popover;
+  @apply text-secondary;
+  @apply p-2;
+  @apply shadow-lg;
+  @apply text-body;
+  @apply leading-body;
+  @apply focus:outline-none;
 
-    font-size: var(--body-font-size);
-    line-height: var(--body-line-height);
-
-    .tippy-roundarrow svg {
-      @apply fill-popover;
-    }
+  .tippy-roundarrow svg {
+    @apply fill-popover;
   }
 }
 
@@ -217,13 +214,12 @@ input,
 select,
 textarea,
 button {
-  @apply focus:outline-none;
   @apply truncate;
   @apply transition;
+  @apply text-body;
+  @apply leading-body;
+  @apply focus:outline-none;
   @apply disabled:cursor-not-allowed;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
 }
 
 .input[type="file"],
@@ -233,7 +229,6 @@ button {
 }
 
 .floating-input ~ label {
-  @apply font-medium;
   @apply py-0.5;
   @apply px-2;
   @apply m-2;
@@ -249,7 +244,7 @@ button {
   @apply transform;
   @apply origin-top-left;
   @apply scale-75;
-  @apply -translate-y-5;
+  @apply -translate-y-4;
   @apply translate-x-1;
 }
 
@@ -324,9 +319,8 @@ pre.ace_editor {
       @apply shadow;
       @apply font-medium;
       @apply transition;
-
-      font-size: var(--body-font-size);
-      line-height: var(--body-line-height);
+      @apply text-body;
+      @apply leading-body;
 
       .action {
         @apply bg-gray-500;
@@ -338,12 +332,11 @@ pre.ace_editor {
         @apply rounded;
         @apply text-current;
         @apply normal-case;
+        @apply font-medium;
+        @apply text-body;
+        @apply leading-body;
         @apply hover:bg-opacity-20;
         @apply hover:no-underline;
-        @apply font-medium;
-
-        font-size: var(--body-font-size);
-        line-height: var(--body-line-height);
       }
     }
 
@@ -449,6 +442,25 @@ pre.ace_editor {
   .cm-activeLineGutter {
     @apply bg-primaryDark;
   }
+}
+
+.shortcut-key {
+  @apply inline-flex;
+  @apply font-sans;
+  @apply text-tiny;
+  @apply bg-divider;
+  @apply rounded;
+  @apply ml-2;
+  @apply px-1;
+  @apply transition;
+}
+
+.capitalize-first {
+  @apply first-letter:capitalize;
+}
+
+details summary::-webkit-details-marker {
+  @apply hidden;
 }
 
 @media (max-width: 767px) {

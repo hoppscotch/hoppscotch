@@ -13,84 +13,209 @@
           :size="COLUMN_LAYOUT ? 45 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <AppSection label="request">
-            <div class="bg-primary flex p-4 top-0 z-10 sticky">
-              <div class="space-x-2 flex-1 inline-flex">
-                <div class="flex flex-1">
-                  <label for="client-version">
-                    <tippy
-                      ref="versionOptions"
-                      interactive
-                      trigger="click"
-                      theme="popover"
-                      arrow
-                    >
-                      <template #trigger>
-                        <span class="select-wrapper">
-                          <input
-                            id="client-version"
-                            v-tippy="{ theme: 'tooltip' }"
-                            title="socket.io-client version"
-                            class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
-                            :value="`Client ${clientVersion}`"
-                            readonly
-                            :disabled="connectionState"
-                          />
-                        </span>
-                      </template>
-                      <SmartItem
-                        v-for="(_, version) in socketIoClients"
-                        :key="`client-${version}`"
-                        :label="`Client ${version}`"
-                        @click.native="onSelectVersion(version)"
-                      />
-                    </tippy>
-                  </label>
-                  <input
-                    id="socketio-url"
-                    v-model="url"
-                    type="url"
-                    autocomplete="off"
-                    spellcheck="false"
-                    :class="{ error: !urlValid }"
-                    class="bg-primaryLight border border-divider flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
-                    :placeholder="$t('socketio.url')"
-                    :disabled="connectionState"
-                    @keyup.enter="urlValid ? toggleConnection() : null"
-                  />
-                  <input
-                    id="socketio-path"
-                    v-model="path"
-                    class="bg-primaryLight border border-divider rounded-r flex flex-1 text-secondaryDark w-full py-2 px-4 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
-                    spellcheck="false"
-                    :disabled="connectionState"
-                    @keyup.enter="urlValid ? toggleConnection() : null"
-                  />
-                </div>
-                <ButtonPrimary
-                  id="connect"
-                  :disabled="!urlValid"
-                  name="connect"
-                  class="w-32"
-                  :label="
-                    !connectionState
-                      ? $t('action.connect')
-                      : $t('action.disconnect')
+          <div class="sticky top-0 z-10 flex p-4 bg-primary">
+            <div class="inline-flex flex-1 space-x-2">
+              <div class="flex flex-1">
+                <label for="client-version">
+                  <tippy
+                    ref="versionOptions"
+                    interactive
+                    trigger="click"
+                    theme="popover"
+                    arrow
+                  >
+                    <template #trigger>
+                      <span class="select-wrapper">
+                        <input
+                          id="client-version"
+                          v-tippy="{ theme: 'tooltip' }"
+                          title="socket.io-client version"
+                          class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                          :value="`Client ${clientVersion}`"
+                          readonly
+                          :disabled="connectionState"
+                        />
+                      </span>
+                    </template>
+                    <SmartItem
+                      v-for="(_, version) in socketIoClients"
+                      :key="`client-${version}`"
+                      :label="`Client ${version}`"
+                      @click.native="onSelectVersion(version)"
+                    />
+                  </tippy>
+                </label>
+                <input
+                  id="socketio-url"
+                  v-model="url"
+                  type="url"
+                  autocomplete="off"
+                  spellcheck="false"
+                  :class="{ error: !urlValid }"
+                  class="flex flex-1 w-full px-4 py-2 border bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  :placeholder="$t('socketio.url')"
+                  :disabled="connectionState"
+                  @keyup.enter="urlValid ? toggleConnection() : null"
+                />
+                <input
+                  id="socketio-path"
+                  v-model="path"
+                  class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  spellcheck="false"
+                  :disabled="connectionState"
+                  @keyup.enter="urlValid ? toggleConnection() : null"
+                />
+              </div>
+              <ButtonPrimary
+                id="connect"
+                :disabled="!urlValid"
+                name="connect"
+                class="w-32"
+                :label="
+                  !connectionState
+                    ? $t('action.connect')
+                    : $t('action.disconnect')
+                "
+                :loading="connectingState"
+                @click.native="toggleConnection"
+              />
+            </div>
+          </div>
+          <div
+            class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+          >
+            <span class="flex items-center">
+              <label class="font-semibold text-secondaryLight">
+                {{ $t("authorization.type") }}
+              </label>
+              <tippy
+                ref="authTypeOptions"
+                interactive
+                trigger="click"
+                theme="popover"
+                arrow
+              >
+                <template #trigger>
+                  <span class="select-wrapper">
+                    <ButtonSecondary
+                      class="pr-8 ml-2 rounded-none"
+                      :label="authType"
+                    />
+                  </span>
+                </template>
+                <SmartItem
+                  label="None"
+                  :icon="
+                    authType === 'None'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
                   "
-                  :loading="connectingState"
-                  @click.native="toggleConnection"
+                  :active="authType === 'None'"
+                  @click.native="
+                    () => {
+                      authType = 'None'
+                      authTypeOptions.tippy().hide()
+                    }
+                  "
+                />
+                <SmartItem
+                  label="Bearer Token"
+                  :icon="
+                    authType === 'Bearer'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
+                  "
+                  :active="authType === 'Bearer'"
+                  @click.native="
+                    () => {
+                      authType = 'Bearer'
+                      authTypeOptions.tippy().hide()
+                    }
+                  "
+                />
+              </tippy>
+            </span>
+            <div class="flex">
+              <SmartCheckbox
+                :on="authActive"
+                class="px-2"
+                @change="authActive = !authActive"
+              >
+                {{ $t("state.enabled") }}
+              </SmartCheckbox>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                to="https://docs.hoppscotch.io/features/authorization"
+                blank
+                :title="$t('app.wiki')"
+                svg="help-circle"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('action.clear')"
+                svg="trash-2"
+                @click.native="clearContent"
+              />
+            </div>
+          </div>
+          <div
+            v-if="authType === 'None'"
+            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          >
+            <img
+              :src="`/images/states/${$colorMode.value}/login.svg`"
+              loading="lazy"
+              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+              :alt="$t('empty.authorization')"
+            />
+            <span class="pb-4 text-center">
+              This SocketIO connection does not use any authentication.
+            </span>
+            <ButtonSecondary
+              outline
+              :label="$t('app.documentation')"
+              to="https://docs.hoppscotch.io/features/authorization"
+              blank
+              svg="external-link"
+              reverse
+              class="mb-4"
+            />
+          </div>
+          <div
+            v-if="authType === 'Bearer'"
+            class="flex border-b border-dividerLight"
+          >
+            <div class="w-2/3 border-r border-dividerLight">
+              <div class="flex border-b border-dividerLight">
+                <SmartEnvInput
+                  v-model="bearerToken"
+                  placeholder="Token"
+                  styles="bg-transparent flex flex-1 py-1 px-4"
                 />
               </div>
             </div>
-          </AppSection>
+            <div
+              class="sticky h-full p-4 overflow-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
+            >
+              <div class="p-2">
+                <div class="pb-2 text-secondaryLight">
+                  {{ $t("helpers.authorization") }}
+                </div>
+                <SmartAnchor
+                  class="link"
+                  :label="`${$t('authorization.learn')} \xA0 →`"
+                  to="https://docs.hoppscotch.io/features/authorization"
+                  blank
+                />
+              </div>
+            </div>
+          </div>
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
           class="hide-scrollbar !overflow-auto"
         >
-          <AppSection label="response">
-            <RealtimeLog :title="$t('socketio.log')" :log="log" />
-          </AppSection>
+          <RealtimeLog :title="$t('socketio.log')" :log="log" />
         </Pane>
       </Splitpanes>
     </Pane>
@@ -100,80 +225,78 @@
       min-size="20"
       class="hide-scrollbar !overflow-auto"
     >
-      <AppSection label="messages">
-        <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label for="events" class="font-semibold text-secondaryLight">
-            {{ $t("socketio.events") }}
-          </label>
-        </div>
-        <div class="flex px-4">
-          <input
-            id="event_name"
-            v-model="communication.eventName"
-            class="input"
-            name="event_name"
-            :placeholder="$t('socketio.event_name')"
-            type="text"
-            autocomplete="off"
-            :disabled="!connectionState"
+      <div class="flex flex-col flex-1 p-4">
+        <label for="events" class="font-semibold text-secondaryLight">
+          {{ $t("socketio.events") }}
+        </label>
+      </div>
+      <div class="flex px-4">
+        <input
+          id="event_name"
+          v-model="communication.eventName"
+          class="input"
+          name="event_name"
+          :placeholder="$t('socketio.event_name')"
+          type="text"
+          autocomplete="off"
+          :disabled="!connectionState"
+        />
+      </div>
+      <div class="flex items-center justify-between flex-1 p-4">
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("socketio.communication") }}
+        </label>
+        <div class="flex">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('add.new')"
+            svg="plus"
+            @click.native="addCommunicationInput"
           />
         </div>
-        <div class="flex flex-1 p-4 items-center justify-between">
-          <label class="font-semibold text-secondaryLight">
-            {{ $t("socketio.communication") }}
-          </label>
-          <div class="flex">
+      </div>
+      <div class="flex flex-col px-4 pb-4 space-y-2">
+        <div
+          v-for="(input, index) of communication.inputs"
+          :key="`input-${index}`"
+        >
+          <div class="flex space-x-2">
+            <input
+              v-model="communication.inputs[index]"
+              class="input"
+              name="message"
+              :placeholder="$t('count.message', { count: index + 1 })"
+              type="text"
+              autocomplete="off"
+              :disabled="!connectionState"
+              @keyup.enter="connectionState ? sendMessage() : null"
+            />
             <ButtonSecondary
+              v-if="index + 1 !== communication.inputs.length"
               v-tippy="{ theme: 'tooltip' }"
-              :title="$t('add.new')"
-              svg="plus"
-              @click.native="addCommunicationInput"
+              :title="$t('action.remove')"
+              svg="trash"
+              color="red"
+              outline
+              @click.native="removeCommunicationInput({ index })"
+            />
+            <ButtonPrimary
+              v-if="index + 1 === communication.inputs.length"
+              id="send"
+              name="send"
+              :disabled="!connectionState"
+              :label="$t('action.send')"
+              @click.native="sendMessage"
             />
           </div>
         </div>
-        <div class="flex flex-col space-y-2 px-4 pb-4">
-          <div
-            v-for="(input, index) of communication.inputs"
-            :key="`input-${index}`"
-          >
-            <div class="flex space-x-2">
-              <input
-                v-model="communication.inputs[index]"
-                class="input"
-                name="message"
-                :placeholder="$t('count.message', { count: index + 1 })"
-                type="text"
-                autocomplete="off"
-                :disabled="!connectionState"
-                @keyup.enter="connectionState ? sendMessage() : null"
-              />
-              <ButtonSecondary
-                v-if="index + 1 !== communication.inputs.length"
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
-                svg="trash"
-                color="red"
-                outline
-                @click.native="removeCommunicationInput({ index })"
-              />
-              <ButtonPrimary
-                v-if="index + 1 === communication.inputs.length"
-                id="send"
-                name="send"
-                :disabled="!connectionState"
-                :label="$t('action.send')"
-                @click.native="sendMessage"
-              />
-            </div>
-          </div>
-        </div>
-      </AppSection>
+      </div>
     </Pane>
   </Splitpanes>
 </template>
 
 <script>
-import { defineComponent } from "@nuxtjs/composition-api"
+import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 // All Socket.IO client version imports
@@ -235,6 +358,7 @@ export default defineComponent({
       ),
       io: useStream(SIOSocket$, null, setSIOSocket),
       log: useStream(SIOLog$, [], setSIOLog),
+      authTypeOptions: ref(null),
     }
   },
   data() {
@@ -244,6 +368,9 @@ export default defineComponent({
         eventName: "",
         inputs: [""],
       },
+      authType: "None",
+      bearerToken: "",
+      authActive: true,
     }
   },
   computed: {
@@ -303,7 +430,17 @@ export default defineComponent({
           this.path = "/socket.io"
         }
         const Client = socketIoClients[this.clientVersion]
-        this.io = new Client(this.url, { path: this.path })
+        if (this.authActive && this.authType === "Bearer") {
+          this.io = new Client(this.url, {
+            path: this.path,
+            auth: {
+              token: this.bearerToken,
+            },
+          })
+        } else {
+          this.io = new Client(this.url, { path: this.path })
+        }
+
         // Add ability to listen to all events
         wildcard(Client.Manager)(this.io)
         this.io.on("connect", () => {

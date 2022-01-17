@@ -6,7 +6,7 @@
       <span v-else-if="isEnum" class="text-accent">enum </span>
       {{ gqlType.name }}
     </div>
-    <div v-if="gqlType.description" class="text-secondaryLight py-2 type-desc">
+    <div v-if="gqlType.description" class="py-2 text-secondaryLight type-desc">
       {{ gqlType.description }}
     </div>
     <div v-if="interfaces.length > 0">
@@ -18,7 +18,7 @@
         <GraphqlTypeLink
           :gql-type="gqlInterface"
           :jump-type-callback="jumpTypeCallback"
-          class="border-divider border-l-2 pl-4"
+          class="pl-4 border-l-2 border-divider"
         />
       </div>
     </div>
@@ -29,7 +29,7 @@
         :key="`child-${index}`"
         :gql-type="child"
         :jump-type-callback="jumpTypeCallback"
-        class="border-divider border-l-2 pl-4"
+        class="pl-4 border-l-2 border-divider"
       />
     </div>
     <div v-if="gqlType.getFields">
@@ -37,7 +37,7 @@
       <GraphqlField
         v-for="(field, index) in gqlType.getFields()"
         :key="`field-${index}`"
-        class="border-divider border-l-2 pl-4"
+        class="pl-4 border-l-2 border-divider"
         :gql-field="field"
         :is-highlighted="isFieldHighlighted({ field })"
         :jump-type-callback="jumpTypeCallback"
@@ -48,7 +48,7 @@
       <div
         v-for="(value, index) in gqlType.getValues()"
         :key="`value-${index}`"
-        class="border-divider border-l-2 pl-4"
+        class="pl-4 border-l-2 border-divider"
         v-text="value.name"
       ></div>
     </div>

@@ -153,6 +153,7 @@ importers:
       paho-mqtt: ^1.1.0
       postman-collection: ^4.1.1
       prettier: ^2.5.1
+      qs: ^6.10.3
       raw-loader: ^4.0.2
       rxjs: ^7.5.2
       sass: ^1.47.0
@@ -245,6 +246,7 @@ importers:
       openapi-types: 10.0.0
       paho-mqtt: 1.1.0
       postman-collection: 4.1.1
+      qs: 6.10.3
       rxjs: 7.5.2
       socket.io-client-v2: /socket.io-client/2.4.0
       socket.io-client-v3: /socket.io-client/3.1.3
@@ -3764,11 +3766,11 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27376999.6abf75d:
-    resolution: {integrity: sha512-9VdJR9s9TXHd+lRRZnZRV+5GwkWKYomIS5NONMVgBDFjxotvqkVsCbpHvUja2I0NlcAxKnFePgqeDC20CBrgHQ==}
+  /@nuxt/kit-edge/3.0.0-27379437.ed2d26f:
+    resolution: {integrity: sha512-6rGJDifwA4J/9+sN0yVKU3CLsQmK/fRQUvQLqq830wBI8ORPhNu4gXULoT0cdWPzKcera8e8Hz9iqL9aCjFNBw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27376999.6abf75d
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27379437.ed2d26f
       consola: 2.15.3
       defu: 5.0.1
       dotenv: 14.2.0
@@ -3806,8 +3808,8 @@ packages:
       node-fetch: 2.6.6
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27376999.6abf75d:
-    resolution: {integrity: sha512-BdoTPuXoHT3aqQL37g/SPk1jOFO4pHbEClsj/5X6cLKwktTcqSbMkwZJF0tTyhvAwiOSFdlTvI34juPhvLNzPw==}
+  /@nuxt/schema-edge/3.0.0-27379437.ed2d26f:
+    resolution: {integrity: sha512-2KJ5/cQasFv0nrkwc2+mi9oGRFkU73luRQGA0SFAONsPTa+x+4C2Qdnav7F9KNnl95OCsGgZMblQUyCTLVdHxA==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       create-require: 1.1.1
@@ -8617,7 +8619,7 @@ packages:
       is-shared-array-buffer: 1.0.1
       is-string: 1.0.7
       is-weakref: 1.0.1
-      object-inspect: 1.11.0
+      object-inspect: 1.12.0
       object-keys: 1.1.1
       object.assign: 4.1.2
       string.prototype.trimend: 1.0.4
@@ -13547,7 +13549,7 @@ packages:
   /nuxt-windicss/2.2.2:
     resolution: {integrity: sha512-4tvzk9d2TUFxloty187D+wmO8ZNAvpSmRJ5HQO3/AvZdMMhAl4gomXR9fCgFKQe7Fxcj9nIKNInOx8TWowjiqA==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27376999.6abf75d
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27379437.ed2d26f
       '@windicss/plugin-utils': 1.6.1
       consola: 2.15.3
       defu: 5.0.0
@@ -13611,12 +13613,8 @@ packages:
       define-property: 0.2.5
       kind-of: 3.2.2
 
-  /object-inspect/1.11.0:
-    resolution: {integrity: sha512-jp7ikS6Sd3GxQfZJPyH3cjcbJF6GZPClgdV+EFygjFLQ5FmW/dRUnTd9PQ9k0JhoNDabWFbpF1yCdSWCC6gexg==}
-
   /object-inspect/1.12.0:
     resolution: {integrity: sha512-Ho2z80bVIvJloH+YzRmpZVQe87+qASmBUKZDWgx9cu+KDrX2ZDH/3tMy+gXbZETVGs2M8YdxObOh7XAtim9Y0g==}
-    dev: false
 
   /object-keys/1.1.1:
     resolution: {integrity: sha512-NuAESUOUMrlIXOfHKzD6bpPu3tYt3xvjNdRIQ+FeT0lNb4K8WR70CaDxhuNguS2XG+GjkyMwOzsN5ZktImfhLA==}
@@ -13971,7 +13969,7 @@ packages:
     dependencies:
       is-ssh: 1.3.3
       protocols: 1.4.8
-      qs: 6.10.1
+      qs: 6.10.3
       query-string: 6.14.1
     dev: false
 
@@ -15209,8 +15207,8 @@ packages:
     resolution: {integrity: sha1-fjL3W0E4EpHQRhHxvxQQmsAGUdc=}
     engines: {node: '>=0.6.0', teleport: '>=0.2.0'}
 
-  /qs/6.10.1:
-    resolution: {integrity: sha512-M528Hph6wsSVOBiYUnGf+K/7w0hNshs/duGsNXPUCLH5XAqjEtiPGwNONLV0tBH8NoGb0mvD5JubnUTrujKDTg==}
+  /qs/6.10.3:
+    resolution: {integrity: sha512-wr7M2E0OFRfIfJZjKGieI8lBKb7fRCH4Fv5KNPEs7gJ8jadvotdsS08PzOKR7opXhZ/Xkjtt3WF9g38drmyRqQ==}
     engines: {node: '>=0.6'}
     dependencies:
       side-channel: 1.0.4
@@ -16094,7 +16092,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       get-intrinsic: 1.1.1
-      object-inspect: 1.11.0
+      object-inspect: 1.12.0
 
   /sigmund/1.0.1:
     resolution: {integrity: sha1-P/IfGYytIXX587eBhT/ZTQ0ZtZA=}

@@ -122,8 +122,9 @@ const axiosWithoutProxy: NetworkStrategy = (req) =>
   )
 
 const axiosStrategy: NetworkStrategy = (req) =>
-  settingsStore.value.PROXY_ENABLED
-    ? axiosWithProxy(req)
-    : axiosWithoutProxy(req)
+  pipe(
+    req,
+    settingsStore.value.PROXY_ENABLED ? axiosWithProxy : axiosWithoutProxy
+  )
 
 export default axiosStrategy

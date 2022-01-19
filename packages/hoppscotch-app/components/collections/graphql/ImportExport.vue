@@ -59,10 +59,8 @@
     <template #body>
       <div class="flex flex-col space-y-2 px-2">
         <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.preserve_current')"
           svg="folder-plus"
-          :label="t('import.json')"
+          :label="t('import.from_json')"
           @click.native="openDialogChooseFileToImportFrom"
         />
         <input
@@ -71,20 +69,6 @@
           type="file"
           accept="application/json"
           @change="importFromJSON"
-        />
-        <SmartItem
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.replace_current')"
-          svg="file"
-          :label="t('action.replace_json')"
-          @click.native="openDialogChooseFileToReplaceWith"
-        />
-        <input
-          ref="inputChooseFileToReplaceWith"
-          class="input"
-          type="file"
-          accept="application/json"
-          @change="replaceWithJSON"
         />
         <hr />
         <SmartItem
@@ -130,7 +114,6 @@ const currentUser = useReadonlyStream(currentUser$, null)
 
 // Template refs
 const options = ref<any>()
-const inputChooseFileToReplaceWith = ref<HTMLInputElement>()
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const collectionJson = computed(() => {
@@ -211,54 +194,9 @@ const hideModal = () => {
   emit("hide-modal")
 }
 
-const openDialogChooseFileToReplaceWith = () => {
-  if (inputChooseFileToReplaceWith.value)
-    inputChooseFileToReplaceWith.value.click()
-}
-
 const openDialogChooseFileToImportFrom = () => {
   if (inputChooseFileToImportFrom.value)
     inputChooseFileToImportFrom.value.click()
-}
-
-const replaceWithJSON = () => {
-  if (!inputChooseFileToReplaceWith.value) return
-
-  if (
-    !inputChooseFileToReplaceWith.value.files ||
-    inputChooseFileToReplaceWith.value.files.length === 0
-  ) {
-    toast.show(t("action.choose_file").toString())
-    return
-  }
-
-  const reader = new FileReader()
-
-  reader.onload = ({ target }) => {
-    const content = target!.result as string | null
-
-    if (!content) {
-      toast.show(t("action.choose_file").toString())
-      return
-    }
-
-    const collections = JSON.parse(content)
-
-    // TODO: File validation
-    if (collections[0]) {
-      const [name, folders, requests] = Object.keys(collections[0])
-      if (name === "name" && folders === "folders" && requests === "requests") {
-        // Do nothing
-      }
-    } else {
-      failedImport()
-    }
-    setGraphqlCollections(collections)
-    fileImported()
-  }
-
-  reader.readAsText(inputChooseFileToReplaceWith.value.files[0])
-  inputChooseFileToReplaceWith.value.value = ""
 }
 
 const importFromJSON = () => {

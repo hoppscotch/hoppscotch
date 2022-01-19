@@ -33,10 +33,7 @@
     "turn_off": "Искључити",
     "turn_on": "Укључити",
     "undo": "Поништи",
-    "yes": "да",
-    "preserve_current": "Очувајте струју",
-    "replace_current": "Замените струју",
-    "replace_json": "Замените са ЈСОН"
+    "yes": "да"
   },
   "add": {
     "new": "Додај нови",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Унесите Гист УРЛ",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Увоз",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Увези из ЈСОН -а"
+    "title": "Увоз"
   },
   "layout": {
     "column": "Vertical layout",

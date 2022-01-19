@@ -33,10 +33,7 @@
     "turn_off": "Sluk",
     "turn_on": "Tænde for",
     "undo": "Fortryd",
-    "yes": "Ja",
-    "preserve_current": "Bevar strøm",
-    "replace_current": "Udskift strøm",
-    "replace_json": "Udskift med JSON"
+    "yes": "Ja"
   },
   "add": {
     "new": "Tilføj ny",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Indtast Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Importere",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Import fra JSON"
+    "title": "Importere"
   },
   "layout": {
     "column": "Vertical layout",

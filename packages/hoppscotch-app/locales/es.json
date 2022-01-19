@@ -33,10 +33,7 @@
     "turn_off": "Desactivar",
     "turn_on": "Activar",
     "undo": "Deshacer",
-    "yes": "Sí",
-    "preserve_current": "Mantener actual",
-    "replace_current": "Reemplazar actual",
-    "replace_json": "Reemplazar JSON"
+    "yes": "Sí"
   },
   "add": {
     "new": "Agregar nuevo",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Ingrese la URL de Gist",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Importar",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Importar desde JSON"
+    "title": "Importar"
   },
   "layout": {
     "column": "Layout vertical",

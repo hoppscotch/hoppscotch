@@ -38,7 +38,7 @@
         <label for="payload">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('import.json')"
+            :title="t('import.title')"
             svg="file-plus"
             @click.native="$refs.payload.click()"
           />

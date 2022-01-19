@@ -33,10 +33,7 @@
     "turn_off": "Tắt",
     "turn_on": "Bật",
     "undo": "Hoàn tác",
-    "yes": "đúng",
-    "preserve_current": "Bảo tồn hiện tại",
-    "replace_current": "Thay thế hiện tại",
-    "replace_json": "Thay thế bằng JSON"
+    "yes": "đúng"
   },
   "add": {
     "new": "Thêm mới",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Nhập URL Gist",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Nhập khẩu",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Nhập từ JSON"
+    "title": "Nhập khẩu"
   },
   "layout": {
     "column": "Vertical layout",

@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+// * The entry point of the CLI
+
+require = require("esm")(module);
+require("../dist").run(process.argv);

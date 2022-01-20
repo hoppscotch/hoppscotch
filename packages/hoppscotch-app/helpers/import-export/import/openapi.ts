@@ -15,6 +15,8 @@ import {
   HoppRESTRequest,
   knownContentTypes,
   makeRESTRequest,
+  HoppCollection,
+  makeCollection,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -24,7 +26,6 @@ import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import { Collection, makeCollection } from "~/newstore/collections"
 
 const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -558,7 +559,7 @@ const convertPathToHoppReqs = (
 
 const convertOpenApiDocToHopp = (
   doc: OpenAPI.Document
-): TE.TaskEither<never, Collection<HoppRESTRequest>[]> => {
+): TE.TaskEither<never, HoppCollection<HoppRESTRequest>[]> => {
   const name = doc.info.title
 
   const paths = Object.entries(doc.paths ?? {})

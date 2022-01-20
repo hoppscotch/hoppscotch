@@ -34,8 +34,8 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { HoppGQLRequest } from "@hoppscotch/data"
-import { addGraphqlCollection, makeCollection } from "~/newstore/collections"
+import { HoppGQLRequest, makeCollection } from "@hoppscotch/data"
+import { addGraphqlCollection } from "~/newstore/collections"
 
 export default defineComponent({
   props: {

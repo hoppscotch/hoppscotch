@@ -1,6 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
-import { HoppRESTRequest } from "@hoppscotch/data"
-import { Collection } from "~/newstore/collections"
+import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 
 export type HoppExporter<T> = (content: T) => TE.TaskEither<string, string>
 
@@ -10,7 +9,7 @@ export type HoppExporterDefintion<T> = {
 }
 
 export const RESTCollectionExporters: HoppExporterDefintion<
-  Collection<HoppRESTRequest>
+  HoppCollection<HoppRESTRequest>
 >[] = [
   {
     name: "Hoppscotch REST Collection JSON",

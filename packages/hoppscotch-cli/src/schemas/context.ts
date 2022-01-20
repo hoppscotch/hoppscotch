@@ -1,5 +1,5 @@
 import { Collection } from "./collection";
-import { HoppRESTRequest } from "./types/hopp-rest-request";
+import { HoppRESTRequest } from "@hoppscotch/data";
 
 /**
  * * The CLI context object

@@ -1,7 +1,7 @@
 import {
   HoppRESTRequest,
   translateToNewRequest,
-} from "./types/hopp-rest-request";
+} from "@hoppscotch/data";
 
 export interface Collection<T extends HoppRESTRequest> {
   v: number;

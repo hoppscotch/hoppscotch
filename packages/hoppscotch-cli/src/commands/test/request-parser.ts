@@ -2,8 +2,8 @@ import axios, { AxiosPromise, AxiosRequestConfig, Method } from "axios";
 import chalk from "chalk";
 import { WritableStream } from "table";
 import { debugging } from "../../utils";
-
-import { Collection, HoppRESTRequest } from "../../schemas";
+import { HoppRESTRequest } from "@hoppscotch/data";
+import { Collection } from "../../schemas";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 const notSupported = (

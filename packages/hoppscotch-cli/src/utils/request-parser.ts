@@ -1,9 +1,15 @@
 import axios, { Method } from "axios";
 import chalk from "chalk";
 import { WritableStream } from "table";
+<<<<<<< HEAD:packages/hoppscotch-cli/src/utils/request-parser.ts
 import { debugging } from ".";
 import { responseTable, requestStack, RequestConfig } from "../interfaces";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
+=======
+import { debugging } from "../../utils";
+import { HoppRESTRequest } from "@hoppscotch/data";
+import { Collection } from "../../schemas";
+>>>>>>> 832bda56 (refactor: added hoppscotch-data package with minor updates):packages/hoppscotch-cli/src/commands/test/request-parser.ts
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 const notSupported = (

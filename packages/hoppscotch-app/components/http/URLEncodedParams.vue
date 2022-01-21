@@ -1,15 +1,15 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
-        {{ t("request.header_list") }}
+        {{ t("request.body") }}
       </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/features/headers"
+          to="https://docs.hoppscotch.io/features/body"
           blank
           :title="t('app.wiki')"
           svg="help-circle"
@@ -32,42 +32,37 @@
           :title="t('add.new')"
           svg="plus"
           :disabled="bulkMode"
-          @click.native="addHeader"
+          @click.native="addUrlEncodedParam"
         />
       </div>
     </div>
     <div v-if="bulkMode" ref="bulkEditor"></div>
     <div v-else>
       <div
-        v-for="(header, index) in workingUrlEncodedParams"
-        :key="`header-${index}`"
+        v-for="(param, index) in workingUrlEncodedParams"
+        :key="`param-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight"
       >
-        <SmartAutoComplete
-          :placeholder="`${t('count.header', { count: index + 1 })}`"
-          :source="commonHeaders"
-          :spellcheck="false"
-          :value="header.key"
-          autofocus
+        <SmartEnvInput
+          v-model="param.key"
+          :placeholder="`${t('count.parameter', { count: index + 1 })}`"
           styles="
             bg-transparent
             flex
             flex-1
             py-1
             px-4
-            truncate
           "
-          class="flex-1 !flex"
-          @input="
-            updateHeader(index, {
+          @change="
+            updateUrlEncodedParam(index, {
               key: $event,
-              value: header.value,
-              active: header.active,
+              value: param.value,
+              active: param.active,
             })
           "
         />
         <SmartEnvInput
-          v-model="header.value"
+          v-model="param.value"
           :placeholder="`${t('count.value', { count: index + 1 })}`"
           styles="
             bg-transparent
@@ -77,10 +72,10 @@
             px-4
           "
           @change="
-            updateHeader(index, {
-              key: header.key,
+            updateUrlEncodedParam(index, {
+              key: param.key,
               value: $event,
-              active: header.active,
+              active: param.active,
             })
           "
         />
@@ -88,25 +83,25 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="
-              header.hasOwnProperty('active')
-                ? header.active
+              param.hasOwnProperty('active')
+                ? param.active
                   ? t('action.turn_off')
                   : t('action.turn_on')
                 : t('action.turn_off')
             "
             :svg="
-              header.hasOwnProperty('active')
-                ? header.active
+              param.hasOwnProperty('active')
+                ? param.active
                   ? 'check-circle'
                   : 'circle'
                 : 'check-circle'
             "
             color="green"
             @click.native="
-              updateHeader(index, {
-                key: header.key,
-                value: header.value,
-                active: !header.active,
+              updateUrlEncodedParam(index, {
+                key: param.key,
+                value: param.value,
+                active: !param.active,
               })
             "
           />
@@ -117,7 +112,7 @@
             :title="t('action.remove')"
             svg="trash"
             color="red"
-            @click.native="deleteHeader(index)"
+            @click.native="deleteUrlEncodedParam(index)"
           />
         </span>
       </div>
@@ -129,17 +124,17 @@
           :src="`/images/states/${$colorMode.value}/add_category.svg`"
           loading="lazy"
           class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-          :alt="`${t('empty.headers')}`"
+          :alt="`${t('empty.body')}`"
         />
         <span class="pb-4 text-center">
-          {{ t("empty.headers") }}
+          {{ t("empty.body") }}
         </span>
         <ButtonSecondary
           filled
           :label="`${t('add.new')}`"
           svg="plus"
           class="mb-4"
-          @click.native="addHeader"
+          @click.native="addUrlEncodedParam"
         />
       </div>
     </div>
@@ -150,11 +145,11 @@
 import { Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
 import clone from "lodash/clone"
-import { HoppRESTHeader } from "@hoppscotch/data"
+import { HoppRESTReqBody } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
-import { commonHeaders } from "~/helpers/headers"
-import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
+import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
+import { RawKeyValueEntry } from "~/helpers/rawKeyValue"
 
 const t = useI18n()
 const toast = useToast()
@@ -175,13 +170,16 @@ useCodemirror(bulkEditor, bulkUrlEncodedParams, {
   environmentHighlights: true,
 })
 
-// The functional headers list (the headers actually in the system)
-const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<
-  HoppRESTHeader[]
->
+// The functional urlEncodedParams list (the urlEncodedParams actually in the system)
+const urlEncodedParams = pluckRef(
+  useRESTRequestBody() as Ref<
+    HoppRESTReqBody & { contentType: "application/x-www-form-urlencoded" }
+  >,
+  "body"
+)
 
-// The UI representation of the headers list (has the empty end header)
-const workingUrlEncodedParams = ref<HoppRESTHeader[]>([
+// The UI representation of the urlEncodedParams list (has the empty end urlEncodedParam)
+const workingUrlEncodedParams = ref<RawKeyValueEntry[]>([
   {
     key: "",
     value: "",
@@ -189,11 +187,11 @@ const workingUrlEncodedParams = ref<HoppRESTHeader[]>([
   },
 ])
 
-// Rule: Working Headers always have one empty header or the last element is always an empty header
-watch(workingUrlEncodedParams, (headersList) => {
+// Rule: Working urlEncodedParams always have one empty urlEncodedParam or the last element is always an empty urlEncodedParams
+watch(workingUrlEncodedParams, (urlEncodedParamList) => {
   if (
-    headersList.length > 0 &&
-    headersList[headersList.length - 1].key !== ""
+    urlEncodedParamList.length > 0 &&
+    urlEncodedParamList[urlEncodedParamList.length - 1].key !== ""
   ) {
     workingUrlEncodedParams.value.push({
       key: "",
@@ -203,29 +201,31 @@ watch(workingUrlEncodedParams, (headersList) => {
   }
 })
 
-// Sync logic between headers and working headers
+// Sync logic between urlEncodedParams and working urlEncodedParams
 watch(
-  headers,
-  (newHeadersList) => {
-    // Sync should overwrite working headers
+  urlEncodedParams,
+  (newurlEncodedParamList) => {
+    // Sync should overwrite working urlEncodedParams
     const filteredWorkingUrlEncodedParams =
       workingUrlEncodedParams.value.filter((e) => e.key !== "")
 
-    if (!isEqual(newHeadersList, filteredWorkingUrlEncodedParams)) {
-      workingUrlEncodedParams.value = newHeadersList
+    if (!isEqual(newurlEncodedParamList, filteredWorkingUrlEncodedParams)) {
+      workingUrlEncodedParams.value = newurlEncodedParamList
     }
   },
   { immediate: true }
 )
 
 watch(workingUrlEncodedParams, (newWorkingUrlEncodedParams) => {
-  const fixedHeaders = newWorkingUrlEncodedParams.filter((e) => e.key !== "")
-  if (!isEqual(headers.value, fixedHeaders)) {
-    headers.value = fixedHeaders
+  const fixedUrlEncodedParams = newWorkingUrlEncodedParams.filter(
+    (e) => e.key !== ""
+  )
+  if (!isEqual(urlEncodedParams.value, fixedUrlEncodedParams)) {
+    urlEncodedParams.value = fixedUrlEncodedParams
   }
 })
 
-// Bulk Editor Syncing with Working Headers
+// Bulk Editor Syncing with Working urlEncodedParams
 watch(bulkUrlEncodedParams, () => {
   try {
     const transformation = bulkUrlEncodedParams.value
@@ -237,11 +237,11 @@ watch(bulkUrlEncodedParams, () => {
         active: !item.trim().startsWith("#"),
       }))
 
-    const filteredHeaders = workingUrlEncodedParams.value.filter(
+    const filteredUrlEncodedParams = workingUrlEncodedParams.value.filter(
       (x) => x.key !== ""
     )
 
-    if (!isEqual(filteredHeaders, transformation)) {
+    if (!isEqual(filteredUrlEncodedParams, transformation)) {
       workingUrlEncodedParams.value = transformation
     }
   } catch (e) {
@@ -250,7 +250,7 @@ watch(bulkUrlEncodedParams, () => {
   }
 })
 
-watch(workingUrlEncodedParams, (newHeadersList) => {
+watch(workingUrlEncodedParams, (newurlEncodedParamList) => {
   // If we are in bulk mode, don't apply direct changes
   if (bulkMode.value) return
 
@@ -263,12 +263,14 @@ watch(workingUrlEncodedParams, (newHeadersList) => {
         active: !item.trim().startsWith("#"),
       }))
 
-    const filteredHeaders = newHeadersList.filter((x) => x.key !== "")
+    const filteredUrlEncodedParams = newurlEncodedParamList.filter(
+      (x) => x.key !== ""
+    )
 
-    if (!isEqual(currentBulkUrlEncodedParams, filteredHeaders)) {
-      bulkUrlEncodedParams.value = filteredHeaders
-        .map((header) => {
-          return `${header.active ? "" : "#"}${header.key}: ${header.value}`
+    if (!isEqual(currentBulkUrlEncodedParams, filteredUrlEncodedParams)) {
+      bulkUrlEncodedParams.value = filteredUrlEncodedParams
+        .map((param) => {
+          return `${param.active ? "" : "#"}${param.key}: ${param.value}`
         })
         .join("\n")
     }
@@ -278,7 +280,8 @@ watch(workingUrlEncodedParams, (newHeadersList) => {
   }
 })
 
-const addHeader = () => {
+const addUrlEncodedParam = () => {
+  debugger
   workingUrlEncodedParams.value.push({
     key: "",
     value: "",
@@ -286,19 +289,19 @@ const addHeader = () => {
   })
 }
 
-const updateHeader = (index: number, header: HoppRESTHeader) => {
-  workingUrlEncodedParams.value = workingUrlEncodedParams.value.map((h, i) =>
-    i === index ? header : h
+const updateUrlEncodedParam = (index: number, param: RawKeyValueEntry) => {
+  workingUrlEncodedParams.value = workingUrlEncodedParams.value.map((p, i) =>
+    i === index ? param : p
   )
 }
 
-const deleteHeader = (index: number) => {
-  const headersBeforeDeletion = clone(workingUrlEncodedParams.value)
+const deleteUrlEncodedParam = (index: number) => {
+  const urlEncodedParamsBeforeDeletion = clone(workingUrlEncodedParams.value)
 
   if (
     !(
-      headersBeforeDeletion.length > 0 &&
-      index === headersBeforeDeletion.length - 1
+      urlEncodedParamsBeforeDeletion.length > 0 &&
+      index === urlEncodedParamsBeforeDeletion.length - 1
     )
   ) {
     if (deletionToast.value) {
@@ -311,7 +314,7 @@ const deleteHeader = (index: number) => {
         {
           text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
-            workingUrlEncodedParams.value = headersBeforeDeletion
+            workingUrlEncodedParams.value = urlEncodedParamsBeforeDeletion
             toastObject.goAway(0)
             deletionToast.value = null
           },
@@ -328,7 +331,7 @@ const deleteHeader = (index: number) => {
 }
 
 const clearContent = () => {
-  // set headers list to the initial state
+  // set urlEncodedParams list to the initial state
   workingUrlEncodedParams.value = [
     {
       key: "",

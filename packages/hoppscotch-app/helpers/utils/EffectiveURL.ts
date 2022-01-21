@@ -1,7 +1,6 @@
-import * as RA from "fp-ts/ReadonlyArray"
-import * as S from "fp-ts/string"
+import * as A from "fp-ts/Array"
 import qs from "qs"
-import { pipe, flow } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 import {
@@ -11,6 +10,7 @@ import {
 } from "@hoppscotch/data"
 import { parseTemplateString, parseBodyEnvVariables } from "../templating"
 import { tupleToRecord } from "../functional/record"
+import { parseRawKeyValueEntries } from "../rawKeyValue"
 import { Environment, getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -66,18 +66,15 @@ function getFinalBodyFromRequest(
   if (request.body.contentType === "application/x-www-form-urlencoded") {
     return pipe(
       request.body.body,
-      S.split("\n"),
-      RA.map(
-        flow(
-          // Define how each lines are parsed
+      parseRawKeyValueEntries,
 
-          S.split(":"), // Split by ":"
-          RA.map(S.trim), // Remove trailing spaces in key/value begins and ends
-          ([key, value]) => [key, value ?? ""] as [string, string] // Add a default empty by default
-        )
-      ),
-      RA.toArray,
-      tupleToRecord, // Convert the tuple to a record
+      // Filter out active
+      A.filter((x) => x.active),
+      // Convert to tuple
+      A.map(({ key, value }) => [key, value] as [string, string]),
+      // Tuple to Record object
+      tupleToRecord,
+      // Stringify
       qs.stringify
     )
   }

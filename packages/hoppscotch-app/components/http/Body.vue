@@ -50,6 +50,9 @@
       </span>
     </div>
     <HttpBodyParameters v-if="contentType === 'multipart/form-data'" />
+    <HttpURLEncodedParams
+      v-if="contentType === 'application/x-www-form-urlencoded'"
+    />
     <HttpRawBody v-else-if="contentType !== null" :content-type="contentType" />
     <div
       v-if="contentType == null"

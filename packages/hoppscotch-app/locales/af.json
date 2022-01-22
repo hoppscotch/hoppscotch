@@ -33,10 +33,7 @@
     "turn_off": "Skakel af",
     "turn_on": "Sit aan",
     "undo": "Ontdoen",
-    "yes": "Ja",
-    "preserve_current": "Bewaar stroom",
-    "replace_current": "Vervang stroom",
-    "replace_json": "Vervang deur JSON"
+    "yes": "Ja"
   },
   "add": {
     "new": "Voeg nuwe",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Voer Gist URL in",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Invoer",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Invoer vanaf JSON"
+    "title": "Invoer"
   },
   "layout": {
     "column": "Vertical layout",

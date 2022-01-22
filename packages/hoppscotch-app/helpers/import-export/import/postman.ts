@@ -14,6 +14,8 @@ import {
   HoppRESTReqBody,
   HoppRESTRequest,
   makeRESTRequest,
+  HoppCollection,
+  makeCollection,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -22,7 +24,6 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import { Collection, makeCollection } from "~/newstore/collections"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -226,7 +227,7 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
   })
 }
 
-const getHoppFolder = (ig: ItemGroup<Item>): Collection<HoppRESTRequest> =>
+const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection<HoppRESTRequest> =>
   makeCollection({
     name: ig.name,
     folders: pipe(

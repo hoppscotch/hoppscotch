@@ -8,6 +8,8 @@ import { pipe } from "fp-ts/function"
 import {
   safelyExtractRESTRequest,
   translateToNewRequest,
+  translateToNewRESTCollection,
+  translateToNewGQLCollection,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 import {
@@ -31,8 +33,6 @@ import {
   graphqlCollectionStore,
   setGraphqlCollections,
   setRESTCollections,
-  translateToNewRESTCollection,
-  translateToNewGQLCollection,
 } from "./collections"
 import {
   replaceEnvironments,

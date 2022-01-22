@@ -3,13 +3,14 @@ import * as TE from "fp-ts/TaskEither"
 import * as TO from "fp-ts/TaskOption"
 import * as O from "fp-ts/Option"
 import axios from "axios"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import { Collection } from "~/newstore/collections"
 
 // TODO: Add validation to output
-const fetchGist = (url: string): TO.TaskOption<Collection<HoppRESTRequest>> =>
+const fetchGist = (
+  url: string
+): TO.TaskOption<HoppCollection<HoppRESTRequest>> =>
   pipe(
     TO.tryCatch(() =>
       axios.get(`https://api.github.com/gists/${url.split("/").pop()}`, {

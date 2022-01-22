@@ -5,14 +5,16 @@ import {
   onSnapshot,
   setDoc,
 } from "firebase/firestore"
+import {
+  translateToNewRESTCollection,
+  translateToNewGQLCollection,
+} from "@hoppscotch/data"
 import { currentUser$ } from "./auth"
 import {
   restCollections$,
   graphqlCollections$,
   setRESTCollections,
   setGraphqlCollections,
-  translateToNewRESTCollection,
-  translateToNewGQLCollection,
 } from "~/newstore/collections"
 import { settingsStore } from "~/newstore/settings"
 

@@ -8,6 +8,8 @@ import {
   HoppRESTRequest,
   knownContentTypes,
   makeRESTRequest,
+  HoppCollection,
+  makeCollection,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import * as S from "fp-ts/string"
@@ -15,7 +17,6 @@ import * as TO from "fp-ts/TaskOption"
 import * as TE from "fp-ts/TaskEither"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import { Collection, makeCollection } from "~/newstore/collections"
 
 // TODO: Insomnia allows custom prefixes for Bearer token auth, Hoppscotch doesn't. We just ignore the prefix for now
 
@@ -194,7 +195,7 @@ const getHoppRequest = (req: InsomniaRequestResource): HoppRESTRequest =>
 const getHoppFolder = (
   folderRes: InsomniaFolderResource,
   resources: InsomniaResource[]
-): Collection<HoppRESTRequest> =>
+): HoppCollection<HoppRESTRequest> =>
   makeCollection({
     name: folderRes.name ?? "",
     folders: getFoldersIn(folderRes, resources).map((f) =>

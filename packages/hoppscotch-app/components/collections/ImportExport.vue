@@ -164,7 +164,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
-import { HoppRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import { apolloClient } from "~/helpers/apollo"
 import {
   useAxios,
@@ -174,11 +174,7 @@ import {
 } from "~/helpers/utils/composables"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
-import {
-  appendRESTCollections,
-  Collection,
-  restCollections$,
-} from "~/newstore/collections"
+import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 import { StepReturnValue } from "~/helpers/import-export/steps"
 
@@ -285,7 +281,7 @@ watch(mySelectedCollectionID, (newValue) => {
 
 const importingMyCollections = ref(false)
 
-const importToTeams = async (content: Collection<HoppRESTRequest>) => {
+const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
   importingMyCollections.value = true
   if (props.collectionsType.type !== "team-collections") return
   await teamUtils

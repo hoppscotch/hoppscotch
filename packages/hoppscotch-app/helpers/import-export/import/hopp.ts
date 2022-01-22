@@ -1,9 +1,9 @@
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as E from "fp-ts/Either"
+import { translateToNewRESTCollection } from "@hoppscotch/data"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
-import { translateToNewRESTCollection } from "~/newstore/collections"
 
 export default defineImporter({
   name: "import.from_json",

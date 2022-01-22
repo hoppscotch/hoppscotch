@@ -33,10 +33,7 @@
     "turn_off": "關閉",
     "turn_on": "開啟",
     "undo": "復原",
-    "yes": "是",
-    "preserve_current": "保持目前",
-    "replace_current": "替換目前",
-    "replace_json": "替換為 JSON"
+    "yes": "是"
   },
   "add": {
     "new": "新增",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "輸入 Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "匯入",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "從 JSON 匯入"
+    "title": "匯入"
   },
   "layout": {
     "column": "垂直布局",

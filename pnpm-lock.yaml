@@ -76,7 +76,7 @@ importers:
       '@graphql-codegen/urql-introspection': ^2.1.1
       '@graphql-typed-document-node/core': ^3.1.1
       '@hoppscotch/codemirror-lang-graphql': workspace:^0.1.0
-      '@hoppscotch/data': workspace:^0.2.0
+      '@hoppscotch/data': workspace:^0.3.0
       '@hoppscotch/js-sandbox': workspace:^1.0.0
       '@nuxt/types': ^2.15.8
       '@nuxt/typescript-build': ^2.1.0
@@ -3764,14 +3764,14 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27373739.0ed2d4a:
-    resolution: {integrity: sha512-xQUBq0nOD8gzJ/j6rvuWYGbjyp/+FShXirVbzP4rChX6UE5dMw+0oRBcmQ8ypA1hmpuXhDZHlw1noU0QHg2R9Q==}
+  /@nuxt/kit-edge/3.0.0-27376999.6abf75d:
+    resolution: {integrity: sha512-9VdJR9s9TXHd+lRRZnZRV+5GwkWKYomIS5NONMVgBDFjxotvqkVsCbpHvUja2I0NlcAxKnFePgqeDC20CBrgHQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27373739.0ed2d4a
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27376999.6abf75d
       consola: 2.15.3
       defu: 5.0.1
-      dotenv: 14.1.0
+      dotenv: 14.2.0
       globby: 12.2.0
       hash-sum: 2.0.0
       jiti: 1.12.9
@@ -3806,8 +3806,8 @@ packages:
       node-fetch: 2.6.6
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27373739.0ed2d4a:
-    resolution: {integrity: sha512-eMID8ninnb8BwN9b+YpvPbO8tEOrBrvy+2n8wbQe10JhVvf5lLZ+zpGIvlMQbLoFuEEsd444i4m7S5svSr5dTQ==}
+  /@nuxt/schema-edge/3.0.0-27376999.6abf75d:
+    resolution: {integrity: sha512-BdoTPuXoHT3aqQL37g/SPk1jOFO4pHbEClsj/5X6cLKwktTcqSbMkwZJF0tTyhvAwiOSFdlTvI34juPhvLNzPw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       create-require: 1.1.1
@@ -8374,8 +8374,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /dotenv/14.1.0:
-    resolution: {integrity: sha512-h8V+Yfa8m0YSjf3Rgbno51cxWldb4PEixIJVL55VmW7uAfeLQKiaPrEUiBps+ARK9MeqjJgTf269OMmu6lOODQ==}
+  /dotenv/14.2.0:
+    resolution: {integrity: sha512-05POuPJyPpO6jqzTNweQFfAyMSD4qa4lvsMOWyTRTdpHKy6nnnN+IYWaXF+lHivhBH/ufDKlR4IWCAN3oPnHuw==}
     engines: {node: '>=12'}
     dev: true
 
@@ -13547,7 +13547,7 @@ packages:
   /nuxt-windicss/2.2.2:
     resolution: {integrity: sha512-4tvzk9d2TUFxloty187D+wmO8ZNAvpSmRJ5HQO3/AvZdMMhAl4gomXR9fCgFKQe7Fxcj9nIKNInOx8TWowjiqA==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27373739.0ed2d4a
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27376999.6abf75d
       '@windicss/plugin-utils': 1.6.1
       consola: 2.15.3
       defu: 5.0.0

@@ -33,10 +33,7 @@
     "turn_off": "消す",
     "turn_on": "オンにする",
     "undo": "元に戻す",
-    "yes": "はい",
-    "preserve_current": "現在を維持する",
-    "replace_current": "現在を交換してください",
-    "replace_json": "JSONに置き換えます"
+    "yes": "はい"
   },
   "add": {
     "new": "新しく追加する",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "要旨URLを入力してください",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "輸入",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "JSONからインポート"
+    "title": "輸入"
   },
   "layout": {
     "column": "Vertical layout",

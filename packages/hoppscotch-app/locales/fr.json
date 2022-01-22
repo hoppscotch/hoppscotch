@@ -33,10 +33,7 @@
     "turn_off": "Éteindre",
     "turn_on": "Allumer",
     "undo": "Annuler",
-    "yes": "Oui",
-    "preserve_current": "Conserver l'actuel",
-    "replace_current": "Remplacer l'actuel",
-    "replace_json": "Remplacer par JSON"
+    "yes": "Oui"
   },
   "add": {
     "new": "Ajouter un nouveau",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Entrez l'URL principale",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Importer",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Importer depuis JSON"
+    "title": "Importer"
   },
   "layout": {
     "column": "Disposition verticale",

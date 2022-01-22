@@ -33,10 +33,7 @@
     "turn_off": "Vypnout",
     "turn_on": "Zapnout",
     "undo": "vrátit",
-    "yes": "Ano",
-    "preserve_current": "Zachovat proud",
-    "replace_current": "Vyměňte proud",
-    "replace_json": "Nahradit za JSON"
+    "yes": "Ano"
   },
   "add": {
     "new": "Přidat nový",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Zadejte URL adresy",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Import",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "Import z JSON"
+    "title": "Import"
   },
   "layout": {
     "column": "Vertical layout",

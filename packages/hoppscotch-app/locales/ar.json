@@ -33,10 +33,7 @@
     "turn_off": "اطفئه",
     "turn_on": "شغله",
     "undo": "الغاء التحميل",
-    "yes": "نعم",
-    "preserve_current": "الحفاظ على التيار",
-    "replace_current": "استبدال التيار",
-    "replace_json": "استبدل بـ JSON"
+    "yes": "نعم"
   },
   "add": {
     "new": "اضف جديد",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "أدخل عنوان URL لـ Gist",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "يستورد",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "استيراد من JSON"
+    "title": "يستورد"
   },
   "layout": {
     "column": "Vertical layout",

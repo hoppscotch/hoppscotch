@@ -33,10 +33,7 @@
     "turn_off": "끄기",
     "turn_on": "켜기",
     "undo": "실행 취소",
-    "yes": "예",
-    "preserve_current": "현재 보존",
-    "replace_current": "현재 교체",
-    "replace_json": "JSON으로 바꾸기"
+    "yes": "예"
   },
   "add": {
     "new": "추가",
@@ -247,10 +244,7 @@
     "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "요점 URL 입력",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "가저오기",
-    "gist": "Import from Gist",
-    "gist_description": "Import a Gist",
-    "json": "JSON에서 가져오기"
+    "title": "가저오기"
   },
   "layout": {
     "column": "Vertical layout",

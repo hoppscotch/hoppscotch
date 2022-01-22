@@ -142,14 +142,18 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "@nuxtjs/composition-api"
+import { computed, Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
 import clone from "lodash/clone"
 import { HoppRESTReqBody } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
 import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
-import { RawKeyValueEntry } from "~/helpers/rawKeyValue"
+import {
+  parseRawKeyValueEntries,
+  rawKeyValueEntriesToString,
+  RawKeyValueEntry,
+} from "~/helpers/rawKeyValue"
 
 const t = useI18n()
 const toast = useToast()
@@ -171,12 +175,21 @@ useCodemirror(bulkEditor, bulkUrlEncodedParams, {
 })
 
 // The functional urlEncodedParams list (the urlEncodedParams actually in the system)
-const urlEncodedParams = pluckRef(
+const urlEncodedParamsRaw = pluckRef(
   useRESTRequestBody() as Ref<
     HoppRESTReqBody & { contentType: "application/x-www-form-urlencoded" }
   >,
   "body"
 )
+
+const urlEncodedParams = computed<RawKeyValueEntry[]>({
+  get() {
+    return parseRawKeyValueEntries(urlEncodedParamsRaw.value)
+  },
+  set(newValue) {
+    urlEncodedParamsRaw.value = rawKeyValueEntriesToString(newValue)
+  },
+})
 
 // The UI representation of the urlEncodedParams list (has the empty end urlEncodedParam)
 const workingUrlEncodedParams = ref<RawKeyValueEntry[]>([
@@ -205,7 +218,6 @@ watch(workingUrlEncodedParams, (urlEncodedParamList) => {
 watch(
   urlEncodedParams,
   (newurlEncodedParamList) => {
-    // Sync should overwrite working urlEncodedParams
     const filteredWorkingUrlEncodedParams =
       workingUrlEncodedParams.value.filter((e) => e.key !== "")
 
@@ -251,7 +263,6 @@ watch(bulkUrlEncodedParams, () => {
 })
 
 watch(workingUrlEncodedParams, (newurlEncodedParamList) => {
-  // If we are in bulk mode, don't apply direct changes
   if (bulkMode.value) return
 
   try {
@@ -281,7 +292,6 @@ watch(workingUrlEncodedParams, (newurlEncodedParamList) => {
 })
 
 const addUrlEncodedParam = () => {
-  debugger
   workingUrlEncodedParams.value.push({
     key: "",
     value: "",

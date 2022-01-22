@@ -4,4 +4,6 @@ export const tupleToRecord = <
 >(
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType> =>
-  (Object.assign as any)(...tuples.map(([key, val]) => ({ [key]: val })))
+  tuples.length > 0
+    ? (Object.assign as any)(...tuples.map(([key, val]) => ({ [key]: val })))
+    : {}

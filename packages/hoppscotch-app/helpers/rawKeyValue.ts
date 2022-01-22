@@ -25,6 +25,7 @@ const parseRawKeyValueEntry = (str: string): RawKeyValueEntry => {
 
 export const parseRawKeyValueEntries = flow(
   S.split("\n"),
+  RA.filter((x) => x.trim().length > 0), // Remove lines which are empty
   RA.map(parseRawKeyValueEntry),
   RA.toArray
 )

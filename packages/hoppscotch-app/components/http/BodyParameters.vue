@@ -29,7 +29,7 @@
       </div>
     </div>
     <div
-      v-for="(param, index) in bodyParams"
+      v-for="(param, index) in workingParams"
       :key="`param-${index}`"
       class="flex border-b divide-x divide-dividerLight border-dividerLight"
     >
@@ -159,35 +159,128 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, Ref, watch } from "@nuxtjs/composition-api"
+import { ref, Ref, watch } from "@nuxtjs/composition-api"
 import { FormDataKeyValue } from "@hoppscotch/data"
-import { pluckRef } from "~/helpers/utils/composables"
-import {
-  addFormDataEntry,
-  deleteAllFormDataEntries,
-  deleteFormDataEntry,
-  updateFormDataEntry,
-  useRESTRequestBody,
-} from "~/newstore/RESTSession"
+import isEqual from "lodash/isEqual"
+import { clone } from "lodash"
+import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
+
+const t = useI18n()
+
+const toast = useToast()
+
+const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body") as Ref<
   FormDataKeyValue[]
 >
 
+// The UI representation of the parameters list (has the empty end param)
+const workingParams = ref<FormDataKeyValue[]>([
+  {
+    key: "",
+    value: "",
+    active: true,
+    isFile: false,
+  },
+])
+
+// Rule: Working Params always have last element is always an empty param
+watch(workingParams, (paramsList) => {
+  if (paramsList.length > 0 && paramsList[paramsList.length - 1].key !== "") {
+    workingParams.value.push({
+      key: "",
+      value: "",
+      active: true,
+      isFile: false,
+    })
+  }
+})
+
+// Sync logic between params and working params
+watch(
+  bodyParams,
+  (newParamsList) => {
+    // Sync should overwrite working params
+    const filteredWorkingParams = workingParams.value.filter(
+      (e) => e.key !== ""
+    )
+
+    if (!isEqual(newParamsList, filteredWorkingParams)) {
+      workingParams.value = newParamsList
+    }
+  },
+  { immediate: true }
+)
+
+watch(workingParams, (newWorkingParams) => {
+  const fixedParams = newWorkingParams.filter((e) => e.key !== "")
+  if (!isEqual(bodyParams.value, fixedParams)) {
+    bodyParams.value = fixedParams
+  }
+})
+
 const addBodyParam = () => {
-  addFormDataEntry({ key: "", value: "", active: true, isFile: false })
+  workingParams.value.push({
+    key: "",
+    value: "",
+    active: true,
+    isFile: false,
+  })
 }
 
-const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
-  updateFormDataEntry(index, entry)
+const updateBodyParam = (index: number, param: FormDataKeyValue) => {
+  workingParams.value = workingParams.value.map((h, i) =>
+    i === index ? param : h
+  )
 }
 
 const deleteBodyParam = (index: number) => {
-  deleteFormDataEntry(index)
+  const paramsBeforeDeletion = clone(workingParams.value)
+
+  if (
+    !(
+      paramsBeforeDeletion.length > 0 &&
+      index === paramsBeforeDeletion.length - 1
+    )
+  ) {
+    if (deletionToast.value) {
+      deletionToast.value.goAway(0)
+      deletionToast.value = null
+    }
+
+    deletionToast.value = toast.success(`${t("state.deleted")}`, {
+      action: [
+        {
+          text: `${t("action.undo")}`,
+          onClick: (_, toastObject) => {
+            workingParams.value = paramsBeforeDeletion
+            toastObject.goAway(0)
+            deletionToast.value = null
+          },
+        },
+      ],
+
+      onComplete: () => {
+        deletionToast.value = null
+      },
+    })
+  }
+
+  workingParams.value.splice(index, 1)
 }
 
 const clearContent = () => {
-  deleteAllFormDataEntries()
+  // set params list to the initial state
+  workingParams.value = [
+    {
+      key: "",
+      value: "",
+      active: true,
+      isFile: false,
+    },
+  ]
 }
 
 const setRequestAttachment = (
@@ -197,7 +290,7 @@ const setRequestAttachment = (
 ) => {
   // check if file exists or not
   if ((event.target as HTMLInputElement).files?.length === 0) {
-    updateFormDataEntry(index, {
+    updateBodyParam(index, {
       ...entry,
       isFile: false,
       value: "",
@@ -210,27 +303,8 @@ const setRequestAttachment = (
     isFile: true,
     value: Array.from((event.target as HTMLInputElement).files!),
   }
-  updateFormDataEntry(index, fileEntry)
+  updateBodyParam(index, fileEntry)
 }
-
-watch(
-  bodyParams,
-  () => {
-    if (
-      bodyParams.value.length > 0 &&
-      (bodyParams.value[bodyParams.value.length - 1].key !== "" ||
-        bodyParams.value[bodyParams.value.length - 1].value !== "")
-    )
-      addBodyParam()
-  },
-  { deep: true }
-)
-
-onMounted(() => {
-  if (!bodyParams.value?.length) {
-    addBodyParam()
-  }
-})
 </script>
 
 <style scoped lang="scss">

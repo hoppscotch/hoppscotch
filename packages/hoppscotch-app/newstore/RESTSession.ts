@@ -1,5 +1,3 @@
-import * as A from "fp-ts/Array"
-import { pipe } from "fp-ts/function"
 import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
 import { Ref } from "@nuxtjs/composition-api"
 import {
@@ -17,11 +15,7 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useStream } from "~/helpers/utils/composables"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
-import {
-  parseRawKeyValueEntries,
-  rawKeyValueEntriesToString,
-  RawKeyValueEntry,
-} from "~/helpers/rawKeyValue"
+import { applyBodyTransition } from "~/helpers/rules/BodyTransition"
 
 type RESTSession = {
   request: HoppRESTRequest
@@ -212,101 +206,107 @@ const dispatchers = defineDispatchers({
   ) {
     // TODO: Cleaner implementation
     // TODO: persist body evenafter switching content typees
-    if (curr.request.body.contentType !== "multipart/form-data") {
-      if (newContentType === "multipart/form-data") {
-        // Preserve entries when comping from urlencoded to multipart
-        if (
-          curr.request.body.contentType === "application/x-www-form-urlencoded"
-        ) {
-          return {
-            request: {
-              ...curr.request,
-              body: <HoppRESTReqBody>{
-                contentType: "multipart/form-data",
-                body: pipe(
-                  curr.request.body.body,
-                  parseRawKeyValueEntries,
-                  A.map(
-                    ({ key, value, active }) =>
-                      <FormDataKeyValue>{ key, value, active, isFile: false }
-                  )
-                ),
-              },
-            },
-          }
-        }
-
-        // Going from non-formdata to form-data, discard contents and set empty array as body
-        return {
-          request: {
-            ...curr.request,
-            body: <HoppRESTReqBody>{
-              contentType: "multipart/form-data",
-              body: [],
-            },
-          },
-        }
-      } else {
-        // non-formdata to non-formdata, keep body and set content type
-        return {
-          request: {
-            ...curr.request,
-            body: <HoppRESTReqBody>{
-              contentType: newContentType,
-              body:
-                newContentType === null
-                  ? null
-                  : (curr.request.body as any)?.body ?? "",
-            },
-          },
-        }
-      }
-    } else if (newContentType !== "multipart/form-data") {
-      if (newContentType === "application/x-www-form-urlencoded") {
-        return {
-          request: {
-            ...curr.request,
-            body: <HoppRESTReqBody>{
-              contentType: newContentType,
-              body: pipe(
-                curr.request.body.body,
-                A.map(
-                  ({ key, value, isFile, active }) =>
-                    <RawKeyValueEntry>{
-                      key,
-                      value: isFile ? "" : value,
-                      active,
-                    }
-                ),
-                rawKeyValueEntriesToString
-              ),
-            },
-          },
-        }
-      }
-
-      // Going from formdata to non-formdata, discard contents and set empty string
-      return {
-        request: {
-          ...curr.request,
-          body: <HoppRESTReqBody>{
-            contentType: newContentType,
-            body: "",
-          },
-        },
-      }
-    } else {
-      // form-data to form-data ? just set the content type ¯\_(ツ)_/¯
-      return {
-        request: {
-          ...curr.request,
-          body: <HoppRESTReqBody>{
-            contentType: newContentType,
-            body: curr.request.body.body,
-          },
-        },
-      }
+    return {
+      request: {
+        ...curr.request,
+        body: applyBodyTransition(curr.request.body, newContentType),
+      },
     }
+    // if (curr.request.body.contentType !== "multipart/form-data") {
+    //   if (newContentType === "multipart/form-data") {
+    //     // Preserve entries when comping from urlencoded to multipart
+    //     if (
+    //       curr.request.body.contentType === "application/x-www-form-urlencoded"
+    //     ) {
+    //       return {
+    //         request: {
+    //           ...curr.request,
+    //           body: <HoppRESTReqBody>{
+    //             contentType: "multipart/form-data",
+    //             body: pipe(
+    //               curr.request.body.body,
+    //               parseRawKeyValueEntries,
+    //               A.map(
+    //                 ({ key, value, active }) =>
+    //                   <FormDataKeyValue>{ key, value, active, isFile: false }
+    //               )
+    //             ),
+    //           },
+    //         },
+    //       }
+    //     }
+
+    //     // Going from non-formdata to form-data, discard contents and set empty array as body
+    //     return {
+    //       request: {
+    //         ...curr.request,
+    //         body: <HoppRESTReqBody>{
+    //           contentType: "multipart/form-data",
+    //           body: [],
+    //         },
+    //       },
+    //     }
+    //   } else {
+    //     // non-formdata to non-formdata, keep body and set content type
+    //     return {
+    //       request: {
+    //         ...curr.request,
+    //         body: <HoppRESTReqBody>{
+    //           contentType: newContentType,
+    //           body:
+    //             newContentType === null
+    //               ? null
+    //               : (curr.request.body as any)?.body ?? "",
+    //         },
+    //       },
+    //     }
+    //   }
+    // } else if (newContentType !== "multipart/form-data") {
+    //   if (newContentType === "application/x-www-form-urlencoded") {
+    //     return {
+    //       request: {
+    //         ...curr.request,
+    //         body: <HoppRESTReqBody>{
+    //           contentType: newContentType,
+    //           body: pipe(
+    //             curr.request.body.body,
+    //             A.map(
+    //               ({ key, value, isFile, active }) =>
+    //                 <RawKeyValueEntry>{
+    //                   key,
+    //                   value: isFile ? "" : value,
+    //                   active,
+    //                 }
+    //             ),
+    //             rawKeyValueEntriesToString
+    //           ),
+    //         },
+    //       },
+    //     }
+    //   }
+
+    //   // Going from formdata to non-formdata, discard contents and set empty string
+    //   return {
+    //     request: {
+    //       ...curr.request,
+    //       body: <HoppRESTReqBody>{
+    //         contentType: newContentType,
+    //         body: "",
+    //       },
+    //     },
+    //   }
+    // } else {
+    //   // form-data to form-data ? just set the content type ¯\_(ツ)_/¯
+    //   return {
+    //     request: {
+    //       ...curr.request,
+    //       body: <HoppRESTReqBody>{
+    //         contentType: newContentType,
+    //         body: curr.request.body.body,
+    //       },
+    //     },
+    //   }
+    // }
   },
   addFormDataEntry(curr: RESTSession, { entry }: { entry: FormDataKeyValue }) {
     // Only perform update if the current content-type is formdata

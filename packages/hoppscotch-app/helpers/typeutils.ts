@@ -12,6 +12,9 @@ export const objectFieldIncludes = <
   field: K,
   values: V
   // eslint-disable-next-line
-): obj is T & { [_x in K]: V[number] } => {
-  return values.includes(obj[field])
-}
+): obj is T & { [_x in K]: V[number] } => values.includes(obj[field])
+
+export const valueIncludes = <T, V extends readonly T[]>(
+  obj: T,
+  values: V
+): obj is V[number] => values.includes(obj)

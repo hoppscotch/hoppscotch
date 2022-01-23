@@ -219,17 +219,19 @@ const dispatchers = defineDispatchers({
           curr.request.body.contentType === "application/x-www-form-urlencoded"
         ) {
           return {
-            ...curr.request,
-            body: <HoppRESTReqBody>{
-              contentType: "multipart/form-data",
-              body: pipe(
-                curr.request.body.body,
-                parseRawKeyValueEntries,
-                A.map(
-                  ({ key, value, active }) =>
-                    <FormDataKeyValue>{ key, value, active, isFile: false }
-                )
-              ),
+            request: {
+              ...curr.request,
+              body: <HoppRESTReqBody>{
+                contentType: "multipart/form-data",
+                body: pipe(
+                  curr.request.body.body,
+                  parseRawKeyValueEntries,
+                  A.map(
+                    ({ key, value, active }) =>
+                      <FormDataKeyValue>{ key, value, active, isFile: false }
+                  )
+                ),
+              },
             },
           }
         }

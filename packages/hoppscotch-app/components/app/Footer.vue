@@ -144,7 +144,7 @@
               @click.native="options.tippy().hide()"
             />
             <div class="flex px-4 py-2 opacity-50">
-              {{ `${t("app.name")} ${t("app.version")}` }}
+              {{ `${t("app.name")} v${$config.clientVersion}` }}
             </div>
           </div>
         </tippy>

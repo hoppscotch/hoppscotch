@@ -72,7 +72,7 @@
     "@urql/exchange-graphcache": "^4.3.6",
     "acorn": "^8.7.0",
     "acorn-walk": "^8.2.0",
-    "axios": "^0.24.0",
+    "axios": "^0.25.0",
     "core-js": "^3.20.3",
     "esprima": "^4.0.1",
     "firebase": "^9.6.3",

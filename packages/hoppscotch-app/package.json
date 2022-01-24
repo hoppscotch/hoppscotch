@@ -117,7 +117,7 @@
     "@babel/core": "^7.16.7",
     "@babel/preset-env": "^7.16.8",
     "@graphql-codegen/add": "^3.1.1",
-    "@graphql-codegen/cli": "2.3.1",
+    "@graphql-codegen/cli": "2.4.0",
     "@graphql-codegen/typed-document-node": "^2.2.2",
     "@graphql-codegen/typescript": "2.4.2",
     "@graphql-codegen/typescript-operations": "^2.2.2",

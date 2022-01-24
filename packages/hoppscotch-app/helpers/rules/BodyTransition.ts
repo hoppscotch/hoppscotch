@@ -172,8 +172,6 @@ export const applyBodyTransition = <T extends ValidContentTypes | null>(
   current: HoppRESTReqBody,
   target: T
 ): HoppRESTReqBody & { contentType: T } => {
-  debugger
-
   if (current.contentType === target) {
     console.warn(
       `Tried to transition body from and to the same content-type '${target}'`

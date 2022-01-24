@@ -307,6 +307,8 @@ const newSendRequest = async () => {
     return
   }
 
+  ensureMethodInEndpoint()
+
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
@@ -342,6 +344,17 @@ const newSendRequest = async () => {
       type: "script_fail",
       error,
     })
+  }
+}
+
+const ensureMethodInEndpoint = () => {
+  if (!/^http[s]?:\/\//.test(newEndpoint.value)) {
+    const domain = newEndpoint.value.split(/[/:#?]+/)[0]
+    if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {
+      setRESTEndpoint("http://" + newEndpoint.value)
+    } else {
+      setRESTEndpoint("https://" + newEndpoint.value)
+    }
   }
 }
 

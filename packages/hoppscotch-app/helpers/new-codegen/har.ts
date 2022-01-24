@@ -1,3 +1,6 @@
+import * as RA from "fp-ts/ReadonlyArray"
+import * as S from "fp-ts/string"
+import { pipe, flow } from "fp-ts/function"
 import * as Har from "har-format"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { FieldEquals, objectFieldIncludes } from "../typeutils"
@@ -33,16 +36,24 @@ const buildHarPostParams = (
 ): Har.Param[] => {
   // URL Encoded strings have a string style of contents
   if (req.body.contentType === "application/x-www-form-urlencoded") {
-    return req.body.body
-      .split("&") // Split by separators
-      .map((keyValue) => {
-        const [key, value] = keyValue.split("=")
+    return pipe(
+      req.body.body,
+      S.split("\n"),
+      RA.map(
+        flow(
+          // Define how each lines are parsed
 
-        return {
-          name: key,
-          value,
-        }
-      })
+          S.split(":"), // Split by ":"
+          RA.map(S.trim), // Remove trailing spaces in key/value begins and ends
+          ([key, value]) => ({
+            // Convert into a proper key value definition
+            name: key,
+            value: value ?? "", // Value can be undefined (if no ":" is present)
+          })
+        )
+      ),
+      RA.toArray
+    )
   } else {
     // FormData has its own format
     return req.body.body.flatMap((entry) => {

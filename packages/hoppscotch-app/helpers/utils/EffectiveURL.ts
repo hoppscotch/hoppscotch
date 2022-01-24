@@ -1,5 +1,6 @@
-import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
+import qs from "qs"
+import { pipe } from "fp-ts/function"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 import {
@@ -10,6 +11,8 @@ import {
 import { parseTemplateString, parseBodyEnvVariables } from "../templating"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
+import { tupleToRecord } from "../functional/record"
+import { parseRawKeyValueEntries } from "../rawKeyValue"
 import { Environment, getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -60,6 +63,22 @@ function getFinalBodyFromRequest(
 ): FormData | string | null {
   if (request.body.contentType === null) {
     return null
+  }
+
+  if (request.body.contentType === "application/x-www-form-urlencoded") {
+    return pipe(
+      request.body.body,
+      parseRawKeyValueEntries,
+
+      // Filter out active
+      A.filter((x) => x.active),
+      // Convert to tuple
+      A.map(({ key, value }) => [key, value] as [string, string]),
+      // Tuple to Record object
+      tupleToRecord,
+      // Stringify
+      qs.stringify
+    )
   }
 
   if (request.body.contentType === "multipart/form-data") {

@@ -94,6 +94,7 @@
     "openapi-types": "^10.0.0",
     "paho-mqtt": "^1.1.0",
     "postman-collection": "^4.1.1",
+    "qs": "^6.10.3",
     "rxjs": "^7.5.2",
     "socket.io-client-v2": "npm:socket.io-client@^2.4.0",
     "socket.io-client-v3": "npm:socket.io-client@^3.1.3",

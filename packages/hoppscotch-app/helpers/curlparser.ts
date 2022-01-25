@@ -92,6 +92,9 @@ const parseCurlCommand = (curlCommand: string) => {
   let cookieString
   let cookies
   let url = parsedArguments._[1]
+
+  // get rid of double and single quotes that have snuck in
+  url = url.replace(/"/g, "").replace(/'/g, "")
   if (!url) {
     for (const argName in parsedArguments) {
       if (typeof parsedArguments[argName] === "string") {
@@ -101,6 +104,25 @@ const parseCurlCommand = (curlCommand: string) => {
       }
     }
   }
+  // if protocol is absent,
+  // prepend https (or http if host is localhost)
+  if (typeof url === "string") {
+    let urlCopy = url
+    const protocol = /^[^:]+(?=:\/\/)/.exec(urlCopy)
+
+    if (protocol === null) {
+      // if urlCopy has basic auth, strip it off
+      if (urlCopy.includes("@")) urlCopy = urlCopy.split("@")[1]
+      urlCopy = urlCopy.split("/")[0]
+
+      if (urlCopy.includes("localhost") || urlCopy.includes("127.0.0.1")) {
+        url = "http://" + url
+      } else {
+        url = "https://" + url
+      }
+    }
+  }
+
   let headers: any
 
   const parseHeaders = (headerFieldName: string) => {

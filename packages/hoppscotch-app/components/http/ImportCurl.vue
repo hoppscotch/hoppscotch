@@ -27,9 +27,11 @@
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
 import {
+  HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
   makeRESTRequest,
+  ValidContentTypes,
 } from "@hoppscotch/data"
 import parseCurlCommand from "~/helpers/curlparser"
 import { useCodemirror } from "~/helpers/editor/codemirror"
@@ -78,9 +80,7 @@ const handleImport = () => {
   const text = curl.value
   try {
     const parsedCurl = parseCurlCommand(text)
-    const { origin, pathname } = new URL(
-      parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
-    )
+    const { origin, pathname, username, password } = new URL(parsedCurl.url)
     const endpoint = origin + pathname
     const headers: HoppRESTHeader[] = []
     const params: HoppRESTParam[] = []
@@ -117,6 +117,23 @@ const handleImport = () => {
     }
 
     const method = parsedCurl.method.toUpperCase()
+    const contentType: Exclude<ValidContentTypes, "multipart/form-data"> =
+      parsedCurl.headers?.contentType || "application/json"
+
+    // TODO: implement all other types of auth
+    // in a separate helper file
+    let hoppAuth: HoppRESTAuth = {
+      authType: "none",
+      authActive: true,
+    }
+    if (username.length > 0 && password.length > 0) {
+      hoppAuth = {
+        authActive: true,
+        authType: "basic",
+        username,
+        password,
+      }
+    }
 
     setRESTRequest(
       makeRESTRequest({
@@ -127,12 +144,9 @@ const handleImport = () => {
         headers,
         preRequestScript: "",
         testScript: "",
-        auth: {
-          authType: "none",
-          authActive: true,
-        },
+        auth: hoppAuth,
         body: {
-          contentType: "application/json",
+          contentType,
           body,
         },
       })

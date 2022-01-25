@@ -52,6 +52,10 @@ export const run = async (args: string[]) => {
   }
   const options = program.opts();
   if (Object.keys(options).length === 0) {
-    program.help();
+    try {
+      program.help();
+    } catch (err: any) {
+      errorHandler(err);
+    }
   }
 };

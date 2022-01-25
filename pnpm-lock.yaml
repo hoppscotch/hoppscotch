@@ -331,7 +331,7 @@ importers:
 
   packages/hoppscotch-cli:
     specifiers:
-      '@hoppscotch/data': workspace:^0.2.0
+      '@hoppscotch/data': workspace:^0.3.0
       '@hoppscotch/js-sandbox': workspace:^1.0.0
       '@types/axios': ^0.14.0
       '@types/chalk': ^2.2.0
@@ -346,6 +346,7 @@ importers:
       fp-ts: ^2.11.3
       inquirer: ^8.1.1
       inquirer-fuzzy-path: ^2.3.0
+      prettier: ^2.5.1
       table: ^6.7.1
       typescript: ^4.3.5
     dependencies:
@@ -366,6 +367,7 @@ importers:
       '@types/inquirer-fuzzy-path': 2.3.3
       '@types/table': 6.3.2
       esm: 3.2.25
+      prettier: 2.5.1
       typescript: 4.5.4
 
   packages/hoppscotch-data:
@@ -8525,7 +8527,6 @@ packages:
 
   /defu/5.0.1:
     resolution: {integrity: sha512-EPS1carKg+dkEVy3qNTqIdp2qV7mUP08nIsupfwQpz++slCVRw7qbQyWvSTig+kFPwz2XXp5/kIIkH+CwrJKkQ==}
-    dev: true
 
   /delayed-stream/1.0.0:
     resolution: {integrity: sha1-3zrhmayt+31ECqrgsp4icrJOxhk=}
@@ -16412,7 +16413,7 @@ packages:
   /serve-placeholder/1.2.4:
     resolution: {integrity: sha512-jWD9cZXLcr4vHTTL5KEPIUBUYyOWN/z6v/tn0l6XxFhi9iqV3Fc5Y1aFeduUyz+cx8sALzGCUczkPfeOlrq9jg==}
     dependencies:
-      defu: 5.0.0
+      defu: 5.0.1
     dev: false
 
   /serve-static/1.14.1:

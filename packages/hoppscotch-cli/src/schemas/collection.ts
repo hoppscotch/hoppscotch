@@ -1,51 +1,9 @@
 import {
   HoppRESTRequest,
   translateToNewRequest,
+  translateToNewRESTCollection,
+  HoppCollection,
 } from "@hoppscotch/data";
-
-export interface Collection<T extends HoppRESTRequest> {
-  v: number;
-  name: string;
-  folders: Collection<T>[];
-  requests: T[];
-
-  id?: string; // For Firestore ID
-}
-
-export function makeCollection<T extends HoppRESTRequest>(
-  x: Omit<Collection<T>, "v">
-): Collection<T> {
-  return {
-    v: 1,
-    ...x,
-  };
-}
-
-/**
- * Translating the older version of collections to the newer version
- * @param x The collection JSON object to be parsed
- * @returns The parsed collection object
- */
-export function translateToNewRESTCollection(
-  x: any
-): Collection<HoppRESTRequest> {
-  if (x.v && x.v === 1) return x;
-
-  // Legacy
-  const name = x.name ?? "Untitled";
-  const folders = (x.folders ?? []).map(translateToNewRESTCollection);
-  const requests = (x.requests ?? []).map(translateToNewRequest);
-
-  const obj = makeCollection<HoppRESTRequest>({
-    name,
-    folders,
-    requests,
-  });
-
-  if (x.id) obj.id = x.id;
-
-  return obj;
-}
 
 /**
  * Typeguard to check valid Hoppscotch Collection JSON
@@ -151,7 +109,7 @@ function isRESTRequest(param: { x: any }): param is { x: HoppRESTRequest } {
  */
 export function isRESTCollection(param: {
   x: any;
-}): param is { x: Collection<HoppRESTRequest> } {
+}): param is { x: HoppCollection<HoppRESTRequest> } {
   if (!param.x) return false;
   if (!param.x.v) {
     param.x = translateToNewRESTCollection(param.x);

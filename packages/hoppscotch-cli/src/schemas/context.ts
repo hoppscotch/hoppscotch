@@ -1,5 +1,4 @@
-import { Collection } from "./collection";
-import { HoppRESTRequest } from "@hoppscotch/data";
+import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 
 /**
  * * The CLI context object
@@ -7,6 +6,6 @@ import { HoppRESTRequest } from "@hoppscotch/data";
 export interface context {
   interactive: boolean;
   config?: string;
-  collections?: Array<Collection<HoppRESTRequest>>;
+  collections?: Array<HoppCollection<HoppRESTRequest>>;
   [x: string]: any;
 }

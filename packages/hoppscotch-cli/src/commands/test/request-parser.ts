@@ -2,8 +2,7 @@ import axios, { AxiosPromise, AxiosRequestConfig, Method } from "axios";
 import chalk from "chalk";
 import { WritableStream } from "table";
 import { debugging } from "../../utils";
-import { HoppRESTRequest } from "@hoppscotch/data";
-import { Collection } from "../../schemas";
+import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 const notSupported = (
@@ -210,7 +209,7 @@ const requestRunner = async (x: requestStack): Promise<responseTable> => {
  * @param rootPath The folder path
  */
 const parseRequests = async (
-  x: Collection<HoppRESTRequest>,
+  x: HoppCollection<HoppRESTRequest>,
   tableStream: WritableStream,
   rootPath: string = "$ROOT"
 ) => {

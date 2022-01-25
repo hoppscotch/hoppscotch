@@ -39,3 +39,6 @@ export const arrayFlatMap =
   <T, U>(mapFunc: (value: T, index: number, arr: T[]) => U[]) =>
   (arr: T[]) =>
     arr.flatMap(mapFunc)
+
+export const stringArrayJoin = (separator: string) => (arr: string[]) =>
+  arr.join(separator)

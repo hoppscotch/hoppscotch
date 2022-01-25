@@ -20,7 +20,7 @@
     "type": "git",
     "url": "git+https://github.com/hoppscotch/hoppscotch.git"
   },
-  "author": "The Hoppscotch Team <support@hoppscotch.io>",
+  "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/hoppscotch/hoppscotch/issues"

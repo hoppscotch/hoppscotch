@@ -1,4 +1,5 @@
 import languages from "./languages"
+import pkg from "./package.json"
 
 require("dotenv").config()
 
@@ -338,6 +339,10 @@ export default {
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
     BASE_URL: process.env.BASE_URL,
+  },
+
+  publicRuntimeConfig: {
+    clientVersion: pkg.version,
   },
 
   // Router configuration (https://nuxtjs.org/api/configuration-router)

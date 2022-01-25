@@ -354,7 +354,7 @@ importers:
       fp-ts: 2.11.8
       inquirer: 8.2.0
       inquirer-fuzzy-path: 2.3.0
-      table: 6.7.5
+      table: 6.8.0
     devDependencies:
       '@types/axios': 0.14.0
       '@types/chalk': 2.2.0
@@ -364,7 +364,7 @@ importers:
       '@types/table': 6.3.2
       esm: 3.2.25
       prettier: 2.5.1
-      typescript: 4.5.4
+      typescript: 4.5.5
 
   packages/hoppscotch-data:
     specifiers:
@@ -4636,7 +4636,7 @@ packages:
     resolution: {integrity: sha1-7CMA++fX3d1+udOr+HmZlkyvzkY=}
     deprecated: This is a stub types definition for axios (https://github.com/mzabriskie/axios). axios provides its own type definitions, so you don't need @types/axios installed!
     dependencies:
-      axios: 0.24.0
+      axios: 0.25.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -5073,7 +5073,7 @@ packages:
     resolution: {integrity: sha512-GJ82z3vQbx2BhiUo12w2A3lyBpXPJrGHjQ7iS5aH925098w8ojqiWBhgOUy97JS2PKLmRCTLT0sI+gJI4futig==}
     deprecated: This is a stub types definition. table provides its own type definitions, so you do not need this installed.
     dependencies:
-      table: 6.7.5
+      table: 6.8.0
     dev: true
 
   /@types/tapable/1.0.8:

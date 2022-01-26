@@ -103,12 +103,6 @@
         </SmartTab>
       </SmartTabs>
     </Pane>
-    <SmartConfirmModal
-      :show="confirmSync"
-      :title="`${$t('confirm.sync')}`"
-      @hide-modal="confirmSync = false"
-      @resolve="syncRequest"
-    />
   </Splitpanes>
 </template>
 
@@ -121,6 +115,7 @@ import {
   Ref,
   ref,
   useContext,
+  watch,
 } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
@@ -147,8 +142,10 @@ import {
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
   pluckRef,
+  useI18n,
   useReadonlyStream,
   useStream,
+  useToast,
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
@@ -234,6 +231,32 @@ export default defineComponent({
     const preRequestScript = usePreRequestScript()
 
     const confirmSync = ref(false)
+
+    const toast = useToast()
+    const t = useI18n()
+
+    watch(confirmSync, (newValue) => {
+      if (newValue) {
+        toast.show(`${t("confirm.sync")}`, {
+          duration: 0,
+          action: [
+            {
+              text: `${t("action.yes")}`,
+              onClick: (_, toastObject) => {
+                syncRequest()
+                toastObject.goAway(0)
+              },
+            },
+            {
+              text: `${t("action.no")}`,
+              onClick: (_, toastObject) => {
+                toastObject.goAway(0)
+              },
+            },
+          ],
+        })
+      }
+    })
 
     const syncRequest = () => {
       setRESTRequest(

@@ -311,6 +311,8 @@ pre.ace_editor {
 }
 
 .toasted-container {
+  @apply max-w-md;
+
   .toasted {
     &.toasted-primary {
       @apply bg-tooltip;

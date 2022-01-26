@@ -61,7 +61,7 @@ export const defaultSettings: SettingsType = {
 
   PROXY_ENABLED: false,
   PROXY_URL: "https://proxy.hoppscotch.io/",
-  EXTENSIONS_ENABLED: true,
+  EXTENSIONS_ENABLED: false,
   URL_EXCLUDES: {
     auth: true,
     httpUser: true,

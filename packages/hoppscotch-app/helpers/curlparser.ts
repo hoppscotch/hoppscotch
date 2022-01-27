@@ -74,6 +74,7 @@ const parseCurlCommand = (curlCommand: string) => {
   curlCommand = curlCommand.replace(/--header /, "-H ")
   curlCommand = curlCommand.replace(/--url /, " ")
   curlCommand = curlCommand.replace(/-d /, "--data ")
+  curlCommand = curlCommand.replace(/-u /, "--user ")
 
   // yargs parses -XPOST as separate arguments. just prescreen for it.
   curlCommand = curlCommand.replace(/ -XPOST/, " -X POST")
@@ -276,7 +277,6 @@ const parseCurlCommand = (curlCommand: string) => {
     cookieString: cookieString?.replace("Cookie: ", ""),
     multipartUploads,
     ...parseDataFromArguments(parsedArguments),
-    auth: parsedArguments.u,
     user: parsedArguments.user,
   }
 

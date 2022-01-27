@@ -133,17 +133,19 @@ const handleImport = () => {
 
     // TODO: implement all other types of auth
     // in a separate helper file
-    let hoppAuth: HoppRESTAuth = {
-      authType: "none",
+    // >> preference to dedicated creds using --user arg
+    const user: string = parsedCurl.user ?? ""
+    const hoppAuth: HoppRESTAuth = {
+      authType: username.length > 0 || user.length > 0 ? "basic" : "none",
       authActive: true,
-    }
-    if (username.length > 0 && password.length > 0) {
-      hoppAuth = {
-        authActive: true,
-        authType: "basic",
+      ...(username.length > 0 && {
         username,
         password,
-      }
+      }),
+      ...(user.length > 0 && {
+        username: user.split(":")[0],
+        password: user.split(":")[1],
+      }),
     }
 
     // append danglingParams to url

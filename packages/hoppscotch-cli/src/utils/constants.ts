@@ -20,4 +20,4 @@ const errors = {
     message: "Malformed Collection JSON!",
   },
 };
-export default errors;
+export { errors };

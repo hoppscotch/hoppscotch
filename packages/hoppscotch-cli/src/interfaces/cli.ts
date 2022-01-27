@@ -9,3 +9,10 @@ export interface context {
   collections?: Array<HoppCollection<HoppRESTRequest>>;
   [x: string]: any;
 }
+
+/**
+ * * CLI Error object
+ */
+export interface CLIError extends Error {
+  code?: string;
+}

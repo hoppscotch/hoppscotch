@@ -1,3 +1,3 @@
-import test from "./test";
+import { commandHandler } from "../handlers";
 
-export { test };
+export { commandHandler as test, commandHandler as run };

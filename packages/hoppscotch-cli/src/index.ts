@@ -1,8 +1,8 @@
 import { program } from "commander";
 
 import { version } from "../package.json";
-import { test } from "./commands";
-import { errorHandler } from "./utils";
+import { test, run } from "./commands";
+import { errorHandler } from "./handlers";
 
 /**
  * * Program Default Configuration
@@ -21,6 +21,7 @@ program.exitOverride().configureOutput({
  * * CLI Flags
  */
 program
+  .command("run")
   .option(
     "-c, --config <file>",
     "path to a Hoppscotch collection.json file for CI testing"
@@ -28,7 +29,7 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .setOptionValue("interactive", false)
-  .action(test);
+  .action(run);
 
 program
   .command("test")
@@ -36,7 +37,7 @@ program
   .allowUnknownOption(false)
   .description("interactive Hoppscotch testing through CLI")
   .setOptionValue("interactive", true)
-  .action(test);
+  .action((context) => test(context, true));
 
 program
   .command("help", { isDefault: true, hidden: true })
@@ -44,7 +45,7 @@ program
   .allowUnknownOption(false)
   .action(() => program.help());
 
-export const run = async (args: string[]) => {
+export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
   } catch (err: any) {

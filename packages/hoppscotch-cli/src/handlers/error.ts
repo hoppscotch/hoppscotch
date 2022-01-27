@@ -1,10 +1,7 @@
 import chalk from "chalk";
-import errors from "./error-codes";
+import { errors } from "../utils";
 import { CommanderError } from "commander";
-
-export interface CLIError extends Error {
-  code?: string;
-}
+import { CLIError } from "../interfaces";
 
 /**
  * The all-catch generic error handler, it catches all errors, custom and generic, generated during the CLI execution

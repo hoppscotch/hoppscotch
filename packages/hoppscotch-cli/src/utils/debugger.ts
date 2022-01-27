@@ -2,9 +2,8 @@ import { createConnection, Socket } from "net";
 import { Console } from "console";
 import { InspectOptions } from "util";
 import chalk from "chalk";
-
-import errors from "./error-codes";
-import errorHandler from "./error-handler";
+import { errors } from ".";
+import { errorHandler } from "../handlers";
 
 /**
  * @class The TCP socket debugger.

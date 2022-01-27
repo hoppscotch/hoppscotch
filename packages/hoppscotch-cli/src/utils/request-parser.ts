@@ -1,7 +1,8 @@
-import axios, { AxiosPromise, AxiosRequestConfig, Method } from "axios";
+import axios, { Method } from "axios";
 import chalk from "chalk";
 import { WritableStream } from "table";
-import { debugging } from "../../utils";
+import { debugging } from ".";
+import { responseTable, requestStack, RequestConfig } from "../interfaces";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
@@ -17,21 +18,6 @@ const notSupported = (
     path,
   };
 };
-interface requestStack {
-  request: () => AxiosPromise<any>;
-  path: string;
-}
-
-interface responseTable {
-  path: string;
-  endpoint: string;
-  method: Method;
-  statusCode: string;
-}
-
-interface RequestConfig extends AxiosRequestConfig {
-  supported: boolean;
-}
 
 /**
  * Takes in a Hoppscotch REST Request, and converts each request to an Axios object
@@ -41,20 +27,23 @@ interface RequestConfig extends AxiosRequestConfig {
  */
 const createRequest = (
   rootPath: string,
-  req: HoppRESTRequest
+  req: HoppRESTRequest,
+  debug: boolean = false
 ): requestStack => {
   let config: RequestConfig = {
     supported: true,
   };
   config.url = req.endpoint;
   config.method = req.method as Method;
-  config.transformResponse = [
-    (data: any) => {
-      debugging.info("new_request");
-      debugging.dir(data);
-      return data;
-    },
-  ];
+  if (debug === true) {
+    config.transformResponse = [
+      (data: any) => {
+        debugging.info("new_request");
+        debugging.dir(data);
+        return data;
+      },
+    ];
+  }
   for (const x of req.params) {
     if (x.active) {
       if (!config.params) {
@@ -208,19 +197,20 @@ const requestRunner = async (x: requestStack): Promise<responseTable> => {
  * @param tableStream The writable stream for the table
  * @param rootPath The folder path
  */
-const parseRequests = async (
+const requestsParser = async (
   x: HoppCollection<HoppRESTRequest>,
   tableStream: WritableStream,
+  debug: boolean = false,
   rootPath: string = "$ROOT"
 ) => {
   for (const req of x.requests) {
-    const parsedReq = createRequest(`${rootPath}/${x.name}`, req);
+    const parsedReq = createRequest(`${rootPath}/${x.name}`, req, debug);
     const res = await requestRunner(parsedReq);
     tableStream.write([res.path, res.method, res.endpoint, res.statusCode]);
   }
   for (const folder of x.folders) {
-    await parseRequests(folder, tableStream, `${rootPath}/${x.name}`);
+    await requestsParser(folder, tableStream, debug, `${rootPath}/${x.name}`);
   }
 };
 
-export default parseRequests;
+export default requestsParser;

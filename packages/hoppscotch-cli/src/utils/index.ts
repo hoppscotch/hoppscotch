@@ -1,5 +1,16 @@
-import errors from "./error-codes";
-import errorHandler, { CLIError } from "./error-handler";
+import { errors } from "./constants";
 import debugging from "./debugger";
+import { CLIError } from "../interfaces";
+import { isRESTCollection, checkFileURL } from "./checks";
+import requestParser from "./request-parser";
+import { parseOptions } from "./cli";
 
-export { errors, errorHandler, CLIError, debugging };
+export {
+  errors,
+  CLIError,
+  debugging,
+  isRESTCollection,
+  requestParser,
+  checkFileURL,
+  parseOptions,
+};

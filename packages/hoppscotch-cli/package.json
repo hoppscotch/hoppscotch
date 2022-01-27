@@ -45,6 +45,7 @@
     "chalk": "^4.1.1",
     "commander": "^8.0.0",
     "fp-ts": "^2.11.3",
+    "hopp-cli": "^0.1.0",
     "inquirer": "^8.1.1",
     "inquirer-fuzzy-path": "^2.3.0",
     "table": "^6.7.1"

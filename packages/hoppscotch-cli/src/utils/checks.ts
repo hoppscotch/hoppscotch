@@ -1,3 +1,7 @@
+import fs from "fs/promises";
+import { join, extname } from "path";
+import chalk from "chalk";
+import { errors } from ".";
 import {
   HoppRESTRequest,
   translateToNewRequest,
@@ -144,3 +148,29 @@ export function isRESTCollection(param: {
   }
   return true;
 }
+
+/**
+ * Check if the file exists and check the file extension
+ * @param url The input file path to check
+ * @returns The absolute file URL, if the file exists
+ */
+export const checkFileURL = async (url: string) => {
+  try {
+    const fileUrl = join(process.cwd(), url);
+    await fs.access(fileUrl);
+    if (extname(fileUrl) !== ".json") {
+      console.log(
+        `${chalk.red(
+          ">>"
+        )} Selected file is not a collection JSON. Please try again.`
+      );
+      throw "FileNotJSON";
+    }
+    return fileUrl;
+  } catch (err: any) {
+    if (err.code && err.code === "ENOENT") {
+      throw errors.HOPP001;
+    }
+    throw err;
+  }
+};

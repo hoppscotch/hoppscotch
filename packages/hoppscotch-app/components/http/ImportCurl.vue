@@ -81,16 +81,22 @@ const handleImport = () => {
   try {
     const parsedCurl = parseCurlCommand(text)
     const { origin, pathname, username, password } = new URL(parsedCurl.url)
-    const endpoint = origin + pathname
+    let endpoint = origin + pathname
     const headers: HoppRESTHeader[] = []
     const params: HoppRESTParam[] = []
     const body = parsedCurl.body
+
+    const danglingParams: string[] = []
     if (parsedCurl.query) {
       for (const key of Object.keys(parsedCurl.query)) {
         const val = parsedCurl.query[key]!
 
         if (Array.isArray(val)) {
           val.forEach((value) => {
+            if (value === "") {
+              danglingParams.push(key)
+              return
+            }
             params.push({
               key,
               value,
@@ -98,6 +104,10 @@ const handleImport = () => {
             })
           })
         } else {
+          if (val === "") {
+            danglingParams.push(key)
+            continue
+          }
           params.push({
             key,
             value: val!,
@@ -106,6 +116,7 @@ const handleImport = () => {
         }
       }
     }
+
     if (parsedCurl.headers) {
       for (const key of Object.keys(parsedCurl.headers)) {
         headers.push({
@@ -134,6 +145,9 @@ const handleImport = () => {
         password,
       }
     }
+
+    // append danglingParams to url
+    endpoint += "?" + danglingParams.join("&")
 
     setRESTRequest(
       makeRESTRequest({

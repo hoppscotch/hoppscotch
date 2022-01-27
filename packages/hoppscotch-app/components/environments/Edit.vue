@@ -53,9 +53,15 @@
               :placeholder="`${$t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
-            <input
+            <SmartEnvInput
               v-model="variable.value"
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              styles="
+                bg-transparent
+                flex
+                flex-1
+                py-1
+                px-4
+              "
               :placeholder="`${$t('count.value', { count: index + 1 })}`"
               :name="'value' + index"
             />

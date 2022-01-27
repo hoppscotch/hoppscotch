@@ -135,7 +135,7 @@ const handleImport = () => {
     // in a separate helper file
     // >> preference to dedicated creds using --user arg
     const user: string = parsedCurl.user ?? ""
-    const hoppAuth: HoppRESTAuth = {
+    const auth = {
       authType: username.length > 0 || user.length > 0 ? "basic" : "none",
       authActive: true,
       ...(username.length > 0 && {
@@ -146,7 +146,7 @@ const handleImport = () => {
         username: user.split(":")[0],
         password: user.split(":")[1],
       }),
-    }
+    } as HoppRESTAuth
 
     // append danglingParams to url
     endpoint += "?" + danglingParams.join("&")
@@ -160,7 +160,7 @@ const handleImport = () => {
         headers,
         preRequestScript: "",
         testScript: "",
-        auth: hoppAuth,
+        auth,
         body: {
           contentType,
           body,

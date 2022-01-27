@@ -344,7 +344,6 @@ importers:
       commander: ^8.0.0
       esm: ^3.2.25
       fp-ts: ^2.11.3
-      hopp-cli: ^0.1.0
       inquirer: ^8.1.1
       inquirer-fuzzy-path: ^2.3.0
       prettier: ^2.5.1
@@ -357,7 +356,6 @@ importers:
       chalk: 4.1.2
       commander: 8.3.0
       fp-ts: 2.11.8
-      hopp-cli: 'link:'
       inquirer: 8.2.0
       inquirer-fuzzy-path: 2.3.0
       table: 6.8.0

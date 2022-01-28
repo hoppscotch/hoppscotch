@@ -216,9 +216,9 @@ export default defineComponent({
             : "bg-accentDark text-accentContrast hover:bg-accent"
         }" v-tippy data-tippy-content="${this.getEnvName(
           this.aggregateEnvs.find((k) => k.key === envVar)?.sourceEnv
-        )} <kbd>${this.getEnvValue(
+        )}<xmp>${this.getEnvValue(
           this.aggregateEnvs.find((k) => k.key === envVar)?.value
-        )}</kbd>">${this.safe_tags_replace(
+        )}</xmp>">${this.safe_tags_replace(
           this.internalValue.substring(position.start, position.end + 1)
         )}</span>`
         startingPosition = position.end + 1

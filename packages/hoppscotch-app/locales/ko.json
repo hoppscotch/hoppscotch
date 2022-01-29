@@ -166,7 +166,8 @@
     "no_environment": "환경 없음",
     "select": "환경 선택",
     "title": "환경",
-    "variable_list": "변수 목록"
+    "variable_list": "변수 목록",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "이 브라우저는 서버 전송 이벤트를 지원하지 않는 것 같습니다.",

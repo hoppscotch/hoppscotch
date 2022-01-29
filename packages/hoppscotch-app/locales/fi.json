@@ -166,7 +166,8 @@
     "no_environment": "Ei ympäristöä",
     "select": "Valitse ympäristö",
     "title": "Ympäristöt",
-    "variable_list": "Muuttujien luettelo"
+    "variable_list": "Muuttujien luettelo",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Tämä selain ei näytä tukevan palvelimen lähettämiä tapahtumia.",

@@ -158,6 +158,11 @@ a {
     @apply ml-1;
     @apply my-0;
     @apply truncate;
+
+    &.expand-loop {
+      @apply bg-error;
+      @apply text-accentContrast;
+    }
   }
 }
 

@@ -166,7 +166,8 @@
     "no_environment": "No environment",
     "select": "Select environment",
     "title": "Environments",
-    "variable_list": "Variable List"
+    "variable_list": "Variable List",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "This browser doesn't seems to have Server Sent Events support.",

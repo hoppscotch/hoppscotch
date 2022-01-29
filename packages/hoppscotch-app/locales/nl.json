@@ -166,7 +166,8 @@
     "no_environment": "Geen omgeving",
     "select": "Selecteer omgeving",
     "title": "omgevingen",
-    "variable_list": "Variabele lijst"
+    "variable_list": "Variabele lijst",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Deze browser lijkt geen ondersteuning te hebben voor door de server verzonden gebeurtenissen.",

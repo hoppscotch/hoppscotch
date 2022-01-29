@@ -166,7 +166,8 @@
     "no_environment": "Không có môi trường",
     "select": "Chọn môi trường",
     "title": "Môi trường",
-    "variable_list": "Danh sách biến"
+    "variable_list": "Danh sách biến",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Trình duyệt này dường như không có hỗ trợ Sự kiện do Máy chủ gửi.",

@@ -166,7 +166,8 @@
     "no_environment": "Ortam yok",
     "select": "Ortam seçin",
     "title": "Ortamlar",
-    "variable_list": "Değişken Listesi"
+    "variable_list": "Değişken Listesi",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Bu tarayıcıda Sunucu Gönderilen Olaylar desteği yok gibi görünüyor.",

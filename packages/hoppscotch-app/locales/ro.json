@@ -166,7 +166,8 @@
     "no_environment": "Fără mediu",
     "select": "Selectați mediul",
     "title": "Medii",
-    "variable_list": "Lista variabilelor"
+    "variable_list": "Lista variabilelor",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Acest browser pare să nu aibă suport pentru Server Sent Events.",

@@ -166,7 +166,8 @@
     "no_environment": "אין סביבה",
     "select": "בחר סביבה",
     "title": "סביבות",
-    "variable_list": "רשימת משתנים"
+    "variable_list": "רשימת משתנים",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "נראה שלדפדפן זה אין תמיכה באירועי שרת נשלח.",

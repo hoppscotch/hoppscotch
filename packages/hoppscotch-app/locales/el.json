@@ -166,7 +166,8 @@
     "no_environment": "Χωρίς περιβάλλον",
     "select": "Επιλέξτε περιβάλλον",
     "title": "Περιβάλλοντα",
-    "variable_list": "Λίστα μεταβλητών"
+    "variable_list": "Λίστα μεταβλητών",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Αυτό το πρόγραμμα περιήγησης δεν φαίνεται να υποστηρίζει διακομιστές που έχουν σταλεί συμβάντα.",

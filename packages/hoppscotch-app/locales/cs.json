@@ -166,7 +166,8 @@
     "no_environment": "Žádné prostředí",
     "select": "Vyberte prostředí",
     "title": "Prostředí",
-    "variable_list": "Seznam proměnných"
+    "variable_list": "Seznam proměnných",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Zdá se, že tento prohlížeč nemá podporu událostí odeslaných serverem.",

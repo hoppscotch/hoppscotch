@@ -166,7 +166,8 @@
     "no_environment": "Pas d'environnement",
     "select": "Sélectionnez l'environnement",
     "title": "Environnements",
-    "variable_list": "Liste des variables"
+    "variable_list": "Liste des variables",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Ce navigateur ne semble pas prendre en charge les événements envoyés par le serveur.",

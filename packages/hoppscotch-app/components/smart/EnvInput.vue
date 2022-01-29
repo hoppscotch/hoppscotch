@@ -28,8 +28,10 @@ import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
 import { tippy } from "vue-tippy"
+import * as E from "fp-ts/Either"
 import { aggregateEnvs$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/helpers/utils/composables"
+import { parseTemplateStringE } from "~/helpers/templating"
 
 const tagsToReplace = {
   "&": "&amp;",
@@ -217,7 +219,7 @@ export default defineComponent({
         }" v-tippy data-tippy-content="${this.getEnvName(
           this.aggregateEnvs.find((k) => k.key === envVar)?.sourceEnv
         )}<xmp>${this.getEnvValue(
-          this.aggregateEnvs.find((k) => k.key === envVar)?.value
+          this.constructEnv(envVar)
         )}</xmp>">${this.safe_tags_replace(
           this.internalValue.substring(position.start, position.end + 1)
         )}</span>`
@@ -478,6 +480,21 @@ export default defineComponent({
       if (value) return value.replace(/"/g, "&quot;")
       // it does not filter special characters before adding them to HTML.
       return "not found"
+    },
+    constructEnv(envVar) {
+      const result = parseTemplateStringE(
+        this.getEnvValue(
+          this.aggregateEnvs.find((k) => k.key === envVar)?.value
+        ),
+        this.aggregateEnvs
+      )
+
+      if (E.isLeft(result)) {
+        console.error("error", result.left)
+        return ""
+      } else {
+        return result.right
+      }
     },
   },
 })

@@ -165,7 +165,8 @@
     "no_environment": "Sense entorn",
     "select": "Seleccioneu un entorn",
     "title": "Entorns",
-    "variable_list": "Llista de variables"
+    "variable_list": "Llista de variables",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Sembla que aquest navegador no és compatible amb els esdeveniments enviats per servidor.",

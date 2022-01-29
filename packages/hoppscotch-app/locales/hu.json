@@ -165,7 +165,8 @@
     "no_environment": "Nincs környezet",
     "select": "Környezet kiválasztása",
     "title": "Környezetek",
-    "variable_list": "Változólista"
+    "variable_list": "Változólista",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Úgy tűnik, hogy ez a böngésző nem támogatja a kiszolgáló által küldött eseményeket.",

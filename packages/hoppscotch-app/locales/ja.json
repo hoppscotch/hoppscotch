@@ -165,7 +165,8 @@
     "no_environment": "環境なし",
     "select": "環境を選択する",
     "title": "環境",
-    "variable_list": "変数リスト"
+    "variable_list": "変数リスト",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "このブラウザはサーバー送信イベントをサポートしていないようです。",

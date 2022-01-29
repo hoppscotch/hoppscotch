@@ -281,15 +281,11 @@
       "!stdProto": "Function",
       "apply": {
         "!type": "fn(this: ?, args: [?])",
-        "!effects": [
-          "call and return !this this=!0 !1.<i> !1.<i> !1.<i>"
-        ]
+        "!effects": ["call and return !this this=!0 !1.<i> !1.<i> !1.<i>"]
       },
       "call": {
         "!type": "fn(this: ?, args?: ?) -> !this.!ret",
-        "!effects": [
-          "call and return !this this=!0 !1 !2 !3 !4"
-        ]
+        "!effects": ["call and return !this this=!0 !1 !2 !3 !4"]
       },
       "bind": {
         "!type": "fn(this: ?, args?: ?) -> !custom:Function_bind"
@@ -304,9 +300,7 @@
     },
     "from": {
       "!type": "fn(arrayLike: ?, mapFn?: fn(elt: ?, i: number) -> ?, thisArg?: ?) -> [!0.<i>]",
-      "!effects": [
-        "call !1 this=!2 !0.<i> number"
-      ]
+      "!effects": ["call !1 this=!2 !0.<i> number"]
     },
     "of": {
       "!type": "fn(elementN: ?) -> [!0]"
@@ -330,18 +324,14 @@
       },
       "push": {
         "!type": "fn(newelt: ?) -> number",
-        "!effects": [
-          "propagate !0 !this.<i>"
-        ]
+        "!effects": ["propagate !0 !this.<i>"]
       },
       "shift": {
         "!type": "fn() -> !this.<i>"
       },
       "unshift": {
         "!type": "fn(newelt: ?) -> number",
-        "!effects": [
-          "propagate !0 !this.<i>"
-        ]
+        "!effects": ["propagate !0 !this.<i>"]
       },
       "slice": {
         "!type": "fn(from?: number, to?: number) -> !this"
@@ -351,9 +341,7 @@
       },
       "sort": {
         "!type": "fn(compare?: fn(a: ?, b: ?) -> number)",
-        "!effects": [
-          "call !0 !this.<i> !this.<i>"
-        ]
+        "!effects": ["call !0 !this.<i> !this.<i>"]
       },
       "indexOf": {
         "!type": "fn(elt: ?, from?: number) -> number"
@@ -363,45 +351,31 @@
       },
       "every": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 this=!1 !this.<i> number !this"]
       },
       "some": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> bool",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 this=!1 !this.<i> number !this"]
       },
       "filter": {
         "!type": "fn(test: fn(elt: ?, i: number, array: +Array) -> bool, context?: ?) -> !this",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 this=!1 !this.<i> number !this"]
       },
       "forEach": {
         "!type": "fn(f: fn(elt: ?, i: number, array: +Array), context?: ?)",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 this=!1 !this.<i> number !this"]
       },
       "map": {
         "!type": "fn(f: fn(elt: ?, i: number, array: +Array) -> ?, context?: ?) -> [!0.!ret]",
-        "!effects": [
-          "call !0 this=!1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 this=!1 !this.<i> number !this"]
       },
       "reduce": {
         "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": [
-          "call !0 !1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 !1 !this.<i> number !this"]
       },
       "reduceRight": {
         "!type": "fn(combine: fn(sum: ?, elt: ?, i: number, array: +Array) -> ?, init?: ?) -> !0.!ret",
-        "!effects": [
-          "call !0 !1 !this.<i> number !this"
-        ]
+        "!effects": ["call !0 !1 !this.<i> number !this"]
       },
       "copyWithin": {
         "!type": "fn(target: number, start: number, end?: number) -> !this"
@@ -797,9 +771,10 @@
       "toJSON": {
         "!type": "fn() -> string"
       }
-    }
+    },
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
-  "Error": {
+  "error": {
     "!type": "fn(message: string)",
     "prototype": {
       "name": {

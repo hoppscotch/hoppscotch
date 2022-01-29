@@ -213,14 +213,22 @@ export default defineComponent({
           .substring(position.start, position.end + 1)
           .slice(2, -2)
         result += `<span class="${highlightPositions[k].style} ${
-          this.aggregateEnvs.find((k) => k.key === envVar)?.value === undefined
+          this.aggregateEnvs.find((k) => k.key === envVar)?.value ===
+            undefined ||
+          this.getEnvValue(this.constructEnv(envVar)) === "ENV_EXPAND_LOOP"
             ? "bg-red-400 text-red-50 hover:bg-red-600"
             : "bg-accentDark text-accentContrast hover:bg-accent"
         }" v-tippy data-tippy-content="${this.getEnvName(
           this.aggregateEnvs.find((k) => k.key === envVar)?.sourceEnv
-        )}<xmp>${this.getEnvValue(
-          this.constructEnv(envVar)
-        )}</xmp>">${this.safe_tags_replace(
+        )}<xmp class='${
+          this.getEnvValue(this.constructEnv(envVar)) === "ENV_EXPAND_LOOP"
+            ? "expand-loop"
+            : "found"
+        }'>${
+          this.getEnvValue(this.constructEnv(envVar)) === "ENV_EXPAND_LOOP"
+            ? this.$t("environment.nested_overflow")
+            : this.getEnvValue(this.constructEnv(envVar))
+        }</xmp>">${this.safe_tags_replace(
           this.internalValue.substring(position.start, position.end + 1)
         )}</span>`
         startingPosition = position.end + 1
@@ -478,6 +486,7 @@ export default defineComponent({
     },
     getEnvValue(value) {
       if (value) return value.replace(/"/g, "&quot;")
+      if (value === "ENV_EXPAND_LOOP") return "ENV_EXPAND_LOOP"
       // it does not filter special characters before adding them to HTML.
       return "not found"
     },
@@ -491,7 +500,7 @@ export default defineComponent({
 
       if (E.isLeft(result)) {
         console.error("error", result.left)
-        return ""
+        return result.left
       } else {
         return result.right
       }

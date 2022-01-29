@@ -165,7 +165,8 @@
     "no_environment": "Brak środowiska",
     "select": "Wybierz środowisko",
     "title": "Środowiska",
-    "variable_list": "Lista zmiennych"
+    "variable_list": "Lista zmiennych",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Wygląda na to, że ta przeglądarka nie obsługuje zdarzeń wysłanych przez serwer.",

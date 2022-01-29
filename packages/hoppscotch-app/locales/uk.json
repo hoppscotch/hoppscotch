@@ -165,7 +165,8 @@
     "no_environment": "Жодного середовища",
     "select": "Виберіть середовище",
     "title": "Середовища",
-    "variable_list": "Список змінних"
+    "variable_list": "Список змінних",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Схоже, цей браузер не підтримує події, надіслані сервером.",

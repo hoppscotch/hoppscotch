@@ -165,7 +165,8 @@
     "no_environment": "无环境",
     "select": "选择环境",
     "title": "环境",
-    "variable_list": "变量列表"
+    "variable_list": "变量列表",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "该浏览器似乎不支持 SSE。",

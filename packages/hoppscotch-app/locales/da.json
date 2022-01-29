@@ -165,7 +165,8 @@
     "no_environment": "Intet miljø",
     "select": "Vælg miljø",
     "title": "Miljøer",
-    "variable_list": "Variabel liste"
+    "variable_list": "Variabel liste",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Det ser ikke ud til, at denne browser understøtter Server Sent Events.",

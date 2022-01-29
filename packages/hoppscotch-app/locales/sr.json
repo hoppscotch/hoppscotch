@@ -166,7 +166,8 @@
     "no_environment": "Нема окружења",
     "select": "Изаберите окружење",
     "title": "Енвиронментс",
-    "variable_list": "Листа променљивих"
+    "variable_list": "Листа променљивих",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Изгледа да овај прегледач нема подршку за Послане догађаје са сервера.",

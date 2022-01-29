@@ -165,7 +165,8 @@
     "no_environment": "Нет окружающей среды",
     "select": "Выберите среду",
     "title": "Среды",
-    "variable_list": "Список переменных"
+    "variable_list": "Список переменных",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Похоже, в этом браузере нет поддержки событий, отправленных сервером.",

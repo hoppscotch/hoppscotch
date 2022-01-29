@@ -165,7 +165,8 @@
     "no_environment": "Sin entorno",
     "select": "Seleccionar entorno",
     "title": "Entornos",
-    "variable_list": "Lista de variables"
+    "variable_list": "Lista de variables",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Este navegador no parece ser compatible con los eventos enviados por el servidor.",

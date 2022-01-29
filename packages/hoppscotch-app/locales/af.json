@@ -165,7 +165,8 @@
     "no_environment": "Geen omgewing nie",
     "select": "Kies omgewing",
     "title": "Omgewings",
-    "variable_list": "Veranderlike lys"
+    "variable_list": "Veranderlike lys",
+    "nested_overflow": "nested environment variables are limited to 10 levels"
   },
   "error": {
     "browser_support_sse": "Dit lyk nie asof hierdie blaaier ondersteuning vir bedieners gestuurde geleenthede het nie.",

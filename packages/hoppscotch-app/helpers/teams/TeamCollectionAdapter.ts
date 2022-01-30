@@ -1,24 +1,24 @@
-import { BehaviorSubject } from "rxjs"
-import { gql } from "graphql-tag"
+import * as E from "fp-ts/Either"
+import { BehaviorSubject, Subscription } from "rxjs"
+import { translateToNewRequest } from "@hoppscotch/data"
 import pull from "lodash/pull"
 import remove from "lodash/remove"
-import { translateToNewRequest } from "@hoppscotch/data"
+import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import { TeamCollection } from "./TeamCollection"
 import { TeamRequest } from "./TeamRequest"
 import {
-  rootCollectionsOfTeam,
-  getCollectionChildren,
-  getCollectionRequests,
-} from "./utils"
-import { apolloClient } from "~/helpers/apollo"
+  RootCollectionsOfTeamDocument,
+  TeamCollectionAddedDocument,
+  TeamCollectionUpdatedDocument,
+  TeamCollectionRemovedDocument,
+  TeamRequestAddedDocument,
+  TeamRequestUpdatedDocument,
+  TeamRequestDeletedDocument,
+  GetCollectionChildrenDocument,
+  GetCollectionRequestsDocument,
+} from "~/helpers/backend/graphql"
 
-/*
- * NOTE: These functions deal with REFERENCES to objects and mutates them, for a simpler implementation.
- * Be careful when you play with these.
- *
- * I am not a fan of mutating references but this is so much simpler compared to mutating clones
- * - Andrew
- */
+const TEAMS_BACKEND_PAGE_SIZE = 10
 
 /**
  * Finds the parent of a collection and returns the REFERENCE (or null)
@@ -76,32 +76,49 @@ function findCollInTree(
 }
 
 /**
- * Finds and returns a REFERENCE to the collection containing a given request ID in tree (or null)
+ * Deletes a collection in the tree
  *
- * @param {TeamCollection[]} tree - The tree to look in
- * @param {string} reqID - The ID of the request to look for
- *
- * @returns REFERENCE to the collection or null if request not found
+ * @param {TeamCollection[]} tree - The tree to delete in (THIS WILL BE MUTATED!)
+ * @param {string} targetID - ID of the collection to delete
  */
-function findCollWithReqIDInTree(
-  tree: TeamCollection[],
-  reqID: string
-): TeamCollection | null {
-  for (const coll of tree) {
-    // Check in root collections (if expanded)
-    if (coll.requests) {
-      if (coll.requests.find((req) => req.id === reqID)) return coll
-    }
+function deleteCollInTree(tree: TeamCollection[], targetID: string) {
+  // Get the parent owning the collection
+  const parent = findParentOfColl(tree, targetID)
 
-    // Check in children of collections
-    if (coll.children) {
-      const result = findCollWithReqIDInTree(coll.children, reqID)
-      if (result) return result
-    }
+  // If we found a parent, update it
+  if (parent && parent.children) {
+    parent.children = parent.children.filter((coll) => coll.id !== targetID)
   }
 
-  // No matches
-  return null
+  // If there is no parent, it could mean:
+  //  1. The collection with that ID does not exist
+  //  2. The collection is in root (therefore, no parent)
+
+  // Let's look for element, if not exist, then stop
+  const el = findCollInTree(tree, targetID)
+  if (!el) return
+
+  // Collection exists, so this should be in root, hence removing element
+  pull(tree, el)
+}
+
+/**
+ * Updates a collection in the tree with the specified data
+ *
+ * @param {TeamCollection[]} tree - The tree to update in (THIS WILL BE MUTATED!)
+ * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} updateColl - An object defining all the fields that should be updated (ID is required to find the target collection)
+ */
+function updateCollInTree(
+  tree: TeamCollection[],
+  updateColl: Partial<TeamCollection> & Pick<TeamCollection, "id">
+) {
+  const el = findCollInTree(tree, updateColl.id)
+
+  // If no match, stop the operation
+  if (!el) return
+
+  // Update all the specified keys
+  Object.assign(el, updateColl)
 }
 
 /**
@@ -135,78 +152,47 @@ function findReqInTree(
 }
 
 /**
- * Updates a collection in the tree with the specified data
+ * Finds and returns a REFERENCE to the collection containing a given request ID in tree (or null)
  *
- * @param {TeamCollection[]} tree - The tree to update in (THIS WILL BE MUTATED!)
- * @param {Partial<TeamCollection> & Pick<TeamCollection, "id">} updateColl - An object defining all the fields that should be updated (ID is required to find the target collection)
+ * @param {TeamCollection[]} tree - The tree to look in
+ * @param {string} reqID - The ID of the request to look for
+ *
+ * @returns REFERENCE to the collection or null if request not found
  */
-function updateCollInTree(
+function findCollWithReqIDInTree(
   tree: TeamCollection[],
-  updateColl: Partial<TeamCollection> & Pick<TeamCollection, "id">
-) {
-  const el = findCollInTree(tree, updateColl.id)
+  reqID: string
+): TeamCollection | null {
+  for (const coll of tree) {
+    // Check in root collections (if expanded)
+    if (coll.requests) {
+      if (coll.requests.find((req) => req.id === reqID)) return coll
+    }
 
-  // If no match, stop the operation
-  if (!el) return
-
-  // Update all the specified keys
-  Object.assign(el, updateColl)
-}
-
-/**
- * Deletes a collection in the tree
- *
- * @param {TeamCollection[]} tree - The tree to delete in (THIS WILL BE MUTATED!)
- * @param {string} targetID - ID of the collection to delete
- */
-function deleteCollInTree(tree: TeamCollection[], targetID: string) {
-  // Get the parent owning the collection
-  const parent = findParentOfColl(tree, targetID)
-
-  // If we found a parent, update it
-  if (parent && parent.children) {
-    parent.children = parent.children.filter((coll) => coll.id !== targetID)
+    // Check in children of collections
+    if (coll.children) {
+      const result = findCollWithReqIDInTree(coll.children, reqID)
+      if (result) return result
+    }
   }
 
-  // If there is no parent, it could mean:
-  //  1. The collection with that ID does not exist
-  //  2. The collection is in root (therefore, no parent)
-
-  // Let's look for element, if not exist, then stop
-  const el = findCollInTree(tree, targetID)
-  if (!el) return
-
-  // Collection exists, so this should be in root, hence removing element
-  pull(tree, el)
+  // No matches
+  return null
 }
 
-/**
- * TeamCollectionAdapter provides a reactive collections list for a specific team
- */
-export default class TeamCollectionAdapter {
-  /**
-   * The reactive list of collections
-   *
-   * A new value is emitted when there is a change
-   * (Use views instead)
-   */
+export default class NewTeamCollectionAdapter {
   collections$: BehaviorSubject<TeamCollection[]>
 
-  // Fields for subscriptions, used for destroying once not needed
-  private teamCollectionAdded$: ZenObservable.Subscription | null
-  private teamCollectionUpdated$: ZenObservable.Subscription | null
-  private teamCollectionRemoved$: ZenObservable.Subscription | null
-  private teamRequestAdded$: ZenObservable.Subscription | null
-  private teamRequestUpdated$: ZenObservable.Subscription | null
-  private teamRequestDeleted$: ZenObservable.Subscription | null
+  private teamCollectionAdded$: Subscription | null
+  private teamCollectionUpdated$: Subscription | null
+  private teamCollectionRemoved$: Subscription | null
+  private teamRequestAdded$: Subscription | null
+  private teamRequestUpdated$: Subscription | null
+  private teamRequestDeleted$: Subscription | null
 
-  /**
-   * @constructor
-   *
-   * @param {string | null} teamID - ID of the team to listen to, or null if none decided and the adapter should stand by
-   */
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
+
     this.teamCollectionAdded$ = null
     this.teamCollectionUpdated$ = null
     this.teamCollectionRemoved$ = null
@@ -217,15 +203,11 @@ export default class TeamCollectionAdapter {
     if (this.teamID) this.initialize()
   }
 
-  /**
-   * Updates the team the adapter is looking at
-   *
-   * @param {string | null} newTeamID - ID of the team to listen to, or null if none decided and the adapter should stand by
-   */
   changeTeamID(newTeamID: string | null) {
+    this.teamID = newTeamID
     this.collections$.next([])
 
-    this.teamID = newTeamID
+    this.unsubscribeSubscriptions()
 
     if (this.teamID) this.initialize()
   }
@@ -243,20 +225,9 @@ export default class TeamCollectionAdapter {
     this.teamRequestUpdated$?.unsubscribe()
   }
 
-  /**
-   * Initializes the adapter
-   */
   private async initialize() {
     await this.loadRootCollections()
     this.registerSubscriptions()
-  }
-
-  /**
-   * Loads the root collections
-   */
-  private async loadRootCollections(): Promise<void> {
-    const colls = await rootCollectionsOfTeam(apolloClient, this.teamID)
-    this.collections$.next(colls)
   }
 
   /**
@@ -286,6 +257,44 @@ export default class TeamCollectionAdapter {
     }
 
     this.collections$.next(tree)
+  }
+
+  private async loadRootCollections() {
+    if (this.teamID === null) throw new Error("Team ID is null")
+
+    const totalCollections: TeamCollection[] = []
+
+    while (true) {
+      const result = await runGQLQuery({
+        query: RootCollectionsOfTeamDocument,
+        variables: {
+          teamID: this.teamID,
+          cursor:
+            totalCollections.length > 0
+              ? totalCollections[totalCollections.length - 1].id
+              : undefined,
+        },
+      })
+
+      if (E.isLeft(result))
+        throw new Error(`Error fetching root collections: ${result}`)
+
+      totalCollections.push(
+        ...result.right.rootCollectionsOfTeam.map(
+          (x) =>
+            <TeamCollection>{
+              ...x,
+              children: null,
+              requests: null,
+            }
+        )
+      )
+
+      if (result.right.rootCollectionsOfTeam.length !== TEAMS_BACKEND_PAGE_SIZE)
+        break
+    }
+
+    this.collections$.next(totalCollections)
   }
 
   /**
@@ -338,25 +347,6 @@ export default class TeamCollectionAdapter {
   }
 
   /**
-   * Removes a request from the tree
-   *
-   * @param {string} requestID - ID of the request to remove
-   */
-  private removeRequest(requestID: string) {
-    const tree = this.collections$.value
-
-    // Find request in tree, don't attempt if no collection or no requests (expansion?)
-    const coll = findCollWithReqIDInTree(tree, requestID)
-    if (!coll || !coll.requests) return
-
-    // Remove the collection
-    remove(coll.requests, (req) => req.id === requestID)
-
-    // Publish new tree
-    this.collections$.next(tree)
-  }
-
-  /**
    * Updates the request in tree
    *
    * @param {Partial<TeamRequest> & Pick<TeamRequest, 'id'>} requestUpdate - Object defining all the fields to update in request (ID of the request is required)
@@ -376,143 +366,121 @@ export default class TeamCollectionAdapter {
   }
 
   /**
-   * Registers the subscriptions to listen to team collection updates
+   * Removes a request from the tree
+   *
+   * @param {string} requestID - ID of the request to remove
    */
-  registerSubscriptions() {
-    this.teamCollectionAdded$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamCollectionAdded($teamID: ID!) {
-            teamCollectionAdded(teamID: $teamID) {
-              id
-              title
-              parent {
-                id
-              }
-            }
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.addCollection(
-          {
-            id: data.teamCollectionAdded.id,
-            children: null,
-            requests: null,
-            title: data.teamCollectionAdded.title,
-          },
-          data.teamCollectionAdded.parent?.id
-        )
-      })
+  private removeRequest(requestID: string) {
+    const tree = this.collections$.value
 
-    this.teamCollectionUpdated$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamCollectionUpdated($teamID: ID!) {
-            teamCollectionUpdated(teamID: $teamID) {
-              id
-              title
-              parent {
-                id
-              }
-            }
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.updateCollection({
-          id: data.teamCollectionUpdated.id,
-          title: data.teamCollectionUpdated.title,
-        })
-      })
+    // Find request in tree, don't attempt if no collection or no requests (expansion?)
+    const coll = findCollWithReqIDInTree(tree, requestID)
+    if (!coll || !coll.requests) return
 
-    this.teamCollectionRemoved$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamCollectionRemoved($teamID: ID!) {
-            teamCollectionRemoved(teamID: $teamID)
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.removeCollection(data.teamCollectionRemoved)
-      })
+    // Remove the collection
+    remove(coll.requests, (req) => req.id === requestID)
 
-    this.teamRequestAdded$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamRequestAdded($teamID: ID!) {
-            teamRequestAdded(teamID: $teamID) {
-              id
-              collectionID
-              request
-              title
-            }
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.addRequest({
-          id: data.teamRequestAdded.id,
-          collectionID: data.teamRequestAdded.collectionID,
-          request: translateToNewRequest(
-            JSON.parse(data.teamRequestAdded.request)
-          ),
-          title: data.teamRequestAdded.title,
-        })
-      })
+    // Publish new tree
+    this.collections$.next(tree)
+  }
 
-    this.teamRequestUpdated$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamRequestUpdated($teamID: ID!) {
-            teamRequestUpdated(teamID: $teamID) {
-              id
-              collectionID
-              request
-              title
-            }
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.updateRequest({
-          id: data.teamRequestUpdated.id,
-          collectionID: data.teamRequestUpdated.collectionID,
-          request: JSON.parse(data.teamRequestUpdated.request),
-          title: data.teamRequestUpdated.title,
-        })
-      })
+  private registerSubscriptions() {
+    if (!this.teamID) return
 
-    this.teamRequestDeleted$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamRequestDeleted($teamID: ID!) {
-            teamRequestDeleted(teamID: $teamID)
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
+    this.teamCollectionAdded$ = runGQLSubscription({
+      query: TeamCollectionAddedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Collection Added Error: ${result.left}`)
+
+      this.addCollection(
+        {
+          id: result.right.teamCollectionAdded.id,
+          children: null,
+          requests: null,
+          title: result.right.teamCollectionAdded.title,
         },
+        result.right.teamCollectionAdded.parent?.id ?? null
+      )
+    })
+
+    this.teamCollectionUpdated$ = runGQLSubscription({
+      query: TeamCollectionUpdatedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Collection Updated Error: ${result.left}`)
+
+      this.updateCollection({
+        id: result.right.teamCollectionUpdated.id,
+        title: result.right.teamCollectionUpdated.title,
       })
-      .subscribe(({ data }) => {
-        this.removeRequest(data.teamRequestDeleted)
+    })
+
+    this.teamCollectionRemoved$ = runGQLSubscription({
+      query: TeamCollectionRemovedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Collection Removed Error: ${result.left}`)
+
+      this.removeCollection(result.right.teamCollectionRemoved)
+    })
+
+    this.teamRequestAdded$ = runGQLSubscription({
+      query: TeamRequestAddedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Request Added Error: ${result.left}`)
+
+      this.addRequest({
+        id: result.right.teamRequestAdded.id,
+        collectionID: result.right.teamRequestAdded.collectionID,
+        request: translateToNewRequest(
+          JSON.parse(result.right.teamRequestAdded.request)
+        ),
+        title: result.right.teamRequestAdded.title,
       })
+    })
+
+    this.teamRequestUpdated$ = runGQLSubscription({
+      query: TeamRequestUpdatedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Request Updated Error: ${result.left}`)
+
+      this.updateRequest({
+        id: result.right.teamRequestUpdated.id,
+        collectionID: result.right.teamRequestUpdated.collectionID,
+        request: JSON.parse(result.right.teamRequestUpdated.request),
+        title: result.right.teamRequestUpdated.title,
+      })
+    })
+
+    this.teamRequestDeleted$ = runGQLSubscription({
+      query: TeamRequestDeletedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Request Deleted Error ${result.left}`)
+
+      this.removeRequest(result.right.teamRequestDeleted)
+    })
   }
 
   /**
@@ -533,27 +501,53 @@ export default class TeamCollectionAdapter {
 
     if (collection.children != null) return
 
-    const collections: TeamCollection[] = (
-      await getCollectionChildren(apolloClient, collectionID)
-    ).map<TeamCollection>((el) => {
-      return {
-        id: el.id,
-        title: el.title,
-        children: null,
-        requests: null,
-      }
+    // TODO: Implement deep pagination
+    const collectionData = await runGQLQuery({
+      query: GetCollectionChildrenDocument,
+      variables: {
+        collectionID,
+      },
     })
 
-    const requests: TeamRequest[] = (
-      await getCollectionRequests(apolloClient, collectionID)
-    ).map<TeamRequest>((el) => {
-      return {
-        id: el.id,
+    if (E.isLeft(collectionData))
+      throw new Error(
+        `Child Collection Fetch Error for ${collectionID}: ${collectionData.left}`
+      )
+
+    const collections: TeamCollection[] =
+      collectionData.right.collection?.children.map(
+        (el) =>
+          <TeamCollection>{
+            id: el.id,
+            title: el.title,
+            children: null,
+            requests: null,
+          }
+      ) ?? []
+
+    // TODO: Implement deep pagination
+    const requestData = await runGQLQuery({
+      query: GetCollectionRequestsDocument,
+      variables: {
         collectionID,
-        title: el.title,
-        request: translateToNewRequest(JSON.parse(el.request)),
-      }
+        cursor: undefined,
+      },
     })
+
+    if (E.isLeft(requestData))
+      throw new Error(
+        `Child Request Fetch Error for ${requestData}: ${requestData.left}`
+      )
+
+    const requests: TeamRequest[] =
+      requestData.right.requestsInCollection.map<TeamRequest>((el) => {
+        return {
+          id: el.id,
+          collectionID,
+          title: el.title,
+          request: translateToNewRequest(JSON.parse(el.request)),
+        }
+      })
 
     collection.children = collections
     collection.requests = requests

@@ -1,0 +1,8 @@
+subscription TeamRequestUpdated($teamID: ID!) {
+  teamRequestUpdated(teamID: $teamID) {
+    id
+    collectionID
+    request
+    title
+  }
+}

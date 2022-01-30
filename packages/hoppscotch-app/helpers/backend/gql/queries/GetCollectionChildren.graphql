@@ -1,0 +1,8 @@
+query GetCollectionChildren($collectionID: ID!) {
+  collection(collectionID: $collectionID) {
+    children {
+      id
+      title
+    }
+  }
+}

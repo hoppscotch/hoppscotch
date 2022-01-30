@@ -1,14 +1,19 @@
-import { BehaviorSubject } from "rxjs"
-import gql from "graphql-tag"
+import * as E from "fp-ts/Either"
+import { BehaviorSubject, Subscription } from "rxjs"
 import cloneDeep from "lodash/cloneDeep"
-import * as Apollo from "@apollo/client/core"
-import { apolloClient } from "~/helpers/apollo"
+import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
+import {
+  GetTeamMembersDocument,
+  TeamMemberAddedDocument,
+  TeamMemberRemovedDocument,
+  TeamMemberUpdatedDocument,
+} from "../backend/graphql"
 
 export interface TeamsTeamMember {
   membershipID: string
   user: {
     uid: string
-    email: string
+    email: string | null
   }
   role: "OWNER" | "EDITOR" | "VIEWER"
 }
@@ -16,9 +21,9 @@ export interface TeamsTeamMember {
 export default class TeamMemberAdapter {
   members$: BehaviorSubject<TeamsTeamMember[]>
 
-  private teamMemberAdded$: ZenObservable.Subscription | null
-  private teamMemberRemoved$: ZenObservable.Subscription | null
-  private teamMemberUpdated$: ZenObservable.Subscription | null
+  private teamMemberAdded$: Subscription | null
+  private teamMemberRemoved$: Subscription | null
+  private teamMemberUpdated$: Subscription | null
 
   constructor(private teamID: string | null) {
     this.members$ = new BehaviorSubject<TeamsTeamMember[]>([])
@@ -50,37 +55,31 @@ export default class TeamMemberAdapter {
   }
 
   private async loadTeamMembers(): Promise<void> {
+    if (!this.teamID) return
+
     const result: TeamsTeamMember[] = []
 
     let cursor: string | null = null
+
     while (true) {
-      const response: Apollo.ApolloQueryResult<any> = await apolloClient.query({
-        query: gql`
-          query GetTeamMembers($teamID: ID!, $cursor: ID) {
-            team(teamID: $teamID) {
-              members(cursor: $cursor) {
-                membershipID
-                user {
-                  uid
-                  email
-                }
-                role
-              }
-            }
-          }
-        `,
+      const res = await runGQLQuery({
+        query: GetTeamMembersDocument,
         variables: {
           teamID: this.teamID,
           cursor,
         },
       })
 
-      result.push(...response.data.team.members)
+      if (E.isLeft(res))
+        throw new Error(`Team Members List Load failed: ${res.left}`)
 
-      if ((response.data.team.members as any[]).length === 0) break
+      // TODO: Improve this with TypeScript
+      result.push(...(res.right.team!.members as any))
+
+      if ((res.right.team!.members as any[]).length === 0) break
       else {
         cursor =
-          response.data.team.members[response.data.team.members.length - 1]
+          res.right.team!.members[res.right.team!.members.length - 1]
             .membershipID
       }
     }
@@ -89,72 +88,63 @@ export default class TeamMemberAdapter {
   }
 
   private registerSubscriptions() {
-    this.teamMemberAdded$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamMemberAdded($teamID: ID!) {
-            teamMemberAdded(teamID: $teamID) {
-              user {
-                uid
-                email
-              }
-              role
-            }
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.members$.next([...this.members$.value, data.teamMemberAdded])
-      })
+    if (!this.teamID) return
 
-    this.teamMemberRemoved$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamMemberRemoved($teamID: ID!) {
-            teamMemberRemoved(teamID: $teamID)
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        this.members$.next(
-          this.members$.value.filter(
-            (el) => el.user.uid !== data.teamMemberRemoved
-          )
-        )
-      })
+    this.teamMemberAdded$ = runGQLSubscription({
+      query: TeamMemberAddedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(`Team Member Added Subscription Failed: ${result.left}`)
 
-    this.teamMemberUpdated$ = apolloClient
-      .subscribe({
-        query: gql`
-          subscription TeamMemberUpdated($teamID: ID!) {
-            teamMemberUpdated(teamID: $teamID) {
-              user {
-                uid
-                email
-              }
-              role
-            }
-          }
-        `,
-        variables: {
-          teamID: this.teamID,
-        },
-      })
-      .subscribe(({ data }) => {
-        const list = cloneDeep(this.members$.value)
-        const obj = list.find(
-          (el) => el.user.uid === data.teamMemberUpdated.user.uid
+      // TODO: Improve typing
+      this.members$.next([
+        ...(this.members$.value as any),
+        result.right.teamMemberAdded as any,
+      ])
+    })
+
+    this.teamMemberRemoved$ = runGQLSubscription({
+      query: TeamMemberRemovedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(
+          `Team Member Removed Subscription Failed: ${result.left}`
         )
 
-        if (!obj) return
+      this.members$.next(
+        this.members$.value.filter(
+          (el) => el.user.uid !== result.right.teamMemberRemoved
+        )
+      )
+    })
 
-        Object.assign(obj, data.teamMemberUpdated)
-      })
+    this.teamMemberUpdated$ = runGQLSubscription({
+      query: TeamMemberUpdatedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    }).subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(
+          `Team Member Updated Subscription Failed: ${result.left}`
+        )
+
+      const list = cloneDeep(this.members$.value)
+      // TODO: Improve typing situation
+      const obj = list.find(
+        (el) =>
+          el.user.uid === (result.right.teamMemberUpdated.user!.uid as any)
+      )
+
+      if (!obj) return
+
+      Object.assign(obj, result.right.teamMemberUpdated)
+    })
   }
 }

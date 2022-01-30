@@ -30,6 +30,7 @@ import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
 import { Source, subscribe, pipe as wonkaPipe, onEnd } from "wonka"
+import { Subject } from "rxjs"
 import { keyDefs } from "./caching/keys"
 import { optimisticDefs } from "./caching/optimistic"
 import { updatesDef } from "./caching/updates"
@@ -122,7 +123,6 @@ const createHoppClient = () =>
       fetchExchange,
       subscriptionExchange({
         forwardSubscription: (operation) =>
-          // @ts-expect-error: An issue with the Urql typing
           subscriptionClient.request(operation),
       }),
     ],
@@ -145,6 +145,11 @@ type UseQueryOptions<T = any, V = object> = {
   pollDuration?: number | undefined
 }
 
+type RunQueryOptions<T = any, V = object> = {
+  query: TypedDocumentNode<T, V>
+  variables?: V
+}
+
 /**
  * A wrapper type for defining errors possible in a GQL operation
  */
@@ -157,6 +162,104 @@ export type GQLError<T extends string> =
       type: "gql_error"
       error: T
     }
+
+export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
+  args: RunQueryOptions<DocType, DocVarType>
+): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
+  const request = createRequest<DocType, DocVarType>(args.query, args.variables)
+  const source = client.value.executeQuery(request)
+
+  return new Promise((resolve) => {
+    const sub = wonkaPipe(
+      source,
+      subscribe((res) => {
+        if (sub) {
+          sub.unsubscribe()
+        }
+
+        pipe(
+          // The target
+          res.data as DocType | undefined,
+          // Define what happens if data does not exist (it is an error)
+          E.fromNullable(
+            pipe(
+              // Take the network error value
+              res.error?.networkError,
+              // If it null, set the left to the generic error name
+              E.fromNullable(res.error?.message),
+              E.match(
+                // The left case (network error was null)
+                (gqlErr) =>
+                  <GQLError<DocErrorType>>{
+                    type: "gql_error",
+                    error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
+                  },
+                // The right case (it was a GraphQL Error)
+                (networkErr) =>
+                  <GQLError<DocErrorType>>{
+                    type: "network_error",
+                    error: networkErr,
+                  }
+              )
+            )
+          ),
+          resolve
+        )
+      })
+    )
+  })
+}
+
+export const runGQLSubscription = <
+  DocType,
+  DocVarType,
+  DocErrorType extends string
+>(
+  args: RunQueryOptions<DocType, DocVarType>
+) => {
+  const result$ = new Subject<E.Either<GQLError<DocErrorType>, DocType>>()
+
+  const source = client.value.executeSubscription(
+    createRequest(args.query, args.variables)
+  )
+
+  wonkaPipe(
+    source,
+    subscribe((res) => {
+      result$.next(
+        pipe(
+          // The target
+          res.data as DocType | undefined,
+          // Define what happens if data does not exist (it is an error)
+          E.fromNullable(
+            pipe(
+              // Take the network error value
+              res.error?.networkError,
+              // If it null, set the left to the generic error name
+              E.fromNullable(res.error?.message),
+              E.match(
+                // The left case (network error was null)
+                (gqlErr) =>
+                  <GQLError<DocErrorType>>{
+                    type: "gql_error",
+                    error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
+                  },
+                // The right case (it was a GraphQL Error)
+                (networkErr) =>
+                  <GQLError<DocErrorType>>{
+                    type: "network_error",
+                    error: networkErr,
+                  }
+              )
+            )
+          )
+        )
+      )
+    })
+  )
+
+  return result$
+}
 
 export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   _args: UseQueryOptions<DocType, DocVarType>

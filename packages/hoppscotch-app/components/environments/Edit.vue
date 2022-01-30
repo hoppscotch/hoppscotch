@@ -41,6 +41,12 @@
             />
           </div>
         </div>
+        <div
+          v-if="evnExpandError"
+          class="w-full mb-2 px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+        >
+          {{ $t("environment.nested_overflow") }}
+        </div>
         <div class="border divide-y rounded divide-dividerLight border-divider">
           <div
             v-for="(variable, index) in vars"
@@ -117,6 +123,7 @@
 <script lang="ts">
 import clone from "lodash/clone"
 import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
 import {
   Environment,
   getEnviroment,
@@ -124,6 +131,7 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { parseTemplateStringE } from "~/helpers/templating"
 
 export default defineComponent({
   props: {
@@ -157,6 +165,22 @@ export default defineComponent({
       vars: [] as { key: string; value: string }[],
       clearIcon: "trash-2",
     }
+  },
+  computed: {
+    evnExpandError(): boolean {
+      for (const variable of this.vars) {
+        const result = parseTemplateStringE(
+          variable.value,
+          this.workingEnv?.variables ?? []
+        )
+
+        if (E.isLeft(result)) {
+          console.error("error", result.left)
+          return true
+        }
+      }
+      return false
+    },
   },
   watch: {
     show() {

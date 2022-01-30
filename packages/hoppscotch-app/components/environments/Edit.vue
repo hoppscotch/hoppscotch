@@ -169,10 +169,7 @@ export default defineComponent({
   computed: {
     evnExpandError(): boolean {
       for (const variable of this.vars) {
-        const result = parseTemplateStringE(
-          variable.value,
-          this.workingEnv?.variables ?? []
-        )
+        const result = parseTemplateStringE(variable.value, this.vars)
 
         if (E.isLeft(result)) {
           console.error("error", result.left)

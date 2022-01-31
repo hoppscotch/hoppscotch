@@ -102,7 +102,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "@nuxtjs/composition-api"
-import * as timeago from "timeago.js"
+import { useTimeAgo } from "@vueuse/core"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import {
   useI18n,
@@ -135,7 +135,7 @@ const t = useI18n()
 
 const groupByDate = (array: any[], key: string) => {
   return array.reduce((rv: any, x: any) => {
-    ;(rv[timeago.format(x[key])] = rv[timeago.format(x[key])] || []).push(x)
+    ;(rv[useTimeAgo(x[key]).value] = rv[useTimeAgo(x[key]).value] || []).push(x)
     return rv
   }, {})
 }

@@ -55,7 +55,6 @@ defineProps<{
     @apply bg-transparent;
     @apply z-2;
     @apply w-0.5;
-    @apply transition;
 
     content: "";
   }

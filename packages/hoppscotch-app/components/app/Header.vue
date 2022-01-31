@@ -75,7 +75,9 @@
                   :alt="currentUser.displayName"
                   :title="currentUser.displayName"
                   indicator
-                  :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
+                  :indicator-styles="
+                    network.isOnline ? 'bg-green-500' : 'bg-red-500'
+                  "
                 />
                 <ButtonSecondary
                   v-else
@@ -130,7 +132,7 @@
         </div>
       </div>
     </header>
-    <AppAnnouncement v-if="!isOnLine" />
+    <AppAnnouncement v-if="!network.isOnline" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
@@ -138,7 +140,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "@nuxtjs/composition-api"
+import { onMounted, reactive, ref } from "@nuxtjs/composition-api"
+import { useNetwork } from "@vueuse/core"
 import intializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
@@ -164,7 +167,7 @@ const showSupport = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
-const isOnLine = ref(navigator.onLine)
+const network = reactive(useNetwork())
 
 const currentUser = useReadonlyStream(probableUser$, null)
 
@@ -173,13 +176,6 @@ defineActionHandler("modals.support.toggle", () => {
 })
 
 onMounted(() => {
-  window.addEventListener("online", () => {
-    isOnLine.value = true
-  })
-  window.addEventListener("offline", () => {
-    isOnLine.value = false
-  })
-
   // Initializes the PWA code - checks if the app is installed,
   // etc.
   showInstallPrompt.value = intializePwa()

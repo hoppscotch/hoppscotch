@@ -71,9 +71,15 @@ export const runRESTRequest$ = (): TaskEither<
               headers: res.headers,
             })()
 
-            // TODO: Handle script executation fails (isLeft)
             if (isRight(runResult)) {
               setRESTTestResults(translateToSandboxTestResults(runResult.right))
+            } else {
+              setRESTTestResults({
+                description: "",
+                expectResults: [],
+                tests: [],
+                scriptError: true,
+              })
             }
 
             subscription.unsubscribe()

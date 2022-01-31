@@ -10,6 +10,7 @@
           to="/"
         />
         <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
+        <SmartColorModePicker/>
       </div>
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary

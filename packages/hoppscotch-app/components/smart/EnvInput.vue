@@ -29,6 +29,8 @@ import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
 import { tippy } from "vue-tippy"
 import * as E from "fp-ts/Either"
+import { pipe } from "fp-ts/function"
+import { Subject } from "rxjs"
 import { aggregateEnvs$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { parseTemplateStringE } from "~/helpers/templating"
@@ -138,6 +140,33 @@ export default defineComponent({
       }, 5)
       this.debouncedHandler()
     },
+    getResultSpan(envVar, highlightPos, position) {
+      const env = this.aggregateEnvs.find((k) => k.key === envVar)
+
+      const envName = env?.sourceEnv ?? "choose an environment"
+      const value = pipe(
+        parseTemplateStringE(env?.value ?? "", this.aggregateEnvs),
+        E.map((value) => value.replace(/"/g, "&quot;"))
+      )
+
+      const isError = env === undefined || E.isLeft(value)
+
+      return `<span class="${highlightPos.style} ${
+        isError
+          ? "bg-red-400 text-red-50 hover:bg-red-600"
+          : "bg-accentDark text-accentContrast hover:bg-accent"
+      }" v-tippy data-tippy-content="${envName}<xmp class='${
+        E.isLeft(value) && value.left === "ENV_EXPAND_LOOP"
+          ? "expand-loop"
+          : "found"
+      }'>${
+        E.isLeft(value) && value.left === "ENV_EXPAND_LOOP"
+          ? this.$t("environment.nested_overflow")
+          : value.right
+      }</xmp>">${this.safe_tags_replace(
+        this.internalValue.substring(position.start, position.end + 1)
+      )}</span>`
+    },
     processHighlights() {
       if (!this.highlightEnabled) {
         this.htmlOutput = this.internalValue
@@ -212,25 +241,7 @@ export default defineComponent({
         const envVar = this.internalValue
           .substring(position.start, position.end + 1)
           .slice(2, -2)
-        result += `<span class="${highlightPositions[k].style} ${
-          this.aggregateEnvs.find((k) => k.key === envVar)?.value ===
-            undefined ||
-          this.getEnvValue(this.constructEnv(envVar)) === "ENV_EXPAND_LOOP"
-            ? "bg-red-400 text-red-50 hover:bg-red-600"
-            : "bg-accentDark text-accentContrast hover:bg-accent"
-        }" v-tippy data-tippy-content="${this.getEnvName(
-          this.aggregateEnvs.find((k) => k.key === envVar)?.sourceEnv
-        )}<xmp class='${
-          this.getEnvValue(this.constructEnv(envVar)) === "ENV_EXPAND_LOOP"
-            ? "expand-loop"
-            : "found"
-        }'>${
-          this.getEnvValue(this.constructEnv(envVar)) === "ENV_EXPAND_LOOP"
-            ? this.$t("environment.nested_overflow")
-            : this.getEnvValue(this.constructEnv(envVar))
-        }</xmp>">${this.safe_tags_replace(
-          this.internalValue.substring(position.start, position.end + 1)
-        )}</span>`
+        result += this.getResultSpan(envVar, highlightPositions[k], position)
         startingPosition = position.end + 1
       }
       if (startingPosition < this.internalValue.length)
@@ -478,31 +489,6 @@ export default defineComponent({
         textRange.moveEnd("character", savedSel.end)
         textRange.moveStart("character", savedSel.start)
         textRange.select()
-      }
-    },
-    getEnvName(name) {
-      if (name) return name
-      return "choose an environment"
-    },
-    getEnvValue(value) {
-      if (value) return value.replace(/"/g, "&quot;")
-      if (value === "ENV_EXPAND_LOOP") return "ENV_EXPAND_LOOP"
-      // it does not filter special characters before adding them to HTML.
-      return "not found"
-    },
-    constructEnv(envVar) {
-      const result = parseTemplateStringE(
-        this.getEnvValue(
-          this.aggregateEnvs.find((k) => k.key === envVar)?.value
-        ),
-        this.aggregateEnvs
-      )
-
-      if (E.isLeft(result)) {
-        console.error("error", result.left)
-        return result.left
-      } else {
-        return result.right
       }
     },
   },

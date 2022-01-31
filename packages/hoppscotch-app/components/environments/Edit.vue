@@ -41,7 +41,7 @@
             />
           </div>
         </div>
-        <div class="border divide-y rounded divide-dividerLight border-divider">
+        <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"

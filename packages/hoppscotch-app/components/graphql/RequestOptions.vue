@@ -15,7 +15,7 @@
           </label>
           <div class="flex">
             <ButtonSecondary
-              v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+              v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.run'
               )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
@@ -26,7 +26,7 @@
             />
             <ButtonSecondary
               ref="saveRequest"
-              v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+              v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.save'
               )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"

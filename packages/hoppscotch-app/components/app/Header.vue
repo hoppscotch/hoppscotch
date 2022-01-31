@@ -6,7 +6,7 @@
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
-          label="HOPPSCOTCH"
+          :label="t('app.name')"
           to="/"
         />
         <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
@@ -21,14 +21,14 @@
           @click.native="showInstallPrompt()"
         />
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('app.search')} <kbd>/</kbd>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('support.title')} <kbd>?</kbd>`"
           svg="life-buoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"

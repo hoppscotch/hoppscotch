@@ -47,7 +47,7 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="border divide-y rounded divide-dividerLight border-divider"
+          class="border rounded divide-y divide-dividerLight border-divider"
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"

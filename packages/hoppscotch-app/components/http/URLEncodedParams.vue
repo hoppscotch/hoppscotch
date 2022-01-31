@@ -118,7 +118,7 @@
       </div>
       <div
         v-if="workingUrlEncodedParams.length === 0"
-        class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
           :src="`/images/states/${$colorMode.value}/add_category.svg`"

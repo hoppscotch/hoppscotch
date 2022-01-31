@@ -1,7 +1,7 @@
 <template>
   <div :class="{ 'rounded border border-divider': savingMode }">
     <div
-      class="divide-dividerLight divide-y border-b border-dividerLight flex flex-col top-0 z-10 sticky"
+      class="sticky top-0 z-10 flex flex-col border-b divide-dividerLight divide-y border-dividerLight"
       :class="{ 'bg-primary': !savingMode }"
     >
       <input
@@ -10,9 +10,9 @@
         type="search"
         autocomplete="off"
         :placeholder="$t('action.search')"
-        class="bg-transparent flex py-2 px-4"
+        class="flex px-4 py-2 bg-transparent"
       />
-      <div class="flex flex-1 justify-between">
+      <div class="flex justify-between flex-1">
         <ButtonSecondary
           svg="plus"
           :label="$t('action.new')"
@@ -59,15 +59,15 @@
     </div>
     <div
       v-if="collections.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
         loading="lazy"
-        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.collections')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
@@ -78,9 +78,9 @@
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
-      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <i class="pb-2 opacity-75 material-icons">manage_search</i>
       <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>

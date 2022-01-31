@@ -12,7 +12,7 @@
           </p>
         </div>
         <div
-          class="flex flex-col p-4 mt-8 space-y-6 border rounded border-dividerLight"
+          class="flex flex-col p-4 mt-8 border rounded space-y-6 border-dividerLight"
         >
           <div
             v-for="(invitee, index) in sendInvitesResult"
@@ -51,7 +51,7 @@
             {{ t("team.pending_invites") }}
           </label>
         </div>
-        <div class="border divide-y rounded divide-dividerLight border-divider">
+        <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
             v-if="pendingInvites.loading"
             class="flex items-center justify-center p-4"
@@ -127,7 +127,7 @@
             />
           </div>
         </div>
-        <div class="border divide-y rounded divide-dividerLight border-divider">
+        <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
             v-for="(invitee, index) in newInvites"
             :key="`new-invitee-${index}`"

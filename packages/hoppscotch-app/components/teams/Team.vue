@@ -27,7 +27,7 @@
         >
           {{ team.name || t("state.nothing_found") }}
         </label>
-        <div class="flex mt-2 -space-x-1 overflow-hidden">
+        <div class="flex mt-2 overflow-hidden -space-x-1">
           <img
             v-for="(member, index) in team.teamMembers"
             :key="`member-${index}`"

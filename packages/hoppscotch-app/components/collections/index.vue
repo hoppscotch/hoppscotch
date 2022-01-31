@@ -1,7 +1,7 @@
 <template>
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="divide-dividerLight divide-y bg-primary border-b border-dividerLight rounded-t flex flex-col z-10 sticky"
+      class="sticky z-10 flex flex-col border-b rounded-t divide-dividerLight divide-y bg-primary border-dividerLight"
       :style="saveRequest ? 'top: calc(-1 * var(--font-size-body))' : 'top: 0'"
     >
       <div v-if="!saveRequest" class="flex flex-col">
@@ -10,7 +10,7 @@
           type="search"
           autocomplete="off"
           :placeholder="$t('action.search')"
-          class="bg-transparent py-2 pr-2 pl-4"
+          class="py-2 pl-4 pr-2 bg-transparent"
         />
       </div>
       <CollectionsChooseType
@@ -20,7 +20,7 @@
         @update-collection-type="updateCollectionType"
         @update-selected-team="updateSelectedTeam"
       />
-      <div class="flex flex-1 justify-between">
+      <div class="flex justify-between flex-1">
         <ButtonSecondary
           v-if="
             collectionsType.type == 'team-collections' &&
@@ -96,15 +96,15 @@
     </div>
     <div
       v-if="filteredCollections.length === 0 && filterText.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
         loading="lazy"
-        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.collections')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
@@ -129,9 +129,9 @@
     </div>
     <div
       v-if="filterText.length !== 0 && filteredCollections.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
-      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <i class="pb-2 opacity-75 material-icons">manage_search</i>
       <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>

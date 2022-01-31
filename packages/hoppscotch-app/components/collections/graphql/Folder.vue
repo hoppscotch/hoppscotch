@@ -11,7 +11,7 @@
       @contextmenu.prevent="options.tippy().show()"
     >
       <span
-        class="cursor-pointer flex px-4 items-center justify-center"
+        class="flex items-center justify-center px-4 cursor-pointer"
         @click="toggleShowChildren()"
       >
         <SmartIcon
@@ -21,7 +21,7 @@
         />
       </span>
       <span
-        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
+        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         @click="toggleShowChildren()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
@@ -148,12 +148,12 @@
             folder.requests &&
             folder.requests.length === 0
           "
-          class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
         >
           <img
             :src="`/images/states/${$colorMode.value}/pack.svg`"
             loading="lazy"
-            class="flex-col object-contain object-center h-16 mb-4 w-16 inline-flex"
+            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
             :alt="`${$t('empty.folder')}`"
           />
           <span class="text-center">

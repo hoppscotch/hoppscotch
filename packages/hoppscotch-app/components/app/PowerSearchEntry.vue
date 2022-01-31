@@ -1,13 +1,13 @@
 <template>
   <button
-    class="flex items-center flex-1 px-6 py-3 font-medium transition cursor-pointer search-entry focus:outline-none"
+    class="flex items-center flex-1 px-6 py-3 font-medium cursor-pointer transition search-entry focus:outline-none"
     :class="{ active: active }"
     tabindex="-1"
     @click="$emit('action', shortcut.action)"
     @keydown.enter="$emit('action', shortcut.action)"
   >
     <SmartIcon
-      class="mr-4 transition opacity-50 svg-icons"
+      class="mr-4 opacity-50 transition svg-icons"
       :class="{ 'opacity-100 text-secondaryDark': active }"
       :name="shortcut.icon"
     />

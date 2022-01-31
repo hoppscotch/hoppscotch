@@ -10,7 +10,7 @@
       @contextmenu.prevent="options.tippy().show()"
     >
       <span
-        class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
+        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
         @click="!doc ? selectRequest() : {}"
       >
         <SmartIcon
@@ -20,7 +20,7 @@
         />
       </span>
       <span
-        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
+        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         @click="!doc ? selectRequest() : {}"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">

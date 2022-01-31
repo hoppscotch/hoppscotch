@@ -4,7 +4,7 @@
     class="relative flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring focus-visible:ring-primaryDark"
   >
     <img
-      class="absolute object-cover object-center w-5 h-5 transition rounded-full bg-primaryDark"
+      class="absolute object-cover object-center w-5 h-5 rounded-full transition bg-primaryDark"
       :src="url"
       :alt="alt"
       loading="lazy"

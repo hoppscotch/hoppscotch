@@ -1,6 +1,6 @@
 <template>
   <div
-    class="inline-flex items-center justify-center transition cursor-pointer flex-nowrap group hover:text-secondaryDark"
+    class="inline-flex items-center justify-center cursor-pointer transition flex-nowrap group hover:text-secondaryDark"
     @click="$emit('change')"
   >
     <span ref="toggle" class="toggle" :class="{ on: on }">

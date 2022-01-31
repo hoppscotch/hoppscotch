@@ -55,7 +55,7 @@
         </div>
         <div
           v-if="errorState"
-          class="bg-primaryLight rounded font-mono w-full py-2 px-4 text-red-400 overflow-auto whitespace-normal"
+          class="w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
         >
           {{ t("error.something_went_wrong") }}
         </div>

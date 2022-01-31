@@ -16,7 +16,7 @@
     </template>
     <template #body>
       <div v-if="importerType !== null" class="flex flex-col">
-        <div class="flex pb-6 flex-col px-2">
+        <div class="flex flex-col px-2 pb-6">
           <div
             v-for="(step, index) in importerSteps"
             :key="`step-${index}`"
@@ -25,7 +25,7 @@
             <div v-if="step.name === 'FILE_IMPORT'" class="space-y-4">
               <p class="flex items-center">
                 <span
-                  class="inline-flex border-4 border-primary items-center justify-center flex-shrink-0 mr-4 rounded-full text-dividerDark"
+                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
                   :class="{
                     '!text-green-500': hasFile,
                   }"
@@ -42,7 +42,7 @@
                   ref="inputChooseFileToImportFrom"
                   name="inputChooseFileToImportFrom"
                   type="file"
-                  class="transition cursor-pointer file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                  class="cursor-pointer transition file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
                   :accept="step.metadata.acceptedFileTypes"
                   @change="onFileChange"
                 />
@@ -51,7 +51,7 @@
             <div v-else-if="step.name === 'URL_IMPORT'" class="space-y-4">
               <p class="flex items-center">
                 <span
-                  class="inline-flex border-4 border-primary items-center justify-center flex-shrink-0 mr-4 rounded-full text-dividerDark"
+                  class="inline-flex items-center justify-center flex-shrink-0 mr-4 border-4 rounded-full border-primary text-dividerDark"
                   :class="{
                     '!text-green-500': hasGist,
                   }"

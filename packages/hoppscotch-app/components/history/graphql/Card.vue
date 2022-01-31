@@ -2,7 +2,7 @@
   <div class="flex flex-col group">
     <div class="flex items-center">
       <span
-        class="flex flex-1 min-w-0 py-2 pl-4 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
+        class="flex flex-1 min-w-0 py-2 pl-4 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         data-testid="restore_history_entry"
         @click="useEntry"
       >

@@ -57,7 +57,7 @@
       </span>
     </template>
     <template #body>
-      <div class="flex flex-col space-y-2 px-2">
+      <div class="flex flex-col px-2 space-y-2">
         <SmartItem
           svg="folder-plus"
           :label="t('import.from_json')"

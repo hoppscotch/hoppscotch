@@ -27,11 +27,13 @@
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
 import {
+  FormDataKeyValue,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTReqBody,
+  HoppRESTReqBodyFormData,
   makeRESTRequest,
-  ValidContentTypes,
 } from "@hoppscotch/data"
 import parseCurlCommand from "~/helpers/curlparser"
 import { useCodemirror } from "~/helpers/editor/codemirror"
@@ -127,29 +129,64 @@ const handleImport = () => {
       }
     }
 
-    const method = parsedCurl.method.toUpperCase()
-    const contentType: Exclude<ValidContentTypes, "multipart/form-data"> =
-      parsedCurl.headers?.contentType || "application/json"
+    const method = parsedCurl.method?.toUpperCase() || "GET"
+    const contentType = parsedCurl.contentType
 
     // TODO: implement all other types of auth
     // in a separate helper file
-    // >> preference to dedicated creds using --user arg
+    // >> preference order:
+    //      - Auth headers
+    //      - --user arg
+    //      - Creds provided along with URL
+    let auth = {} as HoppRESTAuth
     const user: string = parsedCurl.user ?? ""
-    const auth = {
-      authType: username.length > 0 || user.length > 0 ? "basic" : "none",
-      authActive: true,
-      ...(username.length > 0 && {
-        username,
-        password,
-      }),
-      ...(user.length > 0 && {
-        username: user.split(":")[0],
-        password: user.split(":")[1],
-      }),
-    } as HoppRESTAuth
+
+    if (parsedCurl.auth) {
+      const { type, token } = parsedCurl.auth
+      auth = {
+        authType: type.toLowerCase(),
+        token,
+      } as HoppRESTAuth
+    } else {
+      auth = {
+        authType: username.length > 0 || user.length > 0 ? "basic" : "none",
+        authActive: true,
+        ...(username.length > 0 && {
+          username,
+          password,
+        }),
+        ...(user.length > 0 && {
+          username: user.split(":")[0],
+          password: user.split(":")[1],
+        }),
+      } as HoppRESTAuth
+    }
 
     // append danglingParams to url
-    endpoint += "?" + danglingParams.join("&")
+    if (danglingParams.length > 0) endpoint += "?" + danglingParams.join("&")
+
+    // final body if multipart data is not present
+    let finalBody = {
+      contentType,
+      body,
+    } as HoppRESTReqBody
+
+    // if multipart data is present
+    if (Object.keys(parsedCurl.multipartUploads).length > 0) {
+      const ydob: FormDataKeyValue[] = []
+      for (const key in parsedCurl.multipartUploads) {
+        ydob.push({
+          active: true,
+          isFile: false,
+          key,
+          value: parsedCurl.multipartUploads[key],
+        })
+      }
+      finalBody = {
+        contentType: "multipart/form-data",
+        body: ydob,
+      } as HoppRESTReqBodyFormData
+    }
 
     setRESTRequest(
       makeRESTRequest({
@@ -161,10 +198,7 @@ const handleImport = () => {
         preRequestScript: "",
         testScript: "",
         auth,
-        body: {
-          contentType,
-          body,
-        },
+        body: finalBody,
       })
     )
   } catch (e) {

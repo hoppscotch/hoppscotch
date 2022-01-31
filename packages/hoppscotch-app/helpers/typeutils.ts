@@ -18,3 +18,6 @@ export const valueIncludes = <T, V extends readonly T[]>(
   obj: T,
   values: V
 ): obj is V[number] => values.includes(obj)
+
+export const isType = <Type>(variable: any): variable is Type =>
+  <Type>variable !== undefined

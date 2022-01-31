@@ -2,23 +2,16 @@ import * as URL from "url"
 import * as querystring from "querystring"
 import * as cookie from "cookie"
 import parser from "yargs-parser"
+import { detectContentType, parseBody } from "./contentParser"
+import { isType } from "./typeutils"
+import { HoppRESTReqBody } from "~/../hoppscotch-data/dist"
 
 /**
  * given this: [ 'msg1=value1', 'msg2=value2' ]
  * output this: 'msg1=value1&msg2=value2'
  * @param dataArguments
  */
-const joinDataArguments = (dataArguments: string[]) => {
-  let data = ""
-  dataArguments.forEach((argument, i) => {
-    if (i === 0) {
-      data += argument
-    } else {
-      data += `&${argument}`
-    }
-  })
-  return data
-}
+const joinDataArguments = (dataArguments: string[]) => dataArguments.join("&")
 
 const parseDataFromArguments = (parsedArguments: any) => {
   if (parsedArguments.data) {
@@ -63,32 +56,37 @@ const parseDataFromArguments = (parsedArguments: any) => {
 }
 
 const parseCurlCommand = (curlCommand: string) => {
-  const newlineFound = /\\/gi.test(curlCommand)
-  if (newlineFound) {
-    // remove '\' and newlines
-    curlCommand = curlCommand.replace(/\\/gi, "")
-    curlCommand = curlCommand.replace(/\n/g, "")
-  }
+  // remove '\' and newlines
+  curlCommand = curlCommand.replace(/ ?\\ ?$/gm, " ")
+  curlCommand = curlCommand.replace(/\n/g, "")
+
+  // remove all $ symbols from start of argument values
+  curlCommand = curlCommand.replaceAll("$'", "'")
+  curlCommand = curlCommand.replaceAll('$"', '"')
+
   // replace string for insomnia
-  curlCommand = curlCommand.replace(/--request /, "-X ")
-  curlCommand = curlCommand.replace(/--header /, "-H ")
-  curlCommand = curlCommand.replace(/--url /, " ")
-  curlCommand = curlCommand.replace(/-d /, "--data ")
-  curlCommand = curlCommand.replace(/-u /, "--user ")
+  curlCommand = curlCommand.replace(/--request ?/, "-X ")
+  curlCommand = curlCommand.replace(/--header ?/, "-H ")
+  curlCommand = curlCommand.replace(/--url ?/, " ")
+  curlCommand = curlCommand.replace(/--data-raw ?/, "--data ")
+  ;(["'", '"', " "] as Array<string>).map((sym) => {
+    const reData = new RegExp(`-d${sym}`)
+    const reUser = new RegExp(`-u${sym}`)
+    curlCommand = curlCommand.replace(reData, `--data${sym}`)
+    curlCommand = curlCommand.replace(reUser, `--user${sym}`)
+    return sym
+  })
 
   // yargs parses -XPOST as separate arguments. just prescreen for it.
-  curlCommand = curlCommand.replace(/ -XPOST/, " -X POST")
-  curlCommand = curlCommand.replace(/ -XGET/, " -X GET")
-  curlCommand = curlCommand.replace(/ -XPUT/, " -X PUT")
-  curlCommand = curlCommand.replace(/ -XPATCH/, " -X PATCH")
-  curlCommand = curlCommand.replace(/ -XDELETE/, " -X DELETE")
+  curlCommand = curlCommand.replace(/-XPOST/, " -X POST")
+  curlCommand = curlCommand.replace(/-XGET/, " -X GET")
+  curlCommand = curlCommand.replace(/-XPUT/, " -X PUT")
+  curlCommand = curlCommand.replace(/-XPATCH/, " -X PATCH")
+  curlCommand = curlCommand.replace(/-XDELETE/, " -X DELETE")
   curlCommand = curlCommand.trim()
   const parsedArguments = parser(curlCommand)
 
-  const rawData =
-    parsedArguments.data ||
-    parsedArguments.dataRaw ||
-    parsedArguments["data-raw"]
+  const rawData: string = parsedArguments?.data || ""
 
   let cookieString
   let cookies
@@ -122,6 +120,22 @@ const parseCurlCommand = (curlCommand: string) => {
         url = "https://" + url
       }
     }
+  }
+
+  // -F multipart data
+  let multipartUploads: Record<string, string> = {}
+  let rawContentType: string = ""
+
+  if (parsedArguments.F) {
+    if (!Array.isArray(parsedArguments.F)) {
+      parsedArguments.F = [parsedArguments.F]
+    }
+    parsedArguments.F.forEach((multipartArgument: string) => {
+      // input looks like key=value. value could be json or a file path prepended with an @
+      const [key, value] = multipartArgument.split("=", 2)
+      multipartUploads[key] = value[0] === "@" ? "" : value
+    })
+    rawContentType = "multipart/form-data"
   }
 
   let headers: any
@@ -162,22 +176,30 @@ const parseCurlCommand = (curlCommand: string) => {
     headers["User-Agent"] = parsedArguments["user-agent"]
   }
 
+  if (headers && rawContentType === "")
+    rawContentType = headers["Content-Type"] || headers["content-type"] || ""
+
+  let auth
+  if (headers?.Authorization) {
+    const [type, token]: string = headers.Authorization.split(" ")
+
+    // TODO:
+    switch (type) {
+      case "Bearer":
+        auth = {
+          type,
+          token,
+        }
+        delete headers.Authorization
+        break
+    }
+  }
+
   if (parsedArguments.b) {
     cookieString = parsedArguments.b
   }
   if (parsedArguments.cookie) {
     cookieString = parsedArguments.cookie
-  }
-  const multipartUploads: Record<string, string> = {}
-  if (parsedArguments.F) {
-    if (!Array.isArray(parsedArguments.F)) {
-      parsedArguments.F = [parsedArguments.F]
-    }
-    parsedArguments.F.forEach((multipartArgument: string) => {
-      // input looks like key=value. value could be json or a file path prepended with an @
-      const [key, value] = multipartArgument.split("=", 2)
-      multipartUploads[key] = value
-    })
   }
   if (cookieString) {
     const cookieParseOptions = {
@@ -217,18 +239,73 @@ const parseCurlCommand = (curlCommand: string) => {
     method = "get"
   }
 
-  let body = ""
+  let body: string | null = ""
 
-  if (rawData) {
-    try {
-      const tempBody = JSON.parse(rawData)
-      if (tempBody) {
-        body = JSON.stringify(tempBody, null, 2)
+  // TODO: resolve content type issue
+  let contentType: HoppRESTReqBody["contentType"] = "text/plain"
+
+  // if -F is not present, look for content type header
+  if (rawContentType !== "multipart/form-data") {
+    // if content type is provided
+    if (headers && rawContentType !== "") {
+      contentType = rawContentType // eslint-diable-line
+        .toLowerCase()
+        .split(";")[0] as HoppRESTReqBody["contentType"]
+
+      switch (contentType) {
+        case "application/x-www-form-urlencoded":
+        case "application/json": {
+          const parsedBody = parseBody(rawData, contentType)
+          if (isType<string | null>(parsedBody)) {
+            body = parsedBody
+          } else {
+            console.error("unstructured body")
+            contentType = null
+            body = null
+          }
+          break
+        }
+        case "multipart/form-data": {
+          const parsedBody = parseBody(rawData, contentType, rawContentType)
+          if (isType<Record<string, string>>(parsedBody)) {
+            multipartUploads = parsedBody
+          } else {
+            console.error("unstructured body")
+            contentType = null
+            body = null
+          }
+          break
+        }
+        case "application/hal+json":
+        case "application/ld+json":
+        case "application/vnd.api+json":
+        case "application/xml":
+        case "text/html":
+        case "text/plain":
+        default:
+          contentType = "text/plain"
+          body = rawData
+          break
       }
-    } catch (e) {
-      console.error(
-        "Error parsing JSON data. Please ensure that the data is valid JSON."
-      )
+    } else if (rawData) {
+      // if content type is not provided, check for it manually
+      contentType = detectContentType(rawData)
+      if (contentType === "multipart/form-data")
+        multipartUploads = parseBody(rawData, contentType) as Record<
+          string,
+          string
+        >
+      else {
+        const res = parseBody(rawData, contentType)
+        if (isType<string | null>(res))
+          body = parseBody(rawData, contentType) as string | null
+        if (body === null) {
+          contentType = null
+        }
+      }
+    } else {
+      body = null
+      contentType = null
     }
   }
 
@@ -272,11 +349,13 @@ const parseCurlCommand = (curlCommand: string) => {
     query,
     headers,
     method,
+    contentType,
     body,
     cookies,
     cookieString: cookieString?.replace("Cookie: ", ""),
     multipartUploads,
     ...parseDataFromArguments(parsedArguments),
+    ...(auth && { auth }),
     user: parsedArguments.user,
   }
 

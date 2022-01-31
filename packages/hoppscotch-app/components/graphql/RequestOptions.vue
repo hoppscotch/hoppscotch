@@ -8,14 +8,14 @@
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
         <div
-          class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery"
+          class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between gqlRunQuery"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("request.query") }}
           </label>
           <div class="flex">
             <ButtonSecondary
-              v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+              v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.run'
               )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
@@ -26,7 +26,7 @@
             />
             <ButtonSecondary
               ref="saveRequest"
-              v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+              v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.save'
               )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
@@ -71,7 +71,7 @@
         :indicator="variableString && variableString.length > 0 ? true : false"
       >
         <div
-          class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+          class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("request.variables") }}
@@ -114,7 +114,7 @@
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
         <div
-          class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+          class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("tab.headers") }}
@@ -154,7 +154,7 @@
           <div
             v-for="(header, index) in workingHeaders"
             :key="`header-${String(index)}`"
-            class="flex border-b divide-x divide-dividerLight border-dividerLight"
+            class="divide-x divide-dividerLight border-b border-dividerLight flex"
           >
             <SmartAutoComplete
               :placeholder="`${t('count.header', { count: index + 1 })}`"
@@ -180,7 +180,7 @@
               "
             />
             <input
-              class="flex flex-1 px-4 py-2 bg-transparent"
+              class="bg-transparent flex flex-1 py-2 px-4"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :name="`value ${String(index)}`"
               :value="header.value"
@@ -232,15 +232,15 @@
           </div>
           <div
             v-if="workingHeaders.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_category.svg`"
               loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
               :alt="`${t('empty.headers')}`"
             />
-            <span class="pb-4 text-center">
+            <span class="text-center pb-4">
               {{ t("empty.headers") }}
             </span>
             <ButtonSecondary

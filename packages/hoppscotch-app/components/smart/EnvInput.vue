@@ -251,6 +251,7 @@ export default defineComponent({
         tippy(t, {
           content: t.dataset["tippy-content"],
           theme: "tooltip",
+          allowHTML: true,
           popperOptions: {
             modifiers: {
               preventOverflow: {

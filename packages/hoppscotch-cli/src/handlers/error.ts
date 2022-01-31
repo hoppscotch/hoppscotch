@@ -12,7 +12,9 @@ const errorHandler = (err: CLIError | CommanderError) => {
     if (err.exitCode === 0) {
       process.exit(0);
     }
-    console.log(`${chalk.red(`${chalk.bold(`ERROR:`)} ${err.message}`)}`);
+    console.log(
+      `${chalk.red(`${chalk.bold(`ERROR:`)} ${err.message.slice(7)}`)}`
+    );
   } else if (err.code && err.code.startsWith("HOPP")) {
     console.log(
       `${chalk.red(`${chalk.bold(`ERROR [${err.code}]:`)} ${err.message}`)}`

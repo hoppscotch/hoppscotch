@@ -20,4 +20,15 @@ const errors = {
     message: "Malformed Collection JSON!",
   },
 };
-export { errors };
+
+interface ResponseErrorPair {
+  [key: number]: string;
+}
+
+const responseErrors: ResponseErrorPair = {
+  501: "Request Not Supported",
+  408: "Network Timeout",
+  600: "Could Not Parse Response",
+};
+
+export { errors, responseErrors };

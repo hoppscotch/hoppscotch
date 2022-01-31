@@ -5,20 +5,33 @@ import { createStream } from "table";
 import fuzzyPath from "inquirer-fuzzy-path";
 inquirer.registerPrompt("fuzzypath", fuzzyPath);
 
-import { context } from "../interfaces";
+import { CLIContext } from "../interfaces";
 import {
   errors,
   isRESTCollection,
   requestParser,
   checkFileURL,
   parseOptions,
+  pingConnection,
 } from "../utils";
+import { TestScriptPair } from "../interfaces/table";
+import { testParser } from "../utils/test-parser";
 
 /**
  * Command handler for the `hopp-cli test` or `hopp-cli run -c <config>` commands
  * @param context The initial CLI context object
  */
-const commandHandler = async (context: context, debug: boolean = false) => {
+export const collectionCommander = async (
+  context: CLIContext,
+  debug: boolean = false
+) => {
+  if (debug === true) {
+    const checkDebugger = await pingConnection("localhost", 9999);
+    if (!checkDebugger) {
+      throw errors.HOPP002;
+    }
+  }
+
   if (context.interactive) {
     await parseOptions(context);
   } else {
@@ -56,12 +69,34 @@ const commandHandler = async (context: context, debug: boolean = false) => {
       chalk.bold(chalk.cyanBright("ENDPOINT")),
       chalk.bold(chalk.cyanBright("STATUS CODE")),
     ]);
+    const responses: TestScriptPair[] = [];
     for (const x of collectionArray) {
-      await requestParser(x, tableStream, debug);
+      await requestParser(x, tableStream, responses, debug);
+    }
+    process.stdout.write("\n");
+
+    if (responses && responses.length > 0) {
+      let exitCode: number = 0,
+        testRes: number = 0,
+        totalFailing: number = 0;
+
+      for (const test of responses) {
+        if (test.testScript && test.testScript.trim().length > 0) {
+          console.log(
+            chalk.yellowBright(
+              `\nRunning tests for ${chalk.bold(test.name)}...`
+            )
+          );
+          testRes = await testParser(test);
+          totalFailing += testRes;
+        }
+      }
+
+      exitCode = totalFailing > 0 ? 1 : 0;
+      console.log({ exitCode });
+      process.exit(exitCode);
     }
   } else {
     throw errors.HOPP003;
   }
 };
-
-export default commandHandler;

@@ -28,6 +28,7 @@ program
   )
   .allowExcessArguments(false)
   .allowUnknownOption(false)
+  .description("running Hoppscotch collection.json file")
   .setOptionValue("interactive", false)
   .action(run);
 
@@ -35,7 +36,7 @@ program
   .command("test")
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .description("interactive Hoppscotch testing through CLI")
+  .description("interactive Hoppscotch testing with debugger")
   .setOptionValue("interactive", true)
   .action((context) => test(context, true));
 

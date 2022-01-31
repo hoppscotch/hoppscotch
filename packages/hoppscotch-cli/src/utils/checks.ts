@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import { join, extname } from "path";
 import chalk from "chalk";
+import tcpp from "tcp-ping";
 import { errors } from ".";
 import {
   HoppRESTRequest,
@@ -174,3 +175,28 @@ export const checkFileURL = async (url: string) => {
     throw err;
   }
 };
+
+/**
+ * Checking TCP connection at given port and address exists or not.
+ * @param address Address to ping (@default: localhost).
+ * @param port Port to ping for given address (@default: 80).
+ * @returns Promise<boolean>: True - available, False - unavailable.
+ */
+export const pingConnection = (
+  address: string = "localhost",
+  port: number = 80
+): Promise<boolean> =>
+  new Promise((resolve, reject) => {
+    tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
+      if (err) {
+        reject(false);
+      }
+
+      const pingResultErr = data.results[0].err;
+      if (pingResultErr) {
+        resolve(false);
+      }
+
+      resolve(true);
+    });
+  });

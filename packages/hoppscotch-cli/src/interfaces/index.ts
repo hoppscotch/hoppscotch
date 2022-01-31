@@ -1,5 +1,5 @@
-import { context, CLIError } from "./cli";
-import { requestStack, RequestConfig } from "./request";
-import { responseTable } from "./table";
+import { CLIContext, CLIError } from "./cli";
+import { RequestStack, RequestConfig } from "./request";
+import { TableResponse } from "./table";
 
-export { context, CLIError, requestStack, RequestConfig, responseTable };
+export { CLIContext, CLIError, RequestStack, RequestConfig, TableResponse };

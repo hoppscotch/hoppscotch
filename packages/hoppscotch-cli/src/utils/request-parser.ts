@@ -1,23 +1,18 @@
 import axios, { Method } from "axios";
-import chalk from "chalk";
 import { WritableStream } from "table";
 import { debugging } from ".";
-import { responseTable, requestStack, RequestConfig } from "../interfaces";
+import { TableResponse, RequestStack, RequestConfig } from "../interfaces";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
+import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
+import { RunnerResponseInfo, TestScriptPair } from "../interfaces/table";
+import {
+  getResponseTable,
+  getTestResponse,
+  requestRunnerGetters,
+} from "./getters";
+import { responseErrors } from "./constants";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
-const notSupported = (
-  endpoint: string,
-  method: Method,
-  path: string
-): responseTable => {
-  return {
-    statusCode: chalk.bold(chalk.redBright("REQUEST NOT SUPPORTED")),
-    endpoint,
-    method: `${method}: REQUEST_UNSUPPORTED` as Method,
-    path,
-  };
-};
 
 /**
  * Takes in a Hoppscotch REST Request, and converts each request to an Axios object
@@ -29,7 +24,7 @@ const createRequest = (
   rootPath: string,
   req: HoppRESTRequest,
   debug: boolean = false
-): requestStack => {
+): RequestStack => {
   let config: RequestConfig = {
     supported: true,
   };
@@ -115,79 +110,63 @@ const createRequest = (
  * @param x The request stack
  * @returns The response table row
  */
-const requestRunner = async (x: requestStack): Promise<responseTable> => {
+const requestRunner = async (x: RequestStack): Promise<RunnerResponseInfo> => {
   try {
-    const { status, statusText, config } = await x.request();
+    let status: number;
+    const baseResponse = await x.request();
+    const config = baseResponse.config;
+    const runnerResponse: RunnerResponseInfo = {
+      ...baseResponse,
+      path: x.path,
+      endpoint: requestRunnerGetters.endpoint(config.url),
+      method: requestRunnerGetters.method(config.method),
+      body: baseResponse.data,
+    };
+
     // !NOTE: Temporary `config.supported` check
     if ((config as RequestConfig).supported === false) {
-      return notSupported(
-        config.url!,
-        (config.method?.toUpperCase() as Method)!,
-        x.path
-      );
+      status = 501;
+      runnerResponse.status = status;
+      runnerResponse.statusText = responseErrors[status];
     }
-    return {
-      path: x.path,
-      method: config.method ? (config.method.toUpperCase() as Method) : "GET",
-      endpoint: config.url ? config.url : "",
-      statusCode: (() => {
-        if (status.toString().startsWith("2")) {
-          return chalk.greenBright(`${status} : ${statusText}`);
-        } else if (status.toString().startsWith("3")) {
-          return chalk.yellowBright(`${status} : ${statusText}`);
-        } else {
-          return chalk.redBright(`${status} : ${statusText}`);
-        }
-      })(),
-    };
+
+    return runnerResponse;
   } catch (err) {
+    let status: number;
+    let statusText: string;
+    const runnerResponse: RunnerResponseInfo = {
+      path: x.path,
+      endpoint: "",
+      method: "GET",
+      body: "",
+      statusText: "",
+      status: 0,
+      headers: [],
+    };
+
     if (axios.isAxiosError(err)) {
+      runnerResponse.method = requestRunnerGetters.method(err.config.method);
+      runnerResponse.endpoint = requestRunnerGetters.endpoint(err.config.url);
+
       // !NOTE: Temporary `config.supported` check
       if ((err.config as RequestConfig).supported === false) {
-        return notSupported(
-          err.config.url!,
-          (err.config.method?.toUpperCase() as Method)!,
-          x.path
-        );
-      }
-      let res: responseTable = {
-        path: x.path,
-        method: err.config.method
-          ? (err.config.method.toUpperCase() as Method)
-          : "GET",
-        endpoint: err.config.url ? err.config.url : "",
-        statusCode: "",
-      };
-      if (!err.response) {
-        res.statusCode = chalk.bold(chalk.redBright("ERROR: NETWORK TIMEOUT"));
+        status = 501;
+        statusText = responseErrors[status];
+      } else if (!err.response) {
+        status = 408;
+        statusText = responseErrors[status];
       } else {
-        res.statusCode = (() => {
-          if (err.response.status.toString().startsWith("2")) {
-            return chalk.greenBright(
-              `${err.response.status} : ${err.response.statusText}`
-            );
-          } else if (err.response.status.toString().startsWith("3")) {
-            return chalk.yellowBright(
-              `${err.response.status} : ${err.response.statusText}`
-            );
-          } else {
-            return chalk.redBright(
-              `${err.response.status} : ${err.response.statusText}`
-            );
-          }
-        })();
+        status = err.response.status;
+        statusText = err.response.statusText;
       }
-      return res;
     } else {
-      return {
-        path: x.path,
-        method: "GET",
-        endpoint: "",
-        statusCode: chalk.bold(
-          chalk.redBright("ERROR: COULD NOT PARSE RESPONSE!")
-        ),
-      };
+      status = 600;
+      statusText = responseErrors[status];
     }
+    runnerResponse.status = status;
+    runnerResponse.statusText = statusText;
+
+    return runnerResponse;
   }
 };
 
@@ -195,21 +174,48 @@ const requestRunner = async (x: requestStack): Promise<responseTable> => {
  * The request parser from the collection JSON
  * @param x The collection object parsed from the JSON
  * @param tableStream The writable stream for the table
+ * @param responses Array of TestResponse
+ * @param debug Boolean to use debugging session
  * @param rootPath The folder path
  */
 const requestsParser = async (
   x: HoppCollection<HoppRESTRequest>,
   tableStream: WritableStream,
+  responses: TestScriptPair[],
   debug: boolean = false,
   rootPath: string = "$ROOT"
 ) => {
   for (const req of x.requests) {
-    const parsedReq = createRequest(`${rootPath}/${x.name}`, req, debug);
-    const res = await requestRunner(parsedReq);
-    tableStream.write([res.path, res.method, res.endpoint, res.statusCode]);
+    const parsedReq: RequestStack = createRequest(
+      `${rootPath}/${x.name}`,
+      req,
+      debug
+    );
+    const res: RunnerResponseInfo = await requestRunner(parsedReq);
+    const tableResponse: TableResponse = await getResponseTable(res);
+    const testResponse: TestResponse = await getTestResponse(res);
+
+    responses.push({
+      name: req.name,
+      testScript: req.testScript,
+      response: testResponse,
+    });
+
+    tableStream.write([
+      tableResponse.path,
+      tableResponse.method,
+      tableResponse.endpoint,
+      tableResponse.statusCode,
+    ]);
   }
   for (const folder of x.folders) {
-    await requestsParser(folder, tableStream, debug, `${rootPath}/${x.name}`);
+    await requestsParser(
+      folder,
+      tableStream,
+      responses,
+      debug,
+      `${rootPath}/${x.name}`
+    );
   }
 };
 

@@ -1,3 +1,3 @@
-import { commandHandler } from "../handlers";
+import { collectionCommander } from "../handlers";
 
-export { commandHandler as test, commandHandler as run };
+export { collectionCommander as test, collectionCommander as run };

@@ -1,7 +1,7 @@
 import inquirer from "inquirer";
 import fuzzyPath from "inquirer-fuzzy-path";
 inquirer.registerPrompt("fuzzypath", fuzzyPath);
-import { context } from "../interfaces";
+import { CLIContext } from "../interfaces";
 import { checkFileURL } from ".";
 
 /**
@@ -9,7 +9,7 @@ import { checkFileURL } from ".";
  * @param context The initial CLI context object
  * @returns The parsed absolute file path string
  */
-export const parseOptions = async (context: context): Promise<any> => {
+export const parseOptions = async (context: CLIContext): Promise<any> => {
   try {
     const { fileUrl }: { fileUrl: string } = await inquirer.prompt([
       {

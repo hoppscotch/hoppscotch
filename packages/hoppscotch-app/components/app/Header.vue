@@ -1,9 +1,9 @@
 <template>
   <div>
     <header
-      class="flex items-center justify-between flex-1 px-2 py-2 space-x-2"
+      class="flex space-x-2 flex-1 py-2 px-2 items-center justify-between"
     >
-      <div class="inline-flex items-center space-x-2">
+      <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
           label="HOPPSCOTCH"
@@ -11,7 +11,7 @@
         />
         <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
       </div>
-      <div class="inline-flex items-center space-x-2">
+      <div class="space-x-2 inline-flex items-center">
         <ButtonSecondary
           id="installPWA"
           v-tippy="{ theme: 'tooltip' }"
@@ -21,14 +21,14 @@
           @click.native="showInstallPrompt()"
         />
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('app.search')} <kbd>/</kbd>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('support.title')} <kbd>?</kbd>`"
           svg="life-buoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
@@ -47,7 +47,7 @@
           :label="t('header.login')"
           @click.native="showLogin = true"
         />
-        <div v-else class="inline-flex items-center space-x-2">
+        <div v-else class="space-x-2 inline-flex items-center">
           <ButtonPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
@@ -87,11 +87,11 @@
                   svg="user"
                 />
               </template>
-              <div class="flex flex-col px-2 text-tiny">
-                <span class="inline-flex font-semibold truncate">
+              <div class="flex flex-col text-tiny px-2">
+                <span class="font-semibold inline-flex truncate">
                   {{ currentUser.displayName }}
                 </span>
-                <span class="inline-flex truncate text-secondaryLight">
+                <span class="text-secondaryLight inline-flex truncate">
                   {{ currentUser.email }}
                 </span>
               </div>

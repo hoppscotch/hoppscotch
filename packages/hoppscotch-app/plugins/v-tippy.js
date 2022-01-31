@@ -5,6 +5,7 @@ Vue.use(VueTippy, {
   a11y: false,
   animateFill: false,
   arrowType: "round",
+  allowHTML: false,
   popperOptions: {
     modifiers: {
       preventOverflow: {

@@ -15,8 +15,8 @@
     "go_back": "돌아가기",
     "label": "이름",
     "learn_more": "더 알아보기",
-    "more": "더보기",
     "less": "Less",
+    "more": "더보기",
     "new": "추가",
     "no": "아니요",
     "prettify": "예쁘게",
@@ -182,7 +182,8 @@
     "network_fail": "요청을 보낼 수 없습니다",
     "no_duration": "기간 없음",
     "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
-    "something_went_wrong": "문제가 발생했습니다."
+    "something_went_wrong": "문제가 발생했습니다.",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "JSON으로 내보내기",
@@ -217,6 +218,7 @@
     "post_request_tests": "테스트 스크립트는 JavaScript로 작성되었으며 응답을 받은 후 실행됩니다.",
     "pre_request_script": "사전 요청 스크립트는 JavaScript로 작성되며 요청이 전송되기 전에 실행됩니다.",
     "script_fail": "사전 요청 스크립트에 결함이 있는 것 같습니다. 아래 오류를 확인하고 그에 따라 스크립트를 수정하십시오.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "디버깅을 자동화하는 테스트 스크립트를 작성하십시오."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "내 모음집에서 가져오기",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "요점 URL 입력",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "가저오기"

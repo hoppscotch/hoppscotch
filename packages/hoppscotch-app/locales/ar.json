@@ -15,8 +15,8 @@
     "go_back": "عد",
     "label": "ملصق",
     "learn_more": "يتعلم أكثر",
-    "more": "أكثر",
     "less": "Less",
+    "more": "أكثر",
     "new": "جديد",
     "no": "رقم",
     "prettify": "جمال",
@@ -64,10 +64,10 @@
     "terms_and_privacy": "الشروط والخصوصية",
     "twitter": "تويتر",
     "type_a_command_search": "اكتب أمرًا أو ابحث ...",
-    "version": "الإصدار 2.0",
     "we_use_cookies": "نحن نستخدم ملفات تعريف الارتباط",
     "whats_new": "ما هو الجديد؟",
-    "wiki": "ويكي"
+    "wiki": "ويكي",
+    "version": "الإصدار 2.0"
   },
   "auth": {
     "account_exists": "الحساب موجود ببيانات اعتماد مختلفة - تسجيل الدخول لربط كلا الحسابين",
@@ -183,7 +183,8 @@
     "network_fail": "تعذر إرسال الطلب",
     "no_duration": "لا مدة",
     "script_fail": "تعذر تنفيذ نص الطلب المسبق",
-    "something_went_wrong": "هناك خطأ ما"
+    "something_went_wrong": "هناك خطأ ما",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "تصدير بتنسيق JSON",
@@ -218,6 +219,7 @@
     "post_request_tests": "تتم كتابة نصوص الاختبار بلغة JavaScript ، ويتم تشغيلها بعد تلقي الاستجابة.",
     "pre_request_script": "تتم كتابة البرامج النصية للطلب المسبق بلغة JavaScript ، ويتم تشغيلها قبل إرسال الطلب.",
     "script_fail": "يبدو أن هناك خللًا في نص الطلب المسبق. تحقق من الخطأ أدناه وقم بإصلاح البرنامج النصي وفقًا لذلك.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "اكتب نص اختبار لأتمتة تصحيح الأخطاء."
   },
   "hide": {
@@ -233,6 +235,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "الاستيراد من \"مجموعاتي\"",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -240,8 +244,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "أدخل عنوان URL لـ Gist",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "يستورد"

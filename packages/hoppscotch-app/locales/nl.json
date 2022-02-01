@@ -15,8 +15,8 @@
     "go_back": "Ga terug",
     "label": "Label",
     "learn_more": "Leer meer",
-    "more": "Meer",
     "less": "Less",
+    "more": "Meer",
     "new": "Nieuw",
     "no": "Nee",
     "prettify": "Netter opmaken",
@@ -182,7 +182,8 @@
     "network_fail": "Kan verzoek niet versturen",
     "no_duration": "Geen duur",
     "script_fail": "Kon pre-aanvraagscript niet uitvoeren",
-    "something_went_wrong": "Er is iets fout gegaan"
+    "something_went_wrong": "Er is iets fout gegaan",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Exporteren als JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Testscripts zijn geschreven in JavaScript en worden uitgevoerd nadat het antwoord is ontvangen.",
     "pre_request_script": "Pre-request scripts zijn geschreven in JavaScript en worden uitgevoerd voordat het verzoek wordt verzonden.",
     "script_fail": "Het lijkt erop dat er een storing is in het pre-request script. Controleer de onderstaande fout en corrigeer het script dienovereenkomstig.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Schrijf een testscript om foutopsporing te automatiseren."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Importeren uit Mijn collecties",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Vul de hoofd-URL in",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importeren"

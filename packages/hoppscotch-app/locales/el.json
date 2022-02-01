@@ -15,8 +15,8 @@
     "go_back": "Πήγαινε πίσω",
     "label": "Επιγραφή",
     "learn_more": "Μάθε περισσότερα",
-    "more": "Περισσότερο",
     "less": "Less",
+    "more": "Περισσότερο",
     "new": "Νέος",
     "no": "Οχι",
     "prettify": "Ωραιοποιώ",
@@ -182,7 +182,8 @@
     "network_fail": "Δεν ήταν δυνατή η αποστολή του αιτήματος",
     "no_duration": "Χωρίς διάρκεια",
     "script_fail": "Δεν ήταν δυνατή η εκτέλεση του σεναρίου πριν από το αίτημα",
-    "something_went_wrong": "Κάτι πήγε στραβά"
+    "something_went_wrong": "Κάτι πήγε στραβά",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Εξαγωγή ως JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Τα σενάρια δοκιμής γράφονται σε JavaScript και εκτελούνται μετά τη λήψη της απάντησης.",
     "pre_request_script": "Τα σενάρια προ-αίτησης είναι γραμμένα σε JavaScript και εκτελούνται πριν από την αποστολή του αιτήματος.",
     "script_fail": "Φαίνεται ότι υπάρχει ένα σφάλμα στο σενάριο πριν από το αίτημα. Ελέγξτε το παρακάτω σφάλμα και διορθώστε το σενάριο ανάλογα.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Γράψτε ένα δοκιμαστικό σενάριο για να αυτοματοποιήσετε τον εντοπισμό σφαλμάτων."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Εισαγωγή από τις Συλλογές μου",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Εισαγάγετε Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Εισαγωγή"

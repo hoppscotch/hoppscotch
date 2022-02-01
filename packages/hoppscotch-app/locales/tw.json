@@ -15,8 +15,8 @@
     "go_back": "返回",
     "label": "標籤",
     "learn_more": "瞭解更多",
-    "more": "更多",
     "less": "Less",
+    "more": "更多",
     "new": "新增",
     "no": "否",
     "prettify": "美化",
@@ -182,7 +182,8 @@
     "network_fail": "無法傳送請求",
     "no_duration": "無持續時間",
     "script_fail": "Could not execute pre-request script",
-    "something_went_wrong": "發生了一些錯誤"
+    "something_went_wrong": "發生了一些錯誤",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "匯出為 JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "測試指令碼使用 JavaScript 編寫，並在收到回應後執行。",
     "pre_request_script": "預請求指令碼使用 JavaScript 編寫，並在請求傳送前執行。",
     "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "編寫測試指令碼以自動除錯。"
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "從我的組合匯入",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "輸入 Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "匯入"

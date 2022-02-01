@@ -15,8 +15,8 @@
     "go_back": "Întoarce-te",
     "label": "Eticheta",
     "learn_more": "Află mai multe",
-    "more": "Mai mult",
     "less": "Less",
+    "more": "Mai mult",
     "new": "Nou",
     "no": "Nu",
     "prettify": "Dăruiește",
@@ -182,7 +182,8 @@
     "network_fail": "Nu s-a putut trimite solicitarea",
     "no_duration": "Fără durată",
     "script_fail": "Nu s-a putut executa scriptul de pre-cerere",
-    "something_went_wrong": "Ceva n-a mers bine"
+    "something_went_wrong": "Ceva n-a mers bine",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Exportați ca JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Scripturile de testare sunt scrise în JavaScript și se execută după primirea răspunsului.",
     "pre_request_script": "Scripturile de cerere prealabilă sunt scrise în JavaScript și sunt rulate înainte de trimiterea cererii.",
     "script_fail": "Se pare că există o eroare în scriptul de pre-cerere. Verificați eroarea de mai jos și remediați scriptul în consecință.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Scrieți un script de test pentru automatizarea depanării."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Import din colecțiile mele",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Introduceți adresa URL Gist",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Import"

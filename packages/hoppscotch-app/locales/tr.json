@@ -15,8 +15,8 @@
     "go_back": "Geri git",
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
-    "more": "Daha",
     "less": "Less",
+    "more": "Daha",
     "new": "Yeni",
     "no": "Numara",
     "prettify": "Güzelleştir",
@@ -182,7 +182,8 @@
     "network_fail": "istek gönderilemedi",
     "no_duration": "Süre yok",
     "script_fail": "Ön istek komut dosyası çalıştırılamadı",
-    "something_went_wrong": "Bir şeyler yanlış gitti"
+    "something_went_wrong": "Bir şeyler yanlış gitti",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "JSON olarak dışa aktar",
@@ -217,6 +218,7 @@
     "post_request_tests": "Test komut dosyaları JavaScript'te yazılır ve yanıt alındıktan sonra çalıştırılır.",
     "pre_request_script": "Ön istek komut dosyaları JavaScript'te yazılır ve istek gönderilmeden önce çalıştırılır.",
     "script_fail": "Ön istek komut dosyasında bir aksaklık var gibi görünüyor. Aşağıdaki hatayı kontrol edin ve komut dosyasını buna göre düzeltin.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Hata ayıklamayı otomatikleştirmek için bir test komut dosyası yazın."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Koleksiyonlarımdan İçe Aktar",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Gist URL'sini girin",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "İçe aktar"

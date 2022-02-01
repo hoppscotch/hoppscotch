@@ -15,8 +15,8 @@
     "go_back": "תחזור",
     "label": "תווית",
     "learn_more": "למד עוד",
-    "more": "יותר",
     "less": "Less",
+    "more": "יותר",
     "new": "חָדָשׁ",
     "no": "לא",
     "prettify": "לְיַפּוֹת",
@@ -182,7 +182,8 @@
     "network_fail": "לא ניתן היה לשלוח בקשה",
     "no_duration": "אין משך זמן",
     "script_fail": "לא ניתן להפעיל סקריפט של בקשה מראש",
-    "something_went_wrong": "משהו השתבש"
+    "something_went_wrong": "משהו השתבש",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "ייצא כ- JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "סקריפטים לבדיקה נכתבים ב- JavaScript ומופעלים לאחר קבלת התגובה.",
     "pre_request_script": "סקריפטים לבקשה מראש נכתבים ב- JavaScript ומופעלים לפני שליחת הבקשה.",
     "script_fail": "נראה שיש תקלה בסקריפט שלפני הבקשה. בדוק את השגיאה למטה ותקן את הסקריפט בהתאם.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "ייבוא מהאוספים שלי",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "הזן Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "יְבוּא"

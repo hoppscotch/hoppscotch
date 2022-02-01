@@ -15,8 +15,8 @@
     "go_back": "Вратити се",
     "label": "Ознака",
     "learn_more": "Сазнајте више",
-    "more": "Више",
     "less": "Less",
+    "more": "Више",
     "new": "Нова",
     "no": "Не",
     "prettify": "Преттифи",
@@ -64,10 +64,10 @@
     "terms_and_privacy": "Услови и приватност",
     "twitter": "Твиттер",
     "type_a_command_search": "Унесите команду или претражите…",
-    "version": "в2.0",
     "we_use_cookies": "Користимо колачиће",
     "whats_new": "Шта је ново?",
-    "wiki": "Вики"
+    "wiki": "Вики",
+    "version": "в2.0"
   },
   "auth": {
     "account_exists": "Налог постоји са различитим акредитивима - Пријавите се да бисте повезали оба налога",
@@ -183,7 +183,8 @@
     "network_fail": "Слање захтева није успело",
     "no_duration": "Нема трајања",
     "script_fail": "Није могуће извршити скрипту пре захтева",
-    "something_went_wrong": "Нешто није у реду"
+    "something_went_wrong": "Нешто није у реду",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Извези као ЈСОН",
@@ -218,6 +219,7 @@
     "post_request_tests": "Тест скрипте су написане у ЈаваСцрипт -у и покрећу се након пријема одговора.",
     "pre_request_script": "Скрипте пред-захтева су написане у ЈаваСцрипт-у и покрећу се пре слања захтева.",
     "script_fail": "Чини се да постоји грешка у скрипти пре захтева. Проверите грешку у наставку и поправите скрипту у складу са тим.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Напишите тест скрипту за аутоматизацију отклањања грешака."
   },
   "hide": {
@@ -233,6 +235,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Увези из Мојих колекција",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -240,8 +244,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Унесите Гист УРЛ",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Увоз"

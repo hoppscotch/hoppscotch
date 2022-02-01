@@ -15,8 +15,8 @@
     "go_back": "Quay lại",
     "label": "Nhãn",
     "learn_more": "Tìm hiểu thêm",
-    "more": "Hơn",
     "less": "Less",
+    "more": "Hơn",
     "new": "Mới mẻ",
     "no": "Không",
     "prettify": "Kiểm tra trước",
@@ -182,7 +182,8 @@
     "network_fail": "Không thể gửi yêu cầu",
     "no_duration": "Không có thời lượng",
     "script_fail": "Không thể thực thi tập lệnh yêu cầu trước",
-    "something_went_wrong": "Đã xảy ra sự cố"
+    "something_went_wrong": "Đã xảy ra sự cố",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Xuất dưới dạng JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Các tập lệnh kiểm tra được viết bằng JavaScript và được chạy sau khi nhận được phản hồi.",
     "pre_request_script": "Các tập lệnh yêu cầu trước được viết bằng JavaScript và được chạy trước khi yêu cầu được gửi đi.",
     "script_fail": "Có vẻ như có trục trặc trong tập lệnh yêu cầu trước. Kiểm tra lỗi bên dưới và sửa tập lệnh cho phù hợp.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Viết một kịch bản thử nghiệm để tự động gỡ lỗi."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Nhập từ Bộ sưu tập của tôi",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Nhập URL Gist",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Nhập khẩu"

@@ -5,7 +5,7 @@
     >
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
-          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
+          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
           :label="t('app.name')"
           to="/"
         />

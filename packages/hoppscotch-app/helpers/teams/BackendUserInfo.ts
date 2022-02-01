@@ -1,7 +1,9 @@
+import { pipe } from "fp-ts/function"
+import * as E from "fp-ts/Either"
 import { BehaviorSubject } from "rxjs"
-import gql from "graphql-tag"
 import { authIdToken$ } from "../fb/auth"
-import { apolloClient } from "../apollo"
+import { runGQLQuery } from "../backend/GQLClient"
+import { GetUserInfoDocument } from "../backend/graphql"
 
 /*
  * This file deals with interfacing data provided by the
@@ -52,27 +54,22 @@ export function initUserInfo() {
  * Runs the actual user info fetching
  */
 async function updateUserInfo() {
-  try {
-    const { data } = await apolloClient.query({
-      query: gql`
-        query GetUserInfo {
-          me {
-            uid
-            displayName
-            email
-            photoURL
-          }
-        }
-      `,
-    })
+  const result = await runGQLQuery({
+    query: GetUserInfoDocument,
+  })
 
-    currentUserInfo$.next({
-      uid: data.me.uid,
-      displayName: data.me.displayName,
-      email: data.me.email,
-      photoURL: data.me.photoURL,
-    })
-  } catch (e) {
-    currentUserInfo$.next(null)
-  }
+  currentUserInfo$.next(
+    pipe(
+      result,
+      E.matchW(
+        () => null,
+        (x) => ({
+          uid: x.me.uid,
+          displayName: x.me.displayName ?? null,
+          email: x.me.email ?? null,
+          photoURL: x.me.photoURL ?? null,
+        })
+      )
+    )
+  )
 }

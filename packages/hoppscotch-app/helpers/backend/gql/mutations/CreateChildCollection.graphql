@@ -1,0 +1,11 @@
+mutation CreateChildCollection(
+  $childTitle: String!
+  $collectionID: ID!
+) {
+  createChildCollection(
+    childTitle: $childTitle
+    collectionID: $collectionID
+  ) {
+    id
+  }
+}

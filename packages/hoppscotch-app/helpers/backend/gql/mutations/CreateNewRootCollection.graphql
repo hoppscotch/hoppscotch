@@ -1,0 +1,5 @@
+mutation CreateNewRootCollection($title: String!, $teamID: ID!) {
+  createRootCollection(title: $title, teamID: $teamID) {
+    id
+  }
+}

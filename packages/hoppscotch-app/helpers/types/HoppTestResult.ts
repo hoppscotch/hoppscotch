@@ -13,5 +13,5 @@ export type HoppTestResult = {
   tests: HoppTestData[]
   expectResults: HoppTestExpectResult[]
   description: string
-  scriptError?: boolean
+  scriptError: boolean
 }

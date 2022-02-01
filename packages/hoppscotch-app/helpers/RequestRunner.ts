@@ -101,7 +101,9 @@ function translateToSandboxTestResults(
     }
   }
   return {
+    description: "",
     expectResults: testDesc.expectResults,
     tests: testDesc.children.map(translateChildTests),
+    scriptError: false,
   }
 }

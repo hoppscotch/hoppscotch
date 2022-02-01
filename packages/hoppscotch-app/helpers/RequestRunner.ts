@@ -71,9 +71,15 @@ export const runRESTRequest$ = (): TaskEither<
               headers: res.headers,
             })()
 
-            // TODO: Handle script executation fails (isLeft)
             if (isRight(runResult)) {
               setRESTTestResults(translateToSandboxTestResults(runResult.right))
+            } else {
+              setRESTTestResults({
+                description: "",
+                expectResults: [],
+                tests: [],
+                scriptError: true,
+              })
             }
 
             subscription.unsubscribe()
@@ -95,7 +101,9 @@ function translateToSandboxTestResults(
     }
   }
   return {
+    description: "",
     expectResults: testDesc.expectResults,
     tests: testDesc.children.map(translateChildTests),
+    scriptError: false,
   }
 }

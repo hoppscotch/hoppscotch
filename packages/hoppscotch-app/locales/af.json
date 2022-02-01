@@ -15,8 +15,8 @@
     "go_back": "Gaan terug",
     "label": "Etiket",
     "learn_more": "Leer meer",
-    "more": "Meer",
     "less": "Less",
+    "more": "Meer",
     "new": "Nuut",
     "no": "Geen",
     "prettify": "Prettify",
@@ -182,7 +182,8 @@
     "network_fail": "Kon nie versoek stuur nie",
     "no_duration": "Geen duur nie",
     "script_fail": "Kon nie voorafversoekskrip uitvoer nie",
-    "something_went_wrong": "Iets het verkeerd geloop"
+    "something_went_wrong": "Iets het verkeerd geloop",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Uitvoer as JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Toetsskrifte word in JavaScript geskryf en word uitgevoer nadat die antwoord ontvang is.",
     "pre_request_script": "Skripte voor die versoek word in JavaScript geskryf en word uitgevoer voordat die versoek gestuur word.",
     "script_fail": "Dit blyk dat daar 'n fout in die voorversoekskrif is. Kontroleer die fout hieronder en maak die skrif dienooreenkomstig reg.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Skryf 'n toetsskrif om ontfouting te outomatiseer."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Invoer uit My versamelings",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Voer Gist URL in",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Invoer"

@@ -1,3 +1,4 @@
+import * as E from "fp-ts/Either";
 import { TestScriptPair } from "../interfaces/table";
 import { execTestScript } from "@hoppscotch/js-sandbox/lib/test-runner";
 import { TestDescriptor } from "@hoppscotch/js-sandbox/lib";
@@ -65,13 +66,12 @@ export const testParser = async (
 ): Promise<number> => {
   let totalFailing: number = 0,
     testRes: number = 0;
-  const testScriptExecPromise = execTestScript(
+  const testScriptExecRes = await execTestScript(
     testScriptPair.testScript,
     testScriptPair.response
-  );
-  const testScriptExecRes = await testScriptExecPromise();
+  )();
 
-  if (testScriptExecRes._tag === "Right") {
+  if (E.isRight(testScriptExecRes)) {
     for (const testDescriptorChild of testScriptExecRes.right) {
       testRes = await testDescriptorParser(testDescriptorChild);
       totalFailing += testRes;

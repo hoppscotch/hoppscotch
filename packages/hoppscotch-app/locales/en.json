@@ -182,7 +182,8 @@
     "network_fail": "Could not send request",
     "no_duration": "No duration",
     "script_fail": "Could not execute pre-request script",
-    "something_went_wrong": "Something went wrong"
+    "something_went_wrong": "Something went wrong",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Export as JSON",
@@ -217,7 +218,8 @@
     "post_request_tests": "Test scripts are written in JavaScript, and are run after the response is received.",
     "pre_request_script": "Pre-request scripts are written in JavaScript, and are run before the request is sent.",
     "script_fail": "It seems there is a glitch in the pre-request script. Check the error below and fix the script accordingly.",
-    "tests": "Write a test script to automate debugging."
+    "tests": "Write a test script to automate debugging.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again"
   },
   "hide": {
     "more": "Hide more",

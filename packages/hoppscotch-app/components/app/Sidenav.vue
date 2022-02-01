@@ -14,7 +14,7 @@
         <span v-if="EXPAND_NAVIGATION">{{ navigation.title }}</span>
         <tippy
           v-if="!EXPAND_NAVIGATION"
-          :placement="windowInnerWidth.x.value >= 768 ? 'right' : 'bottom'"
+          :placement="mdAndLarger ? 'right' : 'bottom'"
           theme="tooltip"
           :content="navigation.title"
         />
@@ -24,13 +24,15 @@
 </template>
 
 <script setup lang="ts">
-import useWindowSize from "~/helpers/utils/useWindowSize"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useSetting } from "~/newstore/settings"
 import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
 
-const windowInnerWidth = useWindowSize()
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
+
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 
 const primaryNavigation = [

@@ -20,12 +20,8 @@
     "hoppscotch",
     "hopp-cli"
   ],
-  "author": "Gita Alekhya Paul for Hoppscotch <54375111+gitaalekhyapaul@users.noreply.github.com>",
+  "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:gitaalekhyapaul/hopp-cli.git"
-  },
   "private": false,
   "devDependencies": {
     "@types/axios": "^0.14.0",

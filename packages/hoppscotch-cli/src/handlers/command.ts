@@ -41,7 +41,7 @@ export const collectionCommander = async (
     (await fs.readFile(context.config!)).toString()
   );
   const valid = [];
-  for (const [idx, val] of collectionArray.entries()) {
+  for (const [idx, _] of collectionArray.entries()) {
     const pm = {
       x: { ...collectionArray[idx] },
     };

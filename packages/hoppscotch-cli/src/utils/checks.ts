@@ -125,7 +125,7 @@ export function isRESTCollection(param: {
     return false;
   } else {
     const checkRequests = [];
-    for (const [idx, val] of param.x.requests.entries()) {
+    for (const [idx, _] of param.x.requests.entries()) {
       const pm = {
         x: { ...param.x.requests[idx] },
       };
@@ -138,7 +138,7 @@ export function isRESTCollection(param: {
     return false;
   } else {
     const checkFolders = [];
-    for (const [idx, val] of param.x.folders.entries()) {
+    for (const [idx, _] of param.x.folders.entries()) {
       const pm = {
         x: { ...param.x.folders[idx] },
       };

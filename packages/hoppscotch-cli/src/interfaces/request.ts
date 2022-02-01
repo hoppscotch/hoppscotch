@@ -12,7 +12,7 @@ export interface RequestStack {
 
 /**
  * Request config interface extending interface:AxiosRequestConfig.
- * @property {boolean} supported - Is request supported?.
+ * @property {boolean} supported - Boolean check for supported or unsupported requests.
  */
 export interface RequestConfig extends AxiosRequestConfig {
   supported: boolean;

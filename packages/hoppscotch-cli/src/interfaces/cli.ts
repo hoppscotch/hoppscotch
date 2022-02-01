@@ -2,7 +2,7 @@ import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 
 /**
  * * The CLI context object.
- * @property {boolean} interactive - Whether context is interactive or not.
+ * @property {boolean} interactive - To handle interactive terminal session.
  * @property {string} config - Context configuration.
  * @property {Array<HoppCollection<HoppRESTRequest>>} config - Array of HoppCollection.
  */

@@ -15,8 +15,8 @@
     "go_back": "Volte",
     "label": "Etiqueta",
     "learn_more": "Saber mais",
-    "more": "Mais",
     "less": "Less",
+    "more": "Mais",
     "new": "Novo",
     "no": "Não",
     "prettify": "Embelezar",
@@ -182,7 +182,8 @@
     "network_fail": "Não foi possível enviar pedido",
     "no_duration": "Sem duração",
     "script_fail": "Não foi possível executar o script de pré-solicitação",
-    "something_went_wrong": "Algo deu errado"
+    "something_went_wrong": "Algo deu errado",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Exportar como JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Os scripts de teste são gravados em JavaScript e executados após o recebimento da resposta.",
     "pre_request_script": "Os scripts de pré-solicitação são gravados em JavaScript e executados antes do envio da solicitação.",
     "script_fail": "Parece que há uma falha no script de pré-solicitação. Verifique o erro abaixo e corrija o script de acordo.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Escreva um script de teste para automatizar a depuração."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Importar de minhas coleções",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Insira o URL da essência",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importar"

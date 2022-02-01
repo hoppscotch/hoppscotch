@@ -15,8 +15,8 @@
     "go_back": "Gå tillbaka",
     "label": "Märka",
     "learn_more": "Läs mer",
-    "more": "Mer",
     "less": "Less",
+    "more": "Mer",
     "new": "Ny",
     "no": "Nej",
     "prettify": "Försköna",
@@ -182,7 +182,8 @@
     "network_fail": "Det gick inte att skicka förfrågan",
     "no_duration": "Ingen varaktighet",
     "script_fail": "Det gick inte att köra skriptet för förhandsbegäran",
-    "something_went_wrong": "Något gick fel"
+    "something_went_wrong": "Något gick fel",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Exportera som JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Testskript skrivs i JavaScript och körs efter att svaret har mottagits.",
     "pre_request_script": "Skript för förfrågan skrivs i JavaScript och körs innan begäran skickas.",
     "script_fail": "Det verkar finnas ett fel i skriptet för förhandsbegäran. Kontrollera felet nedan och fixa skriptet därefter.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Skriv ett testskript för att automatisera felsökning."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Importera från Mina samlingar",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Ange Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importera"

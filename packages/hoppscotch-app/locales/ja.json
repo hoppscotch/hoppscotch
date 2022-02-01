@@ -15,8 +15,8 @@
     "go_back": "戻る",
     "label": "ラベル",
     "learn_more": "もっと詳しく知る",
-    "more": "もっと",
     "less": "Less",
+    "more": "もっと",
     "new": "新しい",
     "no": "番号",
     "prettify": "きれいにする",
@@ -182,7 +182,8 @@
     "network_fail": "リクエストを送信できませんでした",
     "no_duration": "期間なし",
     "script_fail": "事前リクエストスクリプトを実行できませんでした",
-    "something_went_wrong": "何かがうまくいかなかった"
+    "something_went_wrong": "何かがうまくいかなかった",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "JSONとしてエクスポート",
@@ -217,6 +218,7 @@
     "post_request_tests": "テストスクリプトはJavaScriptで記述されており、応答を受信した後に実行されます。",
     "pre_request_script": "事前リクエストスクリプトはJavaScriptで記述されており、リクエストが送信される前に実行されます。",
     "script_fail": "事前リクエストスクリプトに不具合があるようです。以下のエラーを確認し、それに応じてスクリプトを修正してください。",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "デバッグを自動化するテストスクリプトを作成します。"
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "マイコレクションからインポート",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "要旨URLを入力してください",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "輸入"

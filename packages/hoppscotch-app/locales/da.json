@@ -15,8 +15,8 @@
     "go_back": "Gå tilbage",
     "label": "Etiket",
     "learn_more": "Lær mere",
-    "more": "Mere",
     "less": "Less",
+    "more": "Mere",
     "new": "Ny",
     "no": "Ingen",
     "prettify": "Prettify",
@@ -182,7 +182,8 @@
     "network_fail": "Anmodningen kunne ikke sendes",
     "no_duration": "Ingen varighed",
     "script_fail": "Kunne ikke udføre pre-request script",
-    "something_went_wrong": "Noget gik galt"
+    "something_went_wrong": "Noget gik galt",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Eksporter som JSON",
@@ -217,6 +218,7 @@
     "post_request_tests": "Test scripts er skrevet i JavaScript og køres efter at svaret er modtaget.",
     "pre_request_script": "Forhåndsanmodnings scripts er skrevet i JavaScript og køres før anmodningen sendes.",
     "script_fail": "Det ser ud til, at der er en fejl i pre-request-scriptet. Tjek fejlen nedenfor, og ret scriptet i overensstemmelse hermed.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Skriv et test script for at automatisere fejlfinding."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Import fra Mine samlinger",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Indtast Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importere"

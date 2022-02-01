@@ -15,8 +15,8 @@
     "go_back": "Vissza",
     "label": "Címke",
     "learn_more": "Tudjon meg többet",
-    "more": "Több",
     "less": "Kevesebb",
+    "more": "Több",
     "new": "Új",
     "no": "Nem",
     "prettify": "Csinosítás",
@@ -182,7 +182,8 @@
     "network_fail": "Nem sikerült elküldeni a kérést",
     "no_duration": "Nincs időtartam",
     "script_fail": "Nem sikerült végrehajtani a kérés előtti parancsfájlt",
-    "something_went_wrong": "Valami elromlott"
+    "something_went_wrong": "Valami elromlott",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Exportálás JSON formátumban",
@@ -217,6 +218,7 @@
     "post_request_tests": "A tesztparancsfájlokat JavaScriptben írták, és a válasz megérkezése után lesznek futtatva.",
     "pre_request_script": "A kérés előtti parancsfájlokat JavaScriptben írták, és a kérés elküldése előtt lesznek futtatva.",
     "script_fail": "Úgy tűnik, hogy működési hiba van a kérés előtti parancsfájlban. Nézze meg az alábbi hibát, és annak megfelelően javítsa a parancsfájlt.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Importálás Gist URL-ből",
     "from_insomnia": "Importálás Insomniából",
     "from_insomnia_description": "Importálás Insomnia-gyűjteményből",
+    "from_json": "Importálás Hoppscotchból",
+    "from_json_description": "Importálás Hoppscotch-gyűjteményfájlból",
     "from_my_collections": "Importálás saját gyűjteményekből",
     "from_my_collections_description": "Importálás saját gyűjtemények fájlból",
     "from_openapi": "Importálás OpenAPI-ból",
@@ -239,8 +243,6 @@
     "from_postman": "Importálás Postmanből",
     "from_postman_description": "Importálás Postman-gyűjteményből",
     "from_url": "Importálás URL-ből",
-    "from_json": "Importálás Hoppscotchból",
-    "from_json_description": "Importálás Hoppscotch-gyűjteményfájlból",
     "gist_url": "Gist URL megadása",
     "json_description": "Gyűjtemények importálása Hoppscotch-gyűjtemények JSON-fájlból",
     "title": "Importálás"

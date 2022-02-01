@@ -15,8 +15,8 @@
     "go_back": "Zurück",
     "label": "Etikett",
     "learn_more": "Mehr erfahren",
-    "more": "Mehr",
     "less": "Less",
+    "more": "Mehr",
     "new": "Neu",
     "no": "Nein",
     "prettify": "Verschönern",
@@ -182,7 +182,8 @@
     "network_fail": "Anfrage konnte nicht gesendet werden",
     "no_duration": "Keine Dauer",
     "script_fail": "Pre-Request-Skript konnte nicht ausgeführt werden",
-    "something_went_wrong": "Etwas ist schief gelaufen"
+    "something_went_wrong": "Etwas ist schief gelaufen",
+    "test_script_fail": "Could not execute post-request script"
   },
   "export": {
     "as_json": "Als JSON exportieren",
@@ -217,6 +218,7 @@
     "post_request_tests": "Testskripts werden in JavaScript geschrieben und nach Erhalt der Antwort ausgeführt.",
     "pre_request_script": "Pre-Request-Skripte sind in JavaScript geschrieben und werden ausgeführt, bevor die Anfrage gesendet wird.",
     "script_fail": "Es scheint ein Fehler im Pre-Request-Skript zu sein. Überprüfen Sie den Fehler unten und korrigieren Sie das Skript entsprechend.",
+    "test_script_fail": "There seems to be an error with test script. Please fix the errors and run tests again",
     "tests": "Schreiben Sie ein Testskript, um das Debuggen zu automatisieren."
   },
   "hide": {
@@ -232,6 +234,8 @@
     "from_gist_description": "Import from Gist URL",
     "from_insomnia": "Import from Insomnia",
     "from_insomnia_description": "Import from Insomnia collection",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "from_my_collections": "Aus Meine Sammlungen importieren",
     "from_my_collections_description": "Import from My Collections file",
     "from_openapi": "Import from OpenAPI",
@@ -239,8 +243,6 @@
     "from_postman": "Import from Postman",
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
-    "from_json": "Import from Hoppscotch",
-    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Gist-URL eingeben",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importieren"

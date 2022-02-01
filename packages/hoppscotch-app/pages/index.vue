@@ -1,11 +1,11 @@
 <template>
   <Splitpanes
     class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768"
+    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768,
+      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
     }"
-    :horizontal="!(windowInnerWidth.x.value >= 768)"
+    :horizontal="!mdAndLarger"
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
@@ -127,6 +127,7 @@ import {
   HoppRESTAuthOAuth2,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useSetting } from "~/newstore/settings"
 import {
   restActiveParamsCount$,
@@ -150,7 +151,6 @@ import {
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
 import { oauthRedirect } from "~/helpers/oauth"
-import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function bindRequestToURLParams() {
   const { route } = useContext()
@@ -267,8 +267,11 @@ export default defineComponent({
     setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
 
+    const breakpoints = useBreakpoints(breakpointsTailwind)
+    const mdAndLarger = breakpoints.greater("md")
+
     return {
-      windowInnerWidth: useWindowSize(),
+      mdAndLarger,
       newActiveParamsCount$: useReadonlyStream(
         restActiveParamsCount$.pipe(
           map((e) => {

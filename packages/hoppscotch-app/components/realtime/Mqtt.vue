@@ -1,11 +1,11 @@
 <template>
   <Splitpanes
     class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768"
+    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768,
+      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
     }"
-    :horizontal="!(windowInnerWidth.x.value >= 768)"
+    :horizontal="!mdAndLarger"
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
@@ -148,9 +148,9 @@ import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import Paho from "paho-mqtt"
 import debounce from "lodash/debounce"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { useSetting } from "~/newstore/settings"
-import useWindowSize from "~/helpers/utils/useWindowSize"
 import {
   MQTTEndpoint$,
   setMQTTEndpoint,
@@ -171,8 +171,11 @@ import { useStream } from "~/helpers/utils/composables"
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
+    const breakpoints = useBreakpoints(breakpointsTailwind)
+    const mdAndLarger = breakpoints.greater("md")
+
     return {
-      windowInnerWidth: useWindowSize(),
+      mdAndLarger,
       SIDEBAR: useSetting("SIDEBAR"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
       SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),

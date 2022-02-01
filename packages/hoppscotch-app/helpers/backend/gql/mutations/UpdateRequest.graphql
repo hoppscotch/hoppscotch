@@ -1,0 +1,6 @@
+mutation UpdateRequest($data: UpdateTeamRequestInput!, $requestID: ID!) {
+  updateRequest(data: $data, requestID: $requestID) {
+    id
+    title
+  }
+}

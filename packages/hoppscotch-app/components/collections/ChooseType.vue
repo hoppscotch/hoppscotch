@@ -45,56 +45,62 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-import gql from "graphql-tag"
+<script setup lang="ts">
+import { computed } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { pipe } from "fp-ts/function"
+import { useGQLQuery } from "~/helpers/backend/GQLClient"
+import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    doc: Boolean,
-    show: Boolean,
-  },
-  setup() {
-    return {
-      currentUser: useReadonlyStream(currentUserInfo$, null),
-    }
-  },
-  data() {
-    return {
-      skipTeamsFetching: true,
-    }
-  },
-  apollo: {
-    myTeams: {
-      query: gql`
-        query GetMyTeams {
-          myTeams {
-            id
-            name
-            myRole
-          }
-        }
-      `,
-      pollInterval: 10000,
-      skip() {
-        return this.skipTeamsFetching
-      },
-    },
-  },
-  methods: {
-    onTeamSelectIntersect() {
-      // Load team data as soon as intersection
-      this.$apollo.queries.myTeams.refetch()
-      this.skipTeamsFetching = false
-    },
-    updateCollectionsType(tabID: string) {
-      this.$emit("update-collection-type", tabID)
-    },
-    updateSelectedTeam(team: any) {
-      this.$emit("update-selected-team", team)
-    },
-  },
+type TeamData = GetMyTeamsQuery["myTeams"][number]
+
+defineProps<{
+  doc: boolean
+  show: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "update-collection-type", tabID: string): void
+  (e: "update-selected-team", team: TeamData | undefined): void
+}>()
+
+const currentUser = useReadonlyStream(currentUserInfo$, null)
+
+const teamListQuery = useGQLQuery({
+  query: GetMyTeamsDocument,
+  defer: true,
+  pollDuration: 10000,
 })
+
+const myTeams = computed(() => {
+  const result = teamListQuery.data
+
+  if (teamListQuery.loading) {
+    return []
+  }
+
+  return pipe(
+    result,
+    E.match(
+      // TODO: Handle better error case here ?
+      () => [],
+      (x) => x.myTeams
+    )
+  )
+})
+
+const onTeamSelectIntersect = () => {
+  // Load team data as soon as intersection
+  teamListQuery.execute()
+}
+
+const updateCollectionsType = (tabID: string) => {
+  emit("update-collection-type", tabID)
+}
+
+const updateSelectedTeam = (team: TeamData | undefined) => {
+  emit("update-selected-team", team)
+}
 </script>

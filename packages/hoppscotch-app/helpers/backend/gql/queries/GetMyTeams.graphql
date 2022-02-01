@@ -1,0 +1,7 @@
+query GetMyTeams {
+  myTeams {
+    id
+    name
+    myRole
+  }
+}

@@ -184,8 +184,9 @@
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import { DeleteCollectionDocument } from "~/helpers/backend/graphql"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
-import * as teamUtils from "~/helpers/teams/utils"
 
 export default defineComponent({
   name: "Folder",
@@ -257,23 +258,25 @@ export default defineComponent({
           this.$emit("select", { picked: null })
         }
 
-        teamUtils
-          .deleteCollection(this.$apollo, this.folder.id)
-          .then(() => {
+        runMutation(DeleteCollectionDocument, {
+          collectionID: this.folder.id,
+        })().then((result) => {
+          if (E.isLeft(result)) {
+            this.$toast.error(`${this.$t("error.something_went_wrong")}`)
+            console.error(result.left)
+          } else {
             this.$toast.success(`${this.$t("state.deleted")}`)
             this.$emit("update-team-collections")
-          })
-          .catch((e) => {
-            this.$toast.error(`${this.$t("error.something_went_wrong")}`)
-            console.error(e)
-          })
+          }
+        })
+
         this.$emit("update-team-collections")
       }
     },
-    expandCollection(collectionID) {
+    expandCollection(collectionID: number) {
       this.$emit("expand-collection", collectionID)
     },
-    async dropEvent({ dataTransfer }) {
+    async dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const requestIndex = dataTransfer.getData("requestIndex")
       const moveRequestResult = await moveRESTTeamRequest(
@@ -283,7 +286,7 @@ export default defineComponent({
       if (E.isLeft(moveRequestResult))
         this.$toast.error(`${this.$t("error.something_went_wrong")}`)
     },
-    removeRequest({ collectionIndex, folderName, requestIndex }) {
+    removeRequest({ collectionIndex, folderName, requestIndex }: any) {
       this.$emit("remove-request", {
         collectionIndex,
         folderName,

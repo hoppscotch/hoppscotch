@@ -1,0 +1,8 @@
+query GetUserInfo {
+  me {
+    uid
+    displayName
+    email
+    photoURL
+  }
+}

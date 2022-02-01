@@ -182,14 +182,12 @@
 </template>
 
 <script>
-import gql from "graphql-tag"
 import cloneDeep from "lodash/cloneDeep"
 import { defineComponent } from "@nuxtjs/composition-api"
 import CollectionsMyCollection from "./my/Collection.vue"
 import CollectionsTeamsCollection from "./teams/Collection.vue"
 import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
-import * as teamUtils from "~/helpers/teams/utils"
 import {
   restCollections$,
   addRESTCollection,
@@ -205,6 +203,16 @@ import {
   useReadonlyStream,
   useStreamSubscriber,
 } from "~/helpers/utils/composables"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import {
+  CreateChildCollectionDocument,
+  CreateNewRootCollectionDocument,
+  CreateRequestInCollectionDocument,
+  DeleteCollectionDocument,
+  DeleteRequestDocument,
+  RenameCollectionDocument,
+  UpdateRequestDocument,
+} from "~/helpers/backend/graphql"
 
 export default defineComponent({
   components: {
@@ -349,19 +357,17 @@ export default defineComponent({
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
-        teamUtils
-          .createNewRootCollection(
-            this.$apollo,
-            name,
-            this.collectionsType.selectedTeam.id
-          )
-          .then(() => {
-            this.$toast.success(this.$t("collection.created"))
-          })
-          .catch((e) => {
+        runMutation(CreateNewRootCollectionDocument, {
+          title: name,
+          teamID: this.collectionsType.selectedTeam.id,
+        })().then((result) => {
+          if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
-          })
+          } else {
+            this.$toast.success(this.$t("collection.created"))
+          }
+        })
       }
       this.displayModalAdd(false)
     },
@@ -382,15 +388,17 @@ export default defineComponent({
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
-        teamUtils
-          .renameCollection(this.$apollo, newName, this.editingCollection.id)
-          .then(() => {
-            this.$toast.success(this.$t("collection.renamed"))
-          })
-          .catch((e) => {
+        runMutation(RenameCollectionDocument, {
+          collectionID: this.editingCollection.id,
+          newTitle: newName,
+        })().then((result) => {
+          if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
-          })
+          } else {
+            this.$toast.success(this.$t("collection.renamed"))
+          }
+        })
       }
       this.displayModalEdit(false)
     },
@@ -402,15 +410,17 @@ export default defineComponent({
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
-        teamUtils
-          .renameCollection(this.$apollo, name, this.editingFolder.id)
-          .then(() => {
-            this.$toast.success(this.$t("folder.renamed"))
-          })
-          .catch((e) => {
+        runMutation(RenameCollectionDocument, {
+          collectionID: this.editingFolder.id,
+          newTitle: name,
+        })().then((result) => {
+          if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
-          })
+          } else {
+            this.$toast.success(this.$t("folder.renamed"))
+          }
+        })
       }
 
       this.displayModalEditFolder(false)
@@ -433,21 +443,22 @@ export default defineComponent({
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
         const requestName = requestUpdateData.name || this.editingRequest.name
-        teamUtils
-          .updateRequest(
-            this.$apollo,
-            requestUpdated,
-            requestName,
-            this.editingRequestIndex
-          )
-          .then(() => {
-            this.$toast.success(this.$t("request.renamed"))
-            this.$emit("update-team-collections")
-          })
-          .catch((e) => {
+
+        runMutation(UpdateRequestDocument, {
+          data: {
+            request: JSON.stringify(requestUpdated),
+            title: requestName,
+          },
+          requestID: this.editingRequestIndex,
+        })().then((result) => {
+          if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
-          })
+          } else {
+            this.$toast.success(this.$t("request.renamed"))
+            this.$emit("update-team-collections")
+          }
+        })
       }
 
       this.displayModalEditRequest(false)
@@ -488,35 +499,18 @@ export default defineComponent({
         addRESTFolder(name, path)
       } else if (this.collectionsType.type === "team-collections") {
         if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
-          this.$apollo
-            .mutate({
-              mutation: gql`
-                mutation CreateChildCollection(
-                  $childTitle: String!
-                  $collectionID: ID!
-                ) {
-                  createChildCollection(
-                    childTitle: $childTitle
-                    collectionID: $collectionID
-                  ) {
-                    id
-                  }
-                }
-              `,
-              // Parameters
-              variables: {
-                childTitle: name,
-                collectionID: folder.id,
-              },
-            })
-            .then(() => {
-              this.$toast.success(this.$t("folder.created"))
-              this.$emit("update-team-collections")
-            })
-            .catch((e) => {
+          runMutation(CreateChildCollectionDocument, {
+            childTitle: name,
+            collectionID: folder.id,
+          })().then((result) => {
+            if (E.isLeft(result)) {
               this.$toast.error(this.$t("error.something_went_wrong"))
               console.error(e)
-            })
+            } else {
+              this.$toast.success(this.$t("folder.created"))
+              this.$emit("update-team-collections")
+            }
+          })
         }
       }
 
@@ -590,26 +584,16 @@ export default defineComponent({
         }
 
         if (collectionsType.selectedTeam.myRole !== "VIEWER") {
-          this.$apollo
-            .mutate({
-              // Query
-              mutation: gql`
-                mutation ($collectionID: ID!) {
-                  deleteCollection(collectionID: $collectionID)
-                }
-              `,
-              // Parameters
-              variables: {
-                collectionID,
-              },
-            })
-            .then(() => {
-              this.$toast.success(this.$t("state.deleted"))
-            })
-            .catch((e) => {
+          runMutation(DeleteCollectionDocument, {
+            collectionID,
+          })().then((result) => {
+            if (E.isLeft(result)) {
               this.$toast.error(this.$t("error.something_went_wrong"))
               console.error(e)
-            })
+            } else {
+              this.$toast.success(this.$t("state.deleted"))
+            }
+          })
         }
       }
     },
@@ -636,15 +620,16 @@ export default defineComponent({
           this.$emit("select", { picked: null })
         }
 
-        teamUtils
-          .deleteRequest(this.$apollo, requestIndex)
-          .then(() => {
-            this.$toast.success(this.$t("state.deleted"))
-          })
-          .catch((e) => {
+        runMutation(DeleteRequestDocument, {
+          requestID: requestIndex,
+        })().then((result) => {
+          if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
-          })
+          } else {
+            this.$toast.success(this.$t("state.deleted"))
+          }
+        })
       }
     },
     duplicateRequest({ folderPath, request, collectionID }) {
@@ -654,13 +639,15 @@ export default defineComponent({
           name: `${request.name} - ${this.$t("action.duplicate")}`,
         }
 
-        teamUtils.saveRequestAsTeams(
-          this.$apollo,
-          JSON.stringify(newReq),
-          `${request.name} - ${this.$t("action.duplicate")}`,
-          this.collectionsType.selectedTeam.id,
-          collectionID
-        )
+        // Error handling ?
+        runMutation(CreateRequestInCollectionDocument, {
+          collectionID,
+          data: {
+            request: JSON.stringify(newReq),
+            teamID: this.collectionsType.selectedTeam.id,
+            title: `${request.name} - ${this.$t("action.duplicate")}`,
+          },
+        })()
       } else if (this.collectionsType.type === "my-collections") {
         saveRESTRequestAs(folderPath, {
           ...cloneDeep(request),

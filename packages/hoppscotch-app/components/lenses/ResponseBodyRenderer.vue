@@ -6,7 +6,7 @@
       :key="`lens-${index}`"
       :label="$t(lens.lensName)"
       :selected="index === 0"
-      class="flex flex-col flex-1"
+      class="flex flex-col flex-1 w-full h-full"
     >
       <component :is="lens.renderer" :response="response" />
     </SmartTab>

@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("request.body") }}
@@ -36,7 +36,7 @@
         />
       </div>
     </div>
-    <div v-if="bulkMode" ref="bulkEditor"></div>
+    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
     <div v-else>
       <div
         v-for="(param, index) in workingUrlEncodedParams"

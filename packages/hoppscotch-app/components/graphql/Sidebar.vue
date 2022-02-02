@@ -137,7 +137,7 @@
     <SmartTab :id="'schema'" icon="box" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
-        class="sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
       >
         <label class="font-semibold text-secondaryLight">
           {{ t("graphql.schema") }}
@@ -173,7 +173,11 @@
           />
         </div>
       </div>
-      <div v-if="schemaString" ref="schemaEditor"></div>
+      <div
+        v-if="schemaString"
+        ref="schemaEditor"
+        class="flex flex-col flex-1"
+      ></div>
       <div
         v-else
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"

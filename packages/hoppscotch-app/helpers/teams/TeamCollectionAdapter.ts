@@ -501,53 +501,70 @@ export default class NewTeamCollectionAdapter {
 
     if (collection.children != null) return
 
-    // TODO: Implement deep pagination
-    const collectionData = await runGQLQuery({
-      query: GetCollectionChildrenDocument,
-      variables: {
-        collectionID,
-      },
-    })
+    const collections: TeamCollection[] = []
 
-    if (E.isLeft(collectionData))
-      throw new Error(
-        `Child Collection Fetch Error for ${collectionID}: ${collectionData.left}`
-      )
-
-    const collections: TeamCollection[] =
-      collectionData.right.collection?.children.map(
-        (el) =>
-          <TeamCollection>{
-            id: el.id,
-            title: el.title,
-            children: null,
-            requests: null,
-          }
-      ) ?? []
-
-    // TODO: Implement deep pagination
-    const requestData = await runGQLQuery({
-      query: GetCollectionRequestsDocument,
-      variables: {
-        collectionID,
-        cursor: undefined,
-      },
-    })
-
-    if (E.isLeft(requestData))
-      throw new Error(
-        `Child Request Fetch Error for ${requestData}: ${requestData.left}`
-      )
-
-    const requests: TeamRequest[] =
-      requestData.right.requestsInCollection.map<TeamRequest>((el) => {
-        return {
-          id: el.id,
+    while (true) {
+      const data = await runGQLQuery({
+        query: GetCollectionChildrenDocument,
+        variables: {
           collectionID,
-          title: el.title,
-          request: translateToNewRequest(JSON.parse(el.request)),
-        }
+          cursor:
+            collections.length > 0
+              ? collections[collections.length - 1].id
+              : undefined,
+        },
       })
+
+      if (E.isLeft(data))
+        throw new Error(
+          `Child Collection Fetch Error for ${collectionID}: ${data.left}`
+        )
+
+      collections.push(
+        ...data.right.collection!.children.map(
+          (el) =>
+            <TeamCollection>{
+              id: el.id,
+              title: el.title,
+              children: null,
+              requests: null,
+            }
+        )
+      )
+
+      if (data.right.collection!.children.length !== TEAMS_BACKEND_PAGE_SIZE)
+        break
+    }
+
+    const requests: TeamRequest[] = []
+
+    while (true) {
+      const data = await runGQLQuery({
+        query: GetCollectionRequestsDocument,
+        variables: {
+          collectionID,
+          cursor:
+            requests.length > 0 ? requests[requests.length - 1].id : undefined,
+        },
+      })
+
+      if (E.isLeft(data))
+        throw new Error(`Child Request Fetch Error for ${data}: ${data.left}`)
+
+      requests.push(
+        ...data.right.requestsInCollection.map<TeamRequest>((el) => {
+          return {
+            id: el.id,
+            collectionID,
+            title: el.title,
+            request: translateToNewRequest(JSON.parse(el.request)),
+          }
+        })
+      )
+
+      if (data.right.requestsInCollection.length !== TEAMS_BACKEND_PAGE_SIZE)
+        break
+    }
 
     collection.children = collections
     collection.requests = requests

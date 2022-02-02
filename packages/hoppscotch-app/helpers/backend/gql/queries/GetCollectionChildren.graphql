@@ -1,6 +1,6 @@
-query GetCollectionChildren($collectionID: ID!) {
+query GetCollectionChildren($collectionID: ID!, $cursor: String) {
   collection(collectionID: $collectionID) {
-    children {
+    children(cursor: $cursor) {
       id
       title
     }

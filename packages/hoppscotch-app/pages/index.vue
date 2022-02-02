@@ -7,11 +7,15 @@
     }"
     :horizontal="!mdAndLarger"
   >
-    <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
+    <Pane
+      size="75"
+      min-size="65"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane
           :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <HttpRequest />
           <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
@@ -64,7 +68,7 @@
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="flex flex-col hide-scrollbar !overflow-auto"
+          class="flex flex-col hide-scrollbar !overflow-auto flex flex-col"
         >
           <HttpResponse ref="response" />
         </Pane>
@@ -74,7 +78,7 @@
       v-if="SIDEBAR"
       size="25"
       min-size="20"
-      class="hide-scrollbar !overflow-auto"
+      class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <SmartTabs styles="sticky bg-primary z-10 top-0" vertical>
         <SmartTab

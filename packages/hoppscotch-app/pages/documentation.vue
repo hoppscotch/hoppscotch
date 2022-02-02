@@ -7,11 +7,15 @@
     }"
     :horizontal="!mdAndLarger"
   >
-    <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
+    <Pane
+      size="75"
+      min-size="65"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane
           :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <div class="flex items-start justify-between p-4">
             <label>
@@ -68,7 +72,7 @@
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <div class="flex flex-col">
             <div
@@ -121,7 +125,7 @@
       v-if="SIDEBAR"
       size="25"
       min-size="20"
-      class="hide-scrollbar !overflow-auto"
+      class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <aside>
         <Collections

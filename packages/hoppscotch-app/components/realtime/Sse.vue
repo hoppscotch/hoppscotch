@@ -1,7 +1,12 @@
 <template>
   <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-    <Pane :size="COLUMN_LAYOUT ? 45 : 50" class="hide-scrollbar !overflow-auto">
-      <div class="sticky top-0 z-10 flex p-4 bg-primary">
+    <Pane
+      :size="COLUMN_LAYOUT ? 45 : 50"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
+      <div
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+      >
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
             <input
@@ -44,7 +49,10 @@
         </div>
       </div>
     </Pane>
-    <Pane :size="COLUMN_LAYOUT ? 65 : 50" class="hide-scrollbar !overflow-auto">
+    <Pane
+      :size="COLUMN_LAYOUT ? 65 : 50"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
       <RealtimeLog :title="$t('sse.log')" :log="log" />
     </Pane>
   </Splitpanes>

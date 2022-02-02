@@ -7,13 +7,19 @@
     }"
     :horizontal="!mdAndLarger"
   >
-    <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
+    <Pane
+      size="75"
+      min-size="65"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane
           :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
-          <div class="sticky top-0 z-10 flex flex-col p-4 space-y-4 bg-primary">
+          <div
+            class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+          >
             <div class="inline-flex flex-1 space-x-2">
               <input
                 id="mqtt-url"
@@ -61,7 +67,7 @@
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <RealtimeLog :title="$t('mqtt.log')" :log="log" />
         </Pane>
@@ -71,9 +77,9 @@
       v-if="SIDEBAR"
       size="25"
       min-size="20"
-      class="hide-scrollbar !overflow-auto"
+      class="hide-scrollbar !overflow-auto flex flex-col"
     >
-      <div class="flex flex-col flex-1 p-4">
+      <div class="flex items-center justify-between p-4">
         <label for="pub_topic" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.topic") }}
         </label>
@@ -89,7 +95,7 @@
           spellcheck="false"
         />
       </div>
-      <div class="flex items-center justify-between flex-1 p-4">
+      <div class="flex items-center justify-between p-4">
         <label for="mqtt-message" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.communication") }}
         </label>
@@ -112,7 +118,9 @@
           @click.native="publish"
         />
       </div>
-      <div class="flex flex-col flex-1 p-4 mt-4 border-t border-dividerLight">
+      <div
+        class="flex items-center justify-between p-4 mt-4 border-t border-dividerLight"
+      >
         <label for="sub_topic" class="font-semibold text-secondaryLight">
           {{ $t("mqtt.topic") }}
         </label>

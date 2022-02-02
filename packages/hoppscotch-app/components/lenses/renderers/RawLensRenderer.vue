@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
@@ -33,7 +33,7 @@
         />
       </div>
     </div>
-    <div ref="rawResponse"></div>
+    <div ref="rawResponse" class="flex flex-col flex-1"></div>
   </div>
 </template>
 

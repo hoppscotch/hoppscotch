@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ $t("request.body") }}
@@ -135,7 +135,7 @@
       </span>
     </div>
     <div
-      v-if="bodyParams.length === 0"
+      v-if="workingParams.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img

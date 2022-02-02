@@ -12,7 +12,7 @@
         >
           <Pane
             style="width: auto; height: auto"
-            class="hide-scrollbar !overflow-auto"
+            class="hide-scrollbar !overflow-auto flex flex-col"
           >
             <AppSidenav />
           </Pane>

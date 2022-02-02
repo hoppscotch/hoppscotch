@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1 h-full">
     <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
       <SmartTab
         :id="'query'"
@@ -8,7 +8,7 @@
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
         <div
-          class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery"
+          class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("request.query") }}
@@ -62,7 +62,7 @@
             />
           </div>
         </div>
-        <div ref="queryEditor"></div>
+        <div ref="queryEditor" class="flex flex-col flex-1"></div>
       </SmartTab>
 
       <SmartTab
@@ -71,7 +71,7 @@
         :indicator="variableString && variableString.length > 0 ? true : false"
       >
         <div
-          class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+          class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("request.variables") }}
@@ -105,7 +105,7 @@
             />
           </div>
         </div>
-        <div ref="variableEditor"></div>
+        <div ref="variableEditor" class="flex flex-col flex-1"></div>
       </SmartTab>
 
       <SmartTab
@@ -114,7 +114,7 @@
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
         <div
-          class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+          class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
         >
           <label class="font-semibold text-secondaryLight">
             {{ t("tab.headers") }}
@@ -149,7 +149,11 @@
             />
           </div>
         </div>
-        <div v-if="bulkMode" ref="bulkEditor"></div>
+        <div
+          v-if="bulkMode"
+          ref="bulkEditor"
+          class="flex flex-col flex-1"
+        ></div>
         <div v-else>
           <div
             v-for="(header, index) in workingHeaders"

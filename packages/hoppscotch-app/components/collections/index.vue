@@ -1,7 +1,7 @@
 <template>
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky z-10 flex flex-col border-b rounded-t divide-dividerLight divide-y bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-col border-b rounded-t divide-y divide-dividerLight bg-primary border-dividerLight"
       :style="saveRequest ? 'top: calc(-1 * var(--font-size-body))' : 'top: 0'"
     >
       <div v-if="!saveRequest" class="flex flex-col">
@@ -63,7 +63,7 @@
         </span>
       </div>
     </div>
-    <div class="flex flex-col">
+    <div class="flex flex-col flex-1">
       <component
         :is="
           collectionsType.type == 'my-collections'

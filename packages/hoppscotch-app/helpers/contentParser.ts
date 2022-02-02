@@ -5,7 +5,7 @@ import { pipe } from "fp-ts/function"
 /**
  * Checks and Parses JSON string
  * @param str Raw JSON data to be parsed
- * @returns Object with optional keys for error and parsed JSON output
+ * @returns Option type with some(formatted JSON) or none
  */
 // const safeParseJson = (str: string): Either<Error, unknown> =>
 const isJSON = (str: string): Option<string> => {
@@ -64,14 +64,9 @@ export function parseBody(
       break
     }
     case "application/x-www-form-urlencoded": {
-      const pairs = rawData.match(/(([^&=]+)=([^&=]+))/g)
-      if (pairs?.length === 0) {
-        console.error(
-          "Error parsing body as application/x-www-form-urlencoded: malformed body"
-        )
-        break
-      }
-      if (pairs) body = pairs.map((p) => p.replace("=", ": ")).join("\n")
+      const pairs = rawData.match(/(([^&=]+)=?([^&=]+))/g)
+      if (pairs && pairs.length > 0)
+        body = pairs.map((p) => p.replace("=", ": ")).join("\n")
       break
     }
     case "multipart/form-data": {

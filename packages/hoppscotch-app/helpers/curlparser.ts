@@ -5,7 +5,6 @@ import parser from "yargs-parser"
 import { HoppRESTReqBody } from "@hoppscotch/data"
 
 import { detectContentType, parseBody } from "./contentParser"
-import { isType } from "./typeutils"
 
 /**
  * given this: [ 'msg1=value1', 'msg2=value2' ]
@@ -242,7 +241,7 @@ const parseCurlCommand = (curlCommand: string) => {
 
   let body: string | null = ""
 
-  let contentType: HoppRESTReqBody["contentType"] = "text/plain"
+  let contentType: HoppRESTReqBody["contentType"] = null
 
   // if -F is not present, look for content type header
   if (rawContentType !== "multipart/form-data") {
@@ -257,7 +256,7 @@ const parseCurlCommand = (curlCommand: string) => {
           case "application/x-www-form-urlencoded":
           case "application/json": {
             const parsedBody = parseBody(rawData, contentType)
-            if (isType<string | null>(parsedBody)) {
+            if (typeof parsedBody === "string") {
               body = parsedBody
             } else {
               reject(Error("Unstructured Body"))
@@ -266,11 +265,9 @@ const parseCurlCommand = (curlCommand: string) => {
           }
           case "multipart/form-data": {
             const parsedBody = parseBody(rawData, contentType, rawContentType)
-            if (isType<Record<string, string>>(parsedBody)) {
-              multipartUploads = parsedBody
-            } else {
+            if (typeof parsedBody === "string" || parsedBody === null)
               reject(Error("Unstructured Body"))
-            }
+            else multipartUploads = parsedBody
             break
           }
           case "application/hal+json":
@@ -294,11 +291,8 @@ const parseCurlCommand = (curlCommand: string) => {
           >
         else {
           const res = parseBody(rawData, contentType)
-          if (isType<string | null>(res))
-            body = parseBody(rawData, contentType) as string | null
-          if (body === null) {
-            reject(Error("Null body encountered"))
-          }
+          if (typeof res === "string") body = res
+          else reject(Error("Null body encountered"))
         }
       } else {
         reject(Error(undefined)) // eslint-disable-line

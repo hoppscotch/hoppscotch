@@ -7,13 +7,19 @@
     }"
     :horizontal="!mdAndLarger"
   >
-    <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
+    <Pane
+      size="75"
+      min-size="65"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane
           :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
-          <div class="sticky top-0 z-10 flex p-4 bg-primary">
+          <div
+            class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+          >
             <div class="inline-flex flex-1 space-x-2">
               <div class="flex flex-1">
                 <label for="client-version">
@@ -82,7 +88,7 @@
             </div>
           </div>
           <div
-            class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+            class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
           >
             <span class="flex items-center">
               <label class="font-semibold text-secondaryLight">
@@ -213,7 +219,7 @@
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="hide-scrollbar !overflow-auto"
+          class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <RealtimeLog :title="$t('socketio.log')" :log="log" />
         </Pane>
@@ -223,9 +229,9 @@
       v-if="SIDEBAR"
       size="25"
       min-size="20"
-      class="hide-scrollbar !overflow-auto"
+      class="hide-scrollbar !overflow-auto flex flex-col"
     >
-      <div class="flex flex-col flex-1 p-4">
+      <div class="flex items-center justify-between p-4">
         <label for="events" class="font-semibold text-secondaryLight">
           {{ $t("socketio.events") }}
         </label>
@@ -242,7 +248,7 @@
           :disabled="!connectionState"
         />
       </div>
-      <div class="flex items-center justify-between flex-1 p-4">
+      <div class="flex items-center justify-between p-4">
         <label class="font-semibold text-secondaryLight">
           {{ $t("socketio.communication") }}
         </label>

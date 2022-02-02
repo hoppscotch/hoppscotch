@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
@@ -18,7 +18,7 @@
       </div>
     </div>
     <img
-      class="flex flex-1 max-w-full border-b border-dividerLight"
+      class="flex flex-col flex-1 max-w-full border-b border-dividerLight"
       :src="imageSource"
       loading="lazy"
       :alt="imageSource"

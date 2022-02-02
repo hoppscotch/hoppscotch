@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("request.raw_body") }}
@@ -52,21 +52,15 @@
         />
       </div>
     </div>
-    <div ref="rawBodyParameters"></div>
+    <div ref="rawBodyParameters" class="flex flex-col flex-1"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  reactive,
-  Ref,
-  ref,
-  watchEffect,
-} from "@nuxtjs/composition-api"
+import { computed, reactive, Ref, ref } from "@nuxtjs/composition-api"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
-import { HoppRESTReqBody, ValidContentTypes } from "~/../hoppscotch-data/dist"
+import { HoppRESTReqBody, ValidContentTypes } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
@@ -105,8 +99,6 @@ const rawInputEditorLang = computed(() =>
 const langLinter = computed(() =>
   isJSONContentType(props.contentType) ? jsonLinter : null
 )
-
-watchEffect(() => console.log(rawInputEditorLang.value))
 
 const linewrapEnabled = ref(true)
 const rawBodyParameters = ref<any | null>(null)

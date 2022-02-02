@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
@@ -33,10 +33,10 @@
         />
       </div>
     </div>
-    <div ref="jsonResponse"></div>
+    <div ref="jsonResponse" class="flex flex-col flex-1"></div>
     <div
       v-if="outlinePath"
-      class="sticky bottom-0 z-10 flex flex-1 px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
+      class="sticky bottom-0 z-10 flex px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
     >
       <div
         v-for="(item, index) in outlinePath"

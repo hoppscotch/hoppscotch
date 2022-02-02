@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1 h-full">
     <div
       v-if="responseString === 'loading'"
       class="flex flex-col items-center justify-center p-4"
@@ -7,9 +7,9 @@
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
-    <div v-else-if="responseString">
+    <div v-else-if="responseString" class="flex flex-col flex-1">
       <div
-        class="sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
       >
         <label class="font-semibold text-secondaryLight">
           {{ t("response.title") }}
@@ -38,7 +38,7 @@
           />
         </div>
       </div>
-      <div ref="schemaEditor"></div>
+      <div ref="schemaEditor" class="flex flex-col flex-1"></div>
     </div>
     <div
       v-else

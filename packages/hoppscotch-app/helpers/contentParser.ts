@@ -1,22 +1,18 @@
-import { HoppRESTReqBody } from "~/../hoppscotch-data/dist"
+import { HoppRESTReqBody } from "@hoppscotch/data"
+import { tryCatch, match, Option } from "fp-ts/Option"
+import { pipe } from "fp-ts/function"
 
 /**
  * Checks and Parses JSON string
  * @param str Raw JSON data to be parsed
  * @returns Object with optional keys for error and parsed JSON output
  */
-const isJSON = (str: string): { error?: boolean; parsedJSON?: string } => {
-  try {
+// const safeParseJson = (str: string): Either<Error, unknown> =>
+const isJSON = (str: string): Option<string> => {
+  return tryCatch(() => {
     const tempBody = JSON.parse(str)
-    return {
-      ...(!!tempBody && { parsedJSON: JSON.stringify(tempBody, null, 2) }),
-      ...(!tempBody && { error: true }),
-    }
-  } catch (e) {
-    return {
-      error: true,
-    }
-  }
+    return JSON.stringify(tempBody, null, 2)
+  })
 }
 
 /**
@@ -29,7 +25,7 @@ export function detectContentType(
 ): HoppRESTReqBody["contentType"] {
   let contentType: HoppRESTReqBody["contentType"] = "text/plain"
 
-  if (isJSON(rawData).parsedJSON) contentType = "application/json"
+  if (isJSON(rawData)._tag === "Some") contentType = "application/json"
   else if (/([^&=]+)=([^&=]+)/.test(rawData)) {
     contentType = "application/x-www-form-urlencoded"
   } else {
@@ -58,9 +54,13 @@ export function parseBody(
   const multipartBody: Record<string, string> = {}
   switch (contentType) {
     case "application/json": {
-      const { error, parsedJSON } = isJSON(rawData)
-      if (error) body = "{}"
-      else if (typeof parsedJSON === "string") body = parsedJSON
+      pipe(
+        isJSON(rawData),
+        match(
+          () => (body = "{}"),
+          (parsedJSON) => (body = parsedJSON)
+        )
+      )
       break
     }
     case "application/x-www-form-urlencoded": {
@@ -88,6 +88,7 @@ export function parseBody(
         else break
       }
 
+      // TODO: change to pipe
       const processedData = rawData
         .split(boundary)
         .filter((p) => p !== "" && p.includes("name"))

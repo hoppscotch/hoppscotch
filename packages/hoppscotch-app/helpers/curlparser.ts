@@ -2,9 +2,10 @@ import * as URL from "url"
 import * as querystring from "querystring"
 import * as cookie from "cookie"
 import parser from "yargs-parser"
+import { HoppRESTReqBody } from "@hoppscotch/data"
+
 import { detectContentType, parseBody } from "./contentParser"
 import { isType } from "./typeutils"
-import { HoppRESTReqBody } from "~/../hoppscotch-data/dist"
 
 /**
  * given this: [ 'msg1=value1', 'msg2=value2' ]
@@ -241,72 +242,72 @@ const parseCurlCommand = (curlCommand: string) => {
 
   let body: string | null = ""
 
-  // TODO: resolve content type issue
   let contentType: HoppRESTReqBody["contentType"] = "text/plain"
 
   // if -F is not present, look for content type header
   if (rawContentType !== "multipart/form-data") {
-    // if content type is provided
-    if (headers && rawContentType !== "") {
-      contentType = rawContentType // eslint-diable-line
-        .toLowerCase()
-        .split(";")[0] as HoppRESTReqBody["contentType"]
+    new Promise((_, reject) => { // eslint-disable-line
+      // if content type is provided
+      if (headers && rawContentType !== "") {
+        contentType = rawContentType // eslint-diable-line
+          .toLowerCase()
+          .split(";")[0] as HoppRESTReqBody["contentType"]
 
-      switch (contentType) {
-        case "application/x-www-form-urlencoded":
-        case "application/json": {
-          const parsedBody = parseBody(rawData, contentType)
-          if (isType<string | null>(parsedBody)) {
-            body = parsedBody
-          } else {
-            console.error("unstructured body")
-            contentType = null
-            body = null
+        switch (contentType) {
+          case "application/x-www-form-urlencoded":
+          case "application/json": {
+            const parsedBody = parseBody(rawData, contentType)
+            if (isType<string | null>(parsedBody)) {
+              body = parsedBody
+            } else {
+              reject(Error("Unstructured Body"))
+            }
+            break
           }
-          break
-        }
-        case "multipart/form-data": {
-          const parsedBody = parseBody(rawData, contentType, rawContentType)
-          if (isType<Record<string, string>>(parsedBody)) {
-            multipartUploads = parsedBody
-          } else {
-            console.error("unstructured body")
-            contentType = null
-            body = null
+          case "multipart/form-data": {
+            const parsedBody = parseBody(rawData, contentType, rawContentType)
+            if (isType<Record<string, string>>(parsedBody)) {
+              multipartUploads = parsedBody
+            } else {
+              reject(Error("Unstructured Body"))
+            }
+            break
           }
-          break
+          case "application/hal+json":
+          case "application/ld+json":
+          case "application/vnd.api+json":
+          case "application/xml":
+          case "text/html":
+          case "text/plain":
+          default:
+            contentType = "text/plain"
+            body = rawData
+            break
         }
-        case "application/hal+json":
-        case "application/ld+json":
-        case "application/vnd.api+json":
-        case "application/xml":
-        case "text/html":
-        case "text/plain":
-        default:
-          contentType = "text/plain"
-          body = rawData
-          break
-      }
-    } else if (rawData) {
-      // if content type is not provided, check for it manually
-      contentType = detectContentType(rawData)
-      if (contentType === "multipart/form-data")
-        multipartUploads = parseBody(rawData, contentType) as Record<
-          string,
-          string
-        >
-      else {
-        const res = parseBody(rawData, contentType)
-        if (isType<string | null>(res))
-          body = parseBody(rawData, contentType) as string | null
-        if (body === null) {
-          contentType = null
+      } else if (rawData) {
+        // if content type is not provided, check for it manually
+        contentType = detectContentType(rawData)
+        if (contentType === "multipart/form-data")
+          multipartUploads = parseBody(rawData, contentType) as Record<
+            string,
+            string
+          >
+        else {
+          const res = parseBody(rawData, contentType)
+          if (isType<string | null>(res))
+            body = parseBody(rawData, contentType) as string | null
+          if (body === null) {
+            reject(Error("Null body encountered"))
+          }
         }
+      } else {
+        reject(Error(undefined)) // eslint-disable-line
       }
-    } else {
+    }).catch((err) => {
       body = null
       contentType = null
-    }
+      if (err) console.error(err)
+    })
   }
 
   const compressed = !!parsedArguments.compressed

@@ -67,7 +67,7 @@ const addNewTeam = () =>
         }
       },
       () => {
-        // Success logic ?
+        toast.success(`${t("team.new_created")}`)
         hideModal()
       }
     )

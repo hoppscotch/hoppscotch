@@ -20,6 +20,14 @@
           @click.native="hideModal"
         />
       </span>
+      <span class="flex">
+        <ButtonSecondary
+          :svg="pasteIcon"
+          :label="`${t('action.paste')}`"
+          filled
+          @click.native="handlePaste"
+        />
+      </span>
     </template>
   </SmartModal>
 </template>
@@ -142,5 +150,21 @@ const handleImport = () => {
     toast.error(`${t("error.curl_invalid_format")}`)
   }
   hideModal()
+}
+
+const pasteIcon = ref("clipboard")
+
+const handlePaste = async () => {
+  try {
+    const text = await navigator.clipboard.readText()
+    if (text) {
+      curl.value = text
+      pasteIcon.value = "check"
+      setTimeout(() => (pasteIcon.value = "clipboard"), 1000)
+    }
+  } catch (e) {
+    console.error("Failed to copy: ", e)
+    toast.error(t("profile.no_permission").toString())
+  }
 }
 </script>

@@ -167,7 +167,9 @@ export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
-  const source = client.value.executeQuery(request)
+  const source = client.value.executeQuery(request, {
+    requestPolicy: "network-only",
+  })
 
   return new Promise((resolve) => {
     const sub = wonkaPipe(

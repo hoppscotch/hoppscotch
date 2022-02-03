@@ -46,12 +46,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "@nuxtjs/composition-api"
-import * as E from "fp-ts/Either"
-import { pipe } from "fp-ts/function"
-import { useGQLQuery } from "~/helpers/backend/GQLClient"
-import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { onLoggedIn } from "~/helpers/fb/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
 type TeamData = GetMyTeamsQuery["myTeams"][number]
@@ -68,32 +66,16 @@ const emit = defineEmits<{
 
 const currentUser = useReadonlyStream(currentUserInfo$, null)
 
-const teamListQuery = useGQLQuery({
-  query: GetMyTeamsDocument,
-  defer: true,
-  pollDuration: 10000,
-})
+const adapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(adapter.teamList$, [])
 
-const myTeams = computed(() => {
-  const result = teamListQuery.data
-
-  if (teamListQuery.loading) {
-    return []
-  }
-
-  return pipe(
-    result,
-    E.match(
-      // TODO: Handle better error case here ?
-      () => [],
-      (x) => x.myTeams
-    )
-  )
+onLoggedIn(() => {
+  adapter.initialize()
 })
 
 const onTeamSelectIntersect = () => {
   // Load team data as soon as intersection
-  teamListQuery.execute()
+  adapter.fetchList()
 }
 
 const updateCollectionsType = (tabID: string) => {

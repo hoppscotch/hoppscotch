@@ -1,7 +1,18 @@
-query GetMyTeams {
-  myTeams {
+query GetMyTeams($cursor: ID) {
+  myTeams(cursor: $cursor) {
     id
     name
     myRole
+    ownersCount
+    teamMembers {
+      membershipID
+      user {
+        photoURL
+        displayName
+        email
+        uid
+      }
+      role
+    }
   }
 }

@@ -1,3 +1,4 @@
+// TODO: fix cache
 import {
   ref,
   reactive,
@@ -22,8 +23,8 @@ import {
   subscriptionExchange,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
-import { offlineExchange } from "@urql/exchange-graphcache"
-import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage"
+// import { offlineExchange } from "@urql/exchange-graphcache"
+// import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage"
 import { devtoolsExchange } from "@urql/devtools"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
@@ -31,11 +32,11 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid } from "fp-ts/function"
 import { Source, subscribe, pipe as wonkaPipe, onEnd } from "wonka"
 import { Subject } from "rxjs"
-import { keyDefs } from "./caching/keys"
-import { optimisticDefs } from "./caching/optimistic"
-import { updatesDef } from "./caching/updates"
-import { resolversDef } from "./caching/resolvers"
-import schema from "./backend-schema.json"
+// import { keyDefs } from "./caching/keys"
+// import { optimisticDefs } from "./caching/optimistic"
+// import { updatesDef } from "./caching/updates"
+// import { resolversDef } from "./caching/resolvers"
+// import schema from "./backend-schema.json"
 import {
   authIdToken$,
   getAuthIDToken,
@@ -48,10 +49,10 @@ const BACKEND_GQL_URL =
     ? "https://api.hoppscotch.io/graphql"
     : "https://api.hoppscotch.io/graphql"
 
-const storage = makeDefaultStorage({
-  idbName: "hoppcache-v1",
-  maxAge: 7,
-})
+// const storage = makeDefaultStorage({
+//   idbName: "hoppcache-v1",
+//   maxAge: 7,
+// })
 
 const subscriptionClient = new SubscriptionClient(
   process.env.context === "production"
@@ -77,14 +78,14 @@ const createHoppClient = () =>
     exchanges: [
       devtoolsExchange,
       dedupExchange,
-      offlineExchange({
-        schema: schema as any,
-        keys: keyDefs,
-        optimistic: optimisticDefs,
-        updates: updatesDef,
-        resolvers: resolversDef,
-        storage,
-      }),
+      // offlineExchange({
+      //   schema: schema as any,
+      //   keys: keyDefs,
+      //   optimistic: optimisticDefs,
+      //   updates: updatesDef,
+      //   resolvers: resolversDef,
+      //   storage,
+      // }),
       authExchange({
         addAuthToOperation({ authState, operation }) {
           if (!authState || !authState.authToken) {

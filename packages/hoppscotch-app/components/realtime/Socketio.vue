@@ -189,10 +189,10 @@
           </div>
           <div
             v-if="authType === 'Bearer'"
-            class="flex border-b border-dividerLight"
+            class="flex flex-1 border-b border-dividerLight"
           >
             <div class="w-2/3 border-r border-dividerLight">
-              <div class="flex border-b border-dividerLight">
+              <div class="flex flex-1 border-b border-dividerLight">
                 <SmartEnvInput
                   v-model="bearerToken"
                   placeholder="Token"

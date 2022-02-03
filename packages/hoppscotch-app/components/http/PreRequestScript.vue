@@ -29,7 +29,7 @@
         />
       </div>
     </div>
-    <div class="flex border-b border-dividerLight">
+    <div class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">
         <div ref="preRrequestEditor" class="h-full"></div>
       </div>

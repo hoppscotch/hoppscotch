@@ -6,19 +6,12 @@
         outline
         @click.native="displayModalAdd(true)"
       />
-      <div
-        v-if="myTeams.loading"
-        class="flex flex-col items-center justify-center"
-      >
+      <div v-if="loading" class="flex flex-col items-center justify-center">
         <SmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <div
-        v-if="
-          !myTeams.loading &&
-          E.isRight(myTeams.data) &&
-          myTeams.data.right.myTeams.length === 0
-        "
+        v-if="!loading && myTeams.length === 0"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
@@ -37,14 +30,14 @@
         />
       </div>
       <div
-        v-else-if="!myTeams.loading && E.isRight(myTeams.data)"
+        v-else-if="!loading"
         class="grid gap-4"
         :class="
           modal ? 'grid-cols-1' : 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
         "
       >
         <TeamsTeam
-          v-for="(team, index) in myTeams.data.right.myTeams"
+          v-for="(team, index) in myTeams"
           :key="`team-${String(index)}`"
           :team-i-d="team.id"
           :team="team"
@@ -53,10 +46,7 @@
           @invite-team="inviteTeam(team, team.id)"
         />
       </div>
-      <div
-        v-if="!myTeams.loading && E.isLeft(myTeams.data)"
-        class="flex flex-col items-center"
-      >
+      <div v-if="!loading && adapterError" class="flex flex-col items-center">
         <i class="mb-4 material-icons">help_outline</i>
         {{ t("error.something_went_wrong") }}
       </div>
@@ -64,12 +54,8 @@
     <TeamsAdd :show="showModalAdd" @hide-modal="displayModalAdd(false)" />
     <!-- ¯\_(ツ)_/¯ -->
     <TeamsEdit
-      v-if="
-        !myTeams.loading &&
-        E.isRight(myTeams.data) &&
-        myTeams.data.right.myTeams.length > 0
-      "
-      :team="myTeams.data.right.myTeams[0]"
+      v-if="!loading && myTeams.length > 0"
+      :team="myTeams[0]"
       :show="showModalEdit"
       :editing-team="editingTeam"
       :editing-team-i-d="editingTeamID"
@@ -77,12 +63,8 @@
       @invite-team="inviteTeam(editingTeam, editingTeamID)"
     />
     <TeamsInvite
-      v-if="
-        !myTeams.loading &&
-        E.isRight(myTeams.data) &&
-        myTeams.data.right.myTeams.length > 0
-      "
-      :team="myTeams.data.right.myTeams[0]"
+      v-if="!loading && myTeams.length > 0"
+      :team="myTeams[0]"
       :show="showModalInvite"
       :editing-team="editingTeam"
       :editing-team-i-d="editingTeamID"
@@ -92,16 +74,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
-import * as E from "fp-ts/Either"
-import { useGQLQuery } from "~/helpers/backend/GQLClient"
-import {
-  MyTeamsDocument,
-  MyTeamsQuery,
-  MyTeamsQueryVariables,
-} from "~/helpers/backend/graphql"
-import { MyTeamsQueryError } from "~/helpers/backend/QueryErrors"
-import { useI18n } from "~/helpers/utils/composables"
+import { computed, ref } from "@nuxtjs/composition-api"
+import { onLoggedIn } from "~/helpers/fb/auth"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
 
 const t = useI18n()
 
@@ -115,25 +91,32 @@ const showModalInvite = ref(false)
 const editingTeam = ref<any>({}) // TODO: Check this out
 const editingTeamID = ref<any>("")
 
-const myTeams = useGQLQuery<
-  MyTeamsQuery,
-  MyTeamsQueryVariables,
-  MyTeamsQueryError
->({
-  query: MyTeamsDocument,
-  pollDuration: 5000,
+const adapter = new TeamListAdapter(true)
+const adapterLoading = useReadonlyStream(adapter.loading$, false)
+const adapterError = useReadonlyStream(adapter.error$, null)
+const myTeams = useReadonlyStream(adapter.teamList$, [])
+
+const loading = computed(
+  () => adapterLoading.value && myTeams.value.length === 0
+)
+
+onLoggedIn(() => {
+  adapter.initialize()
 })
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   showModalAdd.value = shouldDisplay
+  adapter.fetchList()
 }
 
 const displayModalEdit = (shouldDisplay: boolean) => {
   showModalEdit.value = shouldDisplay
+  adapter.fetchList()
 }
 
 const displayModalInvite = (shouldDisplay: boolean) => {
   showModalInvite.value = shouldDisplay
+  adapter.fetchList()
 }
 
 const editTeam = (team: any, teamID: any) => {

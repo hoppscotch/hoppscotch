@@ -126,6 +126,7 @@
           :collections-type="collectionsType"
           :folder-path="`${folderPath}/${subFolderIndex}`"
           :picked="picked"
+          :loading-collection-i-ds="loadingCollectionIDs"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
@@ -154,7 +155,14 @@
           @duplicate-request="$emit('duplicate-request', $event)"
         />
         <div
-          v-if="
+          v-if="loadingCollectionIDs.includes(folder.id)"
+          class="flex flex-col items-center justify-center p-4"
+        >
+          <SmartSpinner class="my-4" />
+          <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+        </div>
+        <div
+          v-else-if="
             (folder.children == undefined || folder.children.length === 0) &&
             (folder.requests == undefined || folder.requests.length === 0)
           "
@@ -200,6 +208,7 @@ export default defineComponent({
     isFiltered: Boolean,
     collectionsType: { type: Object, default: () => {} },
     picked: { type: Object, default: () => {} },
+    loadingCollectionIDs: { type: Array, default: () => [] },
   },
   setup() {
     return {

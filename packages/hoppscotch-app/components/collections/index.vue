@@ -80,6 +80,7 @@
         :save-request="saveRequest"
         :collections-type="collectionsType"
         :picked="picked"
+        :loading-collection-i-ds="loadingCollectionIDs"
         @edit-collection="editCollection(collection, index)"
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
@@ -95,7 +96,14 @@
       />
     </div>
     <div
-      v-if="filteredCollections.length === 0 && filterText.length === 0"
+      v-if="loadingCollectionIDs.includes('root')"
+      class="flex flex-col items-center justify-center p-4"
+    >
+      <SmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+    </div>
+    <div
+      v-else-if="filteredCollections.length === 0 && filterText.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
@@ -258,6 +266,7 @@ export default defineComponent({
       },
       teamCollectionAdapter: new TeamCollectionAdapter(null),
       teamCollectionsNew: [],
+      loadingCollectionIDs: [],
     }
   },
   computed: {
@@ -332,6 +341,13 @@ export default defineComponent({
     this.subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
       this.teamCollectionsNew = cloneDeep(colls)
     })
+    this.subscribeTo(
+      this.teamCollectionAdapter.loadingCollections$,
+      (collectionsIDs) => {
+        console.log("loading collections", collectionsIDs)
+        this.loadingCollectionIDs = collectionsIDs
+      }
+    )
   },
   methods: {
     updateTeamCollections() {

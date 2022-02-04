@@ -290,6 +290,9 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   const source: Ref<Source<OperationResult> | undefined> = ref()
 
+  // A ref used to force re-execution of the query
+  const updateTicker: Ref<boolean> = ref(true)
+
   // Toggles between true and false to cause the polling operation to tick
   const pollerTick: Ref<boolean> = ref(true)
 
@@ -329,6 +332,10 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
         // Just listen to the polling ticks
         // eslint-disable-next-line no-unused-expressions
         pollerTick.value
+
+        // Just keep track of update ticking, but don't do anything
+        // eslint-disable-next-line no-unused-expressions
+        updateTicker.value
 
         source.value = !isPaused.value
           ? client.value.executeQuery<DocType, DocVarType>(request.value, {
@@ -416,12 +423,22 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
       }
     }
 
+    updateTicker.value = !updateTicker.value
+  }
+
+  const pause = () => {
+    isPaused.value = true
+  }
+
+  const unpause = () => {
     isPaused.value = false
   }
 
   const response = reactive({
     loading,
     data,
+    pause,
+    unpause,
     isStale,
     execute,
   })

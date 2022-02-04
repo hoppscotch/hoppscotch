@@ -242,7 +242,6 @@ watch(
 watch(
   () => props.editingTeamID,
   (teamID: string) => {
-    console.log("teamID", teamID)
     teamDetails.execute({ teamID })
   }
 )
@@ -252,6 +251,7 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
   variables: {
     teamID: props.editingTeamID,
   },
+  pollDuration: 10000,
   defer: true,
   updateSubs: computed(() => {
     if (props.editingTeamID) {
@@ -282,6 +282,17 @@ const teamDetails = useGQLQuery<GetTeamQuery, GetTeamQueryVariables, "">({
   }),
 })
 
+watch(
+  () => props.show,
+  (show) => {
+    if (!show) {
+      teamDetails.pause()
+    } else {
+      teamDetails.unpause()
+    }
+  }
+)
+
 const roleUpdates = ref<
   {
     userID: string
@@ -293,8 +304,6 @@ watch(
   () => teamDetails,
   () => {
     if (teamDetails.loading) return
-
-    console.log(teamDetails)
 
     const data = teamDetails.data
 
@@ -325,11 +334,6 @@ const updateMemberRole = (userID: string, role: TeamMemberRole) => {
     })
   }
 }
-
-watch(
-  () => teamDetails.data,
-  (newVal) => console.log(newVal)
-)
 
 const membersList = computed(() => {
   if (teamDetails.loading) return []

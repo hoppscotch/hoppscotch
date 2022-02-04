@@ -175,7 +175,11 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="t('action.save')" @click.native="saveTeam" />
+        <ButtonPrimary
+          :label="t('action.save')"
+          :loading="isLoading"
+          @click.native="saveTeam"
+        />
         <ButtonSecondary
           :label="t('action.cancel')"
           @click.native="hideModal"
@@ -343,7 +347,10 @@ const membersList = computed(() => {
   return []
 })
 
+const isLoading = ref(false)
+
 const removeExistingTeamMember = async (userID: string) => {
+  isLoading.value = true
   const removeTeamMemberResult = await removeTeamMember(
     userID,
     props.editingTeamID
@@ -353,9 +360,11 @@ const removeExistingTeamMember = async (userID: string) => {
   } else {
     toast.success(`${t("team.member_removed")}`)
   }
+  isLoading.value = false
 }
 
 const saveTeam = async () => {
+  isLoading.value = true
   if (name.value !== "") {
     if (TeamNameCodec.is(name.value)) {
       const updateTeamNameResult = await renameTeam(
@@ -380,11 +389,12 @@ const saveTeam = async () => {
       hideModal()
       toast.success(`${t("team.saved")}`)
     } else {
-      return toast.error(`${t("team.name_length_insufficient")}`)
+      toast.error(`${t("team.name_length_insufficient")}`)
     }
   } else {
-    return toast.error(`${t("empty.team_name")}`)
+    toast.error(`${t("empty.team_name")}`)
   }
+  isLoading.value = false
 }
 
 const hideModal = () => {

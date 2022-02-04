@@ -183,6 +183,9 @@ function findCollWithReqIDInTree(
 export default class NewTeamCollectionAdapter {
   collections$: BehaviorSubject<TeamCollection[]>
 
+  // Stream to the list of collections/folders that are being loaded in
+  loadingCollections$: BehaviorSubject<string[]>
+
   private teamCollectionAdded$: Subscription | null
   private teamCollectionUpdated$: Subscription | null
   private teamCollectionRemoved$: Subscription | null
@@ -192,6 +195,7 @@ export default class NewTeamCollectionAdapter {
 
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
+    this.loadingCollections$ = new BehaviorSubject<string[]>([])
 
     this.teamCollectionAdded$ = null
     this.teamCollectionUpdated$ = null
@@ -206,6 +210,7 @@ export default class NewTeamCollectionAdapter {
   changeTeamID(newTeamID: string | null) {
     this.teamID = newTeamID
     this.collections$.next([])
+    this.loadingCollections$.next([])
 
     this.unsubscribeSubscriptions()
 
@@ -262,6 +267,11 @@ export default class NewTeamCollectionAdapter {
   private async loadRootCollections() {
     if (this.teamID === null) throw new Error("Team ID is null")
 
+    this.loadingCollections$.next([
+      ...this.loadingCollections$.getValue(),
+      "root",
+    ])
+
     const totalCollections: TeamCollection[] = []
 
     while (true) {
@@ -276,8 +286,13 @@ export default class NewTeamCollectionAdapter {
         },
       })
 
-      if (E.isLeft(result))
+      if (E.isLeft(result)) {
+        this.loadingCollections$.next(
+          this.loadingCollections$.getValue().filter((x) => x !== "root")
+        )
+
         throw new Error(`Error fetching root collections: ${result}`)
+      }
 
       totalCollections.push(
         ...result.right.rootCollectionsOfTeam.map(
@@ -293,6 +308,10 @@ export default class NewTeamCollectionAdapter {
       if (result.right.rootCollectionsOfTeam.length !== TEAMS_BACKEND_PAGE_SIZE)
         break
     }
+
+    this.loadingCollections$.next(
+      this.loadingCollections$.getValue().filter((x) => x !== "root")
+    )
 
     this.collections$.next(totalCollections)
   }
@@ -503,6 +522,11 @@ export default class NewTeamCollectionAdapter {
 
     const collections: TeamCollection[] = []
 
+    this.loadingCollections$.next([
+      ...this.loadingCollections$.getValue(),
+      collectionID,
+    ])
+
     while (true) {
       const data = await runGQLQuery({
         query: GetCollectionChildrenDocument,
@@ -515,10 +539,15 @@ export default class NewTeamCollectionAdapter {
         },
       })
 
-      if (E.isLeft(data))
+      if (E.isLeft(data)) {
+        this.loadingCollections$.next(
+          this.loadingCollections$.getValue().filter((x) => x !== collectionID)
+        )
+
         throw new Error(
           `Child Collection Fetch Error for ${collectionID}: ${data.left}`
         )
+      }
 
       collections.push(
         ...data.right.collection!.children.map(
@@ -548,8 +577,13 @@ export default class NewTeamCollectionAdapter {
         },
       })
 
-      if (E.isLeft(data))
+      if (E.isLeft(data)) {
+        this.loadingCollections$.next(
+          this.loadingCollections$.getValue().filter((x) => x !== collectionID)
+        )
+
         throw new Error(`Child Request Fetch Error for ${data}: ${data.left}`)
+      }
 
       requests.push(
         ...data.right.requestsInCollection.map<TeamRequest>((el) => {
@@ -568,6 +602,10 @@ export default class NewTeamCollectionAdapter {
 
     collection.children = collections
     collection.requests = requests
+
+    this.loadingCollections$.next(
+      this.loadingCollections$.getValue().filter((x) => x !== collectionID)
+    )
 
     this.collections$.next(tree)
   }

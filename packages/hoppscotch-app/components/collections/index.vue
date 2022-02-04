@@ -192,6 +192,7 @@
 <script>
 import cloneDeep from "lodash/cloneDeep"
 import { defineComponent } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
 import CollectionsMyCollection from "./my/Collection.vue"
 import CollectionsTeamsCollection from "./teams/Collection.vue"
 import { currentUser$ } from "~/helpers/fb/auth"
@@ -344,7 +345,6 @@ export default defineComponent({
     this.subscribeTo(
       this.teamCollectionAdapter.loadingCollections$,
       (collectionsIDs) => {
-        console.log("loading collections", collectionsIDs)
         this.loadingCollectionIDs = collectionsIDs
       }
     )

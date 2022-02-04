@@ -395,6 +395,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
                   )
                 )
               )
+              console.log(res)
 
               loading.value = false
             }

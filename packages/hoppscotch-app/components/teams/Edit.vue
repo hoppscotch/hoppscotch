@@ -158,7 +158,8 @@
                   :title="t('action.remove')"
                   svg="user-minus"
                   color="red"
-                  @click.native="removeExistingTeamMember(member.userID)"
+                  :loading="isLoadingIndex === index"
+                  @click.native="removeExistingTeamMember(member.userID, index)"
                 />
               </div>
             </div>
@@ -214,6 +215,7 @@ const t = useI18n()
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
+  (e: "refetch-teams"): void
 }>()
 
 const memberOptions = ref<any | null>(null)
@@ -240,6 +242,7 @@ watch(
 watch(
   () => props.editingTeamID,
   (teamID: string) => {
+    console.log("teamID", teamID)
     teamDetails.execute({ teamID })
   }
 )
@@ -291,6 +294,8 @@ watch(
   () => {
     if (teamDetails.loading) return
 
+    console.log(teamDetails)
+
     const data = teamDetails.data
 
     if (E.isRight(data)) {
@@ -321,6 +326,11 @@ const updateMemberRole = (userID: string, role: TeamMemberRole) => {
   }
 }
 
+watch(
+  () => teamDetails.data,
+  (newVal) => console.log(newVal)
+)
+
 const membersList = computed(() => {
   if (teamDetails.loading) return []
 
@@ -347,10 +357,10 @@ const membersList = computed(() => {
   return []
 })
 
-const isLoading = ref(false)
+const isLoadingIndex = ref<null | number>(null)
 
-const removeExistingTeamMember = async (userID: string) => {
-  isLoading.value = true
+const removeExistingTeamMember = async (userID: string, index: number) => {
+  isLoadingIndex.value = index
   const removeTeamMemberResult = await removeTeamMember(
     userID,
     props.editingTeamID
@@ -359,9 +369,13 @@ const removeExistingTeamMember = async (userID: string) => {
     toast.error(`${t("error.something_went_wrong")}`)
   } else {
     toast.success(`${t("team.member_removed")}`)
+    emit("refetch-teams")
+    teamDetails.execute({ teamID: props.editingTeamID })
   }
-  isLoading.value = false
+  isLoadingIndex.value = null
 }
+
+const isLoading = ref(false)
 
 const saveTeam = async () => {
   isLoading.value = true

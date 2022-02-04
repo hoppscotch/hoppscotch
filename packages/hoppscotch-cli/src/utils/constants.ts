@@ -19,7 +19,15 @@ const errors = {
     code: "HOPP003",
     message: "Malformed Collection JSON!",
   },
-};
+  HOPP004: {
+    code: "HOPP004",
+    message: "File Not JSON",
+  },
+  HOPP005: {
+    code: "HOPP005",
+    message: "Please provide path to collection.json file",
+  },
+} as const;
 
 interface ResponseErrorPair {
   [key: number]: string;
@@ -29,6 +37,6 @@ const responseErrors: ResponseErrorPair = {
   501: "Request Not Supported",
   408: "Network Timeout",
   600: "Could Not Parse Response",
-};
+} as const;
 
 export { errors, responseErrors };

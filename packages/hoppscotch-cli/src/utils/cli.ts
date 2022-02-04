@@ -16,9 +16,7 @@ export const parseOptions = async (context: CLIContext): Promise<any> => {
         type: "fuzzypath",
         name: "fileUrl",
         message: "Enter your Hoppscotch collection.json path:",
-        excludePath: (nodePath: string) => {
-          return nodePath.includes("node_modules");
-        },
+        excludePath: (nodePath: string) => nodePath.includes("node_modules"),
         excludeFilter: (nodePath: string) =>
           nodePath == "." || nodePath.startsWith("."),
         itemType: "file",
@@ -29,7 +27,7 @@ export const parseOptions = async (context: CLIContext): Promise<any> => {
       },
     ]);
 
-    context.config = await checkFileURL(fileUrl);
+    context.path = await checkFileURL(fileUrl);
   } catch (err) {
     return parseOptions(context);
   }

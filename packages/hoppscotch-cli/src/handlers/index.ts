@@ -1,4 +1,4 @@
 import errorHandler from "./error";
-import { collectionCommander } from "./command";
+import { collectionRunner } from "./command";
 
-export { errorHandler, collectionCommander };
+export { errorHandler, collectionRunner };

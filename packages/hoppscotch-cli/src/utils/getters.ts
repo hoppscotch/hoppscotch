@@ -1,11 +1,10 @@
 import chalk from "chalk";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
 import { Method } from "axios";
-import { TableResponse } from "../interfaces";
-import { RunnerResponseInfo } from "../interfaces/table";
+import { TableResponse, RunnerResponseInfo } from "../interfaces";
 
 /**
- * Getter object methods for @file test-parser.ts
+ * Getter object methods for file test-parser.ts
  */
 export const testParserGetters = {
   /**
@@ -15,7 +14,7 @@ export const testParserGetters = {
    */
   testMessage: (failing: number, passing: number) => {
     let message: string = "";
-    let total: number = failing + passing;
+    const total: number = failing + passing;
 
     if (total > 0) {
       if (failing > 0) {
@@ -116,7 +115,7 @@ export const getTestResponse = async (
   const testResponse: TestResponse = {
     status,
     headers,
-    body,
+    body: typeof body !== "object" ? JSON.parse(body) : body,
   };
   return testResponse;
 };

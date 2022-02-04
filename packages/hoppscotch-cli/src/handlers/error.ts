@@ -1,5 +1,6 @@
 import chalk from "chalk";
-import { errors } from "../utils";
+import { either as E } from "fp-ts";
+import { errors, isHoppErrCode } from "../utils";
 import { CommanderError } from "commander";
 import { CLIError } from "../interfaces";
 
@@ -15,7 +16,7 @@ const errorHandler = (err: CLIError | CommanderError) => {
     console.log(
       `${chalk.red(`${chalk.bold(`ERROR:`)} ${err.message.slice(7)}`)}`
     );
-  } else if (err.code && err.code.startsWith("HOPP")) {
+  } else if (E.isRight(isHoppErrCode(err.code))) {
     console.log(
       `${chalk.red(`${chalk.bold(`ERROR [${err.code}]:`)} ${err.message}`)}`
     );

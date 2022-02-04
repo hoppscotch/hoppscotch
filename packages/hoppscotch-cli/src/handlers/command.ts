@@ -1,11 +1,13 @@
 import fs from "fs/promises";
 import inquirer from "inquirer";
 import chalk from "chalk";
+import { array as A, string as S } from "fp-ts";
+import { pipe } from "fp-ts/lib/function";
 import { createStream } from "table";
 import fuzzyPath from "inquirer-fuzzy-path";
 inquirer.registerPrompt("fuzzypath", fuzzyPath);
 
-import { CLIContext } from "../interfaces";
+import { CLIContext, TestScriptPair } from "../interfaces";
 import {
   errors,
   isRESTCollection,
@@ -13,15 +15,16 @@ import {
   checkFileURL,
   parseOptions,
   pingConnection,
+  testParser,
 } from "../utils";
-import { TestScriptPair } from "../interfaces/table";
-import { testParser } from "../utils/test-parser";
 
 /**
- * Command handler for the `hopp-cli test` or `hopp-cli run -c <config>` commands
+ * Command handler for:
+ * hopp-cli test
+ * hopp-cli run <path to collection file>`
  * @param context The initial CLI context object
  */
-export const collectionCommander = async (
+export const collectionRunner = async (
   context: CLIContext,
   debug: boolean = false
 ) => {
@@ -34,11 +37,13 @@ export const collectionCommander = async (
 
   if (context.interactive) {
     await parseOptions(context);
+  } else if (S.isString(context.path)) {
+    context.path = await checkFileURL(context.path!);
   } else {
-    context.config = await checkFileURL(context.config!);
+    throw errors.HOPP005;
   }
   const collectionArray = JSON.parse(
-    (await fs.readFile(context.config!)).toString()
+    (await fs.readFile(context.path!)).toString()
   );
   const valid = [];
   for (const [idx, _] of collectionArray.entries()) {
@@ -52,7 +57,7 @@ export const collectionCommander = async (
     context.collections = collectionArray;
     console.clear();
     console.log(
-      chalk.yellowBright("Collection JSON parsed! Executing requests...")
+      pipe("Collection JSON parsed! Executing requests...", chalk.yellowBright)
     );
     const tableStream = createStream({
       columnDefault: {
@@ -64,10 +69,10 @@ export const collectionCommander = async (
       columnCount: 4,
     });
     tableStream.write([
-      chalk.bold(chalk.cyanBright("PATH")),
-      chalk.bold(chalk.cyanBright("METHOD")),
-      chalk.bold(chalk.cyanBright("ENDPOINT")),
-      chalk.bold(chalk.cyanBright("STATUS CODE")),
+      pipe("PATH", chalk.cyanBright, chalk.bold),
+      pipe("METHOD", chalk.cyanBright, chalk.bold),
+      pipe("ENDPOINT", chalk.cyanBright, chalk.bold),
+      pipe("STATUS CODE", chalk.cyanBright, chalk.bold),
     ]);
     const responses: TestScriptPair[] = [];
     for (const x of collectionArray) {
@@ -75,25 +80,24 @@ export const collectionCommander = async (
     }
     process.stdout.write("\n");
 
-    if (responses && responses.length > 0) {
+    if (A.isNonEmpty(responses)) {
       let exitCode: number = 0,
-        testRes: number = 0,
         totalFailing: number = 0;
 
       for (const test of responses) {
-        if (test.testScript && test.testScript.trim().length > 0) {
+        const testScript = pipe(test.testScript, S.trim);
+        if (!S.isEmpty(testScript)) {
           console.log(
-            chalk.yellowBright(
-              `\nRunning tests for ${chalk.bold(test.name)}...`
+            pipe(
+              `\nRunning tests for ${chalk.bold(test.name)}...`,
+              chalk.yellowBright
             )
           );
-          testRes = await testParser(test);
-          totalFailing += testRes;
+          totalFailing += await testParser(test);
         }
       }
 
       exitCode = totalFailing > 0 ? 1 : 0;
-      console.log({ exitCode });
       process.exit(exitCode);
     }
   } else {

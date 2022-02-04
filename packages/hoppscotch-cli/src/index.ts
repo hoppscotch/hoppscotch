@@ -1,5 +1,4 @@
 import { program } from "commander";
-
 import { version } from "../package.json";
 import { test, run } from "./commands";
 import { errorHandler } from "./handlers";
@@ -9,7 +8,7 @@ import { errorHandler } from "./handlers";
  */
 program
   .name("hopp-cli")
-  .version(version, "-v, --ver", "see the current version of the CLI")
+  .version(version, "-v, --ver", "see the current version of hopp-cli")
   .usage("[options or commands] arguments");
 
 program.exitOverride().configureOutput({
@@ -22,21 +21,25 @@ program.exitOverride().configureOutput({
  */
 program
   .command("run")
-  .option(
-    "-c, --config <file>",
-    "path to a Hoppscotch collection.json file for CI testing"
+  .argument(
+    "[file]",
+    "path to a hoppscotch collection.json file for CI testing"
   )
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .description("running Hoppscotch collection.json file")
-  .setOptionValue("interactive", false)
-  .action(run);
+  .description("running hoppscotch collection.json file")
+  .action((context, options) =>
+    run({
+      interactive: options.interactive,
+      path: context,
+    })
+  );
 
 program
   .command("test")
   .allowExcessArguments(false)
   .allowUnknownOption(false)
-  .description("interactive Hoppscotch testing with debugger")
+  .description("interactive hoppscotch testing with debugger")
   .setOptionValue("interactive", true)
   .action((context) => test(context, true));
 

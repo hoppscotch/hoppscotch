@@ -1,10 +1,15 @@
 import axios, { Method } from "axios";
 import { WritableStream } from "table";
-import { debugging } from ".";
-import { TableResponse, RequestStack, RequestConfig } from "../interfaces";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
-import { RunnerResponseInfo, TestScriptPair } from "../interfaces/table";
+import { debugging } from ".";
+import {
+  TableResponse,
+  RequestStack,
+  RequestConfig,
+  RunnerResponseInfo,
+  TestScriptPair,
+} from "../interfaces";
 import {
   getResponseTable,
   getTestResponse,
@@ -25,7 +30,7 @@ const createRequest = (
   req: HoppRESTRequest,
   debug: boolean = false
 ): RequestStack => {
-  let config: RequestConfig = {
+  const config: RequestConfig = {
     supported: true,
   };
   config.url = req.endpoint;
@@ -114,7 +119,7 @@ const requestRunner = async (x: RequestStack): Promise<RunnerResponseInfo> => {
   try {
     let status: number;
     const baseResponse = await x.request();
-    const config = baseResponse.config;
+    const { config } = baseResponse;
     const runnerResponse: RunnerResponseInfo = {
       ...baseResponse,
       path: x.path,

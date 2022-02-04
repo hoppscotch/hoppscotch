@@ -1,8 +1,12 @@
-import * as E from "fp-ts/Either";
-import { TestScriptPair } from "../interfaces/table";
-import { execTestScript } from "@hoppscotch/js-sandbox/lib/test-runner";
-import { TestDescriptor } from "@hoppscotch/js-sandbox/lib";
+import { pipe } from "fp-ts/lib/function";
+import { array as A, either as E } from "fp-ts";
+import {
+  execTestScript,
+  TestDescriptor,
+} from "@hoppscotch/js-sandbox/lib/test-runner";
+import { TestScriptPair } from "../interfaces";
 import { testParserGetters } from "./getters";
+import { isExpectResultPass } from "./checks";
 
 /**
  * Recursive function to log template strings of testMessages & expectMessages
@@ -13,33 +17,29 @@ import { testParserGetters } from "./getters";
 const testDescriptorParser = async (
   testDescriptor: TestDescriptor
 ): Promise<number> => {
-  let totalFailing: number = 0,
-    testRes: number = 0;
   let passing: number = 0,
     failing: number = 0;
   let expectMessages: string = "",
     testMessage: string;
 
-  if (testDescriptor.expectResults.length > 0) {
+  if (A.isNonEmpty(testDescriptor.expectResults)) {
     console.log(testDescriptor.descriptor);
     console.log("-".repeat(testDescriptor.descriptor.length));
 
     for (const expectResult of testDescriptor.expectResults) {
-      if (expectResult.status === "error" || expectResult.status === "fail") {
+      if (E.isLeft(isExpectResultPass(expectResult.status))) {
         failing += 1;
-        expectMessages += testParserGetters.expectFailedMessage(
-          expectResult.message
+        expectMessages += pipe(
+          expectResult.message,
+          testParserGetters.expectFailedMessage
         );
       } else {
         passing += 1;
-        expectMessages += testParserGetters.expectPassedMessage(
-          expectResult.message
+        expectMessages += pipe(
+          expectResult.message,
+          testParserGetters.expectPassedMessage
         );
       }
-    }
-
-    if (failing > 0) {
-      totalFailing = 1;
     }
 
     testMessage = testParserGetters.testMessage(failing, passing);
@@ -48,11 +48,10 @@ const testDescriptorParser = async (
   }
 
   for (const testDescriptorChild of testDescriptor.children) {
-    testRes = await testDescriptorParser(testDescriptorChild);
-    totalFailing += testRes;
+    failing += await testDescriptorParser(testDescriptorChild);
   }
 
-  return totalFailing;
+  return failing;
 };
 
 /**
@@ -64,8 +63,7 @@ const testDescriptorParser = async (
 export const testParser = async (
   testScriptPair: TestScriptPair
 ): Promise<number> => {
-  let totalFailing: number = 0,
-    testRes: number = 0;
+  let totalFailing: number = 0;
   const testScriptExecRes = await execTestScript(
     testScriptPair.testScript,
     testScriptPair.response
@@ -73,8 +71,7 @@ export const testParser = async (
 
   if (E.isRight(testScriptExecRes)) {
     for (const testDescriptorChild of testScriptExecRes.right) {
-      testRes = await testDescriptorParser(testDescriptorChild);
-      totalFailing += testRes;
+      totalFailing += await testDescriptorParser(testDescriptorChild);
     }
   }
 

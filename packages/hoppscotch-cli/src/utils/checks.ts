@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import { join, extname } from "path";
-import chalk from "chalk";
 import tcpp from "tcp-ping";
 import { errors } from ".";
 import {
@@ -9,6 +8,9 @@ import {
   HoppCollection,
   isHoppRESTRequest,
 } from "@hoppscotch/data";
+import { Either, left, right } from "fp-ts/lib/Either";
+import { string as S } from "fp-ts";
+import { pipe } from "fp-ts/lib/function";
 
 /**
  * Typeguard to check valid Hoppscotch REST Collection
@@ -60,15 +62,10 @@ export function isRESTCollection(param: {
  */
 export const checkFileURL = async (url: string) => {
   try {
-    const fileUrl = join(process.cwd(), url);
+    const fileUrl = join(url);
     await fs.access(fileUrl);
     if (extname(fileUrl) !== ".json") {
-      console.log(
-        `${chalk.red(
-          ">>"
-        )} Selected file is not a collection JSON. Please try again.`
-      );
-      throw "FileNotJSON";
+      throw errors.HOPP004;
     }
     return fileUrl;
   } catch (err: any) {
@@ -103,3 +100,13 @@ export const pingConnection = (
       resolve(true);
     });
   });
+
+export const isExpectResultPass = (
+  expectResult: string
+): Either<boolean, boolean> =>
+  expectResult === "pass" ? right(true) : left(false);
+
+export const isHoppErrCode = (
+  errCode: string | undefined
+): Either<boolean, boolean> =>
+  errCode && pipe(errCode, S.startsWith("HOPP")) ? right(true) : left(false);

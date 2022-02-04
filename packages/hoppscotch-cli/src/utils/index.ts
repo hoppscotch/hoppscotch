@@ -1,17 +1,25 @@
 import { errors } from "./constants";
 import debugging from "./debugger";
-import { CLIError } from "../interfaces";
-import { isRESTCollection, checkFileURL, pingConnection } from "./checks";
+import {
+  isRESTCollection,
+  checkFileURL,
+  pingConnection,
+  isExpectResultPass,
+  isHoppErrCode,
+} from "./checks";
 import requestParser from "./request-parser";
+import { testParser } from "./test-parser";
 import { parseOptions } from "./cli";
 
 export {
   errors,
-  CLIError,
   debugging,
   isRESTCollection,
   requestParser,
   checkFileURL,
   parseOptions,
   pingConnection,
+  testParser,
+  isExpectResultPass,
+  isHoppErrCode,
 };

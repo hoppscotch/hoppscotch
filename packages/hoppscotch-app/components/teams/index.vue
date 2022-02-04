@@ -61,6 +61,7 @@
       :editing-team-i-d="editingTeamID"
       @hide-modal="displayModalEdit(false)"
       @invite-team="inviteTeam(editingTeam, editingTeamID)"
+      @refetch-teams="refetchTeams"
     />
     <TeamsInvite
       v-if="!loading && myTeams.length > 0"
@@ -129,5 +130,9 @@ const inviteTeam = (team: any, teamID: any) => {
   editingTeam.value = team
   editingTeamID.value = teamID
   displayModalInvite(true)
+}
+
+const refetchTeams = () => {
+  adapter.fetchList()
 }
 </script>

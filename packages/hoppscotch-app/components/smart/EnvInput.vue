@@ -19,9 +19,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from "@nuxtjs/composition-api"
-import { EditorView, ViewPlugin, ViewUpdate } from "@codemirror/view"
+import { ref, onMounted, watch, nextTick } from "@nuxtjs/composition-api"
+import {
+  EditorView,
+  placeholder as placeholderExt,
+  ViewPlugin,
+  ViewUpdate,
+} from "@codemirror/view"
 import { EditorState, Extension } from "@codemirror/state"
+import clone from "lodash/clone"
 import { baseTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppEnvironmentPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useStreamSubscriber } from "~/helpers/utils/composables"
@@ -41,17 +47,40 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: "input", data: string): void
+  (e: "change", data: string): void
+  (e: "paste", data: { prevValue: string; pastedValue: string }): void
   (e: "enter", ev: any): void
   (e: "keyup", ev: any): void
   (e: "keydown", ev: any): void
   (e: "click", ev: any): void
 }>()
 
-const editor = ref<any | null>(null)
-
 const cachedValue = ref(props.value)
 
 const view = ref<EditorView>()
+
+const editor = ref<any | null>(null)
+
+watch(
+  () => props.value,
+  (newVal) => {
+    if (cachedValue.value !== newVal) {
+      cachedValue.value = newVal
+
+      view.value?.dispatch({
+        filter: false,
+        changes: {
+          from: 0,
+          to: view.value.state.doc.length,
+          insert: newVal,
+        },
+      })
+    }
+  },
+  {
+    immediate: true,
+  }
+)
 
 const { subscribeToStream } = useStreamSubscriber()
 
@@ -61,15 +90,32 @@ const initView = (el: any) => {
   const extensions: Extension = [
     baseTheme,
     envTooltipPlugin,
+    placeholderExt(props.placeholder),
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
+          const pasted = !!update.transactions.find((txn) =>
+            txn.isUserEvent("input.paste")
+          )
+
           if (update.docChanged) {
+            const prevValue = clone(cachedValue.value)
+
             cachedValue.value = update.state.doc
               .toJSON()
               .join(update.state.lineBreak)
 
-            emit("input", cachedValue.value)
+            const value = clone(cachedValue.value)
+            emit("input", value)
+            emit("change", value)
+            if (pasted) {
+              nextTick().then(() => {
+                emit("paste", {
+                  pastedValue: value,
+                  prevValue,
+                })
+              })
+            }
           }
         }
       }

@@ -361,20 +361,15 @@ const ensureMethodInEndpoint = () => {
   }
 }
 
-const onPasteUrl = (e: { event: ClipboardEvent; previousValue: string }) => {
+const onPasteUrl = (e: { pastedValue: string; prevValue: string }) => {
   if (!e) return
 
-  const clipboardData = e.event.clipboardData
-
-  const pastedData = clipboardData?.getData("Text")
-
-  if (!pastedData) return
+  const pastedData = e.pastedValue
 
   if (isCURL(pastedData)) {
-    e.event.preventDefault()
     showCurlImportModal.value = true
     curlText.value = pastedData
-    newEndpoint.value = e.previousValue
+    newEndpoint.value = e.prevValue
   }
 }
 

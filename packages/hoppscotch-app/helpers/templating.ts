@@ -4,12 +4,10 @@ export function parseBodyEnvVariables(
   body: string,
   env: Environment["variables"]
 ) {
-  return body.replace(/<<\w+>>/g, (key) => {
-    const found = env.find((envVar) => envVar.key === key.replace(/[<>]/g, ""))
-    return found ? found.value : key
-  })
+  return innerParse(body, env)
 }
 
+const searchTerm = /<<(\w+)>>/g // "<<myVariable>>"
 export function parseTemplateString(
   str: string,
   variables: Environment["variables"]
@@ -17,9 +15,18 @@ export function parseTemplateString(
   if (!variables || !str) {
     return str
   }
-  const searchTerm = /<<([^>]*)>>/g // "<<myVariable>>"
-  return decodeURI(encodeURI(str)).replace(
+
+  return innerParse(decodeURI(encodeURI(str)), variables)
+}
+
+function innerParse(str: string, variables: Environment["variables"]): string {
+  const result = str.replace(
     searchTerm,
     (_, p1) => variables.find((x) => x.key === p1)?.value || ""
   )
+  if (result === str) {
+    return result
+  }
+
+  return innerParse(result, variables)
 }

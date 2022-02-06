@@ -28,6 +28,7 @@ import IntervalTree from "node-interval-tree"
 import debounce from "lodash/debounce"
 import isUndefined from "lodash/isUndefined"
 import { tippy } from "vue-tippy"
+import { parseTemplateString } from "../../helpers/templating"
 import { aggregateEnvs$ } from "~/newstore/environments"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
@@ -65,7 +66,7 @@ export default defineComponent({
       debouncedHandler: null,
       highlight: [
         {
-          text: /(<<\w+>>)/g,
+          text: /(<<(?:[^<>]+|<<(?:[^<>]+|<<[^<>]*>>)*>>)*>>)/g,
           style:
             "cursor-help transition rounded px-1 focus:outline-none mx-0.5",
         },
@@ -207,9 +208,12 @@ export default defineComponent({
         result += this.safe_tags_replace(
           this.internalValue.substring(startingPosition, position.start)
         )
-        const envVar = this.internalValue
+        const rawEnvVar = this.internalValue
           .substring(position.start, position.end + 1)
           .slice(2, -2)
+
+        const envVar = parseTemplateString(rawEnvVar, this.aggregateEnvs)
+
         result += `<span class="${highlightPositions[k].style} ${
           this.aggregateEnvs.find((k) => k.key === envVar)?.value === undefined
             ? "bg-red-400 text-red-50 hover:bg-red-600"

@@ -7,6 +7,7 @@ import {
   ViewPlugin,
 } from "@codemirror/view"
 import { Ref } from "@nuxtjs/composition-api"
+import { parseTemplateString } from "~/helpers/templating"
 import { StreamSubscriberFunc } from "~/helpers/utils/composables"
 import {
   AggregateEnvironment,
@@ -14,7 +15,7 @@ import {
   getAggregateEnvs,
 } from "~/newstore/environments"
 
-const HOPP_ENVIRONMENT_REGEX = /(<<\w+>>)/g
+const HOPP_ENVIRONMENT_REGEX = /(<<(?:[^<>]+|<<(?:[^<>]+|<<[^<>]*>>)*>>)*>>)/g
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5"
@@ -23,8 +24,15 @@ const HOPP_ENV_HIGHLIGHT_FOUND =
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "bg-red-400 text-red-50 hover:bg-red-600"
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
-  hoverTooltip((view, pos, side) => {
-    const { from, to, text } = view.state.doc.lineAt(pos)
+  hoverTooltip((view, pos) => {
+    const { text } = view.state.doc.lineAt(pos)
+
+    const matches = Array.from(text.matchAll(HOPP_ENVIRONMENT_REGEX))
+    const match = matches.find(
+      (val) => val.index && pos >= val.index && pos <= val.index + val[0].length
+    )
+
+    if (!match?.index) return null
 
     // TODO: When Codemirror 6 allows this to work (not make the
     // popups appear half of the time) use this implementation
@@ -36,29 +44,18 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
     // )
     // if (!HOPP_ENVIRONMENT_REGEX.test(word)) return null
 
-    // Tracking the start and the end of the words
-    let start = pos
-    let end = pos
-
-    while (start > from && /\w/.test(text[start - from - 1])) start--
-    while (end < to && /\w/.test(text[end - from])) end++
-
-    if (
-      (start === pos && side < 0) ||
-      (end === pos && side > 0) ||
-      !HOPP_ENVIRONMENT_REGEX.test(text.slice(start - from - 2, end - from + 2))
-    )
-      return null
+    const rawEnvVar = match[0].slice(2, -2)
+    const envVar = parseTemplateString(rawEnvVar, aggregateEnvs)
 
     const envName =
       aggregateEnvs.find(
-        (env) => env.key === text.slice(start - from, end - from)
+        (env) => env.key === envVar
         // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
       )?.sourceEnv ?? "choose an environment"
 
     const envValue = (
       aggregateEnvs.find(
-        (env) => env.key === text.slice(start - from, end - from)
+        (env) => env.key === envVar
         // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
       )?.value ?? "not found"
     ).replace(/"/g, "&quot;")
@@ -66,8 +63,8 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
     const textContent = `${envName} <kbd>${envValue}</kbd>`
 
     return {
-      pos: start,
-      end: to,
+      pos: match.index,
+      end: match[0].length,
       above: true,
       create() {
         const dom = document.createElement("span")
@@ -79,9 +76,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   })
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
-  const className = aggregateEnvs.find(
-    (k: { key: string }) => k.key === env.slice(2, -2)
-  )
+  const rawEnvVar = env.slice(2, -2)
+  const envVar = parseTemplateString(rawEnvVar, aggregateEnvs)
+
+  const className = aggregateEnvs.find((k: { key: string }) => k.key === envVar)
     ? HOPP_ENV_HIGHLIGHT_FOUND
     : HOPP_ENV_HIGHLIGHT_NOT_FOUND
 

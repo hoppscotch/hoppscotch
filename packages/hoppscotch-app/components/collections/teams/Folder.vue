@@ -108,18 +108,10 @@
               <SmartItem
                 ref="exportAction"
                 svg="download"
-                :label="$t('export.as_json')"
+                :label="$t('export.export')"
                 :shortcut="['X']"
                 :loading="exportLoading"
-                @click.native="
-                  () => {
-                    $emit('export-collection')
-                    // TODO: remove the below line
-                    exportLoading = true
-                    // TODO: remove the below line, instead hide the tooltip after finishing export
-                    options.tippy().hide()
-                  }
-                "
+                @click.native="exportFolder"
               />
             </div>
           </tippy>
@@ -211,6 +203,10 @@ import { defineComponent, ref } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { DeleteCollectionDocument } from "~/helpers/backend/graphql"
+import {
+  getCompleteCollectionTree,
+  teamCollToHoppRESTColl,
+} from "~/helpers/backend/helpers"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 
 export default defineComponent({
@@ -263,6 +259,43 @@ export default defineComponent({
     },
   },
   methods: {
+    async exportFolder() {
+      this.exportLoading = true
+
+      const result = await getCompleteCollectionTree(this.folder.id)()
+
+      if (E.isLeft(result)) {
+        this.$toast.error(this.$t("error.something_went_wrong").toString())
+        console.log(result.left)
+        this.exportLoading = false
+        this.options.tippy().hide()
+
+        return
+      }
+
+      const hoppColl = teamCollToHoppRESTColl(result.right)
+
+      const collectionJSON = JSON.stringify(hoppColl)
+
+      const file = new Blob([collectionJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${hoppColl.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      this.$toast.success(this.$t("state.download_started").toString())
+
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+
+      this.exportLoading = false
+
+      this.options.tippy().hide()
+    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {

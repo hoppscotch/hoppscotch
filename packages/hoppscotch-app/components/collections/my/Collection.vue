@@ -126,11 +126,11 @@
               <SmartItem
                 ref="exportAction"
                 svg="download"
-                :label="$t('export.as_json')"
+                :label="$t('export.export')"
                 :shortcut="['X']"
                 @click.native="
                   () => {
-                    $emit('export-collection')
+                    exportCollection()
                     options.tippy().hide()
                   }
                 "
@@ -265,6 +265,23 @@ export default defineComponent({
     },
   },
   methods: {
+    exportCollection() {
+      const collectionJSON = JSON.stringify(this.collection)
+
+      const file = new Blob([collectionJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${this.collection.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      this.$toast.success(this.$t("state.download_started").toString())
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {
@@ -284,7 +301,7 @@ export default defineComponent({
         collectionID: this.collection.id,
       })
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")

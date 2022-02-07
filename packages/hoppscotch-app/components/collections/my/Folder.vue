@@ -59,6 +59,7 @@
               @keyup.n="folderAction.$el.click()"
               @keyup.e="edit.$el.click()"
               @keyup.delete="deleteAction.$el.click()"
+              @keyup.x="exportAction.$el.click()"
               @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
@@ -98,6 +99,18 @@
                 @click.native="
                   () => {
                     confirmRemove = true
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="exportAction"
+                svg="download"
+                :label="$t('export.as_json')"
+                :shortcut="['X']"
+                @click.native="
+                  () => {
+                    $emit('export-collection')
                     options.tippy().hide()
                   }
                 "
@@ -211,6 +224,7 @@ export default defineComponent({
       folderAction: ref<any | null>(null),
       edit: ref<any | null>(null),
       deleteAction: ref<any | null>(null),
+      exportAction: ref<any | null>(null),
       t,
     }
   },

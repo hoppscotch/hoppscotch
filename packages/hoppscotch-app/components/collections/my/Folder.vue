@@ -106,11 +106,11 @@
               <SmartItem
                 ref="exportAction"
                 svg="download"
-                :label="$t('export.as_json')"
+                :label="$t('export.export')"
                 :shortcut="['X']"
                 @click.native="
                   () => {
-                    $emit('export-collection')
+                    exportFolder()
                     options.tippy().hide()
                   }
                 "
@@ -253,6 +253,23 @@ export default defineComponent({
     },
   },
   methods: {
+    exportFolder() {
+      const folderJSON = JSON.stringify(this.folder)
+
+      const file = new Blob([folderJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${this.folder.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      this.$toast.success(this.$t("state.download_started").toString())
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {

@@ -127,18 +127,10 @@
               <SmartItem
                 ref="exportAction"
                 svg="download"
-                :label="$t('export.as_json')"
+                :label="$t('export.export')"
                 :shortcut="['X']"
                 :loading="exportLoading"
-                @click.native="
-                  () => {
-                    $emit('export-collection')
-                    // TODO: remove the below line
-                    exportLoading = true
-                    // TODO: remove the below line, instead hide the tooltip after finishing export
-                    options.tippy().hide()
-                  }
-                "
+                @click.native="exportCollection"
               />
             </div>
           </tippy>
@@ -230,6 +222,10 @@
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import {
+  getCompleteCollectionTree,
+  teamCollToHoppRESTColl,
+} from "~/helpers/backend/helpers"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { useI18n } from "~/helpers/utils/composables"
 
@@ -286,7 +282,44 @@ export default defineComponent({
     },
   },
   methods: {
-    editRequest(event) {
+    async exportCollection() {
+      this.exportLoading = true
+
+      const result = await getCompleteCollectionTree(this.collection.id)()
+
+      if (E.isLeft(result)) {
+        this.$toast.error(this.$t("error.something_went_wrong").toString())
+        console.log(result.left)
+        this.exportLoading = false
+        this.options.tippy().hide()
+
+        return
+      }
+
+      const hoppColl = teamCollToHoppRESTColl(result.right)
+
+      const collectionJSON = JSON.stringify(hoppColl)
+
+      const file = new Blob([collectionJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${hoppColl.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      this.$toast.success(this.$t("state.download_started").toString())
+
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+
+      this.exportLoading = false
+
+      this.options.tippy().hide()
+    },
+    editRequest(event: any) {
       this.$emit("edit-request", event)
       if (this.$props.saveRequest)
         this.$emit("select", {
@@ -315,10 +348,10 @@ export default defineComponent({
         collectionID: this.collection.id,
       })
     },
-    expandCollection(collectionID) {
+    expandCollection(collectionID: string) {
       this.$emit("expand-collection", collectionID)
     },
-    async dropEvent({ dataTransfer }) {
+    async dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const requestIndex = dataTransfer.getData("requestIndex")
       const moveRequestResult = await moveRESTTeamRequest(
@@ -328,7 +361,7 @@ export default defineComponent({
       if (E.isLeft(moveRequestResult))
         this.$toast.error(`${this.$t("error.something_went_wrong")}`)
     },
-    removeRequest({ collectionIndex, folderName, requestIndex }) {
+    removeRequest({ collectionIndex, folderName, requestIndex }: any) {
       this.$emit("remove-request", {
         collectionIndex,
         folderName,

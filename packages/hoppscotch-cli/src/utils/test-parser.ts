@@ -5,8 +5,7 @@ import {
   TestDescriptor,
 } from "@hoppscotch/js-sandbox/lib/test-runner";
 import { TestScriptPair } from "../interfaces";
-import { testParserGetters } from "./getters";
-import { isExpectResultPass } from "./checks";
+import { isExpectResultPass, GTestParser } from ".";
 
 /**
  * Recursive function to log template strings of testMessages & expectMessages
@@ -31,18 +30,18 @@ const testDescriptorParser = async (
         failing += 1;
         expectMessages += pipe(
           expectResult.message,
-          testParserGetters.expectFailedMessage
+          GTestParser.expectFailedMessage
         );
       } else {
         passing += 1;
         expectMessages += pipe(
           expectResult.message,
-          testParserGetters.expectPassedMessage
+          GTestParser.expectPassedMessage
         );
       }
     }
 
-    testMessage = testParserGetters.testMessage(failing, passing);
+    testMessage = GTestParser.testMessage(failing, passing);
     console.log(testMessage);
     console.log(expectMessages);
   }

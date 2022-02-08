@@ -1,4 +1,2 @@
-import errorHandler from "./error";
-import { collectionRunner } from "./command";
-
-export { errorHandler, collectionRunner };
+export * from "./error";
+export * from "./command";

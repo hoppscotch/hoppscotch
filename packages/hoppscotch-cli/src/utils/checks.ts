@@ -9,7 +9,7 @@ import {
   isHoppRESTRequest,
 } from "@hoppscotch/data";
 import { Either, left, right } from "fp-ts/lib/Either";
-import { string as S } from "fp-ts";
+import * as S from "fp-ts/string";
 import { pipe } from "fp-ts/lib/function";
 
 /**

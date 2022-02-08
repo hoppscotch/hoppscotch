@@ -6,7 +6,7 @@ import { TableResponse, RunnerResponseInfo } from "../interfaces";
 /**
  * Getter object methods for file test-parser.ts
  */
-export const testParserGetters = {
+export const GTestParser = {
   /**
    * @param failing
    * @param passing
@@ -49,9 +49,9 @@ export const testParserGetters = {
 };
 
 /**
- * Getter object methods for @file request-parser.ts
+ * Getter object methods for file request-parser.ts
  */
-export const requestRunnerGetters = {
+export const GRequestRunner = {
   /**
    * @param value
    * @returns Method string

@@ -3,7 +3,7 @@ import inquirer from "inquirer";
 import chalk from "chalk";
 import { array as A, string as S } from "fp-ts";
 import { pipe } from "fp-ts/lib/function";
-import { createStream } from "table";
+import { createStream, getBorderCharacters } from "table";
 import fuzzyPath from "inquirer-fuzzy-path";
 inquirer.registerPrompt("fuzzypath", fuzzyPath);
 
@@ -11,7 +11,7 @@ import { CLIContext, TestScriptPair } from "../interfaces";
 import {
   errors,
   isRESTCollection,
-  requestParser,
+  requestsParser,
   checkFileURL,
   parseOptions,
   pingConnection,
@@ -67,6 +67,7 @@ export const collectionRunner = async (
         wrapWord: true,
       },
       columnCount: 4,
+      border: getBorderCharacters("ramac"),
     });
     tableStream.write([
       pipe("PATH", chalk.cyanBright, chalk.bold),
@@ -76,7 +77,7 @@ export const collectionRunner = async (
     ]);
     const responses: TestScriptPair[] = [];
     for (const x of collectionArray) {
-      await requestParser(x, tableStream, responses, debug);
+      await requestsParser(x, tableStream, responses, debug);
     }
     process.stdout.write("\n");
 

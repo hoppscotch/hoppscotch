@@ -9,17 +9,21 @@ import { errorHandler } from "../handlers";
  * @class The TCP socket debugger.
  * @classdesc This kind of debugger is required for CLIs with reactive components since libraries like `inquirer` takes control of the console, so error output is redirected to a virtual console.
  */
-class debugging {
+export class debugging {
+  private static _instance: any = null;
   private constructor() {}
   /**
    * Creates an instance of the virtual console, which directs all outputs to a TCP socket
    * @returns `sockClient` The TCP socket client to stream logs
    * @returns `virtualConsole` The virtual console to print into
    */
-  private static createInstance(): {
+  private static getInstance(): {
     sockClient: Socket;
     virtualConsole: Console;
   } {
+    if (debugging._instance !== null) {
+      return debugging._instance;
+    }
     const sockClient = createConnection({ port: 9999, allowHalfOpen: true });
     const virtualConsole = new Console({
       stdout: sockClient,
@@ -29,10 +33,11 @@ class debugging {
     sockClient.on("error", () => {
       errorHandler({ name: "Debugger Error!", ...errors.HOPP002 });
     });
-    return {
+    debugging._instance = {
       sockClient,
       virtualConsole,
     };
+    return debugging._instance;
   }
   /**
    * Log debugging message
@@ -40,9 +45,8 @@ class debugging {
    * @param optionalParams Optional parameters
    */
   public static log(message?: any, ...optionalParams: any[]) {
-    const { sockClient, virtualConsole } = debugging.createInstance();
+    const { virtualConsole } = debugging.getInstance();
     virtualConsole.log(chalk.greenBright(message, ...optionalParams));
-    setTimeout(() => sockClient.destroy(), 50);
   }
   /**
    * Log debugging information in `INFO` level
@@ -50,9 +54,8 @@ class debugging {
    * @param optionalParams Optional parameters
    */
   public static info(message?: any, ...optionalParams: any[]) {
-    const { sockClient, virtualConsole } = debugging.createInstance();
+    const { virtualConsole } = debugging.getInstance();
     virtualConsole.info(chalk.cyanBright(message, ...optionalParams));
-    setTimeout(() => sockClient.destroy(), 50);
   }
   /**
    * Log debugging information in `ERROR` level
@@ -60,7 +63,7 @@ class debugging {
    * @param optionalParams Optional parameters
    */
   public static error(message?: any, ...optionalParams: any[]) {
-    const { sockClient, virtualConsole } = debugging.createInstance();
+    const { sockClient, virtualConsole } = debugging.getInstance();
     virtualConsole.error(chalk.redBright(message, ...optionalParams));
     setTimeout(() => sockClient.destroy(), 50);
   }
@@ -70,10 +73,7 @@ class debugging {
    * @param optionalParams Optional parameters
    */
   public static dir(item: any, option?: InspectOptions) {
-    const { sockClient, virtualConsole } = debugging.createInstance();
+    const { virtualConsole } = debugging.getInstance();
     virtualConsole.dir(item, option);
-    setTimeout(() => sockClient.destroy(), 50);
   }
 }
-
-export default debugging;

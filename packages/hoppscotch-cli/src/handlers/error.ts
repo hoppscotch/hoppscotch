@@ -8,7 +8,7 @@ import { CLIError } from "../interfaces";
  * The all-catch generic error handler, it catches all errors, custom and generic, generated during the CLI execution
  * @param err The error object, it can be a custom error or an error thrown by `Commander.js`
  */
-const errorHandler = (err: CLIError | CommanderError) => {
+export const errorHandler = (err: CLIError | CommanderError) => {
   if (err instanceof CommanderError) {
     if (err.exitCode === 0) {
       process.exit(0);
@@ -33,5 +33,3 @@ const errorHandler = (err: CLIError | CommanderError) => {
     console.log(chalk.yellow(err.stack));
   }
 };
-
-export default errorHandler;

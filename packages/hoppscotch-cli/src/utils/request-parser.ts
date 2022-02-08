@@ -2,7 +2,13 @@ import axios, { Method } from "axios";
 import { WritableStream } from "table";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
-import { debugging } from ".";
+import {
+  debugging,
+  getResponseTable,
+  getTestResponse,
+  GRequestRunner,
+  responseErrors,
+} from ".";
 import {
   TableResponse,
   RequestStack,
@@ -10,13 +16,6 @@ import {
   RunnerResponseInfo,
   TestScriptPair,
 } from "../interfaces";
-import {
-  getResponseTable,
-  getTestResponse,
-  requestRunnerGetters,
-} from "./getters";
-import { responseErrors } from "./constants";
-
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
@@ -123,8 +122,8 @@ const requestRunner = async (x: RequestStack): Promise<RunnerResponseInfo> => {
     const runnerResponse: RunnerResponseInfo = {
       ...baseResponse,
       path: x.path,
-      endpoint: requestRunnerGetters.endpoint(config.url),
-      method: requestRunnerGetters.method(config.method),
+      endpoint: GRequestRunner.endpoint(config.url),
+      method: GRequestRunner.method(config.method),
       body: baseResponse.data,
     };
 
@@ -143,15 +142,15 @@ const requestRunner = async (x: RequestStack): Promise<RunnerResponseInfo> => {
       path: x.path,
       endpoint: "",
       method: "GET",
-      body: "",
+      body: {},
       statusText: "",
       status: 0,
       headers: [],
     };
 
     if (axios.isAxiosError(err)) {
-      runnerResponse.method = requestRunnerGetters.method(err.config.method);
-      runnerResponse.endpoint = requestRunnerGetters.endpoint(err.config.url);
+      runnerResponse.method = GRequestRunner.method(err.config.method);
+      runnerResponse.endpoint = GRequestRunner.endpoint(err.config.url);
 
       // !NOTE: Temporary `config.supported` check
       if ((err.config as RequestConfig).supported === false) {
@@ -183,7 +182,7 @@ const requestRunner = async (x: RequestStack): Promise<RunnerResponseInfo> => {
  * @param debug Boolean to use debugging session
  * @param rootPath The folder path
  */
-const requestsParser = async (
+export const requestsParser = async (
   x: HoppCollection<HoppRESTRequest>,
   tableStream: WritableStream,
   responses: TestScriptPair[],
@@ -223,5 +222,3 @@ const requestsParser = async (
     );
   }
 };
-
-export default requestsParser;

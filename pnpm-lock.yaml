@@ -335,6 +335,7 @@ importers:
       '@types/inquirer': ^7.3.3
       '@types/inquirer-fuzzy-path': ^2.3.1
       '@types/table': ^6.3.2
+      '@types/tcp-ping': ^0.1.3
       axios: ^0.21.4
       chalk: ^4.1.1
       commander: ^8.0.0
@@ -344,6 +345,7 @@ importers:
       inquirer-fuzzy-path: ^2.3.0
       prettier: ^2.5.1
       table: ^6.7.1
+      tcp-ping: ^0.1.1
       typescript: ^4.3.5
     dependencies:
       '@hoppscotch/data': link:../hoppscotch-data
@@ -355,6 +357,7 @@ importers:
       inquirer: 8.2.0
       inquirer-fuzzy-path: 2.3.0
       table: 6.8.0
+      tcp-ping: 0.1.1
     devDependencies:
       '@types/axios': 0.14.0
       '@types/chalk': 2.2.0
@@ -362,6 +365,7 @@ importers:
       '@types/inquirer': 7.3.3
       '@types/inquirer-fuzzy-path': 2.3.3
       '@types/table': 6.3.2
+      '@types/tcp-ping': 0.1.3
       esm: 3.2.25
       prettier: 2.5.1
       typescript: 4.5.5
@@ -3844,19 +3848,20 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27398533.8edd481:
-    resolution: {integrity: sha512-t4CXeic7/ZGgwLvMLCu2lxKRgHg9Lj+8YhEju2nAe1sh/yM0iOZpje8VDubW3CTJp1/gAmBokj1U2VNEsbmcKg==}
+  /@nuxt/kit-edge/3.0.0-27404660.0f9bcbf:
+    resolution: {integrity: sha512-ShD0Ye2aQ0McpjIiR4ZrEuuYpDH3Jv+zacdh4BayTAO2JckuQjeDz+bhDaYp5kf995KayGNZloBEAjncIO0JDw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27398533.8edd481
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27404660.0f9bcbf
       c12: 0.1.1
       consola: 2.15.3
       defu: 5.0.1
       globby: 13.1.1
       hash-sum: 2.0.0
       jiti: 1.12.15
+      knitwork: 0.1.0
       lodash.template: 4.5.0
-      mlly: 0.4.1
+      mlly: 0.4.2
       pathe: 0.2.0
       pkg-types: 0.3.2
       scule: 0.2.1
@@ -3885,8 +3890,8 @@ packages:
       node-fetch: 2.6.6
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27398533.8edd481:
-    resolution: {integrity: sha512-cikGLdW3FuOOWJ+LgTVZAwEkywbayb0qkGEHti0PUbrtVuaixPeaqjrX10vs6Ow+nmKuFDUgjhAmuKPF6h0ajA==}
+  /@nuxt/schema-edge/3.0.0-27404660.0f9bcbf:
+    resolution: {integrity: sha512-f2XrSZbkMl21bvy3MdLnAVYuJ5/D6EL79YVnDGN0aldKYSXs5F8Op9aH6koKT7gHZfifbjNp+6u3OLamSpR1+w==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       c12: 0.1.1
@@ -5079,6 +5084,10 @@ packages:
   /@types/tapable/1.0.8:
     resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
 
+  /@types/tcp-ping/0.1.3:
+    resolution: {integrity: sha512-xWNCZ0P570Chs+Xco1a4wWXaZSZRMYsAiRHGq+pF85R9vc16ZI0PoZiCGKcdsGQPpuyAyAtcGK+t7CLN2v1A9w==}
+    dev: true
+
   /@types/tern/0.23.4:
     resolution: {integrity: sha512-JAUw1iXGO1qaWwEOzxTKJZ/5JxVeON9kvGZ/osgZaJImBnyjyn0cjovPsf6FNLmyGY8Vw9DoXZCMlfMkMwHRWg==}
     dependencies:
@@ -5104,7 +5113,7 @@ packages:
   /@types/through/0.0.30:
     resolution: {integrity: sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==}
     dependencies:
-      '@types/node': 17.0.9
+      '@types/node': 17.0.15
     dev: true
 
   /@types/ua-parser-js/0.7.36:
@@ -6898,7 +6907,7 @@ packages:
       dotenv: 14.3.2
       gittar: 0.1.1
       jiti: 1.12.15
-      mlly: 0.4.1
+      mlly: 0.4.2
       pathe: 0.2.0
       rc9: 1.2.0
     dev: true
@@ -12563,6 +12572,10 @@ packages:
     resolution: {integrity: sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==}
     engines: {node: '>= 8'}
 
+  /knitwork/0.1.0:
+    resolution: {integrity: sha512-veAmNJu4Niku+zjm2//+xLGsYTwB8OP1jBHjPU5RbQu9Jl263d5PtbM0OaITlYvhLFLov/R12hs0GL4ujzMY3A==}
+    dev: true
+
   /known-css-properties/0.24.0:
     resolution: {integrity: sha512-RTSoaUAfLvpR357vWzAz/50Q/BmHfmE6ETSWfutT0AJiw10e6CmcdYRQJlLRd95B53D0Y2aD1jSxD3V3ySF+PA==}
     dev: true
@@ -13433,8 +13446,8 @@ packages:
     resolution: {integrity: sha512-zMq5n3cOf4fOzA4WoeulxagbAgMChdev3MgP6K51k7M0u2whTXxupfIY4VVzws4vxkiWhwH1rVQcsw7zDGfRhA==}
     dev: true
 
-  /mlly/0.4.1:
-    resolution: {integrity: sha512-MMJfTYwiasPah+Tx1s948OWd/+dnSxMpwPDgIt4uhnsGRuKgWG6RxUA1SzQI7Tvv0WCcpdast7htAuLU6J7YcA==}
+  /mlly/0.4.2:
+    resolution: {integrity: sha512-mjEgqNOHkDqzx+hIroJ7W8N9WzF+uRd9G/EIBdD8HdNx4sysQHZP1EUO/es5K9mZiutWZz34JG1MUsEbzmJ3kg==}
     dev: true
 
   /mocha/9.2.0:
@@ -13814,7 +13827,7 @@ packages:
   /nuxt-windicss/2.2.4:
     resolution: {integrity: sha512-yuAja9n5FlM3RehppvGuu54z2Q+vOOZVe4RrCTJ9EGyoUIBRiLzoOeTPzbfI26U7+cQfO/TpZ2y7ugByWb35+A==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27398533.8edd481
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27404660.0f9bcbf
       '@windicss/plugin-utils': 1.6.3
       consola: 2.15.3
       defu: 5.0.1
@@ -15862,7 +15875,6 @@ packages:
     dependencies:
       onetime: 2.0.1
       signal-exit: 3.0.7
-    dev: true
 
   /restore-cursor/3.1.0:
     resolution: {integrity: sha512-l+sSefzHpj5qimhFSE5a8nufZYAM3sBSVMAPtYkmC+4EH2anSGaEMXSD0izRQbu9nfyQ9y5JrVmp7E8oZrUjvA==}
@@ -17324,6 +17336,10 @@ packages:
       minizlib: 2.1.2
       mkdirp: 1.0.4
       yallist: 4.0.0
+    dev: false
+
+  /tcp-ping/0.1.1:
+    resolution: {integrity: sha1-At1/QrW/fXy3jVt6rO+hVf2PfAw=}
     dev: false
 
   /terminal-link/2.1.1:

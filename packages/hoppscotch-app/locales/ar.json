@@ -188,6 +188,7 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
+    "title": "Export",
     "as_json": "تصدير بتنسيق JSON",
     "create_secret_gist": "إنشاء جوهر سري",
     "gist_created": "خلقت الجست",

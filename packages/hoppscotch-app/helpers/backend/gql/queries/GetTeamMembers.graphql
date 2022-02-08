@@ -1,0 +1,12 @@
+query GetTeamMembers($teamID: ID!, $cursor: ID) {
+  team(teamID: $teamID) {
+    members(cursor: $cursor) {
+      membershipID
+      user {
+        uid
+        email
+      }
+      role
+    }
+  }
+}

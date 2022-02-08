@@ -81,6 +81,7 @@
               @keyup.n="folderAction.$el.click()"
               @keyup.e="edit.$el.click()"
               @keyup.delete="deleteAction.$el.click()"
+              @keyup.x="exportAction.$el.click()"
               @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
@@ -106,6 +107,18 @@
                 @click.native="
                   () => {
                     $emit('edit-collection')
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="exportAction"
+                svg="download"
+                :label="$t('export.title')"
+                :shortcut="['X']"
+                @click.native="
+                  () => {
+                    exportCollection()
                     options.tippy().hide()
                   }
                 "
@@ -222,6 +235,7 @@ export default defineComponent({
       folderAction: ref<any | null>(null),
       edit: ref<any | null>(null),
       deleteAction: ref<any | null>(null),
+      exportAction: ref<any | null>(null),
     }
   },
   data() {
@@ -251,6 +265,23 @@ export default defineComponent({
     },
   },
   methods: {
+    exportCollection() {
+      const collectionJSON = JSON.stringify(this.collection)
+
+      const file = new Blob([collectionJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${this.collection.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      this.$toast.success(this.$t("state.download_started").toString())
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+    },
     toggleShowChildren() {
       if (this.$props.saveRequest)
         this.$emit("select", {
@@ -270,7 +301,7 @@ export default defineComponent({
         collectionID: this.collection.id,
       })
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")

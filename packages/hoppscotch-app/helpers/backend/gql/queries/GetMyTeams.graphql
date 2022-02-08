@@ -1,5 +1,5 @@
-query MyTeams {
-  myTeams {
+query GetMyTeams($cursor: ID) {
+  myTeams(cursor: $cursor) {
     id
     name
     myRole

@@ -1,0 +1,3 @@
+query ExportAsJSON($teamID: ID!) {
+  exportCollectionsToJSON(teamID: $teamID)
+}

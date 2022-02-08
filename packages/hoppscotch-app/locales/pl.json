@@ -187,6 +187,7 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
+    "title": "Export",
     "as_json": "Eksportuj jako JSON",
     "create_secret_gist": "Utwórz tajny Gist",
     "gist_created": "Utworzono Gist",

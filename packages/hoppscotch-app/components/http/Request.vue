@@ -240,9 +240,9 @@ import {
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useSetting } from "~/newstore/settings"
-import { overwriteRequestTeams } from "~/helpers/teams/utils"
-import { apolloClient } from "~/helpers/apollo"
 import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 
@@ -506,18 +506,19 @@ const saveRequest = () => {
 
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
-      overwriteRequestTeams(
-        apolloClient,
-        JSON.stringify(req),
-        req.name,
-        saveCtx.requestID
-      )
-        .then(() => {
-          toast.success(`${t("request.saved")}`)
-        })
-        .catch(() => {
+      runMutation(UpdateRequestDocument, {
+        requestID: saveCtx.requestID,
+        data: {
+          title: req.name,
+          request: JSON.stringify(req),
+        },
+      })().then((result) => {
+        if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
-        })
+        } else {
+          toast.success(`${t("request.saved")}`)
+        }
+      })
     } catch (error) {
       showSaveRequestModal.value = true
       toast.error(`${t("error.something_went_wrong")}`)

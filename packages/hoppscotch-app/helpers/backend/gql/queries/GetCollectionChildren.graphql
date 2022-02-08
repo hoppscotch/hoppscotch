@@ -1,0 +1,8 @@
+query GetCollectionChildren($collectionID: ID!, $cursor: String) {
+  collection(collectionID: $collectionID) {
+    children(cursor: $cursor) {
+      id
+      title
+    }
+  }
+}

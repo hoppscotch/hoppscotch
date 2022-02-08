@@ -89,7 +89,8 @@
                     :title="t('action.remove')"
                     svg="trash"
                     color="red"
-                    @click.native="removeInvitee(invitee.id)"
+                    :loading="isLoadingIndex === index"
+                    @click.native="removeInvitee(invitee.id, index)"
                   />
                 </div>
               </div>
@@ -372,6 +373,7 @@ const pendingInvites = useGQLQuery<
   variables: reactive({
     teamID: props.editingTeamID,
   }),
+  pollDuration: 10000,
   updateSubs: computed(() =>
     !props.editingTeamID
       ? []
@@ -396,6 +398,17 @@ const pendingInvites = useGQLQuery<
 })
 
 watch(
+  () => props.show,
+  (show) => {
+    if (!show) {
+      pendingInvites.pause()
+    } else {
+      pendingInvites.unpause()
+    }
+  }
+)
+
+watch(
   () => props.editingTeamID,
   () => {
     if (props.editingTeamID) {
@@ -406,13 +419,17 @@ watch(
   }
 )
 
-const removeInvitee = async (id: string) => {
+const isLoadingIndex = ref<null | number>(null)
+
+const removeInvitee = async (id: string, index: number) => {
+  isLoadingIndex.value = index
   const result = await revokeTeamInvitation(id)()
   if (E.isLeft(result)) {
     toast.error(`${t("error.something_went_wrong")}`)
   } else {
     toast.success(`${t("team.member_removed")}`)
   }
+  isLoadingIndex.value = null
 }
 
 const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([

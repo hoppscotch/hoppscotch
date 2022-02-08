@@ -188,6 +188,7 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
+    "title": "Export",
     "as_json": "Извези као ЈСОН",
     "create_secret_gist": "Направите тајну суштину",
     "gist_created": "Суштина створена",

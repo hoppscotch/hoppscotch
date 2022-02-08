@@ -94,6 +94,14 @@
                 "
               />
               <SmartItem
+                ref="exportAction"
+                svg="download"
+                :label="$t('export.title')"
+                :shortcut="['X']"
+                :loading="exportLoading"
+                @click.native="exportFolder"
+              />
+              <SmartItem
                 ref="deleteAction"
                 svg="trash-2"
                 :label="$t('action.delete')"
@@ -104,14 +112,6 @@
                     options.tippy().hide()
                   }
                 "
-              />
-              <SmartItem
-                ref="exportAction"
-                svg="download"
-                :label="$t('export.export')"
-                :shortcut="['X']"
-                :loading="exportLoading"
-                @click.native="exportFolder"
               />
             </div>
           </tippy>

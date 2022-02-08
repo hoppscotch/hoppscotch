@@ -112,6 +112,18 @@
                 "
               />
               <SmartItem
+                ref="exportAction"
+                svg="download"
+                :label="$t('export.title')"
+                :shortcut="['X']"
+                @click.native="
+                  () => {
+                    exportCollection()
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
                 ref="deleteAction"
                 svg="trash-2"
                 :label="$t('action.delete')"
@@ -119,18 +131,6 @@
                 @click.native="
                   () => {
                     confirmRemove = true
-                    options.tippy().hide()
-                  }
-                "
-              />
-              <SmartItem
-                ref="exportAction"
-                svg="download"
-                :label="$t('export.export')"
-                :shortcut="['X']"
-                @click.native="
-                  () => {
-                    exportCollection()
                     options.tippy().hide()
                   }
                 "

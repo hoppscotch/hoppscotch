@@ -339,7 +339,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
         source.value = !isPaused.value
           ? client.value.executeQuery<DocType, DocVarType>(request.value, {
-              requestPolicy: "cache-and-network",
+              requestPolicy: "network-only",
             })
           : undefined
       },
@@ -421,6 +421,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
       }
     }
 
+    isPaused.value = false
     updateTicker.value = !updateTicker.value
   }
 

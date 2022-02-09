@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+    class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary hide-scrollbar"
   >
     <div class="flex flex-1">
       <div class="relative flex">
@@ -33,7 +33,7 @@
           </tippy>
         </label>
       </div>
-      <div class="flex flex-1">
+      <div class="flex flex-1 border rounded-r border-divider">
         <SmartEnvInput
           v-model="newEndpoint"
           :placeholder="`${t('request.url')}`"

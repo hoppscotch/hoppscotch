@@ -150,44 +150,14 @@ watch(editor, () => {
 <style lang="scss" scoped>
 .env-input-container {
   @apply relative;
-  @apply inline-flex;
+  @apply flex;
   @apply flex-1;
-  @apply bg-red-100;
-  @apply border border-red-400;
-}
-
-[contenteditable] {
-  @apply select-text;
-  @apply text-secondaryDark;
-
-  &:empty {
-    @apply leading-loose;
-
-    &::before {
-      @apply text-secondary;
-      @apply opacity-35;
-      @apply pointer-events-none;
-
-      content: attr(placeholder);
-    }
-  }
+  @apply items-center;
 }
 
 .env-input {
   @apply flex;
-  @apply items-center;
-  @apply justify-items-start;
-  @apply whitespace-nowrap;
-  @apply overflow-x-auto;
-  @apply overflow-y-hidden;
-  @apply resize-none;
-  @apply focus:outline-none;
-  @apply bg-green-100;
-  @apply border border-green-400;
-  @apply w-full;
-}
-
-.env-input::-webkit-scrollbar {
-  @apply hidden;
+  @apply flex-1;
+  @apply px-2;
 }
 </style>

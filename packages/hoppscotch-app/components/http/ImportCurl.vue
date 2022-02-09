@@ -36,6 +36,7 @@ import {
   makeRESTRequest,
 } from "@hoppscotch/data"
 import parseCurlCommand from "~/helpers/curlparser"
+import { curlParserRequest } from "~/helpers/types/CurlParserResult"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
@@ -131,36 +132,7 @@ const handleImport = () => {
 
     const method = parsedCurl.method?.toUpperCase() || "GET"
     const contentType = parsedCurl.contentType
-
-    // TODO: implement all other types of auth
-    // in a separate helper file
-    // >> preference order:
-    //      - Auth headers
-    //      - --user arg
-    //      - Creds provided along with URL
-    let auth = {} as HoppRESTAuth
-    const user: string = parsedCurl.user ?? ""
-
-    if (parsedCurl.auth) {
-      const { type, token } = parsedCurl.auth
-      auth = {
-        authType: type.toLowerCase(),
-        token,
-      } as HoppRESTAuth
-    } else {
-      auth = {
-        authType: username.length > 0 || user.length > 0 ? "basic" : "none",
-        authActive: true,
-        ...(username.length > 0 && {
-          username,
-          password,
-        }),
-        ...(user.length > 0 && {
-          username: user.split(":")[0],
-          password: user.split(":")[1],
-        }),
-      } as HoppRESTAuth
-    }
+    const auth: HoppRESTAuth = getAuthObject(parsedCurl, username, password)
 
     // append danglingParams to url
     if (danglingParams.length > 0) endpoint += "?" + danglingParams.join("&")
@@ -168,7 +140,7 @@ const handleImport = () => {
     // final body if multipart data is not present
     let finalBody = {
       contentType,
-      body,
+      body: body as string | null,
     } as HoppRESTReqBody
 
     // if multipart data is present
@@ -206,5 +178,43 @@ const handleImport = () => {
     toast.error(`${t("error.curl_invalid_format")}`)
   }
   hideModal()
+}
+
+function getAuthObject(
+  parsedCurl: curlParserRequest,
+  username?: string,
+  password?: string
+) {
+  // >> preference order:
+  //    - Auth headers
+  //    - --user arg
+  //    - Creds provided along with URL
+  let auth: HoppRESTAuth = { authActive: false, authType: "none" }
+  const user: string = parsedCurl.user ?? ""
+
+  if (parsedCurl.auth) {
+    const { type, token } = parsedCurl.auth
+    auth = {
+      authType: type.toLowerCase(),
+      token,
+    } as HoppRESTAuth
+  } else {
+    auth = {
+      authType:
+        (username && username.length > 0) || user.length > 0 ? "basic" : "none",
+      authActive: true,
+      ...(username &&
+        username.length > 0 && {
+          username,
+          password: password || "",
+        }),
+      ...(user.length > 0 && {
+        username: user.split(":")[0],
+        password: user.split(":")[1],
+      }),
+    } as HoppRESTAuth
+  }
+
+  return auth
 }
 </script>

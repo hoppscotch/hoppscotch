@@ -1,19 +1,10 @@
 import { HoppRESTReqBody } from "@hoppscotch/data"
-import { tryCatch, match, Option } from "fp-ts/Option"
+import * as S from "fp-ts/string"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-
-/**
- * Checks and Parses JSON string
- * @param str Raw JSON data to be parsed
- * @returns Option type with some(formatted JSON) or none
- */
-// const safeParseJson = (str: string): Either<Error, unknown> =>
-const isJSON = (str: string): Option<string> => {
-  return tryCatch(() => {
-    const tempBody = JSON.parse(str)
-    return JSON.stringify(tempBody, null, 2)
-  })
-}
+import { tupleToRecord } from "./functional/record"
+import { safeParseJSON } from "./functional/json"
 
 /**
  * Detects the content type of the input string
@@ -25,13 +16,19 @@ export function detectContentType(
 ): HoppRESTReqBody["contentType"] {
   let contentType: HoppRESTReqBody["contentType"] = "text/plain"
 
-  if (isJSON(rawData)._tag === "Some") contentType = "application/json"
+  if (safeParseJSON(rawData)._tag === "Some") contentType = "application/json"
   else if (/([^&=]+)=([^&=]+)/.test(rawData)) {
     contentType = "application/x-www-form-urlencoded"
   } else {
-    const boundaryMatch = rawData.match(/^-{2,}.+\\r\\n/)
-    if (boundaryMatch && boundaryMatch.length > 0)
-      contentType = "multipart/form-data"
+    contentType = pipe(
+      rawData.match(/^-{2,}.+\\r\\n/),
+      O.fromNullable,
+      O.filter((boundaryMatch) => boundaryMatch && boundaryMatch.length > 0),
+      O.match(
+        () => "text/plain",
+        (_) => "multipart/form-data"
+      )
+    )
   }
 
   return contentType
@@ -42,65 +39,111 @@ export function detectContentType(
  * @param rawData Data to be parsed
  * @param contentType Content type of the data
  * @param boundary Optional parameter required for multipart/form-data content type
- * @returns Parsed body as string or Record object for multipart/form-data or null for error
+ * @returns Option of parsed body as string or Record object for multipart/form-data
  */
-// null for error in parsing
 export function parseBody(
   rawData: string,
   contentType: HoppRESTReqBody["contentType"],
   rawContentType?: string
-): string | null | Record<string, string> {
-  let body: string | null = null
-  const multipartBody: Record<string, string> = {}
+): O.Option<string | Record<string, string>> {
   switch (contentType) {
     case "application/json": {
-      pipe(
-        isJSON(rawData),
-        match(
-          () => (body = "{}"),
-          (parsedJSON) => (body = parsedJSON)
-        )
+      return pipe(
+        rawData,
+        safeParseJSON,
+        O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
+        // O.getOrElse(() => O.some("{}")),
+        O.match(() => O.some("{}"), O.some)
       )
-      break
     }
+
     case "application/x-www-form-urlencoded": {
-      const pairs = rawData.match(/(([^&=]+)=?([^&=]+))/g)
-      if (pairs && pairs.length > 0)
-        body = pairs.map((p) => p.replace("=", ": ")).join("\n")
-      break
+      return pipe(
+        rawData,
+        O.fromNullable,
+        O.map(decodeURIComponent),
+        O.chain((rd) =>
+          pipe(rd.match(/(([^&=]+)=?([^&=]+))/g), O.fromNullable)
+        ),
+        O.filter((pairs) => pairs !== null && pairs.length > 0),
+        O.map((pairs) => pairs.map((p) => p.replace("=", ": ")).join("\n"))
+      )
     }
+
     case "multipart/form-data": {
-      let boundary = ""
-      if (!rawContentType) {
-        const boundaryMatch = rawData.match(/^-{2,}.+\\r\\n/)
-        if (boundaryMatch && boundaryMatch.length > 0)
-          boundary = boundaryMatch[0]
-        else break
-      } else {
-        const boundaryContentMatch = rawContentType.match(/boundary=(.+)/)
-        if (boundaryContentMatch)
-          boundary = "--" + boundaryContentMatch[0].split("=")[1]
-        else break
-      }
+      return pipe(
+        O.Do,
 
-      // TODO: change to pipe
-      const processedData = rawData
-        .split(boundary)
-        .filter((p) => p !== "" && p.includes("name"))
-        .map((p) => p.replaceAll(/[\r\n]+/g, "\r\n"))
-        .map((p) => p.split("\\r\\n"))
-        .map((p) => p.filter((q) => q !== ""))
+        O.bind("boundary", () =>
+          pipe(
+            rawContentType,
+            O.fromNullable,
+            O.match(
+              () =>
+                pipe(
+                  rawData.match(/^-{2,}.+\\r\\n/),
+                  O.fromNullable,
+                  O.filter(
+                    (boundaryMatch) => boundaryMatch && boundaryMatch.length > 1
+                  ),
+                  O.map((matches) => matches[0])
+                ),
+              (rct) =>
+                pipe(
+                  rct.match(/boundary=(.+)/),
+                  O.fromNullable,
+                  O.filter(
+                    (boundaryContentMatch) =>
+                      boundaryContentMatch && boundaryContentMatch.length > 1
+                  ),
+                  O.filter((matches) =>
+                    rawData
+                      .replaceAll("\\r\\n", "")
+                      .endsWith("--" + matches[1] + "--")
+                  ),
+                  O.map((matches) => "--" + matches[1])
+                )
+            )
+          )
+        ),
 
-      for (const p of processedData) {
-        const nameMatch = p[0].match(/name=(.+)$/)
-        if (nameMatch && nameMatch.length > 0) {
-          const name = nameMatch[0].replaceAll(/"/g, "").split("=")[1]
-          multipartBody[name] = p[0].includes("filename") ? "" : p[1]
-        }
-      }
+        O.map(({ boundary }) =>
+          pipe(
+            rawData,
+            S.split(boundary),
+            RA.filter((p) => p !== "" && p.includes("name")),
+            RA.map((p) =>
+              pipe(
+                p.replaceAll(/[\r\n]+/g, "\r\n"),
+                S.split("\\r\\n"),
+                RA.filter((q) => q !== "")
+              )
+            ),
+            RA.filterMap((p) =>
+              pipe(
+                p[0].match(/name=(.+)$/),
+                O.fromNullable,
+                O.filter((nameMatch) => nameMatch.length > 0),
+                O.map((nameMatch) => {
+                  const name = nameMatch[0]
+                    .replaceAll(/"/g, "")
+                    .split("=", 2)[1]
+                  return [name, p[0].includes("filename") ? "" : p[1]] as [
+                    string,
+                    string
+                  ]
+                })
+              )
+            ),
+            RA.toArray
+          )
+        ),
 
-      break
+        O.filter((arr) => arr.length > 0),
+        O.map(tupleToRecord)
+      )
     }
+
     case "application/hal+json":
     case "application/ld+json":
     case "application/vnd.api+json":
@@ -108,7 +151,6 @@ export function parseBody(
     case "text/html":
     case "text/plain":
     default:
-      body = rawData
+      return O.some(rawData)
   }
-  return contentType === "multipart/form-data" ? multipartBody : body
 }

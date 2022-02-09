@@ -2,9 +2,15 @@ import * as URL from "url"
 import * as querystring from "querystring"
 import * as cookie from "cookie"
 import parser from "yargs-parser"
-import { HoppRESTReqBody } from "@hoppscotch/data"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as O from "fp-ts/Option"
+// import * as E from "fp-ts/Either" // replace promise
+import { pipe } from "fp-ts/function"
 
+import { HoppRESTReqBody } from "@hoppscotch/data"
+import { tupleToRecord } from "./functional/record"
 import { detectContentType, parseBody } from "./contentParser"
+import { curlParserRequest } from "helpers/types/CurlParserResult"
 
 /**
  * given this: [ 'msg1=value1', 'msg2=value2' ]
@@ -12,48 +18,6 @@ import { detectContentType, parseBody } from "./contentParser"
  * @param dataArguments
  */
 const joinDataArguments = (dataArguments: string[]) => dataArguments.join("&")
-
-const parseDataFromArguments = (parsedArguments: any) => {
-  if (parsedArguments.data) {
-    return {
-      data: Array.isArray(parsedArguments.data)
-        ? joinDataArguments(parsedArguments.data)
-        : parsedArguments.data,
-      dataArray: Array.isArray(parsedArguments.data)
-        ? parsedArguments.data
-        : null,
-      isDataBinary: false,
-    }
-  } else if (parsedArguments["data-binary"]) {
-    return {
-      data: Array.isArray(parsedArguments["data-binary"])
-        ? joinDataArguments(parsedArguments["data-binary"])
-        : parsedArguments["data-binary"],
-      dataArray: Array.isArray(parsedArguments["data-binary"])
-        ? parsedArguments["data-binary"]
-        : null,
-      isDataBinary: true,
-    }
-  } else if (parsedArguments.d) {
-    return {
-      data: Array.isArray(parsedArguments.d)
-        ? joinDataArguments(parsedArguments.d)
-        : parsedArguments.d,
-      dataArray: Array.isArray(parsedArguments.d) ? parsedArguments.d : null,
-      isDataBinary: false,
-    }
-  } else if (parsedArguments["data-ascii"]) {
-    return {
-      data: Array.isArray(parsedArguments["data-ascii"])
-        ? joinDataArguments(parsedArguments["data-ascii"])
-        : parsedArguments["data-ascii"],
-      dataArray: Array.isArray(parsedArguments["data-ascii"])
-        ? parsedArguments["data-ascii"]
-        : null,
-      isDataBinary: false,
-    }
-  }
-}
 
 const parseCurlCommand = (curlCommand: string) => {
   // remove '\' and newlines
@@ -65,17 +29,19 @@ const parseCurlCommand = (curlCommand: string) => {
   curlCommand = curlCommand.replaceAll('$"', '"')
 
   // replace string for insomnia
-  curlCommand = curlCommand.replace(/--request ?/, "-X ")
-  curlCommand = curlCommand.replace(/--header ?/, "-H ")
-  curlCommand = curlCommand.replace(/--url ?/, " ")
-  curlCommand = curlCommand.replace(/--data-raw ?/, "--data ")
-  ;(["'", '"', " "] as Array<string>).map((sym) => {
-    const reData = new RegExp(`-d${sym}`)
-    const reUser = new RegExp(`-u${sym}`)
-    curlCommand = curlCommand.replace(reData, `--data${sym}`)
-    curlCommand = curlCommand.replace(reUser, `--user${sym}`)
-    return sym
-  })
+  const replaceables: { [key: string]: string } = {
+    "--request": "-X",
+    "--header": "-H",
+    "--url": "",
+    "--form": "-F",
+    "--data-raw": "--data",
+    "--data": "-d",
+    "--user": "-u",
+  }
+  for (const r in replaceables) {
+    for (const sym of ["'", '"', " "])
+      curlCommand = curlCommand.replace(RegExp(r + sym), replaceables[r] + sym)
+  }
 
   // yargs parses -XPOST as separate arguments. just prescreen for it.
   curlCommand = curlCommand.replace(/-XPOST/, " -X POST")
@@ -86,57 +52,26 @@ const parseCurlCommand = (curlCommand: string) => {
   curlCommand = curlCommand.trim()
   const parsedArguments = parser(curlCommand)
 
-  const rawData: string = parsedArguments?.data || ""
+  const rawData: string = parsedArguments?.d || ""
 
   let cookieString
   let cookies
-  let url = parsedArguments._[1]
+  let url = getStructuredURL(parsedArguments)
 
-  // get rid of double and single quotes that have snuck in
-  url = url.replace(/"/g, "").replace(/'/g, "")
-  if (!url) {
-    for (const argName in parsedArguments) {
-      if (typeof parsedArguments[argName] === "string") {
-        if (["http", "www."].includes(parsedArguments[argName])) {
-          url = parsedArguments[argName]
-        }
-      }
-    }
-  }
-  // if protocol is absent,
-  // prepend https (or http if host is localhost)
-  if (typeof url === "string") {
-    let urlCopy = url
-    const protocol = /^[^:]+(?=:\/\/)/.exec(urlCopy)
-
-    if (protocol === null) {
-      // if urlCopy has basic auth, strip it off
-      if (urlCopy.includes("@")) urlCopy = urlCopy.split("@")[1]
-      urlCopy = urlCopy.split("/")[0]
-
-      if (urlCopy.includes("localhost") || urlCopy.includes("127.0.0.1")) {
-        url = "http://" + url
-      } else {
-        url = "https://" + url
-      }
-    }
-  }
-
-  // -F multipart data
-  let multipartUploads: Record<string, string> = {}
   let rawContentType: string = ""
-
-  if (parsedArguments.F) {
-    if (!Array.isArray(parsedArguments.F)) {
-      parsedArguments.F = [parsedArguments.F]
-    }
-    parsedArguments.F.forEach((multipartArgument: string) => {
-      // input looks like key=value. value could be json or a file path prepended with an @
-      const [key, value] = multipartArgument.split("=", 2)
-      multipartUploads[key] = value[0] === "@" ? "" : value
-    })
-    rawContentType = "multipart/form-data"
-  }
+  let multipartUploads: Record<string, string> = pipe(
+    parsedArguments,
+    getFArgumentMultipartData,
+    O.match(
+      () => {
+        return {}
+      },
+      (args) => {
+        rawContentType = "multipart/form-data"
+        return args
+      }
+    )
+  )
 
   let headers: any
 
@@ -245,63 +180,69 @@ const parseCurlCommand = (curlCommand: string) => {
 
   // if -F is not present, look for content type header
   if (rawContentType !== "multipart/form-data") {
-    new Promise((_, reject) => { // eslint-disable-line
-      // if content type is provided
-      if (headers && rawContentType !== "") {
-        contentType = rawContentType // eslint-diable-line
-          .toLowerCase()
-          .split(";")[0] as HoppRESTReqBody["contentType"]
+    const tempBody = pipe(
+      O.Do,
 
-        switch (contentType) {
-          case "application/x-www-form-urlencoded":
-          case "application/json": {
-            const parsedBody = parseBody(rawData, contentType)
-            if (typeof parsedBody === "string") {
-              body = parsedBody
-            } else {
-              reject(Error("Unstructured Body"))
-            }
-            break
-          }
-          case "multipart/form-data": {
-            const parsedBody = parseBody(rawData, contentType, rawContentType)
-            if (typeof parsedBody === "string" || parsedBody === null)
-              reject(Error("Unstructured Body"))
-            else multipartUploads = parsedBody
-            break
-          }
-          case "application/hal+json":
-          case "application/ld+json":
-          case "application/vnd.api+json":
-          case "application/xml":
-          case "text/html":
-          case "text/plain":
-          default:
-            contentType = "text/plain"
-            body = rawData
-            break
-        }
-      } else if (rawData) {
-        // if content type is not provided, check for it manually
-        contentType = detectContentType(rawData)
-        if (contentType === "multipart/form-data")
-          multipartUploads = parseBody(rawData, contentType) as Record<
-            string,
-            string
-          >
-        else {
-          const res = parseBody(rawData, contentType)
-          if (typeof res === "string") body = res
-          else reject(Error("Null body encountered"))
-        }
-      } else {
-        reject(Error(undefined)) // eslint-disable-line
+      O.bind("rct", () =>
+        pipe(
+          rawContentType,
+          O.fromNullable,
+          O.filter(() => !!headers && rawContentType !== "")
+        )
+      ),
+
+      O.bind("cType", ({ rct }) =>
+        pipe(
+          rct,
+          O.fromNullable,
+          O.map((RCT) => RCT.toLowerCase()),
+          O.map((RCT) => RCT.split(";")[0]),
+          O.map((RCT) => RCT as HoppRESTReqBody["contentType"])
+        )
+      ),
+
+      O.bind("rData", () =>
+        pipe(
+          rawData,
+          O.fromNullable,
+          O.filter(() => !!rawData && rawData.length > 0)
+        )
+      ),
+
+      O.bind("ctBody", ({ rct, cType, rData }) =>
+        pipe(rData, getBodyFromContentType(rct, cType))
+      )
+    )
+
+    if (O.isSome(tempBody)) {
+      const { cType, ctBody } = tempBody.value
+      contentType = cType
+      if (typeof ctBody === "string") body = ctBody
+      else multipartUploads = ctBody
+    } else if (
+      !(
+        rawContentType &&
+        rawContentType.startsWith("multipart/form-data") &&
+        rawContentType.includes("boundary")
+      )
+    ) {
+      const newTempBody = pipe(
+        rawData,
+        O.fromNullable,
+        O.filter(() => !!rawData && rawData.length > 0),
+        O.chain(getBodyWithoutContentType)
+      )
+
+      if (O.isSome(newTempBody)) {
+        const { cType, proData } = newTempBody.value
+        contentType = cType
+        if (typeof proData === "string") body = proData
+        else multipartUploads = proData
       }
-    }).catch((err) => {
+    } else {
       body = null
       contentType = null
-      if (err) console.error(err)
-    })
+    }
   }
 
   const compressed = !!parsedArguments.compressed
@@ -332,12 +273,13 @@ const parseCurlCommand = (curlCommand: string) => {
       delete parsedArguments[option]
     }
   }
+  // TODO
   const query = querystring.parse(urlObject.query!, null as any, null as any, {
     maxKeys: 10000,
   })
 
   urlObject.search = null // Clean out the search/query portion.
-  const request = {
+  const request: curlParserRequest = {
     url,
     urlWithoutQuery: URL.format(urlObject),
     compressed,
@@ -351,10 +293,156 @@ const parseCurlCommand = (curlCommand: string) => {
     multipartUploads,
     ...parseDataFromArguments(parsedArguments),
     ...(auth && { auth }),
-    user: parsedArguments.user,
+    ...(parsedArguments?.u && { user: parsedArguments?.u }),
   }
 
   return request
+}
+
+function getBodyFromContentType(
+  rct: string,
+  cType: HoppRESTReqBody["contentType"]
+) {
+  return (rData: string) => {
+    switch (cType) {
+      case "application/x-www-form-urlencoded":
+      case "application/json": {
+        return pipe(
+          parseBody(rData, cType),
+          O.filter(
+            (parsedBody) =>
+              typeof parsedBody === "string" && parsedBody.length > 0
+          )
+        )
+      }
+      case "multipart/form-data": {
+        // put body to multipartUploads in post processing
+        return pipe(
+          parseBody(rData, cType, rct),
+          O.filter((parsedBody) => typeof parsedBody !== "string")
+        )
+      }
+      case "application/hal+json":
+      case "application/ld+json":
+      case "application/vnd.api+json":
+      case "application/xml":
+      case "text/html":
+      case "text/plain":
+      default:
+        return O.some(rData)
+    }
+  }
+}
+
+function getBodyWithoutContentType(rawData: string) {
+  return pipe(
+    O.Do,
+
+    O.bind("rData", () =>
+      pipe(
+        rawData,
+        O.fromNullable,
+        O.filter((rd) => rd.length > 0)
+      )
+    ),
+
+    O.bind("cType", ({ rData }) =>
+      pipe(rData, detectContentType, O.fromNullable)
+    ),
+
+    O.bind("proData", ({ cType, rData }) => parseBody(rData, cType))
+  )
+}
+
+function parseDataFromArguments(parsedArguments: parser.Arguments): {
+  data: string
+  dataArray: string[] | null
+  isDataBinary: boolean
+} {
+  const isDataBinary = !!parsedArguments["data-binary"]
+  const data: string | string[] | null =
+    parsedArguments.data ||
+    parsedArguments["data-binary"] ||
+    parsedArguments["data-ascii"] ||
+    null
+
+  // FIXME: Type definitions don't work without coercion
+  return pipe(
+    data,
+    O.fromNullable,
+    O.filter(Array.isArray),
+    O.map((d) => joinDataArguments(d)),
+    O.match(
+      () => ({
+        data: data as string,
+        dataArray: null as string[] | null,
+        isDataBinary,
+      }),
+      (joinedData) => ({
+        data: joinedData,
+        dataArray: data as string[],
+        isDataBinary,
+      })
+    )
+  )
+}
+
+function getStructuredURL(parsedArguments: parser.Arguments): string {
+  let url = parsedArguments?._[1]
+
+  // get rid of double and single quotes that have snuck in
+  url = url.replace(/["']/g, "")
+  if (!url) {
+    for (const argName in parsedArguments) {
+      if (typeof parsedArguments[argName] === "string") {
+        if (["http", "www."].includes(parsedArguments[argName])) {
+          url = parsedArguments[argName]
+        }
+      }
+    }
+  }
+
+  // if protocol is absent,
+  // prepend https (or http if host is localhost)
+  if (typeof url === "string") {
+    let urlCopy = url
+    const protocol = /^[^:]+(?=:\/\/)/.exec(urlCopy)
+
+    if (protocol === null) {
+      // if urlCopy has basic auth, strip it off
+      if (urlCopy.includes("@")) urlCopy = urlCopy.split("@")[1]
+      urlCopy = urlCopy.split("/")[0]
+
+      if (urlCopy.includes("localhost") || urlCopy.includes("127.0.0.1")) {
+        url = "http://" + url
+      } else {
+        url = "https://" + url
+      }
+    }
+  }
+  return url
+}
+
+function getFArgumentMultipartData(
+  parsedArguments: parser.Arguments
+): O.Option<Record<string, string>> {
+  // -F multipart data
+
+  return pipe(
+    parsedArguments.F as Array<string> | string | undefined,
+    O.fromNullable,
+    O.map((fArgs) => (Array.isArray(fArgs) ? fArgs : [fArgs])),
+    O.map((fArgs: string[]) =>
+      pipe(
+        fArgs.map((multipartArgument: string) => {
+          const [key, value] = multipartArgument.split("=", 2)
+          return [key, value[0] === "@" ? "" : value] as [string, string]
+        }),
+        RA.toArray,
+        tupleToRecord
+      )
+    )
+  )
 }
 
 export default parseCurlCommand

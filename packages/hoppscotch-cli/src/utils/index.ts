@@ -5,3 +5,4 @@ export * from "./request-parser";
 export * from "./test-parser";
 export * from "./cli";
 export * from "./getters";
+export * from "./mutators";

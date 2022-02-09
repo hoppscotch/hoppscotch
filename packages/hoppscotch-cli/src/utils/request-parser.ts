@@ -1,7 +1,11 @@
 import axios, { Method } from "axios";
 import { WritableStream } from "table";
+import * as S from "fp-ts/string";
+import * as E from "fp-ts/Either";
+import * as A from "fp-ts/Array";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
+import { runPreRequestScript } from "@hoppscotch/js-sandbox/lib";
 import {
   debugging,
   getResponseTable,
@@ -15,7 +19,10 @@ import {
   RequestConfig,
   RunnerResponseInfo,
   TestScriptPair,
+  EffectiveHoppRESTRequest,
+  Environment,
 } from "../interfaces";
+import { getEffectiveRESTRequest } from "./getters";
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
@@ -26,13 +33,21 @@ import {
  */
 const createRequest = (
   rootPath: string,
-  req: HoppRESTRequest,
+  req: EffectiveHoppRESTRequest,
   debug: boolean = false
 ): RequestStack => {
   const config: RequestConfig = {
     supported: true,
   };
-  config.url = req.endpoint;
+  const reqParams = A.isNonEmpty(req.effectiveFinalParams)
+    ? req.effectiveFinalParams
+    : req.params;
+  const reqHeaders = A.isNonEmpty(req.effectiveFinalHeaders)
+    ? req.effectiveFinalHeaders
+    : req.headers;
+  config.url = S.isEmpty(req.effectiveFinalURL)
+    ? req.endpoint
+    : req.effectiveFinalURL;
   config.method = req.method as Method;
   if (debug === true) {
     config.transformResponse = [
@@ -43,7 +58,7 @@ const createRequest = (
       },
     ];
   }
-  for (const x of req.params) {
+  for (const x of reqParams) {
     if (x.active) {
       if (!config.params) {
         config.params = {};
@@ -51,7 +66,7 @@ const createRequest = (
       if (x.key) config.params[x.key] = x.value;
     }
   }
-  for (const x of req.headers) {
+  for (const x of reqHeaders) {
     if (x.active) {
       if (!config.headers) {
         config.headers = {};
@@ -98,7 +113,10 @@ const createRequest = (
         break;
       }
       default: {
-        config.data = req.body.body;
+        config.data =
+          req.effectiveFinalBody !== null
+            ? req.effectiveFinalBody
+            : req.body.body;
         break;
       }
     }
@@ -190,9 +208,29 @@ export const requestsParser = async (
   rootPath: string = "$ROOT"
 ) => {
   for (const req of x.requests) {
+    let effectiveReq: EffectiveHoppRESTRequest = {
+      ...req,
+      effectiveFinalBody: null,
+      effectiveFinalHeaders: [],
+      effectiveFinalParams: [],
+      effectiveFinalURL: S.empty,
+    };
+    if (!S.isEmpty(req.preRequestScript)) {
+      const preRequestScriptRes = await runPreRequestScript(
+        req.preRequestScript,
+        []
+      )();
+      if (E.isRight(preRequestScriptRes)) {
+        const envs: Environment = {
+          name: "Env",
+          variables: preRequestScriptRes.right,
+        };
+        effectiveReq = getEffectiveRESTRequest(req, envs);
+      }
+    }
     const parsedReq: RequestStack = createRequest(
       `${rootPath}/${x.name}`,
-      req,
+      effectiveReq,
       debug
     );
     const res: RunnerResponseInfo = await requestRunner(parsedReq);

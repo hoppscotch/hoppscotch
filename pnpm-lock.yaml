@@ -343,6 +343,7 @@ importers:
       fp-ts: ^2.11.3
       inquirer: ^8.1.1
       inquirer-fuzzy-path: ^2.3.0
+      lodash: ^4.17.21
       prettier: ^2.5.1
       table: ^6.7.1
       tcp-ping: ^0.1.1
@@ -356,6 +357,7 @@ importers:
       fp-ts: 2.11.8
       inquirer: 8.2.0
       inquirer-fuzzy-path: 2.3.0
+      lodash: 4.17.21
       table: 6.8.0
       tcp-ping: 0.1.1
     devDependencies:
@@ -10273,7 +10275,7 @@ packages:
       fs.realpath: 1.0.0
       inflight: 1.0.6
       inherits: 2.0.4
-      minimatch: 3.0.4
+      minimatch: 3.0.5
       once: 1.4.0
       path-is-absolute: 1.0.1
 
@@ -13333,7 +13335,6 @@ packages:
     resolution: {integrity: sha512-tUpxzX0VAzJHjLu0xUfFv1gwVp9ba3IOuRAVH2EGuRW8a5emA2FlACLqiT/lDVtS1W+TGNwqz3sWaNyLgDJWuw==}
     dependencies:
       brace-expansion: 1.1.11
-    dev: true
 
   /minimist-options/4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}
@@ -17665,7 +17666,7 @@ packages:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 27.5.0
-      jest-util: 27.4.2
+      jest-util: 27.5.0
       json5: 2.2.0
       lodash.memoize: 4.1.2
       make-error: 1.3.6

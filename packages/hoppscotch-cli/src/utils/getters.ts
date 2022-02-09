@@ -1,7 +1,25 @@
 import chalk from "chalk";
+import { pipe } from "fp-ts/lib/function";
+import qs from "qs";
+import * as A from "fp-ts/Array";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
+import { HoppRESTRequest } from "@hoppscotch/data";
 import { Method } from "axios";
-import { TableResponse, RunnerResponseInfo } from "../interfaces";
+import {
+  TableResponse,
+  RunnerResponseInfo,
+  Environment,
+  EffectiveHoppRESTRequest,
+} from "../interfaces";
+import {
+  arrayFlatMap,
+  arraySort,
+  parseBodyEnvVariables,
+  parseRawKeyValueEntries,
+  parseTemplateString,
+  toFormData,
+  tupleToRecord,
+} from ".";
 
 /**
  * Getter object methods for file test-parser.ts
@@ -119,3 +137,163 @@ export const getTestResponse = async (
   };
   return testResponse;
 };
+
+function getFinalBodyFromRequest(
+  request: HoppRESTRequest,
+  envVariables: Environment["variables"]
+): FormData | string | null {
+  if (request.body.contentType === null) {
+    return null;
+  }
+
+  if (request.body.contentType === "application/x-www-form-urlencoded") {
+    return pipe(
+      request.body.body,
+      parseRawKeyValueEntries,
+
+      // Filter out active
+      A.filter((x) => x.active),
+      // Convert to tuple
+      A.map(
+        ({ key, value }) =>
+          [
+            parseTemplateString(key, envVariables),
+            parseTemplateString(value, envVariables),
+          ] as [string, string]
+      ),
+      // Tuple to Record object
+      tupleToRecord,
+      // Stringify
+      qs.stringify
+    );
+  }
+
+  if (request.body.contentType === "multipart/form-data") {
+    return pipe(
+      request.body.body,
+      A.filter((x) => x.key !== "" && x.active), // Remove empty keys
+
+      // Sort files down
+      arraySort((a, b) => {
+        if (a.isFile) return 1;
+        if (b.isFile) return -1;
+        return 0;
+      }),
+
+      // FormData allows only a single blob in an entry,
+      // we split array blobs into separate entries (FormData will then join them together during exec)
+      arrayFlatMap((x) =>
+        x.isFile
+          ? x.value.map((v) => ({
+              key: parseTemplateString(x.key, envVariables),
+              value: v as string | Blob,
+            }))
+          : [
+              {
+                key: parseTemplateString(x.key, envVariables),
+                value: parseTemplateString(x.value, envVariables),
+              },
+            ]
+      ),
+      toFormData
+    );
+  } else return parseBodyEnvVariables(request.body.body, envVariables);
+}
+
+/**
+ * Outputs an executable request format with environment variables applied
+ *
+ * @param request The request to source from
+ * @param environment The environment to apply
+ *
+ * @returns An object with extra fields defining a complete request
+ */
+export function getEffectiveRESTRequest(
+  request: HoppRESTRequest,
+  environment: Environment
+): EffectiveHoppRESTRequest {
+  const envVariables = [...environment.variables];
+
+  const effectiveFinalHeaders = request.headers
+    .filter(
+      (x) =>
+        x.key !== "" && // Remove empty keys
+        x.active // Only active
+    )
+    .map((x) => ({
+      // Parse out environment template strings
+      active: true,
+      key: parseTemplateString(x.key, envVariables),
+      value: parseTemplateString(x.value, envVariables),
+    }));
+
+  const effectiveFinalParams = request.params
+    .filter(
+      (x) =>
+        x.key !== "" && // Remove empty keys
+        x.active // Only active
+    )
+    .map((x) => ({
+      active: true,
+      key: parseTemplateString(x.key, envVariables),
+      value: parseTemplateString(x.value, envVariables),
+    }));
+
+  // Authentication
+  if (request.auth.authActive) {
+    // TODO: Support a better b64 implementation than btoa ?
+    if (request.auth.authType === "basic") {
+      const username = parseTemplateString(request.auth.username, envVariables);
+      const password = parseTemplateString(request.auth.password, envVariables);
+
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: `Basic ${btoa(`${username}:${password}`)}`,
+      });
+    } else if (
+      request.auth.authType === "bearer" ||
+      request.auth.authType === "oauth-2"
+    ) {
+      effectiveFinalHeaders.push({
+        active: true,
+        key: "Authorization",
+        value: `Bearer ${parseTemplateString(
+          request.auth.token,
+          envVariables
+        )}`,
+      });
+    } else if (request.auth.authType === "api-key") {
+      const { key, value, addTo } = request.auth;
+      if (addTo === "Headers") {
+        effectiveFinalHeaders.push({
+          active: true,
+          key: parseTemplateString(key, envVariables),
+          value: parseTemplateString(value, envVariables),
+        });
+      } else if (addTo === "Query params") {
+        effectiveFinalParams.push({
+          active: true,
+          key: parseTemplateString(key, envVariables),
+          value: parseTemplateString(value, envVariables),
+        });
+      }
+    }
+  }
+
+  const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables);
+  if (request.body.contentType)
+    effectiveFinalHeaders.push({
+      active: true,
+      key: "content-type",
+      value: request.body.contentType,
+    });
+
+  return {
+    ...request,
+    effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
+    effectiveFinalHeaders,
+    effectiveFinalParams,
+    effectiveFinalBody,
+  };
+}

@@ -44,6 +44,7 @@
     "fp-ts": "^2.11.3",
     "inquirer": "^8.1.1",
     "inquirer-fuzzy-path": "^2.3.0",
+    "lodash": "^4.17.21",
     "table": "^6.7.1",
     "tcp-ping": "^0.1.1"
   }

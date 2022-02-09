@@ -302,7 +302,7 @@
               newInvites = [
                 {
                   key: '',
-                  value: 'VIEWRER',
+                  value: TeamMemberRole.Viewer,
                 },
               ]
             }

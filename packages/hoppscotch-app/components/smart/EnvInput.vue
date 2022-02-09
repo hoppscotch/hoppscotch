@@ -150,8 +150,10 @@ watch(editor, () => {
 <style lang="scss" scoped>
 .env-input-container {
   @apply relative;
-  @apply inline-grid;
+  @apply inline-flex;
   @apply flex-1;
+  @apply bg-red-100;
+  @apply border border-red-400;
 }
 
 [contenteditable] {
@@ -180,6 +182,9 @@ watch(editor, () => {
   @apply overflow-y-hidden;
   @apply resize-none;
   @apply focus:outline-none;
+  @apply bg-green-100;
+  @apply border border-green-400;
+  @apply w-full;
 }
 
 .env-input::-webkit-scrollbar {

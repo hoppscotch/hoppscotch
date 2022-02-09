@@ -33,6 +33,7 @@ export const baseTheme = EditorView.theme({
     fontSize: "var(--font-size-body)",
     height: "100%",
     width: "100%",
+    flex: "1",
   },
   ".cm-content": {
     caretColor: "var(--secondary-light-color)",

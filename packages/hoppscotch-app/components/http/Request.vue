@@ -37,20 +37,6 @@
         <SmartEnvInput
           v-model="newEndpoint"
           :placeholder="`${t('request.url')}`"
-          styles="
-            bg-primaryLight
-            border border-divider
-            flex
-            flex-1
-            rounded-r
-            text-secondaryDark
-            min-w-32
-            py-1
-            px-4
-            hover:border-dividerDark
-            focus-visible:border-dividerDark
-            focus-visible:bg-transparent
-          "
           @enter="newSendRequest()"
           @paste="onPasteUrl($event)"
         />

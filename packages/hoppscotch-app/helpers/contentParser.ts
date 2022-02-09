@@ -16,14 +16,22 @@ export function detectContentType(
 ): HoppRESTReqBody["contentType"] {
   let contentType: HoppRESTReqBody["contentType"] = "text/plain"
 
-  if (safeParseJSON(rawData)._tag === "Some") contentType = "application/json"
-  else if (/([^&=]+)=([^&=]+)/.test(rawData)) {
+  if (safeParseJSON(rawData)._tag === "Some") {
+    contentType = "application/json"
+  } else if (/<\/?[a-zA-Z][\s\S]*>/i.test(rawData)) {
+    if (prettifyXml(rawData)._tag === "Some") {
+      contentType = "application/xml"
+    } else {
+      // everything is HTML
+      contentType = "text/html"
+    }
+  } else if (/([^&=]+)=([^&=]+)/.test(rawData)) {
     contentType = "application/x-www-form-urlencoded"
   } else {
     contentType = pipe(
       rawData.match(/^-{2,}.+\\r\\n/),
       O.fromNullable,
-      O.filter((boundaryMatch) => boundaryMatch && boundaryMatch.length > 0),
+      O.filter((boundaryMatch) => boundaryMatch && boundaryMatch.length > 1),
       O.match(
         () => "text/plain",
         (_) => "multipart/form-data"
@@ -32,6 +40,94 @@ export function detectContentType(
   }
 
   return contentType
+}
+
+/**
+ * Prettifies XML string
+ * @param sourceXml The string to format
+ * @returns Indented XML string (uses spaces)
+ */
+const prettifyXml = (sourceXml: string) =>
+  pipe(
+    O.tryCatch(() => {
+      const xmlDoc = new DOMParser().parseFromString(
+        sourceXml,
+        "application/xml"
+      )
+
+      if (xmlDoc.querySelector("parsererror")) {
+        throw new Error("Unstructured Body")
+      }
+
+      const xsltDoc = new DOMParser().parseFromString(
+        [
+          // describes how we want to modify the XML - indent everything
+          '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
+          '  <xsl:strip-space elements="*"/>',
+          '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
+          '    <xsl:value-of select="normalize-space(.)"/>',
+          "  </xsl:template>",
+          '  <xsl:template match="node()|@*">',
+          '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
+          "  </xsl:template>",
+          '  <xsl:output indent="yes"/>',
+          "</xsl:stylesheet>",
+        ].join("\n"),
+        "application/xml"
+      )
+
+      const xsltProcessor = new XSLTProcessor()
+      xsltProcessor.importStylesheet(xsltDoc)
+      const resultDoc = xsltProcessor.transformToDocument(xmlDoc)
+      const resultXml = new XMLSerializer().serializeToString(resultDoc)
+
+      return resultXml
+    })
+  )
+
+/**
+ * Prettifies HTML string
+ * @param htmlString The string to format
+ * @returns Indented HTML string (uses spaces)
+ */
+const formatHTML = (htmlString: string) => {
+  const tab = "  "
+  let result = ""
+  let indent = ""
+  const emptyTags = [
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+  ]
+
+  const spl = htmlString.split(/>\s*</)
+  spl.forEach((element) => {
+    if (element.match(/^\/\w/)) {
+      indent = indent.substring(tab.length)
+    }
+
+    result += indent + "<" + element + ">\n"
+
+    if (
+      element.match(/^<?\w[^>]*[^/]$/) &&
+      !emptyTags.includes(element.match(/^([a-z]*)/i)?.at(1) || "")
+    ) {
+      indent += tab
+    }
+  })
+
+  return result.substring(1, result.length - 2)
 }
 
 /**
@@ -144,11 +240,26 @@ export function parseBody(
       )
     }
 
+    case "text/html": {
+      return pipe(rawData, O.fromNullable, O.map(formatHTML))
+    }
+
+    case "application/xml": {
+      return pipe(
+        rawData,
+        O.fromNullable,
+        O.chain(prettifyXml),
+        O.match(
+          () => rawData,
+          (res) => res
+        ),
+        O.fromNullable
+      )
+    }
+
     case "application/hal+json":
     case "application/ld+json":
     case "application/vnd.api+json":
-    case "application/xml":
-    case "text/html":
     case "text/plain":
     default:
       return O.some(rawData)

@@ -305,6 +305,8 @@ function getBodyFromContentType(
 ) {
   return (rData: string) => {
     switch (cType) {
+      case "application/xml":
+      case "text/html":
       case "application/x-www-form-urlencoded":
       case "application/json": {
         return pipe(
@@ -325,8 +327,6 @@ function getBodyFromContentType(
       case "application/hal+json":
       case "application/ld+json":
       case "application/vnd.api+json":
-      case "application/xml":
-      case "text/html":
       case "text/plain":
       default:
         return O.some(rData)

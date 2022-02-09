@@ -304,33 +304,20 @@ function getBodyFromContentType(
   cType: HoppRESTReqBody["contentType"]
 ) {
   return (rData: string) => {
-    switch (cType) {
-      case "application/xml":
-      case "text/html":
-      case "application/x-www-form-urlencoded":
-      case "application/json": {
-        return pipe(
-          parseBody(rData, cType),
-          O.filter(
-            (parsedBody) =>
-              typeof parsedBody === "string" && parsedBody.length > 0
-          )
+    if (cType === "multipart/form-data")
+      // put body to multipartUploads in post processing
+      return pipe(
+        parseBody(rData, cType, rct),
+        O.filter((parsedBody) => typeof parsedBody !== "string")
+      )
+    else
+      return pipe(
+        parseBody(rData, cType),
+        O.filter(
+          (parsedBody) =>
+            typeof parsedBody === "string" && parsedBody.length > 0
         )
-      }
-      case "multipart/form-data": {
-        // put body to multipartUploads in post processing
-        return pipe(
-          parseBody(rData, cType, rct),
-          O.filter((parsedBody) => typeof parsedBody !== "string")
-        )
-      }
-      case "application/hal+json":
-      case "application/ld+json":
-      case "application/vnd.api+json":
-      case "text/plain":
-      default:
-        return O.some(rData)
-    }
+      )
   }
 }
 

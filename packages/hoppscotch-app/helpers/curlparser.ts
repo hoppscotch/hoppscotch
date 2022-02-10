@@ -10,7 +10,7 @@ import { pipe } from "fp-ts/function"
 import { HoppRESTReqBody } from "@hoppscotch/data"
 import { tupleToRecord } from "./functional/record"
 import { detectContentType, parseBody } from "./contentParser"
-import { curlParserRequest } from "helpers/types/CurlParserResult"
+import { curlParserRequest } from "~/helpers/types/CurlParserResult"
 
 /**
  * given this: [ 'msg1=value1', 'msg2=value2' ]

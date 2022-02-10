@@ -14,36 +14,7 @@ import { detectContentType, parseBody } from "./contentParser"
 import { curlParserRequest } from "~/helpers/types/CurlParserResult"
 
 const parseCurlCommand = (curlCommand: string) => {
-  // remove '\' and newlines
-  curlCommand = curlCommand.replace(/ ?\\ ?$/gm, " ")
-  curlCommand = curlCommand.replace(/\n/g, "")
-
-  // remove all $ symbols from start of argument values
-  curlCommand = curlCommand.replaceAll("$'", "'")
-  curlCommand = curlCommand.replaceAll('$"', '"')
-
-  // replace string for insomnia
-  const replaceables: { [key: string]: string } = {
-    "--request": "-X",
-    "--header": "-H",
-    "--url": "",
-    "--form": "-F",
-    "--data-raw": "--data",
-    "--data": "-d",
-    "--user": "-u",
-  }
-  for (const r in replaceables) {
-    for (const sym of ["'", '"', " "])
-      curlCommand = curlCommand.replace(RegExp(r + sym), replaceables[r] + sym)
-  }
-
-  // yargs parses -XPOST as separate arguments. just prescreen for it.
-  curlCommand = curlCommand.replace(/-XPOST/, " -X POST")
-  curlCommand = curlCommand.replace(/-XGET/, " -X GET")
-  curlCommand = curlCommand.replace(/-XPUT/, " -X PUT")
-  curlCommand = curlCommand.replace(/-XPATCH/, " -X PATCH")
-  curlCommand = curlCommand.replace(/-XDELETE/, " -X DELETE")
-  curlCommand = curlCommand.trim()
+  curlCommand = preProcessCurlCommand(curlCommand)
   const parsedArguments = parser(curlCommand)
 
   const rawData: string = parsedArguments?.d || ""
@@ -291,6 +262,43 @@ const parseCurlCommand = (curlCommand: string) => {
   }
 
   return request
+}
+
+const replaceables: { [key: string]: string } = {
+  "--request": "-X",
+  "--header": "-H",
+  "--url": "",
+  "--form": "-F",
+  "--data-raw": "--data",
+  "--data": "-d",
+  "--user": "-u",
+}
+
+function preProcessCurlCommand(curlCommand: string) {
+  // remove '\' and newlines
+  curlCommand = curlCommand.replace(/ ?\\ ?$/gm, " ")
+  curlCommand = curlCommand.replace(/\n/g, "")
+
+  // remove all $ symbols from start of argument values
+  curlCommand = curlCommand.replaceAll("$'", "'")
+  curlCommand = curlCommand.replaceAll('$"', '"')
+
+  // replace string for insomnia
+  for (const r in replaceables) {
+    curlCommand = curlCommand.replace(
+      RegExp(` ${r}(["' ])`),
+      ` ${replaceables[r]}$1`
+    )
+  }
+
+  // yargs parses -XPOST as separate arguments. just prescreen for it.
+  curlCommand = curlCommand.replace(
+    / -X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE|CUSTOM)/,
+    " -X $1"
+  )
+  curlCommand = curlCommand.trim()
+
+  return curlCommand
 }
 
 function getBodyFromContentType(

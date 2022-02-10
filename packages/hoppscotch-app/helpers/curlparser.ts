@@ -9,15 +9,9 @@ import { pipe } from "fp-ts/function"
 
 import { HoppRESTReqBody } from "@hoppscotch/data"
 import { tupleToRecord } from "./functional/record"
+import { stringArrayJoin } from "./functional/array"
 import { detectContentType, parseBody } from "./contentParser"
 import { curlParserRequest } from "~/helpers/types/CurlParserResult"
-
-/**
- * given this: [ 'msg1=value1', 'msg2=value2' ]
- * output this: 'msg1=value1&msg2=value2'
- * @param dataArguments
- */
-const joinDataArguments = (dataArguments: string[]) => dataArguments.join("&")
 
 const parseCurlCommand = (curlCommand: string) => {
   // remove '\' and newlines
@@ -358,7 +352,7 @@ function parseDataFromArguments(parsedArguments: parser.Arguments): {
     data,
     O.fromNullable,
     O.filter(Array.isArray),
-    O.map((d) => joinDataArguments(d)),
+    O.map(stringArrayJoin("&")),
     O.match(
       () => ({
         data: data as string,

@@ -1,8 +1,9 @@
 import fs from "fs/promises";
 import inquirer from "inquirer";
 import chalk from "chalk";
-import { array as A, string as S } from "fp-ts";
-import { pipe } from "fp-ts/lib/function";
+import * as A from "fp-ts/Array";
+import * as S from "fp-ts/string";
+import { pipe } from "fp-ts/function";
 import { createStream, getBorderCharacters } from "table";
 import fuzzyPath from "inquirer-fuzzy-path";
 inquirer.registerPrompt("fuzzypath", fuzzyPath);

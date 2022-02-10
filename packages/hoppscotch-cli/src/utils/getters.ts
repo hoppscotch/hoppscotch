@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { pipe } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/function";
 import qs from "qs";
 import * as A from "fp-ts/Array";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";

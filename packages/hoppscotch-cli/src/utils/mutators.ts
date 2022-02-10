@@ -1,5 +1,5 @@
 import { Environment } from "../interfaces";
-import { flow } from "fp-ts/lib/function";
+import { flow } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import * as RA from "fp-ts/ReadonlyArray";
 import clone from "lodash/clone";

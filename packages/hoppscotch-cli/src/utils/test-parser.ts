@@ -1,5 +1,6 @@
-import { pipe } from "fp-ts/lib/function";
-import { array as A, either as E } from "fp-ts";
+import { pipe } from "fp-ts/function";
+import * as A from "fp-ts/Array";
+import * as E from "fp-ts/Either";
 import {
   execTestScript,
   TestDescriptor,

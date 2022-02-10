@@ -8,9 +8,9 @@ import {
   HoppCollection,
   isHoppRESTRequest,
 } from "@hoppscotch/data";
-import { Either, left, right } from "fp-ts/lib/Either";
+import * as E from "fp-ts/Either";
 import * as S from "fp-ts/string";
-import { pipe } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/function";
 
 /**
  * Typeguard to check valid Hoppscotch REST Collection
@@ -103,10 +103,12 @@ export const pingConnection = (
 
 export const isExpectResultPass = (
   expectResult: string
-): Either<boolean, boolean> =>
-  expectResult === "pass" ? right(true) : left(false);
+): E.Either<boolean, boolean> =>
+  expectResult === "pass" ? E.right(true) : E.left(false);
 
 export const isHoppErrCode = (
   errCode: string | undefined
-): Either<boolean, boolean> =>
-  errCode && pipe(errCode, S.startsWith("HOPP")) ? right(true) : left(false);
+): E.Either<boolean, boolean> =>
+  errCode && pipe(errCode, S.startsWith("HOPP"))
+    ? E.right(true)
+    : E.left(false);

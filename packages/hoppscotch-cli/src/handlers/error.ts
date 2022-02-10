@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { either as E } from "fp-ts";
+import * as E from "fp-ts/Either";
 import { errors, isHoppErrCode } from "../utils";
 import { CommanderError } from "commander";
 import { CLIError } from "../interfaces";

@@ -4,11 +4,13 @@
 -->
 
 <template>
-  <div class="env-input-container">
+  <div
+    class="flex flex-1 items-center flex-shrink-0 whitespace-nowrap overflow-auto hide-scrollbar"
+  >
     <div
       ref="editor"
       :placeholder="placeholder"
-      class="env-input"
+      class="flex flex-1"
       :class="styles"
       @keydown.enter.prevent="emit('enter', $event)"
       @keyup="emit('keyup', $event)"
@@ -146,17 +148,3 @@ watch(editor, () => {
   }
 })
 </script>
-
-<style lang="scss" scoped>
-.env-input-container {
-  @apply relative;
-  @apply flex;
-  @apply flex-1;
-  @apply items-center;
-}
-
-.env-input {
-  @apply flex;
-  @apply flex-1;
-}
-</style>

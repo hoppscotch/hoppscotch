@@ -63,7 +63,11 @@ watch(
   (newVal) => {
     const singleLinedText = newVal.replaceAll("\n", "")
 
-    if (cachedValue.value !== singleLinedText) {
+    const currDoc = view.value?.state.doc
+      .toJSON()
+      .join(view.value.state.lineBreak)
+
+    if (cachedValue.value !== singleLinedText || newVal !== currDoc) {
       cachedValue.value = singleLinedText
 
       view.value?.dispatch({
@@ -83,6 +87,8 @@ watch(
 
 const { subscribeToStream } = useStreamSubscriber()
 
+let clipboardEv: ClipboardEvent | null = null
+
 const envTooltipPlugin = new HoppEnvironmentPlugin(subscribeToStream, view)
 
 const initView = (el: any) => {
@@ -90,13 +96,14 @@ const initView = (el: any) => {
     inputTheme,
     envTooltipPlugin,
     placeholderExt(props.placeholder),
+    EditorView.domEventHandlers({
+      paste(ev) {
+        clipboardEv = ev
+      },
+    }),
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
-          const pasted = !!update.transactions.find((txn) =>
-            txn.isUserEvent("input.paste")
-          )
-
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 
@@ -110,13 +117,21 @@ const initView = (el: any) => {
 
             emit("input", value)
             emit("change", value)
-            if (pasted) {
-              nextTick().then(() => {
+
+            const pasted = !!update.transactions.find((txn) =>
+              txn.isUserEvent("input.paste")
+            )
+
+            if (pasted && clipboardEv) {
+              const evHandle = clipboardEv
+              nextTick(() => {
                 emit("paste", {
-                  pastedValue: value,
+                  pastedValue: evHandle.clipboardData?.getData("text") ?? "",
                   prevValue,
                 })
               })
+            } else {
+              clipboardEv = null
             }
           }
         }

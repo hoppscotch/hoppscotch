@@ -28,7 +28,7 @@ import {
 } from "@codemirror/view"
 import { EditorState, Extension } from "@codemirror/state"
 import clone from "lodash/clone"
-import { baseTheme } from "~/helpers/editor/themes/baseTheme"
+import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppEnvironmentPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useStreamSubscriber } from "~/helpers/utils/composables"
 
@@ -88,7 +88,7 @@ const envTooltipPlugin = new HoppEnvironmentPlugin(subscribeToStream, view)
 
 const initView = (el: any) => {
   const extensions: Extension = [
-    baseTheme,
+    inputTheme,
     envTooltipPlugin,
     placeholderExt(props.placeholder),
     ViewPlugin.fromClass(
@@ -158,6 +158,5 @@ watch(editor, () => {
 .env-input {
   @apply flex;
   @apply flex-1;
-  @apply px-2;
 }
 </style>

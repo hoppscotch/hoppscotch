@@ -49,6 +49,15 @@
           :spellcheck="false"
           :value="header.key"
           autofocus
+          styles="
+            bg-transparent
+            flex
+            flex-1
+            py-1
+            px-4
+            truncate
+          "
+          class="flex-1 !flex"
           @input="
             updateHeader(index, {
               key: $event,

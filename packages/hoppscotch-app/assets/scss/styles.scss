@@ -40,7 +40,8 @@
 }
 
 input::placeholder,
-textarea::placeholder {
+textarea::placeholder,
+.cm-placeholder {
   @apply text-secondary;
   @apply opacity-35;
 }

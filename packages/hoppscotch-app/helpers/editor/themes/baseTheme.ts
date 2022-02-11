@@ -145,6 +145,126 @@ export const baseTheme = EditorView.theme({
   },
 })
 
+export const inputTheme = EditorView.theme({
+  "&": {
+    fontSize: "var(--font-size-body)",
+    height: "100%",
+    width: "100%",
+    flex: "1",
+  },
+  ".cm-content": {
+    caretColor: "var(--secondary-light-color)",
+    fontFamily: "var(--font-sans)",
+    backgroundColor: "var(--primary-color)",
+    borderRadius: "0.25rem",
+  },
+  ".cm-cursor": {
+    borderColor: "var(--secondary-color)",
+  },
+  ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
+    backgroundColor: "var(--accent-color)",
+    color: "var(--accent-contrast-color)",
+  },
+  ".cm-panels": {
+    backgroundColor: "var(--primary-light-color)",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-panels.cm-panels-top": {
+    borderBottom: "1px solid var(--divider-light-color)",
+  },
+  ".cm-panels.cm-panels-bottom": {
+    borderTop: "1px solid var(--divider-light-color)",
+  },
+  ".cm-search": {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "nowrap",
+    flexShrink: 0,
+    overflow: "auto",
+  },
+  ".cm-search label": {
+    display: "inline-flex",
+    alignItems: "center",
+  },
+  ".cm-textfield": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-dark-color)",
+    borderColor: "var(--divider-light-color)",
+    borderRadius: "3px",
+  },
+  ".cm-button": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-dark-color)",
+    backgroundImage: "none",
+    border: "none",
+  },
+  ".cm-tooltip": {
+    backgroundColor: "var(--primary-dark-color)",
+    color: "var(--secondary-light-color)",
+    border: "none",
+    borderRadius: "3px",
+  },
+  ".cm-completionLabel": {
+    color: "var(--secondary-color)",
+  },
+  ".cm-tooltip.cm-tooltip-autocomplete > ul": {
+    fontFamily: "var(--font-mono)",
+  },
+  ".cm-tooltip-autocomplete ul li[aria-selected]": {
+    backgroundColor: "var(--accent-dark-color)",
+    color: "var(--accent-contrast-color)",
+  },
+  ".cm-tooltip-autocomplete ul li[aria-selected] .cm-completionLabel": {
+    color: "var(--accent-contrast-color)",
+  },
+  ".cm-activeLine": { backgroundColor: "transparent" },
+  ".cm-searchMatch": {
+    outline: "1px solid var(--accent-dark-color)",
+    backgroundColor: "var(--divider-dark-color)",
+  },
+  ".cm-selectionMatch": {
+    outline: "1px solid var(--accent-dark-color)",
+    backgroundColor: "var(--divider-light-color)",
+  },
+  ".cm-matchingBracket, .cm-nonmatchingBracket": {
+    backgroundColor: "var(--divider-color)",
+    outline: "1px solid var(--accent-dark-color)",
+  },
+  ".cm-gutters": {
+    fontFamily: "var(--font-mono)",
+    backgroundColor: "var(--primary-color)",
+    borderColor: "var(--divider-light-color)",
+  },
+  ".cm-lineNumbers": {
+    minWidth: "3em",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-foldGutter": {
+    minWidth: "2em",
+    color: "var(--secondary-light-color)",
+  },
+  ".cm-foldGutter .cm-gutterElement": {
+    textAlign: "center",
+  },
+  ".cm-line": {
+    paddingLeft: "1rem",
+    paddingRight: "1rem",
+    paddingTop: "0.2rem",
+    paddingBottom: "0.2rem",
+  },
+  ".cm-activeLineGutter": {
+    backgroundColor: "transparent",
+  },
+  ".cm-scroller::-webkit-scrollbar": {
+    display: "none",
+  },
+  ".cm-foldPlaceholder": {
+    backgroundColor: "var(--divider-light-color)",
+    color: "var(--secondary-dark-color)",
+    borderColor: "var(--divider-dark-color)",
+  },
+})
+
 const editorTypeColor = "var(--editor-type-color)"
 const editorNameColor = "var(--editor-name-color)"
 const editorOperatorColor = "var(--editor-operator-color)"

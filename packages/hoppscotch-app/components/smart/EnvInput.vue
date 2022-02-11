@@ -1,8 +1,3 @@
-<!--
- This code is a complete adaptation of the work done here
- https://github.com/SyedWasiHaider/vue-highlightable-input
--->
-
 <template>
   <div
     class="flex flex-1 items-center flex-shrink-0 whitespace-nowrap overflow-auto hide-scrollbar"
@@ -66,15 +61,17 @@ const editor = ref<any | null>(null)
 watch(
   () => props.value,
   (newVal) => {
-    if (cachedValue.value !== newVal) {
-      cachedValue.value = newVal
+    const singleLinedText = newVal.replaceAll("\n", "")
+
+    if (cachedValue.value !== singleLinedText) {
+      cachedValue.value = singleLinedText
 
       view.value?.dispatch({
         filter: false,
         changes: {
           from: 0,
           to: view.value.state.doc.length,
-          insert: newVal,
+          insert: singleLinedText,
         },
       })
     }
@@ -107,7 +104,10 @@ const initView = (el: any) => {
               .toJSON()
               .join(update.state.lineBreak)
 
-            const value = clone(cachedValue.value)
+            // We do not update the cache directly in this case (to trigger value watcher to dispatch)
+            // So, we desync cachedValue a bit so we can trigger updates
+            const value = clone(cachedValue.value).replaceAll("\n", "")
+
             emit("input", value)
             emit("change", value)
             if (pasted) {

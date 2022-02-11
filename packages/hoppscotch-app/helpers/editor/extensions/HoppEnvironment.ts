@@ -1,3 +1,4 @@
+import { watch, Ref } from "@nuxtjs/composition-api"
 import { Compartment } from "@codemirror/state"
 import { hoverTooltip } from "@codemirror/tooltip"
 import {
@@ -6,7 +7,6 @@ import {
   MatchDecorator,
   ViewPlugin,
 } from "@codemirror/view"
-import { Ref } from "@nuxtjs/composition-api"
 import { StreamSubscriberFunc } from "~/helpers/utils/composables"
 import {
   AggregateEnvironment,
@@ -135,6 +135,39 @@ export class HoppEnvironmentPlugin {
         ]),
       })
     })
+  }
+
+  get extension() {
+    return this.compartment.of([
+      cursorTooltipField(this.envs),
+      environmentHighlightStyle(this.envs),
+    ])
+  }
+}
+
+export class HoppReactiveEnvPlugin {
+  private compartment = new Compartment()
+
+  private envs: AggregateEnvironment[] = []
+
+  constructor(
+    envsRef: Ref<AggregateEnvironment[]>,
+    private editorView: Ref<EditorView | undefined>
+  ) {
+    watch(
+      envsRef,
+      (envs) => {
+        this.envs = envs
+
+        this.editorView.value?.dispatch({
+          effects: this.compartment.reconfigure([
+            cursorTooltipField(this.envs),
+            environmentHighlightStyle(this.envs),
+          ]),
+        })
+      },
+      { immediate: true }
+    )
   }
 
   get extension() {

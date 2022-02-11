@@ -62,6 +62,7 @@
             <SmartEnvInput
               v-model="variable.value"
               :placeholder="`${$t('count.value', { count: index + 1 })}`"
+              :envs="liveEnvs"
               :name="'value' + index"
             />
             <div class="flex">
@@ -121,10 +122,12 @@ import {
   Environment,
   getEnviroment,
   getGlobalVariables,
+  globalEnv$,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
 import { parseTemplateStringE } from "~/helpers/templating"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   props: {
@@ -135,6 +138,8 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const globalVars = useReadonlyStream(globalEnv$, [])
+
     const workingEnv = computed(() => {
       if (props.editingEnvironmentIndex === null) return null
 
@@ -149,6 +154,7 @@ export default defineComponent({
     })
 
     return {
+      globalVars,
       workingEnv,
     }
   },
@@ -170,6 +176,20 @@ export default defineComponent({
         }
       }
       return false
+    },
+    liveEnvs(): Array<{ key: string; value: string; source: string }> {
+      if (this.evnExpandError) {
+        return []
+      }
+
+      if (this.$props.editingEnvironmentIndex === "Global") {
+        return [...this.vars.map((x) => ({ ...x, source: this.name! }))]
+      } else {
+        return [
+          ...this.vars.map((x) => ({ ...x, source: this.name! })),
+          ...this.globalVars.map((x) => ({ ...x, source: "Global" })),
+        ]
+      }
     },
   },
   watch: {

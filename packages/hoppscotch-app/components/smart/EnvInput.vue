@@ -16,7 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from "@nuxtjs/composition-api"
+import {
+  ref,
+  onMounted,
+  watch,
+  nextTick,
+  computed,
+  Ref,
+} from "@nuxtjs/composition-api"
 import {
   EditorView,
   placeholder as placeholderExt,
@@ -26,19 +33,22 @@ import {
 import { EditorState, Extension } from "@codemirror/state"
 import clone from "lodash/clone"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
-import { HoppEnvironmentPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
-import { useStreamSubscriber } from "~/helpers/utils/composables"
+import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
+import { useReadonlyStream } from "~/helpers/utils/composables"
+import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 
 const props = withDefaults(
   defineProps<{
     value: string
     placeholder: string
     styles: string
+    envs: { key: string; value: string; source: string }[] | null
   }>(),
   {
     value: "",
     placeholder: "",
     styles: "",
+    envs: null,
   }
 )
 
@@ -85,11 +95,23 @@ watch(
   }
 )
 
-const { subscribeToStream } = useStreamSubscriber()
-
 let clipboardEv: ClipboardEvent | null = null
 
-const envTooltipPlugin = new HoppEnvironmentPlugin(subscribeToStream, view)
+const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
+  AggregateEnvironment[]
+>
+
+const envVars = computed(() =>
+  props.envs
+    ? props.envs.map((x) => ({
+        key: x.key,
+        value: x.value,
+        sourceEnv: x.source,
+      }))
+    : aggregateEnvs.value
+)
+
+const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
 const initView = (el: any) => {
   const extensions: Extension = [

@@ -155,7 +155,8 @@ export const inputTheme = EditorView.theme({
   ".cm-content": {
     caretColor: "var(--secondary-light-color)",
     fontFamily: "var(--font-sans)",
-    backgroundColor: "var(--primary-color)",
+    color: "var(--secondary-dark-color)",
+    backgroundColor: "transparent",
     borderRadius: "0.25rem",
   },
   ".cm-cursor": {

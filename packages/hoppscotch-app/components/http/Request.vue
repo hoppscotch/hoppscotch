@@ -2,7 +2,7 @@
   <div
     class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary hide-scrollbar"
   >
-    <div class="flex flex-1">
+    <div class="flex flex-1 border border-divider rounded">
       <div class="relative flex">
         <label for="method">
           <tippy
@@ -16,7 +16,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex px-4 py-2 transition font-semibold rounded-l cursor-pointer text-secondaryDark w-26 bg-primaryLight"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -33,7 +33,9 @@
           </tippy>
         </label>
       </div>
-      <div class="flex flex-1 border rounded-r border-divider">
+      <div
+        class="flex flex-1 border-l border-divider transition rounded-r bg-primaryLight"
+      >
         <SmartEnvInput
           v-model="newEndpoint"
           :placeholder="`${t('request.url')}`"

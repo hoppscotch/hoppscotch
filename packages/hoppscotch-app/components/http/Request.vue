@@ -36,7 +36,7 @@
         </label>
       </div>
       <div
-        class="flex flex-1 overflow-auto border-l rounded-r border-divider transition bg-primaryLight whitespace-nowrap hide-scrollbar"
+        class="flex flex-1 overflow-auto border-l rounded-r transition border-divider bg-primaryLight whitespace-nowrap hide-scrollbar"
       >
         <SmartEnvInput
           v-model="newEndpoint"

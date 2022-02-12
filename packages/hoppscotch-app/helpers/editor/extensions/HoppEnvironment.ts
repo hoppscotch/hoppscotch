@@ -7,12 +7,14 @@ import {
   MatchDecorator,
   ViewPlugin,
 } from "@codemirror/view"
+import * as E from "fp-ts/Either"
 import { StreamSubscriberFunc } from "~/helpers/utils/composables"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
   getAggregateEnvs,
 } from "~/newstore/environments"
+import { parseTemplateStringE } from "~/helpers/templating"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<\w+>>)/g
 
@@ -59,22 +61,27 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
         )?.sourceEnv ?? "choose an environment"
 
-      const envValue = (
+      const envValue =
         aggregateEnvs.find(
           (env) => env.key === text.slice(start - from, end - from)
           // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
         )?.value ?? "not found"
-      ).replace(/"/g, "&quot;")
 
-      const textContent = `${envName} <xmp>${envValue}</xmp>`
+      const result = parseTemplateStringE(envValue, aggregateEnvs)
+
+      const finalEnv = E.isLeft(result) ? "error" : result.right
 
       return {
         pos: start,
         end: to,
         above: true,
+        arrow: true,
         create() {
           const dom = document.createElement("span")
-          dom.innerHTML = textContent
+          const xmp = document.createElement("xmp")
+          xmp.textContent = finalEnv
+          dom.appendChild(document.createTextNode(`${envName} `))
+          dom.appendChild(xmp)
           dom.className = "tooltip-theme"
           return { dom }
         },

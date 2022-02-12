@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-1 flex-shrink-0 items-center whitespace-nowrap overflow-auto hide-scrollbar"
+    class="flex items-center flex-1 flex-shrink-0 overflow-visible whitespace-nowrap hide-scrollbar"
   >
     <div
       ref="editor"
@@ -32,6 +32,7 @@ import {
 } from "@codemirror/view"
 import { EditorState, Extension } from "@codemirror/state"
 import clone from "lodash/clone"
+import { tooltips } from "@codemirror/tooltip"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -92,10 +93,12 @@ watch(
   },
   {
     immediate: true,
+    flush: "sync",
   }
 )
 
 let clipboardEv: ClipboardEvent | null = null
+let pastedValue: string | null = null
 
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
   AggregateEnvironment[]
@@ -116,11 +119,15 @@ const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 const initView = (el: any) => {
   const extensions: Extension = [
     inputTheme,
+    tooltips({
+      position: "absolute",
+    }),
     envTooltipPlugin,
     placeholderExt(props.placeholder),
     EditorView.domEventHandlers({
       paste(ev) {
         clipboardEv = ev
+        pastedValue = ev.clipboardData?.getData("text") ?? ""
       },
     }),
     ViewPlugin.fromClass(
@@ -145,15 +152,16 @@ const initView = (el: any) => {
             )
 
             if (pasted && clipboardEv) {
-              const evHandle = clipboardEv
+              const pastedVal = pastedValue
               nextTick(() => {
                 emit("paste", {
-                  pastedValue: evHandle.clipboardData?.getData("text") ?? "",
+                  pastedValue: pastedVal!,
                   prevValue,
                 })
               })
             } else {
               clipboardEv = null
+              pastedValue = null
             }
           }
         }

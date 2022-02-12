@@ -1,9 +1,9 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary hide-scrollbar"
+    class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
   >
     <div
-      class="flex flex-1 min-w-52 border border-divider rounded whitespace-nowrap overflow-auto hide-scrollbar"
+      class="flex flex-1 overflow-auto border rounded min-w-52 border-divider whitespace-nowrap hide-scrollbar"
     >
       <div class="relative flex">
         <label for="method">
@@ -18,7 +18,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="flex px-4 py-2 transition font-semibold rounded-l cursor-pointer text-secondaryDark w-26 bg-primaryLight"
+                  class="flex px-4 py-2 font-semibold rounded-l cursor-pointer transition text-secondaryDark w-26 bg-primaryLight"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -36,7 +36,7 @@
         </label>
       </div>
       <div
-        class="flex flex-1 border-l border-divider transition rounded-r bg-primaryLight whitespace-nowrap overflow-auto hide-scrollbar"
+        class="flex flex-1 overflow-auto border-l rounded-r border-divider transition bg-primaryLight whitespace-nowrap hide-scrollbar"
       >
         <SmartEnvInput
           v-model="newEndpoint"

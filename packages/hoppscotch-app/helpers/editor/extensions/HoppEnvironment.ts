@@ -66,7 +66,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         )?.value ?? "not found"
       ).replace(/"/g, "&quot;")
 
-      const textContent = `${envName} <kbd>${envValue}</kbd>`
+      const textContent = `${envName} <xmp>${envValue}</xmp>`
 
       return {
         pos: start,

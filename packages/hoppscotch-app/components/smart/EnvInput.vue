@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-1 items-center flex-shrink-0 whitespace-nowrap overflow-auto hide-scrollbar"
+    class="flex flex-1 flex-shrink-0 items-center whitespace-nowrap overflow-auto hide-scrollbar"
   >
     <div
       ref="editor"

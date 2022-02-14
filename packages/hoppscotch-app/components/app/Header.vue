@@ -22,14 +22,14 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('app.search')} <kbd>/</kbd>`"
+          :title="`${t('app.search')} <xmp>/</xmp>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('support.title')} <kbd>?</kbd>`"
+          :title="`${t('support.title')} <xmp>?</xmp>`"
           svg="life-buoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="showSupport = true"

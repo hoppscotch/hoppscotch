@@ -162,6 +162,7 @@
     "create_new": "Create new environment",
     "edit": "Edit Environment",
     "invalid_name": "Please provide a name for the environment",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "New Environment",
     "no_environment": "No environment",
     "select": "Select environment",
@@ -175,6 +176,7 @@
     "empty_req_name": "Empty Request Name",
     "f12_details": "(F12 for details)",
     "gql_prettify_invalid_query": "Couldn't prettify an invalid query, solve query syntax errors and try again",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -190,7 +192,8 @@
     "as_json": "Export as JSON",
     "create_secret_gist": "Create secret Gist",
     "gist_created": "Gist created",
-    "require_github": "Login with GitHub to create secret gist"
+    "require_github": "Login with GitHub to create secret gist",
+    "title": "Export"
   },
   "folder": {
     "created": "Folder created",

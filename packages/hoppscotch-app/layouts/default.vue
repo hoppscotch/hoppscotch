@@ -52,7 +52,6 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
-import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { applySetting, useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
@@ -193,8 +192,6 @@ export default defineComponent({
   },
   beforeMount() {
     setupLocalPersistence()
-
-    registerApolloAuthUpdate()
   },
   async mounted() {
     performMigrations()

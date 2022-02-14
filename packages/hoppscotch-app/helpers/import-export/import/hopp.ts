@@ -20,10 +20,13 @@ export default defineImporter({
   importer: ([content]) =>
     pipe(
       E.tryCatch(
-        () =>
-          JSON.parse(content).map((coll: any) =>
-            translateToNewRESTCollection(coll)
-          ),
+        () => {
+          const x = JSON.parse(content)
+
+          return Array.isArray(x)
+            ? x.map((coll: any) => translateToNewRESTCollection(coll))
+            : [translateToNewRESTCollection(x)]
+        },
         () => IMPORTER_INVALID_FILE_FORMAT
       ),
       TE.fromEither

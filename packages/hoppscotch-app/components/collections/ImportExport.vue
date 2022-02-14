@@ -163,9 +163,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
+import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
-import { apolloClient } from "~/helpers/apollo"
 import {
   useAxios,
   useI18n,
@@ -173,10 +173,14 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import { currentUser$ } from "~/helpers/fb/auth"
-import * as teamUtils from "~/helpers/teams/utils"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 import { StepReturnValue } from "~/helpers/import-export/steps"
+import { runGQLQuery, runMutation } from "~/helpers/backend/GQLClient"
+import {
+  ExportAsJsonDocument,
+  ImportFromJsonDocument,
+} from "~/helpers/backend/graphql"
 
 const props = defineProps<{
   show: boolean
@@ -212,11 +216,23 @@ const getJSONCollection = async () => {
   if (props.collectionsType.type === "my-collections") {
     collectionJson.value = JSON.stringify(myCollections.value, null, 2)
   } else {
-    collectionJson.value = await teamUtils.exportAsJSON(
-      apolloClient,
-      props.collectionsType.selectedTeam.id
+    collectionJson.value = pipe(
+      await runGQLQuery({
+        query: ExportAsJsonDocument,
+        variables: {
+          teamID: props.collectionsType.selectedTeam.id,
+        },
+      }),
+      E.matchW(
+        // TODO: Handle error case gracefully ?
+        () => {
+          throw new Error("Error exporting collection to JSON")
+        },
+        (x) => x.exportCollectionsToJSON
+      )
     )
   }
+
   return collectionJson.value
 }
 
@@ -284,25 +300,19 @@ const importingMyCollections = ref(false)
 const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
   importingMyCollections.value = true
   if (props.collectionsType.type !== "team-collections") return
-  await teamUtils
-    .importFromJSON(
-      apolloClient,
-      content,
-      props.collectionsType.selectedTeam.id
-    )
-    .then((status) => {
-      if (status) {
-        emit("update-team-collections")
-      } else {
-        console.error(status)
-      }
-    })
-    .catch((e) => {
-      console.error(e)
-    })
-    .finally(() => {
-      importingMyCollections.value = false
-    })
+
+  const result = await runMutation(ImportFromJsonDocument, {
+    jsonString: JSON.stringify(content),
+    teamID: props.collectionsType.selectedTeam.id,
+  })()
+
+  if (E.isLeft(result)) {
+    console.error(result.left)
+  } else {
+    emit("update-team-collections")
+  }
+
+  importingMyCollections.value = false
 }
 
 const exportJSON = () => {

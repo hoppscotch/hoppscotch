@@ -1,5 +1,10 @@
 subscription TeamMemberAdded($teamID: ID!) {
   teamMemberAdded(teamID: $teamID) {
     membershipID
+    user {
+      uid
+      email
+    }
+    role
   }
 }

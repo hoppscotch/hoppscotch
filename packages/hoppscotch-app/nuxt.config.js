@@ -100,7 +100,6 @@ export default {
     "~/plugins/v-tippy",
     "~/plugins/v-focus",
     "~/plugins/v-textarea",
-    "~/plugins/vue-apollo",
     "~/plugins/init-fb.ts",
     "~/plugins/crisp",
     { src: "~/plugins/web-worker", ssr: false },

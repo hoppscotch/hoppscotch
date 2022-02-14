@@ -69,13 +69,6 @@
         <SmartEnvInput
           v-model="header.value"
           :placeholder="`${t('count.value', { count: index + 1 })}`"
-          styles="
-            bg-transparent
-            flex
-            flex-1
-            py-1
-            px-4
-          "
           @change="
             updateHeader(index, {
               key: header.key,

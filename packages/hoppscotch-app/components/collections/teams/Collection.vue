@@ -82,6 +82,7 @@
               @keyup.n="folderAction.$el.click()"
               @keyup.e="edit.$el.click()"
               @keyup.delete="deleteAction.$el.click()"
+              @keyup.x="exportAction.$el.click()"
               @keyup.escape="options.tippy().hide()"
             >
               <SmartItem
@@ -110,6 +111,14 @@
                     options.tippy().hide()
                   }
                 "
+              />
+              <SmartItem
+                ref="exportAction"
+                svg="download"
+                :label="$t('export.title')"
+                :shortcut="['X']"
+                :loading="exportLoading"
+                @click.native="exportCollection"
               />
               <SmartItem
                 ref="deleteAction"
@@ -146,6 +155,7 @@
           :collections-type="collectionsType"
           :is-filtered="isFiltered"
           :picked="picked"
+          :loading-collection-i-ds="loadingCollectionIDs"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
@@ -173,7 +183,14 @@
           @duplicate-request="$emit('duplicate-request', $event)"
         />
         <div
-          v-if="
+          v-if="loadingCollectionIDs.includes(collection.id)"
+          class="flex flex-col items-center justify-center p-4"
+        >
+          <SmartSpinner class="my-4" />
+          <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+        </div>
+        <div
+          v-else-if="
             (collection.children == undefined ||
               collection.children.length === 0) &&
             (collection.requests == undefined ||
@@ -205,6 +222,10 @@
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import {
+  getCompleteCollectionTree,
+  teamCollToHoppRESTColl,
+} from "~/helpers/backend/helpers"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { useI18n } from "~/helpers/utils/composables"
 
@@ -218,6 +239,7 @@ export default defineComponent({
     saveRequest: Boolean,
     collectionsType: { type: Object, default: () => {} },
     picked: { type: Object, default: () => {} },
+    loadingCollectionIDs: { type: Array, default: () => [] },
   },
   setup() {
     const t = useI18n()
@@ -228,6 +250,8 @@ export default defineComponent({
       folderAction: ref<any | null>(null),
       edit: ref<any | null>(null),
       deleteAction: ref<any | null>(null),
+      exportAction: ref<any | null>(null),
+      exportLoading: ref<boolean>(false),
       t,
     }
   },
@@ -258,7 +282,44 @@ export default defineComponent({
     },
   },
   methods: {
-    editRequest(event) {
+    async exportCollection() {
+      this.exportLoading = true
+
+      const result = await getCompleteCollectionTree(this.collection.id)()
+
+      if (E.isLeft(result)) {
+        this.$toast.error(this.$t("error.something_went_wrong").toString())
+        console.log(result.left)
+        this.exportLoading = false
+        this.options.tippy().hide()
+
+        return
+      }
+
+      const hoppColl = teamCollToHoppRESTColl(result.right)
+
+      const collectionJSON = JSON.stringify(hoppColl)
+
+      const file = new Blob([collectionJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${hoppColl.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      this.$toast.success(this.$t("state.download_started").toString())
+
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+
+      this.exportLoading = false
+
+      this.options.tippy().hide()
+    },
+    editRequest(event: any) {
       this.$emit("edit-request", event)
       if (this.$props.saveRequest)
         this.$emit("select", {
@@ -287,10 +348,10 @@ export default defineComponent({
         collectionID: this.collection.id,
       })
     },
-    expandCollection(collectionID) {
+    expandCollection(collectionID: string) {
       this.$emit("expand-collection", collectionID)
     },
-    async dropEvent({ dataTransfer }) {
+    async dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const requestIndex = dataTransfer.getData("requestIndex")
       const moveRequestResult = await moveRESTTeamRequest(
@@ -300,7 +361,7 @@ export default defineComponent({
       if (E.isLeft(moveRequestResult))
         this.$toast.error(`${this.$t("error.something_went_wrong")}`)
     },
-    removeRequest({ collectionIndex, folderName, requestIndex }) {
+    removeRequest({ collectionIndex, folderName, requestIndex }: any) {
       this.$emit("remove-request", {
         collectionIndex,
         folderName,

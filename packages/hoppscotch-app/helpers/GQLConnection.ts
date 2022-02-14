@@ -183,14 +183,48 @@ export class GQLConnection {
     headers: GQLHeader[],
     query: string,
     variables: string,
-    _: HoppGQLAuth
+    auth: HoppGQLAuth
   ) {
     const finalHeaders: Record<string, string> = {}
+
+    const parsedVariables = JSON.parse(variables || "{}")
+
+    if (auth.authActive) {
+      if (auth.authType === "basic") {
+        const username = auth.username
+        const password = auth.password
+        headers.push({
+          active: true,
+          key: "Authorization",
+          value: `Basic ${btoa(`${username}:${password}`)}`,
+        })
+      } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
+        headers.push({
+          active: true,
+          key: "Authorization",
+          value: `Bearer ${auth.token}`,
+        })
+      } else if (auth.authType === "api-key") {
+        const { key, value, addTo } = auth
+        if (addTo === "Headers") {
+          headers.push({
+            active: true,
+            key,
+            value,
+          })
+        } else if (addTo === "Query params") {
+          headers.push({
+            active: true,
+            key,
+            value,
+          })
+        }
+      }
+    }
+
     headers
       .filter((item) => item.active && item.key !== "")
       .forEach(({ key, value }) => (finalHeaders[key] = value))
-
-    const parsedVariables = JSON.parse(variables || "{}")
 
     const reqOptions = {
       method: "post",

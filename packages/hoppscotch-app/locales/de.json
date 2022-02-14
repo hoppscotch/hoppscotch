@@ -162,12 +162,12 @@
     "create_new": "Neue Umgebung schaffen",
     "edit": "Umgebung bearbeiten",
     "invalid_name": "Bitte geben Sie einen gültigen Namen für die Umgebung an",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Neue Umgebung",
     "no_environment": "Keine Umgebung",
     "select": "Umgebung auswählen",
     "title": "Umgebungen",
-    "variable_list": "Variablenliste",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Variablenliste"
   },
   "error": {
     "browser_support_sse": "Dieser Browser scheint keine Unterstützung für vom Server gesendete Ereignisse zu haben.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Leerer Anfragename",
     "f12_details": "(F12 für Details)",
     "gql_prettify_invalid_query": "Eine ungültige Abfrage konnte nicht verschönert werden, Fehler in der Abfragesyntax konnten nicht behoben und erneut versucht werden",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Als JSON exportieren",
     "create_secret_gist": "Erstellen Sie geheime Gist",
     "gist_created": "Inhalt erstellt",
-    "require_github": "Melden Sie sich bei GitHub an, um geheime Inhalte zu erstellen"
+    "require_github": "Melden Sie sich bei GitHub an, um geheime Inhalte zu erstellen",
+    "title": "Export"
   },
   "folder": {
     "created": "Ordner erstellt",

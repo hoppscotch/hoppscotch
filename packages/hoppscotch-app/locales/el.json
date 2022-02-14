@@ -162,12 +162,12 @@
     "create_new": "Δημιουργήστε νέο περιβάλλον",
     "edit": "Επεξεργασία Περιβάλλοντος",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για το περιβάλλον",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Νέο Περιβάλλον",
     "no_environment": "Χωρίς περιβάλλον",
     "select": "Επιλέξτε περιβάλλον",
     "title": "Περιβάλλοντα",
-    "variable_list": "Λίστα μεταβλητών",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Λίστα μεταβλητών"
   },
   "error": {
     "browser_support_sse": "Αυτό το πρόγραμμα περιήγησης δεν φαίνεται να υποστηρίζει διακομιστές που έχουν σταλεί συμβάντα.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Όνομα κενού αιτήματος",
     "f12_details": "(F12 για λεπτομέρειες)",
     "gql_prettify_invalid_query": "Δεν ήταν δυνατή η προεπιλογή ενός μη έγκυρου ερωτήματος, η επίλυση σφαλμάτων σύνταξης ερωτήματος και η δοκιμή ξανά",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Εξαγωγή ως JSON",
     "create_secret_gist": "Δημιουργήστε μυστική ουσία",
     "gist_created": "Η ουσία δημιουργήθηκε",
-    "require_github": "Συνδεθείτε με το GitHub για να δημιουργήσετε μυστική ουσία"
+    "require_github": "Συνδεθείτε με το GitHub για να δημιουργήσετε μυστική ουσία",
+    "title": "Export"
   },
   "folder": {
     "created": "Ο φάκελος δημιουργήθηκε",

@@ -153,7 +153,7 @@ export const inputTheme = EditorView.theme({
     flex: "1",
   },
   ".cm-content": {
-    caretColor: "var(--secondary-light-color)",
+    caretColor: "var(--secondary-dark-color)",
     fontFamily: "var(--font-sans)",
     color: "var(--secondary-dark-color)",
     backgroundColor: "transparent",
@@ -204,6 +204,12 @@ export const inputTheme = EditorView.theme({
     color: "var(--secondary-light-color)",
     border: "none",
     borderRadius: "3px",
+  },
+  ".cm-tooltip-arrow:after": {
+    borderColor: "transparent !important",
+  },
+  ".cm-tooltip-arrow:before": {
+    borderColor: "transparent !important",
   },
   ".cm-completionLabel": {
     color: "var(--secondary-color)",

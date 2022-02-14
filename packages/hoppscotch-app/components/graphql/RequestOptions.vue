@@ -18,7 +18,7 @@
               v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.run'
-              )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
+              )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
               :label="`${t('request.run')}`"
               svg="play"
               class="rounded-none !text-accent !hover:text-accentDark"
@@ -29,7 +29,7 @@
               v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.save'
-              )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
+              )} <xmp>${getSpecialKey()}</xmp><xmp>S</xmp>`"
               :label="`${t('request.save')}`"
               svg="save"
               class="rounded-none"
@@ -166,6 +166,15 @@
               :spellcheck="false"
               :value="header.key"
               autofocus
+              styles="
+                bg-transparent
+                flex
+                flex-1
+                py-1
+                px-4
+                truncate
+              "
+              class="flex-1 !flex"
               @input="
                 updateHeader(index, {
                   key: $event,

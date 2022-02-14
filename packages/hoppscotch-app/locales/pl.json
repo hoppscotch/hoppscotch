@@ -162,12 +162,12 @@
     "create_new": "Stwórz nowe środowisko",
     "edit": "Edytuj środowisko",
     "invalid_name": "Podaj prawidłową nazwę środowiska",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nowe środowisko",
     "no_environment": "Brak środowiska",
     "select": "Wybierz środowisko",
     "title": "Środowiska",
-    "variable_list": "Lista zmiennych",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Lista zmiennych"
   },
   "error": {
     "browser_support_sse": "Wygląda na to, że ta przeglądarka nie obsługuje zdarzeń wysłanych przez serwer.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Pusta nazwa żądania",
     "f12_details": "(F12 po szczegóły)",
     "gql_prettify_invalid_query": "Nie można poprawić czytelności nieprawidłowego zapytania, napraw błędy składni zapytania i spróbuj ponownie",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Eksportuj jako JSON",
     "create_secret_gist": "Utwórz tajny Gist",
     "gist_created": "Utworzono Gist",
-    "require_github": "Zaloguj się za pomocą GitHub, aby utworzyć tajny Gist"
+    "require_github": "Zaloguj się za pomocą GitHub, aby utworzyć tajny Gist",
+    "title": "Export"
   },
   "folder": {
     "created": "Utworzono folder",

@@ -36,7 +36,7 @@
                           id="client-version"
                           v-tippy="{ theme: 'tooltip' }"
                           title="socket.io-client version"
-                          class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                          class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26"
                           :value="`Client ${clientVersion}`"
                           readonly
                           :disabled="connectionState"
@@ -58,7 +58,7 @@
                   autocomplete="off"
                   spellcheck="false"
                   :class="{ error: !urlValid }"
-                  class="flex flex-1 w-full px-4 py-2 border bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex flex-1 w-full px-4 py-2 border bg-primaryLight border-divider text-secondaryDark"
                   :placeholder="$t('socketio.url')"
                   :disabled="connectionState"
                   @keyup.enter="urlValid ? toggleConnection() : null"
@@ -66,7 +66,7 @@
                 <input
                   id="socketio-path"
                   v-model="path"
-                  class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
                   spellcheck="false"
                   :disabled="connectionState"
                   @keyup.enter="urlValid ? toggleConnection() : null"

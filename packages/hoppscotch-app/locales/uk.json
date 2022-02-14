@@ -162,12 +162,12 @@
     "create_new": "Створіть нове середовище",
     "edit": "Редагувати середовище",
     "invalid_name": "Укажіть дійсну назву середовища",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Нове середовище",
     "no_environment": "Жодного середовища",
     "select": "Виберіть середовище",
     "title": "Середовища",
-    "variable_list": "Список змінних",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Список змінних"
   },
   "error": {
     "browser_support_sse": "Схоже, цей браузер не підтримує події, надіслані сервером.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Пуста назва запиту",
     "f12_details": "(F12 для деталей)",
     "gql_prettify_invalid_query": "Не вдалося попередньо визначити недійсний запит, вирішити синтаксичні помилки запиту та повторити спробу",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Експортувати як JSON",
     "create_secret_gist": "Створіть секретну суть",
     "gist_created": "Суть створена",
-    "require_github": "Увійдіть за допомогою GitHub, щоб створити секретну історію"
+    "require_github": "Увійдіть за допомогою GitHub, щоб створити секретну історію",
+    "title": "Export"
   },
   "folder": {
     "created": "Папка створена",

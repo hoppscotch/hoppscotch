@@ -162,12 +162,12 @@
     "create_new": "Luo uusi ympäristö",
     "edit": "Muokkaa ympäristöä",
     "invalid_name": "Anna ympäristölle kelvollinen nimi",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Uusi ympäristö",
     "no_environment": "Ei ympäristöä",
     "select": "Valitse ympäristö",
     "title": "Ympäristöt",
-    "variable_list": "Muuttujien luettelo",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Muuttujien luettelo"
   },
   "error": {
     "browser_support_sse": "Tämä selain ei näytä tukevan palvelimen lähettämiä tapahtumia.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Tyhjä pyynnön nimi",
     "f12_details": "(F12 lisätietoja)",
     "gql_prettify_invalid_query": "Virheellistä kyselyä ei voitu määrittää, ratkaista kyselyn syntaksivirheet ja yrittää uudelleen",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Vie JSON -muodossa",
     "create_secret_gist": "Luo salainen ydin",
     "gist_created": "Gist luotu",
-    "require_github": "Kirjaudu sisään GitHubilla luodaksesi salaisen sisällön"
+    "require_github": "Kirjaudu sisään GitHubilla luodaksesi salaisen sisällön",
+    "title": "Export"
   },
   "folder": {
     "created": "Kansio luotu",

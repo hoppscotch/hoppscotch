@@ -135,6 +135,13 @@ a {
   }
 }
 
+.cm-tooltip {
+  .tooltip-theme {
+    @apply fixed;
+    @apply -mt-6;
+  }
+}
+
 .tooltip-theme {
   @apply bg-tooltip;
   @apply text-primary;

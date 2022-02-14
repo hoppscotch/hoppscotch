@@ -162,12 +162,12 @@
     "create_new": "Új környezet létrehozása",
     "edit": "Környezet szerkesztése",
     "invalid_name": "Adjon nevet a környezetnek",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Új környezet",
     "no_environment": "Nincs környezet",
     "select": "Környezet kiválasztása",
     "title": "Környezetek",
-    "variable_list": "Változólista",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Változólista"
   },
   "error": {
     "browser_support_sse": "Úgy tűnik, hogy ez a böngésző nem támogatja a kiszolgáló által küldött eseményeket.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Üres kérésnév",
     "f12_details": "(F12 a részletekért)",
     "gql_prettify_invalid_query": "Nem sikerült csinosítani egy érvénytelen lekérdezést, oldja meg a lekérdezés szintaktikai hibáit, és próbálja újra",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Hibás e-mail",
     "invalid_link": "Érvénytelen hivatkozás",
     "invalid_link_description": "A kattintott hivatkozás érvénytelen vagy lejárt.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exportálás JSON formátumban",
     "create_secret_gist": "Titkos Gist létrehozása",
     "gist_created": "Gist létrehozva",
-    "require_github": "Jelentkezzen be GitHub használatával a titkos Gist létrehozásához"
+    "require_github": "Jelentkezzen be GitHub használatával a titkos Gist létrehozásához",
+    "title": "Export"
   },
   "folder": {
     "created": "Mappa létrehozva",

@@ -162,12 +162,12 @@
     "create_new": "建立新環境",
     "edit": "編輯環境",
     "invalid_name": "請提供有效的環境名稱",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "建立環境",
     "no_environment": "無環境",
     "select": "選擇環境",
     "title": "環境",
-    "variable_list": "變數列表",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "變數列表"
   },
   "error": {
     "browser_support_sse": "此瀏覽器似乎不支援 SSE。",
@@ -176,6 +176,7 @@
     "empty_req_name": "空請求名稱",
     "f12_details": "（按下 F12 以獲悉詳情）",
     "gql_prettify_invalid_query": "無法美化無效的查詢，處理查詢語法錯誤並重試",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "錯誤的電子信箱",
     "invalid_link": "連結無效",
     "invalid_link_description": "您點擊的連結無效或已過期。",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "匯出為 JSON",
     "create_secret_gist": "建立私密 Gist",
     "gist_created": "已建立 Gist",
-    "require_github": "使用 GitHub 登入以建立私密 Gist"
+    "require_github": "使用 GitHub 登入以建立私密 Gist",
+    "title": "Export"
   },
   "folder": {
     "created": "已建立資料夾",

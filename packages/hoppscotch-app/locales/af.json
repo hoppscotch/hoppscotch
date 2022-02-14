@@ -162,12 +162,12 @@
     "create_new": "Skep nuwe omgewing",
     "edit": "Bewerk omgewing",
     "invalid_name": "Gee 'n geldige naam vir die omgewing",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nuwe omgewing",
     "no_environment": "Geen omgewing nie",
     "select": "Kies omgewing",
     "title": "Omgewings",
-    "variable_list": "Veranderlike lys",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Veranderlike lys"
   },
   "error": {
     "browser_support_sse": "Dit lyk nie asof hierdie blaaier ondersteuning vir bedieners gestuurde geleenthede het nie.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Leë versoeknaam",
     "f12_details": "(F12 vir meer inligting)",
     "gql_prettify_invalid_query": "Kon nie 'n ongeldige navraag mooi maak nie, los sintaksisfoute op en probeer weer",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Uitvoer as JSON",
     "create_secret_gist": "Skep geheime Gist",
     "gist_created": "Gis geskep",
-    "require_github": "Teken in met GitHub om 'n geheime idee te skep"
+    "require_github": "Teken in met GitHub om 'n geheime idee te skep",
+    "title": "Export"
   },
   "folder": {
     "created": "Vouer geskep",

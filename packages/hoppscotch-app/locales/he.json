@@ -162,12 +162,12 @@
     "create_new": "צור סביבה חדשה",
     "edit": "ערוך את הסביבה",
     "invalid_name": "אנא ספק שם חוקי לסביבה",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "סביבה חדשה",
     "no_environment": "אין סביבה",
     "select": "בחר סביבה",
     "title": "סביבות",
-    "variable_list": "רשימת משתנים",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "רשימת משתנים"
   },
   "error": {
     "browser_support_sse": "נראה שלדפדפן זה אין תמיכה באירועי שרת נשלח.",
@@ -176,6 +176,7 @@
     "empty_req_name": "שם הבקשה ריק",
     "f12_details": "(F12 לפרטים)",
     "gql_prettify_invalid_query": "לא ניתן היה לייפות שאילתה לא חוקית, לפתור שגיאות תחביר שאילתות ולנסות שוב",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "ייצא כ- JSON",
     "create_secret_gist": "צור גיסט סודי",
     "gist_created": "גיסט נוצר",
-    "require_github": "התחבר עם GitHub כדי ליצור תמצית סודית"
+    "require_github": "התחבר עם GitHub כדי ליצור תמצית סודית",
+    "title": "Export"
   },
   "folder": {
     "created": "תיקייה נוצרה",

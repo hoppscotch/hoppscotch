@@ -9,7 +9,7 @@
         type="url"
         autocomplete="off"
         spellcheck="false"
-        class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+        class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
         :placeholder="`${t('request.url')}`"
         :disabled="connected"
         @keyup.enter="onConnectClick"

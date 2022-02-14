@@ -162,12 +162,12 @@
     "create_new": "Creați un mediu nou",
     "edit": "Editați mediul",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru mediu",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Noul mediu",
     "no_environment": "Fără mediu",
     "select": "Selectați mediul",
     "title": "Medii",
-    "variable_list": "Lista variabilelor",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Lista variabilelor"
   },
   "error": {
     "browser_support_sse": "Acest browser pare să nu aibă suport pentru Server Sent Events.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Nume cerere goală",
     "f12_details": "(F12 pentru detalii)",
     "gql_prettify_invalid_query": "Nu am putut preta o interogare nevalidă, rezolvarea erorilor de sintaxă a interogării și încercați din nou",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exportați ca JSON",
     "create_secret_gist": "Creați secțiunea secretă",
     "gist_created": "Gist creat",
-    "require_github": "Conectați-vă cu GitHub pentru a crea o idee secretă"
+    "require_github": "Conectați-vă cu GitHub pentru a crea o idee secretă",
+    "title": "Export"
   },
   "folder": {
     "created": "Folder creat",

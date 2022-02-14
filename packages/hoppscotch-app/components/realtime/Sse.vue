@@ -15,7 +15,7 @@
               type="url"
               autocomplete="off"
               :class="{ error: !serverValid }"
-              class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+              class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
               :placeholder="$t('sse.url')"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"
@@ -29,7 +29,7 @@
             <input
               id="event-type"
               v-model="eventType"
-              class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+              class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
               spellcheck="false"
               :disabled="connectionSSEState"
               @keyup.enter="serverValid ? toggleSSEConnection() : null"

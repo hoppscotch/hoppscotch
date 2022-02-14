@@ -162,12 +162,12 @@
     "create_new": "Создать новую среду",
     "edit": "Редактировать среду",
     "invalid_name": "Укажите допустимое имя для среды",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Новая среда",
     "no_environment": "Нет окружающей среды",
     "select": "Выберите среду",
     "title": "Среды",
-    "variable_list": "Список переменных",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Список переменных"
   },
   "error": {
     "browser_support_sse": "Похоже, в этом браузере нет поддержки событий, отправленных сервером.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Пустое имя запроса",
     "f12_details": "(F12 для подробностей)",
     "gql_prettify_invalid_query": "Не удалось определить недопустимый запрос, устранить синтаксические ошибки запроса и повторить попытку.",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "Ссылка, по которой вы перешли, - недействительна, либо срок ее действия истек.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Экспорт как JSON",
     "create_secret_gist": "Создать секретный Gist",
     "gist_created": "Gist создан",
-    "require_github": "Войдите через GitHub, чтобы создать секретную суть"
+    "require_github": "Войдите через GitHub, чтобы создать секретную суть",
+    "title": "Export"
   },
   "folder": {
     "created": "Папка создана",

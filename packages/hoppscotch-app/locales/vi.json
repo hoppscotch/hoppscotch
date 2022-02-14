@@ -162,12 +162,12 @@
     "create_new": "Tạo môi trường mới",
     "edit": "Chỉnh sửa môi trường",
     "invalid_name": "Vui lòng cung cấp tên hợp lệ cho môi trường",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Môi trường mới",
     "no_environment": "Không có môi trường",
     "select": "Chọn môi trường",
     "title": "Môi trường",
-    "variable_list": "Danh sách biến",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Danh sách biến"
   },
   "error": {
     "browser_support_sse": "Trình duyệt này dường như không có hỗ trợ Sự kiện do Máy chủ gửi.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Tên yêu cầu trống",
     "f12_details": "(F12 để biết chi tiết)",
     "gql_prettify_invalid_query": "Không thể xác minh trước một truy vấn không hợp lệ, hãy giải quyết các lỗi cú pháp truy vấn và thử lại",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Xuất dưới dạng JSON",
     "create_secret_gist": "Tạo Gist bí mật",
     "gist_created": "Gist đã tạo",
-    "require_github": "Đăng nhập bằng GitHub để tạo ý chính bí mật"
+    "require_github": "Đăng nhập bằng GitHub để tạo ý chính bí mật",
+    "title": "Export"
   },
   "folder": {
     "created": "Thư mục đã được tạo",

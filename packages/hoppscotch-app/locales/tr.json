@@ -162,12 +162,12 @@
     "create_new": "Yeni ortam oluştur",
     "edit": "Ortamı Düzenle",
     "invalid_name": "Lütfen ortam için geçerli bir ad girin",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Yeni ortam",
     "no_environment": "Ortam yok",
     "select": "Ortam seçin",
     "title": "Ortamlar",
-    "variable_list": "Değişken Listesi",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Değişken Listesi"
   },
   "error": {
     "browser_support_sse": "Bu tarayıcıda Sunucu Gönderilen Olaylar desteği yok gibi görünüyor.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Boş İstek Adı",
     "f12_details": "(Ayrıntılar için F12)",
     "gql_prettify_invalid_query": "Geçersiz bir sorgu güzelleştirilemedi, sorgu sözdizimi hatalarını çözüp tekrar deneyin",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "JSON olarak dışa aktar",
     "create_secret_gist": "Gizli Gist oluştur",
     "gist_created": "Gist oluşturuldu",
-    "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın"
+    "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
+    "title": "Export"
   },
   "folder": {
     "created": "Klasör oluşturuldu",

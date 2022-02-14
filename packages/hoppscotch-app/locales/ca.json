@@ -162,12 +162,12 @@
     "create_new": "Crea un entorn nou",
     "edit": "Edita l'entorn",
     "invalid_name": "Proporcioneu un nom vàlid per a l'entorn",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nou entorn",
     "no_environment": "Sense entorn",
     "select": "Seleccioneu un entorn",
     "title": "Entorns",
-    "variable_list": "Llista de variables",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Llista de variables"
   },
   "error": {
     "browser_support_sse": "Sembla que aquest navegador no és compatible amb els esdeveniments enviats per servidor.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Nom de la sol·licitud buida",
     "f12_details": "(F12 per obtenir més informació)",
     "gql_prettify_invalid_query": "No s'ha pogut definir una consulta no vàlida, resoldre els errors de sintaxi de la consulta i tornar-ho a provar",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exporta com a JSON",
     "create_secret_gist": "Crea un resum secret",
     "gist_created": "Gist creat",
-    "require_github": "Inicieu la sessió amb GitHub per crear un resum secret"
+    "require_github": "Inicieu la sessió amb GitHub per crear un resum secret",
+    "title": "Export"
   },
   "folder": {
     "created": "S'ha creat la carpeta",

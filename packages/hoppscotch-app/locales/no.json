@@ -162,12 +162,12 @@
     "create_new": "Skap nytt miljø",
     "edit": "Rediger miljø",
     "invalid_name": "Oppgi et gyldig navn på miljøet",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nytt miljø",
     "no_environment": "Ingen miljø",
     "select": "Velg miljø",
     "title": "Miljøer",
-    "variable_list": "Variabel liste",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Variabel liste"
   },
   "error": {
     "browser_support_sse": "Denne nettleseren ser ikke ut til å ha Server Sent Events -støtte.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Tom forespørselsnavn",
     "f12_details": "(F12 for detaljer)",
     "gql_prettify_invalid_query": "Kunne ikke forskjønne en ugyldig spørring, løse spørringssyntaksfeil og prøve igjen",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Eksporter som JSON",
     "create_secret_gist": "Lag hemmelig Gist",
     "gist_created": "Gist opprettet",
-    "require_github": "Logg på med GitHub for å lage en hemmelig oppgave"
+    "require_github": "Logg på med GitHub for å lage en hemmelig oppgave",
+    "title": "Export"
   },
   "folder": {
     "created": "Mappen er opprettet",

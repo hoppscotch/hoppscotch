@@ -162,12 +162,12 @@
     "create_new": "Vytvořit nové prostředí",
     "edit": "Upravit prostředí",
     "invalid_name": "Zadejte platný název prostředí",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nové prostředí",
     "no_environment": "Žádné prostředí",
     "select": "Vyberte prostředí",
     "title": "Prostředí",
-    "variable_list": "Seznam proměnných",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Seznam proměnných"
   },
   "error": {
     "browser_support_sse": "Zdá se, že tento prohlížeč nemá podporu událostí odeslaných serverem.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Název prázdného požadavku",
     "f12_details": "(F12 pro podrobnosti)",
     "gql_prettify_invalid_query": "Neplatný dotaz nelze předběžně upravit, vyřešit chyby syntaxe dotazu a zkusit to znovu",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exportovat jako JSON",
     "create_secret_gist": "Vytvořte tajnou podstatu",
     "gist_created": "Podstata vytvořena",
-    "require_github": "Přihlaste se pomocí GitHub a vytvořte tajný seznam"
+    "require_github": "Přihlaste se pomocí GitHub a vytvořte tajný seznam",
+    "title": "Export"
   },
   "folder": {
     "created": "Složka vytvořena",

@@ -163,12 +163,12 @@
     "create_new": "خلق بيئة جديدة",
     "edit": "تحرير البيئة",
     "invalid_name": "الرجاء تقديم اسم صالح للبيئة",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "بيئة جديدة",
     "no_environment": "لا بيئة",
     "select": "حدد البيئة",
     "title": "البيئات",
-    "variable_list": "قائمة متغيرة",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "قائمة متغيرة"
   },
   "error": {
     "browser_support_sse": "يبدو أن هذا المستعرض لا يدعم أحداث إرسال الخادم.",
@@ -177,6 +177,7 @@
     "empty_req_name": "اسم الطلب فارغ",
     "f12_details": "(للحصول على تفاصيل F12)",
     "gql_prettify_invalid_query": "تعذر تحسين استعلام غير صالح وحل أخطاء بنية الاستعلام وحاول مرة أخرى",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -189,11 +190,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "تصدير بتنسيق JSON",
     "create_secret_gist": "إنشاء جوهر سري",
     "gist_created": "خلقت الجست",
-    "require_github": "تسجيل الدخول باستخدام GitHub لإنشاء جوهر سري"
+    "require_github": "تسجيل الدخول باستخدام GitHub لإنشاء جوهر سري",
+    "title": "Export"
   },
   "folder": {
     "created": "تم إنشاء المجلد",

@@ -162,12 +162,12 @@
     "create_new": "Nieuwe omgeving maken",
     "edit": "Omgeving bewerken",
     "invalid_name": "Geef een geldige naam op voor de omgeving",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nieuwe omgeving",
     "no_environment": "Geen omgeving",
     "select": "Selecteer omgeving",
     "title": "omgevingen",
-    "variable_list": "Variabele lijst",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Variabele lijst"
   },
   "error": {
     "browser_support_sse": "Deze browser lijkt geen ondersteuning te hebben voor door de server verzonden gebeurtenissen.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Lege aanvraagnaam",
     "f12_details": "(F12 voor details)",
     "gql_prettify_invalid_query": "Kon een ongeldige zoekopdracht niet mooier maken, syntaxisfouten in de query oplossen en opnieuw proberen",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exporteren als JSON",
     "create_secret_gist": "Maak geheime kern",
     "gist_created": "Kern gemaakt",
-    "require_github": "Log in met GitHub om een geheime kern te maken"
+    "require_github": "Log in met GitHub om een geheime kern te maken",
+    "title": "Export"
   },
   "folder": {
     "created": "Map aangemaakt",

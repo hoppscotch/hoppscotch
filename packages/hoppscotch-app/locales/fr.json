@@ -162,12 +162,12 @@
     "create_new": "Créer un nouvel environnement",
     "edit": "Modifier l'environnement",
     "invalid_name": "Veuillez fournir un nom valide pour l'environnement",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nouvel environnement",
     "no_environment": "Pas d'environnement",
     "select": "Sélectionnez l'environnement",
     "title": "Environnements",
-    "variable_list": "Liste des variables",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Liste des variables"
   },
   "error": {
     "browser_support_sse": "Ce navigateur ne semble pas prendre en charge les événements envoyés par le serveur.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Nom de la requête vide",
     "f12_details": "(F12 pour les détails)",
     "gql_prettify_invalid_query": "Impossible de formater une requête non valide, résolvez les erreurs de syntaxe de la requête et réessayer",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exporter au format JSON",
     "create_secret_gist": "Créer un Gist secret",
     "gist_created": "Gist créé",
-    "require_github": "Connectez-vous avec GitHub pour créer un Gist secret"
+    "require_github": "Connectez-vous avec GitHub pour créer un Gist secret",
+    "title": "Export"
   },
   "folder": {
     "created": "Dossier créé",

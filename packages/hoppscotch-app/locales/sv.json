@@ -162,12 +162,12 @@
     "create_new": "Skapa ny miljö",
     "edit": "Redigera miljö",
     "invalid_name": "Ange ett giltigt namn på miljön",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Ny miljö",
     "no_environment": "Ingen miljö",
     "select": "Välj miljö",
     "title": "Miljöer",
-    "variable_list": "Variabel lista",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Variabel lista"
   },
   "error": {
     "browser_support_sse": "Den här webbläsaren verkar inte ha stöd för Server Sent Events.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Tom förfrågningsnamn",
     "f12_details": "(F12 för detaljer)",
     "gql_prettify_invalid_query": "Det gick inte att pryda en ogiltig fråga, lösa frågesyntaxfel och försök igen",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exportera som JSON",
     "create_secret_gist": "Skapa hemlig Gist",
     "gist_created": "Gist skapad",
-    "require_github": "Logga in med GitHub för att skapa hemlig information"
+    "require_github": "Logga in med GitHub för att skapa hemlig information",
+    "title": "Export"
   },
   "folder": {
     "created": "Mapp skapad",

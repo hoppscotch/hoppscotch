@@ -163,12 +163,12 @@
     "create_new": "Креирајте ново окружење",
     "edit": "Едит Енвиронмент",
     "invalid_name": "Наведите важећи назив за окружење",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Ново окружење",
     "no_environment": "Нема окружења",
     "select": "Изаберите окружење",
     "title": "Енвиронментс",
-    "variable_list": "Листа променљивих",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Листа променљивих"
   },
   "error": {
     "browser_support_sse": "Изгледа да овај прегледач нема подршку за Послане догађаје са сервера.",
@@ -177,6 +177,7 @@
     "empty_req_name": "Празан назив захтева",
     "f12_details": "(Ф12 за детаље)",
     "gql_prettify_invalid_query": "Није могуће унапредити неважећи упит, решити грешке у синтакси упита и покушати поново",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -189,11 +190,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Извези као ЈСОН",
     "create_secret_gist": "Направите тајну суштину",
     "gist_created": "Суштина створена",
-    "require_github": "Пријавите се са ГитХуб -ом да бисте креирали тајну суштину"
+    "require_github": "Пријавите се са ГитХуб -ом да бисте креирали тајну суштину",
+    "title": "Export"
   },
   "folder": {
     "created": "Фолдер је креиран",

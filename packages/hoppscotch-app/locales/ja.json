@@ -162,12 +162,12 @@
     "create_new": "新しい環境を作成する",
     "edit": "環境の編集",
     "invalid_name": "環境の有効な名前を入力してください",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "新しい環境",
     "no_environment": "環境なし",
     "select": "環境を選択する",
     "title": "環境",
-    "variable_list": "変数リスト",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "変数リスト"
   },
   "error": {
     "browser_support_sse": "このブラウザはサーバー送信イベントをサポートしていないようです。",
@@ -176,6 +176,7 @@
     "empty_req_name": "空のリクエスト名",
     "f12_details": "（詳細はF12）",
     "gql_prettify_invalid_query": "無効なクエリをプリティファイし、クエリ構文エラーを解決して、再試行できませんでした",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "JSONとしてエクスポート",
     "create_secret_gist": "秘密の要点を作成する",
     "gist_created": "作成した要点",
-    "require_github": "GitHubにログインして、秘密の要点を作成します"
+    "require_github": "GitHubにログインして、秘密の要点を作成します",
+    "title": "Export"
   },
   "folder": {
     "created": "作成されたフォルダ",

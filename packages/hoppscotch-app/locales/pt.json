@@ -162,12 +162,12 @@
     "create_new": "Crie um novo ambiente",
     "edit": "Editar Ambiente",
     "invalid_name": "Forneça um nome válido para o ambiente",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Novo ambiente",
     "no_environment": "Sem ambiente",
     "select": "Selecione o ambiente",
     "title": "Ambientes",
-    "variable_list": "Lista de Variáveis",
-    "nested_overflow": "nested environment variables are limited to 10 levels"
+    "variable_list": "Lista de Variáveis"
   },
   "error": {
     "browser_support_sse": "Este navegador não parece ter suporte para eventos enviados pelo servidor.",
@@ -176,6 +176,7 @@
     "empty_req_name": "Nome do pedido vazio",
     "f12_details": "(F12 para detalhes)",
     "gql_prettify_invalid_query": "Não foi possível justificar uma consulta inválida, resolva os erros de sintaxe da consulta e tente novamente",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
@@ -188,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Exportar como JSON",
     "create_secret_gist": "Crie uma essência secreta",
     "gist_created": "Gist criado",
-    "require_github": "Faça login com GitHub para criar uma essência secreta"
+    "require_github": "Faça login com GitHub para criar uma essência secreta",
+    "title": "Export"
   },
   "folder": {
     "created": "Pasta criada",

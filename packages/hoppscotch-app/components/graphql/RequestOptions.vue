@@ -257,6 +257,9 @@
           </div>
         </div>
       </SmartTab>
+      <SmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
+        <GraphqlAuthorization />
+      </SmartTab>
     </SmartTabs>
     <CollectionsSaveRequest
       mode="graphql"
@@ -281,11 +284,13 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import {
+  gqlAuth$,
   gqlHeaders$,
   gqlQuery$,
   gqlResponse$,
   gqlURL$,
   gqlVariables$,
+  setGQLAuth,
   setGQLHeaders,
   setGQLQuery,
   setGQLResponse,
@@ -334,6 +339,12 @@ useCodemirror(bulkEditor, bulkHeaders, {
 
 // The functional headers list (the headers actually in the system)
 const headers = useStream(gqlHeaders$, [], setGQLHeaders) as Ref<GQLHeader[]>
+
+const auth = useStream(
+  gqlAuth$,
+  { authType: "none", authActive: true },
+  setGQLAuth
+)
 
 // The UI representation of the headers list (has the empty end header)
 const workingHeaders = ref<GQLHeader[]>([
@@ -556,12 +567,14 @@ const runQuery = async () => {
     const runHeaders = clone(headers.value)
     const runQuery = clone(gqlQueryString.value)
     const runVariables = clone(variableString.value)
+    const runAuth = clone(auth.value)
 
     const responseText = await props.conn.runQuery(
       runURL,
       runHeaders,
       runQuery,
-      runVariables
+      runVariables,
+      runAuth
     )
     const duration = Date.now() - startTime
 
@@ -577,6 +590,7 @@ const runQuery = async () => {
           query: runQuery,
           headers: runHeaders,
           variables: runVariables,
+          auth: runAuth,
         }),
         response: response.value,
         star: false,

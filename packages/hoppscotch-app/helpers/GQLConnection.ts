@@ -10,7 +10,7 @@ import {
   GraphQLInterfaceType,
 } from "graphql"
 import { distinctUntilChanged, map } from "rxjs/operators"
-import { GQLHeader } from "@hoppscotch/data"
+import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
 import { sendNetworkRequest } from "./network"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
@@ -182,7 +182,8 @@ export class GQLConnection {
     url: string,
     headers: GQLHeader[],
     query: string,
-    variables: string
+    variables: string,
+    _: HoppGQLAuth
   ) {
     const finalHeaders: Record<string, string> = {}
     headers

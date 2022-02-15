@@ -4,7 +4,6 @@ import * as cookie from "cookie"
 import parser from "yargs-parser"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
-// import * as E from "fp-ts/Either" // replace promise
 import { pipe } from "fp-ts/function"
 
 import { HoppRESTReqBody } from "@hoppscotch/data"
@@ -63,7 +62,6 @@ const parseCurlCommand = (curlCommand: string) => {
   }
 
   parseHeaders("H")
-  parseHeaders("header")
   if (parsedArguments.A) {
     if (!headers) {
       headers = []
@@ -274,6 +272,11 @@ const replaceables: { [key: string]: string } = {
   "--user": "-u",
 }
 
+/**
+ * Sanitizes curl string
+ * @param curlCommand Raw curl command string
+ * @returns Processed curl command string
+ */
 function preProcessCurlCommand(curlCommand: string) {
   // remove '\' and newlines
   curlCommand = curlCommand.replace(/ ?\\ ?$/gm, " ")
@@ -301,6 +304,11 @@ function preProcessCurlCommand(curlCommand: string) {
   return curlCommand
 }
 
+/** Parses body based on the content type
+ * @param rct Raw content type
+ * @param cType Sanitized content type
+ * @returns Option of parsed body
+ */
 function getBodyFromContentType(
   rct: string,
   cType: HoppRESTReqBody["contentType"]
@@ -323,6 +331,11 @@ function getBodyFromContentType(
   }
 }
 
+/**
+ * Detects and parses body without the help of content type
+ * @param rawData Raw body string
+ * @returns Option of raw data, detected content type and parsed data
+ */
 function getBodyWithoutContentType(rawData: string) {
   return pipe(
     O.Do,
@@ -376,24 +389,30 @@ function parseDataFromArguments(parsedArguments: parser.Arguments): {
   )
 }
 
+/**
+ * Processes and returns the URL string
+ * @param parsedArguments Parsed Arguments object
+ * @returns URL string
+ */
 function getStructuredURL(parsedArguments: parser.Arguments): string {
   let url = parsedArguments?._[1]
 
-  // get rid of double and single quotes that have snuck in
-  url = url.replace(/["']/g, "")
   if (!url) {
     for (const argName in parsedArguments) {
-      if (typeof parsedArguments[argName] === "string") {
-        if (["http", "www."].includes(parsedArguments[argName])) {
-          url = parsedArguments[argName]
-        }
-      }
+      if (
+        typeof parsedArguments[argName] === "string" &&
+        ["http", "www."].includes(parsedArguments[argName])
+      )
+        url = parsedArguments[argName]
     }
   }
 
   // if protocol is absent,
   // prepend https (or http if host is localhost)
-  if (typeof url === "string") {
+  if (typeof url === "string" && url.length > 0) {
+    // get rid of double and single quotes that have snuck in
+    url = url.replace(/["']/g, "")
+
     let urlCopy = url
     const protocol = /^[^:]+(?=:\/\/)/.exec(urlCopy)
 
@@ -409,9 +428,15 @@ function getStructuredURL(parsedArguments: parser.Arguments): string {
       }
     }
   }
+
   return url
 }
 
+/**
+ * Parses and structures multipart/form-data from -F argument of curl command
+ * @param parsedArguments Parsed Arguments object
+ * @returns Option of Record<string, string> type containing key-value pairs of multipart/form-data
+ */
 function getFArgumentMultipartData(
   parsedArguments: parser.Arguments
 ): O.Option<Record<string, string>> {

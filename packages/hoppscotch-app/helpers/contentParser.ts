@@ -161,12 +161,22 @@ export function parseBody(
         O.chain((rd) =>
           pipe(rd.match(/(([^&=]+)=?([^&=]+))/g), O.fromNullable)
         ),
-        O.filter((pairs) => pairs !== null && pairs.length > 0),
         O.map((pairs) => pairs.map((p) => p.replace("=", ": ")).join("\n"))
       )
     }
 
     case "multipart/form-data": {
+      /**
+       * O.bind binds "boundary"
+       * If rawContentType is present, try to extract boundary from it
+       * If rawContentTpe is not present, try to regex match the boundary from rawData
+       * In case both the above attempts fail, O.map is not executed and the pipe is
+       * short-circuited. O.none is returned.
+       *
+       * In the event the boundary is ascertained, process rawData to get key-value
+       * pairs and convert them to a tuple array. If the array is not empty,
+       * convert it to Record<string, string> type and return O.some of it.
+       */
       return pipe(
         O.Do,
 
@@ -179,9 +189,7 @@ export function parseBody(
                 pipe(
                   rawData.match(/^-{2,}.+\\r\\n/),
                   O.fromNullable,
-                  O.filter(
-                    (boundaryMatch) => boundaryMatch && boundaryMatch.length > 1
-                  ),
+                  O.filter((boundaryMatch) => boundaryMatch.length > 1),
                   O.map((matches) => matches[0])
                 ),
               (rct) =>
@@ -189,8 +197,7 @@ export function parseBody(
                   rct.match(/boundary=(.+)/),
                   O.fromNullable,
                   O.filter(
-                    (boundaryContentMatch) =>
-                      boundaryContentMatch && boundaryContentMatch.length > 1
+                    (boundaryContentMatch) => boundaryContentMatch.length > 1
                   ),
                   O.filter((matches) =>
                     rawData

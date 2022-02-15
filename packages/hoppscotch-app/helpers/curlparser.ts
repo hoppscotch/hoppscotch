@@ -360,7 +360,13 @@ function getFArgumentMultipartData(
       pipe(
         fArgs.map((multipartArgument: string) => {
           const [key, value] = multipartArgument.split("=", 2)
-          return [key, value[0] === "@" ? "" : value] as [string, string]
+
+          if (parsedArguments["form-string"])
+            return [key, value] as [string, string]
+          return [key, value[0] === "@" || value[0] === "<" ? "" : value] as [
+            string,
+            string
+          ]
         }),
         RA.toArray,
         tupleToRecord

@@ -8,8 +8,8 @@ import { pipe } from "fp-ts/function"
 
 import { HoppRESTReqBody } from "@hoppscotch/data"
 import { tupleToRecord } from "./functional/record"
-import { stringArrayJoin } from "./functional/array"
 import { detectContentType, parseBody } from "./contentParser"
+import { RESTMethod } from "./types/RESTMethod"
 import { curlParserRequest } from "~/helpers/types/CurlParserResult"
 
 const parseCurlCommand = (curlCommand: string) => {
@@ -110,35 +110,9 @@ const parseCurlCommand = (curlCommand: string) => {
       cookieParseOptions
     )
   }
-  let method
-  if (parsedArguments.X === "POST") {
-    method = "post"
-  } else if (parsedArguments.X === "PUT" || parsedArguments.T) {
-    method = "put"
-  } else if (parsedArguments.X === "PATCH") {
-    method = "patch"
-  } else if (parsedArguments.X === "DELETE") {
-    method = "delete"
-  } else if (parsedArguments.X === "OPTIONS") {
-    method = "options"
-  } else if (
-    (parsedArguments.d ||
-      parsedArguments.data ||
-      parsedArguments["data-ascii"] ||
-      parsedArguments["data-binary"] ||
-      parsedArguments.F ||
-      parsedArguments.form) &&
-    !(parsedArguments.G || parsedArguments.get)
-  ) {
-    method = "post"
-  } else if (parsedArguments.I || parsedArguments.head) {
-    method = "head"
-  } else {
-    method = "get"
-  }
 
+  const method = getMethod(parsedArguments)
   let body: string | null = ""
-
   let contentType: HoppRESTReqBody["contentType"] = null
 
   // if -F is not present, look for content type header
@@ -241,6 +215,8 @@ const parseCurlCommand = (curlCommand: string) => {
     maxKeys: 10000,
   })
 
+  const isDataBinary = !!parsedArguments["data-binary"]
+
   urlObject.search = null // Clean out the search/query portion.
   const request: curlParserRequest = {
     url,
@@ -254,7 +230,7 @@ const parseCurlCommand = (curlCommand: string) => {
     cookies,
     cookieString: cookieString?.replace("Cookie: ", ""),
     multipartUploads,
-    ...parseDataFromArguments(parsedArguments),
+    ...(isDataBinary && { isDataBinary }),
     ...(auth && { auth }),
     ...(parsedArguments?.u && { user: parsedArguments?.u }),
   }
@@ -269,6 +245,8 @@ const replaceables: { [key: string]: string } = {
   "--form": "-F",
   "--data-raw": "--data",
   "--data": "-d",
+  "--data-ascii": "-d",
+  "--data-binary": "-d",
   "--user": "-u",
 }
 
@@ -356,39 +334,6 @@ function getBodyWithoutContentType(rawData: string) {
   )
 }
 
-function parseDataFromArguments(parsedArguments: parser.Arguments): {
-  data: string
-  dataArray: string[] | null
-  isDataBinary: boolean
-} {
-  const isDataBinary = !!parsedArguments["data-binary"]
-  const data: string | string[] | null =
-    parsedArguments.data ||
-    parsedArguments["data-binary"] ||
-    parsedArguments["data-ascii"] ||
-    null
-
-  // FIXME: Type definitions don't work without coercion
-  return pipe(
-    data,
-    O.fromNullable,
-    O.filter(Array.isArray),
-    O.map(stringArrayJoin("&")),
-    O.match(
-      () => ({
-        data: data as string,
-        dataArray: null as string[] | null,
-        isDataBinary,
-      }),
-      (joinedData) => ({
-        data: joinedData,
-        dataArray: data as string[],
-        isDataBinary,
-      })
-    )
-  )
-}
-
 /**
  * Processes and returns the URL string
  * @param parsedArguments Parsed Arguments object
@@ -455,6 +400,33 @@ function getFArgumentMultipartData(
         RA.toArray,
         tupleToRecord
       )
+    )
+  )
+}
+
+/**
+ * Get method type from X argument in curl string or
+ * find it out through presence of other arguments
+ * @param parsedArguments Parsed Arguments object
+ * @returns Method type
+ */
+function getMethod(parsedArguments: parser.Arguments): RESTMethod {
+  const Xarg: string = parsedArguments.X
+  return pipe(
+    Xarg?.match(/GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE|CUSTOM/i),
+    O.fromNullable,
+    O.match(
+      () => {
+        if (parsedArguments.T) return "put"
+        else if (
+          parsedArguments.d ||
+          (parsedArguments.F && !(parsedArguments.G || parsedArguments.get))
+        )
+          return "post"
+        else if (parsedArguments.T || parsedArguments.head) return "head"
+        else return "get"
+      },
+      (method) => method[0] as RESTMethod
     )
   )
 }

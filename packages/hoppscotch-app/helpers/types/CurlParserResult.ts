@@ -1,4 +1,5 @@
 import { HoppRESTReqBody } from "@hoppscotch/data"
+import { RESTMethod } from "./RESTMethod"
 
 export type curlParserRequest = {
   url: string
@@ -6,7 +7,7 @@ export type curlParserRequest = {
   compressed: boolean
   query: any // change it
   headers: any // change it
-  method: string
+  method: RESTMethod
   contentType: HoppRESTReqBody["contentType"]
   body: HoppRESTReqBody["body"]
   cookies: {

@@ -10,6 +10,7 @@ import {
   translateToNewRequest,
   translateToNewRESTCollection,
   translateToNewGQLCollection,
+  Environment,
 } from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 import {
@@ -37,7 +38,6 @@ import {
 import {
   replaceEnvironments,
   environments$,
-  Environment,
   addGlobalEnvVariable,
   setGlobalEnvVariables,
   globalEnv$,

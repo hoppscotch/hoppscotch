@@ -131,15 +131,15 @@
 import { computed, Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
 import clone from "lodash/clone"
-import { HoppRESTReqBody } from "@hoppscotch/data"
-import { useCodemirror } from "~/helpers/editor/codemirror"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
-import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 import {
+  HoppRESTReqBody,
   parseRawKeyValueEntries,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
-} from "~/helpers/rawKeyValue"
+} from "@hoppscotch/data"
+import { useCodemirror } from "~/helpers/editor/codemirror"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
+import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 
 const t = useI18n()
 const toast = useToast()

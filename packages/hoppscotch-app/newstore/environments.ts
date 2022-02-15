@@ -1,3 +1,4 @@
+import { Environment } from "@hoppscotch/data"
 import { cloneDeep } from "lodash"
 import isEqual from "lodash/isEqual"
 import { combineLatest, Observable } from "rxjs"
@@ -5,14 +6,6 @@ import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
-
-export type Environment = {
-  name: string
-  variables: {
-    key: string
-    value: string
-  }[]
-}
 
 const defaultEnvironmentsState = {
   environments: [

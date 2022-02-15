@@ -6,7 +6,7 @@ export type curlParserRequest = {
   urlWithoutQuery: string
   compressed: boolean
   query: any // change it
-  headers: any // change it
+  headers: Record<string, string>
   method: RESTMethod
   contentType: HoppRESTReqBody["contentType"]
   body: HoppRESTReqBody["body"]

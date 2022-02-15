@@ -37,49 +37,14 @@ const parseCurlCommand = (curlCommand: string) => {
     )
   )
 
-  let headers: any
-
-  const parseHeaders = (headerFieldName: string) => {
-    if (parsedArguments[headerFieldName]) {
-      if (!headers) {
-        headers = {}
-      }
-      if (!Array.isArray(parsedArguments[headerFieldName])) {
-        parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]]
-      }
-      parsedArguments[headerFieldName].forEach((header: string) => {
-        if (header.includes("Cookie")) {
-          // stupid javascript tricks: closure
-          cookieString = header
-        } else {
-          const colonIndex = header.indexOf(":")
-          const headerName = header.substring(0, colonIndex)
-          const headerValue = header.substring(colonIndex + 1).trim()
-          headers[headerName] = headerValue
-        }
-      })
-    }
-  }
-
-  parseHeaders("H")
-  if (parsedArguments.A) {
-    if (!headers) {
-      headers = []
-    }
-    headers["User-Agent"] = parsedArguments.A
-  } else if (parsedArguments["user-agent"]) {
-    if (!headers) {
-      headers = []
-    }
-    headers["User-Agent"] = parsedArguments["user-agent"]
-  }
+  const headers = getHeaders(parsedArguments)
 
   if (headers && rawContentType === "")
     rawContentType = headers["Content-Type"] || headers["content-type"] || ""
 
   let auth
   if (headers?.Authorization) {
-    const [type, token]: string = headers.Authorization.split(" ")
+    const [type, token] = headers.Authorization.split(" ", 2)
 
     // TODO:
     switch (type) {
@@ -429,6 +394,35 @@ function getMethod(parsedArguments: parser.Arguments): RESTMethod {
       (method) => method[0] as RESTMethod
     )
   )
+}
+
+function getHeaders(parsedArguments: parser.Arguments) {
+  let headers: Record<string, string> = {}
+
+  headers = pipe(
+    parsedArguments.H,
+    O.fromNullable,
+    O.map((h) => (Array.isArray(h) ? h : [h])),
+    O.map((h: string[]) =>
+      pipe(
+        h.map((header: string) => {
+          const [key, value] = header.split(":", 2)
+          return [key.trim(), value.trim()] as [string, string]
+        }),
+        RA.toArray,
+        tupleToRecord
+      )
+    ),
+    O.match(
+      () => ({}),
+      (h) => h
+    )
+  )
+
+  const userAgent = parsedArguments.A || parsedArguments["user-agent"]
+  if (userAgent) headers["User-Agent"] = userAgent
+
+  return headers
 }
 
 export default parseCurlCommand

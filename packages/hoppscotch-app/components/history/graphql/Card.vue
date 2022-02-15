@@ -85,6 +85,7 @@ const useEntry = () => {
       headers: props.entry.request.headers,
       query: props.entry.request.query,
       variables: props.entry.request.variables,
+      auth: props.entry.request.auth,
     }),
     schema: "",
     response: props.entry.response,

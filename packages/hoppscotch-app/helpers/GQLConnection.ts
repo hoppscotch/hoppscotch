@@ -193,31 +193,15 @@ export class GQLConnection {
       if (auth.authType === "basic") {
         const username = auth.username
         const password = auth.password
-        headers.push({
-          active: true,
-          key: "Authorization",
-          value: `Basic ${btoa(`${username}:${password}`)}`,
-        })
+        finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
       } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
-        headers.push({
-          active: true,
-          key: "Authorization",
-          value: `Bearer ${auth.token}`,
-        })
+        finalHeaders.Authorization = `Bearer ${auth.token}`
       } else if (auth.authType === "api-key") {
         const { key, value, addTo } = auth
         if (addTo === "Headers") {
-          headers.push({
-            active: true,
-            key,
-            value,
-          })
+          finalHeaders[key] = value
         } else if (addTo === "Query params") {
-          headers.push({
-            active: true,
-            key,
-            value,
-          })
+          finalHeaders[key] = value
         }
       }
     }

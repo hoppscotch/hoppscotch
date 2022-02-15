@@ -138,6 +138,7 @@ import {
   RawKeyValueEntry,
 } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
+import linter from "~/helpers/editor/linting/rawKeyValue"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
 import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 
@@ -155,7 +156,7 @@ useCodemirror(bulkEditor, bulkUrlEncodedParams, {
     mode: "text/x-yaml",
     placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
-  linter: null,
+  linter,
   completer: null,
   environmentHighlights: true,
 })

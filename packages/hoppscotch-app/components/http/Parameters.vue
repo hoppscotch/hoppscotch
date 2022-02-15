@@ -132,6 +132,7 @@ import { ref, watch } from "@nuxtjs/composition-api"
 import { HoppRESTParam } from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
 import clone from "lodash/clone"
+import linter from "~/helpers/editor/linting/rawKeyValue"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { useI18n, useToast, useStream } from "~/helpers/utils/composables"
 import { restParams$, setRESTParams } from "~/newstore/RESTSession"
@@ -152,7 +153,7 @@ useCodemirror(bulkEditor, bulkParams, {
     mode: "text/x-yaml",
     placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
-  linter: null,
+  linter,
   completer: null,
   environmentHighlights: true,
 })

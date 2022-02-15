@@ -148,6 +148,7 @@ import { useCodemirror } from "~/helpers/editor/codemirror"
 import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
+import linter from "~/helpers/editor/linting/rawKeyValue"
 
 const t = useI18n()
 const toast = useToast()
@@ -163,7 +164,7 @@ useCodemirror(bulkEditor, bulkHeaders, {
     mode: "text/x-yaml",
     placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
-  linter: null,
+  linter,
   completer: null,
   environmentHighlights: true,
 })

@@ -6,7 +6,7 @@ import { LinterDefinition, LinterResult } from "./linter"
 const linter: LinterDefinition = (text) => {
   const result = strictParseRawKeyValueEntriesE(text)
   if (E.isLeft(result)) {
-    const pos = convertIndexToLineCh(text, result.left.pos + 1)
+    const pos = convertIndexToLineCh(text, result.left.pos)
 
     return Promise.resolve([
       <LinterResult>{

@@ -67,7 +67,7 @@ const lineWithNoColon = pipe(
 )
 
 const file = pipe(
-  P.manyTill(line, P.eof()),
+  P.manyTill(wsSurround(line), P.eof()),
 )
 
 /**

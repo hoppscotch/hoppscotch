@@ -129,7 +129,15 @@
 
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
-import { HoppRESTParam } from "@hoppscotch/data"
+import { pipe } from "fp-ts/function"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as E from "fp-ts/Either"
+import {
+  HoppRESTParam,
+  parseRawKeyValueEntriesE,
+  rawKeyValueEntriesToString,
+  RawKeyValueEntry,
+} from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
 import clone from "lodash/clone"
 import linter from "~/helpers/editor/linting/rawKeyValue"
@@ -207,14 +215,12 @@ watch(workingParams, (newWorkingParams) => {
 // Bulk Editor Syncing with Working Params
 watch(bulkParams, () => {
   try {
-    const transformation = bulkParams.value
-      .split("\n")
-      .filter((x) => x.trim().length > 0 && x.includes(":"))
-      .map((item) => ({
-        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-        value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("#"),
-      }))
+    const transformation = pipe(
+      bulkParams.value,
+      parseRawKeyValueEntriesE,
+      E.map(RA.toArray),
+      E.getOrElse(() => [] as RawKeyValueEntry[])
+    )
 
     const filteredParams = workingParams.value.filter((x) => x.key !== "")
 
@@ -241,11 +247,7 @@ watch(workingParams, (newParamsList) => {
     const filteredParams = newParamsList.filter((x) => x.key !== "")
 
     if (!isEqual(currentBulkParams, filteredParams)) {
-      bulkParams.value = filteredParams
-        .map((param) => {
-          return `${param.active ? "" : "#"}${param.key}: ${param.value}`
-        })
-        .join("\n")
+      bulkParams.value = rawKeyValueEntriesToString(filteredParams)
     }
   } catch (e) {
     toast.error(`${t("error.something_went_wrong")}`)

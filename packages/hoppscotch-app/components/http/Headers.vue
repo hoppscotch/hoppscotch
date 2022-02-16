@@ -143,7 +143,15 @@
 import { Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
 import clone from "lodash/clone"
-import { HoppRESTHeader } from "@hoppscotch/data"
+import {
+  HoppRESTHeader,
+  parseRawKeyValueEntriesE,
+  rawKeyValueEntriesToString,
+  RawKeyValueEntry,
+} from "@hoppscotch/data"
+import { pipe } from "fp-ts/function"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as E from "fp-ts/Either"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
@@ -223,14 +231,12 @@ watch(workingHeaders, (newWorkingHeaders) => {
 // Bulk Editor Syncing with Working Headers
 watch(bulkHeaders, () => {
   try {
-    const transformation = bulkHeaders.value
-      .split("\n")
-      .filter((x) => x.trim().length > 0 && x.includes(":"))
-      .map((item) => ({
-        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-        value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("#"),
-      }))
+    const transformation = pipe(
+      bulkHeaders.value,
+      parseRawKeyValueEntriesE,
+      E.map(RA.toArray),
+      E.getOrElse(() => [] as RawKeyValueEntry[])
+    )
 
     const filteredHeaders = workingHeaders.value.filter((x) => x.key !== "")
 
@@ -257,11 +263,7 @@ watch(workingHeaders, (newHeadersList) => {
     const filteredHeaders = newHeadersList.filter((x) => x.key !== "")
 
     if (!isEqual(currentBulkHeaders, filteredHeaders)) {
-      bulkHeaders.value = filteredHeaders
-        .map((header) => {
-          return `${header.active ? "" : "#"}${header.key}: ${header.value}`
-        })
-        .join("\n")
+      bulkHeaders.value = rawKeyValueEntriesToString(filteredHeaders)
     }
   } catch (e) {
     toast.error(`${t("error.something_went_wrong")}`)

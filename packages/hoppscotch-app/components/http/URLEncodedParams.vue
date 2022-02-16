@@ -134,9 +134,13 @@ import clone from "lodash/clone"
 import {
   HoppRESTReqBody,
   parseRawKeyValueEntries,
+  parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
+import { pipe } from "fp-ts/function"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as E from "fp-ts/Either"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
@@ -227,14 +231,12 @@ watch(workingUrlEncodedParams, (newWorkingUrlEncodedParams) => {
 // Bulk Editor Syncing with Working urlEncodedParams
 watch(bulkUrlEncodedParams, () => {
   try {
-    const transformation = bulkUrlEncodedParams.value
-      .split("\n")
-      .filter((x) => x.trim().length > 0 && x.includes(":"))
-      .map((item) => ({
-        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-        value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("#"),
-      }))
+    const transformation = pipe(
+      bulkUrlEncodedParams.value,
+      parseRawKeyValueEntriesE,
+      E.map(RA.toArray),
+      E.getOrElse(() => [] as RawKeyValueEntry[])
+    )
 
     const filteredUrlEncodedParams = workingUrlEncodedParams.value.filter(
       (x) => x.key !== ""
@@ -266,11 +268,9 @@ watch(workingUrlEncodedParams, (newurlEncodedParamList) => {
     )
 
     if (!isEqual(currentBulkUrlEncodedParams, filteredUrlEncodedParams)) {
-      bulkUrlEncodedParams.value = filteredUrlEncodedParams
-        .map((param) => {
-          return `${param.active ? "" : "#"}${param.key}: ${param.value}`
-        })
-        .join("\n")
+      bulkUrlEncodedParams.value = rawKeyValueEntriesToString(
+        filteredUrlEncodedParams
+      )
     }
   } catch (e) {
     toast.error(`${t("error.something_went_wrong")}`)

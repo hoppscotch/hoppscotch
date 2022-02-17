@@ -143,6 +143,9 @@ export function parseBody(
   rawContentType?: string
 ): O.Option<string | Record<string, string>> {
   switch (contentType) {
+    case "application/hal+json":
+    case "application/ld+json":
+    case "application/vnd.api+json":
     case "application/json": {
       return pipe(
         rawData,
@@ -264,9 +267,6 @@ export function parseBody(
       )
     }
 
-    case "application/hal+json":
-    case "application/ld+json":
-    case "application/vnd.api+json":
     case "text/plain":
     default:
       return O.some(rawData)

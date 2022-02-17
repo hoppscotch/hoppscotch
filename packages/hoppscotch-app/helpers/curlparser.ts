@@ -1,35 +1,50 @@
-import * as URL from "url"
-import * as querystring from "querystring"
 import * as cookie from "cookie"
 import parser from "yargs-parser"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 
-import { HoppRESTReqBody } from "@hoppscotch/data"
+import { HoppRESTReqBody, HoppRESTAuth } from "@hoppscotch/data"
 import { tupleToRecord } from "./functional/record"
 import { detectContentType, parseBody } from "./contentParser"
 import { RESTMethod } from "./types/RESTMethod"
 import { curlParserRequest } from "~/helpers/types/CurlParserResult"
+import { stringArrayJoin } from "~/helpers/functional/array"
 
 const parseCurlCommand = (curlCommand: string) => {
+  const isDataBinary = curlCommand.includes(" --data-binary")
+
   curlCommand = preProcessCurlCommand(curlCommand)
   const parsedArguments = parser(curlCommand)
 
-  const rawData: string = parsedArguments?.d || ""
-
-  let cookieString
-  let cookies
-  let url = getStructuredURL(parsedArguments)
-
+  const headers = getHeaders(parsedArguments)
   let rawContentType: string = ""
+
+  if (headers && rawContentType === "")
+    rawContentType = headers["Content-Type"] || headers["content-type"] || ""
+
+  let rawData: string | string[] = parsedArguments?.d || ""
+  const urlObject = parseURL(parsedArguments)
+
+  let { queries, danglingParams } = getQueries(
+    urlObject?.searchParams.entries()
+  )
+
+  // if method type is to be set as GET
+  if (parsedArguments.G && Array.isArray(rawData)) {
+    const pairs = getParamPairs(rawData)
+    const newQueries = getQueries(pairs as [string, string][])
+    queries = [...queries, ...newQueries.queries]
+    danglingParams = [...danglingParams, ...newQueries.danglingParams]
+  }
+  const urlString = concatParams(urlObject?.origin, danglingParams) || ""
+
   let multipartUploads: Record<string, string> = pipe(
     parsedArguments,
-    getFArgumentMultipartData,
+    O.fromNullable,
+    O.chain(getFArgumentMultipartData),
     O.match(
-      () => {
-        return {}
-      },
+      () => ({}),
       (args) => {
         rawContentType = "multipart/form-data"
         return args
@@ -37,33 +52,11 @@ const parseCurlCommand = (curlCommand: string) => {
     )
   )
 
-  const headers = getHeaders(parsedArguments)
+  const auth = getAuthObject(parsedArguments, headers, urlObject)
 
-  if (headers && rawContentType === "")
-    rawContentType = headers["Content-Type"] || headers["content-type"] || ""
+  let cookies: { [key: string]: string } | undefined
 
-  let auth
-  if (headers?.Authorization) {
-    const [type, token] = headers.Authorization.split(" ", 2)
-
-    // TODO:
-    switch (type) {
-      case "Bearer":
-        auth = {
-          type,
-          token,
-        }
-        delete headers.Authorization
-        break
-    }
-  }
-
-  if (parsedArguments.b) {
-    cookieString = parsedArguments.b
-  }
-  if (parsedArguments.cookie) {
-    cookieString = parsedArguments.cookie
-  }
+  const cookieString = parsedArguments.b || parsedArguments.cookie || ""
   if (cookieString) {
     const cookieParseOptions = {
       decode: (s: any) => s,
@@ -80,8 +73,12 @@ const parseCurlCommand = (curlCommand: string) => {
   let body: string | null = ""
   let contentType: HoppRESTReqBody["contentType"] = null
 
+  // just in case
+  if (Array.isArray(rawData)) rawData = rawData.join("")
+
   // if -F is not present, look for content type header
-  if (rawContentType !== "multipart/form-data") {
+  // -G is used to send --data as get params
+  if (rawContentType !== "multipart/form-data" && !parsedArguments.G) {
     const tempBody = pipe(
       O.Do,
 
@@ -105,7 +102,7 @@ const parseCurlCommand = (curlCommand: string) => {
 
       O.bind("rData", () =>
         pipe(
-          rawData,
+          rawData as string,
           O.fromNullable,
           O.filter(() => !!rawData && rawData.length > 0)
         )
@@ -148,60 +145,30 @@ const parseCurlCommand = (curlCommand: string) => {
   }
 
   const compressed = !!parsedArguments.compressed
-  let urlObject = URL.parse(url) // eslint-disable-line
+  const hoppHeaders = recordToHoppHeaders(headers)
 
-  // if GET request with data, convert data to query string
-  // NB: the -G flag does not change the http verb. It just moves the data into the url.
-  if (parsedArguments.G || parsedArguments.get) {
-    urlObject.query = urlObject.query ? urlObject.query : ""
-    const option =
-      "d" in parsedArguments ? "d" : "data" in parsedArguments ? "data" : null
-    if (option) {
-      let urlQueryString = ""
-
-      if (!url.includes("?")) {
-        url += "?"
-      } else {
-        urlQueryString += "&"
-      }
-
-      if (typeof parsedArguments[option] === "object") {
-        urlQueryString += parsedArguments[option].join("&")
-      } else {
-        urlQueryString += parsedArguments[option]
-      }
-      urlObject.query += urlQueryString
-      url += urlQueryString
-      delete parsedArguments[option]
-    }
-  }
-  // TODO
-  const query = querystring.parse(urlObject.query!, null as any, null as any, {
-    maxKeys: 10000,
-  })
-
-  const isDataBinary = !!parsedArguments["data-binary"]
-
-  urlObject.search = null // Clean out the search/query portion.
   const request: curlParserRequest = {
-    url,
-    urlWithoutQuery: URL.format(urlObject),
+    urlString,
+    urlObject,
     compressed,
-    query,
-    headers,
+    queries,
+    hoppHeaders,
     method,
     contentType,
     body,
     cookies,
-    cookieString: cookieString?.replace("Cookie: ", ""),
+    cookieString: cookieString?.replace(/Cookie: /i, ""),
     multipartUploads,
-    ...(isDataBinary && { isDataBinary }),
-    ...(auth && { auth }),
-    ...(parsedArguments?.u && { user: parsedArguments?.u }),
+    isDataBinary,
+    auth,
   }
 
   return request
 }
+
+// ############################################ //
+// ##            HELPER FUNCTIONS            ## //
+// ############################################ //
 
 const replaceables: { [key: string]: string } = {
   "--request": "-X",
@@ -213,6 +180,7 @@ const replaceables: { [key: string]: string } = {
   "--data-ascii": "-d",
   "--data-binary": "-d",
   "--user": "-u",
+  "--get": "-G",
 }
 
 /**
@@ -300,46 +268,133 @@ function getBodyWithoutContentType(rawData: string) {
 }
 
 /**
- * Processes and returns the URL string
+ * Processes URL string and returns the URL object
  * @param parsedArguments Parsed Arguments object
- * @returns URL string
+ * @returns URL object
  */
-function getStructuredURL(parsedArguments: parser.Arguments): string {
-  let url = parsedArguments?._[1]
-
-  if (!url) {
-    for (const argName in parsedArguments) {
-      if (
-        typeof parsedArguments[argName] === "string" &&
-        ["http", "www."].includes(parsedArguments[argName])
+function parseURL(parsedArguments: parser.Arguments) {
+  return pipe(
+    parsedArguments?._[1],
+    O.fromNullable,
+    O.map((u) => u.replace(/["']/g, "")),
+    O.map((u) => u.trim()),
+    O.chain((u) =>
+      pipe(
+        /^[^:\s]+(?=:\/\/)/.exec(u),
+        O.fromNullable,
+        O.map((p) => p[2]),
+        O.match(
+          // if protocol is not found
+          () =>
+            pipe(
+              // get the base URL
+              /^([^\s:@]+:[^\s:@]+@)?([^:/\s]+)([:]*)/.exec(u),
+              O.fromNullable,
+              O.map((burl) => burl[2]),
+              O.map((burl) =>
+                burl === "localhost" || burl === "127.0.0.1"
+                  ? "http://" + u
+                  : "https://" + u
+              )
+            ),
+          (_) => O.some(u)
+        )
       )
-        url = parsedArguments[argName]
-    }
-  }
-
-  // if protocol is absent,
-  // prepend https (or http if host is localhost)
-  if (typeof url === "string" && url.length > 0) {
-    // get rid of double and single quotes that have snuck in
-    url = url.replace(/["']/g, "")
-
-    let urlCopy = url
-    const protocol = /^[^:]+(?=:\/\/)/.exec(urlCopy)
-
-    if (protocol === null) {
-      // if urlCopy has basic auth, strip it off
-      if (urlCopy.includes("@")) urlCopy = urlCopy.split("@")[1]
-      urlCopy = urlCopy.split("/")[0]
-
-      if (urlCopy.includes("localhost") || urlCopy.includes("127.0.0.1")) {
-        url = "http://" + url
-      } else {
-        url = "https://" + url
+    ),
+    O.map((u) => new URL(u)),
+    O.getOrElse(() => {
+      // no url found
+      for (const argName in parsedArguments) {
+        if (
+          typeof parsedArguments[argName] === "string" &&
+          ["http", "www."].includes(parsedArguments[argName])
+        )
+          return pipe(
+            parsedArguments[argName],
+            O.fromNullable,
+            O.map((u) => new URL(u)),
+            O.match(
+              () => undefined,
+              (u) => u
+            )
+          )
       }
-    }
-  }
+    })
+  )
+}
 
-  return url
+/**
+ * Converts queries to HoppRESTParam format and separates dangling ones
+ * @param queries Array or IterableIterator of key value pairs of queries
+ * @returns Queries formatted compatible to HoppRESTParam and list of dangling params
+ */
+function getQueries(
+  searchParams:
+    | [string, string][]
+    | IterableIterator<[string, string]>
+    | undefined
+) {
+  const danglingParams: string[] = []
+  const queries = pipe(
+    searchParams,
+    O.fromNullable,
+    O.map((iter) => {
+      const params = []
+
+      for (const q of iter) {
+        if (q[1] === "") {
+          danglingParams.push(q[0])
+          continue
+        }
+        params.push({
+          key: q[0],
+          value: q[1],
+          active: true,
+        })
+      }
+      return params
+    }),
+
+    O.getOrElseW(() => [])
+  )
+
+  return {
+    queries,
+    danglingParams,
+  }
+}
+
+/**
+ * Joins dangling params to origin
+ * @param origin origin value from the URL Object
+ * @param params params without values
+ * @returns origin string concatenated with dngling paramas
+ */
+function concatParams(origin: string | undefined, params: string[]) {
+  return pipe(
+    O.Do,
+
+    O.bind("originString", () =>
+      pipe(
+        origin,
+        O.fromNullable,
+        O.filter((h) => h !== "")
+      )
+    ),
+
+    O.map(({ originString }) =>
+      pipe(
+        params,
+        O.fromNullable,
+        O.filter((dp) => dp.length > 0),
+        O.map(stringArrayJoin("&")),
+        O.map((h) => originString + "?" + h),
+        O.getOrElse(() => originString)
+      )
+    ),
+
+    O.getOrElse(() => "")
+  )
 }
 
 /**
@@ -389,12 +444,12 @@ function getMethod(parsedArguments: parser.Arguments): RESTMethod {
     O.match(
       () => {
         if (parsedArguments.T) return "put"
+        else if (parsedArguments.I || parsedArguments.head) return "head"
         else if (
           parsedArguments.d ||
           (parsedArguments.F && !(parsedArguments.G || parsedArguments.get))
         )
           return "post"
-        else if (parsedArguments.T || parsedArguments.head) return "head"
         else return "get"
       },
       (method) => method[0] as RESTMethod
@@ -412,7 +467,7 @@ function getHeaders(parsedArguments: parser.Arguments) {
     O.map((h: string[]) =>
       pipe(
         h.map((header: string) => {
-          const [key, value] = header.split(":", 2)
+          const [key, value] = header.split(": ")
           return [key.trim(), value.trim()] as [string, string]
         }),
         RA.toArray,
@@ -429,6 +484,123 @@ function getHeaders(parsedArguments: parser.Arguments) {
   if (userAgent) headers["User-Agent"] = userAgent
 
   return headers
+}
+
+function recordToHoppHeaders(headers: Record<string, string>) {
+  const hoppHeaders = []
+  for (const key of Object.keys(headers)) {
+    hoppHeaders.push({
+      key,
+      value: headers[key],
+      active: true,
+    })
+  }
+  return hoppHeaders
+}
+
+function getParamPairs(rawdata: string[]) {
+  return pipe(
+    rawdata,
+    O.fromNullable,
+    O.map((p) => p.map(decodeURIComponent)),
+    O.map((pairs) => pairs.map((pair) => pair.split("="))),
+    O.getOrElseW(() => undefined)
+  )
+}
+
+function getAuthObject(
+  parsedArguments: parser.Arguments,
+  headers: Record<string, string>,
+  urlObject: URL | undefined
+): HoppRESTAuth {
+  // >> preference order:
+  //    - Auth headers
+  //    - apikey headers
+  //    - --user arg
+  //    - Creds provided along with URL
+  console.log("urlObject.username:", urlObject?.username)
+  console.log("urlObject.password:", urlObject?.password)
+
+  let auth: HoppRESTAuth = {
+    authActive: false,
+    authType: "none",
+  }
+  let username: string = ""
+  let password: string = ""
+
+  if (headers?.Authorization) {
+    auth = pipe(
+      headers?.Authorization,
+      O.fromNullable,
+      O.map((a) => a.split(" ")),
+      O.filter((a) => a.length > 0),
+      O.chain((kv) =>
+        pipe(
+          (() => {
+            switch (kv[0].toLowerCase()) {
+              case "bearer":
+                return {
+                  authActive: true,
+                  authType: "bearer",
+                  token: kv[1],
+                }
+              case "apikey":
+                return {
+                  authActive: true,
+                  authType: "api-key",
+                  key: "apikey",
+                  value: kv[1],
+                  addTo: "headers",
+                }
+              case "basic": {
+                const buffer = Buffer.from(kv[1], "base64")
+                const [username, password] = buffer.toString().split(":")
+                return {
+                  authActive: true,
+                  authType: "basic",
+                  username,
+                  password,
+                }
+              }
+              default:
+                return undefined
+            }
+          })(),
+          O.fromNullable
+        )
+      ),
+      O.getOrElseW(() => ({ authActive: false, authType: "none" }))
+    ) as HoppRESTAuth
+  } else if (headers?.apikey || headers["api-key"]) {
+    const apikey = headers?.apikey || headers["api-key"]
+    if (apikey)
+      auth = {
+        authActive: true,
+        authType: "api-key",
+        key: headers?.apikey ? "apikey" : "api-key",
+        value: apikey,
+        addTo: "headers",
+      }
+  } else {
+    if (parsedArguments.u) {
+      const user: string = parsedArguments.u ?? ""
+      ;[username, password] = user.split(":")
+    } else if (urlObject) {
+      username = urlObject.username
+      password = urlObject.password
+    }
+
+    if (!!username && !!password)
+      auth = {
+        authType: "basic",
+        authActive: true,
+        username,
+        password,
+      }
+  }
+  console.log("auth:", auth)
+
+  return auth
 }
 
 export default parseCurlCommand

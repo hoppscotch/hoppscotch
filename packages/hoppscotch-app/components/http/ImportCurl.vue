@@ -36,15 +36,11 @@
 import { ref, watch } from "@nuxtjs/composition-api"
 import {
   FormDataKeyValue,
-  HoppRESTAuth,
-  HoppRESTHeader,
-  HoppRESTParam,
   HoppRESTReqBody,
   HoppRESTReqBodyFormData,
   makeRESTRequest,
 } from "@hoppscotch/data"
 import parseCurlCommand from "~/helpers/curlparser"
-import { curlParserRequest } from "~/helpers/types/CurlParserResult"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
@@ -91,59 +87,20 @@ const handleImport = () => {
   const text = curl.value
   try {
     const parsedCurl = parseCurlCommand(text)
-    const { origin, pathname, username, password } = new URL(parsedCurl.url)
-    let endpoint = origin + pathname
-    const headers: HoppRESTHeader[] = []
-    const params: HoppRESTParam[] = []
+    const endpoint = parsedCurl.urlString
+    const params = parsedCurl.queries || []
     const body = parsedCurl.body
-
-    const danglingParams: string[] = []
-    if (parsedCurl.query) {
-      for (const key of Object.keys(parsedCurl.query)) {
-        const val = parsedCurl.query[key]!
-
-        if (Array.isArray(val)) {
-          val.forEach((value) => {
-            if (value === "") {
-              danglingParams.push(key)
-              return
-            }
-            params.push({
-              key,
-              value,
-              active: true,
-            })
-          })
-        } else {
-          if (val === "") {
-            danglingParams.push(key)
-            continue
-          }
-          params.push({
-            key,
-            value: val!,
-            active: true,
-          })
-        }
-      }
-    }
-
-    if (parsedCurl.headers) {
-      for (const key of Object.keys(parsedCurl.headers)) {
-        headers.push({
-          key,
-          value: parsedCurl.headers[key],
-          active: true,
-        })
-      }
-    }
 
     const method = parsedCurl.method?.toUpperCase() || "GET"
     const contentType = parsedCurl.contentType
-    const auth: HoppRESTAuth = getAuthObject(parsedCurl, username, password)
-
-    // append danglingParams to url
-    if (danglingParams.length > 0) endpoint += "?" + danglingParams.join("&")
+    const auth = parsedCurl.auth
+    const headers =
+      parsedCurl.hoppHeaders.filter(
+        (header) =>
+          header.key !== "Authorization" &&
+          header.key !== "apikey" &&
+          header.key !== "api-key"
+      ) || []
 
     // final body if multipart data is not present
     let finalBody = {
@@ -186,44 +143,6 @@ const handleImport = () => {
     toast.error(`${t("error.curl_invalid_format")}`)
   }
   hideModal()
-}
-
-function getAuthObject(
-  parsedCurl: curlParserRequest,
-  username?: string,
-  password?: string
-) {
-  // >> preference order:
-  //    - Auth headers
-  //    - --user arg
-  //    - Creds provided along with URL
-  let auth: HoppRESTAuth = { authActive: false, authType: "none" }
-  const user: string = parsedCurl.user ?? ""
-
-  if (parsedCurl.auth) {
-    const { type, token } = parsedCurl.auth
-    auth = {
-      authType: type.toLowerCase(),
-      token,
-    } as HoppRESTAuth
-  } else {
-    auth = {
-      authType:
-        (username && username.length > 0) || user.length > 0 ? "basic" : "none",
-      authActive: true,
-      ...(username &&
-        username.length > 0 && {
-          username,
-          password: password || "",
-        }),
-      ...(user.length > 0 && {
-        username: user.split(":")[0],
-        password: user.split(":")[1],
-      }),
-    } as HoppRESTAuth
-  }
-
-  return auth
 }
 
 const pasteIcon = ref("clipboard")

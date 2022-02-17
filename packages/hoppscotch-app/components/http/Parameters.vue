@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "@nuxtjs/composition-api"
+import { Ref, ref, watch } from "@nuxtjs/composition-api"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -153,17 +153,15 @@ import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
 
 const t = useI18n()
-
 const toast = useToast()
 
 const idTicker = ref(0)
 
 const bulkMode = ref(false)
 const bulkParams = ref("")
+const bulkEditor = ref<any | null>(null)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
-
-const bulkEditor = ref<any | null>(null)
 
 useCodemirror(bulkEditor, bulkParams, {
   extendedEditorConfig: {
@@ -176,7 +174,7 @@ useCodemirror(bulkEditor, bulkParams, {
 })
 
 // The functional parameters list (the parameters actually applied to the session)
-const params = useStream(restParams$, [], setRESTParams)
+const params = useStream(restParams$, [], setRESTParams) as Ref<HoppRESTParam[]>
 
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<Array<HoppRESTParam & { id: number }>>([

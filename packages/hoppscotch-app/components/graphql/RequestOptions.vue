@@ -157,7 +157,7 @@
         <div v-else>
           <div
             v-for="(header, index) in workingHeaders"
-            :key="`header-${header.id}`"
+            :key="`header-${header.id}-${index}`"
             class="flex border-b divide-x divide-dividerLight border-dividerLight"
           >
             <SmartAutoComplete

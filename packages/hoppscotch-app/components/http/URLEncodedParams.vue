@@ -40,7 +40,7 @@
     <div v-else>
       <div
         v-for="(param, index) in workingUrlEncodedParams"
-        :key="`param-${param.id}`"
+        :key="`param-${param.id}-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight"
       >
         <SmartEnvInput

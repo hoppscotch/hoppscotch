@@ -60,7 +60,16 @@ const line = pipe(
 const lineWithNoColon = pipe(
   wsSurround(commented),
   P.bindTo("commented"),
-  P.bind("key", () => stringTakeUntilCharsInclusive(["\n"])),
+  P.bind("key", () => P.either(
+    stringTakeUntilCharsInclusive(["\n"]),
+    () => pipe(
+      P.manyTill(P.sat((_: string) => true), P.eof()),
+      P.map(flow(
+        RA.toArray,
+        stringArrayJoin("")
+      ))
+    )
+  )),
   P.map(flow(
     O.fromPredicate(({ key }) => !Str.isEmpty(key))
   ))

@@ -40,7 +40,7 @@
     <div v-else>
       <div
         v-for="(header, index) in workingHeaders"
-        :key="`header-${index}`"
+        :key="`header-${header.id}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight"
       >
         <SmartAutoComplete
@@ -60,6 +60,7 @@
           class="flex-1 !flex"
           @input="
             updateHeader(index, {
+              id: header.id,
               key: $event,
               value: header.value,
               active: header.active,
@@ -71,6 +72,7 @@
           :placeholder="`${t('count.value', { count: index + 1 })}`"
           @change="
             updateHeader(index, {
+              id: header.id,
               key: header.key,
               value: $event,
               active: header.active,
@@ -97,6 +99,7 @@
             color="green"
             @click.native="
               updateHeader(index, {
+                id: header.id,
                 key: header.key,
                 value: header.value,
                 active: !header.active,
@@ -142,24 +145,30 @@
 <script setup lang="ts">
 import { Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
-import clone from "lodash/clone"
 import {
   HoppRESTHeader,
   parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import { pipe } from "fp-ts/function"
+import { flow, pipe } from "fp-ts/function"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
+import cloneDeep from "lodash/cloneDeep"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
 import linter from "~/helpers/editor/linting/rawKeyValue"
+import { throwError } from "~/helpers/functional/error"
+import { objRemoveKey } from "~/helpers/functional/object"
 
 const t = useI18n()
 const toast = useToast()
+
+const idTicker = ref(0)
 
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
@@ -182,22 +191,24 @@ const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<
   HoppRESTHeader[]
 >
 
-// The UI representation of the headers list (has the empty end header)
-const workingHeaders = ref<HoppRESTHeader[]>([
+// The UI representation of the headers list (has the empty end headers)
+const workingHeaders = ref<Array<HoppRESTHeader & { id: number }>>([
   {
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
   },
 ])
 
-// Rule: Working Headers always have one empty header or the last element is always an empty header
+// Rule: Working Headers always have last element is always an empty header
 watch(workingHeaders, (headersList) => {
   if (
     headersList.length > 0 &&
     headersList[headersList.length - 1].key !== ""
   ) {
     workingHeaders.value.push({
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,
@@ -205,88 +216,99 @@ watch(workingHeaders, (headersList) => {
   }
 })
 
-// Sync logic between headers and working headers
+// Sync logic between headers and working/bulk headers
 watch(
   headers,
   (newHeadersList) => {
     // Sync should overwrite working headers
-    const filteredWorkingHeaders = workingHeaders.value.filter(
-      (e) => e.key !== ""
+    const filteredWorkingHeaders = pipe(
+      workingHeaders.value,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== ""),
+          O.map(objRemoveKey("id"))
+        )
+      )
+    )
+
+    const filteredBulkHeaders = pipe(
+      parseRawKeyValueEntriesE(bulkHeaders.value),
+      E.map(
+        flow(
+          RA.filter((e) => e.key !== ""),
+          RA.toArray
+        )
+      ),
+      E.getOrElse(() => [] as RawKeyValueEntry[])
     )
 
     if (!isEqual(newHeadersList, filteredWorkingHeaders)) {
-      workingHeaders.value = newHeadersList
+      workingHeaders.value = pipe(
+        newHeadersList,
+        A.map((x) => ({ id: idTicker.value++, ...x }))
+      )
+    }
+
+    if (!isEqual(newHeadersList, filteredBulkHeaders)) {
+      bulkHeaders.value = rawKeyValueEntriesToString(newHeadersList)
     }
   },
   { immediate: true }
 )
 
 watch(workingHeaders, (newWorkingHeaders) => {
-  const fixedHeaders = newWorkingHeaders.filter((e) => e.key !== "")
-  if (!isEqual(headers.value, fixedHeaders)) {
-    headers.value = fixedHeaders
-  }
-})
-
-// Bulk Editor Syncing with Working Headers
-watch(bulkHeaders, () => {
-  try {
-    const transformation = pipe(
-      bulkHeaders.value,
-      parseRawKeyValueEntriesE,
-      E.map(RA.toArray),
-      E.getOrElse(() => [] as RawKeyValueEntry[])
+  const fixedHeaders = pipe(
+    newWorkingHeaders,
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.key !== ""),
+        O.map(objRemoveKey("id"))
+      )
     )
+  )
 
-    const filteredHeaders = workingHeaders.value.filter((x) => x.key !== "")
-
-    if (!isEqual(filteredHeaders, transformation)) {
-      workingHeaders.value = transformation
-    }
-  } catch (e) {
-    toast.error(`${t("error.something_went_wrong")}`)
-    console.error(e)
+  if (!isEqual(headers.value, fixedHeaders)) {
+    headers.value = cloneDeep(fixedHeaders)
   }
 })
 
-watch(workingHeaders, (newHeadersList) => {
-  // If we are in bulk mode, don't apply direct changes
-  if (bulkMode.value) return
+watch(bulkHeaders, (newBulkHeaders) => {
+  const filteredBulkHeaders = pipe(
+    parseRawKeyValueEntriesE(newBulkHeaders),
+    E.map(
+      flow(
+        RA.filter((e) => e.key !== ""),
+        RA.toArray
+      )
+    ),
+    E.getOrElse(() => [] as RawKeyValueEntry[])
+  )
 
-  try {
-    const currentBulkHeaders = bulkHeaders.value.split("\n").map((item) => ({
-      key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-      value: item.substring(item.indexOf(":") + 1).trimLeft(),
-      active: !item.trim().startsWith("#"),
-    }))
-
-    const filteredHeaders = newHeadersList.filter((x) => x.key !== "")
-
-    if (!isEqual(currentBulkHeaders, filteredHeaders)) {
-      bulkHeaders.value = rawKeyValueEntriesToString(filteredHeaders)
-    }
-  } catch (e) {
-    toast.error(`${t("error.something_went_wrong")}`)
-    console.error(e)
+  if (!isEqual(headers.value, filteredBulkHeaders)) {
+    headers.value = filteredBulkHeaders
   }
 })
 
 const addHeader = () => {
   workingHeaders.value.push({
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
   })
 }
 
-const updateHeader = (index: number, header: HoppRESTHeader) => {
+const updateHeader = (
+  index: number,
+  header: HoppRESTHeader & { id: number }
+) => {
   workingHeaders.value = workingHeaders.value.map((h, i) =>
     i === index ? header : h
   )
 }
 
 const deleteHeader = (index: number) => {
-  const headersBeforeDeletion = clone(workingHeaders.value)
+  const headersBeforeDeletion = cloneDeep(workingHeaders.value)
 
   if (
     !(
@@ -317,13 +339,18 @@ const deleteHeader = (index: number) => {
     })
   }
 
-  workingHeaders.value.splice(index, 1)
+  workingHeaders.value = pipe(
+    workingHeaders.value,
+    A.deleteAt(index),
+    O.getOrElseW(() => throwError("Working Headers Deletion Out of Bounds"))
+  )
 }
 
 const clearContent = () => {
-  // set headers list to the initial state
+  // set params list to the initial state
   workingHeaders.value = [
     {
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,

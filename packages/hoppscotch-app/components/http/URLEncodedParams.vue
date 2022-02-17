@@ -40,7 +40,7 @@
     <div v-else>
       <div
         v-for="(param, index) in workingUrlEncodedParams"
-        :key="`param-${index}`"
+        :key="`param-${param.id}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight"
       >
         <SmartEnvInput
@@ -48,6 +48,7 @@
           :placeholder="`${t('count.parameter', { count: index + 1 })}`"
           @change="
             updateUrlEncodedParam(index, {
+              id: param.id,
               key: $event,
               value: param.value,
               active: param.active,
@@ -59,6 +60,7 @@
           :placeholder="`${t('count.value', { count: index + 1 })}`"
           @change="
             updateUrlEncodedParam(index, {
+              id: param.id,
               key: param.key,
               value: $event,
               active: param.active,
@@ -85,6 +87,7 @@
             color="green"
             @click.native="
               updateUrlEncodedParam(index, {
+                id: param.id,
                 key: param.key,
                 value: param.value,
                 active: !param.active,
@@ -130,19 +133,30 @@
 <script setup lang="ts">
 import { computed, Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
-import clone from "lodash/clone"
-import { HoppRESTReqBody } from "@hoppscotch/data"
-import { useCodemirror } from "~/helpers/editor/codemirror"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
-import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 import {
+  HoppRESTReqBody,
   parseRawKeyValueEntries,
+  parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
-} from "~/helpers/rawKeyValue"
+} from "@hoppscotch/data"
+import { flow, pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as E from "fp-ts/Either"
+import { cloneDeep } from "lodash"
+import { useCodemirror } from "~/helpers/editor/codemirror"
+import linter from "~/helpers/editor/linting/rawKeyValue"
+import { useRESTRequestBody } from "~/newstore/RESTSession"
+import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
+import { objRemoveKey } from "~/helpers/functional/object"
+import { throwError } from "~/helpers/functional/error"
 
 const t = useI18n()
 const toast = useToast()
+
+const idTicker = ref(0)
 
 const bulkMode = ref(false)
 const bulkUrlEncodedParams = ref("")
@@ -155,7 +169,7 @@ useCodemirror(bulkEditor, bulkUrlEncodedParams, {
     mode: "text/x-yaml",
     placeholder: `${t("state.bulk_mode_placeholder")}`,
   },
-  linter: null,
+  linter,
   completer: null,
   environmentHighlights: true,
 })
@@ -178,8 +192,9 @@ const urlEncodedParams = computed<RawKeyValueEntry[]>({
 })
 
 // The UI representation of the urlEncodedParams list (has the empty end urlEncodedParam)
-const workingUrlEncodedParams = ref<RawKeyValueEntry[]>([
+const workingUrlEncodedParams = ref<Array<RawKeyValueEntry & { id: number }>>([
   {
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
@@ -193,6 +208,7 @@ watch(workingUrlEncodedParams, (urlEncodedParamList) => {
     urlEncodedParamList[urlEncodedParamList.length - 1].key !== ""
   ) {
     workingUrlEncodedParams.value.push({
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,
@@ -204,95 +220,97 @@ watch(workingUrlEncodedParams, (urlEncodedParamList) => {
 watch(
   urlEncodedParams,
   (newurlEncodedParamList) => {
-    const filteredWorkingUrlEncodedParams =
-      workingUrlEncodedParams.value.filter((e) => e.key !== "")
+    const filteredWorkingUrlEncodedParams = pipe(
+      workingUrlEncodedParams.value,
+      A.filterMap(
+        flow(
+          O.fromPredicate((x) => x.key !== ""),
+          O.map(objRemoveKey("id"))
+        )
+      )
+    )
+
+    const filteredBulkUrlEncodedParams = pipe(
+      parseRawKeyValueEntriesE(bulkUrlEncodedParams.value),
+      E.map(
+        flow(
+          RA.filter((e) => e.key !== ""),
+          RA.toArray
+        )
+      )
+    )
 
     if (!isEqual(newurlEncodedParamList, filteredWorkingUrlEncodedParams)) {
-      workingUrlEncodedParams.value = newurlEncodedParamList
+      workingUrlEncodedParams.value = pipe(
+        newurlEncodedParamList,
+        A.map((x) => ({ id: idTicker.value++, ...x }))
+      )
+    }
+
+    if (!isEqual(newurlEncodedParamList, filteredBulkUrlEncodedParams)) {
+      bulkUrlEncodedParams.value = rawKeyValueEntriesToString(
+        newurlEncodedParamList
+      )
     }
   },
   { immediate: true }
 )
 
 watch(workingUrlEncodedParams, (newWorkingUrlEncodedParams) => {
-  const fixedUrlEncodedParams = newWorkingUrlEncodedParams.filter(
-    (e) => e.key !== ""
+  const fixedUrlEncodedParams = pipe(
+    newWorkingUrlEncodedParams,
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.key !== ""),
+        O.map(objRemoveKey("id"))
+      )
+    )
   )
+
   if (!isEqual(urlEncodedParams.value, fixedUrlEncodedParams)) {
     urlEncodedParams.value = fixedUrlEncodedParams
   }
 })
 
-// Bulk Editor Syncing with Working urlEncodedParams
-watch(bulkUrlEncodedParams, () => {
-  try {
-    const transformation = bulkUrlEncodedParams.value
-      .split("\n")
-      .filter((x) => x.trim().length > 0 && x.includes(":"))
-      .map((item) => ({
-        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-        value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("#"),
-      }))
+watch(bulkUrlEncodedParams, (newBulkUrlEncodedParams) => {
+  const filteredBulkParams = pipe(
+    parseRawKeyValueEntriesE(newBulkUrlEncodedParams),
+    E.map(
+      flow(
+        RA.filter((e) => e.key !== ""),
+        RA.toArray
+      )
+    ),
+    E.getOrElse(() => [] as RawKeyValueEntry[])
+  )
 
-    const filteredUrlEncodedParams = workingUrlEncodedParams.value.filter(
-      (x) => x.key !== ""
-    )
-
-    if (!isEqual(filteredUrlEncodedParams, transformation)) {
-      workingUrlEncodedParams.value = transformation
-    }
-  } catch (e) {
-    toast.error(`${t("error.something_went_wrong")}`)
-    console.error(e)
-  }
-})
-
-watch(workingUrlEncodedParams, (newurlEncodedParamList) => {
-  if (bulkMode.value) return
-
-  try {
-    const currentBulkUrlEncodedParams = bulkUrlEncodedParams.value
-      .split("\n")
-      .map((item) => ({
-        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-        value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("#"),
-      }))
-
-    const filteredUrlEncodedParams = newurlEncodedParamList.filter(
-      (x) => x.key !== ""
-    )
-
-    if (!isEqual(currentBulkUrlEncodedParams, filteredUrlEncodedParams)) {
-      bulkUrlEncodedParams.value = filteredUrlEncodedParams
-        .map((param) => {
-          return `${param.active ? "" : "#"}${param.key}: ${param.value}`
-        })
-        .join("\n")
-    }
-  } catch (e) {
-    toast.error(`${t("error.something_went_wrong")}`)
-    console.error(e)
+  if (!isEqual(urlEncodedParams.value, filteredBulkParams)) {
+    urlEncodedParams.value = filteredBulkParams
   }
 })
 
 const addUrlEncodedParam = () => {
   workingUrlEncodedParams.value.push({
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
   })
 }
 
-const updateUrlEncodedParam = (index: number, param: RawKeyValueEntry) => {
+const updateUrlEncodedParam = (
+  index: number,
+  param: RawKeyValueEntry & { id: number }
+) => {
   workingUrlEncodedParams.value = workingUrlEncodedParams.value.map((p, i) =>
     i === index ? param : p
   )
 }
 
 const deleteUrlEncodedParam = (index: number) => {
-  const urlEncodedParamsBeforeDeletion = clone(workingUrlEncodedParams.value)
+  const urlEncodedParamsBeforeDeletion = cloneDeep(
+    workingUrlEncodedParams.value
+  )
 
   if (
     !(
@@ -323,13 +341,20 @@ const deleteUrlEncodedParam = (index: number) => {
     })
   }
 
-  workingUrlEncodedParams.value.splice(index, 1)
+  workingUrlEncodedParams.value = pipe(
+    workingUrlEncodedParams.value,
+    A.deleteAt(index),
+    O.getOrElseW(() =>
+      throwError("Working URL Encoded Params Deletion Out of Bounds")
+    )
+  )
 }
 
 const clearContent = () => {
   // set urlEncodedParams list to the initial state
   workingUrlEncodedParams.value = [
     {
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,

@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "@nuxtjs/composition-api"
+import { Environment } from "@hoppscotch/data"
 import { currentUser$ } from "~/helpers/fb/auth"
 import {
   useAxios,
@@ -97,7 +98,6 @@ import {
   environments$,
   replaceEnvironments,
   appendEnvironments,
-  Environment,
 } from "~/newstore/environments"
 
 defineProps<{

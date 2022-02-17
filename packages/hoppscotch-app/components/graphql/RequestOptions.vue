@@ -157,7 +157,7 @@
         <div v-else>
           <div
             v-for="(header, index) in workingHeaders"
-            :key="`header-${String(index)}`"
+            :key="`header-${header.id}`"
             class="flex border-b divide-x divide-dividerLight border-dividerLight"
           >
             <SmartAutoComplete
@@ -177,6 +177,7 @@
               class="flex-1 !flex"
               @input="
                 updateHeader(index, {
+                  id: header.id,
                   key: $event,
                   value: header.value,
                   active: header.active,
@@ -191,6 +192,7 @@
               autofocus
               @change="
                 updateHeader(index, {
+                  id: header.id,
                   key: header.key,
                   value: $event.target.value,
                   active: header.active,
@@ -217,6 +219,7 @@
                 color="green"
                 @click.native="
                   updateHeader(index, {
+                    id: header.id,
                     key: header.key,
                     value: header.value,
                     active: !header.active,
@@ -270,8 +273,20 @@
 import { Ref, computed, reactive, ref, watch } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import * as gql from "graphql"
-import { GQLHeader, makeGQLRequest } from "@hoppscotch/data"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
+import * as RA from "fp-ts/ReadonlyArray"
+import { pipe, flow } from "fp-ts/function"
+import {
+  GQLHeader,
+  makeGQLRequest,
+  rawKeyValueEntriesToString,
+  parseRawKeyValueEntriesE,
+  RawKeyValueEntry,
+} from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
+import cloneDeep from "lodash/cloneDeep"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useNuxt,
@@ -302,6 +317,7 @@ import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { objRemoveKey } from "~/helpers/functional/object"
 
 const t = useI18n()
 
@@ -315,6 +331,8 @@ const nuxt = useNuxt()
 const url = useReadonlyStream(gqlURL$, "")
 const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
 const variableString = useStream(gqlVariables$, "", setGQLVariables)
+
+const idTicker = ref(0)
 
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
@@ -336,8 +354,9 @@ useCodemirror(bulkEditor, bulkHeaders, {
 const headers = useStream(gqlHeaders$, [], setGQLHeaders) as Ref<GQLHeader[]>
 
 // The UI representation of the headers list (has the empty end header)
-const workingHeaders = ref<GQLHeader[]>([
+const workingHeaders = ref<Array<GQLHeader & { id: number }>>([
   {
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
@@ -351,6 +370,7 @@ watch(workingHeaders, (headersList) => {
     headersList[headersList.length - 1].key !== ""
   ) {
     workingHeaders.value.push({
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,
@@ -363,44 +383,72 @@ watch(
   headers,
   (newHeadersList) => {
     // Sync should overwrite working headers
-    const filteredWorkingHeaders = workingHeaders.value.filter(
-      (e) => e.key !== ""
+    const filteredWorkingHeaders = pipe(
+      workingHeaders.value,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== ""),
+          O.map(objRemoveKey("id"))
+        )
+      )
+    )
+
+    const filteredBulkHeaders = pipe(
+      parseRawKeyValueEntriesE(bulkHeaders.value),
+      E.map(
+        flow(
+          RA.filter((e) => e.key !== ""),
+          RA.toArray
+        )
+      ),
+      E.getOrElse(() => [] as RawKeyValueEntry[])
     )
 
     if (!isEqual(newHeadersList, filteredWorkingHeaders)) {
-      workingHeaders.value = newHeadersList
+      workingHeaders.value = pipe(
+        newHeadersList,
+        A.map((x) => ({ id: idTicker.value++, ...x }))
+      )
+    }
+
+    if (!isEqual(newHeadersList, filteredBulkHeaders)) {
+      bulkHeaders.value = rawKeyValueEntriesToString(newHeadersList)
     }
   },
   { immediate: true }
 )
 
 watch(workingHeaders, (newWorkingHeaders) => {
-  const fixedHeaders = newWorkingHeaders.filter((e) => e.key !== "")
+  const fixedHeaders = pipe(
+    newWorkingHeaders,
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.key !== ""),
+        O.map(objRemoveKey("id"))
+      )
+    )
+  )
+
   if (!isEqual(headers.value, fixedHeaders)) {
-    headers.value = fixedHeaders
+    headers.value = cloneDeep(fixedHeaders)
   }
 })
 
 // Bulk Editor Syncing with Working Headers
-watch(bulkHeaders, () => {
-  try {
-    const transformation = bulkHeaders.value
-      .split("\n")
-      .filter((x) => x.trim().length > 0 && x.includes(":"))
-      .map((item) => ({
-        key: item.substring(0, item.indexOf(":")).trimLeft().replace(/^#/, ""),
-        value: item.substring(item.indexOf(":") + 1).trimLeft(),
-        active: !item.trim().startsWith("#"),
-      }))
+watch(bulkHeaders, (newBulkHeaders) => {
+  const filteredBulkHeaders = pipe(
+    parseRawKeyValueEntriesE(newBulkHeaders),
+    E.map(
+      flow(
+        RA.filter((e) => e.key !== ""),
+        RA.toArray
+      )
+    ),
+    E.getOrElse(() => [] as RawKeyValueEntry[])
+  )
 
-    const filteredHeaders = workingHeaders.value.filter((x) => x.key !== "")
-
-    if (!isEqual(filteredHeaders, transformation)) {
-      workingHeaders.value = transformation
-    }
-  } catch (e) {
-    toast.error(`${t("error.something_went_wrong")}`)
-    console.error(e)
+  if (!isEqual(headers.value, filteredBulkHeaders)) {
+    headers.value = filteredBulkHeaders
   }
 })
 
@@ -418,11 +466,7 @@ watch(workingHeaders, (newHeadersList) => {
     const filteredHeaders = newHeadersList.filter((x) => x.key !== "")
 
     if (!isEqual(currentBulkHeaders, filteredHeaders)) {
-      bulkHeaders.value = filteredHeaders
-        .map((header) => {
-          return `${header.active ? "" : "#"}${header.key}: ${header.value}`
-        })
-        .join("\n")
+      bulkHeaders.value = rawKeyValueEntriesToString(filteredHeaders)
     }
   } catch (e) {
     toast.error(`${t("error.something_went_wrong")}`)
@@ -432,13 +476,14 @@ watch(workingHeaders, (newHeadersList) => {
 
 const addHeader = () => {
   workingHeaders.value.push({
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
   })
 }
 
-const updateHeader = (index: number, header: GQLHeader) => {
+const updateHeader = (index: number, header: GQLHeader & { id: number }) => {
   workingHeaders.value = workingHeaders.value.map((h, i) =>
     i === index ? header : h
   )
@@ -483,6 +528,7 @@ const clearContent = () => {
   // set headers list to the initial state
   workingHeaders.value = [
     {
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,

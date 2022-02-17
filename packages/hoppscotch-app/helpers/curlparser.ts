@@ -518,8 +518,6 @@ function getAuthObject(
   //    - apikey headers
   //    - --user arg
   //    - Creds provided along with URL
-  console.log("urlObject.username:", urlObject?.username)
-  console.log("urlObject.password:", urlObject?.password)
 
   let auth: HoppRESTAuth = {
     authActive: false,
@@ -598,7 +596,6 @@ function getAuthObject(
         password,
       }
   }
-  console.log("auth:", auth)
 
   return auth
 }

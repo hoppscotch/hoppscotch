@@ -1,8 +1,11 @@
-import { isLeft } from "fp-ts/lib/Either"
-import { pipe } from "fp-ts/lib/function"
-import { TaskEither, tryCatch, chain, right, left } from "fp-ts/lib/TaskEither"
+import * as O from "fp-ts/Option"
+import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import * as qjs from "quickjs-emscripten"
-import { marshalObjectToVM } from "./utils"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import cloneDeep from "lodash/cloneDeep"
+import { getEnv, marshalObjectToVM, setEnv } from "./utils"
 
 /**
  * The response object structure exposed to the test script
@@ -42,6 +45,17 @@ export type TestDescriptor = {
    * Children test blocks (test blocks inside the test block)
    */
   children: TestDescriptor[]
+}
+
+/**
+ * Defines the result of a test script execution
+ */
+export type TestResult = {
+  tests: TestDescriptor[]
+  envs: {
+    global: Environment["variables"]
+    selected: Environment["variables"]
+  }
 }
 
 /**
@@ -325,16 +339,19 @@ function createExpectation(
 
 export const execTestScript = (
   testScript: string,
+  envs: TestResult["envs"],
   response: TestResponse
-): TaskEither<string, TestDescriptor[]> =>
+): TE.TaskEither<string, TestResult> =>
   pipe(
-    tryCatch(
+    TE.tryCatch(
       async () => await qjs.getQuickJS(),
       (reason) => `QuickJS initialization failed: ${reason}`
     ),
-    chain(
+    TE.chain(
       // TODO: Make this more functional ?
       (QuickJS) => {
+        let currentEnvs = cloneDeep(envs)
+
         const vm = QuickJS.createVm()
 
         const pwHandle = vm.newObject()
@@ -374,8 +391,10 @@ export const execTestScript = (
 
         // Marshal response object
         const responseObjHandle = marshalObjectToVM(vm, response)
-        if (isLeft(responseObjHandle))
-          return left(`Response marshalling failed: ${responseObjHandle.left}`)
+        if (E.isLeft(responseObjHandle))
+          return TE.left(
+            `Response marshalling failed: ${responseObjHandle.left}`
+          )
 
         vm.setProp(pwHandle, "response", responseObjHandle.right)
         responseObjHandle.right.dispose()
@@ -386,6 +405,134 @@ export const execTestScript = (
         vm.setProp(pwHandle, "test", testFuncHandle)
         testFuncHandle.dispose()
 
+        // Environment management APIs
+        // TODO: Unified Implementation
+        const envHandle = vm.newObject()
+
+        const envGetHandle = vm.newFunction("get", (keyHandle) => {
+          const key: unknown = vm.dump(keyHandle)
+
+          if (typeof key !== "string") {
+            return {
+              error: vm.newString("Expected key to be a string"),
+            }
+          }
+
+          const result = pipe(
+            getEnv(key, currentEnvs),
+            O.match(
+              () => vm.undefined,
+              ({ value }) => vm.newString(value)
+            )
+          )
+
+          return {
+            value: result,
+          }
+        })
+
+        const envGetResolveHandle = vm.newFunction(
+          "getResolve",
+          (keyHandle) => {
+            const key: unknown = vm.dump(keyHandle)
+
+            if (typeof key !== "string") {
+              return {
+                error: vm.newString("Expected key to be a string"),
+              }
+            }
+
+            const result = pipe(
+              getEnv(key, currentEnvs),
+              E.fromOption(() => "INVALID_KEY" as const),
+
+              E.map(({ value }) =>
+                pipe(
+                  parseTemplateStringE(value, [
+                    ...envs.selected,
+                    ...envs.global,
+                  ]),
+                  // If the recursive resolution failed, return the unresolved value
+                  E.getOrElse(() => value)
+                )
+              ),
+
+              // Create a new VM String
+              // NOTE: Do not shorten this to map(vm.newString) apparently it breaks it
+              E.map((x) => vm.newString(x)),
+
+              E.getOrElse(() => vm.undefined)
+            )
+
+            console.log("result")
+            console.log(result)
+
+            return {
+              value: result,
+            }
+          }
+        )
+
+        const envSetHandle = vm.newFunction("set", (keyHandle, valueHandle) => {
+          const key: unknown = vm.dump(keyHandle)
+          const value: unknown = vm.dump(valueHandle)
+
+          if (typeof key !== "string") {
+            return {
+              error: vm.newString("Expected key to be a string"),
+            }
+          }
+
+          if (typeof value !== "string") {
+            return {
+              error: vm.newString("Expected value to be a string"),
+            }
+          }
+
+          currentEnvs = setEnv(key, value, currentEnvs)
+
+          return {
+            value: vm.undefined,
+          }
+        })
+
+        const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
+          const value: unknown = vm.dump(valueHandle)
+
+          if (typeof value !== "string") {
+            return {
+              error: vm.newString("Expected value to be a string"),
+            }
+          }
+
+          const result = pipe(
+            parseTemplateStringE(value, [
+              ...currentEnvs.selected,
+              ...currentEnvs.global,
+            ]),
+            E.getOrElse(() => value)
+          )
+
+          return {
+            value: vm.newString(result),
+          }
+        })
+
+        vm.setProp(envHandle, "resolve", envResolveHandle)
+        envResolveHandle.dispose()
+
+        vm.setProp(envHandle, "set", envSetHandle)
+        envSetHandle.dispose()
+
+        vm.setProp(envHandle, "getResolve", envGetResolveHandle)
+        envGetResolveHandle.dispose()
+
+        vm.setProp(envHandle, "get", envGetHandle)
+        envGetHandle.dispose()
+
+        vm.setProp(pwHandle, "env", envHandle)
+        envHandle.dispose()
+
         vm.setProp(vm.global, "pw", pwHandle)
         pwHandle.dispose()
 
@@ -395,12 +542,15 @@ export const execTestScript = (
           const errorData = vm.dump(evalRes.error)
           evalRes.error.dispose()
 
-          return left(`Script evaluation failed: ${errorData}`)
+          return TE.left(`Script evaluation failed: ${errorData}`)
         }
 
         vm.dispose()
 
-        return right(testRunStack)
+        return TE.right({
+          tests: testRunStack,
+          envs: currentEnvs,
+        })
       }
     )
   )

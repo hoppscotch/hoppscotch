@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/js-sandbox",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
   "main": "./lib/index.js",
   "types": "./lib/",
@@ -35,7 +35,8 @@
   "dependencies": {
     "fp-ts": "^2.11.8",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.15.0"
+    "quickjs-emscripten": "^0.15.0",
+    "@hoppscotch/data": "workspace:^0.4.0"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",

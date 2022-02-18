@@ -36,13 +36,6 @@
       <SmartEnvInput
         v-model="param.key"
         :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
-        styles="
-          bg-transparent
-          flex
-          flex-1
-          py-1
-          px-4
-        "
         @change="
           updateBodyParam(index, {
             key: $event,
@@ -66,13 +59,6 @@
         <SmartEnvInput
           v-model="param.value"
           :placeholder="`${$t('count.value', { count: index + 1 })}`"
-          styles="
-            bg-transparent
-            flex
-            flex-1
-            py-1
-            px-4
-          "
           @change="
             updateBodyParam(index, {
               key: param.key,

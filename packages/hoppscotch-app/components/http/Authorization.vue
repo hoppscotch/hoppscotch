@@ -158,50 +158,32 @@
             <SmartEnvInput
               v-model="basicUsername"
               :placeholder="$t('authorization.username')"
-              styles="bg-transparent flex flex-1 py-1 px-4"
             />
           </div>
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput
               v-model="basicPassword"
               :placeholder="$t('authorization.password')"
-              styles="bg-transparent flex flex-1 py-1 px-4"
             />
           </div>
         </div>
         <div v-if="authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput
-              v-model="bearerToken"
-              placeholder="Token"
-              styles="bg-transparent flex flex-1 py-1 px-4"
-            />
+            <SmartEnvInput v-model="bearerToken" placeholder="Token" />
           </div>
         </div>
         <div v-if="authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput
-              v-model="oauth2Token"
-              placeholder="Token"
-              styles="bg-transparent flex flex-1 py-1 px-4"
-            />
+            <SmartEnvInput v-model="oauth2Token" placeholder="Token" />
           </div>
           <HttpOAuth2Authorization />
         </div>
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput
-              v-model="apiKey"
-              placeholder="Key"
-              styles="bg-transparent flex flex-1 py-1 px-4"
-            />
+            <SmartEnvInput v-model="apiKey" placeholder="Key" />
           </div>
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput
-              v-model="apiValue"
-              placeholder="Value"
-              styles="bg-transparent flex flex-1 py-1 px-4"
-            />
+            <SmartEnvInput v-model="apiValue" placeholder="Value" />
           </div>
           <div class="flex items-center border-b border-dividerLight">
             <label class="ml-4 text-secondaryLight">

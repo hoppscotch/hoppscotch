@@ -3,6 +3,7 @@
     v-if="show"
     :title="`${t('environment.title')}`"
     max-width="sm:max-w-md"
+    dialog
     @close="hideModal"
   >
     <template #actions>
@@ -85,6 +86,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from "@nuxtjs/composition-api"
+import { Environment } from "@hoppscotch/data"
 import { currentUser$ } from "~/helpers/fb/auth"
 import {
   useAxios,
@@ -96,7 +98,6 @@ import {
   environments$,
   replaceEnvironments,
   appendEnvironments,
-  Environment,
 } from "~/newstore/environments"
 
 defineProps<{

@@ -8,9 +8,9 @@ import { Method } from "axios";
 import {
   TableResponse,
   RunnerResponseInfo,
-  Environment,
   EffectiveHoppRESTRequest,
 } from "../interfaces";
+import { Environment } from "../types";
 import {
   arrayFlatMap,
   arraySort,
@@ -20,11 +20,12 @@ import {
   toFormData,
   tupleToRecord,
 } from ".";
+import { createStream, getBorderCharacters } from "table";
 
 /**
- * Getter object methods for file test-parser.ts
+ * Getter object methods for file test.ts
  */
-export const GTestParser = {
+export const GTest = {
   /**
    * @param failing
    * @param passing
@@ -69,7 +70,7 @@ export const GTestParser = {
 /**
  * Getter object methods for file request-parser.ts
  */
-export const GRequestRunner = {
+export const GRequest = {
   /**
    * @param value
    * @returns Method string
@@ -108,9 +109,9 @@ export const getColorStatusCode = (
  * @param runnerResponseInfo
  * @returns Promise<TableResponse>
  */
-export const getResponseTable = async (
+export const getTableResponse = (
   runnerResponseInfo: RunnerResponseInfo
-): Promise<TableResponse> => {
+): TableResponse => {
   const { path, endpoint, statusText, status, method } = runnerResponseInfo;
   const responseTable: TableResponse = {
     path: path,
@@ -126,9 +127,9 @@ export const getResponseTable = async (
  * @param runnerResponseInfo
  * @returns Promise<TestResponse>
  */
-export const getTestResponse = async (
+export const getTestResponse = (
   runnerResponseInfo: RunnerResponseInfo
-): Promise<TestResponse> => {
+): TestResponse => {
   const { status, headers, body } = runnerResponseInfo;
   const testResponse: TestResponse = {
     status,
@@ -297,3 +298,15 @@ export function getEffectiveRESTRequest(
     effectiveFinalBody,
   };
 }
+
+export const getTableStream = () =>
+  createStream({
+    columnDefault: {
+      width: 30,
+      alignment: "center",
+      verticalAlignment: "middle",
+      wrapWord: true,
+    },
+    columnCount: 4,
+    border: getBorderCharacters("ramac"),
+  });

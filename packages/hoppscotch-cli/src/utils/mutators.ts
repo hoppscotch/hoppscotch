@@ -1,9 +1,25 @@
-import { Environment } from "../interfaces";
-import { flow } from "fp-ts/function";
+import inquirer from "inquirer";
+import fs from "fs/promises";
+import { flow, pipe } from "fp-ts/function";
 import * as S from "fp-ts/string";
 import * as RA from "fp-ts/ReadonlyArray";
+import * as E from "fp-ts/Either";
+import * as T from "fp-ts/Task";
+import * as TE from "fp-ts/TaskEither";
 import clone from "lodash/clone";
-import { RawKeyValueEntry, FormDataEntry } from "../interfaces";
+import { CLIContext, RequestStack } from "../interfaces";
+import {
+  Environment,
+  RawKeyValueEntry,
+  FormDataEntry,
+  HoppCLIError,
+  HoppErrorCode as HEC,
+  error,
+} from "../types";
+import { checkFileURL, isRESTCollection, requestsParser } from ".";
+import fuzzyPath from "inquirer-fuzzy-path";
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+inquirer.registerPrompt("fuzzypath", fuzzyPath);
 
 export function parseTemplateString(
   str: string,
@@ -92,3 +108,104 @@ export const toFormData = (values: FormDataEntry[]) => {
 
   return formData;
 };
+
+/**
+ * Parse options to collect JSON file path, through interactive CLI
+ * @param context The initial CLI context object
+ * @returns The parsed absolute file path string
+ */
+export const parseCLIOptions =
+  (context: CLIContext): T.Task<any> =>
+  async () => {
+    try {
+      const { fileUrl }: { fileUrl: string } = await inquirer.prompt([
+        {
+          type: "fuzzypath",
+          name: "fileUrl",
+          message: "Enter your Hoppscotch collection.json path:",
+          excludePath: (nodePath: string) => nodePath.includes("node_modules"),
+          excludeFilter: (nodePath: string) =>
+            nodePath == "." || nodePath.startsWith("."),
+          itemType: "file",
+          suggestOnly: false,
+          rootPath: ".",
+          depthLimit: 5,
+          emptyText: "No results...try searching for some other file!",
+        },
+      ]);
+      const _checkFileURL = await checkFileURL(fileUrl)();
+      if (E.isRight(_checkFileURL)) {
+        context.path = _checkFileURL.right || "";
+      } else {
+        return parseCLIOptions(context)();
+      }
+    } catch (e) {
+      return await parseCLIOptions(context)();
+    }
+  };
+
+export const parseErrorMessage = (e: any) => {
+  let msg: string;
+  if (e instanceof Error) {
+    const x = e as NodeJS.ErrnoException;
+    msg = e.message.replace(x.code! + ":", "").replace("error:", "");
+  } else {
+    msg = e;
+  }
+  return msg.replace(/\n+$|\s{2,}/g, "").trim();
+};
+
+export const parseCollectionData =
+  (
+    context: CLIContext
+  ): TE.TaskEither<HoppCLIError<HEC>, HoppCollection<HoppRESTRequest>[]> =>
+  async () => {
+    try {
+      const collectionArray = JSON.parse(
+        (await fs.readFile(context.path!)).toString()
+      );
+
+      if (!Array.isArray(collectionArray)) {
+        return E.left(
+          error({ code: "MALFORMED_COLLECTION", path: context.path! })
+        );
+      }
+
+      const valid = [];
+      for (const [idx, _] of collectionArray.entries()) {
+        const pm = {
+          x: { ...collectionArray[idx] },
+        };
+        valid.push(isRESTCollection(pm));
+        collectionArray[idx] = pm.x;
+      }
+
+      if (valid.every((val) => val)) {
+        context.collections = collectionArray;
+        return E.right(context.collections || []);
+      }
+
+      return E.left(
+        error({ code: "MALFORMED_COLLECTION", path: context.path || "" })
+      );
+    } catch (e) {
+      return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));
+    }
+  };
+
+export const flattenRequests = (
+  collectionArray: HoppCollection<HoppRESTRequest>[],
+  debug: boolean = false
+) =>
+  pipe(
+    TE.tryCatch(
+      async () => {
+        const requests: RequestStack[] = [];
+        for (const x of collectionArray) {
+          await requestsParser(x, requests, debug);
+        }
+        return requests;
+      },
+      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
+    )
+  );

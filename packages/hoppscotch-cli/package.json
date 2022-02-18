@@ -36,7 +36,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
-    "@hoppscotch/data": "workspace:^0.3.0",
+    "@hoppscotch/data": "workspace:^0.4.0",
     "@hoppscotch/js-sandbox": "workspace:^1.0.0",
     "axios": "^0.21.4",
     "chalk": "^4.1.1",

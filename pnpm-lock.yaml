@@ -327,7 +327,7 @@ importers:
 
   packages/hoppscotch-cli:
     specifiers:
-      '@hoppscotch/data': workspace:^0.3.0
+      '@hoppscotch/data': workspace:^0.4.0
       '@hoppscotch/js-sandbox': workspace:^1.0.0
       '@types/axios': ^0.14.0
       '@types/chalk': ^2.2.0
@@ -4748,7 +4748,7 @@ packages:
     resolution: {integrity: sha1-7CMA++fX3d1+udOr+HmZlkyvzkY=}
     deprecated: This is a stub types definition for axios (https://github.com/mzabriskie/axios). axios provides its own type definitions, so you don't need @types/axios installed!
     dependencies:
-      axios: 0.25.0
+      axios: 0.26.0
     transitivePeerDependencies:
       - debug
     dev: true
@@ -5066,7 +5066,6 @@ packages:
 
   /@types/node/17.0.15:
     resolution: {integrity: sha512-zWt4SDDv1S9WRBNxLFxFRHxdD9tvH8f5/kg5/IaLFdnSNXsDY4eL3Q3XXN+VxUnWIhyVFDwcsmAprvwXoM/ClA==}
-    dev: false
 
   /@types/node/17.0.18:
     resolution: {integrity: sha512-eKj4f/BsN/qcculZiRSujogjvp5O/k4lOW5m35NopjZM/QwLOR075a8pJW5hD+Rtdm2DaCVPENS6KtSQnUD6BA==}
@@ -13516,6 +13515,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       brace-expansion: 1.1.11
+    dev: true
 
   /minimist-options/4.1.0:
     resolution: {integrity: sha512-Q4r8ghd80yhO/0j1O3B2BjweX3fiHg9cdOwjJd2J76Q135c+NDxGCqdYKQ1SKBuFfgWbAUzBfvYjPUEeNgqN1A==}

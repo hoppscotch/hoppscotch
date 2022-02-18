@@ -1,6 +1,9 @@
 import { runPreRequestScript } from "@hoppscotch/js-sandbox"
 import { Environment } from "@hoppscotch/data"
+<<<<<<< HEAD
 import cloneDeep from "lodash/cloneDeep"
+=======
+>>>>>>> e0797e4c (feat: introduce APIs to update envs from tests and recursive resolution)
 import {
   getCurrentEnvironment,
   getGlobalVariables,

@@ -1,27 +1,18 @@
 import axios, { Method } from "axios";
-import { WritableStream } from "table";
 import * as S from "fp-ts/string";
 import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
+import * as T from "fp-ts/Task";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
-import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox/lib";
+import { debugging, GRequest, responseErrors } from ".";
 import {
-  debugging,
-  getResponseTable,
-  getTestResponse,
-  GRequestRunner,
-  responseErrors,
-} from ".";
-import {
-  TableResponse,
   RequestStack,
   RequestConfig,
   RunnerResponseInfo,
-  TestScriptPair,
   EffectiveHoppRESTRequest,
-  Environment,
 } from "../interfaces";
+import { Environment } from "../types";
 import { getEffectiveRESTRequest } from "./getters";
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
@@ -124,6 +115,8 @@ const createRequest = (
   return {
     path: `${rootPath}/${req.name.length > 0 ? req.name : "Untitled Request"}`,
     request: () => axios(config),
+    name: req.name,
+    testScript: req.testScript,
   };
 };
 
@@ -132,131 +125,118 @@ const createRequest = (
  * @param x The request stack
  * @returns The response table row
  */
-const requestRunner = async (x: RequestStack): Promise<RunnerResponseInfo> => {
-  try {
-    let status: number;
-    const baseResponse = await x.request();
-    const { config } = baseResponse;
-    const runnerResponse: RunnerResponseInfo = {
-      ...baseResponse,
-      path: x.path,
-      endpoint: GRequestRunner.endpoint(config.url),
-      method: GRequestRunner.method(config.method),
-      body: baseResponse.data,
-    };
-
-    // !NOTE: Temporary `config.supported` check
-    if ((config as RequestConfig).supported === false) {
-      status = 501;
-      runnerResponse.status = status;
-      runnerResponse.statusText = responseErrors[status];
-    }
-
-    return runnerResponse;
-  } catch (err) {
-    let status: number;
-    let statusText: string;
-    const runnerResponse: RunnerResponseInfo = {
-      path: x.path,
-      endpoint: "",
-      method: "GET",
-      body: {},
-      statusText: "",
-      status: 0,
-      headers: [],
-    };
-
-    if (axios.isAxiosError(err)) {
-      runnerResponse.method = GRequestRunner.method(err.config.method);
-      runnerResponse.endpoint = GRequestRunner.endpoint(err.config.url);
+export const requestRunner =
+  (x: RequestStack): T.Task<RunnerResponseInfo> =>
+  async () => {
+    try {
+      let status: number;
+      const baseResponse = await x.request();
+      const { config } = baseResponse;
+      const runnerResponse: RunnerResponseInfo = {
+        ...baseResponse,
+        path: x.path,
+        endpoint: GRequest.endpoint(config.url),
+        method: GRequest.method(config.method),
+        body: baseResponse.data,
+      };
 
       // !NOTE: Temporary `config.supported` check
-      if ((err.config as RequestConfig).supported === false) {
+      if ((config as RequestConfig).supported === false) {
         status = 501;
-        statusText = responseErrors[status];
-      } else if (!err.response) {
-        status = 408;
-        statusText = responseErrors[status];
-      } else {
-        status = err.response.status;
-        statusText = err.response.statusText;
+        runnerResponse.status = status;
+        runnerResponse.statusText = responseErrors[status];
       }
-    } else {
-      status = 600;
-      statusText = responseErrors[status];
-    }
-    runnerResponse.status = status;
-    runnerResponse.statusText = statusText;
 
-    return runnerResponse;
-  }
-};
+      return runnerResponse;
+    } catch (err) {
+      let status: number;
+      let statusText: string;
+      const runnerResponse: RunnerResponseInfo = {
+        path: x.path,
+        endpoint: "",
+        method: "GET",
+        body: {},
+        statusText: "",
+        status: 0,
+        headers: [],
+      };
+
+      if (axios.isAxiosError(err)) {
+        runnerResponse.method = GRequest.method(err.config.method);
+        runnerResponse.endpoint = GRequest.endpoint(err.config.url);
+
+        // !NOTE: Temporary `config.supported` check
+        if ((err.config as RequestConfig).supported === false) {
+          status = 501;
+          statusText = responseErrors[status];
+        } else if (!err.response) {
+          status = 408;
+          statusText = responseErrors[status];
+        } else {
+          status = err.response.status;
+          statusText = err.response.statusText;
+        }
+      } else {
+        status = 600;
+        statusText = responseErrors[status];
+      }
+      runnerResponse.status = status;
+      runnerResponse.statusText = statusText;
+
+      return runnerResponse;
+    }
+  };
 
 /**
  * The request parser from the collection JSON
  * @param x The collection object parsed from the JSON
- * @param tableStream The writable stream for the table
- * @param responses Array of TestResponse
+ * @param requests Array of requests
  * @param debug Boolean to use debugging session
  * @param rootPath The folder path
  */
 export const requestsParser = async (
   x: HoppCollection<HoppRESTRequest>,
-  tableStream: WritableStream,
-  responses: TestScriptPair[],
+  requests: RequestStack[],
   debug: boolean = false,
   rootPath: string = "$ROOT"
 ) => {
-  for (const req of x.requests) {
+  for (const request of x.requests) {
     let effectiveReq: EffectiveHoppRESTRequest = {
-      ...req,
+      ...request,
       effectiveFinalBody: null,
       effectiveFinalHeaders: [],
       effectiveFinalParams: [],
       effectiveFinalURL: S.empty,
     };
-    if (!S.isEmpty(req.preRequestScript)) {
+    effectiveReq = await preRequestScriptRunner(effectiveReq)();
+    const createdReq: RequestStack = createRequest(
+      `${rootPath}/${x.name}`,
+      effectiveReq,
+      debug
+    );
+    requests.push(createdReq);
+  }
+
+  for (const folder of x.folders) {
+    await requestsParser(folder, requests, debug, `${rootPath}/${x.name}`);
+  }
+};
+
+const preRequestScriptRunner =
+  (request: EffectiveHoppRESTRequest) => async () => {
+    if (!S.isEmpty(request.preRequestScript)) {
       const preRequestScriptRes = await runPreRequestScript(
-        req.preRequestScript,
+        request.preRequestScript,
         []
       )();
+
       if (E.isRight(preRequestScriptRes)) {
         const envs: Environment = {
           name: "Env",
           variables: preRequestScriptRes.right,
         };
-        effectiveReq = getEffectiveRESTRequest(req, envs);
+        return getEffectiveRESTRequest(request, envs);
       }
     }
-    const parsedReq: RequestStack = createRequest(
-      `${rootPath}/${x.name}`,
-      effectiveReq,
-      debug
-    );
-    const res: RunnerResponseInfo = await requestRunner(parsedReq);
-    const tableResponse: TableResponse = await getResponseTable(res);
-    const testResponse: TestResponse = await getTestResponse(res);
-
-    responses.push({
-      name: req.name,
-      testScript: req.testScript,
-      response: testResponse,
-    });
-
-    tableStream.write([
-      tableResponse.path,
-      tableResponse.method,
-      tableResponse.endpoint,
-      tableResponse.statusCode,
-    ]);
-  }
-  for (const folder of x.folders) {
-    await requestsParser(
-      folder,
-      tableStream,
-      responses,
-      debug,
-      `${rootPath}/${x.name}`
-    );
-  }
-};
+    return request;
+  };

@@ -1,7 +1,8 @@
 import { program } from "commander";
+import * as E from "fp-ts/Either";
 import { version } from "../package.json";
-import { test, run } from "./commands";
-import { errorHandler } from "./handlers";
+import { run, test } from "./commands";
+import { handleError } from "./handlers";
 
 /**
  * * Program Default Configuration
@@ -28,12 +29,7 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")
-  .action((context, options) =>
-    run({
-      interactive: options.interactive,
-      path: context,
-    })
-  );
+  .action(async (context, options) => await run(context, options)());
 
 program
   .command("test")
@@ -41,7 +37,7 @@ program
   .allowUnknownOption(false)
   .description("interactive hoppscotch testing with debugger")
   .setOptionValue("interactive", true)
-  .action((context) => test(context, true));
+  .action(async (context) => await test(context, true)());
 
 program
   .command("help", { isDefault: true, hidden: true })
@@ -52,15 +48,7 @@ program
 export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
-  } catch (err: any) {
-    errorHandler(err);
-  }
-  const options = program.opts();
-  if (Object.keys(options).length === 0) {
-    try {
-      program.help();
-    } catch (err: any) {
-      errorHandler(err);
-    }
+  } catch (e) {
+    handleError({ code: "UNKNOWN_ERROR", data: E.toError(e) });
   }
 };

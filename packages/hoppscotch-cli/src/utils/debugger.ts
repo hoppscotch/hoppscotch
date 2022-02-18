@@ -2,8 +2,7 @@ import { createConnection, Socket } from "net";
 import { Console } from "console";
 import { InspectOptions } from "util";
 import chalk from "chalk";
-import { errors } from ".";
-import { errorHandler } from "../handlers";
+import { handleError } from "../handlers";
 
 /**
  * @class The TCP socket debugger.
@@ -30,8 +29,8 @@ export class debugging {
       stderr: sockClient,
       colorMode: true,
     });
-    sockClient.on("error", () => {
-      errorHandler({ name: "Debugger Error!", ...errors.HOPP002 });
+    sockClient.on("error", (e) => {
+      handleError({ code: "DEBUGGER_ERROR", data: e });
     });
     debugging._instance = {
       sockClient,

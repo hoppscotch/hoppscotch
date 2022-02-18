@@ -1,20 +1,23 @@
 import fs from "fs/promises";
+import { CommanderError } from "commander";
 import { join, extname } from "path";
 import tcpp from "tcp-ping";
-import { errors } from ".";
 import {
   HoppRESTRequest,
   translateToNewRESTCollection,
   HoppCollection,
   isHoppRESTRequest,
 } from "@hoppscotch/data";
-import * as E from "fp-ts/Either";
 import * as S from "fp-ts/string";
-import { pipe } from "fp-ts/function";
+import * as E from "fp-ts/Either";
+import * as TE from "fp-ts/TaskEither";
+import { error, HoppCLIError, HoppErrorCode as HEC } from "../types";
+import { CLIContext } from "../interfaces";
+import { parseCLIOptions } from ".";
 
 /**
  * Typeguard to check valid Hoppscotch REST Collection
- * @param x The object to be checked
+ * @param param The object to be checked
  * @returns Boolean value corresponding to the validity check
  */
 export function isRESTCollection(param: {
@@ -57,58 +60,73 @@ export function isRESTCollection(param: {
 
 /**
  * Check if the file exists and check the file extension
- * @param url The input file path to check
- * @returns The absolute file URL, if the file exists
+ * @param path The input file path to check
+ * @returns TE.TaskEither<any, string>
  */
-export const checkFileURL = async (url: string) => {
-  try {
-    const fileUrl = join(url);
-    await fs.access(fileUrl);
-    if (extname(fileUrl) !== ".json") {
-      throw errors.HOPP004;
+export const checkFileURL =
+  (path: string): TE.TaskEither<HoppCLIError<HEC>, string> =>
+  async () => {
+    try {
+      const fullPath = join(path);
+      await fs.access(fullPath);
+      if (extname(fullPath) !== ".json")
+        return E.left(error({ code: "FILE_NOT_JSON", path: fullPath }));
+      return E.right(fullPath);
+    } catch (e) {
+      return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));
     }
-    return fileUrl;
-  } catch (err: any) {
-    if (err.code && err.code === "ENOENT") {
-      throw errors.HOPP001;
-    }
-    throw err;
-  }
-};
+  };
 
 /**
  * Checking TCP connection at given port and address exists or not.
  * @param address Address to ping (@default: localhost).
  * @param port Port to ping for given address (@default: 80).
- * @returns Promise<boolean>: True - available, False - unavailable.
+ * @returns Promise<Either<Error, tcpp.Result>>
  */
-export const pingConnection = (
-  address: string = "localhost",
-  port: number = 80
-): Promise<boolean> =>
-  new Promise((resolve, reject) => {
-    tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
-      if (err) {
-        reject(false);
-      }
-
-      const pingResultErr = data.results[0].err;
-      if (pingResultErr) {
-        resolve(false);
-      }
-
-      resolve(true);
+export const checkConnection =
+  (
+    address: string,
+    port: number
+  ): TE.TaskEither<HoppCLIError<HEC>, tcpp.Result> =>
+  async () =>
+    new Promise((resolve) => {
+      tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
+        if (err) {
+          resolve(E.left(error({ code: "DEBUGGER_ERROR", data: err })));
+        }
+        const pingResultErr = data.results[0].err;
+        if (pingResultErr) {
+          resolve(
+            E.left(error({ code: "DEBUGGER_ERROR", data: pingResultErr }))
+          );
+        }
+        resolve(E.right(data));
+      });
     });
-  });
 
 export const isExpectResultPass = (
   expectResult: string
 ): E.Either<boolean, boolean> =>
   expectResult === "pass" ? E.right(true) : E.left(false);
 
-export const isHoppErrCode = (
-  errCode: string | undefined
-): E.Either<boolean, boolean> =>
-  errCode && pipe(errCode, S.startsWith("HOPP"))
-    ? E.right(true)
-    : E.left(false);
+export const isSafeCommanderError = (error: any) => {
+  if (error instanceof CommanderError && error.exitCode === 0) {
+    process.exit(0);
+  }
+};
+
+export const checkCLIContext =
+  (context: CLIContext): TE.TaskEither<HoppCLIError<HEC>, null> =>
+  async () => {
+    if (context.interactive) {
+      await parseCLIOptions(context)();
+    } else if (S.isString(context.path)) {
+      const _checkFileURL = await checkFileURL(context.path!)();
+      if (E.isLeft(_checkFileURL)) {
+        return _checkFileURL;
+      }
+    } else if (!context.path) {
+      return E.left(error({ code: "NO_FILE_PATH" }));
+    }
+    return E.right(null);
+  };

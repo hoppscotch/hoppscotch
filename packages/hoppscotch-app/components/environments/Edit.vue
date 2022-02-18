@@ -118,15 +118,14 @@
 import clone from "lodash/clone"
 import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import {
-  Environment,
   getEnviroment,
   getGlobalVariables,
   globalEnv$,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
-import { parseTemplateStringE } from "~/helpers/templating"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({

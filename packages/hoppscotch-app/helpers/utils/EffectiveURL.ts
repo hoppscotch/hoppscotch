@@ -7,13 +7,15 @@ import {
   FormDataKeyValue,
   HoppRESTReqBody,
   HoppRESTRequest,
+  parseTemplateString,
+  parseBodyEnvVariables,
+  parseRawKeyValueEntries,
+  Environment,
 } from "@hoppscotch/data"
-import { parseTemplateString, parseBodyEnvVariables } from "../templating"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleToRecord } from "../functional/record"
-import { parseRawKeyValueEntries } from "../rawKeyValue"
-import { Environment, getGlobalVariables } from "~/newstore/environments"
+import { getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**

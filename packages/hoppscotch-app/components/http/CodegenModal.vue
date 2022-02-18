@@ -85,14 +85,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as O from "fp-ts/Option"
-import { makeRESTRequest } from "@hoppscotch/data"
+import { Environment, makeRESTRequest } from "@hoppscotch/data"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
-import { Environment, getAggregateEnvs } from "~/newstore/environments"
+import { getAggregateEnvs } from "~/newstore/environments"
 import { getRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import {

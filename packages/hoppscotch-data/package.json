@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/data",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
   "main": "dist/index.js",
   "module": "true",
@@ -14,7 +14,10 @@
   "exports": {
     ".": "./dist/index.js",
     "./graphql": "./dist/graphql/index.js",
-    "./rest": "./dist/rest/index.js"
+    "./rest": "./dist/rest/index.js",
+    "./rawKeyValue": "./dist/rawKeyValue.js",
+    "./collection": "./dist/index.js",
+    "./environment": "./dist/environment.js"
   },
   "repository": {
     "type": "git",
@@ -31,6 +34,9 @@
     "tsup": "^5.11.13"
   },
   "dependencies": {
-    "lodash": "^4.17.21"
+    "fp-ts": "^2.11.8",
+    "io-ts": "^2.2.16",
+    "lodash": "^4.17.21",
+    "parser-ts": "^0.6.16"
   }
 }

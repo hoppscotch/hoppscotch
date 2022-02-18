@@ -1,6 +1,13 @@
-import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
-import { Environment } from "~/newstore/environments"
+import * as E from "fp-ts/Either"
+
+export type Environment = {
+  name: string
+  variables: {
+    key: string
+    value: string
+  }[]
+}
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
 

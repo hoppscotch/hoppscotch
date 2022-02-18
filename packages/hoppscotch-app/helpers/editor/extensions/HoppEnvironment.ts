@@ -8,13 +8,13 @@ import {
   ViewPlugin,
 } from "@codemirror/view"
 import * as E from "fp-ts/Either"
+import { parseTemplateStringE } from "@hoppscotch/data"
 import { StreamSubscriberFunc } from "~/helpers/utils/composables"
 import {
   AggregateEnvironment,
   aggregateEnvs$,
   getAggregateEnvs,
 } from "~/newstore/environments"
-import { parseTemplateStringE } from "~/helpers/templating"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<\w+>>)/g
 

@@ -76,7 +76,7 @@ importers:
       '@graphql-typed-document-node/core': ^3.1.1
       '@hoppscotch/codemirror-lang-graphql': workspace:^0.1.0
       '@hoppscotch/data': workspace:^0.4.0
-      '@hoppscotch/js-sandbox': workspace:^1.0.0
+      '@hoppscotch/js-sandbox': workspace:^2.0.0
       '@nuxt/types': ^2.15.8
       '@nuxt/typescript-build': ^2.1.0
       '@nuxtjs/axios': ^5.13.6
@@ -345,6 +345,7 @@ importers:
   packages/hoppscotch-js-sandbox:
     specifiers:
       '@digitak/esrun': ^3.1.2
+      '@hoppscotch/data': workspace:^0.4.0
       '@relmify/jest-fp-ts': ^1.1.1
       '@types/jest': ^27.4.0
       '@types/lodash': ^4.14.178
@@ -363,6 +364,7 @@ importers:
       ts-jest: ^27.1.3
       typescript: ^4.5.5
     dependencies:
+      '@hoppscotch/data': link:../hoppscotch-data
       fp-ts: 2.11.8
       lodash: 4.17.21
       quickjs-emscripten: 0.15.0
@@ -3866,17 +3868,17 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27418474.8adff2e:
-    resolution: {integrity: sha512-wKU7jxYg22P7mETM2y7xIRz+dUohsp1RaFVekoNWLfckuzA/uHEg8NFlL+zoT0JbxivaRkyEgVC9Z4GlF4lgoA==}
+  /@nuxt/kit-edge/3.0.0-27420153.70542a3:
+    resolution: {integrity: sha512-XPhoj5GW/FG1euPyK+T3T63dJs76brk81nVm0tTLBafx9ohtoMdDtZnTVvhN5i7m4thAzmhaPwZereM9dsIyEw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27418474.8adff2e
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27420153.70542a3
       c12: 0.1.3
       consola: 2.15.3
       defu: 5.0.1
       globby: 13.1.1
       hash-sum: 2.0.0
-      jiti: 1.12.15
+      jiti: 1.13.0
       knitwork: 0.1.0
       lodash.template: 4.5.0
       mlly: 0.4.3
@@ -3908,14 +3910,14 @@ packages:
       node-fetch: 2.6.6
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27418474.8adff2e:
-    resolution: {integrity: sha512-yooh4a/NRssSxBfSJpLuC4MTIwxFtb8ZKIN2WtDOD5JOd2XwSqvk4Z9mIiP/VzKrGVRJcxFNY6GiXVBozlYsXg==}
+  /@nuxt/schema-edge/3.0.0-27420153.70542a3:
+    resolution: {integrity: sha512-m5b6Yp/X1z7lrmOtfBOgw4hKGI63WSLuiE7Z+4PwEiGeGQ7AKHmQVmyjXjJ7NJif+RJCTQ8Ps+SdjaE2A3M+Zw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       c12: 0.1.3
       create-require: 1.1.1
       defu: 5.0.1
-      jiti: 1.12.15
+      jiti: 1.13.0
       pathe: 0.2.0
       scule: 0.2.1
       std-env: 3.0.1
@@ -6916,7 +6918,7 @@ packages:
       defu: 5.0.1
       dotenv: 14.3.2
       gittar: 0.1.1
-      jiti: 1.12.15
+      jiti: 1.13.0
       mlly: 0.4.3
       pathe: 0.2.0
       rc9: 1.2.0
@@ -12318,6 +12320,11 @@ packages:
     hasBin: true
     dev: false
 
+  /jiti/1.13.0:
+    resolution: {integrity: sha512-/n9mNxZj/HDSrincJ6RP+L+yXbpnB8FybySBa+IjIaoH9FIxBbrbRT5XUbe8R7zuVM2AQqNMNDDqz0bzx3znOQ==}
+    hasBin: true
+    dev: true
+
   /joycon/3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
@@ -13865,7 +13872,7 @@ packages:
   /nuxt-windicss/2.2.5:
     resolution: {integrity: sha512-0T21d/SLCxla5gwtwSgisncnbDc2uuUXOu/qYNKEvh8URw8t9y7qZ1Z+gwyCDqORxBrqSzgXXZ7aLOntfPBHNQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27418474.8adff2e
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27420153.70542a3
       '@windicss/plugin-utils': 1.7.1
       consola: 2.15.3
       defu: 5.0.1

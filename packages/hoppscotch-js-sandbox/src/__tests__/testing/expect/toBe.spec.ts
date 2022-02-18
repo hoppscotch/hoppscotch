@@ -1,3 +1,5 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import { execTestScript, TestResponse } from "../../../test-runner"
 import "@relmify/jest-fp-ts"
 
@@ -7,11 +9,17 @@ const fakeResponse: TestResponse = {
   headers: [],
 }
 
+const func = (script: string, res: TestResponse) =>
+  pipe(
+    execTestScript(script, { global: [], selected: [] }, res),
+    TE.map((x) => x.tests)
+  )
+
 describe("toBe", () => {
   describe("general assertion (no negation)", () => {
     test("expect equals expected passes assertion", () => {
       return expect(
-        execTestScript(
+        func(
           `
               pw.expect(2).toBe(2)
           `,
@@ -28,7 +36,7 @@ describe("toBe", () => {
 
     test("expect not equals expected fails assertion", () => {
       return expect(
-        execTestScript(
+        func(
           `
               pw.expect(2).toBe(4)
           `,
@@ -47,7 +55,7 @@ describe("toBe", () => {
   describe("general assertion (with negation)", () => {
     test("expect equals expected fails assertion", () => {
       return expect(
-        execTestScript(
+        func(
           `
             pw.expect(2).not.toBe(2)
           `,
@@ -67,7 +75,7 @@ describe("toBe", () => {
 
     test("expect not equals expected passes assertion", () => {
       return expect(
-        execTestScript(
+        func(
           `
               pw.expect(2).not.toBe(4)
           `,
@@ -89,7 +97,7 @@ describe("toBe", () => {
 
 test("strict checks types", () => {
   return expect(
-    execTestScript(
+    func(
       `
           pw.expect(2).toBe("2")
         `,

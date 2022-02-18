@@ -1,8 +1,10 @@
 import { Observable } from "rxjs"
 import { filter } from "rxjs/operators"
 import { chain, right, TaskEither } from "fp-ts/lib/TaskEither"
-import { pipe } from "fp-ts/function"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
+import { Environment } from "@hoppscotch/data"
 import { runTestScript, TestDescriptor } from "@hoppscotch/js-sandbox"
 import { isRight } from "fp-ts/Either"
 import {
@@ -15,6 +17,15 @@ import { createRESTNetworkRequestStream } from "./network"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { isJSONContentType } from "./utils/contenttypes"
 import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
+import {
+  environmentsStore,
+  getCurrentEnvironment,
+  getEnviroment,
+  getGlobalVariables,
+  setGlobalEnvVariables,
+  updateEnvironment,
+} from "~/newstore/environments"
+import { TestResult } from "~/../hoppscotch-js-sandbox/lib/test-runner"
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -43,6 +54,11 @@ const getTestableBody = (
   return x
 }
 
+const combineEnvVariables = (env: {
+  global: Environment["variables"]
+  selected: Environment["variables"]
+}) => [...env.selected, ...env.global]
+
 export const runRESTRequest$ = (): TaskEither<
   string | Error,
   Observable<HoppRESTResponse>
@@ -55,7 +71,7 @@ export const runRESTRequest$ = (): TaskEither<
     chain((envs) => {
       const effectiveRequest = getEffectiveRESTRequest(getRESTRequest(), {
         name: "Env",
-        variables: envs,
+        variables: combineEnvVariables(envs),
       })
 
       const stream = createRESTNetworkRequestStream(effectiveRequest)
@@ -65,7 +81,7 @@ export const runRESTRequest$ = (): TaskEither<
         .pipe(filter((res) => res.type === "success" || res.type === "fail"))
         .subscribe(async (res) => {
           if (res.type === "success" || res.type === "fail") {
-            const runResult = await runTestScript(res.req.testScript, {
+            const runResult = await runTestScript(res.req.testScript, envs, {
               status: res.statusCode,
               body: getTestableBody(res),
               headers: res.headers,
@@ -73,11 +89,37 @@ export const runRESTRequest$ = (): TaskEither<
 
             if (isRight(runResult)) {
               setRESTTestResults(translateToSandboxTestResults(runResult.right))
+
+              setGlobalEnvVariables(runResult.right.envs.global)
+              if (environmentsStore.value.currentEnvironmentIndex !== -1) {
+                const env = getEnviroment(
+                  environmentsStore.value.currentEnvironmentIndex
+                )
+                updateEnvironment(
+                  environmentsStore.value.currentEnvironmentIndex,
+                  {
+                    name: env.name,
+                    variables: runResult.right.envs.selected,
+                  }
+                )
+              }
             } else {
               setRESTTestResults({
                 description: "",
                 expectResults: [],
                 tests: [],
+                envDiff: {
+                  global: {
+                    additions: [],
+                    deletions: [],
+                    updations: [],
+                  },
+                  selected: {
+                    additions: [],
+                    deletions: [],
+                    updations: [],
+                  },
+                },
                 scriptError: true,
               })
             }
@@ -90,8 +132,37 @@ export const runRESTRequest$ = (): TaskEither<
     })
   )
 
+const getAddedEnvVariables = (
+  current: Environment["variables"],
+  updated: Environment["variables"]
+) => updated.filter((x) => current.findIndex((y) => y.key === x.key) === -1)
+
+const getRemovedEnvVariables = (
+  current: Environment["variables"],
+  updated: Environment["variables"]
+) => current.filter((x) => updated.findIndex((y) => y.key === x.key) === -1)
+
+const getUpdatedEnvVariables = (
+  current: Environment["variables"],
+  updated: Environment["variables"]
+) =>
+  pipe(
+    updated,
+    A.filterMap(
+      flow(
+        O.fromPredicate(
+          (x) => current.findIndex((y) => y.key === x.key) !== -1
+        ),
+        O.map((x) => ({
+          ...x,
+          previousValue: current.find((y) => x.key === y.key)!.value,
+        }))
+      )
+    )
+  )
+
 function translateToSandboxTestResults(
-  testDesc: TestDescriptor
+  testDesc: TestResult & { tests: TestDescriptor }
 ): HoppTestResult {
   const translateChildTests = (child: TestDescriptor): HoppTestData => {
     return {
@@ -100,10 +171,32 @@ function translateToSandboxTestResults(
       tests: child.children.map(translateChildTests),
     }
   }
+
+  const globals = getGlobalVariables()
+  const env = getCurrentEnvironment()
+
   return {
     description: "",
-    expectResults: testDesc.expectResults,
-    tests: testDesc.children.map(translateChildTests),
+    expectResults: testDesc.tests.expectResults,
+    tests: testDesc.tests.children.map(translateChildTests),
     scriptError: false,
+    envDiff: {
+      global: {
+        additions: getAddedEnvVariables(globals, testDesc.envs.global),
+        deletions: getRemovedEnvVariables(globals, testDesc.envs.global),
+        updations: getUpdatedEnvVariables(globals, testDesc.envs.global),
+      },
+      selected: {
+        additions: getAddedEnvVariables(env.variables, testDesc.envs.selected),
+        deletions: getRemovedEnvVariables(
+          env.variables,
+          testDesc.envs.selected
+        ),
+        updations: getUpdatedEnvVariables(
+          env.variables,
+          testDesc.envs.selected
+        ),
+      },
+    },
   }
 }

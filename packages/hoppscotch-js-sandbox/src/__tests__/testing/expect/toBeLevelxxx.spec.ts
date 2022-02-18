@@ -1,3 +1,5 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import { execTestScript, TestResponse } from "../../../test-runner"
 import "@relmify/jest-fp-ts"
 
@@ -7,11 +9,17 @@ const fakeResponse: TestResponse = {
   headers: [],
 }
 
+const func = (script: string, res: TestResponse) =>
+  pipe(
+    execTestScript(script, { global: [], selected: [] }, res),
+    TE.map((x) => x.tests)
+  )
+
 describe("toBeLevel2xx", () => {
   test("assertion passes for 200 series with no negation", async () => {
     for (let i = 200; i < 300; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel2xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -28,7 +36,7 @@ describe("toBeLevel2xx", () => {
   test("assertion fails for non 200 series with no negation", async () => {
     for (let i = 300; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel2xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -44,7 +52,7 @@ describe("toBeLevel2xx", () => {
 
   test("give error if the expect value was not a number with no negation", async () => {
     await expect(
-      execTestScript(`pw.expect("foo").toBeLevel2xx()`, fakeResponse)()
+      func(`pw.expect("foo").toBeLevel2xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -61,7 +69,7 @@ describe("toBeLevel2xx", () => {
   test("assertion fails for 200 series with negation", async () => {
     for (let i = 200; i < 300; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel2xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -78,7 +86,7 @@ describe("toBeLevel2xx", () => {
   test("assertion passes for non 200 series with negation", async () => {
     for (let i = 300; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel2xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel2xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -94,7 +102,7 @@ describe("toBeLevel2xx", () => {
 
   test("give error if the expect value was not a number with negation", async () => {
     await expect(
-      execTestScript(`pw.expect("foo").not.toBeLevel2xx()`, fakeResponse)()
+      func(`pw.expect("foo").not.toBeLevel2xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -113,7 +121,7 @@ describe("toBeLevel3xx", () => {
   test("assertion passes for 300 series with no negation", async () => {
     for (let i = 300; i < 400; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel3xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -130,7 +138,7 @@ describe("toBeLevel3xx", () => {
   test("assertion fails for non 300 series with no negation", async () => {
     for (let i = 400; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel3xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -146,7 +154,7 @@ describe("toBeLevel3xx", () => {
 
   test("give error if the expect value is not a number without negation", () => {
     return expect(
-      execTestScript(`pw.expect("foo").toBeLevel3xx()`, fakeResponse)()
+      func(`pw.expect("foo").toBeLevel3xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -163,7 +171,7 @@ describe("toBeLevel3xx", () => {
   test("assertion fails for 400 series with negation", async () => {
     for (let i = 300; i < 400; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel3xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -180,7 +188,7 @@ describe("toBeLevel3xx", () => {
   test("assertion passes for non 200 series with negation", async () => {
     for (let i = 400; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel3xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel3xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -196,7 +204,7 @@ describe("toBeLevel3xx", () => {
 
   test("give error if the expect value is not a number with negation", () => {
     return expect(
-      execTestScript(`pw.expect("foo").not.toBeLevel3xx()`, fakeResponse)()
+      func(`pw.expect("foo").not.toBeLevel3xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -215,7 +223,7 @@ describe("toBeLevel4xx", () => {
   test("assertion passes for 400 series with no negation", async () => {
     for (let i = 400; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel4xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -232,7 +240,7 @@ describe("toBeLevel4xx", () => {
   test("assertion fails for non 400 series with no negation", async () => {
     for (let i = 500; i < 600; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel4xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -248,7 +256,7 @@ describe("toBeLevel4xx", () => {
 
   test("give error if the expected value is not a number without negation", () => {
     return expect(
-      execTestScript(`pw.expect("foo").toBeLevel4xx()`, fakeResponse)()
+      func(`pw.expect("foo").toBeLevel4xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -265,7 +273,7 @@ describe("toBeLevel4xx", () => {
   test("assertion fails for 400 series with negation", async () => {
     for (let i = 400; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel4xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -282,7 +290,7 @@ describe("toBeLevel4xx", () => {
   test("assertion passes for non 400 series with negation", async () => {
     for (let i = 500; i < 600; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel4xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel4xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -298,7 +306,7 @@ describe("toBeLevel4xx", () => {
 
   test("give error if the expected value is not a number with negation", () => {
     return expect(
-      execTestScript(`pw.expect("foo").not.toBeLevel4xx()`, fakeResponse)()
+      func(`pw.expect("foo").not.toBeLevel4xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -317,7 +325,7 @@ describe("toBeLevel5xx", () => {
   test("assertion passes for 500 series with no negation", async () => {
     for (let i = 500; i < 600; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel5xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -334,7 +342,7 @@ describe("toBeLevel5xx", () => {
   test("assertion fails for non 500 series with no negation", async () => {
     for (let i = 200; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).toBeLevel5xx()`, fakeResponse)()
+        func(`pw.expect(${i}).toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -350,7 +358,7 @@ describe("toBeLevel5xx", () => {
 
   test("give error if the expect value is not a number with no negation", () => {
     return expect(
-      execTestScript(`pw.expect("foo").toBeLevel5xx()`, fakeResponse)()
+      func(`pw.expect("foo").toBeLevel5xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -367,7 +375,7 @@ describe("toBeLevel5xx", () => {
   test("assertion fails for 500 series with negation", async () => {
     for (let i = 500; i < 600; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel5xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -384,7 +392,7 @@ describe("toBeLevel5xx", () => {
   test("assertion passes for non 500 series with negation", async () => {
     for (let i = 200; i < 500; i++) {
       await expect(
-        execTestScript(`pw.expect(${i}).not.toBeLevel5xx()`, fakeResponse)()
+        func(`pw.expect(${i}).not.toBeLevel5xx()`, fakeResponse)()
       ).resolves.toEqualRight([
         expect.objectContaining({
           expectResults: [
@@ -400,7 +408,7 @@ describe("toBeLevel5xx", () => {
 
   test("give error if the expect value is not a number with negation", () => {
     return expect(
-      execTestScript(`pw.expect("foo").not.toBeLevel5xx()`, fakeResponse)()
+      func(`pw.expect("foo").not.toBeLevel5xx()`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [

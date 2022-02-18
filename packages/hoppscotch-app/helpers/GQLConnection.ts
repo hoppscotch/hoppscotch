@@ -189,6 +189,8 @@ export class GQLConnection {
 
     const parsedVariables = JSON.parse(variables || "{}")
 
+    const params: Record<string, string> = {}
+
     if (auth.authActive) {
       if (auth.authType === "basic") {
         const username = auth.username
@@ -201,7 +203,7 @@ export class GQLConnection {
         if (addTo === "Headers") {
           finalHeaders[key] = value
         } else if (addTo === "Query params") {
-          finalHeaders[key] = value
+          params[key] = value
         }
       }
     }
@@ -221,6 +223,9 @@ export class GQLConnection {
         query,
         variables: parsedVariables,
       }),
+      params: {
+        ...params,
+      },
     }
 
     const res = await sendNetworkRequest(reqOptions)

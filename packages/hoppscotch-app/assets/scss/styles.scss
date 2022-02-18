@@ -40,7 +40,8 @@
 }
 
 input::placeholder,
-textarea::placeholder {
+textarea::placeholder,
+.cm-placeholder {
   @apply text-secondary;
   @apply opacity-35;
 }
@@ -134,6 +135,13 @@ a {
   }
 }
 
+.cm-tooltip {
+  .tooltip-theme {
+    @apply fixed;
+    @apply -mt-6;
+  }
+}
+
 .tooltip-theme {
   @apply bg-tooltip;
   @apply text-primary;
@@ -146,7 +154,7 @@ a {
 
   font-size: 86%;
 
-  kbd {
+  xmp {
     @apply hidden;
     @apply sm:inline-flex;
     @apply font-sans;
@@ -156,7 +164,13 @@ a {
     @apply rounded-sm;
     @apply px-1;
     @apply ml-1;
+    @apply my-0;
     @apply truncate;
+
+    &.expand-loop {
+      @apply bg-error;
+      @apply text-accentContrast;
+    }
   }
 }
 

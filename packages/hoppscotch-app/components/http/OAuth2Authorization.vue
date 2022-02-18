@@ -99,7 +99,7 @@ export default {
         oidcDiscoveryURL.value === "" &&
         (authURL.value === "" || accessTokenURL.value === "")
       ) {
-        toast.error(`${t("complete_config_urls")}`)
+        toast.error(`${t("error.incomplete_config_urls")}`)
         return
       }
       try {

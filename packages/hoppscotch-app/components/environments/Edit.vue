@@ -41,6 +41,12 @@
             />
           </div>
         </div>
+        <div
+          v-if="evnExpandError"
+          class="w-full px-4 py-2 mb-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+        >
+          {{ $t("environment.nested_overflow") }}
+        </div>
         <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
             v-for="(variable, index) in vars"
@@ -53,10 +59,10 @@
               :placeholder="`${$t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
-            <input
+            <SmartEnvInput
               v-model="variable.value"
-              class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${$t('count.value', { count: index + 1 })}`"
+              :envs="liveEnvs"
               :name="'value' + index"
             />
             <div class="flex">
@@ -111,13 +117,16 @@
 <script lang="ts">
 import clone from "lodash/clone"
 import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import {
-  Environment,
   getEnviroment,
   getGlobalVariables,
+  globalEnv$,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   props: {
@@ -128,6 +137,8 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const globalVars = useReadonlyStream(globalEnv$, [])
+
     const workingEnv = computed(() => {
       if (props.editingEnvironmentIndex === null) return null
 
@@ -142,6 +153,7 @@ export default defineComponent({
     })
 
     return {
+      globalVars,
       workingEnv,
     }
   },
@@ -151,6 +163,33 @@ export default defineComponent({
       vars: [] as { key: string; value: string }[],
       clearIcon: "trash-2",
     }
+  },
+  computed: {
+    evnExpandError(): boolean {
+      for (const variable of this.vars) {
+        const result = parseTemplateStringE(variable.value, this.vars)
+
+        if (E.isLeft(result)) {
+          console.error("error", result.left)
+          return true
+        }
+      }
+      return false
+    },
+    liveEnvs(): Array<{ key: string; value: string; source: string }> {
+      if (this.evnExpandError) {
+        return []
+      }
+
+      if (this.$props.editingEnvironmentIndex === "Global") {
+        return [...this.vars.map((x) => ({ ...x, source: this.name! }))]
+      } else {
+        return [
+          ...this.vars.map((x) => ({ ...x, source: this.name! })),
+          ...this.globalVars.map((x) => ({ ...x, source: "Global" })),
+        ]
+      }
+    },
   },
   watch: {
     show() {

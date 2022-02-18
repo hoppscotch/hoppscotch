@@ -34,10 +34,17 @@
   </p>
   <br />
   <p>
-    <a href="https://hoppscotch.io">
+    <a href="https://hoppscotch.io/#gh-light-mode-only" target="_blank">
       <img
-        src="https://raw.githubusercontent.com/hoppscotch/hoppscotch/main/packages/hoppscotch-app/static/banner.png"
-        alt="Screenshot"
+        src="./packages/hoppscotch-app/static/images/banner-light.png"
+        alt="Hoppscotch"
+        width="100%"
+      />
+    </a>
+    <a href="https://hoppscotch.io/#gh-dark-mode-only" target="_blank">
+      <img
+        src="./packages/hoppscotch-app/static/images/banner-dark.png"
+        alt="Hoppscotch"
         width="100%"
       />
     </a>

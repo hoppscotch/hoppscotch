@@ -9,12 +9,10 @@ import {
   FormDataKeyValue,
   HoppRESTReqBody,
   ValidContentTypes,
-} from "@hoppscotch/data"
-import {
   parseRawKeyValueEntries,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
-} from "../rawKeyValue"
+} from "@hoppscotch/data"
 
 const ANY_TYPE = Symbol("TRANSITION_RULESET_IGNORE_TYPE")
 // eslint-disable-next-line no-redeclare

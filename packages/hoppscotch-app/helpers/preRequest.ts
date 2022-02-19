@@ -1,13 +1,14 @@
 import { runPreRequestScript } from "@hoppscotch/js-sandbox"
 import { Environment } from "@hoppscotch/data"
+import cloneDeep from "lodash/cloneDeep"
 import {
   getCurrentEnvironment,
   getGlobalVariables,
 } from "~/newstore/environments"
 
 export const getCombinedEnvVariables = () => ({
-  global: getGlobalVariables(),
-  selected: getCurrentEnvironment().variables,
+  global: cloneDeep(getGlobalVariables()),
+  selected: cloneDeep(getCurrentEnvironment().variables),
 })
 
 export const getFinalEnvsFromPreRequest = (

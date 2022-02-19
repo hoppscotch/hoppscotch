@@ -38,11 +38,37 @@
                 v-for="(env, index) in testResults.envDiff.global.updations"
                 :key="`env-${env.key}-${index}`"
                 :env="env"
+                status="updations"
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.additions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="additions"
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.deletions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="deletions"
               />
               <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.updations"
                 :key="`env-${env.key}-${index}`"
                 :env="env"
+                status="updations"
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.selected.additions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="additions"
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.selected.deletions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="deletions"
               />
             </div>
           </details>
@@ -151,8 +177,12 @@ const clearContent = () => setRESTTestResults(null)
 const haveEnvVariables = computed(() => {
   if (!testResults.value) return false
   return (
+    testResults.value.envDiff.global.additions.length ||
     testResults.value.envDiff.global.updations.length ||
-    testResults.value.envDiff.selected.updations.length
+    testResults.value.envDiff.global.deletions.length ||
+    testResults.value.envDiff.selected.additions.length ||
+    testResults.value.envDiff.selected.updations.length ||
+    testResults.value.envDiff.selected.deletions.length
   )
 })
 </script>

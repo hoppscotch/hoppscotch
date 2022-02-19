@@ -34,35 +34,40 @@
               </span>
             </summary>
             <div class="divide-y divide-dividerLight">
+              <div
+                v-if="noEnvSelected"
+                class="flex bg-error p-4 text-secondaryDark"
+              >
+                <i class="mr-4 material-icons"> warning </i>
+                <div class="flex flex-col">
+                  <p>
+                    {{ t("environment.no_environment_description") }}
+                  </p>
+                  <p class="space-x-2 flex mt-3">
+                    <ButtonSecondary
+                      :label="t('environment.add_to_global')"
+                      class="text-tiny !bg-primary"
+                      filled
+                    />
+                    <ButtonSecondary
+                      :label="t('environment.create_new')"
+                      class="text-tiny !bg-primary"
+                      filled
+                    />
+                  </p>
+                </div>
+              </div>
               <HttpTestResultEnv
-                v-for="(env, index) in testResults.envDiff.global.updations"
-                :key="`env-${env.key}-${index}`"
-                :env="env"
-                status="updations"
-              />
-              <HttpTestResultEnv
-                v-for="(env, index) in testResults.envDiff.global.additions"
+                v-for="(env, index) in testResults.envDiff.selected.additions"
                 :key="`env-${env.key}-${index}`"
                 :env="env"
                 status="additions"
-              />
-              <HttpTestResultEnv
-                v-for="(env, index) in testResults.envDiff.global.deletions"
-                :key="`env-${env.key}-${index}`"
-                :env="env"
-                status="deletions"
               />
               <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.updations"
                 :key="`env-${env.key}-${index}`"
                 :env="env"
                 status="updations"
-              />
-              <HttpTestResultEnv
-                v-for="(env, index) in testResults.envDiff.selected.additions"
-                :key="`env-${env.key}-${index}`"
-                :env="env"
-                status="additions"
               />
               <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.deletions"
@@ -165,7 +170,15 @@
 
 <script setup lang="ts">
 import { computed } from "@nuxtjs/composition-api"
-import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
+import {
+  useReadonlyStream,
+  useI18n,
+  useStream,
+} from "~/helpers/utils/composables"
+import {
+  selectedEnvIndex$,
+  setCurrentEnvironment,
+} from "~/newstore/environments"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 
 const t = useI18n()
@@ -185,4 +198,12 @@ const haveEnvVariables = computed(() => {
     testResults.value.envDiff.selected.deletions.length
   )
 })
+
+const selectedEnvironmentIndex = useStream(
+  selectedEnvIndex$,
+  -1,
+  setCurrentEnvironment
+)
+
+const noEnvSelected = computed(() => selectedEnvironmentIndex.value === -1)
 </script>

@@ -5,7 +5,11 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import { Environment } from "@hoppscotch/data"
-import { runTestScript, TestDescriptor } from "@hoppscotch/js-sandbox"
+import {
+  SandboxTestResult,
+  runTestScript,
+  TestDescriptor,
+} from "@hoppscotch/js-sandbox"
 import { isRight } from "fp-ts/Either"
 import {
   getCombinedEnvVariables,
@@ -25,7 +29,6 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
-import { TestResult } from "~/../hoppscotch-js-sandbox/lib/test-runner"
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -151,7 +154,9 @@ const getUpdatedEnvVariables = (
     A.filterMap(
       flow(
         O.fromPredicate(
-          (x) => current.findIndex((y) => y.key === x.key) !== -1
+          (x) =>
+            current.findIndex((y) => x.key === y.key && x.value !== y.value) ===
+            -1
         ),
         O.map((x) => ({
           ...x,
@@ -162,7 +167,7 @@ const getUpdatedEnvVariables = (
   )
 
 function translateToSandboxTestResults(
-  testDesc: TestResult & { tests: TestDescriptor }
+  testDesc: SandboxTestResult
 ): HoppTestResult {
   const translateChildTests = (child: TestDescriptor): HoppTestData => {
     return {

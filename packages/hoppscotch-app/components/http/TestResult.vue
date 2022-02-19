@@ -3,7 +3,9 @@
     <div
       v-if="
         testResults &&
-        (testResults.expectResults.length || testResults.tests.length)
+        (testResults.expectResults.length ||
+          testResults.tests.length ||
+          haveEnvVariables)
       "
     >
       <div
@@ -20,6 +22,31 @@
         />
       </div>
       <div class="border-b divide-y-4 divide-dividerLight border-dividerLight">
+        <div v-if="haveEnvVariables" class="flex flex-col">
+          <details class="flex flex-col divide-y divide-dividerLight" open>
+            <summary
+              class="flex items-center justify-between flex-1 min-w-0 cursor-pointer transition focus:outline-none text-secondaryLight text-tiny group"
+            >
+              <span
+                class="px-4 py-2 truncate transition group-hover:text-secondary capitalize-first"
+              >
+                {{ t("environment.title") }}
+              </span>
+            </summary>
+            <div class="divide-y divide-dividerLight">
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.updations"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.selected.updations"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+              />
+            </div>
+          </details>
+        </div>
         <div v-if="testResults.tests" class="divide-y-4 divide-dividerLight">
           <HttpTestResultEntry
             v-for="(result, index) in testResults.tests"
@@ -111,6 +138,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "@nuxtjs/composition-api"
 import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 
@@ -119,4 +147,12 @@ const t = useI18n()
 const testResults = useReadonlyStream(restTestResults$, null)
 
 const clearContent = () => setRESTTestResults(null)
+
+const haveEnvVariables = computed(() => {
+  if (!testResults.value) return false
+  return (
+    testResults.value.envDiff.global.updations.length ||
+    testResults.value.envDiff.selected.updations.length
+  )
+})
 </script>

@@ -91,9 +91,12 @@ export const runRESTRequest$ = (): TaskEither<
             })()
 
             if (isRight(runResult)) {
+              debugger
+
               setRESTTestResults(translateToSandboxTestResults(runResult.right))
 
               setGlobalEnvVariables(runResult.right.envs.global)
+
               if (environmentsStore.value.currentEnvironmentIndex !== -1) {
                 const env = getEnviroment(
                   environmentsStore.value.currentEnvironmentIndex
@@ -154,14 +157,21 @@ const getUpdatedEnvVariables = (
     A.filterMap(
       flow(
         O.fromPredicate(
-          (x) =>
-            current.findIndex((y) => x.key === y.key && x.value !== y.value) ===
-            -1
+          (x) => current.findIndex((y) => x.key === y.key) === -1
         ),
-        O.map((x) => ({
-          ...x,
-          previousValue: current.find((y) => x.key === y.key)!.value,
-        }))
+        O.chain(
+          O.fromPredicate(
+            (x) => current.findIndex((y) => x.value !== y.value) === -1
+          )
+        ),
+        O.map((x) => {
+          const match = current.find((y) => x.key === y.key)!.value
+
+          return {
+            ...x,
+            previousValue: match,
+          }
+        })
       )
     )
   )

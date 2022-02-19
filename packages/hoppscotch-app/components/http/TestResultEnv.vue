@@ -1,6 +1,11 @@
 <template>
   <div class="flex items-center px-4 py-2">
-    <i class="mr-4 material-icons" :class="getStyle(status)">
+    <i
+      v-tippy="{ theme: 'tooltip' }"
+      class="mr-4 material-icons cursor-help"
+      :class="getStyle(status)"
+      :title="`${t(getTooltip(status))}`"
+    >
       {{ getIcon(status) }}
     </i>
     <span class="text-secondaryDark">
@@ -16,6 +21,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "~/helpers/utils/composables"
+
 type Status = "updations" | "additions" | "deletions"
 type Props = {
   env: {
@@ -28,14 +35,16 @@ type Props = {
 
 defineProps<Props>()
 
+const t = useI18n()
+
 const getIcon = (status: Status) => {
   switch (status) {
     case "additions":
-      return "add_circle_outline"
+      return "add_circle"
     case "updations":
-      return "check_circle_outline"
+      return "check_circle"
     case "deletions":
-      return "remove_circle_outline"
+      return "remove_circle"
   }
 }
 
@@ -47,6 +56,17 @@ const getStyle = (status: Status) => {
       return "text-yellow-500"
     case "deletions":
       return "text-red-500"
+  }
+}
+
+const getTooltip = (status: Status) => {
+  switch (status) {
+    case "additions":
+      return "environment.added"
+    case "updations":
+      return "environment.updated"
+    case "deletions":
+      return "environment.deleted"
   }
 }
 </script>

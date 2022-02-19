@@ -159,14 +159,19 @@
     "tests": "There are no tests for this request"
   },
   "environment": {
+    "added": "Environment addition",
+    "add_to_global": "Add to Global",
     "create_new": "Create new environment",
+    "deleted": "Environment deletion",
     "edit": "Edit Environment",
     "invalid_name": "Please provide a name for the environment",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "New Environment",
     "no_environment": "No environment",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Select environment",
     "title": "Environments",
+    "updated": "Environment updation",
     "variable_list": "Variable List"
   },
   "error": {
@@ -468,7 +473,7 @@
   },
   "state": {
     "bulk_mode": "Bulk edit",
-    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend # to any row you want to add but keep disabled",
+    "bulk_mode_placeholder": "Entries are separated by newline Keys and values are separated by : Prepend # to any row you want to add but keep disabled",
     "cleared": "Cleared",
     "connected": "Connected",
     "connected_to": "Connected to {name}",

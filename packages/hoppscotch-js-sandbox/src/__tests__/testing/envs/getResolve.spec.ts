@@ -13,11 +13,7 @@ const fakeResponse: TestResponse = {
 const func = (script: string, envs: TestResult["envs"]) =>
   pipe(
     execTestScript(script, envs, fakeResponse),
-    TE.map((x) => x.tests),
-    TE.mapLeft((x) => {
-      console.log(x)
-      return x
-    })
+    TE.map((x) => x.tests)
   )
 
 describe("pw.env.getResolve", () => {

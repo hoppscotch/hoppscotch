@@ -464,9 +464,6 @@ export const execTestScript = (
               E.getOrElse(() => vm.undefined)
             )
 
-            console.log("result")
-            console.log(result)
-
             return {
               value: result,
             }

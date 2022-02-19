@@ -11,6 +11,7 @@ import {
   TestDescriptor,
 } from "@hoppscotch/js-sandbox"
 import { isRight } from "fp-ts/Either"
+import cloneDeep from "lodash/cloneDeep"
 import {
   getCombinedEnvVariables,
   getFinalEnvsFromPreRequest,
@@ -91,8 +92,6 @@ export const runRESTRequest$ = (): TaskEither<
             })()
 
             if (isRight(runResult)) {
-              debugger
-
               setRESTTestResults(translateToSandboxTestResults(runResult.right))
 
               setGlobalEnvVariables(runResult.right.envs.global)
@@ -156,22 +155,23 @@ const getUpdatedEnvVariables = (
     updated,
     A.filterMap(
       flow(
-        O.fromPredicate(
-          (x) => current.findIndex((y) => x.key === y.key) === -1
+        O.of,
+        O.bindTo("env"),
+        O.bind("index", ({ env }) =>
+          pipe(
+            current.findIndex((x) => x.key === env.key),
+            O.fromPredicate((x) => x !== -1)
+          )
         ),
         O.chain(
           O.fromPredicate(
-            (x) => current.findIndex((y) => x.value !== y.value) === -1
+            ({ env, index }) => env.value !== current[index].value
           )
         ),
-        O.map((x) => {
-          const match = current.find((y) => x.key === y.key)!.value
-
-          return {
-            ...x,
-            previousValue: match,
-          }
-        })
+        O.map(({ env, index }) => ({
+          ...env,
+          previousValue: current[index].value,
+        }))
       )
     )
   )
@@ -187,8 +187,8 @@ function translateToSandboxTestResults(
     }
   }
 
-  const globals = getGlobalVariables()
-  const env = getCurrentEnvironment()
+  const globals = cloneDeep(getGlobalVariables())
+  const env = cloneDeep(getCurrentEnvironment())
 
   return {
     description: "",

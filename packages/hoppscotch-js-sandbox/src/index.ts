@@ -9,6 +9,8 @@ import {
 } from "./test-runner"
 
 export type TestDescriptor = _TestDescriptor
+export type SandboxTestResult = TestResult & { tests: TestDescriptor }
+
 /**
  * Executes a given test script on the test-runner sandbox
  * @param testScript The string of the script to run
@@ -22,7 +24,7 @@ export const runTestScript = (
   pipe(
     execTestScript(testScript, envs, response),
     TE.chain((results) =>
-      TE.right(<TestResult & { tests: TestDescriptor }>{
+      TE.right(<SandboxTestResult>{
         envs: results.envs,
         tests: results.tests[0],
       })

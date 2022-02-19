@@ -11,7 +11,7 @@ import {
 import * as S from "fp-ts/string";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
-import { error, HoppCLIError, HoppErrorCode as HEC } from "../types";
+import { error, HoppCLIError } from "../types";
 import { CLIContext } from "../interfaces";
 import { parseCLIOptions } from ".";
 
@@ -64,13 +64,14 @@ export function isRESTCollection(param: {
  * @returns TE.TaskEither<any, string>
  */
 export const checkFileURL =
-  (path: string): TE.TaskEither<HoppCLIError<HEC>, string> =>
+  (path: string): TE.TaskEither<HoppCLIError, string> =>
   async () => {
     try {
       const fullPath = join(path);
       await fs.access(fullPath);
-      if (extname(fullPath) !== ".json")
+      if (extname(fullPath) !== ".json") {
         return E.left(error({ code: "FILE_NOT_JSON", path: fullPath }));
+      }
       return E.right(fullPath);
     } catch (e) {
       return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));
@@ -84,10 +85,7 @@ export const checkFileURL =
  * @returns Promise<Either<Error, tcpp.Result>>
  */
 export const checkConnection =
-  (
-    address: string,
-    port: number
-  ): TE.TaskEither<HoppCLIError<HEC>, tcpp.Result> =>
+  (address: string, port: number): TE.TaskEither<HoppCLIError, tcpp.Result> =>
   async () =>
     new Promise((resolve) => {
       tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
@@ -116,7 +114,7 @@ export const isSafeCommanderError = (error: any) => {
 };
 
 export const checkCLIContext =
-  (context: CLIContext): TE.TaskEither<HoppCLIError<HEC>, null> =>
+  (context: CLIContext): TE.TaskEither<HoppCLIError, null> =>
   async () => {
     if (context.interactive) {
       await parseCLIOptions(context)();

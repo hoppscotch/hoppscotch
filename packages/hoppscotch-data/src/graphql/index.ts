@@ -1,5 +1,7 @@
 import { HoppGQLAuth } from "./HoppGQLAuth"
 
+export * from "./HoppGQLAuth"
+
 export type GQLHeader = {
   key: string
   value: string

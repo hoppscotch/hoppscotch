@@ -1,19 +1,32 @@
 import axios, { Method } from "axios";
+import chalk from "chalk";
+import { WritableStream } from "table";
 import * as S from "fp-ts/string";
 import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
 import * as T from "fp-ts/Task";
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox/lib";
-import { debugging, GRequest, responseErrors } from ".";
+import * as TE from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/function";
+import { HoppRESTRequest, HoppCollection, Environment } from "@hoppscotch/data";
+import { runPreRequestScript } from "@hoppscotch/js-sandbox";
+import {
+  debugging,
+  GRequest,
+  responseErrors,
+  getEffectiveRESTRequest,
+  getTableResponse,
+  getTableStream,
+  getTestResponse,
+} from ".";
 import {
   RequestStack,
   RequestConfig,
   RunnerResponseInfo,
   EffectiveHoppRESTRequest,
+  TestScriptData,
 } from "../interfaces";
-import { Environment } from "../types";
-import { getEffectiveRESTRequest } from "./getters";
+import { error, HoppCLIError } from "../types";
+import { handleError } from "../handlers";
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
@@ -25,7 +38,7 @@ import { getEffectiveRESTRequest } from "./getters";
 const createRequest = (
   rootPath: string,
   req: EffectiveHoppRESTRequest,
-  debug: boolean = false
+  debug: boolean
 ): RequestStack => {
   const config: RequestConfig = {
     supported: true,
@@ -43,9 +56,15 @@ const createRequest = (
   if (debug === true) {
     config.transformResponse = [
       (data: any) => {
-        debugging.info("new_request");
-        debugging.dir(data);
-        return data;
+        let parsedData = data;
+        try {
+          parsedData = JSON.parse(data);
+        } catch (error) {
+          parsedData = data;
+        }
+        debugging.info(`REQUEST_NAME: ${req.name}`);
+        debugging.dir(parsedData);
+        return parsedData;
       },
     ];
   }
@@ -194,36 +213,51 @@ export const requestRunner =
  * @param debug Boolean to use debugging session
  * @param rootPath The folder path
  */
-export const requestsParser = async (
-  x: HoppCollection<HoppRESTRequest>,
-  requests: RequestStack[],
-  debug: boolean = false,
-  rootPath: string = "$ROOT"
-) => {
-  for (const request of x.requests) {
-    let effectiveReq: EffectiveHoppRESTRequest = {
-      ...request,
-      effectiveFinalBody: null,
-      effectiveFinalHeaders: [],
-      effectiveFinalParams: [],
-      effectiveFinalURL: S.empty,
-    };
-    effectiveReq = await preRequestScriptRunner(effectiveReq)();
-    const createdReq: RequestStack = createRequest(
-      `${rootPath}/${x.name}`,
-      effectiveReq,
-      debug
-    );
-    requests.push(createdReq);
-  }
+export const requestsParser =
+  (
+    x: HoppCollection<HoppRESTRequest>,
+    requests: RequestStack[],
+    debug: boolean,
+    rootPath: string = "$ROOT"
+  ): T.Task<void> =>
+  async () => {
+    for (const request of x.requests) {
+      let effectiveReq: EffectiveHoppRESTRequest = {
+        ...request,
+        effectiveFinalBody: null,
+        effectiveFinalHeaders: [],
+        effectiveFinalParams: [],
+        effectiveFinalURL: S.empty,
+      };
 
-  for (const folder of x.folders) {
-    await requestsParser(folder, requests, debug, `${rootPath}/${x.name}`);
-  }
-};
+      const _preRequestScriptRunner = await preRequestScriptRunner(
+        effectiveReq
+      )();
+
+      if (E.isRight(_preRequestScriptRunner)) {
+        effectiveReq = _preRequestScriptRunner.right;
+      } else {
+        return handleError(_preRequestScriptRunner.left);
+      }
+
+      const createdReq: RequestStack = createRequest(
+        `${rootPath}/${x.name}`,
+        effectiveReq,
+        debug
+      );
+      requests.push(createdReq);
+    }
+
+    for (const folder of x.folders) {
+      await requestsParser(folder, requests, debug, `${rootPath}/${x.name}`)();
+    }
+  };
 
 const preRequestScriptRunner =
-  (request: EffectiveHoppRESTRequest) => async () => {
+  (
+    request: EffectiveHoppRESTRequest
+  ): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
+  async () => {
     if (!S.isEmpty(request.preRequestScript)) {
       const preRequestScriptRes = await runPreRequestScript(
         request.preRequestScript,
@@ -237,6 +271,81 @@ const preRequestScriptRunner =
         };
         return getEffectiveRESTRequest(request, envs);
       }
+
+      return E.left(
+        error({
+          code: "PRE_REQUEST_SCRIPT_ERROR",
+          data: preRequestScriptRes.left,
+        })
+      );
     }
-    return request;
+    return E.right(request);
   };
+
+export const runRequests = (
+  requests: RequestStack[]
+): TE.TaskEither<HoppCLIError, TestScriptData[]> =>
+  pipe(
+    TE.tryCatch(
+      async () => {
+        const testScriptData: TestScriptData[] = [];
+        if (A.isNonEmpty(requests)) {
+          const tableStream = getTableStream();
+          const requestsPromise = [];
+          responseTableOutput.header(tableStream);
+
+          for (const request of requests) {
+            requestsPromise.push(
+              pipe(
+                request,
+                requestRunner,
+                T.map((res) => {
+                  responseTableOutput.body(res, tableStream);
+                  return {
+                    name: request.name,
+                    testScript: request.testScript,
+                    response: res,
+                  };
+                })
+              )()
+            );
+          }
+
+          const responses = await Promise.all(requestsPromise);
+          for (const response of responses) {
+            const testResponse = getTestResponse(response.response);
+            const testScriptPair: TestScriptData = {
+              name: response.name,
+              testScript: response.testScript,
+              response: testResponse,
+            };
+            testScriptData.push(testScriptPair);
+          }
+          process.stdout.write("\n");
+        }
+        return testScriptData;
+      },
+      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
+    )
+  );
+
+const responseTableOutput = {
+  header: (tableStream: WritableStream) => {
+    console.clear();
+    tableStream.write([
+      pipe("PATH", chalk.cyanBright, chalk.bold),
+      pipe("METHOD", chalk.cyanBright, chalk.bold),
+      pipe("ENDPOINT", chalk.cyanBright, chalk.bold),
+      pipe("STATUS CODE", chalk.cyanBright, chalk.bold),
+    ]);
+  },
+  body: (response: RunnerResponseInfo, tableStream: WritableStream) => {
+    const tableResponse = getTableResponse(response);
+    tableStream.write([
+      tableResponse.path,
+      tableResponse.method,
+      tableResponse.endpoint,
+      tableResponse.statusCode,
+    ]);
+  },
+};

@@ -2,25 +2,25 @@ import chalk from "chalk";
 import { pipe } from "fp-ts/function";
 import qs from "qs";
 import * as A from "fp-ts/Array";
+import * as E from "fp-ts/Either";
 import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
-import { HoppRESTRequest } from "@hoppscotch/data";
+import {
+  HoppRESTRequest,
+  Environment,
+  parseRawKeyValueEntries,
+  parseBodyEnvVariablesE,
+  parseTemplateString,
+  parseTemplateStringE,
+} from "@hoppscotch/data";
 import { Method } from "axios";
 import {
   TableResponse,
   RunnerResponseInfo,
   EffectiveHoppRESTRequest,
 } from "../interfaces";
-import { Environment } from "../types";
-import {
-  arrayFlatMap,
-  arraySort,
-  parseBodyEnvVariables,
-  parseRawKeyValueEntries,
-  parseTemplateString,
-  toFormData,
-  tupleToRecord,
-} from ".";
+import { arrayFlatMap, arraySort, toFormData, tupleToRecord } from ".";
 import { createStream, getBorderCharacters } from "table";
+import { error, HoppCLIError } from "../types";
 
 /**
  * Getter object methods for file test.ts
@@ -42,7 +42,7 @@ export const GTest = {
       if (passing > 0) {
         message += chalk.greenBright(`${passing} successful, `);
       }
-      message += `out of ${total} tests.`;
+      message += chalk.dim(`out of ${total} tests.`);
     }
 
     return message;
@@ -68,7 +68,7 @@ export const GTest = {
 };
 
 /**
- * Getter object methods for file request-parser.ts
+ * Getter object methods for file request.ts
  */
 export const GRequest = {
   /**
@@ -134,7 +134,7 @@ export const getTestResponse = (
   const testResponse: TestResponse = {
     status,
     headers,
-    body: typeof body !== "object" ? JSON.parse(body) : body,
+    body,
   };
   return testResponse;
 };
@@ -142,9 +142,9 @@ export const getTestResponse = (
 function getFinalBodyFromRequest(
   request: HoppRESTRequest,
   envVariables: Environment["variables"]
-): FormData | string | null {
+): E.Either<HoppCLIError, string | null | FormData> {
   if (request.body.contentType === null) {
-    return null;
+    return E.right(null);
   }
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
@@ -165,7 +165,8 @@ function getFinalBodyFromRequest(
       // Tuple to Record object
       tupleToRecord,
       // Stringify
-      qs.stringify
+      qs.stringify,
+      E.right
     );
   }
 
@@ -196,9 +197,21 @@ function getFinalBodyFromRequest(
               },
             ]
       ),
-      toFormData
+      toFormData,
+      E.right
     );
-  } else return parseBodyEnvVariables(request.body.body, envVariables);
+  } else {
+    const parsedBodyEnvVar = parseBodyEnvVariablesE(
+      request.body.body,
+      envVariables
+    );
+    if (E.isLeft(parsedBodyEnvVar)) {
+      return E.left(
+        error({ code: "PARSING_ERROR", data: parsedBodyEnvVar.left })
+      );
+    }
+    return parsedBodyEnvVar;
+  }
 }
 
 /**
@@ -212,7 +225,7 @@ function getFinalBodyFromRequest(
 export function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment
-): EffectiveHoppRESTRequest {
+): E.Either<HoppCLIError, EffectiveHoppRESTRequest> {
   const envVariables = [...environment.variables];
 
   const effectiveFinalHeaders = request.headers
@@ -283,6 +296,10 @@ export function getEffectiveRESTRequest(
   }
 
   const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables);
+  if (E.isLeft(effectiveFinalBody)) {
+    return effectiveFinalBody;
+  }
+
   if (request.body.contentType)
     effectiveFinalHeaders.push({
       active: true,
@@ -290,15 +307,29 @@ export function getEffectiveRESTRequest(
       value: request.body.contentType,
     });
 
-  return {
+  const effectiveFinalURL = parseTemplateStringE(
+    request.endpoint,
+    envVariables
+  );
+  if (E.isLeft(effectiveFinalURL)) {
+    return E.left(
+      error({ code: "PARSING_ERROR", data: effectiveFinalURL.left })
+    );
+  }
+
+  return E.right({
     ...request,
-    effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
+    effectiveFinalURL: effectiveFinalURL.right,
     effectiveFinalHeaders,
     effectiveFinalParams,
-    effectiveFinalBody,
-  };
+    effectiveFinalBody: effectiveFinalBody.right,
+  });
 }
 
+/**
+ * Get writable stream to stdout response in table format.
+ * @returns WritableStream
+ */
 export const getTableStream = () =>
   createStream({
     columnDefault: {
@@ -306,7 +337,9 @@ export const getTableStream = () =>
       alignment: "center",
       verticalAlignment: "middle",
       wrapWord: true,
+      paddingLeft: 0,
+      paddingRight: 0,
     },
     columnCount: 4,
-    border: getBorderCharacters("ramac"),
+    border: getBorderCharacters("norc"),
   });

@@ -3,15 +3,16 @@ import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import * as S from "fp-ts/string";
+import chalk from "chalk";
+import { log } from "console";
 import {
   execTestScript,
   TestDescriptor,
 } from "@hoppscotch/js-sandbox/lib/test-runner";
 import { TestReport, TestScriptData } from "../interfaces";
 import { isExpectResultPass, GTest } from ".";
-import { error, HoppCLIError, HoppErrorCode as HEC } from "../types";
-import chalk from "chalk";
-import { log } from "console";
+import { error, HoppCLIError } from "../types";
+import { handleError } from "../handlers";
 
 /**
  * Recursive function to log template strings of testMessages & expectMessages
@@ -51,40 +52,84 @@ const testDescriptorParser =
   };
 
 /**
- * Executes test script and runs testDescriptorParser function to calculate
- * total failing tests for current test script.
+ * Executes test script and runs testDescriptorParser function to
+ * generate test-report.
  * @param testScriptData Object with details of test-script.
- * @returns Promise<number>: total failing tests for current test script.
+ * @returns TaskEither<HoppCLIError, TestReport[]>
  */
 export const testRunner =
-  (
-    testScriptData: TestScriptData
-  ): TE.TaskEither<HoppCLIError<HEC>, TestReport[]> =>
+  (testScriptData: TestScriptData): TE.TaskEither<HoppCLIError, TestReport[]> =>
   async () => {
     const testScriptExecRes = await execTestScript(
       testScriptData.testScript,
       testScriptData.response
     )();
 
-    const testReports: TestReport[] = [];
     if (E.isRight(testScriptExecRes)) {
+      const testReports: TestReport[] = [];
       for (const testDescriptorChild of testScriptExecRes.right) {
         await testDescriptorParser(testDescriptorChild, testReports)();
       }
-    } else {
-      return E.left(
-        error({ code: "UNKNOWN_ERROR", data: testScriptExecRes.left })
-      );
+      return E.right(testReports);
     }
-
-    return E.right(testReports);
+    return E.left(
+      error({
+        code: "TEST_SCRIPT_ERROR",
+        data: testScriptExecRes.left,
+        name: testScriptData.name,
+      })
+    );
   };
 
-export const outputTestReport = (test: TestReport) => async () => {
-  let expectMessages = "";
+/**
+ * Runs tests on array of test-script-data.
+ * @param tests
+ * @returns TaskEither<HoppCLIError, null>
+ */
+export const runTests =
+  (tests: TestScriptData[]): TE.TaskEither<HoppCLIError, null> =>
+  async () => {
+    let failing = 0;
 
-  log(test.descriptor);
-  log("-".repeat(test.descriptor.length));
+    const testsPromise = [];
+    for (const test of tests) {
+      const testScript = pipe(test.testScript, S.trim);
+      if (!S.isEmpty(testScript)) {
+        testsPromise.push(testRunner(test)());
+      }
+    }
+
+    const testsResponse = await Promise.all(testsPromise);
+    for (const testResponse of testsResponse) {
+      if (E.isRight(testResponse)) {
+        for (const _testResponse of testResponse.right) {
+          failing += _testResponse.failing;
+          await testReportOutput(_testResponse)();
+        }
+      } else {
+        failing += 1;
+        handleError(testResponse.left);
+      }
+    }
+
+    if (failing > 0) {
+      return E.left(error({ code: "TESTS_FAILING", data: failing }));
+    }
+    if (A.isNonEmpty(testsResponse) && failing === 0) {
+      pipe("ALL_TESTS_PASSING", chalk.bgGreen.black, log);
+    }
+
+    return E.right(null);
+  };
+
+/**
+ * Outputs test runner report in stdout
+ * @param test
+ * @returns Promise<void>
+ */
+const testReportOutput = (test: TestReport) => async () => {
+  let expectMessages = "";
+  pipe(test.descriptor, chalk.underline, log);
 
   for (const expectResult of test.expectResults) {
     if (E.isLeft(isExpectResultPass(expectResult.status))) {
@@ -98,37 +143,3 @@ export const outputTestReport = (test: TestReport) => async () => {
   log(testMessage);
   log(expectMessages);
 };
-
-export const runTests =
-  (tests: TestScriptData[]): TE.TaskEither<HoppCLIError<HEC>, null> =>
-  async () => {
-    let failing = 0;
-
-    for (const test of tests) {
-      const testScript = pipe(test.testScript, S.trim);
-      if (!S.isEmpty(testScript)) {
-        log(
-          pipe(
-            `\nRunning tests for ${chalk.bold(test.name)}...`,
-            chalk.yellowBright
-          )
-        );
-        const testRunnerRes = await testRunner(test)();
-        if (E.isRight(testRunnerRes)) {
-          for (const _testRunnerRes of testRunnerRes.right) {
-            failing += _testRunnerRes.failing;
-            await outputTestReport(_testRunnerRes)();
-          }
-        } else {
-          return E.left(testRunnerRes.left);
-        }
-      }
-    }
-
-    if (failing > 0) {
-      log(chalk.bgRed("process exited : 1"));
-      process.exit(1);
-    }
-
-    return E.right(null);
-  };

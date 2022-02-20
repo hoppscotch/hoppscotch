@@ -1,6 +1,6 @@
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
-import { runCollection, handleError } from "../handlers";
+import { handleError, runCollection } from "../handlers";
 import { CLIContext } from "../interfaces";
 
 export const run = (context: any, options: any) => async () => {
@@ -12,6 +12,7 @@ export const run = (context: any, options: any) => async () => {
   await pipe(
     cliContext,
     runCollection,
-    TE.mapLeft((e) => pipe(e, handleError))
+    TE.mapLeft((e) => pipe(e, handleError)),
+    TE.map((_) => process.exit(0))
   )();
 };

@@ -1,6 +1,5 @@
 import * as TE from "fp-ts/TaskEither";
-import { runCollection } from "../handlers";
-import { handleError } from "../handlers";
+import { handleError, runCollection } from "../handlers";
 import { pipe } from "fp-ts/function";
 
 export const test =
@@ -8,6 +7,7 @@ export const test =
   async () => {
     await pipe(
       runCollection(context, debug),
-      TE.mapLeft((e) => pipe(e, handleError))
+      TE.mapLeft((e) => pipe(e, handleError)),
+      TE.map((_) => process.exit(0))
     )();
   };

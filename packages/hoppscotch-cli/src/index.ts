@@ -1,4 +1,4 @@
-import { program } from "commander";
+import { CommanderError, program } from "commander";
 import * as E from "fp-ts/Either";
 import { version } from "../package.json";
 import { run, test } from "./commands";

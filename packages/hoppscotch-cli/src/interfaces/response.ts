@@ -30,11 +30,6 @@ export interface RunnerResponseInfo extends TestResponse {
   statusText: string;
 }
 
-export interface CollectionResponse {
-  testScriptPair: TestScriptData;
-  tableResponse: TableResponse;
-}
-
 /**
  * Interface to describe test script details.
  * @property {string} name - Request name.

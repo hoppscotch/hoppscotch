@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import { CommanderError } from "commander";
 import { join, extname } from "path";
 import tcpp from "tcp-ping";
+import { pipe } from "fp-ts/function";
 import {
   HoppRESTRequest,
   translateToNewRESTCollection,
@@ -11,7 +12,7 @@ import {
 import * as S from "fp-ts/string";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
-import { error, HoppCLIError, HoppErrorCode as HEC } from "../types";
+import { error, HoppCLIError } from "../types";
 import { CLIContext } from "../interfaces";
 import { parseCLIOptions } from ".";
 
@@ -64,16 +65,17 @@ export function isRESTCollection(param: {
  * @returns TE.TaskEither<any, string>
  */
 export const checkFileURL =
-  (path: string): TE.TaskEither<HoppCLIError<HEC>, string> =>
+  (path: string): TE.TaskEither<HoppCLIError, string> =>
   async () => {
     try {
       const fullPath = join(path);
       await fs.access(fullPath);
-      if (extname(fullPath) !== ".json")
+      if (extname(fullPath) !== ".json") {
         return E.left(error({ code: "FILE_NOT_JSON", path: fullPath }));
+      }
       return E.right(fullPath);
     } catch (e) {
-      return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));
+      return E.left(error({ code: "FILE_NOT_FOUND", path: path }));
     }
   };
 
@@ -84,11 +86,8 @@ export const checkFileURL =
  * @returns Promise<Either<Error, tcpp.Result>>
  */
 export const checkConnection =
-  (
-    address: string,
-    port: number
-  ): TE.TaskEither<HoppCLIError<HEC>, tcpp.Result> =>
-  async () =>
+  (address: string, port: number): TE.TaskEither<HoppCLIError, tcpp.Result> =>
+  () =>
     new Promise((resolve) => {
       tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
         if (err) {
@@ -116,17 +115,16 @@ export const isSafeCommanderError = (error: any) => {
 };
 
 export const checkCLIContext =
-  (context: CLIContext): TE.TaskEither<HoppCLIError<HEC>, null> =>
+  (context: CLIContext): TE.TaskEither<HoppCLIError, null> =>
   async () => {
     if (context.interactive) {
       await parseCLIOptions(context)();
-    } else if (S.isString(context.path)) {
-      const _checkFileURL = await checkFileURL(context.path!)();
-      if (E.isLeft(_checkFileURL)) {
-        return _checkFileURL;
-      }
-    } else if (!context.path) {
+    } else if (!S.isString(context.path)) {
       return E.left(error({ code: "NO_FILE_PATH" }));
     }
-    return E.right(null);
+    return await pipe(
+      context.path!,
+      checkFileURL,
+      TE.map((_) => null)
+    )();
   };

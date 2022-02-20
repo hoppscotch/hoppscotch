@@ -25,6 +25,7 @@ type HoppErrors = {
   PRE_REQUEST_SCRIPT_ERROR: HoppErrorData;
   PARSING_ERROR: HoppErrorData;
   TEST_SCRIPT_ERROR: HoppErrorTest;
+  TESTS_FAILING: HoppErrorData;
 };
 
 export type HoppErrorCode = keyof HoppErrors;

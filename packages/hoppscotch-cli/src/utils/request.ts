@@ -1,5 +1,6 @@
 import axios, { Method } from "axios";
 import chalk from "chalk";
+import { WritableStream } from "table";
 import * as S from "fp-ts/string";
 import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
@@ -24,7 +25,6 @@ import {
   EffectiveHoppRESTRequest,
   TestScriptData,
 } from "../interfaces";
-import { WritableStream } from "table";
 import { error, HoppCLIError } from "../types";
 import { handleError } from "../handlers";
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
@@ -56,7 +56,12 @@ const createRequest = (
   if (debug === true) {
     config.transformResponse = [
       (data: any) => {
-        const parsedData = JSON.parse(data);
+        let parsedData = data;
+        try {
+          parsedData = JSON.parse(data);
+        } catch (error) {
+          parsedData = data;
+        }
         debugging.info(`REQUEST_NAME: ${req.name}`);
         debugging.dir(parsedData);
         return parsedData;
@@ -320,9 +325,7 @@ export const runRequests = (
         }
         return testScriptData;
       },
-      (reason) => {
-        return error({ code: "DEBUGGER_ERROR", data: E.toError(reason) });
-      }
+      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
     )
   );
 

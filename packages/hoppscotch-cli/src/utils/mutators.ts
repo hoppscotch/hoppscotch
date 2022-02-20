@@ -129,23 +129,21 @@ export const parseCollectionData =
         );
       }
 
-      const valid = [];
       for (const [idx, _] of collectionArray.entries()) {
         const pm = {
           x: { ...collectionArray[idx] },
         };
-        valid.push(isRESTCollection(pm));
+        const _isRESTCollection = isRESTCollection(pm);
+        if (!_isRESTCollection) {
+          return E.left(
+            error({ code: "MALFORMED_COLLECTION", path: context.path! })
+          );
+        }
         collectionArray[idx] = pm.x;
       }
 
-      if (valid.every((val) => val)) {
-        context.collections = collectionArray;
-        return E.right(context.collections || []);
-      }
-
-      return E.left(
-        error({ code: "MALFORMED_COLLECTION", path: context.path! })
-      );
+      context.collections = collectionArray;
+      return E.right(context.collections || []);
     } catch (e) {
       return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));
     }
@@ -160,7 +158,7 @@ export const parseCollectionData =
 export const flattenRequests = (
   collectionArray: HoppCollection<HoppRESTRequest>[],
   debug: boolean
-) =>
+): TE.TaskEither<HoppCLIError, RequestStack[]> =>
   pipe(
     TE.tryCatch(
       async () => {

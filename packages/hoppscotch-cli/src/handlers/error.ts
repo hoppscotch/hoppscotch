@@ -11,7 +11,7 @@ const parsePreRequestScriptError = (e: any) => {
 };
 
 export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
-  const ERROR_CODE = `${chalk.bgRed(error.code)} `;
+  const ERROR_CODE = `${chalk.bgRed.black(error.code)} `;
   let ERROR_MSG = "";
 
   switch (error.code) {
@@ -46,6 +46,10 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
       isSafeCommanderError(error.data);
       ERROR_MSG += parseErrorMessage(error.data);
       break;
+    case "TESTS_FAILING":
+      ERROR_MSG += `${error.data}`;
+      log(ERROR_CODE + chalk.redBright(ERROR_MSG));
+      process.exit(1);
   }
 
   log(ERROR_CODE + chalk.redBright(ERROR_MSG));

@@ -42,7 +42,7 @@ export const GTest = {
       if (passing > 0) {
         message += chalk.greenBright(`${passing} successful, `);
       }
-      message += chalk.grey(`out of ${total} tests.`);
+      message += chalk.dim(`out of ${total} tests.`);
     }
 
     return message;
@@ -337,7 +337,9 @@ export const getTableStream = () =>
       alignment: "center",
       verticalAlignment: "middle",
       wrapWord: true,
+      paddingLeft: 0,
+      paddingRight: 0,
     },
     columnCount: 4,
-    border: getBorderCharacters("ramac"),
+    border: getBorderCharacters("norc"),
   });

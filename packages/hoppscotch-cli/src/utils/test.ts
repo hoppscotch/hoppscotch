@@ -81,8 +81,13 @@ export const testRunner =
     );
   };
 
+/**
+ * Runs tests on array of test-script-data.
+ * @param tests
+ * @returns TaskEither<HoppCLIError, null>
+ */
 export const runTests =
-  (tests: TestScriptData[]): TE.TaskEither<never, null> =>
+  (tests: TestScriptData[]): TE.TaskEither<HoppCLIError, null> =>
   async () => {
     let failing = 0;
 
@@ -108,18 +113,23 @@ export const runTests =
     }
 
     if (failing > 0) {
-      pipe("process exited : 1", chalk.red, log);
-      process.exit(1);
+      return E.left(error({ code: "TESTS_FAILING", data: failing }));
+    }
+    if (A.isNonEmpty(testsResponse) && failing === 0) {
+      pipe("ALL_TESTS_PASSING", chalk.bgGreen.black, log);
     }
 
     return E.right(null);
   };
 
+/**
+ * Outputs test runner report in stdout
+ * @param test
+ * @returns Promise<void>
+ */
 const testReportOutput = (test: TestReport) => async () => {
   let expectMessages = "";
-
-  log(test.descriptor);
-  log("-".repeat(test.descriptor.length));
+  pipe(test.descriptor, chalk.underline, log);
 
   for (const expectResult of test.expectResults) {
     if (E.isLeft(isExpectResultPass(expectResult.status))) {

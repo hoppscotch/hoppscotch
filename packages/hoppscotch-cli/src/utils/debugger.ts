@@ -2,7 +2,6 @@ import { createConnection, Socket } from "net";
 import { Console } from "console";
 import { InspectOptions } from "util";
 import chalk from "chalk";
-import { handleError } from "../handlers";
 
 /**
  * @class The TCP socket debugger.
@@ -23,14 +22,18 @@ export class debugging {
     if (debugging._instance !== null) {
       return debugging._instance;
     }
-    const sockClient = createConnection({ port: 9999, allowHalfOpen: true });
+    const sockClient = createConnection({
+      port: 9999,
+      allowHalfOpen: false,
+      writable: true,
+    });
     const virtualConsole = new Console({
       stdout: sockClient,
       stderr: sockClient,
       colorMode: true,
     });
     sockClient.on("error", (e) => {
-      handleError({ code: "DEBUGGER_ERROR", data: e });
+      debugging.error(e);
     });
     debugging._instance = {
       sockClient,

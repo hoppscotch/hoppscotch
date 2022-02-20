@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import { CommanderError } from "commander";
 import { join, extname } from "path";
 import tcpp from "tcp-ping";
+import { pipe } from "fp-ts/function";
 import {
   HoppRESTRequest,
   translateToNewRESTCollection,
@@ -74,7 +75,7 @@ export const checkFileURL =
       }
       return E.right(fullPath);
     } catch (e) {
-      return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));
+      return E.left(error({ code: "FILE_NOT_FOUND", path: path }));
     }
   };
 
@@ -86,7 +87,7 @@ export const checkFileURL =
  */
 export const checkConnection =
   (address: string, port: number): TE.TaskEither<HoppCLIError, tcpp.Result> =>
-  async () =>
+  () =>
     new Promise((resolve) => {
       tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
         if (err) {
@@ -118,13 +119,12 @@ export const checkCLIContext =
   async () => {
     if (context.interactive) {
       await parseCLIOptions(context)();
-    } else if (S.isString(context.path)) {
-      const _checkFileURL = await checkFileURL(context.path!)();
-      if (E.isLeft(_checkFileURL)) {
-        return _checkFileURL;
-      }
-    } else if (!context.path) {
+    } else if (!S.isString(context.path)) {
       return E.left(error({ code: "NO_FILE_PATH" }));
     }
-    return E.right(null);
+    return await pipe(
+      context.path!,
+      checkFileURL,
+      TE.map((_) => null)
+    )();
   };

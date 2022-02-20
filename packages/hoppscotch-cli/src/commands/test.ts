@@ -7,6 +7,7 @@ export const test =
   async () => {
     await pipe(
       runCollection(context, debug),
-      TE.mapLeft((e) => pipe(e, handleError))
+      TE.mapLeft((e) => pipe(e, handleError)),
+      TE.map((_) => process.exit(0))
     )();
   };

@@ -12,6 +12,7 @@ export const run = (context: any, options: any) => async () => {
   await pipe(
     cliContext,
     runCollection,
-    TE.mapLeft((e) => pipe(e, handleError))
+    TE.mapLeft((e) => pipe(e, handleError)),
+    TE.map((_) => process.exit(0))
   )();
 };

@@ -18,7 +18,7 @@
       </div>
     </div>
     <img
-      class="flex flex-col flex-1 max-w-full border-b border-dividerLight"
+      class="flex max-w-full border-b border-dividerLight"
       :src="imageSource"
       loading="lazy"
       :alt="imageSource"

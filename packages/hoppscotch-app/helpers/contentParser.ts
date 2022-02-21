@@ -16,10 +16,10 @@ export function detectContentType(
 ): HoppRESTReqBody["contentType"] {
   let contentType: HoppRESTReqBody["contentType"]
 
-  if (safeParseJSON(rawData)._tag === "Some") {
+  if (O.isSome(safeParseJSON(rawData))) {
     contentType = "application/json"
   } else if (/<\/?[a-zA-Z][\s\S]*>/i.test(rawData)) {
-    if (prettifyXml(rawData)._tag === "Some") {
+    if (O.isSome(prettifyXml(rawData))) {
       contentType = "application/xml"
     } else {
       // everything is HTML

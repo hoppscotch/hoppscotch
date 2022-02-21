@@ -3,8 +3,8 @@ import * as S from "fp-ts/string"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { tupleToRecord } from "./functional/record"
-import { safeParseJSON } from "./functional/json"
+import { tupleToRecord } from "~/helpers/functional/record"
+import { safeParseJSON } from "~/helpers/functional/json"
 
 /**
  * Detects the content type of the input string
@@ -151,8 +151,8 @@ export function parseBody(
         rawData,
         safeParseJSON,
         O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
-        // O.getOrElse(() => O.some("{}")),
-        O.match(() => O.some("{}"), O.some)
+        O.getOrElse(() => "{}"),
+        O.fromNullable
       )
     }
 

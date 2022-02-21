@@ -4,11 +4,15 @@ import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 
-import { HoppRESTReqBody, HoppRESTAuth } from "@hoppscotch/data"
-import { tupleToRecord } from "./functional/record"
+import {
+  HoppRESTAuth,
+  FormDataKeyValue,
+  HoppRESTReqBody,
+  makeRESTRequest,
+} from "@hoppscotch/data"
 import { detectContentType, parseBody } from "./contentParser"
-import { RESTMethod } from "./types/RESTMethod"
-import { curlParserRequest } from "~/helpers/types/CurlParserResult"
+import { tupleToRecord } from "~/helpers/functional/record"
+import { curlParserRequest } from "~/helpers/curl/CurlParserResult"
 import { stringArrayJoin } from "~/helpers/functional/array"
 
 const parseCurlCommand = (curlCommand: string) => {
@@ -54,7 +58,7 @@ const parseCurlCommand = (curlCommand: string) => {
 
   const auth = getAuthObject(parsedArguments, headers, urlObject)
 
-  let cookies: { [key: string]: string } | undefined
+  let cookies: Record<string, string> | undefined
 
   const cookieString = parsedArguments.b || parsedArguments.cookie || ""
   if (cookieString) {
@@ -436,7 +440,7 @@ function getFArgumentMultipartData(
  * @param parsedArguments Parsed Arguments object
  * @returns Method type
  */
-function getMethod(parsedArguments: parser.Arguments): RESTMethod {
+function getMethod(parsedArguments: parser.Arguments): string {
   const Xarg: string = parsedArguments.X
   return pipe(
     Xarg?.match(/GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE|CUSTOM/i),
@@ -452,7 +456,7 @@ function getMethod(parsedArguments: parser.Arguments): RESTMethod {
           return "post"
         else return "get"
       },
-      (method) => method[0] as RESTMethod
+      (method) => method[0]
     )
   )
 }
@@ -600,4 +604,65 @@ function getAuthObject(
   return auth
 }
 
-export default parseCurlCommand
+function requestToHoppRequest(parsedCurl: curlParserRequest) {
+  const endpoint = parsedCurl.urlString
+  const params = parsedCurl.queries || []
+  const body = parsedCurl.body
+
+  const method = parsedCurl.method?.toUpperCase() || "GET"
+  const contentType = parsedCurl.contentType
+  const auth = parsedCurl.auth
+  const headers =
+    parsedCurl.hoppHeaders.filter(
+      (header) =>
+        header.key !== "Authorization" &&
+        header.key !== "apikey" &&
+        header.key !== "api-key"
+    ) || []
+
+  let finalBody: HoppRESTReqBody = {
+    contentType: null,
+    body: null,
+  }
+
+  if (
+    contentType &&
+    contentType !== "multipart/form-data" &&
+    typeof body === "string"
+  )
+    // final body if multipart data is not present
+    finalBody = {
+      contentType,
+      body,
+    }
+  else if (Object.keys(parsedCurl.multipartUploads).length > 0) {
+    // if multipart data is present
+    const ydob: FormDataKeyValue[] = []
+    for (const key in parsedCurl.multipartUploads) {
+      ydob.push({
+        active: true,
+        isFile: false,
+        key,
+        value: parsedCurl.multipartUploads[key],
+      })
+    }
+    finalBody = {
+      contentType: "multipart/form-data",
+      body: ydob,
+    }
+  }
+
+  return makeRESTRequest({
+    name: "Untitled request",
+    endpoint,
+    method,
+    params,
+    headers,
+    preRequestScript: "",
+    testScript: "",
+    auth,
+    body: finalBody,
+  })
+}
+
+export { parseCurlCommand, requestToHoppRequest }

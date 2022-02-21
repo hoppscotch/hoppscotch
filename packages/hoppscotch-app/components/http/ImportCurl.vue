@@ -35,12 +35,9 @@
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
 import {
-  FormDataKeyValue,
-  HoppRESTReqBody,
-  HoppRESTReqBodyFormData,
-  makeRESTRequest,
-} from "@hoppscotch/data"
-import parseCurlCommand from "~/helpers/curlparser"
+  parseCurlCommand,
+  requestToHoppRequest,
+} from "~/helpers/curl/curlparser"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
@@ -87,57 +84,9 @@ const handleImport = () => {
   const text = curl.value
   try {
     const parsedCurl = parseCurlCommand(text)
-    const endpoint = parsedCurl.urlString
-    const params = parsedCurl.queries || []
-    const body = parsedCurl.body
+    const HoppRequest = requestToHoppRequest(parsedCurl)
 
-    const method = parsedCurl.method?.toUpperCase() || "GET"
-    const contentType = parsedCurl.contentType
-    const auth = parsedCurl.auth
-    const headers =
-      parsedCurl.hoppHeaders.filter(
-        (header) =>
-          header.key !== "Authorization" &&
-          header.key !== "apikey" &&
-          header.key !== "api-key"
-      ) || []
-
-    // final body if multipart data is not present
-    let finalBody = {
-      contentType,
-      body: body as string | null,
-    } as HoppRESTReqBody
-
-    // if multipart data is present
-    if (Object.keys(parsedCurl.multipartUploads).length > 0) {
-      const ydob: FormDataKeyValue[] = []
-      for (const key in parsedCurl.multipartUploads) {
-        ydob.push({
-          active: true,
-          isFile: false,
-          key,
-          value: parsedCurl.multipartUploads[key],
-        })
-      }
-      finalBody = {
-        contentType: "multipart/form-data",
-        body: ydob,
-      } as HoppRESTReqBodyFormData
-    }
-
-    setRESTRequest(
-      makeRESTRequest({
-        name: "Untitled request",
-        endpoint,
-        method,
-        params,
-        headers,
-        preRequestScript: "",
-        testScript: "",
-        auth,
-        body: finalBody,
-      })
-    )
+    setRESTRequest(HoppRequest)
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

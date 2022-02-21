@@ -1,6 +1,3 @@
-import { pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-
 /**
  * Logs the current value and returns the same value
  * @param x The value to log
@@ -20,10 +17,6 @@ export const trace = <T>(x: T) => {
 export const namedTrace =
   (name: string) =>
   <T>(x: T) => {
-    const printFn = (val?: T | string) => console.log(`${name}: ${val ?? x}`)
-    pipe(
-      O.tryCatch(() => JSON.stringify(x)),
-      O.match(printFn, printFn)
-    )
+    console.log(`${name}: `, x)
     return x
   }

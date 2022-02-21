@@ -4,7 +4,6 @@ import {
   HoppRESTParam,
   HoppRESTAuth,
 } from "@hoppscotch/data"
-import { RESTMethod } from "./RESTMethod"
 
 export type curlParserRequest = {
   urlString: string
@@ -12,14 +11,10 @@ export type curlParserRequest = {
   compressed: boolean
   queries: HoppRESTParam[]
   hoppHeaders: HoppRESTHeader[]
-  method: RESTMethod
+  method: string
   contentType: HoppRESTReqBody["contentType"]
   body: HoppRESTReqBody["body"]
-  cookies:
-    | {
-        [key: string]: string
-      }
-    | undefined
+  cookies: Record<string, string> | undefined
   cookieString: string
   multipartUploads: Record<string, string>
   isDataBinary: boolean

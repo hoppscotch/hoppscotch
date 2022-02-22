@@ -36,8 +36,7 @@
     "@hoppscotch/data": "workspace:^0.4.0",
     "fp-ts": "^2.11.8",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.15.0",
-    "@hoppscotch/data": "workspace:^0.4.0"
+    "quickjs-emscripten": "^0.15.0"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",

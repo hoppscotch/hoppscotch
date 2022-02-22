@@ -95,6 +95,7 @@ export const runRESTRequest$ = (): TaskEither<
               setRESTTestResults(translateToSandboxTestResults(runResult.right))
 
               setGlobalEnvVariables(runResult.right.envs.global)
+
               if (environmentsStore.value.currentEnvironmentIndex !== -1) {
                 const env = getEnviroment(
                   environmentsStore.value.currentEnvironmentIndex

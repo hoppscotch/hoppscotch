@@ -113,7 +113,6 @@ function isRESTRequest(param: { x: any }): param is { x: HoppRESTRequest } {
   }
   return true;
 }
->>>>>>> main
 
 /**
  * Typeguard to check valid Hoppscotch REST Collection

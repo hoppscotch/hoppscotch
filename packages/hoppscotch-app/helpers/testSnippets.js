@@ -1,5 +1,10 @@
 export default [
   {
+    name: "Environment: Set an environment variable",
+    script: `\n\n// Set an environment variable
+pw.env.set("variable", "value");`,
+  },
+  {
     name: "Response: Status code is 200",
     script: `\n\n// Check status code is 200
 pw.test("Status code is 200", ()=> {

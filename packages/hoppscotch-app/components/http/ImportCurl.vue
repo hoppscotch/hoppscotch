@@ -34,15 +34,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
-import {
-  HoppRESTHeader,
-  HoppRESTParam,
-  makeRESTRequest,
-} from "@hoppscotch/data"
-import parseCurlCommand from "~/helpers/curlparser"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
+import { parseCurlToHoppRESTReq } from "~/helpers/curl"
 
 const t = useI18n()
 
@@ -85,66 +80,9 @@ const hideModal = () => {
 const handleImport = () => {
   const text = curl.value
   try {
-    const parsedCurl = parseCurlCommand(text)
-    const { origin, pathname } = new URL(
-      parsedCurl.url.replace(/"/g, "").replace(/'/g, "")
-    )
-    const endpoint = origin + pathname
-    const headers: HoppRESTHeader[] = []
-    const params: HoppRESTParam[] = []
-    const body = parsedCurl.body
-    if (parsedCurl.query) {
-      for (const key of Object.keys(parsedCurl.query)) {
-        const val = parsedCurl.query[key]!
+    const req = parseCurlToHoppRESTReq(text)
 
-        if (Array.isArray(val)) {
-          val.forEach((value) => {
-            params.push({
-              key,
-              value,
-              active: true,
-            })
-          })
-        } else {
-          params.push({
-            key,
-            value: val!,
-            active: true,
-          })
-        }
-      }
-    }
-    if (parsedCurl.headers) {
-      for (const key of Object.keys(parsedCurl.headers)) {
-        headers.push({
-          key,
-          value: parsedCurl.headers[key],
-          active: true,
-        })
-      }
-    }
-
-    const method = parsedCurl.method.toUpperCase()
-
-    setRESTRequest(
-      makeRESTRequest({
-        name: "Untitled request",
-        endpoint,
-        method,
-        params,
-        headers,
-        preRequestScript: "",
-        testScript: "",
-        auth: {
-          authType: "none",
-          authActive: true,
-        },
-        body: {
-          contentType: "application/json",
-          body,
-        },
-      })
-    )
+    setRESTRequest(req)
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

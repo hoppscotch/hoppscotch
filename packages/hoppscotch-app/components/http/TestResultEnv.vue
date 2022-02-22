@@ -1,21 +1,29 @@
 <template>
-  <div class="flex items-center px-4 py-2">
-    <i
-      v-tippy="{ theme: 'tooltip' }"
-      class="mr-4 material-icons cursor-help"
-      :class="getStyle(status)"
-      :title="`${t(getTooltip(status))}`"
+  <div class="flex items-center justify-between px-4 py-2">
+    <div class="flex items-center">
+      <i
+        v-tippy="{ theme: 'tooltip' }"
+        class="mr-4 material-icons cursor-help"
+        :class="getStyle(status)"
+        :title="`${t(getTooltip(status))}`"
+      >
+        {{ getIcon(status) }}
+      </i>
+      <span class="text-secondaryDark">
+        {{ env.key }}
+      </span>
+      <span class="text-secondaryDark">
+        {{ ` \xA0 — \xA0 ${env.value}` }}
+      </span>
+      <span v-if="status === 'updations'" class="text-secondaryLight">
+        {{ ` \xA0 ← \xA0 ${env.previousValue}` }}
+      </span>
+    </div>
+    <span
+      v-if="global"
+      class="bg-accentLight px-1 rounded text-accentContrast text-tiny"
     >
-      {{ getIcon(status) }}
-    </i>
-    <span class="text-secondaryDark">
-      {{ env.key }}
-    </span>
-    <span class="text-secondaryDark">
-      {{ ` \xA0 — \xA0 ${env.value}` }}
-    </span>
-    <span v-if="status === 'updations'" class="text-secondaryLight">
-      {{ ` \xA0 ← \xA0 ${env.previousValue}` }}
+      Global
     </span>
   </div>
 </template>
@@ -31,9 +39,12 @@ type Props = {
     previousValue?: string
   }
   status: Status
+  global: boolean
 }
 
-defineProps<Props>()
+withDefaults(defineProps<Props>(), {
+  global: false,
+})
 
 const t = useI18n()
 

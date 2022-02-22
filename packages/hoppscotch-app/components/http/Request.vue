@@ -2,7 +2,9 @@
   <div
     class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
   >
-    <div class="flex flex-1">
+    <div
+      class="flex flex-1 overflow-auto border rounded min-w-52 border-divider whitespace-nowrap hide-scrollbar"
+    >
       <div class="relative flex">
         <label for="method">
           <tippy
@@ -16,7 +18,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="flex px-4 py-2 font-semibold border rounded-l cursor-pointer bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
+                  class="flex px-4 py-2 font-semibold rounded-l cursor-pointer transition text-secondaryDark w-26 bg-primaryLight"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -33,24 +35,12 @@
           </tippy>
         </label>
       </div>
-      <div class="flex flex-1">
+      <div
+        class="flex flex-1 overflow-auto border-l rounded-r transition border-divider bg-primaryLight whitespace-nowrap hide-scrollbar"
+      >
         <SmartEnvInput
           v-model="newEndpoint"
           :placeholder="`${t('request.url')}`"
-          styles="
-            bg-primaryLight
-            border border-divider
-            flex
-            flex-1
-            rounded-r
-            text-secondaryDark
-            min-w-32
-            py-1
-            px-4
-            hover:border-dividerDark
-            focus-visible:border-dividerDark
-            focus-visible:bg-transparent
-          "
           @enter="newSendRequest()"
           @paste="onPasteUrl($event)"
         />
@@ -357,20 +347,15 @@ const ensureMethodInEndpoint = () => {
   }
 }
 
-const onPasteUrl = (e: { event: ClipboardEvent; previousValue: string }) => {
+const onPasteUrl = (e: { pastedValue: string; prevValue: string }) => {
   if (!e) return
 
-  const clipboardData = e.event.clipboardData
-
-  const pastedData = clipboardData?.getData("Text")
-
-  if (!pastedData) return
+  const pastedData = e.pastedValue
 
   if (isCURL(pastedData)) {
-    e.event.preventDefault()
     showCurlImportModal.value = true
     curlText.value = pastedData
-    newEndpoint.value = e.previousValue
+    newEndpoint.value = e.prevValue
   }
 }
 

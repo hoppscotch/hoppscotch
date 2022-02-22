@@ -162,6 +162,7 @@
     "create_new": "Создать новую среду",
     "edit": "Редактировать среду",
     "invalid_name": "Укажите допустимое имя для среды",
+    "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Новая среда",
     "no_environment": "Нет окружающей среды",
     "select": "Выберите среду",
@@ -175,6 +176,7 @@
     "empty_req_name": "Пустое имя запроса",
     "f12_details": "(F12 для подробностей)",
     "gql_prettify_invalid_query": "Не удалось определить недопустимый запрос, устранить синтаксические ошибки запроса и повторить попытку.",
+    "incomplete_config_urls": "Incomplete configuration URLs",
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "Ссылка, по которой вы перешли, - недействительна, либо срок ее действия истек.",
@@ -187,11 +189,11 @@
     "test_script_fail": "Could not execute post-request script"
   },
   "export": {
-    "title": "Export",
     "as_json": "Экспорт как JSON",
     "create_secret_gist": "Создать секретный Gist",
     "gist_created": "Gist создан",
-    "require_github": "Войдите через GitHub, чтобы создать секретную суть"
+    "require_github": "Войдите через GitHub, чтобы создать секретную суть",
+    "title": "Export"
   },
   "folder": {
     "created": "Папка создана",
@@ -466,7 +468,7 @@
   },
   "state": {
     "bulk_mode": "Множественное редактирование",
-    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend // to any row you want to add but keep disabled",
+    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend # to any row you want to add but keep disabled",
     "cleared": "Очищено",
     "connected": "Связаны",
     "connected_to": "Подключено к {name}",

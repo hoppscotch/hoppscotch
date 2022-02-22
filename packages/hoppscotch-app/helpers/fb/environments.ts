@@ -1,3 +1,4 @@
+import { Environment } from "@hoppscotch/data"
 import {
   collection,
   doc,
@@ -7,7 +8,6 @@ import {
 } from "firebase/firestore"
 import { currentUser$ } from "./auth"
 import {
-  Environment,
   environments$,
   globalEnv$,
   replaceEnvironments,

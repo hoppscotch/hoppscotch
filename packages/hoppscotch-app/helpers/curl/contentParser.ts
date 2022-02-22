@@ -34,7 +34,7 @@ export function detectContentType(
       O.filter((boundaryMatch) => boundaryMatch && boundaryMatch.length > 1),
       O.match(
         () => "text/plain",
-        (_) => "multipart/form-data"
+        () => "multipart/form-data"
       )
     )
   }

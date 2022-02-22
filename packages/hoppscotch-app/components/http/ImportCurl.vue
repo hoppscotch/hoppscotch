@@ -34,13 +34,10 @@
 
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
-import {
-  parseCurlCommand,
-  requestToHoppRequest,
-} from "~/helpers/curl/curlparser"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
+import { parseCurlToHoppRESTReq } from "~/helpers/curl"
 
 const t = useI18n()
 
@@ -83,10 +80,9 @@ const hideModal = () => {
 const handleImport = () => {
   const text = curl.value
   try {
-    const parsedCurl = parseCurlCommand(text)
-    const HoppRequest = requestToHoppRequest(parsedCurl)
+    const req = parseCurlToHoppRESTReq(text)
 
-    setRESTRequest(HoppRequest)
+    setRESTRequest(req)
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

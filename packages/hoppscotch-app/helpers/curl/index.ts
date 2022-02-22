@@ -4,8 +4,10 @@ import {
   HoppRESTParam,
   HoppRESTAuth,
 } from "@hoppscotch/data"
+import { flow } from "fp-ts/function"
+import { parseCurlCommand, requestToHoppRequest } from "./curlparser"
 
-export type curlParserRequest = {
+export type CurlParserRequest = {
   urlString: string
   urlObject: URL | undefined
   compressed: boolean
@@ -20,3 +22,8 @@ export type curlParserRequest = {
   isDataBinary: boolean
   auth: HoppRESTAuth
 }
+
+export const parseCurlToHoppRESTReq = flow(
+  parseCurlCommand,
+  requestToHoppRequest
+)

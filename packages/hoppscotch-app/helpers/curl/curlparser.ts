@@ -11,11 +11,11 @@ import {
   makeRESTRequest,
 } from "@hoppscotch/data"
 import { detectContentType, parseBody } from "./contentParser"
+import { CurlParserRequest } from "."
 import { tupleToRecord } from "~/helpers/functional/record"
-import { curlParserRequest } from "~/helpers/curl/CurlParserResult"
 import { stringArrayJoin } from "~/helpers/functional/array"
 
-const parseCurlCommand = (curlCommand: string) => {
+export const parseCurlCommand = (curlCommand: string) => {
   const isDataBinary = curlCommand.includes(" --data-binary")
 
   curlCommand = preProcessCurlCommand(curlCommand)
@@ -151,7 +151,7 @@ const parseCurlCommand = (curlCommand: string) => {
   const compressed = !!parsedArguments.compressed
   const hoppHeaders = recordToHoppHeaders(headers)
 
-  const request: curlParserRequest = {
+  const request: CurlParserRequest = {
     urlString,
     urlObject,
     compressed,
@@ -604,7 +604,7 @@ function getAuthObject(
   return auth
 }
 
-function requestToHoppRequest(parsedCurl: curlParserRequest) {
+export function requestToHoppRequest(parsedCurl: CurlParserRequest) {
   const endpoint = parsedCurl.urlString
   const params = parsedCurl.queries || []
   const body = parsedCurl.body
@@ -664,5 +664,3 @@ function requestToHoppRequest(parsedCurl: curlParserRequest) {
     body: finalBody,
   })
 }
-
-export { parseCurlCommand, requestToHoppRequest }

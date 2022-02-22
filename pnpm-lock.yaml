@@ -328,7 +328,7 @@ importers:
   packages/hoppscotch-cli:
     specifiers:
       '@hoppscotch/data': workspace:^0.4.0
-      '@hoppscotch/js-sandbox': workspace:^1.0.0
+      '@hoppscotch/js-sandbox': workspace:^2.0.0
       '@types/axios': ^0.14.0
       '@types/chalk': ^2.2.0
       '@types/commander': ^2.12.2
@@ -3351,7 +3351,7 @@ packages:
     resolution: {integrity: sha512-FTd27ItHlsSG/7hp62xgI9YnqSwRbHRSVmDVR8DwOoC+6t8JhHRXe2JL0U8N9GLc0jS0HrtEbO/KP5+G0ebjLQ==}
     engines: {node: ^8.13.0 || >=10.10.0}
     dependencies:
-      '@grpc/proto-loader': 0.6.7
+      '@grpc/proto-loader': 0.6.9
       '@types/node': 17.0.18
     dev: false
 
@@ -5015,12 +5015,9 @@ packages:
     resolution: {integrity: sha512-NrTwfD7L1RTc2qrHQD4RTTy4p0CO2LatKBEKEds3CaVuhoM/+DJzmWZl5f+ikR8cm8F5mfJxK+9rQq07gRiSjQ==}
     dev: true
 
-  /@types/node/17.0.14:
-    resolution: {integrity: sha512-SbjLmERksKOGzWzPNuW7fJM7fk3YXVTFiZWB/Hs99gwhk+/dnrQRPBQjPW9aO+fi1tAffi9PrwFvsmOKmDTyng==}
-    dev: false
-
   /@types/node/17.0.15:
     resolution: {integrity: sha512-zWt4SDDv1S9WRBNxLFxFRHxdD9tvH8f5/kg5/IaLFdnSNXsDY4eL3Q3XXN+VxUnWIhyVFDwcsmAprvwXoM/ClA==}
+    dev: true
 
   /@types/node/17.0.18:
     resolution: {integrity: sha512-eKj4f/BsN/qcculZiRSujogjvp5O/k4lOW5m35NopjZM/QwLOR075a8pJW5hD+Rtdm2DaCVPENS6KtSQnUD6BA==}
@@ -9292,7 +9289,7 @@ packages:
       eslint: 8.9.0
       eslint-plugin-es: 3.0.1_eslint@8.9.0
       eslint-utils: 2.1.0
-      ignore: 5.1.9
+      ignore: 5.2.0
       minimatch: 3.0.4
       resolve: 1.20.0
       semver: 6.3.0
@@ -12614,7 +12611,7 @@ packages:
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.9
     dev: false
 
   /jsonfile/6.1.0:
@@ -12622,7 +12619,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.9
 
   /jsonify/0.0.0:
     resolution: {integrity: sha1-LHS27kHZPKUbe1qu6PUDYx0lKnM=}
@@ -16137,14 +16134,6 @@ packages:
 
   /rollup/2.68.0:
     resolution: {integrity: sha512-XrMKOYK7oQcTio4wyTz466mucnd8LzkiZLozZ4Rz0zQD+HeX4nUK4B8GrTX/2EvN2/vBF/i2WnaXboPxo0JylA==}
-    engines: {node: '>=10.0.0'}
-    hasBin: true
-    optionalDependencies:
-      fsevents: 2.3.2
-    dev: true
-
-  /rollup/2.67.3:
-    resolution: {integrity: sha512-G/x1vUwbGtP6O5ZM8/sWr8+p7YfZhI18pPqMRtMYMWSbHjKZ/ajHGiM+GWNTlWyOR0EHIdT8LHU+Z4ciIZ1oBw==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     optionalDependencies:

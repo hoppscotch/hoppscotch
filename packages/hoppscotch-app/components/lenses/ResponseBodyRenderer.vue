@@ -24,7 +24,11 @@
       :label="$t('test.results')"
       :indicator="
         testResults &&
-        (testResults.expectResults.length || testResults.tests.length)
+        (testResults.expectResults.length ||
+          testResults.tests.length ||
+          testResults.envDiff.selected.additions.length ||
+          testResults.envDiff.selected.updations.length ||
+          testResults.envDiff.global.updations.length)
           ? true
           : false
       "

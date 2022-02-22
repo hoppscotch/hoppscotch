@@ -1,63 +1,148 @@
-import { pipe } from "fp-ts/lib/function"
-import { chain, TaskEither, tryCatch, right, left } from "fp-ts/lib/TaskEither"
+import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/lib/TaskEither"
 import * as qjs from "quickjs-emscripten"
-import clone from "lodash/clone"
+import cloneDeep from "lodash/clone"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import { getEnv, setEnv } from "./utils"
 
-type EnvEntry = {
-  key: string
-  value: string
+type Envs = {
+  global: Environment["variables"]
+  selected: Environment["variables"]
 }
 
 export const execPreRequestScript = (
   preRequestScript: string,
-  env: EnvEntry[]
-): TaskEither<string, EnvEntry[]> =>
+  envs: Envs
+): TE.TaskEither<string, Envs> =>
   pipe(
-    tryCatch(
+    TE.tryCatch(
       async () => await qjs.getQuickJS(),
       (reason) => `QuickJS initialization failed: ${reason}`
     ),
-    chain((QuickJS) => {
-      const finalEnv = clone(env)
+    TE.chain((QuickJS) => {
+      let currentEnvs = cloneDeep(envs)
 
       const vm = QuickJS.createVm()
 
       const pwHandle = vm.newObject()
 
+      // Environment management APIs
+      // TODO: Unified Implementation
       const envHandle = vm.newObject()
 
-      const envSetFuncHandle = vm.newFunction(
-        "set",
-        (keyHandle, valueHandle) => {
-          const key = vm.dump(keyHandle)
-          const value = vm.dump(valueHandle)
+      const envGetHandle = vm.newFunction("get", (keyHandle) => {
+        const key: unknown = vm.dump(keyHandle)
 
-          if (typeof key !== "string")
-            return {
-              error: vm.newString("Expected key to be a string"),
-            }
-
-          if (typeof value !== "string")
-            return {
-              error: vm.newString("Expected value to be a string"),
-            }
-
-          const keyIndex = finalEnv.findIndex((env) => env.key === key)
-
-          if (keyIndex === -1) {
-            finalEnv.push({ key, value })
-          } else {
-            finalEnv[keyIndex] = { key, value }
-          }
-
+        if (typeof key !== "string") {
           return {
-            value: vm.undefined,
+            error: vm.newString("Expected key to be a string"),
           }
         }
-      )
 
-      vm.setProp(envHandle, "set", envSetFuncHandle)
-      envSetFuncHandle.dispose()
+        const result = pipe(
+          getEnv(key, currentEnvs),
+          O.match(
+            () => vm.undefined,
+            ({ value }) => vm.newString(value)
+          )
+        )
+
+        return {
+          value: result,
+        }
+      })
+
+      const envGetResolveHandle = vm.newFunction("getResolve", (keyHandle) => {
+        const key: unknown = vm.dump(keyHandle)
+
+        if (typeof key !== "string") {
+          return {
+            error: vm.newString("Expected key to be a string"),
+          }
+        }
+
+        const result = pipe(
+          getEnv(key, currentEnvs),
+          E.fromOption(() => "INVALID_KEY" as const),
+
+          E.map(({ value }) =>
+            pipe(
+              parseTemplateStringE(value, [...envs.selected, ...envs.global]),
+              // If the recursive resolution failed, return the unresolved value
+              E.getOrElse(() => value)
+            )
+          ),
+
+          // Create a new VM String
+          // NOTE: Do not shorten this to map(vm.newString) apparently it breaks it
+          E.map((x) => vm.newString(x)),
+
+          E.getOrElse(() => vm.undefined)
+        )
+
+        return {
+          value: result,
+        }
+      })
+
+      const envSetHandle = vm.newFunction("set", (keyHandle, valueHandle) => {
+        const key: unknown = vm.dump(keyHandle)
+        const value: unknown = vm.dump(valueHandle)
+
+        if (typeof key !== "string") {
+          return {
+            error: vm.newString("Expected key to be a string"),
+          }
+        }
+
+        if (typeof value !== "string") {
+          return {
+            error: vm.newString("Expected value to be a string"),
+          }
+        }
+
+        currentEnvs = setEnv(key, value, currentEnvs)
+
+        return {
+          value: vm.undefined,
+        }
+      })
+
+      const envResolveHandle = vm.newFunction("resolve", (valueHandle) => {
+        const value: unknown = vm.dump(valueHandle)
+
+        if (typeof value !== "string") {
+          return {
+            error: vm.newString("Expected value to be a string"),
+          }
+        }
+
+        const result = pipe(
+          parseTemplateStringE(value, [
+            ...currentEnvs.selected,
+            ...currentEnvs.global,
+          ]),
+          E.getOrElse(() => value)
+        )
+
+        return {
+          value: vm.newString(result),
+        }
+      })
+
+      vm.setProp(envHandle, "resolve", envResolveHandle)
+      envResolveHandle.dispose()
+
+      vm.setProp(envHandle, "set", envSetHandle)
+      envSetHandle.dispose()
+
+      vm.setProp(envHandle, "getResolve", envGetResolveHandle)
+      envGetResolveHandle.dispose()
+
+      vm.setProp(envHandle, "get", envGetHandle)
+      envGetHandle.dispose()
 
       vm.setProp(pwHandle, "env", envHandle)
       envHandle.dispose()
@@ -71,11 +156,11 @@ export const execPreRequestScript = (
         const errorData = vm.dump(evalRes.error)
         evalRes.error.dispose()
 
-        return left(errorData)
+        return TE.left(errorData)
       }
 
       vm.dispose()
 
-      return right(finalEnv)
+      return TE.right(currentEnvs)
     })
   )

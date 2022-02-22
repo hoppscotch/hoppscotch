@@ -33,19 +33,19 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
   "dependencies": {
+    "@hoppscotch/data": "workspace:^0.4.0",
     "fp-ts": "^2.11.8",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.15.0",
-    "@hoppscotch/data": "workspace:^0.4.0"
+    "quickjs-emscripten": "^0.15.0"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",
     "@relmify/jest-fp-ts": "^1.1.1",
     "@types/jest": "^27.4.0",
     "@types/lodash": "^4.14.178",
-    "@types/node": "^17.0.18",
-    "@typescript-eslint/eslint-plugin": "^5.12.0",
-    "@typescript-eslint/parser": "^5.12.0",
+    "@types/node": "^17.0.19",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
     "eslint": "^8.9.0",
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-prettier": "^4.0.0",

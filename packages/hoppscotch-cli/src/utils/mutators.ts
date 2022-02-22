@@ -1,6 +1,5 @@
 import inquirer from "inquirer";
 import fs from "fs/promises";
-import { pipe } from "fp-ts/function";
 import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
@@ -155,19 +154,18 @@ export const parseCollectionData =
  * @param debug Debugger mode toggle
  * @returns TE.TaskEither<HoppCLIError<HoppCLIErrorCode>, RequestStack[]>
  */
-export const flattenRequests = (
-  collectionArray: HoppCollection<HoppRESTRequest>[],
-  debug: boolean
-): TE.TaskEither<HoppCLIError, RequestStack[]> =>
-  pipe(
-    TE.tryCatch(
-      async () => {
-        const requests: RequestStack[] = [];
-        for (const x of collectionArray) {
-          await requestsParser(x, requests, debug)();
-        }
-        return requests;
-      },
-      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
-    )
-  );
+export const flattenRequests =
+  (
+    collectionArray: HoppCollection<HoppRESTRequest>[],
+    debug: boolean
+  ): TE.TaskEither<HoppCLIError, RequestStack[]> =>
+  async () => {
+    const requests: RequestStack[] = [];
+    for (const x of collectionArray) {
+      const requestsParserRes = await requestsParser(x, requests, debug)();
+      if (E.isLeft(requestsParserRes)) {
+        return requestsParserRes;
+      }
+    }
+    return E.right(requests);
+  };

@@ -26,7 +26,8 @@ import {
   TestScriptData,
 } from "../interfaces";
 import { error, HoppCLIError } from "../types";
-import { handleError } from "../handlers";
+import { clear } from "console";
+
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
@@ -219,7 +220,7 @@ export const requestsParser =
     requests: RequestStack[],
     debug: boolean,
     rootPath: string = "$ROOT"
-  ): T.Task<void> =>
+  ): TE.TaskEither<HoppCLIError, null> =>
   async () => {
     for (const request of x.requests) {
       let effectiveReq: EffectiveHoppRESTRequest = {
@@ -237,7 +238,7 @@ export const requestsParser =
       if (E.isRight(_preRequestScriptRunner)) {
         effectiveReq = _preRequestScriptRunner.right;
       } else {
-        return handleError(_preRequestScriptRunner.left);
+        return _preRequestScriptRunner;
       }
 
       const createdReq: RequestStack = createRequest(
@@ -249,8 +250,18 @@ export const requestsParser =
     }
 
     for (const folder of x.folders) {
-      await requestsParser(folder, requests, debug, `${rootPath}/${x.name}`)();
+      const requestsParserRes = await requestsParser(
+        folder,
+        requests,
+        debug,
+        `${rootPath}/${x.name}`
+      )();
+      if (E.isLeft(requestsParserRes)) {
+        return requestsParserRes;
+      }
     }
+
+    return E.right(null);
   };
 
 const preRequestScriptRunner =
@@ -288,7 +299,7 @@ export const runRequests = (
   pipe(
     TE.tryCatch(
       async () => {
-        const testScriptData: TestScriptData[] = [];
+        let testScriptData: TestScriptData[] = [];
         if (A.isNonEmpty(requests)) {
           const tableStream = getTableStream();
           const requestsPromise = [];
@@ -304,23 +315,14 @@ export const runRequests = (
                   return {
                     name: request.name,
                     testScript: request.testScript,
-                    response: res,
+                    response: getTestResponse(res),
                   };
                 })
               )()
             );
           }
 
-          const responses = await Promise.all(requestsPromise);
-          for (const response of responses) {
-            const testResponse = getTestResponse(response.response);
-            const testScriptPair: TestScriptData = {
-              name: response.name,
-              testScript: response.testScript,
-              response: testResponse,
-            };
-            testScriptData.push(testScriptPair);
-          }
+          testScriptData = await Promise.all(requestsPromise);
           process.stdout.write("\n");
         }
         return testScriptData;
@@ -331,7 +333,7 @@ export const runRequests = (
 
 const responseTableOutput = {
   header: (tableStream: WritableStream) => {
-    console.clear();
+    clear();
     tableStream.write([
       pipe("PATH", chalk.cyanBright, chalk.bold),
       pipe("METHOD", chalk.cyanBright, chalk.bold),

@@ -1,4 +1,4 @@
-import { CommanderError, program } from "commander";
+import { program } from "commander";
 import * as E from "fp-ts/Either";
 import { version } from "../package.json";
 import { run, test } from "./commands";
@@ -37,7 +37,7 @@ program
   .allowUnknownOption(false)
   .description("interactive hoppscotch testing with debugger")
   .setOptionValue("interactive", true)
-  .action(async (context) => await test(context, true)());
+  .action(async (context, options) => await test(context, options)());
 
 program
   .command("help", { isDefault: true, hidden: true })

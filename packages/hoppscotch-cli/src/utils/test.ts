@@ -12,7 +12,6 @@ import {
 import { TestReport, TestScriptData } from "../interfaces";
 import { isExpectResultPass, GTest } from ".";
 import { error, HoppCLIError } from "../types";
-import { handleError } from "../handlers";
 
 /**
  * Recursive function to log template strings of testMessages & expectMessages
@@ -100,46 +99,63 @@ export const runTests =
     }
 
     const testsResponse = await Promise.all(testsPromise);
+    const testsReport: TestReport[] = [];
     for (const testResponse of testsResponse) {
       if (E.isRight(testResponse)) {
         for (const _testResponse of testResponse.right) {
           failing += _testResponse.failing;
-          await testReportOutput(_testResponse)();
+          testsReport.push(_testResponse);
         }
       } else {
-        failing += 1;
-        handleError(testResponse.left);
+        return testResponse;
       }
     }
 
-    if (failing > 0) {
-      return E.left(error({ code: "TESTS_FAILING", data: failing }));
+    if (A.isNonEmpty(testsReport)) {
+      testsReportOutput(testsReport);
     }
-    if (A.isNonEmpty(testsResponse) && failing === 0) {
-      pipe("ALL_TESTS_PASSING", chalk.bgGreen.black, log);
-    }
-
-    return E.right(null);
+    return testsExitResult(failing, A.size(testsReport));
   };
 
 /**
- * Outputs test runner report in stdout
- * @param test
- * @returns Promise<void>
+ * Outputs test runner report to stdout.
+ * @param testsReport
+ * @returns void
  */
-const testReportOutput = (test: TestReport) => async () => {
-  let expectMessages = "";
-  pipe(test.descriptor, chalk.underline, log);
+const testsReportOutput = (testsReport: TestReport[]) => {
+  for (const testReport of testsReport) {
+    let expectMessages = "";
+    pipe(testReport.descriptor, chalk.underline, log);
 
-  for (const expectResult of test.expectResults) {
-    if (E.isLeft(isExpectResultPass(expectResult.status))) {
-      expectMessages += pipe(expectResult.message, GTest.expectFailedMessage);
-    } else {
-      expectMessages += pipe(expectResult.message, GTest.expectPassedMessage);
+    for (const expectResult of testReport.expectResults) {
+      if (E.isLeft(isExpectResultPass(expectResult.status))) {
+        expectMessages += pipe(expectResult.message, GTest.expectFailedMessage);
+      } else {
+        expectMessages += pipe(expectResult.message, GTest.expectPassedMessage);
+      }
     }
-  }
 
-  const testMessage = GTest.testMessage(test.failing, test.passing);
-  log(testMessage);
-  log(expectMessages);
+    const testMessage = GTest.testMessage(
+      testReport.failing,
+      testReport.passing
+    );
+    log(testMessage);
+    log(expectMessages);
+  }
+};
+
+/**
+ * Ouputs and returns tests result.
+ * @param failing
+ * @param testsReportSize
+ * @returns Either<HoppCLIError, null>
+ */
+const testsExitResult = (failing: number, testsReportSize: number) => {
+  if (failing > 0) {
+    return E.left(error({ code: "TESTS_FAILING", data: failing }));
+  }
+  if (testsReportSize > 0 && failing === 0) {
+    pipe("ALL_TESTS_PASSING", chalk.bgGreen.black, log);
+  }
+  return E.right(null);
 };

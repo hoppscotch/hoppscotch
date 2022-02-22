@@ -30,8 +30,7 @@ export const runCollection =
         TE.chainW((_) => parseCollectionData(context)),
         TE.chainW((a) => flattenRequests(a, debug)),
         TE.chainW(runRequests),
-        TE.chainW(runTests),
-        TE.map((a) => a)
+        TE.chainW(runTests)
       )();
     } catch (e) {
       return E.left(error({ code: "UNKNOWN_ERROR", data: E.toError(e) }));

@@ -107,25 +107,25 @@ export const getColorStatusCode = (
 
 /**
  * @param runnerResponseInfo
- * @returns Promise<TableResponse>
+ * @returns TableResponse
  */
 export const getTableResponse = (
   runnerResponseInfo: RunnerResponseInfo
 ): TableResponse => {
   const { path, endpoint, statusText, status, method } = runnerResponseInfo;
-  const responseTable: TableResponse = {
+  const tableResponse: TableResponse = {
     path: path,
     endpoint: endpoint,
     method: method,
     statusCode: getColorStatusCode(status, statusText),
   };
 
-  return responseTable;
+  return tableResponse;
 };
 
 /**
  * @param runnerResponseInfo
- * @returns Promise<TestResponse>
+ * @returns TestResponse
  */
 export const getTestResponse = (
   runnerResponseInfo: RunnerResponseInfo

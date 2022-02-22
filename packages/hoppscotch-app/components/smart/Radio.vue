@@ -1,16 +1,12 @@
 <template>
-  <div
-    class="flex items-center flex-1 cursor-pointer transition flex-nowrap group hover:text-secondaryDark"
-    @click="$emit('change', value)"
-  >
-    <span class="inline-flex mr-4">
-      <i v-if="value === selected" class="text-accent material-icons">
-        radio_button_checked
-      </i>
-      <i v-else class="material-icons">radio_button_unchecked</i>
-    </span>
-    <span class="inline-flex font-semibold">{{ label }}</span>
-  </div>
+  <SmartItem
+    :label="label"
+    :icon="
+      value === selected ? 'radio_button_checked' : 'radio_button_unchecked'
+    "
+    :active="value === selected"
+    @click.native="$emit('change', value)"
+  />
 </template>
 
 <script>

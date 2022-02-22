@@ -473,7 +473,7 @@
   },
   "state": {
     "bulk_mode": "Bulk edit",
-    "bulk_mode_placeholder": "Entries are separated by newline Keys and values are separated by : Prepend # to any row you want to add but keep disabled",
+    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend # to any row you want to add but keep disabled",
     "cleared": "Cleared",
     "connected": "Connected",
     "connected_to": "Connected to {name}",

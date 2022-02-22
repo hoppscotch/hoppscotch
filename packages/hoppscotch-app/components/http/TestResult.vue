@@ -36,14 +36,14 @@
             <div class="divide-y divide-dividerLight">
               <div
                 v-if="noEnvSelected && !globalHasAdditions"
-                class="flex bg-error p-4 text-secondaryDark"
+                class="flex p-4 bg-error text-secondaryDark"
               >
                 <i class="mr-4 material-icons"> warning </i>
                 <div class="flex flex-col">
                   <p>
                     {{ t("environment.no_environment_description") }}
                   </p>
-                  <p class="space-x-2 flex mt-3">
+                  <p class="flex mt-3 space-x-2">
                     <ButtonSecondary
                       :label="t('environment.add_to_global')"
                       class="text-tiny !bg-primary"

@@ -21,7 +21,7 @@
     </div>
     <span
       v-if="global"
-      class="bg-accentLight px-1 rounded text-accentContrast text-tiny"
+      class="px-1 rounded bg-accentLight text-accentContrast text-tiny"
     >
       Global
     </span>

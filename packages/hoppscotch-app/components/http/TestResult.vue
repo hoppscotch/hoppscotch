@@ -60,6 +60,20 @@
                 </div>
               </div>
               <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.additions"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="additions"
+                global
+              />
+              <HttpTestResultEnv
+                v-for="(env, index) in testResults.envDiff.global.updations"
+                :key="`env-${env.key}-${index}`"
+                :env="env"
+                status="updations"
+                global
+              />
+              <HttpTestResultEnv
                 v-for="(env, index) in testResults.envDiff.selected.additions"
                 :key="`env-${env.key}-${index}`"
                 :env="env"

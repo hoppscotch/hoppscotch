@@ -1,3 +1,5 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import { execTestScript, TestResponse } from "../../../test-runner"
 
 const fakeResponse: TestResponse = {
@@ -6,10 +8,16 @@ const fakeResponse: TestResponse = {
   headers: [],
 }
 
+const func = (script: string, res: TestResponse) =>
+  pipe(
+    execTestScript(script, { global: [], selected: [] }, res),
+    TE.map((x) => x.tests)
+  )
+
 describe("toHaveLength", () => {
   test("asserts true for valid lengths with no negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect([1, 2, 3, 4]).toHaveLength(4)
           pw.expect([]).toHaveLength(0)
@@ -28,7 +36,7 @@ describe("toHaveLength", () => {
 
   test("asserts false for invalid lengths with no negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect([]).toHaveLength(4)
           pw.expect([1, 2, 3, 4]).toHaveLength(0)
@@ -47,7 +55,7 @@ describe("toHaveLength", () => {
 
   test("asserts false for valid lengths with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect([1, 2, 3, 4]).not.toHaveLength(4)
           pw.expect([]).not.toHaveLength(0)
@@ -72,7 +80,7 @@ describe("toHaveLength", () => {
 
   test("asserts true for invalid lengths with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect([]).not.toHaveLength(4)
           pw.expect([1, 2, 3, 4]).not.toHaveLength(0)
@@ -97,7 +105,7 @@ describe("toHaveLength", () => {
 
   test("gives error if not called on an array or a string with no negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(5).toHaveLength(0)
           pw.expect(true).toHaveLength(0)
@@ -124,7 +132,7 @@ describe("toHaveLength", () => {
 
   test("gives error if not called on an array or a string with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(5).not.toHaveLength(0)
           pw.expect(true).not.toHaveLength(0)
@@ -151,7 +159,7 @@ describe("toHaveLength", () => {
 
   test("gives an error if toHaveLength parameter is not a number without negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect([1, 2, 3, 4]).toHaveLength("a")
         `,
@@ -171,7 +179,7 @@ describe("toHaveLength", () => {
 
   test("gives an error if toHaveLength parameter is not a number with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect([1, 2, 3, 4]).not.toHaveLength("a")
         `,

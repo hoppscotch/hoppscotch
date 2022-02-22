@@ -8,15 +8,21 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("bob", "newbob")
         `,
-        [
-          { key: "bob", value: "oldbob" },
-          { key: "foo", value: "bar" },
-        ]
+        {
+          global: [],
+          selected: [
+            { key: "bob", value: "oldbob" },
+            { key: "foo", value: "bar" },
+          ],
+        }
       )()
-    ).resolves.toEqualRight([
-      { key: "bob", value: "newbob" },
-      { key: "foo", value: "bar" },
-    ])
+    ).resolves.toEqualRight({
+      global: [],
+      selected: [
+        { key: "bob", value: "newbob" },
+        { key: "foo", value: "bar" },
+      ],
+    })
   })
 
   test("fails if the key is not a string", () => {
@@ -25,10 +31,13 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set(10, "newbob")
         `,
-        [
-          { key: "bob", value: "oldbob" },
-          { key: "foo", value: "bar" },
-        ]
+        {
+          global: [],
+          selected: [
+            { key: "bob", value: "oldbob" },
+            { key: "foo", value: "bar" },
+          ],
+        }
       )()
     ).resolves.toBeLeft()
   })
@@ -39,10 +48,13 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("bob", 10)
         `,
-        [
-          { key: "bob", value: "oldbob" },
-          { key: "foo", value: "bar" },
-        ]
+        {
+          global: [],
+          selected: [
+            { key: "bob", value: "oldbob" },
+            { key: "foo", value: "bar" },
+          ],
+        }
       )()
     ).resolves.toBeLeft()
   })
@@ -51,12 +63,15 @@ describe("execPreRequestScript", () => {
     return expect(
       execPreRequestScript(
         `
-          pw.env.set("bob", 
+          pw.env.set("bob",
         `,
-        [
-          { key: "bob", value: "oldbob" },
-          { key: "foo", value: "bar" },
-        ]
+        {
+          global: [],
+          selected: [
+            { key: "bob", value: "oldbob" },
+            { key: "foo", value: "bar" },
+          ],
+        }
       )()
     ).resolves.toBeLeft()
   })
@@ -67,8 +82,11 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("foo", "bar")
         `,
-        []
+        { selected: [], global: [] }
       )()
-    ).resolves.toEqualRight([{ key: "foo", value: "bar" }])
+    ).resolves.toEqualRight({
+      global: [],
+      selected: [{ key: "foo", value: "bar" }],
+    })
   })
 })

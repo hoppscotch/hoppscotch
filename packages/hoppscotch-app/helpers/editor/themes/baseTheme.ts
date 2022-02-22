@@ -43,6 +43,9 @@ export const baseTheme = EditorView.theme({
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",
   },
+  ".cm-widgetBuffer": {
+    position: "absolute",
+  },
   ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
     backgroundColor: "var(--accent-color)",
     color: "var(--accent-contrast-color)",
@@ -161,6 +164,9 @@ export const inputTheme = EditorView.theme({
   },
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",
+  },
+  ".cm-widgetBuffer": {
+    position: "absolute",
   },
   ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
     backgroundColor: "var(--accent-color)",

@@ -35,7 +35,7 @@
             </summary>
             <div class="divide-y divide-dividerLight">
               <div
-                v-if="noEnvSelected"
+                v-if="noEnvSelected && !globalHasAdditions"
                 class="flex bg-error p-4 text-secondaryDark"
               >
                 <i class="mr-4 material-icons"> warning </i>
@@ -48,11 +48,13 @@
                       :label="t('environment.add_to_global')"
                       class="text-tiny !bg-primary"
                       filled
+                      @click.native="addEnvToGlobal()"
                     />
                     <ButtonSecondary
                       :label="t('environment.create_new')"
                       class="text-tiny !bg-primary"
                       filled
+                      @click.native="displayModalAdd(true)"
                     />
                   </p>
                 </div>
@@ -165,25 +167,44 @@
         class="my-4"
       />
     </div>
+    <EnvironmentsAdd
+      :show="showModalAdd"
+      @hide-modal="displayModalAdd(false)"
+      @environment-added="createNewEnv($event)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "@nuxtjs/composition-api"
+import { computed, Ref, ref } from "@nuxtjs/composition-api"
+import isEqual from "lodash/isEqual"
 import {
   useReadonlyStream,
   useI18n,
   useStream,
 } from "~/helpers/utils/composables"
 import {
+  globalEnv$,
   selectedEnvIndex$,
   setCurrentEnvironment,
+  setGlobalEnvVariables,
+  updateEnvironment,
 } from "~/newstore/environments"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
 const t = useI18n()
 
-const testResults = useReadonlyStream(restTestResults$, null)
+const showModalAdd = ref(false)
+
+const displayModalAdd = (shouldDisplay: boolean) => {
+  showModalAdd.value = shouldDisplay
+}
+
+const testResults = useReadonlyStream(
+  restTestResults$,
+  null
+) as Ref<HoppTestResult | null>
 
 const clearContent = () => setRESTTestResults(null)
 
@@ -205,5 +226,38 @@ const selectedEnvironmentIndex = useStream(
   setCurrentEnvironment
 )
 
+const globalEnvVars = useReadonlyStream(globalEnv$, []) as Ref<
+  Array<{
+    key: string
+    value: string
+  }>
+>
+
 const noEnvSelected = computed(() => selectedEnvironmentIndex.value === -1)
+
+const globalHasAdditions = computed(() => {
+  if (!testResults.value?.envDiff.selected.additions) return false
+  return (
+    testResults.value.envDiff.selected.additions.every(
+      (x) => globalEnvVars.value.findIndex((y) => isEqual(x, y)) !== -1
+    ) ?? false
+  )
+})
+
+const addEnvToGlobal = () => {
+  if (!testResults.value?.envDiff.selected.additions) return
+  setGlobalEnvVariables([
+    ...globalEnvVars.value,
+    ...testResults.value.envDiff.selected.additions,
+  ])
+}
+
+const createNewEnv = ({ name, index }: { name: string; index: number }) => {
+  if (!testResults.value?.envDiff.selected.additions) return
+  updateEnvironment(index, {
+    name,
+    variables: testResults.value.envDiff.selected.additions,
+  })
+  setCurrentEnvironment(index)
+}
 </script>

@@ -38,11 +38,17 @@
 
 <script lang="ts">
 import { defineComponent } from "@nuxtjs/composition-api"
-import { createEnvironment } from "~/newstore/environments"
+import { useReadonlyStream } from "~/helpers/utils/composables"
+import { createEnvironment, environments$ } from "~/newstore/environments"
 
 export default defineComponent({
   props: {
     show: Boolean,
+  },
+  setup() {
+    return {
+      envList: useReadonlyStream(environments$, []),
+    }
   },
   data() {
     return {
@@ -56,6 +62,11 @@ export default defineComponent({
         return
       }
       createEnvironment(this.name)
+      // TODO: find better way to get index of new environment
+      this.$emit("environment-added", {
+        name: this.name,
+        index: this.envList.length - 1,
+      })
       this.hideModal()
     },
     hideModal() {

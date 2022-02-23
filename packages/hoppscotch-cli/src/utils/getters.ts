@@ -7,7 +7,7 @@ import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
 import {
   HoppRESTRequest,
   Environment,
-  parseRawKeyValueEntries,
+  parseRawKeyValueEntriesE,
   parseBodyEnvVariablesE,
   parseTemplateString,
   parseTemplateStringE,
@@ -148,10 +148,15 @@ function getFinalBodyFromRequest(
   }
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
-    return pipe(
-      request.body.body,
-      parseRawKeyValueEntries,
+    const requestBody = parseRawKeyValueEntriesE(request.body.body);
+    if (E.isLeft(requestBody)) {
+      return E.left(
+        error({ code: "PARSING_ERROR", data: requestBody.left.message })
+      );
+    }
 
+    return pipe(
+      requestBody.right.slice(),
       // Filter out active
       A.filter((x) => x.active),
       // Convert to tuple

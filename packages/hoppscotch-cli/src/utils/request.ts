@@ -272,13 +272,13 @@ const preRequestScriptRunner =
     if (!S.isEmpty(request.preRequestScript)) {
       const preRequestScriptRes = await runPreRequestScript(
         request.preRequestScript,
-        []
+        { global: [], selected: [] }
       )();
 
       if (E.isRight(preRequestScriptRes)) {
         const envs: Environment = {
           name: "Env",
-          variables: preRequestScriptRes.right,
+          variables: preRequestScriptRes.right.selected,
         };
         return getEffectiveRESTRequest(request, envs);
       }

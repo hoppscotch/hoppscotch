@@ -61,12 +61,13 @@ export const testRunner =
   async () => {
     const testScriptExecRes = await execTestScript(
       testScriptData.testScript,
+      { global: [], selected: [] },
       testScriptData.response
     )();
 
     if (E.isRight(testScriptExecRes)) {
       const testReports: TestReport[] = [];
-      for (const testDescriptorChild of testScriptExecRes.right) {
+      for (const testDescriptorChild of testScriptExecRes.right.tests) {
         await testDescriptorParser(testDescriptorChild, testReports)();
       }
       return E.right(testReports);

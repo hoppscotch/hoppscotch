@@ -160,12 +160,13 @@ export const flattenRequests =
     debug: boolean
   ): TE.TaskEither<HoppCLIError, RequestStack[]> =>
   async () => {
-    const requests: RequestStack[] = [];
+    let requests: RequestStack[] = [];
     for (const x of collectionArray) {
-      const requestsParserRes = await requestsParser(x, requests, debug)();
-      if (E.isLeft(requestsParserRes)) {
-        return requestsParserRes;
+      const parsedRequests = await requestsParser(x, debug)();
+      if (E.isLeft(parsedRequests)) {
+        return parsedRequests;
       }
+      requests = [...requests, ...parsedRequests.right];
     }
     return E.right(requests);
   };

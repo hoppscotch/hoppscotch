@@ -12,11 +12,3 @@ export interface CLIContext {
   collections?: Array<HoppCollection<HoppRESTRequest>>;
   [x: string]: any;
 }
-
-/**
- * * CLI Error object.
- * @property {string} code - Custom error code.
- */
-export interface CLIError extends Error {
-  code?: string;
-}

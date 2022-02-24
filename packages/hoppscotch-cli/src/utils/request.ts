@@ -57,7 +57,7 @@ const createRequest = (
   if (debug === true) {
     config.transformResponse = [
       (data: any) => {
-        let parsedData = data;
+        let parsedData;
         try {
           parsedData = JSON.parse(data);
         } catch (error) {
@@ -210,18 +210,17 @@ export const requestRunner =
 /**
  * The request parser from the collection JSON
  * @param x The collection object parsed from the JSON
- * @param requests Array of requests
  * @param debug Boolean to use debugging session
  * @param rootPath The folder path
  */
 export const requestsParser =
   (
     x: HoppCollection<HoppRESTRequest>,
-    requests: RequestStack[],
     debug: boolean,
     rootPath: string = "$ROOT"
-  ): TE.TaskEither<HoppCLIError, null> =>
+  ): TE.TaskEither<HoppCLIError, RequestStack[]> =>
   async () => {
+    let parsedRequests: RequestStack[] = [];
     for (const request of x.requests) {
       let effectiveReq: EffectiveHoppRESTRequest = {
         ...request,
@@ -246,22 +245,22 @@ export const requestsParser =
         effectiveReq,
         debug
       );
-      requests.push(createdReq);
+      parsedRequests.push(createdReq);
     }
 
     for (const folder of x.folders) {
-      const requestsParserRes = await requestsParser(
+      const parsedDirReqs = await requestsParser(
         folder,
-        requests,
         debug,
         `${rootPath}/${x.name}`
       )();
-      if (E.isLeft(requestsParserRes)) {
-        return requestsParserRes;
+      if (E.isLeft(parsedDirReqs)) {
+        return parsedDirReqs;
       }
+      parsedRequests = [...parsedRequests, ...parsedDirReqs.right];
     }
 
-    return E.right(null);
+    return E.right(parsedRequests);
   };
 
 const preRequestScriptRunner =
@@ -323,7 +322,7 @@ export const runRequests = (
           }
 
           testScriptData = await Promise.all(requestsPromise);
-          process.stdout.write("\n");
+          responseTableOutput.footer();
         }
         return testScriptData;
       },
@@ -350,4 +349,5 @@ const responseTableOutput = {
       tableResponse.statusCode,
     ]);
   },
+  footer: () => process.stdout.write("\n"),
 };

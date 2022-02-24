@@ -115,16 +115,24 @@ export const isSafeCommanderError = (error: any) => {
 };
 
 export const checkCLIContext =
-  (context: CLIContext): TE.TaskEither<HoppCLIError, null> =>
+  (context: CLIContext): TE.TaskEither<HoppCLIError, string> =>
   async () => {
     if (context.interactive) {
       await parseCLIOptions(context)();
     } else if (!S.isString(context.path)) {
       return E.left(error({ code: "NO_FILE_PATH" }));
     }
-    return await pipe(
-      context.path!,
-      checkFileURL,
-      TE.map((_) => null)
-    )();
+    return pipe(context.path!, checkFileURL)();
+  };
+
+export const checkDebugger =
+  (debug: boolean): TE.TaskEither<HoppCLIError, null> =>
+  async () => {
+    if (debug) {
+      return pipe(
+        checkConnection("localhost", 9999),
+        TE.map((_) => null)
+      )();
+    }
+    return E.right(null);
   };

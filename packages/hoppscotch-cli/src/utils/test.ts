@@ -19,36 +19,38 @@ import { error, HoppCLIError } from "../types";
  * @param testDescriptor Object with details of test-descriptor.
  * @returns Promise<number>: total failing tests for test-descriptor.
  */
-const testDescriptorParser =
-  (testDescriptor: TestDescriptor, testReports: TestReport[]) => async () => {
-    if (A.isNonEmpty(testDescriptor.expectResults)) {
-      let passing: number = 0,
-        failing: number = 0;
+const testDescriptorParser = (testDescriptor: TestDescriptor) => async () => {
+  let testsReport: TestReport[] = [];
+  if (A.isNonEmpty(testDescriptor.expectResults)) {
+    let passing: number = 0,
+      failing: number = 0;
 
-      const testReport: TestReport = {
-        descriptor: testDescriptor.descriptor,
-        expectResults: testDescriptor.expectResults,
-        failing: 0,
-        passing: 0,
-      };
+    const testReport: TestReport = {
+      descriptor: testDescriptor.descriptor,
+      expectResults: testDescriptor.expectResults,
+      failing: 0,
+      passing: 0,
+    };
 
-      for (const expectResult of testDescriptor.expectResults) {
-        if (E.isLeft(isExpectResultPass(expectResult.status))) {
-          failing += 1;
-        } else {
-          passing += 1;
-        }
+    for (const expectResult of testDescriptor.expectResults) {
+      if (E.isLeft(isExpectResultPass(expectResult.status))) {
+        failing += 1;
+      } else {
+        passing += 1;
       }
-
-      testReport.failing = failing;
-      testReport.passing = passing;
-      testReports.push(testReport);
     }
 
-    for (const testDescriptorChild of testDescriptor.children) {
-      await testDescriptorParser(testDescriptorChild, testReports)();
-    }
-  };
+    testReport.failing = failing;
+    testReport.passing = passing;
+    testsReport.push(testReport);
+  }
+
+  for (const testDescriptorChild of testDescriptor.children) {
+    const testDesParserRes = await testDescriptorParser(testDescriptorChild)();
+    testsReport = [...testsReport, ...testDesParserRes];
+  }
+  return testsReport;
+};
 
 /**
  * Executes test script and runs testDescriptorParser function to
@@ -66,11 +68,14 @@ export const testRunner =
     )();
 
     if (E.isRight(testScriptExecRes)) {
-      const testReports: TestReport[] = [];
+      let testsReport: TestReport[] = [];
       for (const testDescriptorChild of testScriptExecRes.right.tests) {
-        await testDescriptorParser(testDescriptorChild, testReports)();
+        const testDesParserRes = await testDescriptorParser(
+          testDescriptorChild
+        )();
+        testsReport = [...testsReport, ...testDesParserRes];
       }
-      return E.right(testReports);
+      return E.right(testsReport);
     }
     return E.left(
       error({
@@ -155,7 +160,7 @@ const testsExitResult = (failing: number, testsReportSize: number) => {
   if (failing > 0) {
     return E.left(error({ code: "TESTS_FAILING", data: failing }));
   }
-  if (testsReportSize > 0 && failing === 0) {
+  if (testsReportSize > 0) {
     pipe("ALL_TESTS_PASSING", chalk.bgGreen.black, log);
   }
   return E.right(null);

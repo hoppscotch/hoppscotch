@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "ESNext",
+    "module": "CommonJS",
     "moduleResolution": "Node",
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
     "esModuleInterop": true,
@@ -18,5 +18,5 @@
     "sourceMap": true
   },
   "include": ["./src", "./src/global.d.ts"],
-  "exclude": ["node_modules", "./src/__tests__", "./src/demo.ts"]
+  "exclude": ["node_modules", "./src/__tests__"]
 }

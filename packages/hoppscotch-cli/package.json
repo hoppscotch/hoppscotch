@@ -10,7 +10,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpx tsc --build src",
+    "build": "pnpx tsup",
     "dev": "pnpx tsc --build src --watch",
     "debugger": "node debugger.js 9999",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
@@ -45,7 +45,9 @@
     "inquirer": "^8.1.1",
     "inquirer-fuzzy-path": "^2.3.0",
     "lodash": "^4.17.21",
+    "qs": "^6.10.3",
     "table": "^6.7.1",
-    "tcp-ping": "^0.1.1"
+    "tcp-ping": "^0.1.1",
+    "tsup": "^5.11.13"
   }
 }

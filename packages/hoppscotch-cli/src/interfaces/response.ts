@@ -1,4 +1,4 @@
-import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
+import { TestResponse } from "@hoppscotch/js-sandbox";
 import { Method } from "axios";
 import { ExpectResult } from "../types";
 

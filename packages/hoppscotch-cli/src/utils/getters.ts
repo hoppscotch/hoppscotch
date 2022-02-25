@@ -3,7 +3,7 @@ import { pipe } from "fp-ts/function";
 import qs from "qs";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
-import { TestResponse } from "@hoppscotch/js-sandbox/lib/test-runner";
+import { TestResponse } from "@hoppscotch/js-sandbox";
 import {
   HoppRESTRequest,
   Environment,

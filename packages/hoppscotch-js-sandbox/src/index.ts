@@ -3,11 +3,14 @@ import * as TE from "fp-ts/TaskEither"
 import { execPreRequestScript } from "./preRequest"
 import {
   execTestScript,
-  TestResponse,
+  TestResponse as _TestResponse,
   TestDescriptor as _TestDescriptor,
   TestResult,
 } from "./test-runner"
 
+export * from "./test-runner"
+
+export type TestResponse = _TestResponse
 export type TestDescriptor = _TestDescriptor
 export type SandboxTestResult = TestResult & { tests: TestDescriptor }
 

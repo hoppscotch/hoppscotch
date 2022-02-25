@@ -8,7 +8,7 @@ import { log } from "console";
 import {
   execTestScript,
   TestDescriptor,
-} from "@hoppscotch/js-sandbox/lib/test-runner";
+} from "@hoppscotch/js-sandbox";
 import { TestReport, TestScriptData } from "../interfaces";
 import { isExpectResultPass, GTest } from ".";
 import { error, HoppCLIError } from "../types";

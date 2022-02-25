@@ -12,33 +12,48 @@
         :label="`${$t('collection.team_collections')}`"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
-          <div class="select-wrapper">
-            <select
-              id="team"
-              type="text"
-              autocomplete="off"
-              autofocus
-              class="flex w-full px-4 py-2 font-semibold bg-transparent border-t appearance-none cursor-pointer border-dividerLight hover:bg-primaryDark"
-              @change="updateSelectedTeam(myTeams[$event.target.value])"
-            >
-              <option
-                :key="undefined"
-                :value="undefined"
-                hidden
-                disabled
-                selected
+          <tippy
+            ref="options"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+            placement="bottom"
+          >
+            <template #trigger>
+              <span
+                v-tippy="{ theme: 'tooltip' }"
+                :title="`${$t('collection.select_team')}`"
+                class="bg-transparent border-t border-dividerLight select-wrapper"
               >
-                {{ $t("collection.select_team") }}
-              </option>
-              <option
-                v-for="(team, index) in myTeams"
-                :key="`team-${String(index)}`"
-                :value="String(index)"
-              >
-                {{ team.name }}
-              </option>
-            </select>
-          </div>
+                <ButtonSecondary
+                  v-if="collectionsType.selectedTeam"
+                  :label="collectionsType.selectedTeam.name"
+                  class="flex-1 pr-8 rounded-none"
+                />
+                <ButtonSecondary
+                  v-else
+                  :label="`${$t('collection.select_team')}`"
+                  class="flex-1 pr-8 rounded-none"
+                />
+              </span>
+            </template>
+            <SmartItem
+              v-for="(team, index) in myTeams"
+              :key="`team-${index}`"
+              :label="team.name"
+              :info-icon="
+                team.id === collectionsType.selectedTeam?.id ? 'done' : ''
+              "
+              :active-info-icon="team.id === collectionsType.selectedTeam?.id"
+              @click.native="
+                () => {
+                  updateSelectedTeam(team)
+                  options.tippy().hide()
+                }
+              "
+            />
+          </tippy>
         </SmartIntersection>
       </SmartTab>
     </SmartTabs>
@@ -46,7 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { ref } from "@nuxtjs/composition-api"
+import { GetMyTeamsQuery, Team } from "~/helpers/backend/graphql"
 import { onLoggedIn } from "~/helpers/fb/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
@@ -57,6 +73,10 @@ type TeamData = GetMyTeamsQuery["myTeams"][number]
 defineProps<{
   doc: boolean
   show: boolean
+  collectionsType: {
+    type: "my-collections" | "team-collections"
+    selectedTeam: Team | undefined
+  }
 }>()
 
 const emit = defineEmits<{
@@ -81,6 +101,8 @@ const onTeamSelectIntersect = () => {
 const updateCollectionsType = (tabID: string) => {
   emit("update-collection-type", tabID)
 }
+
+const options = ref<any | null>(null)
 
 const updateSelectedTeam = (team: TeamData | undefined) => {
   emit("update-selected-team", team)

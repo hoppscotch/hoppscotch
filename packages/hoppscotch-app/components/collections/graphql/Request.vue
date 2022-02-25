@@ -182,6 +182,7 @@ export default defineComponent({
             query: this.$props.request.query,
             headers: this.$props.request.headers,
             variables: this.$props.request.variables,
+            auth: this.$props.request.auth,
           }),
           schema: "",
           response: "",

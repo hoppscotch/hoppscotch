@@ -1,8 +1,10 @@
 <template>
-  <div class="flex flex-col flex-1 h-full">
+  <div
+    class="sticky top-0 z-10 flex items-center p-4 overflow-auto bg-primary hide-scrollbar whitespace-nowrap"
+  >
     <div
       v-if="responseString === 'loading'"
-      class="flex flex-col items-center justify-center p-4"
+      class="flex flex-col items-center justify-center flex-1 text-secondaryLight"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>

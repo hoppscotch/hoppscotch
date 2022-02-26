@@ -11,12 +11,12 @@
             <ButtonSecondary
               v-if="selectedEnvironmentIndex !== -1"
               :label="environments[selectedEnvironmentIndex].name"
-              class="flex-1 pr-8 rounded-none"
+              class="flex-1 !justify-start pr-8 rounded-none"
             />
             <ButtonSecondary
               v-else
-              :label="`${$t('environment.no_environment')}`"
-              class="flex-1 pr-8 rounded-none"
+              :label="`${$t('environment.select')}`"
+              class="flex-1 !justify-start pr-8 rounded-none"
             />
           </span>
         </template>
@@ -31,6 +31,7 @@
             }
           "
         />
+        <hr />
         <SmartItem
           v-for="(gen, index) in environments"
           :key="`gen-${index}`"

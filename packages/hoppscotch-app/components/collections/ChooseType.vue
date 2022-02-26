@@ -28,13 +28,14 @@
               >
                 <ButtonSecondary
                   v-if="collectionsType.selectedTeam"
+                  svg="users"
                   :label="collectionsType.selectedTeam.name"
-                  class="flex-1 pr-8 rounded-none"
+                  class="flex-1 !justify-start pr-8 rounded-none"
                 />
                 <ButtonSecondary
                   v-else
                   :label="`${$t('collection.select_team')}`"
-                  class="flex-1 pr-8 rounded-none"
+                  class="flex-1 !justify-start pr-8 rounded-none"
                 />
               </span>
             </template>
@@ -46,6 +47,7 @@
                 team.id === collectionsType.selectedTeam?.id ? 'done' : ''
               "
               :active-info-icon="team.id === collectionsType.selectedTeam?.id"
+              svg="users"
               @click.native="
                 () => {
                   updateSelectedTeam(team)

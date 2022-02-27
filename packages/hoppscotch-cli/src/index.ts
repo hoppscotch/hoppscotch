@@ -1,7 +1,7 @@
 import { program } from "commander";
 import * as E from "fp-ts/Either";
 import { version } from "../package.json";
-import { run, test } from "./commands";
+import { run } from "./commands";
 import { handleError } from "./handlers";
 
 /**
@@ -29,15 +29,7 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")
-  .action(async (context, options) => await run(context, options)());
-
-program
-  .command("test")
-  .allowExcessArguments(false)
-  .allowUnknownOption(false)
-  .description("interactive hoppscotch testing with debugger")
-  .setOptionValue("interactive", true)
-  .action(async (context, options) => await test(context, options)());
+  .action(async (path) => await run(path)());
 
 program
   .command("help", { isDefault: true, hidden: true })

@@ -1,62 +1,46 @@
 import fs from "fs/promises";
 import { CommanderError } from "commander";
 import { join, extname } from "path";
-import tcpp from "tcp-ping";
 import { pipe } from "fp-ts/function";
 import {
-  HoppRESTRequest,
   translateToNewRESTCollection,
-  HoppCollection,
   isHoppRESTRequest,
 } from "@hoppscotch/data";
 import * as S from "fp-ts/string";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { error, HoppCLIError } from "../types";
-import { CLIContext } from "../interfaces";
-import { parseCLIOptions } from ".";
 
 /**
  * Typeguard to check valid Hoppscotch REST Collection
  * @param param The object to be checked
  * @returns Boolean value corresponding to the validity check
  */
-export function isRESTCollection(param: {
-  x: any;
-}): param is { x: HoppCollection<HoppRESTRequest> } {
-  if (!param.x) return false;
-  if (!param.x.v) {
-    param.x = translateToNewRESTCollection(param.x);
+export function isRESTCollection(param: any): E.Either<boolean, boolean> {
+  let _param = param;
+  if (!_param) return E.left(false);
+  if (!_param.v) {
+    _param = translateToNewRESTCollection(param);
   }
 
-  if (!param.x.name || typeof param.x.name !== "string") return false;
-  if (!Array.isArray(param.x.requests)) {
-    return false;
+  if (!_param.name || typeof _param.name !== "string") return E.left(false);
+  if (!Array.isArray(_param.requests)) {
+    return E.left(false);
   } else {
-    const checkRequests = [];
-    for (const [idx, _] of param.x.requests.entries()) {
-      const x = {
-        ...param.x.requests[idx],
-      };
-      checkRequests.push(isHoppRESTRequest(x));
-      param.x.requests[idx] = x;
+    for (const request of _param.requests) {
+      const _isHoppRequest = isHoppRESTRequest(request);
+      if (!_isHoppRequest) return E.left(false);
     }
-    if (!checkRequests.every((val) => val)) return false;
   }
-  if (!Array.isArray(param.x.folders)) {
-    return false;
+  if (!Array.isArray(_param.folders)) {
+    return E.left(false);
   } else {
-    const checkFolders = [];
-    for (const [idx, _] of param.x.folders.entries()) {
-      const pm = {
-        x: { ...param.x.folders[idx] },
-      };
-      checkFolders.push(isRESTCollection(pm));
-      param.x.folders[idx] = pm.x;
+    for (const folder of _param.folders) {
+      const _isRESTCollection = isRESTCollection(folder);
+      if (!_isRESTCollection) return E.left(false);
     }
-    if (!checkFolders.every((val) => val)) return false;
   }
-  return true;
+  return E.right(true);
 }
 
 /**
@@ -79,30 +63,6 @@ export const checkFileURL =
     }
   };
 
-/**
- * Checking TCP connection at given port and address exists or not.
- * @param address Address to ping (@default: localhost).
- * @param port Port to ping for given address (@default: 80).
- * @returns Promise<Either<Error, tcpp.Result>>
- */
-export const checkConnection =
-  (address: string, port: number): TE.TaskEither<HoppCLIError, tcpp.Result> =>
-  () =>
-    new Promise((resolve) => {
-      tcpp.ping({ address: address, port: port, attempts: 1 }, (err, data) => {
-        if (err) {
-          resolve(E.left(error({ code: "DEBUGGER_ERROR", data: err })));
-        }
-        const pingResultErr = data.results[0].err;
-        if (pingResultErr) {
-          resolve(
-            E.left(error({ code: "DEBUGGER_ERROR", data: pingResultErr }))
-          );
-        }
-        resolve(E.right(data));
-      });
-    });
-
 export const isExpectResultPass = (
   expectResult: string
 ): E.Either<boolean, boolean> =>
@@ -114,25 +74,11 @@ export const isSafeCommanderError = (error: any) => {
   }
 };
 
-export const checkCLIContext =
-  (context: CLIContext): TE.TaskEither<HoppCLIError, string> =>
+export const checkCLIPath =
+  (path: string): TE.TaskEither<HoppCLIError, string> =>
   async () => {
-    if (context.interactive) {
-      await parseCLIOptions(context)();
-    } else if (!S.isString(context.path)) {
+    if (!S.isString(path)) {
       return E.left(error({ code: "NO_FILE_PATH" }));
     }
-    return pipe(context.path!, checkFileURL)();
-  };
-
-export const checkDebugger =
-  (debug: boolean): TE.TaskEither<HoppCLIError, null> =>
-  async () => {
-    if (debug) {
-      return pipe(
-        checkConnection("localhost", 9999),
-        TE.map((_) => null)
-      )();
-    }
-    return E.right(null);
+    return pipe(path, checkFileURL)();
   };

@@ -6,11 +6,11 @@ import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
 import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
+import * as RA from "fp-ts/ReadonlyArray";
 import { pipe } from "fp-ts/function";
-import { HoppRESTRequest, HoppCollection, Environment } from "@hoppscotch/data";
+import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox";
 import {
-  debugging,
   GRequest,
   responseErrors,
   getEffectiveRESTRequest,
@@ -38,8 +38,7 @@ import { clear } from "console";
  */
 const createRequest = (
   rootPath: string,
-  req: EffectiveHoppRESTRequest,
-  debug: boolean
+  req: EffectiveHoppRESTRequest
 ): RequestStack => {
   const config: RequestConfig = {
     supported: true,
@@ -54,21 +53,7 @@ const createRequest = (
     ? req.endpoint
     : req.effectiveFinalURL;
   config.method = req.method as Method;
-  if (debug === true) {
-    config.transformResponse = [
-      (data: any) => {
-        let parsedData;
-        try {
-          parsedData = JSON.parse(data);
-        } catch (error) {
-          parsedData = data;
-        }
-        debugging.info(`REQUEST_NAME: ${req.name}`);
-        debugging.dir(parsedData);
-        return parsedData;
-      },
-    ];
-  }
+
   for (const x of reqParams) {
     if (x.active) {
       if (!config.params) {
@@ -210,18 +195,16 @@ export const requestRunner =
 /**
  * The request parser from the collection JSON
  * @param x The collection object parsed from the JSON
- * @param debug Boolean to use debugging session
  * @param rootPath The folder path
  */
 export const requestsParser =
   (
-    x: HoppCollection<HoppRESTRequest>,
-    debug: boolean,
+    collection: HoppCollection<HoppRESTRequest>,
     rootPath: string = "$ROOT"
   ): TE.TaskEither<HoppCLIError, RequestStack[]> =>
   async () => {
     let parsedRequests: RequestStack[] = [];
-    for (const request of x.requests) {
+    for (const request of collection.requests) {
       let effectiveReq: EffectiveHoppRESTRequest = {
         ...request,
         effectiveFinalBody: null,
@@ -241,18 +224,16 @@ export const requestsParser =
       }
 
       const createdReq: RequestStack = createRequest(
-        `${rootPath}/${x.name}`,
-        effectiveReq,
-        debug
+        `${rootPath}/${collection.name}`,
+        effectiveReq
       );
       parsedRequests.push(createdReq);
     }
 
-    for (const folder of x.folders) {
+    for (const folder of collection.folders) {
       const parsedDirReqs = await requestsParser(
         folder,
-        debug,
-        `${rootPath}/${x.name}`
+        `${rootPath}/${collection.name}`
       )();
       if (E.isLeft(parsedDirReqs)) {
         return parsedDirReqs;
@@ -263,34 +244,21 @@ export const requestsParser =
     return E.right(parsedRequests);
   };
 
-const preRequestScriptRunner =
-  (
-    request: EffectiveHoppRESTRequest
-  ): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
-  async () => {
-    if (!S.isEmpty(request.preRequestScript)) {
-      const preRequestScriptRes = await runPreRequestScript(
-        request.preRequestScript,
-        { global: [], selected: [] }
-      )();
-
-      if (E.isRight(preRequestScriptRes)) {
-        const envs: Environment = {
-          name: "Env",
-          variables: preRequestScriptRes.right.selected,
-        };
-        return getEffectiveRESTRequest(request, envs);
-      }
-
-      return E.left(
-        error({
-          code: "PRE_REQUEST_SCRIPT_ERROR",
-          data: preRequestScriptRes.left,
-        })
-      );
-    }
-    return E.right(request);
-  };
+const preRequestScriptRunner = (
+  request: EffectiveHoppRESTRequest
+): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
+  pipe(
+    TE.of(request),
+    TE.map((req) => req.preRequestScript),
+    TE.chain((preScript) =>
+      runPreRequestScript(preScript, { global: [], selected: [] })
+    ),
+    TE.map((envs) => Object({ name: "Env", variables: envs.selected })),
+    TE.chainW((env) =>
+      pipe(getEffectiveRESTRequest(request, env), TE.fromEither)
+    ),
+    TE.mapLeft((data) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data }))
+  );
 
 export const runRequests = (
   requests: RequestStack[]
@@ -298,14 +266,13 @@ export const runRequests = (
   pipe(
     TE.tryCatch(
       async () => {
-        let testScriptData: TestScriptData[] = [];
         if (A.isNonEmpty(requests)) {
           const tableStream = getTableStream();
-          const requestsPromise = [];
           responseTableOutput.header(tableStream);
 
-          for (const request of requests) {
-            requestsPromise.push(
+          const testScriptData = await pipe(
+            requests,
+            A.map((request) =>
               pipe(
                 request,
                 requestRunner,
@@ -315,16 +282,17 @@ export const runRequests = (
                     name: request.name,
                     testScript: request.testScript,
                     response: getTestResponse(res),
-                  };
+                  } as TestScriptData;
                 })
-              )()
-            );
-          }
+              )
+            ),
+            T.sequenceArray
+          )();
 
-          testScriptData = await Promise.all(requestsPromise);
           responseTableOutput.footer();
+          return RA.toArray(testScriptData);
         }
-        return testScriptData;
+        return [];
       },
       (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
     )

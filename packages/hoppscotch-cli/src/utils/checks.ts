@@ -44,24 +44,26 @@ export function isRESTCollection(param: any): E.Either<boolean, boolean> {
 }
 
 /**
- * Check if the file exists and check the file extension
- * @param path The input file path to check
- * @returns TE.TaskEither<any, string>
+ * Check if the file exists and check the file extension.
+ * @param path The input file path to check.
+ * @returns Absolute path for input file path.
  */
-export const checkFileURL =
-  (path: string): TE.TaskEither<HoppCLIError, string> =>
-  async () => {
-    try {
-      const fullPath = join(path);
-      await fs.access(fullPath);
-      if (extname(fullPath) !== ".json") {
-        return E.left(error({ code: "FILE_NOT_JSON", path: fullPath }));
-      }
-      return E.right(fullPath);
-    } catch (e) {
-      return E.left(error({ code: "FILE_NOT_FOUND", path: path }));
-    }
-  };
+export const checkFileURL = (
+  path: string
+): TE.TaskEither<HoppCLIError, string> =>
+  pipe(
+    TE.tryCatch(
+      () => pipe(path, join, fs.access),
+      () => error({ code: "FILE_NOT_FOUND", path: path })
+    ),
+    TE.map(() => join(path)),
+    TE.chainW(
+      TE.fromPredicate(
+        (fullPath) => extname(fullPath) === ".json",
+        (fullPath) => error({ code: "FILE_NOT_JSON", path: fullPath })
+      )
+    )
+  );
 
 export const isExpectResultPass = (
   expectResult: string
@@ -74,11 +76,14 @@ export const isSafeCommanderError = (error: any) => {
   }
 };
 
-export const checkCLIPath =
-  (path: string): TE.TaskEither<HoppCLIError, string> =>
-  async () => {
-    if (!S.isString(path)) {
-      return E.left(error({ code: "NO_FILE_PATH" }));
-    }
-    return pipe(path, checkFileURL)();
-  };
+/**
+ * Validates input file path from cli.
+ * @param path Input file path from cli.
+ * @returns Absolute file path for given input path.
+ */
+export const checkCLIPath = (path: string) =>
+  pipe(
+    path,
+    TE.fromPredicate(S.isString, () => error({ code: "NO_FILE_PATH" })),
+    TE.chainW(checkFileURL)
+  );

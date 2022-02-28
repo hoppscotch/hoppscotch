@@ -5,7 +5,7 @@ import { isSafeCommanderError, parseErrorMessage } from "../utils";
 
 const parsePreRequestScriptError = (e: any) => {
   if (typeof e === "object") {
-    return e.message;
+    return e.message || e.data;
   }
   return e;
 };

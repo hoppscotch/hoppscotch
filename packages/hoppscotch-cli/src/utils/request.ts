@@ -193,56 +193,58 @@ export const requestRunner =
   };
 
 /**
- * The request parser from the collection JSON
- * @param x The collection object parsed from the JSON
- * @param rootPath The folder path
+ * The request parser from the collection JSON.
+ * @param collection The collection object parsed from the JSON.
+ * @param rootPath The folder path.
+ * @returns RequestStack[] - Created request-stacks successfully parsed
+ * from HoppCollection.
+ * HoppCLIError - On error while parsing HoppCollection.
  */
-export const requestsParser =
-  (
-    collection: HoppCollection<HoppRESTRequest>,
-    rootPath: string = "$ROOT"
-  ): TE.TaskEither<HoppCLIError, RequestStack[]> =>
-  async () => {
-    let parsedRequests: RequestStack[] = [];
-    for (const request of collection.requests) {
-      let effectiveReq: EffectiveHoppRESTRequest = {
-        ...request,
-        effectiveFinalBody: null,
-        effectiveFinalHeaders: [],
-        effectiveFinalParams: [],
-        effectiveFinalURL: S.empty,
-      };
+export const requestsParser = (
+  collection: HoppCollection<HoppRESTRequest>,
+  rootPath: string = "$ROOT"
+): TE.TaskEither<HoppCLIError, RequestStack[]> =>
+  pipe(
+    /**
+     * Mapping collection's HoppRESTRequests to EffectiveHoppRESTRequest,
+     * then running preRequestScriptRunner over them and mapping output
+     * to generate RequestStack[] which is binded to PARSED_REQUESTS.
+     */
+    collection.requests,
+    A.map(
+      (hoppRequest) =>
+        Object({
+          ...hoppRequest,
+          effectiveFinalBody: null,
+          effectiveFinalHeaders: [],
+          effectiveFinalParams: [],
+          effectiveFinalURL: S.empty,
+        }) as EffectiveHoppRESTRequest
+    ),
+    A.map(preRequestScriptRunner),
+    TE.sequenceArray,
+    TE.map(RA.toArray),
+    TE.map(A.map((a) => createRequest(`${rootPath}/${collection.name}`, a))),
+    TE.bindTo("PARSED_REQUESTS"),
 
-      const _preRequestScriptRunner = await preRequestScriptRunner(
-        effectiveReq
-      )();
-
-      if (E.isRight(_preRequestScriptRunner)) {
-        effectiveReq = _preRequestScriptRunner.right;
-      } else {
-        return _preRequestScriptRunner;
-      }
-
-      const createdReq: RequestStack = createRequest(
-        `${rootPath}/${collection.name}`,
-        effectiveReq
-      );
-      parsedRequests.push(createdReq);
-    }
-
-    for (const folder of collection.folders) {
-      const parsedDirReqs = await requestsParser(
-        folder,
-        `${rootPath}/${collection.name}`
-      )();
-      if (E.isLeft(parsedDirReqs)) {
-        return parsedDirReqs;
-      }
-      parsedRequests = [...parsedRequests, ...parsedDirReqs.right];
-    }
-
-    return E.right(parsedRequests);
-  };
+    /**
+     * Recursive call to requestsParser on collections's folder, the
+     * RequestStack[] output concated with PARSED_REQUESTS, and the
+     * overall output is binded to FINAL_PARSED_REQUESTS.
+     */
+    TE.chain(({ PARSED_REQUESTS }) =>
+      pipe(
+        collection.folders,
+        A.map((a) => requestsParser(a, `${rootPath}/${collection.name}`)),
+        TE.sequenceArray,
+        TE.map(RA.toArray),
+        TE.map(A.flatten),
+        TE.map(A.concat(PARSED_REQUESTS))
+      )
+    ),
+    TE.bindTo("FINAL_PARSED_REQUESTS"),
+    TE.map(({ FINAL_PARSED_REQUESTS }) => FINAL_PARSED_REQUESTS)
+  );
 
 const preRequestScriptRunner = (
   request: EffectiveHoppRESTRequest

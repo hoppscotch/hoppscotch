@@ -1,132 +1,168 @@
-import { pipe } from "fp-ts/function";
+import { flow, pipe } from "fp-ts/function";
+import * as RA from "fp-ts/ReadonlyArray";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
-import * as S from "fp-ts/string";
+import * as T from "fp-ts/Task";
 import chalk from "chalk";
 import { log } from "console";
-import {
-  execTestScript,
-  TestDescriptor,
-} from "@hoppscotch/js-sandbox";
+import { execTestScript, TestDescriptor } from "@hoppscotch/js-sandbox";
 import { TestReport, TestScriptData } from "../interfaces";
 import { isExpectResultPass, GTest } from ".";
 import { error, HoppCLIError } from "../types";
 
 /**
- * Recursive function to log template strings of testMessages & expectMessages
- * and returns total failing tests.
+ * Recursive function to parse test-descriptor and generate tests-report.
  * @param testDescriptor Object with details of test-descriptor.
- * @returns Promise<number>: total failing tests for test-descriptor.
+ * @returns TestReport[] parsed from TestDescriptor.
  */
-const testDescriptorParser = (testDescriptor: TestDescriptor) => async () => {
-  let testsReport: TestReport[] = [];
-  if (A.isNonEmpty(testDescriptor.expectResults)) {
-    let passing: number = 0,
-      failing: number = 0;
+export const testDescriptorParser = (
+  testDescriptor: TestDescriptor
+): T.Task<TestReport[]> =>
+  pipe(
+    /**
+     * Generate single TestReport from given testDescriptor and bind
+     * the output to TEST_REPORT.
+     */
+    testDescriptor.expectResults,
+    A.reduce({ failing: 0, passing: 0 }, (prev, expectResult) =>
+      expectResult.status === "pass"
+        ? { failing: prev.failing, passing: prev.passing + 1 }
+        : { failing: prev.failing + 1, passing: prev.passing }
+    ),
+    T.of,
+    T.map(
+      (testMetrics) =>
+        Object({
+          failing: testMetrics.failing,
+          passing: testMetrics.passing,
+          descriptor: testDescriptor.descriptor,
+          expectResults: testDescriptor.expectResults,
+        }) as TestReport
+    ),
+    T.map((testReport) =>
+      A.isNonEmpty(testReport.expectResults) ? [testReport] : []
+    ),
+    T.bindTo("TEST_REPORT"),
 
-    const testReport: TestReport = {
-      descriptor: testDescriptor.descriptor,
-      expectResults: testDescriptor.expectResults,
-      failing: 0,
-      passing: 0,
-    };
-
-    for (const expectResult of testDescriptor.expectResults) {
-      if (E.isLeft(isExpectResultPass(expectResult.status))) {
-        failing += 1;
-      } else {
-        passing += 1;
-      }
-    }
-
-    testReport.failing = failing;
-    testReport.passing = passing;
-    testsReport.push(testReport);
-  }
-
-  for (const testDescriptorChild of testDescriptor.children) {
-    const testDesParserRes = await testDescriptorParser(testDescriptorChild)();
-    testsReport = [...testsReport, ...testDesParserRes];
-  }
-  return testsReport;
-};
+    /**
+     * Recursive call to testDescriptorParser on testDescriptor's
+     * children; The result is concated with TEST_REPORT to generate
+     * final output, binded to TESTS_REPORT.
+     */
+    T.chain(({ TEST_REPORT }) =>
+      pipe(
+        testDescriptor.children,
+        A.map(testDescriptorParser),
+        T.sequenceArray,
+        T.map(RA.flatten),
+        T.map(RA.toArray),
+        T.map(A.concat(TEST_REPORT))
+      )
+    ),
+    T.bindTo("TESTS_REPORT"),
+    T.map(({ TESTS_REPORT }) => TESTS_REPORT)
+  );
 
 /**
  * Executes test script and runs testDescriptorParser function to
  * generate test-report.
- * @param testScriptData Object with details of test-script.
- * @returns TaskEither<HoppCLIError, TestReport[]>
+ * @param testScriptData Data related to test-script.
+ * @returns TestReport[] - testRunner executes successfully;
+ * HoppCLIError - On some error.
  */
-export const testRunner =
-  (testScriptData: TestScriptData): TE.TaskEither<HoppCLIError, TestReport[]> =>
-  async () => {
-    const testScriptExecRes = await execTestScript(
+export const testRunner = (
+  testScriptData: TestScriptData
+): TE.TaskEither<HoppCLIError, TestReport[]> =>
+  pipe(
+    /**
+     * Executing test-script.
+     */
+    execTestScript(
       testScriptData.testScript,
       { global: [], selected: [] },
       testScriptData.response
-    )();
+    ),
 
-    if (E.isRight(testScriptExecRes)) {
-      let testsReport: TestReport[] = [];
-      for (const testDescriptorChild of testScriptExecRes.right.tests) {
-        const testDesParserRes = await testDescriptorParser(
-          testDescriptorChild
-        )();
-        testsReport = [...testsReport, ...testDesParserRes];
-      }
-      return E.right(testsReport);
-    }
-    return E.left(
+    /**
+     * Recursively parsing test-results
+     * to obtain test-report array.
+     */
+    TE.map((testResult) => testResult.tests),
+    TE.chainW(
+      flow(
+        A.map(testDescriptorParser),
+        T.sequenceArray,
+        T.map(RA.flatten),
+        T.map(RA.toArray),
+        TE.fromTask
+      )
+    ),
+    TE.mapLeft((e) =>
       error({
         code: "TEST_SCRIPT_ERROR",
-        data: testScriptExecRes.left,
+        data: e,
         name: testScriptData.name,
       })
-    );
-  };
+    )
+  );
 
 /**
- * Runs tests on array of test-script-data.
- * @param tests
- * @returns TaskEither<HoppCLIError, null>
+ * Runs tests on array of test-script-data and prints tests-report-output.
+ * @param tests Array of test-script data.
+ * @returns null - runTests executes successfully;
+ * HoppCLIError - Due to some errors.
  */
-export const runTests =
-  (tests: TestScriptData[]): TE.TaskEither<HoppCLIError, null> =>
-  async () => {
-    let failing = 0;
+export const runTests = (
+  tests: TestScriptData[]
+): TE.TaskEither<HoppCLIError, null> =>
+  pipe(
+    tests,
+    A.map(testRunner),
+    TE.sequenceArray,
+    TE.map(RA.toArray),
+    TE.map(A.flatten),
 
-    const testsPromise = [];
-    for (const test of tests) {
-      const testScript = pipe(test.testScript, S.trim);
-      if (!S.isEmpty(testScript)) {
-        testsPromise.push(testRunner(test)());
-      }
-    }
+    /**
+     * Printing tests-report and mapping void return to TestReport[]
+     */
+    TE.chainW((testsReport) =>
+      pipe(
+        testsReport,
+        testsReportOutput,
+        TE.of,
+        TE.map(() => testsReport)
+      )
+    ),
 
-    const testsResponse = await Promise.all(testsPromise);
-    const testsReport: TestReport[] = [];
-    for (const testResponse of testsResponse) {
-      if (E.isRight(testResponse)) {
-        for (const _testResponse of testResponse.right) {
-          failing += _testResponse.failing;
-          testsReport.push(_testResponse);
-        }
-      } else {
-        return testResponse;
-      }
-    }
+    /**
+     * Reducing tests-report to calculate total failing and
+     * tests-report-size.
+     */
+    TE.chainW(
+      flow(
+        A.reduce({ failing: 0, testsReportSize: 0 }, (prev, testReport) =>
+          Object({
+            failing: prev.failing + testReport.failing,
+            testsReportSize: prev.testsReportSize + 1,
+          })
+        ),
+        TE.of
+      )
+    ),
 
-    if (A.isNonEmpty(testsReport)) {
-      testsReportOutput(testsReport);
-    }
-    return testsExitResult(failing, A.size(testsReport));
-  };
+    /**
+     * Exiting runTests with report-metrics.
+     */
+    TE.chain(({ failing, testsReportSize }) =>
+      pipe(testsExitResult(failing, testsReportSize), T.of)
+    )
+  );
 
 /**
  * Outputs test runner report to stdout.
- * @param testsReport
- * @returns void
+ * @param testsReport Array of test-report returned from testRunner.
+ * @returns
  */
 const testsReportOutput = (testsReport: TestReport[]) => {
   for (const testReport of testsReport) {
@@ -151,12 +187,16 @@ const testsReportOutput = (testsReport: TestReport[]) => {
 };
 
 /**
- * Ouputs and returns tests result.
- * @param failing
- * @param testsReportSize
- * @returns Either<HoppCLIError, null>
+ * Outputs and returns tests result.
+ * @param failing Total failing tests.
+ * @param testsReportSize Number of test-reports.
+ * @returns null - All tests pass OR tests-script empty;
+ * HoppCLIError - Some tests-failing.
  */
-const testsExitResult = (failing: number, testsReportSize: number) => {
+export const testsExitResult = (
+  failing: number,
+  testsReportSize: number
+): E.Either<HoppCLIError, null> => {
   if (failing > 0) {
     return E.left(error({ code: "TESTS_FAILING", data: failing }));
   }

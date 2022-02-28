@@ -5,7 +5,7 @@ export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export default function useDownloadResponse(
   contentType: string,
-  responseBodyText: Ref<string>
+  responseBody: Ref<string | ArrayBuffer>
 ): {
   downloadIcon: Ref<string>
   downloadResponse: () => void
@@ -15,7 +15,7 @@ export default function useDownloadResponse(
   const t = useI18n()
 
   const downloadResponse = () => {
-    const dataToWrite = responseBodyText.value
+    const dataToWrite = responseBody.value
     const file = new Blob([dataToWrite], { type: contentType })
     const a = document.createElement("a")
     const url = URL.createObjectURL(file)

@@ -159,14 +159,19 @@
     "tests": "沒有針對該請求的測試"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "建立新環境",
+    "deleted": "Environment deletion",
     "edit": "編輯環境",
     "invalid_name": "請提供有效的環境名稱",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "建立環境",
     "no_environment": "無環境",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "選擇環境",
     "title": "環境",
+    "updated": "Environment updation",
     "variable_list": "變數列表"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "影像",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "預覽 HTML",
     "raw": "原始內容",
     "size": "大小",

@@ -159,14 +159,19 @@
     "tests": "Bu istek için test yok"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Yeni ortam oluştur",
+    "deleted": "Environment deletion",
     "edit": "Ortamı Düzenle",
     "invalid_name": "Lütfen ortam için geçerli bir ad girin",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Yeni ortam",
     "no_environment": "Ortam yok",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Ortam seçin",
     "title": "Ortamlar",
+    "updated": "Environment updation",
     "variable_list": "Değişken Listesi"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "resim",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "HTML'yi önizle",
     "raw": "Çiğ",
     "size": "Boy",

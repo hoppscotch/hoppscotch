@@ -159,14 +159,19 @@
     "tests": "没有针对该请求的测试"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "已创建新环境",
+    "deleted": "Environment deletion",
     "edit": "编辑环境",
     "invalid_name": "请提供有效的环境名称",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "新建环境",
     "no_environment": "无环境",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "选择环境",
     "title": "环境",
+    "updated": "Environment updation",
     "variable_list": "变量列表"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "图像",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "预览 HTML",
     "raw": "原始内容",
     "size": "大小",

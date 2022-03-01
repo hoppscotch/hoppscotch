@@ -159,14 +159,19 @@
     "tests": "Nincsenek tesztek ehhez a kéréshez"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Új környezet létrehozása",
+    "deleted": "Environment deletion",
     "edit": "Környezet szerkesztése",
     "invalid_name": "Adjon nevet a környezetnek",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Új környezet",
     "no_environment": "Nincs környezet",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Környezet kiválasztása",
     "title": "Környezetek",
+    "updated": "Environment updation",
     "variable_list": "Változólista"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Kép",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "HTML előnézete",
     "raw": "Nyers",
     "size": "Méret",

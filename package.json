@@ -26,6 +26,6 @@
   "devDependencies": {
     "@commitlint/cli": "^16.2.1",
     "@commitlint/config-conventional": "^16.2.1",
-    "@types/node": "^17.0.19"
+    "@types/node": "^17.0.21"
   }
 }

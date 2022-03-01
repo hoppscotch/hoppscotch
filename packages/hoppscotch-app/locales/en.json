@@ -159,8 +159,8 @@
     "tests": "There are no tests for this request"
   },
   "environment": {
-    "added": "Environment addition",
     "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Create new environment",
     "deleted": "Environment deletion",
     "edit": "Edit Environment",
@@ -347,6 +347,7 @@
     "html": "HTML",
     "image": "Image",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Preview HTML",
     "raw": "Raw",
     "size": "Size",

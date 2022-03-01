@@ -159,14 +159,19 @@
     "tests": "Der er ingen test for denne anmodning"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Skab nyt miljø",
+    "deleted": "Environment deletion",
     "edit": "Rediger miljø",
     "invalid_name": "Angiv et gyldigt navn på miljøet",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nyt miljø",
     "no_environment": "Intet miljø",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Vælg miljø",
     "title": "Miljøer",
+    "updated": "Environment updation",
     "variable_list": "Variabel liste"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Billede",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Forhåndsvis HTML",
     "raw": "Rå",
     "size": "Størrelse",

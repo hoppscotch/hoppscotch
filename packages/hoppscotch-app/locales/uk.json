@@ -159,14 +159,19 @@
     "tests": "Для цього запиту немає тестів"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Створіть нове середовище",
+    "deleted": "Environment deletion",
     "edit": "Редагувати середовище",
     "invalid_name": "Укажіть дійсну назву середовища",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Нове середовище",
     "no_environment": "Жодного середовища",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Виберіть середовище",
     "title": "Середовища",
+    "updated": "Environment updation",
     "variable_list": "Список змінних"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Зображення",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Попередній перегляд HTML",
     "raw": "Сирий",
     "size": "Розмір",

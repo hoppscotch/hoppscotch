@@ -4,6 +4,7 @@ import rawLens from "./rawLens"
 import imageLens from "./imageLens"
 import htmlLens from "./htmlLens"
 import xmlLens from "./xmlLens"
+import pdfLens from "./pdfLens"
 
 export type Lens = {
   lensName: string
@@ -12,7 +13,14 @@ export type Lens = {
   rendererImport: () => Promise<typeof import("*.vue")>
 }
 
-export const lenses: Lens[] = [jsonLens, imageLens, htmlLens, xmlLens, rawLens]
+export const lenses: Lens[] = [
+  jsonLens,
+  imageLens,
+  htmlLens,
+  xmlLens,
+  pdfLens,
+  rawLens,
+]
 
 export function getSuitableLenses(response: HoppRESTResponse): Lens[] {
   // return empty array if response is loading or error

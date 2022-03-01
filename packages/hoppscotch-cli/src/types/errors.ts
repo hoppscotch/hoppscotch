@@ -10,7 +10,7 @@ type HoppErrorData = {
   data: any;
 };
 
-type HoppErrorTest = {
+type HoppErrorScript = {
   name: string;
 } & HoppErrorData;
 
@@ -22,9 +22,9 @@ type HoppErrors = {
   FILE_NOT_JSON: HoppErrorPath;
   DEBUGGER_ERROR: HoppErrorData;
   NO_FILE_PATH: {};
-  PRE_REQUEST_SCRIPT_ERROR: HoppErrorData;
+  PRE_REQUEST_SCRIPT_ERROR: HoppErrorScript;
   PARSING_ERROR: HoppErrorData;
-  TEST_SCRIPT_ERROR: HoppErrorTest;
+  TEST_SCRIPT_ERROR: HoppErrorScript;
   TESTS_FAILING: HoppErrorData;
 };
 

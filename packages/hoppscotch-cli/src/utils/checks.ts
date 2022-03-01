@@ -70,6 +70,11 @@ export const isExpectResultPass = (
 ): E.Either<boolean, boolean> =>
   expectResult === "pass" ? E.right(true) : E.left(false);
 
+/**
+ * Checks if given error is CommanderError with exitCode 0.
+ * @param error Error data to check.
+ * @returns
+ */
 export const isSafeCommanderError = (error: any) => {
   if (error instanceof CommanderError && error.exitCode === 0) {
     process.exit(0);
@@ -87,3 +92,12 @@ export const checkCLIPath = (path: string) =>
     TE.fromPredicate(S.isString, () => error({ code: "NO_FILE_PATH" })),
     TE.chainW(checkFileURL)
   );
+
+/**
+ * Check if given data is HoppCLIError.
+ * @param error Error data to check.
+ * @returns
+ */
+export const isHoppCLIError = (error: any): error is HoppCLIError => {
+  return error.code !== undefined;
+};

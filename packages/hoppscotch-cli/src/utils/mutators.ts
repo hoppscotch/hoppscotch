@@ -3,11 +3,11 @@ import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import * as A from "fp-ts/Array";
 import * as RA from "fp-ts/ReadonlyArray";
+import { pipe } from "fp-ts/function";
 import { RequestStack } from "../interfaces";
 import { FormDataEntry, error, HoppCLIError } from "../types";
 import { isRESTCollection, requestsParser } from ".";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
-import { pipe } from "fp-ts/lib/function";
 
 /**
  * Parses array of FormDataEntry to FormData.
@@ -55,7 +55,7 @@ export const parseCollectionData = (
     ),
 
     // Checking if parsed file data is array.
-    TE.map((a) => JSON.parse(a.toString())),
+    TE.map((a) => pipe(a.toString(), JSON.parse)),
     TE.chainW(
       TE.fromPredicate(
         (data) => Array.isArray(data),

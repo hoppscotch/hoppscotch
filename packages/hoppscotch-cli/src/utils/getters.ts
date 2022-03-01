@@ -211,9 +211,7 @@ function getFinalBodyFromRequest(
       envVariables
     );
     if (E.isLeft(parsedBodyEnvVar)) {
-      return E.left(
-        error({ code: "PARSING_ERROR", data: parsedBodyEnvVar.left })
-      );
+      return E.left(error({ code: "PARSING_ERROR", data: request.name }));
     }
     return parsedBodyEnvVar;
   }

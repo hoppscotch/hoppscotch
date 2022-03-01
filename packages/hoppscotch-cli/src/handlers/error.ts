@@ -3,7 +3,7 @@ import { log } from "console";
 import { HoppError, HoppErrorCode } from "../types";
 import { isSafeCommanderError, parseErrorMessage } from "../utils";
 
-const parsePreRequestScriptError = (e: any) => {
+const parseRequestScriptError = (e: any) => {
   if (typeof e === "object") {
     return e.message || e.data;
   }
@@ -16,30 +16,32 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
 
   switch (error.code) {
     case "FILE_NOT_FOUND":
-      ERROR_MSG = `File not found for given path - ${error.path}`;
+      ERROR_MSG = `File not found for given path: ${error.path}`;
       break;
     case "UNKNOWN_COMMAND":
-      ERROR_MSG = `Unavailable command - ${error.command}`;
+      ERROR_MSG = `Unavailable command: ${error.command}`;
       break;
     case "FILE_NOT_JSON":
-      ERROR_MSG = `Given file path isn't json type - ${error.path}`;
+      ERROR_MSG = `Given file path isn't json type: ${error.path}`;
       break;
     case "MALFORMED_COLLECTION":
-      ERROR_MSG = `Unable to process given collection file - ${error.path}`;
+      ERROR_MSG = `Unable to process given collection file: ${error.path}`;
       break;
     case "NO_FILE_PATH":
       ERROR_MSG = `Please provide a hoppscotch-collection file.`;
       break;
     case "PARSING_ERROR":
-      ERROR_MSG = `Unable to process collection data - ${error.data}`;
+      ERROR_MSG = `Unable to parse request: ${error.data}`;
       break;
     case "TEST_SCRIPT_ERROR":
-      ERROR_MSG = `Failed to run test for request "${error.name}"`;
+      ERROR_MSG = `Unable to run test-script for request - "${
+        error.name
+      }": ${parseRequestScriptError(error.data)}`;
       break;
     case "PRE_REQUEST_SCRIPT_ERROR":
-      ERROR_MSG = `Unable to run pre-request-script - ${parsePreRequestScriptError(
-        error.data
-      )}`;
+      ERROR_MSG = `Unable to run pre-request-script for request - "${
+        error.name
+      }": ${parseRequestScriptError(error.data)}`;
       break;
     case "UNKNOWN_ERROR":
     case "DEBUGGER_ERROR":

@@ -8,6 +8,7 @@ import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
 import { pipe } from "fp-ts/function";
+import { clear } from "console";
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox";
 import {
@@ -17,6 +18,7 @@ import {
   getTableResponse,
   getTableStream,
   getTestResponse,
+  isHoppCLIError,
 } from ".";
 import {
   RequestStack,
@@ -26,7 +28,6 @@ import {
   TestScriptData,
 } from "../interfaces";
 import { error, HoppCLIError } from "../types";
-import { clear } from "console";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
@@ -224,7 +225,11 @@ export const requestsParser = (
     A.map(preRequestScriptRunner),
     TE.sequenceArray,
     TE.map(RA.toArray),
-    TE.map(A.map((a) => createRequest(`${rootPath}/${collection.name}`, a))),
+    TE.map(
+      A.map((effHoppRequest) =>
+        createRequest(`${rootPath}/${collection.name}`, effHoppRequest)
+      )
+    ),
     TE.bindTo("PARSED_REQUESTS"),
 
     /**
@@ -259,7 +264,15 @@ const preRequestScriptRunner = (
     TE.chainW((env) =>
       pipe(getEffectiveRESTRequest(request, env), TE.fromEither)
     ),
-    TE.mapLeft((data) => error({ code: "PRE_REQUEST_SCRIPT_ERROR", data }))
+    TE.mapLeft((reason) =>
+      isHoppCLIError(reason)
+        ? reason
+        : error({
+            code: "PRE_REQUEST_SCRIPT_ERROR",
+            name: request.name,
+            data: reason,
+          })
+    )
   );
 
 export const runRequests = (

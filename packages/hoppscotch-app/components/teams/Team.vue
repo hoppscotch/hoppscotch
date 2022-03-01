@@ -86,6 +86,7 @@
             ref="tippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
+            role="menu"
             @keyup.e="team.myRole === 'OWNER' ? edit.$el.click() : null"
             @keyup.x="
               !(team.myRole === 'OWNER' && team.ownersCount == 1)

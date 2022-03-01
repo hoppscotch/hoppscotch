@@ -160,14 +160,19 @@
     "tests": "Нема тестова за овај захтев"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Креирајте ново окружење",
+    "deleted": "Environment deletion",
     "edit": "Едит Енвиронмент",
     "invalid_name": "Наведите важећи назив за окружење",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Ново окружење",
     "no_environment": "Нема окружења",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Изаберите окружење",
     "title": "Енвиронментс",
+    "updated": "Environment updation",
     "variable_list": "Листа променљивих"
   },
   "error": {
@@ -343,6 +348,7 @@
     "html": "ХТМЛ",
     "image": "Слика",
     "json": "ЈСОН",
+    "pdf": "PDF",
     "preview_html": "Преглед ХТМЛ -а",
     "raw": "Сирово",
     "size": "Величина",

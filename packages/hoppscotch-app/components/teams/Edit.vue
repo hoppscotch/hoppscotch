@@ -104,51 +104,53 @@
                       />
                     </span>
                   </template>
-                  <SmartItem
-                    label="OWNER"
-                    :icon="
-                      member.role === 'OWNER'
-                        ? 'radio_button_checked'
-                        : 'radio_button_unchecked'
-                    "
-                    :active="member.role === 'OWNER'"
-                    @click.native="
-                      () => {
-                        updateMemberRole(member.userID, 'OWNER')
-                        memberOptions[index].tippy().hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    label="EDITOR"
-                    :icon="
-                      member.role === 'EDITOR'
-                        ? 'radio_button_checked'
-                        : 'radio_button_unchecked'
-                    "
-                    :active="member.role === 'EDITOR'"
-                    @click.native="
-                      () => {
-                        updateMemberRole(member.userID, 'EDITOR')
-                        memberOptions[index].tippy().hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    label="VIEWER"
-                    :icon="
-                      member.role === 'VIEWER'
-                        ? 'radio_button_checked'
-                        : 'radio_button_unchecked'
-                    "
-                    :active="member.role === 'VIEWER'"
-                    @click.native="
-                      () => {
-                        updateMemberRole(member.userID, 'VIEWER')
-                        memberOptions[index].tippy().hide()
-                      }
-                    "
-                  />
+                  <div class="flex flex-col" role="menu">
+                    <SmartItem
+                      label="OWNER"
+                      :icon="
+                        member.role === 'OWNER'
+                          ? 'radio_button_checked'
+                          : 'radio_button_unchecked'
+                      "
+                      :active="member.role === 'OWNER'"
+                      @click.native="
+                        () => {
+                          updateMemberRole(member.userID, 'OWNER')
+                          memberOptions[index].tippy().hide()
+                        }
+                      "
+                    />
+                    <SmartItem
+                      label="EDITOR"
+                      :icon="
+                        member.role === 'EDITOR'
+                          ? 'radio_button_checked'
+                          : 'radio_button_unchecked'
+                      "
+                      :active="member.role === 'EDITOR'"
+                      @click.native="
+                        () => {
+                          updateMemberRole(member.userID, 'EDITOR')
+                          memberOptions[index].tippy().hide()
+                        }
+                      "
+                    />
+                    <SmartItem
+                      label="VIEWER"
+                      :icon="
+                        member.role === 'VIEWER'
+                          ? 'radio_button_checked'
+                          : 'radio_button_unchecked'
+                      "
+                      :active="member.role === 'VIEWER'"
+                      @click.native="
+                        () => {
+                          updateMemberRole(member.userID, 'VIEWER')
+                          memberOptions[index].tippy().hide()
+                        }
+                      "
+                    />
+                  </div>
                 </tippy>
               </span>
               <div class="flex">

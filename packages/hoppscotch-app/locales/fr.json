@@ -159,14 +159,19 @@
     "tests": "Il n'y a pas de tests pour cette requête"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Créer un nouvel environnement",
+    "deleted": "Environment deletion",
     "edit": "Modifier l'environnement",
     "invalid_name": "Veuillez fournir un nom valide pour l'environnement",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nouvel environnement",
     "no_environment": "Pas d'environnement",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Sélectionnez l'environnement",
     "title": "Environnements",
+    "updated": "Environment updation",
     "variable_list": "Liste des variables"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Image",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Aperçu HTML",
     "raw": "Brut",
     "size": "Taille",

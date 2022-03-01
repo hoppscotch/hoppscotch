@@ -19,6 +19,7 @@
               class="tab"
               :class="[{ active: tab.active }, { vertical: vertical }]"
               :aria-label="tab.label"
+              role="button"
               @keyup.enter="selectTab(tab)"
               @click="selectTab(tab)"
             >

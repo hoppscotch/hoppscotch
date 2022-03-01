@@ -43,12 +43,14 @@
                         />
                       </span>
                     </template>
-                    <SmartItem
-                      v-for="(_, version) in socketIoClients"
-                      :key="`client-${version}`"
-                      :label="`Client ${version}`"
-                      @click.native="onSelectVersion(version)"
-                    />
+                    <div class="flex flex-col" role="menu">
+                      <SmartItem
+                        v-for="(_, version) in socketIoClients"
+                        :key="`client-${version}`"
+                        :label="`Client ${version}`"
+                        @click.native="onSelectVersion(version)"
+                      />
+                    </div>
                   </tippy>
                 </label>
                 <input
@@ -109,36 +111,38 @@
                     />
                   </span>
                 </template>
-                <SmartItem
-                  label="None"
-                  :icon="
-                    authType === 'None'
-                      ? 'radio_button_checked'
-                      : 'radio_button_unchecked'
-                  "
-                  :active="authType === 'None'"
-                  @click.native="
-                    () => {
-                      authType = 'None'
-                      authTypeOptions.tippy().hide()
-                    }
-                  "
-                />
-                <SmartItem
-                  label="Bearer Token"
-                  :icon="
-                    authType === 'Bearer'
-                      ? 'radio_button_checked'
-                      : 'radio_button_unchecked'
-                  "
-                  :active="authType === 'Bearer'"
-                  @click.native="
-                    () => {
-                      authType = 'Bearer'
-                      authTypeOptions.tippy().hide()
-                    }
-                  "
-                />
+                <div class="flex flex-col" role="menu">
+                  <SmartItem
+                    label="None"
+                    :icon="
+                      authType === 'None'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
+                    :active="authType === 'None'"
+                    @click.native="
+                      () => {
+                        authType = 'None'
+                        authTypeOptions.tippy().hide()
+                      }
+                    "
+                  />
+                  <SmartItem
+                    label="Bearer Token"
+                    :icon="
+                      authType === 'Bearer'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
+                    :active="authType === 'Bearer'"
+                    @click.native="
+                      () => {
+                        authType = 'Bearer'
+                        authTypeOptions.tippy().hide()
+                      }
+                    "
+                  />
+                </div>
               </tippy>
             </span>
             <div class="flex">

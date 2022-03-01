@@ -1,24 +1,28 @@
 <template>
   <aside class="flex justify-between h-full md:flex-col">
     <nav class="flex flex-1 flex-nowrap md:flex-col md:flex-none">
-      <NuxtLink
-        v-for="(navigation, index) in primaryNavigation"
-        :key="`navigation-${index}`"
-        :to="localePath(navigation.target)"
-        class="nav-link"
-        tabindex="0"
-      >
-        <div v-if="navigation.svg">
-          <SmartIcon :name="navigation.svg" class="svg-icons" />
-        </div>
-        <span v-if="EXPAND_NAVIGATION">{{ navigation.title }}</span>
-        <tippy
-          v-if="!EXPAND_NAVIGATION"
-          :placement="mdAndLarger ? 'right' : 'bottom'"
-          theme="tooltip"
-          :content="navigation.title"
-        />
-      </NuxtLink>
+      <ul>
+        <li>
+          <NuxtLink
+            v-for="(navigation, index) in primaryNavigation"
+            :key="`navigation-${index}`"
+            :to="localePath(navigation.target)"
+            class="nav-link"
+            tabindex="0"
+          >
+            <div v-if="navigation.svg">
+              <SmartIcon :name="navigation.svg" class="svg-icons" />
+            </div>
+            <span v-if="EXPAND_NAVIGATION">{{ navigation.title }}</span>
+            <tippy
+              v-if="!EXPAND_NAVIGATION"
+              :placement="mdAndLarger ? 'right' : 'bottom'"
+              theme="tooltip"
+              :content="navigation.title"
+            />
+          </NuxtLink>
+        </li>
+      </ul>
     </nav>
   </aside>
 </template>

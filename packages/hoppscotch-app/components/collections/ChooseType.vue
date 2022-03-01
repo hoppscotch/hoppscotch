@@ -39,22 +39,24 @@
                 />
               </span>
             </template>
-            <SmartItem
-              v-for="(team, index) in myTeams"
-              :key="`team-${index}`"
-              :label="team.name"
-              :info-icon="
-                team.id === collectionsType.selectedTeam?.id ? 'done' : ''
-              "
-              :active-info-icon="team.id === collectionsType.selectedTeam?.id"
-              svg="users"
-              @click.native="
-                () => {
-                  updateSelectedTeam(team)
-                  options.tippy().hide()
-                }
-              "
-            />
+            <div class="flex flex-col" role="menu">
+              <SmartItem
+                v-for="(team, index) in myTeams"
+                :key="`team-${index}`"
+                :label="team.name"
+                :info-icon="
+                  team.id === collectionsType.selectedTeam?.id ? 'done' : ''
+                "
+                :active-info-icon="team.id === collectionsType.selectedTeam?.id"
+                svg="users"
+                @click.native="
+                  () => {
+                    updateSelectedTeam(team)
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </tippy>
         </SmartIntersection>
       </SmartTab>

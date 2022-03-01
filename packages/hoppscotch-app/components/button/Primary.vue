@@ -26,6 +26,7 @@
     :disabled="disabled"
     :tabindex="loading ? '-1' : '0'"
     :type="type"
+    role="button"
   >
     <span
       v-if="!loading"

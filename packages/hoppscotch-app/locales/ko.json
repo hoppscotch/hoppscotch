@@ -159,14 +159,19 @@
     "tests": "이 요청에 대한 테스트가 없습니다"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "새로운 환경 만들기",
+    "deleted": "Environment deletion",
     "edit": "환경 편집",
     "invalid_name": "환경에 대한 올바른 이름을 입력하세요.",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "새로운 환경",
     "no_environment": "환경 없음",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "환경 선택",
     "title": "환경",
+    "updated": "Environment updation",
     "variable_list": "변수 목록"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "영상",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "HTML 미리보기",
     "raw": "Raw",
     "size": "크기",

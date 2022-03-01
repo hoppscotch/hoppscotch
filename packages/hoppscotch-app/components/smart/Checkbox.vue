@@ -1,6 +1,8 @@
 <template>
   <div
     class="inline-flex items-center justify-center cursor-pointer transition flex-nowrap group hover:text-secondaryDark"
+    role="checkbox"
+    :aria-checked="on"
     @click="$emit('change')"
   >
     <input

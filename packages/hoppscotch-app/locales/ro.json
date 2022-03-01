@@ -159,14 +159,19 @@
     "tests": "Nu există teste pentru această solicitare"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Creați un mediu nou",
+    "deleted": "Environment deletion",
     "edit": "Editați mediul",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru mediu",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Noul mediu",
     "no_environment": "Fără mediu",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Selectați mediul",
     "title": "Medii",
+    "updated": "Environment updation",
     "variable_list": "Lista variabilelor"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Imagine",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Previzualizați HTML",
     "raw": "Brut",
     "size": "mărimea",

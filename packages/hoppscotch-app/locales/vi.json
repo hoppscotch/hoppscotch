@@ -159,14 +159,19 @@
     "tests": "Không có bài kiểm tra nào cho yêu cầu này"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Tạo môi trường mới",
+    "deleted": "Environment deletion",
     "edit": "Chỉnh sửa môi trường",
     "invalid_name": "Vui lòng cung cấp tên hợp lệ cho môi trường",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Môi trường mới",
     "no_environment": "Không có môi trường",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Chọn môi trường",
     "title": "Môi trường",
+    "updated": "Environment updation",
     "variable_list": "Danh sách biến"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Hình ảnh",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Xem trước HTML",
     "raw": "Nguyên",
     "size": "Kích thước",

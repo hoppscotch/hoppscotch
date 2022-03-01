@@ -159,14 +159,19 @@
     "tests": "Er zijn geen tests voor dit verzoek"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Nieuwe omgeving maken",
+    "deleted": "Environment deletion",
     "edit": "Omgeving bewerken",
     "invalid_name": "Geef een geldige naam op voor de omgeving",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nieuwe omgeving",
     "no_environment": "Geen omgeving",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Selecteer omgeving",
     "title": "omgevingen",
+    "updated": "Environment updation",
     "variable_list": "Variabele lijst"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Afbeelding",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Voorbeeld van HTML",
     "raw": "Ruw",
     "size": "Grootte",

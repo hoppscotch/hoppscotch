@@ -103,6 +103,7 @@
     "invalid_name": "אנא ספק שם תקף לאוסף",
     "my_collections": "האוספים שלי",
     "name": "האוסף החדש שלי",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "קולקציה חדשה",
     "renamed": "שם האוסף שונה",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "תיקייה נוצרה",
     "edit": "ערוך תיקייה",
     "invalid_name": "אנא ספק שם לתיקייה",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "תיקייה חדשה",
     "renamed": "שם התיקייה שונה"
   },

@@ -104,6 +104,7 @@
     "invalid_name": "الرجاء تقديم اسم صالح للمجموعة",
     "my_collections": "مجموعاتي",
     "name": "مجموعتي الجديدة",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "مجموعة جديدة",
     "renamed": "تمت إعادة تسمية المجموعة",
     "request_in_use": "Request in use",
@@ -205,6 +206,7 @@
     "created": "تم إنشاء المجلد",
     "edit": "تحرير المجلد",
     "invalid_name": "الرجاء توفير اسم للمجلد",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "ملف جديد",
     "renamed": "تمت إعادة تسمية المجلد"
   },

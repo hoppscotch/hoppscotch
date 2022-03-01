@@ -103,6 +103,7 @@
     "invalid_name": "Vui lòng cung cấp tên hợp lệ cho bộ sưu tập",
     "my_collections": "Bộ sưu tập của tôi",
     "name": "Bộ sưu tập mới của tôi",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Bộ sưu tập mới",
     "renamed": "Bộ sưu tập đã được đổi tên",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Thư mục đã được tạo",
     "edit": "Chỉnh sửa thư mục",
     "invalid_name": "Vui lòng cung cấp tên cho thư mục",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Thư mục mới",
     "renamed": "Thư mục đã được đổi tên"
   },

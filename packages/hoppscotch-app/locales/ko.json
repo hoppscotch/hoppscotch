@@ -103,6 +103,7 @@
     "invalid_name": "모음집의 올바른 이름을 입력하세요.",
     "my_collections": "내 모음집",
     "name": "내 새 모음집",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "새 모음집",
     "renamed": "모음집 이름이 변경됨",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "폴더 생성됨",
     "edit": "폴더 수정",
     "invalid_name": "폴더 이름을 입력하세요.",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "새 폴더",
     "renamed": "폴더 이름이 변경됨"
   },

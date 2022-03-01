@@ -103,6 +103,7 @@
     "invalid_name": "Proporciona un nombre válido para la colección.",
     "my_collections": "Mis colecciones",
     "name": "Mi nueva colección",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nueva colección",
     "renamed": "Colección renombrada",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Carpeta creada",
     "edit": "Editar carpeta",
     "invalid_name": "Proporcione un nombre para la carpeta.",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nueva carpeta",
     "renamed": "Carpeta renombrada"
   },

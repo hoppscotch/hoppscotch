@@ -103,6 +103,7 @@
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru colecție",
     "my_collections": "Colecțiile mele",
     "name": "Noua mea colecție",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Colecție nouă",
     "renamed": "Colecția redenumită",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Folder creat",
     "edit": "Editați folderul",
     "invalid_name": "Vă rugăm să furnizați un nume pentru dosar",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Dosar nou",
     "renamed": "Dosar redenumit"
   },

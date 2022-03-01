@@ -103,6 +103,7 @@
     "invalid_name": "Uveďte prosím platný název kolekce",
     "my_collections": "Moje sbírky",
     "name": "Moje nová kolekce",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nová kolekce",
     "renamed": "Sbírka přejmenována",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Složka vytvořena",
     "edit": "Upravit složku",
     "invalid_name": "Zadejte název složky",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nová složka",
     "renamed": "Složka přejmenována"
   },

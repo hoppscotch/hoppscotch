@@ -103,6 +103,7 @@
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για τη συλλογή",
     "my_collections": "Οι Συλλογές μου",
     "name": "Η νέα μου συλλογή",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Νέα συλλογή",
     "renamed": "Η συλλογή μετονομάστηκε",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Ο φάκελος δημιουργήθηκε",
     "edit": "Επεξεργασία φακέλου",
     "invalid_name": "Καταχωρίστε ένα όνομα για το φάκελο",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Νέος φάκελος",
     "renamed": "Ο φάκελος μετονομάστηκε"
   },

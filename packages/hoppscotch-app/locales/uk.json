@@ -103,6 +103,7 @@
     "invalid_name": "Укажіть дійсну назву колекції",
     "my_collections": "Мої колекції",
     "name": "Моя нова колекція",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Нова колекція",
     "renamed": "Колекція перейменована",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Папка створена",
     "edit": "Редагувати папку",
     "invalid_name": "Укажіть назву папки",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Нова папка",
     "renamed": "Папка перейменована"
   },

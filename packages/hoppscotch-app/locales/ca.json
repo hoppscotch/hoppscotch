@@ -103,6 +103,7 @@
     "invalid_name": "Proporcioneu un nom vàlid per a la col·lecció",
     "my_collections": "Les meves col·leccions",
     "name": "La meva nova col·lecció",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nova col · lecció",
     "renamed": "S'ha canviat el nom de la col·lecció",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "S'ha creat la carpeta",
     "edit": "Edita la carpeta",
     "invalid_name": "Proporcioneu un nom per a la carpeta",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Carpeta nova",
     "renamed": "S'ha canviat el nom de la carpeta"
   },

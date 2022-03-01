@@ -103,6 +103,7 @@
     "invalid_name": "Podaj prawidłową nazwę kolekcji",
     "my_collections": "Moje kolekcje",
     "name": "Moja nowa kolekcja",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nowa kolekcja",
     "renamed": "Zmieniono nazwę kolekcji",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Utworzono folder",
     "edit": "Edytuj folder",
     "invalid_name": "Podaj nazwę folderu",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nowy folder",
     "renamed": "Zmieniono nazwę folderu"
   },

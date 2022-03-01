@@ -103,6 +103,7 @@
     "invalid_name": "請提供有效的組合名稱",
     "my_collections": "我的組合",
     "name": "我的新組合",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "建立組合",
     "renamed": "組合已重新命名",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "已建立資料夾",
     "edit": "編輯資料夾",
     "invalid_name": "請提供資料夾的名稱",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "新資料夾",
     "renamed": "資料夾已重新命名"
   },

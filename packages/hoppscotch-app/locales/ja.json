@@ -103,6 +103,7 @@
     "invalid_name": "コレクションの有効な名前を入力してください",
     "my_collections": "マイコレクション",
     "name": "私の新しいコレクション",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "新しいコレクション",
     "renamed": "コレクションの名前が変更されました",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "作成されたフォルダ",
     "edit": "フォルダの編集",
     "invalid_name": "フォルダの名前を入力してください",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "新しいフォルダ",
     "renamed": "フォルダの名前が変更されました"
   },

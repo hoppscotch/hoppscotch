@@ -103,6 +103,7 @@
     "invalid_name": "Adjon nevet a gyűjteménynek",
     "my_collections": "Saját gyűjtemények",
     "name": "Saját új gyűjtemény",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Új gyűjtemény",
     "renamed": "Gyűjtemény átnevezve",
     "request_in_use": "A kérés használatban",
@@ -204,6 +205,7 @@
     "created": "Mappa létrehozva",
     "edit": "Mappa szerkesztése",
     "invalid_name": "Adjon nevet a mappának",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Új mappa",
     "renamed": "Mappa átnevezve"
   },

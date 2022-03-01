@@ -103,6 +103,7 @@
     "invalid_name": "Ange ett giltigt namn för samlingen",
     "my_collections": "Mina samlingar",
     "name": "Min nya samling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Ny kollektion",
     "renamed": "Samling bytt namn",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Mapp skapad",
     "edit": "Redigera mapp",
     "invalid_name": "Ange ett namn på mappen",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Ny mapp",
     "renamed": "Mappen har bytt namn"
   },

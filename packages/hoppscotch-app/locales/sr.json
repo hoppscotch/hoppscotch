@@ -104,6 +104,7 @@
     "invalid_name": "Наведите важећи назив збирке",
     "my_collections": "Моје колекције",
     "name": "Моја нова колекција",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Нова колекција",
     "renamed": "Збирка је преименована",
     "request_in_use": "Request in use",
@@ -205,6 +206,7 @@
     "created": "Фолдер је креиран",
     "edit": "Едит Фолдер",
     "invalid_name": "Наведите назив фасцикле",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Нова фасцикла",
     "renamed": "Фасцикла је преименована"
   },

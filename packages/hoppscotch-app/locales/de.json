@@ -103,6 +103,7 @@
     "invalid_name": "Bitte geben Sie einen gültigen Namen für die Sammlung an",
     "my_collections": "Meine Sammlungen",
     "name": "Meine neue Kollektion",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Neue Kollektion",
     "renamed": "Sammlung umbenannt",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Ordner erstellt",
     "edit": "Ordner bearbeiten",
     "invalid_name": "Bitte geben Sie einen Namen für den Ordner an",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Neuer Ordner",
     "renamed": "Ordner umbenannt"
   },

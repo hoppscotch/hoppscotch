@@ -103,6 +103,7 @@
     "invalid_name": "Veuillez fournir un nom valide pour la collection",
     "my_collections": "Mes collections",
     "name": "Ma nouvelle collection",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nouvelle collection",
     "renamed": "Collection renommée",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Dossier créé",
     "edit": "Modifier le dossier",
     "invalid_name": "Veuillez fournir un nom pour le dossier",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nouveau dossier",
     "renamed": "Dossier renommé"
   },

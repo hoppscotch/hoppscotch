@@ -103,6 +103,7 @@
     "invalid_name": "Укажите допустимое название коллекции",
     "my_collections": "Мои коллекции",
     "name": "Новая коллекция",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Создать коллекцию",
     "renamed": "Коллекция переименована",
     "request_in_use": "Запрос обрабатывается",
@@ -204,6 +205,7 @@
     "created": "Папка создана",
     "edit": "Редактировать папку",
     "invalid_name": "Укажите имя для папки",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Новая папка",
     "renamed": "Папка переименована"
   },

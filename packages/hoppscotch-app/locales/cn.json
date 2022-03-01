@@ -103,6 +103,7 @@
     "invalid_name": "请提供有效的组合名称",
     "my_collections": "我的组合",
     "name": "我的新组合",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "新建组合",
     "renamed": "组合已更名",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "已创建文件夹",
     "edit": "编辑文件夹",
     "invalid_name": "请提供文件夹的名称",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "新文件夹",
     "renamed": "文件夹已更名"
   },

@@ -103,6 +103,7 @@
     "invalid_name": "Forneça um nome válido para a coleção",
     "my_collections": "Minhas coleções",
     "name": "Minha nova coleção",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nova coleção",
     "renamed": "Coleção renomeada",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Pasta criada",
     "edit": "Editar pasta",
     "invalid_name": "Forneça um nome para a pasta",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nova pasta",
     "renamed": "Pasta renomeada"
   },

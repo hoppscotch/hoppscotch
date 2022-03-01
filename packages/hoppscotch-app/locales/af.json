@@ -103,6 +103,7 @@
     "invalid_name": "Gee 'n geldige naam vir die versameling",
     "my_collections": "My versamelings",
     "name": "My nuwe versameling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nuwe versameling",
     "renamed": "Versameling hernoem",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Vouer geskep",
     "edit": "Wysig gids",
     "invalid_name": "Gee 'n naam vir die gids",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nuwe leêr",
     "renamed": "Vouer hernoem"
   },

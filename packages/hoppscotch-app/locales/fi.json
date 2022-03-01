@@ -103,6 +103,7 @@
     "invalid_name": "Anna kokoelmalle kelvollinen nimi",
     "my_collections": "Omat kokoelmat",
     "name": "Uusi kokoelmani",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Uusi kokoelma",
     "renamed": "Kokoelma nimetty uudelleen",
     "request_in_use": "Request in use",
@@ -204,6 +205,7 @@
     "created": "Kansio luotu",
     "edit": "Muokkaa kansiota",
     "invalid_name": "Anna kansion nimi",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Uusi kansio",
     "renamed": "Kansio nimettiin uudelleen"
   },

@@ -26,55 +26,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "@nuxtjs/composition-api"
+import { computed } from "@nuxtjs/composition-api"
 import VuePdfEmbed from "vue-pdf-embed/dist/vue2-pdf-embed"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useI18n, useToast } from "~/helpers/utils/composables"
-
-const toast = useToast()
-const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse
+  response: HoppRESTResponse & {
+    type: "success" | "fail"
+  }
 }>()
 
 const pdfsrc = computed(() =>
-  props.response.type === "success"
-    ? URL.createObjectURL(
-        new Blob([props.response.body], {
-          type: "application/pdf",
-        })
-      )
-    : null
+  URL.createObjectURL(
+    new Blob([props.response.body], {
+      type: "application/pdf",
+    })
+  )
 )
 
-const downloadIcon = ref("download")
-
-const responseType = computed(() => {
-  return (
-    props.response.headers.find((h) => h.key.toLowerCase() === "content-type")
-      .value || ""
-  )
-    .split(";")[0]
-    .toLowerCase()
-})
-
-const downloadResponse = () => {
-  const dataToWrite = props.response.body
-  const file = new Blob([dataToWrite], { type: responseType.value })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-  // TODO get uri from meta
-  a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-  document.body.appendChild(a)
-  a.click()
-  downloadIcon.value = "check"
-  toast.success(t("state.download_started"))
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    downloadIcon.value = "download"
-  }, 1000)
-}
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "application/pdf",
+  computed(() => props.response.body)
+)
 </script>

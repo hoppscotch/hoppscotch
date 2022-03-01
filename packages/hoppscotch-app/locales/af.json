@@ -159,14 +159,19 @@
     "tests": "Daar is geen toetse vir hierdie versoek nie"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Skep nuwe omgewing",
+    "deleted": "Environment deletion",
     "edit": "Bewerk omgewing",
     "invalid_name": "Gee 'n geldige naam vir die omgewing",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nuwe omgewing",
     "no_environment": "Geen omgewing nie",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Kies omgewing",
     "title": "Omgewings",
+    "updated": "Environment updation",
     "variable_list": "Veranderlike lys"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Beeld",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Voorbeskou HTML",
     "raw": "Rou",
     "size": "Grootte",

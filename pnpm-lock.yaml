@@ -177,6 +177,7 @@ importers:
       vue-functional-data-merge: ^3.1.0
       vue-github-button: ^1.3.0
       vue-jest: ^3.0.7
+      vue-pdf-embed: ^1.1.0
       vue-template-babel-compiler: ^1.1.3
       vue-textarea-autosize: ^1.1.1
       vue-tippy: ^4.13.0
@@ -257,11 +258,12 @@ importers:
       uuid: 8.3.2
       vue-functional-data-merge: 3.1.0
       vue-github-button: 1.3.0
+      vue-pdf-embed: 1.1.0
       vue-textarea-autosize: 1.1.1
       vue-tippy: 4.13.0
       vuejs-auto-complete: 0.9.0
       wonka: 4.0.15
-      yargs-parser: 21.0.0
+      yargs-parser: 21.0.1
     devDependencies:
       '@babel/core': 7.17.5
       '@babel/preset-env': 7.16.11_@babel+core@7.17.5
@@ -285,7 +287,7 @@ importers:
       '@nuxtjs/stylelint-module': 4.1.0_stylelint@14.5.3
       '@nuxtjs/svg': 0.4.0
       '@relmify/jest-fp-ts': 1.1.1_fp-ts@2.11.8+io-ts@2.2.16
-      '@sentry/browser': 6.18.0
+      '@sentry/browser': 6.18.1
       '@testing-library/jest-dom': 5.16.2
       '@types/codemirror': 5.60.5
       '@types/cookie': 0.4.1
@@ -3831,16 +3833,17 @@ packages:
       ufo: 0.7.9
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27430570.4cfad4d:
-    resolution: {integrity: sha512-hFhkr1mxHxiFc1DHT+yO63AkgzHfwXVmjmL7KPkUg1JTZKf4HxcUnQQxtK2+tYeAH4snMoN2VdFRpRBrBD74iQ==}
+  /@nuxt/kit-edge/3.0.0-27434755.39f7eb2:
+    resolution: {integrity: sha512-i7ubhi461PaEqmYf3ohwyLa2Y+dFr0xhLmAofn4TK1HuS11z+1Wy3VBKBYJiOd7fPe0y09E3jzRuKfRTOdd7Fg==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27430570.4cfad4d
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27434755.39f7eb2
       c12: 0.1.3
       consola: 2.15.3
       defu: 5.0.1
       globby: 13.1.1
       hash-sum: 2.0.0
+      ignore: 5.2.0
       jiti: 1.13.0
       knitwork: 0.1.0
       lodash.template: 4.5.0
@@ -3875,8 +3878,8 @@ packages:
       - encoding
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27430570.4cfad4d:
-    resolution: {integrity: sha512-9K886GLJsY+yALEQfkTwTjGOeHWsM/qXfxV+8cTVtEWSbuF7zB/ADiDF9Gx/h4gYx6gLOwThkgQpSojRmKAIGQ==}
+  /@nuxt/schema-edge/3.0.0-27434755.39f7eb2:
+    resolution: {integrity: sha512-eXd3hQy291ljDKHV0SYt7Vq4SSam13qO7J+64/hZw2yBGzTZF47u90F9W9Os7itDbTVwq4F1gGVgU6ejKi6Flw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       c12: 0.1.3
@@ -4260,7 +4263,7 @@ packages:
   /@nuxtjs/sentry/5.1.7:
     resolution: {integrity: sha512-VO8V6Yj3Y9SdNuOGi/kVnyHIuFtDNLtLpcdB52P3c/FGrSh6wXlzRiDGc0mY+znMhzYazeOwe9oW5Ej8MptrHA==}
     dependencies:
-      '@sentry/browser': 6.18.0
+      '@sentry/browser': 6.18.1
       '@sentry/integrations': 6.17.4
       '@sentry/node': 6.17.4
       '@sentry/webpack-plugin': 1.18.5
@@ -4407,13 +4410,13 @@ packages:
       rxjs: 6.6.7
     dev: true
 
-  /@sentry/browser/6.18.0:
-    resolution: {integrity: sha512-fQZdFs0jnBijVmhDWNIsHD0rGsIXup/1UYgMZqdBYYSBBQ7Ffpw+6nX1/vyKsCpLdgYhbi88eK/XO+QHtUJE2w==}
+  /@sentry/browser/6.18.1:
+    resolution: {integrity: sha512-OZmk6RNcdQWxUkC8HBEruqpWUsaX/+pb1J/R5cDfHNeePLbDj9b8KFfs9QkgyZmmEP6l0Nu80TuDsdPF0q4uyw==}
     engines: {node: '>=6'}
     dependencies:
-      '@sentry/core': 6.18.0
-      '@sentry/types': 6.18.0
-      '@sentry/utils': 6.18.0
+      '@sentry/core': 6.18.1
+      '@sentry/types': 6.18.1
+      '@sentry/utils': 6.18.1
       tslib: 1.14.1
 
   /@sentry/cli/1.72.1:
@@ -4444,14 +4447,14 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/core/6.18.0:
-    resolution: {integrity: sha512-I3iQVfMWHXR/LtevJg83aD7UAiUBLz1xAW8y3gd5lJej96UNv/4TbCmKZumYnEJMXf8EcFlg8t48W0Bl1GxhEg==}
+  /@sentry/core/6.18.1:
+    resolution: {integrity: sha512-9V8Q+3Asi+3RL67CSIMMZ9mjMsu2/hrpQszYStX7hPPpAZIlAKk2MT5B+na/r80iWKhy+3Ts6aDFF218QtnsVw==}
     engines: {node: '>=6'}
     dependencies:
-      '@sentry/hub': 6.18.0
-      '@sentry/minimal': 6.18.0
-      '@sentry/types': 6.18.0
-      '@sentry/utils': 6.18.0
+      '@sentry/hub': 6.18.1
+      '@sentry/minimal': 6.18.1
+      '@sentry/types': 6.18.1
+      '@sentry/utils': 6.18.1
       tslib: 1.14.1
 
   /@sentry/hub/6.17.4:
@@ -4463,12 +4466,12 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/hub/6.18.0:
-    resolution: {integrity: sha512-E2GrrNcidyT67ONU3btHO5vyS1bPQNdWqC09sUc1F3q/nQyvc7L2W09TKY2veaMZQtC9EU760fTG1hMmgGwPmw==}
+  /@sentry/hub/6.18.1:
+    resolution: {integrity: sha512-+zGzgc/xX3an/nKA3ELMn9YD9VmqbNaNwWZ5/SjNUvzsYHh2UNZ7YzT8WawQsRVOXLljyCKxkWpFB4EchiYGbw==}
     engines: {node: '>=6'}
     dependencies:
-      '@sentry/types': 6.18.0
-      '@sentry/utils': 6.18.0
+      '@sentry/types': 6.18.1
+      '@sentry/utils': 6.18.1
       tslib: 1.14.1
 
   /@sentry/integrations/6.17.4:
@@ -4490,12 +4493,12 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/minimal/6.18.0:
-    resolution: {integrity: sha512-QkkWOhX3NMycUNLj96thMQ0BclmfxE2VdDf9ZqRkvdFzxI1FVY5NEArqD4wtlrCIoYN1ioAYrvdb48/BTuGung==}
+  /@sentry/minimal/6.18.1:
+    resolution: {integrity: sha512-dm+0MuasWNi/LASvHX+09oCo8IBZY5WpMK8qXvQMnwQ9FVfklrjcfEI3666WORDCmeUhDCSeL2MbjPDm+AmPLg==}
     engines: {node: '>=6'}
     dependencies:
-      '@sentry/hub': 6.18.0
-      '@sentry/types': 6.18.0
+      '@sentry/hub': 6.18.1
+      '@sentry/types': 6.18.1
       tslib: 1.14.1
 
   /@sentry/node/6.17.4:
@@ -4531,8 +4534,8 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /@sentry/types/6.18.0:
-    resolution: {integrity: sha512-SypDwXL1URE/XLkP4Ve+pFs41e+2OUYZ0lCimNreQQv46//pFXxP3LwU9Tc0Az4ZfxXnGiwofvt73XyBq9VpRQ==}
+  /@sentry/types/6.18.1:
+    resolution: {integrity: sha512-wp741NoBKnXE/4T9L723sWJ8EcNMxeTIT1smgNJOfbPwrsDICoYmGEt6JFa05XHpWBGI66WuNvnDjoHVeh6zhA==}
     engines: {node: '>=6'}
 
   /@sentry/utils/6.17.4:
@@ -4543,11 +4546,11 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/utils/6.18.0:
-    resolution: {integrity: sha512-mKegOabkAjoUHfokjI5oi3CMez5GD3xXOrBFcLVc9GFDXCgNMdYnHyEn/mmy8PikFdGHxZ3oI/16ZGU22wi5aw==}
+  /@sentry/utils/6.18.1:
+    resolution: {integrity: sha512-IFZmuvA+c5lDGlZEri13JSyUP0BHelzY0S4dcKxAzskPW+BtBdQDgYGV90iED1y+IRMLawWb34GF7HyJSouN1Q==}
     engines: {node: '>=6'}
     dependencies:
-      '@sentry/types': 6.18.0
+      '@sentry/types': 6.18.1
       tslib: 1.14.1
 
   /@sentry/webpack-plugin/1.18.5:
@@ -7355,7 +7358,7 @@ packages:
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       slice-ansi: 5.0.0
-      string-width: 5.1.1
+      string-width: 5.1.2
     dev: false
 
   /cli-width/3.0.0:
@@ -12479,7 +12482,7 @@ packages:
   /jsonfile/4.0.0:
     resolution: {integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=}
     optionalDependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.9
     dev: false
 
   /jsonfile/6.1.0:
@@ -13842,7 +13845,7 @@ packages:
   /nuxt-windicss/2.2.7:
     resolution: {integrity: sha512-I1vtaEpAnu71kCDSGpjXuhd4f+JtDRLEzOVx3/5xf4uGkj2NzuvPrqLxXwGUY0pFZ+cW62kjyuE4hMhawn1srQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27430570.4cfad4d
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27434755.39f7eb2
       '@windicss/plugin-utils': 1.8.1
       consola: 2.15.3
       defu: 5.0.1
@@ -16836,8 +16839,8 @@ packages:
       is-fullwidth-code-point: 3.0.0
       strip-ansi: 6.0.1
 
-  /string-width/5.1.1:
-    resolution: {integrity: sha512-V4jFFhDoJzUOpG491nUrDginBuZi+wKtG+omlT5hgdBLYGPNNVT/o75JWwsSqClbrYMEV9Dvm3fXjZzxyOjk2w==}
+  /string-width/5.1.2:
+    resolution: {integrity: sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA==}
     engines: {node: '>=12'}
     dependencies:
       eastasianwidth: 0.2.0
@@ -18478,6 +18481,12 @@ packages:
     resolution: {integrity: sha512-ZMjqRpWabMPqPc7gIrG0Nw6vRf1+itwf0Itft7LbMXs2g3Zs/NFmevjZGN1x7K3Q95GmIjWbQZTVerxiBxI+0g==}
     dev: false
 
+  /vue-pdf-embed/1.1.0:
+    resolution: {integrity: sha512-lXfcx/wePLOZtNELdxrCjqnW6RtbgC/jfZAM9dydOEdnAjva+z8W577eiJL0qdpSD10oNAFhKoyDLFpam4N22g==}
+    peerDependencies:
+      vue: ^2.x || ^3.x
+    dev: false
+
   /vue-router/3.5.3:
     resolution: {integrity: sha512-FUlILrW3DGitS2h+Xaw8aRNvGTwtuaxrRkNSHWTizOfLUie7wuYwezeZ50iflRn8YPV5kxmU2LQuu3nM/b3Zsg==}
     dev: false
@@ -19132,8 +19141,8 @@ packages:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
     engines: {node: '>=10'}
 
-  /yargs-parser/21.0.0:
-    resolution: {integrity: sha512-z9kApYUOCwoeZ78rfRYYWdiU/iNL6mwwYlkkZfJoyMR1xps+NEBX5X7XmRpxkZHhXJ6+Ey00IwKxBBSW9FIjyA==}
+  /yargs-parser/21.0.1:
+    resolution: {integrity: sha512-9BK1jFpLzJROCI5TzwZL/TU4gqjK5xiHV/RfWLOahrjAko/e4DJkRDZQXfvqAsiZzzYhgAzbgz6lg48jcm4GLg==}
     engines: {node: '>=12'}
 
   /yargs-unparser/2.0.0:
@@ -19185,7 +19194,7 @@ packages:
       require-directory: 2.1.1
       string-width: 4.2.3
       y18n: 5.0.8
-      yargs-parser: 21.0.0
+      yargs-parser: 21.0.1
     dev: true
 
   /yauzl/2.10.0:

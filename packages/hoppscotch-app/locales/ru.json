@@ -159,14 +159,19 @@
     "tests": "Для этого запроса нет тестов"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Создать новую среду",
+    "deleted": "Environment deletion",
     "edit": "Редактировать среду",
     "invalid_name": "Укажите допустимое имя для среды",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Новая среда",
     "no_environment": "Нет окружающей среды",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Выберите среду",
     "title": "Среды",
+    "updated": "Environment updation",
     "variable_list": "Список переменных"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Изображение",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Предварительный просмотр HTML",
     "raw": "Необработанное",
     "size": "Размер",

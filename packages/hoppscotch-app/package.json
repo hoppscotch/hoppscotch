@@ -105,6 +105,7 @@
     "uuid": "8.3.2",
     "vue-functional-data-merge": "^3.1.0",
     "vue-github-button": "^1.3.0",
+    "vue-pdf-embed": "^1.1.0",
     "vue-textarea-autosize": "^1.1.1",
     "vue-tippy": "^4.13.0",
     "vuejs-auto-complete": "^0.9.0",

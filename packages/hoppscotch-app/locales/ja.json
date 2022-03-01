@@ -159,14 +159,19 @@
     "tests": "このリクエストのテストはありません"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "新しい環境を作成する",
+    "deleted": "Environment deletion",
     "edit": "環境の編集",
     "invalid_name": "環境の有効な名前を入力してください",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "新しい環境",
     "no_environment": "環境なし",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "環境を選択する",
     "title": "環境",
+    "updated": "Environment updation",
     "variable_list": "変数リスト"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "画像",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "HTMLのプレビュー",
     "raw": "生",
     "size": "サイズ",

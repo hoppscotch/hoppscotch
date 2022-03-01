@@ -159,14 +159,19 @@
     "tests": "Tätä pyyntöä ei ole testattu"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Luo uusi ympäristö",
+    "deleted": "Environment deletion",
     "edit": "Muokkaa ympäristöä",
     "invalid_name": "Anna ympäristölle kelvollinen nimi",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Uusi ympäristö",
     "no_environment": "Ei ympäristöä",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Valitse ympäristö",
     "title": "Ympäristöt",
+    "updated": "Environment updation",
     "variable_list": "Muuttujien luettelo"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Kuva",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Esikatsele HTML -koodia",
     "raw": "Raaka",
     "size": "Koko",

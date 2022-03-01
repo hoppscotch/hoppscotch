@@ -160,14 +160,19 @@
     "tests": "لا توجد اختبارات لهذا الطلب"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "خلق بيئة جديدة",
+    "deleted": "Environment deletion",
     "edit": "تحرير البيئة",
     "invalid_name": "الرجاء تقديم اسم صالح للبيئة",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "بيئة جديدة",
     "no_environment": "لا بيئة",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "حدد البيئة",
     "title": "البيئات",
+    "updated": "Environment updation",
     "variable_list": "قائمة متغيرة"
   },
   "error": {
@@ -343,6 +348,7 @@
     "html": "لغة البرمجة",
     "image": "صورة",
     "json": "جسون",
+    "pdf": "PDF",
     "preview_html": "معاينة HTML",
     "raw": "الخام",
     "size": "مقاس",

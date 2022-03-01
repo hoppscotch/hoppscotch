@@ -159,14 +159,19 @@
     "tests": "אין בדיקות לבקשה זו"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "צור סביבה חדשה",
+    "deleted": "Environment deletion",
     "edit": "ערוך את הסביבה",
     "invalid_name": "אנא ספק שם חוקי לסביבה",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "סביבה חדשה",
     "no_environment": "אין סביבה",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "בחר סביבה",
     "title": "סביבות",
+    "updated": "Environment updation",
     "variable_list": "רשימת משתנים"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "תמונה",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "תצוגה מקדימה של HTML",
     "raw": "גלם",
     "size": "גודל",

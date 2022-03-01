@@ -159,14 +159,19 @@
     "tests": "Δεν υπάρχουν δοκιμές για αυτό το αίτημα"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Δημιουργήστε νέο περιβάλλον",
+    "deleted": "Environment deletion",
     "edit": "Επεξεργασία Περιβάλλοντος",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για το περιβάλλον",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Νέο Περιβάλλον",
     "no_environment": "Χωρίς περιβάλλον",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Επιλέξτε περιβάλλον",
     "title": "Περιβάλλοντα",
+    "updated": "Environment updation",
     "variable_list": "Λίστα μεταβλητών"
   },
   "error": {
@@ -342,6 +347,7 @@
     "html": "HTML",
     "image": "Εικόνα",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Προεπισκόπηση HTML",
     "raw": "Ακατέργαστος",
     "size": "Μέγεθος",

@@ -3,6 +3,8 @@
     v-if="show"
     dialog
     :title="$t('modal.confirm')"
+    role="dialog"
+    aria-modal="true"
     @close="hideModal"
   >
     <template #body>

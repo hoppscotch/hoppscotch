@@ -160,51 +160,53 @@
                     />
                   </span>
                 </template>
-                <SmartItem
-                  label="OWNER"
-                  :icon="
-                    invitee.value === 'OWNER'
-                      ? 'radio_button_checked'
-                      : 'radio_button_unchecked'
-                  "
-                  :active="invitee.value === 'OWNER'"
-                  @click.native="
-                    () => {
-                      updateNewInviteeRole(index, 'OWNER')
-                      newInviteeOptions[index].tippy().hide()
-                    }
-                  "
-                />
-                <SmartItem
-                  label="EDITOR"
-                  :icon="
-                    invitee.value === 'EDITOR'
-                      ? 'radio_button_checked'
-                      : 'radio_button_unchecked'
-                  "
-                  :active="invitee.value === 'EDITOR'"
-                  @click.native="
-                    () => {
-                      updateNewInviteeRole(index, 'EDITOR')
-                      newInviteeOptions[index].tippy().hide()
-                    }
-                  "
-                />
-                <SmartItem
-                  label="VIEWER"
-                  :icon="
-                    invitee.value === 'VIEWER'
-                      ? 'radio_button_checked'
-                      : 'radio_button_unchecked'
-                  "
-                  :active="invitee.value === 'VIEWER'"
-                  @click.native="
-                    () => {
-                      updateNewInviteeRole(index, 'VIEWER')
-                      newInviteeOptions[index].tippy().hide()
-                    }
-                  "
-                />
+                <div class="flex flex-col" role="menu">
+                  <SmartItem
+                    label="OWNER"
+                    :icon="
+                      invitee.value === 'OWNER'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
+                    :active="invitee.value === 'OWNER'"
+                    @click.native="
+                      () => {
+                        updateNewInviteeRole(index, 'OWNER')
+                        newInviteeOptions[index].tippy().hide()
+                      }
+                    "
+                  />
+                  <SmartItem
+                    label="EDITOR"
+                    :icon="
+                      invitee.value === 'EDITOR'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
+                    :active="invitee.value === 'EDITOR'"
+                    @click.native="
+                      () => {
+                        updateNewInviteeRole(index, 'EDITOR')
+                        newInviteeOptions[index].tippy().hide()
+                      }
+                    "
+                  />
+                  <SmartItem
+                    label="VIEWER"
+                    :icon="
+                      invitee.value === 'VIEWER'
+                        ? 'radio_button_checked'
+                        : 'radio_button_unchecked'
+                    "
+                    :active="invitee.value === 'VIEWER'"
+                    @click.native="
+                      () => {
+                        updateNewInviteeRole(index, 'VIEWER')
+                        newInviteeOptions[index].tippy().hide()
+                      }
+                    "
+                  />
+                </div>
               </tippy>
             </span>
             <div class="flex">

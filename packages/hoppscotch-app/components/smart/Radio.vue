@@ -5,6 +5,8 @@
       value === selected ? 'radio_button_checked' : 'radio_button_unchecked'
     "
     :active="value === selected"
+    role="radio"
+    :aria-checked="value === selected"
     @click.native="$emit('change', value)"
   />
 </template>

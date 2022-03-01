@@ -51,19 +51,23 @@
           arrow
         >
           <template #trigger>
-            <div v-if="item.kind === 'RootObject'" class="outline">{}</div>
-            <div v-if="item.kind === 'RootArray'" class="outline">[]</div>
-            <div v-if="item.kind === 'ArrayMember'" class="outline">
+            <div v-if="item.kind === 'RootObject'" class="outline-item">{}</div>
+            <div v-if="item.kind === 'RootArray'" class="outline-item">[]</div>
+            <div v-if="item.kind === 'ArrayMember'" class="outline-item">
               {{ item.index }}
             </div>
-            <div v-if="item.kind === 'ObjectMember'" class="outline">
+            <div v-if="item.kind === 'ObjectMember'" class="outline-item">
               {{ item.name }}
             </div>
           </template>
           <div
             v-if="item.kind === 'ArrayMember' || item.kind === 'ObjectMember'"
           >
-            <div v-if="item.kind === 'ArrayMember'" class="flex flex-col">
+            <div
+              v-if="item.kind === 'ArrayMember'"
+              class="flex flex-col"
+              role="menu"
+            >
               <SmartItem
                 v-for="(arrayMember, astIndex) in item.astParent.values"
                 :key="`ast-${astIndex}`"
@@ -76,7 +80,11 @@
                 "
               />
             </div>
-            <div v-if="item.kind === 'ObjectMember'" class="flex flex-col">
+            <div
+              v-if="item.kind === 'ObjectMember'"
+              class="flex flex-col"
+              role="menu"
+            >
               <SmartItem
                 v-for="(objectMember, astIndex) in item.astParent.members"
                 :key="`ast-${astIndex}`"
@@ -90,7 +98,11 @@
               />
             </div>
           </div>
-          <div v-if="item.kind === 'RootObject'" class="flex flex-col">
+          <div
+            v-if="item.kind === 'RootObject'"
+            class="flex flex-col"
+            role="menu"
+          >
             <SmartItem
               label="{}"
               @click.native="
@@ -101,7 +113,11 @@
               "
             />
           </div>
-          <div v-if="item.kind === 'RootArray'" class="flex flex-col">
+          <div
+            v-if="item.kind === 'RootArray'"
+            class="flex flex-col"
+            role="menu"
+          >
             <SmartItem
               label="[]"
               @click.native="
@@ -206,7 +222,7 @@ const outlinePath = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.outline {
+.outline-item {
   @apply cursor-pointer;
   @apply flex-grow-0 flex-shrink-0;
   @apply text-secondaryLight;

@@ -59,6 +59,7 @@
             ref="tippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
+            role="menu"
             @keyup.d="documentation.$el.click()"
             @keyup.s="shortcuts.$el.click()"
             @keyup.c="chat.$el.click()"

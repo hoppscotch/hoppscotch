@@ -15,21 +15,23 @@
           />
         </span>
       </template>
-      <SmartItem
-        v-for="(size, index) in fontSizes"
-        :key="`size-${index}`"
-        :label="`${getFontSizeName(size)}`"
-        :icon="
-          size === active ? 'radio_button_checked' : 'radio_button_unchecked'
-        "
-        :active="size === active"
-        @click.native="
-          () => {
-            setActiveFont(size)
-            fontSize.tippy().hide()
-          }
-        "
-      />
+      <div class="flex flex-col" role="menu">
+        <SmartItem
+          v-for="(size, index) in fontSizes"
+          :key="`size-${index}`"
+          :label="`${getFontSizeName(size)}`"
+          :icon="
+            size === active ? 'radio_button_checked' : 'radio_button_unchecked'
+          "
+          :active="size === active"
+          @click.native="
+            () => {
+              setActiveFont(size)
+              fontSize.tippy().hide()
+            }
+          "
+        />
+      </div>
     </tippy>
   </span>
 </template>

@@ -20,31 +20,33 @@
             />
           </span>
         </template>
-        <SmartItem
-          :label="`${$t('environment.no_environment')}`"
-          :info-icon="selectedEnvironmentIndex === -1 ? 'done' : ''"
-          :active-info-icon="selectedEnvironmentIndex === -1"
-          @click.native="
-            () => {
-              selectedEnvironmentIndex = -1
-              $refs.options.tippy().hide()
-            }
-          "
-        />
-        <hr />
-        <SmartItem
-          v-for="(gen, index) in environments"
-          :key="`gen-${index}`"
-          :label="gen.name"
-          :info-icon="index === selectedEnvironmentIndex ? 'done' : ''"
-          :active-info-icon="index === selectedEnvironmentIndex"
-          @click.native="
-            () => {
-              selectedEnvironmentIndex = index
-              $refs.options.tippy().hide()
-            }
-          "
-        />
+        <div class="flex flex-col" role="menu">
+          <SmartItem
+            :label="`${$t('environment.no_environment')}`"
+            :info-icon="selectedEnvironmentIndex === -1 ? 'done' : ''"
+            :active-info-icon="selectedEnvironmentIndex === -1"
+            @click.native="
+              () => {
+                selectedEnvironmentIndex = -1
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+          <hr />
+          <SmartItem
+            v-for="(gen, index) in environments"
+            :key="`gen-${index}`"
+            :label="gen.name"
+            :info-icon="index === selectedEnvironmentIndex ? 'done' : ''"
+            :active-info-icon="index === selectedEnvironmentIndex"
+            @click.native="
+              () => {
+                selectedEnvironmentIndex = index
+                $refs.options.tippy().hide()
+              }
+            "
+          />
+        </div>
       </tippy>
       <div class="flex justify-between flex-1 border-b border-dividerLight">
         <ButtonSecondary

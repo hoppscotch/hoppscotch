@@ -2,81 +2,13 @@
   <AppPaneLayout>
     <template #primary>
       <HttpRequest />
-      <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-        <SmartTab
-          :id="'params'"
-          :label="`${$t('tab.parameters')}`"
-          :selected="true"
-          :info="`${newActiveParamsCount$}`"
-        >
-          <HttpParameters />
-        </SmartTab>
-
-        <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
-          <HttpBody />
-        </SmartTab>
-
-        <SmartTab
-          :id="'headers'"
-          :label="`${$t('tab.headers')}`"
-          :info="`${newActiveHeadersCount$}`"
-        >
-          <HttpHeaders />
-        </SmartTab>
-
-        <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
-          <HttpAuthorization />
-        </SmartTab>
-
-        <SmartTab
-          :id="'preRequestScript'"
-          :label="`${$t('tab.pre_request_script')}`"
-          :indicator="
-            preRequestScript && preRequestScript.length > 0 ? true : false
-          "
-        >
-          <HttpPreRequestScript />
-        </SmartTab>
-
-        <SmartTab
-          :id="'tests'"
-          :label="`${$t('tab.tests')}`"
-          :indicator="testScript && testScript.length > 0 ? true : false"
-        >
-          <HttpTests />
-        </SmartTab>
-      </SmartTabs>
+      <HttpRequestOptions />
     </template>
     <template #secondary>
       <HttpResponse ref="response" />
     </template>
     <template #sidebar>
-      <SmartTabs styles="sticky bg-primary z-10 top-0" vertical>
-        <SmartTab
-          :id="'history'"
-          icon="clock"
-          :label="`${$t('tab.history')}`"
-          :selected="true"
-        >
-          <History ref="historyComponent" :page="'rest'" />
-        </SmartTab>
-
-        <SmartTab
-          :id="'collections'"
-          icon="folder"
-          :label="`${$t('tab.collections')}`"
-        >
-          <Collections />
-        </SmartTab>
-
-        <SmartTab
-          :id="'env'"
-          icon="layers"
-          :label="`${$t('environment.title')}`"
-        >
-          <Environments />
-        </SmartTab>
-      </SmartTabs>
+      <HttpSidebar />
     </template>
   </AppPaneLayout>
 </template>
@@ -92,7 +24,6 @@ import {
   useContext,
   watch,
 } from "@nuxtjs/composition-api"
-import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
 import isEqual from "lodash/isEqual"
 import {
@@ -101,21 +32,16 @@ import {
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
 import {
-  restActiveParamsCount$,
-  restActiveHeadersCount$,
   getRESTRequest,
   setRESTRequest,
   setRESTAuth,
   restAuth$,
-  useTestScript,
-  usePreRequestScript,
   getDefaultRESTRequest,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
   pluckRef,
   useI18n,
-  useReadonlyStream,
   useStream,
   useToast,
 } from "~/helpers/utils/composables"
@@ -197,9 +123,6 @@ export default defineComponent({
   setup() {
     const requestForSync = ref<HoppRESTRequest | null>(null)
 
-    const testScript = useTestScript()
-    const preRequestScript = usePreRequestScript()
-
     const confirmSync = ref(false)
 
     const toast = useToast()
@@ -238,30 +161,10 @@ export default defineComponent({
     bindRequestToURLParams()
 
     return {
-      newActiveParamsCount$: useReadonlyStream(
-        restActiveParamsCount$.pipe(
-          map((e) => {
-            if (e === 0) return null
-            return `${e}`
-          })
-        ),
-        null
-      ),
-      newActiveHeadersCount$: useReadonlyStream(
-        restActiveHeadersCount$.pipe(
-          map((e) => {
-            if (e === 0) return null
-            return `${e}`
-          })
-        ),
-        null
-      ),
       confirmSync,
       syncRequest,
       oAuthURL,
       requestForSync,
-      testScript,
-      preRequestScript,
     }
   },
 })

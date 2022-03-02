@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('environment.edit')}`"
+    :title="$t(`environment.${action}`)"
     @close="hideModal"
   >
     <template #body>
@@ -120,6 +120,8 @@ import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import {
+  createEnvironment,
+  environments$,
   getEnviroment,
   getGlobalVariables,
   globalEnv$,
@@ -131,6 +133,10 @@ import { useReadonlyStream } from "~/helpers/utils/composables"
 export default defineComponent({
   props: {
     show: Boolean,
+    action: {
+      type: String,
+      default: "edit",
+    },
     editingEnvironmentIndex: {
       type: [Number, String] as PropType<number | "Global" | null>,
       default: null,
@@ -155,6 +161,7 @@ export default defineComponent({
     return {
       globalVars,
       workingEnv,
+      envList: useReadonlyStream(environments$, []),
     }
   },
   data() {
@@ -219,6 +226,16 @@ export default defineComponent({
         return
       }
 
+      if (this.action === "new") {
+        createEnvironment(this.name)
+
+        // TODO: find better way to get index of new environment
+        this.$emit("environment-added", {
+          name: this.name,
+          index: this.envList.length - 1,
+        })
+      }
+
       const environmentUpdated: Environment = {
         name: this.name,
         variables: this.vars,
@@ -226,7 +243,11 @@ export default defineComponent({
 
       if (this.editingEnvironmentIndex === "Global")
         setGlobalEnvVariables(environmentUpdated.variables)
-      else updateEnvironment(this.editingEnvironmentIndex!, environmentUpdated)
+      else if (this.action === "new") {
+        updateEnvironment(this.envList.length - 1, environmentUpdated)
+      } else {
+        updateEnvironment(this.editingEnvironmentIndex!, environmentUpdated)
+      }
       this.hideModal()
     },
     hideModal() {

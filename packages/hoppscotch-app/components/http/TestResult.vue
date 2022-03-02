@@ -182,8 +182,9 @@
         class="my-4"
       />
     </div>
-    <EnvironmentsAdd
-      :show="showModalAdd"
+    <EnvironmentsDetails
+      :show="showModalDetails"
+      action="new"
       @hide-modal="displayModalAdd(false)"
       @environment-added="createNewEnv($event)"
     />
@@ -210,10 +211,10 @@ import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
 const t = useI18n()
 
-const showModalAdd = ref(false)
+const showModalDetails = ref(false)
 
 const displayModalAdd = (shouldDisplay: boolean) => {
-  showModalAdd.value = shouldDisplay
+  showModalDetails.value = shouldDisplay
 }
 
 const testResults = useReadonlyStream(

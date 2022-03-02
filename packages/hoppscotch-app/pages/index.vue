@@ -1,85 +1,56 @@
 <template>
-  <Splitpanes
-    class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
-    :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
-    }"
-    :horizontal="!mdAndLarger"
-  >
-    <Pane
-      size="75"
-      min-size="65"
-      class="hide-scrollbar !overflow-auto flex flex-col"
-    >
-      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto flex flex-col"
+  <AppPaneLayout>
+    <template #primary>
+      <HttpRequest />
+      <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
+        <SmartTab
+          :id="'params'"
+          :label="`${$t('tab.parameters')}`"
+          :selected="true"
+          :info="`${newActiveParamsCount$}`"
         >
-          <HttpRequest />
-          <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-            <SmartTab
-              :id="'params'"
-              :label="`${$t('tab.parameters')}`"
-              :selected="true"
-              :info="`${newActiveParamsCount$}`"
-            >
-              <HttpParameters />
-            </SmartTab>
+          <HttpParameters />
+        </SmartTab>
 
-            <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
-              <HttpBody />
-            </SmartTab>
+        <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
+          <HttpBody />
+        </SmartTab>
 
-            <SmartTab
-              :id="'headers'"
-              :label="`${$t('tab.headers')}`"
-              :info="`${newActiveHeadersCount$}`"
-            >
-              <HttpHeaders />
-            </SmartTab>
-
-            <SmartTab
-              :id="'authorization'"
-              :label="`${$t('tab.authorization')}`"
-            >
-              <HttpAuthorization />
-            </SmartTab>
-
-            <SmartTab
-              :id="'preRequestScript'"
-              :label="`${$t('tab.pre_request_script')}`"
-              :indicator="
-                preRequestScript && preRequestScript.length > 0 ? true : false
-              "
-            >
-              <HttpPreRequestScript />
-            </SmartTab>
-
-            <SmartTab
-              :id="'tests'"
-              :label="`${$t('tab.tests')}`"
-              :indicator="testScript && testScript.length > 0 ? true : false"
-            >
-              <HttpTests />
-            </SmartTab>
-          </SmartTabs>
-        </Pane>
-        <Pane
-          :size="COLUMN_LAYOUT ? 65 : 50"
-          class="flex flex-col hide-scrollbar !overflow-auto flex flex-col"
+        <SmartTab
+          :id="'headers'"
+          :label="`${$t('tab.headers')}`"
+          :info="`${newActiveHeadersCount$}`"
         >
-          <HttpResponse ref="response" />
-        </Pane>
-      </Splitpanes>
-    </Pane>
-    <Pane
-      v-if="SIDEBAR"
-      size="25"
-      min-size="20"
-      class="hide-scrollbar !overflow-auto flex flex-col"
-    >
+          <HttpHeaders />
+        </SmartTab>
+
+        <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
+          <HttpAuthorization />
+        </SmartTab>
+
+        <SmartTab
+          :id="'preRequestScript'"
+          :label="`${$t('tab.pre_request_script')}`"
+          :indicator="
+            preRequestScript && preRequestScript.length > 0 ? true : false
+          "
+        >
+          <HttpPreRequestScript />
+        </SmartTab>
+
+        <SmartTab
+          :id="'tests'"
+          :label="`${$t('tab.tests')}`"
+          :indicator="testScript && testScript.length > 0 ? true : false"
+        >
+          <HttpTests />
+        </SmartTab>
+      </SmartTabs>
+    </template>
+    <template #secondary>
+      <HttpResponse ref="response" />
+    </template>
+    <template #sidebar>
       <SmartTabs styles="sticky bg-primary z-10 top-0" vertical>
         <SmartTab
           :id="'history'"
@@ -106,8 +77,8 @@
           <Environments />
         </SmartTab>
       </SmartTabs>
-    </Pane>
-  </Splitpanes>
+    </template>
+  </AppPaneLayout>
 </template>
 
 <script lang="ts">
@@ -121,8 +92,6 @@ import {
   useContext,
   watch,
 } from "@nuxtjs/composition-api"
-import { Splitpanes, Pane } from "splitpanes"
-import "splitpanes/dist/splitpanes.css"
 import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
 import isEqual from "lodash/isEqual"
@@ -131,8 +100,6 @@ import {
   HoppRESTAuthOAuth2,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { useSetting } from "~/newstore/settings"
 import {
   restActiveParamsCount$,
   restActiveHeadersCount$,
@@ -227,7 +194,6 @@ function setupRequestSync(
 }
 
 export default defineComponent({
-  components: { Splitpanes, Pane },
   setup() {
     const requestForSync = ref<HoppRESTRequest | null>(null)
 
@@ -271,11 +237,7 @@ export default defineComponent({
     setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
 
-    const breakpoints = useBreakpoints(breakpointsTailwind)
-    const mdAndLarger = breakpoints.greater("md")
-
     return {
-      mdAndLarger,
       newActiveParamsCount$: useReadonlyStream(
         restActiveParamsCount$.pipe(
           map((e) => {
@@ -294,9 +256,6 @@ export default defineComponent({
         ),
         null
       ),
-      SIDEBAR: useSetting("SIDEBAR"),
-      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
-      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
       confirmSync,
       syncRequest,
       oAuthURL,

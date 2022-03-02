@@ -103,6 +103,7 @@
     "invalid_name": "Veuillez fournir un nom valide pour la collection",
     "my_collections": "Mes collections",
     "name": "Ma nouvelle collection",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nouvelle collection",
     "renamed": "Collection renommée",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "Il n'y a pas de tests pour cette requête"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Créer un nouvel environnement",
+    "deleted": "Environment deletion",
     "edit": "Modifier l'environnement",
     "invalid_name": "Veuillez fournir un nom valide pour l'environnement",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nouvel environnement",
     "no_environment": "Pas d'environnement",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Sélectionnez l'environnement",
     "title": "Environnements",
+    "updated": "Environment updation",
     "variable_list": "Liste des variables"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Dossier créé",
     "edit": "Modifier le dossier",
     "invalid_name": "Veuillez fournir un nom pour le dossier",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nouveau dossier",
     "renamed": "Dossier renommé"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Image",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Aperçu HTML",
     "raw": "Brut",
     "size": "Taille",

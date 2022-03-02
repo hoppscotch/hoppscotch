@@ -104,6 +104,7 @@
     "invalid_name": "الرجاء تقديم اسم صالح للمجموعة",
     "my_collections": "مجموعاتي",
     "name": "مجموعتي الجديدة",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "مجموعة جديدة",
     "renamed": "تمت إعادة تسمية المجموعة",
     "request_in_use": "Request in use",
@@ -160,14 +161,19 @@
     "tests": "لا توجد اختبارات لهذا الطلب"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "خلق بيئة جديدة",
+    "deleted": "Environment deletion",
     "edit": "تحرير البيئة",
     "invalid_name": "الرجاء تقديم اسم صالح للبيئة",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "بيئة جديدة",
     "no_environment": "لا بيئة",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "حدد البيئة",
     "title": "البيئات",
+    "updated": "Environment updation",
     "variable_list": "قائمة متغيرة"
   },
   "error": {
@@ -200,6 +206,7 @@
     "created": "تم إنشاء المجلد",
     "edit": "تحرير المجلد",
     "invalid_name": "الرجاء توفير اسم للمجلد",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "ملف جديد",
     "renamed": "تمت إعادة تسمية المجلد"
   },
@@ -343,6 +350,7 @@
     "html": "لغة البرمجة",
     "image": "صورة",
     "json": "جسون",
+    "pdf": "PDF",
     "preview_html": "معاينة HTML",
     "raw": "الخام",
     "size": "مقاس",

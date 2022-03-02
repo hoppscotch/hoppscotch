@@ -103,6 +103,7 @@
     "invalid_name": "Adjon nevet a gyűjteménynek",
     "my_collections": "Saját gyűjtemények",
     "name": "Saját új gyűjtemény",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Új gyűjtemény",
     "renamed": "Gyűjtemény átnevezve",
     "request_in_use": "A kérés használatban",
@@ -159,14 +160,19 @@
     "tests": "Nincsenek tesztek ehhez a kéréshez"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Új környezet létrehozása",
+    "deleted": "Environment deletion",
     "edit": "Környezet szerkesztése",
     "invalid_name": "Adjon nevet a környezetnek",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Új környezet",
     "no_environment": "Nincs környezet",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Környezet kiválasztása",
     "title": "Környezetek",
+    "updated": "Environment updation",
     "variable_list": "Változólista"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Mappa létrehozva",
     "edit": "Mappa szerkesztése",
     "invalid_name": "Adjon nevet a mappának",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Új mappa",
     "renamed": "Mappa átnevezve"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Kép",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "HTML előnézete",
     "raw": "Nyers",
     "size": "Méret",

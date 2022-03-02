@@ -37,6 +37,7 @@
               <div
                 v-if="noEnvSelected && !globalHasAdditions"
                 class="flex p-4 bg-error text-secondaryDark"
+                role="alert"
               >
                 <i class="mr-4 material-icons"> warning </i>
                 <div class="flex flex-col">

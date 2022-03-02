@@ -87,7 +87,7 @@
                   svg="user"
                 />
               </template>
-              <div class="flex flex-col px-2 text-tiny">
+              <div class="flex flex-col px-2 text-tiny" role="menu">
                 <span class="inline-flex font-semibold truncate">
                   {{ currentUser.displayName }}
                 </span>

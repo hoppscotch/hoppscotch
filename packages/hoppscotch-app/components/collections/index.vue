@@ -378,8 +378,10 @@ export default defineComponent({
           teamID: this.collectionsType.selectedTeam.id,
         })().then((result) => {
           if (E.isLeft(result)) {
-            this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(e)
+            if (result.left.error === "team_coll/short_title")
+              this.$toast.error(this.$t("collection.name_length_insufficient"))
+            else this.$toast.error(this.$t("error.something_went_wrong"))
+            console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("collection.created"))
           }
@@ -520,8 +522,10 @@ export default defineComponent({
             collectionID: folder.id,
           })().then((result) => {
             if (E.isLeft(result)) {
-              this.$toast.error(this.$t("error.something_went_wrong"))
-              console.error(e)
+              if (result.left.error === "team_coll/short_title")
+                this.$toast.error(this.$t("folder.name_length_insufficient"))
+              else this.$toast.error(this.$t("error.something_went_wrong"))
+              console.error(result.left.error)
             } else {
               this.$toast.success(this.$t("folder.created"))
               this.$emit("update-team-collections")

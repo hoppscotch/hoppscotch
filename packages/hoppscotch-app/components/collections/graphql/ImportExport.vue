@@ -16,44 +16,46 @@
               svg="more-vertical"
             />
           </template>
-          <SmartItem
-            icon="assignment_returned"
-            :label="t('import.from_gist')"
-            @click.native="
-              () => {
-                readCollectionGist()
-                options.tippy().hide()
-              }
-            "
-          />
-          <span
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              !currentUser
-                ? `${t('export.require_github')}`
-                : currentUser.provider !== 'github.com'
-                ? `${t('export.require_github')}`
-                : undefined
-            "
-          >
+          <div class="flex flex-col" role="menu">
             <SmartItem
-              :disabled="
-                !currentUser
-                  ? true
-                  : currentUser.provider !== 'github.com'
-                  ? true
-                  : false
-              "
-              icon="assignment_turned_in"
-              :label="t('export.create_secret_gist')"
+              icon="assignment_returned"
+              :label="t('import.from_gist')"
               @click.native="
                 () => {
-                  createCollectionGist()
+                  readCollectionGist()
                   options.tippy().hide()
                 }
               "
             />
-          </span>
+            <span
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                !currentUser
+                  ? `${t('export.require_github')}`
+                  : currentUser.provider !== 'github.com'
+                  ? `${t('export.require_github')}`
+                  : undefined
+              "
+            >
+              <SmartItem
+                :disabled="
+                  !currentUser
+                    ? true
+                    : currentUser.provider !== 'github.com'
+                    ? true
+                    : false
+                "
+                icon="assignment_turned_in"
+                :label="t('export.create_secret_gist')"
+                @click.native="
+                  () => {
+                    createCollectionGist()
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </span>
+          </div>
         </tippy>
       </span>
     </template>

@@ -22,30 +22,32 @@
               />
             </span>
           </template>
-          <SmartItem
-            :label="$t('state.none').toLowerCase()"
-            :info-icon="contentType === null ? 'done' : ''"
-            :active-info-icon="contentType === null"
-            @click.native="
-              () => {
-                contentType = null
-                $refs.contentTypeOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            v-for="(contentTypeItem, index) in validContentTypes"
-            :key="`contentTypeItem-${index}`"
-            :label="contentTypeItem"
-            :info-icon="contentTypeItem === contentType ? 'done' : ''"
-            :active-info-icon="contentTypeItem === contentType"
-            @click.native="
-              () => {
-                contentType = contentTypeItem
-                $refs.contentTypeOptions.tippy().hide()
-              }
-            "
-          />
+          <div class="flex flex-col" role="menu">
+            <SmartItem
+              :label="$t('state.none').toLowerCase()"
+              :info-icon="contentType === null ? 'done' : ''"
+              :active-info-icon="contentType === null"
+              @click.native="
+                () => {
+                  contentType = null
+                  $refs.contentTypeOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              v-for="(contentTypeItem, index) in validContentTypes"
+              :key="`contentTypeItem-${index}`"
+              :label="contentTypeItem"
+              :info-icon="contentTypeItem === contentType ? 'done' : ''"
+              :active-info-icon="contentTypeItem === contentType"
+              @click.native="
+                () => {
+                  contentType = contentTypeItem
+                  $refs.contentTypeOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
     </div>

@@ -104,6 +104,7 @@
     "invalid_name": "Наведите важећи назив збирке",
     "my_collections": "Моје колекције",
     "name": "Моја нова колекција",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Нова колекција",
     "renamed": "Збирка је преименована",
     "request_in_use": "Request in use",
@@ -160,14 +161,19 @@
     "tests": "Нема тестова за овај захтев"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Креирајте ново окружење",
+    "deleted": "Environment deletion",
     "edit": "Едит Енвиронмент",
     "invalid_name": "Наведите важећи назив за окружење",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Ново окружење",
     "no_environment": "Нема окружења",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Изаберите окружење",
     "title": "Енвиронментс",
+    "updated": "Environment updation",
     "variable_list": "Листа променљивих"
   },
   "error": {
@@ -200,6 +206,7 @@
     "created": "Фолдер је креиран",
     "edit": "Едит Фолдер",
     "invalid_name": "Наведите назив фасцикле",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Нова фасцикла",
     "renamed": "Фасцикла је преименована"
   },
@@ -343,6 +350,7 @@
     "html": "ХТМЛ",
     "image": "Слика",
     "json": "ЈСОН",
+    "pdf": "PDF",
     "preview_html": "Преглед ХТМЛ -а",
     "raw": "Сирово",
     "size": "Величина",

@@ -103,6 +103,7 @@
     "invalid_name": "Anna kokoelmalle kelvollinen nimi",
     "my_collections": "Omat kokoelmat",
     "name": "Uusi kokoelmani",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Uusi kokoelma",
     "renamed": "Kokoelma nimetty uudelleen",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "Tätä pyyntöä ei ole testattu"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Luo uusi ympäristö",
+    "deleted": "Environment deletion",
     "edit": "Muokkaa ympäristöä",
     "invalid_name": "Anna ympäristölle kelvollinen nimi",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Uusi ympäristö",
     "no_environment": "Ei ympäristöä",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Valitse ympäristö",
     "title": "Ympäristöt",
+    "updated": "Environment updation",
     "variable_list": "Muuttujien luettelo"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Kansio luotu",
     "edit": "Muokkaa kansiota",
     "invalid_name": "Anna kansion nimi",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Uusi kansio",
     "renamed": "Kansio nimettiin uudelleen"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Kuva",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Esikatsele HTML -koodia",
     "raw": "Raaka",
     "size": "Koko",

@@ -1,6 +1,7 @@
 <template>
   <div
     class="relative flex items-center px-4 py-2 transition bg-error text-tiny group"
+    role="alert"
   >
     <i class="mr-2 material-icons">info_outline</i>
     <span class="text-secondaryDark">

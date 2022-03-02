@@ -103,6 +103,7 @@
     "invalid_name": "Uveďte prosím platný název kolekce",
     "my_collections": "Moje sbírky",
     "name": "Moje nová kolekce",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nová kolekce",
     "renamed": "Sbírka přejmenována",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "Pro tento požadavek neexistují žádné testy"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Vytvořit nové prostředí",
+    "deleted": "Environment deletion",
     "edit": "Upravit prostředí",
     "invalid_name": "Zadejte platný název prostředí",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nové prostředí",
     "no_environment": "Žádné prostředí",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Vyberte prostředí",
     "title": "Prostředí",
+    "updated": "Environment updation",
     "variable_list": "Seznam proměnných"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Složka vytvořena",
     "edit": "Upravit složku",
     "invalid_name": "Zadejte název složky",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nová složka",
     "renamed": "Složka přejmenována"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "obraz",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Náhled HTML",
     "raw": "Drsný",
     "size": "Velikost",

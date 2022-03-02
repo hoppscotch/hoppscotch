@@ -26,12 +26,14 @@
                 />
               </span>
             </template>
-            <SmartItem
-              v-for="(method, index) in methods"
-              :key="`method-${index}`"
-              :label="method"
-              @click.native="onSelectMethod(method)"
-            />
+            <div class="flex flex-col" role="menu">
+              <SmartItem
+                v-for="(method, index) in methods"
+                :key="`method-${index}`"
+                :label="method"
+                @click.native="onSelectMethod(method)"
+              />
+            </div>
           </tippy>
         </label>
       </div>
@@ -69,6 +71,7 @@
             ref="sendTippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
+            role="menu"
             @keyup.c="curl.$el.click()"
             @keyup.s="show.$el.click()"
             @keyup.delete="clearAll.$el.click()"
@@ -150,6 +153,7 @@
             ref="saveTippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
+            role="menu"
             @keyup.c="copyRequestAction.$el.click()"
             @keyup.s="saveRequestAction.$el.click()"
             @keyup.escape="saveOptions.tippy().hide()"

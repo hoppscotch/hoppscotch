@@ -5,7 +5,7 @@
       <HttpRequestOptions />
     </template>
     <template #secondary>
-      <HttpResponse ref="response" />
+      <HttpResponse />
     </template>
     <template #sidebar>
       <HttpSidebar />

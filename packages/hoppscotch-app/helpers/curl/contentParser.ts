@@ -14,6 +14,8 @@ import { safeParseJSON } from "~/helpers/functional/json"
 export function detectContentType(
   rawData: string
 ): HoppRESTReqBody["contentType"] {
+  if (!rawData) return "text/plain"
+
   let contentType: HoppRESTReqBody["contentType"]
 
   if (O.isSome(safeParseJSON(rawData))) {
@@ -25,15 +27,23 @@ export function detectContentType(
       // everything is HTML
       contentType = "text/html"
     }
-  } else if (/([^&=]+)=([^&=]+)/.test(rawData)) {
-    contentType = "application/x-www-form-urlencoded"
   } else {
+    console.log("rawData:", rawData)
+
     contentType = pipe(
-      rawData.match(/^-{2,}.+\\r\\n/),
+      rawData.match(/^-{2,}[A-Za-z0-9]+\r\n/),
       O.fromNullable,
-      O.filter((boundaryMatch) => boundaryMatch && boundaryMatch.length > 1),
+      O.filter((boundaryMatch) => boundaryMatch.length > 0),
       O.match(
-        () => "text/plain",
+        () =>
+          pipe(
+            rawData,
+            O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
+            O.match(
+              () => "text/plain",
+              () => "application/x-www-form-urlencoded"
+            )
+          ),
         () => "multipart/form-data"
       )
     )
@@ -162,7 +172,7 @@ export function parseBody(
         O.fromNullable,
         O.map(decodeURIComponent),
         O.chain((rd) =>
-          pipe(rd.match(/(([^&=]+)=?([^&=]+))/g), O.fromNullable)
+          pipe(rd.match(/(([^&=]+)=?([^&=]*))/g), O.fromNullable)
         ),
         O.map((pairs) => pairs.map((p) => p.replace("=", ": ")).join("\n"))
       )
@@ -190,7 +200,7 @@ export function parseBody(
             O.match(
               () =>
                 pipe(
-                  rawData.match(/^-{2,}.+\\r\\n/),
+                  rawData.match(/^-{2,}[A-Za-z0-9]+\r\n/),
                   O.fromNullable,
                   O.filter((boundaryMatch) => boundaryMatch.length > 1),
                   O.map((matches) => matches[0])

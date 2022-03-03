@@ -34,7 +34,11 @@
                 class="w-16 h-16 rounded-lg ring-primary ring-4"
                 :alt="`${currentUser.displayName}`"
               />
-              <SmartIcon v-else name="user" class="svg-icons" />
+              <SmartIcon
+                v-else
+                name="user"
+                class="svg-icons !w-16 !h-16 bg-primaryLight rounded-lg ring-primary ring-4"
+              />
               <div class="ml-4">
                 <label class="heading">
                   {{ currentUser.displayName || t("state.nothing_found") }}

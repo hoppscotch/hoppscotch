@@ -28,16 +28,26 @@
           {{ team.name || t("state.nothing_found") }}
         </label>
         <div class="flex mt-2 overflow-hidden -space-x-1">
-          <img
+          <div
             v-for="(member, index) in team.teamMembers"
             :key="`member-${index}`"
             v-tippy="{ theme: 'tooltip' }"
             :title="member.user.displayName"
-            :src="member.user.photoURL || undefined"
-            :alt="member.user.displayName"
-            class="inline-block w-5 h-5 rounded-full ring-primary ring-2"
-            loading="lazy"
-          />
+            class="inline-flex"
+          >
+            <img
+              v-if="member.user.photoURL"
+              :src="member.user.photoURL"
+              :alt="member.user.displayName"
+              class="inline-block w-5 h-5 rounded-full ring-primary ring-2"
+              loading="lazy"
+            />
+            <SmartIcon
+              v-else
+              name="user"
+              class="rounded-lg svg-icons bg-primaryLight ring-primary ring-2"
+            />
+          </div>
         </div>
       </div>
     </div>

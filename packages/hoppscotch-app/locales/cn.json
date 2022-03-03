@@ -75,6 +75,7 @@
     "continue_with_email": "使用电子邮箱登录",
     "continue_with_github": "使用 GitHub 登录",
     "continue_with_google": "使用 Google 登录",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "电子邮箱地址",
     "logged_out": "登出",
     "login": "登录",

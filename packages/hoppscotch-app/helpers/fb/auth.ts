@@ -6,6 +6,7 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   GithubAuthProvider,
+  OAuthProvider,
   signInWithEmailAndPassword as signInWithEmailAndPass,
   isSignInWithEmailLink as isSignInWithEmailLinkFB,
   fetchSignInMethodsForEmail,
@@ -204,6 +205,13 @@ export async function signInUserWithGithub() {
 }
 
 /**
+ * Sign user in with a popup using Microsoft
+ */
+export async function signInUserWithMicrosoft() {
+  return await signInWithPopup(getAuth(), new OAuthProvider("microsoft.com"))
+}
+
+/**
  * Sign user in with email and password
  */
 export async function signInWithEmailAndPassword(
@@ -363,6 +371,9 @@ async function reauthenticateUser() {
   } else if (currentAuthMethod === "github.com") {
     const result = await signInUserWithGoogle()
     credential = GoogleAuthProvider.credentialFromResult(result)
+  } else if (currentAuthMethod === "microsoft.com") {
+    const result = await signInUserWithMicrosoft()
+    credential = OAuthProvider.credentialFromResult(result)
   } else if (currentAuthMethod === "password") {
     const email = prompt(
       "Reauthenticate your account using your current email:"

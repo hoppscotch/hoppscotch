@@ -4,7 +4,7 @@
       <Pane v-if="!ZEN_MODE" style="height: auto">
         <AppHeader />
       </Pane>
-      <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
+      <Pane class="flex flex-1 hide-scrollbar !overflow-auto mb-30 md:mb-0">
         <Splitpanes
           class="no-splitter"
           :dbl-click-splitter="false"
@@ -12,7 +12,7 @@
         >
           <Pane
             style="width: auto; height: auto"
-            class="hide-scrollbar !overflow-auto flex flex-col"
+            class="hide-scrollbar !overflow-auto hidden md:flex md:flex-col"
           >
             <AppSidenav />
           </Pane>
@@ -31,7 +31,15 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto">
+
+      <Pane
+        style="height: auto"
+        class="hide-scrollbar !overflow-auto flex flex-col md:hidden block fixed inset-x-0 bottom-0 z-10"
+      >
+        <AppSidenav />
+        <AppFooter />
+      </Pane>
+      <Pane style="height: auto" class="hidden md:inline-block">
         <AppFooter />
       </Pane>
     </Splitpanes>

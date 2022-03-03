@@ -103,6 +103,7 @@
     "invalid_name": "Ange ett giltigt namn för samlingen",
     "my_collections": "Mina samlingar",
     "name": "Min nya samling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Ny kollektion",
     "renamed": "Samling bytt namn",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "Det finns inga tester för denna begäran"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Skapa ny miljö",
+    "deleted": "Environment deletion",
     "edit": "Redigera miljö",
     "invalid_name": "Ange ett giltigt namn på miljön",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Ny miljö",
     "no_environment": "Ingen miljö",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Välj miljö",
     "title": "Miljöer",
+    "updated": "Environment updation",
     "variable_list": "Variabel lista"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Mapp skapad",
     "edit": "Redigera mapp",
     "invalid_name": "Ange ett namn på mappen",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Ny mapp",
     "renamed": "Mappen har bytt namn"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Bild",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Förhandsgranska HTML",
     "raw": "Rå",
     "size": "Storlek",

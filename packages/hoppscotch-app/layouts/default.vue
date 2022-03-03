@@ -23,7 +23,7 @@
               horizontal
             >
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
-                <main class="flex flex-1 w-full">
+                <main class="flex flex-1 w-full" role="main">
                   <nuxt class="flex flex-1" />
                 </main>
               </Pane>

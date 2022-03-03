@@ -103,6 +103,7 @@
     "invalid_name": "Укажите допустимое название коллекции",
     "my_collections": "Мои коллекции",
     "name": "Новая коллекция",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Создать коллекцию",
     "renamed": "Коллекция переименована",
     "request_in_use": "Запрос обрабатывается",
@@ -159,14 +160,19 @@
     "tests": "Для этого запроса нет тестов"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Создать новую среду",
+    "deleted": "Environment deletion",
     "edit": "Редактировать среду",
     "invalid_name": "Укажите допустимое имя для среды",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Новая среда",
     "no_environment": "Нет окружающей среды",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Выберите среду",
     "title": "Среды",
+    "updated": "Environment updation",
     "variable_list": "Список переменных"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Папка создана",
     "edit": "Редактировать папку",
     "invalid_name": "Укажите имя для папки",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Новая папка",
     "renamed": "Папка переименована"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Изображение",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Предварительный просмотр HTML",
     "raw": "Необработанное",
     "size": "Размер",
@@ -468,7 +476,7 @@
   },
   "state": {
     "bulk_mode": "Множественное редактирование",
-    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend // to any row you want to add but keep disabled",
+    "bulk_mode_placeholder": "Entries are separated by newline\nKeys and values are separated by :\nPrepend # to any row you want to add but keep disabled",
     "cleared": "Очищено",
     "connected": "Связаны",
     "connected_to": "Подключено к {name}",

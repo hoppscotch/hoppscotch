@@ -22,81 +22,83 @@
               />
             </span>
           </template>
-          <SmartItem
-            label="None"
-            :icon="
-              authName === 'None'
-                ? 'radio_button_checked'
-                : 'radio_button_unchecked'
-            "
-            :active="authName === 'None'"
-            @click.native="
-              () => {
-                authType = 'none'
-                authTypeOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            label="Basic Auth"
-            :icon="
-              authName === 'Basic Auth'
-                ? 'radio_button_checked'
-                : 'radio_button_unchecked'
-            "
-            :active="authName === 'Basic Auth'"
-            @click.native="
-              () => {
-                authType = 'basic'
-                authTypeOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            label="Bearer Token"
-            :icon="
-              authName === 'Bearer'
-                ? 'radio_button_checked'
-                : 'radio_button_unchecked'
-            "
-            :active="authName === 'Bearer'"
-            @click.native="
-              () => {
-                authType = 'bearer'
-                authTypeOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            label="OAuth 2.0"
-            :icon="
-              authName === 'OAuth 2.0'
-                ? 'radio_button_checked'
-                : 'radio_button_unchecked'
-            "
-            :active="authName === 'OAuth 2.0'"
-            @click.native="
-              () => {
-                authType = 'oauth-2'
-                authTypeOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            label="API key"
-            :icon="
-              authName === 'API key'
-                ? 'radio_button_checked'
-                : 'radio_button_unchecked'
-            "
-            :active="authName === 'API key'"
-            @click.native="
-              () => {
-                authType = 'api-key'
-                authTypeOptions.tippy().hide()
-              }
-            "
-          />
+          <div class="flex flex-col" role="menu">
+            <SmartItem
+              label="None"
+              :icon="
+                authName === 'None'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
+              :active="authName === 'None'"
+              @click.native="
+                () => {
+                  authType = 'none'
+                  authTypeOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              label="Basic Auth"
+              :icon="
+                authName === 'Basic Auth'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
+              :active="authName === 'Basic Auth'"
+              @click.native="
+                () => {
+                  authType = 'basic'
+                  authTypeOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              label="Bearer Token"
+              :icon="
+                authName === 'Bearer'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
+              :active="authName === 'Bearer'"
+              @click.native="
+                () => {
+                  authType = 'bearer'
+                  authTypeOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              label="OAuth 2.0"
+              :icon="
+                authName === 'OAuth 2.0'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
+              :active="authName === 'OAuth 2.0'"
+              @click.native="
+                () => {
+                  authType = 'oauth-2'
+                  authTypeOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              label="API key"
+              :icon="
+                authName === 'API key'
+                  ? 'radio_button_checked'
+                  : 'radio_button_unchecked'
+              "
+              :active="authName === 'API key'"
+              @click.native="
+                () => {
+                  authType = 'api-key'
+                  authTypeOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
       <div class="flex">
@@ -204,36 +206,38 @@
                   />
                 </span>
               </template>
-              <SmartItem
-                :icon="
-                  addTo === 'Headers'
-                    ? 'radio_button_checked'
-                    : 'radio_button_unchecked'
-                "
-                :active="addTo === 'Headers'"
-                :label="'Headers'"
-                @click.native="
-                  () => {
-                    addTo = 'Headers'
-                    addToOptions.tippy().hide()
-                  }
-                "
-              />
-              <SmartItem
-                :icon="
-                  addTo === 'Query params'
-                    ? 'radio_button_checked'
-                    : 'radio_button_unchecked'
-                "
-                :active="addTo === 'Query params'"
-                :label="'Query params'"
-                @click.native="
-                  () => {
-                    addTo = 'Query params'
-                    addToOptions.tippy().hide()
-                  }
-                "
-              />
+              <div class="flex flex-col" role="menu">
+                <SmartItem
+                  :icon="
+                    addTo === 'Headers'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
+                  "
+                  :active="addTo === 'Headers'"
+                  :label="'Headers'"
+                  @click.native="
+                    () => {
+                      addTo = 'Headers'
+                      addToOptions.tippy().hide()
+                    }
+                  "
+                />
+                <SmartItem
+                  :icon="
+                    addTo === 'Query params'
+                      ? 'radio_button_checked'
+                      : 'radio_button_unchecked'
+                  "
+                  :active="addTo === 'Query params'"
+                  :label="'Query params'"
+                  @click.native="
+                    () => {
+                      addTo = 'Query params'
+                      addToOptions.tippy().hide()
+                    }
+                  "
+                />
+              </div>
             </tippy>
           </div>
         </div>

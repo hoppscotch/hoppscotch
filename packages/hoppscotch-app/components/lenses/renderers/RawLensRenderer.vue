@@ -39,12 +39,18 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive } from "@nuxtjs/composition-api"
+import { flow, pipe } from "fp-ts/function"
+import * as S from "fp-ts/string"
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "~/helpers/utils/composables"
 import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
 import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
 import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
+import { objFieldMatches } from "~/helpers/functional/object"
 
 const t = useI18n()
 
@@ -54,18 +60,31 @@ const props = defineProps<{
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const responseType = computed(() => {
-  return (
-    props.response.headers.find((h) => h.key.toLowerCase() === "content-type")
-      .value || ""
+const rawResponseBody = computed(() =>
+  props.response.type === "fail" || props.response.type === "success"
+    ? props.response.body
+    : new ArrayBuffer(0)
+)
+
+const responseType = computed(() =>
+  pipe(
+    props.response,
+    O.fromPredicate(objFieldMatches("type", ["fail", "success"] as const)),
+    O.chain(
+      // Try getting content-type
+      flow(
+        (res) => res.headers,
+        A.findFirst((h) => h.key.toLowerCase() === "content-type"),
+        O.map(flow((h) => h.value, S.split(";"), RNEA.head, S.toLowerCase))
+      )
+    ),
+    O.getOrElse(() => "text/plain")
   )
-    .split(";")[0]
-    .toLowerCase()
-})
+)
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,
-  responseBodyText
+  rawResponseBody
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)

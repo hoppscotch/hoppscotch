@@ -3,6 +3,8 @@
     <div
       ref="modal"
       class="fixed inset-0 z-10 z-50 overflow-y-auto transition hide-scrollbar"
+      role="dialog"
+      aria-modal="true"
     >
       <div
         class="flex items-end justify-center min-h-screen text-center sm:block"

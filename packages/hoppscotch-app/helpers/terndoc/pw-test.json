@@ -19,6 +19,12 @@
       "headers": "?",
       "body": "?"
     },
+    "env": {
+      "set": "fn(key: string, value: string)",
+      "get": "fn(key: string) -> string",
+      "getResolve": "fn(key: string) -> string",
+      "resolve": "fn(value: string) -> string"
+    },
     "test": "fn(name: string, func: fn())"
   }
 }

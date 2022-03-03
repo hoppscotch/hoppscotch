@@ -1,3 +1,5 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import { execTestScript, TestResponse } from "../../../test-runner"
 
 const fakeResponse: TestResponse = {
@@ -6,10 +8,16 @@ const fakeResponse: TestResponse = {
   headers: [],
 }
 
+const func = (script: string, res: TestResponse) =>
+  pipe(
+    execTestScript(script, { global: [], selected: [] }, res),
+    TE.map((x) => x.tests)
+  )
+
 describe("toBeType", () => {
   test("asserts true for valid type expectations with no negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(2).toBeType("number")
           pw.expect("2").toBeType("string")
@@ -40,7 +48,7 @@ describe("toBeType", () => {
 
   test("asserts false for invalid type expectations with no negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(2).toBeType("string")
           pw.expect("2").toBeType("number")
@@ -71,7 +79,7 @@ describe("toBeType", () => {
 
   test("asserts false for valid type expectations with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(2).not.toBeType("number")
           pw.expect("2").not.toBeType("string")
@@ -105,7 +113,7 @@ describe("toBeType", () => {
 
   test("asserts true for invalid type expectations with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(2).not.toBeType("string")
           pw.expect("2").not.toBeType("number")
@@ -139,7 +147,7 @@ describe("toBeType", () => {
 
   test("gives error for invalid type names without negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(2).toBeType("foo")
           pw.expect("2").toBeType("bar")
@@ -179,7 +187,7 @@ describe("toBeType", () => {
 
   test("gives error for invalid type names with negation", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.expect(2).not.toBeType("foo")
           pw.expect("2").not.toBeType("bar")

@@ -103,6 +103,7 @@
     "invalid_name": "Bitte geben Sie einen gültigen Namen für die Sammlung an",
     "my_collections": "Meine Sammlungen",
     "name": "Meine neue Kollektion",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Neue Kollektion",
     "renamed": "Sammlung umbenannt",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "Es gibt keine Tests für diese Anfrage"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Neue Umgebung schaffen",
+    "deleted": "Environment deletion",
     "edit": "Umgebung bearbeiten",
     "invalid_name": "Bitte geben Sie einen gültigen Namen für die Umgebung an",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Neue Umgebung",
     "no_environment": "Keine Umgebung",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Umgebung auswählen",
     "title": "Umgebungen",
+    "updated": "Environment updation",
     "variable_list": "Variablenliste"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Ordner erstellt",
     "edit": "Ordner bearbeiten",
     "invalid_name": "Bitte geben Sie einen Namen für den Ordner an",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Neuer Ordner",
     "renamed": "Ordner umbenannt"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Bild",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "HTML-Vorschau",
     "raw": "Roh",
     "size": "Größe",

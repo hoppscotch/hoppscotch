@@ -1,9 +1,11 @@
 module.exports = {
   ignoreFiles: ["/**/*.vue"],
+  customSyntax: "postcss-html",
   extends: [
     "stylelint-config-standard",
     "stylelint-config-prettier",
     "stylelint-config-standard-scss",
+    "stylelint-config-recommended-vue",
   ],
   defaultSeverity: "warning",
   // add your custom config here

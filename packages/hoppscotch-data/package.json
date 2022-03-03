@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "@types/lodash": "^4.14.178",
+    "@types/lodash": "^4.14.179",
     "tsup": "^5.11.13"
   },
   "dependencies": {

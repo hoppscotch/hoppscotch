@@ -259,7 +259,8 @@ export function useCodemirror(
 
   watch(el, () => {
     if (el.value) {
-      if (!view.value) initView(el.value)
+      if (view.value) view.value.destroy()
+      initView(el.value)
     } else {
       view.value?.destroy()
       view.value = undefined

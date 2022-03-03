@@ -1,158 +1,130 @@
 <template>
-  <Splitpanes
-    class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
-    :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
-    }"
-    :horizontal="!mdAndLarger"
-  >
-    <Pane
-      size="75"
-      min-size="65"
-      class="hide-scrollbar !overflow-auto flex flex-col"
-    >
-      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto flex flex-col"
-        >
-          <div
-            class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
-          >
-            <div class="inline-flex flex-1 space-x-2">
-              <input
-                id="websocket-url"
-                v-model="url"
-                class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
-                type="url"
-                autocomplete="off"
-                spellcheck="false"
-                :class="{ error: !urlValid }"
-                :placeholder="$t('websocket.url')"
-                :disabled="connectionState"
-                @keyup.enter="urlValid ? toggleConnection() : null"
-              />
-              <ButtonPrimary
-                id="connect"
-                :disabled="!urlValid"
-                class="w-32"
-                name="connect"
-                :label="
-                  !connectionState
-                    ? $t('action.connect')
-                    : $t('action.disconnect')
-                "
-                :loading="connectingState"
-                @click.native="toggleConnection"
-              />
-            </div>
-          </div>
-          <div
-            class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
-          >
-            <label class="font-semibold text-secondaryLight">
-              {{ $t("websocket.protocols") }}
-            </label>
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.clear_all')"
-                svg="trash-2"
-                @click.native="clearContent"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('add.new')"
-                svg="plus"
-                @click.native="addProtocol"
-              />
-            </div>
-          </div>
-          <div
-            v-for="(protocol, index) of protocols"
-            :key="`protocol-${index}`"
-            class="flex border-b divide-x divide-dividerLight border-dividerLight"
-          >
-            <input
-              v-model="protocol.value"
-              class="flex flex-1 px-4 py-2 bg-transparent"
-              :placeholder="$t('count.protocol', { count: index + 1 })"
-              name="message"
-              type="text"
-              autocomplete="off"
-              @change="
-                updateProtocol(index, {
-                  value: $event.target.value,
-                  active: protocol.active,
-                })
-              "
-            />
-            <span>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  protocol.hasOwnProperty('active')
-                    ? protocol.active
-                      ? $t('action.turn_off')
-                      : $t('action.turn_on')
-                    : $t('action.turn_off')
-                "
-                :svg="
-                  protocol.hasOwnProperty('active')
-                    ? protocol.active
-                      ? 'check-circle'
-                      : 'circle'
-                    : 'check-circle'
-                "
-                color="green"
-                @click.native="
-                  updateProtocol(index, {
-                    value: protocol.value,
-                    active: !protocol.active,
-                  })
-                "
-              />
-            </span>
-            <span>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
-                svg="trash"
-                color="red"
-                @click.native="deleteProtocol({ index })"
-              />
-            </span>
-          </div>
-          <div
-            v-if="protocols.length === 0"
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-          >
-            <img
-              :src="`/images/states/${$colorMode.value}/add_category.svg`"
-              loading="lazy"
-              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-              :alt="$t('empty.protocols')"
-            />
-            <span class="mb-4 text-center">
-              {{ $t("empty.protocols") }}
-            </span>
-          </div>
-        </Pane>
-        <Pane
-          :size="COLUMN_LAYOUT ? 65 : 50"
-          class="hide-scrollbar !overflow-auto flex flex-col"
-        >
-          <RealtimeLog :title="$t('websocket.log')" :log="log" />
-        </Pane>
-      </Splitpanes>
-    </Pane>
-    <Pane
-      v-if="SIDEBAR"
-      size="25"
-      min-size="20"
-      class="hide-scrollbar !overflow-auto flex flex-col"
-    >
+  <AppPaneLayout>
+    <template #primary>
+      <div
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+      >
+        <div class="inline-flex flex-1 space-x-2">
+          <input
+            id="websocket-url"
+            v-model="url"
+            class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
+            type="url"
+            autocomplete="off"
+            spellcheck="false"
+            :class="{ error: !urlValid }"
+            :placeholder="$t('websocket.url')"
+            :disabled="connectionState"
+            @keyup.enter="urlValid ? toggleConnection() : null"
+          />
+          <ButtonPrimary
+            id="connect"
+            :disabled="!urlValid"
+            class="w-32"
+            name="connect"
+            :label="
+              !connectionState ? $t('action.connect') : $t('action.disconnect')
+            "
+            :loading="connectingState"
+            @click.native="toggleConnection"
+          />
+        </div>
+      </div>
+      <div
+        class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+      >
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("websocket.protocols") }}
+        </label>
+        <div class="flex">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('action.clear_all')"
+            svg="trash-2"
+            @click.native="clearContent"
+          />
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('add.new')"
+            svg="plus"
+            @click.native="addProtocol"
+          />
+        </div>
+      </div>
+      <div
+        v-for="(protocol, index) of protocols"
+        :key="`protocol-${index}`"
+        class="flex border-b divide-x divide-dividerLight border-dividerLight"
+      >
+        <input
+          v-model="protocol.value"
+          class="flex flex-1 px-4 py-2 bg-transparent"
+          :placeholder="$t('count.protocol', { count: index + 1 })"
+          name="message"
+          type="text"
+          autocomplete="off"
+          @change="
+            updateProtocol(index, {
+              value: $event.target.value,
+              active: protocol.active,
+            })
+          "
+        />
+        <span>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="
+              protocol.hasOwnProperty('active')
+                ? protocol.active
+                  ? $t('action.turn_off')
+                  : $t('action.turn_on')
+                : $t('action.turn_off')
+            "
+            :svg="
+              protocol.hasOwnProperty('active')
+                ? protocol.active
+                  ? 'check-circle'
+                  : 'circle'
+                : 'check-circle'
+            "
+            color="green"
+            @click.native="
+              updateProtocol(index, {
+                value: protocol.value,
+                active: !protocol.active,
+              })
+            "
+          />
+        </span>
+        <span>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('action.remove')"
+            svg="trash"
+            color="red"
+            @click.native="deleteProtocol({ index })"
+          />
+        </span>
+      </div>
+      <div
+        v-if="protocols.length === 0"
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${$colorMode.value}/add_category.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+          :alt="$t('empty.protocols')"
+        />
+        <span class="mb-4 text-center">
+          {{ $t("empty.protocols") }}
+        </span>
+      </div>
+    </template>
+    <template #secondary>
+      <RealtimeLog :title="$t('websocket.log')" :log="log" />
+    </template>
+    <template #sidebar>
       <div class="flex items-center justify-between p-4">
         <label
           for="websocket-message"
@@ -183,18 +155,14 @@
           @click.native="sendMessage"
         />
       </div>
-    </Pane>
-  </Splitpanes>
+    </template>
+  </AppPaneLayout>
 </template>
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
-import { Splitpanes, Pane } from "splitpanes"
-import "splitpanes/dist/splitpanes.css"
 import debounce from "lodash/debounce"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
-import { useSetting } from "~/newstore/settings"
 import {
   setWSEndpoint,
   WSEndpoint$,
@@ -217,16 +185,8 @@ import {
 import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
-  components: { Splitpanes, Pane },
   setup() {
-    const breakpoints = useBreakpoints(breakpointsTailwind)
-    const mdAndLarger = breakpoints.greater("md")
-
     return {
-      mdAndLarger,
-      SIDEBAR: useSetting("SIDEBAR"),
-      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
-      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
       url: useStream(WSEndpoint$, "", setWSEndpoint),
       protocols: useStream(WSProtocols$, [], setWSProtocols),
       connectionState: useStream(

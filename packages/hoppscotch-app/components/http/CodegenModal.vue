@@ -31,7 +31,7 @@
                 :placeholder="`${t('action.search')}`"
               />
             </div>
-            <div class="flex flex-col">
+            <div class="flex flex-col" role="menu">
               <SmartItem
                 v-for="codegen in filteredCodegenDefinitions"
                 :key="codegen.name"

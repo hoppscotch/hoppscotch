@@ -103,6 +103,7 @@
     "invalid_name": "Please provide a name for the collection",
     "my_collections": "My Collections",
     "name": "My New Collection",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "New Collection",
     "renamed": "Collection renamed",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "There are no tests for this request"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Create new environment",
+    "deleted": "Environment deletion",
     "edit": "Edit Environment",
     "invalid_name": "Please provide a name for the environment",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "New Environment",
     "no_environment": "No environment",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Select environment",
     "title": "Environments",
+    "updated": "Environment updation",
     "variable_list": "Variable List"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Folder created",
     "edit": "Edit Folder",
     "invalid_name": "Please provide a name for the folder",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
     "renamed": "Folder renamed"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Image",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Preview HTML",
     "raw": "Raw",
     "size": "Size",
@@ -554,7 +562,7 @@
     "member_removed": "User removed",
     "member_role_updated": "User roles updated",
     "members": "Members",
-    "name_length_insufficient": "Team name should be atleast 6 characters long",
+    "name_length_insufficient": "Team name should be at least 6 characters long",
     "name_updated": "Team name updated",
     "new": "New Team",
     "new_created": "New team created",

@@ -103,6 +103,7 @@
     "invalid_name": "Oppgi et gyldig navn på samlingen",
     "my_collections": "Mine samlinger",
     "name": "Min nye samling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Ny kolleksjon",
     "renamed": "Samlingen ble omdøpt",
     "request_in_use": "Request in use",
@@ -159,14 +160,19 @@
     "tests": "Det er ingen tester for denne forespørselen"
   },
   "environment": {
+    "add_to_global": "Add to Global",
+    "added": "Environment addition",
     "create_new": "Skap nytt miljø",
+    "deleted": "Environment deletion",
     "edit": "Rediger miljø",
     "invalid_name": "Oppgi et gyldig navn på miljøet",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Nytt miljø",
     "no_environment": "Ingen miljø",
+    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Velg miljø",
     "title": "Miljøer",
+    "updated": "Environment updation",
     "variable_list": "Variabel liste"
   },
   "error": {
@@ -199,6 +205,7 @@
     "created": "Mappen er opprettet",
     "edit": "Rediger mappe",
     "invalid_name": "Oppgi et navn på mappen",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Ny mappe",
     "renamed": "Mappen ble gitt nytt navn"
   },
@@ -342,6 +349,7 @@
     "html": "HTML",
     "image": "Bilde",
     "json": "JSON",
+    "pdf": "PDF",
     "preview_html": "Forhåndsvis HTML",
     "raw": "Rå",
     "size": "Størrelse",

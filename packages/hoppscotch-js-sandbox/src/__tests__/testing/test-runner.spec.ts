@@ -1,3 +1,5 @@
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
 import { execTestScript, TestResponse } from "../../test-runner"
 
 const fakeResponse: TestResponse = {
@@ -6,10 +8,16 @@ const fakeResponse: TestResponse = {
   headers: [],
 }
 
+const func = (script: string, res: TestResponse) =>
+  pipe(
+    execTestScript(script, { global: [], selected: [] }, res),
+    TE.map((x) => x.tests)
+  )
+
 describe("execTestScript function behavior", () => {
   test("returns a resolved promise for a valid test scripts with all green", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.test("Arithmetic operations", () => {
             const size = 500 + 500;
@@ -26,7 +34,7 @@ describe("execTestScript function behavior", () => {
 
   test("resolves for tests with failed expectations", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.test("Arithmetic operations", () => {
             const size = 500 + 500;
@@ -44,7 +52,7 @@ describe("execTestScript function behavior", () => {
   // TODO: We need a more concrete behavior for this
   test("rejects for invalid syntax on tests", () => {
     return expect(
-      execTestScript(
+      func(
         `
           pw.test("Arithmetic operations", () => {
             const size = 500 + 500;

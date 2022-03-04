@@ -28,8 +28,6 @@ export function detectContentType(
       contentType = "text/html"
     }
   } else {
-    console.log("rawData:", rawData)
-
     contentType = pipe(
       rawData.match(/^-{2,}[A-Za-z0-9]+\r\n/),
       O.fromNullable,

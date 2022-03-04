@@ -185,8 +185,8 @@
     <EnvironmentsDetails
       :show="showModalDetails"
       action="new"
+      :env-vars="getAdditionVars"
       @hide-modal="displayModalAdd(false)"
-      @environment-added="createNewEnv($event)"
     />
   </div>
 </template>
@@ -204,7 +204,6 @@ import {
   selectedEnvIndex$,
   setCurrentEnvironment,
   setGlobalEnvVariables,
-  updateEnvironment,
 } from "~/newstore/environments"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -221,6 +220,15 @@ const testResults = useReadonlyStream(
   restTestResults$,
   null
 ) as Ref<HoppTestResult | null>
+
+/**
+ * Get the "addition" environment variables
+ * @returns Array of objects with key-value pairs of arguments
+ */
+const getAdditionVars = () =>
+  testResults?.value?.envDiff?.selected?.additions
+    ? testResults.value.envDiff.selected.additions
+    : []
 
 const clearContent = () => setRESTTestResults(null)
 
@@ -266,14 +274,5 @@ const addEnvToGlobal = () => {
     ...globalEnvVars.value,
     ...testResults.value.envDiff.selected.additions,
   ])
-}
-
-const createNewEnv = ({ name, index }: { name: string; index: number }) => {
-  if (!testResults.value?.envDiff.selected.additions) return
-  updateEnvironment(index, {
-    name,
-    variables: testResults.value.envDiff.selected.additions,
-  })
-  setCurrentEnvironment(index)
 }
 </script>

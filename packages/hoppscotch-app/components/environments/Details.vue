@@ -56,12 +56,12 @@
             <input
               v-model="variable.key"
               class="flex flex-1 px-4 py-2 bg-transparent"
-              :placeholder="`${$t('count.variable', { count: index + 1 })}`"
+              :placeholder="$t('count.variable', { count: index + 1 })"
               :name="'param' + index"
             />
             <SmartEnvInput
               v-model="variable.value"
-              :placeholder="`${$t('count.value', { count: index + 1 })}`"
+              :placeholder="$t('count.value', { count: index + 1 })"
               :envs="liveEnvs"
               :name="'value' + index"
             />
@@ -84,13 +84,13 @@
               :src="`/images/states/${$colorMode.value}/blockchain.svg`"
               loading="lazy"
               class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-              :alt="`${$t('empty.environments')}`"
+              :alt="$t('empty.environments')"
             />
             <span class="pb-4 text-center">
               {{ $t("empty.environments") }}
             </span>
             <ButtonSecondary
-              :label="`${$t('add.new')}`"
+              :label="$t('add.new')"
               filled
               class="mb-4"
               @click.native="addEnvironmentVariable"
@@ -102,11 +102,11 @@
     <template #footer>
       <span>
         <ButtonPrimary
-          :label="`${$t('action.save')}`"
+          :label="$t('action.save')"
           @click.native="saveEnvironment"
         />
         <ButtonSecondary
-          :label="`${$t('action.cancel')}`"
+          :label="$t('action.cancel')"
           @click.native="hideModal"
         />
       </span>
@@ -125,6 +125,7 @@ import {
   getEnviroment,
   getGlobalVariables,
   globalEnv$,
+  setCurrentEnvironment,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
@@ -141,27 +142,36 @@ export default defineComponent({
       type: [Number, String] as PropType<number | "Global" | null>,
       default: null,
     },
+    envVars: {
+      type: Function,
+      default: () => [] as unknown,
+    },
   },
   setup(props) {
     const globalVars = useReadonlyStream(globalEnv$, [])
 
     const workingEnv = computed(() => {
-      if (props.editingEnvironmentIndex === null) return null
-
       if (props.editingEnvironmentIndex === "Global") {
         return {
           name: "Global",
           variables: getGlobalVariables(),
         } as Environment
-      } else {
+      } else if (props.action === "new") {
+        return {
+          name: "",
+          variables: props.envVars(),
+        } as Environment
+      } else if (props.editingEnvironmentIndex !== null) {
         return getEnviroment(props.editingEnvironmentIndex)
+      } else {
+        return null
       }
     })
 
     return {
       globalVars,
       workingEnv,
-      envList: useReadonlyStream(environments$, []),
+      envList: useReadonlyStream(environments$, []) || props.envVars(),
     }
   },
   data() {
@@ -208,7 +218,7 @@ export default defineComponent({
     clearContent() {
       this.vars = []
       this.clearIcon = "check"
-      this.$toast.success(`${this.$t("state.cleared")}`)
+      this.$toast.success(this.$t("state.cleared"))
       setTimeout(() => (this.clearIcon = "trash-2"), 1000)
     },
     addEnvironmentVariable() {
@@ -222,18 +232,13 @@ export default defineComponent({
     },
     saveEnvironment() {
       if (!this.name) {
-        this.$toast.error(`${this.$t("environment.invalid_name")}`)
+        this.$toast.error(this.$t("environment.invalid_name"))
         return
       }
 
       if (this.action === "new") {
         createEnvironment(this.name)
-
-        // TODO: find better way to get index of new environment
-        this.$emit("environment-added", {
-          name: this.name,
-          index: this.envList.length - 1,
-        })
+        setCurrentEnvironment(this.envList.length - 1)
       }
 
       const environmentUpdated: Environment = {

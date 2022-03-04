@@ -217,7 +217,6 @@
     "subscriptions": "Претплате"
   },
   "header": {
-    "account": "Рачун",
     "install_pwa": "Инсталирати апликацију",
     "login": "Пријавите се",
     "save_workspace": "Сачувај мој радни простор"

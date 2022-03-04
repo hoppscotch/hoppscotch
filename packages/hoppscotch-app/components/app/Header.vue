@@ -79,12 +79,15 @@
                     network.isOnline ? 'bg-green-500' : 'bg-red-500'
                   "
                 />
-                <ButtonSecondary
+                <ProfilePicture
                   v-else
                   v-tippy="{ theme: 'tooltip' }"
-                  :title="t('header.account')"
-                  class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-                  svg="user"
+                  :title="currentUser.displayName"
+                  :initial="currentUser.displayName"
+                  indicator
+                  :indicator-styles="
+                    network.isOnline ? 'bg-green-500' : 'bg-red-500'
+                  "
                 />
               </template>
               <div class="flex flex-col px-2 text-tiny" role="menu">

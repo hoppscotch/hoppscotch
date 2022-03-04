@@ -1,20 +1,31 @@
 <template>
   <div
     tabindex="0"
-    class="relative flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring focus-visible:ring-primaryDark"
+    class="relative flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring focus-visible:ring-primaryDark"
+    :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
   >
     <img
-      class="absolute object-cover object-center w-5 h-5 rounded-full transition bg-primaryDark"
+      v-if="url"
+      class="absolute object-cover object-center transition bg-primaryDark"
+      :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
       :src="url"
       :alt="alt"
       loading="lazy"
     />
-    <div class="absolute inset-0 rounded-full shadow-inner"></div>
+    <div
+      v-else
+      class="absolute flex items-center justify-center object-cover object-center transition bg-primaryDark text-accentContrast"
+      :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
+      :style="`background-color: ${toHex(initial)}`"
+    >
+      {{ initial.charAt(0).toUpperCase() }}
+    </div>
     <span
       v-if="indicator"
-      class="border-primary rounded-full border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute"
-      :class="indicatorStyles"
+      class="border-primary border-2 h-2.5 -top-0.5 -right-0.5 w-2.5 absolute"
+      :class="[`rounded-${rounded}`, indicatorStyles]"
     ></span>
+    <!-- w-5 h-5 rounded-lg -->
   </div>
 </template>
 
@@ -25,9 +36,7 @@ export default defineComponent({
   props: {
     url: {
       type: String,
-      default: `https://avatars.dicebear.com/v2/avataaars/${Math.random()
-        .toString(36)
-        .substring(7)}.svg?mood[]=happy`,
+      default: "",
     },
     alt: {
       type: String,
@@ -40,6 +49,34 @@ export default defineComponent({
     indicatorStyles: {
       type: String,
       default: "bg-green-500",
+    },
+    rounded: {
+      type: String,
+      default: "full",
+    },
+    size: {
+      type: String,
+      default: "5",
+    },
+    initial: {
+      type: String,
+      default: "",
+    },
+  },
+  methods: {
+    toHex(initial) {
+      let hash = 0
+      if (initial.length === 0) return hash
+      for (let i = 0; i < initial.length; i++) {
+        hash = initial.charCodeAt(i) + ((hash << 5) - hash)
+        hash = hash & hash
+      }
+      let color = "#"
+      for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 255
+        color += `00${value.toString(16)}`.substr(-2)
+      }
+      return color
     },
   },
 })

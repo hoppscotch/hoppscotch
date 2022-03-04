@@ -216,7 +216,6 @@
     "subscriptions": "Suscripciones"
   },
   "header": {
-    "account": "Cuenta",
     "install_pwa": "Instalar aplicación",
     "login": "Acceso",
     "save_workspace": "Guardar mi espacio de trabajo"

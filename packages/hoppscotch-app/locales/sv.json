@@ -216,7 +216,6 @@
     "subscriptions": "Prenumerationer"
   },
   "header": {
-    "account": "konto",
     "install_pwa": "Installera app",
     "login": "Logga in",
     "save_workspace": "Spara min arbetsyta"

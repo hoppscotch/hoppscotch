@@ -216,7 +216,6 @@
     "subscriptions": "訂閱"
   },
   "header": {
-    "account": "帳號",
     "install_pwa": "安裝應用程式",
     "login": "登入",
     "save_workspace": "儲存我的工作區"

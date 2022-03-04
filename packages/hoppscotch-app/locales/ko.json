@@ -216,7 +216,6 @@
     "subscriptions": "구독"
   },
   "header": {
-    "account": "계정",
     "install_pwa": "앱을 설치",
     "login": "로그인",
     "save_workspace": "내 작업 공간 저장"

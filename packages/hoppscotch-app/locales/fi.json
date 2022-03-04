@@ -216,7 +216,6 @@
     "subscriptions": "Tilaukset"
   },
   "header": {
-    "account": "Tili",
     "install_pwa": "Asenna sovellus",
     "login": "Kirjaudu sisään",
     "save_workspace": "Tallenna työtila"

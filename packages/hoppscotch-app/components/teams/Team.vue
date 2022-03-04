@@ -35,17 +35,16 @@
             :title="member.user.displayName"
             class="inline-flex"
           >
-            <img
+            <ProfilePicture
               v-if="member.user.photoURL"
-              :src="member.user.photoURL"
+              :url="member.user.photoURL"
               :alt="member.user.displayName"
-              class="inline-block w-5 h-5 rounded-full ring-primary ring-2"
-              loading="lazy"
+              class="ring-primary ring-2"
             />
-            <SmartIcon
+            <ProfilePicture
               v-else
-              name="user"
-              class="rounded-lg svg-icons bg-primaryLight ring-primary ring-2"
+              :initial="member.user.displayName"
+              class="ring-primary ring-2"
             />
           </div>
         </div>

@@ -216,7 +216,6 @@
     "subscriptions": "Assinaturas"
   },
   "header": {
-    "account": "Conta",
     "install_pwa": "Instalar aplicativo",
     "login": "Conecte-se",
     "save_workspace": "Salvar meu espaço de trabalho"

@@ -216,7 +216,6 @@
     "subscriptions": "abonelikler"
   },
   "header": {
-    "account": "Hesap",
     "install_pwa": "Uygulamayı yükle",
     "login": "Giriş yap",
     "save_workspace": "Çalışma Alanımı Kaydet"

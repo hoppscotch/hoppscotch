@@ -216,7 +216,6 @@
     "subscriptions": "Subscriptions"
   },
   "header": {
-    "account": "Account",
     "install_pwa": "Install app",
     "login": "Login",
     "save_workspace": "Save My Workspace"

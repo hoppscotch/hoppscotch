@@ -216,7 +216,6 @@
     "subscriptions": "Feliratkozások"
   },
   "header": {
-    "account": "Fiók",
     "install_pwa": "Alkalmazás telepítése",
     "login": "Bejelentkezés",
     "save_workspace": "Saját munkaterület mentése"

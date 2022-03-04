@@ -216,7 +216,6 @@
     "subscriptions": "サブスクリプション"
   },
   "header": {
-    "account": "アカウント",
     "install_pwa": "アプリをインストールする",
     "login": "ログイン",
     "save_workspace": "ワークスペースを保存"

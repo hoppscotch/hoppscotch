@@ -1,3 +1,6 @@
+// @ts-check
+// ^^^ Enables Type Checking by the TypeScript compiler
+
 import { makeRESTRequest, rawKeyValueEntriesToString } from "@hoppscotch/data"
 import { parseCurlToHoppRESTReq } from ".."
 
@@ -479,6 +482,159 @@ const samples = [
             "multipart/form-data; boundary=------------------------d74496d66958873e",
         },
       ],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl 'https://hoppscotch.io/' \
+    -H 'authority: hoppscotch.io' \
+    -H 'sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"' \
+    -H 'accept: */*' \
+    -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36' \
+    -H 'sec-ch-ua-platform: "Windows"' \
+    -H 'accept-language: en-US,en;q=0.9,ml;q=0.8' \
+    --compressed`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://hoppscotch.io/",
+      auth: { authType: "none", authActive: false },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [
+        {
+          active: true,
+          key: "authority",
+          value: "hoppscotch.io",
+        },
+        {
+          active: true,
+          key: "sec-ch-ua",
+          value:
+            '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+        },
+        {
+          active: true,
+          key: "accept",
+          value: "*/*",
+        },
+        {
+          active: true,
+          key: "user-agent",
+          value:
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
+        },
+        {
+          active: true,
+          key: "sec-ch-ua-platform",
+          value: '"Windows"',
+        },
+        {
+          active: true,
+          key: "accept-language",
+          value: "en-US,en;q=0.9,ml;q=0.8",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl --request GET \
+    --url 'https://echo.hoppscotch.io/?hello=there' \
+    --header 'content-type: application/x-www-form-urlencoded' \
+    --header 'something: other-thing' \
+    --data a=b \
+    --data c=d`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      auth: { authType: "none", authActive: false },
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: rawKeyValueEntriesToString([
+          {
+            key: "a",
+            value: "b",
+            active: true,
+          },
+          {
+            key: "c",
+            value: "d",
+            active: true,
+          },
+        ]),
+      },
+      params: [
+        {
+          active: true,
+          key: "hello",
+          value: "there",
+        },
+      ],
+      headers: [
+        {
+          active: true,
+          key: "content-type",
+          value: "application/x-www-form-urlencoded",
+        },
+        {
+          active: true,
+          key: "something",
+          value: "other-thing",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl --request POST \
+    --url 'https://echo.hoppscotch.io/?hello=there' \
+    --header 'content-type: multipart/form-data' \
+    --header 'something: other-thing' \
+    --form a=b \
+    --form c=d`,
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "POST",
+      auth: { authType: "none", authActive: false },
+      headers: [
+        {
+          active: true,
+          key: "content-type",
+          value: "multipart/form-data",
+        },
+        {
+          active: true,
+          key: "something",
+          value: "other-thing",
+        },
+      ],
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: false,
+            key: "a",
+            value: "b",
+          },
+          {
+            active: true,
+            isFile: false,
+            key: "c",
+            value: "d",
+          },
+        ],
+      },
+      params: [],
       preRequestScript: "",
       testScript: "",
     }),

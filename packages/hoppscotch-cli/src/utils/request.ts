@@ -7,9 +7,9 @@ import * as A from "fp-ts/Array";
 import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
 import * as RA from "fp-ts/ReadonlyArray";
-import { pipe } from "fp-ts/function";
+import { flow, pipe } from "fp-ts/function";
 import { clear } from "console";
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data";
+import { HoppRESTRequest, HoppCollection, Environment } from "@hoppscotch/data";
 import { runPreRequestScript } from "@hoppscotch/js-sandbox";
 import {
   GRequest,
@@ -19,6 +19,7 @@ import {
   getTableStream,
   getTestResponse,
   isHoppCLIError,
+  reduceMetaDataToDict,
 } from ".";
 import {
   RequestStack,
@@ -54,23 +55,8 @@ const createRequest = (
     ? req.endpoint
     : req.effectiveFinalURL;
   config.method = req.method as Method;
-
-  for (const x of reqParams) {
-    if (x.active) {
-      if (!config.params) {
-        config.params = {};
-      }
-      if (x.key) config.params[x.key] = x.value;
-    }
-  }
-  for (const x of reqHeaders) {
-    if (x.active) {
-      if (!config.headers) {
-        config.headers = {};
-      }
-      if (x.key) config.headers[x.key] = x.value;
-    }
-  }
+  config.params = reduceMetaDataToDict(reqParams);
+  config.headers = reduceMetaDataToDict(reqHeaders);
   if (req.auth.authActive) {
     switch (req.auth.authType) {
       case "bearer": {
@@ -209,18 +195,18 @@ export const requestsParser = (
     /**
      * Mapping collection's HoppRESTRequests to EffectiveHoppRESTRequest,
      * then running preRequestScriptRunner over them and mapping output
-     * to generate RequestStack[] which is binded to PARSED_REQUESTS.
+     * to RequestStack[].
      */
     collection.requests,
     A.map(
       (hoppRequest) =>
-        Object({
+        <EffectiveHoppRESTRequest>{
           ...hoppRequest,
           effectiveFinalBody: null,
           effectiveFinalHeaders: [],
           effectiveFinalParams: [],
           effectiveFinalURL: S.empty,
-        }) as EffectiveHoppRESTRequest
+        }
     ),
     A.map(preRequestScriptRunner),
     TE.sequenceArray,
@@ -230,25 +216,19 @@ export const requestsParser = (
         createRequest(`${rootPath}/${collection.name}`, effHoppRequest)
       )
     ),
-    TE.bindTo("PARSED_REQUESTS"),
 
     /**
      * Recursive call to requestsParser on collections's folder, the
-     * RequestStack[] output concated with PARSED_REQUESTS, and the
-     * overall output is binded to FINAL_PARSED_REQUESTS.
+     * RequestStack[] output is concated with parsedRequests.
      */
-    TE.chain(({ PARSED_REQUESTS }) =>
+    TE.chain((parsedRequests) =>
       pipe(
         collection.folders,
         A.map((a) => requestsParser(a, `${rootPath}/${collection.name}`)),
         TE.sequenceArray,
-        TE.map(RA.toArray),
-        TE.map(A.flatten),
-        TE.map(A.concat(PARSED_REQUESTS))
+        TE.map(flow(RA.toArray, A.flatten, A.concat(parsedRequests)))
       )
-    ),
-    TE.bindTo("FINAL_PARSED_REQUESTS"),
-    TE.map(({ FINAL_PARSED_REQUESTS }) => FINAL_PARSED_REQUESTS)
+    )
   );
 
 const preRequestScriptRunner = (
@@ -256,14 +236,11 @@ const preRequestScriptRunner = (
 ): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
   pipe(
     TE.of(request),
-    TE.map((req) => req.preRequestScript),
-    TE.chain((preScript) =>
-      runPreRequestScript(preScript, { global: [], selected: [] })
+    TE.chain(({ preRequestScript }) =>
+      runPreRequestScript(preRequestScript, { global: [], selected: [] })
     ),
-    TE.map((envs) => Object({ name: "Env", variables: envs.selected })),
-    TE.chainW((env) =>
-      pipe(getEffectiveRESTRequest(request, env), TE.fromEither)
-    ),
+    TE.map(({ selected }) => <Environment>{ name: "Env", variables: selected }),
+    TE.chainEitherKW((env) => getEffectiveRESTRequest(request, env)),
     TE.mapLeft((reason) =>
       isHoppCLIError(reason)
         ? reason
@@ -282,30 +259,42 @@ export const runRequests = (
     TE.tryCatch(
       async () => {
         if (A.isNonEmpty(requests)) {
+          /**
+           * Initializing output table stream and writing table header
+           * to stdout.
+           */
           const tableStream = getTableStream();
           responseTableOutput.header(tableStream);
 
+          /**
+           * Mapping each RequestStack to TestScriptData, and writing
+           * each requests's response data to table using tableStream.
+           */
           const testScriptData = await pipe(
             requests,
             A.map((request) =>
               pipe(
                 request,
                 requestRunner,
-                T.map((res) => {
-                  responseTableOutput.body(res, tableStream);
-                  return {
-                    name: request.name,
-                    testScript: request.testScript,
-                    response: getTestResponse(res),
-                  } as TestScriptData;
-                })
+                T.chainFirst((res) =>
+                  T.of(responseTableOutput.body(res, tableStream))
+                ),
+                T.map(
+                  (res) =>
+                    <TestScriptData>{
+                      name: request.name,
+                      testScript: request.testScript,
+                      response: getTestResponse(res),
+                    }
+                )
               )
             ),
-            T.sequenceArray
+            T.sequenceArray,
+            T.map(RA.toArray)
           )();
 
           responseTableOutput.footer();
-          return RA.toArray(testScriptData);
+          return testScriptData;
         }
         return [];
       },
@@ -313,7 +302,12 @@ export const runRequests = (
     )
   );
 
-const responseTableOutput = {
+/**
+ * Table output object to handle requests & response data
+ * on stdout.
+ */
+export const responseTableOutput = {
+  // Write table header with column details.
   header: (tableStream: WritableStream) => {
     clear();
     tableStream.write([
@@ -323,6 +317,8 @@ const responseTableOutput = {
       pipe("STATUS CODE", chalk.cyanBright, chalk.bold),
     ]);
   },
+
+  // Concats response data row in given table stream.
   body: (response: RunnerResponseInfo, tableStream: WritableStream) => {
     const tableResponse = getTableResponse(response);
     tableStream.write([
@@ -332,5 +328,7 @@ const responseTableOutput = {
       tableResponse.statusCode,
     ]);
   },
+
+  // Handles end of stdout table.
   footer: () => process.stdout.write("\n"),
 };

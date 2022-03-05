@@ -1,6 +1,7 @@
 import chalk from "chalk";
 import { pipe } from "fp-ts/function";
 import qs from "qs";
+import * as RA from "fp-ts/ReadonlyArray";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import { TestResponse } from "@hoppscotch/js-sandbox";
@@ -72,23 +73,29 @@ export const GTest = {
  */
 export const GRequest = {
   /**
-   * @param value
-   * @returns Method string
+   * Checks and transforms given method to uppercase and defaults
+   * to GET if value undefined.
+   * @param value HTTP method name.
+   * @returns Validated uppercase HTTP method name.
    */
   method: (value: string | undefined) =>
     value ? (value.toUpperCase() as Method) : "GET",
 
   /**
-   * @param value
-   * @returns Endpoint string
+   * Checks and transforms given endpoint-value and defaults
+   * to empty if value undefined.
+   * @param value HTTP request endpoint.
+   * @returns Validated endpoint as string.
    */
   endpoint: (value: string | undefined): string => (value ? value : ""),
 };
 
 /**
- * @param status
- * @param statusText
- * @returns template string
+ * Generates template string with specific color unicodes based on
+ * type of status.
+ * @param status Status code of a HTTP response.
+ * @param statusText Status text of a HTTP response.
+ * @returns Template string with related color unicodes.
  */
 export const getColorStatusCode = (
   status: number | string,
@@ -106,8 +113,10 @@ export const getColorStatusCode = (
 };
 
 /**
- * @param runnerResponseInfo
- * @returns TableResponse
+ * Parses given runnerResponseInfo to generate response object
+ * to be used to write data on stdout.
+ * @param runnerResponseInfo Response data returned from requestRunner.
+ * @returns Parsed TableResponse from given runnerResponseInfo.
  */
 export const getTableResponse = (
   runnerResponseInfo: RunnerResponseInfo
@@ -124,8 +133,10 @@ export const getTableResponse = (
 };
 
 /**
- * @param runnerResponseInfo
- * @returns TestResponse
+ * Parses given runnerResponseInfo to generate response object,
+ * to be used with execTestScript.
+ * @param runnerResponseInfo Response data returned from requestRunner.
+ * @returns Parsed TestResponse from given runnerResponseInfo.
  */
 export const getTestResponse = (
   runnerResponseInfo: RunnerResponseInfo
@@ -156,7 +167,8 @@ function getFinalBodyFromRequest(
     }
 
     return pipe(
-      requestBody.right.slice(),
+      requestBody.right,
+      RA.toArray,
       // Filter out active
       A.filter((x) => x.active),
       // Convert to tuple
@@ -206,14 +218,15 @@ function getFinalBodyFromRequest(
       E.right
     );
   } else {
-    const parsedBodyEnvVar = parseBodyEnvVariablesE(
-      request.body.body,
-      envVariables
+    return pipe(
+      parseBodyEnvVariablesE(request.body.body, envVariables),
+      E.mapLeft((e) =>
+        error({
+          code: "PARSING_ERROR",
+          data: `${request.body.body} (${e})`,
+        })
+      )
     );
-    if (E.isLeft(parsedBodyEnvVar)) {
-      return E.left(error({ code: "PARSING_ERROR", data: request.name }));
-    }
-    return parsedBodyEnvVar;
   }
 }
 
@@ -316,7 +329,10 @@ export function getEffectiveRESTRequest(
   );
   if (E.isLeft(effectiveFinalURL)) {
     return E.left(
-      error({ code: "PARSING_ERROR", data: effectiveFinalURL.left })
+      error({
+        code: "PARSING_ERROR",
+        data: `${request.endpoint} (${effectiveFinalURL.left})`,
+      })
     );
   }
 
@@ -331,7 +347,8 @@ export function getEffectiveRESTRequest(
 
 /**
  * Get writable stream to stdout response in table format.
- * @returns WritableStream
+ * @returns WritableStream which is used to write table UI
+ * on stdout.
  */
 export const getTableStream = () =>
   createStream({

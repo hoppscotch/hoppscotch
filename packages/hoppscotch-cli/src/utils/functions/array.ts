@@ -17,9 +17,9 @@ export const arraySort =
   };
 
 /**
- * Equivalent to `Array.prototype.flatMap`
- * @param mapFunc The map function
- * @returns
+ * Equivalent to `Array.prototype.flatMap`.
+ * @param mapFunc The map function.
+ * @returns Array formed by applying given mapFunc.
  */
 export const arrayFlatMap =
   <T, U>(mapFunc: (value: T, index: number, arr: T[]) => U[]) =>

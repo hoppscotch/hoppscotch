@@ -3,11 +3,18 @@ import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import * as A from "fp-ts/Array";
 import * as RA from "fp-ts/ReadonlyArray";
-import { pipe } from "fp-ts/function";
+import * as J from "fp-ts/Json";
+import * as S from "fp-ts/string";
+import { flow, pipe } from "fp-ts/function";
 import { RequestStack } from "../interfaces";
 import { FormDataEntry, error, HoppCLIError } from "../types";
-import { isRESTCollection, requestsParser } from ".";
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import { isRESTCollection, requestsParser, isHoppErrno } from ".";
+import {
+  HoppCollection,
+  HoppRESTHeader,
+  HoppRESTParam,
+  HoppRESTRequest,
+} from "@hoppscotch/data";
 
 /**
  * Parses array of FormDataEntry to FormData.
@@ -27,13 +34,14 @@ export const toFormData = (values: FormDataEntry[]) => {
  * @param e Custom error data.
  * @returns Parsed error message without extra spaces.
  */
-export const parseErrorMessage = (e: any) => {
+export const parseErrorMessage = (e: unknown) => {
   let msg: string;
-  if (e instanceof Error) {
-    const x = e as NodeJS.ErrnoException;
-    msg = e.message.replace(x.code! + ":", "").replace("error:", "");
-  } else {
+  if (isHoppErrno(e)) {
+    msg = e.message.replace(e.code! + ":", "").replace("error:", "");
+  } else if (typeof e === "string") {
     msg = e;
+  } else {
+    msg = JSON.stringify(e);
   }
   return msg.replace(/\n+$|\s{2,}/g, "").trim();
 };
@@ -55,23 +63,19 @@ export const parseCollectionData = (
     ),
 
     // Checking if parsed file data is array.
-    TE.map((a) => pipe(a.toString(), JSON.parse)),
-    TE.chainW(
-      TE.fromPredicate(
-        (data) => Array.isArray(data),
-        (_) => error({ code: "MALFORMED_COLLECTION", path })
+    TE.chainEitherKW((data) =>
+      pipe(
+        data.toString(),
+        J.parse,
+        E.map((jsonData) => (Array.isArray(jsonData) ? jsonData : [jsonData])),
+        E.mapLeft((e) => error({ code: "SYNTAX_ERROR", data: E.toError(e) }))
       )
     ),
 
     // Validating collections to be HoppRESTCollection.
-    TE.chainW((collections) =>
-      pipe(
-        collections,
-        A.map(isRESTCollection),
-        E.sequenceArray,
-        TE.fromEither,
-        TE.mapLeft((_) => error({ code: "MALFORMED_COLLECTION", path })),
-        TE.map((_) => collections as HoppCollection<HoppRESTRequest>[])
+    TE.chainW(
+      TE.fromPredicate(A.every(isRESTCollection), () =>
+        error({ code: "MALFORMED_COLLECTION", path })
       )
     )
   );
@@ -86,8 +90,28 @@ export const flattenRequests = (
 ): TE.TaskEither<HoppCLIError, RequestStack[]> =>
   pipe(
     collections,
-    A.map(requestsParser),
+    A.map(requestsParser), // Mapping each collection to RequestStack.
     TE.sequenceArray,
-    TE.map(RA.toArray),
-    TE.map(A.flatten)
+    TE.map(flow(RA.flatten, RA.toArray))
+  );
+
+/**
+ * Reduces array of HoppRESTParam or HoppRESTHeader to dictionary
+ * style key-value pair object.
+ * @param metaData Array of meta-data to reduce.
+ * @returns Object with unique key-value pair.
+ */
+export const reduceMetaDataToDict = (
+  metaData: HoppRESTParam[] | HoppRESTHeader[]
+) =>
+  pipe(
+    metaData,
+
+    // Excluding non-active & empty key request meta-data.
+    A.filter(({ active, key }) => active && !S.isEmpty(key)),
+
+    // Reducing array of request-meta-data to key-value pair object.
+    A.reduce({}, (target, { key, value }) =>
+      Object.assign(target, { [`${key}`]: value })
+    )
   );

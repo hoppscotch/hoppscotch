@@ -1,7 +1,7 @@
 import * as TE from "fp-ts/TaskEither";
 import { pipe } from "fp-ts/function";
 import {
-  checkCLIPath,
+  checkFilePath,
   flattenRequests,
   parseCollectionData,
   runRequests,
@@ -11,7 +11,7 @@ import {
 export const runCollection = (path: string) =>
   pipe(
     path,
-    checkCLIPath,
+    checkFilePath,
     TE.chain(parseCollectionData),
     TE.chain(flattenRequests),
     TE.chain(runRequests),

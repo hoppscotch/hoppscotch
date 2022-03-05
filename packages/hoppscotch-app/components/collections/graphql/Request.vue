@@ -179,7 +179,7 @@ export default defineComponent({
       } else {
         setGQLSession({
           request: cloneDeep(
-              makeGQLRequest({
+            makeGQLRequest({
               name: this.$props.request.name,
               url: this.$props.request.url,
               query: this.$props.request.query,

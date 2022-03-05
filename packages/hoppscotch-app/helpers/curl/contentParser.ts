@@ -29,7 +29,7 @@ export function detectContentType(
     }
   } else {
     contentType = pipe(
-      rawData.match(/^-{2,}[A-Za-z0-9]+\r\n/),
+      rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
       O.fromNullable,
       O.filter((boundaryMatch) => boundaryMatch.length > 0),
       O.match(
@@ -198,7 +198,7 @@ export function parseBody(
             O.match(
               () =>
                 pipe(
-                  rawData.match(/^-{2,}[A-Za-z0-9]+\r\n/),
+                  rawData.match(/-{2,}[A-Za-z0-9]+\\r\\n/g),
                   O.fromNullable,
                   O.filter((boundaryMatch) => boundaryMatch.length > 1),
                   O.map((matches) => matches[0])
@@ -228,14 +228,14 @@ export function parseBody(
             RA.filter((p) => p !== "" && p.includes("name")),
             RA.map((p) =>
               pipe(
-                p.replaceAll(/[\r\n]+/g, "\r\n"),
+                p.replaceAll(/\\r\\n+/g, "\\r\\n"),
                 S.split("\\r\\n"),
                 RA.filter((q) => q !== "")
               )
             ),
             RA.filterMap((p) =>
               pipe(
-                p[0].match(/name=(.+)$/),
+                p[0].match(/ name="(\w+)"/),
                 O.fromNullable,
                 O.filter((nameMatch) => nameMatch.length > 0),
                 O.map((nameMatch) => {

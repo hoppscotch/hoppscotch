@@ -144,7 +144,7 @@ describe("detect content type", () => {
     test("should return multipart/form-data for valid data", () => {
       expect(
         detectContentType(
-          `------WebKitFormBoundaryj3oufpIISPa2DP7c\r\nContent-Disposition: form-data; name="EmailAddress"\r\n\r\ntest@test.com\r\n------WebKitFormBoundaryj3oufpIISPa2DP7c\r\nContent-Disposition: form-data; name="Entity"\r\n\r\n1\r\n------WebKitFormBoundaryj3oufpIISPa2DP7c--\r\n`
+          `------WebKitFormBoundaryj3oufpIISPa2DP7c\\r\\nContent-Disposition: form-data; name="EmailAddress"\\r\\n\\r\\ntest@test.com\\r\\n------WebKitFormBoundaryj3oufpIISPa2DP7c\\r\\nContent-Disposition: form-data; name="Entity"\\r\\n\\r\\n1\\r\\n------WebKitFormBoundaryj3oufpIISPa2DP7c--\\r\\n`
         )
       ).toBe("multipart/form-data")
     })
@@ -152,7 +152,7 @@ describe("detect content type", () => {
     test("should return application/x-www-form-urlencoded for data with only one boundary", () => {
       expect(
         detectContentType(
-          `\r\nContent-Disposition: form-data; name="EmailAddress"\r\n\r\ntest@test.com\r\n\r\nContent-Disposition: form-data; name="Entity"\r\n\r\n1\r\n------WebKitFormBoundaryj3oufpIISPa2DP7c--\r\n`
+          `\\r\\nContent-Disposition: form-data; name="EmailAddress"\\r\\n\\r\\ntest@test.com\\r\\n\\r\\nContent-Disposition: form-data; name="Entity"\\r\\n\\r\\n1\\r\\n------WebKitFormBoundaryj3oufpIISPa2DP7c--\\r\\n`
         )
       ).toBe("application/x-www-form-urlencoded")
     })

@@ -60,6 +60,7 @@ import { computed, ref } from "@nuxtjs/composition-api"
 import { makeGQLRequest } from "@hoppscotch/data"
 import { setGQLSession } from "~/newstore/GQLSession"
 import { GQLHistoryEntry } from "~/newstore/history"
+import { cloneDeep } from "lodash";
 
 const props = defineProps<{
   entry: GQLHistoryEntry
@@ -79,14 +80,16 @@ const query = computed(() =>
 
 const useEntry = () => {
   setGQLSession({
-    request: makeGQLRequest({
-      name: props.entry.request.name,
-      url: props.entry.request.url,
-      headers: props.entry.request.headers,
-      query: props.entry.request.query,
-      variables: props.entry.request.variables,
-      auth: props.entry.request.auth,
-    }),
+    request: cloneDeep(
+        makeGQLRequest({
+        name: props.entry.request.name,
+        url: props.entry.request.url,
+        headers: props.entry.request.headers,
+        query: props.entry.request.query,
+        variables: props.entry.request.variables,
+        auth: props.entry.request.auth,
+      })
+    ),
     schema: "",
     response: props.entry.response,
   })

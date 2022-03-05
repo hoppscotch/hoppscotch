@@ -3,11 +3,12 @@ import { Method } from "axios";
 import { ExpectResult } from "../types";
 
 /**
- * Table response interface
- * @property {string} path - Request path from request stack.
- * @property {string} endpoint - Endpoint from response config.url.
- * @property {Method} method - Method from response headers.
- * @property {string} statusCode - Template string concating status + statusText.
+ * Defines column headers for table stream used to write table
+ * data on stdout.
+ * @property {string} path Path of request within collection file.
+ * @property {string} endpoint Endpoint from response config.url.
+ * @property {Method} method Method from response headers.
+ * @property {string} statusCode Template string concating status & statusText.
  */
 export interface TableResponse {
   path: string;
@@ -17,11 +18,12 @@ export interface TableResponse {
 }
 
 /**
- * Runner response info interface extending type:TestResponse.
- * @property {string} path - Request path from request stack.
- * @property {string} endpoint - Endpoint from response config.url.
- * @property {Method} method - Method from response headers.
- * @property {string} statusText - Response status text.
+ * Describes additional details of HTTP response returned from
+ * requestRunner.
+ * @property {string} path Path of request within collection file.
+ * @property {string} endpoint Endpoint from response config.url.
+ * @property {Method} method Method from HTTP response headers.
+ * @property {string} statusText HTTP response status text.
  */
 export interface RunnerResponseInfo extends TestResponse {
   path: string;
@@ -31,10 +33,11 @@ export interface RunnerResponseInfo extends TestResponse {
 }
 
 /**
- * Interface to describe test script details.
- * @property {string} name - Request name.
- * @property {string} testScript - Template string for hoppscotch tests.
- * @property {TestResponse} response - Response structure for test script.
+ * Describes test script details.
+ * @property {string} name Request name within collection.
+ * @property {string} testScript Stringified hoppscotch testScript, used while
+ * running testRunner.
+ * @property {TestResponse} response Response structure for test script runner.
  */
 export interface TestScriptData {
   name: string;
@@ -42,6 +45,14 @@ export interface TestScriptData {
   response: TestResponse;
 }
 
+/**
+ * Describe properties of test-report generated from test-runner.
+ * @property {string} descriptor Test description.
+ * @property {ExpectResult[]} expectResults Expected results for each
+ * test-case.
+ * @property {number} failing Total failing test-cases.
+ * @property {number} passing Total passing test-cases;
+ */
 export interface TestReport {
   descriptor: string;
   expectResults: ExpectResult[];
@@ -49,6 +60,10 @@ export interface TestReport {
   passing: number;
 }
 
+/**
+ * Describes error pair for failed HTTP requests.
+ * @example { 501: "Request Not Supported" }
+ */
 export interface ResponseErrorPair {
   [key: number]: string;
 }

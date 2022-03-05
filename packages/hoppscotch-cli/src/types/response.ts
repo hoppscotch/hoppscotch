@@ -4,6 +4,6 @@ export type ExpectResult = {
 }; // The expectation failed (fail) or errored (error)
 
 export type TestMetrics = {
-  failing: number;
-  testsReportSize: number;
+  failing: number; // Total number of failed test-cases.
+  testsReportSize: number; // Total test-cases.
 };

@@ -2,9 +2,13 @@ import { AxiosPromise, AxiosRequestConfig } from "axios";
 import { HoppRESTRequest } from "@hoppscotch/data";
 
 /**
- * Request stack interface.
- * @property {function} request - AxiosPromise<T = any>.
- * @property {string} path - Request path.
+ * Provides definition to object returned by createRequest.
+ * @property {function} request Axios request promise, executed to get axios
+ * response promise.
+ * @property {string} path Path of request within collection file.
+ * @property {string} name Name of request within collection
+ * @property {string} testScript Stringified hoppscotch testScript, used while
+ * running testRunner.
  */
 export interface RequestStack {
   request: () => AxiosPromise<any>;
@@ -14,7 +18,7 @@ export interface RequestStack {
 }
 
 /**
- * Request config interface extending interface:AxiosRequestConfig.
+ * Provides definition to axios request promise's request parameter.
  * @property {boolean} supported - Boolean check for supported or unsupported requests.
  */
 export interface RequestConfig extends AxiosRequestConfig {

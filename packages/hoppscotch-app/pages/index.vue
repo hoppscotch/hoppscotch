@@ -1,113 +1,16 @@
 <template>
-  <Splitpanes
-    class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
-    :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
-    }"
-    :horizontal="!mdAndLarger"
-  >
-    <Pane
-      size="75"
-      min-size="65"
-      class="hide-scrollbar !overflow-auto flex flex-col"
-    >
-      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
-          class="hide-scrollbar !overflow-auto flex flex-col"
-        >
-          <HttpRequest />
-          <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-            <SmartTab
-              :id="'params'"
-              :label="`${$t('tab.parameters')}`"
-              :selected="true"
-              :info="`${newActiveParamsCount$}`"
-            >
-              <HttpParameters />
-            </SmartTab>
-
-            <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
-              <HttpBody />
-            </SmartTab>
-
-            <SmartTab
-              :id="'headers'"
-              :label="`${$t('tab.headers')}`"
-              :info="`${newActiveHeadersCount$}`"
-            >
-              <HttpHeaders />
-            </SmartTab>
-
-            <SmartTab
-              :id="'authorization'"
-              :label="`${$t('tab.authorization')}`"
-            >
-              <HttpAuthorization />
-            </SmartTab>
-
-            <SmartTab
-              :id="'preRequestScript'"
-              :label="`${$t('tab.pre_request_script')}`"
-              :indicator="
-                preRequestScript && preRequestScript.length > 0 ? true : false
-              "
-            >
-              <HttpPreRequestScript />
-            </SmartTab>
-
-            <SmartTab
-              :id="'tests'"
-              :label="`${$t('tab.tests')}`"
-              :indicator="testScript && testScript.length > 0 ? true : false"
-            >
-              <HttpTests />
-            </SmartTab>
-          </SmartTabs>
-        </Pane>
-        <Pane
-          :size="COLUMN_LAYOUT ? 65 : 50"
-          class="flex flex-col hide-scrollbar !overflow-auto flex flex-col"
-        >
-          <HttpResponse ref="response" />
-        </Pane>
-      </Splitpanes>
-    </Pane>
-    <Pane
-      v-if="SIDEBAR"
-      size="25"
-      min-size="20"
-      class="hide-scrollbar !overflow-auto flex flex-col"
-    >
-      <SmartTabs styles="sticky bg-primary z-10 top-0" vertical>
-        <SmartTab
-          :id="'history'"
-          icon="clock"
-          :label="`${$t('tab.history')}`"
-          :selected="true"
-        >
-          <History ref="historyComponent" :page="'rest'" />
-        </SmartTab>
-
-        <SmartTab
-          :id="'collections'"
-          icon="folder"
-          :label="`${$t('tab.collections')}`"
-        >
-          <Collections />
-        </SmartTab>
-
-        <SmartTab
-          :id="'env'"
-          icon="layers"
-          :label="`${$t('environment.title')}`"
-        >
-          <Environments />
-        </SmartTab>
-      </SmartTabs>
-    </Pane>
-  </Splitpanes>
+  <AppPaneLayout>
+    <template #primary>
+      <HttpRequest />
+      <HttpRequestOptions />
+    </template>
+    <template #secondary>
+      <HttpResponse />
+    </template>
+    <template #sidebar>
+      <HttpSidebar />
+    </template>
+  </AppPaneLayout>
 </template>
 
 <script lang="ts">
@@ -121,9 +24,6 @@ import {
   useContext,
   watch,
 } from "@nuxtjs/composition-api"
-import { Splitpanes, Pane } from "splitpanes"
-import "splitpanes/dist/splitpanes.css"
-import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
 import isEqual from "lodash/isEqual"
 import {
@@ -131,24 +31,17 @@ import {
   HoppRESTAuthOAuth2,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { useSetting } from "~/newstore/settings"
 import {
-  restActiveParamsCount$,
-  restActiveHeadersCount$,
   getRESTRequest,
   setRESTRequest,
   setRESTAuth,
   restAuth$,
-  useTestScript,
-  usePreRequestScript,
   getDefaultRESTRequest,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
   pluckRef,
   useI18n,
-  useReadonlyStream,
   useStream,
   useToast,
 } from "~/helpers/utils/composables"
@@ -227,12 +120,8 @@ function setupRequestSync(
 }
 
 export default defineComponent({
-  components: { Splitpanes, Pane },
   setup() {
     const requestForSync = ref<HoppRESTRequest | null>(null)
-
-    const testScript = useTestScript()
-    const preRequestScript = usePreRequestScript()
 
     const confirmSync = ref(false)
 
@@ -271,38 +160,11 @@ export default defineComponent({
     setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
 
-    const breakpoints = useBreakpoints(breakpointsTailwind)
-    const mdAndLarger = breakpoints.greater("md")
-
     return {
-      mdAndLarger,
-      newActiveParamsCount$: useReadonlyStream(
-        restActiveParamsCount$.pipe(
-          map((e) => {
-            if (e === 0) return null
-            return `${e}`
-          })
-        ),
-        null
-      ),
-      newActiveHeadersCount$: useReadonlyStream(
-        restActiveHeadersCount$.pipe(
-          map((e) => {
-            if (e === 0) return null
-            return `${e}`
-          })
-        ),
-        null
-      ),
-      SIDEBAR: useSetting("SIDEBAR"),
-      COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
-      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
       confirmSync,
       syncRequest,
       oAuthURL,
       requestForSync,
-      testScript,
-      preRequestScript,
     }
   },
 })

@@ -21,7 +21,13 @@
           @click.native="signInWithGoogle"
         />
         <SmartItem
-          icon="mail"
+          :loading="signingInWithMicrosoft"
+          svg="auth/microsoft"
+          :label="`${$t('auth.continue_with_microsoft')}`"
+          @click.native="signInWithMicrosoft"
+        />
+        <SmartItem
+          svg="auth/email"
           :label="`${$t('auth.continue_with_email')}`"
           @click.native="mode = 'email'"
         />
@@ -117,6 +123,7 @@ import { defineComponent } from "@nuxtjs/composition-api"
 import {
   signInUserWithGoogle,
   signInUserWithGithub,
+  signInUserWithMicrosoft,
   setProviderInfo,
   currentUser$,
   signInWithEmail,
@@ -144,6 +151,7 @@ export default defineComponent({
       },
       signingInWithGoogle: false,
       signingInWithGitHub: false,
+      signingInWithMicrosoft: false,
       signingInWithEmail: false,
       mode: "sign-in",
     }
@@ -233,6 +241,42 @@ export default defineComponent({
       }
 
       this.signingInWithGitHub = false
+    },
+    async signInWithMicrosoft() {
+      this.signingInWithMicrosoft = true
+
+      try {
+        await signInUserWithMicrosoft()
+        this.showLoginSuccess()
+      } catch (e) {
+        console.error(e)
+        // An error happened.
+        if (e.code === "auth/account-exists-with-different-credential") {
+          // Step 2.
+          // User's email already exists.
+          // The pending Microsoft credential.
+          const pendingCred = e.credential
+          this.$toast.info(`${this.$t("auth.account_exists")}`, {
+            duration: 0,
+            closeOnSwipe: false,
+            action: {
+              text: `${this.$t("action.yes")}`,
+              onClick: async (_, toastObject) => {
+                const { user } = await signInUserWithGithub()
+                await linkWithFBCredential(user, pendingCred)
+
+                this.showLoginSuccess()
+
+                toastObject.goAway(0)
+              },
+            },
+          })
+        } else {
+          this.$toast.error(`${this.$t("error.something_went_wrong")}`)
+        }
+      }
+
+      this.signingInWithMicrosoft = false
     },
     async signInWithEmail() {
       this.signingInWithEmail = true

@@ -75,6 +75,7 @@
     "continue_with_email": "Pokračujte e -mailem",
     "continue_with_github": "Pokračujte na GitHubu",
     "continue_with_google": "Pokračovat s Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mailem",
     "logged_out": "Odhlásit",
     "login": "Přihlásit se",
@@ -103,6 +104,7 @@
     "invalid_name": "Uveďte prosím platný název kolekce",
     "my_collections": "Moje sbírky",
     "name": "Moje nová kolekce",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nová kolekce",
     "renamed": "Sbírka přejmenována",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Složka vytvořena",
     "edit": "Upravit složku",
     "invalid_name": "Zadejte název složky",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nová složka",
     "renamed": "Složka přejmenována"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Předplatné"
   },
   "header": {
-    "account": "Účet",
     "install_pwa": "Nainstalovat aplikaci",
     "login": "Přihlásit se",
     "save_workspace": "Uložit můj pracovní prostor"
@@ -325,6 +327,7 @@
     "invalid_name": "Uveďte prosím název žádosti",
     "method": "Metoda",
     "name": "Vyžádejte si jméno",
+    "path": "Cesta",
     "parameter_list": "Parametry dotazu",
     "parameters": "Parametry",
     "payload": "Užitečné zatížení",
@@ -438,7 +441,6 @@
       "head_method": "Vyberte metodu HEAD",
       "method": "Metoda",
       "next_method": "Vyberte Další metoda",
-      "path": "Cesta",
       "post_method": "Vyberte metodu POST",
       "previous_method": "Vyberte předchozí metodu",
       "put_method": "Vyberte metodu PUT",
@@ -567,6 +569,7 @@
     "new_name": "Můj nový tým",
     "no_access": "K těmto kolekcím nemáte přístup k úpravám",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Oprávnění",

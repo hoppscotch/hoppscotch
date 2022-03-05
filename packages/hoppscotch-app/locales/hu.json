@@ -75,6 +75,7 @@
     "continue_with_email": "Folytatás e-mail-címmel",
     "continue_with_github": "Folytatás GitHub használatával",
     "continue_with_google": "Folytatás Google használatával",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mail",
     "logged_out": "Kijelentkezett",
     "login": "Bejelentkezés",
@@ -103,6 +104,7 @@
     "invalid_name": "Adjon nevet a gyűjteménynek",
     "my_collections": "Saját gyűjtemények",
     "name": "Saját új gyűjtemény",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Új gyűjtemény",
     "renamed": "Gyűjtemény átnevezve",
     "request_in_use": "A kérés használatban",
@@ -204,6 +206,7 @@
     "created": "Mappa létrehozva",
     "edit": "Mappa szerkesztése",
     "invalid_name": "Adjon nevet a mappának",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Új mappa",
     "renamed": "Mappa átnevezve"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Feliratkozások"
   },
   "header": {
-    "account": "Fiók",
     "install_pwa": "Alkalmazás telepítése",
     "login": "Bejelentkezés",
     "save_workspace": "Saját munkaterület mentése"
@@ -327,6 +329,7 @@
     "name": "Kérés neve",
     "parameter_list": "Lekérdezési paraméterek",
     "parameters": "Paraméterek",
+    "path": "Útvonal",
     "payload": "Hasznos teher",
     "query": "Lekérdezés",
     "raw_body": "Nyers kéréstörzs",
@@ -438,7 +441,6 @@
       "head_method": "HEAD módszer kiválasztása",
       "method": "Módszer",
       "next_method": "Következő módszer kiválasztása",
-      "path": "Útvonal",
       "post_method": "POST módszer kiválasztása",
       "previous_method": "Elősző módszer kiválasztása",
       "put_method": "PUT módszer kiválasztása",
@@ -567,6 +569,7 @@
     "new_name": "Saját új csapat",
     "no_access": "Nincs szerkesztési jogosultsága ezekhez a gyűjteményekhez",
     "no_invite_found": "A meghívás nem található. Vegye fel a kapcsolatot a csapat tulajdonosával.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "Ön nem érvényes megtekintő. Vegye fel a kapcsolatot a csapat tulajdonosával.",
     "pending_invites": "Függőben lévő meghívások",
     "permissions": "Jogosultságok",

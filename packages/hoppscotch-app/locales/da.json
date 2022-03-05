@@ -75,6 +75,7 @@
     "continue_with_email": "Fortsæt med e -mail",
     "continue_with_github": "Fortsæt med GitHub",
     "continue_with_google": "Fortsæt med Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E -mail",
     "logged_out": "Logget ud",
     "login": "Log på",
@@ -103,6 +104,7 @@
     "invalid_name": "Angiv et gyldigt navn til samlingen",
     "my_collections": "Mine samlinger",
     "name": "Min nye samling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Ny kollektion",
     "renamed": "Samling omdøbt",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Mappe oprettet",
     "edit": "Rediger mappe",
     "invalid_name": "Angiv et navn til mappen",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Ny mappe",
     "renamed": "Mappen omdøbt"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Abonnementer"
   },
   "header": {
-    "account": "Konto",
     "install_pwa": "Installer app",
     "login": "Log på",
     "save_workspace": "Gem mit arbejdsområde"
@@ -325,6 +327,7 @@
     "invalid_name": "Angiv et navn på anmodningen",
     "method": "Metode",
     "name": "Anmodningsnavn",
+    "path": "Sti",
     "parameter_list": "Forespørgselsparametre",
     "parameters": "Parametre",
     "payload": "Nyttelast",
@@ -438,7 +441,6 @@
       "head_method": "Vælg HEAD -metode",
       "method": "Metode",
       "next_method": "Vælg Næste metode",
-      "path": "Sti",
       "post_method": "Vælg POST -metode",
       "previous_method": "Vælg Forrige metode",
       "put_method": "Vælg PUT -metode",
@@ -567,6 +569,7 @@
     "new_name": "Mit nye hold",
     "no_access": "Du har ikke redigeringsadgang til disse samlinger",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Tilladelser",

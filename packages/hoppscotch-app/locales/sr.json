@@ -76,6 +76,7 @@
     "continue_with_email": "Наставите са е -поштом",
     "continue_with_github": "Наставите са ГитХуб -ом",
     "continue_with_google": "Наставите са Гоогле -ом",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "Емаил",
     "logged_out": "Одјављени",
     "login": "Пријавите се",
@@ -104,6 +105,7 @@
     "invalid_name": "Наведите важећи назив збирке",
     "my_collections": "Моје колекције",
     "name": "Моја нова колекција",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Нова колекција",
     "renamed": "Збирка је преименована",
     "request_in_use": "Request in use",
@@ -205,6 +207,7 @@
     "created": "Фолдер је креиран",
     "edit": "Едит Фолдер",
     "invalid_name": "Наведите назив фасцикле",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Нова фасцикла",
     "renamed": "Фасцикла је преименована"
   },
@@ -214,7 +217,6 @@
     "subscriptions": "Претплате"
   },
   "header": {
-    "account": "Рачун",
     "install_pwa": "Инсталирати апликацију",
     "login": "Пријавите се",
     "save_workspace": "Сачувај мој радни простор"
@@ -328,6 +330,7 @@
     "name": "Назив захтева",
     "parameter_list": "Параметри упита",
     "parameters": "Параметри",
+    "path": "Патх",
     "payload": "Корисни терет",
     "query": "Упит",
     "raw_body": "Сирово тело захтева",
@@ -439,7 +442,6 @@
       "head_method": "Изаберите метод ХЕАД",
       "method": "Метод",
       "next_method": "Изаберите Следећи метод",
-      "path": "Патх",
       "post_method": "Изаберите ПОСТ метод",
       "previous_method": "Изаберите Претходни метод",
       "put_method": "Изаберите ПУТ метод",
@@ -568,6 +570,7 @@
     "new_name": "Мој нови тим",
     "no_access": "Немате приступ за уређивање ових колекција",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Дозволе",

@@ -75,6 +75,7 @@
     "continue_with_email": "Продовжити з електронною поштою",
     "continue_with_github": "Продовжити з GitHub",
     "continue_with_google": "Продовжуйте працювати з Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "Електронна пошта",
     "logged_out": "Вийшли з системи",
     "login": "Увійти",
@@ -103,6 +104,7 @@
     "invalid_name": "Укажіть дійсну назву колекції",
     "my_collections": "Мої колекції",
     "name": "Моя нова колекція",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Нова колекція",
     "renamed": "Колекція перейменована",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Папка створена",
     "edit": "Редагувати папку",
     "invalid_name": "Укажіть назву папки",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Нова папка",
     "renamed": "Папка перейменована"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Підписки"
   },
   "header": {
-    "account": "Рахунок",
     "install_pwa": "Встановити додаток",
     "login": "Увійти",
     "save_workspace": "Зберегти мою робочу область"
@@ -327,6 +329,7 @@
     "name": "Назва запиту",
     "parameter_list": "Параметри запиту",
     "parameters": "Параметри",
+    "path": "Шлях",
     "payload": "Корисне навантаження",
     "query": "Запит",
     "raw_body": "Сировина запиту",
@@ -438,7 +441,6 @@
       "head_method": "Виберіть метод HEAD",
       "method": "Метод",
       "next_method": "Виберіть наступний метод",
-      "path": "Шлях",
       "post_method": "Виберіть метод POST",
       "previous_method": "Виберіть Попередній метод",
       "put_method": "Виберіть метод PUT",
@@ -567,6 +569,7 @@
     "new_name": "Моя нова команда",
     "no_access": "Ви не маєте доступу до редагування цих колекцій",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Дозволи",

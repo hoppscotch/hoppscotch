@@ -75,6 +75,7 @@
     "continue_with_email": "이메일로 계속",
     "continue_with_github": "GitHub 계속하기",
     "continue_with_google": "Google로 계속하기",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "이메일",
     "logged_out": "로그아웃",
     "login": "로그인",
@@ -103,6 +104,7 @@
     "invalid_name": "모음집의 올바른 이름을 입력하세요.",
     "my_collections": "내 모음집",
     "name": "내 새 모음집",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "새 모음집",
     "renamed": "모음집 이름이 변경됨",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "폴더 생성됨",
     "edit": "폴더 수정",
     "invalid_name": "폴더 이름을 입력하세요.",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "새 폴더",
     "renamed": "폴더 이름이 변경됨"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "구독"
   },
   "header": {
-    "account": "계정",
     "install_pwa": "앱을 설치",
     "login": "로그인",
     "save_workspace": "내 작업 공간 저장"
@@ -327,6 +329,7 @@
     "name": "요청 이름",
     "parameter_list": "쿼리 매개변수",
     "parameters": "매개변수",
+    "path": "경로",
     "payload": "페이로드",
     "query": "질의",
     "raw_body": "원시 요청 본문",
@@ -438,7 +441,6 @@
       "head_method": "HEAD 메소드 선택",
       "method": "메소드",
       "next_method": "다음 메소드 선택",
-      "path": "경로",
       "post_method": "POST 메소드 선택",
       "previous_method": "이전 메소드 선택",
       "put_method": "PUT 메소드 선택",
@@ -567,6 +569,7 @@
     "new_name": "내 새 팀",
     "no_access": "이 모음집에 대한 수정 권한이 없습니다.",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "권한",

@@ -75,6 +75,7 @@
     "continue_with_email": "Продолжить с электронной почтой",
     "continue_with_github": "Продолжить с GitHub",
     "continue_with_google": "Продолжить с Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "Электронное письмо",
     "logged_out": "Вышли из",
     "login": "Авторизоваться",
@@ -103,6 +104,7 @@
     "invalid_name": "Укажите допустимое название коллекции",
     "my_collections": "Мои коллекции",
     "name": "Новая коллекция",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Создать коллекцию",
     "renamed": "Коллекция переименована",
     "request_in_use": "Запрос обрабатывается",
@@ -204,6 +206,7 @@
     "created": "Папка создана",
     "edit": "Редактировать папку",
     "invalid_name": "Укажите имя для папки",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Новая папка",
     "renamed": "Папка переименована"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Подписки"
   },
   "header": {
-    "account": "Счет",
     "install_pwa": "Установить приложение",
     "login": "Авторизоваться",
     "save_workspace": "Сохранить мою рабочую область"
@@ -327,6 +329,7 @@
     "name": "Имя запроса",
     "parameter_list": "Параметры запроса",
     "parameters": "Параметры",
+    "path": "Путь",
     "payload": "Полезная нагрузка",
     "query": "Запрос",
     "raw_body": "Необработанное тело запроса",
@@ -438,7 +441,6 @@
       "head_method": "Выберите метод HEAD",
       "method": "Методика",
       "next_method": "Выберите следующий метод",
-      "path": "Путь",
       "post_method": "Выберите метод POST",
       "previous_method": "Выбрать предыдущий метод",
       "put_method": "Выберите метод PUT",
@@ -567,6 +569,7 @@
     "new_name": "Моя новая команда",
     "no_access": "У вас нет прав на редактирование этих коллекций",
     "no_invite_found": "Такое приглашение мы не смогли найти. Свяжитесь с руководителем команды.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "У Вас нет прав просматривать это. Свяжитесь с руководителем команды.",
     "pending_invites": "Ожидающие приглашения",
     "permissions": "Разрешения",

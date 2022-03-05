@@ -75,6 +75,7 @@
     "continue_with_email": "Continuați cu e-mailul",
     "continue_with_github": "Continuați cu GitHub",
     "continue_with_google": "Continuați cu Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mail",
     "logged_out": "Delogat",
     "login": "Autentificare",
@@ -103,6 +104,7 @@
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru colecție",
     "my_collections": "Colecțiile mele",
     "name": "Noua mea colecție",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Colecție nouă",
     "renamed": "Colecția redenumită",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Folder creat",
     "edit": "Editați folderul",
     "invalid_name": "Vă rugăm să furnizați un nume pentru dosar",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Dosar nou",
     "renamed": "Dosar redenumit"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Abonamente"
   },
   "header": {
-    "account": "Cont",
     "install_pwa": "Instalează aplicația",
     "login": "Autentificare",
     "save_workspace": "Salvați spațiul meu de lucru"
@@ -327,6 +329,7 @@
     "name": "Solicitați numele",
     "parameter_list": "Parametrii interogării",
     "parameters": "Parametrii",
+    "path": "cale",
     "payload": "Încărcătură utilă",
     "query": "Interogare",
     "raw_body": "Corp de solicitare brută",
@@ -438,7 +441,6 @@
       "head_method": "Selectați metoda HEAD",
       "method": "Metodă",
       "next_method": "Selectați Metoda următoare",
-      "path": "cale",
       "post_method": "Selectați metoda POST",
       "previous_method": "Selectați Metoda anterioară",
       "put_method": "Selectați metoda PUT",
@@ -567,6 +569,7 @@
     "new_name": "Noua mea echipă",
     "no_access": "Nu aveți acces de editare la aceste colecții",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Permisiuni",

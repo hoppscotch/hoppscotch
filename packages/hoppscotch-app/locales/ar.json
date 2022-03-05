@@ -76,6 +76,7 @@
     "continue_with_email": "تواصل مع البريد الإلكتروني",
     "continue_with_github": "تواصل مع جيثب",
     "continue_with_google": "تواصل مع جوجل",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "بريد إلكتروني",
     "logged_out": "تسجيل الخروج",
     "login": "تسجيل الدخول",
@@ -104,6 +105,7 @@
     "invalid_name": "الرجاء تقديم اسم صالح للمجموعة",
     "my_collections": "مجموعاتي",
     "name": "مجموعتي الجديدة",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "مجموعة جديدة",
     "renamed": "تمت إعادة تسمية المجموعة",
     "request_in_use": "Request in use",
@@ -205,6 +207,7 @@
     "created": "تم إنشاء المجلد",
     "edit": "تحرير المجلد",
     "invalid_name": "الرجاء توفير اسم للمجلد",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "ملف جديد",
     "renamed": "تمت إعادة تسمية المجلد"
   },
@@ -214,7 +217,6 @@
     "subscriptions": "الاشتراكات"
   },
   "header": {
-    "account": "حساب",
     "install_pwa": "تثبيت التطبيق",
     "login": "تسجيل الدخول",
     "save_workspace": "حفظ مساحة العمل الخاصة بي"
@@ -328,6 +330,7 @@
     "name": "اسم الطلب",
     "parameter_list": "معلمات الاستعلام",
     "parameters": "حدود",
+    "path": "طريق",
     "payload": "الحمولة",
     "query": "استفسار",
     "raw_body": "نص طلب خام",
@@ -439,7 +442,6 @@
       "head_method": "حدد طريقة HEAD",
       "method": "طريقة",
       "next_method": "حدد الطريقة التالية",
-      "path": "طريق",
       "post_method": "حدد طريقة POST",
       "previous_method": "حدد الطريقة السابقة",
       "put_method": "حدد طريقة PUT",
@@ -568,6 +570,7 @@
     "new_name": "فريقي الجديد",
     "no_access": "ليس لديك حق التعديل في هذه المجموعات",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "أذونات",

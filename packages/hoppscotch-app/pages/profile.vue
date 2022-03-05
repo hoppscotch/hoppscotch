@@ -28,13 +28,21 @@
           ></div>
           <div class="flex flex-col justify-between px-4 space-y-8 md:flex-row">
             <div class="flex items-end">
-              <img
+              <ProfilePicture
                 v-if="currentUser.photoURL"
-                :src="currentUser.photoURL"
-                class="w-16 h-16 rounded-lg ring-primary ring-4"
-                :alt="`${currentUser.displayName}`"
+                :url="currentUser.photoURL"
+                :alt="currentUser.displayName"
+                class="ring-primary ring-4"
+                size="16"
+                rounded="lg"
               />
-              <SmartIcon v-else name="user" class="svg-icons" />
+              <ProfilePicture
+                v-else
+                :initial="currentUser.displayName"
+                rounded="lg"
+                size="16"
+                class="ring-primary ring-4"
+              />
               <div class="ml-4">
                 <label class="heading">
                   {{ currentUser.displayName || t("state.nothing_found") }}

@@ -75,6 +75,7 @@
     "continue_with_email": "Continua con e-mail",
     "continue_with_github": "Continua con GitHub",
     "continue_with_google": "Continua con Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mail",
     "logged_out": "Disconnesso",
     "login": "Accedi",
@@ -103,6 +104,7 @@
     "invalid_name": "Si prega di fornire un nome valido per la raccolta",
     "my_collections": "Le Mie Raccolte",
     "name": "La mia nuova raccolta",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nuova raccolta",
     "renamed": "Raccolta rinominata",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Cartella creata",
     "edit": "Modifica cartella",
     "invalid_name": "Si prega di fornire un nome per la cartella",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nuova cartella",
     "renamed": "Cartella rinominata"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Sottoscrizioni"
   },
   "header": {
-    "account": "Account",
     "install_pwa": "Installa l'applicazione",
     "login": "Accedi",
     "save_workspace": "Salva il mio spazio di lavoro"
@@ -327,6 +329,7 @@
     "name": "Nome richiesta",
     "parameter_list": "Parametri della query",
     "parameters": "Parametri",
+    "path": "Percorso",
     "payload": "Contenuto (Payload)",
     "query": "Query",
     "raw_body": "Corpo della richiesta non formattato",
@@ -438,7 +441,6 @@
       "head_method": "Seleziona il metodo HEAD",
       "method": "Metodo",
       "next_method": "Seleziona il metodo successivo",
-      "path": "Percorso",
       "post_method": "Seleziona il metodo POST",
       "previous_method": "Seleziona il metodo precedente",
       "put_method": "Seleziona il metodo PUT",
@@ -567,6 +569,7 @@
     "new_name": "Il mio nuovo team",
     "no_access": "Non sei autorizzato a modificare queste raccolte",
     "no_invite_found": "Invito non trovato. Contatta il proprietario del team.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "Non sei autorizzato a visualizzare. Contatta il proprietario del team.",
     "pending_invites": "Inviti pendenti",
     "permissions": "Permessi",

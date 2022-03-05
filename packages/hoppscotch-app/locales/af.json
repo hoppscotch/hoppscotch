@@ -75,6 +75,7 @@
     "continue_with_email": "Gaan voort met e -pos",
     "continue_with_github": "Gaan voort met GitHub",
     "continue_with_google": "Gaan voort met Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E -pos",
     "logged_out": "Uitgeteken",
     "login": "Teken aan",
@@ -103,6 +104,7 @@
     "invalid_name": "Gee 'n geldige naam vir die versameling",
     "my_collections": "My versamelings",
     "name": "My nuwe versameling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nuwe versameling",
     "renamed": "Versameling hernoem",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Vouer geskep",
     "edit": "Wysig gids",
     "invalid_name": "Gee 'n naam vir die gids",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nuwe leêr",
     "renamed": "Vouer hernoem"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Inskrywings"
   },
   "header": {
-    "account": "Rekening",
     "install_pwa": "Installeer toep",
     "login": "Teken aan",
     "save_workspace": "Stoor my werkspasie"
@@ -327,6 +329,7 @@
     "name": "Versoek naam",
     "parameter_list": "Navraagparameters",
     "parameters": "Grense",
+    "path": "Pad",
     "payload": "Nuttingslading",
     "query": "Navraag",
     "raw_body": "Rou versoeksliggaam",
@@ -438,7 +441,6 @@
       "head_method": "Kies HOOF metode",
       "method": "Metode",
       "next_method": "Kies Volgende metode",
-      "path": "Pad",
       "post_method": "Kies POST -metode",
       "previous_method": "Kies Vorige metode",
       "put_method": "Kies PUT -metode",
@@ -567,6 +569,7 @@
     "new_name": "My nuwe span",
     "no_access": "U het nie redigeertoegang tot hierdie versamelings nie",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Toestemmings",

@@ -75,6 +75,7 @@
     "continue_with_email": "使用电子邮箱登录",
     "continue_with_github": "使用 GitHub 登录",
     "continue_with_google": "使用 Google 登录",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "电子邮箱地址",
     "logged_out": "登出",
     "login": "登录",
@@ -103,6 +104,7 @@
     "invalid_name": "请提供有效的组合名称",
     "my_collections": "我的组合",
     "name": "我的新组合",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "新建组合",
     "renamed": "组合已更名",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "已创建文件夹",
     "edit": "编辑文件夹",
     "invalid_name": "请提供文件夹的名称",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "新文件夹",
     "renamed": "文件夹已更名"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "订阅"
   },
   "header": {
-    "account": "帐户",
     "install_pwa": "安装应用",
     "login": "登录",
     "save_workspace": "保存我的工作区"
@@ -325,6 +327,7 @@
     "invalid_name": "请提供请求名称",
     "method": "方法",
     "name": "请求名称",
+    "path": "路径",
     "parameter_list": "查询参数",
     "parameters": "参数",
     "payload": "负载",
@@ -438,7 +441,6 @@
       "head_method": "选择 HEAD 方法",
       "method": "方法",
       "next_method": "选择下一个方法",
-      "path": "路径",
       "post_method": "选择 POST 方法",
       "previous_method": "选择上一个方法",
       "put_method": "选择 PUT 方法",
@@ -567,6 +569,7 @@
     "new_name": "我的新团队",
     "no_access": "你没有编辑组合的权限",
     "no_invite_found": "未找到邀请。请联系你的团队所有人。",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "你不是有效的阅览者。请联系你的团队所有人。",
     "pending_invites": "待办邀请",
     "permissions": "权限",

@@ -75,6 +75,7 @@
     "continue_with_email": "Fortsett med e-post",
     "continue_with_github": "Fortsett med GitHub",
     "continue_with_google": "Fortsett med Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-post",
     "logged_out": "Logget ut",
     "login": "Logg inn",
@@ -103,6 +104,7 @@
     "invalid_name": "Oppgi et gyldig navn på samlingen",
     "my_collections": "Mine samlinger",
     "name": "Min nye samling",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Ny kolleksjon",
     "renamed": "Samlingen ble omdøpt",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Mappen er opprettet",
     "edit": "Rediger mappe",
     "invalid_name": "Oppgi et navn på mappen",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Ny mappe",
     "renamed": "Mappen ble gitt nytt navn"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Abonnementer"
   },
   "header": {
-    "account": "Regnskap",
     "install_pwa": "Installer app",
     "login": "Logg Inn",
     "save_workspace": "Lagre arbeidsområdet mitt"
@@ -327,6 +329,7 @@
     "name": "Forespørselsnavn",
     "parameter_list": "Spørringsparametere",
     "parameters": "Parametere",
+    "path": "Sti",
     "payload": "Nyttelast",
     "query": "Spørsmål",
     "raw_body": "Raw Request Body",
@@ -438,7 +441,6 @@
       "head_method": "Velg HEAD-metode",
       "method": "Metode",
       "next_method": "Velg Neste metode",
-      "path": "Sti",
       "post_method": "Velg POST-metode",
       "previous_method": "Velg Forrige metode",
       "put_method": "Velg PUT-metode",
@@ -567,6 +569,7 @@
     "new_name": "Mitt nye lag",
     "no_access": "Du har ikke redigeringstilgang til disse samlingene",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Tillatelser",

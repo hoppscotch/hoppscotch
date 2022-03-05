@@ -75,6 +75,7 @@
     "continue_with_email": "E-posta ile devam et",
     "continue_with_github": "GitHub ile devam et",
     "continue_with_google": "Google ile devam",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-posta",
     "logged_out": "Çıkış yapıldı",
     "login": "Giriş yapmak",
@@ -103,6 +104,7 @@
     "invalid_name": "Lütfen koleksiyon için geçerli bir ad girin",
     "my_collections": "Koleksiyonlarım",
     "name": "Yeni Koleksiyonum",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Yeni koleksiyon",
     "renamed": "Koleksiyon yeniden adlandırıldı",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Klasör oluşturuldu",
     "edit": "Klasörü Düzenle",
     "invalid_name": "Lütfen klasör için bir ad girin",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Yeni dosya",
     "renamed": "Klasör yeniden adlandırıldı"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "abonelikler"
   },
   "header": {
-    "account": "Hesap",
     "install_pwa": "Uygulamayı yükle",
     "login": "Giriş yap",
     "save_workspace": "Çalışma Alanımı Kaydet"
@@ -327,6 +329,7 @@
     "name": "İstek adı",
     "parameter_list": "Sorgu Parametreleri",
     "parameters": "parametreler",
+    "path": "Yol",
     "payload": "yük",
     "query": "Sorgu",
     "raw_body": "Ham İstek Gövdesi",
@@ -438,7 +441,6 @@
       "head_method": "HEAD yöntemini seçin",
       "method": "Yöntem",
       "next_method": "Sonraki yöntemi seçin",
-      "path": "Yol",
       "post_method": "POST yöntemini seçin",
       "previous_method": "Önceki yöntemi seçin",
       "put_method": "PUT yöntemini seçin",
@@ -567,6 +569,7 @@
     "new_name": "Yeni Takımım",
     "no_access": "Bu koleksiyonlar için düzenleme erişiminiz yok",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "izinler",

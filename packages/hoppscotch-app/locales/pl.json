@@ -75,6 +75,7 @@
     "continue_with_email": "Kontynuuj z e-mailem",
     "continue_with_github": "Kontynuuj z GitHub",
     "continue_with_google": "Kontynuuj z Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mail",
     "logged_out": "Wylogowano",
     "login": "Zaloguj sie",
@@ -103,6 +104,7 @@
     "invalid_name": "Podaj prawidłową nazwę kolekcji",
     "my_collections": "Moje kolekcje",
     "name": "Moja nowa kolekcja",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nowa kolekcja",
     "renamed": "Zmieniono nazwę kolekcji",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Utworzono folder",
     "edit": "Edytuj folder",
     "invalid_name": "Podaj nazwę folderu",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nowy folder",
     "renamed": "Zmieniono nazwę folderu"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Subskrypcje"
   },
   "header": {
-    "account": "Konto",
     "install_pwa": "Zainstaluj aplikację",
     "login": "Zaloguj sie",
     "save_workspace": "Zapisz mój obszar roboczy"
@@ -327,6 +329,7 @@
     "name": "Nazwa",
     "parameter_list": "Parametry zapytania",
     "parameters": "Parametry",
+    "path": "Ścieżka",
     "payload": "Dane żądania",
     "query": "Zapytanie",
     "raw_body": "Surowa treść żądania",
@@ -438,7 +441,6 @@
       "head_method": "Wybierz metodę HEAD",
       "method": "metoda",
       "next_method": "Wybierz następną metodę",
-      "path": "Ścieżka",
       "post_method": "Wybierz metodę POST",
       "previous_method": "Wybierz poprzednią metodę",
       "put_method": "Wybierz metodę PUT",
@@ -567,6 +569,7 @@
     "new_name": "Mój nowy zespół",
     "no_access": "Nie masz uprawnień do edycji tych kolekcji",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Uprawnienia",

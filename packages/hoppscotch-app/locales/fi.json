@@ -75,6 +75,7 @@
     "continue_with_email": "Jatka sähköpostilla",
     "continue_with_github": "Jatka GitHubilla",
     "continue_with_google": "Jatka Googlella",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "Sähköposti",
     "logged_out": "Kirjautunut ulos",
     "login": "Kirjaudu sisään",
@@ -103,6 +104,7 @@
     "invalid_name": "Anna kokoelmalle kelvollinen nimi",
     "my_collections": "Omat kokoelmat",
     "name": "Uusi kokoelmani",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Uusi kokoelma",
     "renamed": "Kokoelma nimetty uudelleen",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Kansio luotu",
     "edit": "Muokkaa kansiota",
     "invalid_name": "Anna kansion nimi",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Uusi kansio",
     "renamed": "Kansio nimettiin uudelleen"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Tilaukset"
   },
   "header": {
-    "account": "Tili",
     "install_pwa": "Asenna sovellus",
     "login": "Kirjaudu sisään",
     "save_workspace": "Tallenna työtila"
@@ -327,6 +329,7 @@
     "name": "Pyynnön nimi",
     "parameter_list": "Kyselyparametrit",
     "parameters": "Parametrit",
+    "path": "Polku",
     "payload": "Hyötykuorma",
     "query": "Kysely",
     "raw_body": "Raaka pyynnön runko",
@@ -438,7 +441,6 @@
       "head_method": "Valitse HEAD -menetelmä",
       "method": "Menetelmä",
       "next_method": "Valitse Seuraava menetelmä",
-      "path": "Polku",
       "post_method": "Valitse POST -menetelmä",
       "previous_method": "Valitse Edellinen menetelmä",
       "put_method": "Valitse PUT -menetelmä",
@@ -567,6 +569,7 @@
     "new_name": "Uusi tiimini",
     "no_access": "Sinulla ei ole muokkausoikeuksia näihin kokoelmiin",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Käyttöoikeudet",

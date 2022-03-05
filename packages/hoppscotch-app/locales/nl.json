@@ -75,6 +75,7 @@
     "continue_with_email": "Ga verder met e-mail",
     "continue_with_github": "Ga verder met GitHub",
     "continue_with_google": "Ga verder met Google",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "E-mail",
     "logged_out": "Uitgelogd",
     "login": "Log in",
@@ -103,6 +104,7 @@
     "invalid_name": "Geef een geldige naam op voor de collectie",
     "my_collections": "Mijn collecties",
     "name": "Mijn nieuwe collectie",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "Nieuwe collectie",
     "renamed": "Collectie hernoemd",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "Map aangemaakt",
     "edit": "Map bewerken",
     "invalid_name": "Geef een naam op voor de map",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "Nieuwe map",
     "renamed": "Map hernoemd"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "Abonnementen"
   },
   "header": {
-    "account": "Rekening",
     "install_pwa": "Installeer app",
     "login": "Log in",
     "save_workspace": "Bewaar mijn werkruimte"
@@ -327,6 +329,7 @@
     "name": "Naam aanvragen",
     "parameter_list": "Queryparameters",
     "parameters": "Parameters:",
+    "path": "Pad",
     "payload": "Payload",
     "query": "Vraag",
     "raw_body": "Ruwe body",
@@ -438,7 +441,6 @@
       "head_method": "Selecteer HEAD-methode:",
       "method": "Methode",
       "next_method": "Selecteer volgende methode",
-      "path": "Pad",
       "post_method": "Selecteer POST-methode",
       "previous_method": "Selecteer vorige methode",
       "put_method": "Selecteer PUT-methode",
@@ -567,6 +569,7 @@
     "new_name": "Mijn nieuwe team",
     "no_access": "U heeft geen bewerkingsrechten voor deze collecties",
     "no_invite_found": "Invitation not found. Contact your team owner.",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "You are not a valid viewer. Contact your team owner.",
     "pending_invites": "Pending invites",
     "permissions": "Rechten",

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-center p-4 overflow-auto bg-primary hide-scrollbar whitespace-nowrap"
+    class="sticky top-0 z-10 flex items-start p-4 overflow-auto bg-primary hide-scrollbar whitespace-nowrap"
   >
     <div
       v-if="response == null"

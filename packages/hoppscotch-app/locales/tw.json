@@ -75,6 +75,7 @@
     "continue_with_email": "使用電子信箱登入",
     "continue_with_github": "使用 GitHub 登入",
     "continue_with_google": "使用 Google 登入",
+    "continue_with_microsoft": "Continue with Microsoft",
     "email": "電子信箱地址",
     "logged_out": "登出",
     "login": "登入",
@@ -103,6 +104,7 @@
     "invalid_name": "請提供有效的組合名稱",
     "my_collections": "我的組合",
     "name": "我的新組合",
+    "name_length_insufficient": "Collection name should be at least 3 characters long",
     "new": "建立組合",
     "renamed": "組合已重新命名",
     "request_in_use": "Request in use",
@@ -204,6 +206,7 @@
     "created": "已建立資料夾",
     "edit": "編輯資料夾",
     "invalid_name": "請提供資料夾的名稱",
+    "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "新資料夾",
     "renamed": "資料夾已重新命名"
   },
@@ -213,7 +216,6 @@
     "subscriptions": "訂閱"
   },
   "header": {
-    "account": "帳號",
     "install_pwa": "安裝應用程式",
     "login": "登入",
     "save_workspace": "儲存我的工作區"
@@ -327,6 +329,7 @@
     "name": "請求名稱",
     "parameter_list": "查詢參數",
     "parameters": "參數",
+    "path": "路徑",
     "payload": "負載",
     "query": "查詢",
     "raw_body": "原始請求本體",
@@ -438,7 +441,6 @@
       "head_method": "選擇 HEAD 方法",
       "method": "方法",
       "next_method": "選擇下一個方法",
-      "path": "路徑",
       "post_method": "選擇 POST 方法",
       "previous_method": "選擇上一個方法",
       "put_method": "選擇 PUT 方法",
@@ -567,6 +569,7 @@
     "new_name": "我的新團隊",
     "no_access": "您沒有編輯組合的許可權",
     "no_invite_found": "未找到邀請。聯絡您的團隊擁有者。",
+    "not_found": "Team not found. Contact your team owner.",
     "not_valid_viewer": "您不是一個有效的檢視者。聯絡您的團隊擁有者。",
     "pending_invites": "待定邀請",
     "permissions": "許可權",

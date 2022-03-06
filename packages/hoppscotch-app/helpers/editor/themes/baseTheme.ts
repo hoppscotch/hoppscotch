@@ -21,7 +21,7 @@ import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets"
 import {
   searchKeymap,
   highlightSelectionMatches,
-  searchConfig,
+  search,
 } from "@codemirror/search"
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
 import { commentKeymap } from "@codemirror/comment"
@@ -36,7 +36,7 @@ export const baseTheme = EditorView.theme({
     flex: "1",
   },
   ".cm-content": {
-    caretColor: "var(--secondary-light-color)",
+    caretColor: "var(--secondary-dark-color)",
     fontFamily: "var(--font-mono)",
     backgroundColor: "var(--primary-color)",
   },
@@ -160,7 +160,6 @@ export const inputTheme = EditorView.theme({
     fontFamily: "var(--font-sans)",
     color: "var(--secondary-dark-color)",
     backgroundColor: "transparent",
-    borderRadius: "0.25rem",
   },
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",
@@ -365,9 +364,7 @@ export const basicSetup: Extension = [
   rectangularSelection(),
   highlightActiveLine(),
   highlightSelectionMatches(),
-  searchConfig({
-    top: true,
-  }),
+  search(),
   keymap.of([
     ...closeBracketsKeymap,
     ...defaultKeymap,

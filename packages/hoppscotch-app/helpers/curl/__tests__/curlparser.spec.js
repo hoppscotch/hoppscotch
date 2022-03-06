@@ -33,13 +33,7 @@ const samples = [
           },
         ]),
       },
-      headers: [
-        {
-          active: true,
-          key: "content-type",
-          value: "application/x-www-form-urlencoded",
-        },
-      ],
+      headers: [],
       params: [],
       preRequestScript: "",
       testScript: "",
@@ -126,11 +120,6 @@ const samples = [
           active: true,
           key: "Accept-Language",
           value: "en",
-        },
-        {
-          active: true,
-          key: "Content-Type",
-          value: "application/hal+json;charset=utf-8",
         },
         {
           active: true,
@@ -425,12 +414,6 @@ const samples = [
         },
       ],
       headers: [
-        // {
-        //   active: true,
-        //   key: "content-type",
-        //   value:
-        //     "multipart/form-data; boundary=----WebKitFormBoundaryj3oufpIISPa2DP7c",
-        // },
         {
           active: true,
           key: "user-agent",
@@ -474,14 +457,7 @@ const samples = [
         ],
       },
       params: [],
-      headers: [
-        {
-          active: true,
-          key: "content-type",
-          value:
-            "multipart/form-data; boundary=------------------------d74496d66958873e",
-        },
-      ],
+      headers: [],
       preRequestScript: "",
       testScript: "",
     }),
@@ -580,11 +556,6 @@ const samples = [
       headers: [
         {
           active: true,
-          key: "content-type",
-          value: "application/x-www-form-urlencoded",
-        },
-        {
-          active: true,
           key: "something",
           value: "other-thing",
         },
@@ -608,11 +579,6 @@ const samples = [
       headers: [
         {
           active: true,
-          key: "content-type",
-          value: "multipart/form-data",
-        },
-        {
-          active: true,
           key: "something",
           value: "other-thing",
         },
@@ -634,7 +600,13 @@ const samples = [
           },
         ],
       },
-      params: [],
+      params: [
+        {
+          active: true,
+          key: "hello",
+          value: "there",
+        },
+      ],
       preRequestScript: "",
       testScript: "",
     }),

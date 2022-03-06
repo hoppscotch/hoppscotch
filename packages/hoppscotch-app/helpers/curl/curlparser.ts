@@ -3,7 +3,6 @@ import parser from "yargs-parser"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-
 import {
   HoppRESTAuth,
   FormDataKeyValue,
@@ -208,7 +207,7 @@ function preProcessCurlCommand(curlCommand: string) {
 
   // replace string for insomnia
   for (const r in replaceables) {
-    if (r.includes("data")) {
+    if (r.includes("data") || r.includes("form") || r.includes("header")) {
       curlCommand = curlCommand.replaceAll(
         RegExp(`[ \t]${r}(["' ])`, "g"),
         ` ${replaceables[r]}$1`
@@ -625,6 +624,8 @@ export function requestToHoppRequest(parsedCurl: CurlParserRequest) {
     parsedCurl.hoppHeaders.filter(
       (header) =>
         header.key !== "Authorization" &&
+        header.key !== "content-type" &&
+        header.key !== "Content-Type" &&
         header.key !== "apikey" &&
         header.key !== "api-key"
     ) || []

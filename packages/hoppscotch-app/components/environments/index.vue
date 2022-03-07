@@ -107,12 +107,9 @@
         @click.native="displayModalAdd(true)"
       />
     </div>
-    <EnvironmentsAdd
-      :show="showModalAdd"
-      @hide-modal="displayModalAdd(false)"
-    />
-    <EnvironmentsEdit
-      :show="showModalEdit"
+    <EnvironmentsDetails
+      :show="showModalDetails"
+      :action="action"
       :editing-environment-index="editingEnvironmentIndex"
       @hide-modal="displayModalEdit(false)"
     />
@@ -155,17 +152,19 @@ export default defineComponent({
   data() {
     return {
       showModalImportExport: false,
-      showModalAdd: false,
-      showModalEdit: false,
+      showModalDetails: false,
+      action: "edit" as "new" | "edit",
       editingEnvironmentIndex: undefined as number | "Global" | undefined,
     }
   },
   methods: {
     displayModalAdd(shouldDisplay: boolean) {
-      this.showModalAdd = shouldDisplay
+      this.action = "new"
+      this.showModalDetails = shouldDisplay
     },
     displayModalEdit(shouldDisplay: boolean) {
-      this.showModalEdit = shouldDisplay
+      this.action = "edit"
+      this.showModalDetails = shouldDisplay
 
       if (!shouldDisplay) this.resetSelectedData()
     },
@@ -174,6 +173,7 @@ export default defineComponent({
     },
     editEnvironment(environmentIndex: number | "Global") {
       this.$data.editingEnvironmentIndex = environmentIndex
+      this.action = "edit"
       this.displayModalEdit(true)
     },
     resetSelectedData() {

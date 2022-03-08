@@ -45,7 +45,7 @@ export function translateToGQLRequest(x: any): HoppGQLRequest {
   }
 }
 
-export function makeGQLRequest(x: Omit<HoppGQLRequest, "v">) {
+export function makeGQLRequest(x: Omit<HoppGQLRequest, "v">): HoppGQLRequest {
   return {
     v: GQLReqSchemaVersion,
     ...x,

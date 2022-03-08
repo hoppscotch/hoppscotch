@@ -5,6 +5,7 @@ import {
   translateToNewRequest,
   HoppGQLRequest,
   translateToGQLRequest,
+  GQLReqSchemaVersion,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { completedRESTResponse$ } from "./RESTSession"
@@ -52,7 +53,7 @@ export function makeGQLHistoryEntry(
   x: Omit<GQLHistoryEntry, "v">
 ): GQLHistoryEntry {
   return {
-    v: 1,
+    v: GQLReqSchemaVersion,
     ...x,
     updatedOn: new Date(),
   }

@@ -2,6 +2,8 @@ import { HoppGQLAuth } from "./HoppGQLAuth"
 
 export * from "./HoppGQLAuth"
 
+export const GQLReqSchemaVersion = 2
+
 export type GQLHeader = {
   key: string
   value: string
@@ -19,7 +21,7 @@ export type HoppGQLRequest = {
 }
 
 export function translateToGQLRequest(x: any): HoppGQLRequest {
-  if (x.v && x.v === 1) return x
+  if (x.v && x.v === GQLReqSchemaVersion) return x
 
   // Old request
   const name = x.name ?? "Untitled"
@@ -27,10 +29,13 @@ export function translateToGQLRequest(x: any): HoppGQLRequest {
   const headers = x.headers ?? []
   const query = x.query ?? ""
   const variables = x.variables ?? []
-  const auth = parseOldGQLAuth(x)
+  const auth = x.auth ?? {
+    authType: "none",
+    authActive: true,
+  }
 
   return {
-    v: 1,
+    v: GQLReqSchemaVersion,
     name,
     url,
     headers,
@@ -40,34 +45,9 @@ export function translateToGQLRequest(x: any): HoppGQLRequest {
   }
 }
 
-export function parseOldGQLAuth(x: any): HoppGQLAuth {
-  if (!x.auth || x.auth === "None")
-    return {
-      authType: "none",
-      authActive: true,
-    }
-
-  if (x.auth === "Basic Auth")
-    return {
-      authType: "basic",
-      authActive: true,
-      username: x.httpUser,
-      password: x.httpPassword,
-    }
-
-  if (x.auth === "Bearer Token")
-    return {
-      authType: "bearer",
-      authActive: true,
-      token: x.bearerToken,
-    }
-
-  return { authType: "none", authActive: true }
-}
-
 export function makeGQLRequest(x: Omit<HoppGQLRequest, "v">) {
   return {
-    v: 1,
+    v: GQLReqSchemaVersion,
     ...x,
   }
 }

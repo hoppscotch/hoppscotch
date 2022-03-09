@@ -94,10 +94,19 @@ const dispatchers = defineDispatchers({
     { environments, currentEnvironmentIndex }: EnvironmentStore,
     { envIndex }: { envIndex: number }
   ) {
+    let newCurrEnvIndex = currentEnvironmentIndex
+
+    // Scenario 1: Currently Selected Env is removed -> Set currently selected to none
+    if (envIndex === currentEnvironmentIndex) newCurrEnvIndex = -1
+
+    // Scenario 2: Currently Selected Env Index > Deletion Index -> Current Selection Index Shifts One Position to the left -> Correct Env Index by moving back 1 index
+    if (envIndex < currentEnvironmentIndex)
+      newCurrEnvIndex = currentEnvironmentIndex - 1
+
+    // Scenario 3: Currently Selected Env Index < Deletion Index -> No change happens at selection position -> Noop
     return {
       environments: environments.filter((_, index) => index !== envIndex),
-      currentEnvironmentIndex:
-        envIndex === currentEnvironmentIndex ? -1 : currentEnvironmentIndex,
+      currentEnvironmentIndex: newCurrEnvIndex,
     }
   },
   renameEnvironment(
@@ -260,12 +269,9 @@ export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const currentEnvironment$ = combineLatest([
-  environments$,
-  selectedEnvIndex$,
-]).pipe(
-  map(([envs, selectedIndex]) => {
-    if (selectedIndex === -1) {
+export const currentEnvironment$ = environmentsStore.subject$.pipe(
+  map(({ currentEnvironmentIndex, environments }) => {
+    if (currentEnvironmentIndex === -1) {
       const env: Environment = {
         name: "No environment",
         variables: [],
@@ -273,7 +279,7 @@ export const currentEnvironment$ = combineLatest([
 
       return env
     } else {
-      return envs[selectedIndex]
+      return environments[currentEnvironmentIndex]
     }
   })
 )

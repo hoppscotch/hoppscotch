@@ -84,7 +84,7 @@ export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
 }
 
 export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
-  if (x.v === 1) return x
+  if (x.v === GQLReqSchemaVersion) return x
 
   // Legacy
   const request = translateToGQLRequest(x)

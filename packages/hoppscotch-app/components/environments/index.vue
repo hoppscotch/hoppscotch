@@ -32,7 +32,7 @@
               }
             "
           />
-          <hr />
+          <hr v-if="environments.length > 0" />
           <SmartItem
             v-for="(gen, index) in environments"
             :key="`gen-${index}`"

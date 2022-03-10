@@ -53,7 +53,7 @@ export function makeGQLHistoryEntry(
   x: Omit<GQLHistoryEntry, "v">
 ): GQLHistoryEntry {
   return {
-    v: GQLReqSchemaVersion,
+    v: 1,
     ...x,
     updatedOn: new Date(),
   }
@@ -84,10 +84,12 @@ export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
 }
 
 export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
-  if (x.v === GQLReqSchemaVersion) return x
+  if (x.v === 1 && x.request.v === GQLReqSchemaVersion) return x
 
   // Legacy
-  const request = translateToGQLRequest(x)
+  const request = x.request
+    ? translateToGQLRequest(x.request)
+    : translateToGQLRequest(x)
   const star = x.star ?? false
   const response = x.response ?? ""
   const updatedOn = x.updatedOn ?? ""

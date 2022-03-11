@@ -519,7 +519,7 @@ const convertPathToHoppReqs = (
   pathObj: OpenAPIPathInfoType
 ) =>
   pipe(
-    ["get", "head", "post", "put", "delete", "options"] as const,
+    ["get", "head", "post", "put", "delete", "options", "patch"] as const,
 
     // Filter and map out path info
     RA.filterMap(
@@ -538,10 +538,10 @@ const convertPathToHoppReqs = (
 
         // We don't need to worry about reference types as the Dereferencing pass should remove them
         params: parseOpenAPIParams(
-          (info.parameters as OpenAPIParamsType[]) ?? []
+          (info.parameters as OpenAPIParamsType[] | undefined) ?? []
         ),
         headers: parseOpenAPIHeaders(
-          (info.parameters as OpenAPIParamsType[]) ?? []
+          (info.parameters as OpenAPIParamsType[] | undefined) ?? []
         ),
 
         auth: parseOpenAPIAuth(doc, info),

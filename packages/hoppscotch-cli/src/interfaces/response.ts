@@ -1,6 +1,7 @@
 import { TestResponse } from "@hoppscotch/js-sandbox";
 import { Method } from "axios";
-import { ExpectResult } from "../types";
+import { ExpectResult } from "../types/response";
+import { HoppEnvs } from "../types/request";
 
 /**
  * Defines column headers for table stream used to write table
@@ -11,7 +12,6 @@ import { ExpectResult } from "../types";
  * @property {string} statusCode Template string concating status & statusText.
  */
 export interface TableResponse {
-  path: string;
   endpoint: string;
   method: Method;
   statusCode: string;
@@ -25,8 +25,7 @@ export interface TableResponse {
  * @property {Method} method Method from HTTP response headers.
  * @property {string} statusText HTTP response status text.
  */
-export interface RunnerResponseInfo extends TestResponse {
-  path: string;
+export interface RequestRunnerResponse extends TestResponse {
   endpoint: string;
   method: Method;
   statusText: string;
@@ -39,10 +38,10 @@ export interface RunnerResponseInfo extends TestResponse {
  * running testRunner.
  * @property {TestResponse} response Response structure for test script runner.
  */
-export interface TestScriptData {
-  name: string;
+export interface TestScriptParams {
   testScript: string;
   response: TestResponse;
+  envs: HoppEnvs;
 }
 
 /**

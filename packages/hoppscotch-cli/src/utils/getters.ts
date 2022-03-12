@@ -1,98 +1,20 @@
+import {
+  HoppRESTHeader,
+  Environment,
+  parseTemplateStringE,
+  HoppRESTParam,
+} from "@hoppscotch/data";
 import chalk from "chalk";
 import { pipe } from "fp-ts/function";
-import qs from "qs";
-import * as RA from "fp-ts/ReadonlyArray";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
-import { TestResponse } from "@hoppscotch/js-sandbox";
-import {
-  HoppRESTRequest,
-  Environment,
-  parseRawKeyValueEntriesE,
-  parseBodyEnvVariablesE,
-  parseTemplateString,
-  parseTemplateStringE,
-} from "@hoppscotch/data";
-import { Method } from "axios";
-import {
-  TableResponse,
-  RunnerResponseInfo,
-  EffectiveHoppRESTRequest,
-} from "../interfaces";
-import { arrayFlatMap, arraySort, toFormData, tupleToRecord } from ".";
-import { createStream, getBorderCharacters } from "table";
-import { error, HoppCLIError } from "../types";
+import * as S from "fp-ts/string";
+import * as O from "fp-ts/Option";
+import { error } from "../types/errors";
 
 /**
- * Getter object methods for file test.ts
- */
-export const GTest = {
-  /**
-   * @param failing
-   * @param passing
-   * @returns template string with failing, passing & total tests info.
-   */
-  testMessage: (failing: number, passing: number) => {
-    let message: string = "";
-    const total: number = failing + passing;
-
-    if (total > 0) {
-      if (failing > 0) {
-        message += chalk.redBright(`${failing} failing, `);
-      }
-      if (passing > 0) {
-        message += chalk.greenBright(`${passing} successful, `);
-      }
-      message += chalk.dim(`out of ${total} tests.`);
-    }
-
-    return message;
-  },
-
-  /**
-   * @param message
-   * @returns template string with failed expected message.
-   */
-  expectFailedMessage: (message: string) =>
-    `${chalk.bold(`${chalk.redBright("✖")} ${message}`)} ${chalk.grey(
-      "- test failed"
-    )}\n`,
-
-  /**
-   * @param message
-   * @returns template string with passed expected message.
-   */
-  expectPassedMessage: (message: string) =>
-    `${chalk.bold(`${chalk.greenBright("✔")} ${message}`)} ${chalk.grey(
-      "- test passed"
-    )}\n`,
-};
-
-/**
- * Getter object methods for file request.ts
- */
-export const GRequest = {
-  /**
-   * Checks and transforms given method to uppercase and defaults
-   * to GET if value undefined.
-   * @param value HTTP method name.
-   * @returns Validated uppercase HTTP method name.
-   */
-  method: (value: string | undefined) =>
-    value ? (value.toUpperCase() as Method) : "GET",
-
-  /**
-   * Checks and transforms given endpoint-value and defaults
-   * to empty if value undefined.
-   * @param value HTTP request endpoint.
-   * @returns Validated endpoint as string.
-   */
-  endpoint: (value: string | undefined): string => (value ? value : ""),
-};
-
-/**
- * Generates template string with specific color unicodes based on
- * type of status.
+ * Generates template string (status + statusText) with specific color unicodes
+ * based on type of status.
  * @param status Status code of a HTTP response.
  * @param statusText Status text of a HTTP response.
  * @returns Template string with related color unicodes.
@@ -113,253 +35,79 @@ export const getColorStatusCode = (
 };
 
 /**
- * Parses given runnerResponseInfo to generate response object
- * to be used to write data on stdout.
- * @param runnerResponseInfo Response data returned from requestRunner.
- * @returns Parsed TableResponse from given runnerResponseInfo.
+ * Replaces all template-string with their effective ENV values to generate effective
+ * request headers/parameters meta-data.
+ * @param metaData Headers/parameters on which ENVs will be applied.
+ * @param environment Provides ENV variables for parsing template-string.
+ * @returns Active, non-empty-key, parsed headers/parameters pairs.
  */
-export const getTableResponse = (
-  runnerResponseInfo: RunnerResponseInfo
-): TableResponse => {
-  const { path, endpoint, statusText, status, method } = runnerResponseInfo;
-  const tableResponse: TableResponse = {
-    path: path,
-    endpoint: endpoint,
-    method: method,
-    statusCode: getColorStatusCode(status, statusText),
-  };
-
-  return tableResponse;
-};
-
-/**
- * Parses given runnerResponseInfo to generate response object,
- * to be used with execTestScript.
- * @param runnerResponseInfo Response data returned from requestRunner.
- * @returns Parsed TestResponse from given runnerResponseInfo.
- */
-export const getTestResponse = (
-  runnerResponseInfo: RunnerResponseInfo
-): TestResponse => {
-  const { status, headers, body } = runnerResponseInfo;
-  const testResponse: TestResponse = {
-    status,
-    headers,
-    body,
-  };
-  return testResponse;
-};
-
-function getFinalBodyFromRequest(
-  request: HoppRESTRequest,
-  envVariables: Environment["variables"]
-): E.Either<HoppCLIError, string | null | FormData> {
-  if (request.body.contentType === null) {
-    return E.right(null);
-  }
-
-  if (request.body.contentType === "application/x-www-form-urlencoded") {
-    const requestBody = parseRawKeyValueEntriesE(request.body.body);
-    if (E.isLeft(requestBody)) {
-      return E.left(
-        error({ code: "PARSING_ERROR", data: requestBody.left.message })
-      );
-    }
-
-    return pipe(
-      requestBody.right,
-      RA.toArray,
-      // Filter out active
-      A.filter((x) => x.active),
-      // Convert to tuple
-      A.map(
-        ({ key, value }) =>
-          [
-            parseTemplateString(key, envVariables),
-            parseTemplateString(value, envVariables),
-          ] as [string, string]
-      ),
-      // Tuple to Record object
-      tupleToRecord,
-      // Stringify
-      qs.stringify,
-      E.right
-    );
-  }
-
-  if (request.body.contentType === "multipart/form-data") {
-    return pipe(
-      request.body.body,
-      A.filter((x) => x.key !== "" && x.active), // Remove empty keys
-
-      // Sort files down
-      arraySort((a, b) => {
-        if (a.isFile) return 1;
-        if (b.isFile) return -1;
-        return 0;
-      }),
-
-      // FormData allows only a single blob in an entry,
-      // we split array blobs into separate entries (FormData will then join them together during exec)
-      arrayFlatMap((x) =>
-        x.isFile
-          ? x.value.map((v) => ({
-              key: parseTemplateString(x.key, envVariables),
-              value: v as string | Blob,
-            }))
-          : [
-              {
-                key: parseTemplateString(x.key, envVariables),
-                value: parseTemplateString(x.value, envVariables),
-              },
-            ]
-      ),
-      toFormData,
-      E.right
-    );
-  } else {
-    return pipe(
-      parseBodyEnvVariablesE(request.body.body, envVariables),
-      E.mapLeft((e) =>
-        error({
-          code: "PARSING_ERROR",
-          data: `${request.body.body} (${e})`,
-        })
-      )
-    );
-  }
-}
-
-/**
- * Outputs an executable request format with environment variables applied
- *
- * @param request The request to source from
- * @param environment The environment to apply
- *
- * @returns An object with extra fields defining a complete request
- */
-export function getEffectiveRESTRequest(
-  request: HoppRESTRequest,
+export const getEffectiveFinalMetaData = (
+  metaData: HoppRESTHeader[] | HoppRESTParam[],
   environment: Environment
-): E.Either<HoppCLIError, EffectiveHoppRESTRequest> {
-  const envVariables = [...environment.variables];
+) =>
+  pipe(
+    metaData,
 
-  const effectiveFinalHeaders = request.headers
-    .filter(
-      (x) =>
-        x.key !== "" && // Remove empty keys
-        x.active // Only active
+    /**
+     * Selecting only non-empty and active pairs.
+     */
+    A.filter(({ key, active }) => !S.isEmpty(key) && active),
+    A.map(({ key, value }) => ({
+      active: true,
+      key: parseTemplateStringE(key, environment.variables),
+      value: parseTemplateStringE(value, environment.variables),
+    })),
+    E.fromPredicate(
+      /**
+       * Check if every key-value is right either. Else return HoppCLIError with
+       * appropriate reason.
+       */
+      A.every(({ key, value }) => E.isRight(key) && E.isRight(value)),
+      (reason) => error({ code: "PARSING_ERROR", data: reason })
+    ),
+    E.map(
+      /**
+       * Filtering and mapping only right-eithers for each key-value as [string, string].
+       */
+      A.filterMap(({ key, value }) =>
+        E.isRight(key) && E.isRight(value)
+          ? O.some({ active: true, key: key.right, value: value.right })
+          : O.none
+      )
     )
-    .map((x) => ({
-      // Parse out environment template strings
-      active: true,
-      key: parseTemplateString(x.key, envVariables),
-      value: parseTemplateString(x.value, envVariables),
-    }));
-
-  const effectiveFinalParams = request.params
-    .filter(
-      (x) =>
-        x.key !== "" && // Remove empty keys
-        x.active // Only active
-    )
-    .map((x) => ({
-      active: true,
-      key: parseTemplateString(x.key, envVariables),
-      value: parseTemplateString(x.value, envVariables),
-    }));
-
-  // Authentication
-  if (request.auth.authActive) {
-    // TODO: Support a better b64 implementation than btoa ?
-    if (request.auth.authType === "basic") {
-      const username = parseTemplateString(request.auth.username, envVariables);
-      const password = parseTemplateString(request.auth.password, envVariables);
-
-      effectiveFinalHeaders.push({
-        active: true,
-        key: "Authorization",
-        value: `Basic ${btoa(`${username}:${password}`)}`,
-      });
-    } else if (
-      request.auth.authType === "bearer" ||
-      request.auth.authType === "oauth-2"
-    ) {
-      effectiveFinalHeaders.push({
-        active: true,
-        key: "Authorization",
-        value: `Bearer ${parseTemplateString(
-          request.auth.token,
-          envVariables
-        )}`,
-      });
-    } else if (request.auth.authType === "api-key") {
-      const { key, value, addTo } = request.auth;
-      if (addTo === "Headers") {
-        effectiveFinalHeaders.push({
-          active: true,
-          key: parseTemplateString(key, envVariables),
-          value: parseTemplateString(value, envVariables),
-        });
-      } else if (addTo === "Query params") {
-        effectiveFinalParams.push({
-          active: true,
-          key: parseTemplateString(key, envVariables),
-          value: parseTemplateString(value, envVariables),
-        });
-      }
-    }
-  }
-
-  const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables);
-  if (E.isLeft(effectiveFinalBody)) {
-    return effectiveFinalBody;
-  }
-
-  if (request.body.contentType)
-    effectiveFinalHeaders.push({
-      active: true,
-      key: "content-type",
-      value: request.body.contentType,
-    });
-
-  const effectiveFinalURL = parseTemplateStringE(
-    request.endpoint,
-    envVariables
   );
-  if (E.isLeft(effectiveFinalURL)) {
-    return E.left(
-      error({
-        code: "PARSING_ERROR",
-        data: `${request.endpoint} (${effectiveFinalURL.left})`,
-      })
-    );
-  }
-
-  return E.right({
-    ...request,
-    effectiveFinalURL: effectiveFinalURL.right,
-    effectiveFinalHeaders,
-    effectiveFinalParams,
-    effectiveFinalBody: effectiveFinalBody.right,
-  });
-}
 
 /**
- * Get writable stream to stdout response in table format.
- * @returns WritableStream which is used to write table UI
- * on stdout.
+ * Reduces array of HoppRESTParam or HoppRESTHeader to unique key-value
+ * pair.
+ * @param metaData Array of meta-data to reduce.
+ * @returns Object with unique key-value pair.
  */
-export const getTableStream = () =>
-  createStream({
-    columnDefault: {
-      width: 30,
-      alignment: "center",
-      verticalAlignment: "middle",
-      wrapWord: true,
-      paddingLeft: 0,
-      paddingRight: 0,
-    },
-    columnCount: 4,
-    border: getBorderCharacters("norc"),
-  });
+export const getMetaDataPairs = (
+  metaData: HoppRESTParam[] | HoppRESTHeader[]
+) =>
+  pipe(
+    metaData,
+
+    // Excluding non-active & empty key request meta-data.
+    A.filter(({ active, key }) => active && !S.isEmpty(key)),
+
+    // Reducing array of request-meta-data to key-value pair object.
+    A.reduce(<Record<string, string>>{}, (target, { key, value }) =>
+      Object.assign(target, { [`${key}`]: value })
+    )
+  );
+
+/**
+ * Object providing aliases for chalk color properties based on exceptions.
+ */
+export const exceptionColors = {
+  WARN: chalk.yellow,
+  INFO: chalk.blue,
+  FAIL: chalk.red,
+  SUCCESS: chalk.green,
+  BG_WARN: chalk.bgYellow,
+  BG_FAIL: chalk.bgRed,
+  BG_INFO: chalk.bgBlue,
+  BG_SUCCESS: chalk.bgGreen,
+};

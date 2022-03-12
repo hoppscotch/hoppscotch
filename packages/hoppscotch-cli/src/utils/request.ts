@@ -1,78 +1,47 @@
 import axios, { Method } from "axios";
-import chalk from "chalk";
-import { WritableStream } from "table";
+import { URL } from "url";
 import * as S from "fp-ts/string";
-import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
 import * as T from "fp-ts/Task";
+import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
-import * as RA from "fp-ts/ReadonlyArray";
-import { flow, pipe } from "fp-ts/function";
-import { clear } from "console";
-import { HoppRESTRequest, HoppCollection, Environment } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox";
+import { HoppRESTRequest } from "@hoppscotch/data";
+import { responseErrors } from "./constants";
+import { getMetaDataPairs } from "./getters";
+import { testRunner, getTestScriptParams, hasFailedTestCases } from "./test";
+import { RequestConfig, EffectiveHoppRESTRequest } from "../interfaces/request";
+import { RequestRunnerResponse } from "../interfaces/response";
+import { preRequestScriptRunner } from "./pre-request";
+import { HoppEnvs, RequestReport } from "../types/request";
 import {
-  GRequest,
-  responseErrors,
-  getEffectiveRESTRequest,
-  getTableResponse,
-  getTableStream,
-  getTestResponse,
-  isHoppCLIError,
-  reduceMetaDataToDict,
-} from ".";
-import {
-  RequestStack,
-  RequestConfig,
-  RunnerResponseInfo,
-  EffectiveHoppRESTRequest,
-  TestScriptData,
-} from "../interfaces";
-import { error, HoppCLIError } from "../types";
+  printPreRequestRunner,
+  printRequestRunner,
+  printTestRunner,
+  printTestSuitesReport,
+} from "./display";
+import { error, HoppCLIError } from "../types/errors";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
- * Takes in a Hoppscotch REST Request, and converts each request to an Axios object
- * @param rootPath The file path
- * @param req Hoppscotch REST Request
- * @returns A stack element of the request stack
+ * Transforms given request data to request-config used by request-runner to
+ * perform HTTP request.
+ * @param req Effective request data with parsed ENVs.
+ * @returns Request config with data realted to HTTP request.
  */
-const createRequest = (
-  rootPath: string,
-  req: EffectiveHoppRESTRequest
-): RequestStack => {
+export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
     supported: true,
   };
-  const reqParams = A.isNonEmpty(req.effectiveFinalParams)
-    ? req.effectiveFinalParams
-    : req.params;
-  const reqHeaders = A.isNonEmpty(req.effectiveFinalHeaders)
-    ? req.effectiveFinalHeaders
-    : req.headers;
-  config.url = S.isEmpty(req.effectiveFinalURL)
-    ? req.endpoint
-    : req.effectiveFinalURL;
+  const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
+  const reqParams = finalParams(req);
+  const reqHeaders = finalHeaders(req);
+  config.url = finalEndpoint(req);
   config.method = req.method as Method;
-  config.params = reduceMetaDataToDict(reqParams);
-  config.headers = reduceMetaDataToDict(reqHeaders);
+  config.params = getMetaDataPairs(reqParams);
+  config.headers = getMetaDataPairs(reqHeaders);
   if (req.auth.authActive) {
     switch (req.auth.authType) {
-      case "bearer": {
-        if (!config.headers) {
-          config.headers = {};
-        }
-        config.headers["Authorization"] = `Bearer ${req.auth.token}`;
-        break;
-      }
-      case "basic": {
-        config.auth = {
-          username: req.auth.username,
-          password: req.auth.password,
-        };
-        break;
-      }
       case "oauth-2": {
         // TODO: OAuth2 Request Parsing
         // !NOTE: Temporary `config.supported` check
@@ -84,9 +53,6 @@ const createRequest = (
     }
   }
   if (req.body.contentType) {
-    if (!config.headers) {
-      config.headers = {};
-    }
     config.headers["Content-Type"] = req.body.contentType;
     switch (req.body.contentType) {
       case "multipart/form-data": {
@@ -96,39 +62,38 @@ const createRequest = (
         break;
       }
       default: {
-        config.data =
-          req.effectiveFinalBody !== null
-            ? req.effectiveFinalBody
-            : req.body.body;
+        config.data = finalBody(req);
         break;
       }
     }
   }
-  return {
-    path: `${rootPath}/${req.name.length > 0 ? req.name : "Untitled Request"}`,
-    request: () => axios(config),
-    name: req.name,
-    testScript: req.testScript,
-  };
+
+  return config;
 };
 
 /**
- * The request runner to execute the request stack
- * @param x The request stack
- * @returns The response table row
+ * Performs http request using axios with given requestConfig axios
+ * parameters.
+ * @param requestConfig The axios request config.
+ * @returns If successfully ran, we get runner-response including HTTP response data.
+ * Else, HoppCLIError with appropriate error code & data.
  */
 export const requestRunner =
-  (x: RequestStack): T.Task<RunnerResponseInfo> =>
+  (
+    requestConfig: RequestConfig
+  ): TE.TaskEither<HoppCLIError, RequestRunnerResponse> =>
   async () => {
     try {
+      // NOTE: Temporary parsing check for request endpoint.
+      requestConfig.url = new URL(requestConfig.url ?? "").toString();
+
       let status: number;
-      const baseResponse = await x.request();
+      const baseResponse = await axios(requestConfig);
       const { config } = baseResponse;
-      const runnerResponse: RunnerResponseInfo = {
+      const runnerResponse: RequestRunnerResponse = {
         ...baseResponse,
-        path: x.path,
-        endpoint: GRequest.endpoint(config.url),
-        method: GRequest.method(config.method),
+        endpoint: getRequest.endpoint(config.url),
+        method: getRequest.method(config.method),
         body: baseResponse.data,
       };
 
@@ -139,196 +104,188 @@ export const requestRunner =
         runnerResponse.statusText = responseErrors[status];
       }
 
-      return runnerResponse;
-    } catch (err) {
-      let status: number;
-      let statusText: string;
-      const runnerResponse: RunnerResponseInfo = {
-        path: x.path,
-        endpoint: "",
-        method: "GET",
-        body: {},
-        statusText: "",
-        status: 0,
-        headers: [],
-      };
-
-      if (axios.isAxiosError(err)) {
-        runnerResponse.method = GRequest.method(err.config.method);
-        runnerResponse.endpoint = GRequest.endpoint(err.config.url);
-
-        // !NOTE: Temporary `config.supported` check
-        if ((err.config as RequestConfig).supported === false) {
-          status = 501;
-          statusText = responseErrors[status];
-        } else if (!err.response) {
-          status = 408;
-          statusText = responseErrors[status];
-        } else {
-          status = err.response.status;
-          statusText = err.response.statusText;
-        }
-      } else {
-        status = 600;
-        statusText = responseErrors[status];
-      }
-      runnerResponse.status = status;
-      runnerResponse.statusText = statusText;
-
-      return runnerResponse;
+      return E.right(runnerResponse);
+    } catch (e) {
+      return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
     }
   };
 
 /**
- * The request parser from the collection JSON.
- * @param collection The collection object parsed from the JSON.
- * @param rootPath The folder path.
- * @returns RequestStack[] - Created request-stacks successfully parsed
- * from HoppCollection.
- * HoppCLIError - On error while parsing HoppCollection.
+ * Getter object methods for request-runner.
  */
-export const requestsParser = (
-  collection: HoppCollection<HoppRESTRequest>,
-  rootPath: string = "$ROOT"
-): TE.TaskEither<HoppCLIError, RequestStack[]> =>
-  pipe(
-    /**
-     * Mapping collection's HoppRESTRequests to EffectiveHoppRESTRequest,
-     * then running preRequestScriptRunner over them and mapping output
-     * to RequestStack[].
-     */
-    collection.requests,
-    A.map(
-      (hoppRequest) =>
-        <EffectiveHoppRESTRequest>{
-          ...hoppRequest,
-          effectiveFinalBody: null,
-          effectiveFinalHeaders: [],
-          effectiveFinalParams: [],
-          effectiveFinalURL: S.empty,
-        }
-    ),
-    A.map(preRequestScriptRunner),
-    TE.sequenceArray,
-    TE.map(RA.toArray),
-    TE.map(
-      A.map((effHoppRequest) =>
-        createRequest(`${rootPath}/${collection.name}`, effHoppRequest)
-      )
-    ),
+const getRequest = {
+  method: (value: string | undefined) =>
+    value ? (value.toUpperCase() as Method) : "GET",
 
-    /**
-     * Recursive call to requestsParser on collections's folder, the
-     * RequestStack[] output is concated with parsedRequests.
-     */
-    TE.chain((parsedRequests) =>
-      pipe(
-        collection.folders,
-        A.map((a) => requestsParser(a, `${rootPath}/${collection.name}`)),
-        TE.sequenceArray,
-        TE.map(flow(RA.toArray, A.flatten, A.concat(parsedRequests)))
-      )
-    )
-  );
+  endpoint: (value: string | undefined): string => (value ? value : ""),
 
-const preRequestScriptRunner = (
-  request: EffectiveHoppRESTRequest
-): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
-  pipe(
-    TE.of(request),
-    TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, { global: [], selected: [] })
-    ),
-    TE.map(({ selected }) => <Environment>{ name: "Env", variables: selected }),
-    TE.chainEitherKW((env) => getEffectiveRESTRequest(request, env)),
-    TE.mapLeft((reason) =>
-      isHoppCLIError(reason)
-        ? reason
-        : error({
-            code: "PRE_REQUEST_SCRIPT_ERROR",
-            name: request.name,
-            data: reason,
-          })
-    )
-  );
+  finalEndpoint: (req: EffectiveHoppRESTRequest): string =>
+    S.isEmpty(req.effectiveFinalURL) ? req.endpoint : req.effectiveFinalURL,
 
-export const runRequests = (
-  requests: RequestStack[]
-): TE.TaskEither<HoppCLIError, TestScriptData[]> =>
-  pipe(
-    TE.tryCatch(
-      async () => {
-        if (A.isNonEmpty(requests)) {
-          /**
-           * Initializing output table stream and writing table header
-           * to stdout.
-           */
-          const tableStream = getTableStream();
-          responseTableOutput.header(tableStream);
+  finalHeaders: (req: EffectiveHoppRESTRequest) =>
+    A.isNonEmpty(req.effectiveFinalHeaders)
+      ? req.effectiveFinalHeaders
+      : req.headers,
 
-          /**
-           * Mapping each RequestStack to TestScriptData, and writing
-           * each requests's response data to table using tableStream.
-           */
-          const testScriptData = await pipe(
-            requests,
-            A.map((request) =>
-              pipe(
-                request,
-                requestRunner,
-                T.chainFirst((res) =>
-                  T.of(responseTableOutput.body(res, tableStream))
-                ),
-                T.map(
-                  (res) =>
-                    <TestScriptData>{
-                      name: request.name,
-                      testScript: request.testScript,
-                      response: getTestResponse(res),
-                    }
-                )
-              )
-            ),
-            T.sequenceArray,
-            T.map(RA.toArray)
-          )();
+  finalParams: (req: EffectiveHoppRESTRequest) =>
+    A.isNonEmpty(req.effectiveFinalParams)
+      ? req.effectiveFinalParams
+      : req.params,
 
-          responseTableOutput.footer();
-          return testScriptData;
-        }
-        return [];
-      },
-      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
-    )
-  );
+  finalBody: (req: EffectiveHoppRESTRequest) =>
+    req.effectiveFinalBody ? req.effectiveFinalBody : req.body.body,
+};
 
 /**
- * Table output object to handle requests & response data
- * on stdout.
+ * Processes given request, which includes executing pre-request-script,
+ * running request & executing test-script.
+ * @param request Request to be processed.
+ * @param envs Global + selected envs used by requests with in collection.
+ * @returns Updated envs and current request's report.
  */
-export const responseTableOutput = {
-  // Write table header with column details.
-  header: (tableStream: WritableStream) => {
-    clear();
-    tableStream.write([
-      pipe("PATH", chalk.cyanBright, chalk.bold),
-      pipe("METHOD", chalk.cyanBright, chalk.bold),
-      pipe("ENDPOINT", chalk.cyanBright, chalk.bold),
-      pipe("STATUS CODE", chalk.cyanBright, chalk.bold),
-    ]);
-  },
+export const processRequest =
+  (
+    request: HoppRESTRequest,
+    envs: HoppEnvs,
+    path: string
+  ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
+  async () => {
+    // Initialising updatedEnvs with given parameter envs, will eventually get updated.
+    const result = {
+      envs: <HoppEnvs>envs,
+      report: <RequestReport>{},
+    };
 
-  // Concats response data row in given table stream.
-  body: (response: RunnerResponseInfo, tableStream: WritableStream) => {
-    const tableResponse = getTableResponse(response);
-    tableStream.write([
-      tableResponse.path,
-      tableResponse.method,
-      tableResponse.endpoint,
-      tableResponse.statusCode,
-    ]);
-  },
+    // Initial value for current request's report with default values for properties.
+    const report: RequestReport = {
+      path: path,
+      tests: [],
+      errors: [],
+      result: true,
+    };
 
-  // Handles end of stdout table.
-  footer: () => process.stdout.write("\n"),
+    // Initial value for effective-request with default values for properties.
+    let effectiveRequest = <EffectiveHoppRESTRequest>{
+      ...request,
+      effectiveFinalBody: null,
+      effectiveFinalHeaders: [],
+      effectiveFinalParams: [],
+      effectiveFinalURL: "",
+    };
+
+    // Executing pre-request-script
+    const preRequestRes = await preRequestScriptRunner(request, envs)();
+    if (E.isLeft(preRequestRes)) {
+      printPreRequestRunner.fail();
+
+      // Updating report for errors & current result
+      report.errors.push(preRequestRes.left);
+      report.result = report.result && false;
+    } else {
+      // Updating effective-request
+      effectiveRequest = preRequestRes.right;
+    }
+
+    // Creating request-config for request-runner.
+    const requestConfig = createRequest(effectiveRequest);
+
+    printRequestRunner.start(requestConfig);
+
+    // Default value for request-runner's response.
+    let _requestRunnerRes: RequestRunnerResponse = {
+      endpoint: "",
+      method: "GET",
+      headers: [],
+      status: 400,
+      statusText: "",
+      body: Object(null),
+    };
+    // Executing request-runner.
+    const requestRunnerRes = await requestRunner(requestConfig)();
+    if (E.isLeft(requestRunnerRes)) {
+      // Updating report for errors & current result
+      report.errors.push(requestRunnerRes.left);
+      report.result = report.result && false;
+
+      printRequestRunner.fail();
+    } else {
+      _requestRunnerRes = requestRunnerRes.right;
+      printRequestRunner.success(_requestRunnerRes);
+    }
+
+    // Extracting test-script-runner parameters.
+    const testScriptParams = getTestScriptParams(
+      _requestRunnerRes,
+      request,
+      envs
+    );
+
+    // Executing test-runner.
+    const testRunnerRes = await testRunner(testScriptParams)();
+    if (E.isLeft(testRunnerRes)) {
+      printTestRunner.fail();
+
+      // Updating report with current errors & result.
+      report.errors.push(testRunnerRes.left);
+      report.result = report.result && false;
+    } else {
+      const { envs, testsReport } = testRunnerRes.right;
+      const _hasFailedTestCases = hasFailedTestCases(testsReport);
+
+      // Updating report with current tests & result.
+      report.tests = testsReport;
+      report.result = report.result && _hasFailedTestCases;
+
+      // Updating resulting envs from test-runner.
+      result.envs = envs;
+
+      printTestSuitesReport(testsReport);
+    }
+
+    result.report = report;
+
+    return result;
+  };
+
+/**
+ * Generates new request without any missing/invalid data using
+ * current request object.
+ * @param request Hopp rest request to be processed.
+ * @returns Updated request object free of invalid/missing data.
+ */
+export const preProcessRequest = (
+  request: HoppRESTRequest
+): HoppRESTRequest => {
+  const tempRequest = Object.assign({}, request);
+  if (!tempRequest.v) {
+    tempRequest.v = "1";
+  }
+  if (!tempRequest.name) {
+    tempRequest.name = "Untitled Request";
+  }
+  if (!tempRequest.method) {
+    tempRequest.method = "GET";
+  }
+  if (!tempRequest.endpoint) {
+    tempRequest.endpoint = "";
+  }
+  if (!tempRequest.params) {
+    tempRequest.params = [];
+  }
+  if (!tempRequest.headers) {
+    tempRequest.headers = [];
+  }
+  if (!tempRequest.preRequestScript) {
+    tempRequest.preRequestScript = "";
+  }
+  if (!tempRequest.testScript) {
+    tempRequest.testScript = "";
+  }
+  if (!tempRequest.auth) {
+    tempRequest.auth = { authActive: false, authType: "none" };
+  }
+  if (!tempRequest.body) {
+    tempRequest.body = { contentType: null, body: null };
+  }
+  return tempRequest;
 };

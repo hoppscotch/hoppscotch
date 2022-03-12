@@ -1,37 +1,34 @@
 import chalk from "chalk";
-import { CommanderError } from "commander";
 import { log } from "console";
-import { HoppError, HoppErrorCode } from "../types";
-import { parseErrorMessage } from "../utils";
+import * as S from "fp-ts/string";
+import { HoppError, HoppErrorCode } from "../types/errors";
+import { hasProperty, isSafeCommanderError } from "../utils/checks";
+import { parseErrorMessage } from "../utils/mutators";
 
 /**
- * Parses error data passed in error object realted to
- * script-errors.
+ * Parses unknown error data and narrows it to get information realted to
+ * error in string format.
  * @param e Error data to parse.
- * @returns String message appropriately parsed, based on error
- * type.
+ * @returns Information in string format appropriately parsed, based on error type.
  */
-const parseRequestScriptError = (e: any) => {
+const parseRequestScriptError = (e: unknown) => {
   let parsedMsg: string;
-  if (typeof e === "object") {
-    parsedMsg = e.message || e.data;
-  } else if (typeof e == "string") {
+
+  if (!!e && typeof e === "object") {
+    if (hasProperty(e, "message") && S.isString(e.message)) {
+      parsedMsg = e.message;
+    } else if (hasProperty(e, "data") && S.isString(e.data)) {
+      parsedMsg = e.data;
+    } else {
+      parsedMsg = JSON.stringify(e);
+    }
+  } else if (S.isString(e)) {
     parsedMsg = e;
   } else {
     parsedMsg = JSON.stringify(e);
   }
-  return parsedMsg;
-};
 
-/**
- * Handles CommanderError to ignore non-zero exitCode errors.
- * In case of exitCode = 0, program immediately exits with 0.
- * @param error Error data to check.
- */
-export const handleCommanderError = (error: unknown) => {
-  if (error instanceof CommanderError && error.exitCode === 0) {
-    process.exit(0);
-  }
+  return parsedMsg;
 };
 
 /**
@@ -40,48 +37,49 @@ export const handleCommanderError = (error: unknown) => {
  * @param error Error object with code of type HoppErrorCode.
  */
 export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
-  const ERROR_CODE = `${chalk.bgRed.black(error.code)} `;
+  const ERROR_CODE = chalk.bgRed.black(error.code);
   let ERROR_MSG;
 
   switch (error.code) {
     case "FILE_NOT_FOUND":
-      ERROR_MSG = `File not found for given path: ${error.path}`;
+      ERROR_MSG = `File doesn't exists: ${error.path}`;
       break;
     case "UNKNOWN_COMMAND":
       ERROR_MSG = `Unavailable command: ${error.command}`;
       break;
     case "FILE_NOT_JSON":
-      ERROR_MSG = `Given file path isn't json type: ${error.path}`;
+      ERROR_MSG = `Please check file type: ${error.path}`;
       break;
     case "MALFORMED_COLLECTION":
-      ERROR_MSG = `Unable to process given collection file: ${error.path}`;
+      ERROR_MSG = `Please check the collection file: ${error.path}`;
       break;
     case "NO_FILE_PATH":
-      ERROR_MSG = `Please provide a hoppscotch-collection file.`;
+      ERROR_MSG = `Please provide a hoppscotch-collection file path.`;
       break;
     case "PARSING_ERROR":
-      ERROR_MSG = `Unable to parse - ${error.data}`;
+      ERROR_MSG = `Error while parsing - \n${error.data}`;
       break;
     case "TEST_SCRIPT_ERROR":
-      ERROR_MSG = `Unable to run test-script - "${
-        error.name
-      }": ${parseRequestScriptError(error.data)}`;
+      ERROR_MSG = parseRequestScriptError(error.data);
       break;
     case "PRE_REQUEST_SCRIPT_ERROR":
-      ERROR_MSG = `Unable to run pre-request-script - "${
-        error.name
-      }": ${parseRequestScriptError(error.data)}`;
+      ERROR_MSG = parseRequestScriptError(error.data);
       break;
     case "UNKNOWN_ERROR":
     case "SYNTAX_ERROR":
-      handleCommanderError(error.data);
-      ERROR_MSG = parseErrorMessage(error.data);
+      if (isSafeCommanderError(error.data)) {
+        ERROR_MSG = S.empty;
+      } else {
+        ERROR_MSG = parseErrorMessage(error.data);
+      }
       break;
     case "TESTS_FAILING":
       ERROR_MSG = error.data;
       break;
   }
 
-  log(ERROR_CODE + chalk.redBright(ERROR_MSG));
-  process.exit(1);
+  if (!S.isEmpty(ERROR_MSG)) {
+    ERROR_MSG = chalk.redBright(ERROR_MSG);
+    log(ERROR_CODE, ERROR_MSG);
+  }
 };

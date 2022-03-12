@@ -1,80 +1,76 @@
 import fs from "fs/promises";
 import { join } from "path";
-import { flow, pipe } from "fp-ts/function";
+import { pipe } from "fp-ts/function";
 import {
-  isHoppRESTRequest,
   HoppCollection,
   HoppRESTRequest,
+  isHoppRESTRequest,
 } from "@hoppscotch/data";
 import * as A from "fp-ts/Array";
 import * as S from "fp-ts/string";
 import * as TE from "fp-ts/TaskEither";
-import * as O from "fp-ts/Option";
-import { error, HoppCLIError, HoppErrno } from "../types";
+import { error, HoppCLIError, HoppErrnoException } from "../types/errors";
+import { CommanderError } from "commander";
+
+/**
+ * Determines whether an object has a property with given name.
+ * @param target Object to be checked for given property.
+ * @param prop Property to be checked in target object.
+ * @returns True, if property exists in target object; False, otherwise.
+ */
+export const hasProperty = <P extends PropertyKey>(
+  target: object,
+  prop: P
+): target is Record<P, unknown> => prop in target;
 
 /**
  * Typeguard to check valid Hoppscotch REST Collection.
  * @param param The object to be checked.
- * @returns Boolean value corresponding to the validity check.
+ * @returns True, if unknown parameter is valid Hoppscotch REST Collection;
+ * False, otherwise.
  */
 export const isRESTCollection = (
   param: unknown
-): param is HoppCollection<HoppRESTRequest> =>
-  pipe(
-    param,
+): param is HoppCollection<HoppRESTRequest> => {
+  if (!!param && typeof param === "object") {
+    if (!hasProperty(param, "v") || typeof param.v !== "number") {
+      return false;
+    }
+    if (!hasProperty(param, "name") || typeof param.name !== "string") {
+      return false;
+    }
+    if (hasProperty(param, "id") && typeof param.id !== "string") {
+      return false;
+    }
+    if (!hasProperty(param, "requests") || !Array.isArray(param.requests)) {
+      return false;
+    } else {
+      // Checks each requests array to be valid HoppRESTRequest.
+      const checkRequests = A.every(isHoppRESTRequest)(param.requests);
+      if (!checkRequests) {
+        return false;
+      }
+    }
+    if (!hasProperty(param, "folders") || !Array.isArray(param.folders)) {
+      return false;
+    } else {
+      // Checks each folder to be valid REST collection.
+      const checkFolders = A.every(isRESTCollection)(param.folders);
+      if (!checkFolders) {
+        return false;
+      }
+    }
 
-    // Validate param to be null-object.
-    O.fromPredicate((a) => typeof a === "object" && a !== null),
+    return true;
+  }
 
-    // Check if "v" exists in param and equals 1.
-    O.chain(
-      flow(
-        Object,
-        O.fromPredicate((a) => "v" in a && a.v === 1)
-      )
-    ),
-
-    // Check if param has string property "name".
-    O.chainFirst(O.fromPredicate((a) => "name" in a && S.isString(a.name))),
-
-    /**
-     * Check if param has array of HoppRESTRequest property
-     * "requests".
-     */
-    O.chainFirst(O.fromPredicate((a) => "requests" in a)),
-    O.chainFirst((a) =>
-      pipe(
-        a.requests,
-        O.fromPredicate(Array.isArray),
-        O.chain(O.fromPredicate(A.every(isHoppRESTRequest)))
-      )
-    ),
-
-    /**
-     * Check if param has array of HoppCollection<HoppRESTRequest>
-     * property "folders".
-     */
-    O.chainFirst(O.fromPredicate((a) => "folders" in a)),
-    O.chainFirst((a) =>
-      pipe(
-        a.folders,
-        O.fromPredicate(Array.isArray),
-        O.chain(O.fromPredicate(A.every(isRESTCollection)))
-      )
-    ),
-
-    /**
-     * Return true if param is HoppCollection<HoppRESTRequest>,
-     * else false.
-     */
-    O.map((_) => true),
-    O.getOrElseW(() => false)
-  );
+  return false;
+};
 
 /**
  * Checks if the given file path exists and is of JSON type.
  * @param path The input file path to check.
- * @returns Absolute path for input file path.
+ * @returns Absolute path for valid file path OR HoppCLIError in case of error.
  */
 export const checkFilePath = (
   path: string
@@ -82,20 +78,28 @@ export const checkFilePath = (
   pipe(
     path,
 
-    // Check if given path is string type.
+    /**
+     * Check the path type and returns string if passes else HoppCLIError.
+     */
     TE.fromPredicate(S.isString, () => error({ code: "NO_FILE_PATH" })),
 
-    // Try to access given file path.
-    TE.tryCatchK(
-      () => pipe(path, join, fs.access),
-      () => error({ code: "FILE_NOT_FOUND", path: path })
+    /**
+     * Trying to access given file path.
+     * If successfully accessed, we return the path from predicate step.
+     * Else return HoppCLIError with code FILE_NOT_FOUND.
+     */
+    TE.chainFirstW(
+      TE.tryCatchK(
+        () => pipe(path, join, fs.access),
+        () => error({ code: "FILE_NOT_FOUND", path: path })
+      )
     ),
 
     /**
      * On successfully accessing given file path, we map file path to
      * absolute path and return abs file path if file is JSON type.
      */
-    TE.map(() => join(path)),
+    TE.map(join),
     TE.chainW(
       TE.fromPredicate(S.endsWith(".json"), (absPath) =>
         error({ code: "FILE_NOT_JSON", path: absPath })
@@ -104,21 +108,48 @@ export const checkFilePath = (
   );
 
 /**
- * Checks if given error data is of type HoppCLIError, based on
- * existence of code property.
+ * Checks if given error data is of type HoppCLIError, based on existence
+ * of code property.
  * @param error Error data to check.
- * @returns Boolean based on data validation.
+ * @returns True, if unknown error validates to be HoppCLIError;
+ * False, otherwise.
  */
-export const isHoppCLIError = (error: any): error is HoppCLIError => {
-  return error.code !== undefined;
+export const isHoppCLIError = (error: unknown): error is HoppCLIError => {
+  return (
+    !!error &&
+    typeof error === "object" &&
+    hasProperty(error, "code") &&
+    typeof error.code === "string"
+  );
 };
 
 /**
- * Checks if given error data is of type HoppErrno, based on
- * existence of name property.
+ * Checks if given error data is of type HoppErrnoException, based on existence
+ * of name property.
  * @param error Error data to check.
- * @returns Boolean based on data validation.
+ * @returns True, if unknown error validates to be HoppErrnoException;
+ * False, otherwise.
  */
-export const isHoppErrno = (error: any): error is HoppErrno => {
-  return error.name !== undefined;
+export const isHoppErrnoException = (
+  error: unknown
+): error is HoppErrnoException => {
+  return (
+    !!error &&
+    typeof error === "object" &&
+    hasProperty(error, "name") &&
+    typeof error.name === "string"
+  );
+};
+
+/**
+ * Check whether given unknown error is instance of commander-error and
+ * has zero exit code (which we consider as safe error).
+ * @param error Error data to check.
+ * @returns True, if error data validates to be safe-commander-error;
+ * False, otherwise.
+ */
+export const isSafeCommanderError = (
+  error: unknown
+): error is CommanderError => {
+  return error instanceof CommanderError && error.exitCode === 0;
 };

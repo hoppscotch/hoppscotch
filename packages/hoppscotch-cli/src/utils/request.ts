@@ -2,45 +2,41 @@ import axios, { Method } from "axios";
 import chalk from "chalk";
 import { WritableStream } from "table";
 import * as S from "fp-ts/string";
-import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
 import * as T from "fp-ts/Task";
 import * as TE from "fp-ts/TaskEither";
-import * as RA from "fp-ts/ReadonlyArray";
 import { flow, pipe } from "fp-ts/function";
-import { clear } from "console";
-import { HoppRESTRequest, HoppCollection, Environment } from "@hoppscotch/data";
-import { runPreRequestScript } from "@hoppscotch/js-sandbox";
+import { HoppRESTRequest } from "@hoppscotch/data";
+import { responseErrors } from "./constants";
+import { getTableResponse, getTableStream, getMetaDataPairs } from "./getters";
 import {
-  GRequest,
-  responseErrors,
-  getEffectiveRESTRequest,
-  getTableResponse,
-  getTableStream,
-  getTestResponse,
-  isHoppCLIError,
-  reduceMetaDataToDict,
-} from ".";
+  testRunner,
+  testsReportOutput,
+  getTestScriptParams,
+  getTestMetrics,
+} from "./test";
 import {
   RequestStack,
   RequestConfig,
-  RunnerResponseInfo,
   EffectiveHoppRESTRequest,
-  TestScriptData,
-} from "../interfaces";
-import { error, HoppCLIError } from "../types";
+} from "../interfaces/request";
+import { RequestRunnerResponse } from "../interfaces/response";
+import { HoppCLIError } from "../types/errors";
+import { TestMetrics } from "../types/response";
+import { preRequestScriptRunner } from "./pre-request";
+import { HoppEnvs } from "../types/request";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
 /**
- * Takes in a Hoppscotch REST Request, and converts each request to an Axios object
- * @param rootPath The file path
- * @param req Hoppscotch REST Request
- * @returns A stack element of the request stack
+ * Transforms given request data to request-stack which includes axios request-promise,
+ * testScript & request's path in collection.
+ * @param req Updated Hopp REST request by executing effective request.
+ * @returns A ready stack element of the request stack.
  */
-const createRequest = (
-  rootPath: string,
-  req: EffectiveHoppRESTRequest
+export const createRequest = (
+  req: EffectiveHoppRESTRequest,
+  rootPath: string = "$root"
 ): RequestStack => {
   const config: RequestConfig = {
     supported: true,
@@ -55,8 +51,8 @@ const createRequest = (
     ? req.endpoint
     : req.effectiveFinalURL;
   config.method = req.method as Method;
-  config.params = reduceMetaDataToDict(reqParams);
-  config.headers = reduceMetaDataToDict(reqHeaders);
+  config.params = getMetaDataPairs(reqParams);
+  config.headers = getMetaDataPairs(reqHeaders);
   if (req.auth.authActive) {
     switch (req.auth.authType) {
       case "bearer": {
@@ -105,30 +101,29 @@ const createRequest = (
     }
   }
   return {
-    path: `${rootPath}/${req.name.length > 0 ? req.name : "Untitled Request"}`,
     request: () => axios(config),
-    name: req.name,
-    testScript: req.testScript,
+    path: `${rootPath}/${req.name}`,
   };
 };
 
 /**
- * The request runner to execute the request stack
- * @param x The request stack
+ * Executes given request-stack returning task consisting of executed
+ * axios-request's response.
+ * @param requestStack The request stack
  * @returns The response table row
  */
 export const requestRunner =
-  (x: RequestStack): T.Task<RunnerResponseInfo> =>
+  (requestStack: RequestStack): T.Task<RequestRunnerResponse> =>
   async () => {
     try {
       let status: number;
-      const baseResponse = await x.request();
+      const baseResponse = await requestStack.request();
       const { config } = baseResponse;
-      const runnerResponse: RunnerResponseInfo = {
+      const runnerResponse: RequestRunnerResponse = {
         ...baseResponse,
-        path: x.path,
-        endpoint: GRequest.endpoint(config.url),
-        method: GRequest.method(config.method),
+        path: requestStack.path,
+        endpoint: getRequest.endpoint(config.url),
+        method: getRequest.method(config.method),
         body: baseResponse.data,
       };
 
@@ -143,8 +138,8 @@ export const requestRunner =
     } catch (err) {
       let status: number;
       let statusText: string;
-      const runnerResponse: RunnerResponseInfo = {
-        path: x.path,
+      const runnerResponse: RequestRunnerResponse = {
+        path: requestStack.path,
         endpoint: "",
         method: "GET",
         body: {},
@@ -154,8 +149,8 @@ export const requestRunner =
       };
 
       if (axios.isAxiosError(err)) {
-        runnerResponse.method = GRequest.method(err.config.method);
-        runnerResponse.endpoint = GRequest.endpoint(err.config.url);
+        runnerResponse.method = getRequest.method(err.config.method);
+        runnerResponse.endpoint = getRequest.endpoint(err.config.url);
 
         // !NOTE: Temporary `config.supported` check
         if ((err.config as RequestConfig).supported === false) {
@@ -180,136 +175,106 @@ export const requestRunner =
   };
 
 /**
- * The request parser from the collection JSON.
- * @param collection The collection object parsed from the JSON.
- * @param rootPath The folder path.
- * @returns RequestStack[] - Created request-stacks successfully parsed
- * from HoppCollection.
- * HoppCLIError - On error while parsing HoppCollection.
+ * Getter object methods for request-runner.
  */
-export const requestsParser = (
-  collection: HoppCollection<HoppRESTRequest>,
-  rootPath: string = "$ROOT"
-): TE.TaskEither<HoppCLIError, RequestStack[]> =>
+const getRequest = {
+  /**
+   * Checks and transforms given method to uppercase and defaults to GET
+   * if value undefined.
+   * @param value HTTP method name.
+   * @returns Validated uppercase HTTP method name.
+   */
+  method: (value: string | undefined) =>
+    value ? (value.toUpperCase() as Method) : "GET",
+
+  /**
+   * Checks and transforms given endpoint-value and defaults to empty if
+   * value undefined.
+   * @param value HTTP request endpoint.
+   * @returns Validated endpoint as string.
+   */
+  endpoint: (value: string | undefined): string => (value ? value : ""),
+};
+
+/**
+ * Processes given request, which includes executing pre-request-script,
+ * running request & executing test-script.
+ * @param request Request to be processed.
+ * @param envs Global + selected envs utilized by requests with in collection.
+ * @returns Updated envs and test-metrics.
+ */
+export const processRequest = (
+  request: HoppRESTRequest,
+  envs: HoppEnvs,
+  rootPath: string
+): TE.TaskEither<HoppCLIError, { envs: HoppEnvs; testMetrics: TestMetrics }> =>
   pipe(
     /**
-     * Mapping collection's HoppRESTRequests to EffectiveHoppRESTRequest,
-     * then running preRequestScriptRunner over them and mapping output
-     * to RequestStack[].
+     * Running pre-request-script and returns applied envs on request.
      */
-    collection.requests,
-    A.map(
-      (hoppRequest) =>
-        <EffectiveHoppRESTRequest>{
-          ...hoppRequest,
-          effectiveFinalBody: null,
-          effectiveFinalHeaders: [],
-          effectiveFinalParams: [],
-          effectiveFinalURL: S.empty,
-        }
-    ),
-    A.map(preRequestScriptRunner),
-    TE.sequenceArray,
-    TE.map(RA.toArray),
-    TE.map(
-      A.map((effHoppRequest) =>
-        createRequest(`${rootPath}/${collection.name}`, effHoppRequest)
-      )
+    preRequestScriptRunner(request, envs),
+
+    /**
+     * Mapping effective-request from pre-script-runner to generate
+     * request-stack.
+     */
+    TE.map((effRequest) => createRequest(effRequest, rootPath)),
+
+    /**
+     * Using request-stack to run non-failing request.
+     */
+    TE.chainTaskK(requestRunner),
+
+    /**
+     * Printing request-runner's response on stdout, with data including
+     * METHOD, ENDPOINT, STATUS_CODE + STATUS_TEXT.
+     */
+    TE.chainFirstW(flow(requestRunnerResponseOutput, TE.of)),
+
+    /**
+     * Extracting parameters from request-runner-response to be used in
+     * test-runner.
+     */
+    TE.map((reqRunnerRes) => getTestScriptParams(reqRunnerRes, request, envs)),
+
+    /**
+     * Executing test-runner generating tests-report and new envs.
+     */
+    TE.chainW(testRunner),
+
+    /**
+     * Printing details of tests-report on stdout.
+     */
+    TE.chainFirstW(({ testsReport }) =>
+      pipe(testsReport, testsReportOutput, TE.of)
     ),
 
     /**
-     * Recursive call to requestsParser on collections's folder, the
-     * RequestStack[] output is concated with parsedRequests.
+     * Mapping returned envs and testsReport to generate envs + testMetrics
+     * object.
      */
-    TE.chain((parsedRequests) =>
-      pipe(
-        collection.folders,
-        A.map((a) => requestsParser(a, `${rootPath}/${collection.name}`)),
-        TE.sequenceArray,
-        TE.map(flow(RA.toArray, A.flatten, A.concat(parsedRequests)))
-      )
-    )
-  );
-
-const preRequestScriptRunner = (
-  request: EffectiveHoppRESTRequest
-): TE.TaskEither<HoppCLIError, EffectiveHoppRESTRequest> =>
-  pipe(
-    TE.of(request),
-    TE.chain(({ preRequestScript }) =>
-      runPreRequestScript(preRequestScript, { global: [], selected: [] })
-    ),
-    TE.map(({ selected }) => <Environment>{ name: "Env", variables: selected }),
-    TE.chainEitherKW((env) => getEffectiveRESTRequest(request, env)),
-    TE.mapLeft((reason) =>
-      isHoppCLIError(reason)
-        ? reason
-        : error({
-            code: "PRE_REQUEST_SCRIPT_ERROR",
-            name: request.name,
-            data: reason,
-          })
-    )
-  );
-
-export const runRequests = (
-  requests: RequestStack[]
-): TE.TaskEither<HoppCLIError, TestScriptData[]> =>
-  pipe(
-    TE.tryCatch(
-      async () => {
-        if (A.isNonEmpty(requests)) {
-          /**
-           * Initializing output table stream and writing table header
-           * to stdout.
-           */
-          const tableStream = getTableStream();
-          responseTableOutput.header(tableStream);
-
-          /**
-           * Mapping each RequestStack to TestScriptData, and writing
-           * each requests's response data to table using tableStream.
-           */
-          const testScriptData = await pipe(
-            requests,
-            A.map((request) =>
-              pipe(
-                request,
-                requestRunner,
-                T.chainFirst((res) =>
-                  T.of(responseTableOutput.body(res, tableStream))
-                ),
-                T.map(
-                  (res) =>
-                    <TestScriptData>{
-                      name: request.name,
-                      testScript: request.testScript,
-                      response: getTestResponse(res),
-                    }
-                )
-              )
-            ),
-            T.sequenceArray,
-            T.map(RA.toArray)
-          )();
-
-          responseTableOutput.footer();
-          return testScriptData;
-        }
-        return [];
-      },
-      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
-    )
+    TE.map(({ envs, testsReport }) => ({
+      envs: envs,
+      testMetrics: getTestMetrics(testsReport),
+    }))
   );
 
 /**
- * Table output object to handle requests & response data
- * on stdout.
+ * Prints request-runner-response on console in table format.
+ * @param response Returned response data from request-runner.
  */
-export const responseTableOutput = {
-  // Write table header with column details.
+const requestRunnerResponseOutput = (response: RequestRunnerResponse) => {
+  const tableStream = getTableStream();
+  tableOutput.header(tableStream);
+  tableOutput.body(response, tableStream);
+  tableOutput.footer();
+};
+
+/**
+ * Table output object to handle requests & response data console.
+ */
+const tableOutput = {
   header: (tableStream: WritableStream) => {
-    clear();
     tableStream.write([
       pipe("PATH", chalk.cyanBright, chalk.bold),
       pipe("METHOD", chalk.cyanBright, chalk.bold),
@@ -318,8 +283,7 @@ export const responseTableOutput = {
     ]);
   },
 
-  // Concats response data row in given table stream.
-  body: (response: RunnerResponseInfo, tableStream: WritableStream) => {
+  body: (response: RequestRunnerResponse, tableStream: WritableStream) => {
     const tableResponse = getTableResponse(response);
     tableStream.write([
       tableResponse.path,
@@ -328,7 +292,7 @@ export const responseTableOutput = {
       tableResponse.statusCode,
     ]);
   },
-
-  // Handles end of stdout table.
-  footer: () => process.stdout.write("\n"),
+  footer: () => {
+    process.stdout.write("\n");
+  },
 };

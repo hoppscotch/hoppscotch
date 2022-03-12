@@ -2,7 +2,7 @@ import { program } from "commander";
 import * as E from "fp-ts/Either";
 import { version } from "../package.json";
 import { run } from "./commands";
-import { handleError } from "./handlers";
+import { handleError } from "./handlers/error";
 
 /**
  * * Program Default Configuration

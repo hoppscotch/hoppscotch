@@ -13,8 +13,6 @@ import { HoppRESTRequest } from "@hoppscotch/data";
 export interface RequestStack {
   request: () => AxiosPromise<any>;
   path: string;
-  name: string;
-  testScript: string;
 }
 
 /**

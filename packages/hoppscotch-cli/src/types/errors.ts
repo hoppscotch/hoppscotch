@@ -10,10 +10,6 @@ type HoppErrorData = {
   data: any;
 };
 
-type HoppErrorScript = {
-  name: string;
-} & HoppErrorData;
-
 type HoppErrors = {
   UNKNOWN_ERROR: HoppErrorData;
   FILE_NOT_FOUND: HoppErrorPath;
@@ -21,9 +17,9 @@ type HoppErrors = {
   MALFORMED_COLLECTION: HoppErrorPath;
   FILE_NOT_JSON: HoppErrorPath;
   NO_FILE_PATH: {};
-  PRE_REQUEST_SCRIPT_ERROR: HoppErrorScript;
+  PRE_REQUEST_SCRIPT_ERROR: HoppErrorData;
   PARSING_ERROR: HoppErrorData;
-  TEST_SCRIPT_ERROR: HoppErrorScript;
+  TEST_SCRIPT_ERROR: HoppErrorData;
   TESTS_FAILING: HoppErrorData;
   SYNTAX_ERROR: HoppErrorData;
 };
@@ -35,4 +31,4 @@ export type HoppError<T extends HoppErrorCode> = T extends null
 
 export const error = <T extends HoppErrorCode>(error: HoppError<T>) => error;
 export type HoppCLIError = HoppError<HoppErrorCode>;
-export type HoppErrno = NodeJS.ErrnoException;
+export type HoppErrnoException = NodeJS.ErrnoException;

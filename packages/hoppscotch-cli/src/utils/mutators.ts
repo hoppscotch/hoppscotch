@@ -2,19 +2,12 @@ import fs from "fs/promises";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import * as A from "fp-ts/Array";
-import * as RA from "fp-ts/ReadonlyArray";
 import * as J from "fp-ts/Json";
-import * as S from "fp-ts/string";
-import { flow, pipe } from "fp-ts/function";
-import { RequestStack } from "../interfaces";
-import { FormDataEntry, error, HoppCLIError } from "../types";
-import { isRESTCollection, requestsParser, isHoppErrno } from ".";
-import {
-  HoppCollection,
-  HoppRESTHeader,
-  HoppRESTParam,
-  HoppRESTRequest,
-} from "@hoppscotch/data";
+import { pipe } from "fp-ts/function";
+import { FormDataEntry } from "../types/request";
+import { error, HoppCLIError } from "../types/errors";
+import { isRESTCollection, isHoppErrnoException } from "./checks";
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 
 /**
  * Parses array of FormDataEntry to FormData.
@@ -36,7 +29,7 @@ export const toFormData = (values: FormDataEntry[]) => {
  */
 export const parseErrorMessage = (e: unknown) => {
   let msg: string;
-  if (isHoppErrno(e)) {
+  if (isHoppErrnoException(e)) {
     msg = e.message.replace(e.code! + ":", "").replace("error:", "");
   } else if (typeof e === "string") {
     msg = e;
@@ -77,41 +70,5 @@ export const parseCollectionData = (
       TE.fromPredicate(A.every(isRESTCollection), () =>
         error({ code: "MALFORMED_COLLECTION", path })
       )
-    )
-  );
-
-/**
- * Flattens nested requests.
- * @param collections Array of hopp-collection's hopp-rest-request.
- * @returns Flattened array of requests-stack.
- */
-export const flattenRequests = (
-  collections: HoppCollection<HoppRESTRequest>[]
-): TE.TaskEither<HoppCLIError, RequestStack[]> =>
-  pipe(
-    collections,
-    A.map(requestsParser), // Mapping each collection to RequestStack.
-    TE.sequenceArray,
-    TE.map(flow(RA.flatten, RA.toArray))
-  );
-
-/**
- * Reduces array of HoppRESTParam or HoppRESTHeader to dictionary
- * style key-value pair object.
- * @param metaData Array of meta-data to reduce.
- * @returns Object with unique key-value pair.
- */
-export const reduceMetaDataToDict = (
-  metaData: HoppRESTParam[] | HoppRESTHeader[]
-) =>
-  pipe(
-    metaData,
-
-    // Excluding non-active & empty key request meta-data.
-    A.filter(({ active, key }) => active && !S.isEmpty(key)),
-
-    // Reducing array of request-meta-data to key-value pair object.
-    A.reduce({}, (target, { key, value }) =>
-      Object.assign(target, { [`${key}`]: value })
     )
   );

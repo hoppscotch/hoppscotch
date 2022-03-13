@@ -2,7 +2,7 @@ import { HoppGQLAuth } from "./HoppGQLAuth"
 
 export * from "./HoppGQLAuth"
 
-export const GQLReqSchemaVersion = 2
+export const GQL_REQ_SCHEMA_VERSION = 2
 
 export type GQLHeader = {
   key: string
@@ -21,7 +21,7 @@ export type HoppGQLRequest = {
 }
 
 export function translateToGQLRequest(x: any): HoppGQLRequest {
-  if (x.v && x.v === GQLReqSchemaVersion) return x
+  if (x.v && x.v === GQL_REQ_SCHEMA_VERSION) return x
 
   // Old request
   const name = x.name ?? "Untitled"
@@ -35,7 +35,7 @@ export function translateToGQLRequest(x: any): HoppGQLRequest {
   }
 
   return {
-    v: GQLReqSchemaVersion,
+    v: GQL_REQ_SCHEMA_VERSION,
     name,
     url,
     headers,
@@ -47,7 +47,7 @@ export function translateToGQLRequest(x: any): HoppGQLRequest {
 
 export function makeGQLRequest(x: Omit<HoppGQLRequest, "v">): HoppGQLRequest {
   return {
-    v: GQLReqSchemaVersion,
+    v: GQL_REQ_SCHEMA_VERSION,
     ...x,
   }
 }

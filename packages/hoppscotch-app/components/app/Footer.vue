@@ -155,12 +155,6 @@
           :title="t('app.shortcuts')"
           @click.native="showShortcuts = true"
         />
-        <!-- <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          svg="zap"
-          :title="t('app.shortcuts')"
-          @click.native="showShortcuts = true"
-        />-->
         <ButtonSecondary
           v-if="navigatorShare"
           v-tippy="{ theme: 'tooltip' }"
@@ -194,7 +188,6 @@
       </div>
     </div>
     <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
-    <!-- <MiniCollection :show="showShortcuts" @close="showShortcuts = false" /> -->
     <AppShare :show="showShare" @hide-modal="showShare = false" />
     <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
   </div>
@@ -202,7 +195,6 @@
 
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
-// import MiniCollection from "./MiniCollection.vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 import { useSetting } from "~/newstore/settings"

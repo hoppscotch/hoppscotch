@@ -208,7 +208,6 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
-// import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -543,7 +542,4 @@ const isCustomMethod = computed(() => {
 const requestName = useRESTRequestName()
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
-
-// const breakpoints = useBreakpoints(breakpointsTailwind)
-// const mdAndLarger = breakpoints.greater("md")
 </script>

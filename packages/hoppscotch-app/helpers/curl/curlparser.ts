@@ -291,7 +291,7 @@ function parseURL(parsedArguments: parser.Arguments) {
   return pipe(
     parsedArguments?._[1],
     O.fromNullable,
-    O.map((u) => u.replace(/["']/g, "")),
+    O.map((u) => u.toString().replace(/["']/g, "")),
     O.map((u) => u.trim()),
     O.chain((u) =>
       pipe(

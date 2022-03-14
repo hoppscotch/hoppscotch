@@ -151,7 +151,7 @@
     "@vue/composition-api": "^1.4.9",
     "@vue/runtime-dom": "^3.2.31",
     "@vue/test-utils": "^1.3.0",
-    "@vueuse/core": "^7.7.1",
+    "@vueuse/core": "^8.0.0",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",

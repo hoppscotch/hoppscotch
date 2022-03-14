@@ -210,6 +210,7 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import {
+  setGQLAuth,
   setGQLHeaders,
   setGQLQuery,
   setGQLResponse,
@@ -451,6 +452,10 @@ const handleUseHistory = (entry: GQLHistoryEntry) => {
   setGQLQuery(gqlQueryString)
   setGQLVariables(variableString)
   setGQLResponse(responseText)
+  setGQLAuth({
+    authType: "none",
+    authActive: true,
+  })
   props.conn.reset()
 }
 </script>

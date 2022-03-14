@@ -5,6 +5,7 @@ import {
   translateToNewRequest,
   HoppGQLRequest,
   translateToGQLRequest,
+  GQL_REQ_SCHEMA_VERSION,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { completedRESTResponse$ } from "./RESTSession"
@@ -83,10 +84,12 @@ export function translateToNewRESTHistory(x: any): RESTHistoryEntry {
 }
 
 export function translateToNewGQLHistory(x: any): GQLHistoryEntry {
-  if (x.v === 1) return x
+  if (x.v === 1 && x.request.v === GQL_REQ_SCHEMA_VERSION) return x
 
   // Legacy
-  const request = translateToGQLRequest(x)
+  const request = x.request
+    ? translateToGQLRequest(x.request)
+    : translateToGQLRequest(x)
   const star = x.star ?? false
   const response = x.response ?? ""
   const updatedOn = x.updatedOn ?? ""

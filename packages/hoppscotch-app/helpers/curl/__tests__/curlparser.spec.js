@@ -611,6 +611,20 @@ const samples = [
       testScript: "",
     }),
   },
+  {
+    command: "curl 'muxueqz.top/skybook.html'",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://muxueqz.top/skybook.html",
+      method: "GET",
+      auth: { authType: "none", authActive: false },
+      headers: [],
+      body: { contentType: null, body: null },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
 ]
 
 describe("parseCurlToHoppRESTReq", () => {

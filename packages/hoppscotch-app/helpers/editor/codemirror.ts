@@ -25,6 +25,7 @@ import {
 } from "@nuxtjs/composition-api"
 
 import { javascriptLanguage } from "@codemirror/lang-javascript"
+import { xmlLanguage } from "@codemirror/lang-xml"
 import { jsonLanguage } from "@codemirror/lang-json"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { pipe } from "fp-ts/function"
@@ -136,6 +137,8 @@ const getLanguage = (langMime: string): Language | null => {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
+  } else if (langMime === "application/xml") {
+    return xmlLanguage
   } else if (langMime === "htmlmixed") {
     return StreamLanguage.define(html)
   } else if (langMime === "application/x-sh") {

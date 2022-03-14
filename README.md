@@ -204,6 +204,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 - GitHub
 - Google
+- Microsoft
 - Email
 
 **Synchronize your data**
@@ -218,7 +219,8 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - Check the status code as an integer
 - Filter response headers
 - Parse the response data
-- Any JavaScript functions
+- Set environment variables
+- Write JavaScript code
 
 🌱 **Environments** : Environment variables allow you to store and reuse values in your requests and scripts.
 

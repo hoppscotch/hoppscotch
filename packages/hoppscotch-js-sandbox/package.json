@@ -20,6 +20,7 @@
     "prepublish": "pnpm run build",
     "do-lint": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix",
+    "do-typecheck": "pnpx tsc --noEmit",
     "do-build-prod": "pnpm run build",
     "do-test": "pnpm run test"
   },

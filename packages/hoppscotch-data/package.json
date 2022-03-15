@@ -9,7 +9,8 @@
   ],
   "scripts": {
     "build": "tsup src --dts",
-    "prepare": "tsup src --dts"
+    "prepare": "tsup src --dts",
+    "do-typecheck": "pnpx tsc --noEmit"
   },
   "exports": {
     ".": "./dist/index.js",

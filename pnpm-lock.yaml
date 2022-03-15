@@ -107,6 +107,7 @@ importers:
       '@types/httpsnippet': ^1.23.1
       '@types/lodash': ^4.14.179
       '@types/lossless-json': ^1.0.1
+      '@types/paho-mqtt': ^1.0.6
       '@types/postman-collection': ^3.5.7
       '@types/splitpanes': ^2.2.1
       '@types/uuid': ^8.3.4
@@ -301,6 +302,7 @@ importers:
       '@types/httpsnippet': 1.23.1
       '@types/lodash': 4.14.179
       '@types/lossless-json': 1.0.1
+      '@types/paho-mqtt': 1.0.6
       '@types/postman-collection': 3.5.7
       '@types/splitpanes': 2.2.1
       '@types/uuid': 8.3.4
@@ -5019,6 +5021,10 @@ packages:
     resolution: {integrity: sha512-PJgbI4KplJfyxKWVrBbEL+rePEBqeozJRMT0mBL3ynhvngASBV/XJ+BneLuJN74RjjMzO0gA5ns80mgubQdZAA==}
     dependencies:
       '@types/webpack': 4.41.28
+    dev: true
+
+  /@types/paho-mqtt/1.0.6:
+    resolution: {integrity: sha512-d6CXsdv2fEruyZLe5DUtgGsF8ROp0358OrEmVgqtFxO/kiCvP9KhYen9N6ReKBkMdR/d0parLQq6DMn2qe6d9Q==}
     dev: true
 
   /@types/parse-json/4.0.0:

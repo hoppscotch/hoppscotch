@@ -22,8 +22,10 @@ import * as S from "fp-ts/string"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
+import { get } from "lodash"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { PMRawLanguage } from "~/types/pm-coll-exts"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -33,6 +35,14 @@ const replacePMVarTemplating = flow(
   S.replace(/{{\s*/g, "<<"),
   S.replace(/\s*}}/g, ">>")
 )
+
+const PMRawLanguageOptionsToContentTypeMap = {
+  text: "text/plain",
+  javascript: "text/plain",
+  json: "application/json",
+  html: "text/html",
+  xml: "application/xml",
+}
 
 const isPMItemGroup = (x: unknown): x is ItemGroup<Item> =>
   ItemGroup.isItemGroup(x)
@@ -186,11 +196,15 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
     }
   } else if (body.mode === "raw") {
     // Find content type from the content type header
-    const contentType = getHoppReqHeaders(item).find(
-      ({ key }) => key.toLowerCase() === "content-type"
-    )?.value
+    const contentType =
+      getHoppReqHeaders(item).find(
+        ({ key }) => key.toLowerCase() === "content-type"
+      )?.value ??
+      PMRawLanguageOptionsToContentTypeMap[
+        get(body, "options.raw.language", "text") as PMRawLanguage
+      ]
 
-    if (contentType && body.raw !== undefined && body.raw !== null)
+    if (body.raw !== undefined && body.raw !== null)
       return {
         contentType: contentType as any,
         body: replacePMVarTemplating(body.raw),

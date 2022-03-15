@@ -140,6 +140,9 @@
 </template>
 
 <script setup lang="ts">
+import * as LJSON from "lossless-json"
+import * as O from "fp-ts/Option"
+import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -169,22 +172,22 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseBodyText
 )
 
-const jsonBodyText = computed(() => {
-  try {
-    return JSON.stringify(JSON.parse(responseBodyText.value), null, 2)
-  } catch (e) {
-    // Most probs invalid JSON was returned, so drop prettification (should we warn ?)
-    return responseBodyText.value
-  }
-})
+const jsonBodyText = computed(() =>
+  pipe(
+    responseBodyText.value,
+    O.tryCatchK(LJSON.parse),
+    O.map((val) => LJSON.stringify(val, undefined, 2)),
+    O.getOrElse(() => responseBodyText.value)
+  )
+)
 
-const ast = computed(() => {
-  try {
-    return jsonParse(jsonBodyText.value)
-  } catch (_: any) {
-    return null
-  }
-})
+const ast = computed(() =>
+  pipe(
+    jsonBodyText.value,
+    O.tryCatchK(jsonParse),
+    O.getOrElseW(() => null)
+  )
+)
 
 const outlineOptions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
@@ -211,14 +214,19 @@ const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
   cursor.value = pos
 }
 
-const outlinePath = computed(() => {
-  if (ast.value) {
-    return getJSONOutlineAtPos(
-      ast.value,
-      convertLineChToIndex(jsonBodyText.value, cursor.value)
-    )
-  } else return null
-})
+const outlinePath = computed(() =>
+  pipe(
+    ast.value,
+    O.fromNullable,
+    O.map((ast) =>
+      getJSONOutlineAtPos(
+        ast,
+        convertLineChToIndex(jsonBodyText.value, cursor.value)
+      )
+    ),
+    O.getOrElseW(() => null)
+  )
+)
 </script>
 
 <style lang="scss" scoped>

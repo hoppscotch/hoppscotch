@@ -560,8 +560,7 @@ function getAuthObject(
                   addTo: "headers",
                 }
               case "basic": {
-                const buffer = Buffer.from(kv[1], "base64")
-                const [username, password] = buffer.toString().split(":")
+                const [username, password] = atob(kv[1]).split(":")
                 return {
                   authActive: true,
                   authType: "basic",

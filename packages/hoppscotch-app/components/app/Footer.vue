@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-primary">
     <div class="flex justify-between">
       <div class="flex">
         <ButtonSecondary

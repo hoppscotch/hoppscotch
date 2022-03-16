@@ -17,7 +17,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://echo.hoppscotch.io/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "application/x-www-form-urlencoded",
         body: rawKeyValueEntriesToString([
@@ -148,7 +148,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://google.com/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: null,
         body: null,
@@ -165,7 +165,7 @@ const samples = [
       method: "POST",
       name: "Untitled request",
       endpoint: "http://localhost:1111/hello/world/?buzz",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "application/json",
         body: `{\n  "foo": "bar"\n}`,
@@ -188,7 +188,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://example.com/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: null,
         body: null,
@@ -216,7 +216,7 @@ const samples = [
       method: "POST",
       name: "Untitled request",
       endpoint: "https://bing.com/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "multipart/form-data",
         body: [
@@ -346,7 +346,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://hoppscotch.io/?io",
       auth: {
-        authActive: false,
+        authActive: true,
         authType: "none",
       },
       body: {
@@ -381,7 +381,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://someshadywebsite.com/questionable/path/?so",
       auth: {
-        authActive: false,
+        authActive: true,
         authType: "none",
       },
       body: {
@@ -442,7 +442,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "http://localhost/",
       auth: {
-        authActive: false,
+        authActive: true,
         authType: "none",
       },
       body: {
@@ -475,7 +475,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://hoppscotch.io/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: null,
         body: null,
@@ -530,7 +530,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://echo.hoppscotch.io/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "application/x-www-form-urlencoded",
         body: rawKeyValueEntriesToString([
@@ -575,7 +575,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://echo.hoppscotch.io/",
       method: "POST",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       headers: [
         {
           active: true,
@@ -617,9 +617,33 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://muxueqz.top/skybook.html",
       method: "GET",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       headers: [],
       body: { contentType: null, body: null },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl -F abcd=efghi",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "POST",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: false,
+            key: "abcd",
+            value: "efghi",
+          },
+        ],
+      },
       params: [],
       preRequestScript: "",
       testScript: "",

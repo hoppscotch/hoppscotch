@@ -13,6 +13,9 @@ import { detectContentType, parseBody } from "./contentParser"
 import { CurlParserRequest } from "."
 import { tupleToRecord } from "~/helpers/functional/record"
 import { stringArrayJoin } from "~/helpers/functional/array"
+import { getDefaultRESTRequest } from "~/newstore/RESTSession"
+
+const defaultRESTReq = getDefaultRESTRequest()
 
 export const parseCurlCommand = (curlCommand: string) => {
   const isDataBinary = curlCommand.includes(" --data-binary")
@@ -26,16 +29,15 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   let rawContentType: string = ""
   let rawData: string | string[] = parsedArguments?.d || ""
-  let body: string | null = ""
-  let contentType: HoppRESTReqBody["contentType"] = null
+  let body: string | null = defaultRESTReq.body.body as string | null
+  let contentType: HoppRESTReqBody["contentType"] =
+    defaultRESTReq.body.contentType
   let hasBodyBeenParsed = false
 
   if (headers && rawContentType === "")
     rawContentType = headers["Content-Type"] || headers["content-type"] || ""
 
-  let { queries, danglingParams } = getQueries(
-    urlObject?.searchParams.entries()
-  )
+  let { queries, danglingParams } = getQueries(urlObject.searchParams.entries())
 
   if (Array.isArray(rawData)) {
     const pairs = getParamPairs(rawData)
@@ -54,7 +56,7 @@ export const parseCurlCommand = (curlCommand: string) => {
     }
   }
 
-  const urlString = concatParams(urlObject, danglingParams) || ""
+  const urlString = concatParams(urlObject, danglingParams)
 
   let multipartUploads: Record<string, string> = pipe(
     parsedArguments,
@@ -327,13 +329,11 @@ function parseURL(parsedArguments: parser.Arguments) {
           return pipe(
             parsedArguments[argName],
             O.fromNullable,
-            O.map((u) => new URL(u)),
-            O.match(
-              () => undefined,
-              (u) => u
-            )
+            O.getOrElse(() => defaultRESTReq.endpoint),
+            (u) => new URL(u)
           )
       }
+      return new URL(defaultRESTReq.endpoint)
     })
   )
 }
@@ -385,13 +385,13 @@ function getQueries(
  * @param params params without values
  * @returns origin string concatenated with dangling paramas
  */
-function concatParams(urlObject: URL | undefined, params: string[]) {
+function concatParams(urlObject: URL, params: string[]) {
   return pipe(
     O.Do,
 
     O.bind("originString", () =>
       pipe(
-        urlObject?.origin,
+        urlObject.origin,
         O.fromNullable,
         O.filter((h) => h !== "")
       )
@@ -403,12 +403,12 @@ function concatParams(urlObject: URL | undefined, params: string[]) {
         O.fromNullable,
         O.filter((dp) => dp.length > 0),
         O.map(stringArrayJoin("&")),
-        O.map((h) => originString + (urlObject?.pathname || "") + "?" + h),
-        O.getOrElse(() => originString + (urlObject?.pathname || ""))
+        O.map((h) => originString + (urlObject.pathname || "") + "?" + h),
+        O.getOrElse(() => originString + (urlObject.pathname || ""))
       )
     ),
 
-    O.getOrElse(() => "")
+    O.getOrElse(() => defaultRESTReq.endpoint)
   )
 }
 
@@ -462,7 +462,7 @@ function getMethod(parsedArguments: parser.Arguments): string {
         else if (parsedArguments.I || parsedArguments.head) return "head"
         else if (parsedArguments.G) return "get"
         else if (parsedArguments.d || parsedArguments.F) return "post"
-        else return "get"
+        else return defaultRESTReq.method
       },
       (method) => method[0]
     )
@@ -531,10 +531,7 @@ function getAuthObject(
   //    - --user arg
   //    - Creds provided along with URL
 
-  let auth: HoppRESTAuth = {
-    authActive: false,
-    authType: "none",
-  }
+  let auth: HoppRESTAuth = defaultRESTReq.auth
   let username: string = ""
   let password: string = ""
 
@@ -579,7 +576,7 @@ function getAuthObject(
           O.fromNullable
         )
       ),
-      O.getOrElseW(() => ({ authActive: false, authType: "none" }))
+      O.getOrElseW(() => defaultRESTReq.auth)
     ) as HoppRESTAuth
   } else if (headers?.apikey || headers["api-key"]) {
     const apikey = headers?.apikey || headers["api-key"]
@@ -614,10 +611,10 @@ function getAuthObject(
 
 export function requestToHoppRequest(parsedCurl: CurlParserRequest) {
   const endpoint = parsedCurl.urlString
-  const params = parsedCurl.queries || []
+  const params = parsedCurl.queries || defaultRESTReq.params
   const body = parsedCurl.body
 
-  const method = parsedCurl.method?.toUpperCase() || "GET"
+  const method = (parsedCurl.method || defaultRESTReq.method).toUpperCase()
   const contentType = parsedCurl.contentType
   const auth = parsedCurl.auth
   const headers =
@@ -628,12 +625,9 @@ export function requestToHoppRequest(parsedCurl: CurlParserRequest) {
         header.key !== "Content-Type" &&
         header.key !== "apikey" &&
         header.key !== "api-key"
-    ) || []
+    ) || defaultRESTReq.headers
 
-  let finalBody: HoppRESTReqBody = {
-    contentType: null,
-    body: null,
-  }
+  let finalBody: HoppRESTReqBody = defaultRESTReq.body
 
   if (
     contentType &&
@@ -663,13 +657,13 @@ export function requestToHoppRequest(parsedCurl: CurlParserRequest) {
   }
 
   return makeRESTRequest({
-    name: "Untitled request",
+    name: defaultRESTReq.name,
     endpoint,
     method,
     params,
     headers,
-    preRequestScript: "",
-    testScript: "",
+    preRequestScript: defaultRESTReq.preRequestScript || "",
+    testScript: defaultRESTReq.testScript || "",
     auth,
     body: finalBody,
   })

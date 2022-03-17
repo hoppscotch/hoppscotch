@@ -13,7 +13,8 @@
     "build": "pnpx tsup",
     "dev": "pnpx tsc --build src --watch",
     "debugger": "node debugger.js 9999",
-    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write"
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "do-typecheck": "pnpx tsc --noEmit"
   },
   "keywords": [
     "cli",

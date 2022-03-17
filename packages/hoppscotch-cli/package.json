@@ -1,10 +1,10 @@
 {
-  "name": "hopp-cli",
+  "name": "hoppscotch-cli",
   "version": "0.1.0",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "main": "dist/index.js",
   "bin": {
-    "hopp-cli": "bin/hopp-cli"
+    "hopp": "bin/hopp"
   },
   "publishConfig": {
     "access": "public"

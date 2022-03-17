@@ -30,7 +30,8 @@
     "@types/table": "^6.3.2",
     "esm": "^3.2.25",
     "prettier": "^2.5.1",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "tsup": "^5.11.13"
   },
   "dependencies": {
     "@hoppscotch/data": "workspace:^0.4.0",
@@ -41,7 +42,6 @@
     "fp-ts": "^2.11.3",
     "lodash": "^4.17.21",
     "qs": "^6.10.3",
-    "table": "^6.7.1",
-    "tsup": "^5.11.13"
+    "table": "^6.7.1"
   }
 }

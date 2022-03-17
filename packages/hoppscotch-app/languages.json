@@ -19,6 +19,12 @@
     "name": "Català"
   },
   {
+    "code": "cn",
+    "file": "cn.json",
+    "iso": "zh-CN",
+    "name": "简体中文"
+  },
+  {
     "code": "cs",
     "file": "cs.json",
     "iso": "cs-CS",
@@ -157,6 +163,12 @@
     "name": "Türk"
   },
   {
+    "code": "tw",
+    "file": "tw.json",
+    "iso": "zh-TW",
+    "name": "繁體中文"
+  },
+  {
     "code": "uk",
     "file": "uk.json",
     "iso": "uk-UK",
@@ -167,17 +179,5 @@
     "file": "vi.json",
     "iso": "vi-VI",
     "name": "Tiếng Việt"
-  },
-  {
-    "code": "tw",
-    "file": "tw.json",
-    "iso": "zh-TW",
-    "name": "繁體中文"
-  },
-  {
-    "code": "cn",
-    "file": "cn.json",
-    "iso": "zh-CN",
-    "name": "简体中文"
   }
 ]

@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "sourceMap": true,
+    "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "baseUrl": ".",

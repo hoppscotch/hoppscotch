@@ -1,8 +1,10 @@
 <template>
-  <div class="flex flex-col overflow-auto hide-scrollbar whitespace-nowrap">
+  <div
+    class="flex flex-col flex-1 overflow-auto hide-scrollbar whitespace-nowrap"
+  >
     <div
       v-if="responseString === 'loading'"
-      class="flex flex-col items-center justify-center flex-1 p-4 text-secondaryLight"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
@@ -42,7 +44,7 @@
     </div>
     <div
       v-else
-      class="flex flex-col items-center justify-center flex-1 p-4 text-secondaryLight"
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <div class="flex pb-4 my-4 space-x-2">
         <div class="flex flex-col items-end text-right space-y-4">

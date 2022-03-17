@@ -1,5 +1,10 @@
 import { distinctUntilChanged, pluck } from "rxjs/operators"
-import { GQLHeader, HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
+import {
+  GQLHeader,
+  HoppGQLRequest,
+  makeGQLRequest,
+  HoppGQLAuth,
+} from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { useStream } from "~/helpers/utils/composables"
 
@@ -26,6 +31,10 @@ export const defaultGQLSession: GQLSession = {
   }
 }
 `,
+    auth: {
+      authType: "none",
+      authActive: true,
+    },
   }),
   schema: "",
   response: "",
@@ -110,6 +119,14 @@ const dispatchers = defineDispatchers({
   setResponse(_: GQLSession, { newResponse }: { newResponse: string }) {
     return {
       response: newResponse,
+    }
+  },
+  setAuth(curr: GQLSession, { newAuth }: { newAuth: HoppGQLAuth }) {
+    return {
+      request: {
+        ...curr.request,
+        auth: newAuth,
+      },
     }
   },
 })
@@ -223,6 +240,15 @@ export function useGQLRequestName() {
   })
 }
 
+export function setGQLAuth(newAuth: HoppGQLAuth) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setAuth",
+    payload: {
+      newAuth,
+    },
+  })
+}
+
 export const gqlName$ = gqlSessionStore.subject$.pipe(
   pluck("request", "name"),
   distinctUntilChanged()
@@ -246,5 +272,10 @@ export const gqlHeaders$ = gqlSessionStore.subject$.pipe(
 
 export const gqlResponse$ = gqlSessionStore.subject$.pipe(
   pluck("response"),
+  distinctUntilChanged()
+)
+
+export const gqlAuth$ = gqlSessionStore.subject$.pipe(
+  pluck("request", "auth"),
   distinctUntilChanged()
 )

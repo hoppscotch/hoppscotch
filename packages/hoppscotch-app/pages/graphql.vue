@@ -33,7 +33,7 @@ export default defineComponent({
     const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
 
     watch(isLoading, () => {
-      if (isLoading) nuxt.value.$loading.start()
+      if (isLoading.value) nuxt.value.$loading.start()
       else nuxt.value.$loading.finish()
     })
 

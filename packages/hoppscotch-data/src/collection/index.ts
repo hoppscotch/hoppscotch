@@ -1,4 +1,4 @@
-import { HoppGQLRequest, translateToGQLRequest } from "../graphql";
+import { GQL_REQ_SCHEMA_VERSION, HoppGQLRequest, translateToGQLRequest } from "../graphql";
 import { HoppRESTRequest, translateToNewRequest } from "../rest";
 
 const CURRENT_COLL_SCHEMA_VER = 1
@@ -65,7 +65,7 @@ export function translateToNewRESTCollection(
 export function translateToNewGQLCollection(
   x: any
 ): HoppCollection<HoppGQLRequest> {
-  if (x.v && x.v === 1) return x
+  if (x.v && x.v === GQL_REQ_SCHEMA_VERSION) return x
 
   // Legacy
   const name = x.name ?? "Untitled"

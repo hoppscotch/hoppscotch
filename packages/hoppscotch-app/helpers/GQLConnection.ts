@@ -10,7 +10,7 @@ import {
   GraphQLInterfaceType,
 } from "graphql"
 import { distinctUntilChanged, map } from "rxjs/operators"
-import { GQLHeader } from "@hoppscotch/data"
+import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
 import { sendNetworkRequest } from "./network"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
@@ -182,14 +182,35 @@ export class GQLConnection {
     url: string,
     headers: GQLHeader[],
     query: string,
-    variables: string
+    variables: string,
+    auth: HoppGQLAuth
   ) {
     const finalHeaders: Record<string, string> = {}
+
+    const parsedVariables = JSON.parse(variables || "{}")
+
+    const params: Record<string, string> = {}
+
+    if (auth.authActive) {
+      if (auth.authType === "basic") {
+        const username = auth.username
+        const password = auth.password
+        finalHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`
+      } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
+        finalHeaders.Authorization = `Bearer ${auth.token}`
+      } else if (auth.authType === "api-key") {
+        const { key, value, addTo } = auth
+        if (addTo === "Headers") {
+          finalHeaders[key] = value
+        } else if (addTo === "Query params") {
+          params[key] = value
+        }
+      }
+    }
+
     headers
       .filter((item) => item.active && item.key !== "")
       .forEach(({ key, value }) => (finalHeaders[key] = value))
-
-    const parsedVariables = JSON.parse(variables || "{}")
 
     const reqOptions = {
       method: "post",
@@ -202,6 +223,9 @@ export class GQLConnection {
         query,
         variables: parsedVariables,
       }),
+      params: {
+        ...params,
+      },
     }
 
     const res = await sendNetworkRequest(reqOptions)

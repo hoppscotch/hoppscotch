@@ -14,7 +14,7 @@ type HoppErrors = {
   UNKNOWN_ERROR: HoppErrorData;
   FILE_NOT_FOUND: HoppErrorPath;
   UNKNOWN_COMMAND: HoppErrorCmd;
-  MALFORMED_COLLECTION: HoppErrorPath;
+  MALFORMED_COLLECTION: HoppErrorPath & HoppErrorData;
   FILE_NOT_JSON: HoppErrorPath;
   NO_FILE_PATH: {};
   PRE_REQUEST_SCRIPT_ERROR: HoppErrorData;
@@ -22,6 +22,7 @@ type HoppErrors = {
   TEST_SCRIPT_ERROR: HoppErrorData;
   TESTS_FAILING: HoppErrorData;
   SYNTAX_ERROR: HoppErrorData;
+  REQUEST_ERROR: HoppErrorData;
 };
 
 export type HoppErrorCode = keyof HoppErrors;

@@ -1,4 +1,6 @@
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
+import { TestReport } from "../interfaces/response";
+import { HoppCLIError } from "./errors";
 
 export type FormDataEntry = {
   key: string;
@@ -19,4 +21,11 @@ export type HoppEnvs = {
 export type CollectionStack = {
   path: string;
   collection: HoppCollection<HoppRESTRequest>;
+};
+
+export type RequestReport = {
+  path: string;
+  tests: TestReport[];
+  errors: HoppCLIError[];
+  result: boolean;
 };

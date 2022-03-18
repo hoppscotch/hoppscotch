@@ -61,14 +61,20 @@ export const parseCollectionData = (
         data.toString(),
         J.parse,
         E.map((jsonData) => (Array.isArray(jsonData) ? jsonData : [jsonData])),
-        E.mapLeft((e) => error({ code: "SYNTAX_ERROR", data: E.toError(e) }))
+        E.mapLeft((e) =>
+          error({ code: "MALFORMED_COLLECTION", path, data: E.toError(e) })
+        )
       )
     ),
 
     // Validating collections to be HoppRESTCollection.
     TE.chainW(
       TE.fromPredicate(A.every(isRESTCollection), () =>
-        error({ code: "MALFORMED_COLLECTION", path })
+        error({
+          code: "MALFORMED_COLLECTION",
+          path,
+          data: "Please check the collection data.",
+        })
       )
     )
   );

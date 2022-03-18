@@ -1,36 +1,30 @@
-import chalk from "chalk";
-import { mergeWith } from "lodash";
-import * as E from "fp-ts/Either";
 import * as T from "fp-ts/Task";
 import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
 import { log } from "console";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
-import { handleError } from "../handlers/error";
-import { HoppEnvs, CollectionStack } from "../types/request";
-import { TestMetrics } from "../types/response";
-import { processRequest } from "./request";
+import { HoppEnvs, CollectionStack, RequestReport } from "../types/request";
+import { preProcessRequest, processRequest } from "./request";
+import { exceptionColors } from "./getters";
+import { TestReport } from "../interfaces/response";
+import {
+  printErrorsReport,
+  printFailedTestsReport,
+  printTestsMetrics,
+} from "./display";
+const { WARN, FAIL } = exceptionColors;
 
 /**
  * Processes each requests within collections to prints details of subsequent requests,
- * tests and to generate complete test-metrics
+ * tests and to display complete errors-report, failed-tests-report and test-metrics.
  * @param collections Array of hopp-collection with hopp-requests to be processed.
- * @returns Object describing quantitative details of tests-report such as
- * total passed & failed, test-suites and test-cases.
+ * @returns List of report for each processed request.
  */
 export const collectionsRunner =
-  (collections: HoppCollection<HoppRESTRequest>[]): T.Task<TestMetrics> =>
+  (collections: HoppCollection<HoppRESTRequest>[]): T.Task<RequestReport[]> =>
   async () => {
-    // Initial state of hopp-envs.
     const envs: HoppEnvs = { global: [], selected: [] };
-
-    // Initial state of testMeitrcs.
-    const overallTestMetrics: TestMetrics = {
-      testSuites: { failing: 0, passing: 0 },
-      tests: { failing: 0, passing: 0 },
-    };
-
-    // Initial state of collection stack.
+    const requestsReport: RequestReport[] = [];
     const collectionStack: CollectionStack[] = getCollectionStack(collections);
 
     while (collectionStack.length) {
@@ -39,33 +33,23 @@ export const collectionsRunner =
 
       // Processing each request in collection
       for (const request of collection.requests) {
-        const requestPath = `${path}/${
-          request.name.length === 0 ? "Untitled Request" : request.name
-        }`;
+        const _request = preProcessRequest(request);
+        const requestPath = `${path}/${_request.name}`;
 
         // Request processing initiated message.
-        log(chalk.yellow(`Running request: ${requestPath}`));
+        log(WARN(`\nRunning: ${requestPath}`));
 
-        // Processing current request
-        const result = await processRequest(request, envs, path)();
+        // Processing current request.
+        const result = await processRequest(_request, envs, requestPath)();
 
-        if (E.isLeft(result)) {
-          handleError(result.left);
-        } else {
-          // Updating initiall envs with new envs from result.
-          const { global, selected } = result.right.envs;
-          envs.global = global;
-          envs.selected = selected;
+        // Updating global & selected envs with new envs from processed-request output.
+        const { global, selected } = result.envs;
+        envs.global = global;
+        envs.selected = selected;
 
-          // Updating testMetrics with new testMetrics from result.
-          const newTestMetrics = result.right.testMetrics;
-          const { testSuites, tests } = getUpdatedTestMetrics(
-            overallTestMetrics,
-            newTestMetrics
-          );
-          overallTestMetrics.testSuites = testSuites;
-          overallTestMetrics.tests = tests;
-        }
+        // Storing current request's report.
+        const requestReport = result.report;
+        requestsReport.push(requestReport);
       }
 
       // Pushing remaining folders realted collection to stack.
@@ -77,12 +61,12 @@ export const collectionsRunner =
       }
     }
 
-    return overallTestMetrics;
+    return requestsReport;
   };
 
 /**
  * Transforms collections to generate collection-stack which describes each collection's
- * path within collection & collection itself.
+ * path within collection & the collection itself.
  * @param collections Hopp-collection objects to be mapped to collection-stack type.
  * @returns Mapped collections to collection-stack.
  */
@@ -97,49 +81,48 @@ const getCollectionStack = (
   );
 
 /**
- * Merges data of current-test-metrics and new-test-metrics (returned from processing-request)
- * to generate updated test-metrics for collections-runner.
- * @param overallTestMetrics Current state of test-metrics in collections-runner.
- * @param newTestMetrics New test-metrics returned from latest processed request.
- * @returns Updated test-metrics object with updated number of test-cases & test-suites.
+ * Prints collection-runner-report using test-metrics data in table format.
+ * @param requestsReport Provides data for each request-report which includes
+ * failed-tests-report, errors
+ * @returns True, if collection runner executed without any errors or failed test-cases.
+ * False, if errors occured or test-cases failed.
  */
-const getUpdatedTestMetrics = (
-  overallTestMetrics: TestMetrics,
-  newTestMetrics: TestMetrics
-): TestMetrics => {
-  const updatedTestMetrics = mergeWith(
-    <TestMetrics>{
-      testSuites: { failing: 0, passing: 0 },
-      tests: { failing: 0, passing: 0 },
-    },
-    overallTestMetrics,
-    newTestMetrics,
-    (curr, target) => ({
-      failing: curr.failing + target.failing,
-      passing: curr.passing + target.passing,
-    })
-  );
+export const collectionsRunnerResult = (
+  requestsReport: RequestReport[]
+): boolean => {
+  const testsReport: TestReport[] = [];
+  let finalResult = true;
 
-  return updatedTestMetrics;
+  // Printing requests-report details of failed-tests and errors
+  for (const requestReport of requestsReport) {
+    const { path, tests, errors, result } = requestReport;
+
+    finalResult = finalResult && result;
+
+    printFailedTestsReport(path, tests);
+
+    printErrorsReport(path, errors);
+
+    testsReport.push.apply(testsReport, tests);
+  }
+
+  printTestsMetrics(testsReport);
+
+  return finalResult;
 };
 
 /**
- * Prints collection-runner-report using test-metrics data in table format.
- * @param data Provides metrics realted to tests (such number of failing/passing
- * tests, failing/passing tests-suites).
+ * Exiting hopp cli process with appropriate exit code depending on
+ * collections-runner result.
+ * If result is true, we exit the cli process with code 0.
+ * Else, exit with code 1.
+ * @param result Boolean defining the collections-runner result.
  */
-export const collectionsRunnerResult = (data: TestMetrics) => {
-  const { tests, testSuites } = data;
-
-  const testsMessage = `Tests: ${chalk.redBright(
-    `${tests.failing} failing`
-  )}, ${chalk.greenBright(`${tests.passing} passing`)}\n`;
-
-  const testSuitesMessage = `Test Suites: ${chalk.redBright(
-    `${testSuites.failing} failing`
-  )}, ${chalk.greenBright(`${testSuites.passing} passing`)}`;
-
-  const message = `${testsMessage}${testSuitesMessage}`;
-
-  log(message);
+export const collectionsRunnerExit = (result: boolean) => {
+  if (!result) {
+    const EXIT_MSG = FAIL(`\nExited with code 1`);
+    process.stdout.write(EXIT_MSG);
+    process.exit(1);
+  }
+  process.exit(0);
 };

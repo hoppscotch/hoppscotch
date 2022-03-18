@@ -2,6 +2,7 @@ import * as TE from "fp-ts/TaskEither";
 import { pipe, flow } from "fp-ts/function";
 import {
   collectionsRunner,
+  collectionsRunnerExit,
   collectionsRunnerResult,
 } from "../utils/collections";
 import { handleError } from "../handlers/error";
@@ -14,11 +15,10 @@ export const run = (path: string) => async () => {
     checkFilePath,
     TE.chain(parseCollectionData),
     TE.chainTaskK(collectionsRunner),
-    TE.chainFirstW(flow(collectionsRunnerResult, TE.of)),
+    TE.chainW(flow(collectionsRunnerResult, collectionsRunnerExit, TE.of)),
     TE.mapLeft((e) => {
       handleError(e);
       process.exit(1);
-    }),
-    TE.map((_) => process.exit(0))
+    })
   )();
 };

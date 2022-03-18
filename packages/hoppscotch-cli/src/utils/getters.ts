@@ -6,12 +6,10 @@ import {
 } from "@hoppscotch/data";
 import chalk from "chalk";
 import { pipe } from "fp-ts/function";
-import { createStream, getBorderCharacters } from "table";
 import * as A from "fp-ts/Array";
 import * as E from "fp-ts/Either";
 import * as S from "fp-ts/string";
 import * as O from "fp-ts/Option";
-import { TableResponse, RequestRunnerResponse } from "../interfaces/response";
 import { error } from "../types/errors";
 
 /**
@@ -35,45 +33,6 @@ export const getColorStatusCode = (
 
   return chalk.redBright(statusCode);
 };
-
-/**
- * Parses given runnerResponseInfo to generate response object for table.
- * @param runnerResponseInfo Response data returned from requestRunner.
- * @returns Parsed TableResponse from given runnerResponseInfo.
- */
-export const getTableResponse = (
-  runnerResponseInfo: RequestRunnerResponse
-): TableResponse => {
-  const { path, endpoint, statusText, status, method } = runnerResponseInfo;
-  const tableResponse: TableResponse = {
-    path: path,
-    endpoint: endpoint,
-    method: method,
-    statusCode: getColorStatusCode(status, statusText),
-  };
-
-  return tableResponse;
-};
-
-/**
- * Provides table-stream used to append rows and write on console with defined structure
- * with in the created-stream.
- * @returns WritableStream used to write table rows/data on console.
- */
-export const getTableStream = () =>
-  createStream({
-    columnDefault: {
-      width: 30,
-      alignment: "center",
-      verticalAlignment: "middle",
-      wrapWord: true,
-      paddingLeft: 1,
-      paddingRight: 1,
-    },
-    columnCount: 4,
-    columns: [{ width: 20 }, { width: 10 }, { width: 30 }, { width: 20 }],
-    border: getBorderCharacters("norc"),
-  });
 
 /**
  * Replaces all template-string with their effective ENV values to generate effective
@@ -138,3 +97,17 @@ export const getMetaDataPairs = (
       Object.assign(target, { [`${key}`]: value })
     )
   );
+
+/**
+ * Object providing aliases for chalk color properties based on exceptions.
+ */
+export const exceptionColors = {
+  WARN: chalk.yellow,
+  INFO: chalk.blue,
+  FAIL: chalk.red,
+  SUCCESS: chalk.green,
+  BG_WARN: chalk.bgYellow,
+  BG_FAIL: chalk.bgRed,
+  BG_INFO: chalk.bgBlue,
+  BG_SUCCESS: chalk.bgGreen,
+};

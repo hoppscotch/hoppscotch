@@ -5,8 +5,6 @@ import * as RA from "fp-ts/ReadonlyArray";
 import * as A from "fp-ts/Array";
 import * as TE from "fp-ts/TaskEither";
 import * as T from "fp-ts/Task";
-import chalk from "chalk";
-import { log } from "console";
 import {
   RequestRunnerResponse,
   TestReport,
@@ -14,7 +12,7 @@ import {
 } from "../interfaces/response";
 import { error, HoppCLIError } from "../types/errors";
 import { HoppEnvs } from "../types/request";
-import { TestMetrics, TestRunnerRes } from "../types/response";
+import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using
@@ -165,69 +163,35 @@ export const getTestMetrics = (testsReport: TestReport[]): TestMetrics =>
   );
 
 /**
- * Getter object methods for file tests-report-output function.
+ * Filters tests-report containing atleast one or more failed test-cases.
+ * @param testsReport Provides "failing" test-cases data.
+ * @returns Tests report with one or more test-cases failing.
  */
-const getTest = {
-  /**
-   * @param failing Total failed test-cases.
-   * @param passing Total passed test-cases
-   * @returns Template string with failing, passing & total tests info.
-   */
-  message: (failing: number, passing: number) => {
-    let message: string = "";
-    const total: number = failing + passing;
-
-    if (total > 0) {
-      if (failing > 0) {
-        message += chalk.redBright(`${failing} failing, `);
-      }
-      if (passing > 0) {
-        message += chalk.greenBright(`${passing} successful, `);
-      }
-      message += chalk.dim(`out of ${total} tests.`);
-    }
-
-    return message;
-  },
-
-  /**
-   * @param message Expected result for a test-case.
-   * @returns Template string with failed expected message.
-   */
-  expectFailedMessage: (message: string) =>
-    `${chalk.redBright("✖")} ${message} ${chalk.grey("- test failed")}\n`,
-
-  /**
-   * @param message Expected result for a test-case.
-   * @returns Template string with passed expected message.
-   */
-  expectPassedMessage: (message: string) =>
-    `${chalk.greenBright("✔")} ${message} ${chalk.grey("- test passed")}\n`,
-};
+export const getFailedTestsReport = (testsReport: TestReport[]) =>
+  pipe(
+    testsReport,
+    A.filter(({ failing }) => failing > 0)
+  );
 
 /**
- * Outputs tests-report in pretty way to the console.
- * @param testsReport Generated tests-report from test-runner.
+ * Filters expected-results containing which has status as "fail" or "error".
+ * @param expectResults Provides "status" data for each expected result.
+ * @returns Expected results with "fail" or "error" status.
  */
-export const testsReportOutput = (testsReport: TestReport[]) => {
-  let testOut = "";
-  for (const testReport of testsReport) {
-    testOut += `${pipe(testReport.descriptor, chalk.underline, chalk.cyan)}\n`;
+export const getFailedExpectedResults = (expectResults: ExpectResult[]) =>
+  pipe(
+    expectResults,
+    A.filter(({ status }) => status !== "pass")
+  );
 
-    let expectMessages = "";
-    for (const expectResult of testReport.expectResults) {
-      const { message, status } = expectResult;
-      if (status === "pass") {
-        expectMessages += pipe(message, getTest.expectPassedMessage);
-      } else {
-        expectMessages += pipe(message, getTest.expectFailedMessage);
-      }
-    }
-
-    const { failing, passing } = testReport;
-    const testMessage = getTest.message(failing, passing);
-
-    testOut += `${testMessage}\n${expectMessages}\n`;
-  }
-  log(testOut);
-};
+/**
+ * Checks if any of the tests-report have failed test-cases.
+ * @param testsReport Provides "failing" test-cases data.
+ * @returns True, if one or more failed test-cases found.
+ * False, if all test-cases passed.
+ */
+export const hasFailedTestCases = (testsReport: TestReport[]) =>
+  pipe(
+    testsReport,
+    A.every(({ failing }) => failing === 0)
+  );

@@ -12,7 +12,6 @@ import { HoppEnvs } from "../types/request";
  * @property {string} statusCode Template string concating status & statusText.
  */
 export interface TableResponse {
-  path: string;
   endpoint: string;
   method: Method;
   statusCode: string;
@@ -27,7 +26,6 @@ export interface TableResponse {
  * @property {string} statusText HTTP response status text.
  */
 export interface RequestRunnerResponse extends TestResponse {
-  path: string;
   endpoint: string;
   method: Method;
   statusText: string;

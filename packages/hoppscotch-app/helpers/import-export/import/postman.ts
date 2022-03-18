@@ -200,11 +200,12 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
       getHoppReqHeaders(item).find(
         ({ key }) => key.toLowerCase() === "content-type"
       )?.value ??
-      PMRawLanguageOptionsToContentTypeMap[
+      get(
+        PMRawLanguageOptionsToContentTypeMap,
         get(body, "options.raw.language", "text") as PMRawLanguage
-      ]
+      )
 
-    if (body.raw !== undefined && body.raw !== null)
+    if (contentType && body.raw !== undefined && body.raw !== null)
       return {
         contentType: contentType as any,
         body: replacePMVarTemplating(body.raw),

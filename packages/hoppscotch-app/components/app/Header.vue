@@ -31,8 +31,15 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('support.title')} <xmp>?</xmp>`"
           svg="life-buoy"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark hidden md:inline"
           @click.native="showSupport = true"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t('app.options')} <xmp>?</xmp>`"
+          svg="help-circle"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark md:hidden"
+          @click.native="showSettings = true"
         />
         <ButtonSecondary
           v-if="currentUser === null"
@@ -91,12 +98,12 @@
                 />
               </template>
               <div class="flex flex-col px-2 text-tiny" role="menu">
-                <span class="inline-flex font-semibold truncate">
-                  {{ currentUser.displayName }}
-                </span>
-                <span class="inline-flex truncate text-secondaryLight">
-                  {{ currentUser.email }}
-                </span>
+                <span class="inline-flex font-semibold truncate">{{
+                  currentUser.displayName
+                }}</span>
+                <span class="inline-flex truncate text-secondaryLight">{{
+                  currentUser.email
+                }}</span>
               </div>
               <hr />
               <div
@@ -138,6 +145,7 @@
     <AppAnnouncement v-if="!network.isOnline" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
+    <MobileMenu :show="showSettings" @hide-modal="showSettings = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -145,6 +153,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "@nuxtjs/composition-api"
 import { useNetwork } from "@vueuse/core"
+import MobileMenu from "./Options.vue"
 import initializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
@@ -167,6 +176,7 @@ const toast = useToast()
 const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
 const showSupport = ref(false)
+const showSettings = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
@@ -176,6 +186,10 @@ const currentUser = useReadonlyStream(probableUser$, null)
 
 defineActionHandler("modals.support.toggle", () => {
   showSupport.value = !showSupport.value
+})
+
+defineActionHandler("modals.support.toggle", () => {
+  showSettings.value = !showSettings.value
 })
 
 onMounted(() => {

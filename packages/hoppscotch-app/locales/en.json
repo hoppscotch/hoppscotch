@@ -44,6 +44,7 @@
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "copy": "Copy",
+    "discord": "Discord",
     "documentation": "Documentation",
     "github": "GitHub",
     "help": "Help & feedback",
@@ -55,6 +56,7 @@
     "keyboard_shortcuts": "Keyboard shortcuts",
     "name": "Hoppscotch",
     "new_version_found": "New version found. Refresh to update.",
+    "options": "Options",
     "proxy_privacy_policy": "Proxy privacy policy",
     "reload": "Reload",
     "search": "Search",
@@ -62,6 +64,7 @@
     "shortcuts": "Shortcuts",
     "spotlight": "Spotlight",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Terms and privacy",
     "twitter": "Twitter",
     "type_a_command_search": "Type a command or search…",
@@ -235,7 +238,8 @@
   "hide": {
     "more": "Hide more",
     "preview": "Hide Preview",
-    "sidebar": "Collapse sidebar"
+    "sidebar": "Collapse sidebar",
+    "collection": "Collapse Collection Panel"
   },
   "import": {
     "collections": "Import collections",
@@ -261,7 +265,12 @@
   "layout": {
     "column": "Vertical layout",
     "row": "Horizontal layout",
-    "zen_mode": "Zen mode"
+    "zen_mode": "Zen mode",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
+    "collapse_collection": "Collapse or Expand Collections",
+    "name": "Layout",
+    "zen_mode_description": "Compact layout with a minimalistic design"
+
   },
   "modal": {
     "collections": "Collections",
@@ -382,6 +391,7 @@
     "font_size_large": "Large",
     "font_size_medium": "Medium",
     "font_size_small": "Small",
+    "follow": "Follow Us",
     "interceptor": "Interceptor",
     "interceptor_description": "Middleware between application and APIs.",
     "language": "Language",
@@ -460,7 +470,8 @@
   "show": {
     "code": "Show code",
     "more": "Show more",
-    "sidebar": "Expand sidebar"
+    "sidebar": "Expand sidebar",
+    "collection": "Expand Collection Panel"
   },
   "socketio": {
     "communication": "Communication",
@@ -508,7 +519,8 @@
     "shortcuts": "Browse app faster",
     "team": "Get in touch with the team",
     "title": "Support",
-    "twitter": "Follow us on Twitter"
+    "twitter": "Follow us on Twitter",
+    "github": "Follow us on Github"
   },
   "tab": {
     "authorization": "Authorization",

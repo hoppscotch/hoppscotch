@@ -1,6 +1,5 @@
 import {
   Collection as PMCollection,
-  FormParam,
   Item,
   ItemGroup,
   QueryParam,
@@ -18,6 +17,7 @@ import {
   makeCollection,
   ValidContentTypes,
   knownContentTypes,
+  FormDataKeyValue,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -27,6 +27,7 @@ import * as TE from "fp-ts/TaskEither"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 import { PMRawLanguage } from "~/types/pm-coll-exts"
+import { stringArrayJoin } from "~/helpers/functional/array"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -161,42 +162,42 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
   return { authType: "none", authActive: true }
 }
 
-type PMFormDataParamType = FormParam & {
-  type: "file" | "text"
-}
-
 const getHoppReqBody = (item: Item): HoppRESTReqBody => {
   if (!item.request.body) return { contentType: null, body: null }
 
-  // TODO: Implement
   const body = item.request.body
 
   if (body.mode === "formdata") {
     return {
       contentType: "multipart/form-data",
-      body:
-        (body.formdata?.all() as PMFormDataParamType[]).map((param) => ({
-          key: replacePMVarTemplating(param.key),
-          value: replacePMVarTemplating(
-            param.type === "text" ? (param.value as string) : ""
-          ),
-          active: !param.disabled,
-          isFile: false, // TODO: Preserve isFile state ?
-        })) ?? [],
+      body: pipe(
+        body.formdata?.all() ?? [],
+        A.map(
+          (param) =>
+            <FormDataKeyValue>{
+              key: replacePMVarTemplating(param.key),
+              value: replacePMVarTemplating(
+                param.type === "text" ? (param.value as string) : ""
+              ),
+              active: !param.disabled,
+              isFile: false, // TODO: Preserve isFile state ?
+            }
+        )
+      ),
     }
   } else if (body.mode === "urlencoded") {
     return {
       contentType: "application/x-www-form-urlencoded",
-      body:
-        body.urlencoded
-          ?.all()
-          .map(
-            (param) =>
-              `${replacePMVarTemplating(
-                param.key ?? ""
-              )}: ${replacePMVarTemplating(param.value ?? "")}`
-          )
-          .join("\n") ?? "",
+      body: pipe(
+        body.urlencoded?.all() ?? [],
+        A.map(
+          (param) =>
+            `${replacePMVarTemplating(
+              param.key ?? ""
+            )}: ${replacePMVarTemplating(param.value ?? "")}`
+        ),
+        stringArrayJoin("\n")
+      ),
     }
   } else if (body.mode === "raw") {
     return pipe(

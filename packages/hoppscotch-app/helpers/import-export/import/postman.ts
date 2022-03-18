@@ -16,13 +16,14 @@ import {
   makeRESTRequest,
   HoppCollection,
   makeCollection,
+  ValidContentTypes,
+  knownContentTypes,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
-import { get } from "lodash"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 import { PMRawLanguage } from "~/types/pm-coll-exts"
@@ -36,7 +37,10 @@ const replacePMVarTemplating = flow(
   S.replace(/\s*}}/g, ">>")
 )
 
-const PMRawLanguageOptionsToContentTypeMap = {
+const PMRawLanguageOptionsToContentTypeMap: Record<
+  PMRawLanguage,
+  ValidContentTypes
+> = {
   text: "text/plain",
   javascript: "text/plain",
   json: "application/json",
@@ -195,22 +199,58 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
           .join("\n") ?? "",
     }
   } else if (body.mode === "raw") {
-    // Find content type from the content type header
-    const contentType =
-      getHoppReqHeaders(item).find(
-        ({ key }) => key.toLowerCase() === "content-type"
-      )?.value ??
-      get(
-        PMRawLanguageOptionsToContentTypeMap,
-        get(body, "options.raw.language", "text") as PMRawLanguage
-      )
+    return pipe(
+      O.Do,
 
-    if (contentType && body.raw !== undefined && body.raw !== null)
-      return {
-        contentType: contentType as any,
-        body: replacePMVarTemplating(body.raw),
-      }
-    else return { contentType: null, body: null } // TODO: Any sort of recovery ?
+      // Extract content-type
+      O.bind("contentType", () =>
+        pipe(
+          // Get the info from the content-type header
+          getHoppReqHeaders(item),
+          A.findFirst(({ key }) => key.toLowerCase() === "content-type"),
+          O.map((x) => x.value),
+
+          // Make sure it is a content-type Hopp can work with
+          O.filter(
+            (contentType): contentType is ValidContentTypes =>
+              contentType in knownContentTypes
+          ),
+
+          // Back-up plan, assume language from raw language defintion
+          // If that too failed, just assume "text/plain"
+          O.getOrElse(() =>
+            pipe(
+              body.options?.raw?.language,
+              O.fromNullable,
+              O.map((lang) => PMRawLanguageOptionsToContentTypeMap[lang]),
+
+              O.getOrElse((): ValidContentTypes => "text/plain")
+            )
+          ),
+
+          O.of
+        )
+      ),
+
+      // Extract and parse body
+      O.bind("body", () =>
+        pipe(body.raw, O.fromNullable, O.map(replacePMVarTemplating))
+      ),
+
+      // Return null content-type if failed, else return parsed
+      O.match(
+        () =>
+          <HoppRESTReqBody>{
+            contentType: null,
+            body: null,
+          },
+        ({ contentType, body }) =>
+          <HoppRESTReqBody>{
+            contentType,
+            body,
+          }
+      )
+    )
   }
 
   // TODO: File

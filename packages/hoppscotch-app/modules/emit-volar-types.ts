@@ -1,4 +1,4 @@
-import { resolve } from "path"
+import { sep, posix, resolve } from "path"
 import { Module } from "@nuxt/types"
 import ts from "typescript"
 import chokidar from "chokidar"
@@ -9,6 +9,8 @@ function titleCase(str: string): string {
   return str[0].toUpperCase() + str.substring(1)
 }
 
+const winToPosixPath = (path: string) => path.split(sep).join(posix.sep)
+
 async function* getFilesInDir(dir: string): AsyncIterable<string> {
   const dirents = await readdir(dir, { withFileTypes: true })
   for (const dirent of dirents) {
@@ -16,7 +18,7 @@ async function* getFilesInDir(dir: string): AsyncIterable<string> {
     if (dirent.isDirectory()) {
       yield* getFilesInDir(res)
     } else {
-      yield res
+      yield winToPosixPath(res)
     }
   }
 }
@@ -36,10 +38,10 @@ async function getAllVueComponentPaths(): Promise<string[]> {
 }
 
 function resolveComponentName(filename: string): string {
-  const index = filename.split("/").indexOf("components")
+  const index = filename.split(/[\\/]/).indexOf("components")
 
   return filename
-    .split("/")
+    .split(/[\\/]/)
     .slice(index + 1)
     .filter((x) => x !== "index.vue") // Remove index.vue
     .map((x) => x.split(".vue")[0]) // Remove extension

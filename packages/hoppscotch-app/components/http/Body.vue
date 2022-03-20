@@ -4,9 +4,9 @@
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">{{
-          $t("request.content_type")
-        }}</label>
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("request.content_type") }}
+        </label>
         <tippy
           ref="contentTypeOptions"
           interactive

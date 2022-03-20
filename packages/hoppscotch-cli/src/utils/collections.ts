@@ -1,6 +1,7 @@
 import * as T from "fp-ts/Task";
 import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
+import { bold } from "chalk";
 import { log } from "console";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import { HoppEnvs, CollectionStack, RequestReport } from "../types/request";
@@ -37,7 +38,7 @@ export const collectionsRunner =
         const requestPath = `${path}/${_request.name}`;
 
         // Request processing initiated message.
-        log(WARN(`\nRunning: ${requestPath}`));
+        log(WARN(`\nRunning: ${bold(requestPath)}`));
 
         // Processing current request.
         const result = await processRequest(_request, envs, requestPath)();

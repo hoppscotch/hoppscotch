@@ -28,11 +28,10 @@
     "@types/axios": "^0.14.0",
     "@types/chalk": "^2.2.0",
     "@types/commander": "^2.12.2",
-    "@types/table": "^6.3.2",
     "esm": "^3.2.25",
     "prettier": "^2.5.1",
-    "typescript": "^4.3.5",
-    "tsup": "^5.11.13"
+    "tsup": "^5.11.13",
+    "typescript": "^4.3.5"
   },
   "dependencies": {
     "@hoppscotch/data": "workspace:^0.4.0",
@@ -42,7 +41,6 @@
     "commander": "^8.0.0",
     "fp-ts": "^2.11.3",
     "lodash": "^4.17.21",
-    "qs": "^6.10.3",
-    "table": "^6.7.1"
+    "qs": "^6.10.3"
   }
 }

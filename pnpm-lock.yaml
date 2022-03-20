@@ -348,7 +348,6 @@ importers:
       '@types/axios': ^0.14.0
       '@types/chalk': ^2.2.0
       '@types/commander': ^2.12.2
-      '@types/table': ^6.3.2
       axios: ^0.21.4
       chalk: ^4.1.1
       commander: ^8.0.0
@@ -357,7 +356,6 @@ importers:
       lodash: ^4.17.21
       prettier: ^2.5.1
       qs: ^6.10.3
-      table: ^6.7.1
       tsup: ^5.11.13
       typescript: ^4.3.5
     dependencies:
@@ -369,12 +367,10 @@ importers:
       fp-ts: 2.11.8
       lodash: 4.17.21
       qs: 6.10.3
-      table: 6.8.0
     devDependencies:
       '@types/axios': 0.14.0
       '@types/chalk': 2.2.0
       '@types/commander': 2.12.2
-      '@types/table': 6.3.2
       esm: 3.2.25
       prettier: 2.5.1
       tsup: 5.11.13_typescript@4.6.2
@@ -4223,12 +4219,12 @@ packages:
       ufo: 0.7.11
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27460489.53fbca7:
-    resolution: {integrity: sha512-6rYLtw80Zrw+rwQXrzxv0kNwe46hoByxnEcQS3GaXlAM/9aZfdOnCSg6qiI5NJoFcjSF+6chG6oTAk33HdUlBA==}
+  /@nuxt/kit-edge/3.0.0-27460024.7d37a13:
+    resolution: {integrity: sha512-1zoYmDp6pUCzsQuK3mEtzLQOd40eZBpm5o/genqvxb/o/fVo0Vi9wlh4TsqBYi4diwjJDCqMNvJGCDdsnHyUkA==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27460489.53fbca7
-      c12: 0.2.3
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27460024.7d37a13
+      c12: 0.2.2
       consola: 2.15.3
       defu: 5.0.1
       globby: 13.1.1
@@ -4275,8 +4271,8 @@ packages:
       - encoding
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27460489.53fbca7:
-    resolution: {integrity: sha512-pSuw9uMCiuDUyzkhZuvHuRQLMIX0Hb7vGJm1u8JapFpU+juI9q8ygnS4O6NVtw89nqJ77SBO4q4n2C8umeT2IQ==}
+  /@nuxt/schema-edge/3.0.0-27460024.7d37a13:
+    resolution: {integrity: sha512-lI55rUSAwO/8PFH3NJNpOtKm4tkthz03Rz1wJW6Wq3YK7wRZ+XNrgiZTrDYiQS1ZYMsRwM1o1SAi4pTAnDDsLQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       c12: 0.2.3
@@ -5508,13 +5504,6 @@ packages:
       postcss: 7.0.39
     dev: true
 
-  /@types/table/6.3.2:
-    resolution: {integrity: sha512-GJ82z3vQbx2BhiUo12w2A3lyBpXPJrGHjQ7iS5aH925098w8ojqiWBhgOUy97JS2PKLmRCTLT0sI+gJI4futig==}
-    deprecated: This is a stub types definition. table provides its own type definitions, so you do not need this installed.
-    dependencies:
-      table: 6.8.0
-    dev: true
-
   /@types/tapable/1.0.8:
     resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
 
@@ -6317,6 +6306,7 @@ packages:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
+    dev: true
 
   /alphanum-sort/1.0.2:
     resolution: {integrity: sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=}
@@ -12623,6 +12613,7 @@ packages:
 
   /json-schema-traverse/1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
+    dev: true
 
   /json-stable-stringify-without-jsonify/1.0.1:
     resolution: {integrity: sha1-nbe1lJatPzz+8wp1FC0tkwrXJlE=}
@@ -13114,6 +13105,7 @@ packages:
 
   /lodash.truncate/4.4.2:
     resolution: {integrity: sha1-WjUNoLERO4N+z//VgSy+WNbq4ZM=}
+    dev: true
 
   /lodash.unionby/4.8.0:
     resolution: {integrity: sha1-iD8Jj/ePVkpye3UI4JzdU5c0u4M=}
@@ -14046,7 +14038,7 @@ packages:
   /nuxt-windicss/2.2.8:
     resolution: {integrity: sha512-l0mONjhsxhkDa/XVLbQZIaA2+xxo+IBCWyieR7vq1Rl4BDRghNXYPMi8H04qwNND8R0cQQNQYUmECxjUg1LlAQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27460489.53fbca7
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27460024.7d37a13
       '@windicss/plugin-utils': 1.8.3
       consola: 2.15.3
       defu: 5.0.1
@@ -16002,6 +15994,7 @@ packages:
   /require-from-string/2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+    dev: true
 
   /require-main-filename/2.0.0:
     resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
@@ -17538,6 +17531,7 @@ packages:
       slice-ansi: 4.0.0
       string-width: 4.2.3
       strip-ansi: 6.0.1
+    dev: true
 
   /tapable/0.2.9:
     resolution: {integrity: sha512-2wsvQ+4GwBvLPLWsNfLCDYGsW6xb7aeC6utq2Qh0PFwgEy7K7dsma9Jsmb2zSQj7GvYAyUGSntLtsv++GmgL1A==}

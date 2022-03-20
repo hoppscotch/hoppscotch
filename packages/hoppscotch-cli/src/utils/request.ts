@@ -106,6 +106,36 @@ export const requestRunner =
 
       return E.right(runnerResponse);
     } catch (e) {
+      let status: number;
+      const runnerResponse: RequestRunnerResponse = {
+        endpoint: "",
+        method: "GET",
+        body: {},
+        statusText: responseErrors[400],
+        status: 400,
+        headers: [],
+      };
+
+      if (axios.isAxiosError(e)) {
+        runnerResponse.endpoint = e.config.url ?? "";
+
+        if (e.response) {
+          const { data, status, statusText, headers } = e.response;
+          runnerResponse.body = data;
+          runnerResponse.statusText = statusText;
+          runnerResponse.status = status;
+          runnerResponse.headers = headers;
+        } else if ((e.config as RequestConfig).supported === false) {
+          status = 501;
+          runnerResponse.status = status;
+          runnerResponse.statusText = responseErrors[status];
+        } else if (e.request) {
+          return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
+        }
+
+        return E.right(runnerResponse);
+      }
+
       return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
     }
   };

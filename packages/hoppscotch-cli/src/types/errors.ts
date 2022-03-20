@@ -23,6 +23,7 @@ type HoppErrors = {
   TESTS_FAILING: HoppErrorData;
   SYNTAX_ERROR: HoppErrorData;
   REQUEST_ERROR: HoppErrorData;
+  INVALID_ARGUMENT: HoppErrorData;
 };
 
 export type HoppErrorCode = keyof HoppErrors;

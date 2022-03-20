@@ -58,13 +58,14 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
       ERROR_MSG = `Please provide a hoppscotch-collection file path.`;
       break;
     case "PARSING_ERROR":
-      ERROR_MSG = error.data;
+      ERROR_MSG = `Unable to parse -\n${error.data}`;
       break;
     case "REQUEST_ERROR":
     case "TEST_SCRIPT_ERROR":
     case "PRE_REQUEST_SCRIPT_ERROR":
       ERROR_MSG = parseErrorData(error.data);
       break;
+    case "INVALID_ARGUMENT":
     case "UNKNOWN_ERROR":
     case "SYNTAX_ERROR":
       if (isSafeCommanderError(error.data)) {

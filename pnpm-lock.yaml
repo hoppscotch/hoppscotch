@@ -4219,12 +4219,12 @@ packages:
       ufo: 0.7.11
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-27460024.7d37a13:
-    resolution: {integrity: sha512-1zoYmDp6pUCzsQuK3mEtzLQOd40eZBpm5o/genqvxb/o/fVo0Vi9wlh4TsqBYi4diwjJDCqMNvJGCDdsnHyUkA==}
+  /@nuxt/kit-edge/3.0.0-27460489.53fbca7:
+    resolution: {integrity: sha512-6rYLtw80Zrw+rwQXrzxv0kNwe46hoByxnEcQS3GaXlAM/9aZfdOnCSg6qiI5NJoFcjSF+6chG6oTAk33HdUlBA==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27460024.7d37a13
-      c12: 0.2.2
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-27460489.53fbca7
+      c12: 0.2.3
       consola: 2.15.3
       defu: 5.0.1
       globby: 13.1.1
@@ -4271,8 +4271,8 @@ packages:
       - encoding
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-27460024.7d37a13:
-    resolution: {integrity: sha512-lI55rUSAwO/8PFH3NJNpOtKm4tkthz03Rz1wJW6Wq3YK7wRZ+XNrgiZTrDYiQS1ZYMsRwM1o1SAi4pTAnDDsLQ==}
+  /@nuxt/schema-edge/3.0.0-27460489.53fbca7:
+    resolution: {integrity: sha512-pSuw9uMCiuDUyzkhZuvHuRQLMIX0Hb7vGJm1u8JapFpU+juI9q8ygnS4O6NVtw89nqJ77SBO4q4n2C8umeT2IQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0}
     dependencies:
       c12: 0.2.3
@@ -14038,7 +14038,7 @@ packages:
   /nuxt-windicss/2.2.8:
     resolution: {integrity: sha512-l0mONjhsxhkDa/XVLbQZIaA2+xxo+IBCWyieR7vq1Rl4BDRghNXYPMi8H04qwNND8R0cQQNQYUmECxjUg1LlAQ==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27460024.7d37a13
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-27460489.53fbca7
       '@windicss/plugin-utils': 1.8.3
       consola: 2.15.3
       defu: 5.0.1

@@ -159,6 +159,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.2.3",
+    "chokidar": "^3.5.3",
     "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-nuxt": "^3.2.0",

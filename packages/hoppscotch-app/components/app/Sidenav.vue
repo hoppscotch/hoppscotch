@@ -1,6 +1,6 @@
 <template>
   <aside class="flex justify-between h-full md:flex-col">
-    <nav class="flex flex-1 flex-nowrap md:flex-col md:flex-none">
+    <nav class="flex flex-1 flex-nowrap md:flex-col md:flex-none bg-primary">
       <NuxtLink
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"
@@ -71,7 +71,6 @@ const primaryNavigation = [
   @apply flex flex-col flex-1;
   @apply items-center;
   @apply justify-center;
-  @apply bg-primary;
   @apply hover:(bg-primaryDark text-secondaryDark);
   @apply focus-visible:text-secondaryDark;
 

@@ -251,13 +251,11 @@
   --upper-tertiary-sticky-fold: 8.188rem;
   --upper-mobile-primary-sticky-fold: 6.625rem;
   --upper-mobile-secondary-sticky-fold: 8.625rem;
-  --upper-mobile-tertiary-sticky-fold: 10.625rem;
-  --upper-mobile-raw-sticky-fold: 10.675rem;
+  --upper-mobile-raw-sticky-fold: 10.688rem;
   --upper-mobile-raw-tertiary-sticky-fold: 8.188rem;
   --lower-primary-sticky-fold: 3rem;
   --lower-secondary-sticky-fold: 5rem;
   --sidebar-primary-sticky-fold: 2rem;
-  --sidebar-secondary-sticky-fold: 4rem;
 }
 
 @mixin font-medium {
@@ -268,13 +266,11 @@
   --upper-tertiary-sticky-fold: 8.813rem;
   --upper-mobile-primary-sticky-fold: 7.125rem;
   --upper-mobile-secondary-sticky-fold: 9.375rem;
-  --upper-mobile-tertiary-sticky-fold: 10.875rem;
-  --upper-mobile-raw-sticky-fold: 11.695rem;
-  --upper-mobile-raw-tertiary-sticky-fold: 8.925rem;
+  --upper-mobile-raw-sticky-fold: 11.688rem;
+  --upper-mobile-raw-tertiary-sticky-fold: 8.938rem;
   --lower-primary-sticky-fold: 3.25rem;
   --lower-secondary-sticky-fold: 5.5rem;
   --sidebar-primary-sticky-fold: 2.25rem;
-  --sidebar-secondary-sticky-fold: 4.5rem;
 }
 
 @mixin font-large {
@@ -285,13 +281,11 @@
   --upper-tertiary-sticky-fold: 9.5rem;
   --upper-mobile-primary-sticky-fold: 7.625rem;
   --upper-mobile-secondary-sticky-fold: 10.125rem;
-  --upper-mobile-tertiary-sticky-fold: 11.375rem;
-  --upper-mobile-raw-sticky-fold: 12.695rem;
-  --upper-mobile-raw-tertiary-sticky-fold: 9.7rem;
+  --upper-mobile-raw-sticky-fold: 12.688rem;
+  --upper-mobile-raw-tertiary-sticky-fold: 9.688rem;
   --lower-primary-sticky-fold: 3.5rem;
   --lower-secondary-sticky-fold: 6rem;
   --sidebar-primary-sticky-fold: 2.5rem;
-  --sidebar-secondary-sticky-fold: 5rem;
 }
 
 :root[data-font-size="small"] {

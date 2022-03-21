@@ -4,9 +4,9 @@
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">{{
-          $t("authorization.type")
-        }}</label>
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("authorization.type") }}
+        </label>
         <tippy
           ref="authTypeOptions"
           interactive
@@ -185,9 +185,9 @@
             <SmartEnvInput v-model="apiValue" placeholder="Value" />
           </div>
           <div class="flex items-center border-b border-dividerLight">
-            <label class="ml-4 text-secondaryLight">{{
-              $t("authorization.pass_key_by")
-            }}</label>
+            <label class="ml-4 text-secondaryLight">
+              {{ $t("authorization.pass_key_by") }}
+            </label>
             <tippy
               ref="addToOptions"
               interactive

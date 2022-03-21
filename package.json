@@ -22,10 +22,10 @@
   ],
   "dependencies": {
     "husky": "^7.0.4",
-    "lint-staged": "^12.3.5"
+    "lint-staged": "^12.3.7"
   },
   "devDependencies": {
-    "@commitlint/cli": "^16.2.1",
+    "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
     "@types/node": "^17.0.21"
   }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+    class="sticky top-0 z-10 flex-none sm:flex sm:flex-shrink-0 p-4 overflow-x-auto sm:space-x-2 bg-primary hide-scrollbar"
   >
     <div
       class="flex flex-1 overflow-auto border rounded min-w-52 border-divider whitespace-nowrap hide-scrollbar"
@@ -48,7 +48,8 @@
         />
       </div>
     </div>
-    <div class="flex">
+
+    <div class="flex mt-2 sm:mt-0">
       <ButtonPrimary
         id="send"
         class="flex-1 rounded-r-none min-w-20"
@@ -117,8 +118,8 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="ml-2 rounded rounded-r-none"
-        :label="mdAndLarger && COLUMN_LAYOUT ? `${t('request.save')}` : ''"
+        class="flex-1 ml-2 rounded rounded-r-none"
+        :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
         filled
         svg="save"
         @click.native="saveRequest()"
@@ -207,7 +208,6 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -542,7 +542,4 @@ const isCustomMethod = computed(() => {
 const requestName = useRESTRequestName()
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
-
-const breakpoints = useBreakpoints(breakpointsTailwind)
-const mdAndLarger = breakpoints.greater("md")
 </script>

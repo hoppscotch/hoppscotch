@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">
-          {{ $t("authorization.type") }}
-        </label>
+        <label class="font-semibold text-secondaryLight">{{
+          $t("authorization.type")
+        }}</label>
         <tippy
           ref="authTypeOptions"
           interactive
@@ -107,14 +107,13 @@
           @change="setExclude('auth', !$event)"
         >
           {{ $t("authorization.include_in_url") }}
-        </SmartCheckbox> -->
+        </SmartCheckbox>-->
         <SmartCheckbox
           :on="authActive"
           class="px-2"
           @change="authActive = !authActive"
+          >{{ $t("state.enabled") }}</SmartCheckbox
         >
-          {{ $t("state.enabled") }}
-        </SmartCheckbox>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/authorization"
@@ -140,9 +139,7 @@
         class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${$t('empty.authorization')}`"
       />
-      <span class="pb-4 text-center">
-        {{ $t("empty.authorization") }}
-      </span>
+      <span class="pb-4 text-center">{{ $t("empty.authorization") }}</span>
       <ButtonSecondary
         outline
         :label="$t('app.documentation')"
@@ -188,9 +185,9 @@
             <SmartEnvInput v-model="apiValue" placeholder="Value" />
           </div>
           <div class="flex items-center border-b border-dividerLight">
-            <label class="ml-4 text-secondaryLight">
-              {{ $t("authorization.pass_key_by") }}
-            </label>
+            <label class="ml-4 text-secondaryLight">{{
+              $t("authorization.pass_key_by")
+            }}</label>
             <tippy
               ref="addToOptions"
               interactive

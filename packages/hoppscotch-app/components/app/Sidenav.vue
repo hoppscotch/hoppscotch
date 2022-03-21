@@ -71,6 +71,7 @@ const primaryNavigation = [
   @apply flex flex-col flex-1;
   @apply items-center;
   @apply justify-center;
+  @apply bg-primary;
   @apply hover:(bg-primaryDark text-secondaryDark);
   @apply focus-visible:text-secondaryDark;
 

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-primary">
     <div class="flex justify-between">
       <div class="flex">
         <ButtonSecondary
@@ -166,7 +166,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="COLUMN_LAYOUT ? t('layout.row') : t('layout.column')"
           svg="columns"
-          class="transform"
+          class="transform hidden sm:inline"
           :class="{ 'rotate-90': !COLUMN_LAYOUT }"
           @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />

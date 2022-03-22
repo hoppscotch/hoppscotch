@@ -491,7 +491,7 @@
     "download_started": "다운로드 시작됨",
     "enabled": "활성화됨",
     "file_imported": "가져온 파일",
-    "finished_in": "{duration}ms 후에 완료예정",
+    "finished_in": "{duration} ms 후에 완료예정",
     "history_deleted": "기록 삭제됨",
     "linewrap": "랩 라인",
     "loading": "로드 중...",

@@ -3,9 +3,9 @@
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
-      <label class="font-semibold text-secondaryLight">{{
-        t("response.body")
-      }}</label>
+      <label class="font-semibold text-secondaryLight">
+        {{ t("response.body") }}
+      </label>
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"

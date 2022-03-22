@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -66,9 +66,7 @@
         class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${$t('empty.body')}`"
       />
-      <span class="pb-4 text-center">
-        {{ $t("empty.body") }}
-      </span>
+      <span class="pb-4 text-center">{{ $t("empty.body") }}</span>
       <ButtonSecondary
         outline
         :label="`${$t('app.documentation')}`"

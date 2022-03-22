@@ -1,5 +1,7 @@
 <template>
-  <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
+  <SmartTabs
+    styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+  >
     <SmartTab
       :id="'params'"
       :label="`${$t('tab.parameters')}`"

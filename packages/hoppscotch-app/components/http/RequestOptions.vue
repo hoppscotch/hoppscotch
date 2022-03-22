@@ -1,22 +1,24 @@
 <template>
-  <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
+  <SmartTabs
+    :selected-tab="selectedTab"
+    styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+  >
     <SmartTab
       :id="'params'"
       :label="`${$t('tab.parameters')}`"
-      :selected="true"
       :info="`${newActiveParamsCount$}`"
     >
       <HttpParameters />
     </SmartTab>
     <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
-      <HttpBody />
+      <HttpBody @changeTab="changeTab" />
     </SmartTab>
     <SmartTab
       :id="'headers'"
       :label="`${$t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders />
+      <HttpHeaders :header-key="headerKey" />
     </SmartTab>
     <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
       <HttpAuthorization />
@@ -41,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "@vue/composition-api"
 import { map } from "rxjs/operators"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -49,6 +52,14 @@ import {
   usePreRequestScript,
   useTestScript,
 } from "~/newstore/RESTSession"
+
+const selectedTab = ref<string>(`params`)
+const headerKey = ref<string>("")
+
+const changeTab = (e: string) => {
+  selectedTab.value = e
+  headerKey.value = "Content-Type"
+}
 
 const newActiveParamsCount$ = useReadonlyStream(
   restActiveParamsCount$.pipe(

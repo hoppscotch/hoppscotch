@@ -44,12 +44,14 @@ const props = withDefaults(
     placeholder: string
     styles: string
     envs: { key: string; value: string; source: string }[] | null
+    focus: boolean
   }>(),
   {
     value: "",
     placeholder: "",
     styles: "",
     envs: null,
+    focus: false,
   }
 )
 

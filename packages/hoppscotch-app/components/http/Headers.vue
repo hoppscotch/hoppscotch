@@ -70,6 +70,7 @@
         <SmartEnvInput
           v-model="header.value"
           :placeholder="`${t('count.value', { count: index + 1 })}`"
+          :focus="index === focusInputIndex"
           @change="
             updateHeader(index, {
               id: header.id,
@@ -168,11 +169,20 @@ import { objRemoveKey } from "~/helpers/functional/object"
 const t = useI18n()
 const toast = useToast()
 
+const props = defineProps({
+  headerKey: {
+    type: String,
+    default: null,
+  },
+})
+
 const idTicker = ref(0)
 
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
+
+const focusInputIndex = ref<number | null>(null)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -288,6 +298,26 @@ watch(bulkHeaders, (newBulkHeaders) => {
     headers.value = filteredBulkHeaders
   }
 })
+
+watch(
+  () => props.headerKey,
+  (newKey, oldKey) => {
+    if (oldKey !== newKey) {
+      addNewHeader({ key: newKey, value: "" })
+    }
+  }
+)
+
+const addNewHeader = (header: { key?: string; value?: string } = {}) => {
+  // Delete last empty header before adding new
+  deleteHeader(workingHeaders.value.length - 1)
+  workingHeaders.value.push({
+    id: idTicker.value++,
+    key: header.key || "",
+    value: header.value || "",
+    active: true,
+  })
+}
 
 const addHeader = () => {
   workingHeaders.value.push({

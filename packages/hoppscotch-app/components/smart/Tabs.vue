@@ -70,12 +70,24 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
+    selectedTab: {
+      type: String,
+      default: null,
+    },
   },
 
   data() {
     return {
       tabs: [],
     }
+  },
+
+  watch: {
+    selectedTab(tabId) {
+      if (tabId) {
+        this.selectTab({ id: tabId })
+      }
+    },
   },
 
   updated() {
@@ -92,6 +104,9 @@ export default defineComponent({
     this.tabs = this.$children.filter(
       (child) => child.$options.name === "SmartTab"
     )
+    if (this.selectedTab) {
+      this.selectTab({ id: this.selectedTab })
+    }
   },
 
   methods: {

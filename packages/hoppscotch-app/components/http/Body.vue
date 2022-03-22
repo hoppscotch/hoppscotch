@@ -49,6 +49,13 @@
             />
           </div>
         </tippy>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="'Override Content-Type header'"
+          :label="$t('request.override')"
+          svg="refresh-cw"
+          @click.native="changeTab('headers')"
+        />
       </span>
     </div>
     <HttpBodyParameters v-if="contentType === 'multipart/form-data'" />
@@ -95,6 +102,11 @@ export default defineComponent({
 
       contentType: useStream(restContentType$, null, setRESTContentType),
     }
+  },
+  methods: {
+    changeTab(tab: string) {
+      this.$emit("changeTab", tab)
+    },
   },
 })
 </script>

@@ -342,7 +342,8 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
-    "variables": "Variables"
+    "variables": "Variables",
+    "override": "Override"
   },
   "response": {
     "body": "Response Body",

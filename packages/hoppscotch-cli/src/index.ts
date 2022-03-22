@@ -5,15 +5,17 @@ import { version } from "../package.json";
 import { test } from "./commands/test";
 import { handleError } from "./handlers/error";
 
+const accent = chalk.greenBright
+
 /**
  * * Program Default Configuration
  */
-const CLI_BEFORE_ALL_TXT = `hopp: The ${chalk.greenBright(
+const CLI_BEFORE_ALL_TXT = `hopp: The ${accent(
   "Hoppscotch"
-)} CLI - Version ${version} (${chalk.greenBright("https://hoppscotch.io")})\n`;
+)} CLI - Version ${version} (${accent("https://hoppscotch.io")}) ${chalk.black.bold.bgYellowBright(" BETA ")} \n`;
 
-const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${chalk.greenBright(
-  "https://docs.hoppscotch.io/"
+const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
+  "https://docs.hoppscotch.io/cli"
 )}`;
 
 program
@@ -21,11 +23,11 @@ program
   .version(version, "-v, --ver", "see the current version of hopp-cli")
   .usage("[options or commands] arguments")
   .addHelpText("beforeAll", CLI_BEFORE_ALL_TXT)
-  .addHelpText("afterAll", CLI_AFTER_ALL_TXT)
+  .addHelpText("after", CLI_AFTER_ALL_TXT)
   .configureHelp({
-    optionTerm: (option) => chalk.greenBright(option.flags),
-    subcommandTerm: (cmd) => chalk.greenBright(cmd.name(), cmd.usage()),
-    argumentTerm: (arg) => chalk.greenBright(arg.name()),
+    optionTerm: (option) => accent(option.flags),
+    subcommandTerm: (cmd) => accent(cmd.name(), cmd.usage()),
+    argumentTerm: (arg) => accent(arg.name()),
   })
   .addHelpCommand()
   .showHelpAfterError(true);
@@ -48,6 +50,7 @@ program
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")
+  .addHelpText("after", `\nFor help, head on to ${accent("https://docs.hoppscotch.io/cli#test")}`)
   .action(async (path) => await test(path)());
 
 export const cli = async (args: string[]) => {

@@ -491,7 +491,7 @@
     "download_started": "Download gestart",
     "enabled": "ingeschakeld",
     "file_imported": "Bestand geïmporteerd",
-    "finished_in": "Klaar in {duration}ms",
+    "finished_in": "Klaar in {duration} ms",
     "history_deleted": "Geschiedenis verwijderd",
     "linewrap": "Regels afbreken",
     "loading": "Bezig met laden...",

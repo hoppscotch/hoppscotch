@@ -491,7 +491,7 @@
     "download_started": "Download iniciado",
     "enabled": "Habilitado",
     "file_imported": "Arquivo importado",
-    "finished_in": "Terminado em {duração} ms",
+    "finished_in": "Terminado em {duration} ms",
     "history_deleted": "Histórico excluído",
     "linewrap": "Quebrar linhas",
     "loading": "Carregando...",

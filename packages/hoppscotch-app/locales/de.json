@@ -491,7 +491,7 @@
     "download_started": "Download gestartet",
     "enabled": "Aktiviert",
     "file_imported": "Datei importiert",
-    "finished_in": "Fertig in {duration}ms",
+    "finished_in": "Fertig in {duration} ms",
     "history_deleted": "Verlauf gelöscht",
     "linewrap": "Zeilen umbrechen",
     "loading": "Wird geladen...",

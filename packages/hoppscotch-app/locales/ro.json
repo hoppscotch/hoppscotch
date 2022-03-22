@@ -491,7 +491,7 @@
     "download_started": "Descărcarea a început",
     "enabled": "Activat",
     "file_imported": "Fișier importat",
-    "finished_in": "Finalizat în {durata} ms",
+    "finished_in": "Finalizat în {duration} ms",
     "history_deleted": "Istoricul a fost șters",
     "linewrap": "Înfășurați liniile",
     "loading": "Se încarcă...",

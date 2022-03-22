@@ -12,7 +12,7 @@ const accent = chalk.greenBright
  */
 const CLI_BEFORE_ALL_TXT = `hopp: The ${accent(
   "Hoppscotch"
-)} CLI - Version ${version} (${accent("https://hoppscotch.io")}) ${chalk.black.bold.bgYellowBright(" BETA ")} \n`;
+)} CLI - Version ${version} (${accent("https://hoppscotch.io")}) ${chalk.black.bold.bgYellowBright(" ALPHA ")} \n`;
 
 const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
   "https://docs.hoppscotch.io/cli"

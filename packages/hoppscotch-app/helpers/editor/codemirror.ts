@@ -12,7 +12,7 @@ import {
   EditorSelection,
 } from "@codemirror/state"
 import { Language, LanguageSupport } from "@codemirror/language"
-import { defaultKeymap } from "@codemirror/commands"
+import { defaultKeymap, indentLess, insertTab } from "@codemirror/commands"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
 
@@ -240,7 +240,19 @@ export function useCodemirror(
           ? [EditorView.lineWrapping]
           : []
       ),
-      keymap.of(defaultKeymap),
+      keymap.of([
+        ...defaultKeymap,
+        {
+          key: "Tab",
+          preventDefault: true,
+          run: insertTab,
+        },
+        {
+          key: "Shift-Tab",
+          preventDefault: true,
+          run: indentLess,
+        },
+      ]),
     ]
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)

@@ -3,6 +3,7 @@
     "target": "ES6",
     "module": "ESNext",
     "moduleResolution": "Node",
+    "skipLibCheck": true,
     "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
     "esModuleInterop": true,
     "strict": true,

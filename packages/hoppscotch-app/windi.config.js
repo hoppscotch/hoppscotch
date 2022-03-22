@@ -10,10 +10,15 @@ export default defineConfig({
         upperPrimaryStickyFold: "var(--upper-primary-sticky-fold)",
         upperSecondaryStickyFold: "var(--upper-secondary-sticky-fold)",
         upperTertiaryStickyFold: "var(--upper-tertiary-sticky-fold)",
+        upperMobilePrimaryStickyFold: "var(--upper-mobile-primary-sticky-fold)",
+        upperMobileSecondaryStickyFold:
+          "var(--upper-mobile-secondary-sticky-fold)",
+        upperMobileRawStickyFold: "var(--upper-mobile-raw-sticky-fold)",
+        upperMobileRawTertiaryStickyFold:
+          "var(--upper-mobile-raw-tertiary-sticky-fold)",
         lowerPrimaryStickyFold: "var(--lower-primary-sticky-fold)",
         lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
         sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
-        sidebarSecondaryStickyFold: "var(--sidebar-secondary-sticky-fold)",
       },
       colors: {
         primary: "var(--primary-color)",

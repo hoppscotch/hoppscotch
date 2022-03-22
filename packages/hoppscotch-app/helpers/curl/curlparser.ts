@@ -3,7 +3,6 @@ import parser from "yargs-parser"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-
 import {
   HoppRESTAuth,
   FormDataKeyValue,
@@ -22,26 +21,40 @@ export const parseCurlCommand = (curlCommand: string) => {
   const parsedArguments = parser(curlCommand)
 
   const headers = getHeaders(parsedArguments)
+  const method = getMethod(parsedArguments)
+  const urlObject = parseURL(parsedArguments)
+
   let rawContentType: string = ""
+  let rawData: string | string[] = parsedArguments?.d || ""
+  let body: string | null = ""
+  let contentType: HoppRESTReqBody["contentType"] = null
+  let hasBodyBeenParsed = false
 
   if (headers && rawContentType === "")
     rawContentType = headers["Content-Type"] || headers["content-type"] || ""
-
-  let rawData: string | string[] = parsedArguments?.d || ""
-  const urlObject = parseURL(parsedArguments)
 
   let { queries, danglingParams } = getQueries(
     urlObject?.searchParams.entries()
   )
 
-  // if method type is to be set as GET
-  if (parsedArguments.G && Array.isArray(rawData)) {
+  if (Array.isArray(rawData)) {
     const pairs = getParamPairs(rawData)
-    const newQueries = getQueries(pairs as [string, string][])
-    queries = [...queries, ...newQueries.queries]
-    danglingParams = [...danglingParams, ...newQueries.danglingParams]
+
+    if (parsedArguments.G) {
+      const newQueries = getQueries(pairs as [string, string][])
+      queries = [...queries, ...newQueries.queries]
+      danglingParams = [...danglingParams, ...newQueries.danglingParams]
+      hasBodyBeenParsed = true
+    } else if (rawContentType.includes("application/x-www-form-urlencoded")) {
+      body = pairs?.map((p) => p.join(": ")).join("\n") || null
+      contentType = "application/x-www-form-urlencoded"
+      hasBodyBeenParsed = true
+    } else {
+      rawData = rawData.join("")
+    }
   }
-  const urlString = concatParams(urlObject?.origin, danglingParams) || ""
+
+  const urlString = concatParams(urlObject, danglingParams) || ""
 
   let multipartUploads: Record<string, string> = pipe(
     parsedArguments,
@@ -73,16 +86,7 @@ export const parseCurlCommand = (curlCommand: string) => {
     )
   }
 
-  const method = getMethod(parsedArguments)
-  let body: string | null = ""
-  let contentType: HoppRESTReqBody["contentType"] = null
-
-  // just in case
-  if (Array.isArray(rawData)) rawData = rawData.join("")
-
-  // if -F is not present, look for content type header
-  // -G is used to send --data as get params
-  if (rawContentType !== "multipart/form-data" && !parsedArguments.G) {
+  if (!hasBodyBeenParsed && typeof rawData === "string") {
     const tempBody = pipe(
       O.Do,
 
@@ -203,10 +207,17 @@ function preProcessCurlCommand(curlCommand: string) {
 
   // replace string for insomnia
   for (const r in replaceables) {
-    curlCommand = curlCommand.replace(
-      RegExp(` ${r}(["' ])`),
-      ` ${replaceables[r]}$1`
-    )
+    if (r.includes("data") || r.includes("form") || r.includes("header")) {
+      curlCommand = curlCommand.replaceAll(
+        RegExp(`[ \t]${r}(["' ])`, "g"),
+        ` ${replaceables[r]}$1`
+      )
+    } else {
+      curlCommand = curlCommand.replace(
+        RegExp(`[ \t]${r}(["' ])`),
+        ` ${replaceables[r]}$1`
+      )
+    }
   }
 
   // yargs parses -XPOST as separate arguments. just prescreen for it.
@@ -280,7 +291,7 @@ function parseURL(parsedArguments: parser.Arguments) {
   return pipe(
     parsedArguments?._[1],
     O.fromNullable,
-    O.map((u) => u.replace(/["']/g, "")),
+    O.map((u) => u.toString().replace(/["']/g, "")),
     O.map((u) => u.trim()),
     O.chain((u) =>
       pipe(
@@ -346,7 +357,7 @@ function getQueries(
       const params = []
 
       for (const q of iter) {
-        if (q[1] === "") {
+        if (!q[1]) {
           danglingParams.push(q[0])
           continue
         }
@@ -374,13 +385,13 @@ function getQueries(
  * @param params params without values
  * @returns origin string concatenated with dngling paramas
  */
-function concatParams(origin: string | undefined, params: string[]) {
+function concatParams(urlObject: URL | undefined, params: string[]) {
   return pipe(
     O.Do,
 
     O.bind("originString", () =>
       pipe(
-        origin,
+        urlObject?.origin,
         O.fromNullable,
         O.filter((h) => h !== "")
       )
@@ -392,8 +403,8 @@ function concatParams(origin: string | undefined, params: string[]) {
         O.fromNullable,
         O.filter((dp) => dp.length > 0),
         O.map(stringArrayJoin("&")),
-        O.map((h) => originString + "?" + h),
-        O.getOrElse(() => originString)
+        O.map((h) => originString + (urlObject?.pathname || "") + "?" + h),
+        O.getOrElse(() => originString + (urlObject?.pathname || ""))
       )
     ),
 
@@ -449,11 +460,8 @@ function getMethod(parsedArguments: parser.Arguments): string {
       () => {
         if (parsedArguments.T) return "put"
         else if (parsedArguments.I || parsedArguments.head) return "head"
-        else if (
-          parsedArguments.d ||
-          (parsedArguments.F && !(parsedArguments.G || parsedArguments.get))
-        )
-          return "post"
+        else if (parsedArguments.G) return "get"
+        else if (parsedArguments.d || parsedArguments.F) return "post"
         else return "get"
       },
       (method) => method[0]
@@ -616,6 +624,8 @@ export function requestToHoppRequest(parsedCurl: CurlParserRequest) {
     parsedCurl.hoppHeaders.filter(
       (header) =>
         header.key !== "Authorization" &&
+        header.key !== "content-type" &&
+        header.key !== "Content-Type" &&
         header.key !== "apikey" &&
         header.key !== "api-key"
     ) || []

@@ -5,6 +5,7 @@ import {
   HoppRESTAuth,
 } from "@hoppscotch/data"
 import { flow } from "fp-ts/function"
+import cloneDeep from "lodash/cloneDeep"
 import { parseCurlCommand, requestToHoppRequest } from "./curlparser"
 
 export type CurlParserRequest = {
@@ -25,5 +26,6 @@ export type CurlParserRequest = {
 
 export const parseCurlToHoppRESTReq = flow(
   parseCurlCommand,
-  requestToHoppRequest
+  requestToHoppRequest,
+  cloneDeep
 )

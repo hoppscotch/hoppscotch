@@ -491,7 +491,7 @@
     "download_started": "Đã bắt đầu tải xuống",
     "enabled": "Đã bật",
     "file_imported": "Đã nhập tệp",
-    "finished_in": "Hoàn thành sau {thời lượng} mili giây",
+    "finished_in": "Hoàn thành sau {duration} mili giây",
     "history_deleted": "Lịch sử đã bị xóa",
     "linewrap": "Quấn dòng",
     "loading": "Đang tải...",

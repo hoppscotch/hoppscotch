@@ -1,7 +1,7 @@
 <template>
   <SmartTabs
     :selected-tab="selectedTab"
-    styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+    styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
   >
     <SmartTab
       :id="'params'"

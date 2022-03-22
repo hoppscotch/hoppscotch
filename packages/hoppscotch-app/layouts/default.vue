@@ -4,7 +4,10 @@
       <Pane v-if="!ZEN_MODE" style="height: auto">
         <AppHeader />
       </Pane>
-      <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
+      <Pane
+        :class="spacerClass"
+        class="flex flex-1 hide-scrollbar !overflow-auto md:mb-0"
+      >
         <Splitpanes
           class="no-splitter"
           :dbl-click-splitter="false"
@@ -12,7 +15,7 @@
         >
           <Pane
             style="width: auto; height: auto"
-            class="hide-scrollbar !overflow-auto flex flex-col"
+            class="hide-scrollbar !overflow-auto hidden md:flex md:flex-col"
           >
             <AppSidenav />
           </Pane>
@@ -31,7 +34,15 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto">
+
+      <Pane
+        style="height: auto"
+        class="hide-scrollbar !overflow-auto flex flex-col md:hidden block fixed inset-x-0 bottom-0 z-10"
+      >
+        <AppSidenav />
+        <AppFooter />
+      </Pane>
+      <Pane style="height: auto" class="hidden md:inline-block">
         <AppFooter />
       </Pane>
     </Splitpanes>
@@ -41,6 +52,7 @@
 <script lang="ts">
 import {
   defineComponent,
+  computed,
   onBeforeMount,
   useContext,
   useRouter,
@@ -108,6 +120,12 @@ function updateThemes() {
   const bgColor = useSetting("BG_COLOR")
   const fontSize = useSetting("FONT_SIZE")
 
+  const spacerClass = computed(() => {
+    if (fontSize.value === "small") return "spacer-small"
+    if (fontSize.value === "large") return "spacer-large"
+    return "spacer-medium"
+  })
+
   // Initially apply
   onBeforeMount(() => {
     document.documentElement.setAttribute("data-accent", themeColor.value)
@@ -123,6 +141,10 @@ function updateThemes() {
   watch(fontSize, () =>
     document.documentElement.setAttribute("data-font-size", fontSize.value)
   )
+
+  return {
+    spacerClass,
+  }
 }
 
 function defineJumpActions() {
@@ -170,7 +192,7 @@ export default defineComponent({
 
     defineJumpActions()
 
-    updateThemes()
+    const { spacerClass } = updateThemes()
 
     setupSentry()
 
@@ -179,6 +201,7 @@ export default defineComponent({
 
     return {
       mdAndLarger,
+      spacerClass,
       ZEN_MODE: useSetting("ZEN_MODE"),
     }
   },
@@ -236,3 +259,31 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped>
+.spacer-small {
+  margin-bottom: 6.1rem;
+}
+
+.spacer-medium {
+  margin-bottom: 6.9rem;
+}
+
+.spacer-large {
+  margin-bottom: 7.8rem;
+}
+
+@media screen and (min-width: 768px) {
+  .spacer-small {
+    margin-bottom: 0rem;
+  }
+
+  .spacer-medium {
+    margin-bottom: 0rem;
+  }
+
+  .spacer-large {
+    margin-bottom: 0rem;
+  }
+}
+</style>

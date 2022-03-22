@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperTertiaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileRawStickyFold sm:top-upperMobileRawTertiaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ $t("request.body") }}
@@ -50,9 +50,8 @@
           <SmartFileChip
             v-for="(file, fileIndex) in param.value"
             :key="`param-${index}-file-${fileIndex}`"
+            >{{ file.name }}</SmartFileChip
           >
-            {{ file.name }}
-          </SmartFileChip>
         </div>
       </div>
       <span v-else class="flex flex-1">
@@ -130,9 +129,7 @@
         class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${$t('empty.body')}`"
       />
-      <span class="pb-4 text-center">
-        {{ $t("empty.body") }}
-      </span>
+      <span class="pb-4 text-center">{{ $t("empty.body") }}</span>
       <ButtonSecondary
         :label="`${$t('add.new')}`"
         filled

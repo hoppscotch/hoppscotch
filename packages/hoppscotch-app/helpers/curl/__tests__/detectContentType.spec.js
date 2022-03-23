@@ -1,4 +1,4 @@
-import { detectContentType } from "../contentParser"
+import { detectContentType } from "../sub_helpers/contentParser"
 
 describe("detect content type", () => {
   test("should return text/plain for blank/null/undefined input", () => {

@@ -1,8 +1,12 @@
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
+
 export const tupleToRecord = <
   KeyType extends string | number | symbol,
   ValueType
 >(
-  tuples: [KeyType, ValueType][]
+  tuples:
+    | [KeyType, ValueType][]
+    | RNEA.ReadonlyNonEmptyArray<[KeyType, ValueType]>
 ): Record<KeyType, ValueType> =>
   tuples.length > 0
     ? (Object.assign as any)(...tuples.map(([key, val]) => ({ [key]: val })))

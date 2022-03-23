@@ -14,7 +14,7 @@ import { safeParseJSON } from "~/helpers/functional/json"
 export function detectContentType(
   rawData: string
 ): HoppRESTReqBody["contentType"] {
-  if (!rawData) return "text/plain"
+  if (!rawData) return null
 
   let contentType: HoppRESTReqBody["contentType"]
 

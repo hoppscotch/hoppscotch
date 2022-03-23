@@ -294,16 +294,14 @@ const samples = [
   },
   {
     command:
-      "curl -X GET localhost --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'",
+      "curl -X GET localhost:9900 --header 'Authorization: Basic 77898dXNlcjpwYXNz'",
     response: makeRESTRequest({
       method: "GET",
       name: "Untitled request",
-      endpoint: "http://localhost/",
+      endpoint: "http://localhost:9900/",
       auth: {
-        authType: "bearer",
+        authType: "none",
         authActive: true,
-        token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
       },
       body: {
         contentType: null,
@@ -317,17 +315,16 @@ const samples = [
   },
   {
     command:
-      "curl -X GET localhost --header 'Authorization: Apikey dXNlcjpwYXNz'",
+      "curl -X GET localhost --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'",
     response: makeRESTRequest({
       method: "GET",
       name: "Untitled request",
       endpoint: "http://localhost/",
       auth: {
+        authType: "bearer",
         authActive: true,
-        authType: "api-key",
-        key: "apikey",
-        value: "dXNlcjpwYXNz",
-        addTo: "headers",
+        token:
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
       },
       body: {
         contentType: null,
@@ -643,6 +640,63 @@ const samples = [
             value: "efghi",
           },
         ],
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl 127.0.0.1 -X custommethod",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "http://127.0.0.1/",
+      method: "CUSTOMMETHOD",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl echo.hoppscotch.io -A pinephone",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "GET",
+      auth: { authType: "none", authActive: true },
+      headers: [
+        {
+          active: true,
+          key: "User-Agent",
+          value: "pinephone",
+        },
+      ],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl echo.hoppscotch.io -G",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "GET",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: null,
+        body: null,
       },
       params: [],
       preRequestScript: "",

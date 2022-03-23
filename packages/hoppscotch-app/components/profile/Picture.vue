@@ -74,7 +74,7 @@ export default defineComponent({
       let color = "#"
       for (let i = 0; i < 3; i++) {
         const value = (hash >> (i * 8)) & 255
-        color += `00${value.toString(16)}`.substr(-2)
+        color += `00${value.toString(16)}`.slice(-2)
       }
       return color
     },

@@ -1,10 +1,10 @@
 import { detectContentType } from "../sub_helpers/contentParser"
 
 describe("detect content type", () => {
-  test("should return text/plain for blank/null/undefined input", () => {
-    expect(detectContentType("")).toBe("text/plain")
-    expect(detectContentType(null)).toBe("text/plain")
-    expect(detectContentType(undefined)).toBe("text/plain")
+  test("should return null for blank/null/undefined input", () => {
+    expect(detectContentType("")).toBe(null)
+    expect(detectContentType(null)).toBe(null)
+    expect(detectContentType(undefined)).toBe(null)
   })
 
   describe("application/json", () => {

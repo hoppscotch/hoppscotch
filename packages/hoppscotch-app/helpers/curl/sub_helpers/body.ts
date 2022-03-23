@@ -173,23 +173,21 @@ export function getFArgumentMultipartData(
     ),
     O.chain(
       flow(
-        A.map(flow(S.split("="))),
+        A.map(S.split("=")),
         O.fromPredicate((fArgs) => fArgs.length > 0),
         O.map(
-          flow(
-            A.map(([k, v]) =>
-              pipe(
-                parsedArguments,
-                O.fromPredicate(objHasProperty("form-string", "boolean")),
-                O.match(
-                  () => [k, v[0] === "@" || v[0] === "<" ? "" : v],
-                  (_) => [k, v]
-                )
+          A.map(([k, v]) =>
+            pipe(
+              parsedArguments,
+              O.fromPredicate(objHasProperty("form-string", "boolean")),
+              O.match(
+                () => [k, v[0] === "@" || v[0] === "<" ? "" : v],
+                (_) => [k, v]
               )
             )
           )
         ),
-        O.map(flow(A.map(([k, v]) => [k, v] as [string, string]))),
+        O.map(A.map(([k, v]) => [k, v] as [string, string])),
         O.map(tupleToRecord)
       )
     )

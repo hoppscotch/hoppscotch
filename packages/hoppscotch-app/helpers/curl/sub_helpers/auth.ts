@@ -2,7 +2,7 @@ import { HoppRESTAuth } from "~/../hoppscotch-data/dist"
 import parser from "yargs-parser"
 import * as O from "fp-ts/Option"
 import * as S from "fp-ts/string"
-import { pipe, flow } from "fp-ts/function"
+import { pipe } from "fp-ts/function"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 import { objHasProperty } from "~/helpers/functional/object"
 
@@ -37,7 +37,7 @@ export const getAuthObject = (
             case "basic": {
               const [username, password] = pipe(
                 O.tryCatch(() => atob(kv[1])),
-                O.map(flow(S.split(":"))),
+                O.map(S.split(":")),
                 O.filter((arr) => arr.length === 2),
                 O.map(
                   ([username, password]) =>
@@ -67,7 +67,7 @@ export const getAuthObject = (
         parsedArguments,
         O.fromPredicate(objHasProperty("u", "string")),
         O.map((args) => args.u),
-        O.map(flow(S.split(":"))),
+        O.map(S.split(":")),
         O.map(([username, password]) => <[string, string]>[username, password]),
         O.alt(() =>
           pipe(urlObject, (url) => [url.username, url.password], O.fromNullable)

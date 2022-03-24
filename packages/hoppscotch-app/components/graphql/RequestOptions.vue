@@ -1,10 +1,12 @@
 <template>
   <div class="flex flex-col flex-1 h-full">
-    <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
+    <SmartTabs
+      v-model="selectedOptionTab"
+      styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+    >
       <SmartTab
         :id="'query'"
         :label="`${t('tab.query')}`"
-        :selected="true"
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
         <div
@@ -64,7 +66,6 @@
         </div>
         <div ref="queryEditor" class="flex flex-col flex-1"></div>
       </SmartTab>
-
       <SmartTab
         :id="'variables'"
         :label="`${t('tab.variables')}`"
@@ -107,7 +108,6 @@
         </div>
         <div ref="variableEditor" class="flex flex-col flex-1"></div>
       </SmartTab>
-
       <SmartTab
         :id="'headers'"
         :label="`${t('tab.headers')}`"
@@ -345,6 +345,10 @@ import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { objRemoveKey } from "~/helpers/functional/object"
+
+type OptionTabs = "query" | "headers" | "variables" | "authorization"
+
+const selectedOptionTab = ref<OptionTabs>("query")
 
 const t = useI18n()
 

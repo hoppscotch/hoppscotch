@@ -1,11 +1,14 @@
 <template>
-  <SmartTabs styles="sticky z-10 bg-primary top-lowerPrimaryStickyFold">
+  <SmartTabs
+    v-if="response"
+    v-model="selectedLensTab"
+    styles="sticky z-10 bg-primary top-lowerPrimaryStickyFold"
+  >
     <SmartTab
       v-for="(lens, index) in validLenses"
       :id="lens.renderer"
       :key="`lens-${index}`"
       :label="$t(lens.lensName)"
-      :selected="index === 0"
       class="flex flex-col flex-1 w-full h-full"
     >
       <component :is="lens.renderer" :response="response" />
@@ -59,6 +62,11 @@ export default defineComponent({
       testResults,
     }
   },
+  data() {
+    return {
+      selectedLensTab: "",
+    }
+  },
   computed: {
     headerLength() {
       if (!this.response || !this.response.headers) return 0
@@ -69,6 +77,15 @@ export default defineComponent({
       if (!this.response) return []
 
       return getSuitableLenses(this.response)
+    },
+  },
+  watch: {
+    validLenses: {
+      handler(newValue) {
+        if (newValue.length === 0) return
+        this.selectedLensTab = newValue[0].renderer
+      },
+      immediate: true,
     },
   },
 })

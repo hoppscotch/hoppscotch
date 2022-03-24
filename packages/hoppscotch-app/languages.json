@@ -13,6 +13,13 @@
     "name": "عربى"
   },
   {
+    "code": "bn",
+    "dir": "rtl",
+    "file": "bn.json",
+    "iso": "bn-BN",
+    "name": "বাংলা"
+  },
+  {
     "code": "ca",
     "file": "ca.json",
     "iso": "ca-CA",

@@ -129,6 +129,10 @@ const removeTabEntry = (tabID: string) => {
   }
 
   tabEntries.value.splice(index, 1)
+
+  // If we tried to remove the active tabEntries, switch to first tab entry
+  if (props.value === tabID)
+    if (tabEntries.value.length > 0) selectTab(tabEntries.value[0][0])
 }
 
 provide<TabProvider>("tabs-system", {

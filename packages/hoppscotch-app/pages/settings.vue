@@ -32,7 +32,7 @@
               {{ t("settings.accent_color") }}
             </h4>
             <div class="my-1 text-secondaryLight">
-              {{ active.charAt(0).toUpperCase() + active.slice(1) }}
+              {{ ACCENT_COLOR.charAt(0).toUpperCase() + ACCENT_COLOR.slice(1) }}
             </div>
             <div class="mt-4">
               <SmartAccentModePicker />
@@ -248,13 +248,13 @@ import {
   hasChromeExtensionInstalled,
   hasFirefoxExtensionInstalled,
 } from "~/helpers/strategies/ExtensionStrategy"
-import { getLocalConfig } from "~/newstore/localpersistence"
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
 
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
 
+const ACCENT_COLOR = useSetting("THEME_COLOR")
 const PROXY_ENABLED = useSetting("PROXY_ENABLED")
 const PROXY_URL = useSetting("PROXY_URL")
 const EXTENSIONS_ENABLED = useSetting("EXTENSIONS_ENABLED")
@@ -289,8 +289,6 @@ const hasFirefoxExtInstalled = usePolled(5000, (stopPolling) => {
 })
 
 const clearIcon = ref("rotate-ccw")
-
-const active = ref(getLocalConfig("THEME_COLOR") || "blue")
 
 const confirmRemove = ref(false)
 

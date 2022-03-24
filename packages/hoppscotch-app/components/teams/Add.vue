@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="t('team.new')" @close="hideModal">
+  <SmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
       <div class="flex flex-col px-2">
         <input

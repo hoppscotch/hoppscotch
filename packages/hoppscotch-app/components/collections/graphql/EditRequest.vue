@@ -1,6 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="`${$t('modal.edit_request')}`"
     @close="hideModal"
   >

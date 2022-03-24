@@ -265,7 +265,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 ## **Usage**
 
 1. Provide your API endpoint in the URL field
-2. CLick "Send" to simulate the request
+2. Click "Send" to simulate the request
 3. View the response
 
 ## **Built with**

@@ -1,9 +1,9 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="`${t('modal.collections')}`"
     max-width="sm:max-w-md"
-    dialog
     @close="hideModal"
   >
     <template #actions>

@@ -1,6 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="`${t('request.generate_code')}`"
     @close="hideModal"
   >

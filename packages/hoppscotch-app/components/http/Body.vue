@@ -51,7 +51,11 @@
         </tippy>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="'Override Content-Type header'"
+          :title="
+            overridenContentType
+              ? 'The Content-Type is being overriden to ' + overridenContentType
+              : $t('request.override_title')
+          "
           :label="$t('request.override')"
           svg="refresh-cw"
           @click.native="changeTab('headers')"
@@ -87,24 +91,45 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { Ref, watch, ref } from "@vue/composition-api"
+import { HoppRESTHeader } from "~/../hoppscotch-data/dist"
+import { HoppRESTTab } from "~/helpers/types/HoppRESTTab"
 import { useStream } from "~/helpers/utils/composables"
-import { restContentType$, setRESTContentType } from "~/newstore/RESTSession"
 import { knownContentTypes } from "~/helpers/utils/contenttypes"
+import {
+  restContentType$,
+  restHeaders$,
+  setRESTContentType,
+  setRESTHeaders,
+} from "~/newstore/RESTSession"
 
-export default defineComponent({
-  setup() {
-    return {
-      validContentTypes: Object.keys(knownContentTypes),
+const emit = defineEmits(["changeTab"])
 
-      contentType: useStream(restContentType$, null, setRESTContentType),
-    }
+const validContentTypes = Object.keys(knownContentTypes)
+const contentType = useStream(restContentType$, null, setRESTContentType)
+
+// The functional headers list (the headers actually in the system)
+const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<
+  HoppRESTHeader[]
+>
+
+const overridenContentType = ref<string | null>(null)
+
+watch(
+  headers,
+  (allHeaders: HoppRESTHeader[]) => {
+    const headerContentType = allHeaders.find(
+      (header) => header.key.toLowerCase() === "content-type"
+    )
+    overridenContentType.value = headerContentType
+      ? headerContentType.value
+      : null
   },
-  methods: {
-    changeTab(tab: string) {
-      this.$emit("changeTab", tab)
-    },
-  },
-})
+  { immediate: true }
+)
+
+const changeTab = (tab: HoppRESTTab) => {
+  emit("changeTab", tab)
+}
 </script>

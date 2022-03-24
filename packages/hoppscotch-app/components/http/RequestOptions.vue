@@ -2,6 +2,7 @@
   <SmartTabs
     :selected-tab="selectedTab"
     styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+    @tab-changed="selectedTab = $event"
   >
     <SmartTab
       :id="'params'"
@@ -18,7 +19,7 @@
       :label="`${$t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders :header-key="headerKey" />
+      <HttpHeaders :new-header-key="newHeaderKey" />
     </SmartTab>
     <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
       <HttpAuthorization />
@@ -43,8 +44,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@vue/composition-api"
+import { ref, nextTick } from "@nuxtjs/composition-api"
 import { map } from "rxjs/operators"
+import { HoppRESTTab } from "~/helpers/types/HoppRESTTab"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restActiveHeadersCount$,
@@ -53,12 +55,15 @@ import {
   useTestScript,
 } from "~/newstore/RESTSession"
 
-const selectedTab = ref<string>(`params`)
-const headerKey = ref<string>("")
+const selectedTab = ref<HoppRESTTab>("params")
+const newHeaderKey = ref<string | null>("")
 
-const changeTab = (e: string) => {
+const changeTab = (e: HoppRESTTab) => {
   selectedTab.value = e
-  headerKey.value = "Content-Type"
+  newHeaderKey.value = "Content-Type"
+  nextTick(() => {
+    newHeaderKey.value = null
+  })
 }
 
 const newActiveParamsCount$ = useReadonlyStream(

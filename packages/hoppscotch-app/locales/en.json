@@ -343,7 +343,8 @@
     "type": "Request type",
     "url": "URL",
     "variables": "Variables",
-    "override": "Override"
+    "override": "Override",
+    "override_title": "Override Content-Type header"
   },
   "response": {
     "body": "Response Body",

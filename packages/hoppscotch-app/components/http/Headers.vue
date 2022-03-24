@@ -168,7 +168,8 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps({
-  headerKey: {
+  // newHeaderKey will changed to be added to the headers list, like if we want to override content-type then we will pass Content-Type key as props here.
+  newHeaderKey: {
     type: String,
     default: null,
   },
@@ -297,31 +298,38 @@ watch(bulkHeaders, (newBulkHeaders) => {
   }
 })
 
+// watching for newHeaderKey prop to add dynamiclly as a new header
 watch(
-  () => props.headerKey,
-  (newKey, oldKey) => {
-    if (oldKey !== newKey) {
-      addNewHeader({ key: newKey, value: "" })
+  () => props.newHeaderKey,
+  (newKey) => {
+    if (newKey) {
+      const header = isHeaderAlreadyExists(newKey)
+      if (!header.exist) {
+        // Delete last empty header before adding new
+        deleteHeader(workingHeaders.value.length - 1)
+        addHeader({ key: newKey, value: "" })
+      }
     }
   }
 )
 
-const addNewHeader = (header: { key?: string; value?: string } = {}) => {
-  // Delete last empty header before adding new
-  deleteHeader(workingHeaders.value.length - 1)
-  workingHeaders.value.push({
-    id: idTicker.value++,
-    key: header.key || "",
-    value: header.value || "",
-    active: true,
-  })
+const isHeaderAlreadyExists = (
+  key: string
+): { exist: boolean; index: number } => {
+  const index = workingHeaders.value.findIndex(
+    (e) => e.key.toLowerCase() === key.toLowerCase()
+  )
+  return {
+    exist: index !== -1,
+    index,
+  }
 }
 
-const addHeader = () => {
+const addHeader = (header: { key: string; value: string } | null = null) => {
   workingHeaders.value.push({
     id: idTicker.value++,
-    key: "",
-    value: "",
+    key: header?.key || "",
+    value: header?.value || "",
     active: true,
   })
 }

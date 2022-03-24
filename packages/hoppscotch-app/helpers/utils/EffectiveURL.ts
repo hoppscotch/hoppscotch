@@ -106,15 +106,15 @@ function getFinalBodyFromRequest(
       arrayFlatMap((x) =>
         x.isFile
           ? x.value.map((v) => ({
-              key: parseTemplateString(x.key, envVariables),
-              value: v as string | Blob,
-            }))
+            key: parseTemplateString(x.key, envVariables),
+            value: v as string | Blob,
+          }))
           : [
-              {
-                key: parseTemplateString(x.key, envVariables),
-                value: parseTemplateString(x.value, envVariables),
-              },
-            ]
+            {
+              key: parseTemplateString(x.key, envVariables),
+              value: parseTemplateString(x.value, envVariables),
+            },
+          ]
       ),
       toFormData
     )
@@ -203,10 +203,10 @@ export function getEffectiveRESTRequest(
   }
 
   const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables)
-  if (
-    request.body.contentType &&
-    !effectiveFinalHeaders.some((x) => x.key.toLowerCase() === "content-type")
+  const contentTypeInHeader = effectiveFinalHeaders.find(
+    (x) => x.key.toLowerCase() === "content-type"
   )
+  if (request.body.contentType && !contentTypeInHeader?.value)
     effectiveFinalHeaders.push({
       active: true,
       key: "content-type",

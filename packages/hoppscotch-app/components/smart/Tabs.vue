@@ -100,8 +100,6 @@ const emit = defineEmits<{
   (e: "input", newTabID: string): void
 }>()
 
-
-
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 
 const addTabEntry = (tabID: string, meta: TabMeta) => {

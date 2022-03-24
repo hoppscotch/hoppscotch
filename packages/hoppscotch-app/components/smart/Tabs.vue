@@ -14,28 +14,35 @@
         >
           <div class="flex" :class="{ 'flex-col space-y-2 p-2': vertical }">
             <button
-              v-for="(tab, index) in tabs"
+              v-for="([tabID, tabMeta], index) in tabEntries"
               :key="`tab-${index}`"
               class="tab"
-              :class="[{ active: tab.active }, { vertical: vertical }]"
-              :aria-label="tab.label"
+              :class="[{ active: value === tabID }, { vertical: vertical }]"
+              :aria-label="tabMeta.label || ''"
               role="button"
-              @keyup.enter="selectTab(tab)"
-              @click="selectTab(tab)"
+              @keyup.enter="selectTab(tabID)"
+              @click="selectTab(tabID)"
             >
-              <SmartIcon v-if="tab.icon" class="svg-icons" :name="tab.icon" />
+              <SmartIcon
+                v-if="tabMeta.icon"
+                class="svg-icons"
+                :name="tabMeta.icon"
+              />
               <tippy
-                v-if="vertical && tab.label"
+                v-if="vertical && tabMeta.label"
                 placement="left"
                 theme="tooltip"
-                :content="tab.label"
+                :content="tabMeta.label"
               />
-              <span v-else-if="tab.label">{{ tab.label }}</span>
-              <span v-if="tab.info && tab.info !== 'null'" class="tab-info">
-                {{ tab.info }}
+              <span v-else-if="tabMeta.label">{{ tabMeta.label }}</span>
+              <span
+                v-if="tabMeta.info && tabMeta.info !== 'null'"
+                class="tab-info"
+              >
+                {{ tabMeta.info }}
               </span>
               <span
-                v-if="tab.indicator"
+                v-if="tabMeta.indicator"
                 class="w-1 h-1 ml-2 rounded-full bg-accentLight"
               ></span>
             </button>
@@ -57,52 +64,83 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, ComputedRef, computed, provide } from "@nuxtjs/composition-api"
 
-export default defineComponent({
-  props: {
-    styles: {
-      type: String,
-      default: "",
-    },
-    vertical: {
-      type: Boolean,
-      default: false,
-    },
+export type TabMeta = {
+  label: string | null
+  icon: string | null
+  indicator: boolean
+  info: string | null
+}
+
+export type TabProvider = {
+  activeTabID: ComputedRef<string>
+  addTabEntry: (tabID: string, meta: TabMeta) => void
+  updateTabEntry: (tabID: string, newMeta: TabMeta) => void
+  removeTabEntry: (tabID: string) => void
+}
+
+const props = defineProps({
+  styles: {
+    type: String,
+    default: "",
   },
-
-  data() {
-    return {
-      tabs: [],
-    }
+  vertical: {
+    type: Boolean,
+    default: false,
   },
-
-  updated() {
-    const candidates = this.$children.filter(
-      (child) => child.$options.name === "SmartTab"
-    )
-
-    if (candidates.length !== this.tabs.length) {
-      this.tabs = candidates
-    }
-  },
-
-  mounted() {
-    this.tabs = this.$children.filter(
-      (child) => child.$options.name === "SmartTab"
-    )
-  },
-
-  methods: {
-    selectTab({ id }) {
-      this.tabs.forEach((tab) => {
-        tab.active = tab.id === id
-      })
-      this.$emit("tab-changed", id)
-    },
+  value: {
+    type: String,
+    required: true,
   },
 })
+
+const emit = defineEmits<{
+  (e: "input", newTabID: string): void
+}>()
+
+const tabEntries = ref<Array<[string, TabMeta]>>([])
+
+const addTabEntry = (tabID: string, meta: TabMeta) => {
+  if (tabEntries.value.find(([id]) => id === tabID)) {
+    throw new Error(`Tab with duplicate ID created: '${tabID}'`)
+  }
+  tabEntries.value.push([tabID, meta])
+}
+
+const updateTabEntry = (tabID: string, newMeta: TabMeta) => {
+  const index = tabEntries.value.findIndex(([id]) => id === tabID)
+
+  if (index === -1) {
+    console.warn(`Tried to update non-existent tab entry: ${tabID}`)
+    return
+  }
+
+  tabEntries.value[index] = [tabID, newMeta]
+}
+
+const removeTabEntry = (tabID: string) => {
+  const index = tabEntries.value.findIndex(([id]) => id === tabID)
+
+  if (index === -1) {
+    console.warn(`Tried to remove non-existent tab entry: ${tabID}`)
+    return
+  }
+
+  tabEntries.value.splice(index, 1)
+}
+
+provide<TabProvider>("tabs-system", {
+  activeTabID: computed(() => props.value),
+  addTabEntry,
+  updateTabEntry,
+  removeTabEntry,
+})
+
+const selectTab = (id: string) => {
+  emit("input", id)
+}
 </script>
 
 <style scoped lang="scss">

@@ -1,11 +1,10 @@
 <template>
-  <SmartTabs styles="sticky bg-primary z-10 top-0" vertical>
-    <SmartTab
-      :id="'history'"
-      icon="clock"
-      :label="`${t('tab.history')}`"
-      :selected="true"
-    >
+  <SmartTabs
+    v-model="selectedNavigationTab"
+    styles="sticky bg-primary z-10 top-0"
+    vertical
+  >
+    <SmartTab :id="'history'" icon="clock" :label="`${t('tab.history')}`">
       <History
         ref="graphqlHistoryComponent"
         :page="'graphql'"
@@ -66,6 +65,7 @@
         </div>
         <SmartTabs
           ref="gqlTabs"
+          v-model="selectedGqlTab"
           styles="border-t border-b border-dividerLight bg-primary sticky z-10 top-sidebarPrimaryStickyFold"
         >
           <div class="gqlTabs">
@@ -73,7 +73,6 @@
               v-if="queryFields.length > 0"
               :id="'queries'"
               :label="`${t('tab.queries')}`"
-              :selected="true"
               class="divide-y divide-dividerLight"
             >
               <GraphqlField
@@ -217,6 +216,12 @@ import {
   setGQLURL,
   setGQLVariables,
 } from "~/newstore/GQLSession"
+
+type NavigationTabs = "history" | "collection" | "docs" | "schema"
+type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
+
+const selectedNavigationTab = ref<NavigationTabs>("history")
+const selectedGqlTab = ref<GqlTabs>("queries")
 
 const t = useI18n()
 

@@ -1,10 +1,9 @@
 <template>
   <div v-if="show">
-    <SmartTabs :id="'collections_tab'" @tab-changed="updateCollectionsType">
+    <SmartTabs :id="'collections_tab'" v-model="collectionTab">
       <SmartTab
         :id="'my-collections'"
         :label="`${$t('collection.my_collections')}`"
-        :selected="true"
       />
       <SmartTab
         v-if="currentUser && !doc"
@@ -65,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref, watch } from "@nuxtjs/composition-api"
 import { GetMyTeamsQuery, Team } from "~/helpers/backend/graphql"
 import { onLoggedIn } from "~/helpers/fb/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
@@ -73,6 +72,10 @@ import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 
 type TeamData = GetMyTeamsQuery["myTeams"][number]
+
+type CollectionTabs = "my-collections" | "team-collections"
+
+const collectionTab = ref<CollectionTabs>("my-collections")
 
 defineProps<{
   doc: boolean
@@ -111,4 +114,11 @@ const options = ref<any | null>(null)
 const updateSelectedTeam = (team: TeamData | undefined) => {
   emit("update-selected-team", team)
 }
+
+watch(
+  () => collectionTab.value,
+  (newValue: string) => {
+    updateCollectionsType(newValue)
+  }
+)
 </script>

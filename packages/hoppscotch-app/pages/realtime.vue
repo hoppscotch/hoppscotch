@@ -1,12 +1,12 @@
 <template>
   <SmartTabs
+    v-model="selectedNavigationTab"
     class="h-full !overflow-hidden"
     styles="sticky bg-primary top-0 z-10 border-b border-dividerLight !overflow-visible"
   >
     <SmartTab
       id="websocket"
       :label="$t('tab.websocket')"
-      :selected="true"
       style="height: calc(100% - var(--sidebar-primary-sticky-fold))"
     >
       <RealtimeWebsocket />
@@ -39,6 +39,11 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 
 export default defineComponent({
+  data() {
+    return {
+      selectedNavigationTab: "websocket",
+    }
+  },
   head() {
     return {
       title: `${this.$t("navigation.realtime")} • Hoppscotch`,

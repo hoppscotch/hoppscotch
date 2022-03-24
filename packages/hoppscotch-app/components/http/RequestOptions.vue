@@ -1,8 +1,7 @@
 <template>
   <SmartTabs
-    :selected-tab="selectedTab"
+    v-model="selectedRealtimeTab"
     styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
-    @tab-changed="selectedTab = $event"
   >
     <SmartTab
       :id="'params'"
@@ -46,7 +45,6 @@
 <script setup lang="ts">
 import { ref, nextTick } from "@nuxtjs/composition-api"
 import { map } from "rxjs/operators"
-import { HoppRESTTab } from "~/helpers/types/HoppRESTTab"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restActiveHeadersCount$,
@@ -55,11 +53,14 @@ import {
   useTestScript,
 } from "~/newstore/RESTSession"
 
-const selectedTab = ref<HoppRESTTab>("params")
+type RequestOptionTabs = "params" | "bodyParams" | "headers" | "authorization"
+
+const selectedRealtimeTab = ref<RequestOptionTabs>("params")
+
 const newHeaderKey = ref<string | null>("")
 
-const changeTab = (e: HoppRESTTab) => {
-  selectedTab.value = e
+const changeTab = (e: RequestOptionTabs) => {
+  selectedRealtimeTab.value = e
   newHeaderKey.value = "Content-Type"
   nextTick(() => {
     newHeaderKey.value = null

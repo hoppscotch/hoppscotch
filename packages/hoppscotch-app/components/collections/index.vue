@@ -337,6 +337,9 @@ export default defineComponent({
     "collectionsType.selectedTeam"(value) {
       if (value?.id) this.teamCollectionAdapter.changeTeamID(value.id)
     },
+    currentUser(newValue) {
+      if (!newValue) this.updateCollectionType("my-collections")
+    },
   },
   mounted() {
     this.subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {

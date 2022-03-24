@@ -115,10 +115,7 @@ const updateSelectedTeam = (team: TeamData | undefined) => {
   emit("update-selected-team", team)
 }
 
-watch(
-  () => selectedCollectionTab.value,
-  (newValue: string) => {
-    updateCollectionsType(newValue)
-  }
-)
+watch(selectedCollectionTab, (newValue: string) => {
+  updateCollectionsType(newValue)
+})
 </script>

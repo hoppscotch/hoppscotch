@@ -155,18 +155,38 @@
           class="flex flex-col flex-1"
         ></div>
         <div v-else>
-          <div
-            v-for="(header, index) in workingHeaders"
-            :key="`header-${header.id}-${index}`"
-            class="flex border-b divide-x divide-dividerLight border-dividerLight"
+          <draggable
+            v-model="workingHeaders"
+            animation="250"
+            handle=".draggable-handle"
+            draggable=".draggable-content"
+            ghost-class="cursor-move"
+            chosen-class="bg-primaryLight"
+            drag-class="cursor-grabbing"
           >
-            <SmartAutoComplete
-              :placeholder="`${t('count.header', { count: index + 1 })}`"
-              :source="commonHeaders"
-              :spellcheck="false"
-              :value="header.key"
-              autofocus
-              styles="
+            <div
+              v-for="(header, index) in workingHeaders"
+              :key="`header-${header.id}-${index}`"
+              class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+            >
+              <span>
+                <ButtonSecondary
+                  svg="grip-vertical"
+                  class="cursor-auto text-primary hover:text-primary"
+                  :class="{
+                    'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                      index !== workingHeaders?.length - 1,
+                  }"
+                  tabindex="-1"
+                />
+              </span>
+              <SmartAutoComplete
+                :placeholder="`${t('count.header', { count: index + 1 })}`"
+                :source="commonHeaders"
+                :spellcheck="false"
+                :value="header.key"
+                autofocus
+                styles="
                 bg-transparent
                 flex
                 flex-1
@@ -174,69 +194,70 @@
                 px-4
                 truncate
               "
-              class="flex-1 !flex"
-              @input="
-                updateHeader(index, {
-                  id: header.id,
-                  key: $event,
-                  value: header.value,
-                  active: header.active,
-                })
-              "
-            />
-            <input
-              class="flex flex-1 px-4 py-2 bg-transparent"
-              :placeholder="`${t('count.value', { count: index + 1 })}`"
-              :name="`value ${String(index)}`"
-              :value="header.value"
-              autofocus
-              @change="
-                updateHeader(index, {
-                  id: header.id,
-                  key: header.key,
-                  value: $event.target.value,
-                  active: header.active,
-                })
-              "
-            />
-            <span>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="
-                  header.hasOwnProperty('active')
-                    ? header.active
-                      ? t('action.turn_off')
-                      : t('action.turn_on')
-                    : t('action.turn_off')
-                "
-                :svg="
-                  header.hasOwnProperty('active')
-                    ? header.active
-                      ? 'check-circle'
-                      : 'circle'
-                    : 'check-circle'
-                "
-                color="green"
-                @click.native="
+                class="flex-1 !flex"
+                @input="
                   updateHeader(index, {
                     id: header.id,
-                    key: header.key,
+                    key: $event,
                     value: header.value,
-                    active: !header.active,
+                    active: header.active,
                   })
                 "
               />
-            </span>
-            <span>
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.remove')"
-                svg="trash"
-                color="red"
-                @click.native="deleteHeader(index)"
+              <input
+                class="flex flex-1 px-4 py-2 bg-transparent"
+                :placeholder="`${t('count.value', { count: index + 1 })}`"
+                :name="`value ${String(index)}`"
+                :value="header.value"
+                autofocus
+                @change="
+                  updateHeader(index, {
+                    id: header.id,
+                    key: header.key,
+                    value: $event.target.value,
+                    active: header.active,
+                  })
+                "
               />
-            </span>
-          </div>
+              <span>
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="
+                    header.hasOwnProperty('active')
+                      ? header.active
+                        ? t('action.turn_off')
+                        : t('action.turn_on')
+                      : t('action.turn_off')
+                  "
+                  :svg="
+                    header.hasOwnProperty('active')
+                      ? header.active
+                        ? 'check-circle'
+                        : 'circle'
+                      : 'check-circle'
+                  "
+                  color="green"
+                  @click.native="
+                    updateHeader(index, {
+                      id: header.id,
+                      key: header.key,
+                      value: header.value,
+                      active: !header.active,
+                    })
+                  "
+                />
+              </span>
+              <span>
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.remove')"
+                  svg="trash"
+                  color="red"
+                  @click.native="deleteHeader(index)"
+                />
+              </span>
+            </div>
+          </draggable>
           <div
             v-if="workingHeaders.length === 0"
             class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -288,6 +309,7 @@ import {
   parseRawKeyValueEntriesE,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
+import draggable from "vuedraggable"
 import isEqual from "lodash/isEqual"
 import cloneDeep from "lodash/cloneDeep"
 import { copyToClipboard } from "~/helpers/utils/clipboard"

@@ -51,61 +51,82 @@
           />
         </div>
       </div>
-      <div
-        v-for="(protocol, index) of protocols"
-        :key="`protocol-${index}`"
-        class="flex border-b divide-x divide-dividerLight border-dividerLight"
+      <draggable
+        v-model="protocols"
+        animation="250"
+        handle=".draggable-handle"
+        draggable=".draggable-content"
+        ghost-class="cursor-move"
+        chosen-class="bg-primaryLight"
+        drag-class="cursor-grabbing"
       >
-        <input
-          v-model="protocol.value"
-          class="flex flex-1 px-4 py-2 bg-transparent"
-          :placeholder="$t('count.protocol', { count: index + 1 })"
-          name="message"
-          type="text"
-          autocomplete="off"
-          @change="
-            updateProtocol(index, {
-              value: $event.target.value,
-              active: protocol.active,
-            })
-          "
-        />
-        <span>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              protocol.hasOwnProperty('active')
-                ? protocol.active
-                  ? $t('action.turn_off')
-                  : $t('action.turn_on')
-                : $t('action.turn_off')
-            "
-            :svg="
-              protocol.hasOwnProperty('active')
-                ? protocol.active
-                  ? 'check-circle'
-                  : 'circle'
-                : 'check-circle'
-            "
-            color="green"
-            @click.native="
+        <div
+          v-for="(protocol, index) of protocols"
+          :key="`protocol-${index}`"
+          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+        >
+          <span>
+            <ButtonSecondary
+              svg="grip-vertical"
+              class="cursor-auto text-primary hover:text-primary"
+              :class="{
+                'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                  index !== protocols?.length - 1,
+              }"
+              tabindex="-1"
+            />
+          </span>
+          <input
+            v-model="protocol.value"
+            class="flex flex-1 px-4 py-2 bg-transparent"
+            :placeholder="$t('count.protocol', { count: index + 1 })"
+            name="message"
+            type="text"
+            autocomplete="off"
+            @change="
               updateProtocol(index, {
-                value: protocol.value,
-                active: !protocol.active,
+                value: $event.target.value,
+                active: protocol.active,
               })
             "
           />
-        </span>
-        <span>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.remove')"
-            svg="trash"
-            color="red"
-            @click.native="deleteProtocol({ index })"
-          />
-        </span>
-      </div>
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                protocol.hasOwnProperty('active')
+                  ? protocol.active
+                    ? $t('action.turn_off')
+                    : $t('action.turn_on')
+                  : $t('action.turn_off')
+              "
+              :svg="
+                protocol.hasOwnProperty('active')
+                  ? protocol.active
+                    ? 'check-circle'
+                    : 'circle'
+                  : 'check-circle'
+              "
+              color="green"
+              @click.native="
+                updateProtocol(index, {
+                  value: protocol.value,
+                  active: !protocol.active,
+                })
+              "
+            />
+          </span>
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="$t('action.remove')"
+              svg="trash"
+              color="red"
+              @click.native="deleteProtocol({ index })"
+            />
+          </span>
+        </div>
+      </draggable>
       <div
         v-if="protocols.length === 0"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -162,6 +183,7 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
+import draggable from "vuedraggable"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import {
   setWSEndpoint,
@@ -185,6 +207,9 @@ import {
 import { useStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
+  components: {
+    draggable,
+  },
   setup() {
     return {
       url: useStream(WSEndpoint$, "", setWSEndpoint),

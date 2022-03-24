@@ -28,97 +28,118 @@
         />
       </div>
     </div>
-    <div
-      v-for="(param, index) in workingParams"
-      :key="`param-${index}`"
-      class="flex border-b divide-x divide-dividerLight border-dividerLight"
+    <draggable
+      v-model="workingParams"
+      animation="250"
+      handle=".draggable-handle"
+      draggable=".draggable-content"
+      ghost-class="cursor-move"
+      chosen-class="bg-primaryLight"
+      drag-class="cursor-grabbing"
     >
-      <SmartEnvInput
-        v-model="param.key"
-        :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
-        @change="
-          updateBodyParam(index, {
-            key: $event,
-            value: param.value,
-            active: param.active,
-            isFile: param.isFile,
-          })
-        "
-      />
-      <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
-        <div class="space-x-2 file-chips-wrapper">
-          <SmartFileChip
-            v-for="(file, fileIndex) in param.value"
-            :key="`param-${index}-file-${fileIndex}`"
-            >{{ file.name }}</SmartFileChip
-          >
-        </div>
-      </div>
-      <span v-else class="flex flex-1">
+      <div
+        v-for="(param, index) in workingParams"
+        :key="`param-${index}`"
+        class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+      >
+        <span>
+          <ButtonSecondary
+            svg="grip-vertical"
+            class="cursor-auto text-primary hover:text-primary"
+            :class="{
+              'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                index !== workingParams?.length - 1,
+            }"
+            tabindex="-1"
+          />
+        </span>
         <SmartEnvInput
-          v-model="param.value"
-          :placeholder="`${$t('count.value', { count: index + 1 })}`"
+          v-model="param.key"
+          :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
           @change="
             updateBodyParam(index, {
-              key: param.key,
-              value: $event,
+              key: $event,
+              value: param.value,
               active: param.active,
               isFile: param.isFile,
             })
           "
         />
-      </span>
-      <span>
-        <label :for="`attachment${index}`" class="p-0">
-          <input
-            :id="`attachment${index}`"
-            :ref="`attachment${index}`"
-            :name="`attachment${index}`"
-            type="file"
-            multiple
-            class="p-1 cursor-pointer transition file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
-            @change="setRequestAttachment(index, param, $event)"
+        <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
+          <div class="space-x-2 file-chips-wrapper">
+            <SmartFileChip
+              v-for="(file, fileIndex) in param.value"
+              :key="`param-${index}-file-${fileIndex}`"
+              >{{ file.name }}</SmartFileChip
+            >
+          </div>
+        </div>
+        <span v-else class="flex flex-1">
+          <SmartEnvInput
+            v-model="param.value"
+            :placeholder="`${$t('count.value', { count: index + 1 })}`"
+            @change="
+              updateBodyParam(index, {
+                key: param.key,
+                value: $event,
+                active: param.active,
+                isFile: param.isFile,
+              })
+            "
           />
-        </label>
-      </span>
-      <span>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
-            param.hasOwnProperty('active')
-              ? param.active
-                ? $t('action.turn_off')
-                : $t('action.turn_on')
-              : $t('action.turn_off')
-          "
-          :svg="
-            param.hasOwnProperty('active')
-              ? param.active
-                ? 'check-circle'
-                : 'circle'
-              : 'check-circle'
-          "
-          color="green"
-          @click.native="
-            updateBodyParam(index, {
-              key: param.key,
-              value: param.value,
-              active: param.hasOwnProperty('active') ? !param.active : false,
-              isFile: param.isFile,
-            })
-          "
-        />
-      </span>
-      <span>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.remove')"
-          svg="trash"
-          color="red"
-          @click.native="deleteBodyParam(index)"
-        />
-      </span>
-    </div>
+        </span>
+        <span>
+          <label :for="`attachment${index}`" class="p-0">
+            <input
+              :id="`attachment${index}`"
+              :ref="`attachment${index}`"
+              :name="`attachment${index}`"
+              type="file"
+              multiple
+              class="p-1 cursor-pointer transition file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+              @change="setRequestAttachment(index, param, $event)"
+            />
+          </label>
+        </span>
+        <span>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="
+              param.hasOwnProperty('active')
+                ? param.active
+                  ? $t('action.turn_off')
+                  : $t('action.turn_on')
+                : $t('action.turn_off')
+            "
+            :svg="
+              param.hasOwnProperty('active')
+                ? param.active
+                  ? 'check-circle'
+                  : 'circle'
+                : 'check-circle'
+            "
+            color="green"
+            @click.native="
+              updateBodyParam(index, {
+                key: param.key,
+                value: param.value,
+                active: param.hasOwnProperty('active') ? !param.active : false,
+                isFile: param.isFile,
+              })
+            "
+          />
+        </span>
+        <span>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="$t('action.remove')"
+            svg="trash"
+            color="red"
+            @click.native="deleteBodyParam(index)"
+          />
+        </span>
+      </div>
+    </draggable>
     <div
       v-if="workingParams.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -146,6 +167,7 @@ import { ref, Ref, watch } from "@nuxtjs/composition-api"
 import { FormDataKeyValue } from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
 import { clone } from "lodash"
+import draggable from "vuedraggable"
 import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
 

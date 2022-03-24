@@ -129,6 +129,9 @@ const initView = (el: any) => {
         clipboardEv = ev
         pastedValue = ev.clipboardData?.getData("text") ?? ""
       },
+      drop(ev) {
+        ev.preventDefault()
+      },
     }),
     ViewPlugin.fromClass(
       class {

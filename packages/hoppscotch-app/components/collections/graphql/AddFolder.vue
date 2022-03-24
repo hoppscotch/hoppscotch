@@ -1,6 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="$t('folder.new')"
     @close="$emit('hide-modal')"
   >

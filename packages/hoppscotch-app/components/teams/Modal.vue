@@ -1,5 +1,10 @@
 <template>
-  <SmartModal v-if="show" :title="t('team.select_a_team')" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    dialog
+    :title="t('team.select_a_team')"
+    @close="hideModal"
+  >
     <template #body>
       <Teams :modal="true" />
     </template>

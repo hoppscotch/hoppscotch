@@ -34,15 +34,15 @@
           </Pane>
         </Splitpanes>
       </Pane>
-
-      <Pane
-        style="height: auto"
-        class="hide-scrollbar !overflow-auto flex flex-col md:hidden block fixed inset-x-0 bottom-0 z-10"
-      >
-        <AppSidenav />
+      <Pane v-if="mdAndLarger" style="height: auto">
         <AppFooter />
       </Pane>
-      <Pane style="height: auto" class="hidden md:inline-block">
+      <Pane
+        v-else
+        style="height: auto"
+        class="hide-scrollbar !overflow-auto flex flex-col fixed inset-x-0 bottom-0 z-10"
+      >
+        <AppSidenav />
         <AppFooter />
       </Pane>
     </Splitpanes>

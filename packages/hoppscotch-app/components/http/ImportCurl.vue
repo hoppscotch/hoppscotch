@@ -1,5 +1,10 @@
 <template>
-  <SmartModal v-if="show" :title="`${t('import.curl')}`" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    dialog
+    :title="`${t('import.curl')}`"
+    @close="hideModal"
+  >
     <template #body>
       <div class="px-2 h-46">
         <div

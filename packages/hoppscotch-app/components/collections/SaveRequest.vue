@@ -1,6 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="`${t('collection.save_as')}`"
     @close="hideModal"
   >

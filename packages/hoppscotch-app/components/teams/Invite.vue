@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" :title="t('team.invite')" @close="hideModal">
+  <SmartModal v-if="show" dialog :title="t('team.invite')" @close="hideModal">
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
         <div class="flex flex-col items-center justify-center max-w-md">

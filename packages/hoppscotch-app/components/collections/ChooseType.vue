@@ -1,6 +1,6 @@
 <template>
   <div v-if="show">
-    <SmartTabs :id="'collections_tab'" v-model="collectionTab">
+    <SmartTabs :id="'collections_tab'" v-model="selectedCollectionTab">
       <SmartTab
         :id="'my-collections'"
         :label="`${$t('collection.my_collections')}`"
@@ -75,7 +75,7 @@ type TeamData = GetMyTeamsQuery["myTeams"][number]
 
 type CollectionTabs = "my-collections" | "team-collections"
 
-const collectionTab = ref<CollectionTabs>("my-collections")
+const selectedCollectionTab = ref<CollectionTabs>("my-collections")
 
 defineProps<{
   doc: boolean
@@ -116,7 +116,7 @@ const updateSelectedTeam = (team: TeamData | undefined) => {
 }
 
 watch(
-  () => collectionTab.value,
+  () => selectedCollectionTab.value,
   (newValue: string) => {
     updateCollectionsType(newValue)
   }

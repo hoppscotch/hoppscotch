@@ -92,9 +92,8 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, watch, ref } from "@vue/composition-api"
+import { Ref, watch, ref } from "@nuxtjs/composition-api"
 import { HoppRESTHeader } from "~/../hoppscotch-data/dist"
-import { HoppRESTTab } from "~/helpers/types/HoppRESTTab"
 import { useStream } from "~/helpers/utils/composables"
 import { knownContentTypes } from "~/helpers/utils/contenttypes"
 import {
@@ -103,6 +102,7 @@ import {
   setRESTContentType,
   setRESTHeaders,
 } from "~/newstore/RESTSession"
+import { RequestOptionTabs } from "./RequestOptions.vue"
 
 const emit = defineEmits(["changeTab"])
 
@@ -129,7 +129,7 @@ watch(
   { immediate: true }
 )
 
-const changeTab = (tab: HoppRESTTab) => {
+const changeTab = (tab: RequestOptionTabs) => {
   emit("changeTab", tab)
 }
 </script>

@@ -53,7 +53,11 @@ import {
   useTestScript,
 } from "~/newstore/RESTSession"
 
-type RequestOptionTabs = "params" | "bodyParams" | "headers" | "authorization"
+export type RequestOptionTabs =
+  | "params"
+  | "bodyParams"
+  | "headers"
+  | "authorization"
 
 const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 

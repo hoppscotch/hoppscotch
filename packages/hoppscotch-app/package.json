@@ -111,6 +111,7 @@
     "vue-pdf-embed": "^1.1.0",
     "vue-textarea-autosize": "^1.1.1",
     "vue-tippy": "^4.13.0",
+    "vuedraggable": "^2.24.3",
     "vuejs-auto-complete": "^0.9.0",
     "wonka": "^4.0.15",
     "yargs-parser": "^21.0.1"

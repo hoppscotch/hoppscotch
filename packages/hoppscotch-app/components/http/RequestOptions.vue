@@ -1,11 +1,11 @@
 <template>
   <SmartTabs
+    v-model="selectedRealtimeTab"
     styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
   >
     <SmartTab
       :id="'params'"
       :label="`${$t('tab.parameters')}`"
-      :selected="true"
       :info="`${newActiveParamsCount$}`"
     >
       <HttpParameters />
@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
 import { map } from "rxjs/operators"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -51,6 +52,10 @@ import {
   usePreRequestScript,
   useTestScript,
 } from "~/newstore/RESTSession"
+
+type RequestOptionTabs = "params" | "bodyParams" | "headers" | "authorization"
+
+const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 
 const newActiveParamsCount$ = useReadonlyStream(
   restActiveParamsCount$.pipe(

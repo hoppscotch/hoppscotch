@@ -1,6 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="t('support.title')"
     max-width="sm:max-w-md"
     @close="$emit('hide-modal')"

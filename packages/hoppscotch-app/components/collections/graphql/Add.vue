@@ -1,5 +1,10 @@
 <template>
-  <SmartModal v-if="show" :title="`${$t('collection.new')}`" @close="hideModal">
+  <SmartModal
+    v-if="show"
+    dialog
+    :title="`${$t('collection.new')}`"
+    @close="hideModal"
+  >
     <template #body>
       <div class="flex flex-col px-2">
         <input

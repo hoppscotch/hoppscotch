@@ -77,12 +77,8 @@
               <FirebaseLogout outline />
             </div>
           </div>
-          <SmartTabs>
-            <SmartTab
-              :id="'sync'"
-              :label="t('settings.account')"
-              :selected="true"
-            >
+          <SmartTabs v-model="selectedProfileTab">
+            <SmartTab :id="'sync'" :label="t('settings.account')">
               <section class="p-4">
                 <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.profile") }}
@@ -210,6 +206,10 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
+
+type ProfileTabs = "sync" | "teams"
+
+const selectedProfileTab = ref<ProfileTabs>("sync")
 
 const t = useI18n()
 const toast = useToast()

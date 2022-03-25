@@ -551,7 +551,7 @@ function makeVisitors(server, query, file, messages) {
       }
     },
     ArrayExpression: function (node, state, c) {
-      // validate elements of the Arrray
+      // validate elements of the Array
       var rule = getRule("Array")
       if (!rule) return
       //var actualType = infer.expressionType({node: node, state: state});

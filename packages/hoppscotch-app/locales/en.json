@@ -44,7 +44,10 @@
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "copy": "Copy",
+    "copy_user_id": "Copy user id",
     "documentation": "Documentation",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
     "github": "GitHub",
     "help": "Help & feedback",
     "home": "Home",
@@ -497,6 +500,7 @@
     "loading": "Loading...",
     "none": "None",
     "nothing_found": "Nothing found for",
+    "user_id_copied_to_clipboard": "User Id copied to clipboard",
     "waiting_send_request": "Waiting to send request"
   },
   "support": {

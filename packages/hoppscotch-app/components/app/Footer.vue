@@ -144,7 +144,11 @@
               blank
               @click.native="options.tippy().hide()"
             />
-            <div class="flex px-4 py-2 opacity-50">
+            <div
+              v-if="currentUser !== null"
+              class="flex px-4 py-2 opacity-50"
+              @dblclick="currentUser !== null && showDeveloperOptionModal()"
+            >
               {{ `${t("app.name")} v${$config.clientVersion}` }}
             </div>
           </div>
@@ -190,6 +194,10 @@
     <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
     <AppShare :show="showShare" @hide-modal="showShare = false" />
     <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
+    <AppDeveloperOptions
+      :show="showDeveloperOptions"
+      @hide-modal="showDeveloperOptions = false"
+    />
   </div>
 </template>
 
@@ -198,11 +206,13 @@ import { ref, watch } from "@nuxtjs/composition-api"
 import { defineActionHandler } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 import { useSetting } from "~/newstore/settings"
-import { useI18n } from "~/helpers/utils/composables"
+import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
+import { probableUser$ } from "~/helpers/fb/auth"
 
 const t = useI18n()
 const showShortcuts = ref(false)
 const showShare = ref(false)
+const showDeveloperOptions = ref(false)
 const showSearch = ref(false)
 
 defineActionHandler("flyouts.keybinds.toggle", () => {
@@ -217,6 +227,10 @@ defineActionHandler("modals.search.toggle", () => {
   showSearch.value = !showSearch.value
 })
 
+defineActionHandler("modals.developerOptions.toggle", () => {
+  showDeveloperOptions.value = !showDeveloperOptions.value
+})
+
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")
 const ZEN_MODE = useSetting("ZEN_MODE")
@@ -224,6 +238,8 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
 const navigatorShare = !!navigator.share
+
+const currentUser = useReadonlyStream(probableUser$, null)
 
 watch(
   () => ZEN_MODE.value,
@@ -249,6 +265,11 @@ const nativeShare = () => {
 
 const chatWithUs = () => {
   showChat()
+}
+
+const showDeveloperOptionModal = () => {
+  showDeveloperOptions.value = true
+  options.value.tippy().hide()
 }
 
 // Template refs

@@ -383,7 +383,7 @@ function getQueries(
  * Joins dangling params to origin
  * @param origin origin value from the URL Object
  * @param params params without values
- * @returns origin string concatenated with dngling paramas
+ * @returns origin string concatenated with dangling paramas
  */
 function concatParams(urlObject: URL | undefined, params: string[]) {
   return pipe(

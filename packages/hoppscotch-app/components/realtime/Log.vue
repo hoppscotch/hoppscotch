@@ -38,7 +38,7 @@ const props = defineProps({
 })
 
 const logsRef = ref<any | null>(null)
-const BOTTOM_SCROLL_DIST_INNACURACY = 5
+const BOTTOM_SCROLL_DIST_INACCURACY = 5
 
 watch(
   () => props.log,
@@ -48,7 +48,7 @@ watch(
       logsRef.value.scrollHeight -
       logsRef.value.scrollTop -
       logsRef.value.clientHeight
-    if (distToBottom < BOTTOM_SCROLL_DIST_INNACURACY) {
+    if (distToBottom < BOTTOM_SCROLL_DIST_INACCURACY) {
       nextTick(() => (logsRef.value.scrollTop = logsRef.value.scrollHeight))
     }
   }

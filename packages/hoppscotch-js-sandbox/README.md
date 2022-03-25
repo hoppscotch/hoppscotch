@@ -17,7 +17,7 @@ This package deals with providing a JavaScript sandbox for executing various sec
 
 ## How does this work?
 
-This package makes use of [quickjs-empscripten](https://www.npmjs.com/package/quickjs-emscripten) for building sandboxes for running external code on Hoppscotch.
+This package makes use of [quickjs-emscripten](https://www.npmjs.com/package/quickjs-emscripten) for building sandboxes for running external code on Hoppscotch.
 
 Currently implemented sandboxes:
 - Hoppscotch Test Scripts

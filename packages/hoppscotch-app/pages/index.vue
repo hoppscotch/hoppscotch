@@ -113,7 +113,7 @@ function setupRequestSync(
     sub = startRequestSync()
   })
 
-  // Stop subscripton to stop syncing
+  // Stop subscription to stop syncing
   onBeforeUnmount(() => {
     sub?.unsubscribe()
   })

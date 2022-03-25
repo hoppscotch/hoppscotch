@@ -107,7 +107,7 @@ const shortcutsItems = computed(() =>
   )
 )
 
-const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
+const { bindArrowKeysListeners, unbindArrowKeysListeners, selectedEntry } =
   useArrowKeysNavigation(shortcutsItems, {
     onEnter: runAction,
   })
@@ -115,8 +115,8 @@ const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
 watch(
   () => props.show,
   (show) => {
-    if (show) bindArrowKeysListerners()
-    else unbindArrowKeysListerners()
+    if (show) bindArrowKeysListeners()
+    else unbindArrowKeysListeners()
   }
 )
 </script>

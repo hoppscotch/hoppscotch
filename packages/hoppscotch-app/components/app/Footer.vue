@@ -145,7 +145,6 @@
               @click.native="options.tippy().hide()"
             />
             <div
-              v-if="currentUser !== null"
               class="flex px-4 py-2 opacity-50"
               @dblclick="currentUser !== null && showDeveloperOptionModal()"
             >

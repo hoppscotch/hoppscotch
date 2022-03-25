@@ -106,15 +106,15 @@ function getFinalBodyFromRequest(
       arrayFlatMap((x) =>
         x.isFile
           ? x.value.map((v) => ({
-            key: parseTemplateString(x.key, envVariables),
-            value: v as string | Blob,
-          }))
-          : [
-            {
               key: parseTemplateString(x.key, envVariables),
-              value: parseTemplateString(x.value, envVariables),
-            },
-          ]
+              value: v as string | Blob,
+            }))
+          : [
+              {
+                key: parseTemplateString(x.key, envVariables),
+                value: parseTemplateString(x.value, envVariables),
+              },
+            ]
       ),
       toFormData
     )

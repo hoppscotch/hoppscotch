@@ -145,7 +145,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "@nuxtjs/composition-api"
 import { useNetwork } from "@vueuse/core"
-import intializePwa from "~/helpers/pwa"
+import initializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import {
@@ -181,7 +181,7 @@ defineActionHandler("modals.support.toggle", () => {
 onMounted(() => {
   // Initializes the PWA code - checks if the app is installed,
   // etc.
-  showInstallPrompt.value = intializePwa()
+  showInstallPrompt.value = initializePwa()
 
   const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
   if (!cookiesAllowed) {

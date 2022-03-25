@@ -34,7 +34,7 @@ export const runTestScript = (
 /**
  * Executes a given pre-request script on the sandbox
  * @param preRequestScript The script to run
- * @param env The envirionment variables active
+ * @param env The environment variables active
  * @returns A TaskEither with an error message or an array of the final environments with the all the script values applied
  */
 export const runPreRequestScript = execPreRequestScript

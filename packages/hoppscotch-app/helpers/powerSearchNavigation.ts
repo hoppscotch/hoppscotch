@@ -37,19 +37,19 @@ export function useArrowKeysNavigation(searchItems: any, options: any = {}) {
     handleArrowKeysNavigation(event, selectedEntry, preventPropagation)
   }
 
-  function bindArrowKeysListerners() {
+  function bindArrowKeysListeners() {
     window.addEventListener("keydown", onKeyUp, { capture: preventPropagation })
   }
 
-  function unbindArrowKeysListerners() {
+  function unbindArrowKeysListeners() {
     window.removeEventListener("keydown", onKeyUp, {
       capture: preventPropagation,
     })
   }
 
   return {
-    bindArrowKeysListerners,
-    unbindArrowKeysListerners,
+    bindArrowKeysListeners,
+    unbindArrowKeysListeners,
     selectedEntry,
   }
 }

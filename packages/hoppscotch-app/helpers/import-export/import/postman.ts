@@ -1,6 +1,5 @@
 import {
   Collection as PMCollection,
-  FormParam,
   Item,
   ItemGroup,
   QueryParam,
@@ -16,6 +15,9 @@ import {
   makeRESTRequest,
   HoppCollection,
   makeCollection,
+  ValidContentTypes,
+  knownContentTypes,
+  FormDataKeyValue,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
@@ -24,6 +26,8 @@ import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { PMRawLanguage } from "~/types/pm-coll-exts"
+import { stringArrayJoin } from "~/helpers/functional/array"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
@@ -33,6 +37,17 @@ const replacePMVarTemplating = flow(
   S.replace(/{{\s*/g, "<<"),
   S.replace(/\s*}}/g, ">>")
 )
+
+const PMRawLanguageOptionsToContentTypeMap: Record<
+  PMRawLanguage,
+  ValidContentTypes
+> = {
+  text: "text/plain",
+  javascript: "text/plain",
+  json: "application/json",
+  html: "text/html",
+  xml: "application/xml",
+}
 
 const isPMItemGroup = (x: unknown): x is ItemGroup<Item> =>
   ItemGroup.isItemGroup(x)
@@ -147,55 +162,96 @@ const getHoppReqAuth = (item: Item): HoppRESTAuth => {
   return { authType: "none", authActive: true }
 }
 
-type PMFormDataParamType = FormParam & {
-  type: "file" | "text"
-}
-
 const getHoppReqBody = (item: Item): HoppRESTReqBody => {
   if (!item.request.body) return { contentType: null, body: null }
 
-  // TODO: Implement
   const body = item.request.body
 
   if (body.mode === "formdata") {
     return {
       contentType: "multipart/form-data",
-      body:
-        (body.formdata?.all() as PMFormDataParamType[]).map((param) => ({
-          key: replacePMVarTemplating(param.key),
-          value: replacePMVarTemplating(
-            param.type === "text" ? (param.value as string) : ""
-          ),
-          active: !param.disabled,
-          isFile: false, // TODO: Preserve isFile state ?
-        })) ?? [],
+      body: pipe(
+        body.formdata?.all() ?? [],
+        A.map(
+          (param) =>
+            <FormDataKeyValue>{
+              key: replacePMVarTemplating(param.key),
+              value: replacePMVarTemplating(
+                param.type === "text" ? (param.value as string) : ""
+              ),
+              active: !param.disabled,
+              isFile: false, // TODO: Preserve isFile state ?
+            }
+        )
+      ),
     }
   } else if (body.mode === "urlencoded") {
     return {
       contentType: "application/x-www-form-urlencoded",
-      body:
-        body.urlencoded
-          ?.all()
-          .map(
-            (param) =>
-              `${replacePMVarTemplating(
-                param.key ?? ""
-              )}: ${replacePMVarTemplating(param.value ?? "")}`
-          )
-          .join("\n") ?? "",
+      body: pipe(
+        body.urlencoded?.all() ?? [],
+        A.map(
+          (param) =>
+            `${replacePMVarTemplating(
+              param.key ?? ""
+            )}: ${replacePMVarTemplating(param.value ?? "")}`
+        ),
+        stringArrayJoin("\n")
+      ),
     }
   } else if (body.mode === "raw") {
-    // Find content type from the content type header
-    const contentType = getHoppReqHeaders(item).find(
-      ({ key }) => key.toLowerCase() === "content-type"
-    )?.value
+    return pipe(
+      O.Do,
 
-    if (contentType && body.raw !== undefined && body.raw !== null)
-      return {
-        contentType: contentType as any,
-        body: replacePMVarTemplating(body.raw),
-      }
-    else return { contentType: null, body: null } // TODO: Any sort of recovery ?
+      // Extract content-type
+      O.bind("contentType", () =>
+        pipe(
+          // Get the info from the content-type header
+          getHoppReqHeaders(item),
+          A.findFirst(({ key }) => key.toLowerCase() === "content-type"),
+          O.map((x) => x.value),
+
+          // Make sure it is a content-type Hopp can work with
+          O.filter(
+            (contentType): contentType is ValidContentTypes =>
+              contentType in knownContentTypes
+          ),
+
+          // Back-up plan, assume language from raw language defintion
+          O.alt(() =>
+            pipe(
+              body.options?.raw?.language,
+              O.fromNullable,
+              O.map((lang) => PMRawLanguageOptionsToContentTypeMap[lang])
+            )
+          ),
+
+          // If that too failed, just assume "text/plain"
+          O.getOrElse((): ValidContentTypes => "text/plain"),
+
+          O.of
+        )
+      ),
+
+      // Extract and parse body
+      O.bind("body", () =>
+        pipe(body.raw, O.fromNullable, O.map(replacePMVarTemplating))
+      ),
+
+      // Return null content-type if failed, else return parsed
+      O.match(
+        () =>
+          <HoppRESTReqBody>{
+            contentType: null,
+            body: null,
+          },
+        ({ contentType, body }) =>
+          <HoppRESTReqBody>{
+            contentType,
+            body,
+          }
+      )
+    )
   }
 
   // TODO: File

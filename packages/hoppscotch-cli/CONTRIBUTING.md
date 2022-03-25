@@ -30,13 +30,13 @@ Please note we have a code of conduct, please follow it in all your interactions
     1.  The 'pnpx' way (preferred since it does not hamper your original installation of the CLI):
 
         ```bash
-        pnpm link hopp-cli
+        pnpm link @hoppscotch/cli
 
         // Then to use or test the CLI:
-        pnpx hopp-cli
+        pnpx hopp
 
         // After testing, to remove the package linking:
-        pnpm rm hopp-cli
+        pnpm rm @hoppscotch/cli
         ```
 
     2.  The 'global' way (warning: this might override the globally installed CLI, if exists):
@@ -45,34 +45,13 @@ Please note we have a code of conduct, please follow it in all your interactions
         sudo pnpm link --global
 
         // Then to use or test the CLI:
-        hopp-cli
+        hopp
 
         // After testing, to remove the package linking:
-        sudo pnpm rm --global hopp-cli
+        sudo pnpm rm --global @hoppscotch/cli
         ```
 
 3.  To use the Typescript watch scripts:
     ```bash
     pnpm run dev
     ```
-
-## TCP Socket Debugger
-
-For easier development, the project contains a debugger, which uses a virtual console to accept input via `STDIN` and then passes the input to a TCP socket, which outputs that to any listener on port **`9999`**(this can be changed in the code), and thus prints it to the listener's `STDOUT`
-
-1. To start the listener:
-
-   ```bash
-   pnpm run debugger
-   ```
-
-2. To log debugging information in your code:
-
-   ```typescript
-   import { debugging } from "utils"
-
-   debugging.log("Normal console log.")
-   debugging.info("Informational console log.")
-   debugging.error("Error console log.")
-   debugging.dir({ key: "value" })
-   ```

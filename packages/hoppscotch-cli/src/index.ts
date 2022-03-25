@@ -29,7 +29,7 @@ program
     subcommandTerm: (cmd) => accent(cmd.name(), cmd.usage()),
     argumentTerm: (arg) => accent(arg.name()),
   })
-  .addHelpCommand()
+  .addHelpCommand(false)
   .showHelpAfterError(true);
 
 program.exitOverride().configureOutput({

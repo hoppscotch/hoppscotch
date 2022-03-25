@@ -39,7 +39,7 @@
           :title="`${t('app.options')} <xmp>?</xmp>`"
           svg="help-circle"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark md:hidden"
-          @click.native="showSettings = true"
+          @click.native="showOptions = true"
         />
         <ButtonSecondary
           v-if="currentUser === null"
@@ -145,7 +145,7 @@
     <AppAnnouncement v-if="!network.isOnline" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
-    <MobileMenu :show="showSettings" @hide-modal="showSettings = false" />
+    <AppOptions :show="showOptions" @hide-modal="showOptions = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -153,7 +153,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "@nuxtjs/composition-api"
 import { useNetwork } from "@vueuse/core"
-import MobileMenu from "./Options.vue"
+import AppOptions from "./Options.vue"
 import initializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
@@ -176,7 +176,7 @@ const toast = useToast()
 const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
 const showSupport = ref(false)
-const showSettings = ref(false)
+const showOptions = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
@@ -189,7 +189,7 @@ defineActionHandler("modals.support.toggle", () => {
 })
 
 defineActionHandler("modals.support.toggle", () => {
-  showSettings.value = !showSettings.value
+  showOptions.value = !showOptions.value
 })
 
 onMounted(() => {

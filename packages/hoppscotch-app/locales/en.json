@@ -268,9 +268,7 @@
     "zen_mode": "Zen mode",
     "collapse_sidebar": "Collapse or Expand the sidebar",
     "collapse_collection": "Collapse or Expand Collections",
-    "name": "Layout",
-    "zen_mode_description": "Compact layout with a minimalistic design"
-
+    "name": "Layout"
   },
   "modal": {
     "collections": "Collections",
@@ -348,6 +346,7 @@
     "save_as": "Save as",
     "saved": "Request saved",
     "share": "Share",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Request",
     "type": "Request type",
     "url": "URL",

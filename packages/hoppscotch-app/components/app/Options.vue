@@ -116,7 +116,26 @@
           active
           @click.native="chatWithUs()"
         />
+        <SmartItem
+          svg="user-plus"
+          :label="`${t('app.invite')}`"
+          :description="t('shortcut.miscellaneous.invite')"
+          info-icon="chevron_right"
+          active
+          @click.native="expandInvite()"
+        />
+        <SmartItem
+          v-if="navigatorShare"
+          v-tippy="{ theme: 'tooltip' }"
+          svg="share-2"
+          :label="`${t('request.share')}`"
+          :description="t('request.share_description')"
+          info-icon="chevron_right"
+          active
+          @click.native="nativeShare()"
+        />
       </div>
+      <AppShare :show="showShare" @hide-modal="showShare = false" />
     </template>
   </SmartModal>
 </template>
@@ -129,10 +148,10 @@ import { showChat } from "~/helpers/support"
 import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
-const ZEN_MODE = useSetting("ZEN_MODE")
+const navigatorShare = !!navigator.share
 const showShare = ref(false)
-const showSearch = ref(false)
 
+const ZEN_MODE = useSetting("ZEN_MODE")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")
 
@@ -146,6 +165,10 @@ watch(
 defineProps<{
   show: Boolean
 }>()
+
+defineActionHandler("modals.share.toggle", () => {
+  showShare.value = !showShare.value
+})
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
@@ -166,15 +189,26 @@ const expandCollection = () => {
   hideModal()
 }
 
+const expandInvite = () => {
+  showShare.value = true
+}
+
+const nativeShare = () => {
+  if (navigator.share) {
+    navigator
+      .share({
+        title: "Hoppscotch",
+        text: "Hoppscotch • Open source API development ecosystem - Helps you create requests faster, saving precious time on development.",
+        url: "https://hoppscotch.io",
+      })
+      .then(() => {})
+      .catch(console.error)
+  } else {
+    // fallback
+  }
+}
+
 const hideModal = () => {
   emit("hide-modal")
 }
-
-defineActionHandler("modals.share.toggle", () => {
-  showShare.value = !showShare.value
-})
-
-defineActionHandler("modals.search.toggle", () => {
-  showSearch.value = !showSearch.value
-})
 </script>

@@ -218,16 +218,16 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
           ),
 
           // Back-up plan, assume language from raw language defintion
-          // If that too failed, just assume "text/plain"
-          O.getOrElse(() =>
+          O.alt(() =>
             pipe(
               body.options?.raw?.language,
               O.fromNullable,
-              O.map((lang) => PMRawLanguageOptionsToContentTypeMap[lang]),
-
-              O.getOrElse((): ValidContentTypes => "text/plain")
+              O.map((lang) => PMRawLanguageOptionsToContentTypeMap[lang])
             )
           ),
+
+          // If that too failed, just assume "text/plain"
+          O.getOrElse((): ValidContentTypes => "text/plain"),
 
           O.of
         )

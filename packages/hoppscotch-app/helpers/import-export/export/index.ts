@@ -3,12 +3,12 @@ import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 
 export type HoppExporter<T> = (content: T) => TE.TaskEither<string, string>
 
-export type HoppExporterDefintion<T> = {
+export type HoppExporterDefinition<T> = {
   name: string
   exporter: () => Promise<HoppExporter<T>>
 }
 
-export const RESTCollectionExporters: HoppExporterDefintion<
+export const RESTCollectionExporters: HoppExporterDefinition<
   HoppCollection<HoppRESTRequest>
 >[] = [
   {

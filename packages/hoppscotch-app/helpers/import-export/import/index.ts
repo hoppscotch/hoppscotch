@@ -16,7 +16,7 @@ type HoppImporter<T, StepsType, Errors> = (
 /**
  * Definition for importers
  */
-type HoppImporterDefintion<T, Y, E> = {
+type HoppImporterDefinition<T, Y, E> = {
   /**
    * Name of the importer, shown on the Select Importer dropdown
    */
@@ -53,7 +53,7 @@ export const defineImporter = <ReturnType, StepType, Errors>(input: {
   applicableTo?: Array<"team-collections" | "my-collections">
   steps: StepType
 }) => {
-  return <HoppImporterDefintion<ReturnType, StepType, Errors>>{
+  return <HoppImporterDefinition<ReturnType, StepType, Errors>>{
     ...input,
   }
 }

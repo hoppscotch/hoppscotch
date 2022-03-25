@@ -18,4 +18,8 @@ declare module "postman-collection" {
       }
     }
   }
+
+  interface FormParam {
+    type: "file" | "text"
+  }
 }

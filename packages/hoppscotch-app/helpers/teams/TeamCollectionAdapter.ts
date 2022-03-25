@@ -27,7 +27,7 @@ const TEAMS_BACKEND_PAGE_SIZE = 10
  * @param {string} collID - ID of the collection to find the parent of
  * @param {TeamCollection} currentParent - (used for recursion, do not set) The parent in the current iteration (undefined if root)
  *
- * @returns REFERENCE to the collecton or null if not found or the collection is in root
+ * @returns REFERENCE to the collection or null if not found or the collection is in root
  */
 function findParentOfColl(
   tree: TeamCollection[],

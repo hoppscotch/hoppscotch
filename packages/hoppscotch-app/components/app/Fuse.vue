@@ -53,17 +53,17 @@ const searchResultsItems = computed(() =>
 
 const emitSearchAction = (action: HoppAction) => emit("action", action)
 
-const { bindArrowKeysListerners, unbindArrowKeysListerners, selectedEntry } =
+const { bindArrowKeysListeners, unbindArrowKeysListeners, selectedEntry } =
   useArrowKeysNavigation(searchResultsItems, {
     onEnter: emitSearchAction,
     stopPropagation: true,
   })
 
 onMounted(() => {
-  bindArrowKeysListerners()
+  bindArrowKeysListeners()
 })
 
 onUnmounted(() => {
-  unbindArrowKeysListerners()
+  unbindArrowKeysListeners()
 })
 </script>

@@ -314,7 +314,7 @@ function makeVisitors(server, query, file, messages) {
     }
   }
 
-  function validateAssignement(nodeLeft, nodeRight, rule, state) {
+  function validateAssignment(nodeLeft, nodeRight, rule, state) {
     if (!nodeLeft || !nodeRight) return
     if (!rule) return
     var leftType = infer.expressionType({ node: nodeLeft, state: state }),
@@ -387,7 +387,7 @@ function makeVisitors(server, query, file, messages) {
               )
             // type mismatch?
             if (mismatchRule)
-              validateAssignement(varNode, decl.init, mismatchRule, state)
+              validateAssignment(varNode, decl.init, mismatchRule, state)
           }
         }
         break
@@ -525,7 +525,7 @@ function makeVisitors(server, query, file, messages) {
     CallExpression: validateCallExpression,
     AssignmentExpression: function (node, state, c) {
       var rule = getRule("TypeMismatch")
-      validateAssignement(node.left, node.right, rule, state)
+      validateAssignment(node.left, node.right, rule, state)
     },
     ObjectExpression: function (node, state, c) {
       // validate properties of the object literal

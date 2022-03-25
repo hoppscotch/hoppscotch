@@ -37,7 +37,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('app.options')} <xmp>?</xmp>`"
-          svg="help-circle"
+          svg="life-buoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark md:hidden"
           @click.native="showOptions = true"
         />
@@ -98,12 +98,12 @@
                 />
               </template>
               <div class="flex flex-col px-2 text-tiny" role="menu">
-                <span class="inline-flex font-semibold truncate">{{
-                  currentUser.displayName
-                }}</span>
-                <span class="inline-flex truncate text-secondaryLight">{{
-                  currentUser.email
-                }}</span>
+                <span class="inline-flex font-semibold truncate">
+                  {{ currentUser.displayName }}
+                </span>
+                <span class="inline-flex truncate text-secondaryLight">
+                  {{ currentUser.email }}
+                </span>
               </div>
               <hr />
               <div

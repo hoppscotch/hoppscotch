@@ -13,7 +13,7 @@ const defaultRESTReq = getDefaultRESTRequest()
  */
 export function parseURL(parsedArguments: parser.Arguments) {
   return pipe(
-    parsedArguments?._[1],
+    parsedArguments._[1],
     O.fromNullable,
     O.map((u) => u.toString().replace(/["']/g, "")),
     O.map((u) => u.trim()),

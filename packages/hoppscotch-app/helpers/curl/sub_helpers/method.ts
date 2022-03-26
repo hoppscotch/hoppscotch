@@ -19,7 +19,7 @@ export const getMethod = (parsedArguments: parser.Arguments): string =>
   pipe(
     parsedArguments,
     O.fromPredicate(objHasProperty("X", "string")),
-    O.map((args) => args.X?.trim()),
+    O.map((args) => args.X.trim()),
     O.chain((xarg) =>
       pipe(
         xarg.match(/GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE/i),

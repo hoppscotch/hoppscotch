@@ -1,6 +1,7 @@
 import parser from "yargs-parser"
 import * as O from "fp-ts/Option"
-import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
+import { pipe, flow } from "fp-ts/function"
 import {
   FormDataKeyValue,
   HoppRESTReqBody,
@@ -17,13 +18,14 @@ import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 import {
   objHasProperty,
-  arrayObjHasProperty,
+  objHasArrayProperty,
 } from "~/helpers/functional/object"
 
 const defaultRESTReq = getDefaultRESTRequest()
 
 export const parseCurlCommand = (curlCommand: string) => {
   // const isDataBinary = curlCommand.includes(" --data-binary")
+  // const compressed = !!parsedArguments.compressed
 
   curlCommand = preProcessCurlCommand(curlCommand)
   const parsedArguments = parser(curlCommand)
@@ -31,6 +33,12 @@ export const parseCurlCommand = (curlCommand: string) => {
   const headerObject = getHeaders(parsedArguments)
   const { headers } = headerObject
   let { rawContentType } = headerObject
+  const hoppHeaders = pipe(
+    headers,
+    O.fromPredicate(() => Object.keys(headers).length > 0),
+    O.map(recordToHoppHeaders),
+    O.getOrElse(() => defaultRESTReq.headers)
+  )
 
   const method = getMethod(parsedArguments)
   // const cookies = getCookies(parsedArguments)
@@ -39,16 +47,16 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   let rawData: string | string[] = pipe(
     parsedArguments,
-    O.fromPredicate(arrayObjHasProperty("d", "string")),
+    O.fromPredicate(objHasArrayProperty("d", "string")),
     O.map((args) => args.d),
-    O.alt(() =>
+    O.altW(() =>
       pipe(
         parsedArguments,
         O.fromPredicate(objHasProperty("d", "string")),
-        O.map((args) => <string | string[]>args.d)
+        O.map((args) => args.d)
       )
     ),
-    O.getOrElse(() => <string | string[]>"")
+    O.getOrElseW(() => "")
   )
 
   let body: HoppRESTReqBody["body"] = ""
@@ -56,27 +64,26 @@ export const parseCurlCommand = (curlCommand: string) => {
     defaultRESTReq.body.contentType
   let hasBodyBeenParsed = false
 
-  let { queries, danglingParams } = getQueries(urlObject.searchParams.entries())
+  let { queries, danglingParams } = getQueries(
+    Array.from(urlObject.searchParams.entries())
+  )
 
   if (Array.isArray(rawData)) {
     const pairs = pipe(
       rawData,
-      O.of,
-      O.map((p) => p.map(decodeURIComponent)),
-      O.map((pairs) =>
-        pairs.map((pair) => <[string, string]>pair.split("=", 2))
-      ),
-      O.getOrElseW(() => undefined)
+      A.map(
+        flow(decodeURIComponent, (pair) => <[string, string]>pair.split("=", 2))
+      )
     )
 
-    if (objHasProperty("G", "boolean")(parsedArguments) && !!pairs) {
+    if (objHasProperty("G", "boolean")(parsedArguments) && pairs.length > 0) {
       const newQueries = getQueries(pairs)
       queries = [...queries, ...newQueries.queries]
       danglingParams = [...danglingParams, ...newQueries.danglingParams]
       hasBodyBeenParsed = true
     } else if (
       rawContentType.includes("application/x-www-form-urlencoded") &&
-      !!pairs
+      pairs.length > 0
     ) {
       body = pairs.map((p) => p.join(": ")).join("\n") || null
       contentType = "application/x-www-form-urlencoded"
@@ -109,63 +116,53 @@ export const parseCurlCommand = (curlCommand: string) => {
 
     if (
       objHasProperty("body", "string")(bodyObject) ||
-      objHasProperty("body", "object")(bodyObject)
+      objHasProperty("body", "object")(bodyObject) // FIXME
+      // objHasArrayProperty("body", "string")(bodyObject)
     ) {
       body = bodyObject.body
       contentType = bodyObject.contentType
     } else multipartUploads = bodyObject.multipartUploads
   }
 
-  // const compressed = !!parsedArguments.compressed
-  const hoppHeaders = recordToHoppHeaders(headers)
-
-  const HoppHeaders =
-    hoppHeaders.filter(
-      (header) =>
-        header.key !== "Authorization" &&
-        header.key !== "content-type" &&
-        header.key !== "Content-Type" &&
-        header.key !== "apikey" &&
-        header.key !== "api-key"
-    ) || defaultRESTReq.headers
-
-  let finalBody: HoppRESTReqBody = defaultRESTReq.body
-
-  if (
-    contentType &&
-    contentType !== "multipart/form-data" &&
-    typeof body === "string"
+  const finalBody: HoppRESTReqBody = pipe(
+    body,
+    O.fromNullable,
+    O.filter((b) => b.length > 0),
+    O.map((b) => <HoppRESTReqBody>{ body: b, contentType }),
+    O.alt(() =>
+      pipe(
+        multipartUploads,
+        O.of,
+        O.map((m) => Object.entries(m)),
+        O.filter((m) => m.length > 0),
+        O.map(
+          A.map(
+            ([key, value]) =>
+              <FormDataKeyValue>{
+                active: true,
+                isFile: false,
+                key,
+                value,
+              }
+          )
+        ),
+        O.map(
+          (b) =>
+            <HoppRESTReqBody>{ body: b, contentType: "multipart/form-data" }
+        )
+      )
+    ),
+    O.getOrElse(() => defaultRESTReq.body)
   )
-    // final body if multipart data is not present
-    finalBody = {
-      contentType,
-      body,
-    }
-  else if (Object.keys(multipartUploads).length > 0) {
-    // if multipart data is present
-    const ydob: FormDataKeyValue[] = []
-    for (const key in multipartUploads) {
-      ydob.push({
-        active: true,
-        isFile: false,
-        key,
-        value: multipartUploads[key],
-      })
-    }
-    finalBody = {
-      contentType: "multipart/form-data",
-      body: ydob,
-    }
-  }
 
   return makeRESTRequest({
     name: defaultRESTReq.name,
     endpoint: urlString,
     method: (method || defaultRESTReq.method).toUpperCase(),
     params: queries ?? defaultRESTReq.params,
-    headers: HoppHeaders,
-    preRequestScript: defaultRESTReq.preRequestScript || "",
-    testScript: defaultRESTReq.testScript || "",
+    headers: hoppHeaders,
+    preRequestScript: defaultRESTReq.preRequestScript,
+    testScript: defaultRESTReq.testScript,
     auth,
     body: finalBody,
   })

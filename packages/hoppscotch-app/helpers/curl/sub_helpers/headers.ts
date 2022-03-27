@@ -7,7 +7,7 @@ import * as O from "fp-ts/Option"
 import { tupleToRecord } from "~/helpers/functional/record"
 import {
   objHasProperty,
-  arrayObjHasProperty,
+  objHasArrayProperty,
 } from "~/helpers/functional/object"
 
 export function getHeaders(parsedArguments: parser.Arguments) {
@@ -20,7 +20,7 @@ export function getHeaders(parsedArguments: parser.Arguments) {
     O.alt(() =>
       pipe(
         parsedArguments,
-        O.fromPredicate(arrayObjHasProperty("H", "string")),
+        O.fromPredicate(objHasArrayProperty("H", "string")),
         O.map((args) => args.H)
       )
     ),
@@ -64,5 +64,11 @@ export const recordToHoppHeaders = (
       key,
       value: headers[key],
       active: true,
-    }))
+    })),
+    A.filter(
+      (header) =>
+        header.key !== "Authorization" &&
+        header.key !== "content-type" &&
+        header.key !== "Content-Type"
+    )
   )

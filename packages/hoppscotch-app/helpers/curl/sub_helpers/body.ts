@@ -2,13 +2,18 @@ import parser from "yargs-parser"
 import { pipe, flow } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
 import * as S from "fp-ts/string"
-import { HoppRESTReqBody } from "@hoppscotch/data"
+import {
+  HoppRESTReqBody,
+  HoppRESTReqBodyFormData,
+  knownContentTypes,
+} from "@hoppscotch/data"
 import { detectContentType, parseBody } from "./contentParser"
 import { tupleToRecord } from "~/helpers/functional/record"
 import {
   objHasProperty,
-  arrayObjHasProperty,
+  objHasArrayProperty,
 } from "~/helpers/functional/object"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 
@@ -18,7 +23,9 @@ export const getBody = (
   rawData: string,
   rawContentType: string,
   contentType: HoppRESTReqBody["contentType"]
-): { multipartUploads: Record<string, string> } | HoppRESTReqBody => {
+):
+  | { multipartUploads: Record<string, string> }
+  | Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData> => {
   let body: HoppRESTReqBody["body"] = defaultRESTRequest.body.body
   let multipartUploads: Record<string, string> | null = null
 
@@ -36,9 +43,9 @@ export const getBody = (
       pipe(
         rct,
         O.of,
-        O.map((RCT) => RCT.toLowerCase()),
-        O.map((RCT) => RCT.split(";")[0]),
-        O.map((RCT) => RCT as HoppRESTReqBody["contentType"])
+        O.map(flow(S.toLowerCase, S.split(";"), RNEA.head)),
+        O.filter((ct) => Object.keys(knownContentTypes).includes(ct)),
+        O.map((ct) => ct as HoppRESTReqBody["contentType"])
       )
     ),
 
@@ -85,7 +92,7 @@ export const getBody = (
 
   return multipartUploads
     ? { multipartUploads }
-    : <HoppRESTReqBody>{
+    : <Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData>>{
         body,
         contentType,
       }
@@ -164,7 +171,7 @@ export function getFArgumentMultipartData(
     O.alt(() =>
       pipe(
         parsedArguments,
-        O.fromPredicate(arrayObjHasProperty("F", "string")),
+        O.fromPredicate(objHasArrayProperty("F", "string")),
         O.map((args) => args.F)
       )
     ),
@@ -173,19 +180,21 @@ export function getFArgumentMultipartData(
         A.map(S.split("=")),
         O.fromPredicate((fArgs) => fArgs.length > 0),
         O.map(
-          A.map(([k, v]) =>
-            pipe(
-              parsedArguments,
-              O.fromPredicate(objHasProperty("form-string", "boolean")),
-              O.match(
-                () => [k, v[0] === "@" || v[0] === "<" ? "" : v],
-                (_) => [k, v]
+          flow(
+            A.map(([k, v]) =>
+              pipe(
+                parsedArguments,
+                O.fromPredicate(objHasProperty("form-string", "boolean")),
+                O.match(
+                  () => [k, v[0] === "@" || v[0] === "<" ? "" : v],
+                  (_) => [k, v]
+                )
               )
-            )
+            ),
+            A.map(([k, v]) => [k, v] as [string, string]),
+            tupleToRecord
           )
-        ),
-        O.map(A.map(([k, v]) => [k, v] as [string, string])),
-        O.map(tupleToRecord)
+        )
       )
     )
   )

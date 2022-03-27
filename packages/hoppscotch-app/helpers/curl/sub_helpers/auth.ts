@@ -66,9 +66,13 @@ export const getAuthObject = (
       pipe(
         parsedArguments,
         O.fromPredicate(objHasProperty("u", "string")),
-        O.map((args) => args.u),
-        O.map(S.split(":")),
-        O.map(([username, password]) => <[string, string]>[username, password]),
+        O.map((args) =>
+          pipe(
+            args.u,
+            S.split(":"),
+            ([username, password]) => <[string, string]>[username, password]
+          )
+        ),
         O.alt(() =>
           pipe(urlObject, (url) => [url.username, url.password], O.of)
         ),

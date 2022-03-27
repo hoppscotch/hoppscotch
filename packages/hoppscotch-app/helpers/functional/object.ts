@@ -77,12 +77,15 @@ export const objHasProperty =
     // eslint-disable-next-line
     prop in obj && typeof (obj as any)[prop] === type
 
-export const arrayObjHasProperty =
+export const objHasArrayProperty =
   <O extends object, K extends string, P extends JSPrimitive>(
     prop: K,
     type: P
   ) =>
   // eslint-disable-next-line
   (obj: O): obj is O & { [_ in K]: TypeFromPrimitiveArray<P> } =>
-    // eslint-disable-next-line
-    prop in obj && typeof (obj as any)[prop][0] === type
+    prop in obj &&
+    Array.isArray((obj as any)[prop]) &&
+    (obj as any)[prop].every(
+      (val: unknown) => typeof val === type // eslint-disable-line
+    )

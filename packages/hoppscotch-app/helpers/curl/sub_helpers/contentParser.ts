@@ -1,5 +1,7 @@
 import { HoppRESTReqBody } from "@hoppscotch/data"
-import { option as O, readonlyArray as RA, string as S } from "fp-ts"
+import * as O from "fp-ts/Option"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as S from "fp-ts/string"
 import { pipe } from "fp-ts/function"
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"

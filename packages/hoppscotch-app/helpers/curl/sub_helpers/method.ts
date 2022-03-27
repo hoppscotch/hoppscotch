@@ -4,7 +4,7 @@ import * as O from "fp-ts/Option"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 import {
   objHasProperty,
-  arrayObjHasProperty,
+  objHasArrayProperty,
 } from "~/helpers/functional/object"
 
 const defaultRESTReq = getDefaultRESTRequest()
@@ -42,9 +42,9 @@ export const getMethod = (parsedArguments: parser.Arguments): string =>
         else if (objHasProperty("G", "boolean")(parsedArguments)) return "get"
         else if (
           objHasProperty("d", "string")(parsedArguments) ||
-          arrayObjHasProperty("d", "string")(parsedArguments) ||
+          objHasArrayProperty("d", "string")(parsedArguments) ||
           objHasProperty("F", "string")(parsedArguments) ||
-          arrayObjHasProperty("F", "string")(parsedArguments)
+          objHasArrayProperty("F", "string")(parsedArguments)
         )
           return "post"
         else return defaultRESTReq.method

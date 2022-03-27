@@ -64,12 +64,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "@nuxtjs/composition-api"
+import { onMounted, ref, watch } from "@nuxtjs/composition-api"
 import { GetMyTeamsQuery, Team } from "~/helpers/backend/graphql"
 import { onLoggedIn } from "~/helpers/fb/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/helpers/utils/composables"
+import { useSetting } from "~/newstore/settings"
 
 type TeamData = GetMyTeamsQuery["myTeams"][number]
 
@@ -95,6 +96,15 @@ const currentUser = useReadonlyStream(currentUserInfo$, null)
 
 const adapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(adapter.teamList$, [])
+const REMEMBERED_TEAM_ID = useSetting("REMEMBERED_TEAM_ID")
+
+onMounted(() => {
+  if (REMEMBERED_TEAM_ID.value && currentUser) {
+    selectedCollectionTab.value = "team-collections"
+    const team = myTeams.value.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+    if (team) updateSelectedTeam(team)
+  }
+})
 
 onLoggedIn(() => {
   adapter.initialize()
@@ -112,6 +122,8 @@ const updateCollectionsType = (tabID: string) => {
 const options = ref<any | null>(null)
 
 const updateSelectedTeam = (team: TeamData | undefined) => {
+  console.log("updateSelectedTeam", team)
+  REMEMBERED_TEAM_ID.value = team?.id
   emit("update-selected-team", team)
 }
 

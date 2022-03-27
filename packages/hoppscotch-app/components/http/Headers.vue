@@ -188,14 +188,6 @@ import { objRemoveKey } from "~/helpers/functional/object"
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps({
-  // newHeaderKey will changed to be added to the headers list, like if we want to override content-type then we will pass Content-Type key as props here.
-  newHeaderKey: {
-    type: String,
-    default: null,
-  },
-})
-
 const idTicker = ref(0)
 
 const bulkMode = ref(false)
@@ -317,38 +309,11 @@ watch(bulkHeaders, (newBulkHeaders) => {
   }
 })
 
-// watching for newHeaderKey prop to add dynamiclly as a new header
-watch(
-  () => props.newHeaderKey,
-  (newKey) => {
-    if (newKey) {
-      const header = isHeaderAlreadyExists(newKey)
-      if (!header.exist) {
-        // Delete last empty header before adding new
-        deleteHeader(workingHeaders.value.length - 1)
-        addHeader({ key: newKey, value: "" })
-      }
-    }
-  }
-)
-
-const isHeaderAlreadyExists = (
-  key: string
-): { exist: boolean; index: number } => {
-  const index = workingHeaders.value.findIndex(
-    (e) => e.key.toLowerCase() === key.toLowerCase()
-  )
-  return {
-    exist: index !== -1,
-    index,
-  }
-}
-
-const addHeader = (header: { key: string; value: string } | null = null) => {
+const addHeader = () => {
   workingHeaders.value.push({
     id: idTicker.value++,
-    key: header?.key || "",
-    value: header?.value || "",
+    key: "",
+    value: "",
     active: true,
   })
 }

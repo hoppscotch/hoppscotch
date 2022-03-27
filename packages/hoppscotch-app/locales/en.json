@@ -344,7 +344,8 @@
     "url": "URL",
     "variables": "Variables",
     "override": "Override",
-    "override_title": "Override Content-Type header"
+    "override_title": "Override Content-Type header",
+    "override_help": "The Content-Type is being overriden to {value}"
   },
   "response": {
     "body": "Response Body",

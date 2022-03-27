@@ -28,15 +28,14 @@ export const getBody = (
     O.bind("rct", () =>
       pipe(
         rawContentType,
-        O.fromNullable,
-        O.filter(() => rawContentType !== "")
+        O.fromPredicate(() => rawContentType !== "")
       )
     ),
 
     O.bind("cType", ({ rct }) =>
       pipe(
         rct,
-        O.fromNullable,
+        O.of,
         O.map((RCT) => RCT.toLowerCase()),
         O.map((RCT) => RCT.split(";")[0]),
         O.map((RCT) => RCT as HoppRESTReqBody["contentType"])
@@ -45,9 +44,8 @@ export const getBody = (
 
     O.bind("rData", () =>
       pipe(
-        rawData as string,
-        O.fromNullable,
-        O.filter(() => !!rawData && rawData.length > 0)
+        rawData,
+        O.fromPredicate(() => !!rawData && rawData.length > 0)
       )
     ),
 
@@ -70,8 +68,7 @@ export const getBody = (
   ) {
     const newTempBody = pipe(
       rawData,
-      O.fromNullable,
-      O.filter(() => !!rawData && rawData.length > 0),
+      O.fromPredicate(() => !!rawData && rawData.length > 0),
       O.chain(getBodyWithoutContentType)
     )
 

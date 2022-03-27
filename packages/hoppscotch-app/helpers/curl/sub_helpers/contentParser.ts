@@ -167,14 +167,14 @@ export function parseBody(
         safeParseJSON,
         O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
         O.getOrElse(() => "{}"),
-        O.fromNullable
+        O.of
       )
     }
 
     case "application/x-www-form-urlencoded": {
       return pipe(
         rawData,
-        O.fromNullable,
+        O.of,
         O.map(decodeURIComponent),
         O.chain((rd) =>
           pipe(rd.match(/(([^&=]+)=?([^&=]*))/g), O.fromNullable)
@@ -266,19 +266,14 @@ export function parseBody(
     }
 
     case "text/html": {
-      return pipe(rawData, O.fromNullable, O.map(formatHTML))
+      return pipe(rawData, formatHTML, O.of)
     }
 
     case "application/xml": {
       return pipe(
         rawData,
-        O.fromNullable,
-        O.chain(prettifyXml),
-        O.match(
-          () => rawData,
-          (res) => res
-        ),
-        O.fromNullable
+        prettifyXml,
+        O.alt(() => O.some(rawData))
       )
     }
 

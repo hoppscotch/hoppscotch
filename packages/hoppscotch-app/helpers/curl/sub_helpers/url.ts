@@ -73,16 +73,14 @@ export function concatParams(urlObject: URL, params: string[]) {
     O.bind("originString", () =>
       pipe(
         urlObject.origin,
-        O.fromNullable,
-        O.filter((h) => h !== "")
+        O.fromPredicate((h) => h !== "")
       )
     ),
 
     O.map(({ originString }) =>
       pipe(
         params,
-        O.fromNullable,
-        O.filter((dp) => dp.length > 0),
+        O.fromPredicate((dp) => dp.length > 0),
         O.map(stringArrayJoin("&")),
         O.map((h) => originString + (urlObject.pathname || "") + "?" + h),
         O.getOrElse(() => originString + (urlObject.pathname || ""))

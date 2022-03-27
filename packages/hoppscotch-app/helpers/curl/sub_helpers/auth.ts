@@ -70,7 +70,7 @@ export const getAuthObject = (
         O.map(S.split(":")),
         O.map(([username, password]) => <[string, string]>[username, password]),
         O.alt(() =>
-          pipe(urlObject, (url) => [url.username, url.password], O.fromNullable)
+          pipe(urlObject, (url) => [url.username, url.password], O.of)
         ),
         O.filter(
           ([username, password]) => username.length > 0 && password.length > 0

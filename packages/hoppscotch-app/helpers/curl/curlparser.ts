@@ -39,8 +39,7 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   let rawData: string | string[] = pipe(
     parsedArguments,
-    O.fromNullable,
-    O.filter(arrayObjHasProperty("d", "string")),
+    O.fromPredicate(arrayObjHasProperty("d", "string")),
     O.map((args) => args.d),
     O.alt(() =>
       pipe(
@@ -62,7 +61,7 @@ export const parseCurlCommand = (curlCommand: string) => {
   if (Array.isArray(rawData)) {
     const pairs = pipe(
       rawData,
-      O.fromNullable,
+      O.of,
       O.map((p) => p.map(decodeURIComponent)),
       O.map((pairs) =>
         pairs.map((pair) => <[string, string]>pair.split("=", 2))
@@ -90,8 +89,7 @@ export const parseCurlCommand = (curlCommand: string) => {
   const urlString = concatParams(urlObject, danglingParams)
 
   let multipartUploads: Record<string, string> = pipe(
-    parsedArguments,
-    O.fromNullable,
+    O.of(parsedArguments),
     O.chain(getFArgumentMultipartData),
     O.match(
       () => ({}),

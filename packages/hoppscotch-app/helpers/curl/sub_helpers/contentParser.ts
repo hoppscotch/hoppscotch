@@ -1,7 +1,5 @@
 import { HoppRESTReqBody } from "@hoppscotch/data"
-import * as S from "fp-ts/string"
-import * as RA from "fp-ts/ReadonlyArray"
-import * as O from "fp-ts/Option"
+import { option as O, readonlyArray as RA, string as S } from "fp-ts"
 import { pipe } from "fp-ts/function"
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
@@ -16,38 +14,47 @@ export function detectContentType(
 ): HoppRESTReqBody["contentType"] {
   if (!rawData) return null
 
-  let contentType: HoppRESTReqBody["contentType"]
-
-  if (O.isSome(safeParseJSON(rawData))) {
-    contentType = "application/json"
-  } else if (/<\/?[a-zA-Z][\s\S]*>/i.test(rawData)) {
-    if (O.isSome(prettifyXml(rawData))) {
-      contentType = "application/xml"
-    } else {
-      // everything is HTML
-      contentType = "text/html"
-    }
-  } else {
-    contentType = pipe(
-      rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
-      O.fromNullable,
-      O.filter((boundaryMatch) => boundaryMatch.length > 0),
-      O.match(
-        () =>
-          pipe(
-            rawData,
-            O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
-            O.match(
-              () => "text/plain",
-              () => "application/x-www-form-urlencoded"
-            )
-          ),
-        () => "multipart/form-data"
-      )
+  return pipe(
+    rawData,
+    safeParseJSON,
+    O.match(
+      () =>
+        pipe(
+          rawData,
+          O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
+          O.match(
+            () =>
+              pipe(
+                rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
+                O.fromNullable,
+                O.filter((boundaryMatch) => boundaryMatch.length > 0),
+                O.match(
+                  () =>
+                    pipe(
+                      rawData,
+                      O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
+                      O.match(
+                        () => "text/plain",
+                        () => "application/x-www-form-urlencoded"
+                      )
+                    ),
+                  () => "multipart/form-data"
+                )
+              ),
+            (_) =>
+              pipe(
+                rawData,
+                prettifyXml,
+                O.match(
+                  () => "text/html",
+                  (_) => "application/xml"
+                )
+              )
+          )
+        ),
+      (_) => "application/json"
     )
-  }
-
-  return contentType
+  )
 }
 
 /**

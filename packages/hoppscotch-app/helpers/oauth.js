@@ -1,9 +1,10 @@
+import qs from "qs"
+import { sendNetworkRequest } from "~/helpers/network"
 import {
   getLocalConfig,
   setLocalConfig,
   removeLocalConfig,
 } from "~/newstore/localpersistence"
-
 const redirectUri = `${window.location.origin}/`
 
 // GENERAL HELPER FUNCTIONS
@@ -148,10 +149,11 @@ const tokenRequest = async ({
   authUrl,
   accessTokenUrl,
   clientId,
+  clientSecret,
   scope,
 }) => {
   // Check oauth configuration
-  if (oidcDiscoveryUrl !== "") {
+  if (oidcDiscoveryUrl !== "" && grantType === "code") {
     // eslint-disable-next-line camelcase
     const { authorization_endpoint, token_endpoint } =
       await getTokenConfiguration(oidcDiscoveryUrl)
@@ -164,6 +166,35 @@ const tokenRequest = async ({
   // Store oauth information
   setLocalConfig("tokenEndpoint", accessTokenUrl)
   setLocalConfig("client_id", clientId)
+  setLocalConfig("client_secret", clientSecret)
+
+  if (grantType === "client_credentials") {
+    console.log(
+      accessTokenUrl +
+        `grant_type=client_credentials&scope=${scope}&client_id=${clientId}&client_secret=${clientSecret}`
+    )
+
+    const request = {
+      url: accessTokenUrl,
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+      },
+
+      data: qs.stringify({
+        grant_type: grantType,
+        client_id: clientId,
+        client_secret: clientSecret,
+        scope,
+      }),
+    }
+    const response = await sendNetworkRequest(request)
+    const responseText = new TextDecoder("utf-8")
+      .decode(response.data)
+      .replace(/\0+$/, "")
+
+    return JSON.parse(responseText).access_token
+  }
 
   // Create and store a random state value
   const state = generateRandomString()

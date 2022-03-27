@@ -52,6 +52,7 @@ export type SettingsType = {
   ZEN_MODE: boolean
   FONT_SIZE: HoppFontSize
   COLUMN_LAYOUT: boolean
+  REMEMBERED_TEAM_ID: string | undefined
 }
 
 export const defaultSettings: SettingsType = {
@@ -78,6 +79,7 @@ export const defaultSettings: SettingsType = {
   ZEN_MODE: false,
   FONT_SIZE: "small",
   COLUMN_LAYOUT: true,
+  REMEMBERED_TEAM_ID: undefined,
 }
 
 const validKeys = Object.keys(defaultSettings)

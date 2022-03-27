@@ -1,4 +1,4 @@
-import { HoppRESTAuth } from "~/../hoppscotch-data/dist"
+import { HoppRESTAuth } from "@hoppscotch/data"
 import parser from "yargs-parser"
 import * as O from "fp-ts/Option"
 import * as S from "fp-ts/string"

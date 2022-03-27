@@ -11,14 +11,14 @@
       <HttpParameters />
     </SmartTab>
     <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
-      <HttpBody @changeTab="changeTab" />
+      <HttpBody @change-tab="changeTab" />
     </SmartTab>
     <SmartTab
       :id="'headers'"
       :label="`${$t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders :new-header-key="newHeaderKey" />
+      <HttpHeaders />
     </SmartTab>
     <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
       <HttpAuthorization />
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "@nuxtjs/composition-api"
+import { ref } from "@nuxtjs/composition-api"
 import { map } from "rxjs/operators"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
@@ -61,14 +61,8 @@ export type RequestOptionTabs =
 
 const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 
-const newHeaderKey = ref<string | null>("")
-
 const changeTab = (e: RequestOptionTabs) => {
   selectedRealtimeTab.value = e
-  newHeaderKey.value = "Content-Type"
-  nextTick(() => {
-    newHeaderKey.value = null
-  })
 }
 
 const newActiveParamsCount$ = useReadonlyStream(

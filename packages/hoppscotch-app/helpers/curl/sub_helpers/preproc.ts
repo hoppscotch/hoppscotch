@@ -1,3 +1,8 @@
+import { pipe, flow } from "fp-ts/function"
+import * as S from "fp-ts/string"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+
 const replaceables: { [key: string]: string } = {
   "--request": "-X",
   "--header": "-H",
@@ -16,36 +21,61 @@ const replaceables: { [key: string]: string } = {
  * @param curlCommand Raw curl command string
  * @returns Processed curl command string
  */
-export function preProcessCurlCommand(curlCommand: string) {
-  // remove '\' and newlines
-  curlCommand = curlCommand.replace(/ ?\\ ?$/gm, " ")
-  curlCommand = curlCommand.replace(/\n/g, "")
-
-  // remove all $ symbols from start of argument values
-  curlCommand = curlCommand.replaceAll("$'", "'")
-  curlCommand = curlCommand.replaceAll('$"', '"')
-
-  // replace string for insomnia
-  for (const r in replaceables) {
-    if (r.includes("data") || r.includes("form") || r.includes("header")) {
-      curlCommand = curlCommand.replaceAll(
-        RegExp(`[ \t]${r}(["' ])`, "g"),
-        ` ${replaceables[r]}$1`
+export const preProcessCurlCommand = (curlCommand: string) =>
+  pipe(
+    curlCommand,
+    O.fromPredicate((curlCmd) => curlCmd.length > 0),
+    O.map(
+      flow(
+        // remove '\' and newlines
+        S.replace(/ ?\\ ?$/gm, " "),
+        S.replace(/\n/g, ""),
+        // remove all $ symbols from start of argument values
+        S.replace(/\$'/g, "'"),
+        S.replace(/\$"/g, '"'),
+        // replace string for insomnia
+        (curlCmd) => {
+          pipe(
+            Object.keys(replaceables),
+            A.map(
+              (r) =>
+                (curlCmd = pipe(
+                  curlCmd,
+                  O.fromPredicate(
+                    () =>
+                      r.includes("data") ||
+                      r.includes("form") ||
+                      r.includes("header")
+                  ),
+                  O.map(
+                    S.replace(
+                      RegExp(`[ \t]${r}(["' ])`, "g"),
+                      ` ${replaceables[r]}$1`
+                    )
+                  ),
+                  O.alt(() =>
+                    pipe(
+                      curlCmd,
+                      S.replace(
+                        RegExp(`[ \t]${r}(["' ])`),
+                        ` ${replaceables[r]}$1`
+                      ),
+                      O.of
+                    )
+                  ),
+                  O.getOrElse(() => "")
+                ))
+            )
+          )
+          return curlCmd
+        },
+        // yargs parses -XPOST as separate arguments. just prescreen for it.
+        S.replace(
+          / -X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE)/,
+          " -X $1"
+        ),
+        S.trim
       )
-    } else {
-      curlCommand = curlCommand.replace(
-        RegExp(`[ \t]${r}(["' ])`),
-        ` ${replaceables[r]}$1`
-      )
-    }
-  }
-
-  // yargs parses -XPOST as separate arguments. just prescreen for it.
-  curlCommand = curlCommand.replace(
-    / -X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE|CUSTOM)/,
-    " -X $1"
+    ),
+    O.getOrElse(() => "")
   )
-  curlCommand = curlCommand.trim()
-
-  return curlCommand
-}

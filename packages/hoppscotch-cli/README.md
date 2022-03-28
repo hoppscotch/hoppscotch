@@ -1,19 +1,18 @@
-# Hoppscotch CLI
+# Hoppscotch CLI <sup>ALPHA</sup>
 
 A CLI to run Hoppscotch test scripts in CI environments.
 
-## **Commands Available:**
+### **Commands:**
+- `hopp test [options] [file]`: testing hoppscotch collection.json file
 
+### **Usage:**
 ```
-Usage: hopp [options or commands] arguments
-
-Options:
-  -v, --ver            see the current version of the CLI
-  -h, --help           display help for command
-
-Commands:
-  test [options] [file] testing hoppscotch collection.json file
+hopp [options or commands] arguments
 ```
+
+### **Options:**
+- `-v`, `--ver`: see the current version of the CLI
+- `-h`, `--help`: display help for command
 
 ## **Command Descriptions:**
 
@@ -32,9 +31,16 @@ Commands:
    - Outputs the response of each request.
    - Executes and outputs test-script response.
 
-## **Installation:**
+## Install
 
-1. Clone the repository
+Install [@hoppscotch/cli](https://www.npmjs.com/package/@hoppscotch/cli) from npm by running:
+```
+npm i -g @hoppscotch/cli
+```
+
+## **Developing:**
+
+1. Clone the repository, make sure you've installed latest [pnpm](https://pnpm.io).
 2. `pnpm install`
 3. `cd packages/hoppscotch-cli`
 4. `pnpm run build`

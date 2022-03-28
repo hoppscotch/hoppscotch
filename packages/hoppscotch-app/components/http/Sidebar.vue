@@ -31,7 +31,7 @@ const selectedNavigationTab = ref<RequestOptionTabs>("history")
 const REMEMBERED_TEAM_ID = useSetting("REMEMBERED_TEAM_ID")
 
 onMounted(() => {
-  if (REMEMBERED_TEAM_ID) {
+  if (REMEMBERED_TEAM_ID.value) {
     selectedNavigationTab.value = "collections"
   }
 })

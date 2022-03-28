@@ -100,8 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "@nuxtjs/composition-api"
-import { HoppRESTHeader } from "@hoppscotch/data"
+import { computed } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -126,19 +125,13 @@ const contentType = useStream(restContentType$, null, setRESTContentType)
 // The functional headers list (the headers actually in the system)
 const headers = useStream(restHeaders$, [], setRESTHeaders)
 
-const overridenContentType = ref<string>("")
-
-watch(
-  headers,
-  (allHeaders: HoppRESTHeader[]) => {
-    overridenContentType.value = pipe(
-      allHeaders,
-      A.findLast((h) => h.key.toLowerCase() === "content-type"),
-      O.map((h) => h.value),
-      O.getOrElse(() => "")
-    )
-  },
-  { immediate: true }
+const overridenContentType = computed(() =>
+  pipe(
+    headers.value,
+    A.findLast((h) => h.key.toLowerCase() === "content-type"),
+    O.map((h) => h.value),
+    O.getOrElse(() => "")
+  )
 )
 
 const contentTypeOverride = (tab: RequestOptionTabs) => {

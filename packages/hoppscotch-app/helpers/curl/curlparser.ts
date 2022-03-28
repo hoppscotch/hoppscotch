@@ -68,29 +68,36 @@ export const parseCurlCommand = (curlCommand: string) => {
     Array.from(urlObject.searchParams.entries())
   )
 
-  if (Array.isArray(rawData)) {
-    const pairs = pipe(
-      rawData,
-      A.map(
-        flow(decodeURIComponent, (pair) => <[string, string]>pair.split("=", 2))
+  const stringToPair = flow(
+    decodeURIComponent,
+    (pair) => <[string, string]>pair.split("=", 2)
+  )
+  const pairs = pipe(
+    rawData,
+    O.fromPredicate(Array.isArray),
+    O.map(A.map(stringToPair)),
+    O.alt(() =>
+      pipe(
+        rawData,
+        O.fromPredicate((s) => s.length > 0),
+        O.map(() => [stringToPair(rawData as string)])
       )
-    )
+    ),
+    O.getOrElseW(() => undefined)
+  )
 
-    if (objHasProperty("G", "boolean")(parsedArguments) && pairs.length > 0) {
-      const newQueries = getQueries(pairs)
-      queries = [...queries, ...newQueries.queries]
-      danglingParams = [...danglingParams, ...newQueries.danglingParams]
-      hasBodyBeenParsed = true
-    } else if (
-      rawContentType.includes("application/x-www-form-urlencoded") &&
-      pairs.length > 0
-    ) {
-      body = pairs.map((p) => p.join(": ")).join("\n") || null
-      contentType = "application/x-www-form-urlencoded"
-      hasBodyBeenParsed = true
-    } else {
-      rawData = rawData.join("")
-    }
+  if (objHasProperty("G", "boolean")(parsedArguments) && !!pairs) {
+    const newQueries = getQueries(pairs)
+    queries = [...queries, ...newQueries.queries]
+    danglingParams = [...danglingParams, ...newQueries.danglingParams]
+    hasBodyBeenParsed = true
+  } else if (
+    rawContentType.includes("application/x-www-form-urlencoded") &&
+    !!pairs
+  ) {
+    body = pairs.map((p) => p.join(": ")).join("\n") || null
+    contentType = "application/x-www-form-urlencoded"
+    hasBodyBeenParsed = true
   }
 
   const urlString = concatParams(urlObject, danglingParams)

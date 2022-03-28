@@ -703,6 +703,29 @@ const samples = [
       testScript: "",
     }),
   },
+  {
+    command: `curl --get -I -d "tool=hopp" https://example.org`,
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://example.org/",
+      method: "HEAD",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [
+        {
+          active: true,
+          key: "tool",
+          value: "hopp",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
 ]
 
 describe("parseCurlToHoppRESTReq", () => {

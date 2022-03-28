@@ -133,7 +133,7 @@ watch(
   (allHeaders: HoppRESTHeader[]) => {
     overridenContentType.value = pipe(
       allHeaders,
-      A.findFirst((h) => h.key.toLowerCase() === "content-type"),
+      A.findLast((h) => h.key.toLowerCase() === "content-type"),
       O.map((h) => h.value),
       O.getOrElse(() => "")
     )

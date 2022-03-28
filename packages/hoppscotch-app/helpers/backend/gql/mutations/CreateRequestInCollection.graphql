@@ -1,0 +1,12 @@
+mutation CreateRequestInCollection($data: CreateTeamRequestInput!, $collectionID: ID!) {
+  createRequestInCollection(data: $data, collectionID: $collectionID) {
+    id
+    collection {
+      id
+      team {
+        id
+        name
+      }
+    }
+  }
+}

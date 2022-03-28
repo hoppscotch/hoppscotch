@@ -1,6 +1,17 @@
+[build.environment]
+  NODE_VERSION = "14"
+  NPM_FLAGS = "--prefix=/dev/null"
+
 [build]
-  command = "npm run generate"
-  functions = "netlify/"
+  base = "/"
+  publish = "packages/hoppscotch-app/dist"
+  command = "npx pnpm i --store=node_modules/.pnpm-store && npx pnpm run generate"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
 
 [[redirects]]
   from = "/discord"
@@ -15,13 +26,37 @@
   force = true
 
 [[redirects]]
-  from = "/externship_telegram"
-  to = "https://t.me/hoppscotch_externship"
+  from = "/beta"
+  to = "https://forms.gle/XPYDMp8m6JHNWcYp9"
   status = 301
   force = true
 
 [[redirects]]
-  from = "/beta"
-  to = "https://forms.gle/XPYDMp8m6JHNWcYp9"
+  from = "/careers"
+  to = "https://company.hoppscotch.io/careers"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/newsletter"
+  to = "http://eepurl.com/hy0eWH"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/twitter"
+  to = "https://twitter.com/hoppscotch_io"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/github"
+  to = "https://github.com/hoppscotch/hoppscotch"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/announcements"
+  to = "https://company.hoppscotch.io/announcements"
   status = 301
   force = true

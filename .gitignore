@@ -104,3 +104,9 @@ tests/*/screenshots
 
 # Tests videos
 tests/*/videos
+
+# Local Netlify folder
+.netlify
+
+# Andrew's crazy Volar shim generator
+shims-volar.d.ts

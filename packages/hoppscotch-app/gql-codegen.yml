@@ -1,0 +1,16 @@
+overwrite: true
+schema: https://api.hoppscotch.io/graphql
+generates:
+  helpers/backend/graphql.ts:
+    documents: "**/*.graphql"
+    plugins:
+      - add:
+          content: // Auto-generated file (DO NOT EDIT!!!), refer gql-codegen.yml
+      - typescript
+      - typescript-operations
+      - typed-document-node
+      - typescript-urql-graphcache
+
+  helpers/backend/backend-schema.json:
+    plugins:
+      - urql-introspection

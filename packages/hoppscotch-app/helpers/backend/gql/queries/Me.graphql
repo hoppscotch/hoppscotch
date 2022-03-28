@@ -1,0 +1,7 @@
+query Me {
+  me {
+    uid
+    displayName
+    photoURL
+  }
+}

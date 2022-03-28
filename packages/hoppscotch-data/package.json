@@ -1,0 +1,43 @@
+{
+  "name": "@hoppscotch/data",
+  "version": "0.4.1",
+  "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
+  "main": "dist/index.js",
+  "module": "true",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src --dts",
+    "prepare": "tsup src --dts",
+    "do-typecheck": "pnpx tsc --noEmit"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./graphql": "./dist/graphql/index.js",
+    "./rest": "./dist/rest/index.js",
+    "./rawKeyValue": "./dist/rawKeyValue.js",
+    "./collection": "./dist/index.js",
+    "./environment": "./dist/environment.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoppscotch/hoppscotch.git"
+  },
+  "author": "Hoppscotch (support@hoppscotch.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hoppscotch/hoppscotch/issues"
+  },
+  "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
+  "devDependencies": {
+    "@types/lodash": "^4.14.180",
+    "tsup": "^5.12.1"
+  },
+  "dependencies": {
+    "fp-ts": "^2.11.9",
+    "io-ts": "^2.2.16",
+    "lodash": "^4.17.21",
+    "parser-ts": "^0.6.16"
+  }
+}

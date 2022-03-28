@@ -1,0 +1,3 @@
+subscription TeamCollectionRemoved($teamID: ID!) {
+  teamCollectionRemoved(teamID: $teamID)
+}

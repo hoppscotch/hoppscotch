@@ -146,7 +146,7 @@
             />
             <div
               class="flex px-4 py-2 opacity-50"
-              @dblclick="currentUser !== null && showDeveloperOptionModal()"
+              @dblclick="showDeveloperOptionModal()"
             >
               {{ `${t("app.name")} v${$config.clientVersion}` }}
             </div>
@@ -206,7 +206,7 @@ import { defineActionHandler } from "~/helpers/actions"
 import { showChat } from "~/helpers/support"
 import { useSetting } from "~/newstore/settings"
 import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
-import { probableUser$ } from "~/helpers/fb/auth"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 const t = useI18n()
 const showShortcuts = ref(false)
@@ -226,10 +226,6 @@ defineActionHandler("modals.search.toggle", () => {
   showSearch.value = !showSearch.value
 })
 
-defineActionHandler("modals.developerOptions.toggle", () => {
-  showDeveloperOptions.value = !showDeveloperOptions.value
-})
-
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")
 const ZEN_MODE = useSetting("ZEN_MODE")
@@ -238,7 +234,7 @@ const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
 const navigatorShare = !!navigator.share
 
-const currentUser = useReadonlyStream(probableUser$, null)
+const currentUser = useReadonlyStream(currentUser$, null)
 
 watch(
   () => ZEN_MODE.value,
@@ -267,8 +263,10 @@ const chatWithUs = () => {
 }
 
 const showDeveloperOptionModal = () => {
-  showDeveloperOptions.value = true
-  options.value.tippy().hide()
+  if (currentUser.value) {
+    showDeveloperOptions.value = true
+    options.value.tippy().hide()
+  }
 }
 
 // Template refs

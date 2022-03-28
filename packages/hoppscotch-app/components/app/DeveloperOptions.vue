@@ -10,7 +10,7 @@
         {{ t("app.developer_option_description") }}
       </p>
       <div class="flex flex-1">
-        <button class="share-link" @click="copyUserID">
+        <button class="share-link" @click="copyUserAuthToken">
           <SmartIcon class="w-4 h-4 text-xl" :name="copyIcon" />
           <span>
             {{ t("app.copy_user_id") }}
@@ -31,7 +31,7 @@ import {
 } from "~/helpers/utils/composables"
 import { authIdToken$ } from "~/helpers/fb/auth"
 
-const userID = useReadonlyStream(authIdToken$, null)
+const userAuthToken = useReadonlyStream(authIdToken$, null)
 
 const t = useI18n()
 
@@ -47,12 +47,12 @@ const emit = defineEmits<{
 
 const copyIcon = ref("copy")
 
-// Copy user id to clipboard
-const copyUserID = () => {
-  if (userID.value) {
-    copyToClipboard(userID.value)
+// Copy user auth token to clipboard
+const copyUserAuthToken = () => {
+  if (userAuthToken.value) {
+    copyToClipboard(userAuthToken.value)
     copyIcon.value = "check"
-    toast.success(`${t("state.user_id_copied_to_clipboard")}`)
+    toast.success(`${t("state.copied_to_clipboard")}`)
     setTimeout(() => (copyIcon.value = "copy"), 1000)
   } else {
     toast.error(`${t("error.something_went_wrong")}`)

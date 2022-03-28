@@ -1,7 +1,8 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
+  "homepage": "https://hoppscotch.io",
   "main": "dist/index.js",
   "bin": {
     "hopp": "bin/hopp"
@@ -13,6 +14,7 @@
     "build": "pnpx tsup",
     "dev": "pnpx tsup --watch",
     "debugger": "node debugger.js 9999",
+    "prepublish": "pnpx tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "do-typecheck": "pnpx tsc --noEmit"
   },
@@ -22,6 +24,14 @@
     "hopp-cli"
   ],
   "author": "Hoppscotch (support@hoppscotch.io)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoppscotch/hoppscotch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hoppscotch/hoppscotch/issues",
+    "email": "support@hoppscotch.io"
+  },
   "license": "MIT",
   "private": false,
   "devDependencies": {

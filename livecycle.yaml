@@ -6,12 +6,13 @@ web:
         dockerfile:
             contents: |
                         FROM node:14-buster as build
+                        RUN npm install -g pnpm
                         WORKDIR /app
-                        COPY package.json ./
-                        RUN npm ci
+                        COPY package.json pnpm-lock.yaml ./
+                        RUN pnpm install
                         COPY . .
-                        RUN mv .env.example .env
-                        RUN npm run generate
+                        RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+                        RUN pnpm run generate
     output:
         type: static
         static:

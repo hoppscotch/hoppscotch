@@ -192,6 +192,7 @@
 <script>
 import cloneDeep from "lodash/cloneDeep"
 import { defineComponent } from "@nuxtjs/composition-api"
+import { makeCollection } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
 import CollectionsMyCollection from "./my/Collection.vue"
 import CollectionsTeamsCollection from "./teams/Collection.vue"
@@ -367,11 +368,13 @@ export default defineComponent({
     // Intented to be called by the CollectionAdd modal submit event
     addNewRootCollection(name) {
       if (this.collectionsType.type === "my-collections") {
-        addRESTCollection({
-          name,
-          folders: [],
-          requests: [],
-        })
+        addRESTCollection(
+          makeCollection({
+            name,
+            folders: [],
+            requests: [],
+          })
+        )
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"

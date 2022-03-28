@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+// * The entry point of the CLI
+require("../dist").cli(process.argv);

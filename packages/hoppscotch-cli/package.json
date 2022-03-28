@@ -1,0 +1,45 @@
+{
+  "name": "@hoppscotch/cli",
+  "version": "0.1.1",
+  "description": "A CLI to run Hoppscotch test scripts in CI environments.",
+  "main": "dist/index.js",
+  "bin": {
+    "hopp": "bin/hopp"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "pnpx tsup",
+    "dev": "pnpx tsup --watch",
+    "debugger": "node debugger.js 9999",
+    "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "do-typecheck": "pnpx tsc --noEmit"
+  },
+  "keywords": [
+    "cli",
+    "hoppscotch",
+    "hopp-cli"
+  ],
+  "author": "Hoppscotch (support@hoppscotch.io)",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@hoppscotch/data": "workspace:^0.4.0",
+    "@hoppscotch/js-sandbox": "workspace:^2.0.0",
+    "@swc/core": "^1.2.160",
+    "@types/axios": "^0.14.0",
+    "@types/chalk": "^2.2.0",
+    "@types/commander": "^2.12.2",
+    "esm": "^3.2.25",
+    "prettier": "^2.5.1",
+    "tsup": "^5.11.13",
+    "typescript": "^4.3.5",
+    "axios": "^0.21.4",
+    "chalk": "^4.1.1",
+    "commander": "^8.0.0",
+    "fp-ts": "^2.11.3",
+    "lodash": "^4.17.21",
+    "qs": "^6.10.3"
+  }
+}

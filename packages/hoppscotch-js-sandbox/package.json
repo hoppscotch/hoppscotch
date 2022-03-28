@@ -3,19 +3,25 @@
   "version": "2.0.0",
   "description": "JavaScript sandboxes for running external scripts used by Hoppscotch clients",
   "main": "./lib/index.js",
+  "module": "./lib/index.mjs",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "require": "./lib/index.js",
+      "default": "./lib/index.mjs"
+    }
+  },
   "types": "./lib/",
-  "type": "module",
   "engines": {
     "node": ">=14",
     "pnpm": ">=3"
   },
   "scripts": {
-    "demo": "esrun src/demo.ts",
     "lint": "eslint --ext .ts,.js --ignore-path .gitignore .",
     "lintfix": "eslint --fix --ext .ts,.js --ignore-path .gitignore .",
-    "test": "npx jest",
-    "build": "npx tsc",
-    "clean": "npx tsc --build --clean",
+    "test": "pnpx jest",
+    "build": "pnpx tsup",
+    "clean": "pnpx tsc --build --clean",
     "postinstall": "pnpm run build",
     "prepublish": "pnpm run build",
     "do-lint": "pnpm run lint",
@@ -37,7 +43,8 @@
     "@hoppscotch/data": "workspace:^0.4.0",
     "fp-ts": "^2.11.9",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.15.0"
+    "quickjs-emscripten": "^0.15.0",
+    "tsup": "^5.11.13"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",

@@ -344,8 +344,8 @@
     "url": "URL",
     "variables": "Variables",
     "override": "Override",
-    "override_title": "Override Content-Type header",
-    "override_help": "The Content-Type is being overriden to {value}"
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden"
   },
   "response": {
     "body": "Response Body",

@@ -50,14 +50,22 @@
           </div>
         </tippy>
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="$t('request.override_help')"
+          :label="
             overridenContentType
-              ? $t('request.override_help', { value: overridenContentType })
-              : $t('request.override_title')
+              ? `${$t('request.overriden')}: ${overridenContentType}`
+              : $t('request.override')
           "
-          :label="$t('request.override')"
-          svg="refresh-cw"
+          :svg="overridenContentType ? 'info' : 'refresh-cw'"
+          :class="[
+            '!px-1 !py-0.5',
+            {
+              'text-yellow-500 hover:text-yellow-500': overridenContentType,
+            },
+          ]"
+          filled
+          outline
           @click.native="contentTypeOverride('headers')"
         />
       </span>

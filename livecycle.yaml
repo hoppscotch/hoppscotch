@@ -16,4 +16,4 @@ web:
     output:
         type: static
         static:
-            path: /app/dist
+            path: /app/packages/hoppscotch-app/dist

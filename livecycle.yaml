@@ -2,17 +2,7 @@ version: v1alpha1
 
 web:
     build:
-        type: Dockerfile    
-        dockerfile:
-            contents: |
-                        FROM node:14-buster as build
-                        RUN npm install -g pnpm
-                        WORKDIR /app
-                        COPY package.json pnpm-lock.yaml ./
-                        RUN pnpm install
-                        COPY . .
-                        RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
-                        RUN pnpm run generate
+        type: Dockerfile
     output:
         type: static
         static:

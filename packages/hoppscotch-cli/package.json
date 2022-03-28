@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.1.1",
+  "version": "0.1.10",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "main": "dist/index.js",
   "bin": {

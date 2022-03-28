@@ -7,7 +7,7 @@ web:
             contents: |
                         FROM node:14-buster as build
                         WORKDIR /app
-                        COPY package.json package-lock.json ./
+                        COPY package.json ./
                         RUN npm ci
                         COPY . .
                         RUN mv .env.example .env

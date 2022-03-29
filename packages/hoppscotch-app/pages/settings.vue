@@ -11,7 +11,7 @@
           </p>
         </div>
         <div class="p-8 space-y-8 md:col-span-2">
-          <section>
+          <section class="my-16">
             <h4 class="font-semibold text-secondaryDark">
               {{ t("settings.background") }}
             </h4>

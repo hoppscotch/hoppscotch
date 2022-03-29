@@ -45,6 +45,13 @@
         <AppSidenav />
       </Pane>
     </Splitpanes>
+    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
+    <AppSupport
+      v-if="mdAndLarger"
+      :show="showSupport"
+      @hide-modal="showSupport = false"
+    />
+    <AppOptions v-else :show="showSupport" @hide-modal="showSupport = false" />
   </div>
 </template>
 
@@ -56,6 +63,7 @@ import {
   useContext,
   useRouter,
   watch,
+  ref,
 } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
@@ -209,10 +217,23 @@ export default defineComponent({
     const breakpoints = useBreakpoints(breakpointsTailwind)
     const mdAndLarger = breakpoints.greater("md")
 
+    const showSearch = ref(false)
+    const showSupport = ref(false)
+
+    defineActionHandler("modals.search.toggle", () => {
+      showSearch.value = !showSearch.value
+    })
+
+    defineActionHandler("modals.support.toggle", () => {
+      showSupport.value = !showSupport.value
+    })
+
     return {
       mdAndLarger,
       spacerClass,
       ZEN_MODE: useSetting("ZEN_MODE"),
+      showSearch,
+      showSupport,
     }
   },
   head() {

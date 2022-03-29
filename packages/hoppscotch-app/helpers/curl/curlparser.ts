@@ -121,9 +121,17 @@ export const parseCurlCommand = (curlCommand: string) => {
     }
     const bodyObject = getBody(rawData, rawContentType, contentType)
 
-    if (bodyObject.type === "NON_FORMDATA")
-      ({ body, contentType } = bodyObject.body)
-    else multipartUploads = bodyObject.body
+    if (O.isSome(bodyObject)) {
+      const bodyObjectValue = bodyObject.value
+
+      if (bodyObjectValue.type === "FORMDATA") {
+        multipartUploads = bodyObjectValue.body
+      } else {
+        body = bodyObjectValue.body.body
+        contentType = bodyObjectValue.body
+          .contentType as HoppRESTReqBody["contentType"]
+      }
+    }
   }
 
   const finalBody: HoppRESTReqBody = pipe(

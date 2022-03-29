@@ -212,6 +212,9 @@ export function parseBody(
           pipe(
             rawContentType,
             O.fromNullable,
+            O.filter(
+              (rct) => !!rct && typeof rct === "string" && rct.length > 0
+            ),
             O.match(
               () =>
                 pipe(

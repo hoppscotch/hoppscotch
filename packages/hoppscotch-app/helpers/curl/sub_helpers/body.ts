@@ -7,6 +7,7 @@ import * as S from "fp-ts/string"
 import {
   HoppRESTReqBody,
   HoppRESTReqBodyFormData,
+  ValidContentTypes,
   knownContentTypes,
 } from "@hoppscotch/data"
 import { detectContentType, parseBody } from "./contentParser"
@@ -15,9 +16,6 @@ import {
   objHasProperty,
   objHasArrayProperty,
 } from "~/helpers/functional/object"
-import { getDefaultRESTRequest } from "~/newstore/RESTSession"
-
-const defaultRESTRequest = getDefaultRESTRequest()
 
 type BodyReturnType =
   | { type: "FORMDATA"; body: Record<string, string> }
@@ -30,82 +28,62 @@ export const getBody = (
   rawData: string,
   rawContentType: string,
   contentType: HoppRESTReqBody["contentType"]
-): BodyReturnType => {
-  let body: HoppRESTReqBody["body"] = defaultRESTRequest.body.body
-  let multipartUploads: Record<string, string> | null = null
-
-  const tempBody = pipe(
+): O.Option<BodyReturnType> => {
+  return pipe(
     O.Do,
 
-    O.bind("rct", () =>
+    O.bind("cType", () =>
       pipe(
-        rawContentType,
-        O.fromPredicate(() => rawContentType !== "")
-      )
-    ),
-
-    O.bind("cType", ({ rct }) =>
-      pipe(
-        rct,
-        O.of,
-        O.map(flow(S.toLowerCase, S.split(";"), RNEA.head)),
-        O.filter((ct) => Object.keys(knownContentTypes).includes(ct)),
-        O.map((ct) => ct as HoppRESTReqBody["contentType"])
+        contentType,
+        O.fromNullable,
+        // get provided content-type or figure it out
+        O.alt(() =>
+          pipe(
+            rawContentType,
+            O.fromPredicate((rct) => rct.length > 0),
+            O.map(flow(S.toLowerCase, S.split(";"), RNEA.head)),
+            // if rawContentType is valid get it
+            O.filter((ct) => Object.keys(knownContentTypes).includes(ct)),
+            O.map((ct) => ct as HoppRESTReqBody["contentType"]),
+            // else get it from the rawData
+            O.alt(() =>
+              pipe(
+                rawData,
+                O.fromPredicate((rd) => rd.length > 0),
+                O.map(detectContentType)
+              )
+            )
+          )
+        )
       )
     ),
 
     O.bind("rData", () =>
       pipe(
         rawData,
-        O.fromPredicate(() => !!rawData && rawData.length > 0)
+        O.fromPredicate(() => rawData.length > 0)
       )
     ),
 
-    O.bind("ctBody", ({ rct, cType, rData }) =>
-      pipe(rData, getBodyFromContentType(rct, cType))
+    O.bind("ctBody", ({ cType, rData }) =>
+      pipe(rawContentType, getBodyFromContentType(rData, cType))
+    ),
+
+    O.map(({ cType, ctBody }) =>
+      typeof ctBody === "string"
+        ? {
+            type: "NON_FORMDATA",
+            body: {
+              body: ctBody,
+              contentType: cType as Exclude<
+                ValidContentTypes,
+                "multipart/form-data"
+              >,
+            },
+          }
+        : { type: "FORMDATA", body: ctBody }
     )
   )
-
-  if (O.isSome(tempBody)) {
-    const { cType, ctBody } = tempBody.value
-    contentType = cType
-    if (typeof ctBody === "string") body = ctBody
-    else multipartUploads = ctBody
-  } else if (
-    !(
-      rawContentType &&
-      rawContentType.startsWith("multipart/form-data") &&
-      rawContentType.includes("boundary")
-    )
-  ) {
-    const newTempBody = pipe(
-      rawData,
-      O.fromPredicate(() => !!rawData && rawData.length > 0),
-      O.chain(getBodyWithoutContentType)
-    )
-
-    if (O.isSome(newTempBody)) {
-      const { cType, proData } = newTempBody.value
-      contentType = cType
-      if (typeof proData === "string") body = proData
-      else multipartUploads = proData
-    }
-  } else {
-    body = defaultRESTRequest.body.body
-    contentType = defaultRESTRequest.body.contentType
-  }
-
-  const fBody = <Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData>>{
-    body,
-    contentType,
-  }
-
-  return multipartUploads
-    ? { type: "FORMDATA", body: multipartUploads }
-    : {
-        type: "NON_FORMDATA",
-        body: fBody,
-      }
 }
 
 /** Parses body based on the content type
@@ -114,10 +92,10 @@ export const getBody = (
  * @returns Option of parsed body
  */
 function getBodyFromContentType(
-  rct: string,
+  rData: string,
   cType: HoppRESTReqBody["contentType"]
 ) {
-  return (rData: string) =>
+  return (rct: string) =>
     pipe(
       cType,
       O.fromPredicate((ctype) => ctype === "multipart/form-data"),
@@ -138,30 +116,6 @@ function getBodyFromContentType(
           )
       )
     )
-}
-
-/**
- * Detects and parses body without the help of content type
- * @param rawData Raw body string
- * @returns Option of raw data, detected content type and parsed data
- */
-function getBodyWithoutContentType(rawData: string) {
-  return pipe(
-    O.Do,
-
-    O.bind("rData", () =>
-      pipe(
-        rawData,
-        O.fromPredicate((rd) => rd.length > 0)
-      )
-    ),
-
-    O.bind("cType", ({ rData }) =>
-      pipe(rData, detectContentType, O.fromNullable)
-    ),
-
-    O.bind("proData", ({ cType, rData }) => parseBody(rData, cType))
-  )
 }
 
 /**

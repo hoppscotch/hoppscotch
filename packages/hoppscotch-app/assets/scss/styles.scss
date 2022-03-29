@@ -484,3 +484,10 @@ details summary::-webkit-details-marker {
     margin-bottom: env(safe-area-inset-bottom);
   }
 }
+
+// https://pqina.nl/blog/fix-google-mobile-usability-issues/
+:where(body, iframe, pre, img, svg, video, canvas, select) {
+  @apply max-w-full;
+  @apply overflow-auto;
+  @apply break-words;
+}

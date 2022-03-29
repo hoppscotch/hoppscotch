@@ -1,6 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
+    dialog
     :title="t('app.options')"
     max-width="sm:max-w-md"
     class="text-sm"
@@ -8,7 +9,7 @@
   >
     <template #body>
       <div class="flex flex-col space-y-2">
-        <h2 class="font-semibold ml-3 text-lg text-gray-300">
+        <h2 class="p-2 font-semibold font-bold text-secondaryDark">
           {{ t("layout.name") }}
         </h2>
         <SmartItem
@@ -19,7 +20,6 @@
           active
           @click.native="expandNavigation"
         />
-
         <SmartItem
           svg="sidebar-open"
           :label="SIDEBAR ? t('hide.collection') : t('show.collection')"
@@ -28,8 +28,7 @@
           active
           @click.native="expandCollection"
         />
-
-        <h2 class="font-semibold ml-3 text-lg text-gray-300">
+        <h2 class="p-2 font-semibold font-bold text-secondaryDark">
           {{ t("support.title") }}
         </h2>
         <SmartItem
@@ -42,7 +41,6 @@
           blank
           @click.native="hideModal()"
         />
-
         <SmartItem
           svg="gift"
           :label="t('app.whats_new')"
@@ -73,11 +71,9 @@
           active
           @click.native="hideModal()"
         />
-
-        <h2 class="font-semibold ml-3 text-lg text-gray-300">
+        <h2 class="p-2 font-semibold font-bold text-secondaryDark">
           {{ t("settings.follow") }}
         </h2>
-
         <SmartItem
           svg="brands/discord"
           :label="t('app.discord')"

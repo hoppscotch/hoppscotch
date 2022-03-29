@@ -49,6 +49,25 @@
             />
           </div>
         </tippy>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="$t('request.override_help')"
+          :label="
+            overridenContentType
+              ? `${$t('request.overriden')}: ${overridenContentType}`
+              : $t('request.override')
+          "
+          :svg="overridenContentType ? 'info' : 'refresh-cw'"
+          :class="[
+            '!px-1 !py-0.5',
+            {
+              'text-yellow-500 hover:text-yellow-500': overridenContentType,
+            },
+          ]"
+          filled
+          outline
+          @click.native="contentTypeOverride('headers')"
+        />
       </span>
     </div>
     <HttpBodyParameters v-if="contentType === 'multipart/form-data'" />
@@ -80,19 +99,56 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { computed } from "@nuxtjs/composition-api"
+import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useStream } from "~/helpers/utils/composables"
-import { restContentType$, setRESTContentType } from "~/newstore/RESTSession"
 import { knownContentTypes } from "~/helpers/utils/contenttypes"
+import {
+  restContentType$,
+  restHeaders$,
+  setRESTContentType,
+  setRESTHeaders,
+  addRESTHeader,
+} from "~/newstore/RESTSession"
 
-export default defineComponent({
-  setup() {
-    return {
-      validContentTypes: Object.keys(knownContentTypes),
+const emit = defineEmits<{
+  (e: "change-tab", value: string): void
+}>()
 
-      contentType: useStream(restContentType$, null, setRESTContentType),
-    }
-  },
-})
+const validContentTypes = Object.keys(knownContentTypes)
+const contentType = useStream(restContentType$, null, setRESTContentType)
+
+// The functional headers list (the headers actually in the system)
+const headers = useStream(restHeaders$, [], setRESTHeaders)
+
+const overridenContentType = computed(() =>
+  pipe(
+    headers.value,
+    A.findLast((h) => h.key.toLowerCase() === "content-type" && h.active),
+    O.map((h) => h.value),
+    O.getOrElse(() => "")
+  )
+)
+
+const contentTypeOverride = (tab: RequestOptionTabs) => {
+  emit("change-tab", tab)
+  if (!isContentTypeAlreadyExist()) {
+    addRESTHeader({
+      key: "Content-Type",
+      value: "",
+      active: true,
+    })
+  }
+}
+
+const isContentTypeAlreadyExist = () => {
+  return pipe(
+    headers.value,
+    A.some((e) => e.key.toLowerCase() === "content-type")
+  )
+}
 </script>

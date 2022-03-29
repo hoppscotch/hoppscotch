@@ -262,7 +262,7 @@ const getHoppReqBody = (item: Item): HoppRESTReqBody => {
 
 const getHoppReqURL = (item: Item): string =>
   pipe(
-    item.request.url.toString(true),
+    item.request.url.toString(false),
     S.replace(/\?.+/g, ""),
     replacePMVarTemplating
   )

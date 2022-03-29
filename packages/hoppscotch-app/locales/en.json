@@ -44,8 +44,11 @@
     "chat_with_us": "Chat with us",
     "contact_us": "Contact us",
     "copy": "Copy",
+    "copy_user_id": "Copy User Auth Token",
     "discord": "Discord",
     "documentation": "Documentation",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
     "github": "GitHub",
     "help": "Help & feedback",
     "home": "Home",
@@ -350,7 +353,10 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
-    "variables": "Variables"
+    "variables": "Variables",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden"
   },
   "response": {
     "body": "Response Body",

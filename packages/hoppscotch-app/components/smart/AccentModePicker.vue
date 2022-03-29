@@ -14,7 +14,6 @@
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"
       :title="`${color.charAt(0).toUpperCase()}${color.slice(1)}`"
-      :class="[{ 'bg-primaryLight': color === active }]"
       class="rounded"
       icon="lens"
       :color="color"
@@ -28,11 +27,11 @@ import {
   HoppAccentColors,
   HoppAccentColor,
   applySetting,
-  useSetting,
+  // useSetting,
 } from "~/newstore/settings"
 
 const accentColors = HoppAccentColors
-const active = useSetting("THEME_COLOR")
+// const active = useSetting("THEME_COLOR")
 
 const setActiveColor = (color: HoppAccentColor) => {
   document.documentElement.setAttribute("data-accent", color)

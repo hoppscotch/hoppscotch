@@ -203,7 +203,10 @@ export function getEffectiveRESTRequest(
   }
 
   const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables)
-  if (request.body.contentType)
+  const contentTypeInHeader = effectiveFinalHeaders.find(
+    (x) => x.key.toLowerCase() === "content-type"
+  )
+  if (request.body.contentType && !contentTypeInHeader?.value)
     effectiveFinalHeaders.push({
       active: true,
       key: "content-type",

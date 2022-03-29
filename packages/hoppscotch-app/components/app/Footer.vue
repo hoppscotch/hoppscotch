@@ -192,7 +192,6 @@
     </div>
     <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
     <AppShare :show="showShare" @hide-modal="showShare = false" />
-    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
     <AppDeveloperOptions
       :show="showDeveloperOptions"
       @hide-modal="showDeveloperOptions = false"
@@ -212,7 +211,6 @@ const t = useI18n()
 const showShortcuts = ref(false)
 const showShare = ref(false)
 const showDeveloperOptions = ref(false)
-const showSearch = ref(false)
 
 defineActionHandler("flyouts.keybinds.toggle", () => {
   showShortcuts.value = !showShortcuts.value
@@ -220,10 +218,6 @@ defineActionHandler("flyouts.keybinds.toggle", () => {
 
 defineActionHandler("modals.share.toggle", () => {
   showShare.value = !showShare.value
-})
-
-defineActionHandler("modals.search.toggle", () => {
-  showSearch.value = !showSearch.value
 })
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")

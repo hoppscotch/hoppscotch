@@ -11,7 +11,7 @@
       <HttpParameters />
     </SmartTab>
     <SmartTab :id="'bodyParams'" :label="`${$t('tab.body')}`">
-      <HttpBody />
+      <HttpBody @change-tab="changeTab" />
     </SmartTab>
     <SmartTab
       :id="'headers'"
@@ -53,9 +53,17 @@ import {
   useTestScript,
 } from "~/newstore/RESTSession"
 
-type RequestOptionTabs = "params" | "bodyParams" | "headers" | "authorization"
+export type RequestOptionTabs =
+  | "params"
+  | "bodyParams"
+  | "headers"
+  | "authorization"
 
 const selectedRealtimeTab = ref<RequestOptionTabs>("params")
+
+const changeTab = (e: RequestOptionTabs) => {
+  selectedRealtimeTab.value = e
+}
 
 const newActiveParamsCount$ = useReadonlyStream(
   restActiveParamsCount$.pipe(

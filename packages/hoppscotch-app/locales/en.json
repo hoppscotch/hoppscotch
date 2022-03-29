@@ -345,7 +345,10 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
-    "variables": "Variables"
+    "variables": "Variables",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden"
   },
   "response": {
     "body": "Response Body",

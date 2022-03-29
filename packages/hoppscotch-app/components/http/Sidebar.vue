@@ -21,18 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "@nuxtjs/composition-api"
-import { useSetting } from "~/newstore/settings"
+import { ref } from "@nuxtjs/composition-api"
 
 type RequestOptionTabs = "history" | "collections" | "env"
 
 const selectedNavigationTab = ref<RequestOptionTabs>("history")
-
-const REMEMBERED_TEAM_ID = useSetting("REMEMBERED_TEAM_ID")
-
-onMounted(() => {
-  if (REMEMBERED_TEAM_ID.value) {
-    selectedNavigationTab.value = "collections"
-  }
-})
 </script>

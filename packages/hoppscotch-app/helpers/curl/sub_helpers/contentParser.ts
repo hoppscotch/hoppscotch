@@ -25,6 +25,7 @@ export function detectContentType(
           rawData,
           O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
           O.match(
+            // no angle bracket tags found
             () =>
               pipe(
                 rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
@@ -36,24 +37,31 @@ export function detectContentType(
                       rawData,
                       O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
                       O.match(
+                        // no known types matched
                         () => "text/plain",
+                        // (some=thing&other=thing) form data
                         () => "application/x-www-form-urlencoded"
                       )
                     ),
+                  // boundary found
                   () => "multipart/form-data"
                 )
               ),
+            // angle bracket tags found
             (_) =>
               pipe(
                 rawData,
                 prettifyXml,
                 O.match(
+                  // if angle brackets are present, and it's not XML
                   () => "text/html",
+                  // else it's XML
                   (_) => "application/xml"
                 )
               )
           )
         ),
+      // safeParseJSON confirms JSON
       (_) => "application/json"
     )
   )

@@ -19,13 +19,18 @@ import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 
 const defaultRESTRequest = getDefaultRESTRequest()
 
+type BodyReturnType =
+  | { type: "FORMDATA"; body: Record<string, string> }
+  | {
+      type: "NON_FORMDATA"
+      body: Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData>
+    }
+
 export const getBody = (
   rawData: string,
   rawContentType: string,
   contentType: HoppRESTReqBody["contentType"]
-):
-  | { multipartUploads: Record<string, string> }
-  | Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData> => {
+): BodyReturnType => {
   let body: HoppRESTReqBody["body"] = defaultRESTRequest.body.body
   let multipartUploads: Record<string, string> | null = null
 
@@ -90,11 +95,16 @@ export const getBody = (
     contentType = defaultRESTRequest.body.contentType
   }
 
+  const fBody = <Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData>>{
+    body,
+    contentType,
+  }
+
   return multipartUploads
-    ? { multipartUploads }
-    : <Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData>>{
-        body,
-        contentType,
+    ? { type: "FORMDATA", body: multipartUploads }
+    : {
+        type: "NON_FORMDATA",
+        body: fBody,
       }
 }
 
@@ -184,8 +194,11 @@ export function getFArgumentMultipartData(
             A.map(([k, v]) =>
               pipe(
                 parsedArguments,
+                // form-string option allows for "@" and "<" prefixes
+                //   without them being considered as files
                 O.fromPredicate(objHasProperty("form-string", "boolean")),
                 O.match(
+                  // leave the value field empty for files
                   () => [k, v[0] === "@" || v[0] === "<" ? "" : v],
                   (_) => [k, v]
                 )

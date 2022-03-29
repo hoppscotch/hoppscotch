@@ -128,7 +128,7 @@ const headers = useStream(restHeaders$, [], setRESTHeaders)
 const overridenContentType = computed(() =>
   pipe(
     headers.value,
-    A.findLast((h) => h.key.toLowerCase() === "content-type"),
+    A.findLast((h) => h.key.toLowerCase() === "content-type" && h.active),
     O.map((h) => h.value),
     O.getOrElse(() => "")
   )

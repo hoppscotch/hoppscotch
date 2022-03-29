@@ -3,9 +3,7 @@
     <div class="container space-y-8 divide-y divide-dividerLight">
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
-          <h3 class="heading">
-            {{ t("settings.theme") }}
-          </h3>
+          <h3 class="heading">ttheme</h3>
           <p class="my-1 text-secondaryLight">
             {{ t("settings.theme_description") }}
           </p>

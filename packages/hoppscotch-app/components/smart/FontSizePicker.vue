@@ -6,7 +6,7 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('settings.change_font_size')"
-            class="pr-8"
+            class="pr-8 border-8"
             svg="type"
             outline
             :label="`${getFontSizeName(

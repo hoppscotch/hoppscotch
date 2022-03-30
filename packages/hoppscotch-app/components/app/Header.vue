@@ -29,10 +29,12 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('support.title')} <xmp>?</xmp>`"
+          :title="`${
+            mdAndLarger ? t('support.title') : t('app.options')
+          } <xmp>?</xmp>`"
           svg="life-buoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click.native="showSupport = true"
+          @click.native="invokeAction('modals.support.toggle')"
         />
         <ButtonSecondary
           v-if="currentUser === null"
@@ -137,14 +139,13 @@
     </header>
     <AppAnnouncement v-if="!network.isOnline" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
-    <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from "@nuxtjs/composition-api"
-import { useNetwork } from "@vueuse/core"
+import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import initializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
@@ -153,7 +154,7 @@ import {
   useI18n,
   useToast,
 } from "~/helpers/utils/composables"
-import { defineActionHandler, invokeAction } from "~/helpers/actions"
+import { invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -166,17 +167,15 @@ const toast = useToast()
  */
 const showInstallPrompt = ref(() => Promise.resolve()) // Async no-op till it is initialized
 
-const showSupport = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const network = reactive(useNetwork())
 
 const currentUser = useReadonlyStream(probableUser$, null)
-
-defineActionHandler("modals.support.toggle", () => {
-  showSupport.value = !showSupport.value
-})
 
 onMounted(() => {
   // Initializes the PWA code - checks if the app is installed,

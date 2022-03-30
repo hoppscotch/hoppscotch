@@ -65,7 +65,12 @@
 </template>
 
 <script setup lang="ts">
+import { pipe } from "fp-ts/function"
+import { not } from "fp-ts/Predicate"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
 import { ref, ComputedRef, computed, provide } from "@nuxtjs/composition-api"
+import { throwError } from "~/helpers/functional/error"
 
 export type TabMeta = {
   label: string | null
@@ -103,32 +108,35 @@ const emit = defineEmits<{
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 
 const addTabEntry = (tabID: string, meta: TabMeta) => {
-  if (tabEntries.value.find(([id]) => id === tabID)) {
-    throw new Error(`Tab with duplicate ID created: '${tabID}'`)
-  }
-  tabEntries.value.push([tabID, meta])
+  tabEntries.value = pipe(
+    tabEntries.value,
+    O.fromPredicate(not(A.exists(([id]) => id === tabID))),
+    O.map(A.append([tabID, meta] as [string, TabMeta])),
+    O.getOrElseW(() => throwError(`Tab with duplicate ID created: '${tabID}'`))
+  )
 }
 
 const updateTabEntry = (tabID: string, newMeta: TabMeta) => {
-  const index = tabEntries.value.findIndex(([id]) => id === tabID)
-
-  if (index === -1) {
-    console.warn(`Tried to update non-existent tab entry: ${tabID}`)
-    return
-  }
-
-  tabEntries.value[index] = [tabID, newMeta]
+  tabEntries.value = pipe(
+    tabEntries.value,
+    A.findIndex(([id]) => id === tabID),
+    O.chain((index) =>
+      pipe(
+        tabEntries.value,
+        A.updateAt(index, [tabID, newMeta] as [string, TabMeta])
+      )
+    ),
+    O.getOrElseW(() => throwError(`Failed to update tab entry: ${tabID}`))
+  )
 }
 
 const removeTabEntry = (tabID: string) => {
-  const index = tabEntries.value.findIndex(([id]) => id === tabID)
-
-  if (index === -1) {
-    console.warn(`Tried to remove non-existent tab entry: ${tabID}`)
-    return
-  }
-
-  tabEntries.value.splice(index, 1)
+  tabEntries.value = pipe(
+    tabEntries.value,
+    A.findIndex(([id]) => id === tabID),
+    O.chain((index) => pipe(tabEntries.value, A.deleteAt(index))),
+    O.getOrElseW(() => throwError(`Failed to remove tab entry: ${tabID}`))
+  )
 
   // If we tried to remove the active tabEntries, switch to first tab entry
   if (props.value === tabID)

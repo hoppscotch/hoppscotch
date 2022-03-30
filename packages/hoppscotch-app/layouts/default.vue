@@ -43,9 +43,15 @@
         class="hide-scrollbar !overflow-auto flex flex-col fixed inset-x-0 bottom-0 z-10"
       >
         <AppSidenav />
-        <AppFooter />
       </Pane>
     </Splitpanes>
+    <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
+    <AppSupport
+      v-if="mdAndLarger"
+      :show="showSupport"
+      @hide-modal="showSupport = false"
+    />
+    <AppOptions v-else :show="showSupport" @hide-modal="showSupport = false" />
   </div>
 </template>
 
@@ -57,6 +63,7 @@ import {
   useContext,
   useRouter,
   watch,
+  ref,
 } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
@@ -119,11 +126,22 @@ function updateThemes() {
   const themeColor = useSetting("THEME_COLOR")
   const bgColor = useSetting("BG_COLOR")
   const fontSize = useSetting("FONT_SIZE")
+  const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 
   const spacerClass = computed(() => {
-    if (fontSize.value === "small") return "spacer-small"
-    if (fontSize.value === "large") return "spacer-large"
-    return "spacer-medium"
+    if (fontSize.value === "small" && EXPAND_NAVIGATION.value)
+      return "spacer-small"
+    if (fontSize.value === "medium" && EXPAND_NAVIGATION.value)
+      return "spacer-medium"
+    if (fontSize.value === "large" && EXPAND_NAVIGATION.value)
+      return "spacer-large"
+    if (
+      (fontSize.value === "small" ||
+        fontSize.value === "medium" ||
+        fontSize.value === "large") &&
+      !EXPAND_NAVIGATION.value
+    )
+      return "spacer-expand"
   })
 
   // Initially apply
@@ -199,10 +217,23 @@ export default defineComponent({
     const breakpoints = useBreakpoints(breakpointsTailwind)
     const mdAndLarger = breakpoints.greater("md")
 
+    const showSearch = ref(false)
+    const showSupport = ref(false)
+
+    defineActionHandler("modals.search.toggle", () => {
+      showSearch.value = !showSearch.value
+    })
+
+    defineActionHandler("modals.support.toggle", () => {
+      showSupport.value = !showSupport.value
+    })
+
     return {
       mdAndLarger,
       spacerClass,
       ZEN_MODE: useSetting("ZEN_MODE"),
+      showSearch,
+      showSupport,
     }
   },
   head() {
@@ -262,28 +293,36 @@ export default defineComponent({
 
 <style scoped>
 .spacer-small {
-  margin-bottom: 6.1rem;
+  margin-bottom: 4.2rem;
 }
 
 .spacer-medium {
-  margin-bottom: 6.9rem;
+  margin-bottom: 4.8rem;
 }
 
 .spacer-large {
-  margin-bottom: 7.8rem;
+  margin-bottom: 5.5rem;
+}
+
+.spacer-expand {
+  margin-bottom: 2.9rem;
 }
 
 @media screen and (min-width: 768px) {
   .spacer-small {
-    margin-bottom: 0rem;
+    margin-bottom: 0;
   }
 
   .spacer-medium {
-    margin-bottom: 0rem;
+    margin-bottom: 0;
   }
 
   .spacer-large {
-    margin-bottom: 0rem;
+    margin-bottom: 0;
+  }
+
+  .spacer-expand {
+    margin-bottom: 0;
   }
 }
 </style>

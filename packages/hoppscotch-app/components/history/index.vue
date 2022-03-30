@@ -5,7 +5,7 @@
         v-model="filterText"
         type="search"
         autocomplete="off"
-        class="flex w-full p-4 py-2 bg-transparent"
+        class="flex flex-1 p-4 py-2 bg-transparent"
         :placeholder="`${t('action.search')}`"
       />
       <div class="flex">

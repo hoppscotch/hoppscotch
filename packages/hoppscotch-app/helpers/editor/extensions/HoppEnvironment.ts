@@ -19,10 +19,11 @@ import {
 const HOPP_ENVIRONMENT_REGEX = /(<<\w+>>)/g
 
 const HOPP_ENV_HIGHLIGHT =
-  "cursor-help transition rounded px-1 focus:outline-none mx-0.5"
+  "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
 const HOPP_ENV_HIGHLIGHT_FOUND =
   "bg-accentDark text-accentContrast hover:bg-accent"
-const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "bg-red-400 text-red-50 hover:bg-red-600"
+const HOPP_ENV_HIGHLIGHT_NOT_FOUND =
+  "bg-red-500 text-accentContrast hover:bg-red-600"
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(

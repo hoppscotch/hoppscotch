@@ -8,15 +8,15 @@ const isDangling = ([_, value]: [string, string]) => !value
 
 /**
  * Converts queries to HoppRESTParam format and separates dangling ones
- * @param queries Array of key value pairs of queries
- * @returns Queries of type Array<HoppRESTParam> and list of dangling params
+ * @param params Array of key value pairs of queries
+ * @returns Object containing separated queries and dangling queries
  */
-export function getQueries(searchParams: Array<[string, string]>): {
+export function getQueries(params: Array<[string, string]>): {
   queries: Array<HoppRESTParam>
   danglingParams: Array<string>
 } {
   return pipe(
-    searchParams,
+    params,
     O.of,
     O.map(
       flow(

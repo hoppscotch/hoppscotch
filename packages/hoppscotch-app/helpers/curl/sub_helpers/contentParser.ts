@@ -196,7 +196,7 @@ const getXWWWFormUrlEncodedBody = flow(
  * Parses provided string according to the content type
  * @param rawData Data to be parsed
  * @param contentType Content type of the data
- * @param boundary Optional parameter required for multipart/form-data content type
+ * @param rawContentType Optional parameter required for multipart/form-data
  * @returns Option of parsed body as string or Record object for multipart/form-data
  */
 export function parseBody(

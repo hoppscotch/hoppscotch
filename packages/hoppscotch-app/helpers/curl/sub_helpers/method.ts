@@ -74,9 +74,9 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) =>
 
 /**
  * Get method type from X argument in curl string or
- * find it out through presence of other arguments
+ * find it out through other arguments
  * @param parsedArguments Parsed Arguments object
- * @returns Method type
+ * @returns Method string
  */
 export const getMethod = (parsedArguments: parser.Arguments): string =>
   pipe(

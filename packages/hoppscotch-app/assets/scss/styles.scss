@@ -491,3 +491,9 @@ details summary::-webkit-details-marker {
   @apply overflow-auto;
   @apply break-words;
 }
+
+.env-highlight {
+  * {
+    @apply text-accentContrast;
+  }
+}

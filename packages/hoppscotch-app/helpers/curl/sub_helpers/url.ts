@@ -6,6 +6,21 @@ import { stringArrayJoin } from "~/helpers/functional/array"
 
 const defaultRESTReq = getDefaultRESTRequest()
 
+const getProtocolForBaseURL = (baseURL: string) =>
+  pipe(
+    // get the base URL
+    /^([^\s:@]+:[^\s:@]+@)?([^:/\s]+)([:]*)/.exec(baseURL),
+    O.fromNullable,
+    O.filter((burl) => burl.length > 1),
+    O.map((burl) => burl[2]),
+    // set protocol to http for local URLs
+    O.map((burl) =>
+      burl === "localhost" || burl === "127.0.0.1"
+        ? "http://" + baseURL
+        : "https://" + baseURL
+    )
+  )
+
 /**
  * Processes URL string and returns the URL object
  * @param parsedArguments Parsed Arguments object
@@ -13,60 +28,33 @@ const defaultRESTReq = getDefaultRESTRequest()
  */
 export function parseURL(parsedArguments: parser.Arguments) {
   return pipe(
+    // contains raw url string
     parsedArguments._[1],
     O.fromNullable,
-    O.map((u) => u.toString().replace(/["']/g, "")),
-    O.map((u) => u.trim()),
+    // preprocess url string
+    O.map((u) => u.toString().replace(/["']/g, "").trim()),
     O.chain((u) =>
       pipe(
+        // check if protocol is available
         /^[^:\s]+(?=:\/\/)/.exec(u),
         O.fromNullable,
-        O.map((p) => p[2]),
-        O.match(
-          // if protocol is not found
-          () =>
-            pipe(
-              // get the base URL
-              /^([^\s:@]+:[^\s:@]+@)?([^:/\s]+)([:]*)/.exec(u),
-              O.fromNullable,
-              O.map((burl) => burl[2]),
-              O.map((burl) =>
-                burl === "localhost" || burl === "127.0.0.1"
-                  ? "http://" + u
-                  : "https://" + u
-              )
-            ),
-          (_) => O.some(u)
-        )
+        O.map((_) => u),
+        O.alt(() => getProtocolForBaseURL(u))
       )
     ),
     O.map((u) => new URL(u)),
-    O.getOrElse(() => {
-      // no url found
-      for (const argName in parsedArguments) {
-        if (
-          typeof parsedArguments[argName] === "string" &&
-          ["http", "www."].includes(parsedArguments[argName])
-        )
-          return pipe(
-            parsedArguments[argName],
-            O.fromNullable,
-            O.getOrElse(() => defaultRESTReq.endpoint),
-            (u) => new URL(u)
-          )
-      }
-      return new URL(defaultRESTReq.endpoint)
-    })
+    // no url found
+    O.getOrElse(() => new URL(defaultRESTReq.endpoint))
   )
 }
 
 /**
  * Joins dangling params to origin
- * @param origin origin value from the URL Object
- * @param params params without values
- * @returns origin string concatenated with dngling paramas
+ * @param urlObject URL object containing origin and pathname
+ * @param danglingParams Keys of params with empty values
+ * @returns origin string concatenated with dangling paramas
  */
-export function concatParams(urlObject: URL, params: string[]) {
+export function concatParams(urlObject: URL, danglingParams: string[]) {
   return pipe(
     O.Do,
 
@@ -79,7 +67,7 @@ export function concatParams(urlObject: URL, params: string[]) {
 
     O.map(({ originString }) =>
       pipe(
-        params,
+        danglingParams,
         O.fromPredicate((dp) => dp.length > 0),
         O.map(stringArrayJoin("&")),
         O.map((h) => originString + (urlObject.pathname || "") + "?" + h),

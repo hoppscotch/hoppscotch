@@ -1,6 +1,5 @@
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
-import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 
 const replaceables: { [key: string]: string } = {
@@ -16,6 +15,32 @@ const replaceables: { [key: string]: string } = {
   "--get": "-G",
 }
 
+const paperCuts = flow(
+  // remove '\' and newlines
+  S.replace(/ ?\\ ?$/gm, " "),
+  S.replace(/\n/g, ""),
+  // remove all $ symbols from start of argument values
+  S.replace(/\$'/g, "'"),
+  S.replace(/\$"/g, '"')
+)
+
+const replaceFunction = (curlCmd: string, r: string) =>
+  pipe(
+    curlCmd,
+    O.fromPredicate(
+      () => r.includes("data") || r.includes("form") || r.includes("header")
+    ),
+    O.map(S.replace(RegExp(`[ \t]${r}(["' ])`, "g"), ` ${replaceables[r]}$1`)),
+    O.alt(() =>
+      pipe(
+        curlCmd,
+        S.replace(RegExp(`[ \t]${r}(["' ])`), ` ${replaceables[r]}$1`),
+        O.of
+      )
+    ),
+    O.getOrElse(() => "")
+  )
+
 /**
  * Sanitizes curl string
  * @param curlCommand Raw curl command string
@@ -27,45 +52,11 @@ export const preProcessCurlCommand = (curlCommand: string) =>
     O.fromPredicate((curlCmd) => curlCmd.length > 0),
     O.map(
       flow(
-        // remove '\' and newlines
-        S.replace(/ ?\\ ?$/gm, " "),
-        S.replace(/\n/g, ""),
-        // remove all $ symbols from start of argument values
-        S.replace(/\$'/g, "'"),
-        S.replace(/\$"/g, '"'),
+        paperCuts,
         // replace string for insomnia
         (curlCmd) => {
-          pipe(
-            Object.keys(replaceables),
-            A.map(
-              (r) =>
-                (curlCmd = pipe(
-                  curlCmd,
-                  O.fromPredicate(
-                    () =>
-                      r.includes("data") ||
-                      r.includes("form") ||
-                      r.includes("header")
-                  ),
-                  O.map(
-                    S.replace(
-                      RegExp(`[ \t]${r}(["' ])`, "g"),
-                      ` ${replaceables[r]}$1`
-                    )
-                  ),
-                  O.alt(() =>
-                    pipe(
-                      curlCmd,
-                      S.replace(
-                        RegExp(`[ \t]${r}(["' ])`),
-                        ` ${replaceables[r]}$1`
-                      ),
-                      O.of
-                    )
-                  ),
-                  O.getOrElse(() => "")
-                ))
-            )
+          Object.keys(replaceables).map(
+            (r) => (curlCmd = replaceFunction(curlCmd, r))
           )
           return curlCmd
         },

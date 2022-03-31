@@ -1,8 +1,8 @@
 import parser from "yargs-parser"
-import { pipe } from "fp-ts/function"
+import { pipe, flow } from "fp-ts/function"
 import { HoppRESTHeader } from "@hoppscotch/data"
-import * as RA from "fp-ts/ReadonlyArray"
 import * as A from "fp-ts/Array"
+import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import { tupleToRecord } from "~/helpers/functional/record"
 import {
@@ -10,11 +10,19 @@ import {
   objHasArrayProperty,
 } from "~/helpers/functional/object"
 
+const getHeaderPair = flow(
+  S.split(": "),
+  // must have a key and a value
+  O.fromPredicate((arr) => arr.length === 2),
+  O.map(([k, v]) => [k.trim(), v?.trim() ?? ""] as [string, string])
+)
+
 export function getHeaders(parsedArguments: parser.Arguments) {
   let headers: Record<string, string> = {}
 
   headers = pipe(
     parsedArguments,
+    // make it an array if not already
     O.fromPredicate(objHasProperty("H", "string")),
     O.map((args) => [args.H]),
     O.alt(() =>
@@ -24,20 +32,14 @@ export function getHeaders(parsedArguments: parser.Arguments) {
         O.map((args) => args.H)
       )
     ),
-    O.map((h: string[]) =>
-      pipe(
-        h.map((header: string) => {
-          const [key, value] = header.split(": ")
-          return [key.trim(), value.trim()] as [string, string]
-        }),
-        RA.toArray,
+    O.map(
+      flow(
+        A.map(getHeaderPair),
+        A.filterMap((a) => a),
         tupleToRecord
       )
     ),
-    O.match(
-      () => ({}),
-      (h) => h
-    )
+    O.getOrElseW(() => ({}))
   )
 
   if (

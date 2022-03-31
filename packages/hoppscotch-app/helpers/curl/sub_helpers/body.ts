@@ -24,6 +24,52 @@ type BodyReturnType =
       body: Exclude<HoppRESTReqBody, HoppRESTReqBodyFormData>
     }
 
+/** Parses body based on the content type
+ * @param rData Raw data
+ * @param cType Sanitized content type
+ * @returns Option of parsed body of type string | Record<string, string>
+ */
+const getBodyFromContentType =
+  (rData: string, cType: HoppRESTReqBody["contentType"]) => (rct: string) =>
+    pipe(
+      cType,
+      O.fromPredicate((ctype) => ctype === "multipart/form-data"),
+      O.chain(() =>
+        pipe(
+          // pass rawContentType for boundary ascertion
+          parseBody(rData, cType, rct),
+          O.filter((parsedBody) => typeof parsedBody !== "string")
+        )
+      ),
+      O.alt(() =>
+        pipe(
+          parseBody(rData, cType),
+          O.filter(
+            (parsedBody) =>
+              typeof parsedBody === "string" && parsedBody.length > 0
+          )
+        )
+      )
+    )
+
+const getContentTypeFromRawContentType = (rawContentType: string) =>
+  pipe(
+    rawContentType,
+    O.fromPredicate((rct) => rct.length > 0),
+    // get everything before semi-colon
+    O.map(flow(S.toLowerCase, S.split(";"), RNEA.head)),
+    // if rawContentType is valid, cast it to contentType type
+    O.filter((ct) => Object.keys(knownContentTypes).includes(ct)),
+    O.map((ct) => ct as HoppRESTReqBody["contentType"])
+  )
+
+const getContentTypeFromRawData = (rawData: string) =>
+  pipe(
+    rawData,
+    O.fromPredicate((rd) => rd.length > 0),
+    O.map(detectContentType)
+  )
+
 export const getBody = (
   rawData: string,
   rawContentType: string,
@@ -34,27 +80,12 @@ export const getBody = (
 
     O.bind("cType", () =>
       pipe(
+        // get provided content-type
         contentType,
         O.fromNullable,
-        // get provided content-type or figure it out
-        O.alt(() =>
-          pipe(
-            rawContentType,
-            O.fromPredicate((rct) => rct.length > 0),
-            O.map(flow(S.toLowerCase, S.split(";"), RNEA.head)),
-            // if rawContentType is valid get it
-            O.filter((ct) => Object.keys(knownContentTypes).includes(ct)),
-            O.map((ct) => ct as HoppRESTReqBody["contentType"]),
-            // else get it from the rawData
-            O.alt(() =>
-              pipe(
-                rawData,
-                O.fromPredicate((rd) => rd.length > 0),
-                O.map(detectContentType)
-              )
-            )
-          )
-        )
+        // or figure it out
+        O.alt(() => getContentTypeFromRawContentType(rawContentType)),
+        O.alt(() => getContentTypeFromRawData(rawData))
       )
     ),
 
@@ -86,38 +117,6 @@ export const getBody = (
   )
 }
 
-/** Parses body based on the content type
- * @param rct Raw content type
- * @param cType Sanitized content type
- * @returns Option of parsed body
- */
-function getBodyFromContentType(
-  rData: string,
-  cType: HoppRESTReqBody["contentType"]
-) {
-  return (rct: string) =>
-    pipe(
-      cType,
-      O.fromPredicate((ctype) => ctype === "multipart/form-data"),
-      O.match(
-        () =>
-          pipe(
-            parseBody(rData, cType),
-            O.filter(
-              (parsedBody) =>
-                typeof parsedBody === "string" && parsedBody.length > 0
-            )
-          ),
-        (_) =>
-          // put body to multipartUploads in post processing
-          pipe(
-            parseBody(rData, cType, rct),
-            O.filter((parsedBody) => typeof parsedBody !== "string")
-          )
-      )
-    )
-}
-
 /**
  * Parses and structures multipart/form-data from -F argument of curl command
  * @param parsedArguments Parsed Arguments object
@@ -126,10 +125,11 @@ function getBodyFromContentType(
 export function getFArgumentMultipartData(
   parsedArguments: parser.Arguments
 ): O.Option<Record<string, string>> {
-  // -F multipart data
+  // --form or -F multipart data
 
   return pipe(
     parsedArguments,
+    // make it an array if not already
     O.fromPredicate(objHasProperty("F", "string")),
     O.map((args) => [args.F]),
     O.alt(() =>
@@ -142,6 +142,7 @@ export function getFArgumentMultipartData(
     O.chain(
       flow(
         A.map(S.split("=")),
+        // can only have a key and no value
         O.fromPredicate((fArgs) => fArgs.length > 0),
         O.map(
           flow(

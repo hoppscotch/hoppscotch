@@ -143,22 +143,20 @@ export const parseCurlCommand = (curlCommand: string) => {
       pipe(
         multipartUploads,
         O.of,
-        O.map((m) => Object.entries(m)),
-        O.filter((m) => m.length > 0),
-        O.map(
-          A.map(
-            ([key, value]) =>
-              <FormDataKeyValue>{
-                active: true,
-                isFile: false,
-                key,
-                value,
-              }
+        O.map((m) =>
+          pipe(
+            Object.entries(m).map(
+              ([key, value]) =>
+                <FormDataKeyValue>{
+                  active: true,
+                  isFile: false,
+                  key,
+                  value,
+                }
+            ),
+            (b) =>
+              <HoppRESTReqBody>{ body: b, contentType: "multipart/form-data" }
           )
-        ),
-        O.map(
-          (b) =>
-            <HoppRESTReqBody>{ body: b, contentType: "multipart/form-data" }
         )
       )
     ),

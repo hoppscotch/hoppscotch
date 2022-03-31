@@ -2,70 +2,236 @@ import { HoppRESTReqBody } from "@hoppscotch/data"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
-import { pipe } from "fp-ts/function"
+import { pipe, flow } from "fp-ts/function"
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
+
+const contentTypeIs =
+  (cType: HoppRESTReqBody["contentType"]) => (input: O.Option<unknown>) =>
+    pipe(
+      input,
+      O.match(
+        () => null,
+        () => cType
+      ),
+      O.fromNullable
+    )
+
+const isJSON = flow(safeParseJSON, contentTypeIs("application/json"))
+
+const isXML = (rawData: string) =>
+  pipe(
+    rawData,
+    O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
+    O.chain(prettifyXml),
+    contentTypeIs("application/xml")
+  )
+
+const isHTML = (rawData: string) =>
+  pipe(
+    rawData,
+    O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
+    contentTypeIs("text/html")
+  )
+
+const isFormData = (rawData: string) =>
+  pipe(
+    rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
+    O.fromNullable,
+    O.filter((boundaryMatch) => boundaryMatch.length > 0),
+    contentTypeIs("multipart/form-data")
+  )
+
+const isXWWWFormUrlEncoded = (rawData: string) =>
+  pipe(
+    rawData,
+    O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
+    contentTypeIs("application/x-www-form-urlencoded")
+  )
 
 /**
  * Detects the content type of the input string
  * @param rawData String for which content type is to be detected
  * @returns Content type of the data
  */
-export function detectContentType(
+export const detectContentType = (
   rawData: string
-): HoppRESTReqBody["contentType"] {
-  if (!rawData) return null
-
-  return pipe(
+): HoppRESTReqBody["contentType"] =>
+  pipe(
     rawData,
-    safeParseJSON,
-    O.match(
-      () =>
-        pipe(
-          rawData,
-          O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
-          O.match(
-            // no angle bracket tags found
-            () =>
-              pipe(
-                rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
-                O.fromNullable,
-                O.filter((boundaryMatch) => boundaryMatch.length > 0),
-                O.match(
-                  () =>
-                    pipe(
-                      rawData,
-                      O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
-                      O.match(
-                        // no known types matched
-                        () => "text/plain",
-                        // (some=thing&other=thing) form data
-                        () => "application/x-www-form-urlencoded"
-                      )
-                    ),
-                  // boundary found
-                  () => "multipart/form-data"
-                )
-              ),
-            // angle bracket tags found
-            (_) =>
-              pipe(
-                rawData,
-                prettifyXml,
-                O.match(
-                  // if angle brackets are present, and it's not XML
-                  () => "text/html",
-                  // else it's XML
-                  (_) => "application/xml"
-                )
-              )
-          )
+    O.of,
+    O.chain(isJSON),
+    O.alt(() => isFormData(rawData)),
+    O.alt(() => isXML(rawData)),
+    O.alt(() => isHTML(rawData)),
+    O.alt(() => isXWWWFormUrlEncoded(rawData)),
+    O.getOrElse(() =>
+      pipe(
+        rawData,
+        O.fromPredicate((rd) => !!rd),
+        O.match(
+          () => null,
+          () => "text/plain"
         ),
-      // safeParseJSON confirms JSON
-      (_) => "application/json"
+        (ct) => ct as HoppRESTReqBody["contentType"]
+      )
     )
   )
+
+const multipartFunctions = {
+  getBoundaryFromRawData(rawData: string) {
+    return pipe(
+      rawData.match(/(-{2,}[A-Za-z0-9]+)\\r\\n/g),
+      O.fromNullable,
+      O.filter((boundaryMatch) => boundaryMatch.length > 0),
+      O.map((matches) => matches[0].slice(0, -4))
+    )
+  },
+
+  getBoundaryFromRawContentType(rawData: string, rawContentType: string) {
+    return pipe(
+      rawContentType.match(/boundary=(.+)/),
+      O.fromNullable,
+      O.filter((boundaryContentMatch) => boundaryContentMatch.length > 1),
+      O.filter((matches) =>
+        rawData.replaceAll("\\r\\n", "").endsWith("--" + matches[1] + "--")
+      ),
+      O.map((matches) => "--" + matches[1])
+    )
+  },
+
+  splitUsingBoundaryAndNewLines(rawData: string, boundary: string) {
+    return pipe(
+      rawData,
+      S.split(RegExp(`${boundary}-*`)),
+      RA.filter((p) => p !== "" && p.includes("name")),
+      RA.map((p) =>
+        pipe(
+          p.replaceAll(/\\r\\n+/g, "\\r\\n"),
+          S.split("\\r\\n"),
+          RA.filter((q) => q !== "")
+        )
+      )
+    )
+  },
+
+  getNameValuePair(pair: readonly string[]) {
+    return pipe(
+      pair,
+      O.fromPredicate((p) => p.length > 1),
+      O.chain((pair) => O.fromNullable(pair[0].match(/ name="(\w+)"/))),
+      O.filter((nameMatch) => nameMatch.length > 0),
+      O.chain((nameMatch) =>
+        pipe(
+          nameMatch[0],
+          S.replace(/"/g, ""),
+          S.split("="),
+          O.fromPredicate((q) => q.length === 2),
+          O.map(
+            (nameArr) =>
+              [nameArr[1], pair[0].includes("filename") ? "" : pair[1]] as [
+                string,
+                string
+              ]
+          )
+        )
+      )
+    )
+  },
 }
+
+const getFormDataBody = (rawData: string, rawContentType?: string) =>
+  pipe(
+    O.Do,
+
+    O.bind("boundary", () =>
+      pipe(
+        rawContentType,
+        O.fromNullable,
+        O.filter((rct) => rct.length > 0),
+        O.match(
+          () => multipartFunctions.getBoundaryFromRawData(rawData),
+          (rct) =>
+            multipartFunctions.getBoundaryFromRawContentType(rawData, rct)
+        )
+      )
+    ),
+
+    O.map(({ boundary }) =>
+      pipe(
+        multipartFunctions.splitUsingBoundaryAndNewLines(rawData, boundary),
+        RA.filterMap((p) => multipartFunctions.getNameValuePair(p)),
+        RA.toArray
+      )
+    ),
+
+    O.filter((arr) => arr.length > 0),
+    O.map(tupleToRecord)
+  )
+
+const getHTMLBody = (rawData: string) => pipe(rawData, formatHTML, O.of)
+
+const getXMLBody = (rawData: string) =>
+  pipe(
+    rawData,
+    prettifyXml,
+    O.alt(() => O.some(rawData))
+  )
+
+const getFormattedJSON = flow(
+  safeParseJSON,
+  O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
+  O.getOrElse(() => "{}"),
+  O.of
+)
+
+const getXWWWFormUrlEncodedBody = flow(
+  decodeURIComponent,
+  (decoded) => decoded.match(/(([^&=]+)=?([^&=]*))/g),
+  O.fromNullable,
+  O.map((pairs) => pairs.map((p) => p.replace("=", ": ")).join("\n"))
+)
+
+/**
+ * Parses provided string according to the content type
+ * @param rawData Data to be parsed
+ * @param contentType Content type of the data
+ * @param boundary Optional parameter required for multipart/form-data content type
+ * @returns Option of parsed body as string or Record object for multipart/form-data
+ */
+export function parseBody(
+  rawData: string,
+  contentType: HoppRESTReqBody["contentType"],
+  rawContentType?: string
+): O.Option<string | Record<string, string>> {
+  switch (contentType) {
+    case "application/hal+json":
+    case "application/ld+json":
+    case "application/vnd.api+json":
+    case "application/json":
+      return getFormattedJSON(rawData)
+
+    case "application/x-www-form-urlencoded":
+      return getXWWWFormUrlEncodedBody(rawData)
+
+    case "multipart/form-data":
+      return getFormDataBody(rawData, rawContentType)
+
+    case "text/html":
+      return getHTMLBody(rawData)
+
+    case "application/xml":
+      return getXMLBody(rawData)
+
+    case "text/plain":
+    default:
+      return O.some(rawData)
+  }
+}
+
+/**
+ * Formatter Functions
+ */
 
 /**
  * Prettifies XML string
@@ -153,145 +319,4 @@ const formatHTML = (htmlString: string) => {
   })
 
   return result.substring(1, result.length - 2)
-}
-
-/**
- * Parses provided string according to the content type
- * @param rawData Data to be parsed
- * @param contentType Content type of the data
- * @param boundary Optional parameter required for multipart/form-data content type
- * @returns Option of parsed body as string or Record object for multipart/form-data
- */
-export function parseBody(
-  rawData: string,
-  contentType: HoppRESTReqBody["contentType"],
-  rawContentType?: string
-): O.Option<string | Record<string, string>> {
-  switch (contentType) {
-    case "application/hal+json":
-    case "application/ld+json":
-    case "application/vnd.api+json":
-    case "application/json": {
-      return pipe(
-        rawData,
-        safeParseJSON,
-        O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
-        O.getOrElse(() => "{}"),
-        O.of
-      )
-    }
-
-    case "application/x-www-form-urlencoded": {
-      return pipe(
-        rawData,
-        O.of,
-        O.map(decodeURIComponent),
-        O.chain((rd) =>
-          pipe(rd.match(/(([^&=]+)=?([^&=]*))/g), O.fromNullable)
-        ),
-        O.map((pairs) => pairs.map((p) => p.replace("=", ": ")).join("\n"))
-      )
-    }
-
-    case "multipart/form-data": {
-      /**
-       * O.bind binds "boundary"
-       * If rawContentType is present, try to extract boundary from it
-       * If rawContentTpe is not present, try to regex match the boundary from rawData
-       * In case both the above attempts fail, O.map is not executed and the pipe is
-       * short-circuited. O.none is returned.
-       *
-       * In the event the boundary is ascertained, process rawData to get key-value
-       * pairs and convert them to a tuple array. If the array is not empty,
-       * convert it to Record<string, string> type and return O.some of it.
-       */
-      return pipe(
-        O.Do,
-
-        O.bind("boundary", () =>
-          pipe(
-            rawContentType,
-            O.fromNullable,
-            O.filter(
-              (rct) => !!rct && typeof rct === "string" && rct.length > 0
-            ),
-            O.match(
-              () =>
-                pipe(
-                  rawData.match(/-{2,}[A-Za-z0-9]+\\r\\n/g),
-                  O.fromNullable,
-                  O.filter((boundaryMatch) => boundaryMatch.length > 1),
-                  O.map((matches) => matches[0])
-                ),
-              (rct) =>
-                pipe(
-                  rct.match(/boundary=(.+)/),
-                  O.fromNullable,
-                  O.filter(
-                    (boundaryContentMatch) => boundaryContentMatch.length > 1
-                  ),
-                  O.filter((matches) =>
-                    rawData
-                      .replaceAll("\\r\\n", "")
-                      .endsWith("--" + matches[1] + "--")
-                  ),
-                  O.map((matches) => "--" + matches[1])
-                )
-            )
-          )
-        ),
-
-        O.map(({ boundary }) =>
-          pipe(
-            rawData,
-            S.split(boundary),
-            RA.filter((p) => p !== "" && p.includes("name")),
-            RA.map((p) =>
-              pipe(
-                p.replaceAll(/\\r\\n+/g, "\\r\\n"),
-                S.split("\\r\\n"),
-                RA.filter((q) => q !== "")
-              )
-            ),
-            RA.filterMap((p) =>
-              pipe(
-                p[0].match(/ name="(\w+)"/),
-                O.fromNullable,
-                O.filter((nameMatch) => nameMatch.length > 0),
-                O.map((nameMatch) => {
-                  const name = nameMatch[0]
-                    .replaceAll(/"/g, "")
-                    .split("=", 2)[1]
-                  return [name, p[0].includes("filename") ? "" : p[1]] as [
-                    string,
-                    string
-                  ]
-                })
-              )
-            ),
-            RA.toArray
-          )
-        ),
-
-        O.filter((arr) => arr.length > 0),
-        O.map(tupleToRecord)
-      )
-    }
-
-    case "text/html": {
-      return pipe(rawData, formatHTML, O.of)
-    }
-
-    case "application/xml": {
-      return pipe(
-        rawData,
-        prettifyXml,
-        O.alt(() => O.some(rawData))
-      )
-    }
-
-    case "text/plain":
-    default:
-      return O.some(rawData)
-  }
 }

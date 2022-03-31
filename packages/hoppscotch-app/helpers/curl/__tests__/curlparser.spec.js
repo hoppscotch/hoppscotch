@@ -726,6 +726,48 @@ const samples = [
       testScript: "",
     }),
   },
+  {
+    command: `curl google.com -u userx`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://google.com/",
+      auth: {
+        authType: "basic",
+        authActive: true,
+        username: "userx",
+        password: "",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl google.com -H "Authorization"`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://google.com/",
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
 ]
 
 describe("parseCurlToHoppRESTReq", () => {

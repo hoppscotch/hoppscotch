@@ -143,9 +143,11 @@ export const parseCurlCommand = (curlCommand: string) => {
       pipe(
         multipartUploads,
         O.of,
-        O.map((m) =>
-          pipe(
-            Object.entries(m).map(
+        O.map((m) => Object.entries(m)),
+        O.filter((m) => m.length > 0),
+        O.map(
+          flow(
+            A.map(
               ([key, value]) =>
                 <FormDataKeyValue>{
                   active: true,

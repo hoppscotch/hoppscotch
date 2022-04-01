@@ -225,6 +225,11 @@ export function useCodemirror(
           }
         }
       ),
+      EditorView.updateListener.of((update) => {
+        if (options.extendedEditorConfig.readOnly) {
+          update.view.contentDOM.inputMode = "none"
+        }
+      }),
       EditorState.changeFilter.of(() => !options.extendedEditorConfig.readOnly),
       placeholderConfig.of(
         placeholder(options.extendedEditorConfig.placeholder ?? "")

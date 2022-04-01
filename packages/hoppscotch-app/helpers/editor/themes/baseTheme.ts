@@ -3,6 +3,8 @@ import {
   keymap,
   highlightSpecialChars,
   highlightActiveLine,
+  drawSelection,
+  dropCursor,
 } from "@codemirror/view"
 import {
   HighlightStyle,
@@ -25,7 +27,10 @@ import {
 } from "@codemirror/search"
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
 import { commentKeymap } from "@codemirror/comment"
-import { rectangularSelection } from "@codemirror/rectangular-selection"
+import {
+  rectangularSelection,
+  // crosshairCursor,
+} from "@codemirror/rectangular-selection"
 import { lintKeymap } from "@codemirror/lint"
 
 export const baseTheme = EditorView.theme({
@@ -46,8 +51,8 @@ export const baseTheme = EditorView.theme({
   ".cm-widgetBuffer": {
     position: "absolute",
   },
-  ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
-    backgroundColor: "var(--accent-color)",
+  ".cm-selectionBackground": {
+    backgroundColor: "var(--accent-dark-color)",
     color: "var(--accent-contrast-color)",
   },
   ".cm-panels": {
@@ -83,14 +88,20 @@ export const baseTheme = EditorView.theme({
     backgroundImage: "none",
     border: "none",
   },
+  ".cm-completionLabel": {
+    color: "var(--secondary-color)",
+  },
   ".cm-tooltip": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
     border: "none",
     borderRadius: "3px",
   },
-  ".cm-completionLabel": {
-    color: "var(--secondary-color)",
+  ".cm-tooltip-arrow:after": {
+    borderColor: "transparent !important",
+  },
+  ".cm-tooltip-arrow:before": {
+    borderColor: "transparent !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -167,8 +178,8 @@ export const inputTheme = EditorView.theme({
   ".cm-widgetBuffer": {
     position: "absolute",
   },
-  ".cm-selectionBackground, .cm-content ::selection, .cm-line ::selection": {
-    backgroundColor: "var(--accent-color)",
+  ".cm-selectionBackground": {
+    backgroundColor: "var(--accent-dark-color)",
     color: "var(--accent-contrast-color)",
   },
   ".cm-panels": {
@@ -204,6 +215,9 @@ export const inputTheme = EditorView.theme({
     backgroundImage: "none",
     border: "none",
   },
+  ".cm-completionLabel": {
+    color: "var(--secondary-color)",
+  },
   ".cm-tooltip": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
@@ -215,9 +229,6 @@ export const inputTheme = EditorView.theme({
   },
   ".cm-tooltip-arrow:before": {
     borderColor: "transparent !important",
-  },
-  ".cm-completionLabel": {
-    color: "var(--secondary-color)",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -355,6 +366,8 @@ export const basicSetup: Extension = [
     openText: "▾",
     closedText: "▸",
   }),
+  drawSelection(),
+  dropCursor(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
   defaultHighlightStyle.fallback,
@@ -362,9 +375,9 @@ export const basicSetup: Extension = [
   closeBrackets(),
   autocompletion(),
   rectangularSelection(),
+  // crosshairCursor(),
   highlightActiveLine(),
   highlightSelectionMatches(),
-  search(),
   keymap.of([
     ...closeBracketsKeymap,
     ...defaultKeymap,
@@ -375,4 +388,5 @@ export const basicSetup: Extension = [
     ...completionKeymap,
     ...lintKeymap,
   ]),
+  search(),
 ]

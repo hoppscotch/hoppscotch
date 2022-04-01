@@ -103,7 +103,6 @@ watch(myTeams, (teams) => {
   if (teams && !teamListFetched) {
     teamListFetched = true
     if (REMEMBERED_TEAM_ID.value && currentUser) {
-      selectedCollectionTab.value = "team-collections"
       const team = myTeams.value?.find((t) => t.id === REMEMBERED_TEAM_ID.value)
       if (team) updateSelectedTeam(team)
     }

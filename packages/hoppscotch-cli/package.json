@@ -35,21 +35,21 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@hoppscotch/data": "workspace:^0.4.0",
+    "@hoppscotch/data": "workspace:^0.4.1",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",
-    "@swc/core": "^1.2.160",
+    "@swc/core": "^1.2.162",
     "@types/axios": "^0.14.0",
     "@types/chalk": "^2.2.0",
     "@types/commander": "^2.12.2",
-    "esm": "^3.2.25",
-    "prettier": "^2.5.1",
-    "tsup": "^5.11.13",
-    "typescript": "^4.3.5",
     "axios": "^0.21.4",
     "chalk": "^4.1.1",
     "commander": "^8.0.0",
+    "esm": "^3.2.25",
     "fp-ts": "^2.11.3",
     "lodash": "^4.17.21",
-    "qs": "^6.10.3"
+    "prettier": "^2.6.1",
+    "qs": "^6.10.3",
+    "tsup": "^5.12.2",
+    "typescript": "^4.6.3"
   }
 }

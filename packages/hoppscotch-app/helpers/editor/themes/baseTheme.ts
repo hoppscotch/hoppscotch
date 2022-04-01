@@ -88,14 +88,20 @@ export const baseTheme = EditorView.theme({
     backgroundImage: "none",
     border: "none",
   },
+  ".cm-completionLabel": {
+    color: "var(--secondary-color)",
+  },
   ".cm-tooltip": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
     border: "none",
     borderRadius: "3px",
   },
-  ".cm-completionLabel": {
-    color: "var(--secondary-color)",
+  ".cm-tooltip-arrow:after": {
+    borderColor: "transparent !important",
+  },
+  ".cm-tooltip-arrow:before": {
+    borderColor: "transparent !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -209,6 +215,9 @@ export const inputTheme = EditorView.theme({
     backgroundImage: "none",
     border: "none",
   },
+  ".cm-completionLabel": {
+    color: "var(--secondary-color)",
+  },
   ".cm-tooltip": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
@@ -220,9 +229,6 @@ export const inputTheme = EditorView.theme({
   },
   ".cm-tooltip-arrow:before": {
     borderColor: "transparent !important",
-  },
-  ".cm-completionLabel": {
-    color: "var(--secondary-color)",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",

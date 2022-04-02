@@ -147,6 +147,17 @@
       @hide-modal="confirmRemove = false"
       @resolve="removeRequest"
     />
+    <HttpApiChangeConfirmModal
+      :show="confirmApiChange"
+      @hide-modal="confirmApiChange = false"
+      @save-change="saveRequestChange"
+      @discard-change="discardRequestChange"
+    />
+    <CollectionsSaveRequest
+      mode="rest"
+      :show="showSaveRequestModal"
+      @hide-modal="showSaveRequestModal = false"
+    />
   </div>
 </template>
 
@@ -156,13 +167,21 @@ import {
   safelyExtractRESTRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
+import isEqual from "lodash/isEqual"
+import * as E from "fp-ts/Either"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   getDefaultRESTRequest,
+  getRESTRequest,
+  restRequest$,
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
+  getRESTSaveContext,
 } from "~/newstore/RESTSession"
+import { editRESTRequest } from "~/newstore/collections"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 
 export default defineComponent({
   props: {
@@ -180,8 +199,13 @@ export default defineComponent({
   },
   setup() {
     const active = useReadonlyStream(restSaveContext$, null)
+    const currentFullRequest = useReadonlyStream(restRequest$, getRESTRequest())
+    const saveCtx = getRESTSaveContext()
+
     return {
       active,
+      currentFullRequest,
+      saveCtx,
       tippyActions: ref<any | null>(null),
       options: ref<any | null>(null),
       edit: ref<any | null>(null),
@@ -200,6 +224,8 @@ export default defineComponent({
         default: "text-gray-500",
       },
       confirmRemove: false,
+      confirmApiChange: false,
+      showSaveRequestModal: false,
     }
   },
   computed: {
@@ -214,38 +240,59 @@ export default defineComponent({
   },
   methods: {
     selectRequest() {
-      if (
-        this.active &&
-        this.active.originLocation === "user-collection" &&
-        this.active.folderPath === this.folderPath &&
-        this.active.requestIndex === this.requestIndex
-      ) {
-        setRESTSaveContext(null)
-        return
-      }
-      if (this.$props.saveRequest)
-        this.$emit("select", {
-          picked: {
-            pickedType: "my-request",
-            collectionIndex: this.collectionIndex,
-            folderPath: this.folderPath,
-            folderName: this.folderName,
-            requestIndex: this.requestIndex,
-          },
+      // checks if current request and clicked request is same
+      if (!isEqual(this.request, this.currentFullRequest)) {
+        this.confirmApiChange = true
+      } else {
+        if (
+          this.active &&
+          this.active.originLocation === "user-collection" &&
+          this.active.folderPath === this.folderPath &&
+          this.active.requestIndex === this.requestIndex
+        ) {
+          setRESTSaveContext(null)
+          return
+        }
+        if (this.$props.saveRequest) {
+          this.$emit("select", {
+            picked: {
+              pickedType: "my-request",
+              collectionIndex: this.collectionIndex,
+              folderPath: this.folderPath,
+              folderName: this.folderName,
+              requestIndex: this.requestIndex,
+            },
+          })
+        }
+        setRESTSaveContext({
+          originLocation: "user-collection",
+          folderPath: this.folderPath,
+          requestIndex: this.requestIndex,
         })
-      else {
-        setRESTRequest(
-          safelyExtractRESTRequest(
-            translateToNewRequest(this.request),
-            getDefaultRESTRequest()
-          ),
-          {
-            originLocation: "user-collection",
-            folderPath: this.folderPath,
-            requestIndex: this.requestIndex,
-          }
-        )
       }
+      // else if (
+      //   this.active &&
+      //   this.active.originLocation === "user-collection" &&
+      //   this.active.folderPath === this.folderPath &&
+      //   this.active.requestIndex === this.requestIndex
+      // ) {
+      //   setRESTSaveContext(null)
+      // } else if (this.$props.saveRequest) {
+      //   this.$emit("select", {
+      //     picked: {
+      //       pickedType: "my-request",
+      //       collectionIndex: this.collectionIndex,
+      //       folderPath: this.folderPath,
+      //       folderName: this.folderName,
+      //       requestIndex: this.requestIndex,
+      //     },
+      //   })
+      //   setRESTSaveContext({
+      //     originLocation: "user-collection",
+      //     folderPath: this.folderPath,
+      //     requestIndex: this.requestIndex,
+      //   })
+      // }
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
@@ -265,6 +312,102 @@ export default defineComponent({
         this.requestMethodLabels[method.toLowerCase()] ||
         this.requestMethodLabels.default
       )
+    },
+    // save-request
+    saveCurrentRequest() {
+      console.log("context", this.saveCtx, this.active)
+
+      if (!this.active) {
+        this.showSaveRequestModal = true
+        return
+      }
+      if (this.active.originLocation === "user-collection") {
+        try {
+          editRESTRequest(
+            this.active.folderPath,
+            this.active.requestIndex,
+            getRESTRequest()
+          )
+          this.$toast.success(this.t("request.saved"))
+        } catch (e) {
+          setRESTSaveContext(null)
+          // this.saveCurrentRequest()
+        }
+      } else if (this.active.originLocation === "team-collection") {
+        const req = getRESTRequest()
+
+        // TODO: handle error case (NOTE: overwriteRequestTeams is async)
+        try {
+          runMutation(UpdateRequestDocument, {
+            requestID: this.active.requestID,
+            data: {
+              title: req.name,
+              request: JSON.stringify(req),
+            },
+          })().then((result) => {
+            if (E.isLeft(result)) {
+              this.$toast.error(this.$t("profile.no_permission"))
+            } else {
+              this.$toast.success(this.$t("request.saved"))
+            }
+          })
+        } catch (error) {
+          this.showSaveRequestModal = true
+          this.$toast.error(this.$t("error.something_went_wrong"))
+          console.error(error)
+        }
+      }
+    },
+    saveRequestChange() {
+      this.saveCurrentRequest()
+      setRESTRequest(
+        safelyExtractRESTRequest(
+          translateToNewRequest(this.request),
+          getDefaultRESTRequest()
+        ),
+        {
+          originLocation: "user-collection",
+          folderPath: this.folderPath,
+          requestIndex: this.requestIndex,
+        }
+      )
+      this.confirmApiChange = false
+    },
+    discardRequestChange() {
+      console.log(
+        "donot=save-context",
+        this.saveCtx,
+        this.active,
+        this.$props.saveRequest
+      )
+
+      setRESTRequest(
+        safelyExtractRESTRequest(
+          translateToNewRequest(this.request),
+          getDefaultRESTRequest()
+        ),
+        {
+          originLocation: "user-collection",
+          folderPath: this.folderPath,
+          requestIndex: this.requestIndex,
+        }
+      )
+      if (this.$props.saveRequest)
+        this.$emit("select", {
+          picked: {
+            pickedType: "my-request",
+            collectionIndex: this.collectionIndex,
+            folderPath: this.folderPath,
+            folderName: this.folderName,
+            requestIndex: this.requestIndex,
+          },
+        })
+      setRESTSaveContext({
+        originLocation: "user-collection",
+        folderPath: this.folderPath,
+        requestIndex: this.requestIndex,
+      })
+      this.confirmApiChange = false
     },
   },
 })

@@ -70,7 +70,7 @@ import { onLoggedIn } from "~/helpers/fb/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-import { useSetting } from "~/newstore/settings"
+import { useLocalState } from "~/newstore/localstate"
 
 type TeamData = GetMyTeamsQuery["myTeams"][number]
 
@@ -96,14 +96,14 @@ const currentUser = useReadonlyStream(currentUserInfo$, null)
 
 const adapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(adapter.teamList$, null)
-const REMEMBERED_TEAM_ID = useSetting("REMEMBERED_TEAM_ID")
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 let teamListFetched = false
 
 watch(myTeams, (teams) => {
   if (teams && !teamListFetched) {
     teamListFetched = true
     if (REMEMBERED_TEAM_ID.value && currentUser) {
-      const team = myTeams.value?.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+      const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
       if (team) updateSelectedTeam(team)
     }
   }

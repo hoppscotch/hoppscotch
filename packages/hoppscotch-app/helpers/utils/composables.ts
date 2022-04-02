@@ -1,6 +1,5 @@
 import {
   customRef,
-  DeepReadonly,
   onBeforeUnmount,
   readonly,
   Ref,
@@ -17,7 +16,7 @@ export const useNuxt = wrapProperty("$nuxt")
 export function useReadonlyStream<T>(
   stream$: Observable<T>,
   initialValue: T
-): Ref<DeepReadonly<T>> {
+): Ref<T> {
   let sub: Subscription | null = null
 
   onBeforeUnmount(() => {
@@ -32,7 +31,7 @@ export function useReadonlyStream<T>(
     targetRef.value = value
   })
 
-  return readonly(targetRef)
+  return readonly(targetRef) as Ref<T>
 }
 
 export function useStream<T>(

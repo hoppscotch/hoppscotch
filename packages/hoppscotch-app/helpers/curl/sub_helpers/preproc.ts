@@ -1,6 +1,7 @@
 import { pipe, flow } from "fp-ts/function"
 import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
 
 const replaceables: { [key: string]: string } = {
   "--request": "-X",
@@ -24,6 +25,10 @@ const paperCuts = flow(
   S.replace(/\$"/g, '"')
 )
 
+// replace --zargs option with -Z
+const replaceLongOptions = (curlCmd: string) =>
+  pipe(Object.keys(replaceables), A.reduce(curlCmd, replaceFunction))
+
 const replaceFunction = (curlCmd: string, r: string) =>
   pipe(
     curlCmd,
@@ -41,8 +46,17 @@ const replaceFunction = (curlCmd: string, r: string) =>
     O.getOrElse(() => "")
   )
 
+// yargs parses -XPOST as separate arguments. just prescreen for it.
+const prescreenXArgs = flow(
+  S.replace(
+    / -X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE)/,
+    " -X $1"
+  ),
+  S.trim
+)
+
 /**
- * Sanitizes curl string
+ * Sanitizes and makes curl string processable
  * @param curlCommand Raw curl command string
  * @returns Processed curl command string
  */
@@ -50,23 +64,6 @@ export const preProcessCurlCommand = (curlCommand: string) =>
   pipe(
     curlCommand,
     O.fromPredicate((curlCmd) => curlCmd.length > 0),
-    O.map(
-      flow(
-        paperCuts,
-        // replace string for insomnia
-        (curlCmd) => {
-          Object.keys(replaceables).map(
-            (r) => (curlCmd = replaceFunction(curlCmd, r))
-          )
-          return curlCmd
-        },
-        // yargs parses -XPOST as separate arguments. just prescreen for it.
-        S.replace(
-          / -X(GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE)/,
-          " -X $1"
-        ),
-        S.trim
-      )
-    ),
+    O.map(flow(paperCuts, replaceLongOptions, prescreenXArgs)),
     O.getOrElse(() => "")
   )

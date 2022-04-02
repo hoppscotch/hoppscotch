@@ -6,16 +6,18 @@ import { pipe, flow } from "fp-ts/function"
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
 
-const contentTypeIs =
-  (cType: HoppRESTReqBody["contentType"]) => (input: O.Option<unknown>) =>
-    pipe(
-      input,
-      O.match(
-        () => null,
-        () => cType
-      ),
-      O.fromNullable
+/**
+ * Converts the truthy value to content type
+ * @param cType Content-Type
+ * @returns Option of content type
+ */
+const contentTypeIs = (cType: HoppRESTReqBody["contentType"]) =>
+  flow(
+    O.fold(
+      () => O.none,
+      () => O.some(cType)
     )
+  )
 
 const isJSON = flow(safeParseJSON, contentTypeIs("application/json"))
 
@@ -65,20 +67,31 @@ export const detectContentType = (
     O.alt(() => isXML(rawData)),
     O.alt(() => isHTML(rawData)),
     O.alt(() => isXWWWFormUrlEncoded(rawData)),
-    O.getOrElse(() =>
+    O.getOrElse((): HoppRESTReqBody["contentType"] =>
       pipe(
         rawData,
         O.fromPredicate((rd) => !!rd),
         O.match(
           () => null,
           () => "text/plain"
-        ),
-        (ct) => ct as HoppRESTReqBody["contentType"]
+        )
       )
     )
   )
 
 const multipartFunctions = {
+  getBoundary(rawData: string, rawContentType: string | undefined) {
+    return pipe(
+      rawContentType,
+      O.fromNullable,
+      O.filter((rct) => rct.length > 0),
+      O.match(
+        () => this.getBoundaryFromRawData(rawData),
+        (rct) => this.getBoundaryFromRawContentType(rawData, rct)
+      )
+    )
+  },
+
   getBoundaryFromRawData(rawData: string) {
     return pipe(
       rawData.match(/(-{2,}[A-Za-z0-9]+)\\r\\n/g),
@@ -140,24 +153,10 @@ const multipartFunctions = {
   },
 }
 
-const getFormDataBody = (rawData: string, rawContentType?: string) =>
+const getFormDataBody = (rawData: string, rawContentType: string | undefined) =>
   pipe(
-    O.Do,
-
-    O.bind("boundary", () =>
-      pipe(
-        rawContentType,
-        O.fromNullable,
-        O.filter((rct) => rct.length > 0),
-        O.match(
-          () => multipartFunctions.getBoundaryFromRawData(rawData),
-          (rct) =>
-            multipartFunctions.getBoundaryFromRawContentType(rawData, rct)
-        )
-      )
-    ),
-
-    O.map(({ boundary }) =>
+    multipartFunctions.getBoundary(rawData, rawContentType),
+    O.map((boundary) =>
       pipe(
         multipartFunctions.splitUsingBoundaryAndNewLines(rawData, boundary),
         RA.filterMap((p) => multipartFunctions.getNameValuePair(p)),
@@ -169,7 +168,7 @@ const getFormDataBody = (rawData: string, rawContentType?: string) =>
     O.map(tupleToRecord)
   )
 
-const getHTMLBody = (rawData: string) => pipe(rawData, formatHTML, O.of)
+const getHTMLBody = flow(formatHTML, O.of)
 
 const getXMLBody = (rawData: string) =>
   pipe(
@@ -238,8 +237,8 @@ export function parseBody(
  * @param sourceXml The string to format
  * @returns Indented XML string (uses spaces)
  */
-const prettifyXml = (sourceXml: string) =>
-  pipe(
+function prettifyXml(sourceXml: string) {
+  return pipe(
     O.tryCatch(() => {
       const xmlDoc = new DOMParser().parseFromString(
         sourceXml,
@@ -275,13 +274,14 @@ const prettifyXml = (sourceXml: string) =>
       return resultXml
     })
   )
+}
 
 /**
  * Prettifies HTML string
  * @param htmlString The string to format
  * @returns Indented HTML string (uses spaces)
  */
-const formatHTML = (htmlString: string) => {
+function formatHTML(htmlString: string) {
   const tab = "  "
   let result = ""
   let indent = ""

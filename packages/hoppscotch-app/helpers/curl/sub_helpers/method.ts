@@ -10,14 +10,28 @@ import {
 
 const defaultRESTReq = getDefaultRESTRequest()
 
-const getMethodFromXArg = (xarg: string) =>
+const getMethodFromXArg = (parsedArguments: parser.Arguments) =>
   pipe(
-    xarg.match(/GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE/i),
-    O.fromNullable,
-    O.alt(() => O.fromNullable(xarg.match(/[a-zA-Z]+/)))
+    parsedArguments,
+    O.fromPredicate(objHasProperty("X", "string")),
+    O.map((args) => args.X.trim()),
+    O.chain((xarg) =>
+      pipe(
+        O.fromNullable(
+          xarg.match(/GET|POST|PUT|PATCH|DELETE|HEAD|CONNECT|OPTIONS|TRACE/i)
+        ),
+        O.alt(() => O.fromNullable(xarg.match(/[a-zA-Z]+/)))
+      )
+    ),
+    O.map((method) => method[0])
   )
 
-const isMethod = (X: string) =>
+/**
+ * Converts the truthy value to method string
+ * @param X Method string
+ * @returns Option of method string
+ */
+const methodIs = (X: string) =>
   O.fold(
     () => O.none,
     () => O.some(X)
@@ -40,7 +54,7 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) =>
       objHasProperty("T", "string"),
       objHasProperty("upload-file", "string")
     ),
-    isMethod("put"),
+    methodIs("put"),
     O.alt(() =>
       pipe(
         parsedArguments,
@@ -48,14 +62,14 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) =>
           objHasProperty("I", "boolean"),
           objHasProperty("head", "boolean")
         ),
-        isMethod("head")
+        methodIs("head")
       )
     ),
     O.alt(() =>
       pipe(
         parsedArguments,
         checkArgument(objHasProperty("G", "boolean")),
-        isMethod("get")
+        methodIs("get")
       )
     ),
     O.alt(() =>
@@ -67,7 +81,7 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) =>
           objHasProperty("F", "string"),
           objHasArrayProperty("F", "string")
         ),
-        isMethod("post")
+        methodIs("post")
       )
     )
   )
@@ -80,11 +94,7 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) =>
  */
 export const getMethod = (parsedArguments: parser.Arguments): string =>
   pipe(
-    parsedArguments,
-    O.fromPredicate(objHasProperty("X", "string")),
-    O.map((args) => args.X.trim()),
-    O.chain(getMethodFromXArg),
-    O.map((method) => method[0]),
+    getMethodFromXArg(parsedArguments),
     O.alt(() => getMethodByDeduction(parsedArguments)),
     O.getOrElse(() => defaultRESTReq.method)
   )

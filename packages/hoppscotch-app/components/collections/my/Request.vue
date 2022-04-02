@@ -237,19 +237,22 @@ export default defineComponent({
         this.picked.requestIndex === this.requestIndex
       )
     },
+    isActive(): boolean {
+      return (
+        this.active &&
+        this.active.originLocation === "user-collection" &&
+        this.active.folderPath === this.folderPath &&
+        this.active.requestIndex === this.requestIndex
+      )
+    },
   },
   methods: {
     selectRequest() {
-      // checks if current request and clicked request is same
+      // Checks if current request and clicked request are not the same
       if (!isEqual(this.request, this.currentFullRequest)) {
         this.confirmApiChange = true
       } else {
-        if (
-          this.active &&
-          this.active.originLocation === "user-collection" &&
-          this.active.folderPath === this.folderPath &&
-          this.active.requestIndex === this.requestIndex
-        ) {
+        if (this.isActive) {
           setRESTSaveContext(null)
           return
         }
@@ -270,35 +273,14 @@ export default defineComponent({
           requestIndex: this.requestIndex,
         })
       }
-      // else if (
-      //   this.active &&
-      //   this.active.originLocation === "user-collection" &&
-      //   this.active.folderPath === this.folderPath &&
-      //   this.active.requestIndex === this.requestIndex
-      // ) {
-      //   setRESTSaveContext(null)
-      // } else if (this.$props.saveRequest) {
-      //   this.$emit("select", {
-      //     picked: {
-      //       pickedType: "my-request",
-      //       collectionIndex: this.collectionIndex,
-      //       folderPath: this.folderPath,
-      //       folderName: this.folderName,
-      //       requestIndex: this.requestIndex,
-      //     },
-      //   })
-      //   setRESTSaveContext({
-      //     originLocation: "user-collection",
-      //     folderPath: this.folderPath,
-      //     requestIndex: this.requestIndex,
-      //   })
-      // }
     },
+
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging
       dataTransfer.setData("folderPath", this.folderPath)
       dataTransfer.setData("requestIndex", this.requestIndex)
     },
+
     removeRequest() {
       this.$emit("remove-request", {
         collectionIndex: this.$props.collectionIndex,
@@ -307,16 +289,15 @@ export default defineComponent({
         requestIndex: this.$props.requestIndex,
       })
     },
+
     getRequestLabelColor(method: string): string {
       return (
         this.requestMethodLabels[method.toLowerCase()] ||
         this.requestMethodLabels.default
       )
     },
-    // save-request
-    saveCurrentRequest() {
-      console.log("context", this.saveCtx, this.active)
 
+    saveCurrentRequest() {
       if (!this.active) {
         this.showSaveRequestModal = true
         return
@@ -358,6 +339,8 @@ export default defineComponent({
         }
       }
     },
+
+    // Save current request to the collection
     saveRequestChange() {
       this.saveCurrentRequest()
       setRESTRequest(
@@ -373,14 +356,9 @@ export default defineComponent({
       )
       this.confirmApiChange = false
     },
-    discardRequestChange() {
-      console.log(
-        "donot=save-context",
-        this.saveCtx,
-        this.active,
-        this.$props.saveRequest
-      )
 
+    // Discard changes but change context
+    discardRequestChange() {
       setRESTRequest(
         safelyExtractRESTRequest(
           translateToNewRequest(this.request),

@@ -1,7 +1,7 @@
 import parser from "yargs-parser"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import * as A from "fp-ts/Array"
+import * as R from "fp-ts/Refinement"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 import {
   objHasProperty,
@@ -26,65 +26,33 @@ const getMethodFromXArg = (parsedArguments: parser.Arguments) =>
     O.map((method) => method[0])
   )
 
-/**
- * Converts the truthy value to method string
- * @param X Method string
- * @returns Option of method string
- */
-const methodIs = (X: string) =>
-  O.fold(
-    () => O.none,
-    () => O.some(X)
-  )
-
-const checkArgument =
-  (...p: Array<(obj: object) => boolean>) =>
-  (parsedArguments: parser.Arguments) =>
+const getMethodByDeduction = (parsedArguments: parser.Arguments) => {
+  if (
     pipe(
-      p,
-      A.map((pred) => O.fromPredicate(() => pred(parsedArguments))),
-      A.filterMap((pred) => pred(parsedArguments)),
-      O.fromPredicate((preds) => preds.length > 0)
-    )
-
-const getMethodByDeduction = (parsedArguments: parser.Arguments) =>
-  pipe(
-    parsedArguments,
-    checkArgument(
       objHasProperty("T", "string"),
-      objHasProperty("upload-file", "string")
-    ),
-    methodIs("put"),
-    O.alt(() =>
-      pipe(
-        parsedArguments,
-        checkArgument(
-          objHasProperty("I", "boolean"),
-          objHasProperty("head", "boolean")
-        ),
-        methodIs("head")
-      )
-    ),
-    O.alt(() =>
-      pipe(
-        parsedArguments,
-        checkArgument(objHasProperty("G", "boolean")),
-        methodIs("get")
-      )
-    ),
-    O.alt(() =>
-      pipe(
-        parsedArguments,
-        checkArgument(
-          objHasProperty("d", "string"),
-          objHasArrayProperty("d", "string"),
-          objHasProperty("F", "string"),
-          objHasArrayProperty("F", "string")
-        ),
-        methodIs("post")
-      )
-    )
+      R.or(objHasProperty("upload-file", "string"))
+    )(parsedArguments)
   )
+    return O.some("put")
+  else if (
+    pipe(
+      objHasProperty("I", "boolean"),
+      R.or(objHasProperty("head", "boolean"))
+    )(parsedArguments)
+  )
+    return O.some("head")
+  else if (objHasProperty("G", "boolean")(parsedArguments)) return O.some("get")
+  else if (
+    pipe(
+      objHasProperty("d", "string"),
+      R.or(objHasArrayProperty("d", "string")),
+      R.or(objHasProperty("F", "string")),
+      R.or(objHasArrayProperty("F", "string"))
+    )(parsedArguments)
+  )
+    return O.some("post")
+  else return O.none
+}
 
 /**
  * Get method type from X argument in curl string or

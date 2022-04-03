@@ -32,15 +32,10 @@
           {{ request.name }}
         </span>
         <span
-          v-if="
-            active &&
-            active.originLocation === 'user-collection' &&
-            active.folderPath === folderPath &&
-            active.requestIndex === requestIndex
-          "
+          v-if="isActive"
           v-tippy="{ theme: 'tooltip' }"
           class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
-          :title="`${$t('collection.request_in_use')}`"
+          :title="`${t('collection.request_in_use')}`"
         >
           <span
             class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
@@ -56,7 +51,7 @@
           v-if="!saveRequest && !doc"
           v-tippy="{ theme: 'tooltip' }"
           svg="rotate-ccw"
-          :title="$t('action.restore')"
+          :title="t('action.restore')"
           class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
         />
@@ -72,7 +67,7 @@
             <template #trigger>
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.more')"
+                :title="t('action.more')"
                 svg="more-vertical"
               />
             </template>
@@ -89,7 +84,7 @@
               <SmartItem
                 ref="edit"
                 svg="edit"
-                :label="$t('action.edit')"
+                :label="t('action.edit')"
                 :shortcut="['E']"
                 @click.native="
                   () => {
@@ -127,7 +122,7 @@
               <SmartItem
                 ref="deleteAction"
                 svg="trash-2"
-                :label="$t('action.delete')"
+                :label="t('action.delete')"
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
@@ -143,7 +138,7 @@
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="$t('confirm.remove_request')"
+      :title="t('confirm.remove_request')"
       @hide-modal="confirmRemove = false"
       @resolve="removeRequest"
     />
@@ -161,19 +156,22 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, computed } from "@nuxtjs/composition-api"
 import {
   safelyExtractRESTRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
 import * as E from "fp-ts/Either"
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import {
+  useI18n,
+  useToast,
+  useReadonlyStream,
+} from "~/helpers/utils/composables"
 import {
   getDefaultRESTRequest,
   getRESTRequest,
-  restRequest$,
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
@@ -183,210 +181,474 @@ import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 
-export default defineComponent({
-  props: {
-    request: { type: Object, default: () => {} },
-    collectionIndex: { type: Number, default: null },
-    folderIndex: { type: Number, default: null },
-    folderName: { type: String, default: null },
-    // eslint-disable-next-line vue/require-default-prop
-    requestIndex: [Number, String],
-    doc: Boolean,
-    saveRequest: Boolean,
-    collectionsType: { type: Object, default: () => {} },
-    folderPath: { type: String, default: null },
-    picked: { type: Object, default: () => {} },
-  },
-  setup() {
-    const active = useReadonlyStream(restSaveContext$, null)
-    const currentFullRequest = useReadonlyStream(restRequest$, getRESTRequest())
-    const saveCtx = getRESTSaveContext()
+const props = defineProps<{
+  request: object
+  collectionIndex: number
+  folderIndex: number
+  folderName: string
+  // eslint-disable-next-line vue/require-default-prop
+  requestIndex: number
+  doc: boolean
+  saveRequest: boolean
+  collectionsType: object
+  folderPath: string
+  picked?: {
+    pickedType: string
+    collectionIndex: number
+    folderPath: string
+    folderName: string
+    requestIndex: number
+  }
+}>()
 
-    return {
-      active,
-      currentFullRequest,
-      saveCtx,
-      tippyActions: ref<any | null>(null),
-      options: ref<any | null>(null),
-      edit: ref<any | null>(null),
-      duplicate: ref<any | null>(null),
-      deleteAction: ref<any | null>(null),
-    }
-  },
-  data() {
-    return {
-      dragging: false,
-      requestMethodLabels: {
-        get: "text-green-500",
-        post: "text-yellow-500",
-        put: "text-blue-500",
-        delete: "text-red-500",
-        default: "text-gray-500",
-      },
-      confirmRemove: false,
-      confirmApiChange: false,
-      showSaveRequestModal: false,
-    }
-  },
-  computed: {
-    isSelected(): boolean {
-      return (
-        this.picked &&
-        this.picked.pickedType === "my-request" &&
-        this.picked.folderPath === this.folderPath &&
-        this.picked.requestIndex === this.requestIndex
-      )
-    },
-    isActive(): boolean {
-      return (
-        this.active &&
-        this.active.originLocation === "user-collection" &&
-        this.active.folderPath === this.folderPath &&
-        this.active.requestIndex === this.requestIndex
-      )
-    },
-  },
-  methods: {
-    selectRequest() {
-      // Checks if current request and clicked request are not the same
-      if (!isEqual(this.request, this.currentFullRequest)) {
-        this.confirmApiChange = true
-      } else {
-        if (this.isActive) {
-          setRESTSaveContext(null)
-          return
-        }
-        if (this.$props.saveRequest) {
-          this.$emit("select", {
-            picked: {
-              pickedType: "my-request",
-              collectionIndex: this.collectionIndex,
-              folderPath: this.folderPath,
-              folderName: this.folderName,
-              requestIndex: this.requestIndex,
-            },
-          })
-        }
-        setRESTSaveContext({
-          originLocation: "user-collection",
-          folderPath: this.folderPath,
-          requestIndex: this.requestIndex,
-        })
-      }
-    },
-
-    dragStart({ dataTransfer }) {
-      this.dragging = !this.dragging
-      dataTransfer.setData("folderPath", this.folderPath)
-      dataTransfer.setData("requestIndex", this.requestIndex)
-    },
-
-    removeRequest() {
-      this.$emit("remove-request", {
-        collectionIndex: this.$props.collectionIndex,
-        folderName: this.$props.folderName,
-        folderPath: this.folderPath,
-        requestIndex: this.$props.requestIndex,
-      })
-    },
-
-    getRequestLabelColor(method: string): string {
-      return (
-        this.requestMethodLabels[method.toLowerCase()] ||
-        this.requestMethodLabels.default
-      )
-    },
-
-    saveCurrentRequest() {
-      if (!this.active) {
-        this.showSaveRequestModal = true
-        return
-      }
-      if (this.active.originLocation === "user-collection") {
-        try {
-          editRESTRequest(
-            this.active.folderPath,
-            this.active.requestIndex,
-            getRESTRequest()
-          )
-          this.$toast.success(this.t("request.saved"))
-        } catch (e) {
-          setRESTSaveContext(null)
-          // this.saveCurrentRequest()
-        }
-      } else if (this.active.originLocation === "team-collection") {
-        const req = getRESTRequest()
-
-        // TODO: handle error case (NOTE: overwriteRequestTeams is async)
-        try {
-          runMutation(UpdateRequestDocument, {
-            requestID: this.active.requestID,
-            data: {
-              title: req.name,
-              request: JSON.stringify(req),
-            },
-          })().then((result) => {
-            if (E.isLeft(result)) {
-              this.$toast.error(this.$t("profile.no_permission"))
-            } else {
-              this.$toast.success(this.$t("request.saved"))
-            }
-          })
-        } catch (error) {
-          this.showSaveRequestModal = true
-          this.$toast.error(this.$t("error.something_went_wrong"))
-          console.error(error)
-        }
-      }
-    },
-
-    // Save current request to the collection
-    saveRequestChange() {
-      this.saveCurrentRequest()
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(this.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "user-collection",
-          folderPath: this.folderPath,
-          requestIndex: this.requestIndex,
-        }
-      )
-      this.confirmApiChange = false
-    },
-
-    // Discard changes but change context
-    discardRequestChange() {
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(this.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "user-collection",
-          folderPath: this.folderPath,
-          requestIndex: this.requestIndex,
-        }
-      )
-      if (this.$props.saveRequest)
-        this.$emit("select", {
+const emit = defineEmits<{
+  (
+    e: "select",
+    data:
+      | {
           picked: {
-            pickedType: "my-request",
-            collectionIndex: this.collectionIndex,
-            folderPath: this.folderPath,
-            folderName: this.folderName,
-            requestIndex: this.requestIndex,
-          },
-        })
-      setRESTSaveContext({
-        originLocation: "user-collection",
-        folderPath: this.folderPath,
-        requestIndex: this.requestIndex,
-      })
-      this.confirmApiChange = false
-    },
-  },
+            pickedType: string
+            collectionIndex: number
+            folderPath: string
+            folderName: string
+            requestIndex: number
+          }
+        }
+      | undefined
+  ): void
+
+  (
+    e: "remove-request",
+    data: {
+      collectionIndex: number
+      folderName: string
+      folderPath: string
+      requestIndex: number
+    }
+  ): void
+}>()
+
+const t = useI18n()
+const toast = useToast()
+
+const dragging = ref(false)
+const requestMethodLabels = {
+  get: "text-green-500",
+  post: "text-yellow-500",
+  put: "text-blue-500",
+  delete: "text-red-500",
+  default: "text-gray-500",
+}
+const confirmRemove = ref(false)
+const confirmApiChange = ref(false)
+const showSaveRequestModal = ref(false)
+
+const tippyActions = ref(null)
+const options = ref(null)
+const edit = ref(null)
+const duplicate = ref(null)
+const deleteAction = ref(null)
+
+const active = useReadonlyStream(restSaveContext$, null)
+
+const isSelected = computed(() => {
+  return (
+    props.picked &&
+    props.picked.pickedType === "my-request" &&
+    props.picked.folderPath === props.folderPath &&
+    props.picked.requestIndex === props.requestIndex
+  )
 })
+
+const isActive = computed(() => {
+  return (
+    active.value &&
+    active.value.originLocation === "user-collection" &&
+    active.value.folderPath === props.folderPath &&
+    active.value.requestIndex === props.requestIndex
+  )
+})
+
+const selectRequest = () => {
+  const currentFullRequest = getRESTRequest()
+
+  console.log(
+    "show",
+    active.value,
+    // props.request,
+    // props.folderIndex,
+    // props.folderName,
+    props.folderPath,
+    // props.collectionIndex,
+    props.requestIndex,
+    isEqual(props.request, currentFullRequest),
+    props.picked
+    // currentFullRequest
+  )
+
+  // Checks if current request and clicked request are not the same
+  // if (!isEqual(props.request, currentFullRequest))
+  if (isActive.value) {
+    setRESTSaveContext(null)
+
+    // if (props.saveRequest) {
+    //   emit("select", {
+    //     picked: {
+    //       pickedType: "my-request",
+    //       collectionIndex: props.collectionIndex,
+    //       folderPath: props.folderPath,
+    //       folderName: props.folderName,
+    //       requestIndex: props.requestIndex,
+    //     },
+    //   })
+    // }
+    // setRESTSaveContext({
+    //   originLocation: "user-collection",
+    //   folderPath: props.folderPath,
+    //   requestIndex: props.requestIndex,
+    // })
+  } else {
+    confirmApiChange.value = true
+  }
+}
+
+const dragStart = ({ dataTransfer }) => {
+  dragging.value = !dragging.value
+  dataTransfer.setData("folderPath", props.folderPath)
+  dataTransfer.setData("requestIndex", props.requestIndex)
+}
+
+const removeRequest = () => {
+  emit("remove-request", {
+    collectionIndex: props.collectionIndex,
+    folderName: props.folderName,
+    folderPath: props.folderPath,
+    requestIndex: props.requestIndex,
+  })
+}
+
+const getRequestLabelColor = (method: string) => {
+  return (
+    requestMethodLabels[method.toLowerCase()] || requestMethodLabels.default
+  )
+}
+
+const saveCurrentRequest = (saveCtx: {
+  originLocation: string
+  folderPath: string
+  requestIndex: number
+  requestID: number
+}) => {
+  if (!saveCtx) {
+    showSaveRequestModal.value = true
+    return
+  }
+  if (saveCtx.originLocation === "user-collection") {
+    try {
+      editRESTRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        getRESTRequest()
+      )
+      toast.success(t("request.saved"))
+    } catch (e) {
+      setRESTSaveContext(null)
+      saveCurrentRequest(saveCtx)
+    }
+  } else if (saveCtx.originLocation === "team-collection") {
+    const req = getRESTRequest()
+
+    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
+    try {
+      runMutation(UpdateRequestDocument, {
+        requestID: saveCtx.requestID,
+        data: {
+          title: req.name,
+          request: JSON.stringify(req),
+        },
+      })().then((result) => {
+        if (E.isLeft(result)) {
+          toast.error(t("profile.no_permission"))
+        } else {
+          toast.success(t("request.saved"))
+        }
+      })
+    } catch (error) {
+      showSaveRequestModal.value = true
+      toast.error(t("error.something_went_wrong"))
+      console.error(error)
+    }
+  }
+}
+
+// Save current request to the collection
+const saveRequestChange = () => {
+  const saveCtx = getRESTSaveContext()
+  saveCurrentRequest(saveCtx)
+
+  if (saveCtx) {
+    setRESTRequest(
+      safelyExtractRESTRequest(
+        translateToNewRequest(props.request),
+        getDefaultRESTRequest()
+      ),
+      {
+        originLocation: "user-collection",
+        folderPath: props.folderPath,
+        requestIndex: props.requestIndex,
+      }
+    )
+  }
+
+  confirmApiChange.value = false
+}
+
+// Discard changes but change context
+const discardRequestChange = () => {
+  setRESTRequest(
+    safelyExtractRESTRequest(
+      translateToNewRequest(props.request),
+      getDefaultRESTRequest()
+    ),
+    {
+      originLocation: "user-collection",
+      folderPath: props.folderPath,
+      requestIndex: props.requestIndex,
+    }
+  )
+  if (props.saveRequest)
+    emit("select", {
+      picked: {
+        pickedType: "my-request",
+        collectionIndex: props.collectionIndex,
+        folderPath: props.folderPath,
+        folderName: props.folderName,
+        requestIndex: props.requestIndex,
+      },
+    })
+  if (!isActive.value) {
+    setRESTSaveContext({
+      originLocation: "user-collection",
+      folderPath: props.folderPath,
+      requestIndex: props.requestIndex,
+    })
+  }
+  confirmApiChange.value = false
+}
+
+// export default defineComponent({
+//   props: {
+//     request: { type: Object, default: () => {} },
+//     collectionIndex: { type: Number, default: null },
+//     folderIndex: { type: Number, default: null },
+//     folderName: { type: String, default: null },
+//     // eslint-disable-next-line vue/require-default-prop
+//     requestIndex: [Number, String],
+//     doc: Boolean,
+//     saveRequest: Boolean,
+//     collectionsType: { type: Object, default: () => {} },
+//     folderPath: { type: String, default: null },
+//     picked: { type: Object, default: () => {} },
+//   },
+//   setup() {
+//     const active = useReadonlyStream(restSaveContext$, null)
+
+//     return {
+//       active,
+//       tippyActions: ref<any | null>(null),
+//       options: ref<any | null>(null),
+//       edit: ref<any | null>(null),
+//       duplicate: ref<any | null>(null),
+//       deleteAction: ref<any | null>(null),
+//     }
+//   },
+//   data() {
+//     return {
+//       dragging: false,
+//       requestMethodLabels: {
+//         get: "text-green-500",
+//         post: "text-yellow-500",
+//         put: "text-blue-500",
+//         delete: "text-red-500",
+//         default: "text-gray-500",
+//       },
+//       confirmRemove: false,
+//       confirmApiChange: false,
+//       showSaveRequestModal: false,
+//     }
+//   },
+//   computed: {
+//     isSelected(): boolean {
+//       return (
+//         this.picked &&
+//         this.picked.pickedType === "my-request" &&
+//         this.picked.folderPath === this.folderPath &&
+//         this.picked.requestIndex === this.requestIndex
+//       )
+//     },
+//     isActive(): boolean {
+//       return (
+//         this.active &&
+//         this.active.originLocation === "user-collection" &&
+//         this.active.folderPath === this.folderPath &&
+//         this.active.requestIndex === this.requestIndex
+//       )
+//     },
+//   },
+//   methods: {
+//     selectRequest() {
+//       console.log(
+//         "show",
+//         this.request,
+//         this.folderIndex,
+//         this.folderName,
+//         this.folderPath,
+//         this.collectionIndex,
+//         this.requestIndex
+//       )
+
+//       const currentFullRequest = getRESTRequest()
+
+//       // Checks if current request and clicked request are not the same
+//       if (!isEqual(this.request, currentFullRequest)) {
+//         this.confirmApiChange = true
+//       } else {
+//         if (this.isActive) {
+//           setRESTSaveContext(null)
+//           return
+//         }
+//         if (this.$props.saveRequest) {
+//           this.$emit("select", {
+//             picked: {
+//               pickedType: "my-request",
+//               collectionIndex: this.collectionIndex,
+//               folderPath: this.folderPath,
+//               folderName: this.folderName,
+//               requestIndex: this.requestIndex,
+//             },
+//           })
+//         }
+//         setRESTSaveContext({
+//           originLocation: "user-collection",
+//           folderPath: this.folderPath,
+//           requestIndex: this.requestIndex,
+//         })
+//       }
+//     },
+
+//     dragStart({ dataTransfer }) {
+//       this.dragging = !this.dragging
+//       dataTransfer.setData("folderPath", this.folderPath)
+//       dataTransfer.setData("requestIndex", this.requestIndex)
+//     },
+
+//     removeRequest() {
+//       this.$emit("remove-request", {
+//         collectionIndex: this.$props.collectionIndex,
+//         folderName: this.$props.folderName,
+//         folderPath: this.folderPath,
+//         requestIndex: this.$props.requestIndex,
+//       })
+//     },
+
+//     getRequestLabelColor(method: string): string {
+//       return (
+//         this.requestMethodLabels[method.toLowerCase()] ||
+//         this.requestMethodLabels.default
+//       )
+//     },
+
+//     saveCurrentRequest() {
+//       const saveCtx = getRESTSaveContext()
+//       if (!saveCtx) {
+//         this.showSaveRequestModal = true
+//         return
+//       }
+//       if (saveCtx.originLocation === "user-collection") {
+//         try {
+//           editRESTRequest(
+//             saveCtx.folderPath,
+//             saveCtx.requestIndex,
+//             getRESTRequest()
+//           )
+//           this.$toast.success(this.t("request.saved"))
+//         } catch (e) {
+//           setRESTSaveContext(null)
+//           // this.saveCurrentRequest()
+//         }
+//       } else if (saveCtx.originLocation === "team-collection") {
+//         const req = getRESTRequest()
+
+//         // TODO: handle error case (NOTE: overwriteRequestTeams is async)
+//         try {
+//           runMutation(UpdateRequestDocument, {
+//             requestID: saveCtx.requestID,
+//             data: {
+//               title: req.name,
+//               request: JSON.stringify(req),
+//             },
+//           })().then((result) => {
+//             if (E.isLeft(result)) {
+//               this.$toast.error(this.$t("profile.no_permission"))
+//             } else {
+//               this.$toast.success(this.$t("request.saved"))
+//             }
+//           })
+//         } catch (error) {
+//           this.showSaveRequestModal = true
+//           this.$toast.error(this.$t("error.something_went_wrong"))
+//           console.error(error)
+//         }
+//       }
+//     },
+
+//     // Save current request to the collection
+//     saveRequestChange() {
+//       this.saveCurrentRequest()
+//       setRESTRequest(
+//         safelyExtractRESTRequest(
+//           translateToNewRequest(this.request),
+//           getDefaultRESTRequest()
+//         ),
+//         {
+//           originLocation: "user-collection",
+//           folderPath: this.folderPath,
+//           requestIndex: this.requestIndex,
+//         }
+//       )
+//       this.confirmApiChange = false
+//     },
+
+//     // Discard changes but change context
+//     discardRequestChange() {
+//       setRESTRequest(
+//         safelyExtractRESTRequest(
+//           translateToNewRequest(this.request),
+//           getDefaultRESTRequest()
+//         ),
+//         {
+//           originLocation: "user-collection",
+//           folderPath: this.folderPath,
+//           requestIndex: this.requestIndex,
+//         }
+//       )
+//       if (this.$props.saveRequest)
+//         this.$emit("select", {
+//           picked: {
+//             pickedType: "my-request",
+//             collectionIndex: this.collectionIndex,
+//             folderPath: this.folderPath,
+//             folderName: this.folderName,
+//             requestIndex: this.requestIndex,
+//           },
+//         })
+//       setRESTSaveContext({
+//         originLocation: "user-collection",
+//         folderPath: this.folderPath,
+//         requestIndex: this.requestIndex,
+//       })
+//       this.confirmApiChange = false
+//     },
+//   },
+// })
 </script>

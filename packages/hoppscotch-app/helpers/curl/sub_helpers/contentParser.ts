@@ -5,35 +5,23 @@ import * as S from "fp-ts/string"
 import { pipe, flow } from "fp-ts/function"
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
+import { optionChoose } from "~/helpers/functional/option"
 
-/**
- * Converts the truthy value to content type
- * @param cType Content-Type
- * @returns Option of content type
- */
-const contentTypeIs = (cType: HoppRESTReqBody["contentType"]) =>
-  flow(
-    O.fold(
-      () => O.none,
-      () => O.some(cType)
-    )
-  )
-
-const isJSON = flow(safeParseJSON, contentTypeIs("application/json"))
+const isJSON = flow(safeParseJSON, O.isSome)
 
 const isXML = (rawData: string) =>
   pipe(
     rawData,
     O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
     O.chain(prettifyXml),
-    contentTypeIs("application/xml")
+    O.isSome
   )
 
 const isHTML = (rawData: string) =>
   pipe(
     rawData,
     O.fromPredicate(() => /<\/?[a-zA-Z][\s\S]*>/i.test(rawData)),
-    contentTypeIs("text/html")
+    O.isSome
   )
 
 const isFormData = (rawData: string) =>
@@ -41,14 +29,14 @@ const isFormData = (rawData: string) =>
     rawData.match(/^-{2,}[A-Za-z0-9]+\\r\\n/),
     O.fromNullable,
     O.filter((boundaryMatch) => boundaryMatch.length > 0),
-    contentTypeIs("multipart/form-data")
+    O.isSome
   )
 
 const isXWWWFormUrlEncoded = (rawData: string) =>
   pipe(
     rawData,
     O.fromPredicate((rd) => /([^&=]+)=([^&=]*)/.test(rd)),
-    contentTypeIs("application/x-www-form-urlencoded")
+    O.isSome
   )
 
 /**
@@ -61,22 +49,15 @@ export const detectContentType = (
 ): HoppRESTReqBody["contentType"] =>
   pipe(
     rawData,
-    O.of,
-    O.chain(isJSON),
-    O.alt(() => isFormData(rawData)),
-    O.alt(() => isXML(rawData)),
-    O.alt(() => isHTML(rawData)),
-    O.alt(() => isXWWWFormUrlEncoded(rawData)),
-    O.getOrElse((): HoppRESTReqBody["contentType"] =>
-      pipe(
-        rawData,
-        O.fromPredicate((rd) => !!rd),
-        O.match(
-          () => null,
-          () => "text/plain"
-        )
-      )
-    )
+    optionChoose([
+      [(rd) => !rd, null],
+      [isJSON, "application/json" as const],
+      [isFormData, "multipart/form-data" as const],
+      [isXML, "application/xml" as const],
+      [isHTML, "text/html" as const],
+      [isXWWWFormUrlEncoded, "application/x-www-form-urlencoded" as const],
+    ]),
+    O.getOrElseW(() => "text/plain" as const)
   )
 
 const multipartFunctions = {

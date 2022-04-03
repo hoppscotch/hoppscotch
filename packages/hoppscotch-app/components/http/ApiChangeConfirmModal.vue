@@ -12,14 +12,6 @@
           {{ t("confirm.confirm_api_change") }}
         </label>
       </div>
-      <!-- <div class="flex flex-1">
-        <button class="share-link" @click="copyUserAuthToken">
-          <SmartIcon class="w-4 h-4 text-xl" :name="copyIcon" />
-          <span>
-            {{ t("app.copy_user_id") }}
-          </span>
-        </button>
-      </div> -->
     </template>
     <template #footer>
       <span>
@@ -32,17 +24,13 @@
           :label="t('action.dont_save')"
           @click.native="discardApiChange"
         />
-        <ButtonSecondary
-          :label="t('action.cancel')"
-          @click.native="hideModal"
-        />
       </span>
+      <ButtonSecondary :label="t('action.cancel')" @click.native="hideModal" />
     </template>
   </SmartModal>
 </template>
 
 <script setup lang="ts">
-// import { ref } from "@nuxtjs/composition-api"
 import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
@@ -69,29 +57,3 @@ const hideModal = () => {
   emit("hide-modal")
 }
 </script>
-
-<style lang="scss" scoped>
-.share-link {
-  @apply border border-dividerLight;
-  @apply rounded;
-  @apply flex;
-  @apply p-3;
-  @apply items-center;
-  @apply justify-center;
-  @apply font-semibold;
-  @apply hover:(bg-primaryLight text-secondaryDark);
-  @apply focus:outline-none;
-  @apply focus-visible:border-divider;
-
-  svg {
-    @apply opacity-80;
-    @apply mr-2;
-  }
-
-  &:hover {
-    svg {
-      @apply opacity-100;
-    }
-  }
-}
-</style>

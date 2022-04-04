@@ -460,6 +460,17 @@ pre.ace_editor {
   }
 }
 
+.cm-editor {
+  .cm-line::selection {
+    background-color: var(--accent-dark-color) !important;
+    color: var(--accent-contrast-color) !important;
+  }
+  .cm-line ::selection {
+    background-color: var(--accent-dark-color) !important;
+    color: var(--accent-contrast-color) !important;
+  }
+}
+
 .shortcut-key {
   @apply inline-flex;
   @apply font-sans;

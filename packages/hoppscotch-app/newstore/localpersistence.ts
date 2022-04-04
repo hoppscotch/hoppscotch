@@ -53,6 +53,7 @@ import { WSRequest$, setWSRequest } from "./WebSocketSession"
 import { SIORequest$, setSIORequest } from "./SocketIOSession"
 import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
+import { bulkApplyLocalState, localStateStore } from "./localstate"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -112,6 +113,18 @@ function checkAndMigrateOldSettings() {
 
     window.localStorage.removeItem("nuxt-color-mode")
   }
+}
+
+function setupLocalStatePersistence() {
+  const localStateData = JSON.parse(
+    window.localStorage.getItem("localState") ?? "{}"
+  )
+
+  if (localStateData) bulkApplyLocalState(localStateData)
+
+  localStateStore.subject$.subscribe((state) => {
+    window.localStorage.setItem("localState", JSON.stringify(state))
+  })
 }
 
 function setupSettingsPersistence() {
@@ -313,6 +326,7 @@ function setupRequestPersistence() {
 export function setupLocalPersistence() {
   checkAndMigrateOldSettings()
 
+  setupLocalStatePersistence()
   setupSettingsPersistence()
   setupRequestPersistence()
   setupHistoryPersistence()

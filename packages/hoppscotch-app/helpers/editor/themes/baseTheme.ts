@@ -29,7 +29,7 @@ import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
 import { commentKeymap } from "@codemirror/comment"
 import {
   rectangularSelection,
-  // crosshairCursor,
+  crosshairCursor,
 } from "@codemirror/rectangular-selection"
 import { lintKeymap } from "@codemirror/lint"
 
@@ -375,7 +375,7 @@ export const basicSetup: Extension = [
   closeBrackets(),
   autocompletion(),
   rectangularSelection(),
-  // crosshairCursor(),
+  crosshairCursor(),
   highlightActiveLine(),
   highlightSelectionMatches(),
   keymap.of([

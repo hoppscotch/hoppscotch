@@ -37,7 +37,7 @@
   "devDependencies": {
     "@hoppscotch/data": "workspace:^0.4.1",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",
-    "@swc/core": "^1.2.162",
+    "@swc/core": "^1.2.163",
     "@types/axios": "^0.14.0",
     "@types/chalk": "^2.2.0",
     "@types/commander": "^2.12.2",
@@ -47,9 +47,9 @@
     "esm": "^3.2.25",
     "fp-ts": "^2.11.3",
     "lodash": "^4.17.21",
-    "prettier": "^2.6.1",
+    "prettier": "^2.6.2",
     "qs": "^6.10.3",
-    "tsup": "^5.12.2",
+    "tsup": "^5.12.4",
     "typescript": "^4.6.3"
   }
 }

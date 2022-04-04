@@ -17,7 +17,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://echo.hoppscotch.io/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "application/x-www-form-urlencoded",
         body: rawKeyValueEntriesToString([
@@ -148,7 +148,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://google.com/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: null,
         body: null,
@@ -165,7 +165,7 @@ const samples = [
       method: "POST",
       name: "Untitled request",
       endpoint: "http://localhost:1111/hello/world/?buzz",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "application/json",
         body: `{\n  "foo": "bar"\n}`,
@@ -188,7 +188,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://example.com/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: null,
         body: null,
@@ -216,7 +216,7 @@ const samples = [
       method: "POST",
       name: "Untitled request",
       endpoint: "https://bing.com/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "multipart/form-data",
         body: [
@@ -294,6 +294,27 @@ const samples = [
   },
   {
     command:
+      "curl -X GET localhost:9900 --header 'Authorization: Basic 77898dXNlcjpwYXNz'",
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "http://localhost:9900/",
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command:
       "curl -X GET localhost --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'",
     response: makeRESTRequest({
       method: "GET",
@@ -316,37 +337,13 @@ const samples = [
     }),
   },
   {
-    command:
-      "curl -X GET localhost --header 'Authorization: Apikey dXNlcjpwYXNz'",
-    response: makeRESTRequest({
-      method: "GET",
-      name: "Untitled request",
-      endpoint: "http://localhost/",
-      auth: {
-        authActive: true,
-        authType: "api-key",
-        key: "apikey",
-        value: "dXNlcjpwYXNz",
-        addTo: "headers",
-      },
-      body: {
-        contentType: null,
-        body: null,
-      },
-      params: [],
-      headers: [],
-      preRequestScript: "",
-      testScript: "",
-    }),
-  },
-  {
     command: `curl --get -I -d "tool=curl" -d "platform=hoppscotch" -d"io" https://hoppscotch.io`,
     response: makeRESTRequest({
       method: "HEAD",
       name: "Untitled request",
       endpoint: "https://hoppscotch.io/?io",
       auth: {
-        authActive: false,
+        authActive: true,
         authType: "none",
       },
       body: {
@@ -381,7 +378,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://someshadywebsite.com/questionable/path/?so",
       auth: {
-        authActive: false,
+        authActive: true,
         authType: "none",
       },
       body: {
@@ -442,7 +439,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "http://localhost/",
       auth: {
-        authActive: false,
+        authActive: true,
         authType: "none",
       },
       body: {
@@ -475,7 +472,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://hoppscotch.io/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: null,
         body: null,
@@ -530,7 +527,7 @@ const samples = [
       method: "GET",
       name: "Untitled request",
       endpoint: "https://echo.hoppscotch.io/",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       body: {
         contentType: "application/x-www-form-urlencoded",
         body: rawKeyValueEntriesToString([
@@ -575,7 +572,7 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://echo.hoppscotch.io/",
       method: "POST",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       headers: [
         {
           active: true,
@@ -617,10 +614,156 @@ const samples = [
       name: "Untitled request",
       endpoint: "https://muxueqz.top/skybook.html",
       method: "GET",
-      auth: { authType: "none", authActive: false },
+      auth: { authType: "none", authActive: true },
       headers: [],
       body: { contentType: null, body: null },
       params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl -F abcd=efghi",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "POST",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: "multipart/form-data",
+        body: [
+          {
+            active: true,
+            isFile: false,
+            key: "abcd",
+            value: "efghi",
+          },
+        ],
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl 127.0.0.1 -X custommethod",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "http://127.0.0.1/",
+      method: "CUSTOMMETHOD",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl echo.hoppscotch.io -A pinephone",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "GET",
+      auth: { authType: "none", authActive: true },
+      headers: [
+        {
+          active: true,
+          key: "User-Agent",
+          value: "pinephone",
+        },
+      ],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: "curl echo.hoppscotch.io -G",
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://echo.hoppscotch.io/",
+      method: "GET",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl --get -I -d "tool=hopp" https://example.org`,
+    response: makeRESTRequest({
+      name: "Untitled request",
+      endpoint: "https://example.org/",
+      method: "HEAD",
+      auth: { authType: "none", authActive: true },
+      headers: [],
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [
+        {
+          active: true,
+          key: "tool",
+          value: "hopp",
+        },
+      ],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl google.com -u userx`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://google.com/",
+      auth: {
+        authType: "basic",
+        authActive: true,
+        username: "userx",
+        password: "",
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl google.com -H "Authorization"`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://google.com/",
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
       preRequestScript: "",
       testScript: "",
     }),

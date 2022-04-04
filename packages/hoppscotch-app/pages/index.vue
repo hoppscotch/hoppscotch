@@ -159,6 +159,7 @@ export default defineComponent({
 
     setupRequestSync(confirmSync, requestForSync)
     bindRequestToURLParams()
+    oAuthURL()
 
     return {
       confirmSync,

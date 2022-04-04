@@ -1,49 +1,25 @@
 <template>
   <div class="flex flex-col">
     <div class="flex flex-1 border-b border-dividerLight">
-      <input
-        id="oidcDiscoveryURL"
+      <SmartEnvInput
         v-model="oidcDiscoveryURL"
-        class="flex flex-1 px-4 py-2 bg-transparent"
         placeholder="OpenID Connect Discovery URL"
-        name="oidcDiscoveryURL"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <input
-        id="authURL"
-        v-model="authURL"
-        class="flex flex-1 px-4 py-2 bg-transparent"
-        placeholder="Authentication URL"
-        name="authURL"
-      />
+      <SmartEnvInput v-model="authURL" placeholder="Authorization URL" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <input
-        id="accessTokenURL"
-        v-model="accessTokenURL"
-        class="flex flex-1 px-4 py-2 bg-transparent"
-        placeholder="Access Token URL"
-        name="accessTokenURL"
-      />
+      <SmartEnvInput v-model="accessTokenURL" placeholder="Access Token URL" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <input
-        id="clientID"
-        v-model="clientID"
-        class="flex flex-1 px-4 py-2 bg-transparent"
-        placeholder="Client ID"
-        name="clientID"
-      />
+      <SmartEnvInput v-model="clientID" placeholder="Client ID" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <input
-        id="scope"
-        v-model="scope"
-        class="flex flex-1 px-4 py-2 bg-transparent"
-        placeholder="Scope"
-        name="scope"
-      />
+      <SmartEnvInput v-model="clientSecret" placeholder="Client Secret" />
+    </div>
+    <div class="flex flex-1 border-b border-dividerLight">
+      <SmartEnvInput v-model="scope" placeholder="Scope" />
     </div>
     <div class="p-2">
       <ButtonSecondary
@@ -56,8 +32,8 @@
 </template>
 
 <script lang="ts">
-import { Ref } from "@nuxtjs/composition-api"
-import { HoppRESTAuthOAuth2 } from "@hoppscotch/data"
+import { Ref, defineComponent } from "@nuxtjs/composition-api"
+import { HoppRESTAuthOAuth2, parseTemplateString } from "@hoppscotch/data"
 import {
   pluckRef,
   useI18n,
@@ -66,8 +42,9 @@ import {
 } from "~/helpers/utils/composables"
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
 import { tokenRequest } from "~/helpers/oauth"
+import { getCombinedEnvVariables } from "~/helpers/preRequest"
 
-export default {
+export default defineComponent({
   setup() {
     const t = useI18n()
     const toast = useToast()
@@ -92,6 +69,11 @@ export default {
 
     const clientID = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "clientID")
 
+    const clientSecret = pluckRef(
+      auth as Ref<HoppRESTAuthOAuth2>,
+      "clientSecret"
+    )
+
     const scope = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "scope")
 
     const handleAccessTokenRequest = async () => {
@@ -102,14 +84,21 @@ export default {
         toast.error(`${t("error.incomplete_config_urls")}`)
         return
       }
+      const envs = getCombinedEnvVariables()
+      const envVars = [...envs.selected, ...envs.global]
+
       try {
         const tokenReqParams = {
           grantType: "code",
-          oidcDiscoveryUrl: oidcDiscoveryURL.value,
-          authUrl: authURL.value,
-          accessTokenUrl: accessTokenURL.value,
-          clientId: clientID.value,
-          scope: scope.value,
+          oidcDiscoveryUrl: parseTemplateString(
+            oidcDiscoveryURL.value,
+            envVars
+          ),
+          authUrl: parseTemplateString(authURL.value, envVars),
+          accessTokenUrl: parseTemplateString(accessTokenURL.value, envVars),
+          clientId: parseTemplateString(clientID.value, envVars),
+          clientSecret: parseTemplateString(clientSecret.value, envVars),
+          scope: parseTemplateString(scope.value, envVars),
         }
         await tokenRequest(tokenReqParams)
       } catch (e) {
@@ -122,10 +111,11 @@ export default {
       authURL,
       accessTokenURL,
       clientID,
+      clientSecret,
       scope,
       handleAccessTokenRequest,
       t,
     }
   },
-}
+})
 </script>

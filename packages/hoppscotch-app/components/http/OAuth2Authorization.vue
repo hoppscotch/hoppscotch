@@ -4,43 +4,22 @@
       <SmartEnvInput
         v-model="oidcDiscoveryURL"
         placeholder="OpenID Connect Discovery URL"
-        styles="bg-transparent flex flex-1 py-1 px-4"
       />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="authURL"
-        placeholder="Authorization URL"
-        styles="bg-transparent flex flex-1 py-1 px-4"
-      />
+      <SmartEnvInput v-model="authURL" placeholder="Authorization URL" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="accessTokenURL"
-        placeholder="Access Token URL"
-        styles="flex flex-1 px-4 py-2 bg-transparent"
-      />
+      <SmartEnvInput v-model="accessTokenURL" placeholder="Access Token URL" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="clientID"
-        placeholder="Client ID"
-        styles="flex flex-1 px-4 py-2 bg-transparent"
-      />
+      <SmartEnvInput v-model="clientID" placeholder="Client ID" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="clientSecret"
-        placeholder="Client Secret"
-        styles="flex flex-1 px-4 py-2 bg-transparent"
-      />
+      <SmartEnvInput v-model="clientSecret" placeholder="Client Secret" />
     </div>
     <div class="flex flex-1 border-b border-dividerLight">
-      <SmartEnvInput
-        v-model="scope"
-        placeholder="Scope"
-        styles="flex flex-1 px-4 py-2 bg-transparent"
-      />
+      <SmartEnvInput v-model="scope" placeholder="Scope" />
     </div>
     <div class="p-2">
       <ButtonSecondary
@@ -54,7 +33,7 @@
 
 <script lang="ts">
 import { Ref, defineComponent } from "@nuxtjs/composition-api"
-import { HoppRESTAuthOAuth2 } from "@hoppscotch/data"
+import { HoppRESTAuthOAuth2, parseTemplateString } from "@hoppscotch/data"
 import {
   pluckRef,
   useI18n,
@@ -64,7 +43,6 @@ import {
 import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
 import { tokenRequest } from "~/helpers/oauth"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
-import { parseTemplateString } from "~/helpers/templating"
 
 export default defineComponent({
   setup() {
@@ -107,16 +85,20 @@ export default defineComponent({
         return
       }
       const envs = getCombinedEnvVariables()
+      const envVars = [...envs.selected, ...envs.global]
 
       try {
         const tokenReqParams = {
           grantType: "code",
-          oidcDiscoveryUrl: parseTemplateString(oidcDiscoveryURL.value, envs),
-          authUrl: parseTemplateString(authURL.value, envs),
-          accessTokenUrl: parseTemplateString(accessTokenURL.value, envs),
-          clientId: parseTemplateString(clientID.value, envs),
-          clientSecret: parseTemplateString(clientSecret.value, envs),
-          scope: parseTemplateString(scope.value, envs),
+          oidcDiscoveryUrl: parseTemplateString(
+            oidcDiscoveryURL.value,
+            envVars
+          ),
+          authUrl: parseTemplateString(authURL.value, envVars),
+          accessTokenUrl: parseTemplateString(accessTokenURL.value, envVars),
+          clientId: parseTemplateString(clientID.value, envVars),
+          clientSecret: parseTemplateString(clientSecret.value, envVars),
+          scope: parseTemplateString(scope.value, envVars),
         }
         await tokenRequest(tokenReqParams)
       } catch (e) {

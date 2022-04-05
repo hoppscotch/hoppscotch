@@ -9,7 +9,8 @@
       "toBeLevel4xx": "fn()",
       "toBeLevel5xx": "fn()",
       "toBeType": "fn(type: string)",
-      "toHaveLength": "fn(length: number)"
+      "toHaveLength": "fn(length: number)",
+      "toInclude": "fn(value: ?)"
     }
   },
   "pw": {

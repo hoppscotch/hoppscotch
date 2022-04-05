@@ -87,7 +87,7 @@ function appLayout() {
 
   // Initially apply
   onBeforeMount(() => {
-    if (mdAndLarger.value) {
+    if (!mdAndLarger.value) {
       rightSidebar.value = false
       columnLayout.value = true
     }
@@ -95,7 +95,8 @@ function appLayout() {
 
   // Listen for updates
   watch(mdAndLarger, () => {
-    if (!mdAndLarger.value) {
+    if (mdAndLarger.value) rightSidebar.value = true
+    else {
       rightSidebar.value = false
       columnLayout.value = true
     }

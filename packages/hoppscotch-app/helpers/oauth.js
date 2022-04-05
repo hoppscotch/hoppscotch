@@ -148,6 +148,7 @@ const tokenRequest = async ({
   authUrl,
   accessTokenUrl,
   clientId,
+  clientSecret,
   scope,
 }) => {
   // Check oauth configuration
@@ -160,10 +161,10 @@ const tokenRequest = async ({
     // eslint-disable-next-line camelcase
     accessTokenUrl = token_endpoint
   }
-
   // Store oauth information
   setLocalConfig("tokenEndpoint", accessTokenUrl)
   setLocalConfig("client_id", clientId)
+  setLocalConfig("client_secret", clientSecret)
 
   // Create and store a random state value
   const state = generateRandomString()
@@ -221,6 +222,7 @@ const oauthRedirect = () => {
           grant_type: "authorization_code",
           code: q.code,
           client_id: getLocalConfig("client_id"),
+          client_secret: getLocalConfig("client_secret"),
           redirect_uri: redirectUri,
           code_verifier: getLocalConfig("pkce_codeVerifier"),
         })
@@ -234,6 +236,7 @@ const oauthRedirect = () => {
     removeLocalConfig("pkce_codeVerifier")
     removeLocalConfig("tokenEndpoint")
     removeLocalConfig("client_id")
+    removeLocalConfig("client_secret")
     return tokenResponse
   }
   return Promise.reject(tokenResponse)

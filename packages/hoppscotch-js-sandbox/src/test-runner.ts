@@ -312,6 +312,61 @@ function createExpectation(
     }
   )
 
+  const toIncludeHandle = vm.newFunction("toInclude", (needleHandle) => {
+    const expectedVal = vm.dump(needleHandle)
+
+    if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message: `Expected toInclude to be called for an array or string`,
+      })
+
+      return { value: vm.undefined }
+    }
+
+    if (expectedVal === null) {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message: `Argument for toInclude should not be null`,
+      })
+
+      return { value: vm.undefined }
+    }
+
+    if (expectedVal === undefined) {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message: `Argument for toInclude should not be undefined`,
+      })
+
+      return { value: vm.undefined }
+    }
+
+    let assertion = expectVal.includes(expectedVal)
+    if (negated) assertion = !assertion
+
+    const expectValPretty = JSON.stringify(expectVal)
+    const expectedValPretty = JSON.stringify(expectedVal)
+
+    if (assertion) {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "pass",
+        message: `Expected ${expectValPretty} to${
+          negated ? " not" : ""
+        } include ${expectedValPretty}`,
+      })
+    } else {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "fail",
+        message: `Expected ${expectValPretty} to${
+          negated ? " not" : ""
+        } include ${expectedValPretty}`,
+      })
+    }
+
+    return { value: vm.undefined }
+  })
+
   vm.setProp(resultHandle, "toBe", toBeFnHandle)
   vm.setProp(resultHandle, "toBeLevel2xx", toBeLevel2xxHandle)
   vm.setProp(resultHandle, "toBeLevel3xx", toBeLevel3xxHandle)
@@ -319,6 +374,7 @@ function createExpectation(
   vm.setProp(resultHandle, "toBeLevel5xx", toBeLevel5xxHandle)
   vm.setProp(resultHandle, "toBeType", toBeTypeHandle)
   vm.setProp(resultHandle, "toHaveLength", toHaveLengthHandle)
+  vm.setProp(resultHandle, "toInclude", toIncludeHandle)
 
   vm.defineProp(resultHandle, "not", {
     get: () => {
@@ -333,6 +389,7 @@ function createExpectation(
   toBeLevel5xxHandle.dispose()
   toBeTypeHandle.dispose()
   toHaveLengthHandle.dispose()
+  toIncludeHandle.dispose()
 
   return resultHandle
 }

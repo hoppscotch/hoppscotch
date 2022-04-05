@@ -169,7 +169,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="COLUMN_LAYOUT ? t('layout.row') : t('layout.column')"
           svg="columns"
-          class="hidden transform sm:inline"
+          class="transform"
           :class="{ 'rotate-90': !COLUMN_LAYOUT }"
           @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />

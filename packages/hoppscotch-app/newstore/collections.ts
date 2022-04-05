@@ -640,6 +640,17 @@ export function getRESTCollection(collectionIndex: number) {
   return restCollectionStore.value.state[collectionIndex]
 }
 
+export function getRESTRequestFromFolderPath(
+  indexPath: number[],
+  requestIndex: number
+) {
+  const folder = navigateToFolderWithIndexPath(
+    restCollectionStore.value.state,
+    indexPath
+  )
+  return folder?.requests[requestIndex]
+}
+
 export function editRESTCollection(
   collectionIndex: number,
   collection: HoppCollection<HoppRESTRequest>

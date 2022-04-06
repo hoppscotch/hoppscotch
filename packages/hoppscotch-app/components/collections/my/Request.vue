@@ -269,6 +269,27 @@ const isActive = computed<boolean>(() => {
   )
 })
 
+const dragStart = ({ dataTransfer }) => {
+  dragging.value = !dragging.value
+  dataTransfer.setData("folderPath", props.folderPath)
+  dataTransfer.setData("requestIndex", props.requestIndex)
+}
+
+const removeRequest = () => {
+  emit("remove-request", {
+    collectionIndex: props.collectionIndex,
+    folderName: props.folderName,
+    folderPath: props.folderPath,
+    requestIndex: props.requestIndex,
+  })
+}
+
+const getRequestLabelColor = (method: string) => {
+  return (
+    requestMethodLabels[method.toLowerCase()] || requestMethodLabels.default
+  )
+}
+
 const getIndexPath = (path: string) => {
   return path.split("/").map((x) => parseInt(x))
 }
@@ -289,8 +310,10 @@ const selectRequest = () => {
         },
       })
   } else {
+    const indexPath = getIndexPath(active.value.folderPath)
+
     const currentReqWithNoChange = getRESTRequestFromFolderPath(
-      getIndexPath(active.value.folderPath),
+      indexPath,
       active.value.requestIndex
     )
     const currentFullReq = getRESTRequest()
@@ -325,63 +348,6 @@ const selectRequest = () => {
       }
     } else {
       setRESTSaveContext(null)
-    }
-  }
-}
-
-const dragStart = ({ dataTransfer }) => {
-  dragging.value = !dragging.value
-  dataTransfer.setData("folderPath", props.folderPath)
-  dataTransfer.setData("requestIndex", props.requestIndex)
-}
-
-const removeRequest = () => {
-  emit("remove-request", {
-    collectionIndex: props.collectionIndex,
-    folderName: props.folderName,
-    folderPath: props.folderPath,
-    requestIndex: props.requestIndex,
-  })
-}
-
-const getRequestLabelColor = (method: string) => {
-  return (
-    requestMethodLabels[method.toLowerCase()] || requestMethodLabels.default
-  )
-}
-
-const saveCurrentRequest = (saveCtx: {
-  originLocation: string
-  folderPath: string
-  requestIndex: number
-  requestID: number
-}) => {
-  if (!saveCtx) {
-    showSaveRequestModal.value = true
-    return
-  }
-  if (saveCtx.originLocation === "user-collection") {
-    try {
-      editRESTRequest(
-        saveCtx.folderPath,
-        saveCtx.requestIndex,
-        getRESTRequest()
-      )
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(props.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "user-collection",
-          folderPath: props.folderPath,
-          requestIndex: props.requestIndex,
-        }
-      )
-      toast.success(t("request.saved"))
-    } catch (e) {
-      setRESTSaveContext(null)
-      saveCurrentRequest(saveCtx)
     }
   }
 }
@@ -425,5 +391,41 @@ const discardRequestChange = () => {
   }
 
   confirmApiChange.value = false
+}
+
+const saveCurrentRequest = (saveCtx: {
+  originLocation: string
+  folderPath: string
+  requestIndex: number
+  requestID: number
+}) => {
+  if (!saveCtx) {
+    showSaveRequestModal.value = true
+    return
+  }
+  if (saveCtx.originLocation === "user-collection") {
+    try {
+      editRESTRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        getRESTRequest()
+      )
+      setRESTRequest(
+        safelyExtractRESTRequest(
+          translateToNewRequest(props.request),
+          getDefaultRESTRequest()
+        ),
+        {
+          originLocation: "user-collection",
+          folderPath: props.folderPath,
+          requestIndex: props.requestIndex,
+        }
+      )
+      toast.success(t("request.saved"))
+    } catch (e) {
+      setRESTSaveContext(null)
+      saveCurrentRequest(saveCtx)
+    }
+  }
 }
 </script>

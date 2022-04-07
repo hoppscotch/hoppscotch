@@ -38,6 +38,7 @@ import { defineComponent } from "@nuxtjs/composition-api"
 export default defineComponent({
   props: {
     show: Boolean,
+    folder: { type: Object, default: () => {} },
     folderPath: { type: String, default: null },
     collectionIndex: { type: Number, default: null },
   },
@@ -54,6 +55,7 @@ export default defineComponent({
       }
       this.$emit("add-request", {
         name: this.name,
+        folder: this.folder,
         path: this.folderPath || `${this.collectionIndex}`,
       })
       this.hideModal()

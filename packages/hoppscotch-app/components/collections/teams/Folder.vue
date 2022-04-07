@@ -73,7 +73,7 @@
                 :shortcut="['R']"
                 @click.native="
                   () => {
-                    $emit('add-request', { path: folderPath })
+                    $emit('add-request', { folder, path: folderPath })
                     options.tippy().hide()
                   }
                 "

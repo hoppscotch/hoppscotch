@@ -95,6 +95,7 @@
                 @click.native="
                   () => {
                     $emit('add-request', {
+                      folder: collection,
                       path: `${collectionIndex}`,
                     })
                     options.tippy().hide()

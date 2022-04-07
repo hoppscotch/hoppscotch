@@ -162,6 +162,7 @@
     />
     <CollectionsAddRequest
       :show="showModalAddRequest"
+      :folder="editingFolder"
       :folder-path="editingFolderPath"
       @add-request="onAddRequest($event)"
       @hide-modal="displayModalAddRequest(false)"
@@ -675,11 +676,12 @@ export default defineComponent({
     addRequest(payload) {
       // TODO: check if the request being worked on
       // is being overwritten (selected or not)
-      const { path } = payload
+      const { folder, path } = payload
+      this.$data.editingFolder = folder
       this.$data.editingFolderPath = path
       this.displayModalAddRequest(true)
     },
-    onAddRequest({ name, path }) {
+    onAddRequest({ name, folder, path }) {
       const newRequest = {
         ...getDefaultRESTRequest(),
         name,
@@ -687,6 +689,7 @@ export default defineComponent({
 
       if (this.collectionsType.type === "my-collections") {
         const insertionIndex = saveRESTRequestAs(path, newRequest)
+        // point to it
         setRESTRequest(newRequest, {
           originLocation: "user-collection",
           folderPath: path,
@@ -696,7 +699,6 @@ export default defineComponent({
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
-        // untested code ahead
         runMutation(CreateRequestInCollectionDocument, {
           collectionID: folder.id,
           data: {
@@ -709,7 +711,14 @@ export default defineComponent({
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(result.left.error)
           } else {
-            this.$toast.success(this.$t("state.created"))
+            const { createRequestInCollection } = result.right
+            // point to it
+            setRESTRequest(newRequest, {
+              originLocation: "team-collection",
+              requestID: createRequestInCollection.id,
+              collectionID: createRequestInCollection.collection.id,
+              teamID: createRequestInCollection.collection.team.id,
+            })
           }
         })
       }

@@ -2,29 +2,29 @@
   <SmartModal
     v-if="show"
     dialog
-    :title="$t('folder.new')"
+    :title="$t('request.new')"
     @close="$emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col px-2">
         <input
-          id="selectLabelGqlAddFolder"
+          id="selectLabelGqlAddRequest"
           v-model="name"
           v-focus
           class="input floating-input"
           placeholder=" "
           type="text"
           autocomplete="off"
-          @keyup.enter="addFolder"
+          @keyup.enter="addRequest"
         />
-        <label for="selectLabelGqlAddFolder">
+        <label for="selectLabelGqlAddRequest">
           {{ $t("action.label") }}
         </label>
       </div>
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="addFolder" />
+        <ButtonPrimary :label="$t('action.save')" @click.native="addRequest" />
         <ButtonSecondary
           :label="$t('action.cancel')"
           @click.native="hideModal"
@@ -49,13 +49,12 @@ export default defineComponent({
     }
   },
   methods: {
-    addFolder() {
+    addRequest() {
       if (!this.name) {
-        this.$toast.error(`${this.$t("folder.name_length_insufficient")}`)
+        this.$toast.error(`${this.$t("error.empty_req_name")}`)
         return
       }
-
-      this.$emit("add-folder", {
+      this.$emit("add-request", {
         name: this.name,
         path: this.folderPath || `${this.collectionIndex}`,
       })

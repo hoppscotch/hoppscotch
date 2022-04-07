@@ -337,6 +337,7 @@
     "invalid_name": "Please provide a name for the request",
     "method": "Method",
     "name": "Request name",
+    "new": "New Request",
     "parameter_list": "Query Parameters",
     "parameters": "Parameters",
     "path": "Path",

@@ -68,14 +68,14 @@ type TypeFromPrimitiveArray<P extends JSPrimitive | undefined> =
     : unknown[]
 
 export const objHasProperty =
-  <O extends object, K extends string, P extends JSPrimitive>(
+  <O extends object, K extends string, P extends JSPrimitive | undefined>(
     prop: K,
-    type: P
+    type?: P
   ) =>
   // eslint-disable-next-line
   (obj: O): obj is O & { [_ in K]: TypeFromPrimitive<P> } =>
     // eslint-disable-next-line
-    prop in obj && typeof (obj as any)[prop] === type
+    prop in obj && (type === undefined || typeof (obj as any)[prop] === type)
 
 export const objHasArrayProperty =
   <O extends object, K extends string, P extends JSPrimitive>(

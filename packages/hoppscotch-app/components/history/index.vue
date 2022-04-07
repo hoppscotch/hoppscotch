@@ -36,7 +36,7 @@
         open
       >
         <summary
-          class="flex items-center justify-between flex-1 min-w-0 cursor-pointer transition focus:outline-none text-secondaryLight text-tiny group"
+          class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer focus:outline-none text-secondaryLight text-tiny group"
         >
           <span
             class="px-4 py-2 truncate transition group-hover:text-secondary capitalize-first"
@@ -49,7 +49,7 @@
             color="red"
             :title="$t('action.remove')"
             class="hidden group-hover:inline-flex"
-            @click.native="deleteBattleHistoryEntry(filteredHistoryGroup)"
+            @click.native="deleteBatchHistoryEntry(filteredHistoryGroup)"
           />
         </summary>
         <div
@@ -59,11 +59,11 @@
           <component
             :is="page == 'rest' ? 'HistoryRestCard' : 'HistoryGraphqlCard'"
             :id="index"
-            :entry="entry"
+            :entry="entry.entry"
             :show-more="showMore"
-            @toggle-star="toggleStar(entry)"
-            @delete-entry="deleteHistory(entry)"
-            @use-entry="useHistory(entry)"
+            @toggle-star="toggleStar(entry.entry)"
+            @delete-entry="deleteHistory(entry.entry)"
+            @use-entry="useHistory(entry.entry)"
           />
         </div>
       </details>
@@ -101,9 +101,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "@nuxtjs/composition-api"
-import { useTimeAgo } from "@vueuse/core"
+import { computed, ref, Ref } from "@nuxtjs/composition-api"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import groupBy from "lodash/groupBy"
+import { useTimeAgo } from "@vueuse/core"
+import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
 import {
   useI18n,
   useReadonlyStream,
@@ -133,11 +136,11 @@ const confirmRemove = ref(false)
 const toast = useToast()
 const t = useI18n()
 
-const groupByDate = (array: any[], key: string) => {
-  return array.reduce((rv: any, x: any) => {
-    ;(rv[useTimeAgo(x[key]).value] = rv[useTimeAgo(x[key]).value] || []).push(x)
-    return rv
-  }, {})
+type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
+
+type TimedHistoryEntry = {
+  entry: HistoryEntry
+  timeAgo: Ref<string>
 }
 
 const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
@@ -145,27 +148,49 @@ const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   []
 )
 
-const filteredHistory = computed(() => {
-  const regExp = new RegExp(filterText.value, "gi")
-  const check = (obj: any) => {
-    if (obj !== null && typeof obj === "object") {
-      return Object.values(obj).some(check)
-    }
-    if (Array.isArray(obj)) {
-      return obj.some(check)
-    }
-    return (
-      (typeof obj === "string" || typeof obj === "number") &&
-      regExp.test(obj as string)
+const deepCheckForRegex = (value: unknown, regExp: RegExp): boolean => {
+  if (value === null || value === undefined) return false
+
+  if (typeof value === "string") return regExp.test(value)
+  if (typeof value === "number") return regExp.test(value.toString())
+
+  if (typeof value === "object")
+    return Object.values(value).some((input) =>
+      deepCheckForRegex(input, regExp)
     )
-  }
-  return (history.value as Array<RESTHistoryEntry | GQLHistoryEntry>).filter(
-    check
+  if (Array.isArray(value))
+    return value.some((input) => deepCheckForRegex(input, regExp))
+
+  return false
+}
+
+const filteredHistory = computed(() =>
+  pipe(
+    history.value as HistoryEntry[],
+    A.filter(
+      (
+        input
+      ): input is HistoryEntry & {
+        updatedOn: NonNullable<HistoryEntry["updatedOn"]>
+      } => {
+        return (
+          !!input.updatedOn &&
+          (filterText.value.length === 0 ||
+            deepCheckForRegex(input, new RegExp(filterText.value, "gi")))
+        )
+      }
+    ),
+    A.map(
+      (entry): TimedHistoryEntry => ({
+        entry,
+        timeAgo: useTimeAgo(entry.updatedOn),
+      })
+    )
   )
-})
+)
 
 const filteredHistoryGroups = computed(() =>
-  groupByDate(filteredHistory.value, "updatedOn")
+  groupBy(filteredHistory.value, (entry) => entry.timeAgo.value)
 )
 
 const clearHistory = () => {
@@ -181,14 +206,20 @@ const useHistory = (entry: any) => {
     )
 }
 
-const deleteBattleHistoryEntry = (entries: number[]) => {
-  if (props.page === "rest") {
-    entries.forEach((entry: any) => {
-      deleteRESTHistoryEntry(entry)
+const isRESTHistoryEntry = (
+  entries: TimedHistoryEntry[]
+): entries is Array<TimedHistoryEntry & { entry: RESTHistoryEntry }> =>
+  // If the page is rest, then we can guarantee what we have is a RESTHistoryEnry
+  props.page === "rest"
+
+const deleteBatchHistoryEntry = (entries: TimedHistoryEntry[]) => {
+  if (isRESTHistoryEntry(entries)) {
+    entries.forEach((entry) => {
+      deleteRESTHistoryEntry(entry.entry)
     })
   } else {
-    entries.forEach((entry: any) => {
-      deleteGraphqlHistoryEntry(entry)
+    entries.forEach((entry) => {
+      deleteGraphqlHistoryEntry(entry.entry as GQLHistoryEntry)
     })
   }
   toast.success(`${t("state.deleted")}`)

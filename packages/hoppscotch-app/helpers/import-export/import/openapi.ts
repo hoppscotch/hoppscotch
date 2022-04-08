@@ -114,8 +114,10 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
   if (
     obj !== "multipart/form-data" &&
     obj !== "application/x-www-form-urlencoded"
-  )
-    return { contentType: obj as any, body: "" }
+  ) {
+    const x = generateRequestBodyExampleFromOpenAPIV2Body(op)
+    return { contentType: obj as any, body: x }
+  }
 
   const formDataValues = pipe(
     (op.parameters ?? []) as OpenAPIV2.Parameter[],
@@ -176,6 +178,190 @@ const parseOpenAPIV3BodyFormData = (
     }
   }
 }
+
+type PrimitiveSchemaType = "string" | "integer" | "number" | "boolean"
+
+type SchemaType = "array" | "object" | PrimitiveSchemaType
+
+type PrimitiveRequestBodyExampleType = number | string | boolean
+
+type RequestBodyExampleType =
+  | { [name: string]: RequestBodyExampleType }
+  | Array<RequestBodyExampleType>
+  | PrimitiveRequestBodyExampleType
+
+const getPrimitiveTypePlaceholder = (
+  schemaType: PrimitiveSchemaType
+): PrimitiveRequestBodyExampleType => {
+  switch (schemaType) {
+    case "string":
+      return "string"
+    case "integer":
+    case "number":
+      return 1
+    case "boolean":
+      return true
+  }
+}
+
+const getSchemaTypeFromSchemaObject = (
+  schema: OpenAPIV2.SchemaObject
+): O.Option<SchemaType> =>
+  pipe(
+    schema.type,
+    O.fromNullable,
+    O.map(
+      (schemaType) =>
+        (Array.isArray(schemaType) ? schemaType[0] : schemaType) as SchemaType
+    )
+  )
+
+const isSchemaTypePrimitive = (
+  schemaType: string
+): schemaType is PrimitiveSchemaType =>
+  ["string", "integer", "number", "boolean"].includes(schemaType)
+
+const isSchemaTypeArray = (schemaType: string): schemaType is "array" =>
+  schemaType === "array"
+
+const isSchemaTypeObject = (schemaType: string): schemaType is "object" =>
+  schemaType === "object"
+
+const getSampleEnumValueOrPlaceholder = (
+  schema: OpenAPIV2.SchemaObject
+): RequestBodyExampleType => {
+  const enumValue = pipe(
+    schema.enum,
+    O.fromNullable,
+    O.map((enums) => enums[0] as RequestBodyExampleType)
+  )
+
+  if (O.isSome(enumValue)) return enumValue.value
+
+  return pipe(
+    schema,
+    getSchemaTypeFromSchemaObject,
+    O.filter(isSchemaTypePrimitive),
+    O.map(getPrimitiveTypePlaceholder),
+    O.getOrElseW(() => "")
+  )
+}
+
+const generateExampleArrayFromOpenAPIV2ItemsObject = (
+  items: OpenAPIV2.ItemsObject
+): RequestBodyExampleType => {
+  // ItemsObject can not hold type "object"
+  // https://swagger.io/specification/v2/#itemsObject
+
+  // TODO : Handle array of objects
+  // https://stackoverflow.com/questions/60490974/how-to-define-an-array-of-objects-in-openapi-2-0
+
+  const primitivePlaceholder = pipe(
+    items,
+    O.fromPredicate(
+      flow((items) => items.type as SchemaType, isSchemaTypePrimitive)
+    ),
+    O.map(getSampleEnumValueOrPlaceholder)
+  )
+
+  if (O.isSome(primitivePlaceholder))
+    return Array.of(primitivePlaceholder.value, primitivePlaceholder.value)
+
+  // If the type is not primitive, it is "array"
+  // items property is required if type is array
+  return Array.of(
+    generateExampleArrayFromOpenAPIV2ItemsObject(
+      items.items as OpenAPIV2.ItemsObject
+    )
+  )
+}
+
+const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
+  schema: OpenAPIV2.SchemaObject
+): RequestBodyExampleType => {
+  if (schema.example) return schema.example as RequestBodyExampleType
+
+  const primitiveTypeExample = pipe(
+    schema,
+    O.fromPredicate(
+      flow(
+        getSchemaTypeFromSchemaObject,
+        O.map(isSchemaTypePrimitive),
+        O.getOrElseW(() => false) // No schema type found in the schema object, assume non-primitive
+      )
+    ),
+    O.map(getSampleEnumValueOrPlaceholder) // Use enum or placeholder to populate primitive field
+  )
+
+  if (O.isSome(primitiveTypeExample)) return primitiveTypeExample.value
+
+  const arrayTypeExample = pipe(
+    schema,
+    O.fromPredicate(
+      flow(
+        getSchemaTypeFromSchemaObject,
+        O.map(isSchemaTypeArray),
+        O.getOrElseW(() => false) // No schema type found in the schema object, assume type to be different from array
+      )
+    ),
+    O.map((schema) => schema.items as OpenAPIV2.ItemsObject),
+    O.map(generateExampleArrayFromOpenAPIV2ItemsObject)
+  )
+
+  if (O.isSome(arrayTypeExample)) return arrayTypeExample.value
+
+  return pipe(
+    schema,
+    O.fromPredicate(
+      flow(
+        getSchemaTypeFromSchemaObject,
+        O.map(isSchemaTypeObject),
+        O.getOrElseW(() => false)
+      )
+    ),
+    O.chain((schema) =>
+      pipe(
+        schema.properties,
+        O.fromNullable,
+        O.map(
+          (properties) =>
+            Object.entries(properties) as [string, OpenAPIV2.SchemaObject][]
+        )
+      )
+    ),
+    O.getOrElseW(() => [] as [string, OpenAPIV2.SchemaObject][]),
+    A.reduce(
+      {} as { [name: string]: RequestBodyExampleType },
+      (aggregatedExample, property) => {
+        const example = generateRequestBodyExampleFromOpenAPIV2BodySchema(
+          property[1]
+        )
+        aggregatedExample[property[0]] = example
+        return aggregatedExample
+      }
+    )
+  )
+}
+
+const getSchemaFromOpenAPIV2Parameter = (
+  parameter: OpenAPIV2.Parameter
+): OpenAPIV2.SchemaObject => parameter.schema
+
+const generateRequestBodyExampleFromOpenAPIV2Body = (
+  op: OpenAPIV2.OperationObject
+): string =>
+  pipe(
+    (op.parameters ?? []) as OpenAPIV2.Parameter[],
+    A.findFirst((param) => param.in === "body"),
+    O.map(
+      flow(
+        getSchemaFromOpenAPIV2Parameter,
+        generateRequestBodyExampleFromOpenAPIV2BodySchema
+      )
+    ),
+    O.getOrElse(() => "" as RequestBodyExampleType),
+    (requestBodyExample) => JSON.stringify(requestBodyExample, null, "\t") // Using a tab character mimics standard pretty-print appearance
+  )
 
 const parseOpenAPIV3Body = (
   op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject

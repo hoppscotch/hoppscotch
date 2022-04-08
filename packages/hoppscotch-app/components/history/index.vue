@@ -97,6 +97,17 @@
       @hide-modal="confirmRemove = false"
       @resolve="clearHistory"
     />
+    <HttpApiChangeConfirmModal
+      :show="confirmApiChange"
+      @hide-modal="confirmApiChange = false"
+      @save-change="saveRequestChange"
+      @discard-change="discardRequestChange"
+    />
+    <CollectionsSaveRequest
+      mode="rest"
+      :show="showSaveRequestModal"
+      @hide-modal="showSaveRequestModal = false"
+    />
   </div>
 </template>
 
@@ -107,6 +118,8 @@ import groupBy from "lodash/groupBy"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
+import isEqual from "lodash/isEqual"
+import * as E from "fp-ts/Either"
 import {
   useI18n,
   useReadonlyStream,
@@ -124,7 +137,16 @@ import {
   RESTHistoryEntry,
   GQLHistoryEntry,
 } from "~/newstore/history"
-import { getDefaultRESTRequest, setRESTRequest } from "~/newstore/RESTSession"
+import {
+  getDefaultRESTRequest,
+  setRESTRequest,
+  getRESTSaveContext,
+  setRESTSaveContext,
+  getRESTRequest,
+} from "~/newstore/RESTSession"
+import { editRESTRequest } from "~/newstore/collections"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 
 const props = defineProps<{
   page: "rest" | "graphql"
@@ -142,6 +164,11 @@ type TimedHistoryEntry = {
   entry: HistoryEntry
   timeAgo: Ref<string>
 }
+
+const clickedHistory = ref(null)
+
+const confirmApiChange = ref<boolean>(false)
+const showSaveRequestModal = ref<boolean>(false)
 
 const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   props.page === "rest" ? restHistory$ : graphqlHistory$,
@@ -196,14 +223,115 @@ const filteredHistoryGroups = computed(() =>
 const clearHistory = () => {
   if (props.page === "rest") clearRESTHistory()
   else clearGraphqlHistory()
-  toast.success(`${t("state.history_deleted")}`)
+  toast.success(t("state.history_deleted"))
 }
 
 const useHistory = (entry: any) => {
-  if (props.page === "rest")
+  const currentFullReq = getRESTRequest()
+
+  // Initial state trigers a popup
+  if (!clickedHistory.value) {
+    clickedHistory.value = entry
+    confirmApiChange.value = true
+    return
+  }
+
+  // Checks if there are any change done in current request and the history request
+  if (!isEqual(currentFullReq, clickedHistory.value.request)) {
+    clickedHistory.value = entry
+    confirmApiChange.value = true
+  } else {
     setRESTRequest(
       safelyExtractRESTRequest(entry.request, getDefaultRESTRequest())
     )
+    clickedHistory.value = entry
+  }
+}
+
+// Save current request to the collection
+const saveRequestChange = () => {
+  const saveCtx = getRESTSaveContext()
+  saveCurrentRequest(saveCtx)
+  confirmApiChange.value = false
+}
+
+// Discard changes and change the current request and remove the collection context
+const discardRequestChange = () => {
+  const saveCtx = getRESTSaveContext()
+  if (saveCtx) {
+    setRESTSaveContext(null)
+  }
+  setRESTRequest(
+    safelyExtractRESTRequest(
+      clickedHistory.value.request,
+      getDefaultRESTRequest()
+    )
+  )
+  confirmApiChange.value = false
+}
+
+const saveCurrentRequest = (saveCtx: {
+  originLocation: string
+  folderPath: string
+  requestIndex: number
+  requestID: number
+}) => {
+  if (!saveCtx) {
+    showSaveRequestModal.value = true
+    return
+  }
+  if (saveCtx.originLocation === "user-collection") {
+    try {
+      editRESTRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        getRESTRequest()
+      )
+      setRESTRequest(
+        safelyExtractRESTRequest(
+          clickedHistory.value.request,
+          getDefaultRESTRequest()
+        )
+      )
+      setRESTSaveContext(null)
+      toast.success(t("request.saved"))
+    } catch (e) {
+      console.error(e)
+      setRESTSaveContext(null)
+      saveCurrentRequest(null)
+    }
+  } else if (saveCtx.originLocation === "team-collection") {
+    const req = getRESTRequest()
+
+    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
+    try {
+      runMutation(UpdateRequestDocument, {
+        requestID: saveCtx.requestID,
+        data: {
+          title: req.name,
+          request: JSON.stringify(req),
+        },
+      })().then((result) => {
+        if (E.isLeft(result)) {
+          toast.error(t("profile.no_permission"))
+        } else {
+          toast.success(t("request.saved"))
+        }
+      })
+      setRESTRequest(
+        safelyExtractRESTRequest(
+          clickedHistory.value.request,
+          getDefaultRESTRequest()
+        )
+      )
+      setRESTSaveContext(null)
+    } catch (error) {
+      showSaveRequestModal.value = true
+      toast.error(t("error.something_went_wrong"))
+      console.error(error)
+      setRESTSaveContext(null)
+    }
+  }
 }
 
 const isRESTHistoryEntry = (
@@ -222,13 +350,13 @@ const deleteBatchHistoryEntry = (entries: TimedHistoryEntry[]) => {
       deleteGraphqlHistoryEntry(entry.entry as GQLHistoryEntry)
     })
   }
-  toast.success(`${t("state.deleted")}`)
+  toast.success(t("state.deleted"))
 }
 
 const deleteHistory = (entry: any) => {
   if (props.page === "rest") deleteRESTHistoryEntry(entry)
   else deleteGraphqlHistoryEntry(entry)
-  toast.success(`${t("state.deleted")}`)
+  toast.success(t("state.deleted"))
 }
 
 const toggleStar = (entry: any) => {

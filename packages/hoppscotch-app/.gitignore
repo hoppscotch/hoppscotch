@@ -116,3 +116,6 @@ helpers/backend/backend-schema.json
 
 # GraphQL Type Generation
 helpers/backend/graphql.ts
+
+# Gitpod yml files
+.gitpod.yml

@@ -115,8 +115,10 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
     obj !== "multipart/form-data" &&
     obj !== "application/x-www-form-urlencoded"
   ) {
-    const x = generateRequestBodyExampleFromOpenAPIV2Body(op)
-    return { contentType: obj as any, body: x }
+    return {
+      contentType: obj as any,
+      body: generateRequestBodyExampleFromOpenAPIV2Body(op),
+    }
   }
 
   const formDataValues = pipe(

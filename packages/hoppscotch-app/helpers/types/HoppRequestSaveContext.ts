@@ -1,3 +1,5 @@
+import { HoppRESTRequest } from "@hoppscotch/data"
+
 /**
  * We use the save context to figure out
  * how a loaded request is to be saved.
@@ -18,6 +20,10 @@ export type HoppRequestSaveContext =
        * Index to the request
        */
       requestIndex: number
+      /**
+       * Current request
+       */
+      req?: HoppRESTRequest
     }
   | {
       /**
@@ -36,4 +42,8 @@ export type HoppRequestSaveContext =
        * ID of the collection loaded
        */
       collectionID?: string
+      /**
+       * Current request
+       */
+      req?: HoppRESTRequest
     }

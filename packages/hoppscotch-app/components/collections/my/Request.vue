@@ -177,12 +177,10 @@ import {
   setRESTSaveContext,
   getRESTSaveContext,
 } from "~/newstore/RESTSession"
-import {
-  editRESTRequest,
-  getRESTRequestFromFolderPath,
-} from "~/newstore/collections"
+import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 const props = defineProps<{
   request: object
@@ -293,8 +291,19 @@ const getRequestLabelColor = (method: string) => {
   )
 }
 
-const getIndexPath = (path: string) => {
-  return path.split("/").map((x) => parseInt(x))
+const setRestReq = (request: any) => {
+  setRESTRequest(
+    safelyExtractRESTRequest(
+      translateToNewRequest(request),
+      getDefaultRESTRequest()
+    ),
+    {
+      originLocation: "user-collection",
+      folderPath: props.folderPath,
+      requestIndex: props.requestIndex,
+      req: request,
+    }
+  )
 }
 
 const selectRequest = () => {
@@ -313,29 +322,14 @@ const selectRequest = () => {
         },
       })
   } else {
-    const indexPath = getIndexPath(active.value.folderPath)
-
-    const currentReqWithNoChange = getRESTRequestFromFolderPath(
-      indexPath,
-      active.value.requestIndex
-    )
+    const currentReqWithNoChange = active.value.req
     const currentFullReq = getRESTRequest()
 
     // Check if whether user clicked the same request or not
     if (!isActive.value) {
       // Check if there is any changes done on the current request
       if (isEqual(currentReqWithNoChange, currentFullReq)) {
-        setRESTRequest(
-          safelyExtractRESTRequest(
-            translateToNewRequest(props.request),
-            getDefaultRESTRequest()
-          ),
-          {
-            originLocation: "user-collection",
-            folderPath: props.folderPath,
-            requestIndex: props.requestIndex,
-          }
-        )
+        setRestReq(props.request)
         if (props.saveRequest)
           emit("select", {
             picked: {
@@ -364,17 +358,7 @@ const saveRequestChange = () => {
 
 // Discard changes and change the current request and context
 const discardRequestChange = () => {
-  setRESTRequest(
-    safelyExtractRESTRequest(
-      translateToNewRequest(props.request),
-      getDefaultRESTRequest()
-    ),
-    {
-      originLocation: "user-collection",
-      folderPath: props.folderPath,
-      requestIndex: props.requestIndex,
-    }
-  )
+  setRestReq(props.request)
   if (props.saveRequest)
     emit("select", {
       picked: {
@@ -390,18 +374,14 @@ const discardRequestChange = () => {
       originLocation: "user-collection",
       folderPath: props.folderPath,
       requestIndex: props.requestIndex,
+      req: props.request,
     })
   }
 
   confirmApiChange.value = false
 }
 
-const saveCurrentRequest = (saveCtx: {
-  originLocation: string
-  folderPath: string
-  requestIndex: number
-  requestID: number
-}) => {
+const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
@@ -413,17 +393,7 @@ const saveCurrentRequest = (saveCtx: {
         saveCtx.requestIndex,
         getRESTRequest()
       )
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(props.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "user-collection",
-          folderPath: props.folderPath,
-          requestIndex: props.requestIndex,
-        }
-      )
+      setRestReq(props.request)
       toast.success(t("request.saved"))
     } catch (e) {
       setRESTSaveContext(null)
@@ -447,17 +417,7 @@ const saveCurrentRequest = (saveCtx: {
           toast.success(`${t("request.saved")}`)
         }
       })
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(props.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "user-collection",
-          folderPath: props.folderPath,
-          requestIndex: props.requestIndex,
-        }
-      )
+      setRestReq(props.request)
     } catch (error) {
       showSaveRequestModal.value = true
       toast.error(`${t("error.something_went_wrong")}`)

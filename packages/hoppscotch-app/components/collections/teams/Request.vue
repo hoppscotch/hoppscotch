@@ -32,11 +32,7 @@
           {{ request.name }}
         </span>
         <span
-          v-if="
-            active &&
-            active.originLocation === 'team-collection' &&
-            active.requestID === requestIndex
-          "
+          v-if="isActive"
           v-tippy="{ theme: 'tooltip' }"
           class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
           :title="`${$t('collection.request_in_use')}`"
@@ -177,17 +173,17 @@ import {
   setRESTSaveContext,
   getRESTSaveContext,
   getRESTRequest,
-  getRESTRequestFromFolderPath,
-  editRESTRequest,
 } from "~/newstore/RESTSession"
+import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 const props = defineProps<{
   request: object
   collectionIndex: number
   folderIndex: number
-  folderName: string
+  folderName?: string | undefined
   requestIndex: number | string
   doc: boolean
   saveRequest: boolean
@@ -216,7 +212,7 @@ const emit = defineEmits<{
     e: "remove-request",
     data: {
       collectionIndex: number
-      folderName: string
+      folderName: string | undefined
       requestIndex: number | string
     }
   ): void
@@ -249,7 +245,7 @@ const active = useReadonlyStream(restSaveContext$, null)
 const isSelected = computed<boolean>(() => {
   return (
     props.picked &&
-    props.picked.pickedType === "teams-request" &&
+    props.picked.pickedType === "team-collection" &&
     props.picked.requestID === props.requestIndex
   )
 })
@@ -257,8 +253,9 @@ const isSelected = computed<boolean>(() => {
 const isActive = computed<boolean>(() => {
   return (
     active.value &&
-    active.value.originLocation === "teams-request" &&
-    active.value.requestIndex === props.requestIndex
+    active.value.originLocation === "team-collection" &&
+    active.value.requestID === props.requestIndex &&
+    isEqual(active.value.req, props.request)
   )
 })
 
@@ -281,8 +278,18 @@ const getRequestLabelColor = (method: string) => {
   )
 }
 
-const getIndexPath = (path: string) => {
-  return path.split("/").map((x) => parseInt(x))
+const setRestReq = (request: any) => {
+  setRESTRequest(
+    safelyExtractRESTRequest(
+      translateToNewRequest(request),
+      getDefaultRESTRequest()
+    ),
+    {
+      originLocation: "team-collection",
+      requestID: props.requestIndex,
+      req: request,
+    }
+  )
 }
 
 const selectRequest = () => {
@@ -298,28 +305,14 @@ const selectRequest = () => {
         },
       })
   } else {
-    const indexPath = getIndexPath(active.value.folderPath)
-
-    const currentReqWithNoChange = getRESTRequestFromFolderPath(
-      indexPath,
-      active.value.requestIndex
-    )
+    const currentReqWithNoChange = active.value.req
     const currentFullReq = getRESTRequest()
 
     // Check if whether user clicked the same request or not
     if (!isActive.value) {
       // Check if there is any changes done on the current request
       if (isEqual(currentReqWithNoChange, currentFullReq)) {
-        setRESTRequest(
-          safelyExtractRESTRequest(
-            translateToNewRequest(props.request),
-            getDefaultRESTRequest()
-          ),
-          {
-            originLocation: "team-collection",
-            requestID: props.requestIndex,
-          }
-        )
+        setRestReq(props.request)
         if (props.saveRequest)
           emit("select", {
             picked: {
@@ -345,16 +338,7 @@ const saveRequestChange = () => {
 
 // Discard changes and change the current request and context
 const discardRequestChange = () => {
-  setRESTRequest(
-    safelyExtractRESTRequest(
-      translateToNewRequest(props.request),
-      getDefaultRESTRequest()
-    ),
-    {
-      originLocation: "team-collection",
-      requestID: props.requestIndex,
-    }
-  )
+  setRestReq(props.request)
   if (props.saveRequest)
     emit("select", {
       picked: {
@@ -366,18 +350,14 @@ const discardRequestChange = () => {
     setRESTSaveContext({
       originLocation: "team-collection",
       requestID: props.requestIndex,
+      req: props.request,
     })
   }
 
   confirmApiChange.value = false
 }
 
-const saveCurrentRequest = (saveCtx: {
-  originLocation: string
-  folderPath: string
-  requestIndex: number
-  requestID: number
-}) => {
+const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
@@ -400,16 +380,7 @@ const saveCurrentRequest = (saveCtx: {
           toast.success(`${t("request.saved")}`)
         }
       })
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(props.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "team-collection",
-          requestID: props.requestIndex,
-        }
-      )
+      setRestReq(props.request)
     } catch (error) {
       showSaveRequestModal.value = true
       toast.error(`${t("error.something_went_wrong")}`)
@@ -422,16 +393,7 @@ const saveCurrentRequest = (saveCtx: {
         saveCtx.requestIndex,
         getRESTRequest()
       )
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          translateToNewRequest(props.request),
-          getDefaultRESTRequest()
-        ),
-        {
-          originLocation: "team-collection",
-          requestID: props.requestIndex,
-        }
-      )
+      setRestReq(props.request)
       toast.success(t("request.saved"))
     } catch (e) {
       setRESTSaveContext(null)

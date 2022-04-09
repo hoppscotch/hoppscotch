@@ -118,8 +118,8 @@ import groupBy from "lodash/groupBy"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
-import isEqual from "lodash/isEqual"
 import * as E from "fp-ts/Either"
+import isEqual from "lodash/isEqual"
 import {
   useI18n,
   useReadonlyStream,
@@ -147,16 +147,18 @@ import {
 import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 const props = defineProps<{
   page: "rest" | "graphql"
 }>()
 
+const toast = useToast()
+const t = useI18n()
+
 const filterText = ref("")
 const showMore = ref(false)
 const confirmRemove = ref(false)
-const toast = useToast()
-const t = useI18n()
 
 const clickedHistory = ref(null)
 const confirmApiChange = ref<boolean>(false)
@@ -225,6 +227,10 @@ const clearHistory = () => {
   toast.success(`${t("state.history_deleted")}`)
 }
 
+const setRestReq = (request: any) => {
+  setRESTRequest(safelyExtractRESTRequest(request, getDefaultRESTRequest()))
+}
+
 const useHistory = (entry: any) => {
   const currentFullReq = getRESTRequest()
   // Initial state trigers a popup
@@ -238,9 +244,7 @@ const useHistory = (entry: any) => {
     clickedHistory.value = entry
     confirmApiChange.value = true
   } else {
-    setRESTRequest(
-      safelyExtractRESTRequest(entry.request, getDefaultRESTRequest())
-    )
+    setRestReq(entry.request)
     clickedHistory.value = entry
   }
 }
@@ -258,20 +262,10 @@ const discardRequestChange = () => {
   if (saveCtx) {
     setRESTSaveContext(null)
   }
-  setRESTRequest(
-    safelyExtractRESTRequest(
-      clickedHistory.value.request,
-      getDefaultRESTRequest()
-    )
-  )
+  setRestReq(clickedHistory.value.request)
   confirmApiChange.value = false
 }
-const saveCurrentRequest = (saveCtx: {
-  originLocation: string
-  folderPath: string
-  requestIndex: number
-  requestID: number
-}) => {
+const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
@@ -283,12 +277,7 @@ const saveCurrentRequest = (saveCtx: {
         saveCtx.requestIndex,
         getRESTRequest()
       )
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          clickedHistory.value.request,
-          getDefaultRESTRequest()
-        )
-      )
+      setRestReq(clickedHistory.value.request)
       setRESTSaveContext(null)
       toast.success(`${t("request.saved")}`)
     } catch (e) {
@@ -313,12 +302,7 @@ const saveCurrentRequest = (saveCtx: {
           toast.success(`${t("request.saved")}`)
         }
       })
-      setRESTRequest(
-        safelyExtractRESTRequest(
-          clickedHistory.value.request,
-          getDefaultRESTRequest()
-        )
-      )
+      setRestReq(clickedHistory.value.request)
       setRESTSaveContext(null)
     } catch (error) {
       showSaveRequestModal.value = true

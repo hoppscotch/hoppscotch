@@ -163,6 +163,7 @@ import {
   translateToNewRequest,
 } from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
+import * as E from "fp-ts/Either"
 import {
   useI18n,
   useToast,
@@ -180,6 +181,8 @@ import {
   editRESTRequest,
   getRESTRequestFromFolderPath,
 } from "~/newstore/collections"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 
 const props = defineProps<{
   request: object
@@ -425,6 +428,40 @@ const saveCurrentRequest = (saveCtx: {
     } catch (e) {
       setRESTSaveContext(null)
       saveCurrentRequest(saveCtx)
+    }
+  } else if (saveCtx.originLocation === "team-collection") {
+    const req = getRESTRequest()
+
+    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
+    try {
+      runMutation(UpdateRequestDocument, {
+        requestID: saveCtx.requestID,
+        data: {
+          title: req.name,
+          request: JSON.stringify(req),
+        },
+      })().then((result) => {
+        if (E.isLeft(result)) {
+          toast.error(`${t("profile.no_permission")}`)
+        } else {
+          toast.success(`${t("request.saved")}`)
+        }
+      })
+      setRESTRequest(
+        safelyExtractRESTRequest(
+          translateToNewRequest(props.request),
+          getDefaultRESTRequest()
+        ),
+        {
+          originLocation: "user-collection",
+          folderPath: props.folderPath,
+          requestIndex: props.requestIndex,
+        }
+      )
+    } catch (error) {
+      showSaveRequestModal.value = true
+      toast.error(`${t("error.something_went_wrong")}`)
+      console.error(error)
     }
   }
 }

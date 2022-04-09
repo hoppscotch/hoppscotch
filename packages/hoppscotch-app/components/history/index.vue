@@ -139,10 +139,10 @@ import {
 } from "~/newstore/history"
 import {
   getDefaultRESTRequest,
-  setRESTRequest,
-  getRESTSaveContext,
-  setRESTSaveContext,
   getRESTRequest,
+  getRESTSaveContext,
+  setRESTRequest,
+  setRESTSaveContext,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
@@ -158,17 +158,16 @@ const confirmRemove = ref(false)
 const toast = useToast()
 const t = useI18n()
 
+const clickedHistory = ref(null)
+const confirmApiChange = ref<boolean>(false)
+const showSaveRequestModal = ref<boolean>(false)
+
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 
 type TimedHistoryEntry = {
   entry: HistoryEntry
   timeAgo: Ref<string>
 }
-
-const clickedHistory = ref(null)
-
-const confirmApiChange = ref<boolean>(false)
-const showSaveRequestModal = ref<boolean>(false)
 
 const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   props.page === "rest" ? restHistory$ : graphqlHistory$,
@@ -223,19 +222,17 @@ const filteredHistoryGroups = computed(() =>
 const clearHistory = () => {
   if (props.page === "rest") clearRESTHistory()
   else clearGraphqlHistory()
-  toast.success(t("state.history_deleted"))
+  toast.success(`${t("state.history_deleted")}`)
 }
 
 const useHistory = (entry: any) => {
   const currentFullReq = getRESTRequest()
-
   // Initial state trigers a popup
   if (!clickedHistory.value) {
     clickedHistory.value = entry
     confirmApiChange.value = true
     return
   }
-
   // Checks if there are any change done in current request and the history request
   if (!isEqual(currentFullReq, clickedHistory.value.request)) {
     clickedHistory.value = entry
@@ -269,7 +266,6 @@ const discardRequestChange = () => {
   )
   confirmApiChange.value = false
 }
-
 const saveCurrentRequest = (saveCtx: {
   originLocation: string
   folderPath: string
@@ -294,7 +290,7 @@ const saveCurrentRequest = (saveCtx: {
         )
       )
       setRESTSaveContext(null)
-      toast.success(t("request.saved"))
+      toast.success(`${t("request.saved")}`)
     } catch (e) {
       console.error(e)
       setRESTSaveContext(null)
@@ -302,7 +298,6 @@ const saveCurrentRequest = (saveCtx: {
     }
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
-
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
       runMutation(UpdateRequestDocument, {
@@ -313,9 +308,9 @@ const saveCurrentRequest = (saveCtx: {
         },
       })().then((result) => {
         if (E.isLeft(result)) {
-          toast.error(t("profile.no_permission"))
+          toast.error(`${t("profile.no_permission")}`)
         } else {
-          toast.success(t("request.saved"))
+          toast.success(`${t("request.saved")}`)
         }
       })
       setRESTRequest(
@@ -327,7 +322,7 @@ const saveCurrentRequest = (saveCtx: {
       setRESTSaveContext(null)
     } catch (error) {
       showSaveRequestModal.value = true
-      toast.error(t("error.something_went_wrong"))
+      toast.error(`${t("error.something_went_wrong")}`)
       console.error(error)
       setRESTSaveContext(null)
     }
@@ -350,13 +345,13 @@ const deleteBatchHistoryEntry = (entries: TimedHistoryEntry[]) => {
       deleteGraphqlHistoryEntry(entry.entry as GQLHistoryEntry)
     })
   }
-  toast.success(t("state.deleted"))
+  toast.success(`${t("state.deleted")}`)
 }
 
 const deleteHistory = (entry: any) => {
   if (props.page === "rest") deleteRESTHistoryEntry(entry)
   else deleteGraphqlHistoryEntry(entry)
-  toast.success(t("state.deleted"))
+  toast.success(`${t("state.deleted")}`)
 }
 
 const toggleStar = (entry: any) => {

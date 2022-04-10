@@ -100,6 +100,7 @@
     <CollectionsGraphqlAddRequest
       :show="showModalAddRequest"
       :folder-path="editingFolderPath"
+      :loading-state="modalLoadingState"
       @add-request="onAddRequest($event)"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -168,6 +169,7 @@ export default defineComponent({
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
+      modalLoadingState: false,
       editingCollection: undefined,
       editingCollectionIndex: undefined,
       editingFolder: undefined,
@@ -257,6 +259,8 @@ export default defineComponent({
       this.displayModalEdit(true)
     },
     onAddRequest({ name, path }) {
+      this.modalLoadingState = true
+
       const newRequest = {
         ...getGQLSession().request,
         name,
@@ -269,6 +273,7 @@ export default defineComponent({
         response: "",
       })
 
+      this.modalLoadingState = false
       this.displayModalAddRequest(false)
     },
     addRequest(payload) {

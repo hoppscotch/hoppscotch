@@ -164,6 +164,7 @@
       :show="showModalAddRequest"
       :folder="editingFolder"
       :folder-path="editingFolderPath"
+      :loading-state="modalLoadingState"
       @add-request="onAddRequest($event)"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -263,6 +264,7 @@ export default defineComponent({
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
+      modalLoadingState: false,
       editingCollection: undefined,
       editingCollectionIndex: undefined,
       editingFolder: undefined,
@@ -682,6 +684,8 @@ export default defineComponent({
       this.displayModalAddRequest(true)
     },
     onAddRequest({ name, folder, path }) {
+      this.modalLoadingState = true
+
       const newRequest = {
         ...getRESTRequest(),
         name,
@@ -695,6 +699,9 @@ export default defineComponent({
           folderPath: path,
           requestIndex: insertionIndex,
         })
+
+        this.modalLoadingState = false
+        this.displayModalAddRequest(false)
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
@@ -708,6 +715,7 @@ export default defineComponent({
           },
         })().then((result) => {
           if (E.isLeft(result)) {
+            this.modalLoadingState = false
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(result.left.error)
           } else {
@@ -719,11 +727,11 @@ export default defineComponent({
               collectionID: createRequestInCollection.collection.id,
               teamID: createRequestInCollection.collection.team.id,
             })
+            this.modalLoadingState = false
+            this.displayModalAddRequest(false)
           }
         })
       }
-
-      this.displayModalAddRequest(false)
     },
     duplicateRequest({ folderPath, request, collectionID }) {
       if (this.collectionsType.type === "team-collections") {

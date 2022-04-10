@@ -22,7 +22,11 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="addRequest" />
+        <ButtonPrimary
+          :label="$t('action.save')"
+          :loading="loadingState"
+          @click.native="addRequest"
+        />
         <ButtonSecondary
           :label="$t('action.cancel')"
           @click.native="hideModal"
@@ -41,6 +45,7 @@ const t = useI18n()
 
 const props = defineProps<{
   show: boolean
+  loadingState: boolean
   folder?: object
   folderPath?: string
 }>()
@@ -62,7 +67,6 @@ const addRequest = () => {
     folder: props.folder,
     path: props.folderPath,
   })
-  hideModal()
 }
 
 const hideModal = () => {

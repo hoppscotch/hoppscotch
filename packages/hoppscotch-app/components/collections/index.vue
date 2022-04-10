@@ -217,7 +217,7 @@ import {
   editRESTRequest,
   saveRESTRequestAs,
 } from "~/newstore/collections"
-import { setRESTRequest, getDefaultRESTRequest } from "~/newstore/RESTSession"
+import { setRESTRequest, getRESTRequest } from "~/newstore/RESTSession"
 import {
   useReadonlyStream,
   useStreamSubscriber,
@@ -683,7 +683,7 @@ export default defineComponent({
     },
     onAddRequest({ name, folder, path }) {
       const newRequest = {
-        ...getDefaultRESTRequest(),
+        ...getRESTRequest(),
         name,
       }
 

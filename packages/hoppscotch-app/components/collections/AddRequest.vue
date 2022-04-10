@@ -32,38 +32,40 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { useRESTRequestName } from "~/newstore/RESTSession"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folder: { type: Object, default: () => {} },
-    folderPath: { type: String, default: null },
-    collectionIndex: { type: Number, default: null },
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  methods: {
-    addRequest() {
-      if (!this.name) {
-        this.$toast.error(`${this.$t("error.empty_req_name")}`)
-        return
-      }
-      this.$emit("add-request", {
-        name: this.name,
-        folder: this.folder,
-        path: this.folderPath || `${this.collectionIndex}`,
-      })
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  folder?: object
+  folderPath?: string
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "add-request", v: object): void
+}>()
+
+const name = useRESTRequestName()
+
+const addRequest = () => {
+  if (!name.value) {
+    toast.error(`${t("error.empty_req_name")}`)
+    return
+  }
+  emit("add-request", {
+    name: name.value,
+    folder: props.folder,
+    path: props.folderPath,
+  })
+  hideModal()
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

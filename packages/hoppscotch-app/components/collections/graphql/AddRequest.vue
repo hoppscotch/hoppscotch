@@ -34,37 +34,38 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { useGQLRequestName } from "~/newstore/GQLSession"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folderPath: { type: String, default: null },
-    collectionIndex: { type: Number, default: null },
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  methods: {
-    addRequest() {
-      if (!this.name) {
-        this.$toast.error(`${this.$t("error.empty_req_name")}`)
-        return
-      }
-      this.$emit("add-request", {
-        name: this.name,
-        path: this.folderPath || `${this.collectionIndex}`,
-      })
+const toast = useToast()
+const t = useI18n()
 
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const props = defineProps<{
+  show: boolean
+  folderPath?: string
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "add-request", v: object): void
+}>()
+
+const name = useGQLRequestName()
+
+const addRequest = () => {
+  if (!name.value) {
+    toast.error(`${t("error.empty_req_name")}`)
+    return
+  }
+  emit("add-request", {
+    name: name.value,
+    path: props.folderPath,
+  })
+  hideModal()
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

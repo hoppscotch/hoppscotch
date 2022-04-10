@@ -143,7 +143,7 @@ import {
   addGraphqlFolder,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
-import { defaultGQLSession, setGQLSession } from "~/newstore/GQLSession"
+import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
 
 export default defineComponent({
   props: {
@@ -258,7 +258,7 @@ export default defineComponent({
     },
     onAddRequest({ name, path }) {
       const newRequest = {
-        ...defaultGQLSession.request,
+        ...getGQLSession().request,
         name,
       }
 

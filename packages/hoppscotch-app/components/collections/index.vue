@@ -684,8 +684,6 @@ export default defineComponent({
       this.displayModalAddRequest(true)
     },
     onAddRequest({ name, folder, path }) {
-      this.modalLoadingState = true
-
       const newRequest = {
         ...getRESTRequest(),
         name,
@@ -700,12 +698,12 @@ export default defineComponent({
           requestIndex: insertionIndex,
         })
 
-        this.modalLoadingState = false
         this.displayModalAddRequest(false)
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
+        this.modalLoadingState = true
         runMutation(CreateRequestInCollectionDocument, {
           collectionID: folder.id,
           data: {
@@ -714,8 +712,8 @@ export default defineComponent({
             title: name,
           },
         })().then((result) => {
+          this.modalLoadingState = false
           if (E.isLeft(result)) {
-            this.modalLoadingState = false
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(result.left.error)
           } else {
@@ -727,7 +725,6 @@ export default defineComponent({
               collectionID: createRequestInCollection.collection.id,
               teamID: createRequestInCollection.collection.team.id,
             })
-            this.modalLoadingState = false
             this.displayModalAddRequest(false)
           }
         })

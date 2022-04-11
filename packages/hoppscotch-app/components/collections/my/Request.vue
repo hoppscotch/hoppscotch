@@ -159,6 +159,7 @@
 <script setup lang="ts">
 import { ref, computed } from "@nuxtjs/composition-api"
 import {
+  HoppRESTRequest,
   safelyExtractRESTRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
@@ -183,7 +184,7 @@ import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 const props = defineProps<{
-  request: object
+  request: HoppRESTRequest
   collectionIndex: number
   folderIndex: number
   folderName: string
@@ -252,7 +253,7 @@ const deleteAction = ref<any | null>(null)
 
 const active = useReadonlyStream(restSaveContext$, null)
 
-const isSelected = computed<boolean>(() => {
+const isSelected = computed(() => {
   return (
     props.picked &&
     props.picked.pickedType === "my-request" &&
@@ -261,16 +262,15 @@ const isSelected = computed<boolean>(() => {
   )
 })
 
-const isActive = computed<boolean>(() => {
-  return (
+const isActive = computed(
+  () =>
     active.value &&
     active.value.originLocation === "user-collection" &&
     active.value.folderPath === props.folderPath &&
     active.value.requestIndex === props.requestIndex
-  )
-})
+)
 
-const dragStart = ({ dataTransfer }) => {
+const dragStart = ({ dataTransfer }: any) => {
   dragging.value = !dragging.value
   dataTransfer.setData("folderPath", props.folderPath)
   dataTransfer.setData("requestIndex", props.requestIndex)
@@ -285,11 +285,10 @@ const removeRequest = () => {
   })
 }
 
-const getRequestLabelColor = (method: string) => {
-  return (
-    requestMethodLabels[method.toLowerCase()] || requestMethodLabels.default
-  )
-}
+const getRequestLabelColor = (method: string) =>
+  requestMethodLabels[
+    method.toLowerCase() as keyof typeof requestMethodLabels
+  ] || requestMethodLabels.default
 
 const setRestReq = (request: any) => {
   setRESTRequest(
@@ -394,7 +393,7 @@ const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
         getRESTRequest()
       )
       setRestReq(props.request)
-      toast.success(t("request.saved"))
+      toast.success(`${t("request.saved")}`)
     } catch (e) {
       setRESTSaveContext(null)
       saveCurrentRequest(saveCtx)

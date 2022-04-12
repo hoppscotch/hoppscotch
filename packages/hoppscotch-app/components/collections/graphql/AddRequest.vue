@@ -35,8 +35,9 @@
 </template>
 
 <script setup lang="ts">
-import { useGQLRequestName } from "~/newstore/GQLSession"
+import { ref, watch } from "@nuxtjs/composition-api"
 import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useGQLRequestName } from "~/newstore/GQLSession"
 
 const toast = useToast()
 const t = useI18n()
@@ -51,7 +52,13 @@ const emit = defineEmits<{
   (e: "add-request", v: object): void
 }>()
 
-const name = useGQLRequestName()
+const name = ref("")
+
+watch(props, (v) => {
+  if (v.show) {
+    name.value = useGQLRequestName().value
+  }
+})
 
 const addRequest = () => {
   if (!name.value) {

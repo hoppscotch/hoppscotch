@@ -37,8 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { useRESTRequestName } from "~/newstore/RESTSession"
+import { ref, watch } from "@nuxtjs/composition-api"
 import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useRESTRequestName } from "~/newstore/RESTSession"
 
 const toast = useToast()
 const t = useI18n()
@@ -55,7 +56,13 @@ const emit = defineEmits<{
   (e: "add-request", v: object): void
 }>()
 
-const name = useRESTRequestName()
+const name = ref("")
+
+watch(props, (v) => {
+  if (v.show) {
+    name.value = useRESTRequestName().value
+  }
+})
 
 const addRequest = () => {
   if (!name.value) {

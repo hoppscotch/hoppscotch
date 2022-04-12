@@ -685,7 +685,7 @@ export default defineComponent({
     },
     onAddRequest({ name, folder, path }) {
       const newRequest = {
-        ...getRESTRequest(),
+        ...cloneDeep(getRESTRequest()),
         name,
       }
 

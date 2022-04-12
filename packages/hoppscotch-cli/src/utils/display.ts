@@ -4,20 +4,69 @@ import { handleError } from "../handlers/error";
 import { RequestConfig } from "../interfaces/request";
 import { RequestRunnerResponse, TestReport } from "../interfaces/response";
 import { HoppCLIError } from "../types/errors";
-import { exceptionColors, getColorStatusCode } from "./getters";
 import {
-  getFailedExpectedResults,
-  getFailedTestsReport,
-  getTestMetrics,
-} from "./test";
-const { FAIL, SUCCESS, BG_INFO } = exceptionColors;
+  PreRequestMetrics,
+  RequestMetrics,
+  TestMetrics,
+} from "../types/response";
+import { exceptionColors, getColorStatusCode } from "./getters";
+import { getFailedExpectedResults, getFailedTestsReport } from "./test";
+const { FAIL, SUCCESS, BG_INFO, INFO_BRIGHT } = exceptionColors;
+
+/**
+ * Prints total failing and passing stats of executed pre-request-scripts.
+ * @param preRequestMetrics Provides data for total failing and passing
+ * stats of all executed pre-request-scripts.
+ */
+export const printPreRequestMetrics = (
+  preRequestMetrics: PreRequestMetrics
+) => {
+  const {
+    scripts: { failing, passing },
+  } = preRequestMetrics;
+
+  const failedPreRequestsOut = FAIL(`${failing} failing`);
+  const passedPreRequestsOut = SUCCESS(`${passing} passing`);
+  const preRequestsOut = `Pre-Request Scripts: ${failedPreRequestsOut} ${passedPreRequestsOut}\n`;
+
+  const message = `\n${preRequestsOut}`;
+  process.stdout.write(message);
+};
+
+/**
+ * Prints total failing and passing stats, duration of executed request.
+ * @param requestsMetrics Provides data for total duration and total failing and
+ * passing stats of all executed requests.
+ */
+export const printRequestsMetrics = (requestsMetrics: RequestMetrics) => {
+  const {
+    requests: { failing, passing },
+    duration,
+  } = requestsMetrics;
+
+  const failedRequestsOut = FAIL(`${failing} failing`);
+  const passedRequestsOut = SUCCESS(`${passing} passing`);
+  const requestsOut = `Requests: ${failedRequestsOut} ${passedRequestsOut}\n`;
+  const requestsDurationOut =
+    duration > 0 ? `Requests Duration: ${INFO_BRIGHT(`${duration} s`)}\n` : "";
+
+  const message = `\n${requestsOut}${requestsDurationOut}`;
+  process.stdout.write(message);
+};
 
 /**
  * Prints test-suites in pretty-way describing each test-suites failed/passed
- * status.
+ * status and duration to execute the test-script.
  * @param testsReport Providing details of each test-suites with tests-report.
+ * @param duration Time taken (in seconds) to execute the test-script.
  */
-export const printTestSuitesReport = (testsReport: TestReport[]) => {
+export const printTestSuitesReport = (
+  testsReport: TestReport[],
+  duration: number
+) => {
+  const durationMsg =
+    duration > 0 ? INFO_BRIGHT(`Ran tests in ${duration} s`) : "";
+
   group();
   for (const testReport of testsReport) {
     const { failing, descriptor } = testReport;
@@ -28,15 +77,18 @@ export const printTestSuitesReport = (testsReport: TestReport[]) => {
       log(`${SUCCESS("✔")} ${descriptor}`);
     }
   }
+  log(durationMsg);
   groupEnd();
 };
 
 /**
- * Prints total number of test-cases and test-suites passed/failed.
- * @param testsReport Provides testSuites and testCases metrics.
+ * Prints total failing and passing stats for test-suites, test-cases, test-scripts,
+ * and total duration of executed test-scripts.
+ * @param testsMetrics Provides testSuites, testCases metrics, test-script
+ * execution duration and test-script passing/failing stats.
  */
-export const printTestsMetrics = (testsReport: TestReport[]) => {
-  const { testSuites, tests } = getTestMetrics(testsReport);
+export const printTestsMetrics = (testsMetrics: TestMetrics) => {
+  const { testSuites, tests, duration, scripts } = testsMetrics;
 
   const failedTestCasesOut = FAIL(`${tests.failing} failing`);
   const passedTestCasesOut = SUCCESS(`${tests.passing} passing`);
@@ -46,7 +98,14 @@ export const printTestsMetrics = (testsReport: TestReport[]) => {
   const passedTestSuitesOut = SUCCESS(`${testSuites.passing} passing`);
   const testSuitesOut = `Test Suites: ${failedTestSuitesOut} ${passedTestSuitesOut}\n`;
 
-  const message = `\n${testCasesOut}${testSuitesOut}`;
+  const failedTestScriptsOut = FAIL(`${scripts.failing} failing`);
+  const passedTestScriptsOut = SUCCESS(`${scripts.passing} passing`);
+  const testScriptsOut = `Test Scripts: ${failedTestScriptsOut} ${passedTestScriptsOut}\n`;
+
+  const testsDurationOut =
+    duration > 0 ? `Tests Duration: ${INFO_BRIGHT(`${duration} s`)}\n` : "";
+
+  const message = `\n${testCasesOut}${testSuitesOut}${testScriptsOut}${testsDurationOut}`;
   process.stdout.write(message);
 };
 
@@ -120,10 +179,11 @@ export const printRequestRunner = {
 
   // Prints response's status, when request-runner executes successfully.
   success: (requestResponse: RequestRunnerResponse) => {
-    const { status, statusText } = requestResponse;
+    const { status, statusText, duration } = requestResponse;
     const statusMsg = getColorStatusCode(status, statusText);
+    const durationMsg = duration > 0 ? INFO_BRIGHT(`( ${duration} s )`) : "";
 
-    process.stdout.write(` ${statusMsg}\n`);
+    process.stdout.write(` ${statusMsg} ${durationMsg}\n`);
   },
 
   // Prints error message, when request-runner fails to execute.
@@ -134,7 +194,12 @@ export const printRequestRunner = {
  * Provides methods for printing test-runner's state messages.
  */
 export const printTestRunner = {
+  // Prints test-runner failed message.
   fail: () => log(FAIL("⚠ Error running test-script.")),
+
+  // Prints test-runner success message including tests-report.
+  success: (testsReport: TestReport[], duration: number) =>
+    printTestSuitesReport(testsReport, duration),
 };
 
 /**

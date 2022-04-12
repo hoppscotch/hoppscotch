@@ -29,6 +29,7 @@ export interface RequestRunnerResponse extends TestResponse {
   endpoint: string;
   method: Method;
   statusText: string;
+  duration: number;
 }
 
 /**

@@ -3,16 +3,30 @@ import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
 import { bold } from "chalk";
 import { log } from "console";
+import { round } from "lodash";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import { HoppEnvs, CollectionStack, RequestReport } from "../types/request";
-import { preProcessRequest, processRequest } from "./request";
+import {
+  getRequestMetrics,
+  preProcessRequest,
+  processRequest,
+} from "./request";
 import { exceptionColors } from "./getters";
-import { TestReport } from "../interfaces/response";
 import {
   printErrorsReport,
   printFailedTestsReport,
+  printPreRequestMetrics,
+  printRequestsMetrics,
   printTestsMetrics,
 } from "./display";
+import {
+  PreRequestMetrics,
+  RequestMetrics,
+  TestMetrics,
+} from "../types/response";
+import { getTestMetrics } from "./test";
+import { DEFAULT_DURATION_PRECISION } from "./constants";
+import { getPreRequestMetrics } from "./pre-request";
 const { WARN, FAIL } = exceptionColors;
 
 /**
@@ -82,21 +96,39 @@ const getCollectionStack = (
   );
 
 /**
- * Prints collection-runner-report using test-metrics data in table format.
+ * Prints collection-runner-report using test-metrics, request-metrics and
+ * pre-request-metrics data in pretty-format.
  * @param requestsReport Provides data for each request-report which includes
- * failed-tests-report, errors
+ * path of each request within collection-json file, failed-tests-report, errors,
+ * total execution duration for requests, pre-request-scripts, test-scripts.
  * @returns True, if collection runner executed without any errors or failed test-cases.
  * False, if errors occured or test-cases failed.
  */
 export const collectionsRunnerResult = (
   requestsReport: RequestReport[]
 ): boolean => {
-  const testsReport: TestReport[] = [];
+  const overallTestMetrics = <TestMetrics>{
+    tests: { failing: 0, passing: 0 },
+    testSuites: { failing: 0, passing: 0 },
+    duration: 0,
+    scripts: { failing: 0, passing: 0 },
+  };
+  const overallRequestMetrics = <RequestMetrics>{
+    requests: { failing: 0, passing: 0 },
+    duration: 0,
+  };
+  const overallPreRequestMetrics = <PreRequestMetrics>{
+    scripts: { failing: 0, passing: 0 },
+    duration: 0,
+  };
   let finalResult = true;
 
   // Printing requests-report details of failed-tests and errors
   for (const requestReport of requestsReport) {
-    const { path, tests, errors, result } = requestReport;
+    const { path, tests, errors, result, duration } = requestReport;
+    const requestDuration = duration.request;
+    const testsDuration = duration.test;
+    const preRequestDuration = duration.preRequest;
 
     finalResult = finalResult && result;
 
@@ -104,10 +136,58 @@ export const collectionsRunnerResult = (
 
     printErrorsReport(path, errors);
 
-    testsReport.push.apply(testsReport, tests);
+    /**
+     * Extracting current request report's test-metrics and updating
+     * overall test-metrics.
+     */
+    const testMetrics = getTestMetrics(tests, testsDuration, errors);
+    overallTestMetrics.duration += testMetrics.duration;
+    overallTestMetrics.testSuites.failing += testMetrics.testSuites.failing;
+    overallTestMetrics.testSuites.passing += testMetrics.testSuites.passing;
+    overallTestMetrics.tests.failing += testMetrics.tests.failing;
+    overallTestMetrics.tests.passing += testMetrics.tests.passing;
+    overallTestMetrics.scripts.failing += testMetrics.scripts.failing;
+    overallTestMetrics.scripts.passing += testMetrics.scripts.passing;
+
+    /**
+     * Extracting current request report's request-metrics and updating
+     * overall request-metrics.
+     */
+    const requestMetrics = getRequestMetrics(errors, requestDuration);
+    overallRequestMetrics.duration += requestMetrics.duration;
+    overallRequestMetrics.requests.failing += requestMetrics.requests.failing;
+    overallRequestMetrics.requests.passing += requestMetrics.requests.passing;
+
+    /**
+     * Extracting current request report's pre-request-metrics and updating
+     * overall pre-request-metrics.
+     */
+    const preRequestMetrics = getPreRequestMetrics(errors, preRequestDuration);
+    overallPreRequestMetrics.duration += preRequestMetrics.duration;
+    overallPreRequestMetrics.scripts.failing +=
+      preRequestMetrics.scripts.failing;
+    overallPreRequestMetrics.scripts.passing +=
+      preRequestMetrics.scripts.passing;
   }
 
-  printTestsMetrics(testsReport);
+  const testMetricsDuration = overallTestMetrics.duration;
+  const requestMetricsDuration = overallRequestMetrics.duration;
+
+  // Rounding-off overall test-metrics duration upto DEFAULT_DURATION_PRECISION.
+  overallTestMetrics.duration = round(
+    testMetricsDuration,
+    DEFAULT_DURATION_PRECISION
+  );
+
+  // Rounding-off overall request-metrics duration upto DEFAULT_DURATION_PRECISION.
+  overallRequestMetrics.duration = round(
+    requestMetricsDuration,
+    DEFAULT_DURATION_PRECISION
+  );
+
+  printTestsMetrics(overallTestMetrics);
+  printRequestsMetrics(overallRequestMetrics);
+  printPreRequestMetrics(overallPreRequestMetrics);
 
   return finalResult;
 };

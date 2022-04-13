@@ -180,14 +180,6 @@ import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
-// interface DragTransfer {
-//   dropEffect: string
-//   effectAllowed: string
-//   files: []
-//   items: []
-//   types: []
-// }
-
 const props = defineProps<{
   request: HoppRESTRequest
   collectionIndex: number

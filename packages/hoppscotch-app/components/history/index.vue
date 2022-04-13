@@ -168,8 +168,8 @@ const showMore = ref(false)
 const confirmRemove = ref(false)
 
 const clickedHistory = ref<HistoryEntry | null>(null)
-const confirmChange = ref<boolean>(false)
-const showSaveRequestModal = ref<boolean>(false)
+const confirmChange = ref(false)
+const showSaveRequestModal = ref(false)
 
 const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   props.page === "rest" ? restHistory$ : graphqlHistory$,
@@ -249,14 +249,14 @@ const useHistory = (entry: HistoryEntry) => {
   }
 }
 
-// Save current request to the collection
+/** Save current request to the collection */
 const saveRequestChange = () => {
   const saveCtx = getRESTSaveContext()
   saveCurrentRequest(saveCtx)
   confirmChange.value = false
 }
 
-// Discard changes and change the current request and remove the collection context
+/** Discard changes and change the current request and remove the collection context */
 const discardRequestChange = () => {
   const saveCtx = getRESTSaveContext()
   if (saveCtx) {
@@ -342,6 +342,7 @@ const deleteHistory = (entry: HistoryEntry) => {
 }
 
 const toggleStar = (entry: HistoryEntry) => {
+  //History entry type specified because function does not know the type
   if (props.page === "rest")
     toggleRESTHistoryEntryStar(entry as RESTHistoryEntry)
   else toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)

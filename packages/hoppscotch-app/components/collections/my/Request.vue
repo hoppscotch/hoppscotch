@@ -256,7 +256,7 @@ const emit = defineEmits<{
 const t = useI18n()
 const toast = useToast()
 
-const dragging = ref<boolean>(false)
+const dragging = ref(false)
 const requestMethodLabels = {
   get: "text-green-500",
   post: "text-yellow-500",
@@ -264,9 +264,9 @@ const requestMethodLabels = {
   delete: "text-red-500",
   default: "text-gray-500",
 }
-const confirmRemove = ref<boolean>(false)
-const confirmChange = ref<boolean>(false)
-const showSaveRequestModal = ref<boolean>(false)
+const confirmRemove = ref(false)
+const confirmChange = ref(false)
+const showSaveRequestModal = ref(false)
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -331,7 +331,6 @@ const setRestReq = (request: any) => {
 }
 
 const selectRequest = () => {
-  // If there is no active context
   if (!active.value) {
     confirmChange.value = true
 
@@ -373,14 +372,14 @@ const selectRequest = () => {
   }
 }
 
-// Save current request to the collection
+/** Save current request to the collection */
 const saveRequestChange = () => {
   const saveCtx = getRESTSaveContext()
   saveCurrentRequest(saveCtx)
   confirmChange.value = false
 }
 
-// Discard changes and change the current request and context
+/** Discard changes and change the current request and context */
 const discardRequestChange = () => {
   setRestReq(props.request)
   if (props.saveRequest)

@@ -97,9 +97,9 @@
       @hide-modal="confirmRemove = false"
       @resolve="clearHistory"
     />
-    <HttpApiChangeConfirmModal
-      :show="confirmApiChange"
-      @hide-modal="confirmApiChange = false"
+    <HttpReqChangeConfirmModal
+      :show="confirmChange"
+      @hide-modal="confirmChange = false"
       @save-change="saveRequestChange"
       @discard-change="discardRequestChange"
     />
@@ -113,7 +113,7 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref } from "@nuxtjs/composition-api"
-import { safelyExtractRESTRequest } from "@hoppscotch/data"
+import { HoppRESTRequest, safelyExtractRESTRequest } from "@hoppscotch/data"
 import groupBy from "lodash/groupBy"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
@@ -149,6 +149,13 @@ import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
+type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
+
+type TimedHistoryEntry = {
+  entry: HistoryEntry
+  timeAgo: Ref<string>
+}
+
 const props = defineProps<{
   page: "rest" | "graphql"
 }>()
@@ -160,16 +167,9 @@ const filterText = ref("")
 const showMore = ref(false)
 const confirmRemove = ref(false)
 
-const clickedHistory = ref(null)
-const confirmApiChange = ref<boolean>(false)
+const clickedHistory = ref<HistoryEntry | null>(null)
+const confirmChange = ref<boolean>(false)
 const showSaveRequestModal = ref<boolean>(false)
-
-type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
-
-type TimedHistoryEntry = {
-  entry: HistoryEntry
-  timeAgo: Ref<string>
-}
 
 const history = useReadonlyStream<RESTHistoryEntry[] | GQLHistoryEntry[]>(
   props.page === "rest" ? restHistory$ : graphqlHistory$,
@@ -227,24 +227,24 @@ const clearHistory = () => {
   toast.success(`${t("state.history_deleted")}`)
 }
 
-const setRestReq = (request: any) => {
+const setRestReq = (request: HoppRESTRequest | null | undefined) => {
   setRESTRequest(safelyExtractRESTRequest(request, getDefaultRESTRequest()))
 }
 
-const useHistory = (entry: any) => {
+const useHistory = (entry: HistoryEntry) => {
   const currentFullReq = getRESTRequest()
   // Initial state trigers a popup
   if (!clickedHistory.value) {
     clickedHistory.value = entry
-    confirmApiChange.value = true
+    confirmChange.value = true
     return
   }
   // Checks if there are any change done in current request and the history request
   if (!isEqual(currentFullReq, clickedHistory.value.request)) {
     clickedHistory.value = entry
-    confirmApiChange.value = true
+    confirmChange.value = true
   } else {
-    setRestReq(entry.request)
+    props.page === "rest" && setRestReq(entry.request as HoppRESTRequest)
     clickedHistory.value = entry
   }
 }
@@ -253,7 +253,7 @@ const useHistory = (entry: any) => {
 const saveRequestChange = () => {
   const saveCtx = getRESTSaveContext()
   saveCurrentRequest(saveCtx)
-  confirmApiChange.value = false
+  confirmChange.value = false
 }
 
 // Discard changes and change the current request and remove the collection context
@@ -262,10 +262,12 @@ const discardRequestChange = () => {
   if (saveCtx) {
     setRESTSaveContext(null)
   }
-  setRestReq(clickedHistory.value.request)
-  confirmApiChange.value = false
+  clickedHistory.value &&
+    setRestReq(clickedHistory.value.request as HoppRESTRequest)
+  confirmChange.value = false
 }
-const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
+
+const saveCurrentRequest = (saveCtx: HoppRequestSaveContext | null) => {
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
@@ -277,7 +279,8 @@ const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
         saveCtx.requestIndex,
         getRESTRequest()
       )
-      setRestReq(clickedHistory.value.request)
+      clickedHistory.value &&
+        setRestReq(clickedHistory.value.request as HoppRESTRequest)
       setRESTSaveContext(null)
       toast.success(`${t("request.saved")}`)
     } catch (e) {
@@ -287,7 +290,6 @@ const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
     }
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
-    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
       runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
@@ -302,7 +304,8 @@ const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
           toast.success(`${t("request.saved")}`)
         }
       })
-      setRestReq(clickedHistory.value.request)
+      clickedHistory.value &&
+        setRestReq(clickedHistory.value.request as HoppRESTRequest)
       setRESTSaveContext(null)
     } catch (error) {
       showSaveRequestModal.value = true
@@ -332,14 +335,15 @@ const deleteBatchHistoryEntry = (entries: TimedHistoryEntry[]) => {
   toast.success(`${t("state.deleted")}`)
 }
 
-const deleteHistory = (entry: any) => {
-  if (props.page === "rest") deleteRESTHistoryEntry(entry)
-  else deleteGraphqlHistoryEntry(entry)
+const deleteHistory = (entry: HistoryEntry) => {
+  if (props.page === "rest") deleteRESTHistoryEntry(entry as RESTHistoryEntry)
+  else deleteGraphqlHistoryEntry(entry as GQLHistoryEntry)
   toast.success(`${t("state.deleted")}`)
 }
 
-const toggleStar = (entry: any) => {
-  if (props.page === "rest") toggleRESTHistoryEntryStar(entry)
-  else toggleGraphqlHistoryEntryStar(entry)
+const toggleStar = (entry: HistoryEntry) => {
+  if (props.page === "rest")
+    toggleRESTHistoryEntryStar(entry as RESTHistoryEntry)
+  else toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)
 }
 </script>

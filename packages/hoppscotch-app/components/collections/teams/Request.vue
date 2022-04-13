@@ -89,7 +89,7 @@
                 :shortcut="['E']"
                 @click.native="
                   () => {
-                    $emit('edit-request', {
+                    emit('edit-request', {
                       collectionIndex,
                       folderIndex,
                       folderName,
@@ -107,7 +107,7 @@
                 :shortcut="['D']"
                 @click.native="
                   () => {
-                    $emit('duplicate-request', {
+                    emit('duplicate-request', {
                       request,
                       requestIndex,
                       collectionID,
@@ -139,9 +139,9 @@
       @hide-modal="confirmRemove = false"
       @resolve="removeRequest"
     />
-    <HttpApiChangeConfirmModal
-      :show="confirmApiChange"
-      @hide-modal="confirmApiChange = false"
+    <HttpReqChangeConfirmModal
+      :show="confirmChange"
+      @hide-modal="confirmChange = false"
       @save-change="saveRequestChange"
       @discard-change="discardRequestChange"
     />
@@ -156,6 +156,7 @@
 <script setup lang="ts">
 import { ref, computed } from "@nuxtjs/composition-api"
 import {
+  HoppRESTRequest,
   safelyExtractRESTRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
@@ -179,19 +180,30 @@ import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
+// interface DragTransfer {
+//   dropEffect: string
+//   effectAllowed: string
+//   files: []
+//   items: []
+//   types: []
+// }
+
 const props = defineProps<{
-  request: object
+  request: HoppRESTRequest
   collectionIndex: number
   folderIndex: number
-  folderName?: string | undefined
-  requestIndex: number | string
+  folderName?: string
+  requestIndex: string
   doc: boolean
   saveRequest: boolean
-  collectionsType: object
+  collectionsType: {
+    type: "my-collections" | "team-collections"
+    selectedTeam: Team | undefined
+  }
   collectionID: string
   picked?: {
     pickedType: string
-    requestID: number | string
+    requestID: string
   }
 }>()
 
@@ -202,7 +214,7 @@ const emit = defineEmits<{
       | {
           picked: {
             pickedType: string
-            requestID: number | string
+            requestID: string
           }
         }
       | undefined
@@ -213,7 +225,27 @@ const emit = defineEmits<{
     data: {
       collectionIndex: number
       folderName: string | undefined
-      requestIndex: number | string
+      requestIndex: string
+    }
+  ): void
+
+  (
+    e: "edit-request",
+    data: {
+      collectionIndex: number
+      folderIndex: number
+      folderName: string | undefined
+      requestIndex: string
+      request: HoppRESTRequest
+    }
+  ): void
+
+  (
+    e: "duplicate-request",
+    data: {
+      collectionID: number | string
+      requestIndex: string
+      request: HoppRESTRequest
     }
   ): void
 }>()
@@ -230,7 +262,7 @@ const requestMethodLabels = {
   default: "text-gray-500",
 }
 const confirmRemove = ref<boolean>(false)
-const confirmApiChange = ref<boolean>(false)
+const confirmChange = ref<boolean>(false)
 const showSaveRequestModal = ref<boolean>(false)
 
 // Template refs
@@ -242,26 +274,26 @@ const deleteAction = ref<any | null>(null)
 
 const active = useReadonlyStream(restSaveContext$, null)
 
-const isSelected = computed<boolean>(() => {
-  return (
+const isSelected = computed(
+  () =>
     props.picked &&
     props.picked.pickedType === "team-collection" &&
     props.picked.requestID === props.requestIndex
-  )
-})
+)
 
-const isActive = computed<boolean>(() => {
-  return (
+const isActive = computed(
+  () =>
     active.value &&
     active.value.originLocation === "team-collection" &&
     active.value.requestID === props.requestIndex &&
     isEqual(active.value.req, props.request)
-  )
-})
+)
 
-const dragStart = ({ dataTransfer }) => {
-  dragging.value = !dragging.value
-  dataTransfer.setData("requestIndex", props.requestIndex)
+const dragStart = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    dragging.value = !dragging.value
+    dataTransfer.setData("requestIndex", props.requestIndex)
+  }
 }
 
 const removeRequest = () => {
@@ -272,13 +304,14 @@ const removeRequest = () => {
   })
 }
 
-const getRequestLabelColor = (method: string) => {
+const getRequestLabelColor = (method: string): string => {
   return (
-    requestMethodLabels[method.toLowerCase()] || requestMethodLabels.default
+    (requestMethodLabels as any)[method.toLowerCase()] ||
+    requestMethodLabels.default
   )
 }
 
-const setRestReq = (request: any) => {
+const setRestReq = (request: HoppRESTRequest) => {
   setRESTRequest(
     safelyExtractRESTRequest(
       translateToNewRequest(request),
@@ -295,7 +328,7 @@ const setRestReq = (request: any) => {
 const selectRequest = () => {
   // If there is no active context
   if (!active.value) {
-    confirmApiChange.value = true
+    confirmChange.value = true
 
     if (props.saveRequest)
       emit("select", {
@@ -321,7 +354,7 @@ const selectRequest = () => {
             },
           })
       } else {
-        confirmApiChange.value = true
+        confirmChange.value = true
       }
     } else {
       setRESTSaveContext(null)
@@ -333,7 +366,7 @@ const selectRequest = () => {
 const saveRequestChange = () => {
   const saveCtx = getRESTSaveContext()
   saveCurrentRequest(saveCtx)
-  confirmApiChange.value = false
+  confirmChange.value = false
 }
 
 // Discard changes and change the current request and context
@@ -354,18 +387,16 @@ const discardRequestChange = () => {
     })
   }
 
-  confirmApiChange.value = false
+  confirmChange.value = false
 }
 
-const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
+const saveCurrentRequest = (saveCtx: HoppRequestSaveContext | null) => {
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
   }
   if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
-
-    // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
       runMutation(UpdateRequestDocument, {
         requestID: saveCtx.requestID,
@@ -394,7 +425,7 @@ const saveCurrentRequest = (saveCtx: HoppRequestSaveContext) => {
         getRESTRequest()
       )
       setRestReq(props.request)
-      toast.success(t("request.saved"))
+      toast.success(`${t("request.saved")}`)
     } catch (e) {
       setRESTSaveContext(null)
       saveCurrentRequest(null)

@@ -9,7 +9,7 @@
     <template #body>
       <div class="flex flex-col px-2">
         <label>
-          {{ t("confirm.confirm_api_change") }}
+          {{ t("confirm.request_change") }}
         </label>
       </div>
     </template>

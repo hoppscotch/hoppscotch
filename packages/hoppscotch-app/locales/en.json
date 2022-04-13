@@ -10,6 +10,7 @@
     "disconnect": "Disconnect",
     "dismiss": "Dismiss",
     "download_file": "Download file",
+    "dont_save": "Don't save",
     "duplicate": "Duplicate",
     "edit": "Edit",
     "go_back": "Go back",
@@ -121,6 +122,7 @@
     "team_collections": "Team Collections"
   },
   "confirm": {
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "Are you sure you want to logout?",
     "remove_collection": "Are you sure you want to permanently delete this collection?",

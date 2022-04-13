@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
 import { useI18n, useToast } from "~/helpers/utils/composables"
-import { useRESTRequestName } from "~/newstore/RESTSession"
+import { getRESTRequest } from "~/newstore/RESTSession"
 
 const toast = useToast()
 const t = useI18n()
@@ -53,16 +53,26 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
-  (e: "add-request", v: object): void
+  (
+    e: "add-request",
+    v: {
+      name: string
+      folder: object | undefined
+      path: string | undefined
+    }
+  ): void
 }>()
 
 const name = ref("")
 
-watch(props, (v) => {
-  if (v.show) {
-    name.value = useRESTRequestName().value
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      name.value = getRESTRequest().name
+    }
   }
-})
+)
 
 const addRequest = () => {
   if (!name.value) {

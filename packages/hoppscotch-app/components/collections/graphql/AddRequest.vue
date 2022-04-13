@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
 import { useI18n, useToast } from "~/helpers/utils/composables"
-import { useGQLRequestName } from "~/newstore/GQLSession"
+import { getGQLSession } from "~/newstore/GQLSession"
 
 const toast = useToast()
 const t = useI18n()
@@ -49,16 +49,25 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
-  (e: "add-request", v: object): void
+  (
+    e: "add-request",
+    v: {
+      name: string
+      path: string | undefined
+    }
+  ): void
 }>()
 
 const name = ref("")
 
-watch(props, (v) => {
-  if (v.show) {
-    name.value = useGQLRequestName().value
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      name.value = getGQLSession().request.name
+    }
   }
-})
+)
 
 const addRequest = () => {
   if (!name.value) {

@@ -297,7 +297,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     dragging.value = !dragging.value
     dataTransfer.setData("folderPath", props.folderPath)
-    dataTransfer.setData("requestIndex", props.requestIndex)
+    dataTransfer.setData("requestIndex", props.requestIndex.toString())
   }
 }
 

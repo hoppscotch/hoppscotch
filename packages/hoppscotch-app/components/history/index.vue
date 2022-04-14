@@ -113,13 +113,16 @@
 
 <script setup lang="ts">
 import { computed, ref, Ref } from "@nuxtjs/composition-api"
-import { HoppRESTRequest, safelyExtractRESTRequest } from "@hoppscotch/data"
+import {
+  HoppRESTRequest,
+  isEqualHoppRESTRequest,
+  safelyExtractRESTRequest,
+} from "@hoppscotch/data"
 import groupBy from "lodash/groupBy"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
-import isEqual from "lodash/isEqual"
 import {
   useI18n,
   useReadonlyStream,
@@ -231,7 +234,9 @@ const setRestReq = (request: HoppRESTRequest | null | undefined) => {
   setRESTRequest(safelyExtractRESTRequest(request, getDefaultRESTRequest()))
 }
 
-const useHistory = (entry: HistoryEntry) => {
+// NOTE: For GQL, the HistoryGraphqlCard component already implements useEntry
+// (That is not a really good behaviour tho ¯\_(ツ)_/¯)
+const useHistory = (entry: RESTHistoryEntry) => {
   const currentFullReq = getRESTRequest()
   // Initial state trigers a popup
   if (!clickedHistory.value) {
@@ -240,7 +245,12 @@ const useHistory = (entry: HistoryEntry) => {
     return
   }
   // Checks if there are any change done in current request and the history request
-  if (!isEqual(currentFullReq, clickedHistory.value.request)) {
+  if (
+    !isEqualHoppRESTRequest(
+      currentFullReq,
+      clickedHistory.value.request as HoppRESTRequest
+    )
+  ) {
     clickedHistory.value = entry
     confirmChange.value = true
   } else {
@@ -342,7 +352,7 @@ const deleteHistory = (entry: HistoryEntry) => {
 }
 
 const toggleStar = (entry: HistoryEntry) => {
-  //History entry type specified because function does not know the type
+  // History entry type specified because function does not know the type
   if (props.page === "rest")
     toggleRESTHistoryEntryStar(entry as RESTHistoryEntry)
   else toggleGraphqlHistoryEntryStar(entry as GQLHistoryEntry)

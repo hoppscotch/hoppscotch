@@ -157,11 +157,11 @@
 import { ref, computed } from "@nuxtjs/composition-api"
 import {
   HoppRESTRequest,
+  isEqualHoppRESTRequest,
   safelyExtractRESTRequest,
   translateToNewRequest,
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import isEqual from "lodash/isEqual"
 import {
   useI18n,
   useToast,
@@ -277,8 +277,7 @@ const isActive = computed(
   () =>
     active.value &&
     active.value.originLocation === "team-collection" &&
-    active.value.requestID === props.requestIndex &&
-    isEqual(active.value.req, props.request)
+    active.value.requestID === props.requestIndex
 )
 
 const dragStart = ({ dataTransfer }: DragEvent) => {
@@ -333,9 +332,9 @@ const selectRequest = () => {
     const currentFullReq = getRESTRequest()
 
     // Check if whether user clicked the same request or not
-    if (!isActive.value) {
+    if (!isActive.value && currentReqWithNoChange) {
       // Check if there is any changes done on the current request
-      if (isEqual(currentReqWithNoChange, currentFullReq)) {
+      if (isEqualHoppRESTRequest(currentReqWithNoChange, currentFullReq)) {
         setRestReq(props.request)
         if (props.saveRequest)
           emit("select", {

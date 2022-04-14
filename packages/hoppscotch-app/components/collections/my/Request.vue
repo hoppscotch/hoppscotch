@@ -162,8 +162,8 @@ import {
   HoppRESTRequest,
   safelyExtractRESTRequest,
   translateToNewRequest,
+  isEqualHoppRESTRequest,
 } from "@hoppscotch/data"
-import isEqual from "lodash/isEqual"
 import * as E from "fp-ts/Either"
 import {
   useI18n,
@@ -349,9 +349,9 @@ const selectRequest = () => {
     const currentFullReq = getRESTRequest()
 
     // Check if whether user clicked the same request or not
-    if (!isActive.value) {
+    if (!isActive.value && currentReqWithNoChange !== undefined) {
       // Check if there is any changes done on the current request
-      if (isEqual(currentReqWithNoChange, currentFullReq)) {
+      if (isEqualHoppRESTRequest(currentReqWithNoChange, currentFullReq)) {
         setRestReq(props.request)
         if (props.saveRequest)
           emit("select", {

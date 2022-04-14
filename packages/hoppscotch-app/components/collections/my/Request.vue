@@ -165,6 +165,7 @@ import {
   isEqualHoppRESTRequest,
 } from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
+import cloneDeep from "lodash/cloneDeep"
 import {
   useI18n,
   useToast,
@@ -317,15 +318,17 @@ const getRequestLabelColor = (method: string) =>
 
 const setRestReq = (request: any) => {
   setRESTRequest(
-    safelyExtractRESTRequest(
-      translateToNewRequest(request),
-      getDefaultRESTRequest()
+    cloneDeep(
+      safelyExtractRESTRequest(
+        translateToNewRequest(request),
+        getDefaultRESTRequest()
+      )
     ),
     {
       originLocation: "user-collection",
       folderPath: props.folderPath,
       requestIndex: props.requestIndex,
-      req: request,
+      req: cloneDeep(request),
     }
   )
 }
@@ -397,7 +400,7 @@ const discardRequestChange = () => {
       originLocation: "user-collection",
       folderPath: props.folderPath,
       requestIndex: props.requestIndex,
-      req: props.request,
+      req: cloneDeep(props.request),
     })
   }
 

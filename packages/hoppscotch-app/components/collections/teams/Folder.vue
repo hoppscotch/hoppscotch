@@ -32,6 +32,14 @@
         <ButtonSecondary
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
+          svg="file-plus"
+          :title="$t('request.new')"
+          class="hidden group-hover:inline-flex"
+          @click.native="$emit('add-request', { folder, path: folderPath })"
+        />
+        <ButtonSecondary
+          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+          v-tippy="{ theme: 'tooltip' }"
           svg="folder-plus"
           :title="$t('folder.new')"
           class="hidden group-hover:inline-flex"
@@ -68,7 +76,7 @@
             >
               <SmartItem
                 ref="requestAction"
-                svg="plus"
+                svg="file-plus"
                 :label="$t('request.new')"
                 :shortcut="['R']"
                 @click.native="

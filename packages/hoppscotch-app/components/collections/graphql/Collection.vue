@@ -61,11 +61,26 @@
               class="flex flex-col focus:outline-none"
               tabindex="0"
               role="menu"
+              @keyup.r="requestAction.$el.click()"
               @keyup.n="folderAction.$el.click()"
               @keyup.e="edit.$el.click()"
               @keyup.delete="deleteAction.$el.click()"
               @keyup.escape="options.tippy().hide()"
             >
+              <SmartItem
+                ref="requestAction"
+                svg="plus"
+                :label="`${$t('request.new')}`"
+                :shortcut="['R']"
+                @click.native="
+                  () => {
+                    $emit('add-request', {
+                      path: `${collectionIndex}`,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
               <SmartItem
                 ref="folderAction"
                 svg="folder-plus"
@@ -126,6 +141,7 @@
           :collection-index="collectionIndex"
           :doc="doc"
           :is-filtered="isFiltered"
+          @add-request="$emit('add-request', $event)"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
@@ -196,6 +212,7 @@ export default defineComponent({
     return {
       tippyActions: ref<any | null>(null),
       options: ref<any | null>(null),
+      requestAction: ref<any | null>(null),
       folderAction: ref<any | null>(null),
       edit: ref<any | null>(null),
       deleteAction: ref<any | null>(null),

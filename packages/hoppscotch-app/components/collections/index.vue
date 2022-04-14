@@ -82,6 +82,7 @@
         :picked="picked"
         :loading-collection-i-ds="loadingCollectionIDs"
         @edit-collection="editCollection(collection, index)"
+        @add-request="addRequest($event)"
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
@@ -159,6 +160,14 @@
       @hide-modal="displayModalEdit(false)"
       @submit="updateEditingCollection"
     />
+    <CollectionsAddRequest
+      :show="showModalAddRequest"
+      :folder="editingFolder"
+      :folder-path="editingFolderPath"
+      :loading-state="modalLoadingState"
+      @add-request="onAddRequest($event)"
+      @hide-modal="displayModalAddRequest(false)"
+    />
     <CollectionsAddFolder
       :show="showModalAddFolder"
       :folder="editingFolder"
@@ -209,6 +218,7 @@ import {
   editRESTRequest,
   saveRESTRequestAs,
 } from "~/newstore/collections"
+import { setRESTRequest, getRESTRequest } from "~/newstore/RESTSession"
 import {
   useReadonlyStream,
   useStreamSubscriber,
@@ -250,9 +260,11 @@ export default defineComponent({
       showModalAdd: false,
       showModalEdit: false,
       showModalImportExport: false,
+      showModalAddRequest: false,
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
+      modalLoadingState: false,
       editingCollection: undefined,
       editingCollectionIndex: undefined,
       editingFolder: undefined,
@@ -498,6 +510,11 @@ export default defineComponent({
     displayModalImportExport(shouldDisplay) {
       this.showModalImportExport = shouldDisplay
     },
+    displayModalAddRequest(shouldDisplay) {
+      this.showModalAddRequest = shouldDisplay
+
+      if (!shouldDisplay) this.resetSelectedData()
+    },
     displayModalAddFolder(shouldDisplay) {
       this.showModalAddFolder = shouldDisplay
 
@@ -615,7 +632,7 @@ export default defineComponent({
           })().then((result) => {
             if (E.isLeft(result)) {
               this.$toast.error(this.$t("error.something_went_wrong"))
-              console.error(e)
+              console.error(result.left.error)
             } else {
               this.$toast.success(this.$t("state.deleted"))
             }
@@ -651,9 +668,64 @@ export default defineComponent({
         })().then((result) => {
           if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(e)
+            console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("state.deleted"))
+          }
+        })
+      }
+    },
+    addRequest(payload) {
+      // TODO: check if the request being worked on
+      // is being overwritten (selected or not)
+      const { folder, path } = payload
+      this.$data.editingFolder = folder
+      this.$data.editingFolderPath = path
+      this.displayModalAddRequest(true)
+    },
+    onAddRequest({ name, folder, path }) {
+      const newRequest = {
+        ...cloneDeep(getRESTRequest()),
+        name,
+      }
+
+      if (this.collectionsType.type === "my-collections") {
+        const insertionIndex = saveRESTRequestAs(path, newRequest)
+        // point to it
+        setRESTRequest(newRequest, {
+          originLocation: "user-collection",
+          folderPath: path,
+          requestIndex: insertionIndex,
+        })
+
+        this.displayModalAddRequest(false)
+      } else if (
+        this.collectionsType.type === "team-collections" &&
+        this.collectionsType.selectedTeam.myRole !== "VIEWER"
+      ) {
+        this.modalLoadingState = true
+        runMutation(CreateRequestInCollectionDocument, {
+          collectionID: folder.id,
+          data: {
+            request: JSON.stringify(newRequest),
+            teamID: this.collectionsType.selectedTeam.id,
+            title: name,
+          },
+        })().then((result) => {
+          this.modalLoadingState = false
+          if (E.isLeft(result)) {
+            this.$toast.error(this.$t("error.something_went_wrong"))
+            console.error(result.left.error)
+          } else {
+            const { createRequestInCollection } = result.right
+            // point to it
+            setRESTRequest(newRequest, {
+              originLocation: "team-collection",
+              requestID: createRequestInCollection.id,
+              collectionID: createRequestInCollection.collection.id,
+              teamID: createRequestInCollection.collection.team.id,
+            })
+            this.displayModalAddRequest(false)
           }
         })
       }

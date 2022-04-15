@@ -147,6 +147,7 @@
     </div>
     <CollectionsAdd
       :show="showModalAdd"
+      :loading-state="modalLoadingState"
       @submit="addNewRootCollection"
       @hide-modal="displayModalAdd(false)"
     />
@@ -387,14 +388,18 @@ export default defineComponent({
             requests: [],
           })
         )
+
+        this.displayModalAdd(false)
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
+        this.modalLoadingState = true
         runMutation(CreateNewRootCollectionDocument, {
           title: name,
           teamID: this.collectionsType.selectedTeam.id,
         })().then((result) => {
+          this.modalLoadingState = false
           if (E.isLeft(result)) {
             if (result.left.error === "team_coll/short_title")
               this.$toast.error(this.$t("collection.name_length_insufficient"))
@@ -402,10 +407,10 @@ export default defineComponent({
             console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("collection.created"))
+            this.displayModalAdd(false)
           }
         })
       }
-      this.displayModalAdd(false)
     },
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {

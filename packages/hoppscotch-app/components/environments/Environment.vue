@@ -97,6 +97,7 @@
 <script setup lang="ts">
 import { ref } from "@nuxtjs/composition-api"
 import { Environment } from "@hoppscotch/data"
+import cloneDeep from "lodash/cloneDeep"
 import {
   deleteEnvironment,
   duplicateEnvironment,
@@ -112,7 +113,7 @@ const toast = useToast()
 
 const props = defineProps<{
   environment: Environment
-  environmentIndex: number | string | null
+  environmentIndex: number | "Global" | null
 }>()
 
 const emit = defineEmits<{
@@ -148,6 +149,7 @@ const duplicateEnvironments = () => {
         return gVars
       }, [])
     )
+    cloneDeep(getGlobalVariables())
   } else duplicateEnvironment(props.environmentIndex as number)
 }
 </script>

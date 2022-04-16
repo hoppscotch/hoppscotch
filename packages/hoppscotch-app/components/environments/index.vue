@@ -155,11 +155,11 @@ const selectedEnvironmentIndex = useStream(
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
-const action = ref("new")
-const editingEnvironmentIndex = ref<string | number | undefined>("Global")
+const action = ref<"new" | "edit">("edit")
+const editingEnvironmentIndex = ref<number | "Global" | null>(null)
 
 const displayModalAdd = (shouldDisplay: boolean) => {
-  action.value = "new"
+  action.value = "sd"
   showModalDetails.value = shouldDisplay
 }
 const displayModalEdit = (shouldDisplay: boolean) => {
@@ -177,6 +177,6 @@ const editEnvironment = (environmentIndex: number | "Global") => {
   displayModalEdit(true)
 }
 const resetSelectedData = () => {
-  editingEnvironmentIndex.value = undefined
+  editingEnvironmentIndex.value = null
 }
 </script>

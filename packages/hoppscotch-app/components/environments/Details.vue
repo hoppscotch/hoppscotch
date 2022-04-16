@@ -142,8 +142,8 @@ const toast = useToast()
 const props = withDefaults(
   defineProps<{
     show: boolean
-    action: string
-    editingEnvironmentIndex: number | string | null
+    action: "edit" | "new"
+    editingEnvironmentIndex: number | "Global" | null
     envVars: () => Environment["variables"]
   }>(),
   {

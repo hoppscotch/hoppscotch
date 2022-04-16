@@ -158,6 +158,7 @@
           ? editingCollection.name || editingCollection.title
           : ''
       "
+      :loading-state="modalLoadingState"
       @hide-modal="displayModalEdit(false)"
       @submit="updateEditingCollection"
     />
@@ -425,23 +426,28 @@ export default defineComponent({
         }
 
         editRESTCollection(this.editingCollectionIndex, collectionUpdated)
+        this.displayModalEdit(false)
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
+        this.modalLoadingState = true
+
         runMutation(RenameCollectionDocument, {
           collectionID: this.editingCollection.id,
           newTitle: newName,
         })().then((result) => {
+          this.modalLoadingState = false
+
           if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(e)
           } else {
             this.$toast.success(this.$t("collection.renamed"))
+            this.displayModalEdit(false)
           }
         })
       }
-      this.displayModalEdit(false)
     },
     // Intended to be called by CollectionEditFolder modal submit event
     updateEditingFolder(name) {

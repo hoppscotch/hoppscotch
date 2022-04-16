@@ -190,6 +190,7 @@
     <CollectionsEditRequest
       :show="showModalEditRequest"
       :editing-request-name="editingRequest ? editingRequest.name : ''"
+      :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
     />
@@ -493,10 +494,13 @@ export default defineComponent({
           this.editingRequestIndex,
           requestUpdated
         )
+        this.displayModalEditRequest(false)
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
+        this.modalLoadingState = true
+
         const requestName = requestUpdateData.name || this.editingRequest.name
 
         runMutation(UpdateRequestDocument, {
@@ -506,17 +510,18 @@ export default defineComponent({
           },
           requestID: this.editingRequestIndex,
         })().then((result) => {
+          this.modalLoadingState = false
+
           if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("request.renamed"))
             this.$emit("update-team-collections")
+            this.displayModalEditRequest(false)
           }
         })
       }
-
-      this.displayModalEditRequest(false)
     },
     displayModalAdd(shouldDisplay) {
       this.showModalAdd = shouldDisplay

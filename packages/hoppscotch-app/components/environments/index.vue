@@ -159,7 +159,7 @@ const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<number | "Global" | null>(null)
 
 const displayModalAdd = (shouldDisplay: boolean) => {
-  action.value = "sd"
+  action.value = "new"
   showModalDetails.value = shouldDisplay
 }
 const displayModalEdit = (shouldDisplay: boolean) => {

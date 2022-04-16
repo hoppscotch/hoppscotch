@@ -174,6 +174,7 @@
       :show="showModalAddFolder"
       :folder="editingFolder"
       :folder-path="editingFolderPath"
+      :loading-state="modalLoadingState"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
     />
@@ -549,26 +550,29 @@ export default defineComponent({
     onAddFolder({ name, folder, path }) {
       if (this.collectionsType.type === "my-collections") {
         addRESTFolder(name, path)
-      } else if (this.collectionsType.type === "team-collections") {
-        if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
-          runMutation(CreateChildCollectionDocument, {
-            childTitle: name,
-            collectionID: folder.id,
-          })().then((result) => {
-            if (E.isLeft(result)) {
-              if (result.left.error === "team_coll/short_title")
-                this.$toast.error(this.$t("folder.name_length_insufficient"))
-              else this.$toast.error(this.$t("error.something_went_wrong"))
-              console.error(result.left.error)
-            } else {
-              this.$toast.success(this.$t("folder.created"))
-              this.$emit("update-team-collections")
-            }
-          })
-        }
+        this.displayModalAddFolder(false)
+      } else if (
+        this.collectionsType.type === "team-collections" &&
+        this.collectionsType.selectedTeam.myRole !== "VIEWER"
+      ) {
+        this.modalLoadingState = true
+        runMutation(CreateChildCollectionDocument, {
+          childTitle: name,
+          collectionID: folder.id,
+        })().then((result) => {
+          this.modalLoadingState = false
+          if (E.isLeft(result)) {
+            if (result.left.error === "team_coll/short_title")
+              this.$toast.error(this.$t("folder.name_length_insufficient"))
+            else this.$toast.error(this.$t("error.something_went_wrong"))
+            console.error(result.left.error)
+          } else {
+            this.$toast.success(this.$t("folder.created"))
+            this.displayModalAddFolder(false)
+            this.$emit("update-team-collections")
+          }
+        })
       }
-
-      this.displayModalAddFolder(false)
     },
     addFolder(payload) {
       const { folder, path } = payload

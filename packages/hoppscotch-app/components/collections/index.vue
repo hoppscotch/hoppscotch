@@ -183,6 +183,7 @@
       :editing-folder-name="
         editingFolder ? editingFolder.name || editingFolder.title : ''
       "
+      :loading-state="modalLoadingState"
       @submit="updateEditingFolder"
       @hide-modal="displayModalEditFolder(false)"
     />
@@ -442,7 +443,7 @@ export default defineComponent({
 
           if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(e)
+            console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("collection.renamed"))
             this.displayModalEdit(false)
@@ -454,24 +455,30 @@ export default defineComponent({
     updateEditingFolder(name) {
       if (this.collectionsType.type === "my-collections") {
         editRESTFolder(this.editingFolderPath, { ...this.editingFolder, name })
+        this.displayModalEditFolder(false)
       } else if (
         this.collectionsType.type === "team-collections" &&
         this.collectionsType.selectedTeam.myRole !== "VIEWER"
       ) {
+        this.modalLoadingState = true
+
         runMutation(RenameCollectionDocument, {
           collectionID: this.editingFolder.id,
           newTitle: name,
         })().then((result) => {
+          this.modalLoadingState = false
+
           if (E.isLeft(result)) {
-            this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(e)
+            if (result.left.error === "team_coll/short_title")
+              this.$toast.error(this.$t("folder.name_length_insufficient"))
+            else this.$toast.error(this.$t("error.something_went_wrong"))
+            console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("folder.renamed"))
+            this.displayModalEditFolder(false)
           }
         })
       }
-
-      this.displayModalEditFolder(false)
     },
     // Intented to by called by CollectionsEditRequest modal submit event
     updateEditingRequest(requestUpdateData) {
@@ -501,7 +508,7 @@ export default defineComponent({
         })().then((result) => {
           if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(e)
+            console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("request.renamed"))
             this.$emit("update-team-collections")

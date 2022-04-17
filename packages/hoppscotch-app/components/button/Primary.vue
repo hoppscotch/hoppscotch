@@ -25,7 +25,6 @@
     ]"
     :disabled="disabled"
     :tabindex="loading ? '-1' : '0'"
-    :type="type"
     role="button"
   >
     <span
@@ -67,79 +66,41 @@
   </SmartLink>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-
-export default defineComponent({
-  props: {
-    to: {
-      type: String,
-      default: "",
-    },
-    exact: {
-      type: Boolean,
-      default: true,
-    },
-    blank: {
-      type: Boolean,
-      default: false,
-    },
-    label: {
-      type: String,
-      default: "",
-    },
-    icon: {
-      type: String,
-      default: "",
-    },
-    svg: {
-      type: String,
-      default: "",
-    },
-    color: {
-      type: String,
-      default: "",
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    large: {
-      type: Boolean,
-      default: false,
-    },
-    shadow: {
-      type: Boolean,
-      default: false,
-    },
-    reverse: {
-      type: Boolean,
-      default: false,
-    },
-    rounded: {
-      type: Boolean,
-      default: false,
-    },
-    gradient: {
-      type: Boolean,
-      default: false,
-    },
-    outline: {
-      type: Boolean,
-      default: false,
-    },
-    shortcut: {
-      type: Array,
-      default: () => [],
-    },
-    type: {
-      type: String,
-      default: "button",
-    },
-  },
+<script setup lang="ts">
+interface Props {
+  to: string
+  exact: boolean
+  blank: boolean
+  label: string
+  icon: string
+  svg: string
+  color: string
+  disabled: boolean
+  loading: boolean
+  large: boolean
+  shadow: boolean
+  reverse: boolean
+  rounded: boolean
+  gradient: boolean
+  outline: boolean
+  shortcut: string[]
+}
+withDefaults(defineProps<Props>(), {
+  to: "",
+  exact: true,
+  blank: false,
+  label: "",
+  icon: "",
+  svg: "",
+  color: "",
+  disabled: false,
+  loading: false,
+  large: false,
+  shadow: false,
+  reverse: false,
+  rounded: false,
+  gradient: false,
+  outline: false,
+  shortcut: () => [],
 })
 </script>

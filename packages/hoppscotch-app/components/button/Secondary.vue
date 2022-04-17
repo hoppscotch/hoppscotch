@@ -66,71 +66,39 @@
   </SmartLink>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
-
-export default defineComponent({
-  props: {
-    to: {
-      type: String,
-      default: "",
-    },
-    exact: {
-      type: Boolean,
-      default: true,
-    },
-    blank: {
-      type: Boolean,
-      default: false,
-    },
-    label: {
-      type: String,
-      default: "",
-    },
-    icon: {
-      type: String,
-      default: "",
-    },
-    svg: {
-      type: String,
-      default: "",
-    },
-    color: {
-      type: String,
-      default: "",
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-    reverse: {
-      type: Boolean,
-      default: false,
-    },
-    rounded: {
-      type: Boolean,
-      default: false,
-    },
-    large: {
-      type: Boolean,
-      default: false,
-    },
-    outline: {
-      type: Boolean,
-      default: false,
-    },
-    shortcut: {
-      type: Array,
-      default: () => [],
-    },
-    filled: {
-      type: Boolean,
-      default: false,
-    },
-  },
+<script setup lang="ts">
+interface Props {
+  to: string
+  exact: boolean
+  blank: boolean
+  label: string
+  icon: string
+  svg: string
+  color: string
+  disabled: boolean
+  loading: boolean
+  reverse: boolean
+  rounded: boolean
+  large: boolean
+  outline: boolean
+  shortcut: string[]
+  filled: boolean
+}
+withDefaults(defineProps<Props>(), {
+  to: "",
+  exact: true,
+  blank: false,
+  label: "",
+  icon: "",
+  svg: "",
+  color: "",
+  disabled: false,
+  loading: false,
+  reverse: false,
+  rounded: false,
+  large: false,
+  outline: false,
+  shortcut: () => [],
+  filled: false,
 })
 </script>

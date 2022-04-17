@@ -129,27 +129,20 @@ const duplicate = ref<any | null>(null)
 const deleteAction = ref<any | null>(null)
 
 const removeEnvironment = () => {
+  if (props.environmentIndex === null) return
   if (props.environmentIndex !== "Global")
-    deleteEnvironment(props.environmentIndex as number)
+    deleteEnvironment(props.environmentIndex)
   toast.success(`${t("state.deleted")}`)
 }
 
-type ReduceReturnType = {
-  key: string
-  value: string
-}[]
-
 const duplicateEnvironments = () => {
+  if (props.environmentIndex === null) return
   if (props.environmentIndex === "Global") {
     createEnvironment(`Global - ${t("action.duplicate")}`)
     setEnvironmentVariables(
       environmentsStore.value.environments.length - 1,
-      getGlobalVariables().reduce<ReduceReturnType>((gVars, gVar) => {
-        gVars.push({ key: gVar.key, value: gVar.value })
-        return gVars
-      }, [])
+      cloneDeep(getGlobalVariables())
     )
-    cloneDeep(getGlobalVariables())
-  } else duplicateEnvironment(props.environmentIndex as number)
+  } else duplicateEnvironment(props.environmentIndex)
 }
 </script>

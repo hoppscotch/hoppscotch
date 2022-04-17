@@ -25,7 +25,6 @@
     ]"
     :disabled="disabled"
     :tabindex="loading ? '-1' : '0'"
-    :type="type"
     role="button"
   >
     <span
@@ -85,7 +84,6 @@ interface Props {
   gradient: boolean
   outline: boolean
   shortcut: string[]
-  type: string
 }
 withDefaults(defineProps<Props>(), {
   to: "",
@@ -104,6 +102,5 @@ withDefaults(defineProps<Props>(), {
   gradient: false,
   outline: false,
   shortcut: () => [],
-  type: "button",
 })
 </script>

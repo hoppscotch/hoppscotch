@@ -176,7 +176,7 @@ const workingEnv = computed(() => {
       variables: props.envVars(),
     }
   } else if (props.editingEnvironmentIndex !== null) {
-    return getEnviroment(props.editingEnvironmentIndex as number)
+    return getEnviroment(props.editingEnvironmentIndex)
   } else {
     return null
   }
@@ -255,15 +255,13 @@ const saveEnvironment = () => {
     variables: vars.value,
   }
 
+  if (props.editingEnvironmentIndex === null) return
   if (props.editingEnvironmentIndex === "Global")
     setGlobalEnvVariables(environmentUpdated.variables)
   else if (props.action === "new") {
     updateEnvironment(envList.value.length - 1, environmentUpdated)
   } else {
-    updateEnvironment(
-      props.editingEnvironmentIndex! as number,
-      environmentUpdated
-    )
+    updateEnvironment(props.editingEnvironmentIndex!, environmentUpdated)
   }
   hideModal()
 }

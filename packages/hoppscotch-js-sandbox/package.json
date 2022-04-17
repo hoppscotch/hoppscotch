@@ -41,19 +41,19 @@
   "license": "MIT",
   "dependencies": {
     "@hoppscotch/data": "workspace:^0.4.2",
-    "fp-ts": "^2.11.9",
+    "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
     "quickjs-emscripten": "^0.15.0",
-    "tsup": "^5.12.4"
+    "tsup": "^5.12.5"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",
     "@relmify/jest-fp-ts": "^2.0.1",
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.181",
-    "@types/node": "^17.0.23",
-    "@typescript-eslint/eslint-plugin": "^5.18.0",
-    "@typescript-eslint/parser": "^5.18.0",
+    "@types/node": "^17.0.24",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",

@@ -29,6 +29,7 @@ export interface RequestRunnerResponse extends TestResponse {
   endpoint: string;
   method: Method;
   statusText: string;
+  duration: number;
 }
 
 /**
@@ -49,14 +50,14 @@ export interface TestScriptParams {
  * @property {string} descriptor Test description.
  * @property {ExpectResult[]} expectResults Expected results for each
  * test-case.
- * @property {number} failing Total failing test-cases.
- * @property {number} passing Total passing test-cases;
+ * @property {number} failed Total failed test-cases.
+ * @property {number} passed Total passed test-cases;
  */
 export interface TestReport {
   descriptor: string;
   expectResults: ExpectResult[];
-  failing: number;
-  passing: number;
+  failed: number;
+  passed: number;
 }
 
 /**

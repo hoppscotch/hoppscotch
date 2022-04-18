@@ -9,20 +9,74 @@ export type ExpectResult = {
   message: string;
 };
 
-export type TestMetrics = {
+/**
+ * Stats describing number of failed and passed for test-cases/test-suites/
+ * test-scripts/pre-request-scripts/request.
+ */
+export type Stats = {
+  failed: number;
+  passed: number;
+};
+
+export type PreRequestMetrics = {
   /**
-   * Total passed and failed test-cases.
+   * Pre-request-script(s) failed and passed stats.
    */
-  tests: { failing: number; passing: number };
+  scripts: Stats;
 
   /**
-   * Total test-blocks/test-suites passed & failed, calculated
-   * based on test-cases failed/passed with in each test-block.
+   * Time taken (in seconds) to execute pre-request-script(s).
    */
-  testSuites: { failing: number; passing: number };
+  duration: number;
+};
+
+export type RequestMetrics = {
+  /**
+   * Request(s) failed and passed stats.
+   */
+  requests: Stats;
+
+  /**
+   * Time taken (in seconds) to execute request(s).
+   */
+  duration: number;
+};
+
+export type TestMetrics = {
+  /**
+   * Test-cases failed and passed stats.
+   */
+  tests: Stats;
+
+  /**
+   * Test-block(s)/test-suite(s) failed and passed stats.
+   */
+  testSuites: Stats;
+
+  /**
+   * Test script(s) execution failed and passed stats.
+   */
+  scripts: Stats;
+
+  /**
+   * Time taken (in seconds) to execute test-script(s).
+   */
+  duration: number;
 };
 
 export type TestRunnerRes = {
+  /**
+   * Updated envs after running test-script.
+   */
   envs: HoppEnvs;
+
+  /**
+   * Describes expected details for each test-suite.
+   */
   testsReport: TestReport[];
+
+  /**
+   * Time taken (in seconds) to execute the test-script.
+   */
+  duration: number;
 };

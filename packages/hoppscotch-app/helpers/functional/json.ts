@@ -7,3 +7,6 @@ import * as O from "fp-ts/Option"
  */
 export const safeParseJSON = (str: string): O.Option<object> =>
   O.tryCatch(() => JSON.parse(str))
+
+export const prettyPrintStringifyJSON = (jsonObject: any): O.Option<string> =>
+  O.tryCatch(() => JSON.stringify(jsonObject, null, "\t"))

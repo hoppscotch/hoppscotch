@@ -2,6 +2,7 @@ import { OpenAPIV2 } from "openapi-types"
 import * as O from "fp-ts/Option"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
+import { prettyPrintStringifyJSON } from "~/helpers/functional/json"
 
 type PrimitiveSchemaType = "string" | "integer" | "number" | "boolean"
 
@@ -53,52 +54,51 @@ const isSchemaTypeObject = (schemaType: string): schemaType is "object" =>
 
 const getSampleEnumValueOrPlaceholder = (
   schema: OpenAPIV2.SchemaObject
-): RequestBodyExampleType => {
-  const enumValue = pipe(
+): RequestBodyExampleType =>
+  pipe(
     schema.enum,
     O.fromNullable,
-    O.map((enums) => enums[0] as RequestBodyExampleType)
-  )
-
-  if (O.isSome(enumValue)) return enumValue.value
-
-  return pipe(
-    schema,
-    getSchemaTypeFromSchemaObject,
-    O.filter(isSchemaTypePrimitive),
-    O.map(getPrimitiveTypePlaceholder),
+    O.map((enums) => enums[0] as RequestBodyExampleType),
+    O.altW(() =>
+      pipe(
+        schema,
+        getSchemaTypeFromSchemaObject,
+        O.filter(isSchemaTypePrimitive),
+        O.map(getPrimitiveTypePlaceholder)
+      )
+    ),
     O.getOrElseW(() => "")
   )
-}
 
 const generateExampleArrayFromOpenAPIV2ItemsObject = (
   items: OpenAPIV2.ItemsObject
-): RequestBodyExampleType => {
+): RequestBodyExampleType =>
   // ItemsObject can not hold type "object"
   // https://swagger.io/specification/v2/#itemsObject
 
   // TODO : Handle array of objects
   // https://stackoverflow.com/questions/60490974/how-to-define-an-array-of-objects-in-openapi-2-0
 
-  const primitivePlaceholder = pipe(
+  pipe(
     items,
     O.fromPredicate(
       flow((items) => items.type as SchemaType, isSchemaTypePrimitive)
     ),
-    O.map(getSampleEnumValueOrPlaceholder)
-  )
-
-  if (O.isSome(primitivePlaceholder))
-    return Array.of(primitivePlaceholder.value, primitivePlaceholder.value)
-
-  // If the type is not primitive, it is "array"
-  // items property is required if type is array
-  return Array.of(
-    generateExampleArrayFromOpenAPIV2ItemsObject(
-      items.items as OpenAPIV2.ItemsObject
+    O.map(
+      flow(getSampleEnumValueOrPlaceholder, (arrayItem) =>
+        Array.of(arrayItem, arrayItem)
+      )
+    ),
+    O.getOrElse(() =>
+      // If the type is not primitive, it is "array"
+      // items property is required if type is array
+      Array.of(
+        generateExampleArrayFromOpenAPIV2ItemsObject(
+          items.items as OpenAPIV2.ItemsObject
+        )
+      )
     )
   )
-}
 
 const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
   schema: OpenAPIV2.SchemaObject
@@ -180,5 +180,9 @@ export const generateRequestBodyExampleFromOpenAPIV2Body = (
       )
     ),
     O.getOrElse(() => "" as RequestBodyExampleType),
-    (requestBodyExample) => JSON.stringify(requestBodyExample, null, "\t") // Using a tab character mimics standard pretty-print appearance
+    (requestBodyExample) =>
+      pipe(
+        prettyPrintStringifyJSON(requestBodyExample),
+        O.getOrElse(() => "")
+      )
   )

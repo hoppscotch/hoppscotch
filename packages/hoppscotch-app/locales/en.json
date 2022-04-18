@@ -266,7 +266,9 @@
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Import"
+    "title": "Import",
+    "import_from_url_success": "Collections Imported",
+    "import_from_url_failure": "Error while importing collections"
   },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",

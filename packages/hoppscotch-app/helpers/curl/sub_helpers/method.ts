@@ -50,7 +50,7 @@ const getMethodByDeduction = (parsedArguments: parser.Arguments) => {
       R.or(objHasArrayProperty("F", "string"))
     )(parsedArguments)
   )
-    return O.some("post")
+    return O.some("POST")
   else return O.none
 }
 

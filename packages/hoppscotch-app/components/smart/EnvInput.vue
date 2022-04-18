@@ -123,6 +123,7 @@ const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 
 const initView = (el: any) => {
   const extensions: Extension = [
+    EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
     inputTheme,
     tooltips({
       position: "absolute",

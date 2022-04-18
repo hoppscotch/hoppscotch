@@ -8,10 +8,21 @@ import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 
 const fetchHoppCollectionFromUrl = (
   url: string
-): TO.TaskOption<HoppCollection<HoppRESTRequest>> =>
+): TO.TaskOption<HoppCollection<HoppRESTRequest>[]> =>
   pipe(
     TO.tryCatch(() => axios.get(url)),
-    TO.chain((res) => pipe(res.data, TO.some))
+    TO.chain((res) =>
+      pipe(
+        res.data,
+        (
+          collections:
+            | HoppCollection<HoppRESTRequest>[]
+            | HoppCollection<HoppRESTRequest>
+        ): HoppCollection<HoppRESTRequest>[] =>
+          Array.isArray(collections) ? collections : [collections],
+        TO.some
+      )
+    )
   )
 
 export default defineImporter({

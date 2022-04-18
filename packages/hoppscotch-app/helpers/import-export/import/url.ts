@@ -16,7 +16,7 @@ const fetchHoppCollectionFromUrl = (
 
 export default defineImporter({
   name: "Import Hoppscotch Collection From URL",
-  icon: "github",
+  icon: "folder-plus",
   steps: [
     step({
       stepName: "URL_IMPORT",

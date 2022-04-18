@@ -11,6 +11,7 @@ import {
 } from "../types/response";
 import { exceptionColors, getColorStatusCode } from "./getters";
 import { getFailedExpectedResults, getFailedTestsReport } from "./test";
+
 const { FAIL, SUCCESS, BG_INFO, INFO_BRIGHT } = exceptionColors;
 
 /**
@@ -169,7 +170,10 @@ export const printFailedTestsReport = (
  * Provides methods for printing request-runner's state messages.
  */
 export const printRequestRunner = {
-  // Request-runner starting message.
+  /**
+   * Request-runner starting message.
+   * @param requestConfig Provides request's method and url.
+   */
   start: (requestConfig: RequestConfig) => {
     const METHOD = BG_INFO(` ${requestConfig.method} `);
     const ENDPOINT = requestConfig.url;
@@ -177,7 +181,10 @@ export const printRequestRunner = {
     process.stdout.write(`${METHOD} ${ENDPOINT}`);
   },
 
-  // Prints response's status, when request-runner executes successfully.
+  /**
+   * Prints response's status, when request-runner executes successfully.
+   * @param requestResponse Provides request's status and execution duration.
+   */
   success: (requestResponse: RequestRunnerResponse) => {
     const { status, statusText, duration } = requestResponse;
     const statusMsg = getColorStatusCode(status, statusText);
@@ -186,7 +193,9 @@ export const printRequestRunner = {
     process.stdout.write(` ${statusMsg} ${durationMsg}\n`);
   },
 
-  // Prints error message, when request-runner fails to execute.
+  /**
+   * Prints error message, when request-runner fails to execute.
+   */
   fail: () => log(FAIL(" ERROR\n⚠ Error running request.")),
 };
 
@@ -194,10 +203,17 @@ export const printRequestRunner = {
  * Provides methods for printing test-runner's state messages.
  */
 export const printTestRunner = {
-  // Prints test-runner failed message.
+  /**
+   * Prints test-runner failed message.
+   */
   fail: () => log(FAIL("⚠ Error running test-script.")),
 
-  // Prints test-runner success message including tests-report.
+  /**
+   * Prints test-runner success message including tests-report.
+   * @param testsReport List of expected result(s) and metrics for the executed
+   * test-script.
+   * @param duration Time taken to execute a test-script.
+   */
   success: (testsReport: TestReport[], duration: number) =>
     printTestSuitesReport(testsReport, duration),
 };
@@ -206,5 +222,8 @@ export const printTestRunner = {
  * Provides methods for printing pre-request-runner's state messages.
  */
 export const printPreRequestRunner = {
+  /**
+   * Prints pre-request-runner failed message.
+   */
   fail: () => log(FAIL("⚠ Error running pre-request-script.")),
 };

@@ -3,7 +3,7 @@ import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
 import { bold } from "chalk";
 import { log } from "console";
-import { round } from "lodash";
+import round from "lodash/round";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 import { HoppEnvs, CollectionStack, RequestReport } from "../types/request";
 import {
@@ -27,6 +27,7 @@ import {
 import { getTestMetrics } from "./test";
 import { DEFAULT_DURATION_PRECISION } from "./constants";
 import { getPreRequestMetrics } from "./pre-request";
+
 const { WARN, FAIL } = exceptionColors;
 
 /**

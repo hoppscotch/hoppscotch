@@ -19,42 +19,64 @@ export type Stats = {
 };
 
 export type PreRequestMetrics = {
-  // Pre-request-script(s) failing and passing stats.
+  /**
+   * Pre-request-script(s) failing and passing stats.
+   */
   scripts: Stats;
 
-  // Time taken (in seconds) to execute pre-request-script(s).
+  /**
+   * Time taken (in seconds) to execute pre-request-script(s).
+   */
   duration: number;
 };
 
 export type RequestMetrics = {
-  // Request(s) failing and passing stats.
+  /**
+   * Request(s) failing and passing stats.
+   */
   requests: Stats;
 
-  // Time taken (in seconds) to execute request(s).
+  /**
+   * Time taken (in seconds) to execute request(s).
+   */
   duration: number;
 };
 
 export type TestMetrics = {
-  // Test-cases failing and passing stats.
+  /**
+   * Test-cases failing and passing stats.
+   */
   tests: Stats;
 
-  // Test-block(s)/test-suite(s) failing and passing stats.
+  /**
+   * Test-block(s)/test-suite(s) failing and passing stats.
+   */
   testSuites: Stats;
 
-  // Test script(s) execution failing and passing stats.
+  /**
+   * Test script(s) execution failing and passing stats.
+   */
   scripts: Stats;
 
-  // Time taken (in seconds) to execute test-script(s).
+  /**
+   * Time taken (in seconds) to execute test-script(s).
+   */
   duration: number;
 };
 
 export type TestRunnerRes = {
-  // Updated envs after running test-script.
+  /**
+   * Updated envs after running test-script.
+   */
   envs: HoppEnvs;
 
-  // Describes expected details for each test-suite.
+  /**
+   * Describes expected details for each test-suite.
+   */
   testsReport: TestReport[];
 
-  // Time taken (in seconds) to execute the test-script.
+  /**
+   * Time taken (in seconds) to execute the test-script.
+   */
   duration: number;
 };

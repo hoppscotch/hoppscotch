@@ -21,7 +21,7 @@ import {
 import { error, HoppCLIError } from "../types/errors";
 import { hrtime } from "process";
 import { RequestMetrics } from "../types/response";
-import { pipe } from "fp-ts/lib/function";
+import { pipe } from "fp-ts/function";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 

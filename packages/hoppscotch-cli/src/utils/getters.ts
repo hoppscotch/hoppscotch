@@ -11,7 +11,7 @@ import * as E from "fp-ts/Either";
 import * as S from "fp-ts/string";
 import * as O from "fp-ts/Option";
 import { error } from "../types/errors";
-import { round } from "lodash";
+import round from "lodash/round";
 import { DEFAULT_DURATION_PRECISION } from "./constants";
 
 /**
@@ -119,13 +119,13 @@ export const exceptionColors = {
  * Calculates duration in seconds for given end-HRTime of format [seconds, nanoseconds],
  * which is rounded-off upto given decimal value.
  * @param end Providing end-HRTime of format [seconds, nanoseconds].
- * @param decimal Decimal precision to round-off float duration value (DEFAULT = 3).
+ * @param precision Decimal precision to round-off float duration value (DEFAULT = 3).
  * @returns Rounded duration in seconds for given decimal precision.
  */
 export const getDurationInSeconds = (
   end: [number, number],
-  decimal: number = DEFAULT_DURATION_PRECISION
+  precision: number = DEFAULT_DURATION_PRECISION
 ) => {
   const durationInSeconds = (end[0] * 1e9 + end[1]) / 1e9;
-  return round(durationInSeconds, decimal);
+  return round(durationInSeconds, precision);
 };

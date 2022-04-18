@@ -29,6 +29,7 @@ import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "../"
 import { generateRequestBodyExampleFromMediaObject as generateExampleV31 } from "./exampleV31"
 import { generateRequestBodyExampleFromMediaObject as generateExampleV3 } from "./exampleV3"
 import { generateRequestBodyExampleFromOpenAPIV2Body } from "./exampleV2"
+import { prettyPrintStringifyJSON } from "~/helpers/functional/json"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -205,12 +206,13 @@ const parseOpenAPIV3Body = (
     OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject
   ] = objs[0]
 
-  const exampleBody = JSON.stringify(
-    isV31Request
-      ? generateExampleV31(media as OpenAPIV31.MediaTypeObject)
-      : generateExampleV3(media as OpenAPIV3.MediaTypeObject),
-    null,
-    "\t"
+  const exampleBody = pipe(
+    prettyPrintStringifyJSON(
+      isV31Request
+        ? generateExampleV31(media as OpenAPIV31.MediaTypeObject)
+        : generateExampleV3(media as OpenAPIV3.MediaTypeObject)
+    ),
+    O.getOrElse(() => "")
   )
 
   return contentType in knownContentTypes

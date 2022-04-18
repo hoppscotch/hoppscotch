@@ -89,19 +89,19 @@ export const testDescriptorParser = (
       A.isNonEmpty(expectResults)
         ? pipe(
             expectResults,
-            A.reduce({ failing: 0, passing: 0 }, (prev, { status }) =>
+            A.reduce({ failed: 0, passed: 0 }, (prev, { status }) =>
               /**
                * Incrementing number of passed test-cases if status is "pass",
                * else, incrementing number of failed test-cases.
                */
               status === "pass"
-                ? { failing: prev.failing, passing: prev.passing + 1 }
-                : { failing: prev.failing + 1, passing: prev.passing }
+                ? { failed: prev.failed, passed: prev.passed + 1 }
+                : { failed: prev.failed + 1, passed: prev.passed }
             ),
-            ({ failing, passing }) =>
+            ({ failed, passed }) =>
               <TestReport>{
-                failing,
-                passing,
+                failed,
+                passed,
                 descriptor,
                 expectResults,
               },
@@ -166,35 +166,35 @@ export const getTestMetrics = (
   testsReport.reduce(
     ({ testSuites, tests, duration, scripts }, testReport) => ({
       tests: {
-        failing: tests.failing + testReport.failing,
-        passing: tests.passing + testReport.passing,
+        failed: tests.failed + testReport.failed,
+        passed: tests.passed + testReport.passed,
       },
       testSuites: {
-        failing: testSuites.failing + (testReport.failing > 0 ? 1 : 0),
-        passing: testSuites.passing + (testReport.failing === 0 ? 1 : 0),
+        failed: testSuites.failed + (testReport.failed > 0 ? 1 : 0),
+        passed: testSuites.passed + (testReport.failed === 0 ? 1 : 0),
       },
       scripts: scripts,
       duration: duration,
     }),
     <TestMetrics>{
-      tests: { failing: 0, passing: 0 },
-      testSuites: { failing: 0, passing: 0 },
+      tests: { failed: 0, passed: 0 },
+      testSuites: { failed: 0, passed: 0 },
       duration: testDuration,
       scripts: errors.some(({ code }) => code === "TEST_SCRIPT_ERROR")
-        ? { failing: 1, passing: 0 }
-        : { failing: 0, passing: 1 },
+        ? { failed: 1, passed: 0 }
+        : { failed: 0, passed: 1 },
     }
   );
 
 /**
  * Filters tests-report containing atleast one or more failed test-cases.
- * @param testsReport Provides "failing" test-cases data.
- * @returns Tests report with one or more test-cases failing.
+ * @param testsReport Provides "failed" test-cases data.
+ * @returns Tests report with one or more test-cases failed.
  */
 export const getFailedTestsReport = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
-    A.filter(({ failing }) => failing > 0)
+    A.filter(({ failed }) => failed > 0)
   );
 
 /**
@@ -210,12 +210,12 @@ export const getFailedExpectedResults = (expectResults: ExpectResult[]) =>
 
 /**
  * Checks if any of the tests-report have failed test-cases.
- * @param testsReport Provides "failing" test-cases data.
+ * @param testsReport Provides "failed" test-cases data.
  * @returns True, if one or more failed test-cases found.
  * False, if all test-cases passed.
  */
 export const hasFailedTestCases = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
-    A.every(({ failing }) => failing === 0)
+    A.every(({ failed }) => failed === 0)
   );

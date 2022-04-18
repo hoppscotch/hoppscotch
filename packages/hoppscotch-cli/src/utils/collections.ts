@@ -109,17 +109,17 @@ export const collectionsRunnerResult = (
   requestsReport: RequestReport[]
 ): boolean => {
   const overallTestMetrics = <TestMetrics>{
-    tests: { failing: 0, passing: 0 },
-    testSuites: { failing: 0, passing: 0 },
+    tests: { failed: 0, passed: 0 },
+    testSuites: { failed: 0, passed: 0 },
     duration: 0,
-    scripts: { failing: 0, passing: 0 },
+    scripts: { failed: 0, passed: 0 },
   };
   const overallRequestMetrics = <RequestMetrics>{
-    requests: { failing: 0, passing: 0 },
+    requests: { failed: 0, passed: 0 },
     duration: 0,
   };
   const overallPreRequestMetrics = <PreRequestMetrics>{
-    scripts: { failing: 0, passing: 0 },
+    scripts: { failed: 0, passed: 0 },
     duration: 0,
   };
   let finalResult = true;
@@ -143,12 +143,12 @@ export const collectionsRunnerResult = (
      */
     const testMetrics = getTestMetrics(tests, testsDuration, errors);
     overallTestMetrics.duration += testMetrics.duration;
-    overallTestMetrics.testSuites.failing += testMetrics.testSuites.failing;
-    overallTestMetrics.testSuites.passing += testMetrics.testSuites.passing;
-    overallTestMetrics.tests.failing += testMetrics.tests.failing;
-    overallTestMetrics.tests.passing += testMetrics.tests.passing;
-    overallTestMetrics.scripts.failing += testMetrics.scripts.failing;
-    overallTestMetrics.scripts.passing += testMetrics.scripts.passing;
+    overallTestMetrics.testSuites.failed += testMetrics.testSuites.failed;
+    overallTestMetrics.testSuites.passed += testMetrics.testSuites.passed;
+    overallTestMetrics.tests.failed += testMetrics.tests.failed;
+    overallTestMetrics.tests.passed += testMetrics.tests.passed;
+    overallTestMetrics.scripts.failed += testMetrics.scripts.failed;
+    overallTestMetrics.scripts.passed += testMetrics.scripts.passed;
 
     /**
      * Extracting current request report's request-metrics and updating
@@ -156,8 +156,8 @@ export const collectionsRunnerResult = (
      */
     const requestMetrics = getRequestMetrics(errors, requestDuration);
     overallRequestMetrics.duration += requestMetrics.duration;
-    overallRequestMetrics.requests.failing += requestMetrics.requests.failing;
-    overallRequestMetrics.requests.passing += requestMetrics.requests.passing;
+    overallRequestMetrics.requests.failed += requestMetrics.requests.failed;
+    overallRequestMetrics.requests.passed += requestMetrics.requests.passed;
 
     /**
      * Extracting current request report's pre-request-metrics and updating
@@ -165,10 +165,8 @@ export const collectionsRunnerResult = (
      */
     const preRequestMetrics = getPreRequestMetrics(errors, preRequestDuration);
     overallPreRequestMetrics.duration += preRequestMetrics.duration;
-    overallPreRequestMetrics.scripts.failing +=
-      preRequestMetrics.scripts.failing;
-    overallPreRequestMetrics.scripts.passing +=
-      preRequestMetrics.scripts.passing;
+    overallPreRequestMetrics.scripts.failed += preRequestMetrics.scripts.failed;
+    overallPreRequestMetrics.scripts.passed += preRequestMetrics.scripts.passed;
   }
 
   const testMetricsDuration = overallTestMetrics.duration;

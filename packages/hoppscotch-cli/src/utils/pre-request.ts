@@ -274,7 +274,7 @@ function getFinalBodyFromRequest(
  * @param errors List of errors to check for PRE_REQUEST_ERROR code.
  * @param duration Time taken (in seconds) to execute the pre-request-script.
  * @returns Object containing details of pre-request-script's execution stats
- * i.e., failing/passing data and duration.
+ * i.e., failed/passed data and duration.
  */
 export const getPreRequestMetrics = (
   errors: HoppCLIError[],
@@ -284,6 +284,6 @@ export const getPreRequestMetrics = (
     errors,
     A.some(({ code }) => code === "PRE_REQUEST_SCRIPT_ERROR"),
     (hasPreReqErrors) =>
-      hasPreReqErrors ? { failing: 1, passing: 0 } : { failing: 0, passing: 1 },
+      hasPreReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
     (scripts) => <PreRequestMetrics>{ scripts, duration }
   );

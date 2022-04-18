@@ -10,17 +10,17 @@ export type ExpectResult = {
 };
 
 /**
- * Stats describing number of failing and passing for test-cases/test-suites/
+ * Stats describing number of failed and passed for test-cases/test-suites/
  * test-scripts/pre-request-scripts/request.
  */
 export type Stats = {
-  failing: number;
-  passing: number;
+  failed: number;
+  passed: number;
 };
 
 export type PreRequestMetrics = {
   /**
-   * Pre-request-script(s) failing and passing stats.
+   * Pre-request-script(s) failed and passed stats.
    */
   scripts: Stats;
 
@@ -32,7 +32,7 @@ export type PreRequestMetrics = {
 
 export type RequestMetrics = {
   /**
-   * Request(s) failing and passing stats.
+   * Request(s) failed and passed stats.
    */
   requests: Stats;
 
@@ -44,17 +44,17 @@ export type RequestMetrics = {
 
 export type TestMetrics = {
   /**
-   * Test-cases failing and passing stats.
+   * Test-cases failed and passed stats.
    */
   tests: Stats;
 
   /**
-   * Test-block(s)/test-suite(s) failing and passing stats.
+   * Test-block(s)/test-suite(s) failed and passed stats.
    */
   testSuites: Stats;
 
   /**
-   * Test script(s) execution failing and passing stats.
+   * Test script(s) execution failed and passed stats.
    */
   scripts: Stats;
 

@@ -344,7 +344,7 @@ export const preProcessRequest = (
  * in hopp-errors list.
  * @param errors List of errors to check for REQUEST_ERROR.
  * @param duration Time taken (in seconds) to execute the request.
- * @returns Object containing details of request's execution stats i.e., failing/passing
+ * @returns Object containing details of request's execution stats i.e., failed/passed
  * data and duration.
  */
 export const getRequestMetrics = (
@@ -355,6 +355,6 @@ export const getRequestMetrics = (
     errors,
     A.some(({ code }) => code === "REQUEST_ERROR"),
     (hasReqErrors) =>
-      hasReqErrors ? { failing: 1, passing: 0 } : { failing: 0, passing: 1 },
+      hasReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
     (requests) => <RequestMetrics>{ requests, duration }
   );

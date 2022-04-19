@@ -35,7 +35,6 @@ import { EditorState, Extension } from "@codemirror/state"
 import clone from "lodash/clone"
 import { tooltips } from "@codemirror/tooltip"
 import { history, historyKeymap } from "@codemirror/history"
-import { defaultKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -177,7 +176,7 @@ const initView = (el: any) => {
       }
     ),
     history(),
-    keymap.of([...defaultKeymap, ...historyKeymap]),
+    keymap.of([...historyKeymap]),
   ]
 
   view.value = new EditorView({

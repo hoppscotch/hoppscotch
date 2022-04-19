@@ -200,6 +200,13 @@
       @hide-modal="displayModalImportExport(false)"
       @update-team-collections="updateTeamCollections"
     />
+    <SmartConfirmModal
+      :show="showConfirmModal"
+      :title="confirmModalTitle"
+      :loading-state="modalLoadingState"
+      @hide-modal="showConfirmModal = false"
+      @resolve="resolveConfirmModal"
+    />
   </div>
 </template>
 
@@ -269,15 +276,19 @@ export default defineComponent({
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
+      showConfirmModal: false,
       modalLoadingState: false,
       editingCollection: undefined,
+      editingCollectionType: undefined,
       editingCollectionIndex: undefined,
+      editingCollectionID: undefined,
       editingFolder: undefined,
       editingFolderName: undefined,
       editingFolderIndex: undefined,
       editingFolderPath: undefined,
       editingRequest: undefined,
       editingRequestIndex: undefined,
+      confirmModalTitle: undefined,
       filterText: "",
       collectionsType: {
         type: "my-collections",
@@ -554,6 +565,11 @@ export default defineComponent({
 
       if (!shouldDisplay) this.resetSelectedData()
     },
+    displayConfirmModal(shouldDisplay) {
+      this.showConfirmModal = shouldDisplay
+
+      if (!shouldDisplay) this.resetSelectedData()
+    },
     editCollection(collection, collectionIndex) {
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
@@ -622,46 +638,63 @@ export default defineComponent({
     resetSelectedData() {
       this.$data.editingCollection = undefined
       this.$data.editingCollectionIndex = undefined
+      this.$data.editingCollectionID = undefined
+      this.$data.editingCollectionIndex = undefined
       this.$data.editingFolder = undefined
       this.$data.editingFolderIndex = undefined
       this.$data.editingRequest = undefined
       this.$data.editingRequestIndex = undefined
+
+      this.$data.confirmModalTitle = undefined
     },
     expandCollection(collectionID) {
       this.teamCollectionAdapter.expandCollection(collectionID)
     },
     removeCollection({ collectionsType, collectionIndex, collectionID }) {
-      if (collectionsType.type === "my-collections") {
+      this.$data.editingCollectionType = collectionsType
+      this.$data.editingCollectionIndex = collectionIndex
+      this.$data.editingCollectionID = collectionID
+      this.confirmModalTitle = `${this.$t("confirm.remove_collection")}`
+
+      this.displayConfirmModal(true)
+    },
+    onRemoveCollection() {
+      if (this.$data.editingCollectionType.type === "my-collections") {
         // Cancel pick if picked collection is deleted
         if (
           this.picked &&
           this.picked.pickedType === "my-collection" &&
-          this.picked.collectionIndex === collectionIndex
+          this.picked.collectionIndex === this.$data.editingCollectionIndex
         ) {
           this.$emit("select", { picked: null })
         }
 
-        removeRESTCollection(collectionIndex)
+        removeRESTCollection(this.$data.editingCollectionIndex)
         this.$toast.success(this.$t("state.deleted"))
-      } else if (collectionsType.type === "team-collections") {
+        this.displayConfirmModal(false)
+      } else if (this.$data.editingCollectionType.type === "team-collections") {
+        this.modalLoadingState = true
+
         // Cancel pick if picked collection is deleted
         if (
           this.picked &&
           this.picked.pickedType === "teams-collection" &&
-          this.picked.collectionID === collectionID
+          this.picked.collectionID === this.$data.editingCollectionID
         ) {
           this.$emit("select", { picked: null })
         }
 
-        if (collectionsType.selectedTeam.myRole !== "VIEWER") {
+        if (this.$data.editingCollectionType.selectedTeam.myRole !== "VIEWER") {
           runMutation(DeleteCollectionDocument, {
-            collectionID,
+            collectionID: this.$data.editingCollectionID,
           })().then((result) => {
+            this.modalLoadingState = false
             if (E.isLeft(result)) {
               this.$toast.error(this.$t("error.something_went_wrong"))
               console.error(result.left.error)
             } else {
               this.$toast.success(this.$t("state.deleted"))
+              this.displayConfirmModal(false)
             }
           })
         }
@@ -779,6 +812,10 @@ export default defineComponent({
           name: `${request.name} - ${this.$t("action.duplicate")}`,
         })
       }
+    },
+    resolveConfirmModal(title) {
+      if (title === `${this.$t("confirm.remove_collection")}`)
+        this.onRemoveCollection()
     },
   },
 })

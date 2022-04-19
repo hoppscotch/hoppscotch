@@ -157,7 +157,7 @@
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
-                    confirmRemove = true
+                    removeCollection()
                     options.tippy().hide()
                   }
                 "
@@ -241,12 +241,6 @@
         </div>
       </div>
     </div>
-    <SmartConfirmModal
-      :show="confirmRemove"
-      :title="t('confirm.remove_collection')"
-      @hide-modal="confirmRemove = false"
-      @resolve="removeCollection"
-    />
   </div>
 </template>
 
@@ -292,7 +286,6 @@ export default defineComponent({
       showChildren: false,
       dragging: false,
       selectedFolder: {},
-      confirmRemove: false,
       prevCursor: "",
       cursor: "",
       pageNo: 0,

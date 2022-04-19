@@ -6,7 +6,6 @@ import {
   defineComponent,
 } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
-import { pipe } from "fp-ts/function"
 
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 
@@ -39,7 +38,11 @@ export default defineComponent({
       if (typeof query.url === "string") {
         const result = await urlImporter.importer([query.url])()
 
-        pipe(result, E.map(handleImportSuccess), E.mapLeft(handleImportFailure))
+        if (E.isRight(result)) {
+          handleImportSuccess(result.right)
+        } else if (E.isLeft(result)) {
+          handleImportFailure(result.left)
+        }
       }
       router.replace("/")
     })

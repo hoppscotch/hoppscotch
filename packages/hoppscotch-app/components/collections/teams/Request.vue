@@ -123,7 +123,7 @@
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
-                    confirmRemove = true
+                    removeRequest()
                     options.tippy().hide()
                   }
                 "
@@ -133,12 +133,6 @@
         </span>
       </div>
     </div>
-    <SmartConfirmModal
-      :show="confirmRemove"
-      :title="$t('confirm.remove_request')"
-      @hide-modal="confirmRemove = false"
-      @resolve="removeRequest"
-    />
     <HttpReqChangeConfirmModal
       :show="confirmChange"
       @hide-modal="confirmChange = false"
@@ -253,7 +247,6 @@ const requestMethodLabels = {
   delete: "text-red-500",
   default: "text-gray-500",
 }
-const confirmRemove = ref(false)
 const confirmChange = ref(false)
 const showSaveRequestModal = ref(false)
 

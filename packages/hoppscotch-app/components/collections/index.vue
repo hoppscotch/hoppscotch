@@ -659,34 +659,39 @@ export default defineComponent({
       this.displayConfirmModal(true)
     },
     onRemoveCollection() {
-      if (this.$data.editingCollectionType.type === "my-collections") {
+      const collectionType = this.$data.editingCollectionType
+      const collectionIndex = this.$data.editingCollectionIndex
+      const collectionID = this.$data.editingCollectionID
+
+      if (collectionType.type === "my-collections") {
         // Cancel pick if picked collection is deleted
         if (
           this.picked &&
           this.picked.pickedType === "my-collection" &&
-          this.picked.collectionIndex === this.$data.editingCollectionIndex
+          this.picked.collectionIndex === collectionIndex
         ) {
           this.$emit("select", { picked: null })
         }
 
-        removeRESTCollection(this.$data.editingCollectionIndex)
+        removeRESTCollection(collectionIndex)
+
         this.$toast.success(this.$t("state.deleted"))
         this.displayConfirmModal(false)
-      } else if (this.$data.editingCollectionType.type === "team-collections") {
+      } else if (collectionType.type === "team-collections") {
         this.modalLoadingState = true
 
         // Cancel pick if picked collection is deleted
         if (
           this.picked &&
           this.picked.pickedType === "teams-collection" &&
-          this.picked.collectionID === this.$data.editingCollectionID
+          this.picked.collectionID === collectionID
         ) {
           this.$emit("select", { picked: null })
         }
 
-        if (this.$data.editingCollectionType.selectedTeam.myRole !== "VIEWER") {
+        if (collectionType.selectedTeam.myRole !== "VIEWER") {
           runMutation(DeleteCollectionDocument, {
-            collectionID: this.$data.editingCollectionID,
+            collectionID,
           })().then((result) => {
             this.modalLoadingState = false
             if (E.isLeft(result)) {
@@ -701,6 +706,16 @@ export default defineComponent({
       }
     },
     removeRequest({ requestIndex, folderPath }) {
+      this.$data.editingRequestIndex = requestIndex
+      this.$data.editingFolderPath = folderPath
+      this.confirmModalTitle = `${this.$t("confirm.remove_request")}`
+
+      this.displayConfirmModal(true)
+    },
+    onRemoveRequest() {
+      const requestIndex = this.$data.editingRequestIndex
+      const folderPath = this.$data.editingFolderPath
+
       if (this.collectionsType.type === "my-collections") {
         // Cancel pick if the picked item is being deleted
         if (
@@ -712,8 +727,11 @@ export default defineComponent({
           this.$emit("select", { picked: null })
         }
         removeRESTRequest(folderPath, requestIndex)
+
         this.$toast.success(this.$t("state.deleted"))
+        this.displayConfirmModal(false)
       } else if (this.collectionsType.type === "team-collections") {
+        this.modalLoadingState = true
         // Cancel pick if the picked item is being deleted
         if (
           this.picked &&
@@ -726,11 +744,13 @@ export default defineComponent({
         runMutation(DeleteRequestDocument, {
           requestID: requestIndex,
         })().then((result) => {
+          this.modalLoadingState = false
           if (E.isLeft(result)) {
             this.$toast.error(this.$t("error.something_went_wrong"))
             console.error(result.left.error)
           } else {
             this.$toast.success(this.$t("state.deleted"))
+            this.displayConfirmModal(false)
           }
         })
       }
@@ -816,6 +836,15 @@ export default defineComponent({
     resolveConfirmModal(title) {
       if (title === `${this.$t("confirm.remove_collection")}`)
         this.onRemoveCollection()
+      else if (title === `${this.$t("confirm.remove_request")}`)
+        this.onRemoveRequest()
+      else {
+        console.error(
+          `Confirm modal title ${title} is not handled by the component`
+        )
+        this.$toast.error(this.$t("error.something_went_wrong"))
+        this.displayConfirmModal(false)
+      }
     },
   },
 })

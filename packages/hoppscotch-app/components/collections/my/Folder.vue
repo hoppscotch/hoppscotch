@@ -131,7 +131,7 @@
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
-                    confirmRemove = true
+                    removeFolder()
                     options.tippy().hide()
                   }
                 "
@@ -165,7 +165,8 @@
           @duplicate-request="$emit('duplicate-request', $event)"
           @update-team-collections="$emit('update-team-collections')"
           @select="$emit('select', $event)"
-          @remove-request="removeRequest"
+          @remove-request="$emit('remove-request', $event)"
+          @remove-folder="$emit('remove-folder', $event)"
         />
         <CollectionsMyRequest
           v-for="(request, index) in folder.requests"
@@ -183,7 +184,7 @@
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
-          @remove-request="removeRequest"
+          @remove-request="$emit('remove-request', $event)"
         />
         <div
           v-if="
@@ -206,23 +207,13 @@
         </div>
       </div>
     </div>
-    <SmartConfirmModal
-      :show="confirmRemove"
-      :title="t('confirm.remove_folder')"
-      @hide-modal="confirmRemove = false"
-      @resolve="removeFolder"
-    />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { useI18n } from "~/helpers/utils/composables"
-import {
-  removeRESTFolder,
-  removeRESTRequest,
-  moveRESTRequest,
-} from "~/newstore/collections"
+import { moveRESTRequest } from "~/newstore/collections"
 
 export default defineComponent({
   name: "Folder",
@@ -255,7 +246,6 @@ export default defineComponent({
     return {
       showChildren: false,
       dragging: false,
-      confirmRemove: false,
       prevCursor: "",
       cursor: "",
     }
@@ -306,36 +296,16 @@ export default defineComponent({
       this.showChildren = !this.showChildren
     },
     removeFolder() {
-      // TODO: Bubble it up ?
-      // Cancel pick if picked folder was deleted
-      if (
-        this.picked &&
-        this.picked.pickedType === "my-folder" &&
-        this.picked.folderPath === this.folderPath
-      ) {
-        this.$emit("select", { picked: null })
-      }
-      removeRESTFolder(this.folderPath)
-      this.$toast.success(`${this.$t("state.deleted")}`)
+      this.$emit("remove-folder", {
+        folder: this.folder,
+        folderPath: this.folderPath,
+      })
     },
     dropEvent({ dataTransfer }) {
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
       moveRESTRequest(folderPath, requestIndex, this.folderPath)
-    },
-    removeRequest({ requestIndex }) {
-      // TODO: Bubble it up to root ?
-      // Cancel pick if the picked item is being deleted
-      if (
-        this.picked &&
-        this.picked.pickedType === "my-request" &&
-        this.picked.folderPath === this.folderPath &&
-        this.picked.requestIndex === requestIndex
-      ) {
-        this.$emit("select", { picked: null })
-      }
-      removeRESTRequest(this.folderPath, requestIndex)
     },
   },
 })

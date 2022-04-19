@@ -94,6 +94,7 @@
         @expand-collection="expandCollection"
         @remove-collection="removeCollection"
         @remove-request="removeRequest"
+        @remove-folder="removeFolder"
       />
     </div>
     <div
@@ -225,6 +226,7 @@ import {
   editRESTCollection,
   addRESTFolder,
   removeRESTCollection,
+  removeRESTFolder,
   editRESTFolder,
   removeRESTRequest,
   editRESTRequest,
@@ -279,7 +281,6 @@ export default defineComponent({
       showConfirmModal: false,
       modalLoadingState: false,
       editingCollection: undefined,
-      editingCollectionType: undefined,
       editingCollectionIndex: undefined,
       editingCollectionID: undefined,
       editingFolder: undefined,
@@ -639,8 +640,8 @@ export default defineComponent({
       this.$data.editingCollection = undefined
       this.$data.editingCollectionIndex = undefined
       this.$data.editingCollectionID = undefined
-      this.$data.editingCollectionIndex = undefined
       this.$data.editingFolder = undefined
+      this.$data.editingFolderPath = undefined
       this.$data.editingFolderIndex = undefined
       this.$data.editingRequest = undefined
       this.$data.editingRequestIndex = undefined
@@ -650,8 +651,7 @@ export default defineComponent({
     expandCollection(collectionID) {
       this.teamCollectionAdapter.expandCollection(collectionID)
     },
-    removeCollection({ collectionsType, collectionIndex, collectionID }) {
-      this.$data.editingCollectionType = collectionsType
+    removeCollection({ collectionIndex, collectionID }) {
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingCollectionID = collectionID
       this.confirmModalTitle = `${this.$t("confirm.remove_collection")}`
@@ -659,11 +659,10 @@ export default defineComponent({
       this.displayConfirmModal(true)
     },
     onRemoveCollection() {
-      const collectionType = this.$data.editingCollectionType
       const collectionIndex = this.$data.editingCollectionIndex
       const collectionID = this.$data.editingCollectionID
 
-      if (collectionType.type === "my-collections") {
+      if (this.collectionsType.type === "my-collections") {
         // Cancel pick if picked collection is deleted
         if (
           this.picked &&
@@ -677,7 +676,7 @@ export default defineComponent({
 
         this.$toast.success(this.$t("state.deleted"))
         this.displayConfirmModal(false)
-      } else if (collectionType.type === "team-collections") {
+      } else if (this.collectionsType.type === "team-collections") {
         this.modalLoadingState = true
 
         // Cancel pick if picked collection is deleted
@@ -689,7 +688,7 @@ export default defineComponent({
           this.$emit("select", { picked: null })
         }
 
-        if (collectionType.selectedTeam.myRole !== "VIEWER") {
+        if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
           runMutation(DeleteCollectionDocument, {
             collectionID,
           })().then((result) => {
@@ -700,6 +699,62 @@ export default defineComponent({
             } else {
               this.$toast.success(this.$t("state.deleted"))
               this.displayConfirmModal(false)
+            }
+          })
+        }
+      }
+    },
+    removeFolder({ collectionID, folder, folderPath }) {
+      this.$data.editingCollectionID = collectionID
+      this.$data.editingFolder = folder
+      this.$data.editingFolderPath = folderPath
+      this.confirmModalTitle = `${this.$t("confirm.remove_folder")}`
+
+      this.displayConfirmModal(true)
+    },
+    onRemoveFolder() {
+      const folder = this.$data.editingFolder
+      const folderPath = this.$data.editingFolderPath
+
+      if (this.collectionsType.type === "my-collections") {
+        // Cancel pick if picked folder was deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "my-folder" &&
+          this.picked.folderPath === folderPath
+        ) {
+          this.$emit("select", { picked: null })
+        }
+        removeRESTFolder(folderPath)
+
+        this.$toast.success(this.$t("state.deleted"))
+        this.displayConfirmModal(false)
+      } else if (this.collectionsType.type === "team-collections") {
+        this.modalLoadingState = true
+
+        // Cancel pick if picked collection folder was deleted
+        if (
+          this.picked &&
+          this.picked.pickedType === "teams-folder" &&
+          this.picked.folderID === folder.id
+        ) {
+          this.$emit("select", { picked: null })
+        }
+
+        if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
+          runMutation(DeleteCollectionDocument, {
+            collectionID: folder.id,
+          })().then((result) => {
+            this.modalLoadingState = false
+
+            if (E.isLeft(result)) {
+              this.$toast.error(`${this.$t("error.something_went_wrong")}`)
+              console.error(result.left.error)
+            } else {
+              this.$toast.success(`${this.$t("state.deleted")}`)
+              this.displayConfirmModal(false)
+
+              this.updateTeamCollections()
             }
           })
         }
@@ -838,6 +893,8 @@ export default defineComponent({
         this.onRemoveCollection()
       else if (title === `${this.$t("confirm.remove_request")}`)
         this.onRemoveRequest()
+      else if (title === `${this.$t("confirm.remove_folder")}`)
+        this.onRemoveFolder()
       else {
         console.error(
           `Confirm modal title ${title} is not handled by the component`
@@ -848,4 +905,5 @@ export default defineComponent({
     },
   },
 })
+// request inside folder is not being deleted, you dumb fuck
 </script>

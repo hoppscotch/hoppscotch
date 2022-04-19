@@ -193,6 +193,7 @@
           @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
           @remove-request="$emit('remove-request', $event)"
+          @remove-folder="$emit('remove-folder', $event)"
         />
         <CollectionsMyRequest
           v-for="(request, index) in collection.requests"
@@ -319,7 +320,6 @@ export default defineComponent({
     },
     removeCollection() {
       this.$emit("remove-collection", {
-        collectionsType: this.collectionsType,
         collectionIndex: this.collectionIndex,
         collectionID: this.collection.id,
       })

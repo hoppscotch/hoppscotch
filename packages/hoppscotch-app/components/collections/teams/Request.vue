@@ -209,8 +209,7 @@ const emit = defineEmits<{
   (
     e: "remove-request",
     data: {
-      collectionIndex: number
-      folderName: string | undefined
+      folderPath: string | undefined
       requestIndex: string
     }
   ): void
@@ -282,8 +281,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
 
 const removeRequest = () => {
   emit("remove-request", {
-    collectionIndex: props.collectionIndex,
-    folderName: props.folderName,
+    folderPath: props.folderName,
     requestIndex: props.requestIndex,
   })
 }

@@ -24,7 +24,11 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary :label="$t('action.save')" @click.native="saveRequest" />
+        <ButtonPrimary
+          :label="$t('action.save')"
+          :loading="loadingState"
+          @click.native="saveRequest"
+        />
         <ButtonSecondary
           :label="$t('action.cancel')"
           @click.native="hideModal"
@@ -41,6 +45,7 @@ export default defineComponent({
   props: {
     show: Boolean,
     editingRequestName: { type: String, default: null },
+    loadingState: Boolean,
   },
   data() {
     return {
@@ -61,7 +66,6 @@ export default defineComponent({
         return
       }
       this.$emit("submit", this.requestUpdateData)
-      this.hideModal()
     },
     hideModal() {
       this.requestUpdateData = { name: null }

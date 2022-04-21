@@ -18,7 +18,7 @@
           <div class="hidden sm:inline-flex items-center px-1 w-16">
             <span
               ref="timestampEl"
-              class="ts-font text-secondaryLight hover:text-secondary mx-auto"
+              class="ts-font text-secondaryLight hover:text-secondary mx-auto hover:text-center"
             >
               {{
                 timestampHovered
@@ -50,7 +50,12 @@
         </div>
       </div>
     </div>
-    <div v-if="!minimized && isJSON(entry.payload)">
+
+    <div v-if="!minimized">
+      <SmartTabs v-model="selectedTab">
+        <SmartTab v-if="isJSON(entry.payload)" id="json" label="JSON" />
+        <SmartTab id="raw" label="Raw" />
+      </SmartTabs>
       <div
         class="z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
       >
@@ -82,9 +87,10 @@
         </div>
       </div>
 
-      <div ref="jsonResponse"></div>
+      <div ref="editor"></div>
+
       <div
-        v-if="outlinePath"
+        v-if="outlinePath && selectedTab === 'json'"
         class="sticky bottom-0 z-10 flex px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
       >
         <div
@@ -198,7 +204,7 @@
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { ref, computed, reactive } from "@nuxtjs/composition-api"
+import { ref, computed, reactive, watch } from "@nuxtjs/composition-api"
 import { useElementHover, useTimeAgo } from "@vueuse/core"
 import { LogEntryData } from "./Log.vue"
 import { useI18n } from "~/helpers/utils/composables"
@@ -217,12 +223,16 @@ import {
 const t = useI18n()
 
 const props = defineProps<{ entry: LogEntryData }>()
-
 const outlineOptions = ref<any | null>(null)
-const jsonResponse = ref<any | null>(null)
+const editor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 const logPayload = computed(() => props.entry.payload)
 
+const selectedTab = ref<"json" | "raw">(
+  isJSON(props.entry.payload) ? "json" : "raw"
+)
+
+// CodeMirror Implementation
 const jsonBodyText = computed(() =>
   pipe(
     logPayload.value,
@@ -230,13 +240,6 @@ const jsonBodyText = computed(() =>
     O.map((val) => LJSON.stringify(val, undefined, 2)),
     O.getOrElse(() => logPayload.value)
   )
-)
-
-const { copyIcon, copyResponse } = useCopyResponse(logPayload)
-
-const { downloadIcon, downloadResponse } = useDownloadResponse(
-  "application/json",
-  logPayload
 )
 
 const ast = computed(() =>
@@ -247,18 +250,28 @@ const ast = computed(() =>
   )
 )
 
+const editorText = computed(() => {
+  if (selectedTab.value === "json") return jsonBodyText.value
+  else return logPayload.value
+})
+
+const editorMode = computed(() => {
+  if (selectedTab.value === "json") return "application/ld+json"
+  else return "text/plain"
+})
+
 const { cursor } = useCodemirror(
-  jsonResponse,
-  jsonBodyText,
+  editor,
+  editorText,
   reactive({
     extendedEditorConfig: {
-      mode: "application/ld+json",
+      mode: editorMode,
       readOnly: true,
       lineWrapping: linewrapEnabled,
     },
     linter: null,
     completer: null,
-    environmentHighlights: true,
+    environmentHighlights: false,
   })
 )
 
@@ -282,14 +295,48 @@ const outlinePath = computed(() =>
   )
 )
 
+// Code for UI Changes
 const minimized = ref(true)
+watch(minimized, () => {
+  selectedTab.value = isJSON(props.entry.payload) ? "json" : "raw"
+})
+
 const hover = ref(false)
 
-const relativeTime = useTimeAgo(computed(() => props.entry.ts))
+const toggleExpandPayload = () => {
+  minimized.value = !minimized.value
+}
 
+const invertHover = () => {
+  hover.value = !hover.value
+}
+
+// Code for Copy to Clipboard And Downloading the Response
+const expandCopy = computed(() => {
+  if (hover.value) return "inline-flex"
+  return "hidden"
+})
+
+const { copyIcon, copyResponse } = useCopyResponse(logPayload)
+
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "application/json",
+  logPayload
+)
+
+const copyQueryIcon = ref("copy")
+const copyQuery = (entry: string) => {
+  copyToClipboard(entry)
+  copyQueryIcon.value = "check"
+  setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
+}
+
+// Relative Time
+const relativeTime = useTimeAgo(computed(() => props.entry.ts))
 const timestampEl = ref()
 const timestampHovered = useElementHover(timestampEl)
 
+// Assigns color based on entry event
 const entryColor = computed(() => {
   switch (props.entry.event) {
     case "connected":
@@ -303,26 +350,7 @@ const entryColor = computed(() => {
   }
 })
 
-const expandCopy = computed(() => {
-  if (hover.value) return "inline-flex"
-  return "hidden"
-})
-
-const copyQueryIcon = ref("copy")
-const copyQuery = (entry: string) => {
-  copyToClipboard(entry)
-  copyQueryIcon.value = "check"
-  setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
-}
-
-const toggleExpandPayload = () => {
-  minimized.value = !minimized.value
-}
-
-const invertHover = () => {
-  hover.value = !hover.value
-}
-
+// Adds relevant icons for each entry source
 const sourceIcons = {
   // Source used for info messages.
   info: "info-realtime",

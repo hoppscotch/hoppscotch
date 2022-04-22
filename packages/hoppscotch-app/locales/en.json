@@ -171,6 +171,7 @@
   "environment": {
     "add_to_global": "Add to Global",
     "added": "Environment addition",
+    "created": "Environment created",
     "create_new": "Create new environment",
     "deleted": "Environment deletion",
     "edit": "Edit Environment",
@@ -181,7 +182,7 @@
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Select environment",
     "title": "Environments",
-    "updated": "Environment updation",
+    "updated": "Environment updated",
     "variable_list": "Variable List"
   },
   "error": {

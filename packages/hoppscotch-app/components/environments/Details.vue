@@ -255,13 +255,14 @@ const saveEnvironment = () => {
     variables: vars.value,
   }
 
-  if (props.editingEnvironmentIndex === null) return
   if (props.editingEnvironmentIndex === "Global")
     setGlobalEnvVariables(environmentUpdated.variables)
   else if (props.action === "new") {
     updateEnvironment(envList.value.length - 1, environmentUpdated)
+    toast.success(`${t("environment.created")}`)
   } else {
     updateEnvironment(props.editingEnvironmentIndex!, environmentUpdated)
+    toast.success(`${t("environment.updated")}`)
   }
   hideModal()
 }

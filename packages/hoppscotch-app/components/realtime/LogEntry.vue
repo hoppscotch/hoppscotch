@@ -2,23 +2,23 @@
   <div v-if="entry">
     <div
       :style="{ color: entryColor }"
-      class="font-uniform realtime-log"
+      class="realtime-log"
       @mouseover="invertHover()"
       @mouseout="invertHover()"
     >
-      <div class="border-y divide-y divide-dividerLight border-dividerLight">
+      <div class="divide-y border-y divide-dividerLight border-dividerLight">
         <div class="flex divide-x divide-dividerLight">
-          <div class="inline-flex items-center">
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :svg="`${source(entry.source)}`"
+          <div class="inline-flex items-center p-2">
+            <SmartIcon
+              class="svg-icons"
+              :name="`${source(entry.source)}`"
               @click.native="copyQuery(entry.payload)"
             />
           </div>
-          <div class="hidden sm:inline-flex items-center px-1 w-16">
+          <div class="items-center hidden px-1 w-18 sm:inline-flex">
             <span
               ref="timestampEl"
-              class="ts-font text-secondaryLight hover:text-secondary mx-auto hover:text-center"
+              class="mx-auto truncate ts-font text-secondaryLight hover:text-secondary hover:text-center"
             >
               {{
                 timestampHovered
@@ -27,31 +27,30 @@
               }}
             </span>
           </div>
-
-          <div class="flex-1 inline-flex items-center px-1.5 truncate">
-            <div @click="toggleExpandPayload()">{{ entry.payload }}</div>
+          <div
+            class="flex items-center flex-1 min-w-0 p-2"
+            @click="toggleExpandPayload()"
+          >
+            <div class="truncate">
+              {{ entry.payload }}
+            </div>
           </div>
-          <div :class="expandCopy" class="ml-1 items-center">
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.copy')"
-              :svg="`${copyQueryIcon}`"
-              @click.native="copyQuery(entry.payload)"
-            />
-          </div>
-          <div class="inline-flex items-center">
-            <ButtonSecondary
-              svg="chevron-down"
-              class="transform"
-              :class="{ 'rotate-180': !minimized }"
-              @click.native="toggleExpandPayload()"
-            />
-          </div>
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.copy')"
+            :svg="`${copyQueryIcon}`"
+            @click.native="copyQuery(entry.payload)"
+          />
+          <ButtonSecondary
+            svg="chevron-down"
+            class="transform"
+            :class="{ 'rotate-180': !minimized }"
+            @click.native="toggleExpandPayload()"
+          />
         </div>
       </div>
     </div>
-
-    <div v-if="!minimized">
+    <div v-if="!minimized" class="overflow-hidden">
       <SmartTabs v-model="selectedTab">
         <SmartTab v-if="isJSON(entry.payload)" id="json" label="JSON" />
         <SmartTab id="raw" label="Raw" />
@@ -59,9 +58,9 @@
       <div
         class="z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
       >
-        <label class="font-semibold text-secondaryLight">{{
-          t("response.body")
-        }}</label>
+        <label class="font-semibold text-secondaryLight">
+          {{ t("response.body") }}
+        </label>
         <div class="flex">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -86,9 +85,7 @@
           />
         </div>
       </div>
-
       <div ref="editor"></div>
-
       <div
         v-if="outlinePath && selectedTab === 'json'"
         class="sticky bottom-0 z-10 flex px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
@@ -191,8 +188,9 @@
           <i
             v-if="index + 1 !== outlinePath.length"
             class="opacity-50 text-secondaryLight material-icons"
-            >chevron_right</i
           >
+            chevron_right
+          </i>
         </div>
       </div>
     </div>
@@ -310,12 +308,6 @@ const toggleExpandPayload = () => {
 const invertHover = () => {
   hover.value = !hover.value
 }
-
-// Code for Copy to Clipboard And Downloading the Response
-const expandCopy = computed(() => {
-  if (hover.value) return "inline-flex"
-  return "hidden"
-})
 
 const { copyIcon, copyResponse } = useCopyResponse(logPayload)
 

@@ -1,13 +1,17 @@
 <template>
   <div>
-    <div class="z-10 sticky top-0 border-b bg-primary border-dividerLight mb-5">
-      <label for="log" class="py-2 font-semibold text-secondaryLight">{{
-        title
-      }}</label>
+    <div
+      class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+    >
+      <label for="log" class="py-2 font-semibold text-secondaryLight">
+        {{ title }}
+      </label>
     </div>
-    <div v-for="(entry, index) in log" :key="`entry-${index}`">
-      <LogEntry v-if="entry" :entry="entry" />
-    </div>
+    <LogEntry
+      v-for="(entry, index) in log"
+      :key="`entry-${index}`"
+      :entry="entry"
+    />
   </div>
 </template>
 

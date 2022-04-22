@@ -33,9 +33,9 @@
       <div
         class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
       >
-        <label class="font-semibold text-secondaryLight">{{
-          $t("websocket.protocols")
-        }}</label>
+        <label class="font-semibold text-secondaryLight">
+          {{ $t("websocket.protocols") }}
+        </label>
         <div class="flex">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"

@@ -260,7 +260,7 @@ const saveEnvironment = () => {
     // Editing the Global environment
     setGlobalEnvVariables(environmentUpdated.variables)
     toast.success(`${t("environment.updated")}`)
-  } else if (props.editingEnvironmentIndex) {
+  } else if (props.editingEnvironmentIndex>=0) {
     // Editing an environment
     updateEnvironment(props.editingEnvironmentIndex, environmentUpdated)
     toast.success(`${t("environment.updated")}`)

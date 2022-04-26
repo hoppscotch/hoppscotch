@@ -10,7 +10,7 @@ import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 // TODO: Add validation to output
 const fetchGist = (
   url: string
-): TO.TaskOption<HoppCollection<HoppRESTRequest>> =>
+): TO.TaskOption<HoppCollection<HoppRESTRequest>[]> =>
   pipe(
     TO.tryCatch(() =>
       axios.get(`https://api.github.com/gists/${url.split("/").pop()}`, {

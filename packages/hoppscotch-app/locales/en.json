@@ -9,8 +9,8 @@
     "delete": "Delete",
     "disconnect": "Disconnect",
     "dismiss": "Dismiss",
-    "download_file": "Download file",
     "dont_save": "Don't save",
+    "download_file": "Download file",
     "duplicate": "Duplicate",
     "edit": "Edit",
     "go_back": "Go back",
@@ -46,10 +46,10 @@
     "contact_us": "Contact us",
     "copy": "Copy",
     "copy_user_id": "Copy User Auth Token",
-    "discord": "Discord",
-    "documentation": "Documentation",
     "developer_option": "Developer options",
     "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
+    "documentation": "Documentation",
     "github": "GitHub",
     "help": "Help & feedback",
     "home": "Home",
@@ -122,7 +122,6 @@
     "team_collections": "Team Collections"
   },
   "confirm": {
-    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "exit_team": "Are you sure you want to leave this team?",
     "logout": "Are you sure you want to logout?",
     "remove_collection": "Are you sure you want to permanently delete this collection?",
@@ -132,6 +131,7 @@
     "remove_request": "Are you sure you want to permanently delete this request?",
     "remove_team": "Are you sure you want to delete this team?",
     "remove_telemetry": "Are you sure you want to opt-out of Telemetry?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Would you like to restore your workspace from cloud? This will discard your local progress."
   },
   "count": {
@@ -171,8 +171,8 @@
   "environment": {
     "add_to_global": "Add to Global",
     "added": "Environment addition",
-    "created": "Environment created",
     "create_new": "Create new environment",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Edit Environment",
     "invalid_name": "Please provide a name for the environment",
@@ -242,10 +242,10 @@
     "tests": "Write a test script to automate debugging."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Hide more",
     "preview": "Hide Preview",
-    "sidebar": "Collapse sidebar",
-    "collection": "Collapse Collection Panel"
+    "sidebar": "Collapse sidebar"
   },
   "import": {
     "collections": "Import collections",
@@ -269,12 +269,12 @@
     "title": "Import"
   },
   "layout": {
-    "column": "Vertical layout",
-    "row": "Horizontal layout",
-    "zen_mode": "Zen mode",
-    "collapse_sidebar": "Collapse or Expand the sidebar",
     "collapse_collection": "Collapse or Expand Collections",
-    "name": "Layout"
+    "collapse_sidebar": "Collapse or Expand the sidebar",
+    "column": "Vertical layout",
+    "name": "Layout",
+    "row": "Horizontal layout",
+    "zen_mode": "Zen mode"
   },
   "modal": {
     "collections": "Collections",
@@ -341,6 +341,9 @@
     "method": "Method",
     "name": "Request name",
     "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Query Parameters",
     "parameters": "Parameters",
     "path": "Path",
@@ -357,10 +360,7 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
-    "variables": "Variables",
-    "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
-    "overriden": "Overridden"
+    "variables": "Variables"
   },
   "response": {
     "body": "Response Body",
@@ -396,11 +396,11 @@
     "extension_version": "Extension Version",
     "extensions": "Browser extension",
     "extensions_use_toggle": "Use the browser extension to send requests (if present)",
+    "follow": "Follow Us",
     "font_size": "Font size",
     "font_size_large": "Large",
     "font_size_medium": "Medium",
     "font_size_small": "Small",
-    "follow": "Follow Us",
     "interceptor": "Interceptor",
     "interceptor_description": "Middleware between application and APIs.",
     "language": "Language",
@@ -478,9 +478,9 @@
   },
   "show": {
     "code": "Show code",
+    "collection": "Expand Collection Panel",
     "more": "Show more",
-    "sidebar": "Expand sidebar",
-    "collection": "Expand Collection Panel"
+    "sidebar": "Expand sidebar"
   },
   "socketio": {
     "communication": "Communication",
@@ -525,11 +525,11 @@
     "community": "Ask questions and help others",
     "documentation": "Read more about Hoppscotch",
     "forum": "Ask questions and get answers",
+    "github": "Follow us on Github",
     "shortcuts": "Browse app faster",
     "team": "Get in touch with the team",
     "title": "Support",
-    "twitter": "Follow us on Twitter",
-    "github": "Follow us on Github"
+    "twitter": "Follow us on Twitter"
   },
   "tab": {
     "authorization": "Authorization",

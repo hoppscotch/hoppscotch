@@ -9,6 +9,7 @@
     "delete": "Slet",
     "disconnect": "Koble fra",
     "dismiss": "Afskedige",
+    "dont_save": "Don't save",
     "download_file": "Download fil",
     "duplicate": "Duplicate",
     "edit": "Redigere",
@@ -44,6 +45,10 @@
     "chat_with_us": "Chat med os",
     "contact_us": "Kontakt os",
     "copy": "Kopi",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentation",
     "github": "GitHub",
     "help": "Hjælp, feedback og dokumentation",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Tastaturgenveje",
     "name": "Hoppscotch",
     "new_version_found": "Ny version fundet. Opdater for at opdatere.",
+    "options": "Options",
     "proxy_privacy_policy": "Politik til beskyttelse af personlige oplysninger i proxy",
     "reload": "Genindlæs",
     "search": "Søg",
@@ -62,6 +68,7 @@
     "shortcuts": "Genveje",
     "spotlight": "Spotlight",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Vilkår og fortrolighed",
     "twitter": "Twitter",
     "type_a_command_search": "Skriv en kommando eller søg ...",
@@ -124,6 +131,7 @@
     "remove_request": "Er du sikker på, at du vil slette denne anmodning permanent?",
     "remove_team": "Er du sikker på, at du vil slette dette hold?",
     "remove_telemetry": "Er du sikker på, at du vil fravælge telemetri?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Er du sikker på, at du vil synkronisere dette arbejdsområde?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Skab nyt miljø",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Rediger miljø",
     "invalid_name": "Angiv et gyldigt navn på miljøet",
@@ -233,6 +242,7 @@
     "tests": "Skriv et test script for at automatisere fejlfinding."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Skjul mere",
     "preview": "Skjul forhåndsvisning",
     "sidebar": "Skjul sidepanel"
@@ -259,7 +269,10 @@
     "title": "Importere"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Zen -tilstand"
   },
@@ -327,9 +340,13 @@
     "invalid_name": "Angiv et navn på anmodningen",
     "method": "Metode",
     "name": "Anmodningsnavn",
-    "path": "Sti",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Forespørgselsparametre",
     "parameters": "Parametre",
+    "path": "Sti",
     "payload": "Nyttelast",
     "query": "Forespørgsel",
     "raw_body": "Raw Request Body",
@@ -339,6 +356,7 @@
     "save_as": "Gem som",
     "saved": "Anmodning gemt",
     "share": "Del",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Anmodning",
     "type": "Anmodningstype",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Udvidelsesversion",
     "extensions": "Udvidelser",
     "extensions_use_toggle": "Brug browserudvidelsen til at sende anmodninger (hvis de findes)",
+    "follow": "Follow Us",
     "font_size": "Skriftstørrelse",
     "font_size_large": "Stor",
     "font_size_medium": "Medium",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Vis kode",
+    "collection": "Expand Collection Panel",
     "more": "Vis mere",
     "sidebar": "Vis sidebjælke"
   },
@@ -505,6 +525,7 @@
     "community": "Stil spørgsmål og hjælp andre",
     "documentation": "Læs mere om Hoppscotch",
     "forum": "Stil spørgsmål og få svar",
+    "github": "Follow us on Github",
     "shortcuts": "Gennemse appen hurtigere",
     "team": "Kom i kontakt med teamet",
     "title": "Support",

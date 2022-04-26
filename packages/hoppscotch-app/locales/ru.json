@@ -9,6 +9,7 @@
     "delete": "Удалить",
     "disconnect": "Отключиться",
     "dismiss": "Скрыть",
+    "dont_save": "Don't save",
     "download_file": "Скачать файл",
     "duplicate": "Дублировать",
     "edit": "Редактировать",
@@ -44,6 +45,10 @@
     "chat_with_us": "Связаться с нами",
     "contact_us": "Свяжитесь с нами",
     "copy": "Копировать",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Документация",
     "github": "GitHub",
     "help": "Справка, отзывы и документация",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Горячие клавиши",
     "name": "Hoppscotch",
     "new_version_found": "Найдена новая версия. Перезагрузите для обновления.",
+    "options": "Options",
     "proxy_privacy_policy": "Политика конфиденциальности прокси",
     "reload": "Перезагрузить",
     "search": "Поиск",
@@ -62,6 +68,7 @@
     "shortcuts": "Ярлыки",
     "spotlight": "Прожектор",
     "status": "Статус",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Условия и конфиденциальность",
     "twitter": "Твиттер",
     "type_a_command_search": "Введите команду или выполните поиск…",
@@ -124,6 +131,7 @@
     "remove_request": "Вы уверены, что хотите навсегда удалить этот запрос?",
     "remove_team": "Вы уверены, что хотите удалить эту команду?",
     "remove_telemetry": "Вы действительно хотите отказаться от телеметрии?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Вы уверены, что хотите синхронизировать это рабочее пространство?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Создать новую среду",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Редактировать среду",
     "invalid_name": "Укажите допустимое имя для среды",
@@ -233,6 +242,7 @@
     "tests": "Напишите тестовый сценарий для автоматизации отладки."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Скрыть больше",
     "preview": "Скрыть предварительный просмотр",
     "sidebar": "Скрыть боковую панель"
@@ -259,7 +269,10 @@
     "title": "Импортировать"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Вертикальное оформление",
+    "name": "Layout",
     "row": "Горизонтальное оформление",
     "zen_mode": "Спокойный режим"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Укажите имя для запроса",
     "method": "Методика",
     "name": "Имя запроса",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Параметры запроса",
     "parameters": "Параметры",
     "path": "Путь",
@@ -339,6 +356,7 @@
     "save_as": "Сохранить как",
     "saved": "Запрос сохранен",
     "share": "Делиться",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Запрос",
     "type": "Тип запроса",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Версия расширения",
     "extensions": "Расширения",
     "extensions_use_toggle": "Используйте расширение браузера для отправки запросов (если есть)",
+    "follow": "Follow Us",
     "font_size": "Размер шрифта",
     "font_size_large": "Большой",
     "font_size_medium": "Середина",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Показать код",
+    "collection": "Expand Collection Panel",
     "more": "Показать больше",
     "sidebar": "Показать боковую панель"
   },
@@ -505,6 +525,7 @@
     "community": "Задавайте вопросы и помогайте другим",
     "documentation": "Узнать больше о Hoppscotch",
     "forum": "Задавайте вопросы и получайте ответы",
+    "github": "Follow us on Github",
     "shortcuts": "Просматривайте приложение быстрее",
     "team": "Свяжитесь с командой",
     "title": "Служба поддержки",

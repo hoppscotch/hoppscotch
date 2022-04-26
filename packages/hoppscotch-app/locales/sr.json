@@ -9,6 +9,7 @@
     "delete": "Избриши",
     "disconnect": "Прекините везу",
     "dismiss": "Одбаци",
+    "dont_save": "Don't save",
     "download_file": "Скини докуменат",
     "duplicate": "Duplicate",
     "edit": "Уредити",
@@ -44,6 +45,10 @@
     "chat_with_us": "Разговарајте са нама",
     "contact_us": "Контактирајте нас",
     "copy": "Цопи",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Документација",
     "github": "GitHub",
     "help": "Помоћ, повратне информације и документација",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Пречице на тастатури",
     "name": "Хоппсцотцх",
     "new_version_found": "Нова верзија је пронађена. Освежите да бисте ажурирали.",
+    "options": "Options",
     "proxy_privacy_policy": "Политика приватности посредника",
     "reload": "Освежи",
     "search": "Претрага",
@@ -62,6 +68,7 @@
     "shortcuts": "Пречице",
     "spotlight": "Под лупом",
     "status": "Статус",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Услови и приватност",
     "twitter": "Твиттер",
     "type_a_command_search": "Унесите команду или претражите…",
@@ -124,6 +131,7 @@
     "remove_request": "Јесте ли сигурни да желите трајно да избришете овај захтев?",
     "remove_team": "Јесте ли сигурни да желите да избришете овај тим?",
     "remove_telemetry": "Јесте ли сигурни да желите да искључите Телеметрију?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Јесте ли сигурни да желите да синхронизујете овај радни простор?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Креирајте ново окружење",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Едит Енвиронмент",
     "invalid_name": "Наведите важећи назив за окружење",
@@ -233,6 +242,7 @@
     "tests": "Напишите тест скрипту за аутоматизацију отклањања грешака."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Сакриј више",
     "preview": "Сакриј преглед",
     "sidebar": "Сакриј бочну траку"
@@ -259,7 +269,10 @@
     "title": "Увоз"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Зен режим"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Наведите назив захтева",
     "method": "Метод",
     "name": "Назив захтева",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Параметри упита",
     "parameters": "Параметри",
     "path": "Патх",
@@ -339,6 +356,7 @@
     "save_as": "Сачувај као",
     "saved": "Захтев је сачуван",
     "share": "Објави",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Захтев",
     "type": "Врста Захтева",
     "url": "УРЛ",
@@ -378,6 +396,7 @@
     "extension_version": "Ектенсион Версион",
     "extensions": "Ектенсионс",
     "extensions_use_toggle": "Користите проширење прегледача за слање захтева (ако постоје)",
+    "follow": "Follow Us",
     "font_size": "Величина фонта",
     "font_size_large": "Велики",
     "font_size_medium": "Средње",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Прикажи код",
+    "collection": "Expand Collection Panel",
     "more": "Прикажи више",
     "sidebar": "Прикажи бочну траку"
   },
@@ -505,6 +525,7 @@
     "community": "Постављајте питања и помажете другима",
     "documentation": "Прочитајте више о Хоппсцотцх -у",
     "forum": "Постављајте питања и добијте одговоре",
+    "github": "Follow us on Github",
     "shortcuts": "Брже прегледајте апликацију",
     "team": "Ступите у контакт са тимом",
     "title": "Подршка",

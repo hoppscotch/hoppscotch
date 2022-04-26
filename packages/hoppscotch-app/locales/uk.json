@@ -9,6 +9,7 @@
     "delete": "Видалити",
     "disconnect": "Відключити",
     "dismiss": "Відхилити",
+    "dont_save": "Don't save",
     "download_file": "Завантажити файл",
     "duplicate": "Duplicate",
     "edit": "Редагувати",
@@ -44,6 +45,10 @@
     "chat_with_us": "Спілкуйтеся з нами",
     "contact_us": "Зв'яжіться з нами",
     "copy": "Копіювати",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Документація",
     "github": "GitHub",
     "help": "Довідка, відгуки та документація",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Гарячі клавіши",
     "name": "Гопскотч",
     "new_version_found": "Знайдено нову версію. Оновіть, щоб оновити.",
+    "options": "Options",
     "proxy_privacy_policy": "Політика конфіденційності проксі",
     "reload": "Перезавантажити",
     "search": "Пошук",
@@ -62,6 +68,7 @@
     "shortcuts": "Ярлики",
     "spotlight": "У центрі уваги",
     "status": "Статус",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Умови та конфіденційність",
     "twitter": "Twitter",
     "type_a_command_search": "Введіть команду або виконайте пошук…",
@@ -124,6 +131,7 @@
     "remove_request": "Ви впевнені, що хочете назавжди видалити цей запит?",
     "remove_team": "Ви впевнені, що хочете видалити цю команду?",
     "remove_telemetry": "Ви впевнені, що хочете відмовитися від телеметрії?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Ви впевнені, що хочете синхронізувати цю робочу область?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Створіть нове середовище",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Редагувати середовище",
     "invalid_name": "Укажіть дійсну назву середовища",
@@ -233,6 +242,7 @@
     "tests": "Напишіть тестовий сценарій для автоматизації налагодження."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Приховай більше",
     "preview": "Приховати попередній перегляд",
     "sidebar": "Приховати бічну панель"
@@ -259,7 +269,10 @@
     "title": "Імпорт"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Режим дзен"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Будь ласка, вкажіть назву запиту",
     "method": "Метод",
     "name": "Назва запиту",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Параметри запиту",
     "parameters": "Параметри",
     "path": "Шлях",
@@ -339,6 +356,7 @@
     "save_as": "Зберегти як",
     "saved": "Запит збережено",
     "share": "Поділитися",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Запит",
     "type": "Тип запиту",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Версія розширення",
     "extensions": "Розширення",
     "extensions_use_toggle": "Використовуйте розширення браузера для надсилання запитів (якщо вони є)",
+    "follow": "Follow Us",
     "font_size": "Розмір шрифту",
     "font_size_large": "Великий",
     "font_size_medium": "Середній",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Показати код",
+    "collection": "Expand Collection Panel",
     "more": "Показати більше",
     "sidebar": "Показати бічну панель"
   },
@@ -505,6 +525,7 @@
     "community": "Задавайте питання та допомагайте іншим",
     "documentation": "Детальніше про Hoppscotch",
     "forum": "Задавайте питання і отримуйте відповіді",
+    "github": "Follow us on Github",
     "shortcuts": "Швидше переглядайте програми",
     "team": "Зв'яжіться з командою",
     "title": "Підтримка",

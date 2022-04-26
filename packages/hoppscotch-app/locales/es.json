@@ -9,6 +9,7 @@
     "delete": "Borrar",
     "disconnect": "Desconectar",
     "dismiss": "Descartar",
+    "dont_save": "Don't save",
     "download_file": "Descargar archivo",
     "duplicate": "Duplicar",
     "edit": "Editar",
@@ -44,6 +45,10 @@
     "chat_with_us": "Habla con nosotros",
     "contact_us": "Contáctanos",
     "copy": "Copiar",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Documentación",
     "github": "GitHub",
     "help": "Ayuda y comentarios",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Atajos de teclado",
     "name": "Hoppscotch",
     "new_version_found": "Se ha encontrado una nueva versión. Recarga la página para usarla.",
+    "options": "Options",
     "proxy_privacy_policy": "Política de privacidad de proxy",
     "reload": "Recargar",
     "search": "Buscar",
@@ -62,6 +68,7 @@
     "shortcuts": "Atajos",
     "spotlight": "Destacar",
     "status": "Estado",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Términos y privacidad",
     "twitter": "Twitter",
     "type_a_command_search": "Escribe un comando o buscar algo…",
@@ -124,6 +131,7 @@
     "remove_request": "¿Está seguro de que desea eliminar esta petición de forma permanente?",
     "remove_team": "¿Está seguro de que desea eliminar este equipo?",
     "remove_telemetry": "¿Está seguro de que desea darse de baja de la telemetría?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "¿Está seguro de que desea sincronizar este espacio de trabajo?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Añadir a Global",
     "added": "Adición al entorno",
     "create_new": "Crear un nuevo entorno",
+    "created": "Environment created",
     "deleted": "Eliminar el entorno",
     "edit": "Editar entorno",
     "invalid_name": "Proporciona un nombre válido para el entorno.",
@@ -233,6 +242,7 @@
     "tests": "Escribir un script de prueba para automatizar la depuración."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Ocultar más",
     "preview": "Ocultar vista previa",
     "sidebar": "Ocultar barra lateral"
@@ -259,7 +269,10 @@
     "title": "Importar"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Disposición vertical",
+    "name": "Layout",
     "row": "Disposición horizontal",
     "zen_mode": "Modo zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Proporciona un nombre para la petición.",
     "method": "Método",
     "name": "Nombre de petición",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Parámetros de consulta",
     "parameters": "Parámetros",
     "path": "Ruta",
@@ -339,6 +356,7 @@
     "save_as": "Guardar como",
     "saved": "Petición guardada",
     "share": "Compartir",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Petición",
     "type": "Tipo de petición",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Versión de extensión",
     "extensions": "Extensiones",
     "extensions_use_toggle": "Utilizar la extensión del navegador para enviar peticiones (si está presente)",
+    "follow": "Follow Us",
     "font_size": "Tamaño de fuente",
     "font_size_large": "Grande",
     "font_size_medium": "Mediano",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Mostrar código",
+    "collection": "Expand Collection Panel",
     "more": "Mostrar más",
     "sidebar": "Mostrar barra lateral"
   },
@@ -491,7 +511,7 @@
     "download_started": "Descarga iniciada",
     "enabled": "Activado",
     "file_imported": "Archivo importado",
-    "finished_in": "Terminado en {duration}ms",
+    "finished_in": "Terminado en {duration} ms",
     "history_deleted": "Historial eliminado",
     "linewrap": "Envolver líneas",
     "loading": "Cargando...",
@@ -505,6 +525,7 @@
     "community": "Haz preguntas y ayuda a los demás",
     "documentation": "Leer más sobre Hoppscotch",
     "forum": "Haz preguntas y obtén respuestas",
+    "github": "Follow us on Github",
     "shortcuts": "Navega por la aplicación más rápido",
     "team": "Ponte en contacto con el equipo",
     "title": "Apoyo",

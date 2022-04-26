@@ -9,6 +9,7 @@
     "delete": "Xóa bỏ",
     "disconnect": "Ngắt kết nối",
     "dismiss": "Miễn nhiệm",
+    "dont_save": "Don't save",
     "download_file": "Tải tập tin",
     "duplicate": "Duplicate",
     "edit": "Chỉnh sửa",
@@ -44,6 +45,10 @@
     "chat_with_us": "Trò chuyện với chúng tôi",
     "contact_us": "Liên hệ chúng tôi",
     "copy": "Sao chép",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Tài liệu",
     "github": "GitHub",
     "help": "Tài liệu trợ giúp, phản hồi và",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Các phím tắt bàn phím",
     "name": "Nhảy lò cò",
     "new_version_found": "Phiên bản mới được tìm thấy. Làm mới để cập nhật.",
+    "options": "Options",
     "proxy_privacy_policy": "Chính sách về quyền riêng tư của proxy",
     "reload": "Nạp lại",
     "search": "Tìm kiếm",
@@ -62,6 +68,7 @@
     "shortcuts": "Các phím tắt",
     "spotlight": "Đốm sáng",
     "status": "Tình trạng",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Điều khoản và quyền riêng tư",
     "twitter": "Twitter",
     "type_a_command_search": "Nhập lệnh hoặc tìm kiếm…",
@@ -124,6 +131,7 @@
     "remove_request": "Bạn có chắc chắn muốn xóa vĩnh viễn yêu cầu này không?",
     "remove_team": "Bạn có chắc chắn muốn xóa nhóm này không?",
     "remove_telemetry": "Bạn có chắc chắn muốn chọn không tham gia Đo lường từ xa không?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Bạn có chắc chắn muốn đồng bộ hóa không gian làm việc này không?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Tạo môi trường mới",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Chỉnh sửa môi trường",
     "invalid_name": "Vui lòng cung cấp tên hợp lệ cho môi trường",
@@ -233,6 +242,7 @@
     "tests": "Viết một kịch bản thử nghiệm để tự động gỡ lỗi."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Ẩn thêm",
     "preview": "Ẩn bản xem trước",
     "sidebar": "Ẩn thanh bên"
@@ -259,7 +269,10 @@
     "title": "Nhập khẩu"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Chế độ Zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Vui lòng cung cấp tên cho yêu cầu",
     "method": "Phương pháp",
     "name": "Yêu cầu tên",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Tham số truy vấn",
     "parameters": "Thông số",
     "path": "Đường dẫn",
@@ -339,6 +356,7 @@
     "save_as": "Lưu thành",
     "saved": "Yêu cầu đã được lưu",
     "share": "Chia sẻ",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Yêu cầu",
     "type": "Loại yêu cầu",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Phiên bản tiện ích mở rộng",
     "extensions": "Tiện ích mở rộng",
     "extensions_use_toggle": "Sử dụng tiện ích mở rộng của trình duyệt để gửi yêu cầu (nếu có)",
+    "follow": "Follow Us",
     "font_size": "Cỡ chữ",
     "font_size_large": "Lớn",
     "font_size_medium": "Vừa phải",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Hiển thị mã",
+    "collection": "Expand Collection Panel",
     "more": "Cho xem nhiều hơn",
     "sidebar": "Hiển thị thanh bên"
   },
@@ -505,6 +525,7 @@
     "community": "Đặt câu hỏi và giúp đỡ người khác",
     "documentation": "Đọc thêm về Hoppscotch",
     "forum": "Đặt câu hỏi và nhận câu trả lời",
+    "github": "Follow us on Github",
     "shortcuts": "Duyệt ứng dụng nhanh hơn",
     "team": "Liên hệ với nhóm",
     "title": "Ủng hộ",

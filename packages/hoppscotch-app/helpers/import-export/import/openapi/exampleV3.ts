@@ -77,18 +77,32 @@ const generateArrayRequestBodyExample = (
 const generateRequestBodyExampleFromSchemaObject = (
   schemaObject: OpenAPIV3.SchemaObject
 ): RequestBodyExampleType => {
-  // TODO: Handle schema objects with oneof or anyof
+  // TODO: Handle schema objects with allof
   if (schemaObject.example)
     return schemaObject.example as RequestBodyExampleType
+
+  // If request body can be oneof or allof several schema, choose the first schema to generate an example
+  if (schemaObject.oneOf)
+    return generateRequestBodyExampleFromSchemaObject(
+      schemaObject.oneOf[0] as OpenAPIV3.SchemaObject
+    )
+  if (schemaObject.anyOf)
+    return generateRequestBodyExampleFromSchemaObject(
+      schemaObject.anyOf[0] as OpenAPIV3.SchemaObject
+    )
+
   if (!schemaObject.type) return ""
+
   if (isSchemaTypePrimitive(schemaObject.type))
     return generatePrimitiveRequestBodyExample(
       schemaObject as OpenAPIV3.NonArraySchemaObject
     )
+
   if (schemaObject.type === "object")
     return generateObjectRequestBodyExample(
       schemaObject as OpenAPIV3.NonArraySchemaObject
     )
+
   return generateArrayRequestBodyExample(
     schemaObject as OpenAPIV3.ArraySchemaObject
   )

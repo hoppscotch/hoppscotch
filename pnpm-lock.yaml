@@ -4495,6 +4495,19 @@ packages:
       jest-matcher-utils: 27.5.1
     dev: true
 
+  /@relmify/jest-fp-ts/2.0.1_fp-ts@2.11.9+io-ts@2.2.16:
+    resolution: {integrity: sha512-zY7Hn217XYopkMILvzW0Sn4WuQToPVtZDaaQi0SzMTgyebpVBq7sD8TTFptCpknQ7I8HoAkRWcIkCM0LX+LSYw==}
+    peerDependencies:
+      fp-ts: 2.x
+      io-ts: 2.x
+    dependencies:
+      expect: 27.5.1
+      fp-ts: 2.11.9
+      io-ts: 2.2.16_fp-ts@2.11.9
+      jest-get-type: 27.5.1
+      jest-matcher-utils: 27.5.1
+    dev: true
+
   /@rollup/pluginutils/4.1.2:
     resolution: {integrity: sha512-ROn4qvkxP9SyPeHaf7uQC/GPFY6L/OWy9+bd9AwcjOAWQwxRscoEyAUD8qCY5o5iL4jqQwoLk2kaTKJPb/HwzQ==}
     engines: {node: '>= 8.0.0'}
@@ -7092,17 +7105,6 @@ packages:
       node-releases: 2.0.1
       picocolors: 1.0.0
     dev: true
-
-  /browserslist/4.19.1:
-    resolution: {integrity: sha512-u2tbbG5PdKRTUoctO3NBD8FQ5HdPh1ZXPHzp1rwaa5jTc+RV9/+RlWiAIKmjRPQF+xbGM9Kklj5bZQFa2s/38A==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-    dependencies:
-      caniuse-lite: 1.0.30001311
-      electron-to-chromium: 1.4.68
-      escalade: 3.1.1
-      node-releases: 2.0.2
-      picocolors: 1.0.0
 
   /browserslist/4.20.0:
     resolution: {integrity: sha512-bnpOoa+DownbciXj0jVGENf8VYQnE2LNWomhYuCsMmmx9Jd9lwq0WXODuwpSsp8AVdKM2/HorrzxAfbKvWTByQ==}
@@ -11745,6 +11747,14 @@ packages:
       fp-ts: ^2.5.0
     dependencies:
       fp-ts: 2.11.10
+
+  /io-ts/2.2.16_fp-ts@2.11.9:
+    resolution: {integrity: sha512-y5TTSa6VP6le0hhmIyN0dqEXkrZeJLeC5KApJq6VLci3UEKF80lZ+KuoUs02RhBxNWlrqSNxzfI7otLX1Euv8Q==}
+    peerDependencies:
+      fp-ts: ^2.5.0
+    dependencies:
+      fp-ts: 2.11.9
+    dev: true
 
   /ip/1.1.5:
     resolution: {integrity: sha1-vd7XARQpCCjAoDnnLvJfWq7ENUo=}
@@ -18265,7 +18275,7 @@ packages:
       json5: 2.2.1
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.3.5
+      semver: 7.3.6
       typescript: 4.6.3
       yargs-parser: 20.2.9
     dev: true

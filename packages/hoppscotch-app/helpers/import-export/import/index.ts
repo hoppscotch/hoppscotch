@@ -13,10 +13,20 @@ type HoppImporter<T, StepsType, Errors> = (
   stepValues: StepsOutputList<StepsType>
 ) => TE.TaskEither<Errors, T>
 
+type HoppImporterApplicableTo = Array<
+  "team-collections" | "my-collections" | "url-import"
+>
+
+type HoppImporterId = "hoppscotch" | "postman" | "openapi" | "insomnia"
+
 /**
  * Definition for importers
  */
 type HoppImporterDefinition<T, Y, E> = {
+  /**
+   * the id
+   */
+  id: HoppImporterId
   /**
    * Name of the importer, shown on the Select Importer dropdown
    */
@@ -30,7 +40,7 @@ type HoppImporterDefinition<T, Y, E> = {
   /**
    * Identifier for the importer
    */
-  applicableTo?: Array<"team-collections" | "my-collections">
+  applicableTo?: Array<"team-collections" | "my-collections" | "url-import">
 
   /**
    * The importer function, It is a Promise because its supposed to be loaded in lazily (dynamic imports ?)
@@ -47,10 +57,11 @@ type HoppImporterDefinition<T, Y, E> = {
  * Defines a Hoppscotch importer
  */
 export const defineImporter = <ReturnType, StepType, Errors>(input: {
+  id?: HoppImporterId
   name: string
   icon: string
   importer: HoppImporter<ReturnType, StepType, Errors>
-  applicableTo?: Array<"team-collections" | "my-collections">
+  applicableTo?: HoppImporterApplicableTo
   steps: StepType
 }) => {
   return <HoppImporterDefinition<ReturnType, StepType, Errors>>{

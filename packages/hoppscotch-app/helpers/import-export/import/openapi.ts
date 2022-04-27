@@ -586,6 +586,7 @@ const parseOpenAPIDocContent = (str: string) =>
   )
 
 export default defineImporter({
+  id: "openapi",
   name: "import.from_openapi",
   icon: "file",
   steps: [
@@ -603,17 +604,24 @@ export default defineImporter({
       fileContent,
       parseOpenAPIDocContent,
       TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
-
       // Try validating, else the importer is invalid file format
       TE.chainW((obj) =>
         pipe(
           TE.tryCatch(
             () => SwaggerParser.validate(obj),
-            () => IMPORTER_INVALID_FILE_FORMAT
+            (error) => {
+              debugger
+
+              console.log(error)
+              return IMPORTER_INVALID_FILE_FORMAT
+            }
           )
         )
       ),
-
+      (inp) => {
+        console.log(inp)
+        return inp
+      },
       // Deference the references
       TE.chainW((obj) =>
         pipe(
@@ -623,7 +631,14 @@ export default defineImporter({
           )
         )
       ),
-
-      TE.chainW(convertOpenApiDocToHopp)
+      (inp) => {
+        console.log(inp)
+        return inp
+      },
+      TE.chainW(convertOpenApiDocToHopp),
+      (inp) => {
+        console.log(inp())
+        return inp
+      }
     ),
 })

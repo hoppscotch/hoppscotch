@@ -1,4 +1,10 @@
 <script lang="ts">
+import axios from "axios"
+import * as TO from "fp-ts/TaskOption"
+import * as TE from "fp-ts/TaskEither"
+import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
+
 import {
   useRoute,
   useRouter,
@@ -6,12 +12,12 @@ import {
   defineComponent,
 } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
-
+import { pipe } from "fp-ts/function"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
-
 import { appendRESTCollections } from "~/newstore/collections"
-import urlImporter from "~/helpers/import-export/import/url"
 import { useToast, useI18n } from "~/helpers/utils/composables"
+import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
+import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"
 
 export default defineComponent({
   setup() {
@@ -20,7 +26,49 @@ export default defineComponent({
     const toast = useToast()
     const t = useI18n()
 
+    const supportedImporters = RESTCollectionImporters.filter(
+      (importer) =>
+        importer.applicableTo?.includes("url-import") || !importer.applicableTo
+    )
+
     const { query } = route.value
+
+    onMounted(() => {
+      const url = query.url
+      const type = query.type
+
+      const isValidParams = O.fromPredicate(
+        (args: [unknown, unknown]): args is [string, string] =>
+          typeof args[0] === "string" && typeof args[1] === "string"
+      )
+
+      // TODO: use bind and remove nested pipes
+      const importCollections = pipe(
+        isValidParams([url, type]),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        O.chain(([url, type]) =>
+          pipe(
+            supportedImporters,
+            A.findFirst((importer: { id: string }) => importer.id === type)
+          )
+        ),
+        TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
+        TE.chain((importer) =>
+          pipe(
+            url as string,
+            fetchUrlData,
+            TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT),
+            TE.chain((res) =>
+              importer.importer([JSON.stringify(res.data)] as any)
+            )
+          )
+        )
+      )
+
+      importCollections()
+        .then(E.fold(handleImportFailure, handleImportSuccess))
+        .then(() => router.replace("/"))
+    })
 
     const handleImportFailure = (error: string) => {
       toast.error(t("import.import_from_url_failure").toString())
@@ -34,18 +82,7 @@ export default defineComponent({
       toast.success(t("import.import_from_url_success").toString())
     }
 
-    onMounted(async () => {
-      if (typeof query.url === "string") {
-        const result = await urlImporter.importer([query.url])()
-
-        if (E.isRight(result)) {
-          handleImportSuccess(result.right)
-        } else if (E.isLeft(result)) {
-          handleImportFailure(result.left)
-        }
-      }
-      router.replace("/")
-    })
+    const fetchUrlData = (url: string) => TO.tryCatch(() => axios.get(url))
 
     return () => {}
   },

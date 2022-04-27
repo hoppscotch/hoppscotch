@@ -32,6 +32,7 @@ const fetchGist = (
 export default defineImporter({
   name: "import.from_gist",
   icon: "github",
+  applicableTo: ["my-collections", "team-collections"],
   steps: [
     step({
       stepName: "URL_IMPORT",

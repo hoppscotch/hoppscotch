@@ -297,6 +297,7 @@ const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection<HoppRESTRequest> =>
 export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)
 
 export default defineImporter({
+  id: "postman",
   name: "import.from_postman",
   icon: "postman",
   steps: [

@@ -210,6 +210,7 @@ const getHoppCollections = (doc: InsomniaDoc) =>
   )
 
 export default defineImporter({
+  id: "insomnia",
   name: "import.from_insomnia",
   icon: "insomnia",
   steps: [

@@ -26,21 +26,17 @@ export default defineComponent({
     const toast = useToast()
     const t = useI18n()
 
-    const supportedImporters = RESTCollectionImporters.filter(
-      (importer) =>
-        importer.applicableTo?.includes("url-import") || !importer.applicableTo
-    )
-
-    const { query } = route.value
-
     onMounted(() => {
+      const supportedImporters = RESTCollectionImporters.filter(
+        (importer) =>
+          importer.applicableTo?.includes("url-import") ||
+          !importer.applicableTo
+      )
+
+      const { query } = route.value
+
       const url = query.url
       const type = query.type
-
-      const isValidParams = O.fromPredicate(
-        (args: [unknown, unknown]): args is [string, string] =>
-          typeof args[0] === "string" && typeof args[1] === "string"
-      )
 
       // TODO: use bind and remove nested pipes
       const importCollections = pipe(
@@ -81,6 +77,11 @@ export default defineComponent({
       appendRESTCollections(collections)
       toast.success(t("import.import_from_url_success").toString())
     }
+
+    const isValidParams = O.fromPredicate(
+      (args: [unknown, unknown]): args is [string, string] =>
+        typeof args[0] === "string" && typeof args[1] === "string"
+    )
 
     const fetchUrlData = (url: string) => TO.tryCatch(() => axios.get(url))
 

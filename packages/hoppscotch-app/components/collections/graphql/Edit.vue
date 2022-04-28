@@ -37,45 +37,57 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, watch } from "@nuxtjs/composition-api"
+import { HoppCollection, HoppGQLRequest } from "~/../hoppscotch-data/dist"
 import { editGraphqlCollection } from "~/newstore/collections"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingCollection: { type: Object, default: () => {} },
-    editingCollectionIndex: { type: Number, default: null },
-    editingCollectionName: { type: String, default: null },
-  },
-  data() {
-    return {
-      name: null as string | null,
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  editingCollection: HoppCollection<HoppGQLRequest>
+  editingCollectionIndex?: number
+  editingCollectionName?: string
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+watch(
+  () => props.show,
+  (show) => {
+    if (show && props.editingCollectionName) {
+      name.value = props.editingCollectionName
     }
-  },
-  watch: {
-    editingCollectionName(val) {
-      this.name = val
-    },
-  },
-  methods: {
-    saveCollection() {
-      if (!this.name) {
-        this.$toast.error(`${this.$t("collection.invalid_name")}`)
-        return
-      }
-      const collectionUpdated = {
-        ...(this.editingCollection as any),
-        name: this.name,
-      }
+  }
+)
 
-      editGraphqlCollection(this.editingCollectionIndex, collectionUpdated)
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const hideModal = () => {
+  emit("hide-modal")
+}
+
+const saveCollection = () => {
+  if (!name.value) {
+    toast.error(`${t("collection.invalid_name")}`)
+    return
+  }
+  if (props.editingCollectionIndex === undefined) {
+    console.error("No collection index")
+    toast.error(`${t("error.something_went_wrong")}`)
+    return
+  }
+
+  const collectionUpdated = {
+    ...props.editingCollection,
+    name: name.value,
+  }
+  editGraphqlCollection(props.editingCollectionIndex, collectionUpdated)
+
+  hideModal()
+}
 </script>

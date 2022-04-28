@@ -193,90 +193,90 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { ref, computed } from "@nuxtjs/composition-api"
 import { removeGraphqlFolder, moveGraphqlRequest } from "~/newstore/collections"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  name: "Folder",
-  props: {
-    picked: { type: Object, default: null },
-    // Whether the request is in a selectable mode (activates 'select' event)
-    savingMode: { type: Boolean, default: false },
-    folder: { type: Object, default: () => {} },
-    folderIndex: { type: Number, default: null },
-    collectionIndex: { type: Number, default: null },
-    folderPath: { type: String, default: null },
-    doc: Boolean,
-    isFiltered: Boolean,
-  },
-  setup() {
-    return {
-      tippyActions: ref<any | null>(null),
-      options: ref<any | null>(null),
-      requestAction: ref<any | null>(null),
-      folderAction: ref<any | null>(null),
-      edit: ref<any | null>(null),
-      deleteAction: ref<any | null>(null),
-    }
-  },
-  data() {
-    return {
-      showChildren: false,
-      dragging: false,
-      confirmRemove: false,
-    }
-  },
-  computed: {
-    isSelected(): boolean {
-      return (
-        this.picked &&
-        this.picked.pickedType === "gql-my-folder" &&
-        this.picked.folderPath === this.folderPath
-      )
-    },
-    getCollectionIcon() {
-      if (this.isSelected) return "check-circle"
-      else if (!this.showChildren && !this.isFiltered) return "folder"
-      else if (this.showChildren || this.isFiltered) return "folder-open"
-      else return "folder"
-    },
-  },
-  methods: {
-    pick() {
-      this.$emit("select", {
-        picked: {
-          pickedType: "gql-my-folder",
-          folderPath: this.folderPath,
-        },
-      })
-    },
-    toggleShowChildren() {
-      if (this.savingMode) {
-        this.pick()
-      }
+const toast = useToast()
+const t = useI18n()
 
-      this.showChildren = !this.showChildren
-    },
-    removeFolder() {
-      // Cancel pick if the picked folder is deleted
-      if (
-        this.picked &&
-        this.picked.pickedType === "gql-my-folder" &&
-        this.picked.folderPath === this.folderPath
-      ) {
-        this.$emit("select", { picked: null })
-      }
+type PickedType = {
+  pickedType: "gql-my-folder"
+  folderPath: string
+} | null
 
-      removeGraphqlFolder(this.folderPath)
-      this.$toast.success(`${this.$t("state.deleted")}`)
-    },
-    dropEvent({ dataTransfer }: any) {
-      this.dragging = !this.dragging
-      const folderPath = dataTransfer.getData("folderPath")
-      const requestIndex = dataTransfer.getData("requestIndex")
-      moveGraphqlRequest(folderPath, requestIndex, this.folderPath)
-    },
-  },
+const props = defineProps<{
+  picked: PickedType
+  folder: HoppCollection<HoppGQLRequest>
+  folderIndex: number
+  collectionIndex: number
+  folderPath: string
+  doc: boolean
+  isFiltered: boolean
+  // Whether the request is in a selectable mode (activates 'select' event)
+  savingMode: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "select", v: { picked: PickedType }): void
+}>()
+
+const tippyActions = ref<unknown | null>(null)
+const options = ref<unknown | null>(null)
+const requestAction = ref<unknown | null>(null)
+const folderAction = ref<unknown | null>(null)
+const edit = ref<unknown | null>(null)
+const deleteAction = ref<unknown | null>(null)
+
+const showChildren = ref(false)
+const dragging = ref(false)
+const confirmRemove = ref(false)
+
+const isSelected = computed(
+  () =>
+    !!props.picked &&
+    props.picked.pickedType === "gql-my-folder" &&
+    props.picked.folderPath === props.folderPath
+)
+
+const getCollectionIcon = computed(() => {
+  if (isSelected.value) return "check-circle"
+  else if (!showChildren.value && !props.isFiltered) return "folder"
+  else if (showChildren.value || props.isFiltered) return "folder-open"
+  else return "folder"
 })
+
+const select = (picked: PickedType) => {
+  emit("select", { picked })
+}
+
+const toggleShowChildren = () => {
+  if (props.savingMode)
+    select({
+      pickedType: "gql-my-folder",
+      folderPath: props.folderPath,
+    })
+
+  showChildren.value = !showChildren.value
+}
+
+const removeFolder = () => {
+  // Cancel pick if the picked folder is deleted
+  if (isSelected.value) select(null)
+
+  removeGraphqlFolder(props.folderPath)
+  toast.success(`${t("state.deleted")}`)
+}
+
+const dropEvent = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    dragging.value = !dragging.value
+    const folderPath = dataTransfer.getData("folderPath")
+    const requestIndex = dataTransfer.getData("requestIndex")
+    moveGraphqlRequest(folderPath, Number(requestIndex), props.folderPath)
+  }
+}
 </script>

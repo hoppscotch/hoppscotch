@@ -37,43 +37,57 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import { ref, watch } from "@nuxtjs/composition-api"
 import { editGraphqlFolder } from "~/newstore/collections"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folder: { type: Object, default: () => {} },
-    folderPath: { type: String, default: null },
-    editingFolderName: { type: String, default: null },
-  },
-  data() {
-    return {
-      name: "",
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  folder: HoppCollection<HoppGQLRequest>
+  folderPath?: string
+  editingFolderName?: string
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.show,
+  (show) => {
+    if (show && props.editingFolderName) {
+      name.value = props.editingFolderName
     }
-  },
-  watch: {
-    editingFolderName(val) {
-      this.name = val
-    },
-  },
-  methods: {
-    editFolder() {
-      if (!this.name) {
-        this.$toast.error(`${this.$t("collection.invalid_name")}`)
-        return
-      }
-      editGraphqlFolder(this.folderPath, {
-        ...(this.folder as any),
-        name: this.name,
-      })
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = ""
-      this.$emit("hide-modal")
-    },
-  },
-})
+  }
+)
+
+const hideModal = () => {
+  emit("hide-modal")
+}
+
+const editFolder = () => {
+  if (!name.value) {
+    toast.error(`${t("collection.invalid_name")}`)
+    return
+  }
+  if (!props.folderPath) {
+    console.error("No folder path")
+    toast.error(`${t("error.something_went_wrong")}`)
+    return
+  }
+
+  editGraphqlFolder(props.folderPath, {
+    ...props.folder,
+    name: name.value,
+  })
+
+  hideModal()
+}
 </script>

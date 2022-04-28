@@ -37,41 +37,44 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
 import { HoppGQLRequest, makeCollection } from "@hoppscotch/data"
+import { ref } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 import { addGraphqlCollection } from "~/newstore/collections"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-  },
-  data() {
-    return {
-      name: null as string | null,
-    }
-  },
-  methods: {
-    addNewCollection() {
-      if (!this.name) {
-        this.$toast.error(`${this.$t("collection.invalid_name")}`)
-        return
-      }
+const toast = useToast()
+const t = useI18n()
 
-      addGraphqlCollection(
-        makeCollection<HoppGQLRequest>({
-          name: this.name,
-          folders: [],
-          requests: [],
-        })
-      )
+defineProps<{
+  show: boolean
+}>()
 
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+
+const hideModal = () => {
+  emit("hide-modal")
+  name.value = ""
+}
+
+const addNewCollection = () => {
+  if (!name.value) {
+    toast.error(`${t("collection.invalid_name")}`)
+    return
+  }
+
+  addGraphqlCollection(
+    makeCollection<HoppGQLRequest>({
+      name: name.value,
+      folders: [],
+      requests: [],
+    })
+  )
+
+  hideModal()
+}
 </script>

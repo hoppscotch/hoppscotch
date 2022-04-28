@@ -34,38 +34,42 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folderPath: { type: String, default: null },
-    collectionIndex: { type: Number, default: null },
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  methods: {
-    addFolder() {
-      if (!this.name) {
-        this.$toast.error(`${this.$t("folder.name_length_insufficient")}`)
-        return
-      }
+const toast = useToast()
+const t = useI18n()
 
-      this.$emit("add-folder", {
-        name: this.name,
-        path: this.folderPath || `${this.collectionIndex}`,
-      })
+const props = defineProps<{
+  show: boolean
+  folderPath?: string
+  collectionIndex?: number
+}>()
 
-      this.hideModal()
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "add-folder", v: { name: string; path: string }): void
+}>()
+
+const name = ref("")
+
+const hideModal = () => {
+  emit("hide-modal")
+  name.value = ""
+}
+
+const addFolder = () => {
+  if (!name.value) {
+    toast.error(`${t("folder.name_length_insufficient")}`)
+    return
+  }
+
+  emit("add-folder", {
+    name: name.value,
+    path: props.folderPath || `${props.collectionIndex}`,
+  })
+
+  hideModal()
+}
 </script>

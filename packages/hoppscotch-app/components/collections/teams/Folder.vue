@@ -164,7 +164,7 @@
           @edit-request="$emit('edit-request', $event)"
           @update-team-collections="$emit('update-team-collections')"
           @select="$emit('select', $event)"
-          @expand-collection="expandCollection"
+          @expand-collection="$emit('expand-collection', $event)"
           @remove-request="$emit('remove-request', $event)"
           @remove-folder="$emit('remove-folder', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
@@ -329,9 +329,6 @@ export default defineComponent({
         collectionsType: this.collectionsType,
         folder: this.folder,
       })
-    },
-    expandCollection(collectionID: number) {
-      this.$emit("expand-collection", collectionID)
     },
     async dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging

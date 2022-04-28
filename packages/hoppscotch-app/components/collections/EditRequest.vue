@@ -9,7 +9,7 @@
       <div class="flex flex-col px-2">
         <input
           id="selectLabelEditReq"
-          v-model="requestUpdateData.name"
+          v-model="name"
           v-focus
           class="input floating-input"
           placeholder=" "
@@ -38,39 +38,43 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, watch } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingRequestName: { type: String, default: null },
-    loadingState: Boolean,
-  },
-  data() {
-    return {
-      requestUpdateData: {
-        name: null,
-      },
-    }
-  },
-  watch: {
-    editingRequestName(val) {
-      this.requestUpdateData.name = val
-    },
-  },
-  methods: {
-    saveRequest() {
-      if (!this.requestUpdateData.name) {
-        this.$toast.error(this.$t("request.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.requestUpdateData)
-    },
-    hideModal() {
-      this.requestUpdateData = { name: null }
-      this.$emit("hide-modal")
-    },
-  },
-})
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  editingRequestName: string
+  loadingState: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "submit", v: string): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.show,
+  (show) => {
+    if (show) name.value = props.editingRequestName
+  }
+)
+
+const saveRequest = () => {
+  if (!name.value) {
+    toast.error(`${t("request.invalid_name")}`)
+    return
+  }
+
+  emit("submit", name.value)
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

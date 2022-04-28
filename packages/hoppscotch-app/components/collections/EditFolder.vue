@@ -38,37 +38,43 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, watch } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingFolderName: { type: String, default: null },
-    loadingState: Boolean,
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  watch: {
-    editingFolderName(val) {
-      this.name = val
-    },
-  },
-  methods: {
-    editFolder() {
-      if (!this.name) {
-        this.$toast.error(this.$t("folder.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.name)
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  editingFolderName: string
+  loadingState: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "submit", v: string): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.show,
+  (show) => {
+    if (show) name.value = props.editingFolderName
+  }
+)
+
+const editFolder = () => {
+  if (!name.value) {
+    toast.error(`${t("folder.invalid_name")}`)
+    return
+  }
+
+  emit("submit", name.value)
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

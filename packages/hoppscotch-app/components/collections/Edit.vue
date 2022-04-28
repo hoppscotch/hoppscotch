@@ -38,37 +38,43 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref, watch } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingCollectionName: { type: String, default: null },
-    loadingState: Boolean,
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  watch: {
-    editingCollectionName(val) {
-      this.name = val
-    },
-  },
-  methods: {
-    saveCollection() {
-      if (!this.name) {
-        this.$toast.error(this.$t("collection.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.name)
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  editingCollectionName: string
+  loadingState: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "submit", v: string): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.show,
+  (show) => {
+    if (show) name.value = props.editingCollectionName
+  }
+)
+
+const saveCollection = () => {
+  if (!name.value) {
+    toast.error(`${t("collection.invalid_name")}`)
+    return
+  }
+
+  emit("submit", name.value)
+}
+
+const hideModal = () => {
+  emit("hide-modal")
+}
 </script>

@@ -38,31 +38,35 @@
   </SmartModal>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    loadingState: Boolean,
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  methods: {
-    addNewCollection() {
-      if (!this.name) {
-        this.$toast.error(this.$t("collection.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.name)
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const toast = useToast()
+const t = useI18n()
+
+defineProps<{
+  show: boolean
+  loadingState: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "hide-modal"): void
+  (e: "submit", name: string): void
+}>()
+
+const name = ref("")
+
+const addNewCollection = () => {
+  if (!name.value) {
+    toast.error(t("collection.invalid_name"))
+    return
+  }
+  emit("submit", name.value)
+  name.value = ""
+}
+const hideModal = () => {
+  emit("hide-modal")
+  name.value = ""
+}
 </script>

@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { ref, watch } from "@nuxtjs/composition-api"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import { getRESTRequest } from "~/newstore/RESTSession"
@@ -47,7 +48,7 @@ const t = useI18n()
 const props = defineProps<{
   show: boolean
   loadingState: boolean
-  folder?: object
+  folder?: HoppCollection<HoppRESTRequest>
   folderPath?: string
 }>()
 
@@ -57,7 +58,8 @@ const emit = defineEmits<{
     e: "add-request",
     v: {
       name: string
-      folder: object | undefined
+      folder: HoppCollection<HoppRESTRequest> | undefined
+      folderPath?: string
       path: string | undefined
     }
   ): void
@@ -76,7 +78,7 @@ watch(
 
 const addRequest = () => {
   if (!name.value) {
-    toast.error(`${t("error.empty_req_name")}`)
+    toast.error(`${t("request.invalid_name")}`)
     return
   }
   emit("add-request", {

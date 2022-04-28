@@ -190,7 +190,7 @@
     />
     <CollectionsEditRequest
       :show="showModalEditRequest"
-      :editing-request-name="editingRequest ? editingRequest.name : ''"
+      :editing-request-name="editingRequest?.name || ''"
       :loading-state="modalLoadingState"
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
@@ -494,10 +494,10 @@ export default defineComponent({
       }
     },
     // Intented to by called by CollectionsEditRequest modal submit event
-    updateEditingRequest(requestUpdateData) {
+    updateEditingRequest(requestName) {
       const requestUpdated = {
         ...this.editingRequest,
-        name: requestUpdateData.name || this.editingRequest.name,
+        ...(requestName && { name: requestName }),
       }
 
       if (this.collectionsType.type === "my-collections") {
@@ -513,12 +513,10 @@ export default defineComponent({
       ) {
         this.modalLoadingState = true
 
-        const requestName = requestUpdateData.name || this.editingRequest.name
-
         runMutation(UpdateRequestDocument, {
           data: {
             request: JSON.stringify(requestUpdated),
-            title: requestName,
+            title: requestName || this.editingRequest.name,
           },
           requestID: this.editingRequestIndex,
         })().then((result) => {
@@ -704,8 +702,7 @@ export default defineComponent({
         }
       }
     },
-    removeFolder({ collectionID, folder, folderPath }) {
-      this.$data.editingCollectionID = collectionID
+    removeFolder({ folder, folderPath }) {
       this.$data.editingFolder = folder
       this.$data.editingFolderPath = folderPath
       this.confirmModalTitle = `${this.$t("confirm.remove_folder")}`

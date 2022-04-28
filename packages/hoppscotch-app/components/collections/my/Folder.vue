@@ -210,103 +210,123 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { useI18n } from "~/helpers/utils/composables"
+<script setup lang="ts">
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { ref, computed } from "@nuxtjs/composition-api"
+import { Team } from "~/helpers/backend/graphql"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 import { moveRESTRequest } from "~/newstore/collections"
 
-export default defineComponent({
-  name: "Folder",
-  props: {
-    folder: { type: Object, default: () => {} },
-    folderIndex: { type: Number, default: null },
-    collectionIndex: { type: Number, default: null },
-    folderPath: { type: String, default: null },
-    doc: Boolean,
-    saveRequest: Boolean,
-    isFiltered: Boolean,
-    collectionsType: { type: Object, default: () => {} },
-    picked: { type: Object, default: () => {} },
-  },
-  setup() {
-    const t = useI18n()
+const toast = useToast()
+const t = useI18n()
 
-    return {
-      tippyActions: ref<any | null>(null),
-      options: ref<any | null>(null),
-      requestAction: ref<any | null>(null),
-      folderAction: ref<any | null>(null),
-      edit: ref<any | null>(null),
-      deleteAction: ref<any | null>(null),
-      exportAction: ref<any | null>(null),
-      t,
+type PickedType = {
+  pickedType: "my-folder"
+  collectionIndex: number
+  folderName: string
+  folderPath: string
+}
+type CollectionTypeType =
+  | {
+      collectionsType: "my-collections"
     }
-  },
-  data() {
-    return {
-      showChildren: false,
-      dragging: false,
-      prevCursor: "",
-      cursor: "",
+  | {
+      collectionsType: "team-collections"
+      team: Team
     }
-  },
-  computed: {
-    isSelected(): boolean {
-      return (
-        this.picked &&
-        this.picked.pickedType === "my-folder" &&
-        this.picked.folderPath === this.folderPath
-      )
-    },
-    getCollectionIcon() {
-      if (this.isSelected) return "check-circle"
-      else if (!this.showChildren && !this.isFiltered) return "folder"
-      else if (this.showChildren || this.isFiltered) return "folder-open"
-      else return "folder"
-    },
-  },
-  methods: {
-    exportFolder() {
-      const folderJSON = JSON.stringify(this.folder)
 
-      const file = new Blob([folderJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
+const props = defineProps<{
+  folder: HoppCollection<HoppRESTRequest>
+  collectionsType: CollectionTypeType
+  picked: PickedType | null
+  collectionIndex: number
+  folderIndex: number
+  folderPath: string
+  doc: boolean
+  saveRequest: boolean
+  isFiltered: boolean
+}>()
 
-      a.download = `${this.folder.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.$toast.success(this.$t("state.download_started").toString())
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
-    },
-    toggleShowChildren() {
-      if (this.$props.saveRequest)
-        this.$emit("select", {
-          picked: {
-            pickedType: "my-folder",
-            collectionIndex: this.collectionIndex,
-            folderName: this.folder.name,
-            folderPath: this.folderPath,
-          },
-        })
-      this.showChildren = !this.showChildren
-    },
-    removeFolder() {
-      this.$emit("remove-folder", {
-        folder: this.folder,
-        folderPath: this.folderPath,
-      })
-    },
-    dropEvent({ dataTransfer }) {
-      this.dragging = !this.dragging
-      const folderPath = dataTransfer.getData("folderPath")
-      const requestIndex = dataTransfer.getData("requestIndex")
-      moveRESTRequest(folderPath, requestIndex, this.folderPath)
-    },
-  },
-})
+const emit = defineEmits<{
+  (e: "select", v: { picked: PickedType }): void
+  (
+    e: "remove-folder",
+    v: { folder: HoppCollection<HoppRESTRequest>; folderPath: string }
+  ): void
+}>()
+
+const tippyActions = ref<unknown | null>(null)
+const options = ref<unknown | null>(null)
+const requestAction = ref<unknown | null>(null)
+const folderAction = ref<unknown | null>(null)
+const edit = ref<unknown | null>(null)
+const deleteAction = ref<unknown | null>(null)
+const exportAction = ref<unknown | null>(null)
+
+const showChildren = ref(false)
+const dragging = ref(false)
+
+const isSelected = computed(
+  () =>
+    !!props.picked &&
+    props.picked.pickedType === "my-folder" &&
+    props.picked.folderPath === props.folderPath
+)
+
+const getCollectionIcon = computed(() =>
+  isSelected.value
+    ? "check-circle"
+    : !showChildren.value && !props.isFiltered
+    ? "folder"
+    : showChildren.value || props.isFiltered
+    ? "folder-open"
+    : "folder"
+)
+
+const exportFolder = () => {
+  const folderJSON = JSON.stringify(props.folder)
+
+  const file = new Blob([folderJSON], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  a.download = `${props.folder.name}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
+}
+
+const toggleShowChildren = () => {
+  if (props.saveRequest)
+    emit("select", {
+      picked: {
+        pickedType: "my-folder",
+        collectionIndex: props.collectionIndex,
+        folderName: props.folder.name,
+        folderPath: props.folderPath,
+      },
+    })
+  showChildren.value = !showChildren.value
+}
+
+const removeFolder = () => {
+  emit("remove-folder", {
+    folder: props.folder,
+    folderPath: props.folderPath,
+  })
+}
+
+const dropEvent = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    dragging.value = !dragging.value
+    const folderPath = dataTransfer.getData("folderPath")
+    const requestIndex = dataTransfer.getData("requestIndex")
+    moveRESTRequest(folderPath, Number(requestIndex), `${props.folderPath}`)
+  }
+}
 </script>

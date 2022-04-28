@@ -191,7 +191,7 @@
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
           @select="$emit('select', $event)"
-          @expand-collection="expandCollection"
+          @expand-collection="$emit('expand-collection', $event)"
           @remove-request="$emit('remove-request', $event)"
           @remove-folder="$emit('remove-folder', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
@@ -245,147 +245,166 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { ref, computed } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import { Team } from "~/helpers/backend/graphql"
 import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
-import { useI18n } from "~/helpers/utils/composables"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    collectionIndex: { type: Number, default: null },
-    collection: { type: Object, default: () => {} },
-    doc: Boolean,
-    isFiltered: Boolean,
-    selected: Boolean,
-    saveRequest: Boolean,
-    collectionsType: { type: Object, default: () => {} },
-    picked: { type: Object, default: () => {} },
-    loadingCollectionIDs: { type: Array, default: () => [] },
-  },
-  setup() {
-    const t = useI18n()
+const toast = useToast()
+const t = useI18n()
 
-    return {
-      tippyActions: ref<any | null>(null),
-      options: ref<any | null>(null),
-      requestAction: ref<any | null>(null),
-      folderAction: ref<any | null>(null),
-      edit: ref<any | null>(null),
-      deleteAction: ref<any | null>(null),
-      exportAction: ref<any | null>(null),
-      exportLoading: ref<boolean>(false),
-      t,
+type PickedType = {
+  pickedType: "teams-collection"
+  collectionID: string | undefined
+}
+
+type CollectionTypeType =
+  | {
+      collectionsType: "my-collections"
     }
-  },
-  data() {
-    return {
-      showChildren: false,
-      dragging: false,
-      selectedFolder: {},
-      prevCursor: "",
-      cursor: "",
-      pageNo: 0,
+  | {
+      collectionsType: "team-collections"
+      team: Team
     }
-  },
-  computed: {
-    isSelected(): boolean {
-      return (
-        this.picked &&
-        this.picked.pickedType === "teams-collection" &&
-        this.picked.collectionID === this.collection.id
-      )
-    },
-    getCollectionIcon() {
-      if (this.isSelected) return "check-circle"
-      else if (!this.showChildren && !this.isFiltered) return "folder"
-      else if (this.showChildren || this.isFiltered) return "folder-open"
-      else return "folder"
-    },
-  },
-  methods: {
-    async exportCollection() {
-      this.exportLoading = true
 
-      const result = await getCompleteCollectionTree(this.collection.id)()
+const props = defineProps<{
+  collection: HoppCollection<HoppRESTRequest>
+  collectionIndex: number
+  collectionsType: CollectionTypeType
+  picked: PickedType
+  loadingCollectionIDs: Array<string>
+  doc: boolean
+  isFiltered: boolean
+  selected: boolean
+  saveRequest: boolean
+}>()
 
-      if (E.isLeft(result)) {
-        this.$toast.error(this.$t("error.something_went_wrong").toString())
-        console.log(result.left)
-        this.exportLoading = false
-        this.options.tippy().hide()
+const emit = defineEmits<{
+  (e: "select", v: { picked: PickedType }): void
+  (e: "edit-request", v: any): void
+  (e: "expand-collection", v: string | undefined): void
+  (
+    e: "remove-collection",
+    v: {
+      collectionIndex: number
+      collectionID: string | undefined
+    }
+  ): void
+}>()
 
-        return
-      }
+const tippyActions = ref<unknown | null>(null)
+const options = ref<any | null>(null)
+const requestAction = ref<unknown | null>(null)
+const folderAction = ref<unknown | null>(null)
+const edit = ref<unknown | null>(null)
+const deleteAction = ref<unknown | null>(null)
+const exportAction = ref<unknown | null>(null)
+const exportLoading = ref<boolean>(false)
 
-      const hoppColl = teamCollToHoppRESTColl(result.right)
+const showChildren = ref(false)
+const dragging = ref(false)
 
-      const collectionJSON = JSON.stringify(hoppColl)
+const isSelected = computed(
+  () =>
+    !!props.picked &&
+    props.picked.pickedType === "teams-collection" &&
+    props.picked.collectionID === props.collection.id
+)
 
-      const file = new Blob([collectionJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-
-      a.download = `${hoppColl.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.$toast.success(this.$t("state.download_started").toString())
-
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
-
-      this.exportLoading = false
-
-      this.options.tippy().hide()
-    },
-    editRequest(event: any) {
-      this.$emit("edit-request", event)
-      if (this.$props.saveRequest)
-        this.$emit("select", {
-          picked: {
-            pickedType: "teams-collection",
-            collectionID: this.collection.id,
-          },
-        })
-    },
-    toggleShowChildren() {
-      if (this.$props.saveRequest)
-        this.$emit("select", {
-          picked: {
-            pickedType: "teams-collection",
-            collectionID: this.collection.id,
-          },
-        })
-
-      this.$emit("expand-collection", this.collection.id)
-      this.showChildren = !this.showChildren
-    },
-    removeCollection() {
-      this.$emit("remove-collection", {
-        collectionIndex: this.collectionIndex,
-        collectionID: this.collection.id,
-      })
-    },
-    expandCollection(collectionID: string) {
-      this.$emit("expand-collection", collectionID)
-    },
-    async dropEvent({ dataTransfer }: any) {
-      this.dragging = !this.dragging
-      const requestIndex = dataTransfer.getData("requestIndex")
-      const moveRequestResult = await moveRESTTeamRequest(
-        requestIndex,
-        this.collection.id
-      )()
-      if (E.isLeft(moveRequestResult))
-        this.$toast.error(`${this.$t("error.something_went_wrong")}`)
-    },
-  },
+const getCollectionIcon = computed(() => {
+  if (isSelected.value) return "check-circle"
+  else if (!showChildren.value && !props.isFiltered) return "folder"
+  else if (showChildren.value || props.isFiltered) return "folder-open"
+  else return "folder"
 })
+
+const exportCollection = async () => {
+  exportLoading.value = true
+
+  if (!props.collection.id) return
+  const result = await getCompleteCollectionTree(props.collection.id)()
+
+  if (E.isLeft(result)) {
+    toast.error(t("error.something_went_wrong").toString())
+    console.error(result.left)
+
+    exportLoading.value = false
+    options.tippy().hide()
+    return
+  }
+
+  const hoppColl = teamCollToHoppRESTColl(result.right)
+
+  const collectionJSON = JSON.stringify(hoppColl)
+
+  const file = new Blob([collectionJSON], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  a.download = `${hoppColl.name}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
+
+  exportLoading.value = false
+
+  options.tippy().hide()
+}
+
+const editRequest = (event: any) => {
+  emit("edit-request", event)
+  if (props.saveRequest)
+    emit("select", {
+      picked: {
+        pickedType: "teams-collection",
+        collectionID: props.collection.id,
+      },
+    })
+}
+
+const toggleShowChildren = () => {
+  if (props.saveRequest)
+    emit("select", {
+      picked: {
+        pickedType: "teams-collection",
+        collectionID: props.collection.id,
+      },
+    })
+
+  emit("expand-collection", props.collection.id)
+  showChildren.value = !showChildren.value
+}
+
+const removeCollection = () => {
+  emit("remove-collection", {
+    collectionIndex: props.collectionIndex,
+    collectionID: props.collection.id,
+  })
+}
+
+const dropEvent = async ({ dataTransfer }: DragEvent) => {
+  if (!!dataTransfer && !!props.collection.id) {
+    dragging.value = !dragging.value
+    const requestIndex = dataTransfer.getData("requestIndex")
+    const moveRequestResult = await moveRESTTeamRequest(
+      requestIndex,
+      props.collection.id
+    )()
+    if (E.isLeft(moveRequestResult))
+      toast.error(`${t("error.something_went_wrong")}`)
+  }
+}
 </script>

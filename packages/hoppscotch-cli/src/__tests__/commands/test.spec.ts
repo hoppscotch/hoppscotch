@@ -1,3 +1,4 @@
+import { ExecException } from "child_process";
 import { HoppErrorCode } from "../../types/errors";
 import { execAsync, getErrorCode, getTestJsonFilePath } from "../utils";
 
@@ -49,9 +50,9 @@ describe("Test 'hopp test <file>' command:", () => {
     const { error } = await execAsync(cmd);
 
     expect(error).not.toBeNull();
-    if (error) {
-      expect(error.code).toBe(1);
-    }
+    expect(error).toMatchObject(<ExecException>{
+      code: 1,
+    });
   });
 
   test("No errors occured (exit code 0).", async () => {
@@ -59,8 +60,5 @@ describe("Test 'hopp test <file>' command:", () => {
     const { error } = await execAsync(cmd);
 
     expect(error).toBeNull();
-    if (error) {
-      expect(error.code).toBe(0);
-    }
-  }, 10000);
+  });
 });

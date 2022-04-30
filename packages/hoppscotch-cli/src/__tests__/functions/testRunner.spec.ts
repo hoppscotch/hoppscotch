@@ -1,7 +1,7 @@
 import { TestResponse } from "@hoppscotch/js-sandbox";
 import * as E from "fp-ts/Either";
 import { TestRunnerRes } from "../../types/response";
-import { HoppCLIError, HoppErrorCode } from "../../types/errors";
+import { HoppCLIError } from "../../types/errors";
 import { getTestMetrics, testRunner } from "../../utils/test";
 import { HoppEnvs } from "../../types/request";
 
@@ -66,12 +66,8 @@ describe("testRunner", () => {
   });
 
   it("Should fail to execute with test-script-error.", () => {
-    expect(FAILURE_TEST_RUNNER_RES).toBeLeft();
-
-    if (E.isLeft(FAILURE_TEST_RUNNER_RES)) {
-      const { code } = FAILURE_TEST_RUNNER_RES.left;
-
-      expect(code).toBe<HoppErrorCode>("TEST_SCRIPT_ERROR");
-    }
+    expect(FAILURE_TEST_RUNNER_RES).toSubsetEqualLeft(<HoppCLIError>{
+      code: "TEST_SCRIPT_ERROR",
+    });
   });
 });

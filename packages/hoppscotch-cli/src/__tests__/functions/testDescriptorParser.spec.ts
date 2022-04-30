@@ -1,6 +1,7 @@
 import { TestDescriptor } from "@hoppscotch/js-sandbox";
 import { testDescriptorParser, getTestMetrics } from "../../utils/test";
 import { TestReport } from "../../interfaces/response";
+import { TestMetrics } from "../../types/response";
 
 import "@relmify/jest-fp-ts";
 
@@ -48,12 +49,15 @@ describe("testDescriptorParser", () => {
   });
 
   it("Should have 1 passed, 2 failed test-cases; 1 passed, 2 failed test-suite.", () => {
-    const testMetrics = getTestMetrics(TEST_REPORT, 1, []);
-    const { testSuites, tests } = testMetrics;
-
-    expect(tests.failed).toStrictEqual(2);
-    expect(tests.passed).toStrictEqual(1);
-    expect(testSuites.failed).toStrictEqual(2);
-    expect(testSuites.passed).toStrictEqual(1);
+    expect(getTestMetrics(TEST_REPORT, 1, [])).toMatchObject(<TestMetrics>{
+      tests: {
+        failed: 2,
+        passed: 1,
+      },
+      testSuites: {
+        failed: 2,
+        passed: 1,
+      },
+    });
   });
 });

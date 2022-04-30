@@ -32,7 +32,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.autoscroll')"
           svg="chevrons-down"
-          :class="changeColor"
+          :class="toggleAutoscrollColor"
           @click.native="toggleAutoscroll()"
         />
       </div>
@@ -112,12 +112,11 @@ const toggleAutoscroll = () => {
   autoScrollEnabled.value = !autoScrollEnabled.value
 }
 
-// Just to identify the value of the autoscroll button. Will be removed in the future
-const changeColor = computed(() => {
+const toggleAutoscrollColor = computed(() => {
   if (autoScrollEnabled.value) {
-    return "bg-green-500"
+    return "text-green-500"
   } else {
-    return "bg-red-500"
+    return "text-red-500"
   }
 })
 </script>

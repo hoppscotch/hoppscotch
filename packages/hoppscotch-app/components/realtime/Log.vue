@@ -1,7 +1,7 @@
 <template>
-  <div ref="container">
+  <div ref="container" class="flex flex-col h-full">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex-none flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
     >
       <label for="log" class="py-2 font-semibold text-secondaryLight">
         {{ title }}
@@ -38,10 +38,10 @@
       </div>
     </div>
 
-    <div ref="logs">
+    <div ref="logs" class="flex-auto overflow-y-auto">
       <span ref="logListTop"></span>
-      <LogEntry
-        v-for="(entry, index) in props.log"
+      <RealtimeLogEntry
+        v-for="(entry, index) in log"
         :key="`entry-${index}`"
         :ref="`entry-${index}`"
         :entry="entry"
@@ -53,9 +53,7 @@
 
 <script setup lang="ts">
 import { ref, PropType, computed, watch } from "@nuxtjs/composition-api"
-import { useIntervalFn, useScroll } from "@vueuse/core"
-import { watchEffect } from "@vue/runtime-dom"
-import LogEntry from "./LogEntry.vue"
+import { useIntervalFn } from "@vueuse/core"
 import { useI18n } from "~/helpers/utils/composables"
 
 export type LogEntryData = {
@@ -65,7 +63,7 @@ export type LogEntryData = {
   event: "connecting" | "connected" | "disconnected" | "error"
 }
 
-const props = defineProps({
+defineProps({
   log: { type: Array as PropType<LogEntryData[]>, default: () => [] },
   title: {
     type: String,
@@ -80,13 +78,6 @@ const logs = ref<any | null>(null)
 const logListTop = ref<any | null>(null)
 
 const autoScrollEnabled = ref(true)
-
-const scroll = useScroll(logs)
-
-watchEffect(() => {
-  console.log(scroll.y.value)
-  console.log(scroll.isScrolling.value)
-})
 
 const scrollTo = (position: "top" | "bottom") => {
   if (logListTop.value && position === "top") {

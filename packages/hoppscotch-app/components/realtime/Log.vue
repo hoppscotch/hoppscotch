@@ -43,7 +43,6 @@
       <RealtimeLogEntry
         v-for="(entry, index) in log"
         :key="`entry-${index}`"
-        :ref="`entry-${index}`"
         :entry="entry"
       />
       <span ref="logListBottom"></span>
@@ -72,44 +71,37 @@ defineProps({
 })
 
 const t = useI18n()
-const logListBottom = ref<any | null>(null)
-const container = ref<any | null>(null)
-const logs = ref<any | null>(null)
-const logListTop = ref<any | null>(null)
 
-const autoScrollEnabled = ref(true)
+const logListBottom = ref<HTMLElement | null>(null)
+const container = ref<HTMLElement | null>(null)
+const logs = ref<HTMLElement | null>(null)
+const logListTop = ref<HTMLElement | null>(null)
 
 const scrollTo = (position: "top" | "bottom") => {
-  if (logListTop.value && position === "top") {
-    logListTop.value.scrollIntoView({ behavior: "smooth", block: "start" })
-  } else if (logListBottom.value && position === "bottom") {
-    logListBottom.value.scrollIntoView({ behavior: "smooth", block: "end" })
+  if (position === "top") {
+    logListTop.value?.scrollIntoView({ behavior: "smooth", block: "start" })
+  } else if (position === "bottom") {
+    logListBottom.value?.scrollIntoView({ behavior: "smooth", block: "end" })
   }
 }
 
-const autoscroll = useIntervalFn(() => {
-  logListBottom.value?.scrollIntoView({ behavior: "smooth", block: "end" })
+const autoScrollEnabled = ref(true)
+const autoscrollTimer = useIntervalFn(() => {
+  scrollTo("bottom")
 }, 1000)
 
 watch(autoScrollEnabled, () => {
-  if (autoScrollEnabled.value) {
-    autoscroll.resume()
-  } else {
-    autoscroll.pause()
-  }
+  if (autoScrollEnabled.value) autoscrollTimer.resume()
+  else autoscrollTimer.pause()
 })
 
 const toggleAutoscroll = () => {
   autoScrollEnabled.value = !autoScrollEnabled.value
 }
 
-const toggleAutoscrollColor = computed(() => {
-  if (autoScrollEnabled.value) {
-    return "text-green-500"
-  } else {
-    return "text-red-500"
-  }
-})
+const toggleAutoscrollColor = computed(() =>
+  autoScrollEnabled.value ? "text-green-500" : "text-red-500"
+)
 </script>
 
 <style></style>

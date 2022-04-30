@@ -67,6 +67,12 @@ type TypeFromPrimitiveArray<P extends JSPrimitive | undefined> =
     ? Function[]
     : unknown[]
 
+export const isType =
+  <T extends JSPrimitive>(type: T) =>
+  (value: unknown): value is T =>
+    // eslint-disable-next-line valid-typeof
+    typeof value === type
+
 export const objHasProperty =
   <O extends object, K extends string, P extends JSPrimitive | undefined>(
     prop: K,

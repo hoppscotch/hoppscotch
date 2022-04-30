@@ -1,12 +1,9 @@
 <template>
   <div v-if="entry">
-    <div
-      :style="{ color: entryColor }"
-      class="realtime-log"
-      @mouseover="invertHover()"
-      @mouseout="invertHover()"
-    >
-      <div class="divide-y border-y divide-dividerLight border-dividerLight">
+    <div :style="{ color: entryColor }" class="realtime-log">
+      <div
+        class="divide-y border-y divide-dividerLight border-dividerLight group"
+      >
         <div class="flex divide-x divide-dividerLight">
           <div class="inline-flex items-center p-2">
             <SmartIcon
@@ -35,12 +32,16 @@
               {{ entry.payload }}
             </div>
           </div>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.copy')"
-            :svg="`${copyQueryIcon}`"
-            @click.native="copyQuery(entry.payload)"
-          />
+          <div class="ml-1 items-center hidden group-hover:inline">
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.copy')"
+              :svg="`${copyQueryIcon}`"
+              class=""
+              @click.native="copyQuery(entry.payload)"
+            />
+          </div>
+
           <ButtonSecondary
             svg="chevron-down"
             class="transform"
@@ -299,14 +300,8 @@ watch(minimized, () => {
   selectedTab.value = isJSON(props.entry.payload) ? "json" : "raw"
 })
 
-const hover = ref(false)
-
 const toggleExpandPayload = () => {
   minimized.value = !minimized.value
-}
-
-const invertHover = () => {
-  hover.value = !hover.value
 }
 
 const { copyIcon, copyResponse } = useCopyResponse(logPayload)

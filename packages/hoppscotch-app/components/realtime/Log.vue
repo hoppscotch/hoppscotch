@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { ref, PropType, computed, watch } from "@nuxtjs/composition-api"
-import { useIntervalFn } from "@vueuse/core"
+import { useThrottleFn } from "@vueuse/core"
 import { useI18n } from "~/helpers/utils/composables"
 
 export type LogEntryData = {
@@ -62,7 +62,7 @@ export type LogEntryData = {
   event: "connecting" | "connected" | "disconnected" | "error"
 }
 
-defineProps({
+const props = defineProps({
   log: { type: Array as PropType<LogEntryData[]>, default: () => [] },
   title: {
     type: String,
@@ -86,14 +86,13 @@ const scrollTo = (position: "top" | "bottom") => {
 }
 
 const autoScrollEnabled = ref(true)
-const autoscrollTimer = useIntervalFn(() => {
-  scrollTo("bottom")
-}, 1000)
 
-watch(autoScrollEnabled, () => {
-  if (autoScrollEnabled.value) autoscrollTimer.resume()
-  else autoscrollTimer.pause()
-})
+watch(
+  () => props.log,
+  useThrottleFn(() => {
+    if (autoScrollEnabled.value) scrollTo("bottom")
+  }, 1000)
+)
 
 const toggleAutoscroll = () => {
   autoScrollEnabled.value = !autoScrollEnabled.value

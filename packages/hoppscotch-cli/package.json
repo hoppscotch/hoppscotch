@@ -17,7 +17,7 @@
     "prepublish": "pnpm exec tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "do-typecheck": "pnpm exec tsc --noEmit",
-    "test": "jest"
+    "test": "pnpm run build && jest && rm -rf dist"
   },
   "keywords": [
     "cli",

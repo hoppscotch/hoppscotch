@@ -10,11 +10,13 @@ import {
 import _isPlainObject from "lodash/isPlainObject"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { safeParseJSON } from "~/helpers/functional/json"
 
 export default defineImporter({
   id: "hoppscotch",
   name: "import.from_json",
   icon: "folder-plus",
+  applicableTo: ["my-collections", "team-collections", "url-import"],
   steps: [
     step({
       stepName: "FILE_IMPORT",
@@ -26,18 +28,17 @@ export default defineImporter({
   ] as const,
   importer: ([content]) =>
     pipe(
-      O.tryCatch(() => JSON.parse(content)),
+      safeParseJSON(content),
       O.chain(
         flow(
           makeCollectionsArray,
-          O.traverseArray(
+          RA.map(
             flow(
-              validateCollectionSchema,
-              O.chain((collection) =>
-                O.tryCatch(() => pipe(collection, translateToNewRESTCollection))
-              )
+              O.fromPredicate(isValidCollection),
+              O.map(translateToNewRESTCollection)
             )
           ),
+          O.sequenceArray,
           O.map(RA.toArray)
         )
       ),
@@ -58,14 +59,6 @@ const isValidCollection = (
   collection: unknown
 ): collection is HoppCollection<HoppRESTRequest> =>
   isPlainObject(collection) && "v" in collection
-
-/**
- * validates the collection and wraps it in an Option
- */
-const validateCollectionSchema = (
-  collection: unknown
-): O.Option<HoppCollection<HoppRESTRequest>> =>
-  isValidCollection(collection) ? O.some(collection) : O.none
 
 /**
  * convert single collection object into an array so it can be handled the same as multiple collections

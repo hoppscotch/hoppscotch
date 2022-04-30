@@ -30,6 +30,7 @@ const fetchGist = (
   )
 
 export default defineImporter({
+  id: "gist",
   name: "import.from_gist",
   icon: "github",
   applicableTo: ["my-collections", "team-collections"],

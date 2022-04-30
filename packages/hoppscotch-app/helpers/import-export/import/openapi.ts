@@ -588,6 +588,7 @@ const parseOpenAPIDocContent = (str: string) =>
 export default defineImporter({
   id: "openapi",
   name: "import.from_openapi",
+  applicableTo: ["my-collections", "team-collections", "url-import"],
   icon: "file",
   steps: [
     step({
@@ -618,10 +619,6 @@ export default defineImporter({
           )
         )
       ),
-      (inp) => {
-        console.log(inp)
-        return inp
-      },
       // Deference the references
       TE.chainW((obj) =>
         pipe(
@@ -631,14 +628,6 @@ export default defineImporter({
           )
         )
       ),
-      (inp) => {
-        console.log(inp)
-        return inp
-      },
-      TE.chainW(convertOpenApiDocToHopp),
-      (inp) => {
-        console.log(inp())
-        return inp
-      }
+      TE.chainW(convertOpenApiDocToHopp)
     ),
 })

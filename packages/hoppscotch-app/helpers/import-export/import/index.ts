@@ -17,8 +17,6 @@ type HoppImporterApplicableTo = Array<
   "team-collections" | "my-collections" | "url-import"
 >
 
-type HoppImporterId = "hoppscotch" | "postman" | "openapi" | "insomnia"
-
 /**
  * Definition for importers
  */
@@ -26,7 +24,7 @@ type HoppImporterDefinition<T, Y, E> = {
   /**
    * the id
    */
-  id: HoppImporterId
+  id: string
   /**
    * Name of the importer, shown on the Select Importer dropdown
    */
@@ -40,7 +38,7 @@ type HoppImporterDefinition<T, Y, E> = {
   /**
    * Identifier for the importer
    */
-  applicableTo?: Array<"team-collections" | "my-collections" | "url-import">
+  applicableTo: HoppImporterApplicableTo
 
   /**
    * The importer function, It is a Promise because its supposed to be loaded in lazily (dynamic imports ?)
@@ -57,11 +55,11 @@ type HoppImporterDefinition<T, Y, E> = {
  * Defines a Hoppscotch importer
  */
 export const defineImporter = <ReturnType, StepType, Errors>(input: {
-  id?: HoppImporterId
+  id: string
   name: string
   icon: string
   importer: HoppImporter<ReturnType, StepType, Errors>
-  applicableTo?: HoppImporterApplicableTo
+  applicableTo: HoppImporterApplicableTo
   steps: StepType
 }) => {
   return <HoppImporterDefinition<ReturnType, StepType, Errors>>{

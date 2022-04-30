@@ -299,6 +299,7 @@ export const getHoppCollection = (coll: PMCollection) => getHoppFolder(coll)
 export default defineImporter({
   id: "postman",
   name: "import.from_postman",
+  applicableTo: ["my-collections", "team-collections", "url-import"],
   icon: "postman",
   steps: [
     step({

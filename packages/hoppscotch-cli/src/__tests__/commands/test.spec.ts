@@ -4,7 +4,7 @@ import { execAsync, getErrorCode, getTestJsonFilePath } from "../utils";
 
 describe("Test 'hopp test <file>' command:", () => {
   test("No collection file path provided.", async () => {
-    const cmd = `pnpx hopp test`;
+    const cmd = `node ./bin/hopp test`;
     const { stdout } = await execAsync(cmd);
     const out = getErrorCode(stdout);
 
@@ -12,7 +12,7 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("Collection file not found.", async () => {
-    const cmd = `pnpx hopp test notfound.json`;
+    const cmd = `node ./bin/hopp test notfound.json`;
     const { stdout } = await execAsync(cmd);
     const out = getErrorCode(stdout);
 
@@ -20,7 +20,7 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("Malformed collection file.", async () => {
-    const cmd = `pnpx hopp test ${getTestJsonFilePath(
+    const cmd = `node ./bin/hopp test ${getTestJsonFilePath(
       "malformed-collection.json"
     )}`;
     const { stdout } = await execAsync(cmd);
@@ -30,7 +30,7 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("Invalid arguement.", async () => {
-    const cmd = `pnpx hopp invalid-arg`;
+    const cmd = `node ./bin/hopp invalid-arg`;
     const { stdout } = await execAsync(cmd);
     const out = getErrorCode(stdout);
 
@@ -38,7 +38,7 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("Collection file not JSON type.", async () => {
-    const cmd = `pnpx hopp test ${getTestJsonFilePath("notjson.txt")}`;
+    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("notjson.txt")}`;
     const { stdout } = await execAsync(cmd);
     const out = getErrorCode(stdout);
 
@@ -46,7 +46,7 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("Some errors occured (exit code 1).", async () => {
-    const cmd = `pnpx hopp test ${getTestJsonFilePath("fails.json")}`;
+    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("fails.json")}`;
     const { error } = await execAsync(cmd);
 
     expect(error).not.toBeNull();
@@ -56,7 +56,7 @@ describe("Test 'hopp test <file>' command:", () => {
   });
 
   test("No errors occured (exit code 0).", async () => {
-    const cmd = `pnpx hopp test ${getTestJsonFilePath("passes.json")}`;
+    const cmd = `node ./bin/hopp test ${getTestJsonFilePath("passes.json")}`;
     const { error } = await execAsync(cmd);
 
     expect(error).toBeNull();

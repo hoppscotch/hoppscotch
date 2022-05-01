@@ -8,11 +8,11 @@ import { useRoute, useRouter, onMounted } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
-import { isType } from "~/helpers/functional/object"
 import { appendRESTCollections } from "~/newstore/collections"
 import { useToast, useI18n } from "~/helpers/utils/composables"
 import { URLImporters } from "~/helpers/import-export/import/importers"
 import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"
+import { isOfType } from "~/helpers/functional/primtive"
 
 const route = useRoute()
 const router = useRouter()
@@ -38,7 +38,7 @@ const importCollections = (url: unknown, type: unknown) =>
     TE.bindW("content", () =>
       pipe(
         url,
-        TO.fromPredicate(isType("string")),
+        TO.fromPredicate(isOfType("string")),
         TO.chain((url) => TO.tryCatch(() => fetchUrlData(url))),
         TE.fromTaskOption(() => IMPORTER_INVALID_FETCH)
       )
@@ -46,7 +46,7 @@ const importCollections = (url: unknown, type: unknown) =>
     TE.chainW(({ importer, content }) =>
       pipe(
         content.data,
-        TO.fromPredicate(isType("string")),
+        TO.fromPredicate(isOfType("string")),
         TE.fromTaskOption(() => IMPORTER_INVALID_FILE_FORMAT),
         TE.chain((data) => importer.importer([data]))
       )

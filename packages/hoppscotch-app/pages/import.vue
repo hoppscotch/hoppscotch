@@ -43,7 +43,7 @@ const importCollections = (url: unknown, type: unknown) =>
       pipe(
         url,
         TO.fromPredicate(isOfType("string")),
-        TO.chain((url) => TO.tryCatch(() => fetchUrlData(url))),
+        TO.chain(fetchUrlData),
         TE.fromTaskOption(() => IMPORTER_INVALID_FETCH)
       )
     ),
@@ -83,8 +83,10 @@ const handleImportSuccess = (
 }
 
 const fetchUrlData = (url: string) =>
-  axios.get(url, {
-    responseType: "text",
-    transitional: { forcedJSONParsing: false },
-  })
+  TO.tryCatch(() =>
+    axios.get(url, {
+      responseType: "text",
+      transitional: { forcedJSONParsing: false },
+    })
+  )
 </script>

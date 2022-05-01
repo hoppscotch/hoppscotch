@@ -141,7 +141,11 @@
       </div>
     </template>
     <template #secondary>
-      <RealtimeLog :title="$t('websocket.log')" :log="log" />
+      <RealtimeLog
+        :title="$t('websocket.log')"
+        :log="log"
+        @delete="clearLogEntries()"
+      />
     </template>
     <template #sidebar>
       <div class="flex items-center justify-between p-4">
@@ -281,6 +285,9 @@ export default defineComponent({
       if (!this.connectionState) return this.connect()
       // Otherwise, it's disconnecting.
       else return this.disconnect()
+    },
+    clearLogEntries() {
+      this.log = []
     },
     connect() {
       this.log = [

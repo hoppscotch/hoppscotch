@@ -11,7 +11,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.delete')"
           svg="trash"
-          @click.native="$emit('delete')"
+          @click.native="emit('delete')"
         />
         <ButtonSecondary
           id="bottompage"
@@ -69,6 +69,10 @@ const props = defineProps({
     default: "",
   },
 })
+
+const emit = defineEmits<{
+  (e: "delete"): void
+}>()
 
 const t = useI18n()
 

@@ -1,3 +1,7 @@
+<template>
+  <div></div>
+</template>
+
 <script setup lang="ts">
 import axios from "axios"
 import * as TO from "fp-ts/TaskOption"
@@ -84,7 +88,3 @@ const fetchUrlData = (url: string) =>
     transitional: { forcedJSONParsing: false },
   })
 </script>
-
-<template>
-  <div></div>
-</template>

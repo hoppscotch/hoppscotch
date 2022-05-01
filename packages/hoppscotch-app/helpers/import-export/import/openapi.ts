@@ -610,12 +610,7 @@ export default defineImporter({
         pipe(
           TE.tryCatch(
             () => SwaggerParser.validate(obj),
-            (error) => {
-              debugger
-
-              console.log(error)
-              return IMPORTER_INVALID_FILE_FORMAT
-            }
+            () => IMPORTER_INVALID_FILE_FORMAT
           )
         )
       ),

@@ -19,4 +19,4 @@ export const URLImporters = [
   OpenAPIImporter,
   PostmanImporter,
   InsomniaImporter,
-]
+] as const

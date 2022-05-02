@@ -37,7 +37,7 @@
     "@apidevtools/swagger-parser": "^10.0.3",
     "@codemirror/autocomplete": "^0.19.15",
     "@codemirror/closebrackets": "^0.19.2",
-    "@codemirror/commands": "^0.19.8",
+    "@codemirror/commands": "^0.20.0",
     "@codemirror/comment": "^0.19.1",
     "@codemirror/fold": "^0.19.3",
     "@codemirror/gutter": "^0.19.9",

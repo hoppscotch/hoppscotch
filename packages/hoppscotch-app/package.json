@@ -142,7 +142,7 @@
     "@sentry/browser": "^6.19.6",
     "@testing-library/jest-dom": "^5.16.4",
     "@types/codemirror": "^5.60.5",
-    "@types/cookie": "^0.4.1",
+    "@types/cookie": "^0.5.1",
     "@types/esprima": "^4.0.3",
     "@types/har-format": "^1.2.8",
     "@types/httpsnippet": "^1.23.1",

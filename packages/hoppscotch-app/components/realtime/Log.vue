@@ -39,20 +39,18 @@
     </div>
 
     <div ref="logs" class="flex-auto overflow-y-auto">
-      <span ref="logListTop"></span>
       <RealtimeLogEntry
         v-for="(entry, index) in log"
         :key="`entry-${index}`"
         :entry="entry"
       />
-      <span ref="logListBottom"></span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, PropType, computed, watch } from "@nuxtjs/composition-api"
-import { useThrottleFn } from "@vueuse/core"
+import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "~/helpers/utils/composables"
 
 export type LogEntryData = {
@@ -76,26 +74,39 @@ const emit = defineEmits<{
 
 const t = useI18n()
 
-const logListBottom = ref<HTMLElement | null>(null)
 const container = ref<HTMLElement | null>(null)
 const logs = ref<HTMLElement | null>(null)
-const logListTop = ref<HTMLElement | null>(null)
+
+const autoScrollEnabled = ref(true)
+
+const logListScroll = useScroll(logs)
+
+// Disable autoscroll when scrolling to top
+watch(logListScroll.isScrolling, (isScrolling) => {
+  if (isScrolling && logListScroll.directions.top)
+    autoScrollEnabled.value = false
+})
 
 const scrollTo = (position: "top" | "bottom") => {
   if (position === "top") {
-    logListTop.value?.scrollIntoView({ behavior: "smooth", block: "start" })
+    logs.value?.scroll({
+      behavior: "smooth",
+      top: 0,
+    })
   } else if (position === "bottom") {
-    logListBottom.value?.scrollIntoView({ behavior: "smooth", block: "end" })
+    logs.value?.scroll({
+      behavior: "smooth",
+      top: logs.value?.scrollHeight,
+    })
   }
 }
-
-const autoScrollEnabled = ref(true)
 
 watch(
   () => props.log,
   useThrottleFn(() => {
     if (autoScrollEnabled.value) scrollTo("bottom")
-  }, 1000)
+  }, 200),
+  { flush: "post" }
 )
 
 const toggleAutoscroll = () => {

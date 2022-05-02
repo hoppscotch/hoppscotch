@@ -41,6 +41,10 @@ const getComputedAuthHeaders = (
   req: HoppRESTRequest,
   envVars: Environment["variables"]
 ) => {
+  // If Authorization header is also being user-defined, that takes priority
+  if (req.headers.find((h) => h.key.toLowerCase() === "authorization"))
+    return []
+
   if (!req.auth.authActive) return []
 
   const headers: HoppRESTHeader[] = []

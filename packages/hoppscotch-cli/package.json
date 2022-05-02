@@ -41,7 +41,7 @@
     "@types/axios": "^0.14.0",
     "@types/chalk": "^2.2.0",
     "@types/commander": "^2.12.2",
-    "axios": "^0.21.4",
+    "axios": "^0.27.2",
     "chalk": "^4.1.1",
     "commander": "^8.0.0",
     "esm": "^3.2.25",

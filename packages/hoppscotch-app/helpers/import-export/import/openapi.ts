@@ -27,7 +27,7 @@ import * as RA from "fp-ts/ReadonlyArray"
 import { step } from "../steps"
 import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
 
-const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
+export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
 // TODO: URL Import Support
 

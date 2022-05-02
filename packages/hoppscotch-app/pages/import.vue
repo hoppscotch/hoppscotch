@@ -16,7 +16,9 @@ import { appendRESTCollections } from "~/newstore/collections"
 import { useToast, useI18n } from "~/helpers/utils/composables"
 import { URLImporters } from "~/helpers/import-export/import/importers"
 import { IMPORTER_INVALID_FILE_FORMAT } from "~/helpers/import-export/import"
+import { OPENAPI_DEREF_ERROR } from "~/helpers/import-export/import/openapi"
 import { isOfType } from "~/helpers/functional/primtive"
+import { TELeftType } from "~/helpers/functional/taskEither"
 
 const route = useRoute()
 const router = useRouter()
@@ -71,7 +73,28 @@ onMounted(async () => {
 })
 
 const handleImportFailure = (error: string) => {
-  toast.error(t("import.import_from_url_failure").toString())
+  const IMPORT_ERROR_MAP: Record<
+    TELeftType<ReturnType<typeof importCollections>>,
+    string
+  > = {
+    [IMPORTER_INVALID_TYPE]: "import.import_from_url_invalid_type",
+    [IMPORTER_INVALID_FETCH]: "import.import_from_url_invalid_fetch",
+    [IMPORTER_INVALID_FILE_FORMAT]:
+      "import.import_from_url_invalid_file_format",
+    [OPENAPI_DEREF_ERROR]: "import.import_from_url_invalid_file_format",
+  }
+
+  const isValidErrorMessage = (
+    error: string
+  ): error is keyof typeof IMPORT_ERROR_MAP =>
+    Object.keys(IMPORT_ERROR_MAP).includes(error)
+
+  if (isValidErrorMessage(error)) {
+    toast.error(t(IMPORT_ERROR_MAP[error]).toString())
+  } else {
+    toast.error(t("import.import_from_url_failure").toString())
+  }
+
   console.error(error)
 }
 

@@ -59,6 +59,8 @@ const importCollections = (url: unknown, type: unknown) =>
     )
   )
 
+type ImportCollectionsError = TELeftType<ReturnType<typeof importCollections>>
+
 onMounted(async () => {
   const { query } = route.value
 
@@ -72,30 +74,15 @@ onMounted(async () => {
   router.replace("/")
 })
 
-const handleImportFailure = (error: string) => {
-  const IMPORT_ERROR_MAP: Record<
-    TELeftType<ReturnType<typeof importCollections>>,
-    string
-  > = {
-    [IMPORTER_INVALID_TYPE]: "import.import_from_url_invalid_type",
-    [IMPORTER_INVALID_FETCH]: "import.import_from_url_invalid_fetch",
-    [IMPORTER_INVALID_FILE_FORMAT]:
-      "import.import_from_url_invalid_file_format",
-    [OPENAPI_DEREF_ERROR]: "import.import_from_url_invalid_file_format",
-  }
+const IMPORT_ERROR_MAP: Record<ImportCollectionsError, string> = {
+  [IMPORTER_INVALID_TYPE]: "import.import_from_url_invalid_type",
+  [IMPORTER_INVALID_FETCH]: "import.import_from_url_invalid_fetch",
+  [IMPORTER_INVALID_FILE_FORMAT]: "import.import_from_url_invalid_file_format",
+  [OPENAPI_DEREF_ERROR]: "import.import_from_url_invalid_file_format",
+} as const
 
-  const isValidErrorMessage = (
-    error: string
-  ): error is keyof typeof IMPORT_ERROR_MAP =>
-    Object.keys(IMPORT_ERROR_MAP).includes(error)
-
-  if (isValidErrorMessage(error)) {
-    toast.error(t(IMPORT_ERROR_MAP[error]).toString())
-  } else {
-    toast.error(t("import.import_from_url_failure").toString())
-  }
-
-  console.error(error)
+const handleImportFailure = (error: ImportCollectionsError) => {
+  toast.error(t(IMPORT_ERROR_MAP[error]).toString())
 }
 
 const handleImportSuccess = (

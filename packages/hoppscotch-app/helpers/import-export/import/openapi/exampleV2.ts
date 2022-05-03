@@ -2,7 +2,7 @@ import { OpenAPIV2 } from "openapi-types"
 import * as O from "fp-ts/Option"
 import { pipe, flow } from "fp-ts/function"
 import * as A from "fp-ts/Array"
-import { prettyPrintStringifyJSON } from "~/helpers/functional/json"
+import { prettyPrintJSON } from "~/helpers/functional/json"
 
 type PrimitiveSchemaType = "string" | "integer" | "number" | "boolean"
 
@@ -182,7 +182,7 @@ export const generateRequestBodyExampleFromOpenAPIV2Body = (
     O.getOrElse(() => "" as RequestBodyExampleType),
     (requestBodyExample) =>
       pipe(
-        prettyPrintStringifyJSON(requestBodyExample),
+        prettyPrintJSON(requestBodyExample),
         O.getOrElse(() => "")
       )
   )

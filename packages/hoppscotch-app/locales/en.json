@@ -266,7 +266,11 @@
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
     "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Import"
+    "title": "Import",
+    "import_from_url_success": "Collections Imported",
+    "import_from_url_invalid_file_format": "Error while importing collections",
+    "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
+    "import_from_url_invalid_fetch": "Couldn't get data from the url"
   },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",

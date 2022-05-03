@@ -6,6 +6,7 @@ import { defineImporter } from "."
 import { getRESTCollection } from "~/newstore/collections"
 
 export default defineImporter({
+  id: "myCollections",
   name: "import.from_my_collections",
   icon: "user",
   applicableTo: ["team-collections"],

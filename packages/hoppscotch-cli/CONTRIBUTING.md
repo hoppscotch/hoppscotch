@@ -27,13 +27,13 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 2.  In order to test locally, you can use two types of package linking:
 
-    1.  The 'pnpx' way (preferred since it does not hamper your original installation of the CLI):
+    1.  The 'pnpm exec' way (preferred since it does not hamper your original installation of the CLI):
 
         ```bash
         pnpm link @hoppscotch/cli
 
         // Then to use or test the CLI:
-        pnpx hopp
+        pnpm exec hopp
 
         // After testing, to remove the package linking:
         pnpm rm @hoppscotch/cli

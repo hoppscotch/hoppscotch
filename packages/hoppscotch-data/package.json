@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup src --dts",
     "prepare": "tsup src --dts",
-    "do-typecheck": "pnpx tsc --noEmit"
+    "do-typecheck": "pnpm exec tsc --noEmit"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -32,7 +32,8 @@
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.181",
-    "tsup": "^5.12.5"
+    "tsup": "^5.12.5",
+    "typescript": "^4.6.3"
   },
   "dependencies": {
     "fp-ts": "^2.11.10",

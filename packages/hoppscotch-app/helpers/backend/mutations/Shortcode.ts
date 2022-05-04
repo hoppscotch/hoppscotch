@@ -4,6 +4,9 @@ import {
   CreateShortcodeDocument,
   CreateShortcodeMutation,
   CreateShortcodeMutationVariables,
+  DeleteShortcodeDocument,
+  DeleteShortcodeMutation,
+  DeleteShortcodeMutationVariables,
 } from "../graphql"
 
 export const createShortcode = (request: HoppRESTRequest) =>
@@ -11,5 +14,13 @@ export const createShortcode = (request: HoppRESTRequest) =>
     CreateShortcodeDocument,
     {
       request: JSON.stringify(request),
+    }
+  )
+
+export const deleteShortcode = (code: string) =>
+  runMutation<DeleteShortcodeMutation, DeleteShortcodeMutationVariables, "">(
+    DeleteShortcodeDocument,
+    {
+      code,
     }
   )

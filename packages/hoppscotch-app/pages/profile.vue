@@ -79,102 +79,178 @@
           </div>
           <SmartTabs v-model="selectedProfileTab">
             <SmartTab :id="'sync'" :label="t('settings.account')">
-              <section class="p-4">
-                <h4 class="font-semibold text-secondaryDark">
-                  {{ t("settings.profile") }}
-                </h4>
-                <div class="my-1 text-secondaryLight">
-                  {{ t("settings.profile_description") }}
-                </div>
-                <div class="py-4">
-                  <label for="displayName">
-                    {{ t("settings.profile_name") }}
-                  </label>
-                  <form
-                    class="flex mt-2 md:max-w-sm"
-                    @submit.prevent="updateDisplayName"
-                  >
-                    <input
-                      id="displayName"
-                      v-model="displayName"
-                      class="input"
-                      :placeholder="`${t('settings.profile_name')}`"
-                      type="text"
-                      autocomplete="off"
-                      required
-                    />
-                    <ButtonSecondary
-                      filled
-                      outline
-                      :label="t('action.save')"
-                      class="ml-2 min-w-16"
-                      type="submit"
-                      :loading="updatingDisplayName"
-                    />
-                  </form>
-                </div>
-                <div class="py-4">
-                  <label for="emailAddress">
-                    {{ t("settings.profile_email") }}
-                  </label>
-                  <form
-                    class="flex mt-2 md:max-w-sm"
-                    @submit.prevent="updateEmailAddress"
-                  >
-                    <input
-                      id="emailAddress"
-                      v-model="emailAddress"
-                      class="input"
-                      :placeholder="`${t('settings.profile_name')}`"
-                      type="email"
-                      autocomplete="off"
-                      required
-                    />
-                    <ButtonSecondary
-                      filled
-                      outline
-                      :label="t('action.save')"
-                      class="ml-2 min-w-16"
-                      type="submit"
-                      :loading="updatingEmailAddress"
-                    />
-                  </form>
-                </div>
-              </section>
-              <section class="p-4">
-                <h4 class="font-semibold text-secondaryDark">
-                  {{ t("settings.sync") }}
-                </h4>
-                <div class="my-1 text-secondaryLight">
-                  {{ t("settings.sync_description") }}
-                </div>
-                <div class="py-4 space-y-4">
-                  <div class="flex items-center">
-                    <SmartToggle
-                      :on="SYNC_COLLECTIONS"
-                      @change="toggleSetting('syncCollections')"
-                    >
-                      {{ t("settings.sync_collections") }}
-                    </SmartToggle>
+              <div class="grid grid-cols-1 md:grid-cols-2">
+                <section class="p-4">
+                  <h4 class="font-semibold text-secondaryDark">
+                    {{ t("settings.profile") }}
+                  </h4>
+                  <div class="my-1 text-secondaryLight">
+                    {{ t("settings.profile_description") }}
                   </div>
-                  <div class="flex items-center">
-                    <SmartToggle
-                      :on="SYNC_ENVIRONMENTS"
-                      @change="toggleSetting('syncEnvironments')"
+                  <div class="py-4">
+                    <label for="displayName">
+                      {{ t("settings.profile_name") }}
+                    </label>
+                    <form
+                      class="flex mt-2 md:max-w-sm"
+                      @submit.prevent="updateDisplayName"
                     >
-                      {{ t("settings.sync_environments") }}
-                    </SmartToggle>
+                      <input
+                        id="displayName"
+                        v-model="displayName"
+                        class="input"
+                        :placeholder="`${t('settings.profile_name')}`"
+                        type="text"
+                        autocomplete="off"
+                        required
+                      />
+                      <ButtonSecondary
+                        filled
+                        outline
+                        :label="t('action.save')"
+                        class="ml-2 min-w-16"
+                        type="submit"
+                        :loading="updatingDisplayName"
+                      />
+                    </form>
                   </div>
-                  <div class="flex items-center">
-                    <SmartToggle
-                      :on="SYNC_HISTORY"
-                      @change="toggleSetting('syncHistory')"
+                  <div class="py-4">
+                    <label for="emailAddress">
+                      {{ t("settings.profile_email") }}
+                    </label>
+                    <form
+                      class="flex mt-2 md:max-w-sm"
+                      @submit.prevent="updateEmailAddress"
                     >
-                      {{ t("settings.sync_history") }}
-                    </SmartToggle>
+                      <input
+                        id="emailAddress"
+                        v-model="emailAddress"
+                        class="input"
+                        :placeholder="`${t('settings.profile_name')}`"
+                        type="email"
+                        autocomplete="off"
+                        required
+                      />
+                      <ButtonSecondary
+                        filled
+                        outline
+                        :label="t('action.save')"
+                        class="ml-2 min-w-16"
+                        type="submit"
+                        :loading="updatingEmailAddress"
+                      />
+                    </form>
                   </div>
-                </div>
-              </section>
+                </section>
+                <section class="px-4">
+                  <div class="py-4">
+                    <h4 class="font-semibold text-secondaryDark">
+                      {{ t("settings.sync") }}
+                    </h4>
+                    <div class="my-1 text-secondaryLight">
+                      {{ t("settings.sync_description") }}
+                    </div>
+                    <div class="py-4 space-y-4">
+                      <div class="flex items-center">
+                        <SmartToggle
+                          :on="SYNC_COLLECTIONS"
+                          @change="toggleSetting('syncCollections')"
+                        >
+                          {{ t("settings.sync_collections") }}
+                        </SmartToggle>
+                      </div>
+                      <div class="flex items-center">
+                        <SmartToggle
+                          :on="SYNC_ENVIRONMENTS"
+                          @change="toggleSetting('syncEnvironments')"
+                        >
+                          {{ t("settings.sync_environments") }}
+                        </SmartToggle>
+                      </div>
+                      <div class="flex items-center">
+                        <SmartToggle
+                          :on="SYNC_HISTORY"
+                          @change="toggleSetting('syncHistory')"
+                        >
+                          {{ t("settings.sync_history") }}
+                        </SmartToggle>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="py-4">
+                    <h4 class="font-semibold text-secondaryDark">
+                      {{ t("settings.short_codes") }}
+                    </h4>
+                    <div class="my-1 text-secondaryLight">
+                      {{ t("settings.short_codes_description") }}
+                    </div>
+                    <div class="py-4 relative overflow-x-auto hide-scrollbar">
+                      <div
+                        v-if="loading"
+                        class="flex flex-col items-center justify-center"
+                      >
+                        <SmartSpinner class="mb-4" />
+                        <span class="text-secondaryLight">{{
+                          t("state.loading")
+                        }}</span>
+                      </div>
+                      <div
+                        v-if="!loading && myShortCodes.length === 0"
+                        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+                      >
+                        <img
+                          :src="`/images/states/${$colorMode.value}/add_files.svg`"
+                          loading="lazy"
+                          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
+                          :alt="`${t('empty.shortcodes')}`"
+                        />
+                        <span class="mb-4 text-center">
+                          {{ t("empty.shortcodes") }}
+                        </span>
+                      </div>
+                      <div
+                        v-else-if="!loading"
+                        class="table table-auto w-full border-collapse"
+                      >
+                        <div class="hidden lg:table-header-group">
+                          <div class="table-row p-2">
+                            <div class="table-cell font-semibold">
+                              {{ t("shortcodes.short_code") }}
+                            </div>
+                            <div class="table-cell font-semibold">
+                              {{ t("shortcodes.method") }}
+                            </div>
+                            <div class="table-cell font-semibold">
+                              {{ t("shortcodes.url") }}
+                            </div>
+                            <div class="table-cell font-semibold">
+                              {{ t("shortcodes.created_on") }}
+                            </div>
+                            <div class="table-cell font-semibold">
+                              {{ t("shortcodes.actions") }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="table-row-group">
+                          <ProfileShortcode
+                            v-for="(shortCode, shortCodeIndex) in myShortCodes"
+                            :key="`shortCode-${shortCodeIndex}`"
+                            :short-code="shortCode"
+                            @delete-short-code="deleteShortCode"
+                          />
+                        </div>
+                      </div>
+                      <div
+                        v-if="!loading && adapterError"
+                        class="flex flex-col py-4 items-center"
+                      >
+                        <i class="mb-4 material-icons">help_outline</i>
+                        {{ t("error.something_went_wrong") }}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+              </div>
             </SmartTab>
             <SmartTab :id="'teams'" :label="t('team.title')">
               <Teams :modal="false" />
@@ -193,12 +269,16 @@ import {
   useMeta,
   defineComponent,
   watchEffect,
+  computed,
 } from "@nuxtjs/composition-api"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
 import {
   currentUser$,
   setDisplayName,
   setEmailAddress,
   verifyEmailAddress,
+  onLoggedIn,
 } from "~/helpers/fb/auth"
 import {
   useReadonlyStream,
@@ -206,6 +286,8 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
+import ShortCodeListAdapter from "~/helpers/shortcodes/ShortCodeListAdapter"
+import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mutations/Shortcode"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -271,6 +353,39 @@ const sendEmailVerification = () => {
     .finally(() => {
       verifyingEmailAddress.value = false
     })
+}
+
+const adapter = new ShortCodeListAdapter(true)
+const adapterLoading = useReadonlyStream(adapter.loading$, false)
+const adapterError = useReadonlyStream(adapter.error$, null)
+const myShortCodes = useReadonlyStream(adapter.shortCodes$, [])
+
+onLoggedIn(() => {
+  adapter.initialize()
+})
+
+const loading = computed(
+  () => adapterLoading.value && myShortCodes.value.length === 0
+)
+
+const deleteShortCode = (codeID: string) => {
+  pipe(
+    backendDeleteShortcode(codeID),
+    TE.match(
+      (err) => {
+        toast.error(`${t("error.something_went_wrong")}`)
+        console.error(err)
+      },
+      () => {
+        toast.success(`${t("shortcodes.deleted")}`)
+        refetchShortcodes()
+      }
+    )
+  )()
+}
+
+const refetchShortcodes = () => {
+  adapter.fetchList()
 }
 
 useMeta({

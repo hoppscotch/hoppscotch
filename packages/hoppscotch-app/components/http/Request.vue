@@ -426,7 +426,6 @@ const copyRequest = async () => {
     fetchingShareLink.value = true
     const request = getRESTRequest()
     const shortcodeResult = await createShortcode(request)()
-    console.log("create-short-code", shortcodeResult)
     if (E.isLeft(shortcodeResult)) {
       toast.error(`${shortcodeResult.left.error}`)
       shareLink.value = `${t("error.something_went_wrong")}`

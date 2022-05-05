@@ -9,6 +9,7 @@
     "delete": "Törlés",
     "disconnect": "Leválasztás",
     "dismiss": "Eltüntetés",
+    "dont_save": "Don't save",
     "download_file": "Fájl letöltése",
     "duplicate": "Kettőzés",
     "edit": "Szerkesztés",
@@ -44,6 +45,10 @@
     "chat_with_us": "Csevegjen velünk",
     "contact_us": "Lépjen kapcsolatba velünk",
     "copy": "Másolás",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentáció",
     "github": "GitHub",
     "help": "Súgó és visszajelzés",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Gyorsbillentyűk",
     "name": "Hoppscotch",
     "new_version_found": "Új verzió található. Töltse újra az oldalt a frissítéshez.",
+    "options": "Options",
     "proxy_privacy_policy": "Proxy adatvédelmi irányelvei",
     "reload": "Újratöltés",
     "search": "Keresés",
@@ -62,6 +68,7 @@
     "shortcuts": "Gyorsbillentyűk",
     "spotlight": "Reflektorfény",
     "status": "Állapot",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Feltételek és adatvédelem",
     "twitter": "Twitter",
     "type_a_command_search": "Írjon be parancsot vagy keresést…",
@@ -124,6 +131,7 @@
     "remove_request": "Biztosan véglegesen törölni szeretné ezt a kérést?",
     "remove_team": "Biztosan törölni szeretné ezt a csapatot?",
     "remove_telemetry": "Biztosan ki szeretné kapcsolni a telemetriát?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Szeretné visszaállítani a munkaterületét a felhőből? Ez el fogja vetni a helyi folyamatát."
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Új környezet létrehozása",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Környezet szerkesztése",
     "invalid_name": "Adjon nevet a környezetnek",
@@ -233,6 +242,7 @@
     "tests": "Írjon tesztparancsfájlt a hibakeresés automatizálására."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Több elrejtése",
     "preview": "Előnézet elrejtése",
     "sidebar": "Oldalsáv összecsukása"
@@ -259,7 +269,10 @@
     "title": "Importálás"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Függőleges elrendezés",
+    "name": "Layout",
     "row": "Vízszintes elrendezés",
     "zen_mode": "Zen mód"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Adjon nevet a kérésnek",
     "method": "Módszer",
     "name": "Kérés neve",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Lekérdezési paraméterek",
     "parameters": "Paraméterek",
     "path": "Útvonal",
@@ -339,6 +356,7 @@
     "save_as": "Mentés másként",
     "saved": "Kérés elmentve",
     "share": "Megosztás",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Kérés",
     "type": "Kérés típusa",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Kiterjesztés verziója",
     "extensions": "Böngészőkiterjesztés",
     "extensions_use_toggle": "A böngészőkiterjesztés használata a kérések küldéséhez (ha jelen van)",
+    "follow": "Follow Us",
     "font_size": "Betűméret",
     "font_size_large": "Nagy",
     "font_size_medium": "Közepes",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Kód megjelenítése",
+    "collection": "Expand Collection Panel",
     "more": "Több megjelenítése",
     "sidebar": "Oldalsáv kinyitása"
   },
@@ -505,6 +525,7 @@
     "community": "Tegyen fel kérdéseket és segítsen másoknak",
     "documentation": "Tudjon meg többet a Hoppscotchról",
     "forum": "Tegyen fel kérdéseket és kapjon válaszokat",
+    "github": "Follow us on Github",
     "shortcuts": "Az alkalmazás gyorsabb böngészése",
     "team": "Vegye fel a kapcsolatot a csapattal",
     "title": "Támogatás",

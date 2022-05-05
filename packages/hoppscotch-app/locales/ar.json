@@ -9,6 +9,7 @@
     "delete": "حذف",
     "disconnect": "قطع الاتصال",
     "dismiss": "رفض",
+    "dont_save": "Don't save",
     "download_file": "تحميل الملف",
     "duplicate": "كرر",
     "edit": "يحرر",
@@ -44,6 +45,10 @@
     "chat_with_us": "دردش معنا",
     "contact_us": "اتصل بنا",
     "copy": "انسخ",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "توثيق",
     "github": "GitHub",
     "help": "المساعدة والتعليقات ووثائق",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "اختصارات لوحة المفاتيح",
     "name": "هوبسكوتش",
     "new_version_found": "تم العثور على نسخة جديدة. قم بالتحديث للتحديث.",
+    "options": "Options",
     "proxy_privacy_policy": "سياسة خصوصية الوكيل",
     "reload": "إعادة تحميل",
     "search": "بحث",
@@ -62,6 +68,7 @@
     "shortcuts": "الاختصارات",
     "spotlight": "أضواء كاشفة",
     "status": "حالة",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "الشروط والخصوصية",
     "twitter": "تويتر",
     "type_a_command_search": "اكتب أمرًا أو ابحث ...",
@@ -124,6 +131,7 @@
     "remove_request": "هل أنت متأكد أنك تريد حذف هذا الطلب نهائيًا؟",
     "remove_team": "هل أنت متأكد أنك تريد حذف هذا الفريق؟",
     "remove_telemetry": "هل أنت متأكد أنك تريد الانسحاب من القياس عن بعد؟",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "هل أنت متأكد أنك تريد مزامنة مساحة العمل هذه؟"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "انشاء بيئة جديدة",
+    "created": "Environment created",
     "deleted": "حذف بيئة العمل",
     "edit": "تحرير البيئة",
     "invalid_name": "الرجاء تقديم اسم صالح للبيئة",
@@ -233,6 +242,7 @@
     "tests": "اكتب نص اختبار لأتمتة تصحيح الأخطاء."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "إخفاء المزيد",
     "preview": "إخفاء المعاينة",
     "sidebar": "اخفاء الشريط الجانبي"
@@ -259,7 +269,10 @@
     "title": "يستورد"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "تصيم عمودي",
+    "name": "Layout",
     "row": "تصميم افقي",
     "zen_mode": "وضع Zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "يرجى تقديم اسم للطلب",
     "method": "طريقة",
     "name": "اسم الطلب",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "معلمات الاستعلام",
     "parameters": "حدود",
     "path": "طريق",
@@ -339,6 +356,7 @@
     "save_as": "حفظ باسم",
     "saved": "تم حفظ الطلب",
     "share": "يشارك",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "طلب",
     "type": "نوع الطلب",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "نسخة التمديد",
     "extensions": "ملحقات",
     "extensions_use_toggle": "استخدم امتداد المتصفح لإرسال الطلبات (إن وجدت)",
+    "follow": "Follow Us",
     "font_size": "حجم الخط",
     "font_size_large": "كبير",
     "font_size_medium": "متوسط",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "أظهر الكود",
+    "collection": "Expand Collection Panel",
     "more": "أظهر المزيد",
     "sidebar": "عرض الشريط الجانبي"
   },
@@ -505,6 +525,7 @@
     "community": "اطرح الأسئلة وساعد الآخرين",
     "documentation": "اقرأ المزيد عن Hoppscotch",
     "forum": "اسأل سؤالا وتلقى جوابا",
+    "github": "Follow us on Github",
     "shortcuts": "تصفح التطبيق بشكل أسرع",
     "team": "تواصل مع الفريق",
     "title": "يدعم",

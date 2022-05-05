@@ -1,6 +1,7 @@
 import { pipe } from "fp-ts/function"
 import cloneDeep from "lodash/cloneDeep"
 import isEqual from "lodash/isEqual"
+import { JSPrimitive, TypeFromPrimitive } from "./primtive"
 
 export const objRemoveKey =
   <T, K extends keyof T>(key: K) =>
@@ -19,34 +20,15 @@ export const objFieldMatches =
   (obj: T): obj is T & { [_ in K]: V } =>
     matches.findIndex((x) => isEqual(obj[fieldName], x)) !== -1
 
-type JSPrimitive =
-  | "undefined"
-  | "object"
-  | "boolean"
-  | "number"
-  | "bigint"
-  | "string"
-  | "symbol"
-  | "function"
-
-type TypeFromPrimitive<P extends JSPrimitive | undefined> =
-  P extends "undefined"
-    ? undefined
-    : P extends "object"
-    ? object | null // typeof null === "object"
-    : P extends "boolean"
-    ? boolean
-    : P extends "number"
-    ? number
-    : P extends "bigint"
-    ? BigInt
-    : P extends "string"
-    ? string
-    : P extends "symbol"
-    ? Symbol
-    : P extends "function"
-    ? Function
-    : unknown
+export const objHasProperty =
+  <O extends object, K extends string, P extends JSPrimitive | undefined>(
+    prop: K,
+    type?: P
+  ) =>
+  // eslint-disable-next-line
+  (obj: O): obj is O & { [_ in K]: TypeFromPrimitive<P> } =>
+    // eslint-disable-next-line
+    prop in obj && (type === undefined || typeof (obj as any)[prop] === type)
 
 type TypeFromPrimitiveArray<P extends JSPrimitive | undefined> =
   P extends "undefined"
@@ -66,16 +48,6 @@ type TypeFromPrimitiveArray<P extends JSPrimitive | undefined> =
     : P extends "function"
     ? Function[]
     : unknown[]
-
-export const objHasProperty =
-  <O extends object, K extends string, P extends JSPrimitive | undefined>(
-    prop: K,
-    type?: P
-  ) =>
-  // eslint-disable-next-line
-  (obj: O): obj is O & { [_ in K]: TypeFromPrimitive<P> } =>
-    // eslint-disable-next-line
-    prop in obj && (type === undefined || typeof (obj as any)[prop] === type)
 
 export const objHasArrayProperty =
   <O extends object, K extends string, P extends JSPrimitive>(

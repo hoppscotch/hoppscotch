@@ -11,12 +11,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "pnpx tsup",
-    "dev": "pnpx tsup --watch",
+    "build": "pnpm exec tsup",
+    "dev": "pnpm exec tsup --watch",
     "debugger": "node debugger.js 9999",
-    "prepublish": "pnpx tsup",
+    "prepublish": "pnpm exec tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "do-typecheck": "pnpx tsc --noEmit"
+    "do-typecheck": "pnpm exec tsc --noEmit"
   },
   "keywords": [
     "cli",

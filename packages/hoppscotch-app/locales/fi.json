@@ -9,6 +9,7 @@
     "delete": "Poistaa",
     "disconnect": "Katkaista",
     "dismiss": "Hylkää",
+    "dont_save": "Don't save",
     "download_file": "Lataa tiedosto",
     "duplicate": "Duplicate",
     "edit": "Muokata",
@@ -44,6 +45,10 @@
     "chat_with_us": "Juttele kanssamme",
     "contact_us": "Ota meihin yhteyttä",
     "copy": "Kopio",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentointi",
     "github": "GitHub",
     "help": "Ohje, palaute ja dokumentaatio",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Pikanäppäimet",
     "name": "Hoppscotch",
     "new_version_found": "Uusi versio löytyi. Päivitä päivittääksesi.",
+    "options": "Options",
     "proxy_privacy_policy": "Välityspalvelimen tietosuojakäytäntö",
     "reload": "Lataa uudelleen",
     "search": "Hae",
@@ -62,6 +68,7 @@
     "shortcuts": "Pikanäppäimet",
     "spotlight": "Valokeila",
     "status": "Tila",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Ehdot ja yksityisyys",
     "twitter": "Viserrys",
     "type_a_command_search": "Kirjoita komento tai hae…",
@@ -124,6 +131,7 @@
     "remove_request": "Haluatko varmasti poistaa tämän pyynnön pysyvästi?",
     "remove_team": "Haluatko varmasti poistaa tämän ryhmän?",
     "remove_telemetry": "Haluatko varmasti poistaa telemetrian käytöstä?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Haluatko varmasti synkronoida tämän työtilan?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Luo uusi ympäristö",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Muokkaa ympäristöä",
     "invalid_name": "Anna ympäristölle kelvollinen nimi",
@@ -233,6 +242,7 @@
     "tests": "Kirjoita testikomentosarja virheenkorjauksen automatisoimiseksi."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Piilota enemmän",
     "preview": "Piilota esikatselu",
     "sidebar": "Piilota sivupalkki"
@@ -259,7 +269,10 @@
     "title": "Tuonti"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Zen -tila"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Anna pyynnölle nimi",
     "method": "Menetelmä",
     "name": "Pyynnön nimi",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Kyselyparametrit",
     "parameters": "Parametrit",
     "path": "Polku",
@@ -339,6 +356,7 @@
     "save_as": "Tallenna nimellä",
     "saved": "Pyyntö tallennettu",
     "share": "Jaa",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Pyyntö",
     "type": "Pyynnön tyyppi",
     "url": "URL -osoite",
@@ -378,6 +396,7 @@
     "extension_version": "Laajennusversio",
     "extensions": "Laajennukset",
     "extensions_use_toggle": "Käytä pyyntöjen lähettämiseen selainlaajennusta (jos sellainen on)",
+    "follow": "Follow Us",
     "font_size": "Fonttikoko",
     "font_size_large": "Suuri",
     "font_size_medium": "Keskikokoinen",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Näytä koodi",
+    "collection": "Expand Collection Panel",
     "more": "Näytä lisää",
     "sidebar": "Näytä sivupalkki"
   },
@@ -505,6 +525,7 @@
     "community": "Esitä kysymyksiä ja auta muita",
     "documentation": "Lue lisää Hoppscotchista",
     "forum": "Esitä kysymyksiä ja saat vastauksia",
+    "github": "Follow us on Github",
     "shortcuts": "Selaa sovellusta nopeammin",
     "team": "Ota yhteyttä tiimiin",
     "title": "Tuki",

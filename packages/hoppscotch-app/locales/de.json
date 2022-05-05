@@ -9,6 +9,7 @@
     "delete": "Löschen",
     "disconnect": "Trennen",
     "dismiss": "Verwerfen",
+    "dont_save": "Don't save",
     "download_file": "Datei herunterladen",
     "duplicate": "Duplizieren",
     "edit": "Bearbeiten",
@@ -44,6 +45,10 @@
     "chat_with_us": "Chatte mit uns",
     "contact_us": "Kontaktiere uns",
     "copy": "Kopieren",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentation",
     "github": "GitHub",
     "help": "Hilfe, Feedback und Dokumentation",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Tastaturkürzel",
     "name": "Hoppscotch",
     "new_version_found": "Neue Version gefunden. Zum Aktualisieren Seite neu laden.",
+    "options": "Options",
     "proxy_privacy_policy": "Proxy-Datenschutzrichtlinie",
     "reload": "Neu laden",
     "search": "Suche",
@@ -62,6 +68,7 @@
     "shortcuts": "Verknüpfungen",
     "spotlight": "Scheinwerfer",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "AGB und Datenschutzerklärung",
     "twitter": "Twitter",
     "type_a_command_search": "Geben Sie einen Befehl ein oder suchen Sie…",
@@ -124,6 +131,7 @@
     "remove_request": "Möchten Sie diese Anfrage wirklich dauerhaft löschen?",
     "remove_team": "Möchten Sie dieses Team wirklich löschen?",
     "remove_telemetry": "Möchten Sie die Telemetrie wirklich deaktivieren?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Möchten Sie diesen Arbeitsbereich wirklich synchronisieren?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Zur Globalen Umgebung hinzufügen",
     "added": "Umgebung hinzugefügt",
     "create_new": "Neue Umgebung erstellen",
+    "created": "Environment created",
     "deleted": "Umgebung löschen",
     "edit": "Umgebung bearbeiten",
     "invalid_name": "Bitte geben Sie einen gültigen Namen für die Umgebung an",
@@ -233,6 +242,7 @@
     "tests": "Schreiben Sie ein Testskript, um das Debuggen zu automatisieren."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Mehr ausblenden",
     "preview": "Vorschau ausblenden",
     "sidebar": "Seitenleiste ausblenden"
@@ -259,7 +269,10 @@
     "title": "Importieren"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertikales Layout",
+    "name": "Layout",
     "row": "Horizontales Layout",
     "zen_mode": "Zen-Modus"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Bitte geben Sie einen Namen für die Anfrage an",
     "method": "Methode",
     "name": "Anfragename",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Abfrageparameter",
     "parameters": "Parameter",
     "path": "Path",
@@ -339,6 +356,7 @@
     "save_as": "Speichern als",
     "saved": "Anfrage gespeichert",
     "share": "Teilen",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Anfrage",
     "type": "Anfragetyp",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Erweiterungsversion",
     "extensions": "Erweiterungen",
     "extensions_use_toggle": "Verwenden Sie die Browsererweiterung, um Anfragen zu senden (falls vorhanden)",
+    "follow": "Follow Us",
     "font_size": "Schriftgröße",
     "font_size_large": "Groß",
     "font_size_medium": "Mittel",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Code anzeigen",
+    "collection": "Expand Collection Panel",
     "more": "Mehr anzeigen",
     "sidebar": "Seitenleiste anzeigen"
   },
@@ -505,6 +525,7 @@
     "community": "Stellen Sie Fragen und helfen Sie anderen",
     "documentation": "Lesen Sie mehr über Hoppscotch",
     "forum": "Stellen Sie Fragen und erhalten Sie Antworten",
+    "github": "Follow us on Github",
     "shortcuts": "Hoppscotch schneller bedienen",
     "team": "Nehmen Sie Kontakt mit dem Team auf",
     "title": "Hilfe",

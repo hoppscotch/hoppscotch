@@ -9,6 +9,7 @@
     "delete": "删除",
     "disconnect": "断开连接",
     "dismiss": "忽略",
+    "dont_save": "Don't save",
     "download_file": "下载文件",
     "duplicate": "复制",
     "edit": "编辑",
@@ -44,6 +45,10 @@
     "chat_with_us": "与我们交谈",
     "contact_us": "联系我们",
     "copy": "复制",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "帮助文档",
     "github": "GitHub",
     "help": "帮助与反馈",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "键盘快捷键",
     "name": "Hoppscotch",
     "new_version_found": "已发现新版本。刷新页面以更新。",
+    "options": "Options",
     "proxy_privacy_policy": "代理隐私政策",
     "reload": "重新加载",
     "search": "搜索",
@@ -62,6 +68,7 @@
     "shortcuts": "快捷方式",
     "spotlight": "聚光灯",
     "status": "状态",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "隐私条款",
     "twitter": "Twitter",
     "type_a_command_search": "输入命令或搜索内容……",
@@ -124,6 +131,7 @@
     "remove_request": "你确定要永久删除该请求吗？",
     "remove_team": "你确定要删除该团队吗？",
     "remove_telemetry": "你确定要退出遥测服务吗？",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "您确定要同步该工作区吗？"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "已创建新环境",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "编辑环境",
     "invalid_name": "请提供有效的环境名称",
@@ -233,6 +242,7 @@
     "tests": "编写测试脚本以自动调试。"
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "隐藏更多",
     "preview": "隐藏预览",
     "sidebar": "隐藏侧边栏"
@@ -259,7 +269,10 @@
     "title": "导入"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "垂直布局",
+    "name": "Layout",
     "row": "水平布局",
     "zen_mode": "禅意模式"
   },
@@ -327,9 +340,13 @@
     "invalid_name": "请提供请求名称",
     "method": "方法",
     "name": "请求名称",
-    "path": "路径",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "查询参数",
     "parameters": "参数",
+    "path": "路径",
     "payload": "负载",
     "query": "查询",
     "raw_body": "原始请求体",
@@ -339,6 +356,7 @@
     "save_as": "另存为",
     "saved": "请求已保存",
     "share": "分享",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "请求",
     "type": "请求类型",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "扩展版本",
     "extensions": "扩展",
     "extensions_use_toggle": "使用浏览器扩展发送请求（如果存在）",
+    "follow": "Follow Us",
     "font_size": "字体大小",
     "font_size_large": "大",
     "font_size_medium": "中",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "显示代码",
+    "collection": "Expand Collection Panel",
     "more": "显示更多",
     "sidebar": "显示侧边栏"
   },
@@ -505,6 +525,7 @@
     "community": "提问与互助",
     "documentation": "阅读更多有关 Hoppscotch 的内容",
     "forum": "答疑解惑",
+    "github": "Follow us on Github",
     "shortcuts": "更快浏览应用",
     "team": "与团队保持联系",
     "title": "支持",

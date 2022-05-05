@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig } from "axios"
 import { v4 } from "uuid"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import cloneDeep from "lodash/cloneDeep"
 import { NetworkResponse, NetworkStrategy } from "../network"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
 import { settingsStore } from "~/newstore/settings"
@@ -40,19 +41,43 @@ const getProxyPayload = (
   return payload
 }
 
+const preProcessRequest = (req: AxiosRequestConfig): AxiosRequestConfig => {
+  const reqClone = cloneDeep(req)
+
+  // If the parameters are URLSearchParams, inject them to URL instead
+  // This prevents issues of marshalling the URLSearchParams to the proxy
+  if (reqClone.params instanceof URLSearchParams) {
+    try {
+      const url = new URL(reqClone.url ?? "")
+
+      for (const [key, value] of reqClone.params.entries()) {
+        url.searchParams.append(key, value)
+      }
+
+      reqClone.url = url.toString()
+    } catch (e) {}
+
+    reqClone.params = {}
+  }
+
+  return reqClone
+}
+
 const axiosWithProxy: NetworkStrategy = (req) =>
   pipe(
     TE.Do,
 
+    TE.bind("processedReq", () => TE.of(preProcessRequest(req))),
+
     // If the request has FormData, the proxy needs a key
-    TE.bind("multipartKey", () =>
-      TE.of(req.data instanceof FormData ? v4() : null)
+    TE.bind("multipartKey", ({ processedReq }) =>
+      TE.of(processedReq.data instanceof FormData ? v4() : null)
     ),
 
     // Build headers to send
-    TE.bind("headers", ({ multipartKey }) =>
+    TE.bind("headers", ({ processedReq, multipartKey }) =>
       TE.of(
-        req.data instanceof FormData
+        processedReq.data instanceof FormData
           ? <ProxyHeaders>{
               "multipart-part-key": `proxyRequestData-${multipartKey}`,
             }
@@ -61,8 +86,8 @@ const axiosWithProxy: NetworkStrategy = (req) =>
     ),
 
     // Create payload
-    TE.bind("payload", ({ multipartKey }) =>
-      TE.of(getProxyPayload(req, multipartKey))
+    TE.bind("payload", ({ processedReq, multipartKey }) =>
+      TE.of(getProxyPayload(processedReq, multipartKey))
     ),
 
     // Run the proxy request

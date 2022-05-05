@@ -245,24 +245,27 @@ const saveEnvironment = () => {
     return
   }
 
-  if (props.action === "new") {
-    createEnvironment(name.value)
-    setCurrentEnvironment(envList.value.length - 1)
-  }
-
   const environmentUpdated: Environment = {
     name: name.value,
     variables: vars.value,
   }
 
-  if (props.editingEnvironmentIndex === null) return
-  if (props.editingEnvironmentIndex === "Global")
-    setGlobalEnvVariables(environmentUpdated.variables)
-  else if (props.action === "new") {
+  if (props.action === "new") {
+    // Creating a new environment
+    createEnvironment(name.value)
     updateEnvironment(envList.value.length - 1, environmentUpdated)
-  } else {
-    updateEnvironment(props.editingEnvironmentIndex!, environmentUpdated)
+    setCurrentEnvironment(envList.value.length - 1)
+    toast.success(`${t("environment.created")}`)
+  } else if (props.editingEnvironmentIndex === "Global") {
+    // Editing the Global environment
+    setGlobalEnvVariables(environmentUpdated.variables)
+    toast.success(`${t("environment.updated")}`)
+  } else if (props.editingEnvironmentIndex !== null) {
+    // Editing an environment
+    updateEnvironment(props.editingEnvironmentIndex, environmentUpdated)
+    toast.success(`${t("environment.updated")}`)
   }
+
   hideModal()
 }
 

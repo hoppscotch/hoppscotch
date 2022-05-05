@@ -9,6 +9,7 @@
     "delete": "Vee uit",
     "disconnect": "Ontkoppel",
     "dismiss": "Weier",
+    "dont_save": "Don't save",
     "download_file": "Aflaai leêr",
     "duplicate": "Duplicate",
     "edit": "Redigeer",
@@ -44,6 +45,10 @@
     "chat_with_us": "Gesels met ons",
     "contact_us": "Kontak Ons",
     "copy": "Kopieer",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentasie",
     "github": "GitHub",
     "help": "Hulp, terugvoer en dokumentasie",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Sleutelbord kortpaaie",
     "name": "Hoppscotch",
     "new_version_found": "Nuwe weergawe gevind. Herlaai om op te dateer.",
+    "options": "Options",
     "proxy_privacy_policy": "Volmag privaatheidsbeleid",
     "reload": "Herlaai",
     "search": "Soek",
@@ -62,6 +68,7 @@
     "shortcuts": "Kortpaaie",
     "spotlight": "Kollig",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Bepalings en privaatheid",
     "twitter": "Twitter",
     "type_a_command_search": "Tik 'n opdrag of soek ...",
@@ -124,6 +131,7 @@
     "remove_request": "Is u seker dat u hierdie versoek permanent wil uitvee?",
     "remove_team": "Weet u seker dat u hierdie span wil uitvee?",
     "remove_telemetry": "Weet u seker dat u van Telemetry wil afskakel?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Is u seker dat u hierdie werkruimte wil sinkroniseer?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Skep nuwe omgewing",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Bewerk omgewing",
     "invalid_name": "Gee 'n geldige naam vir die omgewing",
@@ -233,6 +242,7 @@
     "tests": "Skryf 'n toetsskrif om ontfouting te outomatiseer."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Steek meer weg",
     "preview": "Versteek voorskou",
     "sidebar": "Versteek sybalk"
@@ -259,7 +269,10 @@
     "title": "Invoer"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Zen -modus"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Gee 'n naam vir die versoek",
     "method": "Metode",
     "name": "Versoek naam",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Navraagparameters",
     "parameters": "Grense",
     "path": "Pad",
@@ -339,6 +356,7 @@
     "save_as": "Stoor as",
     "saved": "Versoek gestoor",
     "share": "Deel",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Versoek",
     "type": "Soort versoek",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Uitbreiding weergawe",
     "extensions": "Uitbreidings",
     "extensions_use_toggle": "Gebruik die blaaieruitbreiding om versoeke te stuur (indien teenwoordig)",
+    "follow": "Follow Us",
     "font_size": "Skrifgrootte",
     "font_size_large": "Groot",
     "font_size_medium": "Medium",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Wys kode",
+    "collection": "Expand Collection Panel",
     "more": "Wys meer",
     "sidebar": "Wys sybalk"
   },
@@ -505,6 +525,7 @@
     "community": "Stel vrae en help ander",
     "documentation": "Lees meer oor Hoppscotch",
     "forum": "Stel vrae en kry antwoorde",
+    "github": "Follow us on Github",
     "shortcuts": "Blaai vinniger deur die app",
     "team": "Kontak die span",
     "title": "Ondersteuning",

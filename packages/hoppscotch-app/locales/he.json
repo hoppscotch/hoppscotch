@@ -9,6 +9,7 @@
     "delete": "לִמְחוֹק",
     "disconnect": "לְנַתֵק",
     "dismiss": "לשחרר",
+    "dont_save": "Don't save",
     "download_file": "הורד קובץ",
     "duplicate": "Duplicate",
     "edit": "לַעֲרוֹך",
@@ -44,6 +45,10 @@
     "chat_with_us": "שוחח עימנו",
     "contact_us": "צור קשר",
     "copy": "עותק",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "תיעוד",
     "github": "GitHub",
     "help": "עזרה, משוב ו תיעוד",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "קיצורי דרך במקלדת",
     "name": "הופסקוץ '",
     "new_version_found": "נמצאה גרסה חדשה. רענן לעדכון.",
+    "options": "Options",
     "proxy_privacy_policy": "מדיניות הפרטיות של פרוקסי",
     "reload": "לִטעוֹן מִחָדָשׁ",
     "search": "לחפש",
@@ -62,6 +68,7 @@
     "shortcuts": "קיצורי דרך",
     "spotlight": "זַרקוֹר",
     "status": "סטָטוּס",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "תנאים ופרטיות",
     "twitter": "טוויטר",
     "type_a_command_search": "הקלד פקודה או חפש ...",
@@ -124,6 +131,7 @@
     "remove_request": "האם אתה בטוח שברצונך למחוק בקשה זו לצמיתות?",
     "remove_team": "האם אתה בטוח שברצונך למחוק את הצוות הזה?",
     "remove_telemetry": "האם אתה בטוח שברצונך לבטל את הסכמתך לטלמטריה?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "האם אתה בטוח שברצונך לסנכרן את סביבת העבודה הזו?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "צור סביבה חדשה",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "ערוך את הסביבה",
     "invalid_name": "אנא ספק שם חוקי לסביבה",
@@ -233,6 +242,7 @@
     "tests": "כתוב סקריפט בדיקה כדי לבצע ניפוי באגים באופן אוטומטי."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "הסתר עוד",
     "preview": "הסתר תצוגה מקדימה",
     "sidebar": "הסתר את סרגל הצד"
@@ -259,7 +269,10 @@
     "title": "יְבוּא"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "מצב זן"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "אנא ספק שם לבקשה",
     "method": "שיטה",
     "name": "שם הבקשה",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "פרמטרי שאילתה",
     "parameters": "פרמטרים",
     "path": "נָתִיב",
@@ -339,6 +356,7 @@
     "save_as": "שמור כ",
     "saved": "הבקשה נשמרה",
     "share": "לַחֲלוֹק",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "בַּקָשָׁה",
     "type": "סוג בקשה",
     "url": "כתובת URL",
@@ -378,6 +396,7 @@
     "extension_version": "גרסת הרחבה",
     "extensions": "הרחבות",
     "extensions_use_toggle": "השתמש בתוסף הדפדפן כדי לשלוח בקשות (אם קיימות)",
+    "follow": "Follow Us",
     "font_size": "גודל גופן",
     "font_size_large": "גָדוֹל",
     "font_size_medium": "בינוני",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "הצג קוד",
+    "collection": "Expand Collection Panel",
     "more": "להראות יותר",
     "sidebar": "הצג סרגל צד"
   },
@@ -505,6 +525,7 @@
     "community": "שאל שאלות ועזור לאחרים",
     "documentation": "קרא עוד על הופסקוטש",
     "forum": "שאל שאלות וקבל תשובות",
+    "github": "Follow us on Github",
     "shortcuts": "עיון באפליקציה מהר יותר",
     "team": "צרו קשר עם הצוות",
     "title": "תמיכה",

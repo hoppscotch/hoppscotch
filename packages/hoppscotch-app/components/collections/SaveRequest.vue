@@ -233,6 +233,7 @@ const saveRequestAs = async () => {
       originLocation: "user-collection",
       folderPath: picked.value.folderPath,
       requestIndex: picked.value.requestIndex,
+      req: cloneDeep(requestUpdated),
     })
 
     requestSaved()
@@ -249,6 +250,7 @@ const saveRequestAs = async () => {
       originLocation: "user-collection",
       folderPath: picked.value.folderPath,
       requestIndex: insertionIndex,
+      req: cloneDeep(requestUpdated),
     })
 
     requestSaved()
@@ -265,6 +267,7 @@ const saveRequestAs = async () => {
       originLocation: "user-collection",
       folderPath: `${picked.value.collectionIndex}`,
       requestIndex: insertionIndex,
+      req: cloneDeep(requestUpdated),
     })
 
     requestSaved()
@@ -293,6 +296,7 @@ const saveRequestAs = async () => {
     setRESTSaveContext({
       originLocation: "team-collection",
       requestID: picked.value.requestID,
+      req: cloneDeep(requestUpdated),
     })
   } else if (picked.value.pickedType === "teams-folder") {
     if (!isHoppRESTRequest(requestUpdated))
@@ -319,6 +323,7 @@ const saveRequestAs = async () => {
         requestID: result.right.createRequestInCollection.id,
         teamID: collectionsType.value.selectedTeam.id,
         collectionID: picked.value.folderID,
+        req: cloneDeep(requestUpdated),
       })
 
       requestSaved()
@@ -348,6 +353,7 @@ const saveRequestAs = async () => {
         requestID: result.right.createRequestInCollection.id,
         teamID: collectionsType.value.selectedTeam.id,
         collectionID: picked.value.collectionID,
+        req: cloneDeep(requestUpdated),
       })
 
       requestSaved()

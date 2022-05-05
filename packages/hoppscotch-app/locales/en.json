@@ -513,6 +513,7 @@
     "disconnected_from": "Disconnected from {name}",
     "docs_generated": "Documentation generated",
     "download_started": "Download started",
+    "duplicated": "Duplicated",
     "enabled": "Enabled",
     "file_imported": "File imported",
     "finished_in": "Finished in {duration} ms",

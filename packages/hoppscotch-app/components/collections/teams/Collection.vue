@@ -364,25 +364,21 @@ const exportCollection = async () => {
   options.tippy().hide()
 }
 
-const editRequest = (event: any) => {
+const select = () =>
+  emit("select", {
+    picked: {
+      pickedType: "teams-collection",
+      collectionID: props.collection.id,
+    },
+  })
+
+const editRequest = (event: Event) => {
   emit("edit-request", event)
-  if (props.saveRequest)
-    emit("select", {
-      picked: {
-        pickedType: "teams-collection",
-        collectionID: props.collection.id,
-      },
-    })
+  if (props.saveRequest) select()
 }
 
 const toggleShowChildren = () => {
-  if (props.saveRequest)
-    emit("select", {
-      picked: {
-        pickedType: "teams-collection",
-        collectionID: props.collection.id,
-      },
-    })
+  if (props.saveRequest) select()
 
   emit("expand-collection", props.collection.id)
   showChildren.value = !showChildren.value

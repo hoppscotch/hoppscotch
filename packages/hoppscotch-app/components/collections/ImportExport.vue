@@ -197,7 +197,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
-  (e: "update-team-collections"): void
 }>()
 
 const axios = useAxios()
@@ -309,8 +308,6 @@ const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
 
   if (E.isLeft(result)) {
     console.error(result.left)
-  } else {
-    emit("update-team-collections")
   }
 
   importingMyCollections.value = false
@@ -354,6 +351,7 @@ const finishImport = async () => {
   await importerAction(stepResults.value)
 }
 
+// FIXME
 const importerAction = async (stepResults: any[]) => {
   if (!importerModule.value) return
   const result = await importerModule.value?.importer(stepResults as any)()

@@ -162,7 +162,6 @@
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
-          @update-team-collections="$emit('update-team-collections')"
           @select="$emit('select', $event)"
           @expand-collection="$emit('expand-collection', $event)"
           @remove-request="$emit('remove-request', $event)"

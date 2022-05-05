@@ -14,7 +14,7 @@
         />
       </div>
       <CollectionsChooseType
-        :collections-type="collectionsType"
+        :collections-type="collectionsObject"
         :show="showTeamCollections"
         :doc="doc"
         @update-collection-type="updateCollectionType"
@@ -23,9 +23,9 @@
       <div class="flex justify-between flex-1">
         <ButtonSecondary
           v-if="
-            collectionsType.type == 'team-collections' &&
-            (collectionsType.selectedTeam == undefined ||
-              collectionsType.selectedTeam.myRole == 'VIEWER')
+            collectionsObject.type === 'team-collections' &&
+            (collectionsObject.selectedTeam === undefined ||
+              collectionsObject.selectedTeam.myRole === 'VIEWER')
           "
           v-tippy="{ theme: 'tooltip' }"
           disabled
@@ -53,8 +53,8 @@
             v-if="!saveRequest"
             v-tippy="{ theme: 'tooltip' }"
             :disabled="
-              collectionsType.type == 'team-collections' &&
-              collectionsType.selectedTeam == undefined
+              collectionsObject.type == 'team-collections' &&
+              collectionsObject.selectedTeam == undefined
             "
             svg="archive"
             :title="$t('modal.import_export')"
@@ -66,7 +66,7 @@
     <div class="flex flex-col flex-1">
       <component
         :is="
-          collectionsType.type == 'my-collections'
+          collectionsObject.type === 'my-collections'
             ? 'CollectionsMyCollection'
             : 'CollectionsTeamsCollection'
         "
@@ -78,7 +78,7 @@
         :is-filtered="filterText.length > 0"
         :selected="selected.some((coll) => coll == collection)"
         :save-request="saveRequest"
-        :collections-type="collectionsType"
+        :collections-type="collectionsObject"
         :picked="picked"
         :loading-collection-i-ds="loadingCollectionIDs"
         @edit-collection="editCollection(collection, index)"
@@ -87,7 +87,6 @@
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
         @duplicate-request="duplicateRequest($event)"
-        @update-team-collections="updateTeamCollections"
         @select-collection="$emit('use-collection', collection)"
         @unselect-collection="$emit('remove-collection', collection)"
         @select="$emit('select', $event)"
@@ -119,9 +118,9 @@
       </span>
       <ButtonSecondary
         v-if="
-          collectionsType.type == 'team-collections' &&
-          (collectionsType.selectedTeam == undefined ||
-            collectionsType.selectedTeam.myRole == 'VIEWER')
+          collectionsObject.type === 'team-collections' &&
+          (collectionsObject.selectedTeam === undefined ||
+            collectionsObject.selectedTeam.myRole === 'VIEWER')
         "
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('team.no_access')"
@@ -163,14 +162,6 @@
       @hide-modal="displayModalEdit(false)"
       @submit="updateEditingCollection"
     />
-    <CollectionsAddRequest
-      :show="showModalAddRequest"
-      :folder="editingFolder"
-      :folder-path="editingFolderPath"
-      :loading-state="modalLoadingState"
-      @add-request="onAddRequest($event)"
-      @hide-modal="displayModalAddRequest(false)"
-    />
     <CollectionsAddFolder
       :show="showModalAddFolder"
       :folder="editingFolder"
@@ -188,6 +179,14 @@
       @submit="updateEditingFolder"
       @hide-modal="displayModalEditFolder(false)"
     />
+    <CollectionsAddRequest
+      :show="showModalAddRequest"
+      :folder="editingFolder"
+      :folder-path="editingFolderPath"
+      :loading-state="modalLoadingState"
+      @add-request="onAddRequest($event)"
+      @hide-modal="displayModalAddRequest(false)"
+    />
     <CollectionsEditRequest
       :show="showModalEditRequest"
       :editing-request-name="editingRequest?.name || ''"
@@ -197,9 +196,8 @@
     />
     <CollectionsImportExport
       :show="showModalImportExport"
-      :collections-type="collectionsType"
+      :collections-type="collectionsObject"
       @hide-modal="displayModalImportExport(false)"
-      @update-team-collections="updateTeamCollections"
     />
     <SmartConfirmModal
       :show="showConfirmModal"
@@ -211,13 +209,15 @@
   </div>
 </template>
 
-<script>
+<script setup lang="ts">
 import cloneDeep from "lodash/cloneDeep"
-import { defineComponent } from "@nuxtjs/composition-api"
-import { makeCollection } from "@hoppscotch/data"
+import { ref, watchEffect, computed, watch, Ref } from "@nuxtjs/composition-api"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  makeCollection,
+} from "@hoppscotch/data"
 import * as E from "fp-ts/Either"
-import CollectionsMyCollection from "./my/Collection.vue"
-import CollectionsTeamsCollection from "./teams/Collection.vue"
 import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
@@ -236,6 +236,8 @@ import { setRESTRequest, getRESTRequest } from "~/newstore/RESTSession"
 import {
   useReadonlyStream,
   useStreamSubscriber,
+  useToast,
+  useI18n,
 } from "~/helpers/utils/composables"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import {
@@ -246,661 +248,948 @@ import {
   DeleteRequestDocument,
   RenameCollectionDocument,
   UpdateRequestDocument,
+  Team,
 } from "~/helpers/backend/graphql"
+import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
-export default defineComponent({
-  components: {
-    CollectionsMyCollection,
-    CollectionsTeamsCollection,
-  },
-  props: {
-    doc: Boolean,
-    selected: { type: Array, default: () => [] },
-    saveRequest: Boolean,
-    picked: { type: Object, default: () => {} },
-  },
-  setup() {
-    const { subscribeToStream } = useStreamSubscriber()
+// TODO: check if all ref params are accessed using .value
 
-    return {
-      subscribeTo: subscribeToStream,
-
-      collections: useReadonlyStream(restCollections$, []),
-      currentUser: useReadonlyStream(currentUser$, null),
+/*
+ * Types
+ */
+type HoppRESTCollection = HoppCollection<HoppRESTRequest>
+type CollectionType = "my-collections" | "team-collections"
+export type CollectionObject =
+  | {
+      type: "my-collections"
     }
-  },
-  data() {
-    return {
-      showModalAdd: false,
-      showModalEdit: false,
-      showModalImportExport: false,
-      showModalAddRequest: false,
-      showModalAddFolder: false,
-      showModalEditFolder: false,
-      showModalEditRequest: false,
-      showConfirmModal: false,
-      modalLoadingState: false,
-      editingCollection: undefined,
-      editingCollectionIndex: undefined,
-      editingCollectionID: undefined,
-      editingFolder: undefined,
-      editingFolderName: undefined,
-      editingFolderIndex: undefined,
-      editingFolderPath: undefined,
-      editingRequest: undefined,
-      editingRequestIndex: undefined,
-      confirmModalTitle: undefined,
-      filterText: "",
-      collectionsType: {
-        type: "my-collections",
-        selectedTeam: undefined,
-      },
-      teamCollectionAdapter: new TeamCollectionAdapter(null),
-      teamCollectionsNew: [],
-      loadingCollectionIDs: [],
+  | {
+      type: "team-collections"
+      selectedTeam: Team
     }
-  },
-  computed: {
-    showTeamCollections() {
-      if (this.currentUser == null) {
-        return false
+export type Picked =
+  | {
+      pickedType: "my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "my-collection"
+      collectionIndex: number
+    }
+  | {
+      pickedType: "teams-request"
+      requestID: string
+    }
+  | {
+      pickedType: "teams-folder"
+      folderID: string
+    }
+  | {
+      pickedType: "teams-collection"
+      collectionID: string
+    }
+  | {
+      pickedType: "gql-my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "gql-my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "gql-my-collection"
+      collectionIndex: number
+    }
+  | null
+
+/*
+ * User message utils
+ */
+const toast = useToast()
+const t = useI18n()
+
+/*
+ * Props
+ */
+const props = defineProps<{
+  docProp?: boolean
+  selectedProp?: Array<HoppRESTCollection>
+  saveRequestProp?: boolean
+  pickedProp?: Picked
+}>()
+
+/*
+ * Computed properties
+ */
+
+const doc = computed(() => (props.docProp ? props.docProp : false))
+const selected = computed(() => (props.selectedProp ? props.selectedProp : []))
+const saveRequest = computed(() =>
+  props.saveRequestProp ? props.saveRequestProp : false
+)
+const picked = computed(() =>
+  props.pickedProp !== undefined ? props.pickedProp : null
+)
+
+const showTeamCollections = computed(() => !!currentUser.value)
+// TODO: requires some investigation
+const filteredCollections = computed(() => {
+  const collectionsValue =
+    collectionsObject.value.type === "my-collections"
+      ? collections.value
+      : teamCollectionsNew.value
+
+  if (!filterText.value) return collectionsValue
+  if (collectionsObject.value.type === "team-collections") return []
+
+  const filterTextValue = filterText.value.toLowerCase()
+  const filteredCollections = []
+
+  for (const collection of collectionsValue) {
+    const filteredRequests = []
+    const filteredFolders = []
+    // @ts-ignore
+    for (const request of collection.requests) {
+      // @ts-ignore
+      if (request.name.toLowerCase().includes(filterTextValue))
+        filteredRequests.push(request)
+    }
+    // FIXME
+    // @ts-ignore
+    for (const folder of collectionsObject.value.type === "team-collections"
+      ? // FIXME
+        (collection as any).children
+      : // @ts-ignore
+        collection.folders) {
+      const filteredFolderRequests = []
+      for (const request of folder.requests) {
+        if (request.name.toLowerCase().includes(filterText.value))
+          filteredFolderRequests.push(request)
       }
-      return true
-    },
-    filteredCollections() {
-      const collections =
-        this.collectionsType.type === "my-collections"
-          ? this.collections
-          : this.teamCollectionsNew
-
-      if (!this.filterText) {
-        return collections
+      if (filteredFolderRequests.length > 0) {
+        const filteredFolder = Object.assign({}, folder)
+        filteredFolder.requests = filteredFolderRequests
+        filteredFolders.push(filteredFolder)
       }
+    }
 
-      if (this.collectionsType.type === "team-collections") {
-        return []
-      }
+    if (
+      filteredRequests.length + filteredFolders.length > 0 ||
+      // @ts-ignore
+      collection.name.toLowerCase().includes(filterText.value)
+    ) {
+      const filteredCollection = Object.assign({}, collection)
+      // @ts-ignore
+      filteredCollection.requests = filteredRequests
+      // @ts-ignore
+      filteredCollection.folders = filteredFolders
+      filteredCollections.push(filteredCollection)
+    }
+  }
 
-      const filterText = this.filterText.toLowerCase()
-      const filteredCollections = []
+  return filteredCollections
+})
 
-      for (const collection of collections) {
-        const filteredRequests = []
-        const filteredFolders = []
-        for (const request of collection.requests) {
-          if (request.name.toLowerCase().includes(filterText))
-            filteredRequests.push(request)
-        }
-        for (const folder of this.collectionsType.type === "team-collections"
-          ? collection.children
-          : collection.folders) {
-          const filteredFolderRequests = []
-          for (const request of folder.requests) {
-            if (request.name.toLowerCase().includes(filterText))
-              filteredFolderRequests.push(request)
-          }
-          if (filteredFolderRequests.length > 0) {
-            const filteredFolder = Object.assign({}, folder)
-            filteredFolder.requests = filteredFolderRequests
-            filteredFolders.push(filteredFolder)
-          }
-        }
+/*
+ * Emit declarations
+ */
+const emit = defineEmits<{
+  (e: "update-collections", collectionType: CollectionType): void
+  (e: "update-coll-type", collectionsObject: Ref<CollectionObject>): void
+  (e: "select-request", requestIndex: number): void
+  (e: "select", pickedObj: { picked: Picked }): void
+}>()
 
-        if (
-          filteredRequests.length + filteredFolders.length > 0 ||
-          collection.name.toLowerCase().includes(filterText)
-        ) {
-          const filteredCollection = Object.assign({}, collection)
-          filteredCollection.requests = filteredRequests
-          filteredCollection.folders = filteredFolders
-          filteredCollections.push(filteredCollection)
-        }
-      }
+/*
+ * Modal props
+ */
+const editingCollection: Ref<HoppRESTCollection | undefined> = ref(undefined)
+const editingCollectionIndex: Ref<number> = ref(-1)
+const editingCollectionID: Ref<string> = ref("")
+const editingFolder: Ref<HoppRESTCollection | undefined> = ref(undefined)
+const editingFolderName: Ref<string> = ref("")
+const editingFolderIndex: Ref<number> = ref(-1)
+const editingFolderPath: Ref<string> = ref("")
+const editingRequest: Ref<HoppRESTRequest | undefined> = ref(undefined)
+const editingRequestIndex: Ref<number> = ref(-1)
 
-      return filteredCollections
-    },
-  },
-  watch: {
-    "collectionsType.type": function emitstuff() {
-      this.$emit("update-collection", this.$data.collectionsType.type)
-    },
-    "collectionsType.selectedTeam"(value) {
-      if (value?.id) this.teamCollectionAdapter.changeTeamID(value.id)
-    },
-    currentUser(newValue) {
-      if (!newValue) this.updateCollectionType("my-collections")
-    },
-  },
-  mounted() {
-    this.subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
-      this.teamCollectionsNew = cloneDeep(colls)
-    })
-    this.subscribeTo(
-      this.teamCollectionAdapter.loadingCollections$,
-      (collectionsIDs) => {
-        this.loadingCollectionIDs = collectionsIDs
-      }
-    )
-  },
-  methods: {
-    updateTeamCollections() {
-      // TODO: Remove this at some point
-    },
-    updateSelectedTeam(newSelectedTeam) {
-      this.collectionsType.selectedTeam = newSelectedTeam
-      this.$emit("update-coll-type", this.collectionsType)
-    },
-    updateCollectionType(newCollectionType) {
-      this.collectionsType.type = newCollectionType
-      this.$emit("update-coll-type", this.collectionsType)
-    },
-    // Intented to be called by the CollectionAdd modal submit event
-    addNewRootCollection(name) {
-      if (this.collectionsType.type === "my-collections") {
-        addRESTCollection(
-          makeCollection({
-            name,
-            folders: [],
-            requests: [],
-          })
-        )
+// TODO: a more apt description
+/*
+ * Global Variables
+ */
+const filterText = ref("")
+const collectionsObject = ref<CollectionObject>({
+  type: "my-collections",
+})
 
-        this.displayModalAdd(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
-        runMutation(CreateNewRootCollectionDocument, {
-          title: name,
-          teamID: this.collectionsType.selectedTeam.id,
-        })().then((result) => {
-          this.modalLoadingState = false
-          if (E.isLeft(result)) {
-            if (result.left.error === "team_coll/short_title")
-              this.$toast.error(this.$t("collection.name_length_insufficient"))
-            else this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.$toast.success(this.$t("collection.created"))
-            this.displayModalAdd(false)
-          }
-        })
-      }
-    },
-    // Intented to be called by CollectionEdit modal submit event
-    updateEditingCollection(newName) {
-      if (!newName) {
-        this.$toast.error(this.$t("collection.invalid_name"))
-        return
-      }
-      if (this.collectionsType.type === "my-collections") {
-        const collectionUpdated = {
-          ...this.editingCollection,
-          name: newName,
-        }
+const teamCollectionAdapter = new TeamCollectionAdapter(null)
+const teamCollectionsNew: Ref<TeamCollection[]> = ref([])
+const loadingCollectionIDs: Ref<string[]> = ref([])
 
-        editRESTCollection(this.editingCollectionIndex, collectionUpdated)
-        this.displayModalEdit(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
+/*
+ * Subsciptions
+ */
+const { subscribeToStream } = useStreamSubscriber()
+const collections = useReadonlyStream(restCollections$, [])
+const currentUser = useReadonlyStream(currentUser$, null)
 
-        runMutation(RenameCollectionDocument, {
-          collectionID: this.editingCollection.id,
-          newTitle: newName,
-        })().then((result) => {
-          this.modalLoadingState = false
+subscribeToStream(teamCollectionAdapter.collections$, (colls) => {
+  teamCollectionsNew.value = cloneDeep(colls)
+})
+subscribeToStream(
+  teamCollectionAdapter.loadingCollections$,
+  (collectionsIDs) => {
+    loadingCollectionIDs.value = collectionsIDs
+  }
+)
 
-          if (E.isLeft(result)) {
-            this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.$toast.success(this.$t("collection.renamed"))
-            this.displayModalEdit(false)
-          }
-        })
-      }
-    },
-    // Intended to be called by CollectionEditFolder modal submit event
-    updateEditingFolder(name) {
-      if (this.collectionsType.type === "my-collections") {
-        editRESTFolder(this.editingFolderPath, { ...this.editingFolder, name })
-        this.displayModalEditFolder(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
+/*
+ * Watchers
+ */
+watch(
+  () => collectionsObject.value.type,
+  (type) => {
+    if (type) emit("update-collections", type)
+  }
+)
+watchEffect(() => {
+  if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.id
+  )
+    teamCollectionAdapter.changeTeamID(collectionsObject.value.selectedTeam.id)
+})
+// TODO: verify this werks
+watchEffect(() => {
+  if (currentUser.value) {
+    updateCollectionType("team-collections")
+  }
+})
 
-        runMutation(RenameCollectionDocument, {
-          collectionID: this.editingFolder.id,
-          newTitle: name,
-        })().then((result) => {
-          this.modalLoadingState = false
+/*
+ * Methods =====================================================================
+ */
 
-          if (E.isLeft(result)) {
-            if (result.left.error === "team_coll/short_title")
-              this.$toast.error(this.$t("folder.name_length_insufficient"))
-            else this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.$toast.success(this.$t("folder.renamed"))
-            this.displayModalEditFolder(false)
-          }
-        })
-      }
-    },
-    // Intented to by called by CollectionsEditRequest modal submit event
-    updateEditingRequest(requestName) {
-      const requestUpdated = {
-        ...this.editingRequest,
-        ...(requestName && { name: requestName }),
-      }
+/*
+ * Reset Modal Prop Data
+ */
+const resetSelectedData = () => {
+  editingCollection.value = undefined
+  editingCollectionIndex.value = 1
+  editingCollectionID.value = ""
+  editingFolder.value = undefined
+  editingFolderName.value = ""
+  editingFolderIndex.value = -1
+  editingFolderPath.value = ""
+  editingRequest.value = undefined
+  editingRequestIndex.value = -1
+  confirmModalTitle.value = ""
+}
 
-      if (this.collectionsType.type === "my-collections") {
-        editRESTRequest(
-          this.editingFolderPath,
-          this.editingRequestIndex,
-          requestUpdated
-        )
-        this.displayModalEditRequest(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
+/*
+ * Modal Loading State
+ */
+const modalLoadingState = ref(false)
+const setModalLoadingState = (loading: boolean) => {
+  modalLoadingState.value = loading
+}
 
-        runMutation(UpdateRequestDocument, {
-          data: {
-            request: JSON.stringify(requestUpdated),
-            title: requestName || this.editingRequest.name,
-          },
-          requestID: this.editingRequestIndex,
-        })().then((result) => {
-          this.modalLoadingState = false
+/*
+ * Import Export Modal
+ */
+const showModalImportExport = ref(false)
+const displayModalImportExport = (shouldDisplay: boolean) => {
+  showModalImportExport.value = shouldDisplay
+}
 
-          if (E.isLeft(result)) {
-            this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.$toast.success(this.$t("request.renamed"))
-            this.$emit("update-team-collections")
-            this.displayModalEditRequest(false)
-          }
-        })
-      }
-    },
-    displayModalAdd(shouldDisplay) {
-      this.showModalAdd = shouldDisplay
-    },
-    displayModalEdit(shouldDisplay) {
-      this.showModalEdit = shouldDisplay
+/**
+ * Sets the selected team locally and emits the update event
+ * @param newSelectedTeam
+ */
+const updateSelectedTeam = (newSelectedTeam: Team) => {
+  if (collectionsObject.value.type === "team-collections") {
+    collectionsObject.value.selectedTeam = newSelectedTeam
+    emit("update-coll-type", collectionsObject)
+  }
+}
 
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    displayModalImportExport(shouldDisplay) {
-      this.showModalImportExport = shouldDisplay
-    },
-    displayModalAddRequest(shouldDisplay) {
-      this.showModalAddRequest = shouldDisplay
+/**
+ * Updates the local collection type and emits the event
+ * @param newCollectionType
+ */
+const updateCollectionType = (newCollectionType: CollectionType) => {
+  collectionsObject.value.type = newCollectionType
+  emit("update-coll-type", collectionsObject)
+}
 
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    displayModalAddFolder(shouldDisplay) {
-      this.showModalAddFolder = shouldDisplay
+/*
+ * Add Collection Modal
+ */
 
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    displayModalEditFolder(shouldDisplay) {
-      this.showModalEditFolder = shouldDisplay
+const showModalAdd = ref(false)
+const displayModalAdd = (shouldDisplay: boolean) => {
+  showModalAdd.value = shouldDisplay
+}
 
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    displayModalEditRequest(shouldDisplay) {
-      this.showModalEditRequest = shouldDisplay
-
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    displayConfirmModal(shouldDisplay) {
-      this.showConfirmModal = shouldDisplay
-
-      if (!shouldDisplay) this.resetSelectedData()
-    },
-    editCollection(collection, collectionIndex) {
-      this.$data.editingCollection = collection
-      this.$data.editingCollectionIndex = collectionIndex
-      this.displayModalEdit(true)
-    },
-    onAddFolder({ name, folder, path }) {
-      if (this.collectionsType.type === "my-collections") {
-        addRESTFolder(name, path)
-        this.displayModalAddFolder(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
-        runMutation(CreateChildCollectionDocument, {
-          childTitle: name,
-          collectionID: folder.id,
-        })().then((result) => {
-          this.modalLoadingState = false
-          if (E.isLeft(result)) {
-            if (result.left.error === "team_coll/short_title")
-              this.$toast.error(this.$t("folder.name_length_insufficient"))
-            else this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.$toast.success(this.$t("folder.created"))
-            this.displayModalAddFolder(false)
-            this.$emit("update-team-collections")
-          }
-        })
-      }
-    },
-    addFolder(payload) {
-      const { folder, path } = payload
-      this.$data.editingFolder = folder
-      this.$data.editingFolderPath = path
-      this.displayModalAddFolder(true)
-    },
-    editFolder(payload) {
-      const { collectionIndex, folder, folderIndex, folderPath } = payload
-      this.$data.editingCollectionIndex = collectionIndex
-      this.$data.editingFolder = folder
-      this.$data.editingFolderIndex = folderIndex
-      this.$data.editingFolderPath = folderPath
-      this.$data.collectionsType = this.collectionsType
-      this.displayModalEditFolder(true)
-    },
-    editRequest(payload) {
-      const {
-        collectionIndex,
-        folderIndex,
-        folderName,
-        request,
-        requestIndex,
-        folderPath,
-      } = payload
-      this.$data.editingCollectionIndex = collectionIndex
-      this.$data.editingFolderIndex = folderIndex
-      this.$data.editingFolderName = folderName
-      this.$data.editingRequest = request
-      this.$data.editingRequestIndex = requestIndex
-      this.editingFolderPath = folderPath
-      this.$emit("select-request", requestIndex)
-      this.displayModalEditRequest(true)
-    },
-    resetSelectedData() {
-      this.$data.editingCollection = undefined
-      this.$data.editingCollectionIndex = undefined
-      this.$data.editingCollectionID = undefined
-      this.$data.editingFolder = undefined
-      this.$data.editingFolderPath = undefined
-      this.$data.editingFolderIndex = undefined
-      this.$data.editingRequest = undefined
-      this.$data.editingRequestIndex = undefined
-
-      this.$data.confirmModalTitle = undefined
-    },
-    expandCollection(collectionID) {
-      this.teamCollectionAdapter.expandCollection(collectionID)
-    },
-    removeCollection({ collectionIndex, collectionID }) {
-      this.$data.editingCollectionIndex = collectionIndex
-      this.$data.editingCollectionID = collectionID
-      this.confirmModalTitle = `${this.$t("confirm.remove_collection")}`
-
-      this.displayConfirmModal(true)
-    },
-    onRemoveCollection() {
-      const collectionIndex = this.$data.editingCollectionIndex
-      const collectionID = this.$data.editingCollectionID
-
-      if (this.collectionsType.type === "my-collections") {
-        // Cancel pick if picked collection is deleted
-        if (
-          this.picked &&
-          this.picked.pickedType === "my-collection" &&
-          this.picked.collectionIndex === collectionIndex
-        ) {
-          this.$emit("select", { picked: null })
-        }
-
-        removeRESTCollection(collectionIndex)
-
-        this.$toast.success(this.$t("state.deleted"))
-        this.displayConfirmModal(false)
-      } else if (this.collectionsType.type === "team-collections") {
-        this.modalLoadingState = true
-
-        // Cancel pick if picked collection is deleted
-        if (
-          this.picked &&
-          this.picked.pickedType === "teams-collection" &&
-          this.picked.collectionID === collectionID
-        ) {
-          this.$emit("select", { picked: null })
-        }
-
-        if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
-          runMutation(DeleteCollectionDocument, {
-            collectionID,
-          })().then((result) => {
-            this.modalLoadingState = false
-            if (E.isLeft(result)) {
-              this.$toast.error(this.$t("error.something_went_wrong"))
-              console.error(result.left.error)
-            } else {
-              this.$toast.success(this.$t("state.deleted"))
-              this.displayConfirmModal(false)
-            }
-          })
-        }
-      }
-    },
-    removeFolder({ folder, folderPath }) {
-      this.$data.editingFolder = folder
-      this.$data.editingFolderPath = folderPath
-      this.confirmModalTitle = `${this.$t("confirm.remove_folder")}`
-
-      this.displayConfirmModal(true)
-    },
-    onRemoveFolder() {
-      const folder = this.$data.editingFolder
-      const folderPath = this.$data.editingFolderPath
-
-      if (this.collectionsType.type === "my-collections") {
-        // Cancel pick if picked folder was deleted
-        if (
-          this.picked &&
-          this.picked.pickedType === "my-folder" &&
-          this.picked.folderPath === folderPath
-        ) {
-          this.$emit("select", { picked: null })
-        }
-        removeRESTFolder(folderPath)
-
-        this.$toast.success(this.$t("state.deleted"))
-        this.displayConfirmModal(false)
-      } else if (this.collectionsType.type === "team-collections") {
-        this.modalLoadingState = true
-
-        // Cancel pick if picked collection folder was deleted
-        if (
-          this.picked &&
-          this.picked.pickedType === "teams-folder" &&
-          this.picked.folderID === folder.id
-        ) {
-          this.$emit("select", { picked: null })
-        }
-
-        if (this.collectionsType.selectedTeam.myRole !== "VIEWER") {
-          runMutation(DeleteCollectionDocument, {
-            collectionID: folder.id,
-          })().then((result) => {
-            this.modalLoadingState = false
-
-            if (E.isLeft(result)) {
-              this.$toast.error(`${this.$t("error.something_went_wrong")}`)
-              console.error(result.left.error)
-            } else {
-              this.$toast.success(`${this.$t("state.deleted")}`)
-              this.displayConfirmModal(false)
-
-              this.updateTeamCollections()
-            }
-          })
-        }
-      }
-    },
-    removeRequest({ requestIndex, folderPath }) {
-      this.$data.editingRequestIndex = requestIndex
-      this.$data.editingFolderPath = folderPath
-      this.confirmModalTitle = `${this.$t("confirm.remove_request")}`
-
-      this.displayConfirmModal(true)
-    },
-    onRemoveRequest() {
-      const requestIndex = this.$data.editingRequestIndex
-      const folderPath = this.$data.editingFolderPath
-
-      if (this.collectionsType.type === "my-collections") {
-        // Cancel pick if the picked item is being deleted
-        if (
-          this.picked &&
-          this.picked.pickedType === "my-request" &&
-          this.picked.folderPath === folderPath &&
-          this.picked.requestIndex === requestIndex
-        ) {
-          this.$emit("select", { picked: null })
-        }
-        removeRESTRequest(folderPath, requestIndex)
-
-        this.$toast.success(this.$t("state.deleted"))
-        this.displayConfirmModal(false)
-      } else if (this.collectionsType.type === "team-collections") {
-        this.modalLoadingState = true
-        // Cancel pick if the picked item is being deleted
-        if (
-          this.picked &&
-          this.picked.pickedType === "teams-request" &&
-          this.picked.requestID === requestIndex
-        ) {
-          this.$emit("select", { picked: null })
-        }
-
-        runMutation(DeleteRequestDocument, {
-          requestID: requestIndex,
-        })().then((result) => {
-          this.modalLoadingState = false
-          if (E.isLeft(result)) {
-            this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.$toast.success(this.$t("state.deleted"))
-            this.displayConfirmModal(false)
-          }
-        })
-      }
-    },
-    addRequest(payload) {
-      // TODO: check if the request being worked on
-      // is being overwritten (selected or not)
-      const { folder, path } = payload
-      this.$data.editingFolder = folder
-      this.$data.editingFolderPath = path
-      this.displayModalAddRequest(true)
-    },
-    onAddRequest({ name, folder, path }) {
-      const newRequest = {
-        ...cloneDeep(getRESTRequest()),
+// Intented to be called by the CollectionAdd modal submit event
+const addNewRootCollection = (name: string) => {
+  if (collectionsObject.value.type === "my-collections") {
+    addRESTCollection(
+      makeCollection({
         name,
-      }
+        folders: [],
+        requests: [],
+      })
+    )
 
-      if (this.collectionsType.type === "my-collections") {
-        const insertionIndex = saveRESTRequestAs(path, newRequest)
+    displayModalAdd(false)
+  } else if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    setModalLoadingState(true)
+
+    runMutation(CreateNewRootCollectionDocument, {
+      title: name,
+      teamID: collectionsObject.value.selectedTeam.id,
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        if (result.left.error === "team_coll/short_title")
+          toast.error(t("collection.name_length_insufficient"))
+        else toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("collection.created"))
+        displayModalAdd(false)
+      }
+    })
+  }
+}
+
+/*
+ * Edit Collection Modal
+ */
+
+const showModalEdit = ref(false)
+const displayModalEdit = (shouldDisplay: boolean) => {
+  showModalEdit.value = shouldDisplay
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const editCollection = (
+  collection: HoppRESTCollection,
+  collectionIndex: number
+) => {
+  editingCollection.value = collection
+  editingCollectionIndex.value = collectionIndex
+  displayModalEdit(true)
+}
+
+// Intented to be called by CollectionEdit modal submit event
+const updateEditingCollection = (newName: string) => {
+  if (!newName) {
+    toast.error(t("collection.invalid_name"))
+    return
+  }
+  if (!editingCollection.value?.id) {
+    toast.error(t("error.something_went_wrong"))
+    console.error("Editing Collection ID is undefined")
+    return
+  }
+
+  if (collectionsObject.value.type === "my-collections") {
+    const collectionUpdated = {
+      ...editingCollection.value,
+      name: newName,
+    }
+
+    editRESTCollection(editingCollectionIndex.value, collectionUpdated)
+    displayModalEdit(false)
+  } else if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    setModalLoadingState(true)
+
+    runMutation(RenameCollectionDocument, {
+      collectionID: editingCollection.value.id,
+      newTitle: newName,
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("collection.renamed"))
+        displayModalEdit(false)
+      }
+    })
+  }
+}
+
+/*
+ * Remove Collection Modal
+ */
+
+const removeCollection = (payload: {
+  collectionIndex: number
+  collectionID: string
+}) => {
+  const { collectionIndex, collectionID } = payload
+
+  editingCollectionIndex.value = collectionIndex
+  editingCollectionID.value = collectionID
+  confirmModalTitle.value = `${t("confirm.remove_collection")}`
+
+  displayConfirmModal(true)
+}
+const onRemoveCollection = () => {
+  const collectionIndex = editingCollectionIndex.value
+  const collectionID = editingCollectionID.value
+
+  if (collectionsObject.value.type === "my-collections") {
+    // Cancel pick if picked collection is deleted
+    if (
+      picked.value &&
+      picked.value.pickedType === "my-collection" &&
+      picked.value.collectionIndex === collectionIndex
+    ) {
+      emit("select", { picked: null })
+    }
+
+    removeRESTCollection(collectionIndex)
+
+    toast.success(t("state.deleted"))
+    displayConfirmModal(false)
+  } else if (collectionsObject.value.type === "team-collections") {
+    setModalLoadingState(true)
+
+    // Cancel pick if picked collection is deleted
+    if (
+      picked.value &&
+      picked.value.pickedType === "teams-collection" &&
+      picked.value.collectionID === collectionID
+    ) {
+      emit("select", { picked: null })
+    }
+
+    if (collectionsObject.value.selectedTeam.myRole !== "VIEWER") {
+      runMutation(DeleteCollectionDocument, {
+        collectionID,
+      })().then((result) => {
+        setModalLoadingState(false)
+
+        if (E.isLeft(result)) {
+          toast.error(t("error.something_went_wrong"))
+          console.error(result.left.error)
+        } else {
+          toast.success(t("state.deleted"))
+          displayConfirmModal(false)
+        }
+      })
+    }
+  }
+}
+
+/*
+ * Expand Collection
+ */
+
+const expandCollection = (collectionID: string) => {
+  teamCollectionAdapter.expandCollection(collectionID)
+}
+
+/*
+ * Add Folder Modal
+ */
+
+const showModalAddFolder = ref(false)
+const displayModalAddFolder = (shouldDisplay: boolean) => {
+  showModalAddFolder.value = shouldDisplay
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const addFolder = (payload: { folder: HoppRESTCollection; path: string }) => {
+  const { folder, path } = payload
+  editingFolder.value = folder
+  editingFolderPath.value = path
+  displayModalAddFolder(true)
+}
+
+const onAddFolder = (payload: {
+  name: string
+  folder: HoppRESTCollection
+  path: string
+}) => {
+  const { name, folder, path } = payload
+  if (collectionsObject.value.type === "my-collections") {
+    addRESTFolder(name, path)
+    displayModalAddFolder(false)
+  } else if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    if (!folder.id) {
+      toast.error(t("error.something_went_wrong"))
+      console.error("Folder ID is undefined")
+      return
+    }
+
+    setModalLoadingState(true)
+
+    runMutation(CreateChildCollectionDocument, {
+      childTitle: name,
+      collectionID: folder.id,
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        if (result.left.error === "team_coll/short_title")
+          toast.error(t("folder.name_length_insufficient"))
+        else toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("folder.created"))
+        displayModalAddFolder(false)
+      }
+    })
+  }
+}
+
+/*
+ * Edit Folder Modal
+ */
+
+const showModalEditFolder = ref(false)
+const displayModalEditFolder = (shouldDisplay: boolean) => {
+  showModalEditFolder.value = shouldDisplay
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const editFolder = (payload: {
+  collectionIndex: number
+  folder: HoppRESTCollection
+  folderIndex: number
+  folderPath: string
+}) => {
+  const { collectionIndex, folder, folderIndex, folderPath } = payload
+  editingCollectionIndex.value = collectionIndex
+  editingFolder.value = folder
+  editingFolderIndex.value = folderIndex
+  editingFolderPath.value = folderPath
+  displayModalEditFolder(true)
+}
+
+// Intended to be called by CollectionEditFolder modal submit event
+const updateEditingFolder = (name: string) => {
+  if (!editingFolder.value?.id) {
+    toast.error(t("error.something_went_wrong"))
+    console.error("Editing Folder ID is undefined")
+    return
+  }
+
+  if (collectionsObject.value.type === "my-collections") {
+    editRESTFolder(editingFolderPath.value, { ...editingFolder.value, name })
+    displayModalEditFolder(false)
+  } else if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    setModalLoadingState(true)
+
+    runMutation(RenameCollectionDocument, {
+      collectionID: editingFolder.value.id,
+      newTitle: name,
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        if (result.left.error === "team_coll/short_title")
+          toast.error(t("folder.name_length_insufficient"))
+        else toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("folder.renamed"))
+        displayModalEditFolder(false)
+      }
+    })
+  }
+}
+
+/*
+ * Remove Folder Modal
+ */
+
+const removeFolder = (payload: {
+  folder: HoppRESTCollection
+  folderPath: string
+}) => {
+  const { folder, folderPath } = payload
+
+  editingFolder.value = folder
+  editingFolderPath.value = folderPath
+  confirmModalTitle.value = `${t("confirm.remove_folder")}`
+
+  displayConfirmModal(true)
+}
+
+const onRemoveFolder = () => {
+  const folder = editingFolder.value
+  const folderPath = editingFolderPath.value
+
+  if (collectionsObject.value.type === "my-collections") {
+    // Cancel pick if picked folder was deleted
+    if (
+      picked.value &&
+      picked.value.pickedType === "my-folder" &&
+      picked.value.folderPath === folderPath
+    ) {
+      emit("select", { picked: null })
+    }
+    removeRESTFolder(folderPath)
+
+    toast.success(t("state.deleted"))
+    displayConfirmModal(false)
+  } else if (collectionsObject.value.type === "team-collections") {
+    if (!folder?.id) {
+      toast.error(t("error.something_went_wrong"))
+      console.error("Folder ID is undefined")
+      return
+    }
+
+    setModalLoadingState(true)
+
+    // Cancel pick if picked collection folder was deleted
+    if (
+      picked.value &&
+      picked.value.pickedType === "teams-folder" &&
+      picked.value.folderID === folder.id
+    ) {
+      emit("select", { picked: null })
+    }
+
+    if (collectionsObject.value.selectedTeam.myRole !== "VIEWER") {
+      runMutation(DeleteCollectionDocument, {
+        collectionID: folder.id,
+      })().then((result) => {
+        setModalLoadingState(false)
+
+        if (E.isLeft(result)) {
+          toast.error(`${t("error.something_went_wrong")}`)
+          console.error(result.left.error)
+        } else {
+          toast.success(`${t("state.deleted")}`)
+          displayConfirmModal(false)
+        }
+      })
+    }
+  }
+}
+
+/*
+ * Add Request Modal
+ */
+
+const showModalAddRequest = ref(false)
+const displayModalAddRequest = (shouldDisplay: boolean) => {
+  showModalAddRequest.value = shouldDisplay
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const addRequest = (payload: { folder: HoppRESTCollection; path: string }) => {
+  // TODO: check if the request being worked on
+  // is being overwritten (selected or not)
+  const { folder, path } = payload
+  editingFolder.value = folder
+  editingFolderPath.value = path
+  displayModalAddRequest(true)
+}
+
+const onAddRequest = (payload: {
+  name: string
+  folder: HoppRESTCollection
+  path: string
+}) => {
+  const { name, folder, path } = payload
+
+  const newRequest = {
+    ...cloneDeep(getRESTRequest()),
+    name,
+  }
+
+  if (collectionsObject.value.type === "my-collections") {
+    const insertionIndex = saveRESTRequestAs(path, newRequest)
+    // point to it
+    setRESTRequest(newRequest, {
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex: insertionIndex,
+    })
+
+    displayModalAddRequest(false)
+  } else if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    if (!folder?.id) {
+      toast.error(t("error.something_went_wrong"))
+      console.error("Folder ID is undefined")
+      return
+    }
+
+    setModalLoadingState(true)
+
+    runMutation(CreateRequestInCollectionDocument, {
+      collectionID: folder.id,
+      data: {
+        request: JSON.stringify(newRequest),
+        teamID: collectionsObject.value.selectedTeam.id,
+        title: name,
+      },
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        const { createRequestInCollection } = result.right
         // point to it
         setRESTRequest(newRequest, {
-          originLocation: "user-collection",
-          folderPath: path,
-          requestIndex: insertionIndex,
+          originLocation: "team-collection",
+          requestID: createRequestInCollection.id,
+          collectionID: createRequestInCollection.collection.id,
+          teamID: createRequestInCollection.collection.team.id,
         })
 
-        this.displayModalAddRequest(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
-        runMutation(CreateRequestInCollectionDocument, {
-          collectionID: folder.id,
-          data: {
-            request: JSON.stringify(newRequest),
-            teamID: this.collectionsType.selectedTeam.id,
-            title: name,
-          },
-        })().then((result) => {
-          this.modalLoadingState = false
-          if (E.isLeft(result)) {
-            this.$toast.error(this.$t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            const { createRequestInCollection } = result.right
-            // point to it
-            setRESTRequest(newRequest, {
-              originLocation: "team-collection",
-              requestID: createRequestInCollection.id,
-              collectionID: createRequestInCollection.collection.id,
-              teamID: createRequestInCollection.collection.team.id,
-            })
-            this.displayModalAddRequest(false)
-          }
-        })
+        displayModalAddRequest(false)
       }
-    },
-    duplicateRequest({ folderPath, request, collectionID }) {
-      if (this.collectionsType.type === "team-collections") {
-        const newReq = {
-          ...cloneDeep(request),
-          name: `${request.name} - ${this.$t("action.duplicate")}`,
-        }
+    })
+  }
+}
 
-        // Error handling ?
-        runMutation(CreateRequestInCollectionDocument, {
-          collectionID,
-          data: {
-            request: JSON.stringify(newReq),
-            teamID: this.collectionsType.selectedTeam.id,
-            title: `${request.name} - ${this.$t("action.duplicate")}`,
-          },
-        })()
-      } else if (this.collectionsType.type === "my-collections") {
-        saveRESTRequestAs(folderPath, {
-          ...cloneDeep(request),
-          name: `${request.name} - ${this.$t("action.duplicate")}`,
-        })
+/*
+ * Edit Request Modal
+ */
+
+const showModalEditRequest = ref(false)
+const displayModalEditRequest = (shouldDisplay: boolean) => {
+  showModalEditRequest.value = shouldDisplay
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const editRequest = (payload: {
+  collectionIndex: number
+  folderIndex: number
+  folderName: string
+  request: HoppRESTRequest
+  requestIndex: number
+  folderPath: string
+}) => {
+  const {
+    collectionIndex,
+    folderIndex,
+    folderName,
+    request,
+    requestIndex,
+    folderPath,
+  } = payload
+  editingCollectionIndex.value = collectionIndex
+  editingFolderIndex.value = folderIndex
+  editingFolderName.value = folderName
+  editingRequest.value = request
+  editingRequestIndex.value = requestIndex
+  editingFolderPath.value = folderPath
+  emit("select-request", requestIndex)
+  displayModalEditRequest(true)
+}
+
+// Intented to by called by CollectionsEditRequest modal submit event
+const updateEditingRequest = (requestName: string) => {
+  if (!editingRequest.value) {
+    toast.error(t("error.something_went_wrong"))
+    console.error("No editing request")
+    return
+  }
+
+  const requestUpdated = {
+    ...editingRequest.value,
+    name: requestName,
+  }
+
+  if (collectionsObject.value.type === "my-collections") {
+    editRESTRequest(
+      editingFolderPath.value,
+      editingRequestIndex.value,
+      requestUpdated
+    )
+
+    displayModalEditRequest(false)
+  } else if (
+    collectionsObject.value.type === "team-collections" &&
+    collectionsObject.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    setModalLoadingState(true)
+
+    runMutation(UpdateRequestDocument, {
+      data: {
+        request: JSON.stringify(requestUpdated),
+        title: requestName || editingRequest.value?.name || "Untitled Request",
+      },
+      requestID: `${editingRequestIndex.value}`,
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("request.renamed"))
+        displayModalEditRequest(false)
       }
-    },
-    resolveConfirmModal(title) {
-      if (title === `${this.$t("confirm.remove_collection")}`)
-        this.onRemoveCollection()
-      else if (title === `${this.$t("confirm.remove_request")}`)
-        this.onRemoveRequest()
-      else if (title === `${this.$t("confirm.remove_folder")}`)
-        this.onRemoveFolder()
-      else {
-        console.error(
-          `Confirm modal title ${title} is not handled by the component`
-        )
-        this.$toast.error(this.$t("error.something_went_wrong"))
-        this.displayConfirmModal(false)
+    })
+  }
+}
+
+/*
+ * Remove Request Modal
+ */
+
+const removeRequest = (payload: {
+  requestIndex: number
+  folderPath: string
+}) => {
+  const { requestIndex, folderPath } = payload
+  editingRequestIndex.value = requestIndex
+  editingFolderPath.value = folderPath
+  confirmModalTitle.value = `${t("confirm.remove_request")}`
+
+  displayConfirmModal(true)
+}
+
+const onRemoveRequest = () => {
+  const requestIndex = editingRequestIndex.value
+  const folderPath = editingFolderPath.value
+
+  if (collectionsObject.value.type === "my-collections") {
+    // Cancel pick if the picked item is being deleted
+    if (
+      picked.value &&
+      picked.value.pickedType === "my-request" &&
+      picked.value.folderPath === folderPath &&
+      picked.value.requestIndex === requestIndex
+    ) {
+      emit("select", { picked: null })
+    }
+    removeRESTRequest(folderPath, requestIndex)
+
+    toast.success(t("state.deleted"))
+    displayConfirmModal(false)
+  } else if (collectionsObject.value.type === "team-collections") {
+    setModalLoadingState(true)
+
+    // Cancel pick if the picked item is being deleted
+    if (
+      picked.value &&
+      picked.value.pickedType === "teams-request" &&
+      picked.value.requestID === `${requestIndex}`
+    ) {
+      emit("select", { picked: null })
+    }
+
+    runMutation(DeleteRequestDocument, {
+      requestID: `${requestIndex}`,
+    })().then((result) => {
+      setModalLoadingState(false)
+
+      if (E.isLeft(result)) {
+        toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("state.deleted"))
+        displayConfirmModal(false)
       }
-    },
-  },
-})
-// request inside folder is not being deleted, you dumb fuck
+    })
+  }
+}
+
+/*
+ * Duplicate Request
+ */
+const duplicateRequest = (payload: {
+  folderPath: string
+  request: HoppRESTRequest
+  collectionID: string
+}) => {
+  const { folderPath, request, collectionID } = payload
+
+  if (collectionsObject.value.type === "team-collections") {
+    const newReq = {
+      ...cloneDeep(request),
+      name: `${request.name} - ${t("action.duplicate")}`,
+    }
+
+    runMutation(CreateRequestInCollectionDocument, {
+      collectionID,
+      data: {
+        request: JSON.stringify(newReq),
+        teamID: collectionsObject.value.selectedTeam.id,
+        title: `${request.name} - ${t("action.duplicate")}`,
+      },
+    })().then((result) => {
+      if (E.isLeft(result)) {
+        toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("state.duplicated"))
+      }
+    })
+  } else if (collectionsObject.value.type === "my-collections") {
+    saveRESTRequestAs(folderPath, {
+      ...cloneDeep(request),
+      name: `${request.name} - ${t("action.duplicate")}`,
+    })
+  }
+}
+
+/*
+ * Confirm Modal
+ */
+
+const showConfirmModal = ref(false)
+const confirmModalTitle: Ref<string> = ref("")
+
+const displayConfirmModal = (shouldDisplay: boolean) => {
+  showConfirmModal.value = shouldDisplay
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const resolveConfirmModal = (title: string) => {
+  switch (title) {
+    case `${t("confirm.remove_folder")}`:
+      onRemoveFolder()
+      break
+    case `${t("confirm.remove_request")}`:
+      onRemoveRequest()
+      break
+    case `${t("confirm.remove_collection")}`:
+      onRemoveCollection()
+      break
+    default:
+      console.error(
+        `Confirm modal title "${title}" is not handled by the component`
+      )
+      toast.error(t("error.something_went_wrong"))
+      displayConfirmModal(false)
+  }
+}
 </script>

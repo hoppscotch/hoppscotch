@@ -63,6 +63,7 @@ import { reactive, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { HoppGQLRequest, isHoppRESTRequest } from "@hoppscotch/data"
 import cloneDeep from "lodash/cloneDeep"
+import { CollectionObject, Picked } from "./index.vue"
 import {
   editGraphqlRequest,
   editRESTRequest,
@@ -83,58 +84,6 @@ import {
 } from "~/helpers/backend/graphql"
 
 const t = useI18n()
-
-type CollectionType =
-  | {
-      type: "my-collections"
-    }
-  | {
-      type: "team-collections"
-      // TODO: Figure this type out
-      selectedTeam: {
-        id: string
-      }
-    }
-
-type Picked =
-  | {
-      pickedType: "my-request"
-      folderPath: string
-      requestIndex: number
-    }
-  | {
-      pickedType: "my-folder"
-      folderPath: string
-    }
-  | {
-      pickedType: "my-collection"
-      collectionIndex: number
-    }
-  | {
-      pickedType: "teams-request"
-      requestID: string
-    }
-  | {
-      pickedType: "teams-folder"
-      folderID: string
-    }
-  | {
-      pickedType: "teams-collection"
-      collectionID: string
-    }
-  | {
-      pickedType: "gql-my-request"
-      folderPath: string
-      requestIndex: number
-    }
-  | {
-      pickedType: "gql-my-folder"
-      folderPath: string
-    }
-  | {
-      pickedType: "gql-my-collection"
-      collectionIndex: number
-    }
 
 const props = defineProps<{
   mode: "rest" | "graphql"
@@ -159,7 +108,7 @@ const requestData = reactive({
   requestIndex: undefined as number | undefined,
 })
 
-const collectionsType = ref<CollectionType>({
+const collectionsType = ref<CollectionObject>({
   type: "my-collections",
 })
 
@@ -182,7 +131,7 @@ watch(
 )
 
 // All the methods
-const onUpdateCollType = (newCollType: CollectionType) => {
+const onUpdateCollType = (newCollType: CollectionObject) => {
   collectionsType.value = newCollType
 }
 
@@ -385,7 +334,7 @@ const requestSaved = () => {
   hideModal()
 }
 
-const updateColl = (ev: CollectionType["type"]) => {
+const updateColl = (ev: CollectionObject["type"]) => {
   collectionsType.value.type = ev
 }
 </script>

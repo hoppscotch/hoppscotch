@@ -232,7 +232,11 @@ import {
   editRESTRequest,
   saveRESTRequestAs,
 } from "~/newstore/collections"
-import { setRESTRequest, getRESTRequest } from "~/newstore/RESTSession"
+import {
+  setRESTRequest,
+  getRESTRequest,
+  getRESTSaveContext,
+} from "~/newstore/RESTSession"
 import {
   useReadonlyStream,
   useStreamSubscriber,
@@ -495,12 +499,27 @@ export default defineComponent({
     },
     // Intented to by called by CollectionsEditRequest modal submit event
     updateEditingRequest(requestUpdateData) {
+      const saveCtx = getRESTSaveContext()
+
       const requestUpdated = {
         ...this.editingRequest,
         name: requestUpdateData.name || this.editingRequest.name,
       }
 
       if (this.collectionsType.type === "my-collections") {
+        // Update REST Session with the updated state
+        if (
+          saveCtx &&
+          saveCtx.originLocation === "user-collection" &&
+          saveCtx.requestIndex === this.editingRequestIndex &&
+          saveCtx.folderPath === this.editingFolderPath
+        ) {
+          setRESTRequest({
+            ...getRESTRequest(),
+            name: requestUpdateData.name,
+          })
+        }
+
         editRESTRequest(
           this.editingFolderPath,
           this.editingRequestIndex,
@@ -514,6 +533,18 @@ export default defineComponent({
         this.modalLoadingState = true
 
         const requestName = requestUpdateData.name || this.editingRequest.name
+
+        // Update REST Session with the updated state
+        if (
+          saveCtx &&
+          saveCtx.originLocation === "team-collection" &&
+          saveCtx.requestID === this.editingRequestIndex
+        ) {
+          setRESTRequest({
+            ...getRESTRequest(),
+            name: requestUpdateData.name,
+          })
+        }
 
         runMutation(UpdateRequestDocument, {
           data: {

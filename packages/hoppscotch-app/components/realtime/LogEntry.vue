@@ -32,7 +32,7 @@
               {{ entry.payload }}
             </div>
           </div>
-          <div class="ml-1 items-center hidden group-hover:inline">
+          <div class="items-center hidden ml-1 group-hover:inline">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"

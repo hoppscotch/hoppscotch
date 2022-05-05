@@ -1,7 +1,7 @@
 <template>
   <div ref="container" class="flex flex-col h-full">
     <div
-      class="sticky top-0 z-10 flex-none flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
     >
       <label for="log" class="py-2 font-semibold text-secondaryLight">
         {{ title }}

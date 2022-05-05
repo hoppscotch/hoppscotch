@@ -208,6 +208,7 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
+import cloneDeep from "lodash/cloneDeep"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -477,14 +478,21 @@ const saveRequest = () => {
     showSaveRequestModal.value = true
     return
   }
-
   if (saveCtx.originLocation === "user-collection") {
+    const req = getRESTRequest()
+
     try {
       editRESTRequest(
         saveCtx.folderPath,
         saveCtx.requestIndex,
         getRESTRequest()
       )
+      setRESTSaveContext({
+        originLocation: "user-collection",
+        folderPath: saveCtx.folderPath,
+        requestIndex: saveCtx.requestIndex,
+        req: cloneDeep(req),
+      })
       toast.success(`${t("request.saved")}`)
     } catch (e) {
       setRESTSaveContext(null)
@@ -505,6 +513,11 @@ const saveRequest = () => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
         } else {
+          setRESTSaveContext({
+            originLocation: "team-collection",
+            requestID: saveCtx.requestID,
+            req: cloneDeep(req),
+          })
           toast.success(`${t("request.saved")}`)
         }
       })

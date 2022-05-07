@@ -299,8 +299,8 @@ Description {
 }
 
 OperationType {
-  @specialize<Name, "query"> 
-  | @specialize<Name, "mutation"> 
+  @specialize<Name, "query">
+  | @specialize<Name, "mutation">
   | @specialize<Name, "subscription">
 }
 
@@ -317,7 +317,7 @@ ExecutableDirectiveLocation {
   @specialize<Name, "QUERY">
   | @specialize<Name, "MUTATION">
   | @specialize<Name, "SUBSCRIPTION">
-  | @specialize<Name, "FIELD"> 
+  | @specialize<Name, "FIELD">
   | @specialize<Name, "FRAGMENT_DEFINITION">
   | @specialize<Name, "FRAGMENT_SPREAD">
   | @specialize<Name, "INLINE_FRAGMENT">
@@ -338,22 +338,24 @@ TypeSystemDirectiveLocation {
   | @specialize<Name, "INPUT_FIELD_DEFINITION">
 }
 
-@skip { Whitespace | Comment }
+@skip { whitespace | Comment }
 
 @tokens {
-  Whitespace {
+  whitespace {
     std.whitespace+
   }
+
   StringValue {
     "\"\"\"" (!["] | "\\n" | "\"" "\""? !["])* "\"\"\"" | "\"" !["\\\n]* "\""
   }
+
   IntValue {
     "-"? "0"
     | "-"? std.digit+
   }
 
   FloatValue {
-    IntValue ("." std.digit+ | ("e" | "E") IntValue+) 
+    IntValue ("." std.digit+ | ("e" | "E") IntValue+)
   }
 
   @precedence { IntValue, FloatValue }
@@ -367,6 +369,8 @@ TypeSystemDirectiveLocation {
   Comma {
     ","
   }
+
+  "{" "}" "[" "]"
 }
 
 @detectDelim

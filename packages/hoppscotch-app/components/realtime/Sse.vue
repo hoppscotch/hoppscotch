@@ -47,7 +47,11 @@
       </div>
     </template>
     <template #secondary>
-      <RealtimeLog :title="$t('sse.log')" :log="log" />
+      <RealtimeLog
+        :title="$t('sse.log')"
+        :log="log"
+        @delete="clearLogEntries()"
+      />
     </template>
   </AppPaneLayout>
 </template>
@@ -136,7 +140,7 @@ export default defineComponent({
         {
           payload: this.$t("state.connecting_to", { name: this.server }),
           source: "info",
-          color: "var(--accent-color)",
+          event: "connecting",
         },
       ]
       if (typeof EventSource !== "undefined") {
@@ -149,8 +153,8 @@ export default defineComponent({
               {
                 payload: this.$t("state.connected_to", { name: this.server }),
                 source: "info",
-                color: "var(--accent-color)",
-                ts: new Date().toLocaleTimeString(),
+                event: "connected",
+                ts: Date.now(),
               },
             ]
             this.$toast.success(this.$t("state.connected"))
@@ -164,9 +168,9 @@ export default defineComponent({
               payload: this.$t("state.disconnected_from", {
                 name: this.server,
               }),
-              source: "info",
-              color: "#ff5555",
-              ts: new Date().toLocaleTimeString(),
+              source: "disconnected",
+              event: "disconnected",
+              ts: Date.now(),
             })
             this.$toast.error(this.$t("state.disconnected"))
           }
@@ -174,7 +178,7 @@ export default defineComponent({
             addSSELogLine({
               payload: data,
               source: "server",
-              ts: new Date().toLocaleTimeString(),
+              ts: Date.now(),
             })
           })
         } catch (e) {
@@ -185,9 +189,9 @@ export default defineComponent({
         this.log = [
           {
             payload: this.$t("error.browser_support_sse"),
-            source: "info",
-            color: "#ff5555",
-            ts: new Date().toLocaleTimeString(),
+            source: "disconnected",
+            event: "error",
+            ts: Date.now(),
           },
         ]
       }
@@ -201,21 +205,24 @@ export default defineComponent({
       this.connectionSSEState = false
       addSSELogLine({
         payload: this.$t("error.something_went_wrong"),
-        source: "info",
-        color: "#ff5555",
-        ts: new Date().toLocaleTimeString(),
+        source: "disconnected",
+        event: "error",
+        ts: Date.now(),
       })
       if (error !== null)
         addSSELogLine({
           payload: error,
-          source: "info",
-          color: "#ff5555",
-          ts: new Date().toLocaleTimeString(),
+          source: "disconnected",
+          event: "error",
+          ts: Date.now(),
         })
     },
     stop() {
       this.sse.close()
       this.sse.onclose()
+    },
+    clearLogEntries() {
+      this.log = []
     },
   },
 })

@@ -8,7 +8,8 @@
           <div class="inline-flex items-center p-2">
             <SmartIcon
               class="svg-icons"
-              :name="`${source(entry.source)}`"
+              :name="iconName"
+              :style="{ color: iconColor }"
               @click.native="copyQuery(entry.payload)"
             />
           </div>
@@ -337,21 +338,30 @@ const entryColor = computed(() => {
   }
 })
 
-// Adds relevant icons for each entry source
-const sourceIcons = {
-  // Source used for info messages.
-  info: "info-realtime",
-  // Source used for client to server messages.
-  client: "arrow-up-right",
-  // Source used for server to client messages.
-  server: "arrow-down-left",
-  // Source used for disconnected messages.
-  disconnected: "info-disconnect",
+const ICONS: Record<
+  LogEntryData["source"],
+  { iconName: string; iconColor: string }
+> = {
+  info: {
+    iconName: "info-realtime",
+    iconColor: "#10b981",
+  },
+  client: {
+    iconName: "arrow-up-right",
+    iconColor: "#eaaa45",
+  },
+  server: {
+    iconName: "arrow-down-left",
+    iconColor: "#38d4ea",
+  },
+  disconnected: {
+    iconName: "info-disconnect",
+    iconColor: "#ff5555",
+  },
 }
 
-const source = (source: keyof typeof sourceIcons) => {
-  return sourceIcons[source]
-}
+const iconColor = computed(() => ICONS[props.entry.source].iconColor)
+const iconName = computed(() => ICONS[props.entry.source].iconName)
 </script>
 
 <style scoped lang="scss">

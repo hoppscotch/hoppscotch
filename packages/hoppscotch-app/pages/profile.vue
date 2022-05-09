@@ -79,7 +79,7 @@
           </div>
           <SmartTabs v-model="selectedProfileTab">
             <SmartTab :id="'sync'" :label="t('settings.account')">
-              <div class="grid grid-cols-1 md:grid-cols-2">
+              <div class="grid grid-cols-1">
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
                     {{ t("settings.profile") }}
@@ -142,111 +142,109 @@
                     </form>
                   </div>
                 </section>
-                <section class="px-4">
-                  <div class="py-4">
-                    <h4 class="font-semibold text-secondaryDark">
-                      {{ t("settings.sync") }}
-                    </h4>
-                    <div class="my-1 text-secondaryLight">
-                      {{ t("settings.sync_description") }}
+                <section class="p-4">
+                  <h4 class="font-semibold text-secondaryDark">
+                    {{ t("settings.sync") }}
+                  </h4>
+                  <div class="my-1 text-secondaryLight">
+                    {{ t("settings.sync_description") }}
+                  </div>
+                  <div class="py-4 space-y-4">
+                    <div class="flex items-center">
+                      <SmartToggle
+                        :on="SYNC_COLLECTIONS"
+                        @change="toggleSetting('syncCollections')"
+                      >
+                        {{ t("settings.sync_collections") }}
+                      </SmartToggle>
                     </div>
-                    <div class="py-4 space-y-4">
-                      <div class="flex items-center">
-                        <SmartToggle
-                          :on="SYNC_COLLECTIONS"
-                          @change="toggleSetting('syncCollections')"
-                        >
-                          {{ t("settings.sync_collections") }}
-                        </SmartToggle>
-                      </div>
-                      <div class="flex items-center">
-                        <SmartToggle
-                          :on="SYNC_ENVIRONMENTS"
-                          @change="toggleSetting('syncEnvironments')"
-                        >
-                          {{ t("settings.sync_environments") }}
-                        </SmartToggle>
-                      </div>
-                      <div class="flex items-center">
-                        <SmartToggle
-                          :on="SYNC_HISTORY"
-                          @change="toggleSetting('syncHistory')"
-                        >
-                          {{ t("settings.sync_history") }}
-                        </SmartToggle>
-                      </div>
+                    <div class="flex items-center">
+                      <SmartToggle
+                        :on="SYNC_ENVIRONMENTS"
+                        @change="toggleSetting('syncEnvironments')"
+                      >
+                        {{ t("settings.sync_environments") }}
+                      </SmartToggle>
+                    </div>
+                    <div class="flex items-center">
+                      <SmartToggle
+                        :on="SYNC_HISTORY"
+                        @change="toggleSetting('syncHistory')"
+                      >
+                        {{ t("settings.sync_history") }}
+                      </SmartToggle>
                     </div>
                   </div>
-                  <div class="py-4">
-                    <h4 class="font-semibold text-secondaryDark">
-                      {{ t("settings.short_codes") }}
-                    </h4>
-                    <div class="my-1 text-secondaryLight">
-                      {{ t("settings.short_codes_description") }}
+                </section>
+                <section class="p-4">
+                  <h4 class="font-semibold text-secondaryDark">
+                    {{ t("settings.short_codes") }}
+                  </h4>
+                  <div class="my-1 text-secondaryLight">
+                    {{ t("settings.short_codes_description") }}
+                  </div>
+                  <div class="relative py-4 overflow-x-auto hide-scrollbar">
+                    <div
+                      v-if="loading"
+                      class="flex flex-col items-center justify-center"
+                    >
+                      <SmartSpinner class="mb-4" />
+                      <span class="text-secondaryLight">{{
+                        t("state.loading")
+                      }}</span>
                     </div>
-                    <div class="py-4 relative overflow-x-auto hide-scrollbar">
-                      <div
-                        v-if="loading"
-                        class="flex flex-col items-center justify-center"
-                      >
-                        <SmartSpinner class="mb-4" />
-                        <span class="text-secondaryLight">{{
-                          t("state.loading")
-                        }}</span>
-                      </div>
-                      <div
-                        v-if="!loading && myShortCodes.length === 0"
-                        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-                      >
-                        <img
-                          :src="`/images/states/${$colorMode.value}/add_files.svg`"
-                          loading="lazy"
-                          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
-                          :alt="`${t('empty.shortcodes')}`"
-                        />
-                        <span class="mb-4 text-center">
-                          {{ t("empty.shortcodes") }}
-                        </span>
-                      </div>
-                      <div
-                        v-else-if="!loading"
-                        class="table table-auto w-full border-collapse"
-                      >
-                        <div class="hidden lg:table-header-group">
-                          <div class="table-row p-2">
-                            <div class="table-cell font-semibold">
-                              {{ t("shortcodes.short_code") }}
-                            </div>
-                            <div class="table-cell font-semibold">
-                              {{ t("shortcodes.method") }}
-                            </div>
-                            <div class="table-cell font-semibold">
-                              {{ t("shortcodes.url") }}
-                            </div>
-                            <div class="table-cell font-semibold">
-                              {{ t("shortcodes.created_on") }}
-                            </div>
-                            <div class="table-cell font-semibold">
-                              {{ t("shortcodes.actions") }}
-                            </div>
+                    <div
+                      v-if="!loading && myShortCodes.length === 0"
+                      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+                    >
+                      <img
+                        :src="`/images/states/${$colorMode.value}/add_files.svg`"
+                        loading="lazy"
+                        class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
+                        :alt="`${t('empty.shortcodes')}`"
+                      />
+                      <span class="mb-4 text-center">
+                        {{ t("empty.shortcodes") }}
+                      </span>
+                    </div>
+                    <div
+                      v-else-if="!loading"
+                      class="table w-full border-collapse table-auto"
+                    >
+                      <div class="hidden rounded lg:table-header-group">
+                        <div class="table-row p-2">
+                          <div class="table-cell font-semibold">
+                            {{ t("shortcodes.short_code") }}
+                          </div>
+                          <div class="table-cell font-semibold">
+                            {{ t("shortcodes.method") }}
+                          </div>
+                          <div class="table-cell font-semibold">
+                            {{ t("shortcodes.url") }}
+                          </div>
+                          <div class="table-cell font-semibold">
+                            {{ t("shortcodes.created_on") }}
+                          </div>
+                          <div class="table-cell font-semibold">
+                            {{ t("shortcodes.actions") }}
                           </div>
                         </div>
-                        <div class="table-row-group">
-                          <ProfileShortcode
-                            v-for="(shortCode, shortCodeIndex) in myShortCodes"
-                            :key="`shortCode-${shortCodeIndex}`"
-                            :short-code="shortCode"
-                            @delete-short-code="deleteShortCode"
-                          />
-                        </div>
                       </div>
-                      <div
-                        v-if="!loading && adapterError"
-                        class="flex flex-col py-4 items-center"
-                      >
-                        <i class="mb-4 material-icons">help_outline</i>
-                        {{ t("error.something_went_wrong") }}
+                      <div class="table-row-group">
+                        <ProfileShortcode
+                          v-for="(shortCode, shortCodeIndex) in myShortCodes"
+                          :key="`shortCode-${shortCodeIndex}`"
+                          :short-code="shortCode"
+                          @delete-short-code="deleteShortCode"
+                        />
                       </div>
+                    </div>
+                    <div
+                      v-if="!loading && adapterError"
+                      class="flex flex-col items-center py-4"
+                    >
+                      <i class="mb-4 material-icons">help_outline</i>
+                      {{ t("error.something_went_wrong") }}
                     </div>
                   </div>
                 </section>

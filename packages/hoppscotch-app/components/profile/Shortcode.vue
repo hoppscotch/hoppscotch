@@ -1,7 +1,7 @@
 <template>
-  <div class="block my-10 lg:my-0 lg:table-row lg:my-0 lg:p-2">
+  <div class="block my-10 lg:my-0 lg:table-row lg:p-2">
     <div class="table-cell" :data-label="t('shortcodes.short_code')">
-      <div class="max-w-30 truncate">
+      <div class="truncate max-w-30">
         {{ shortCode.id }}
       </div>
     </div>
@@ -15,7 +15,7 @@
       {{ parseShortcodeRequest(shortCode.request).method }}
     </div>
     <div class="table-cell" :data-label="t('shortcodes.url')">
-      <div class="max-w-45 mx-0 lg:mx-auto truncate hover:text-clip">
+      <div class="mx-0 truncate max-w-45 lg:mx-auto hover:text-clip">
         {{ parseShortcodeRequest(shortCode.request).endpoint }}
       </div>
     </div>

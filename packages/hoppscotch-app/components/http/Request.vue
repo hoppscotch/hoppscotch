@@ -178,7 +178,7 @@
                 svg="arrow-right"
                 reverse
                 blank
-                class="text-tiny pb-3 -ml-4 text-secondaryLight"
+                class="pb-3 -ml-4 text-tiny text-secondaryLight"
               />
             </div>
             <div class="flex pt-3 pb-1">

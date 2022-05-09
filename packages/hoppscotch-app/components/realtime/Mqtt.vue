@@ -48,7 +48,11 @@
       </div>
     </template>
     <template #secondary>
-      <RealtimeLog :title="$t('mqtt.log')" :log="log" />
+      <RealtimeLog
+        :title="$t('mqtt.log')"
+        :log="log"
+        @delete="clearLogEntries()"
+      />
     </template>
     <template #sidebar>
       <div class="flex items-center justify-between p-4">
@@ -216,8 +220,8 @@ export default defineComponent({
         {
           payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--accent-color)",
-          ts: new Date().toLocaleTimeString(),
+          event: "connecting",
+          ts: Date.now(),
         },
       ]
       const parseUrl = new URL(this.url)
@@ -253,8 +257,8 @@ export default defineComponent({
       addMQTTLogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
-        color: "#ff5555",
-        ts: new Date().toLocaleTimeString(),
+        event: "error",
+        ts: Date.now(),
       })
     },
     onConnectionSuccess() {
@@ -263,8 +267,8 @@ export default defineComponent({
       addMQTTLogLine({
         payload: this.$t("state.connected_to", { name: this.url }),
         source: "info",
-        color: "var(--accent-color)",
-        ts: new Date().toLocaleTimeString(),
+        event: "connected",
+        ts: Date.now(),
       })
       this.$toast.success(this.$t("state.connected"))
     },
@@ -272,8 +276,8 @@ export default defineComponent({
       addMQTTLogLine({
         payload: `Message: ${payloadString} arrived on topic: ${destinationName}`,
         source: "info",
-        color: "var(--accent-color)",
-        ts: new Date().toLocaleTimeString(),
+        event: "info",
+        ts: Date.now(),
       })
     },
     toggleConnection() {
@@ -288,9 +292,9 @@ export default defineComponent({
       this.client.disconnect()
       addMQTTLogLine({
         payload: this.$t("state.disconnected_from", { name: this.url }),
-        source: "info",
-        color: "#ff5555",
-        ts: new Date().toLocaleTimeString(),
+        source: "disconnected",
+        event: "disconnected",
+        ts: Date.now(),
       })
     },
     onConnectionLost() {
@@ -309,9 +313,9 @@ export default defineComponent({
         this.client.publish(this.pub_topic, this.msg, 0, false)
         addMQTTLogLine({
           payload: `Published message: ${this.msg} to topic: ${this.pub_topic}`,
-          ts: new Date().toLocaleTimeString(),
+          ts: Date.now(),
           source: "info",
-          color: "var(--accent-color)",
+          event: "info",
         })
       } catch (e) {
         addMQTTLogLine({
@@ -319,8 +323,8 @@ export default defineComponent({
             this.$t("error.something_went_wrong") +
             `while publishing msg: ${this.msg} to topic:  ${this.pub_topic}`,
           source: "info",
-          color: "#ff5555",
-          ts: new Date().toLocaleTimeString(),
+          event: "error",
+          ts: Date.now(),
         })
       }
     },
@@ -343,8 +347,8 @@ export default defineComponent({
             this.$t("error.something_went_wrong") +
             `while subscribing to topic:  ${this.sub_topic}`,
           source: "info",
-          color: "#ff5555",
-          ts: new Date().toLocaleTimeString(),
+          event: "error",
+          ts: Date.now(),
         })
       }
     },
@@ -356,8 +360,8 @@ export default defineComponent({
           (this.subscriptionState ? "subscribed" : "unsubscribed") +
           ` to topic: ${this.sub_topic}`,
         source: "info",
-        color: "var(--accent-color)",
-        ts: new Date().toLocaleTimeString(),
+        event: "info",
+        ts: Date.now(),
       })
     },
     usubFailure() {
@@ -367,8 +371,8 @@ export default defineComponent({
           (this.subscriptionState ? "unsubscribe" : "subscribe") +
           ` to topic: ${this.sub_topic}`,
         source: "info",
-        color: "#ff5555",
-        ts: new Date().toLocaleTimeString(),
+        color: "error",
+        ts: Date.now(),
       })
     },
     unsubscribe() {
@@ -376,6 +380,9 @@ export default defineComponent({
         onSuccess: this.usubSuccess,
         onFailure: this.usubFailure,
       })
+    },
+    clearLogEntries() {
+      this.log = []
     },
   },
 })

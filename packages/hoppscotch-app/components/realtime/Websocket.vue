@@ -295,6 +295,7 @@ export default defineComponent({
           payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
           event: "connecting",
+          ts: Date.now(),
         },
       ]
       try {

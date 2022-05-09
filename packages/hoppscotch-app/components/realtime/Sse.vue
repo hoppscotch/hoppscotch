@@ -141,6 +141,7 @@ export default defineComponent({
           payload: this.$t("state.connecting_to", { name: this.server }),
           source: "info",
           event: "connecting",
+          ts: Date.now(),
         },
       ]
       if (typeof EventSource !== "undefined") {

@@ -1,10 +1,8 @@
 <template>
-  <div v-if="entry">
+  <div v-if="entry" class="divide-y divide-dividerLight">
     <div :style="{ color: entryColor }" class="realtime-log">
-      <div
-        class="divide-y border-y divide-dividerLight border-dividerLight group"
-      >
-        <div class="flex divide-x divide-dividerLight">
+      <div class="flex group">
+        <div class="flex flex-1 divide-x divide-dividerLight">
           <div class="inline-flex items-center p-2">
             <SmartIcon
               class="svg-icons"
@@ -15,14 +13,11 @@
           </div>
           <div class="items-center hidden px-1 w-18 sm:inline-flex">
             <span
-              ref="timestampEl"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="relativeTime"
               class="mx-auto truncate ts-font text-secondaryLight hover:text-secondary hover:text-center"
             >
-              {{
-                timestampHovered
-                  ? relativeTime
-                  : new Date(entry.ts).toLocaleTimeString()
-              }}
+              {{ new Date(entry.ts).toLocaleTimeString() }}
             </span>
           </div>
           <div
@@ -33,32 +28,29 @@
               {{ entry.payload }}
             </div>
           </div>
-          <div class="items-center hidden ml-1 group-hover:inline">
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.copy')"
-              :svg="`${copyQueryIcon}`"
-              class=""
-              @click.native="copyQuery(entry.payload)"
-            />
-          </div>
-
-          <ButtonSecondary
-            svg="chevron-down"
-            class="transform"
-            :class="{ 'rotate-180': !minimized }"
-            @click.native="toggleExpandPayload()"
-          />
         </div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.copy')"
+          :svg="`${copyQueryIcon}`"
+          class="hidden group-hover:inline-flex"
+          @click.native="copyQuery(entry.payload)"
+        />
+        <ButtonSecondary
+          svg="chevron-down"
+          class="transform"
+          :class="{ 'rotate-180': !minimized }"
+          @click.native="toggleExpandPayload()"
+        />
       </div>
     </div>
-    <div v-if="!minimized" class="overflow-hidden">
-      <SmartTabs v-model="selectedTab">
+    <div v-if="!minimized" class="overflow-hidden bg-primaryLight">
+      <SmartTabs v-model="selectedTab" styles="bg-primaryLight">
         <SmartTab v-if="isJSON(entry.payload)" id="json" label="JSON" />
         <SmartTab id="raw" label="Raw" />
       </SmartTabs>
       <div
-        class="z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
+        class="z-10 flex items-center justify-between pl-4 border-b border-dividerLight top-lowerSecondaryStickyFold"
       >
         <label class="font-semibold text-secondaryLight">
           {{ t("response.body") }}
@@ -205,7 +197,7 @@ import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { ref, computed, reactive, watch } from "@nuxtjs/composition-api"
-import { useElementHover, useTimeAgo } from "@vueuse/core"
+import { useTimeAgo } from "@vueuse/core"
 import { LogEntryData } from "./Log.vue"
 import { useI18n } from "~/helpers/utils/composables"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -321,8 +313,6 @@ const copyQuery = (entry: string) => {
 
 // Relative Time
 const relativeTime = useTimeAgo(computed(() => props.entry.ts))
-const timestampEl = ref()
-const timestampHovered = useElementHover(timestampEl)
 
 // Assigns color based on entry event
 const entryColor = computed(() => {
@@ -366,9 +356,8 @@ const iconName = computed(() => ICONS[props.entry.source].iconName)
 
 <style scoped lang="scss">
 .realtime-log {
-  @apply bg-transparent;
   @apply text-secondary;
-  @apply overflow-auto;
+  @apply overflow-hidden;
 
   &,
   span {

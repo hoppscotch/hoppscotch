@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="flex flex-col h-full">
+  <div ref="container" class="flex flex-col flex-1 overflow-y-auto">
     <div
       class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
     >
@@ -37,13 +37,20 @@
         />
       </div>
     </div>
-
-    <div ref="logs" class="flex-auto overflow-y-auto">
-      <RealtimeLogEntry
-        v-for="(entry, index) in log"
-        :key="`entry-${index}`"
-        :entry="entry"
-      />
+    <div
+      v-if="log.length !== 0"
+      ref="logs"
+      class="overflow-y-auto border-b border-dividerLight"
+    >
+      <div
+        class="flex flex-col h-auto h-full border-r divide-y divide-dividerLight border-dividerLight"
+      >
+        <RealtimeLogEntry
+          v-for="(entry, index) in log"
+          :key="`entry-${index}`"
+          :entry="entry"
+        />
+      </div>
     </div>
   </div>
 </template>

@@ -1,5 +1,6 @@
 {
   "action": {
+    "autoscroll": "Autoscroll",
     "cancel": "Cancel",
     "choose_file": "Choose a file",
     "clear": "Clear",
@@ -25,6 +26,8 @@
     "remove": "Remove",
     "restore": "Restore",
     "save": "Save",
+    "scroll_to_bottom": "Scroll to bottom",
+    "scroll_to_top": "Scroll to top",
     "search": "Search",
     "send": "Send",
     "start": "Start",

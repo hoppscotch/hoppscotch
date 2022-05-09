@@ -137,22 +137,23 @@
           class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
           :alt="$t('empty.protocols')"
         />
-        <span class="mb-4 text-center">
-          {{ $t("empty.protocols") }}
-        </span>
+        <span class="mb-4 text-center">{{ $t("empty.protocols") }}</span>
       </div>
     </template>
     <template #secondary>
-      <RealtimeLog :title="$t('websocket.log')" :log="log" />
+      <RealtimeLog
+        :title="$t('websocket.log')"
+        :log="log"
+        @delete="clearLogEntries()"
+      />
     </template>
     <template #sidebar>
       <div class="flex items-center justify-between p-4">
         <label
           for="websocket-message"
           class="font-semibold text-secondaryLight"
+          >{{ $t("websocket.communication") }}</label
         >
-          {{ $t("websocket.communication") }}
-        </label>
       </div>
       <div class="flex px-4 space-x-2">
         <input
@@ -285,12 +286,16 @@ export default defineComponent({
       // Otherwise, it's disconnecting.
       else return this.disconnect()
     },
+    clearLogEntries() {
+      this.log = []
+    },
     connect() {
       this.log = [
         {
           payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--accent-color)",
+          event: "connecting",
+          ts: Date.now(),
         },
       ]
       try {
@@ -303,8 +308,8 @@ export default defineComponent({
             {
               payload: this.$t("state.connected_to", { name: this.url }),
               source: "info",
-              color: "var(--accent-color)",
-              ts: new Date().toLocaleTimeString(),
+              event: "connected",
+              ts: Date.now(),
             },
           ]
           this.$toast.success(this.$t("state.connected"))
@@ -316,9 +321,9 @@ export default defineComponent({
           this.connectionState = false
           addWSLogLine({
             payload: this.$t("state.disconnected_from", { name: this.url }),
-            source: "info",
-            color: "#ff5555",
-            ts: new Date().toLocaleTimeString(),
+            source: "disconnected",
+            event: "disconnected",
+            ts: Date.now(),
           })
           this.$toast.error(this.$t("state.disconnected"))
         }
@@ -326,7 +331,7 @@ export default defineComponent({
           addWSLogLine({
             payload: data,
             source: "server",
-            ts: new Date().toLocaleTimeString(),
+            ts: Date.now(),
           })
         }
       } catch (e) {
@@ -351,15 +356,15 @@ export default defineComponent({
       addWSLogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
-        color: "#ff5555",
-        ts: new Date().toLocaleTimeString(),
+        event: "error",
+        ts: Date.now(),
       })
       if (error !== null)
         addWSLogLine({
           payload: error,
           source: "info",
-          color: "#ff5555",
-          ts: new Date().toLocaleTimeString(),
+          event: "error",
+          ts: Date.now(),
         })
     },
     sendMessage() {
@@ -368,7 +373,7 @@ export default defineComponent({
       addWSLogLine({
         payload: message,
         source: "client",
-        ts: new Date().toLocaleTimeString(),
+        ts: Date.now(),
       })
       this.communication.input = ""
     },

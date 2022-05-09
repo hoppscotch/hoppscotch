@@ -200,7 +200,11 @@
       </div>
     </template>
     <template #secondary>
-      <RealtimeLog :title="$t('socketio.log')" :log="log" />
+      <RealtimeLog
+        :title="$t('socketio.log')"
+        :log="log"
+        @delete="clearLogEntries()"
+      />
     </template>
     <template #sidebar>
       <div class="flex items-center justify-between p-4">
@@ -389,7 +393,8 @@ export default defineComponent({
         {
           payload: this.$t("state.connecting_to", { name: this.url }),
           source: "info",
-          color: "var(--accent-color)",
+          event: "connecting",
+          ts: Date.now(),
         },
       ]
 
@@ -418,8 +423,8 @@ export default defineComponent({
             {
               payload: this.$t("state.connected_to", { name: this.url }),
               source: "info",
-              color: "var(--accent-color)",
-              ts: new Date().toLocaleTimeString(),
+              event: "connected",
+              ts: Date.now(),
             },
           ]
           this.$toast.success(this.$t("state.connected"))
@@ -429,7 +434,7 @@ export default defineComponent({
           addSIOLogLine({
             payload: `[${eventName}] ${message ? JSON.stringify(message) : ""}`,
             source: "server",
-            ts: new Date().toLocaleTimeString(),
+            ts: Date.now(),
           })
         })
         this.io.on("connect_error", (error) => {
@@ -446,9 +451,9 @@ export default defineComponent({
           this.connectionState = false
           addSIOLogLine({
             payload: this.$t("state.disconnected_from", { name: this.url }),
-            source: "info",
-            color: "#ff5555",
-            ts: new Date().toLocaleTimeString(),
+            source: "disconnected",
+            event: "disconnected",
+            ts: Date.now(),
           })
           this.$toast.error(this.$t("state.disconnected"))
         })
@@ -471,15 +476,15 @@ export default defineComponent({
       addSIOLogLine({
         payload: this.$t("error.something_went_wrong"),
         source: "info",
-        color: "#ff5555",
-        ts: new Date().toLocaleTimeString(),
+        event: "error",
+        ts: Date.now(),
       })
       if (error !== null)
         addSIOLogLine({
           payload: error,
           source: "info",
-          color: "#ff5555",
-          ts: new Date().toLocaleTimeString(),
+          event: "error",
+          ts: Date.now(),
         })
     },
     sendMessage() {
@@ -500,14 +505,14 @@ export default defineComponent({
           addSIOLogLine({
             payload: `[${eventName}] ${JSON.stringify(data)}`,
             source: "server",
-            ts: new Date().toLocaleTimeString(),
+            ts: Date.now(),
           })
         })
 
         addSIOLogLine({
           payload: `[${eventName}] ${JSON.stringify(messages)}`,
           source: "client",
-          ts: new Date().toLocaleTimeString(),
+          ts: Date.now(),
         })
         this.communication.inputs = [""]
       }
@@ -515,6 +520,9 @@ export default defineComponent({
     onSelectVersion(version) {
       this.clientVersion = version
       this.$refs.versionOptions.tippy().hide()
+    },
+    clearLogEntries() {
+      this.log = []
     },
   },
 })

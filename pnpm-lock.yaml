@@ -3604,7 +3604,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       callsites: 3.1.0
-      graceful-fs: 4.2.9
+      graceful-fs: 4.2.10
       source-map: 0.6.1
     dev: true
 
@@ -3623,7 +3623,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@jest/test-result': 27.5.1
-      graceful-fs: 4.2.9
+      graceful-fs: 4.2.10
       jest-haste-map: 27.5.1
       jest-runtime: 27.5.1
     transitivePeerDependencies:
@@ -3919,11 +3919,11 @@ packages:
       ufo: 0.7.11
     dev: false
 
-  /@nuxt/kit-edge/3.0.0-rc.2-27525415.a8d42d5:
-    resolution: {integrity: sha512-WfUj777D53SWprNmghE2JcgS/IAeU/NBLTsgJQf8EZG/GFjM62w/YCiY3zGcyVMsxHBSgnE9VUv5RZ5Gl8Os/A==}
+  /@nuxt/kit-edge/3.0.0-rc.2-27530889.9e5a3cd:
+    resolution: {integrity: sha512-D/Fm/7igO3/GE+5S8528frpJT25V+i4Y8ZcZ4MuO0i6karl4whwcSDkVOmrZBCtLa0IG+FD2f/6E4JJaB0BBHQ==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0 || ^18.0.0}
     dependencies:
-      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-rc.2-27525415.a8d42d5
+      '@nuxt/schema': /@nuxt/schema-edge/3.0.0-rc.2-27530889.9e5a3cd
       c12: 0.2.7
       consola: 2.15.3
       defu: 6.0.0
@@ -3934,7 +3934,7 @@ packages:
       knitwork: 0.1.1
       lodash.template: 4.5.0
       mlly: 0.5.2
-      pathe: 0.2.0
+      pathe: 0.3.0
       pkg-types: 0.3.2
       scule: 0.2.1
       semver: 7.3.7
@@ -3971,19 +3971,19 @@ packages:
       - encoding
     dev: false
 
-  /@nuxt/schema-edge/3.0.0-rc.2-27525415.a8d42d5:
-    resolution: {integrity: sha512-CrERM3lg+TXjBToAI/XmfLdJbGoQU600iUhZR9VIbUpNqq+nFPnIw1DxS6XioyBq/4rh/GmaHC+LxZFxNkigCA==}
+  /@nuxt/schema-edge/3.0.0-rc.2-27530889.9e5a3cd:
+    resolution: {integrity: sha512-Ac8bXC8nXYZKGJPLIMPKZwA5i7X/oaWGeSIJ5zruUt9XwLRP2BOgOTTrM+vy/KK44pWeweCgZkYMM6CD/XewBw==}
     engines: {node: ^14.16.0 || ^16.11.0 || ^17.0.0 || ^18.0.0}
     dependencies:
       c12: 0.2.7
       create-require: 1.1.1
       defu: 6.0.0
       jiti: 1.13.0
-      pathe: 0.2.0
+      pathe: 0.3.0
       postcss-import-resolver: 2.0.0
       scule: 0.2.1
       std-env: 3.1.1
-      ufo: 0.8.3
+      ufo: 0.8.4
       unimport: 0.1.8
     transitivePeerDependencies:
       - esbuild
@@ -12606,7 +12606,7 @@ packages:
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
     dependencies:
       '@types/node': 17.0.24
-      graceful-fs: 4.2.9
+      graceful-fs: 4.2.10
     dev: true
 
   /jest-snapshot/27.5.1:
@@ -12887,7 +12887,7 @@ packages:
     resolution: {integrity: sha512-aKS4WQjPenRxiQsC93MNfjx+nbF4PAdYzmd/1JIj8HYzqfbu86beTuNgXDzPknWk0n0uARlyewZo4s++ES36Ow==}
     hasBin: true
     dependencies:
-      minimist: 1.2.5
+      minimist: 1.2.6
 
   /json5/2.2.1:
     resolution: {integrity: sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==}
@@ -13931,7 +13931,8 @@ packages:
     resolution: {integrity: sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==}
     hasBin: true
     dependencies:
-      minimist: 1.2.5
+      minimist: 1.2.6
+    dev: false
 
   /mkdirp/0.5.6:
     resolution: {integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==}
@@ -14324,7 +14325,7 @@ packages:
   /nuxt-windicss/2.2.11:
     resolution: {integrity: sha512-xobq725D6vqpIgYOrLJ6CVlR4xLlFGwuq//gZikXKOdoVRpoK8C+NpHazPd4+f17urGQ4H0LqGBCIujTvV1V0g==}
     dependencies:
-      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-rc.2-27525415.a8d42d5
+      '@nuxt/kit': /@nuxt/kit-edge/3.0.0-rc.2-27530889.9e5a3cd
       '@windicss/plugin-utils': 1.8.4
       consola: 2.15.3
       defu: 6.0.0
@@ -14846,6 +14847,10 @@ packages:
 
   /pathe/0.2.0:
     resolution: {integrity: sha512-sTitTPYnn23esFR3RlqYBWn4c45WGeLcsKzQiUpXJAyfcWkolvlYpV8FLo7JishK946oQwMFUCHXQ9AjGPKExw==}
+    dev: true
+
+  /pathe/0.3.0:
+    resolution: {integrity: sha512-3vUjp552BJzCw9vqKsO5sttHkbYqqsZtH0x1PNtItgqx8BXEXzoY1SYRKcL6BTyVh4lGJGLj0tM42elUDMvcYA==}
     dev: true
 
   /pause-stream/0.0.11:
@@ -17808,7 +17813,7 @@ packages:
       css-tree: 1.0.0-alpha.37
       csso: 4.2.0
       js-yaml: 3.14.1
-      mkdirp: 0.5.5
+      mkdirp: 0.5.6
       object.values: 1.1.5
       sax: 1.2.4
       stable: 0.1.8
@@ -18518,6 +18523,10 @@ packages:
 
   /ufo/0.8.3:
     resolution: {integrity: sha512-AIkk06G21y/P+NCatfU+1qldCmI0XCszZLn8AkuKotffF3eqCvlce0KuwM7ZemLE/my0GSYADOAeM5zDYWMB+A==}
+
+  /ufo/0.8.4:
+    resolution: {integrity: sha512-/+BmBDe8GvlB2nIflWasLLAInjYG0bC9HRnfEpNi4sw77J2AJNnEVnTDReVrehoh825+Q/evF3THXTAweyam2g==}
+    dev: true
 
   /uglify-js/3.14.3:
     resolution: {integrity: sha512-mic3aOdiq01DuSVx0TseaEzMIVqebMZ0Z3vaeDhFEh9bsc24hV1TFvN74reA2vs08D0ZWfNjAcJ3UbVLaBss+g==}

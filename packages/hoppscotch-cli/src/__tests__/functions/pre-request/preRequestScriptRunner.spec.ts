@@ -1,15 +1,15 @@
 import { HoppRESTRequest } from "@hoppscotch/data";
-import { HoppEnvs } from "../../types/request";
+import { HoppEnvs } from "../../../types/request";
 import * as E from "fp-ts/Either";
-import { HoppCLIError, HoppErrorCode } from "../../types/errors";
-import { EffectiveHoppRESTRequest } from "../../interfaces/request";
-import { preRequestScriptRunner } from "../../utils/pre-request";
+import { HoppCLIError } from "../../../types/errors";
+import { EffectiveHoppRESTRequest } from "../../../interfaces/request";
+import { preRequestScriptRunner } from "../../../utils/pre-request";
 
 import "@relmify/jest-fp-ts";
 
 const SAMPLE_ENVS: HoppEnvs = {
-  global: [{ key: "GLOBAL", value: "devblin" }],
-  selected: [{ key: "LOCAL", value: "local" }],
+  global: [],
+  selected: [],
 };
 const VALID_PRE_REQUEST_SCRIPT = `
 	pw.env.set("ENDPOINT","https://example.com");
@@ -55,21 +55,17 @@ describe("preRequestScriptRunner", () => {
     )();
   });
 
-  it("Should have parsed request endpoint with set ENV.", () => {
-    expect(SUCCESS_PRE_REQUEST_RUNNER).toBeRight();
-    if (E.isRight(SUCCESS_PRE_REQUEST_RUNNER)) {
-      const { effectiveFinalURL } = SUCCESS_PRE_REQUEST_RUNNER.right;
-
-      expect(effectiveFinalURL).toStrictEqual("https://example.com");
-    }
+  test("Parsing of request endpoint with set ENV.", () => {
+    expect(SUCCESS_PRE_REQUEST_RUNNER).toSubsetEqualRight(<
+      EffectiveHoppRESTRequest
+    >{
+      effectiveFinalURL: "https://example.com",
+    });
   });
 
-  it("Should fail to execute with unknown variable error.", () => {
-    expect(FAILURE_PRE_REQUEST_RUNNER).toBeLeft();
-    if (E.isLeft(FAILURE_PRE_REQUEST_RUNNER)) {
-      const error = FAILURE_PRE_REQUEST_RUNNER.left;
-
-      expect(error.code).toBe<HoppErrorCode>("PRE_REQUEST_SCRIPT_ERROR");
-    }
+  test("Failed execution due to unknown variable error.", () => {
+    expect(FAILURE_PRE_REQUEST_RUNNER).toSubsetEqualLeft(<HoppCLIError>{
+      code: "PRE_REQUEST_SCRIPT_ERROR",
+    });
   });
 });

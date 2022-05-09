@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from "axios";
-import { RequestConfig } from "../../interfaces/request";
-import { requestRunner } from "../../utils/request";
-import { RequestRunnerResponse } from "../../interfaces/response";
+import { RequestConfig } from "../../../interfaces/request";
+import { requestRunner } from "../../../utils/request";
+import { RequestRunnerResponse } from "../../../interfaces/response";
 
 import "@relmify/jest-fp-ts";
 

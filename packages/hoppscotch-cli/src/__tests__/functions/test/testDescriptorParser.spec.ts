@@ -1,7 +1,7 @@
 import { TestDescriptor } from "@hoppscotch/js-sandbox";
-import { testDescriptorParser, getTestMetrics } from "../../utils/test";
-import { TestReport } from "../../interfaces/response";
-import { TestMetrics } from "../../types/response";
+import { testDescriptorParser, getTestMetrics } from "../../../utils/test";
+import { TestReport } from "../../../interfaces/response";
+import { TestMetrics } from "../../../types/response";
 
 import "@relmify/jest-fp-ts";
 

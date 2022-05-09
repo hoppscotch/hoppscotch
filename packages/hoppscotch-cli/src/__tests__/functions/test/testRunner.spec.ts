@@ -1,9 +1,9 @@
 import { TestResponse } from "@hoppscotch/js-sandbox";
 import * as E from "fp-ts/Either";
-import { TestRunnerRes } from "../../types/response";
-import { HoppCLIError } from "../../types/errors";
-import { getTestMetrics, testRunner } from "../../utils/test";
-import { HoppEnvs } from "../../types/request";
+import { TestRunnerRes } from "../../../types/response";
+import { HoppCLIError } from "../../../types/errors";
+import { getTestMetrics, testRunner } from "../../../utils/test";
+import { HoppEnvs } from "../../../types/request";
 
 import "@relmify/jest-fp-ts";
 

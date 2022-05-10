@@ -218,6 +218,7 @@ import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import cloneDeep from "lodash/cloneDeep"
 import draggable from "vuedraggable"
+import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   getRESTRequest,
@@ -253,7 +254,7 @@ const bulkEditor = ref<any | null>(null)
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
 const emit = defineEmits<{
-  (e: "change-tab", value: string): void
+  (e: "change-tab", value: RequestOptionTabs): void
 }>()
 
 useCodemirror(bulkEditor, bulkHeaders, {
@@ -447,7 +448,7 @@ const computedHeaders = computed(() =>
   getComputedHeaders(restRequest.value, aggregateEnvs.value)
 )
 
-const masking = ref<boolean>(true)
+const masking = ref(true)
 
 const toggleMask = () => {
   masking.value = !masking.value
@@ -459,7 +460,7 @@ const mask = (header: ComputedHeader) => {
   return header.header.value
 }
 
-const changeTab = (tab: "auth" | "body") => {
+const changeTab = (tab: ComputedHeader["source"]) => {
   if (tab === "auth") emit("change-tab", "authorization")
   else emit("change-tab", "bodyParams")
 }

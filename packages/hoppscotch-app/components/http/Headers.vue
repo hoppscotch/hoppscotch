@@ -144,8 +144,8 @@
         >
           <span>
             <ButtonSecondary
-              svg="grip-vertical"
-              class="cursor-auto text-primary hover:text-primary"
+              svg="lock"
+              class="opacity-25 cursor-auto text-secondaryLight bg-divider"
               tabindex="-1"
             />
           </span>
@@ -155,37 +155,24 @@
             readonly
           />
           <SmartEnvInput
-            :value="maskAuth(header)"
+            :value="mask(header)"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
             readonly
           />
           <span>
             <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="
-                header.hasOwnProperty('active')
-                  ? header.active
-                    ? t('action.turn_off')
-                    : t('action.turn_on')
-                  : t('action.turn_off')
-              "
-              :svg="
-                header.hasOwnProperty('active')
-                  ? header.active
-                    ? 'check-circle'
-                    : 'circle'
-                  : 'check-circle'
-              "
-              color="green"
+              v-if="header.source === 'auth'"
+              :svg="masking ? 'eye' : 'eye-off'"
+              @click.native="toggleMask()"
+            />
+            <ButtonSecondary
+              v-else
+              svg="arrow-up-right"
+              class="cursor-auto text-primary hover:text-primary"
             />
           </span>
           <span>
-            <ButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.remove')"
-              svg="trash"
-              color="red"
-            />
+            <ButtonSecondary svg="arrow-up-right" />
           </span>
         </div>
       </draggable>
@@ -453,8 +440,14 @@ const computedHeaders = computed(() =>
   getComputedHeaders(restRequest.value, aggregateEnvs.value)
 )
 
-const maskAuth = (header: ComputedHeader) => {
-  if (header.source === "auth")
+const masking = ref<boolean>(true)
+
+const toggleMask = () => {
+  masking.value = !masking.value
+}
+
+const mask = (header: ComputedHeader) => {
+  if (header.source === "auth" && masking.value)
     return header.header.value.replace(/[a-z]/gi, "*")
   return header.header.value
 }

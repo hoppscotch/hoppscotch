@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-1 flex-shrink-0 items-center overflow-auto whitespace-nowrap hide-scrollbar"
+    class="flex items-center flex-1 flex-shrink-0 overflow-auto whitespace-nowrap hide-scrollbar"
   >
     <div
       ref="editor"
@@ -132,6 +132,16 @@ const initView = (el: any) => {
     }),
     EditorState.changeFilter.of(() => !props.readonly),
     inputTheme,
+    props.readonly
+      ? EditorView.theme({
+          ".cm-content": {
+            caretColor: "var(--secondary-dark-color) !important",
+            color: "var(--secondary-dark-color) !important",
+            backgroundColor: "var(--divider-color) !important",
+            opacity: 0.25,
+          },
+        })
+      : EditorView.theme({}),
     tooltips({
       position: "absolute",
     }),

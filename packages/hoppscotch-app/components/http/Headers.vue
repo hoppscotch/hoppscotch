@@ -137,6 +137,57 @@
             />
           </span>
         </div>
+        <div
+          v-for="(header, index) in computedHeaders"
+          :key="`header-${index}`"
+          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+        >
+          <span>
+            <ButtonSecondary
+              svg="grip-vertical"
+              class="cursor-auto text-primary hover:text-primary"
+              tabindex="-1"
+            />
+          </span>
+          <SmartEnvInput
+            v-model="header.header.key"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <SmartEnvInput
+            :value="maskAuth(header)"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                header.hasOwnProperty('active')
+                  ? header.active
+                    ? t('action.turn_off')
+                    : t('action.turn_on')
+                  : t('action.turn_off')
+              "
+              :svg="
+                header.hasOwnProperty('active')
+                  ? header.active
+                    ? 'check-circle'
+                    : 'circle'
+                  : 'check-circle'
+              "
+              color="green"
+            />
+          </span>
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.remove')"
+              svg="trash"
+              color="red"
+            />
+          </span>
+        </div>
       </draggable>
       <div
         v-if="workingHeaders.length === 0"
@@ -162,7 +213,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "@nuxtjs/composition-api"
+import { computed, Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
 import {
   HoppRESTHeader,
@@ -178,12 +229,27 @@ import * as A from "fp-ts/Array"
 import cloneDeep from "lodash/cloneDeep"
 import draggable from "vuedraggable"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
+import {
+  getRESTRequest,
+  restHeaders$,
+  restRequest$,
+  setRESTHeaders,
+} from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
-import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
+import {
+  useI18n,
+  useReadonlyStream,
+  useStream,
+  useToast,
+} from "~/helpers/utils/composables"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
+import {
+  ComputedHeader,
+  getComputedHeaders,
+} from "~/helpers/utils/EffectiveURL"
+import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
 
 const t = useI18n()
 const toast = useToast()
@@ -378,5 +444,18 @@ const clearContent = () => {
   ]
 
   bulkHeaders.value = ""
+}
+
+const restRequest = useReadonlyStream(restRequest$, getRESTRequest())
+const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
+
+const computedHeaders = computed(() =>
+  getComputedHeaders(restRequest.value, aggregateEnvs.value)
+)
+
+const maskAuth = (header: ComputedHeader) => {
+  if (header.source === "auth")
+    return header.header.value.replace(/[a-z]/gi, "*")
+  return header.header.value
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center flex-1 flex-shrink-0 overflow-auto whitespace-nowrap hide-scrollbar"
+    class="flex flex-1 flex-shrink-0 items-center overflow-auto whitespace-nowrap hide-scrollbar"
   >
     <div
       ref="editor"
@@ -47,6 +47,7 @@ const props = withDefaults(
     styles: string
     envs: { key: string; value: string; source: string }[] | null
     focus: boolean
+    readonly: boolean
   }>(),
   {
     value: "",
@@ -54,6 +55,7 @@ const props = withDefaults(
     styles: "",
     envs: null,
     focus: false,
+    readonly: false,
   }
 )
 
@@ -123,6 +125,12 @@ const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
 const initView = (el: any) => {
   const extensions: Extension = [
     EditorView.contentAttributes.of({ "aria-label": props.placeholder }),
+    EditorView.updateListener.of((update) => {
+      if (props.readonly) {
+        update.view.contentDOM.inputMode = "none"
+      }
+    }),
+    EditorState.changeFilter.of(() => !props.readonly),
     inputTheme,
     tooltips({
       position: "absolute",
@@ -141,6 +149,8 @@ const initView = (el: any) => {
     ViewPlugin.fromClass(
       class {
         update(update: ViewUpdate) {
+          if (props.readonly) return
+
           if (update.docChanged) {
             const prevValue = clone(cachedValue.value)
 

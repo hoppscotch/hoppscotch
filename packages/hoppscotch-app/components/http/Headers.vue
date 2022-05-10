@@ -455,7 +455,7 @@ const toggleMask = () => {
 
 const mask = (header: ComputedHeader) => {
   if (header.source === "auth" && masking.value)
-    return header.header.value.replace(/[a-z]/gi, "*")
+    return header.header.value.replace(/\S/gi, "*")
   return header.header.value
 }
 

@@ -77,6 +77,12 @@ import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
 import { useSentry } from "~/helpers/sentry"
 import { useColorMode } from "~/helpers/utils/composables"
+import {
+  changeExtensionStatus,
+  ExtensionStatus,
+} from "~/newstore/HoppExtension"
+
+import { defineSubscribableObject } from "~/helpers/strategies/ExtensionStrategy"
 
 function appLayout() {
   const rightSidebar = useSetting("SIDEBAR")
@@ -288,6 +294,25 @@ export default defineComponent({
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)
+
+    if (window.__HOPP_EXTENSION_STATUS_PROXY__) {
+      changeExtensionStatus(window.__HOPP_EXTENSION_STATUS_PROXY__.status)
+
+      window.__HOPP_EXTENSION_STATUS_PROXY__.subscribe(
+        "status",
+        (status: ExtensionStatus) => changeExtensionStatus(status)
+      )
+    } else {
+      const statusProxy = defineSubscribableObject({
+        status: "waiting" as ExtensionStatus,
+      })
+
+      window.__HOPP_EXTENSION_STATUS_PROXY__ = statusProxy
+
+      statusProxy.subscribe("status", (status: ExtensionStatus) =>
+        changeExtensionStatus(status)
+      )
+    }
   },
 })
 </script>

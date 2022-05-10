@@ -21,6 +21,41 @@ export const cancelRunningExtensionRequest = () => {
   }
 }
 
+export const defineSubscribableObject = <T extends object>(obj: T) => {
+  const proxyObject = {
+    ...obj,
+    _subscribers: {} as {
+      // eslint-disable-next-line no-unused-vars
+      [key in keyof T]?: ((...args: any[]) => any)[]
+    },
+    subscribe(prop: keyof T, func: (...args: any[]) => any): void {
+      if (Array.isArray(this._subscribers[prop])) {
+        this._subscribers[prop]?.push(func)
+      } else {
+        this._subscribers[prop] = [func]
+      }
+    },
+  }
+
+  type subscribableProxyObject = typeof proxyObject
+
+  return new Proxy(proxyObject, {
+    set(obj, prop, newVal) {
+      obj[prop as keyof subscribableProxyObject] = newVal
+
+      const currentSubscribers = obj._subscribers[prop as keyof T]
+
+      if (Array.isArray(currentSubscribers)) {
+        for (const subscriber of currentSubscribers) {
+          subscriber(newVal)
+        }
+      }
+
+      return true
+    },
+  })
+}
+
 const extensionStrategy: NetworkStrategy = (req) =>
   pipe(
     TE.Do,

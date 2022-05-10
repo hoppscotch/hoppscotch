@@ -172,7 +172,10 @@
             />
           </span>
           <span>
-            <ButtonSecondary svg="arrow-up-right" />
+            <ButtonSecondary
+              svg="arrow-up-right"
+              @click.native="changeTab(header.source)"
+            />
           </span>
         </div>
       </draggable>
@@ -248,6 +251,10 @@ const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+const emit = defineEmits<{
+  (e: "change-tab", value: string): void
+}>()
 
 useCodemirror(bulkEditor, bulkHeaders, {
   extendedEditorConfig: {
@@ -450,5 +457,10 @@ const mask = (header: ComputedHeader) => {
   if (header.source === "auth" && masking.value)
     return header.header.value.replace(/[a-z]/gi, "*")
   return header.header.value
+}
+
+const changeTab = (tab: "auth" | "body") => {
+  if (tab === "auth") emit("change-tab", "authorization")
+  else emit("change-tab", "bodyParams")
 }
 </script>

@@ -212,20 +212,20 @@
                       class="table w-full border-collapse table-auto"
                     >
                       <div class="hidden rounded lg:table-header-group">
-                        <div class="table-row p-2">
-                          <div class="table-cell font-semibold">
+                        <div class="table-row bg-primaryLight">
+                          <div class="table-cell px-4 py-2 font-semibold">
                             {{ t("shortcodes.short_code") }}
                           </div>
-                          <div class="table-cell font-semibold">
+                          <div class="table-cell px-4 py-2 font-semibold">
                             {{ t("shortcodes.method") }}
                           </div>
-                          <div class="table-cell font-semibold">
+                          <div class="table-cell px-4 py-2 font-semibold">
                             {{ t("shortcodes.url") }}
                           </div>
-                          <div class="table-cell font-semibold">
+                          <div class="table-cell px-4 py-2 font-semibold">
                             {{ t("shortcodes.created_on") }}
                           </div>
-                          <div class="table-cell font-semibold">
+                          <div class="table-cell px-4 py-2 font-semibold">
                             {{ t("shortcodes.actions") }}
                           </div>
                         </div>

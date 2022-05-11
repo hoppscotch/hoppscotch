@@ -1,12 +1,10 @@
 <template>
   <div class="block my-10 lg:my-0 lg:table-row lg:p-2">
-    <div class="table-cell" :data-label="t('shortcodes.short_code')">
-      <div class="truncate max-w-30">
-        {{ shortCode.id }}
-      </div>
+    <div class="table-col" :data-label="t('shortcodes.short_code')">
+      {{ shortCode.id }}
     </div>
     <div
-      class="table-cell"
+      class="table-col"
       :class="
         getRequestLabelColor(parseShortcodeRequest(shortCode.request).method)
       "
@@ -14,14 +12,12 @@
     >
       {{ parseShortcodeRequest(shortCode.request).method }}
     </div>
-    <div class="table-cell" :data-label="t('shortcodes.url')">
-      <div class="mx-0 truncate max-w-45 lg:mx-auto hover:text-clip">
-        {{ parseShortcodeRequest(shortCode.request).endpoint }}
-      </div>
+    <div class="table-col" :data-label="t('shortcodes.url')">
+      {{ parseShortcodeRequest(shortCode.request).endpoint }}
     </div>
     <div
       ref="timeStampRef"
-      class="table-cell lg:w-25"
+      class="table-col"
       :data-label="t('shortcodes.created_on')"
     >
       {{
@@ -30,32 +26,33 @@
           : new Date(shortCode.createdOn).toLocaleDateString()
       }}
     </div>
-    <div class="table-cell" :data-label="t('shortcodes.actions')">
-      <div class="flex justify-end lg:justify-center space-x-1">
-        <SmartAnchor
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.open_workspace')"
-          :to="`https://hopp.sh/r/${shortCode.id}`"
-          blank
-          svg="external-link"
-          color="blue"
-          class="p-2"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.copy')"
-          color="green"
-          :svg="copyIconRefs"
-          @click.native="copyShortCode(shortCode.id)"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.delete')"
-          svg="trash"
-          color="red"
-          @click.native="deleteShortCode(shortCode.id)"
-        />
-      </div>
+    <div
+      class="flex items-center justify-center border divide-x lg:table-cell border-dividerLight divide-dividerLight"
+      :data-label="t('shortcodes.actions')"
+    >
+      <SmartAnchor
+        v-tippy="{ theme: 'tooltip' }"
+        :title="t('action.open_workspace')"
+        :to="`https://hopp.sh/r/${shortCode.id}`"
+        blank
+        svg="external-link"
+        color="blue"
+        class="p-2"
+      />
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="t('action.copy')"
+        color="green"
+        :svg="copyIconRefs"
+        @click.native="copyShortCode(shortCode.id)"
+      />
+      <ButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="t('action.delete')"
+        svg="trash"
+        color="red"
+        @click.native="deleteShortCode(shortCode.id)"
+      />
     </div>
   </div>
 </template>
@@ -113,11 +110,12 @@ const getRequestLabelColor = (method: string) =>
 </script>
 
 <style lang="scss">
-.table-cell {
-  @apply flex justify-between items-center py-4 px-3 lg:py-3 lg:px-2 lg:table-cell border-1 border-dividerLight lg:text-center;
+.table-col {
+  @apply flex items-center justify-center lg:table-cell border border-dividerLight px-4 py-2;
 }
+
 .table-row-group {
-  .table-cell {
+  .table-col {
     @apply before:text-secondary before:font-bold before:content-[attr(data-label)] lg:before:hidden;
   }
 }

@@ -49,8 +49,8 @@ export class MQTTConnection {
         "hoppscotch"
       )
       const connectOptions: ConnectionOptions = {
-        onSuccess: this.onConnectionSuccess,
-        onFailure: this.onConnectionFailure,
+        onSuccess: this.onConnectionSuccess.bind(this),
+        onFailure: this.onConnectionFailure.bind(this),
         useSSL: parseUrl.protocol !== "ws:",
       }
       if (username !== "") {
@@ -60,8 +60,8 @@ export class MQTTConnection {
         connectOptions.password = password
       }
       this.mqttclient.connect(connectOptions)
-      this.mqttclient.onConnectionLost = this.onConnectionLost
-      this.mqttclient.onMessageArrived = this.onMessageArrived
+      this.mqttclient.onConnectionLost = this.onConnectionLost.bind(this)
+      this.mqttclient.onMessageArrived = this.onMessageArrived.bind(this)
     } catch (e) {
       this.handleError(e)
     }
@@ -108,6 +108,7 @@ export class MQTTConnection {
   }
 
   onMessageArrived(data: { payloadString: string; destinationName: string }) {
+    console.log(data)
     const { payloadString, destinationName } = data
     this.addEvent({
       time: Date.now(),
@@ -166,8 +167,8 @@ export class MQTTConnection {
   subscribe(topic: string) {
     try {
       this.mqttclient?.subscribe(topic, {
-        onSuccess: this.usubSuccess,
-        onFailure: this.usubFailure,
+        onSuccess: this.usubSuccess.bind(this),
+        onFailure: this.usubFailure.bind(this),
       })
     } catch (e) {
       this.addEvent({
@@ -202,8 +203,8 @@ export class MQTTConnection {
 
   unsubscribe(topic: string) {
     this.mqttclient?.unsubscribe(topic, {
-      onSuccess: this.usubSuccess,
-      onFailure: this.usubFailure,
+      onSuccess: this.usubSuccess.bind(this),
+      onFailure: this.usubFailure.bind(this),
     })
   }
 

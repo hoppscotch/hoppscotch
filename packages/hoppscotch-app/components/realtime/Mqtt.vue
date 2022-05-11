@@ -121,9 +121,7 @@
           name="get"
           :disabled="!canSubscribe"
           :label="
-            socket.subscriptionState
-              ? $t('mqtt.unsubscribe')
-              : $t('mqtt.subscribe')
+            subscriptionState ? $t('mqtt.unsubscribe') : $t('mqtt.subscribe')
           "
           reverse
           @click.native="toggleSubscription"
@@ -176,6 +174,10 @@ const socket = useStream(MQTTConn$, new MQTTConnection(), setMQTTConn)
 const connectionState = useReadonlyStream(
   socket.value.connectionState$,
   "DISCONNECTED"
+)
+const subscriptionState = useReadonlyStream(
+  socket.value.subscriptionState$,
+  false
 )
 
 const isUrlValid = ref(true)
@@ -250,7 +252,7 @@ onMounted(() => {
 
       case "SUBSCRIBED":
         addMQTTLogLine({
-          payload: socket.value.subscriptionState$.value
+          payload: subscriptionState.value
             ? `${t("state.subscribed_success", { topic: subTopic.value })}`
             : `${t("state.unsubscribed_success", { topic: subTopic.value })}`,
           source: "server",
@@ -260,7 +262,7 @@ onMounted(() => {
 
       case "SUBSCRIPTION_FAILED":
         addMQTTLogLine({
-          payload: socket.value.subscriptionState$.value
+          payload: subscriptionState.value
             ? `${t("state.subscribed_failed", { topic: subTopic.value })}`
             : `${t("state.unsubscribed_failed", { topic: subTopic.value })}`,
           source: "server",
@@ -319,7 +321,7 @@ const publish = () => {
   socket.value?.publish(pubTopic.value, message.value)
 }
 const toggleSubscription = () => {
-  if (socket.value.subscriptionState$.value) {
+  if (subscriptionState.value) {
     socket.value.unsubscribe(subTopic.value)
   } else {
     socket.value.subscribe(subTopic.value)

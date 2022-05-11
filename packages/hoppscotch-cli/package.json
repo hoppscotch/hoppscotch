@@ -16,7 +16,8 @@
     "debugger": "node debugger.js 9999",
     "prepublish": "pnpm exec tsup",
     "prettier-format": "prettier --config .prettierrc 'src/**/*.ts' --write",
-    "do-typecheck": "pnpm exec tsc --noEmit"
+    "do-typecheck": "pnpm exec tsc --noEmit",
+    "test": "pnpm run build && jest && rm -rf dist"
   },
   "keywords": [
     "cli",
@@ -37,19 +38,26 @@
   "devDependencies": {
     "@hoppscotch/data": "workspace:^0.4.2",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",
-    "@swc/core": "^1.2.163",
+    "@relmify/jest-fp-ts": "^2.0.2",
+    "@swc/core": "^1.2.181",
     "@types/axios": "^0.14.0",
     "@types/chalk": "^2.2.0",
     "@types/commander": "^2.12.2",
+    "@types/jest": "^27.4.1",
+    "@types/lodash": "^4.14.181",
+    "@types/qs": "^6.9.7",
     "axios": "^0.21.4",
     "chalk": "^4.1.1",
     "commander": "^8.0.0",
     "esm": "^3.2.25",
-    "fp-ts": "^2.11.3",
+    "fp-ts": "^2.12.1",
+    "io-ts": "^2.2.16",
+    "jest": "^27.5.1",
     "lodash": "^4.17.21",
     "prettier": "^2.6.2",
     "qs": "^6.10.3",
-    "tsup": "^5.12.4",
-    "typescript": "^4.6.3"
+    "ts-jest": "^27.1.4",
+    "tsup": "^5.12.7",
+    "typescript": "^4.6.4"
   }
 }

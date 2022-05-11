@@ -1,0 +1,29 @@
+[
+	{
+		"v": 1,
+		"folders": [],
+		"requests": 
+			{
+				"v": "1",
+				"endpoint": "https://echo.hoppscotch.io/<<HEADERS_TYPE1>>",
+				"name": "fail",
+				"params": [],
+				"headers": [],
+				"method": "GET",
+				"auth": {
+					"authType": "none",
+					"authActive": true,
+					"addTo": "Headers",
+					"key": "",
+					"value": ""
+				},
+				"preRequestScript": "pw.env.set(\"HEADERS_TYPE1\", \"devblin_local1\");",
+				"testScript": "// Check status code is 200\npw.test(\"Status code is 200\", ()=> {\n    pw.expect(pw.response.status).toBe(200);\n});\n\n// Check JSON response property\npw.test(\"Check JSON response property\", ()=> {\n    pw.expect(pw.response.body.method).toBe(\"GET\");\n    pw.expect(pw.response.body.headers).toBeType(\"string\");\n});",
+				"body": {
+					"contentType": "application/json",
+					"body": "{\n\"test\": \"<<HEADERS_TYPE1>>\"\n}"
+				}
+			}
+		]
+	}
+]

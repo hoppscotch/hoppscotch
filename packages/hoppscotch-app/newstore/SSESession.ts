@@ -4,6 +4,7 @@ import {
   HoppRealtimeLog,
   HoppRealtimeLogLine,
 } from "~/helpers/types/HoppRealtimeLog"
+import { SSEConnection } from "~/helpers/realtime/SSEConnection"
 
 type HoppSSERequest = {
   endpoint: string
@@ -12,10 +13,8 @@ type HoppSSERequest = {
 
 type HoppSSESession = {
   request: HoppSSERequest
-  connectingState: boolean
-  connectionState: boolean
   log: HoppRealtimeLog
-  socket: EventSource | null
+  socket: SSEConnection
 }
 
 const defaultSSERequest: HoppSSERequest = {
@@ -25,9 +24,7 @@ const defaultSSERequest: HoppSSERequest = {
 
 const defaultSSESession: HoppSSESession = {
   request: defaultSSERequest,
-  connectionState: false,
-  connectingState: false,
-  socket: null,
+  socket: new SSEConnection(),
   log: [],
 }
 
@@ -56,19 +53,9 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setSocket(_: HoppSSESession, { socket }: { socket: EventSource }) {
+  setSocket(_: HoppSSESession, { socket }: { socket: SSEConnection }) {
     return {
       socket,
-    }
-  },
-  setConnectionState(_: HoppSSESession, { state }: { state: boolean }) {
-    return {
-      connectionState: state,
-    }
-  },
-  setConnectingState(_: HoppSSESession, { state }: { state: boolean }) {
-    return {
-      connectingState: state,
     }
   },
   setLog(_: HoppSSESession, { log }: { log: HoppRealtimeLog }) {
@@ -112,28 +99,11 @@ export function setSSEEventType(newType: string) {
   })
 }
 
-export function setSSESocket(socket: EventSource) {
+export function setSSESocket(socket: SSEConnection) {
   SSESessionStore.dispatch({
     dispatcher: "setSocket",
     payload: {
       socket,
-    },
-  })
-}
-
-export function setSSEConnectionState(state: boolean) {
-  SSESessionStore.dispatch({
-    dispatcher: "setConnectionState",
-    payload: {
-      state,
-    },
-  })
-}
-export function setSSEConnectingState(state: boolean) {
-  SSESessionStore.dispatch({
-    dispatcher: "setConnectingState",
-    payload: {
-      state,
     },
   })
 }
@@ -173,11 +143,6 @@ export const SSEEventType$ = SSESessionStore.subject$.pipe(
 
 export const SSEConnectingState$ = SSESessionStore.subject$.pipe(
   pluck("connectingState"),
-  distinctUntilChanged()
-)
-
-export const SSEConnectionState$ = SSESessionStore.subject$.pipe(
-  pluck("connectionState"),
   distinctUntilChanged()
 )
 

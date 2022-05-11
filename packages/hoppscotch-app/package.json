@@ -153,6 +153,7 @@
     "@types/paho-mqtt": "^1.0.6",
     "@types/postman-collection": "^3.5.7",
     "@types/qs": "^6.9.7",
+    "@types/socketio-wildcard": "^2.0.4",
     "@types/splitpanes": "^2.2.1",
     "@types/uuid": "^8.3.4",
     "@types/yargs-parser": "^21.0.0",

@@ -1,6 +1,6 @@
-import { pluck, distinctUntilChanged } from "rxjs/operators"
-import { Client as MQTTClient } from "paho-mqtt"
+import { distinctUntilChanged, pluck } from "rxjs/operators"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
+import { MQTTConnection } from "~/helpers/realtime/MQTTConnection"
 import {
   HoppRealtimeLog,
   HoppRealtimeLogLine,
@@ -12,11 +12,9 @@ type HoppMQTTRequest = {
 
 type HoppMQTTSession = {
   request: HoppMQTTRequest
-  connectingState: boolean
-  connectionState: boolean
   subscriptionState: boolean
   log: HoppRealtimeLog
-  socket: MQTTClient | null
+  socket: MQTTConnection
 }
 
 const defaultMQTTRequest: HoppMQTTRequest = {
@@ -25,10 +23,8 @@ const defaultMQTTRequest: HoppMQTTRequest = {
 
 const defaultMQTTSession: HoppMQTTSession = {
   request: defaultMQTTRequest,
-  connectionState: false,
-  connectingState: false,
   subscriptionState: false,
-  socket: null,
+  socket: new MQTTConnection(),
   log: [],
 }
 
@@ -48,19 +44,9 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setSocket(_: HoppMQTTSession, { socket }: { socket: MQTTClient }) {
+  setConn(_: HoppMQTTSession, { socket }: { socket: MQTTConnection }) {
     return {
       socket,
-    }
-  },
-  setConnectionState(_: HoppMQTTSession, { state }: { state: boolean }) {
-    return {
-      connectionState: state,
-    }
-  },
-  setConnectingState(_: HoppMQTTSession, { state }: { state: boolean }) {
-    return {
-      connectingState: state,
     }
   },
   setSubscriptionState(_: HoppMQTTSession, { state }: { state: boolean }) {
@@ -100,29 +86,11 @@ export function setMQTTEndpoint(newEndpoint: string) {
   })
 }
 
-export function setMQTTSocket(socket: MQTTClient) {
+export function setMQTTConn(socket: MQTTConnection) {
   MQTTSessionStore.dispatch({
-    dispatcher: "setSocket",
+    dispatcher: "setConn",
     payload: {
       socket,
-    },
-  })
-}
-
-export function setMQTTConnectionState(state: boolean) {
-  MQTTSessionStore.dispatch({
-    dispatcher: "setConnectionState",
-    payload: {
-      state,
-    },
-  })
-}
-
-export function setMQTTConnectingState(state: boolean) {
-  MQTTSessionStore.dispatch({
-    dispatcher: "setConnectingState",
-    payload: {
-      state,
     },
   })
 }
@@ -179,7 +147,7 @@ export const MQTTSubscriptionState$ = MQTTSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const MQTTSocket$ = MQTTSessionStore.subject$.pipe(
+export const MQTTConn$ = MQTTSessionStore.subject$.pipe(
   pluck("socket"),
   distinctUntilChanged()
 )

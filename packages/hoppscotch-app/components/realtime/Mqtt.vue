@@ -215,7 +215,7 @@ onMounted(() => {
             payload: `${t("state.connecting_to", { name: url.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: "",
+            ts: 0,
           },
         ]
         break
@@ -226,7 +226,7 @@ onMounted(() => {
             payload: `${t("state.connected_to", { name: url.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: new Date().toLocaleTimeString(),
+            ts: Date.now(),
           },
         ]
         toast.success(`${t("state.connected")}`)
@@ -236,7 +236,7 @@ onMounted(() => {
         addMQTTLogLine({
           payload: transformToI18n(event.message),
           source: "client",
-          ts: new Date().toLocaleTimeString(),
+          ts: Date.now(),
         })
         break
 
@@ -244,7 +244,7 @@ onMounted(() => {
         addMQTTLogLine({
           payload: transformToI18n(event.message),
           source: "server",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -254,7 +254,7 @@ onMounted(() => {
             ? `${t("state.subscribed_success", { topic: subTopic.value })}`
             : `${t("state.unsubscribed_success", { topic: subTopic.value })}`,
           source: "server",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -264,7 +264,7 @@ onMounted(() => {
             ? `${t("state.subscribed_failed", { topic: subTopic.value })}`
             : `${t("state.unsubscribed_failed", { topic: subTopic.value })}`,
           source: "server",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -277,7 +277,7 @@ onMounted(() => {
             ),
           source: "info",
           color: "#ff5555",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -286,7 +286,7 @@ onMounted(() => {
           payload: t("state.disconnected_from", { name: url.value }).toString(),
           source: "info",
           color: "#ff5555",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         toast.error(`${t("state.disconnected")}`)
         break

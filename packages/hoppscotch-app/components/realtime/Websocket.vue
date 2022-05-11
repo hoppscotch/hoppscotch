@@ -259,7 +259,7 @@ onMounted(() => {
             payload: `${t("state.connecting_to", { name: url.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: "",
+            ts: 0,
           },
         ]
         break
@@ -270,7 +270,7 @@ onMounted(() => {
             payload: `${t("state.connected_to", { name: url.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: new Date().toLocaleTimeString(),
+            ts: Date.now(),
           },
         ]
         toast.success(`${t("state.connected")}`)
@@ -280,7 +280,7 @@ onMounted(() => {
         addWSLogLine({
           payload: event.message,
           source: "client",
-          ts: new Date().toLocaleTimeString(),
+          ts: Date.now(),
         })
         break
 
@@ -288,7 +288,7 @@ onMounted(() => {
         addWSLogLine({
           payload: event.message,
           source: "server",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -299,7 +299,7 @@ onMounted(() => {
             t("state.disconnected_from", { name: url.value }).toString(),
           source: "info",
           color: "#ff5555",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -308,7 +308,7 @@ onMounted(() => {
           payload: t("state.disconnected_from", { name: url.value }).toString(),
           source: "info",
           color: "#ff5555",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         toast.error(`${t("state.disconnected")}`)
         break

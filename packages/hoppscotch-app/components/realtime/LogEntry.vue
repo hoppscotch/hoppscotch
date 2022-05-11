@@ -11,7 +11,10 @@
               @click.native="copyQuery(entry.payload)"
             />
           </div>
-          <div class="items-center hidden px-1 w-18 sm:inline-flex">
+          <div
+            v-if="entry.ts"
+            class="items-center hidden px-1 w-18 sm:inline-flex"
+          >
             <span
               v-tippy="{ theme: 'tooltip' }"
               :title="relativeTime"

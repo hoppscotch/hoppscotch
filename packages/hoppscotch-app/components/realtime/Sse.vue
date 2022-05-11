@@ -131,7 +131,7 @@ onMounted(() => {
             payload: `${t("state.connecting_to", { name: server.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: "",
+            ts: 0,
           },
         ]
         break
@@ -142,7 +142,7 @@ onMounted(() => {
             payload: `${t("state.connected_to", { name: server.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: new Date().toLocaleTimeString(),
+            ts: Date.now(),
           },
         ]
         toast.success(`${t("state.connected")}`)
@@ -152,7 +152,7 @@ onMounted(() => {
         addSSELogLine({
           payload: event.message,
           source: "server",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -163,7 +163,7 @@ onMounted(() => {
             t("state.disconnected_from", { name: server.value }).toString(),
           source: "info",
           color: "#ff5555",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         break
 
@@ -174,7 +174,7 @@ onMounted(() => {
           }).toString(),
           source: "info",
           color: "#ff5555",
-          ts: new Date(event.time).toLocaleTimeString(),
+          ts: event.time,
         })
         toast.error(`${t("state.disconnected")}`)
         break

@@ -137,6 +137,47 @@
             />
           </span>
         </div>
+        <div
+          v-for="(header, index) in computedHeaders"
+          :key="`header-${index}`"
+          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+        >
+          <span>
+            <ButtonSecondary
+              svg="lock"
+              class="opacity-25 cursor-auto text-secondaryLight bg-divider"
+              tabindex="-1"
+            />
+          </span>
+          <SmartEnvInput
+            v-model="header.header.key"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <SmartEnvInput
+            :value="mask(header)"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            readonly
+          />
+          <span>
+            <ButtonSecondary
+              v-if="header.source === 'auth'"
+              :svg="masking ? 'eye' : 'eye-off'"
+              @click.native="toggleMask()"
+            />
+            <ButtonSecondary
+              v-else
+              svg="arrow-up-right"
+              class="cursor-auto text-primary hover:text-primary"
+            />
+          </span>
+          <span>
+            <ButtonSecondary
+              svg="arrow-up-right"
+              @click.native="changeTab(header.source)"
+            />
+          </span>
+        </div>
       </draggable>
       <div
         v-if="workingHeaders.length === 0"
@@ -162,7 +203,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "@nuxtjs/composition-api"
+import { computed, Ref, ref, watch } from "@nuxtjs/composition-api"
 import isEqual from "lodash/isEqual"
 import {
   HoppRESTHeader,
@@ -177,13 +218,29 @@ import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import cloneDeep from "lodash/cloneDeep"
 import draggable from "vuedraggable"
+import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { restHeaders$, setRESTHeaders } from "~/newstore/RESTSession"
+import {
+  getRESTRequest,
+  restHeaders$,
+  restRequest$,
+  setRESTHeaders,
+} from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
-import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
+import {
+  useI18n,
+  useReadonlyStream,
+  useStream,
+  useToast,
+} from "~/helpers/utils/composables"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
 import { objRemoveKey } from "~/helpers/functional/object"
+import {
+  ComputedHeader,
+  getComputedHeaders,
+} from "~/helpers/utils/EffectiveURL"
+import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
 
 const t = useI18n()
 const toast = useToast()
@@ -195,6 +252,10 @@ const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+const emit = defineEmits<{
+  (e: "change-tab", value: RequestOptionTabs): void
+}>()
 
 useCodemirror(bulkEditor, bulkHeaders, {
   extendedEditorConfig: {
@@ -378,5 +439,29 @@ const clearContent = () => {
   ]
 
   bulkHeaders.value = ""
+}
+
+const restRequest = useReadonlyStream(restRequest$, getRESTRequest())
+const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
+
+const computedHeaders = computed(() =>
+  getComputedHeaders(restRequest.value, aggregateEnvs.value)
+)
+
+const masking = ref(true)
+
+const toggleMask = () => {
+  masking.value = !masking.value
+}
+
+const mask = (header: ComputedHeader) => {
+  if (header.source === "auth" && masking.value)
+    return header.header.value.replace(/\S/gi, "*")
+  return header.header.value
+}
+
+const changeTab = (tab: ComputedHeader["source"]) => {
+  if (tab === "auth") emit("change-tab", "authorization")
+  else emit("change-tab", "bodyParams")
 }
 </script>

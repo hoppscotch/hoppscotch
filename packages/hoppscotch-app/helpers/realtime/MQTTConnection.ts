@@ -2,17 +2,17 @@ import Paho, { ConnectionOptions } from "paho-mqtt"
 import { BehaviorSubject } from "rxjs"
 import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 
-export type i18nType = { key: string; values: { [key: string]: string } }
+export type MQTTMessage = { key: string; values: { [key: string]: string } }
 
 export type MQTTEvent = { time: number } & (
   | { type: "CONNECTING" }
   | { type: "CONNECTED" }
-  | { type: "MESSAGE_SENT"; message: i18nType | string }
+  | { type: "MESSAGE_SENT"; message: MQTTMessage | string }
   | { type: "SUBSCRIBED"; topic: string }
   | { type: "SUBSCRIPTION_FAILED"; topic: string }
-  | { type: "MESSAGE_RECEIVED"; message: i18nType | string }
+  | { type: "MESSAGE_RECEIVED"; message: MQTTMessage | string }
   | { type: "DISCONNECTED"; manual: boolean }
-  | { type: "ERROR"; error: i18nType | string }
+  | { type: "ERROR"; error: MQTTMessage | string }
 )
 
 export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"

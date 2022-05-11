@@ -160,7 +160,7 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import {
-  i18nType,
+  MQTTMessage,
   MQTTConnection,
   MQTTEvent,
 } from "~/helpers/realtime/MQTTConnection"
@@ -325,7 +325,7 @@ const toggleSubscription = () => {
     socket.value.subscribe(subTopic.value)
   }
 }
-const transformToI18n = (data: string | i18nType): string => {
+const transformToI18n = (data: string | MQTTMessage): string => {
   if (typeof data === "string") return data
   return t(data.key, data.values).toString()
 }

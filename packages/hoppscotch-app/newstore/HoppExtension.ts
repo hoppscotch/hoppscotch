@@ -3,8 +3,12 @@ import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 export type ExtensionStatus = "available" | "unknown-origin" | "waiting"
 
-const initialState = {
-  extensionStatus: "waiting" as ExtensionStatus,
+type InitialState = {
+  extensionStatus: ExtensionStatus
+}
+
+const initialState: InitialState = {
+  extensionStatus: "waiting",
 }
 
 const dispatchers = defineDispatchers({

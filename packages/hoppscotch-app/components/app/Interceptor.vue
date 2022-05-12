@@ -46,8 +46,9 @@ import {
   toggleSetting,
   useSetting,
 } from "~/newstore/settings"
-import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
-import { useI18n, usePolled } from "~/helpers/utils/composables"
+
+import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
+import { extensionStatus } from "~/newstore/HoppExtension"
 
 const t = useI18n()
 
@@ -74,15 +75,12 @@ const toggleSettingKey = <
   }
 }
 
-const extensionVersion = usePolled(5000, (stopPolling) => {
-  const result = hasExtensionInstalled()
+const currentExtensionStatus = useReadonlyStream(extensionStatus, null)
+
+const extensionVersion = computed(() => {
+  return currentExtensionStatus.value === "available"
     ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
     : null
-
-  // We don't need to poll anymore after we get value
-  if (result) stopPolling()
-
-  return result
 })
 
 const interceptors = computed(() => [

@@ -1,0 +1,34 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Push build files to Netlify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install pnpm
+        run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Setup Environment
+        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
+      - name: Build Site
+        run: pnpm run generate
+
+      # Deploy the site with netlify-cli
+      - name: Deploy to Netlify
+        uses: netlify/actions/cli@master
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        with:
+          args: deploy --dir=packages/hoppscotch-app/dist --prod

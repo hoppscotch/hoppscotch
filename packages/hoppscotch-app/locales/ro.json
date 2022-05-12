@@ -9,6 +9,7 @@
     "delete": "Șterge",
     "disconnect": "Deconectat",
     "dismiss": "Renunță",
+    "dont_save": "Don't save",
     "download_file": "Descărcare fișier",
     "duplicate": "Duplicate",
     "edit": "Editați | ×",
@@ -44,6 +45,10 @@
     "chat_with_us": "Vorbeste cu noi",
     "contact_us": "Contactează-ne",
     "copy": "Copie",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Documentație",
     "github": "GitHub",
     "help": "Ajutor, feedback și documentație",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Comenzi rapide de la tastatură",
     "name": "Hoppscotch",
     "new_version_found": "Nouă versiune găsită. Reîmprospătați pentru a actualiza.",
+    "options": "Options",
     "proxy_privacy_policy": "Politica de confidențialitate proxy",
     "reload": "Reîncarcă",
     "search": "Căutare",
@@ -62,6 +68,7 @@
     "shortcuts": "Comenzi rapide",
     "spotlight": "În centrul atenției",
     "status": "stare",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Termeni și confidențialitate",
     "twitter": "Stare de nervozitate",
     "type_a_command_search": "Tastați o comandă sau căutați ...",
@@ -124,6 +131,7 @@
     "remove_request": "Sigur doriți să ștergeți definitiv această solicitare?",
     "remove_team": "Sigur doriți să ștergeți această echipă?",
     "remove_telemetry": "Sigur doriți să renunțați la telemetrie?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Sigur doriți să sincronizați acest spațiu de lucru?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Creați un mediu nou",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Editați mediul",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru mediu",
@@ -233,6 +242,7 @@
     "tests": "Scrieți un script de test pentru automatizarea depanării."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Ascunde mai mult",
     "preview": "Ascundeți previzualizarea",
     "sidebar": "Ascunde bara laterală"
@@ -259,7 +269,10 @@
     "title": "Import"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Modul Zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Vă rugăm să furnizați un nume pentru cerere",
     "method": "Metodă",
     "name": "Solicitați numele",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Parametrii interogării",
     "parameters": "Parametrii",
     "path": "cale",
@@ -339,6 +356,7 @@
     "save_as": "Salvează ca",
     "saved": "Cererea a fost salvată",
     "share": "Acțiune",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Cerere",
     "type": "Tip de solicitare",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Versiune extensie",
     "extensions": "Extensii",
     "extensions_use_toggle": "Utilizați extensia browserului pentru a trimite cereri (dacă există)",
+    "follow": "Follow Us",
     "font_size": "Marimea fontului",
     "font_size_large": "Mare",
     "font_size_medium": "Mediu",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Afișați codul",
+    "collection": "Expand Collection Panel",
     "more": "Afișați mai multe",
     "sidebar": "Afișați bara laterală"
   },
@@ -505,6 +525,7 @@
     "community": "Puneți întrebări și ajutați-i pe ceilalți",
     "documentation": "Citiți mai multe despre Hoppscotch",
     "forum": "Puneți întrebări și primiți răspunsuri",
+    "github": "Follow us on Github",
     "shortcuts": "Răsfoiți aplicația mai repede",
     "team": "Luați legătura cu echipa",
     "title": "A sustine",

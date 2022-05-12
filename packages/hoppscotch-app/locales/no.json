@@ -9,6 +9,7 @@
     "delete": "Slett",
     "disconnect": "Koble fra",
     "dismiss": "Avbryt",
+    "dont_save": "Don't save",
     "download_file": "Last ned fil",
     "duplicate": "Duplicate",
     "edit": "Rediger",
@@ -44,6 +45,10 @@
     "chat_with_us": "Snakk med oss",
     "contact_us": "Kontakt oss",
     "copy": "Kopiere",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentasjon",
     "github": "GitHub",
     "help": "Hjelp, tilbakemelding og dokumentasjon",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Tastatursnarveier",
     "name": "Hoppscotch",
     "new_version_found": "Ny versjon funnet. Last ned for å oppdatere.",
+    "options": "Options",
     "proxy_privacy_policy": "Personvernerklæring for proxy",
     "reload": "Last på nytt",
     "search": "Søk",
@@ -62,6 +68,7 @@
     "shortcuts": "Snarveier",
     "spotlight": "Spotlight",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Vilkår og personvern",
     "twitter": "Twitter",
     "type_a_command_search": "Skriv inn en kommando eller søk ...",
@@ -124,6 +131,7 @@
     "remove_request": "Er du sikker på at du vil slette denne forespørselen for godt?",
     "remove_team": "Er du sikker på at du vil slette dette laget?",
     "remove_telemetry": "Er du sikker på at du vil velge bort telemetri?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Er du sikker på at du vil synkronisere dette arbeidsområdet?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Skap nytt miljø",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Rediger miljø",
     "invalid_name": "Oppgi et gyldig navn på miljøet",
@@ -233,6 +242,7 @@
     "tests": "Skriv et testskript for å automatisere feilsøking."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Skjul mer",
     "preview": "Skjul forhåndsvisning",
     "sidebar": "Skjul sidefeltet"
@@ -259,7 +269,10 @@
     "title": "Import"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Zen-modus"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Oppgi et navn på forespørselen",
     "method": "Metode",
     "name": "Forespørselsnavn",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Spørringsparametere",
     "parameters": "Parametere",
     "path": "Sti",
@@ -339,6 +356,7 @@
     "save_as": "Lagre som",
     "saved": "Forespørselen er lagret",
     "share": "Dele",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Be om",
     "type": "Type forespørsel",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Utvidelsesversjon",
     "extensions": "Utvidelser",
     "extensions_use_toggle": "Bruk nettleserutvidelsen til å sende forespørsler (hvis de er tilstede)",
+    "follow": "Follow Us",
     "font_size": "Skriftstørrelse",
     "font_size_large": "Stor",
     "font_size_medium": "Medium",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Vis kode",
+    "collection": "Expand Collection Panel",
     "more": "Vis mer",
     "sidebar": "Vis sidefeltet"
   },
@@ -505,6 +525,7 @@
     "community": "Still spørsmål og hjelp andre",
     "documentation": "Les mer om Hoppscotch",
     "forum": "Still spørsmål og få svar",
+    "github": "Follow us on Github",
     "shortcuts": "Bla gjennom appen raskere",
     "team": "Ta kontakt med teamet",
     "title": "Brukerstøtte",

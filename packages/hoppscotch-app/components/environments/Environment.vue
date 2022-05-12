@@ -5,13 +5,13 @@
   >
     <span
       class="flex items-center justify-center px-4 cursor-pointer"
-      @click="$emit('edit-environment')"
+      @click="emit('edit-environment')"
     >
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
       class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-      @click="$emit('edit-environment')"
+      @click="emit('edit-environment')"
     >
       <span class="truncate">
         {{ environment.name }}
@@ -29,7 +29,7 @@
         <template #trigger>
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="$t('action.more')"
+            :title="t('action.more')"
             svg="more-vertical"
           />
         </template>
@@ -48,11 +48,11 @@
           <SmartItem
             ref="edit"
             svg="edit"
-            :label="`${$t('action.edit')}`"
+            :label="`${t('action.edit')}`"
             :shortcut="['E']"
             @click.native="
               () => {
-                $emit('edit-environment')
+                emit('edit-environment')
                 options.tippy().hide()
               }
             "
@@ -60,11 +60,11 @@
           <SmartItem
             ref="duplicate"
             svg="copy"
-            :label="`${$t('action.duplicate')}`"
+            :label="`${t('action.duplicate')}`"
             :shortcut="['D']"
             @click.native="
               () => {
-                duplicateEnvironment()
+                duplicateEnvironments()
                 options.tippy().hide()
               }
             "
@@ -73,7 +73,7 @@
             v-if="!(environmentIndex === 'Global')"
             ref="deleteAction"
             svg="trash-2"
-            :label="`${$t('action.delete')}`"
+            :label="`${t('action.delete')}`"
             :shortcut="['⌫']"
             @click.native="
               () => {
@@ -87,15 +87,17 @@
     </span>
     <SmartConfirmModal
       :show="confirmRemove"
-      :title="`${$t('confirm.remove_environment')}`"
+      :title="`${t('confirm.remove_environment')}`"
       @hide-modal="confirmRemove = false"
       @resolve="removeEnvironment"
     />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, PropType, ref } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+import { ref } from "@nuxtjs/composition-api"
+import { Environment } from "@hoppscotch/data"
+import cloneDeep from "lodash/cloneDeep"
 import {
   deleteEnvironment,
   duplicateEnvironment,
@@ -104,47 +106,43 @@ import {
   getGlobalVariables,
   environmentsStore,
 } from "~/newstore/environments"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-export default defineComponent({
-  props: {
-    environment: { type: Object, default: () => {} },
-    environmentIndex: {
-      type: [Number, String] as PropType<number | "Global">,
-      default: null,
-    },
-  },
-  setup() {
-    return {
-      tippyActions: ref<any | null>(null),
-      options: ref<any | null>(null),
-      edit: ref<any | null>(null),
-      duplicate: ref<any | null>(null),
-      deleteAction: ref<any | null>(null),
-    }
-  },
-  data() {
-    return {
-      confirmRemove: false,
-    }
-  },
-  methods: {
-    removeEnvironment() {
-      if (this.environmentIndex !== "Global")
-        deleteEnvironment(this.environmentIndex)
-      this.$toast.success(`${this.$t("state.deleted")}`)
-    },
-    duplicateEnvironment() {
-      if (this.environmentIndex === "Global") {
-        createEnvironment(`Global - ${this.$t("action.duplicate")}`)
-        setEnvironmentVariables(
-          environmentsStore.value.environments.length - 1,
-          getGlobalVariables().reduce((gVars, gVar) => {
-            gVars.push({ key: gVar.key, value: gVar.value })
-            return gVars
-          }, [])
-        )
-      } else duplicateEnvironment(this.environmentIndex)
-    },
-  },
-})
+const t = useI18n()
+const toast = useToast()
+
+const props = defineProps<{
+  environment: Environment
+  environmentIndex: number | "Global" | null
+}>()
+
+const emit = defineEmits<{
+  (e: "edit-environment"): void
+}>()
+
+const confirmRemove = ref(false)
+
+const tippyActions = ref<any | null>(null)
+const options = ref<any | null>(null)
+const edit = ref<any | null>(null)
+const duplicate = ref<any | null>(null)
+const deleteAction = ref<any | null>(null)
+
+const removeEnvironment = () => {
+  if (props.environmentIndex === null) return
+  if (props.environmentIndex !== "Global")
+    deleteEnvironment(props.environmentIndex)
+  toast.success(`${t("state.deleted")}`)
+}
+
+const duplicateEnvironments = () => {
+  if (props.environmentIndex === null) return
+  if (props.environmentIndex === "Global") {
+    createEnvironment(`Global - ${t("action.duplicate")}`)
+    setEnvironmentVariables(
+      environmentsStore.value.environments.length - 1,
+      cloneDeep(getGlobalVariables())
+    )
+  } else duplicateEnvironment(props.environmentIndex)
+}
 </script>

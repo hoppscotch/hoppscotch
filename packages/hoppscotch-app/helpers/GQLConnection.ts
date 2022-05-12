@@ -149,7 +149,7 @@ export class GQLConnection {
         .forEach((x) => (finalHeaders[x.key] = x.value))
 
       const reqOptions = {
-        method: "post",
+        method: "POST",
         url,
         headers: {
           ...finalHeaders,
@@ -213,7 +213,7 @@ export class GQLConnection {
       .forEach(({ key, value }) => (finalHeaders[key] = value))
 
     const reqOptions = {
-      method: "post",
+      method: "POST",
       url,
       headers: {
         ...finalHeaders,

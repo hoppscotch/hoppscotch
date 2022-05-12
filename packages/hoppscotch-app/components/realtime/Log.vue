@@ -1,77 +1,128 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div ref="container" class="flex flex-col flex-1 overflow-y-auto">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
     >
       <label for="log" class="py-2 font-semibold text-secondaryLight">
         {{ title }}
       </label>
+      <div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.delete')"
+          svg="trash"
+          @click.native="emit('delete')"
+        />
+        <ButtonSecondary
+          id="bottompage"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.scroll_to_top')"
+          svg="arrow-up"
+          @click.native="scrollTo('top')"
+        />
+        <ButtonSecondary
+          id="bottompage"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.scroll_to_bottom')"
+          svg="arrow-down"
+          @click.native="scrollTo('bottom')"
+        />
+        <ButtonSecondary
+          id="bottompage"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.autoscroll')"
+          svg="chevrons-down"
+          :class="toggleAutoscrollColor"
+          @click.native="toggleAutoscroll()"
+        />
+      </div>
     </div>
-    <div ref="logsRef" name="log" class="realtime-log">
-      <span v-if="log" class="space-y-2">
-        <span
+    <div
+      v-if="log.length !== 0"
+      ref="logs"
+      class="overflow-y-auto border-b border-dividerLight"
+    >
+      <div
+        class="flex flex-col h-auto h-full border-r divide-y divide-dividerLight border-dividerLight"
+      >
+        <RealtimeLogEntry
           v-for="(entry, index) in log"
           :key="`entry-${index}`"
-          :style="{ color: entry.color }"
-          class="font-mono"
-          >{{ entry.ts }}{{ source(entry.source) }}{{ entry.payload }}</span
-        >
-      </span>
-      <span v-else>{{ t("response.waiting_for_connection") }}</span>
+          :entry="entry"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, ref, watch } from "@nuxtjs/composition-api"
-import { getSourcePrefix as source } from "~/helpers/utils/string"
+import { ref, PropType, computed, watch } from "@nuxtjs/composition-api"
+import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "~/helpers/utils/composables"
 
-const t = useI18n()
+export type LogEntryData = {
+  ts: number
+  source: "info" | "client" | "server" | "disconnected"
+  payload: string
+  event: "connecting" | "connected" | "disconnected" | "error"
+}
 
 const props = defineProps({
-  log: { type: Array, default: () => [] },
+  log: { type: Array as PropType<LogEntryData[]>, default: () => [] },
   title: {
     type: String,
     default: "",
   },
 })
 
-const logsRef = ref<any | null>(null)
-const BOTTOM_SCROLL_DIST_INACCURACY = 5
+const emit = defineEmits<{
+  (e: "delete"): void
+}>()
+
+const t = useI18n()
+
+const container = ref<HTMLElement | null>(null)
+const logs = ref<HTMLElement | null>(null)
+
+const autoScrollEnabled = ref(true)
+
+const logListScroll = useScroll(logs)
+
+// Disable autoscroll when scrolling to top
+watch(logListScroll.isScrolling, (isScrolling) => {
+  if (isScrolling && logListScroll.directions.top)
+    autoScrollEnabled.value = false
+})
+
+const scrollTo = (position: "top" | "bottom") => {
+  if (position === "top") {
+    logs.value?.scroll({
+      behavior: "smooth",
+      top: 0,
+    })
+  } else if (position === "bottom") {
+    logs.value?.scroll({
+      behavior: "smooth",
+      top: logs.value?.scrollHeight,
+    })
+  }
+}
 
 watch(
   () => props.log,
-  () => {
-    if (!logsRef.value) return
-    const distToBottom =
-      logsRef.value.scrollHeight -
-      logsRef.value.scrollTop -
-      logsRef.value.clientHeight
-    if (distToBottom < BOTTOM_SCROLL_DIST_INACCURACY) {
-      nextTick(() => (logsRef.value.scrollTop = logsRef.value.scrollHeight))
-    }
-  }
+  useThrottleFn(() => {
+    if (autoScrollEnabled.value) scrollTo("bottom")
+  }, 200),
+  { flush: "post" }
+)
+
+const toggleAutoscroll = () => {
+  autoScrollEnabled.value = !autoScrollEnabled.value
+}
+
+const toggleAutoscrollColor = computed(() =>
+  autoScrollEnabled.value ? "text-green-500" : "text-red-500"
 )
 </script>
 
-<style scoped lang="scss">
-.realtime-log {
-  @apply p-4;
-  @apply bg-transparent;
-  @apply text-secondary;
-  @apply overflow-auto;
-
-  height: 256px;
-
-  &,
-  span {
-    @apply select-text;
-  }
-
-  span {
-    @apply block;
-    @apply break-words break-all;
-  }
-}
-</style>
+<style></style>

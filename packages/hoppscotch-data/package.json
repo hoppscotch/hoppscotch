@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/data",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
   "main": "dist/index.js",
   "module": "true",
@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsup src --dts",
     "prepare": "tsup src --dts",
-    "do-typecheck": "pnpx tsc --noEmit"
+    "do-typecheck": "pnpm exec tsc --noEmit"
   },
   "exports": {
     ".": "./dist/index.js",
@@ -32,10 +32,11 @@
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.181",
-    "tsup": "^5.12.4"
+    "tsup": "^5.12.5",
+    "typescript": "^4.6.3"
   },
   "dependencies": {
-    "fp-ts": "^2.11.9",
+    "fp-ts": "^2.11.10",
     "io-ts": "^2.2.16",
     "lodash": "^4.17.21",
     "parser-ts": "^0.6.16"

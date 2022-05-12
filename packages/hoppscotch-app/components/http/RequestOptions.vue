@@ -18,7 +18,7 @@
       :label="`${$t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders />
+      <HttpHeaders @change-tab="changeTab" />
     </SmartTab>
     <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
       <HttpAuthorization />

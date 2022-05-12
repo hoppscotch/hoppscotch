@@ -7,7 +7,7 @@ import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { responseErrors } from "./constants";
-import { getMetaDataPairs } from "./getters";
+import { getDurationInSeconds, getMetaDataPairs } from "./getters";
 import { testRunner, getTestScriptParams, hasFailedTestCases } from "./test";
 import { RequestConfig, EffectiveHoppRESTRequest } from "../interfaces/request";
 import { RequestRunnerResponse } from "../interfaces/response";
@@ -17,9 +17,11 @@ import {
   printPreRequestRunner,
   printRequestRunner,
   printTestRunner,
-  printTestSuitesReport,
 } from "./display";
 import { error, HoppCLIError } from "../types/errors";
+import { hrtime } from "process";
+import { RequestMetrics } from "../types/response";
+import { pipe } from "fp-ts/function";
 
 // !NOTE: The `config.supported` checks are temporary until OAuth2 and Multipart Forms are supported
 
@@ -83,6 +85,8 @@ export const requestRunner =
     requestConfig: RequestConfig
   ): TE.TaskEither<HoppCLIError, RequestRunnerResponse> =>
   async () => {
+    const start = hrtime();
+
     try {
       // NOTE: Temporary parsing check for request endpoint.
       requestConfig.url = new URL(requestConfig.url ?? "").toString();
@@ -95,6 +99,7 @@ export const requestRunner =
         endpoint: getRequest.endpoint(config.url),
         method: getRequest.method(config.method),
         body: baseResponse.data,
+        duration: 0,
       };
 
       // !NOTE: Temporary `config.supported` check
@@ -103,6 +108,10 @@ export const requestRunner =
         runnerResponse.status = status;
         runnerResponse.statusText = responseErrors[status];
       }
+
+      const end = hrtime(start);
+      const duration = getDurationInSeconds(end);
+      runnerResponse.duration = duration;
 
       return E.right(runnerResponse);
     } catch (e) {
@@ -114,6 +123,7 @@ export const requestRunner =
         statusText: responseErrors[400],
         status: 400,
         headers: [],
+        duration: 0,
       };
 
       if (axios.isAxiosError(e)) {
@@ -132,6 +142,10 @@ export const requestRunner =
         } else if (e.request) {
           return E.left(error({ code: "REQUEST_ERROR", data: E.toError(e) }));
         }
+
+        const end = hrtime(start);
+        const duration = getDurationInSeconds(end);
+        runnerResponse.duration = duration;
 
         return E.right(runnerResponse);
       }
@@ -192,6 +206,7 @@ export const processRequest =
       tests: [],
       errors: [],
       result: true,
+      duration: { test: 0, request: 0, preRequest: 0 },
     };
 
     // Initial value for effective-request with default values for properties.
@@ -229,6 +244,7 @@ export const processRequest =
       status: 400,
       statusText: "",
       body: Object(null),
+      duration: 0,
     };
     // Executing request-runner.
     const requestRunnerRes = await requestRunner(requestConfig)();
@@ -240,6 +256,7 @@ export const processRequest =
       printRequestRunner.fail();
     } else {
       _requestRunnerRes = requestRunnerRes.right;
+      report.duration.request = _requestRunnerRes.duration;
       printRequestRunner.success(_requestRunnerRes);
     }
 
@@ -259,17 +276,19 @@ export const processRequest =
       report.errors.push(testRunnerRes.left);
       report.result = report.result && false;
     } else {
-      const { envs, testsReport } = testRunnerRes.right;
+      const { envs, testsReport, duration } = testRunnerRes.right;
       const _hasFailedTestCases = hasFailedTestCases(testsReport);
 
-      // Updating report with current tests & result.
+      // Updating report with current tests, result and duration.
       report.tests = testsReport;
       report.result = report.result && _hasFailedTestCases;
+      report.duration.test = duration;
 
       // Updating resulting envs from test-runner.
       result.envs = envs;
 
-      printTestSuitesReport(testsReport);
+      // Printing tests-report, when test-runner executes successfully.
+      printTestRunner.success(testsReport, duration);
     }
 
     result.report = report;
@@ -319,3 +338,23 @@ export const preProcessRequest = (
   }
   return tempRequest;
 };
+
+/**
+ * Get request-metrics object (stats+duration) based on existence of REQUEST_ERROR code
+ * in hopp-errors list.
+ * @param errors List of errors to check for REQUEST_ERROR.
+ * @param duration Time taken (in seconds) to execute the request.
+ * @returns Object containing details of request's execution stats i.e., failed/passed
+ * data and duration.
+ */
+export const getRequestMetrics = (
+  errors: HoppCLIError[],
+  duration: number
+): RequestMetrics =>
+  pipe(
+    errors,
+    A.some(({ code }) => code === "REQUEST_ERROR"),
+    (hasReqErrors) =>
+      hasReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
+    (requests) => <RequestMetrics>{ requests, duration }
+  );

@@ -1,5 +1,6 @@
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { execTestScript, TestDescriptor } from "@hoppscotch/js-sandbox";
+import { hrtime } from "process";
 import { flow, pipe } from "fp-ts/function";
 import * as RA from "fp-ts/ReadonlyArray";
 import * as A from "fp-ts/Array";
@@ -13,12 +14,13 @@ import {
 import { error, HoppCLIError } from "../types/errors";
 import { HoppEnvs } from "../types/request";
 import { ExpectResult, TestMetrics, TestRunnerRes } from "../types/response";
+import { getDurationInSeconds } from "./getters";
 
 /**
  * Executes test script and runs testDescriptorParser to generate test-report using
  * expected-results, test-status & test-descriptor.
  * @param testScriptData Parameters related to test-script function.
- * @returns If executes successfully, we get TestRunnerRes(updated ENVs + test-reports).
+ * @returns If executes successfully, we get TestRunnerRes(updated ENVs, test-reports, duration).
  * Else, HoppCLIError with appropriate code & data.
  */
 export const testRunner = (
@@ -28,16 +30,22 @@ export const testRunner = (
     /**
      * Executing test-script.
      */
-    TE.of(testScriptData),
-    TE.chain(({ testScript, response, envs }) =>
-      execTestScript(testScript, envs, response)
+    TE.Do,
+    TE.bind("start", () => TE.of(hrtime())),
+    TE.bind("test_response", () =>
+      pipe(
+        TE.of(testScriptData),
+        TE.chain(({ testScript, response, envs }) =>
+          execTestScript(testScript, envs, response)
+        )
+      )
     ),
 
     /**
      * Recursively parsing test-results using test-descriptor-parser
      * to generate test-reports.
      */
-    TE.chainTaskK(({ envs, tests }) =>
+    TE.chainTaskK(({ test_response: { tests, envs }, start }) =>
       pipe(
         tests,
         A.map(testDescriptorParser),
@@ -46,7 +54,12 @@ export const testRunner = (
           flow(
             RA.flatten,
             RA.toArray,
-            (testsReport) => <TestRunnerRes>{ envs, testsReport }
+            (testsReport) =>
+              <TestRunnerRes>{
+                envs,
+                testsReport,
+                duration: pipe(start, hrtime, getDurationInSeconds),
+              }
           )
         )
       )
@@ -58,7 +71,6 @@ export const testRunner = (
       })
     )
   );
-
 /**
  * Recursive function to parse test-descriptor from nested-children and
  * generate tests-report.
@@ -77,19 +89,19 @@ export const testDescriptorParser = (
       A.isNonEmpty(expectResults)
         ? pipe(
             expectResults,
-            A.reduce({ failing: 0, passing: 0 }, (prev, { status }) =>
+            A.reduce({ failed: 0, passed: 0 }, (prev, { status }) =>
               /**
                * Incrementing number of passed test-cases if status is "pass",
                * else, incrementing number of failed test-cases.
                */
               status === "pass"
-                ? { failing: prev.failing, passing: prev.passing + 1 }
-                : { failing: prev.failing + 1, passing: prev.passing }
+                ? { failed: prev.failed, passed: prev.passed + 1 }
+                : { failed: prev.failed + 1, passed: prev.passed }
             ),
-            ({ failing, passing }) =>
+            ({ failed, passed }) =>
               <TestReport>{
-                failing,
-                passing,
+                failed,
+                passed,
                 descriptor,
                 expectResults,
               },
@@ -141,36 +153,48 @@ export const getTestScriptParams = (
  * Combines quantitative details (test-cases passed/failed) of each test-report
  * to generate TestMetrics object with total test-cases & total test-suites.
  * @param testsReport Contains details of each test-report (failed/passed test-cases).
+ * @param testDuration Time taken (in seconds) to execute the test-script.
+ * @param errors List of HoppCLIErrors to check for TEST_SCRIPT_ERROR code.
  * @returns Object containing details of total test-cases passed/failed and
  * total test-suites passed/failed.
  */
-export const getTestMetrics = (testsReport: TestReport[]): TestMetrics =>
+export const getTestMetrics = (
+  testsReport: TestReport[],
+  testDuration: number,
+  errors: HoppCLIError[]
+): TestMetrics =>
   testsReport.reduce(
-    ({ testSuites, tests }, testReport) => ({
+    ({ testSuites, tests, duration, scripts }, testReport) => ({
       tests: {
-        failing: tests.failing + testReport.failing,
-        passing: tests.passing + testReport.passing,
+        failed: tests.failed + testReport.failed,
+        passed: tests.passed + testReport.passed,
       },
       testSuites: {
-        failing: testSuites.failing + (testReport.failing > 0 ? 1 : 0),
-        passing: testSuites.passing + (testReport.failing === 0 ? 1 : 0),
+        failed: testSuites.failed + (testReport.failed > 0 ? 1 : 0),
+        passed: testSuites.passed + (testReport.failed === 0 ? 1 : 0),
       },
+      scripts: scripts,
+      duration: duration,
     }),
     <TestMetrics>{
-      tests: { failing: 0, passing: 0 },
-      testSuites: { failing: 0, passing: 0 },
+      tests: { failed: 0, passed: 0 },
+      testSuites: { failed: 0, passed: 0 },
+      duration: testDuration,
+      scripts: errors.some(({ code }) => code === "TEST_SCRIPT_ERROR")
+        ? { failed: 1, passed: 0 }
+        : { failed: 0, passed: 1 },
     }
   );
 
 /**
  * Filters tests-report containing atleast one or more failed test-cases.
- * @param testsReport Provides "failing" test-cases data.
- * @returns Tests report with one or more test-cases failing.
+ * @param testsReport Provides "failed" test-cases data.
+ * @returns Tests report with one or more test-cases failed.
  */
 export const getFailedTestsReport = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
-    A.filter(({ failing }) => failing > 0)
+    A.filter(({ failed }) => failed > 0)
   );
 
 /**
@@ -186,12 +210,12 @@ export const getFailedExpectedResults = (expectResults: ExpectResult[]) =>
 
 /**
  * Checks if any of the tests-report have failed test-cases.
- * @param testsReport Provides "failing" test-cases data.
+ * @param testsReport Provides "failed" test-cases data.
  * @returns True, if one or more failed test-cases found.
  * False, if all test-cases passed.
  */
 export const hasFailedTestCases = (testsReport: TestReport[]) =>
   pipe(
     testsReport,
-    A.every(({ failing }) => failing === 0)
+    A.every(({ failed }) => failed === 0)
   );

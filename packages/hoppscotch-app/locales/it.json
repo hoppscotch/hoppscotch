@@ -9,6 +9,7 @@
     "delete": "Elimina",
     "disconnect": "Disconnetti",
     "dismiss": "Abbandona",
+    "dont_save": "Don't save",
     "download_file": "Scarica file",
     "duplicate": "Duplica",
     "edit": "Modifica",
@@ -44,6 +45,10 @@
     "chat_with_us": "Chatta con noi",
     "contact_us": "Contattaci",
     "copy": "Copia",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Documentazione",
     "github": "GitHub",
     "help": "Aiuto, feedback e documentazione",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Tasti rapidi",
     "name": "Hoppscotch",
     "new_version_found": "Nuova versione trovata. Aggiorna la pagina per aggiornare.",
+    "options": "Options",
     "proxy_privacy_policy": "Informativa sulla privacy del proxy",
     "reload": "Ricarica",
     "search": "Cerca",
@@ -62,6 +68,7 @@
     "shortcuts": "Scorciatoie",
     "spotlight": "Riflettore",
     "status": "Stato",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Termini e privacy",
     "twitter": "Twitter",
     "type_a_command_search": "Digita un comando o cerca...",
@@ -124,6 +131,7 @@
     "remove_request": "Sei sicuro di voler eliminare definitivamente questa richiesta?",
     "remove_team": "Sei sicuro di voler eliminare questo team?",
     "remove_telemetry": "Sei sicuro di voler disattivare la telemetria?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Vuoi ripristinare il tuo spazio di lavoro con quello del cloud? Questo annullerà le tue modifiche fatte in locale."
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Crea un nuovo ambiente",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Modifica ambiente",
     "invalid_name": "Si prega di fornire un nome valido per l'ambiente",
@@ -233,6 +242,7 @@
     "tests": "Scrivi uno script di test per automatizzare il debug."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Nascondi di più",
     "preview": "Nascondi anteprima",
     "sidebar": "Nascondi barra laterale"
@@ -259,7 +269,10 @@
     "title": "Importa"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Disposizione verticale",
+    "name": "Layout",
     "row": "Disposizione orizzontale",
     "zen_mode": "Modalità zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Si prega di fornire un nome per la richiesta",
     "method": "Metodo",
     "name": "Nome richiesta",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Parametri della query",
     "parameters": "Parametri",
     "path": "Percorso",
@@ -339,6 +356,7 @@
     "save_as": "Salva come",
     "saved": "Richiesta salvata",
     "share": "Condividi",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Richiesta",
     "type": "Tipo di richiesta",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Versione dell'estensione",
     "extensions": "Estensioni",
     "extensions_use_toggle": "Utilizza l'estensione del browser per inviare richieste (se presente)",
+    "follow": "Follow Us",
     "font_size": "Dimensione dei caratteri",
     "font_size_large": "Grande",
     "font_size_medium": "Medio",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Mostra il codice",
+    "collection": "Expand Collection Panel",
     "more": "Mostra di più",
     "sidebar": "Mostra la barra laterale"
   },
@@ -505,6 +525,7 @@
     "community": "Fai domande e aiuta gli altri",
     "documentation": "Maggiori informazioni su Hoppscotch",
     "forum": "Fai domande e ottieni risposte",
+    "github": "Follow us on Github",
     "shortcuts": "Naviga nella app più velocemente",
     "team": "Mettiti in contatto con il team",
     "title": "Supporto",

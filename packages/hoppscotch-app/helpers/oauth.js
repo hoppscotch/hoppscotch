@@ -21,7 +21,7 @@ const sendPostRequest = async (url, params) => {
     .map((key) => `${key}=${params[key]}`)
     .join("&")
   const options = {
-    method: "post",
+    method: "POST",
     headers: {
       "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
     },

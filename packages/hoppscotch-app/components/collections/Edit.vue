@@ -26,6 +26,7 @@
       <span>
         <ButtonPrimary
           :label="$t('action.save')"
+          :loading="loadingState"
           @click.native="saveCollection"
         />
         <ButtonSecondary
@@ -44,6 +45,7 @@ export default defineComponent({
   props: {
     show: Boolean,
     editingCollectionName: { type: String, default: null },
+    loadingState: Boolean,
   },
   data() {
     return {
@@ -62,7 +64,6 @@ export default defineComponent({
         return
       }
       this.$emit("submit", this.name)
-      this.hideModal()
     },
     hideModal() {
       this.name = null

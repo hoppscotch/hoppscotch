@@ -9,6 +9,7 @@
     "delete": "Suprimeix",
     "disconnect": "Desconnecta",
     "dismiss": "Destitueix",
+    "dont_save": "Don't save",
     "download_file": "Descarrega l'arxiu",
     "duplicate": "Duplicate",
     "edit": "Edita",
@@ -44,6 +45,10 @@
     "chat_with_us": "Xateja amb nosaltres",
     "contact_us": "Poseu-vos en contacte amb nosaltres",
     "copy": "Copia",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Documentació",
     "github": "GitHub",
     "help": "Ajuda, comentaris i documentació",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Dreceres de teclat",
     "name": "Hoppscotch",
     "new_version_found": "S'ha trobat una nova versió. Actualitzeu per actualitzar.",
+    "options": "Options",
     "proxy_privacy_policy": "Política de privadesa del servidor intermediari",
     "reload": "Recarregar",
     "search": "Cerca",
@@ -62,6 +68,7 @@
     "shortcuts": "Dreceres",
     "spotlight": "Destac",
     "status": "Estat",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Condicions i privadesa",
     "twitter": "Twitter",
     "type_a_command_search": "Escriviu una ordre o cerqueu ...",
@@ -124,6 +131,7 @@
     "remove_request": "Esteu segur que voleu suprimir definitivament aquesta sol·licitud?",
     "remove_team": "Esteu segur que voleu suprimir aquest equip?",
     "remove_telemetry": "Esteu segur que voleu desactivar Telemetry?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Esteu segur que voleu sincronitzar aquest espai de treball?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Crea un entorn nou",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Edita l'entorn",
     "invalid_name": "Proporcioneu un nom vàlid per a l'entorn",
@@ -233,6 +242,7 @@
     "tests": "Escriviu un script de prova per automatitzar la depuració."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Amaga més",
     "preview": "Amaga la previsualització",
     "sidebar": "Amaga la barra lateral"
@@ -259,7 +269,10 @@
     "title": "Importació"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Mode Zen"
   },
@@ -327,9 +340,13 @@
     "invalid_name": "Proporcioneu un nom per a la sol·licitud",
     "method": "Mètode",
     "name": "Sol·licita el nom",
-    "path": "Camí",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Paràmetres de consulta",
     "parameters": "Paràmetres",
+    "path": "Camí",
     "payload": "Càrrega útil",
     "query": "Consulta",
     "raw_body": "Cos de sol·licitud en brut",
@@ -339,6 +356,7 @@
     "save_as": "Guardar com",
     "saved": "S'ha desat la sol·licitud",
     "share": "Compartir",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Sol·licitud",
     "type": "Tipus de sol·licitud",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Versió d'extensió",
     "extensions": "Extensions",
     "extensions_use_toggle": "Utilitzeu l'extensió del navegador per enviar sol·licituds (si n'hi ha)",
+    "follow": "Follow Us",
     "font_size": "Mida de la font",
     "font_size_large": "Gran",
     "font_size_medium": "Mitjà",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Mostra el codi",
+    "collection": "Expand Collection Panel",
     "more": "Mostra més",
     "sidebar": "Mostra la barra lateral"
   },
@@ -505,6 +525,7 @@
     "community": "Feu preguntes i ajudeu els altres",
     "documentation": "Llegiu més sobre Hoppscotch",
     "forum": "Feu preguntes i obteniu respostes",
+    "github": "Follow us on Github",
     "shortcuts": "Navega per l'aplicació més ràpidament",
     "team": "Poseu-vos en contacte amb l'equip",
     "title": "Suport",

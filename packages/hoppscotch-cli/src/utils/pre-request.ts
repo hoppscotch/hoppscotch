@@ -22,6 +22,7 @@ import { isHoppCLIError } from "./checks";
 import { tupleToRecord, arraySort, arrayFlatMap } from "./functions/array";
 import { toFormData } from "./mutators";
 import { getEffectiveFinalMetaData } from "./getters";
+import { PreRequestMetrics } from "../types/response";
 
 /**
  * Runs pre-request-script runner over given request which extracts set ENVs and
@@ -266,3 +267,23 @@ function getFinalBodyFromRequest(
     )
   );
 }
+
+/**
+ * Get pre-request-metrics (stats + duration) object based on existence of
+ * PRE_REQUEST_ERROR code in given hopp-error list.
+ * @param errors List of errors to check for PRE_REQUEST_ERROR code.
+ * @param duration Time taken (in seconds) to execute the pre-request-script.
+ * @returns Object containing details of pre-request-script's execution stats
+ * i.e., failed/passed data and duration.
+ */
+export const getPreRequestMetrics = (
+  errors: HoppCLIError[],
+  duration: number
+): PreRequestMetrics =>
+  pipe(
+    errors,
+    A.some(({ code }) => code === "PRE_REQUEST_SCRIPT_ERROR"),
+    (hasPreReqErrors) =>
+      hasPreReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
+    (scripts) => <PreRequestMetrics>{ scripts, duration }
+  );

@@ -1,0 +1,7 @@
+query GetUserShortcodes($cursor: ID) {
+  myShortcodes(cursor: $cursor) {
+    id
+    request
+    createdOn
+  }
+}

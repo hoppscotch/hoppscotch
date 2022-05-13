@@ -493,6 +493,7 @@
     "created_on": "Created on",
     "deleted" : "Shortcode deleted",
     "method": "Method",
+    "not_found":"Shortcode not found",
     "short_code":"Short code",
     "url": "URL"
   },

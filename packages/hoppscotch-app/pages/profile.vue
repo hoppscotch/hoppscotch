@@ -194,7 +194,7 @@
                       }}</span>
                     </div>
                     <div
-                      v-if="!loading && myShortCodes.length === 0"
+                      v-if="!loading && myShortcodes.length === 0"
                       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
                     >
                       <img
@@ -232,10 +232,10 @@
                       </div>
                       <div class="table-row-group">
                         <ProfileShortcode
-                          v-for="(shortCode, shortCodeIndex) in myShortCodes"
+                          v-for="(shortCode, shortCodeIndex) in myShortcodes"
                           :key="`shortCode-${shortCodeIndex}`"
                           :short-code="shortCode"
-                          @delete-short-code="deleteShortCode"
+                          @delete-short-code="deleteShortcode"
                         />
                       </div>
                     </div>
@@ -244,7 +244,7 @@
                       class="flex flex-col items-center py-4"
                     >
                       <i class="mb-4 material-icons">help_outline</i>
-                      {{ t("error.something_went_wrong") }}
+                      {{ getErrorMessage(adapterError) }}
                     </div>
                   </div>
                 </section>
@@ -268,9 +268,11 @@ import {
   defineComponent,
   watchEffect,
   computed,
+  onMounted,
 } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
+import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   currentUser$,
   setDisplayName,
@@ -282,9 +284,10 @@ import {
   useReadonlyStream,
   useI18n,
   useToast,
+  useStreamSubscriber,
 } from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
-import ShortCodeListAdapter from "~/helpers/shortcodes/ShortCodeListAdapter"
+import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
 import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mutations/Shortcode"
 
 type ProfileTabs = "sync" | "teams"
@@ -353,37 +356,58 @@ const sendEmailVerification = () => {
     })
 }
 
-const adapter = new ShortCodeListAdapter(true)
+type Shortcode = {
+  id: string
+  request: string
+  createdOn: Date
+}
+
+const { subscribeToStream } = useStreamSubscriber()
+
+const adapter = new ShortcodeListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
-const myShortCodes = useReadonlyStream(adapter.shortCodes$, [])
+const myShortcodes = ref<Shortcode[]>([])
+
+onMounted(() => {
+  subscribeToStream(adapter.shortcodes$, (shortcodes: Shortcode[]) => {
+    myShortcodes.value = shortcodes
+  })
+})
+
+const loading = computed(
+  () => adapterLoading.value && myShortcodes.value.length === 0
+)
 
 onLoggedIn(() => {
   adapter.initialize()
 })
 
-const loading = computed(
-  () => adapterLoading.value && myShortCodes.value.length === 0
-)
-
-const deleteShortCode = (codeID: string) => {
+const deleteShortcode = (codeID: string) => {
   pipe(
     backendDeleteShortcode(codeID),
     TE.match(
-      (err) => {
-        toast.error(`${t("error.something_went_wrong")}`)
-        console.error(err)
+      (err: GQLError<string>) => {
+        toast.error(`${getErrorMessage(err)}`)
       },
       () => {
         toast.success(`${t("shortcodes.deleted")}`)
-        refetchShortcodes()
       }
     )
   )()
 }
 
-const refetchShortcodes = () => {
-  adapter.fetchList()
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "shortcode/not_found":
+        return t("shortcodes.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
 }
 
 useMeta({

@@ -1,0 +1,5 @@
+subscription ShortcodeDeleted {
+  myShortcodesRevoked {
+    id
+  }
+}

@@ -245,7 +245,7 @@ import {
 } from "~/helpers/utils/composables"
 
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
-import { extensionStatus } from "~/newstore/HoppExtension"
+import { extensionStatus$ } from "~/newstore/HoppExtension"
 
 const t = useI18n()
 const toast = useToast()
@@ -260,7 +260,7 @@ const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ZEN_MODE = useSetting("ZEN_MODE")
 
-const currentExtensionStatus = useReadonlyStream(extensionStatus, null)
+const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
 
 const extensionVersion = computed(() => {
   return currentExtensionStatus.value === "available"

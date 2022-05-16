@@ -27,7 +27,7 @@ export const hoppExtensionStore = new DispatchingStore(
   dispatchers
 )
 
-export const extensionStatus = hoppExtensionStore.subject$.pipe(
+export const extensionStatus$ = hoppExtensionStore.subject$.pipe(
   pluck("extensionStatus"),
   distinctUntilChanged()
 )

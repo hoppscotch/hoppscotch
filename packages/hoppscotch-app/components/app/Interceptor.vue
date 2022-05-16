@@ -48,7 +48,7 @@ import {
 } from "~/newstore/settings"
 
 import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
-import { extensionStatus } from "~/newstore/HoppExtension"
+import { extensionStatus$ } from "~/newstore/HoppExtension"
 
 const t = useI18n()
 
@@ -75,7 +75,7 @@ const toggleSettingKey = <
   }
 }
 
-const currentExtensionStatus = useReadonlyStream(extensionStatus, null)
+const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
 
 const extensionVersion = computed(() => {
   return currentExtensionStatus.value === "available"

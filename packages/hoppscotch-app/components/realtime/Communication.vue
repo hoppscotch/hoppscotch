@@ -55,7 +55,7 @@
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t('action.send')}`"
           :label="`${t('action.send')}`"
-          :disabled="!communicationBody"
+          :disabled="!communicationBody || !isConnected"
           svg="send"
           class="rounded-none !text-accent !hover:text-accentDark"
           @click.native="sendMessage()"
@@ -119,7 +119,7 @@ import { readFileAsText } from "~/helpers/functional/files"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-const props = defineProps({
+defineProps({
   showEventField: {
     type: Boolean,
     default: false,
@@ -185,13 +185,12 @@ const clearContent = () => {
 
 const sendMessage = () => {
   if (!communicationBody.value) return
-  if (props.isConnected) {
-    emit("send-message", {
-      eventName: eventName.value,
-      message: communicationBody.value,
-    })
-    communicationBody.value = ""
-  }
+
+  emit("send-message", {
+    eventName: eventName.value,
+    message: communicationBody.value,
+  })
+  communicationBody.value = ""
 }
 
 const uploadPayload = async (e: InputEvent) => {

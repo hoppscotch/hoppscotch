@@ -190,10 +190,13 @@ const password = ref("")
 let worker: Worker
 
 const canPublish = computed(
-  () => pubTopic.value !== "" && message.value !== "" && connectionState.value
+  () =>
+    pubTopic.value !== "" &&
+    message.value !== "" &&
+    connectionState.value === "CONNECTED"
 )
 const canSubscribe = computed(
-  () => subTopic.value !== "" && connectionState.value
+  () => subTopic.value !== "" && connectionState.value === "CONNECTED"
 )
 
 const workerResponseHandler = ({

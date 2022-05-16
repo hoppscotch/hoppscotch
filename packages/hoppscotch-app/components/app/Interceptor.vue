@@ -79,7 +79,7 @@ const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
 
 const extensionVersion = computed(() => {
   return currentExtensionStatus.value === "available"
-    ? window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion()
+    ? window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion() ?? null
     : null
 })
 

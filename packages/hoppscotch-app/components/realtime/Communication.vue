@@ -119,8 +119,12 @@ import { readFileAsText } from "~/helpers/functional/files"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-defineProps({
+const props = defineProps({
   showEventField: {
+    type: Boolean,
+    default: false,
+  },
+  isConnected: {
     type: Boolean,
     default: false,
   },
@@ -180,7 +184,8 @@ const clearContent = () => {
 }
 
 const sendMessage = () => {
-  if (communicationBody.value) {
+  if (!communicationBody.value) return
+  if (props.isConnected) {
     emit("send-message", {
       eventName: eventName.value,
       message: communicationBody.value,

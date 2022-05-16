@@ -93,6 +93,7 @@
         >
           <RealtimeCommunication
             :show-event-field="true"
+            :is-connected="connectionState === 'CONNECTED'"
             @send-message="sendMessage($event)"
           ></RealtimeCommunication>
         </SmartTab>

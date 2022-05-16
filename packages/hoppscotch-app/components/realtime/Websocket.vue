@@ -44,6 +44,7 @@
           :label="`${$t('websocket.communication')}`"
         >
           <RealtimeCommunication
+            :is-connected="connectionState === 'CONNECTED'"
             @send-message="sendMessage($event)"
           ></RealtimeCommunication>
         </SmartTab>

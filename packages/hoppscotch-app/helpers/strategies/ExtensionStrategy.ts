@@ -37,11 +37,11 @@ export const defineSubscribableObject = <T extends object>(obj: T) => {
     },
   }
 
-  type subscribableProxyObject = typeof proxyObject
+  type SubscribableProxyObject = typeof proxyObject
 
   return new Proxy(proxyObject, {
     set(obj, prop, newVal) {
-      obj[prop as keyof subscribableProxyObject] = newVal
+      obj[prop as keyof SubscribableProxyObject] = newVal
 
       const currentSubscribers = obj._subscribers[prop as keyof T]
 

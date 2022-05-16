@@ -65,6 +65,7 @@ import {
   watch,
   ref,
 } from "@nuxtjs/composition-api"
+import type { Ref } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
@@ -76,7 +77,7 @@ import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
 import { useSentry } from "~/helpers/sentry"
-import { useColorMode, usePolled } from "~/helpers/utils/composables"
+import { useColorMode } from "~/helpers/utils/composables"
 import {
   changeExtensionStatus,
   ExtensionStatus,
@@ -235,12 +236,17 @@ export default defineComponent({
       showSupport.value = !showSupport.value
     })
 
+    const extensionPollIntervalId: Ref<
+      ReturnType<typeof setInterval> | undefined
+    > = ref(undefined)
+
     return {
       mdAndLarger,
       spacerClass,
       ZEN_MODE: useSetting("ZEN_MODE"),
       showSearch,
       showSupport,
+      extensionPollIntervalId,
     }
   },
   head() {
@@ -318,21 +324,31 @@ export default defineComponent({
        * then we use a poll to find the version, this will get the version for 0.24 and any other version of the extension, but will have a slight lag.
        * 0.24 users will get the benefits of 0.24, while the extension won't break for the old users
        */
-      usePolled(2000, (stopPolling) => {
-        const hasExtension =
-          typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined"
 
-        if (hasExtension) {
-          stopPolling()
+      const extensionPollIntervalId: ReturnType<typeof setInterval> =
+        setInterval(() => {
+          if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
+            clearInterval(extensionPollIntervalId)
 
-          const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+            const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
 
-          // when the version is not 24 or higher, the extension wont do this. so we have to do it manually
-          if (version.major === 0 && version.minor <= 23) {
-            window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
+            // when the version is not 24 or higher, the extension wont do this. so we have to do it manually
+            if (
+              version.major === 0 &&
+              version.minor <= 23 &&
+              window.__HOPP_EXTENSION_STATUS_PROXY__
+            ) {
+              window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
+            }
           }
-        }
-      })
+        }, 2000)
+
+      this.extensionPollIntervalId = extensionPollIntervalId
+    }
+  },
+  beforeDestroy() {
+    if (this.extensionPollIntervalId) {
+      clearInterval(this.extensionPollIntervalId)
     }
   },
 })

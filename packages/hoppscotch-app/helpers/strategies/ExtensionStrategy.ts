@@ -23,7 +23,6 @@ export const cancelRunningExtensionRequest = () => {
   }
 }
 
-
 export const defineSubscribableObject = <T extends object>(obj: T) => {
   const proxyObject = {
     ...obj,
@@ -79,7 +78,6 @@ const preProcessRequest = (req: AxiosRequestConfig): AxiosRequestConfig => {
   }
 
   return reqClone
-
 }
 
 const extensionStrategy: NetworkStrategy = (req) =>

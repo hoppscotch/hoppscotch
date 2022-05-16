@@ -1,4 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { AxiosRequestConfig } from "axios"
 import cloneDeep from "lodash/cloneDeep"
@@ -15,10 +16,7 @@ export const hasFirefoxExtensionInstalled = () =>
   hasExtensionInstalled() && browserIsFirefox()
 
 export const cancelRunningExtensionRequest = () => {
-  if (
-    hasExtensionInstalled() &&
-    window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest
-  ) {
+  if (window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRunningRequest) {
     window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest()
   }
 }
@@ -91,13 +89,20 @@ const extensionStrategy: NetworkStrategy = (req) =>
 
     // Run the request
     TE.bind("response", ({ processedReq }) =>
-      TE.tryCatch(
-        () =>
-          window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
-            ...processedReq,
-            wantsBinary: true,
-          }) as Promise<NetworkResponse>,
-        (err) => err as any
+      pipe(
+        window.__POSTWOMAN_EXTENSION_HOOK__,
+        O.fromNullable,
+        TE.fromOption(() => "NO_PW_EXT_HOOK" as const),
+        TE.chain((extensionHook) =>
+          TE.tryCatch(
+            () =>
+              extensionHook.sendRequest({
+                ...processedReq,
+                wantsBinary: true,
+              }),
+            (err) => err as any
+          )
+        )
       )
     ),
 

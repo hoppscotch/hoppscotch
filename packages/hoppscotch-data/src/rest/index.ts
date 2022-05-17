@@ -1,6 +1,9 @@
 import cloneDeep from "lodash/cloneDeep"
+import * as Eq from "fp-ts/Eq"
+import * as S from "fp-ts/string"
 import { ValidContentTypes } from "./content-types"
 import { HoppRESTAuth } from "./HoppRESTAuth"
+import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 
 export * from "./content-types"
 export * from "./HoppRESTAuth"
@@ -56,6 +59,28 @@ export interface HoppRESTRequest {
 
   body: HoppRESTReqBody
 }
+
+export const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
+  id: undefinedEq(S.Eq),
+  v: S.Eq,
+  auth: lodashIsEqualEq,
+  body: lodashIsEqualEq,
+  endpoint: S.Eq,
+  headers: mapThenEq(
+    (arr) => arr.filter((h) => h.key !== "" && h.value !== ""),
+    lodashIsEqualEq
+  ),
+  params: mapThenEq(
+    (arr) => arr.filter((p) => p.key !== "" && p.value !== ""),
+    lodashIsEqualEq
+  ),
+  method: S.Eq,
+  name: S.Eq,
+  preRequestScript: S.Eq,
+  testScript: S.Eq,
+})
+
+export const isEqualHoppRESTRequest = HoppRESTRequestEq.equals
 
 /**
  * Safely tries to extract REST Request data from an unknown value.

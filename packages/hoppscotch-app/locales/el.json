@@ -9,6 +9,7 @@
     "delete": "Διαγράφω",
     "disconnect": "Αποσυνδέω",
     "dismiss": "Απολύω",
+    "dont_save": "Don't save",
     "download_file": "Λήψη αρχείου",
     "duplicate": "Duplicate",
     "edit": "Επεξεργασία",
@@ -44,6 +45,10 @@
     "chat_with_us": "μίλα μαζί μας",
     "contact_us": "Επικοινωνήστε μαζί μας",
     "copy": "αντίγραφο",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Τεκμηρίωση",
     "github": "GitHub",
     "help": "Βοήθεια, σχόλια και τεκμηρίωση",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Συντομεύσεις πληκτρολογίου",
     "name": "Hoppscotch",
     "new_version_found": "Βρέθηκε νέα έκδοση. Ανανέωση για ενημέρωση.",
+    "options": "Options",
     "proxy_privacy_policy": "Πολιτική απορρήτου μεσολάβησης",
     "reload": "Φορτώνω πάλι",
     "search": "Αναζήτηση",
@@ -62,6 +68,7 @@
     "shortcuts": "Συντομεύσεις",
     "spotlight": "Προβολέας θέατρου",
     "status": "Κατάσταση",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Όροι και απόρρητο",
     "twitter": "Κελάδημα",
     "type_a_command_search": "Πληκτρολογήστε μια εντολή ή αναζήτηση…",
@@ -124,6 +131,7 @@
     "remove_request": "Είστε βέβαιοι ότι θέλετε να διαγράψετε οριστικά αυτό το αίτημα;",
     "remove_team": "Είστε βέβαιοι ότι θέλετε να διαγράψετε αυτήν την ομάδα;",
     "remove_telemetry": "Είστε βέβαιοι ότι θέλετε να εξαιρεθείτε από την τηλεμετρία;",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Είστε βέβαιοι ότι θέλετε να συγχρονίσετε αυτόν τον χώρο εργασίας;"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Δημιουργήστε νέο περιβάλλον",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Επεξεργασία Περιβάλλοντος",
     "invalid_name": "Καταχωρίστε ένα έγκυρο όνομα για το περιβάλλον",
@@ -233,6 +242,7 @@
     "tests": "Γράψτε ένα δοκιμαστικό σενάριο για να αυτοματοποιήσετε τον εντοπισμό σφαλμάτων."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Κρύψου περισσότερο",
     "preview": "Απόκρυψη προεπισκόπησης",
     "sidebar": "Απόκρυψη πλευρικής γραμμής"
@@ -259,7 +269,10 @@
     "title": "Εισαγωγή"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Λειτουργία Zen"
   },
@@ -327,9 +340,13 @@
     "invalid_name": "Καταχωρίστε ένα όνομα για το αίτημα",
     "method": "Μέθοδος",
     "name": "Αίτημα ονόματος",
-    "path": "Μονοπάτι",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Παράμετροι ερωτήματος",
     "parameters": "Παράμετροι",
+    "path": "Μονοπάτι",
     "payload": "Φορτίο επί πληρωμή",
     "query": "Ερώτηση",
     "raw_body": "Σώμα Ακατέργαστου Αιτήματος",
@@ -339,6 +356,7 @@
     "save_as": "Αποθήκευση ως",
     "saved": "Το αίτημα αποθηκεύτηκε",
     "share": "Μερίδιο",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Αίτηση",
     "type": "Τύπος αιτήματος",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Έκταση επέκτασης",
     "extensions": "Επεκτάσεις",
     "extensions_use_toggle": "Χρησιμοποιήστε την επέκταση του προγράμματος περιήγησης για να στείλετε αιτήματα (εάν υπάρχουν)",
+    "follow": "Follow Us",
     "font_size": "Μέγεθος γραμματοσειράς",
     "font_size_large": "Μεγάλο",
     "font_size_medium": "Μεσαίο",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Εμφάνιση κωδικού",
+    "collection": "Expand Collection Panel",
     "more": "Δείτε περισσότερα",
     "sidebar": "Εμφάνιση πλευρικής γραμμής"
   },
@@ -505,6 +525,7 @@
     "community": "Κάντε ερωτήσεις και βοηθήστε τους άλλους",
     "documentation": "Διαβάστε περισσότερα για Hoppscotch",
     "forum": "Κάντε ερωτήσεις και λάβετε απαντήσεις",
+    "github": "Follow us on Github",
     "shortcuts": "Περιηγηθείτε πιο γρήγορα στην εφαρμογή",
     "team": "Επικοινωνήστε με την ομάδα",
     "title": "Υποστήριξη",

@@ -132,13 +132,13 @@ export function createRESTNetworkRequestStream(
     ),
 
     // Assembling params object
-    TE.bind("params", ({ req }) =>
-      TE.of(
-        req.effectiveFinalParams.reduce((acc, { key, value }) => {
-          return Object.assign(acc, { [key]: value })
-        }, {})
-      )
-    ),
+    TE.bind("params", ({ req }) => {
+      const params = new URLSearchParams()
+      req.effectiveFinalParams.forEach((x) => {
+        params.append(x.key, x.value)
+      })
+      return TE.of(params)
+    }),
 
     // Keeping the backup start time
     TE.bind("backupTimeStart", () => TE.of(Date.now())),

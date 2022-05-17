@@ -9,6 +9,7 @@
     "delete": "Excluir",
     "disconnect": "desconectar",
     "dismiss": "Dispensar",
+    "dont_save": "Don't save",
     "download_file": "⇬ Fazer download do arquivo",
     "duplicate": "Duplicate",
     "edit": "Editar",
@@ -44,6 +45,10 @@
     "chat_with_us": "Converse conosco",
     "contact_us": "Contate-Nos",
     "copy": "Copiar",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Documentação",
     "github": "GitHub",
     "help": "Ajuda, feedback e documentação",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Atalhos do teclado",
     "name": "Hoppscotch",
     "new_version_found": "Nova versão encontrada. Atualize para atualizar.",
+    "options": "Options",
     "proxy_privacy_policy": "Política de privacidade do proxy",
     "reload": "recarregar",
     "search": "Procurar",
@@ -62,6 +68,7 @@
     "shortcuts": "Atalhos",
     "spotlight": "Holofote",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Termos e privacidade",
     "twitter": "Twitter",
     "type_a_command_search": "Digite um comando ou pesquise ...",
@@ -124,6 +131,7 @@
     "remove_request": "Tem certeza de que deseja excluir permanentemente esta solicitação?",
     "remove_team": "Tem certeza que deseja excluir esta equipe?",
     "remove_telemetry": "Tem certeza de que deseja cancelar a telemetria?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Tem certeza de que deseja sincronizar este espaço de trabalho?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Adicionar ao Global",
     "added": "Adição de ambiente",
     "create_new": "Crie um novo ambiente",
+    "created": "Environment created",
     "deleted": "Deleção de ambiente",
     "edit": "Editar Ambiente",
     "invalid_name": "Forneça um nome válido para o ambiente",
@@ -233,6 +242,7 @@
     "tests": "Escreva um script de teste para automatizar a depuração."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Esconda mais",
     "preview": "Esconder a Antevisão",
     "sidebar": "Ocultar barra lateral"
@@ -259,7 +269,10 @@
     "title": "Importar"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Layout vertical",
+    "name": "Layout",
     "row": "Layout horizontal",
     "zen_mode": "Modo zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Forneça um nome para a requisição",
     "method": "Método",
     "name": "Nome da requisição",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Parâmetros da requisição",
     "parameters": "Parâmetros",
     "path": "Caminho",
@@ -339,6 +356,7 @@
     "save_as": "Salvar como",
     "saved": "Requisição salva",
     "share": "Compartilhadar",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Solicitar",
     "type": "Tipo de requisição",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Versão da extensão",
     "extensions": "Extensões",
     "extensions_use_toggle": "Use a extensão do navegador para enviar solicitações (se houver)",
+    "follow": "Follow Us",
     "font_size": "Tamanho da fonte",
     "font_size_large": "Grande",
     "font_size_medium": "Médio",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Exibir código",
+    "collection": "Expand Collection Panel",
     "more": "Mostre mais",
     "sidebar": "Mostrar barra lateral"
   },
@@ -505,6 +525,7 @@
     "community": "Faça perguntas e ajude os outros",
     "documentation": "Leia mais sobre Hoppscotch",
     "forum": "Faça perguntas e obtenha respostas",
+    "github": "Follow us on Github",
     "shortcuts": "Navegue pelo aplicativo mais rápido",
     "team": "Entre em contato com a equipe",
     "title": "Apoio, suporte",

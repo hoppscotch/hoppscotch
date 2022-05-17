@@ -29,9 +29,9 @@ import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "../"
 import { generateRequestBodyExampleFromMediaObject as generateExampleV31 } from "./exampleV31"
 import { generateRequestBodyExampleFromMediaObject as generateExampleV3 } from "./exampleV3"
 import { generateRequestBodyExampleFromOpenAPIV2Body } from "./exampleV2"
-import { prettyPrintStringifyJSON } from "~/helpers/functional/json"
+import { prettyPrintJSON } from "~/helpers/functional/json"
 
-const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
+export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
 // TODO: URL Import Support
 
@@ -207,7 +207,7 @@ const parseOpenAPIV3Body = (
   ] = objs[0]
 
   const exampleBody = pipe(
-    prettyPrintStringifyJSON(
+    prettyPrintJSON(
       isV31Request
         ? generateExampleV31(media as OpenAPIV31.MediaTypeObject)
         : generateExampleV3(media as OpenAPIV3.MediaTypeObject)
@@ -612,7 +612,9 @@ const parseOpenAPIDocContent = (str: string) =>
   )
 
 export default defineImporter({
+  id: "openapi",
   name: "import.from_openapi",
+  applicableTo: ["my-collections", "team-collections", "url-import"],
   icon: "file",
   steps: [
     step({
@@ -629,7 +631,6 @@ export default defineImporter({
       fileContent,
       parseOpenAPIDocContent,
       TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT),
-
       // Try validating, else the importer is invalid file format
       TE.chainW((obj) =>
         pipe(
@@ -639,7 +640,6 @@ export default defineImporter({
           )
         )
       ),
-
       // Deference the references
       TE.chainW((obj) =>
         pipe(
@@ -649,7 +649,6 @@ export default defineImporter({
           )
         )
       ),
-
       TE.chainW(convertOpenApiDocToHopp)
     ),
 })

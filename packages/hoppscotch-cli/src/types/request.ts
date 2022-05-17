@@ -28,4 +28,5 @@ export type RequestReport = {
   tests: TestReport[];
   errors: HoppCLIError[];
   result: boolean;
+  duration: { test: number; request: number; preRequest: number };
 };

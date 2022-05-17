@@ -48,6 +48,19 @@
         <ButtonSecondary
           v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
+          svg="file-plus"
+          :title="$t('request.new')"
+          class="hidden group-hover:inline-flex"
+          @click.native="
+            $emit('add-request', {
+              folder: collection,
+              path: `${collectionIndex}`,
+            })
+          "
+        />
+        <ButtonSecondary
+          v-if="collectionsType.selectedTeam.myRole !== 'VIEWER'"
+          v-tippy="{ theme: 'tooltip' }"
           svg="folder-plus"
           :title="t('folder.new')"
           class="hidden group-hover:inline-flex"
@@ -80,12 +93,28 @@
               class="flex flex-col focus:outline-none"
               tabindex="0"
               role="menu"
+              @keyup.r="requestAction.$el.click()"
               @keyup.n="folderAction.$el.click()"
               @keyup.e="edit.$el.click()"
               @keyup.delete="deleteAction.$el.click()"
               @keyup.x="exportAction.$el.click()"
               @keyup.escape="options.tippy().hide()"
             >
+              <SmartItem
+                ref="requestAction"
+                svg="file-plus"
+                :label="t('request.new')"
+                :shortcut="['R']"
+                @click.native="
+                  () => {
+                    $emit('add-request', {
+                      folder: collection,
+                      path: `${collectionIndex}`,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
               <SmartItem
                 ref="folderAction"
                 svg="folder-plus"
@@ -128,7 +157,7 @@
                 :shortcut="['⌫']"
                 @click.native="
                   () => {
-                    confirmRemove = true
+                    removeCollection()
                     options.tippy().hide()
                   }
                 "
@@ -157,12 +186,14 @@
           :is-filtered="isFiltered"
           :picked="picked"
           :loading-collection-i-ds="loadingCollectionIDs"
+          @add-request="$emit('add-request', $event)"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
           @select="$emit('select', $event)"
           @expand-collection="expandCollection"
-          @remove-request="removeRequest"
+          @remove-request="$emit('remove-request', $event)"
+          @remove-folder="$emit('remove-folder', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
         />
         <CollectionsTeamsRequest
@@ -180,7 +211,7 @@
           :picked="picked"
           @edit-request="editRequest($event)"
           @select="$emit('select', $event)"
-          @remove-request="removeRequest"
+          @remove-request="$emit('remove-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
         />
         <div
@@ -211,12 +242,6 @@
         </div>
       </div>
     </div>
-    <SmartConfirmModal
-      :show="confirmRemove"
-      :title="t('confirm.remove_collection')"
-      @hide-modal="confirmRemove = false"
-      @resolve="removeCollection"
-    />
   </div>
 </template>
 
@@ -248,6 +273,7 @@ export default defineComponent({
     return {
       tippyActions: ref<any | null>(null),
       options: ref<any | null>(null),
+      requestAction: ref<any | null>(null),
       folderAction: ref<any | null>(null),
       edit: ref<any | null>(null),
       deleteAction: ref<any | null>(null),
@@ -261,7 +287,6 @@ export default defineComponent({
       showChildren: false,
       dragging: false,
       selectedFolder: {},
-      confirmRemove: false,
       prevCursor: "",
       cursor: "",
       pageNo: 0,
@@ -344,7 +369,6 @@ export default defineComponent({
     },
     removeCollection() {
       this.$emit("remove-collection", {
-        collectionsType: this.collectionsType,
         collectionIndex: this.collectionIndex,
         collectionID: this.collection.id,
       })
@@ -361,13 +385,6 @@ export default defineComponent({
       )()
       if (E.isLeft(moveRequestResult))
         this.$toast.error(`${this.$t("error.something_went_wrong")}`)
-    },
-    removeRequest({ collectionIndex, folderName, requestIndex }: any) {
-      this.$emit("remove-request", {
-        collectionIndex,
-        folderName,
-        requestIndex,
-      })
     },
   },
 })

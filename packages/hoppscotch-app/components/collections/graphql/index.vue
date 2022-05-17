@@ -49,6 +49,7 @@
         :is-filtered="filterText.length > 0"
         :saving-mode="savingMode"
         @edit-collection="editCollection(collection, index)"
+        @add-request="addRequest($event)"
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
@@ -96,6 +97,12 @@
       :editing-collection-name="editingCollection ? editingCollection.name : ''"
       @hide-modal="displayModalEdit(false)"
     />
+    <CollectionsGraphqlAddRequest
+      :show="showModalAddRequest"
+      :folder-path="editingFolderPath"
+      @add-request="onAddRequest($event)"
+      @hide-modal="displayModalAddRequest(false)"
+    />
     <CollectionsGraphqlAddFolder
       :show="showModalAddFolder"
       :folder-path="editingFolderPath"
@@ -136,6 +143,7 @@ import {
   addGraphqlFolder,
   saveGraphqlRequestAs,
 } from "~/newstore/collections"
+import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
 
 export default defineComponent({
   props: {
@@ -156,6 +164,7 @@ export default defineComponent({
       showModalAdd: false,
       showModalEdit: false,
       showModalImportExport: false,
+      showModalAddRequest: false,
       showModalAddFolder: false,
       showModalEditFolder: false,
       showModalEditRequest: false,
@@ -222,6 +231,11 @@ export default defineComponent({
     displayModalImportExport(shouldDisplay) {
       this.showModalImportExport = shouldDisplay
     },
+    displayModalAddRequest(shouldDisplay) {
+      this.showModalAddRequest = shouldDisplay
+
+      if (!shouldDisplay) this.resetSelectedData()
+    },
     displayModalAddFolder(shouldDisplay) {
       this.showModalAddFolder = shouldDisplay
 
@@ -241,6 +255,26 @@ export default defineComponent({
       this.$data.editingCollection = collection
       this.$data.editingCollectionIndex = collectionIndex
       this.displayModalEdit(true)
+    },
+    onAddRequest({ name, path }) {
+      const newRequest = {
+        ...getGQLSession().request,
+        name,
+      }
+
+      saveGraphqlRequestAs(path, newRequest)
+      setGQLSession({
+        request: newRequest,
+        schema: "",
+        response: "",
+      })
+
+      this.displayModalAddRequest(false)
+    },
+    addRequest(payload) {
+      const { path } = payload
+      this.$data.editingFolderPath = path
+      this.displayModalAddRequest(true)
     },
     onAddFolder({ name, path }) {
       addGraphqlFolder(name, path)

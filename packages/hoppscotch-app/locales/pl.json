@@ -9,6 +9,7 @@
     "delete": "Usuń",
     "disconnect": "Rozłącz",
     "dismiss": "Odrzuć",
+    "dont_save": "Don't save",
     "download_file": "Pobieranie pliku",
     "duplicate": "Duplicate",
     "edit": "Edytuj",
@@ -44,6 +45,10 @@
     "chat_with_us": "Porozmawiaj z nami",
     "contact_us": "Skontaktuj się z nami",
     "copy": "Kopiuj",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentacja",
     "github": "GitHub",
     "help": "Pomoc, opinie i dokumentacja",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Skróty klawiszowe",
     "name": "Hoppscotch",
     "new_version_found": "Znaleziono nową wersję. Odśwież, aby zaktualizować.",
+    "options": "Options",
     "proxy_privacy_policy": "Polityka prywatności proxy",
     "reload": "Przeładuj",
     "search": "Szukaj",
@@ -62,6 +68,7 @@
     "shortcuts": "Skróty",
     "spotlight": "Reflektor",
     "status": "Status",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Warunki i prywatność",
     "twitter": "Twitter",
     "type_a_command_search": "Wpisz polecenie lub wyszukaj…",
@@ -124,6 +131,7 @@
     "remove_request": "Czy na pewno chcesz trwale usunąć te żądanie?",
     "remove_team": "Czy na pewno chcesz usunąć ten zespół?",
     "remove_telemetry": "Czy na pewno chcesz zrezygnować z telemetrii?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Czy na pewno chcesz zsynchronizować ten obszar roboczy?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Stwórz nowe środowisko",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Edytuj środowisko",
     "invalid_name": "Podaj prawidłową nazwę środowiska",
@@ -233,6 +242,7 @@
     "tests": "Napisz skrypt testowy, aby zautomatyzować debugowanie."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Ukryj więcej",
     "preview": "Ukryj podgląd",
     "sidebar": "Ukryj pasek boczny"
@@ -259,7 +269,10 @@
     "title": "Import"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Pionowy układ",
+    "name": "Layout",
     "row": "Poziomy układ",
     "zen_mode": "Tryb Zen"
   },
@@ -327,6 +340,10 @@
     "invalid_name": "Podaj nazwę żądania",
     "method": "metoda",
     "name": "Nazwa",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Parametry zapytania",
     "parameters": "Parametry",
     "path": "Ścieżka",
@@ -339,6 +356,7 @@
     "save_as": "Zapisz jako",
     "saved": "Żądanie zostało zapisane",
     "share": "Udostępnij",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Żądanie",
     "type": "Typ żądania",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Wersja rozszerzenia",
     "extensions": "Rozszerzenia",
     "extensions_use_toggle": "Użyj rozszerzenia przeglądarki do wysyłania żądań (jeśli istnieje)",
+    "follow": "Follow Us",
     "font_size": "Rozmiar czcionki",
     "font_size_large": "Wielki",
     "font_size_medium": "Średni",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Pokaż kod",
+    "collection": "Expand Collection Panel",
     "more": "Pokaż więcej",
     "sidebar": "Pokaż pasek boczny"
   },
@@ -505,6 +525,7 @@
     "community": "Zadawaj pytania i pomagaj innym",
     "documentation": "Przeczytaj więcej o Hoppscotch",
     "forum": "Zadawaj pytania i otrzymuj odpowiedzi",
+    "github": "Follow us on Github",
     "shortcuts": "Przeglądaj aplikację szybciej",
     "team": "Skontaktuj się z zespołem",
     "title": "Wsparcie",

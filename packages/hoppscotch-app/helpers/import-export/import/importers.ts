@@ -13,3 +13,10 @@ export const RESTCollectionImporters = [
   GistImporter,
   MyCollectionsImporter,
 ] as const
+
+export const URLImporters = [
+  HoppRESTCollImporter,
+  OpenAPIImporter,
+  PostmanImporter,
+  InsomniaImporter,
+] as const

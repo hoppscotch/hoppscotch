@@ -5,3 +5,8 @@ export const responseErrors: ResponseErrorPair = {
   408: "NETWORK TIMEOUT",
   400: "BAD REQUEST",
 } as const;
+
+/**
+ * Default decimal precision to round-off calculated HRTime time in seconds.
+ */
+export const DEFAULT_DURATION_PRECISION: number = 3;

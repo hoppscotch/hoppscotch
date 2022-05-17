@@ -8,5 +8,10 @@ import * as O from "fp-ts/Option"
 export const safeParseJSON = (str: string): O.Option<object> =>
   O.tryCatch(() => JSON.parse(str))
 
-export const prettyPrintStringifyJSON = (jsonObject: any): O.Option<string> =>
-  O.tryCatch(() => JSON.stringify(jsonObject, null, "\t"))
+/**
+ * Generates a prettified JSON representation of an object
+ * @param obj The object to get the representation of
+ * @returns The prettified JSON string of the object
+ */
+export const prettyPrintJSON = (obj: unknown): O.Option<string> =>
+  O.tryCatch(() => JSON.stringify(obj, null, "\t"))

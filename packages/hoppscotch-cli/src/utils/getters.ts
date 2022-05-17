@@ -11,6 +11,8 @@ import * as E from "fp-ts/Either";
 import * as S from "fp-ts/string";
 import * as O from "fp-ts/Option";
 import { error } from "../types/errors";
+import round from "lodash/round";
+import { DEFAULT_DURATION_PRECISION } from "./constants";
 
 /**
  * Generates template string (status + statusText) with specific color unicodes
@@ -106,8 +108,24 @@ export const exceptionColors = {
   INFO: chalk.blue,
   FAIL: chalk.red,
   SUCCESS: chalk.green,
+  INFO_BRIGHT: chalk.blueBright,
   BG_WARN: chalk.bgYellow,
   BG_FAIL: chalk.bgRed,
   BG_INFO: chalk.bgBlue,
   BG_SUCCESS: chalk.bgGreen,
+};
+
+/**
+ * Calculates duration in seconds for given end-HRTime of format [seconds, nanoseconds],
+ * which is rounded-off upto given decimal value.
+ * @param end Providing end-HRTime of format [seconds, nanoseconds].
+ * @param precision Decimal precision to round-off float duration value (DEFAULT = 3).
+ * @returns Rounded duration in seconds for given decimal precision.
+ */
+export const getDurationInSeconds = (
+  end: [number, number],
+  precision: number = DEFAULT_DURATION_PRECISION
+) => {
+  const durationInSeconds = (end[0] * 1e9 + end[1]) / 1e9;
+  return round(durationInSeconds, precision);
 };

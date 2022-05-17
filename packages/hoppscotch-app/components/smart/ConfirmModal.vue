@@ -16,7 +16,12 @@
     </template>
     <template #footer>
       <span>
-        <ButtonPrimary v-focus :label="yes" @click.native="resolve" />
+        <ButtonPrimary
+          v-focus
+          :label="yes"
+          :loading="!!loadingState"
+          @click.native="resolve"
+        />
         <ButtonSecondary :label="no" @click.native="hideModal" />
       </span>
     </template>
@@ -42,14 +47,15 @@ export default defineComponent({
         return this.$t("action.no")
       },
     },
+    loadingState: { type: Boolean, default: null },
   },
   methods: {
     hideModal() {
       this.$emit("hide-modal")
     },
     resolve() {
-      this.$emit("resolve")
-      this.$emit("hide-modal")
+      this.$emit("resolve", this.title)
+      if (this.loadingState === null) this.$emit("hide-modal")
     },
   },
 })

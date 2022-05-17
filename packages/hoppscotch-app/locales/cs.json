@@ -9,6 +9,7 @@
     "delete": "Vymazat",
     "disconnect": "Odpojit",
     "dismiss": "Zavrhnout",
+    "dont_save": "Don't save",
     "download_file": "Stáhnout soubor",
     "duplicate": "Duplicate",
     "edit": "Upravit",
@@ -44,6 +45,10 @@
     "chat_with_us": "piš si s námi",
     "contact_us": "Kontaktujte nás",
     "copy": "kopírovat",
+    "copy_user_id": "Copy User Auth Token",
+    "developer_option": "Developer options",
+    "developer_option_description": "Developer tools which helps in development and maintenance of Hoppscotch.",
+    "discord": "Discord",
     "documentation": "Dokumentace",
     "github": "GitHub",
     "help": "Nápověda, zpětná vazba a dokumentace",
@@ -55,6 +60,7 @@
     "keyboard_shortcuts": "Klávesové zkratky",
     "name": "Hoppscotch",
     "new_version_found": "Nalezena nová verze. Aktualizujte aktualizací.",
+    "options": "Options",
     "proxy_privacy_policy": "Zásady ochrany osobních údajů proxy",
     "reload": "Znovu načíst",
     "search": "Vyhledávání",
@@ -62,6 +68,7 @@
     "shortcuts": "Klávesové zkratky",
     "spotlight": "Reflektor",
     "status": "Postavení",
+    "status_description": "Check the status of the website",
     "terms_and_privacy": "Podmínky a soukromí",
     "twitter": "Cvrlikání",
     "type_a_command_search": "Zadejte příkaz nebo hledejte…",
@@ -124,6 +131,7 @@
     "remove_request": "Opravdu chcete tento požadavek trvale smazat?",
     "remove_team": "Opravdu chcete tento tým smazat?",
     "remove_telemetry": "Opravdu se chcete odhlásit z telemetrie?",
+    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
     "sync": "Opravdu chcete synchronizovat tento pracovní prostor?"
   },
   "count": {
@@ -164,6 +172,7 @@
     "add_to_global": "Add to Global",
     "added": "Environment addition",
     "create_new": "Vytvořit nové prostředí",
+    "created": "Environment created",
     "deleted": "Environment deletion",
     "edit": "Upravit prostředí",
     "invalid_name": "Zadejte platný název prostředí",
@@ -233,6 +242,7 @@
     "tests": "Napište testovací skript pro automatizaci ladění."
   },
   "hide": {
+    "collection": "Collapse Collection Panel",
     "more": "Skrýt více",
     "preview": "Skrýt náhled",
     "sidebar": "Skrýt postranní panel"
@@ -259,7 +269,10 @@
     "title": "Import"
   },
   "layout": {
+    "collapse_collection": "Collapse or Expand Collections",
+    "collapse_sidebar": "Collapse or Expand the sidebar",
     "column": "Vertical layout",
+    "name": "Layout",
     "row": "Horizontal layout",
     "zen_mode": "Zenový režim"
   },
@@ -327,9 +340,13 @@
     "invalid_name": "Uveďte prosím název žádosti",
     "method": "Metoda",
     "name": "Vyžádejte si jméno",
-    "path": "Cesta",
+    "new": "New Request",
+    "override": "Override",
+    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "overriden": "Overridden",
     "parameter_list": "Parametry dotazu",
     "parameters": "Parametry",
+    "path": "Cesta",
     "payload": "Užitečné zatížení",
     "query": "Dotaz",
     "raw_body": "Raw Request Body",
@@ -339,6 +356,7 @@
     "save_as": "Uložit jako",
     "saved": "Žádost uložena",
     "share": "Podíl",
+    "share_description": "Share Hoppscotch with your friends",
     "title": "Žádost",
     "type": "Typ požadavku",
     "url": "URL",
@@ -378,6 +396,7 @@
     "extension_version": "Verze rozšíření",
     "extensions": "Rozšíření",
     "extensions_use_toggle": "K odeslání požadavků použijte rozšíření prohlížeče (je -li k dispozici)",
+    "follow": "Follow Us",
     "font_size": "Velikost písma",
     "font_size_large": "Velký",
     "font_size_medium": "Střední",
@@ -459,6 +478,7 @@
   },
   "show": {
     "code": "Zobrazit kód",
+    "collection": "Expand Collection Panel",
     "more": "Zobrazit více",
     "sidebar": "Zobrazit postranní panel"
   },
@@ -505,6 +525,7 @@
     "community": "Ptejte se a pomozte ostatním",
     "documentation": "Přečtěte si více o Hoppscotch",
     "forum": "Ptejte se a získejte odpovědi",
+    "github": "Follow us on Github",
     "shortcuts": "Procházejte aplikaci rychleji",
     "team": "Spojte se s týmem",
     "title": "Podpěra, podpora",

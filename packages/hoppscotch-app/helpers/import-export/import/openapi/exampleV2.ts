@@ -8,16 +8,16 @@ type PrimitiveSchemaType = "string" | "integer" | "number" | "boolean"
 
 type SchemaType = "array" | "object" | PrimitiveSchemaType
 
-type PrimitiveRequestBodyExampleType = number | string | boolean
+type PrimitiveRequestBodyExample = number | string | boolean
 
-type RequestBodyExampleType =
-  | { [name: string]: RequestBodyExampleType }
-  | Array<RequestBodyExampleType>
-  | PrimitiveRequestBodyExampleType
+type RequestBodyExample =
+  | { [name: string]: RequestBodyExample }
+  | Array<RequestBodyExample>
+  | PrimitiveRequestBodyExample
 
 const getPrimitiveTypePlaceholder = (
   schemaType: PrimitiveSchemaType
-): PrimitiveRequestBodyExampleType => {
+): PrimitiveRequestBodyExample => {
   switch (schemaType) {
     case "string":
       return "string"
@@ -54,11 +54,11 @@ const isSchemaTypeObject = (schemaType: string): schemaType is "object" =>
 
 const getSampleEnumValueOrPlaceholder = (
   schema: OpenAPIV2.SchemaObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   pipe(
     schema.enum,
     O.fromNullable,
-    O.map((enums) => enums[0] as RequestBodyExampleType),
+    O.map((enums) => enums[0] as RequestBodyExample),
     O.altW(() =>
       pipe(
         schema,
@@ -72,7 +72,7 @@ const getSampleEnumValueOrPlaceholder = (
 
 const generateExampleArrayFromOpenAPIV2ItemsObject = (
   items: OpenAPIV2.ItemsObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   // ItemsObject can not hold type "object"
   // https://swagger.io/specification/v2/#itemsObject
 
@@ -85,25 +85,26 @@ const generateExampleArrayFromOpenAPIV2ItemsObject = (
       flow((items) => items.type as SchemaType, isSchemaTypePrimitive)
     ),
     O.map(
-      flow(getSampleEnumValueOrPlaceholder, (arrayItem) =>
-        Array.of(arrayItem, arrayItem)
-      )
+      flow(getSampleEnumValueOrPlaceholder, (arrayItem) => [
+        arrayItem,
+        arrayItem,
+      ])
     ),
     O.getOrElse(() =>
       // If the type is not primitive, it is "array"
       // items property is required if type is array
-      Array.of(
+      [
         generateExampleArrayFromOpenAPIV2ItemsObject(
           items.items as OpenAPIV2.ItemsObject
-        )
-      )
+        ),
+      ]
     )
   )
 
 const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
   schema: OpenAPIV2.SchemaObject
-): RequestBodyExampleType => {
-  if (schema.example) return schema.example as RequestBodyExampleType
+): RequestBodyExample => {
+  if (schema.example) return schema.example as RequestBodyExample
 
   const primitiveTypeExample = pipe(
     schema,
@@ -155,7 +156,7 @@ const generateRequestBodyExampleFromOpenAPIV2BodySchema = (
     ),
     O.getOrElseW(() => [] as [string, OpenAPIV2.SchemaObject][]),
     A.reduce(
-      {} as { [name: string]: RequestBodyExampleType },
+      {} as { [name: string]: RequestBodyExample },
       (aggregatedExample, property) => {
         const example = generateRequestBodyExampleFromOpenAPIV2BodySchema(
           property[1]
@@ -179,10 +180,6 @@ export const generateRequestBodyExampleFromOpenAPIV2Body = (
         generateRequestBodyExampleFromOpenAPIV2BodySchema
       )
     ),
-    O.getOrElse(() => "" as RequestBodyExampleType),
-    (requestBodyExample) =>
-      pipe(
-        prettyPrintJSON(requestBodyExample),
-        O.getOrElse(() => "")
-      )
+    O.chain(prettyPrintJSON),
+    O.getOrElse(() => "")
   )

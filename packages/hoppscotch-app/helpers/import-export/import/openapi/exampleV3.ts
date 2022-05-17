@@ -1,7 +1,7 @@
 import { OpenAPIV3 } from "openapi-types"
 import { pipe } from "fp-ts/function"
-import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
+import { tupleToRecord } from "~/helpers/functional/record"
 
 type SchemaType =
   | OpenAPIV3.ArraySchemaObjectType
@@ -9,12 +9,12 @@ type SchemaType =
 
 type PrimitiveSchemaType = Exclude<SchemaType, "array" | "object">
 
-type PrimitiveRequestBodyExampleType = string | number | boolean | null
+type PrimitiveRequestBodyExample = string | number | boolean | null
 
-type RequestBodyExampleType =
-  | PrimitiveRequestBodyExampleType
-  | Array<RequestBodyExampleType>
-  | { [name: string]: RequestBodyExampleType }
+type RequestBodyExample =
+  | PrimitiveRequestBodyExample
+  | Array<RequestBodyExample>
+  | { [name: string]: RequestBodyExample }
 
 const isSchemaTypePrimitive = (
   schemaType: SchemaType
@@ -23,7 +23,7 @@ const isSchemaTypePrimitive = (
 
 const getPrimitiveTypePlaceholder = (
   primitiveType: PrimitiveSchemaType
-): PrimitiveRequestBodyExampleType => {
+): PrimitiveRequestBodyExample => {
   switch (primitiveType) {
     case "number":
       return 0.0
@@ -40,46 +40,34 @@ const getPrimitiveTypePlaceholder = (
 // TODO(agarwal): Use Enum values, if any
 const generatePrimitiveRequestBodyExample = (
   schemaObject: OpenAPIV3.NonArraySchemaObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   getPrimitiveTypePlaceholder(schemaObject.type as PrimitiveSchemaType)
 
 // Use carefully, call only when type is object
 const generateObjectRequestBodyExample = (
   schemaObject: OpenAPIV3.NonArraySchemaObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   pipe(
     schemaObject.properties,
     O.fromNullable,
-    O.map(
-      (properties) =>
-        Object.entries(properties) as [string, OpenAPIV3.SchemaObject][]
-    ),
+    O.map(Object.entries),
     O.getOrElseW(() => [] as [string, OpenAPIV3.SchemaObject][]),
-    A.reduce(
-      {} as { [name: string]: RequestBodyExampleType },
-      (aggregatedExample, property) => {
-        aggregatedExample[property[0]] =
-          generateRequestBodyExampleFromSchemaObject(property[1])
-        return aggregatedExample
-      }
-    )
+    tupleToRecord
   )
 
 const generateArrayRequestBodyExample = (
   schemaObject: OpenAPIV3.ArraySchemaObject
-): RequestBodyExampleType =>
-  Array.of(
-    generateRequestBodyExampleFromSchemaObject(
-      schemaObject.items as OpenAPIV3.SchemaObject
-    )
-  )
+): RequestBodyExample => [
+  generateRequestBodyExampleFromSchemaObject(
+    schemaObject.items as OpenAPIV3.SchemaObject
+  ),
+]
 
 const generateRequestBodyExampleFromSchemaObject = (
   schemaObject: OpenAPIV3.SchemaObject
-): RequestBodyExampleType => {
+): RequestBodyExample => {
   // TODO: Handle schema objects with allof
-  if (schemaObject.example)
-    return schemaObject.example as RequestBodyExampleType
+  if (schemaObject.example) return schemaObject.example as RequestBodyExample
 
   // If request body can be oneof or allof several schema, choose the first schema to generate an example
   if (schemaObject.oneOf)
@@ -110,10 +98,9 @@ const generateRequestBodyExampleFromSchemaObject = (
 
 export const generateRequestBodyExampleFromMediaObject = (
   mediaObject: OpenAPIV3.MediaTypeObject
-): RequestBodyExampleType => {
-  if (mediaObject.example) return mediaObject.example as RequestBodyExampleType
-  if (mediaObject.examples)
-    return mediaObject.examples[0] as RequestBodyExampleType
+): RequestBodyExample => {
+  if (mediaObject.example) return mediaObject.example as RequestBodyExample
+  if (mediaObject.examples) return mediaObject.examples[0] as RequestBodyExample
   return mediaObject.schema
     ? generateRequestBodyExampleFromSchemaObject(
         mediaObject.schema as OpenAPIV3.SchemaObject

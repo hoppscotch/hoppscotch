@@ -18,12 +18,12 @@ type PrimitiveSchemaType = Exclude<
   "object"
 >
 
-type PrimitiveRequestBodyExampleType = string | number | boolean | null
+type PrimitiveRequestBodyExample = string | number | boolean | null
 
-type RequestBodyExampleType =
-  | PrimitiveRequestBodyExampleType
-  | Array<RequestBodyExampleType>
-  | { [name: string]: RequestBodyExampleType }
+type RequestBodyExample =
+  | PrimitiveRequestBodyExample
+  | Array<RequestBodyExample>
+  | { [name: string]: RequestBodyExample }
 
 const isSchemaTypePrimitive = (
   schemaType: SchemaType
@@ -32,7 +32,7 @@ const isSchemaTypePrimitive = (
 
 const getPrimitiveTypePlaceholder = (
   primitiveType: PrimitiveSchemaType
-): PrimitiveRequestBodyExampleType => {
+): PrimitiveRequestBodyExample => {
   switch (primitiveType) {
     case "number":
       return 0.0
@@ -50,13 +50,13 @@ const getPrimitiveTypePlaceholder = (
 // TODO(agarwal): Use Enum values, if any
 const generatePrimitiveRequestBodyExample = (
   schemaObject: OpenAPIV31.NonArraySchemaObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   getPrimitiveTypePlaceholder(schemaObject.type as PrimitiveSchemaType)
 
 // Use carefully, the schema type should necessarily be object
 const generateObjectRequestBodyExample = (
   schemaObject: OpenAPIV31.NonArraySchemaObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   pipe(
     schemaObject.properties,
     O.fromNullable,
@@ -66,7 +66,7 @@ const generateObjectRequestBodyExample = (
     ),
     O.getOrElseW(() => [] as [string, OpenAPIV31.SchemaObject][]),
     A.reduce(
-      {} as { [name: string]: RequestBodyExampleType },
+      {} as { [name: string]: RequestBodyExample },
       (aggregatedExample, property) => {
         aggregatedExample[property[0]] =
           generateRequestBodyExampleFromSchemaObject(property[1])
@@ -78,39 +78,34 @@ const generateObjectRequestBodyExample = (
 // Use carefully, the schema type should necessarily be mixed array
 const generateMixedArrayRequestBodyEcample = (
   schemaObject: OpenAPIV31.SchemaObject
-): RequestBodyExampleType =>
+): RequestBodyExample =>
   pipe(
     schemaObject,
     (schemaObject) => schemaObject.type as MixedArraySchemaType,
-    A.reduce(
-      [] as Array<RequestBodyExampleType>,
-      (aggregatedExample, itemType) => {
-        // TODO: Figure out how to include non-primitive types as well
-        if (isSchemaTypePrimitive(itemType)) {
-          aggregatedExample.push(getPrimitiveTypePlaceholder(itemType))
-        }
-        return aggregatedExample
+    A.reduce([] as Array<RequestBodyExample>, (aggregatedExample, itemType) => {
+      // TODO: Figure out how to include non-primitive types as well
+      if (isSchemaTypePrimitive(itemType)) {
+        aggregatedExample.push(getPrimitiveTypePlaceholder(itemType))
       }
-    )
+      return aggregatedExample
+    })
   )
 
 const generateArrayRequestBodyExample = (
   schemaObject: OpenAPIV31.ArraySchemaObject
-): RequestBodyExampleType =>
-  Array.of(
-    generateRequestBodyExampleFromSchemaObject(
-      schemaObject.items as OpenAPIV31.SchemaObject
-    )
-  )
+): RequestBodyExample => [
+  generateRequestBodyExampleFromSchemaObject(
+    schemaObject.items as OpenAPIV31.SchemaObject
+  ),
+]
 
 const generateRequestBodyExampleFromSchemaObject = (
   schemaObject: OpenAPIV31.SchemaObject
-): RequestBodyExampleType => {
+): RequestBodyExample => {
   // TODO: Handle schema objects with oneof or anyof
-  if (schemaObject.example)
-    return schemaObject.example as RequestBodyExampleType
+  if (schemaObject.example) return schemaObject.example as RequestBodyExample
   if (schemaObject.examples)
-    return schemaObject.examples[0] as RequestBodyExampleType
+    return schemaObject.examples[0] as RequestBodyExample
   if (!schemaObject.type) return ""
   if (isSchemaTypePrimitive(schemaObject.type))
     return generatePrimitiveRequestBodyExample(
@@ -125,10 +120,9 @@ const generateRequestBodyExampleFromSchemaObject = (
 
 export const generateRequestBodyExampleFromMediaObject = (
   mediaObject: OpenAPIV31.MediaTypeObject
-): RequestBodyExampleType => {
-  if (mediaObject.example) return mediaObject.example as RequestBodyExampleType
-  if (mediaObject.examples)
-    return mediaObject.examples[0] as RequestBodyExampleType
+): RequestBodyExample => {
+  if (mediaObject.example) return mediaObject.example as RequestBodyExample
+  if (mediaObject.examples) return mediaObject.examples[0] as RequestBodyExample
   return mediaObject.schema
     ? generateRequestBodyExampleFromSchemaObject(mediaObject.schema)
     : ""

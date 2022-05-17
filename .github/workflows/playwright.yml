@@ -1,0 +1,52 @@
+name: Playwright Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  playwright-tests:
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "lts/*"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2.1.0
+        with:
+          version: 6
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: |
+          echo "::set-output name=pnpm_cache_dir::$(pnpm store path)"
+
+      - uses: actions/cache@v2
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.pnpm_cache_dir }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Setup Environment
+        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
+      - name: Setup Playwright
+        run: cd ./packages/hoppscotch-app && pnpx playwright install --with-deps
+
+      - name: build hoppscotch
+        run: pnpm run generate
+
+      - name: start the server and run tests
+        run: pnpm --filter hoppscotch-app start & pnpm --filter hoppscotch-app playwright:test
+

@@ -31,7 +31,8 @@
     "do-lint": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix",
     "do-test": "pnpm run test",
-    "gql-codegen": "graphql-codegen --config gql-codegen.yml"
+    "gql-codegen": "graphql-codegen --config gql-codegen.yml",
+    "playwright:test": "pnpx playwright test ./tests"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.0.3",
@@ -138,6 +139,7 @@
     "@nuxtjs/pwa": "^3.3.5",
     "@nuxtjs/stylelint-module": "^4.1.0",
     "@nuxtjs/svg": "^0.4.0",
+    "@playwright/test": "^1.22.1",
     "@relmify/jest-fp-ts": "^2.0.1",
     "@sentry/browser": "^6.19.6",
     "@testing-library/jest-dom": "^5.16.4",

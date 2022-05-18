@@ -5,6 +5,7 @@
   >
     <SmartTab
       :id="'params'"
+      data-test-id="http-params"
       :label="`${$t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
     >

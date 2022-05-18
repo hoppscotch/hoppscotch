@@ -42,6 +42,7 @@
       >
         <SmartEnvInput
           v-model="newEndpoint"
+          data-test-id="request-url-input"
           :placeholder="`${t('request.url')}`"
           @enter="newSendRequest()"
           @paste="onPasteUrl($event)"
@@ -52,6 +53,7 @@
     <div class="flex mt-2 sm:mt-0">
       <ButtonPrimary
         id="send"
+        data-test-id="send-request-button"
         class="flex-1 rounded-r-none min-w-20"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"

@@ -65,6 +65,7 @@
           </span>
           <SmartEnvInput
             v-model="param.key"
+            :data-test-id="`http-param-${index}`"
             :placeholder="`${t('count.parameter', { count: index + 1 })}`"
             @change="
               updateParam(index, {
@@ -77,6 +78,7 @@
           />
           <SmartEnvInput
             v-model="param.value"
+            :data-test-id="`http-param-value-${index}`"
             :placeholder="`${t('count.value', { count: index + 1 })}`"
             @change="
               updateParam(index, {

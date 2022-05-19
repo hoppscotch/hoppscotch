@@ -241,14 +241,11 @@ import {
   useToast,
   useI18n,
   useColorMode,
-  usePolled,
+  useReadonlyStream,
 } from "~/helpers/utils/composables"
-import {
-  hasExtensionInstalled,
-  hasChromeExtensionInstalled,
-  hasFirefoxExtensionInstalled,
-} from "~/helpers/strategies/ExtensionStrategy"
+
 import { browserIsChrome, browserIsFirefox } from "~/helpers/utils/userAgent"
+import { extensionStatus$ } from "~/newstore/HoppExtension"
 
 const t = useI18n()
 const toast = useToast()
@@ -263,30 +260,21 @@ const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ZEN_MODE = useSetting("ZEN_MODE")
 
-const extensionVersion = usePolled(5000, (stopPolling) => {
-  const result = hasExtensionInstalled()
-    ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
+
+const extensionVersion = computed(() => {
+  return currentExtensionStatus.value === "available"
+    ? window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion() ?? null
     : null
-
-  // We don't need to poll anymore after we get value
-  if (result) stopPolling()
-
-  return result
 })
 
-const hasChromeExtInstalled = usePolled(5000, (stopPolling) => {
-  // If not Chrome, we don't need to worry about this value changing
-  if (!browserIsChrome()) stopPolling()
+const hasChromeExtInstalled = computed(
+  () => browserIsChrome() && currentExtensionStatus.value === "available"
+)
 
-  return hasChromeExtensionInstalled()
-})
-
-const hasFirefoxExtInstalled = usePolled(5000, (stopPolling) => {
-  // If not Chrome, we don't need to worry about this value changing
-  if (!browserIsFirefox()) stopPolling()
-
-  return hasFirefoxExtensionInstalled()
-})
+const hasFirefoxExtInstalled = computed(
+  () => browserIsFirefox() && currentExtensionStatus.value === "available"
+)
 
 const clearIcon = ref("rotate-ccw")
 

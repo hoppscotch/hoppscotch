@@ -8,11 +8,7 @@
         {{ t("settings.interceptor_description") }}
       </p>
     </div>
-    <SmartRadioGroup
-      :radios="interceptors"
-      :selected="interceptorSelection"
-      @change="toggleSettingKey"
-    />
+    <SmartRadioGroup v-model="interceptorSelection" :radios="interceptors" />
     <div
       v-if="interceptorSelection == 'EXTENSIONS_ENABLED' && !extensionVersion"
       class="flex space-x-2"
@@ -38,58 +34,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "@nuxtjs/composition-api"
-import { KeysMatching } from "~/types/ts-utils"
-import {
-  applySetting,
-  SettingsType,
-  toggleSetting,
-  useSetting,
-} from "~/newstore/settings"
-import { hasExtensionInstalled } from "~/helpers/strategies/ExtensionStrategy"
-import { useI18n, usePolled } from "~/helpers/utils/composables"
+import { computed } from "@nuxtjs/composition-api"
+import { applySetting, toggleSetting, useSetting } from "~/newstore/settings"
+import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
+import { extensionStatus$ } from "~/newstore/HoppExtension"
 
 const t = useI18n()
 
 const PROXY_ENABLED = useSetting("PROXY_ENABLED")
 const EXTENSIONS_ENABLED = useSetting("EXTENSIONS_ENABLED")
 
-const toggleSettingKey = <
-  K extends KeysMatching<SettingsType | "BROWSER_ENABLED", boolean>
->(
-  key: K
-) => {
-  interceptorSelection.value = key
-  if (key === "EXTENSIONS_ENABLED") {
-    applySetting("EXTENSIONS_ENABLED", true)
-    if (PROXY_ENABLED.value) toggleSetting("PROXY_ENABLED")
-  }
-  if (key === "PROXY_ENABLED") {
-    applySetting("PROXY_ENABLED", true)
-    if (EXTENSIONS_ENABLED.value) toggleSetting("EXTENSIONS_ENABLED")
-  }
-  if (key === "BROWSER_ENABLED") {
-    applySetting("PROXY_ENABLED", false)
-    applySetting("EXTENSIONS_ENABLED", false)
-  }
-}
+const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
 
-const extensionVersion = usePolled(5000, (stopPolling) => {
-  const result = hasExtensionInstalled()
-    ? window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+const extensionVersion = computed(() => {
+  return currentExtensionStatus.value === "available"
+    ? window.__POSTWOMAN_EXTENSION_HOOK__?.getVersion() ?? null
     : null
-
-  // We don't need to poll anymore after we get value
-  if (result) stopPolling()
-
-  return result
 })
 
 const interceptors = computed(() => [
-  { value: "BROWSER_ENABLED", label: t("state.none") },
-  { value: "PROXY_ENABLED", label: t("settings.proxy") },
+  { value: "BROWSER_ENABLED" as const, label: t("state.none") },
+  { value: "PROXY_ENABLED" as const, label: t("settings.proxy") },
   {
-    value: "EXTENSIONS_ENABLED",
+    value: "EXTENSIONS_ENABLED" as const,
     label:
       `${t("settings.extensions")}: ` +
       (extensionVersion.value !== null
@@ -98,15 +65,27 @@ const interceptors = computed(() => [
   },
 ])
 
-const interceptorSelection = ref("")
+type InterceptorMode = typeof interceptors["value"][number]["value"]
 
-watchEffect(() => {
-  if (PROXY_ENABLED.value) {
-    interceptorSelection.value = "PROXY_ENABLED"
-  } else if (EXTENSIONS_ENABLED.value) {
-    interceptorSelection.value = "EXTENSIONS_ENABLED"
-  } else {
-    interceptorSelection.value = "BROWSER_ENABLED"
-  }
+const interceptorSelection = computed<InterceptorMode>({
+  get() {
+    if (PROXY_ENABLED.value) return "PROXY_ENABLED"
+    if (EXTENSIONS_ENABLED.value) return "EXTENSIONS_ENABLED"
+    return "BROWSER_ENABLED"
+  },
+  set(val) {
+    if (val === "EXTENSIONS_ENABLED") {
+      applySetting("EXTENSIONS_ENABLED", true)
+      if (PROXY_ENABLED.value) toggleSetting("PROXY_ENABLED")
+    }
+    if (val === "PROXY_ENABLED") {
+      applySetting("PROXY_ENABLED", true)
+      if (EXTENSIONS_ENABLED.value) toggleSetting("EXTENSIONS_ENABLED")
+    }
+    if (val === "BROWSER_ENABLED") {
+      applySetting("PROXY_ENABLED", false)
+      applySetting("EXTENSIONS_ENABLED", false)
+    }
+  },
 })
 </script>

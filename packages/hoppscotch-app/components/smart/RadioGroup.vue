@@ -5,18 +5,22 @@
       :key="`radio-${index}`"
       :value="radio.value"
       :label="radio.label"
-      :selected="selected"
-      @change="$emit('change', radio.value)"
+      :selected="value === radio.value"
+      @change="emit('input', radio.value)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+const emit = defineEmits<{
+  (e: "input", value: string): void
+}>()
+
 defineProps<{
   radios: Array<{
-    value: string
+    value: string // The key of the radio option
     label: string
   }>
-  selected: string
+  value: string // Should be a radio key given in the radios array
 }>()
 </script>

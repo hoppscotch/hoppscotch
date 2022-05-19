@@ -211,21 +211,23 @@
                       v-else-if="!loading"
                       class="table w-full border-collapse table-auto"
                     >
-                      <div class="hidden rounded lg:table-header-group">
-                        <div class="table-row bg-primaryLight">
-                          <div class="table-cell px-4 py-2 font-semibold">
+                      <div
+                        class="bg-primaryLight hidden rounded lg:table-header-group"
+                      >
+                        <div class="table-row">
+                          <div class="table-cell px-3 py-2 font-semibold">
                             {{ t("shortcodes.short_code") }}
                           </div>
-                          <div class="table-cell px-4 py-2 font-semibold">
+                          <div class="table-cell px-3 py-2 font-semibold">
                             {{ t("shortcodes.method") }}
                           </div>
-                          <div class="table-cell px-4 py-2 font-semibold">
+                          <div class="table-cell px-3 py-2 font-semibold">
                             {{ t("shortcodes.url") }}
                           </div>
-                          <div class="table-cell px-4 py-2 font-semibold">
+                          <div class="table-cell px-3 py-2 font-semibold">
                             {{ t("shortcodes.created_on") }}
                           </div>
-                          <div class="table-cell px-4 py-2 font-semibold">
+                          <div class="table-cell px-3 py-2 font-semibold">
                             {{ t("shortcodes.actions") }}
                           </div>
                         </div>

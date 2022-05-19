@@ -11,11 +11,13 @@
       {{ parseShortcodeRequest.method }}
     </div>
     <div class="table-col" :data-label="t('shortcodes.url')">
-      {{ parseShortcodeRequest.endpoint }}
+      <div class="max-w-40 lg:max-w-100 xl:max-w-150 truncate">
+        {{ parseShortcodeRequest.endpoint }}
+      </div>
     </div>
     <div
       ref="timeStampRef"
-      class="table-col"
+      class="table-col lg:w-40"
       :data-label="t('shortcodes.created_on')"
     >
       {{ timestampHovered ? timeStamp : dateStamp }}
@@ -118,7 +120,7 @@ const copyShortCode = (codeID: string) => {
 
 <style lang="scss">
 .table-col {
-  @apply flex items-center justify-center lg:table-cell border border-dividerLight px-4 py-2;
+  @apply flex items-center justify-between lg:table-cell border border-dividerLight px-3 py-2;
 }
 
 .table-row-group {

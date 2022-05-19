@@ -369,7 +369,8 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
-    "variables": "Variables"
+    "variables": "Variables",
+    "view_my_links": "View my links"
   },
   "response": {
     "body": "Response Body",

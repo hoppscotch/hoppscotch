@@ -16,9 +16,7 @@ export const hasFirefoxExtensionInstalled = () =>
   hasExtensionInstalled() && browserIsFirefox()
 
 export const cancelRunningExtensionRequest = () => {
-  if (window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRunningRequest) {
-    window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest()
-  }
+  window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRunningRequest()
 }
 
 export const defineSubscribableObject = <T extends object>(obj: T) => {

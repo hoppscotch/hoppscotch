@@ -64,8 +64,9 @@ import {
   useRouter,
   watch,
   ref,
+  onMounted,
+  onBeforeUnmount,
 } from "@nuxtjs/composition-api"
-import type { Ref } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
@@ -209,6 +210,62 @@ function defineJumpActions() {
   })
 }
 
+function setupExtensionHooks() {
+  const extensionPollIntervalId = ref<ReturnType<typeof setInterval>>()
+
+  onMounted(() => {
+    if (window.__HOPP_EXTENSION_STATUS_PROXY__) {
+      changeExtensionStatus(window.__HOPP_EXTENSION_STATUS_PROXY__.status)
+
+      window.__HOPP_EXTENSION_STATUS_PROXY__.subscribe(
+        "status",
+        (status: ExtensionStatus) => changeExtensionStatus(status)
+      )
+    } else {
+      const statusProxy = defineSubscribableObject({
+        status: "waiting" as ExtensionStatus,
+      })
+
+      window.__HOPP_EXTENSION_STATUS_PROXY__ = statusProxy
+      statusProxy.subscribe("status", (status: ExtensionStatus) =>
+        changeExtensionStatus(status)
+      )
+
+      /**
+       * Keeping identifying extension backward compatible
+       * We are assuming the default version is 0.24 or later. So if the extension exists, its identified immediately,
+       * then we use a poll to find the version, this will get the version for 0.24 and any other version
+       * of the extension, but will have a slight lag.
+       * 0.24 users will get the benefits of 0.24, while the extension won't break for the old users
+       */
+      extensionPollIntervalId.value = setInterval(() => {
+        if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
+          if (extensionPollIntervalId.value)
+            clearInterval(extensionPollIntervalId.value)
+
+          const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
+
+          // When the version is not 0.24 or higher, the extension wont do this. so we have to do it manually
+          if (
+            version.major === 0 &&
+            version.minor <= 23 &&
+            window.__HOPP_EXTENSION_STATUS_PROXY__
+          ) {
+            window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
+          }
+        }
+      }, 2000)
+    }
+  })
+
+  // Cleanup timer
+  onBeforeUnmount(() => {
+    if (extensionPollIntervalId.value) {
+      clearInterval(extensionPollIntervalId.value)
+    }
+  })
+}
+
 export default defineComponent({
   components: { Splitpanes, Pane },
   setup() {
@@ -236,9 +293,7 @@ export default defineComponent({
       showSupport.value = !showSupport.value
     })
 
-    const extensionPollIntervalId: Ref<
-      ReturnType<typeof setInterval> | undefined
-    > = ref(undefined)
+    setupExtensionHooks()
 
     return {
       mdAndLarger,
@@ -246,7 +301,6 @@ export default defineComponent({
       ZEN_MODE: useSetting("ZEN_MODE"),
       showSearch,
       showSupport,
-      extensionPollIntervalId,
     }
   },
   head() {
@@ -300,56 +354,6 @@ export default defineComponent({
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)
-
-    if (window.__HOPP_EXTENSION_STATUS_PROXY__) {
-      changeExtensionStatus(window.__HOPP_EXTENSION_STATUS_PROXY__.status)
-
-      window.__HOPP_EXTENSION_STATUS_PROXY__.subscribe(
-        "status",
-        (status: ExtensionStatus) => changeExtensionStatus(status)
-      )
-    } else {
-      const statusProxy = defineSubscribableObject({
-        status: "waiting" as ExtensionStatus,
-      })
-
-      window.__HOPP_EXTENSION_STATUS_PROXY__ = statusProxy
-      statusProxy.subscribe("status", (status: ExtensionStatus) =>
-        changeExtensionStatus(status)
-      )
-
-      /**
-       * keeping identifying extension backward compactible
-       * we are assuming the default version is 0.24 or later. so if the extension exists, its identified immediately,
-       * then we use a poll to find the version, this will get the version for 0.24 and any other version of the extension, but will have a slight lag.
-       * 0.24 users will get the benefits of 0.24, while the extension won't break for the old users
-       */
-
-      const extensionPollIntervalId: ReturnType<typeof setInterval> =
-        setInterval(() => {
-          if (typeof window.__POSTWOMAN_EXTENSION_HOOK__ !== "undefined") {
-            clearInterval(extensionPollIntervalId)
-
-            const version = window.__POSTWOMAN_EXTENSION_HOOK__.getVersion()
-
-            // when the version is not 24 or higher, the extension wont do this. so we have to do it manually
-            if (
-              version.major === 0 &&
-              version.minor <= 23 &&
-              window.__HOPP_EXTENSION_STATUS_PROXY__
-            ) {
-              window.__HOPP_EXTENSION_STATUS_PROXY__.status = "available"
-            }
-          }
-        }, 2000)
-
-      this.extensionPollIntervalId = extensionPollIntervalId
-    }
-  },
-  beforeDestroy() {
-    if (this.extensionPollIntervalId) {
-      clearInterval(this.extensionPollIntervalId)
-    }
   },
 })
 </script>

@@ -85,7 +85,7 @@ import {
   useStreamSubscriber,
   useReadonlyStream,
 } from "~/helpers/utils/composables"
-import { SSEConnection, SSEEvent } from "~/helpers/realtime/SSEConnection"
+import { SSEConnection } from "~/helpers/realtime/SSEConnection"
 
 const t = useI18n()
 const nuxt = useNuxt()
@@ -122,8 +122,7 @@ onMounted(() => {
   worker = nuxt.value.$worker.createRejexWorker()
   worker.addEventListener("message", workerResponseHandler)
 
-  subscribeToStream(sse.value.events$, (events: SSEEvent[]) => {
-    const event = events[events.length - 1]
+  subscribeToStream(sse.value.event$, (event) => {
     switch (event?.type) {
       case "STARTING":
         log.value = [

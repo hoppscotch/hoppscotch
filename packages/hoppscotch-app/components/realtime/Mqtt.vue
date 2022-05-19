@@ -133,22 +133,14 @@
 
 <script setup lang="ts">
 import {
-  ref,
   computed,
-  watch,
-  onUnmounted,
   onMounted,
+  onUnmounted,
+  ref,
+  watch,
 } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
-import {
-  MQTTEndpoint$,
-  setMQTTEndpoint,
-  MQTTConn$,
-  setMQTTConn,
-  MQTTLog$,
-  setMQTTLog,
-  addMQTTLogLine,
-} from "~/newstore/MQTTSession"
+import { MQTTConnection, MQTTMessage } from "~/helpers/realtime/MQTTConnection"
 import {
   useI18n,
   useNuxt,
@@ -158,10 +150,14 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 import {
-  MQTTMessage,
-  MQTTConnection,
-  MQTTEvent,
-} from "~/helpers/realtime/MQTTConnection"
+  addMQTTLogLine,
+  MQTTConn$,
+  MQTTEndpoint$,
+  MQTTLog$,
+  setMQTTConn,
+  setMQTTEndpoint,
+  setMQTTLog,
+} from "~/newstore/MQTTSession"
 
 const t = useI18n()
 const nuxt = useNuxt()
@@ -211,8 +207,7 @@ onMounted(() => {
   worker = nuxt.value.$worker.createRejexWorker()
   worker.addEventListener("message", workerResponseHandler)
 
-  subscribeToStream(socket.value.events$, (events: MQTTEvent[]) => {
-    const event = events[events.length - 1]
+  subscribeToStream(socket.value.event$, (event) => {
     switch (event?.type) {
       case "CONNECTING":
         log.value = [

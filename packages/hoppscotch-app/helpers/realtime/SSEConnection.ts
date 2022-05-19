@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs"
+import { BehaviorSubject, Subject } from "rxjs"
 import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 
 export type SSEEvent = { time: number } & (
@@ -13,15 +13,14 @@ export type ConnectionState = "STARTING" | "STARTED" | "STOPPED"
 
 export class SSEConnection {
   connectionState$: BehaviorSubject<ConnectionState>
-  events$: BehaviorSubject<SSEEvent[]>
+  event$: Subject<SSEEvent> = new Subject()
   sse: EventSource | undefined
   constructor() {
     this.connectionState$ = new BehaviorSubject<ConnectionState>("STOPPED")
-    this.events$ = new BehaviorSubject<SSEEvent[]>([])
   }
 
   private addEvent(event: SSEEvent) {
-    this.events$.next([...this.events$.value, event])
+    this.event$.next(event)
   }
 
   start(url: string, eventType: string) {

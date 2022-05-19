@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs"
+import { BehaviorSubject, Subject } from "rxjs"
 import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 import { SIOClientV2, SIOClientV3, SIOClientV4, SIOClient } from "./SIOClients"
 import { SIOClientVersion } from "~/newstore/SocketIOSession"
@@ -31,15 +31,14 @@ export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
 
 export class SIOConnection {
   connectionState$: BehaviorSubject<ConnectionState>
-  events$: BehaviorSubject<SIOEvent[]>
+  event$: Subject<SIOEvent> = new Subject()
   socket: SIOClient | undefined
   constructor() {
     this.connectionState$ = new BehaviorSubject<ConnectionState>("DISCONNECTED")
-    this.events$ = new BehaviorSubject<SIOEvent[]>([])
   }
 
   private addEvent(event: SIOEvent) {
-    this.events$.next([...this.events$.value, event])
+    this.event$.next(event)
   }
 
   connect({ url, path, clientVersion, auth }: ConnectionOption) {

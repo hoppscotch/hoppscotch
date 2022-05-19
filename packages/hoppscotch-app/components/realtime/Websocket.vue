@@ -200,7 +200,7 @@ import {
   useStreamSubscriber,
   useReadonlyStream,
 } from "~/helpers/utils/composables"
-import { WSConnection, WSEvent } from "~/helpers/realtime/WSConnection"
+import { WSConnection } from "~/helpers/realtime/WSConnection"
 
 const nuxt = useNuxt()
 const t = useI18n()
@@ -251,8 +251,7 @@ onMounted(() => {
   worker = nuxt.value.$worker.createRejexWorker()
   worker.addEventListener("message", workerResponseHandler)
 
-  subscribeToStream(socket.value.events$, (events: WSEvent[]) => {
-    const event = events[events.length - 1]
+  subscribeToStream(socket.value.event$, (event) => {
     switch (event?.type) {
       case "CONNECTING":
         log.value = [

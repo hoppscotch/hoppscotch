@@ -241,11 +241,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
-import {
-  SIOConnection,
-  SIOEvent,
-  SocketClients,
-} from "~/helpers/realtime/SIOConnection"
+import { SIOConnection, SocketClients } from "~/helpers/realtime/SIOConnection"
 import {
   useI18n,
   useNuxt,
@@ -256,11 +252,11 @@ import {
 } from "~/helpers/utils/composables"
 import {
   addSIOLogLine,
-  SIOClientVersion,
   setSIOEndpoint,
   setSIOLog,
   setSIOPath,
   setSIOVersion,
+  SIOClientVersion,
   SIOEndpoint$,
   SIOLog$,
   SIOPath$,
@@ -306,8 +302,7 @@ onMounted(() => {
   worker = nuxt.value.$worker.createRejexWorker()
   worker.addEventListener("message", workerResponseHandler)
 
-  subscribeToStream(socket.events$, (events: SIOEvent[]) => {
-    const event = events[events.length - 1]
+  subscribeToStream(socket.event$, (event) => {
     switch (event?.type) {
       case "CONNECTING":
         log.value = [

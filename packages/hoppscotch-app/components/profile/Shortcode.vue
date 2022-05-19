@@ -1,17 +1,17 @@
 <template>
   <div class="block my-10 lg:my-0 lg:table-row lg:p-2">
-    <div class="table-col" :data-label="t('shortcodes.short_code')">
+    <div class="table-col lg:w-70" :data-label="t('shortcodes.short_code')">
       {{ shortcode.id }}
     </div>
     <div
-      class="table-col"
+      class="table-col lg:w-30"
       :class="getRequestLabelColor"
       :data-label="t('shortcodes.method')"
     >
       {{ parseShortcodeRequest.method }}
     </div>
     <div class="table-col" :data-label="t('shortcodes.url')">
-      <div class="max-w-40 lg:max-w-100 xl:max-w-150 truncate">
+      <div class="max-w-50 lg:max-w-100 xl:max-w-170 truncate">
         {{ parseShortcodeRequest.endpoint }}
       </div>
     </div>
@@ -23,7 +23,7 @@
       {{ timestampHovered ? timeStamp : dateStamp }}
     </div>
     <div
-      class="flex items-center justify-center border divide-x lg:table-cell border-dividerLight divide-dividerLight"
+      class="flex items-center justify-center lg:w-60 border divide-x lg:table-cell border-dividerLight divide-dividerLight"
       :data-label="t('shortcodes.actions')"
     >
       <SmartAnchor

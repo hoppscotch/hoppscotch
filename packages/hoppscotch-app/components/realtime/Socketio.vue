@@ -315,7 +315,7 @@ onMounted(() => {
             payload: `${t("state.connecting_to", { name: url.value })}`,
             source: "info",
             color: "var(--accent-color)",
-            ts: 0,
+            ts: undefined,
           },
         ]
         break

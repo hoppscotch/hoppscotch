@@ -2,7 +2,7 @@ export type HoppRealtimeLogLine = {
   payload: string
   source: string
   color?: string
-  ts: number
+  ts: number | undefined
 }
 
 export type HoppRealtimeLog = HoppRealtimeLogLine[]

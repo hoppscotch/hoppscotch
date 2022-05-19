@@ -12,7 +12,7 @@
             />
           </div>
           <div
-            v-if="entry.ts"
+            v-if="entry.ts !== undefined"
             class="items-center hidden px-1 w-18 sm:inline-flex"
           >
             <span
@@ -315,7 +315,8 @@ const copyQuery = (entry: string) => {
 }
 
 // Relative Time
-const relativeTime = useTimeAgo(computed(() => props.entry.ts))
+// TS could be undefined here. We're just assigning a default value to 0 because we're not showing it in the UI
+const relativeTime = useTimeAgo(computed(() => props.entry.ts ?? 0))
 
 // Assigns color based on entry event
 const entryColor = computed(() => {

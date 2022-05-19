@@ -1,33 +1,31 @@
 <template>
   <SmartItem
     :label="label"
-    :icon="
-      value === selected ? 'radio_button_checked' : 'radio_button_unchecked'
-    "
-    :active="value === selected"
+    :icon="selected ? 'radio_button_checked' : 'radio_button_unchecked'"
+    :active="selected"
     role="radio"
-    :aria-checked="value === selected"
-    @click.native="$emit('change', value)"
+    :aria-checked="selected"
+    @click.native="emit('change', value)"
   />
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
+<script setup lang="ts">
+const emit = defineEmits<{
+  (e: "change", value: string): void
+}>()
 
-export default defineComponent({
-  props: {
-    value: {
-      type: String,
-      default: "",
-    },
-    label: {
-      type: String,
-      default: "",
-    },
-    selected: {
-      type: String,
-      default: "",
-    },
+defineProps({
+  value: {
+    type: String,
+    default: "",
+  },
+  label: {
+    type: String,
+    default: "",
+  },
+  selected: {
+    type: Boolean,
+    default: false,
   },
 })
 </script>

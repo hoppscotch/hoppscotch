@@ -1,4 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
+import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { AxiosRequestConfig } from "axios"
 import cloneDeep from "lodash/cloneDeep"
@@ -15,12 +16,42 @@ export const hasFirefoxExtensionInstalled = () =>
   hasExtensionInstalled() && browserIsFirefox()
 
 export const cancelRunningExtensionRequest = () => {
-  if (
-    hasExtensionInstalled() &&
-    window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest
-  ) {
-    window.__POSTWOMAN_EXTENSION_HOOK__.cancelRunningRequest()
+  window.__POSTWOMAN_EXTENSION_HOOK__?.cancelRunningRequest()
+}
+
+export const defineSubscribableObject = <T extends object>(obj: T) => {
+  const proxyObject = {
+    ...obj,
+    _subscribers: {} as {
+      // eslint-disable-next-line no-unused-vars
+      [key in keyof T]?: ((...args: any[]) => any)[]
+    },
+    subscribe(prop: keyof T, func: (...args: any[]) => any): void {
+      if (Array.isArray(this._subscribers[prop])) {
+        this._subscribers[prop]?.push(func)
+      } else {
+        this._subscribers[prop] = [func]
+      }
+    },
   }
+
+  type SubscribableProxyObject = typeof proxyObject
+
+  return new Proxy(proxyObject, {
+    set(obj, prop, newVal) {
+      obj[prop as keyof SubscribableProxyObject] = newVal
+
+      const currentSubscribers = obj._subscribers[prop as keyof T]
+
+      if (Array.isArray(currentSubscribers)) {
+        for (const subscriber of currentSubscribers) {
+          subscriber(newVal)
+        }
+      }
+
+      return true
+    },
+  })
 }
 
 const preProcessRequest = (req: AxiosRequestConfig): AxiosRequestConfig => {
@@ -56,13 +87,20 @@ const extensionStrategy: NetworkStrategy = (req) =>
 
     // Run the request
     TE.bind("response", ({ processedReq }) =>
-      TE.tryCatch(
-        () =>
-          window.__POSTWOMAN_EXTENSION_HOOK__.sendRequest({
-            ...processedReq,
-            wantsBinary: true,
-          }) as Promise<NetworkResponse>,
-        (err) => err as any
+      pipe(
+        window.__POSTWOMAN_EXTENSION_HOOK__,
+        O.fromNullable,
+        TE.fromOption(() => "NO_PW_EXT_HOOK" as const),
+        TE.chain((extensionHook) =>
+          TE.tryCatch(
+            () =>
+              extensionHook.sendRequest({
+                ...processedReq,
+                wantsBinary: true,
+              }),
+            (err) => err as any
+          )
+        )
       )
     ),
 

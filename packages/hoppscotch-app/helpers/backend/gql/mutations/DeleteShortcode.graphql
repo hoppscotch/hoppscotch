@@ -1,0 +1,3 @@
+mutation DeleteShortcode($code: ID!) {
+  revokeShortcode(code: $code)
+}

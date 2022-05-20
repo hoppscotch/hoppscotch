@@ -61,6 +61,12 @@
     "name": "Español"
   },
   {
+    "code": "fa",
+    "file": "fa.json",
+    "iso": "fa-IR",
+    "name": "فارسی"
+  },
+  {
     "code": "fi",
     "file": "fi.json",
     "iso": "fi-FI",

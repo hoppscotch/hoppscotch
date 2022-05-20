@@ -157,9 +157,7 @@ onMounted(() => {
 
       case "ERROR":
         addSSELogLine({
-          payload:
-            event.error ||
-            t("state.disconnected_from", { name: server.value }).toString(),
+          payload: t("error.browser_support_sse").toString(),
           source: "info",
           color: "#ff5555",
           ts: event.time,

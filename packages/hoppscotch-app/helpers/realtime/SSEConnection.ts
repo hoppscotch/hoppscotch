@@ -6,7 +6,7 @@ export type SSEEvent = { time: number } & (
   | { type: "STARTED" }
   | { type: "MESSAGE_RECEIVED"; message: string }
   | { type: "STOPPED"; manual: boolean }
-  | { type: "ERROR"; error: string }
+  | { type: "ERROR"; error: Event | null }
 )
 
 export type ConnectionState = "STARTING" | "STARTED" | "STOPPED"
@@ -47,19 +47,16 @@ export class SSEConnection {
             time: Date.now(),
           })
         })
-      } catch (e) {
-        this.handleError(e)
-        this.addEvent({
-          type: "ERROR",
-          time: Date.now(),
-          error: "",
-        })
+      } catch (error) {
+        // A generic event type returned if anything goes wrong or browser doesn't support SSE
+        // https://developer.mozilla.org/en-US/docs/Web/API/EventSource/error_event#event_type
+        this.handleError(error as Event)
       }
     } else {
       this.addEvent({
         type: "ERROR",
         time: Date.now(),
-        error: "error.browser_support_sse",
+        error: null,
       })
     }
 
@@ -68,7 +65,7 @@ export class SSEConnection {
     })
   }
 
-  private handleError(error: any) {
+  private handleError(error: Event) {
     this.stop()
     this.addEvent({
       time: Date.now(),

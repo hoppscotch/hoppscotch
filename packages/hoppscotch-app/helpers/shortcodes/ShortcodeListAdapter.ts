@@ -20,8 +20,8 @@ export default class ShortcodeListAdapter {
   private timeoutHandle: ReturnType<typeof setTimeout> | null
   private isDispose: boolean
 
-  private myShortcodesCreated$: Subscription | null
-  private myShortcodesRevoked$: Subscription | null
+  private myShortcodesCreated: Subscription | null
+  private myShortcodesRevoked: Subscription | null
 
   constructor(deferInit: boolean = false) {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
@@ -31,15 +31,15 @@ export default class ShortcodeListAdapter {
     >([])
     this.timeoutHandle = null
     this.isDispose = false
-    this.myShortcodesCreated$ = null
-    this.myShortcodesRevoked$ = null
+    this.myShortcodesCreated = null
+    this.myShortcodesRevoked = null
 
     if (!deferInit) this.initialize()
   }
 
   unsubscribeSubscriptions() {
-    this.myShortcodesCreated$?.unsubscribe()
-    this.myShortcodesRevoked$?.unsubscribe()
+    this.myShortcodesCreated?.unsubscribe()
+    this.myShortcodesRevoked?.unsubscribe()
   }
 
   initialize() {
@@ -79,10 +79,11 @@ export default class ShortcodeListAdapter {
 
     this.shortcodes$.next(results)
 
-    results.length === BACKEND_PAGE_SIZE &&
+    if (results.length === BACKEND_PAGE_SIZE) {
       this.loadMore(
         result.right.myShortcodes[result.right.myShortcodes.length - 1].id
       )
+    }
 
     this.loading$.next(false)
   }
@@ -102,10 +103,13 @@ export default class ShortcodeListAdapter {
 
     const fetchedResult = result.right.myShortcodes
 
-    fetchedResult.length > 0 && this.pushNewShortcodes(fetchedResult)
+    if (fetchedResult.length > 0) {
+      this.pushNewShortcodes(fetchedResult)
+    }
 
-    fetchedResult.length === BACKEND_PAGE_SIZE &&
+    if (fetchedResult.length === BACKEND_PAGE_SIZE) {
       this.loadMore(fetchedResult[fetchedResult.length - 1].id)
+    }
   }
 
   pushNewShortcodes(results: Shortcode[]) {
@@ -148,7 +152,7 @@ export default class ShortcodeListAdapter {
   }
 
   private registerSubscriptions() {
-    this.myShortcodesCreated$ = runGQLSubscription({
+    this.myShortcodesCreated = runGQLSubscription({
       query: ShortcodeCreatedDocument,
     }).subscribe((result) => {
       if (E.isLeft(result)) {
@@ -159,7 +163,7 @@ export default class ShortcodeListAdapter {
       this.createShortcode(result.right.myShortcodesCreated)
     })
 
-    this.myShortcodesRevoked$ = runGQLSubscription({
+    this.myShortcodesRevoked = runGQLSubscription({
       query: ShortcodeDeletedDocument,
     }).subscribe((result) => {
       if (E.isLeft(result)) {

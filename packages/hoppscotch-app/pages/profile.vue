@@ -270,7 +270,6 @@ import {
   defineComponent,
   watchEffect,
   computed,
-  onMounted,
 } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -286,11 +285,9 @@ import {
   useReadonlyStream,
   useI18n,
   useToast,
-  useStreamSubscriber,
 } from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
 import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
-import { Shortcode } from "~/helpers/shortcodes/Shortcode"
 import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mutations/Shortcode"
 
 type ProfileTabs = "sync" | "teams"
@@ -359,18 +356,10 @@ const sendEmailVerification = () => {
     })
 }
 
-const { subscribeToStream } = useStreamSubscriber()
-
 const adapter = new ShortcodeListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
-const myShortcodes = ref<Shortcode[]>([])
-
-onMounted(() => {
-  subscribeToStream(adapter.shortcodes$, (shortcodes: Shortcode[]) => {
-    myShortcodes.value = shortcodes
-  })
-})
+const myShortcodes = useReadonlyStream(adapter.shortcodes$, [])
 
 const loading = computed(
   () => adapterLoading.value && myShortcodes.value.length === 0

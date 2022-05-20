@@ -241,7 +241,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
-import { SIOConnection, SocketClients } from "~/helpers/realtime/SIOConnection"
+import {
+  SIOConnection,
+  SIOMessage,
+  SocketClients,
+} from "~/helpers/realtime/SIOConnection"
 import {
   useI18n,
   useNuxt,
@@ -298,6 +302,19 @@ const workerResponseHandler = ({
   if (data.url === url.value) isUrlValid.value = data.result
 }
 
+const getMessagePayload = (data: SIOMessage): string => {
+  let message = `[${data.eventName}] `
+  switch (typeof data.value) {
+    case "object":
+      message += JSON.stringify(data.value)
+      break
+    default:
+      message += data.value
+      break
+  }
+  return message
+}
+
 onMounted(() => {
   worker = nuxt.value.$worker.createRejexWorker()
   worker.addEventListener("message", workerResponseHandler)
@@ -329,7 +346,7 @@ onMounted(() => {
 
       case "MESSAGE_SENT":
         addSIOLogLine({
-          payload: event.message,
+          payload: getMessagePayload(event.message),
           source: "client",
           ts: event.time,
         })
@@ -337,7 +354,7 @@ onMounted(() => {
 
       case "MESSAGE_RECEIVED":
         addSIOLogLine({
-          payload: event.message,
+          payload: getMessagePayload(event.message),
           source: "server",
           ts: event.time,
         })

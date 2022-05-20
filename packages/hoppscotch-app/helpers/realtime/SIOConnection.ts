@@ -18,11 +18,16 @@ export type ConnectionOption = {
   auth: SIOAuth | undefined
 }
 
+export type SIOMessage = {
+  eventName: string
+  value: unknown
+}
+
 export type SIOEvent = { time: number } & (
   | { type: "CONNECTING" }
   | { type: "CONNECTED" }
-  | { type: "MESSAGE_SENT"; message: string }
-  | { type: "MESSAGE_RECEIVED"; message: string }
+  | { type: "MESSAGE_SENT"; message: SIOMessage }
+  | { type: "MESSAGE_RECEIVED"; message: SIOMessage }
   | { type: "DISCONNECTED"; manual: boolean }
   | { type: "ERROR"; error: string }
 )
@@ -72,7 +77,7 @@ export class SIOConnection {
       this.socket.on("*", ({ data }: { data: string[] }) => {
         const [eventName, message] = data
         this.addEvent({
-          message: `[${eventName}] ${message ? JSON.stringify(message) : ""}`,
+          message: { eventName, value: message },
           type: "MESSAGE_RECEIVED",
           time: Date.now(),
         })
@@ -120,19 +125,25 @@ export class SIOConnection {
     if (this.connectionState$.value === "DISCONNECTED") return
     const { message, eventName } = event
 
-    this.socket?.emit(eventName, message, (data: object) => {
+    this.socket?.emit(eventName, message, (data) => {
       // receive response from server
       this.addEvent({
         time: Date.now(),
         type: "MESSAGE_RECEIVED",
-        message: `[${eventName}] ${JSON.stringify(data)}`,
+        message: {
+          eventName,
+          value: data,
+        },
       })
     })
 
     this.addEvent({
       time: Date.now(),
       type: "MESSAGE_SENT",
-      message: `[${eventName}] ${JSON.stringify(message)}`,
+      message: {
+        eventName,
+        value: message,
+      },
     })
   }
 

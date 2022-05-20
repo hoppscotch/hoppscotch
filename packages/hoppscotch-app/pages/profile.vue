@@ -239,6 +239,13 @@
                           :shortcode="shortcode"
                           @delete-shortcode="deleteShortcode"
                         />
+                        <SmartIntersection
+                          @intersecting="
+                            loadMoreShortcodes(
+                              myShortcodes[myShortcodes.length - 1].id
+                            )
+                          "
+                        />
                       </div>
                     </div>
                     <div
@@ -381,6 +388,10 @@ const deleteShortcode = (codeID: string) => {
       }
     )
   )()
+}
+
+const loadMoreShortcodes = (lastCodeID: string) => {
+  adapter.loadMore(lastCodeID)
 }
 
 const getErrorMessage = (err: GQLError<string>) => {

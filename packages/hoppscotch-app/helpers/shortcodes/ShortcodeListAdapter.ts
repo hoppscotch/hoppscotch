@@ -10,8 +10,6 @@ import {
 } from "../backend/graphql"
 import { Shortcode } from "./Shortcode"
 
-const BACKEND_PAGE_SIZE = 10
-
 export default class ShortcodeListAdapter {
   error$: BehaviorSubject<GQLError<string> | null>
   loading$: BehaviorSubject<boolean>
@@ -79,12 +77,6 @@ export default class ShortcodeListAdapter {
 
     this.shortcodes$.next(results)
 
-    if (results.length === BACKEND_PAGE_SIZE) {
-      this.loadMore(
-        result.right.myShortcodes[result.right.myShortcodes.length - 1].id
-      )
-    }
-
     this.loading$.next(false)
   }
 
@@ -105,10 +97,6 @@ export default class ShortcodeListAdapter {
 
     if (fetchedResult.length > 0) {
       this.pushNewShortcodes(fetchedResult)
-    }
-
-    if (fetchedResult.length === BACKEND_PAGE_SIZE) {
-      this.loadMore(fetchedResult[fetchedResult.length - 1].id)
     }
   }
 

@@ -9,7 +9,7 @@ export const SocketClients = {
   v4: SIOClientV4,
 }
 
-type SIOAuth = { type: "None" | "Bearer"; token: string }
+type SIOAuth = { type: "None" } | { type: "Bearer"; token: string }
 
 export type ConnectionOption = {
   url: string
@@ -83,15 +83,15 @@ export class SIOConnection {
         })
       })
 
-      this.socket.on("connect_error", (error: any) => {
+      this.socket.on("connect_error", (error: unknown) => {
         this.handleError(error)
       })
 
-      this.socket.on("reconnect_error", (error: any) => {
+      this.socket.on("reconnect_error", (error: unknown) => {
         this.handleError(error)
       })
 
-      this.socket.on("error", (error: any) => {
+      this.socket.on("error", (error: unknown) => {
         this.handleError(error)
       })
 

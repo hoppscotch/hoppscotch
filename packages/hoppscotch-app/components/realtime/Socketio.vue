@@ -409,7 +409,10 @@ const toggleConnection = () => {
       path: path.value || "/socket.io",
       clientVersion: clientVersion.value,
       auth: authActive.value
-        ? { type: authType.value, token: bearerToken.value }
+        ? {
+            type: authType.value,
+            token: bearerToken.value,
+          }
         : undefined,
     })
   }

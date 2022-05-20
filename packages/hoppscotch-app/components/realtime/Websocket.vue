@@ -200,7 +200,7 @@ import {
   useStreamSubscriber,
   useReadonlyStream,
 } from "~/helpers/utils/composables"
-import { WSConnection } from "~/helpers/realtime/WSConnection"
+import { WSConnection, WSErrorMessage } from "~/helpers/realtime/WSConnection"
 
 const nuxt = useNuxt()
 const t = useI18n()
@@ -245,6 +245,13 @@ const workerResponseHandler = ({
   data: { url: string; result: boolean }
 }) => {
   if (data.url === url.value) isUrlValid.value = data.result
+}
+
+const getErrorPayload = (error: WSErrorMessage): string => {
+  if (error instanceof SyntaxError) {
+    return error.message
+  }
+  return t("error.something_went_wrong").toString()
 }
 
 onMounted(() => {
@@ -294,9 +301,7 @@ onMounted(() => {
 
       case "ERROR":
         addWSLogLine({
-          payload:
-            event.error ||
-            t("state.disconnected_from", { name: url.value }).toString(),
+          payload: getErrorPayload(event.error),
           source: "info",
           color: "#ff5555",
           ts: event.time,

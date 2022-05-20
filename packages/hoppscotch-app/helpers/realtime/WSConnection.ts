@@ -1,13 +1,15 @@
 import { BehaviorSubject, Subject } from "rxjs"
 import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 
+export type WSErrorMessage = SyntaxError | Event
+
 export type WSEvent = { time: number } & (
   | { type: "CONNECTING" }
   | { type: "CONNECTED" }
   | { type: "MESSAGE_SENT"; message: string }
   | { type: "MESSAGE_RECEIVED"; message: string }
   | { type: "DISCONNECTED"; manual: boolean }
-  | { type: "ERROR"; error: string }
+  | { type: "ERROR"; error: WSErrorMessage }
 )
 
 export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
@@ -63,8 +65,10 @@ export class WSConnection {
           message: data,
         })
       }
-    } catch (e) {
-      this.handleError(e)
+    } catch (error) {
+      // We will have SyntaxError if anything goes wrong with WebSocket constructor
+      // See https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket#exceptions
+      this.handleError(error as SyntaxError)
     }
 
     logHoppRequestRunToAnalytics({
@@ -72,7 +76,7 @@ export class WSConnection {
     })
   }
 
-  private handleError(error: any) {
+  private handleError(error: WSErrorMessage) {
     this.disconnect()
     this.addEvent({
       time: Date.now(),

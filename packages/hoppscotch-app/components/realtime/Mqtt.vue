@@ -333,15 +333,21 @@ const getI18nMessage = (key: string, data: MQTTMessage): string => {
 
 const getI18nError = (error: MQTTError): string => {
   if (typeof error === "string") return error
-  if (error.type === "SUBSCRIPTION_FAILED") {
-    return t("state.mqtt_subscription_failed", {
-      topic: error.topic,
-    }).toString()
+
+  switch (error.type) {
+    case "SUBSCRIPTION_FAILED":
+      return t("state.mqtt_subscription_failed", {
+        topic: error.topic,
+      }).toString()
+    case "PUBLISH_ERROR":
+      return t("state.publish_error", { topic: error.topic }).toString()
+    case "CONNECTION_LOST":
+      return t("state.connection_lost").toString()
+    case "CONNECTION_FAILED":
+      return t("state.connection_failed").toString()
+    default:
+      return "error.unknown"
   }
-  if (error.type === "PUBLISH_ERROR") {
-    return t("state.publish_error", { topic: error.topic }).toString()
-  }
-  return "error.unknown"
 }
 const clearLogEntries = () => {
   log.value = []

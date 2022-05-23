@@ -547,7 +547,9 @@
     "published_message": "Published message: {message} to topic: {topic}",
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "message_received": "Message: {message} arrived on topic: {topic}",
-    "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}"
+    "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}",
+    "connection_lost": "Connection lost",
+    "connection_failed": "Connection failed"
   },
   "support": {
     "changelog": "Read more about latest releases",

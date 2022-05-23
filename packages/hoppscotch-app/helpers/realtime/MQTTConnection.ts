@@ -4,6 +4,8 @@ import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 
 export type MQTTMessage = { topic: string; message: string }
 export type MQTTError =
+  | { type: "CONNECTION_LOST" }
+  | { type: "CONNECTION_FAILED" }
   | { type: "SUBSCRIPTION_FAILED"; topic: string }
   | { type: "PUBLISH_ERROR"; topic: string; message: string }
   | string
@@ -76,7 +78,9 @@ export class MQTTConnection {
     this.addEvent({
       time: Date.now(),
       type: "ERROR",
-      error: "Connection failed",
+      error: {
+        type: "CONNECTION_FAILED",
+      },
     })
   }
 
@@ -100,7 +104,9 @@ export class MQTTConnection {
       this.addEvent({
         time: Date.now(),
         type: "ERROR",
-        error: "Connection lost",
+        error: {
+          type: "CONNECTION_LOST",
+        },
       })
     }
     this.manualDisconnect = false

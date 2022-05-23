@@ -245,15 +245,19 @@
                           :shortcode="shortcode"
                           @delete-shortcode="deleteShortcode"
                         />
-                        <SmartIntersection
-                          @intersecting="
-                            loadMoreShortcodes(
-                              myShortcodes[myShortcodes.length - 1].id
-                            )
-                          "
-                        />
                       </div>
                     </div>
+                    <SmartIntersection
+                      v-if="hasMoreShortcodes && myShortcodes.length > 0"
+                      @intersecting="loadMoreShortcodes()"
+                    >
+                      <div
+                        v-if="adapterLoading"
+                        class="flex flex-col items-center py-3"
+                      >
+                        <SmartSpinner />
+                      </div>
+                    </SmartIntersection>
                     <div
                       v-if="!loading && adapterError"
                       class="flex flex-col items-center py-4"
@@ -381,6 +385,7 @@ const adapter = new ShortcodeListAdapter(true)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
 const adapterError = useReadonlyStream(adapter.error$, null)
 const myShortcodes = useReadonlyStream(adapter.shortcodes$, [])
+const hasMoreShortcodes = useReadonlyStream(adapter.hasMoreShortcodes$, true)
 
 const loading = computed(
   () => adapterLoading.value && myShortcodes.value.length === 0
@@ -404,8 +409,8 @@ const deleteShortcode = (codeID: string) => {
   )()
 }
 
-const loadMoreShortcodes = (lastCodeID: string) => {
-  adapter.loadMore(lastCodeID)
+const loadMoreShortcodes = () => {
+  adapter.loadMore()
 }
 
 const getErrorMessage = (err: GQLError<string>) => {

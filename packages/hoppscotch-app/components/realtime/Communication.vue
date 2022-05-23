@@ -142,16 +142,15 @@ const emit = defineEmits<{
 
 const t = useI18n()
 const toast = useToast()
-// const currentIndex = ref(-1) // index of the message log array to put in input box
 
 const linewrapEnabled = ref(true)
-const wsCommunicationBody = ref<any | null>(null)
-const prettifyIcon = ref("wand")
+const wsCommunicationBody = ref<HTMLElement>()
+const prettifyIcon = ref<"wand" | "check" | "info">("wand")
 
 const knownContentTypes = {
   JSON: "application/ld+json",
   Raw: "text/plain",
-}
+} as const
 
 const validContentTypes = Object.keys(knownContentTypes)
 

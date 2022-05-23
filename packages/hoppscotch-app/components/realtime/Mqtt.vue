@@ -274,9 +274,7 @@ onMounted(() => {
 
       case "ERROR":
         addMQTTLogLine({
-          payload:
-            getI18nError(event.error) ||
-            t("state.disconnected_from", { name: url.value }).toString(),
+          payload: getI18nError(event.error),
           source: "info",
           color: "#ff5555",
           ts: event.time,
@@ -346,7 +344,7 @@ const getI18nError = (error: MQTTError): string => {
     case "CONNECTION_FAILED":
       return t("state.connection_failed").toString()
     default:
-      return "error.unknown"
+      return t("state.disconnected_from", { name: url.value }).toString()
   }
 }
 const clearLogEntries = () => {

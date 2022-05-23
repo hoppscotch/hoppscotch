@@ -3,7 +3,13 @@
     <div class="container">
       <div class="p-4">
         <div
-          v-if="currentUser === null"
+          v-if="loadingCurrentUser"
+          class="flex flex-col items-center justify-center flex-1 p-4"
+        >
+          <SmartSpinner class="mb-4" />
+        </div>
+        <div
+          v-else-if="currentUser === null"
           class="flex flex-col items-center justify-center"
         >
           <img
@@ -283,6 +289,7 @@ import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   currentUser$,
+  probableUser$,
   setDisplayName,
   setEmailAddress,
   verifyEmailAddress,
@@ -310,6 +317,13 @@ const SYNC_COLLECTIONS = useSetting("syncCollections")
 const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
 const SYNC_HISTORY = useSetting("syncHistory")
 const currentUser = useReadonlyStream(currentUser$, null)
+const probableUser = useReadonlyStream(probableUser$, null)
+
+const loadingCurrentUser = computed(() => {
+  if (!probableUser.value) return false
+  else if (!currentUser.value) return true
+  else return false
+})
 
 const displayName = ref(currentUser.value?.displayName)
 const updatingDisplayName = ref(false)

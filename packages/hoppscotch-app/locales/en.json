@@ -546,7 +546,7 @@
     "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
     "published_message": "Published message: {message} to topic: {topic}",
     "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
-    "message_received": "Message: {payloadString} arrived on topic: {destinationName}",
+    "message_received": "Message: {message} arrived on topic: {topic}",
     "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}"
   },
   "support": {

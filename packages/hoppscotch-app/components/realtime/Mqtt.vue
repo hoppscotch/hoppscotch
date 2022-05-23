@@ -140,7 +140,11 @@ import {
   watch,
 } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
-import { MQTTConnection, MQTTMessage } from "~/helpers/realtime/MQTTConnection"
+import {
+  MQTTConnection,
+  MQTTMessage,
+  MQTTError,
+} from "~/helpers/realtime/MQTTConnection"
 import {
   useI18n,
   useNuxt,
@@ -234,7 +238,7 @@ onMounted(() => {
 
       case "MESSAGE_SENT":
         addMQTTLogLine({
-          payload: transformToI18n(event.message),
+          payload: getI18nMessage("state.published_message", event.message),
           source: "client",
           ts: Date.now(),
         })
@@ -242,7 +246,7 @@ onMounted(() => {
 
       case "MESSAGE_RECEIVED":
         addMQTTLogLine({
-          payload: transformToI18n(event.message),
+          payload: getI18nMessage("state.message_received", event.message),
           source: "server",
           ts: event.time,
         })
@@ -271,10 +275,8 @@ onMounted(() => {
       case "ERROR":
         addMQTTLogLine({
           payload:
-            transformToI18n(event.error) ||
-            transformToI18n(
-              t("state.disconnected_from", { name: url.value }).toString()
-            ),
+            getI18nError(event.error) ||
+            t("state.disconnected_from", { name: url.value }).toString(),
           source: "info",
           color: "#ff5555",
           ts: event.time,
@@ -325,9 +327,21 @@ const toggleSubscription = () => {
     socket.value.subscribe(subTopic.value)
   }
 }
-const transformToI18n = (data: string | MQTTMessage): string => {
-  if (typeof data === "string") return data
-  return t(data.key, data.values).toString()
+const getI18nMessage = (key: string, data: MQTTMessage): string => {
+  return t(key, data).toString()
+}
+
+const getI18nError = (error: MQTTError): string => {
+  if (typeof error === "string") return error
+  if (error.type === "SUBSCRIPTION_FAILED") {
+    return t("state.mqtt_subscription_failed", {
+      topic: error.topic,
+    }).toString()
+  }
+  if (error.type === "PUBLISH_ERROR") {
+    return t("state.publish_error", { topic: error.topic }).toString()
+  }
+  return "error.unknown"
 }
 const clearLogEntries = () => {
   log.value = []

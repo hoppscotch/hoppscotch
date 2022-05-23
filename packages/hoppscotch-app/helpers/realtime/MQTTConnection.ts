@@ -2,17 +2,21 @@ import Paho, { ConnectionOptions } from "paho-mqtt"
 import { BehaviorSubject, Subject } from "rxjs"
 import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 
-export type MQTTMessage = { key: string; values: { [key: string]: string } }
+export type MQTTMessage = { topic: string; message: string }
+export type MQTTError =
+  | { type: "SUBSCRIPTION_FAILED"; topic: string }
+  | { type: "PUBLISH_ERROR"; topic: string; message: string }
+  | string
 
 export type MQTTEvent = { time: number } & (
   | { type: "CONNECTING" }
   | { type: "CONNECTED" }
-  | { type: "MESSAGE_SENT"; message: MQTTMessage | string }
+  | { type: "MESSAGE_SENT"; message: MQTTMessage }
   | { type: "SUBSCRIBED"; topic: string }
   | { type: "SUBSCRIPTION_FAILED"; topic: string }
-  | { type: "MESSAGE_RECEIVED"; message: MQTTMessage | string }
+  | { type: "MESSAGE_RECEIVED"; message: MQTTMessage }
   | { type: "DISCONNECTED"; manual: boolean }
-  | { type: "ERROR"; error: MQTTMessage | string }
+  | { type: "ERROR"; error: MQTTError }
 )
 
 export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
@@ -38,11 +42,10 @@ export class MQTTConnection {
       })
 
       const parseUrl = new URL(url)
+      const { hostname, pathname, port } = parseUrl
       this.mqttclient = new Paho.Client(
-        `${parseUrl.hostname}${
-          parseUrl.pathname !== "/" ? parseUrl.pathname : ""
-        }`,
-        parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
+        `${hostname + (pathname !== "/" ? pathname : "")}`,
+        port !== "" ? Number(port) : 8081,
         "hoppscotch"
       )
       const connectOptions: ConnectionOptions = {
@@ -105,17 +108,13 @@ export class MQTTConnection {
   }
 
   onMessageArrived(data: { payloadString: string; destinationName: string }) {
-    console.log(data)
-    const { payloadString, destinationName } = data
+    const { payloadString: message, destinationName: topic } = data
     this.addEvent({
       time: Date.now(),
       type: "MESSAGE_RECEIVED",
       message: {
-        key: "state.message_received",
-        values: {
-          destinationName,
-          payloadString,
-        },
+        topic,
+        message,
       },
     })
   }
@@ -139,11 +138,8 @@ export class MQTTConnection {
         time: Date.now(),
         type: "MESSAGE_SENT",
         message: {
-          key: "state.published_message",
-          values: {
-            topic,
-            message,
-          },
+          topic,
+          message,
         },
       })
     } catch (e) {
@@ -151,11 +147,9 @@ export class MQTTConnection {
         time: Date.now(),
         type: "ERROR",
         error: {
-          key: "state.publish_error",
-          values: {
-            topic,
-            message,
-          },
+          type: "PUBLISH_ERROR",
+          topic,
+          message,
         },
       })
     }
@@ -164,44 +158,45 @@ export class MQTTConnection {
   subscribe(topic: string) {
     try {
       this.mqttclient?.subscribe(topic, {
-        onSuccess: this.usubSuccess.bind(this),
-        onFailure: this.usubFailure.bind(this),
+        onSuccess: this.usubSuccess.bind(this, topic),
+        onFailure: this.usubFailure.bind(this, topic),
       })
     } catch (e) {
       this.addEvent({
         time: Date.now(),
         type: "ERROR",
         error: {
-          key: "state.mqtt_subscription_failed",
-          values: {
-            topic,
-          },
+          type: "SUBSCRIPTION_FAILED",
+          topic,
         },
       })
     }
   }
 
-  usubSuccess() {
+  usubSuccess(topic: string) {
     this.subscriptionState$.next(!this.subscriptionState$.value)
     this.addEvent({
       time: Date.now(),
       type: "SUBSCRIBED",
-      topic: "",
+      topic,
     })
   }
 
-  usubFailure() {
+  usubFailure(topic: string) {
     this.addEvent({
       time: Date.now(),
-      type: "SUBSCRIPTION_FAILED",
-      topic: "",
+      type: "ERROR",
+      error: {
+        type: "SUBSCRIPTION_FAILED",
+        topic,
+      },
     })
   }
 
   unsubscribe(topic: string) {
     this.mqttclient?.unsubscribe(topic, {
-      onSuccess: this.usubSuccess.bind(this),
-      onFailure: this.usubFailure.bind(this),
+      onSuccess: this.usubSuccess.bind(this, topic),
+      onFailure: this.usubFailure.bind(this, topic),
     })
   }
 

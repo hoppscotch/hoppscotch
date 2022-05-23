@@ -89,7 +89,7 @@
       >
         <SmartTab
           :id="'communication'"
-          :label="`${$t('websocket.communication')}`"
+          :label="`${t('websocket.communication')}`"
         >
           <RealtimeCommunication
             :show-event-field="true"

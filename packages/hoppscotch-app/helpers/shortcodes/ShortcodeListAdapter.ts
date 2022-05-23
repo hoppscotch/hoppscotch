@@ -7,12 +7,14 @@ import {
   ShortcodeCreatedDocument,
   ShortcodeDeletedDocument,
 } from "../backend/graphql"
+import { BACKEND_PAGE_SIZE } from "../backend/helpers"
 import { Shortcode } from "./Shortcode"
 
 export default class ShortcodeListAdapter {
   error$: BehaviorSubject<GQLError<string> | null>
   loading$: BehaviorSubject<boolean>
   shortcodes$: BehaviorSubject<GetUserShortcodesQuery["myShortcodes"]>
+  hasMoreShortcodes$: BehaviorSubject<boolean>
 
   private timeoutHandle: ReturnType<typeof setTimeout> | null
   private isDispose: boolean
@@ -26,6 +28,7 @@ export default class ShortcodeListAdapter {
     this.shortcodes$ = new BehaviorSubject<
       GetUserShortcodesQuery["myShortcodes"]
     >([])
+    this.hasMoreShortcodes$ = new BehaviorSubject<boolean>(true)
     this.timeoutHandle = null
     this.isDispose = false
     this.myShortcodesCreated = null
@@ -57,33 +60,24 @@ export default class ShortcodeListAdapter {
     this.unsubscribeSubscriptions()
   }
 
-  async fetchList() {
-    this.loading$.next(true)
-
-    const results: GetUserShortcodesQuery["myShortcodes"] = []
-
-    const result = await runGQLQuery({
-      query: GetUserShortcodesDocument,
-    })
-
-    if (E.isLeft(result)) {
-      this.error$.next(result.left)
-      console.error(result.left)
-      throw new Error(`Failed fetching short codes list: ${result.left}`)
-    }
-
-    results.push(...result.right.myShortcodes)
-
-    this.shortcodes$.next(results)
-
-    this.loading$.next(false)
+  fetchList() {
+    this.loadMore(true)
   }
 
-  async loadMore(lastCodeId: string) {
+  async loadMore(forcedAttempt = false) {
+    if (!this.hasMoreShortcodes$.value && !forcedAttempt) return
+
+    this.loading$.next(true)
+
+    const lastCodeID =
+      this.shortcodes$.value.length > 0
+        ? this.shortcodes$.value[this.shortcodes$.value.length - 1].id
+        : undefined
+
     const result = await runGQLQuery({
       query: GetUserShortcodesDocument,
       variables: {
-        cursor: lastCodeId,
+        cursor: lastCodeID,
       },
     })
     if (E.isLeft(result)) {
@@ -94,9 +88,13 @@ export default class ShortcodeListAdapter {
 
     const fetchedResult = result.right.myShortcodes
 
-    if (fetchedResult.length > 0) {
-      this.pushNewShortcodes(fetchedResult)
+    this.pushNewShortcodes(fetchedResult)
+
+    if (fetchedResult.length !== BACKEND_PAGE_SIZE) {
+      this.hasMoreShortcodes$.next(false)
     }
+
+    this.loading$.next(false)
   }
 
   private pushNewShortcodes(results: Shortcode[]) {

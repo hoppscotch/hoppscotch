@@ -1,5 +1,4 @@
 import * as E from "fp-ts/Either"
-import filter from "lodash/filter"
 import { BehaviorSubject, Subscription } from "rxjs"
 import { GQLError, runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import {
@@ -100,7 +99,7 @@ export default class ShortcodeListAdapter {
     }
   }
 
-  pushNewShortcodes(results: Shortcode[]) {
+  private pushNewShortcodes(results: Shortcode[]) {
     const userShortcodes = this.shortcodes$.value
 
     userShortcodes.push(...results)
@@ -108,17 +107,7 @@ export default class ShortcodeListAdapter {
     this.shortcodes$.next(userShortcodes)
   }
 
-  findShortcode(codeId: string) {
-    const userShortcodes = this.shortcodes$.value
-
-    for (const shortcode of userShortcodes) {
-      if (shortcode.id === codeId) return shortcode
-    }
-
-    return null
-  }
-
-  createShortcode(shortcode: Shortcode) {
+  private createShortcode(shortcode: Shortcode) {
     const userShortcodes = this.shortcodes$.value
 
     userShortcodes.unshift(shortcode)
@@ -126,14 +115,9 @@ export default class ShortcodeListAdapter {
     this.shortcodes$.next(userShortcodes)
   }
 
-  deleteShortcode(codeId: string) {
-    const userShortcodes = this.shortcodes$.value
-
-    const deletedShortcode = this.findShortcode(codeId)
-
-    const newShortcodes = filter(
-      userShortcodes,
-      (shortcode) => shortcode !== deletedShortcode
+  private deleteShortcode(codeId: string) {
+    const newShortcodes = this.shortcodes$.value.filter(
+      ({ id }) => id !== codeId
     )
 
     this.shortcodes$.next(newShortcodes)

@@ -4,11 +4,11 @@ import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 
 export type MQTTMessage = { topic: string; message: string }
 export type MQTTError =
+  | { type: "CONNECTION_NOT_ESTABLISHED"; value: unknown }
   | { type: "CONNECTION_LOST" }
   | { type: "CONNECTION_FAILED" }
   | { type: "SUBSCRIPTION_FAILED"; topic: string }
   | { type: "PUBLISH_ERROR"; topic: string; message: string }
-  | string
 
 export type MQTTEvent = { time: number } & (
   | { type: "CONNECTING" }
@@ -125,12 +125,15 @@ export class MQTTConnection {
     })
   }
 
-  private handleError(error: any) {
+  private handleError(error: unknown) {
     this.disconnect()
     this.addEvent({
       time: Date.now(),
       type: "ERROR",
-      error,
+      error: {
+        type: "CONNECTION_NOT_ESTABLISHED",
+        value: error,
+      },
     })
   }
 

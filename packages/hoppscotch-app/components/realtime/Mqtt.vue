@@ -333,6 +333,8 @@ const getI18nError = (error: MQTTError): string => {
   if (typeof error === "string") return error
 
   switch (error.type) {
+    case "CONNECTION_NOT_ESTABLISHED":
+      return t("state.connection_lost").toString()
     case "SUBSCRIPTION_FAILED":
       return t("state.mqtt_subscription_failed", {
         topic: error.topic,

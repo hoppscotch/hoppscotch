@@ -218,46 +218,50 @@
                       class="table w-full border-collapse table-auto"
                     >
                       <div
-                        class="bg-primaryLight hidden rounded lg:table-header-group"
+                        class="bg-primaryLight hidden lg:flex rounded w-full"
                       >
-                        <div class="table-row">
-                          <div class="table-cell px-3 py-2 font-semibold">
+                        <div class="flex w-full">
+                          <div class="w-1/5 px-3 py-2 font-semibold">
                             {{ t("shortcodes.short_code") }}
                           </div>
-                          <div class="table-cell px-3 py-2 font-semibold">
+                          <div class="w-1/5 px-3 py-2 font-semibold">
                             {{ t("shortcodes.method") }}
                           </div>
-                          <div class="table-cell px-3 py-2 font-semibold">
+                          <div class="w-3/5 px-3 py-2 font-semibold">
                             {{ t("shortcodes.url") }}
                           </div>
-                          <div class="table-cell px-3 py-2 font-semibold">
+                          <div class="w-1/5 px-3 py-2 font-semibold">
                             {{ t("shortcodes.created_on") }}
                           </div>
-                          <div class="table-cell px-3 py-2 font-semibold">
+                          <div
+                            class="w-1/5 px-3 py-2 font-semibold text-center"
+                          >
                             {{ t("shortcodes.actions") }}
                           </div>
                         </div>
                       </div>
-                      <div class="table-row-group">
+                      <div
+                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll hide-scrollbar rounded lg:border lg:divide-y border-dividerLight divide-dividerLight"
+                      >
                         <ProfileShortcode
                           v-for="(shortcode, shortcodeIndex) in myShortcodes"
                           :key="`shortcode-${shortcodeIndex}`"
                           :shortcode="shortcode"
                           @delete-shortcode="deleteShortcode"
                         />
+                        <SmartIntersection
+                          v-if="hasMoreShortcodes && myShortcodes.length > 0"
+                          @intersecting="loadMoreShortcodes()"
+                        >
+                          <div
+                            v-if="adapterLoading"
+                            class="flex flex-col items-center py-3"
+                          >
+                            <SmartSpinner />
+                          </div>
+                        </SmartIntersection>
                       </div>
                     </div>
-                    <SmartIntersection
-                      v-if="hasMoreShortcodes && myShortcodes.length > 0"
-                      @intersecting="loadMoreShortcodes()"
-                    >
-                      <div
-                        v-if="adapterLoading"
-                        class="flex flex-col items-center py-3"
-                      >
-                        <SmartSpinner />
-                      </div>
-                    </SmartIntersection>
                     <div
                       v-if="!loading && adapterError"
                       class="flex flex-col items-center py-4"

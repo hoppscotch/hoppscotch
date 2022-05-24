@@ -1,29 +1,31 @@
 <template>
-  <div class="block my-10 lg:my-0 lg:table-row lg:p-2">
-    <div class="table-col lg:w-70" :data-label="t('shortcodes.short_code')">
+  <div
+    class="table-row-groups lg:flex block my-6 lg:my-0 w-full border lg:border-0 divide-y lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
+  >
+    <div class="table-column lg:w-1/5" :data-label="t('shortcodes.short_code')">
       {{ shortcode.id }}
     </div>
     <div
-      class="table-col lg:w-30"
+      class="table-column lg:w-1/5"
       :class="requestLabelColor"
       :data-label="t('shortcodes.method')"
     >
       {{ parseShortcodeRequest.method }}
     </div>
-    <div class="table-col" :data-label="t('shortcodes.url')">
-      <div class="max-w-50 lg:max-w-100 xl:max-w-170 truncate">
+    <div class="table-column lg:w-3/5" :data-label="t('shortcodes.url')">
+      <div class="max-w-50 lg:max-w-90 truncate">
         {{ parseShortcodeRequest.endpoint }}
       </div>
     </div>
     <div
       ref="timeStampRef"
-      class="table-col lg:w-40"
+      class="table-column lg:w-1/5"
       :data-label="t('shortcodes.created_on')"
     >
       {{ timestampHovered ? timeStamp : dateStamp }}
     </div>
     <div
-      class="flex items-center justify-center lg:w-60 border divide-x lg:table-cell border-dividerLight divide-dividerLight"
+      class="flex items-center justify-center lg:w-1/5 px-3 py-1 divide-x divide-dividerLight"
       :data-label="t('shortcodes.actions')"
     >
       <SmartAnchor
@@ -33,13 +35,14 @@
         blank
         svg="external-link"
         color="blue"
-        class="p-2"
+        class="px-3"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.copy')"
         color="green"
         :svg="copyIconRefs"
+        class="px-3"
         @click.native="copyShortcode(shortcode.id)"
       />
       <ButtonSecondary
@@ -47,6 +50,7 @@
         :title="t('action.delete')"
         svg="trash"
         color="red"
+        class="px-3"
         @click.native="deleteShortcode(shortcode.id)"
       />
     </div>
@@ -119,12 +123,12 @@ const copyShortcode = (codeID: string) => {
 </script>
 
 <style lang="scss">
-.table-col {
-  @apply flex items-center justify-between lg:table-cell border border-dividerLight px-3 py-2;
+.table-column {
+  @apply flex items-center justify-between px-3 py-3;
 }
 
-.table-row-group {
-  .table-col {
+.table-row-groups {
+  .table-column {
     @apply before:text-secondary before:font-bold before:content-[attr(data-label)] lg:before:hidden;
   }
 }

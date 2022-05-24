@@ -243,6 +243,7 @@ import { onMounted, onUnmounted, ref, watch } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
 import {
   SIOConnection,
+  SIOError,
   SIOMessage,
   SocketClients,
 } from "~/helpers/realtime/SIOConnection"
@@ -315,6 +316,17 @@ const getMessagePayload = (data: SIOMessage): string => {
   return message
 }
 
+const getErrorPayload = (error: SIOError): string => {
+  switch (error.type) {
+    case "CONNECTION":
+      return t("state.connection_error").toString()
+    case "RECONNECT_ERROR":
+      return t("state.reconnection_error").toString()
+    default:
+      return t("state.disconnected_from", { name: url.value }).toString()
+  }
+}
+
 onMounted(() => {
   worker = nuxt.value.$worker.createRejexWorker()
   worker.addEventListener("message", workerResponseHandler)
@@ -362,9 +374,7 @@ onMounted(() => {
 
       case "ERROR":
         addSIOLogLine({
-          payload:
-            event.error ||
-            t("state.disconnected_from", { name: url.value }).toString(),
+          payload: getErrorPayload(event.error),
           source: "info",
           color: "#ff5555",
           ts: event.time,

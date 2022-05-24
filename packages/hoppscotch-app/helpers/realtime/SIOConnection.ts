@@ -23,13 +23,19 @@ export type SIOMessage = {
   value: unknown
 }
 
+type SIOErrorType = "CONNECTION" | "RECONNECT_ERROR" | "UNKNOWN"
+export type SIOError = {
+  type: SIOErrorType
+  value: unknown
+}
+
 export type SIOEvent = { time: number } & (
   | { type: "CONNECTING" }
   | { type: "CONNECTED" }
   | { type: "MESSAGE_SENT"; message: SIOMessage }
   | { type: "MESSAGE_RECEIVED"; message: SIOMessage }
   | { type: "DISCONNECTED"; manual: boolean }
-  | { type: "ERROR"; error: string }
+  | { type: "ERROR"; error: SIOError }
 )
 
 export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
@@ -84,15 +90,15 @@ export class SIOConnection {
       })
 
       this.socket.on("connect_error", (error: unknown) => {
-        this.handleError(error)
+        this.handleError(error, "CONNECTION")
       })
 
       this.socket.on("reconnect_error", (error: unknown) => {
-        this.handleError(error)
+        this.handleError(error, "RECONNECT_ERROR")
       })
 
       this.socket.on("error", (error: unknown) => {
-        this.handleError(error)
+        this.handleError(error, "UNKNOWN")
       })
 
       this.socket.on("disconnect", () => {
@@ -103,8 +109,8 @@ export class SIOConnection {
           manual: true,
         })
       })
-    } catch (e) {
-      this.handleError(e)
+    } catch (error) {
+      this.handleError(error, "CONNECTION")
     }
 
     logHoppRequestRunToAnalytics({
@@ -112,12 +118,15 @@ export class SIOConnection {
     })
   }
 
-  private handleError(error: any) {
+  private handleError(error: unknown, type: SIOErrorType) {
     this.disconnect()
     this.addEvent({
       time: Date.now(),
       type: "ERROR",
-      error,
+      error: {
+        type,
+        value: error,
+      },
     })
   }
 

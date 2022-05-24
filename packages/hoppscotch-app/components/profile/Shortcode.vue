@@ -2,24 +2,27 @@
   <div
     class="table-row-groups lg:flex block my-6 lg:my-0 w-full border lg:border-0 divide-y lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
   >
-    <div class="table-column lg:w-1/5" :data-label="t('shortcodes.short_code')">
+    <div
+      class="table-column font-mono text-tiny"
+      :data-label="t('shortcodes.short_code')"
+    >
       {{ shortcode.id }}
     </div>
     <div
-      class="table-column lg:w-1/5"
+      class="table-column"
       :class="requestLabelColor"
       :data-label="t('shortcodes.method')"
     >
       {{ parseShortcodeRequest.method }}
     </div>
-    <div class="table-column lg:w-3/5" :data-label="t('shortcodes.url')">
+    <div class="table-column" :data-label="t('shortcodes.url')">
       <div class="max-w-50 lg:max-w-90 truncate">
         {{ parseShortcodeRequest.endpoint }}
       </div>
     </div>
     <div
       ref="timeStampRef"
-      class="table-column lg:w-1/5"
+      class="table-column"
       :data-label="t('shortcodes.created_on')"
     >
       <span v-tippy="{ theme: 'tooltip' }" :title="timeStamp">
@@ -27,7 +30,7 @@
       </span>
     </div>
     <div
-      class="flex items-center justify-center lg:w-1/5 px-3"
+      class="flex flex-1 items-center justify-center px-3"
       :data-label="t('shortcodes.actions')"
     >
       <SmartAnchor
@@ -36,8 +39,7 @@
         :to="`https://hopp.sh/r/${shortcode.id}`"
         blank
         svg="external-link"
-        color="blue"
-        class="px-3"
+        class="px-3 text-accent hover:text-accent"
       />
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
@@ -124,7 +126,7 @@ const copyShortcode = (codeID: string) => {
 
 <style lang="scss">
 .table-column {
-  @apply flex items-center justify-between px-3 py-3;
+  @apply flex flex-1 items-center justify-between px-3 py-3;
 }
 
 .table-row-groups {

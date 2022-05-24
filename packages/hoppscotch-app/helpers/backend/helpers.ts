@@ -17,7 +17,7 @@ import {
   GetCollectionTitleDocument,
 } from "./graphql"
 
-const BACKEND_PAGE_SIZE = 10
+export const BACKEND_PAGE_SIZE = 10
 
 const getCollectionChildrenIDs = async (collID: string) => {
   const collsList: string[] = []

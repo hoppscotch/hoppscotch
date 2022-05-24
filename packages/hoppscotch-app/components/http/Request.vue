@@ -152,37 +152,49 @@
           />
           <div
             ref="saveTippyActions"
-            class="flex flex-col focus:outline-none"
+            class="flex flex-col divide-y-1 divide-primaryDark focus:outline-none"
             tabindex="0"
             role="menu"
             @keyup.c="copyRequestAction.$el.click()"
             @keyup.s="saveRequestAction.$el.click()"
             @keyup.escape="saveOptions.tippy().hide()"
           >
-            <SmartItem
-              ref="copyRequestAction"
-              :label="shareButtonText"
-              :svg="copyLinkIcon"
-              :loading="fetchingShareLink"
-              :shortcut="['C']"
-              @click.native="
-                () => {
-                  copyRequest()
-                }
-              "
-            />
-            <SmartItem
-              ref="saveRequestAction"
-              :label="`${t('request.save_as')}`"
-              svg="folder-plus"
-              :shortcut="['S']"
-              @click.native="
-                () => {
-                  showSaveRequestModal = true
-                  saveOptions.tippy().hide()
-                }
-              "
-            />
+            <div class="flex flex-col space-y-1">
+              <SmartItem
+                ref="copyRequestAction"
+                :label="shareButtonText"
+                :svg="copyLinkIcon"
+                :loading="fetchingShareLink"
+                :shortcut="['C']"
+                @click.native="
+                  () => {
+                    copyRequest()
+                  }
+                "
+              />
+              <SmartAnchor
+                :label="`${t('request.view_my_links')}`"
+                to="/profile"
+                svg="arrow-right"
+                reverse
+                blank
+                class="pb-3 -ml-4 text-tiny text-secondaryLight"
+              />
+            </div>
+            <div class="flex pt-3 pb-1">
+              <SmartItem
+                ref="saveRequestAction"
+                :label="`${t('request.save_as')}`"
+                svg="folder-plus"
+                :shortcut="['S']"
+                @click.native="
+                  () => {
+                    showSaveRequestModal = true
+                    saveOptions.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </div>
         </tippy>
       </span>

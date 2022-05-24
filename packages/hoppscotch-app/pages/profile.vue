@@ -220,20 +220,24 @@
                       <div
                         class="bg-primaryLight hidden lg:flex rounded-t w-full"
                       >
-                        <div class="flex w-full">
-                          <div class="w-1/5 p-3 font-semibold">
+                        <div
+                          class="flex w-full overflow-y-scroll lg:divide-x divide-primaryLight"
+                        >
+                          <div class="flex flex-1 p-3 font-semibold">
                             {{ t("shortcodes.short_code") }}
                           </div>
-                          <div class="w-1/5 p-3 font-semibold">
+                          <div class="flex flex-1 p-3 font-semibold">
                             {{ t("shortcodes.method") }}
                           </div>
-                          <div class="w-3/5 p-3 font-semibold">
+                          <div class="flex flex-1 p-3 font-semibold">
                             {{ t("shortcodes.url") }}
                           </div>
-                          <div class="w-1/5 p-3 font-semibold">
+                          <div class="flex flex-1 p-3 font-semibold">
                             {{ t("shortcodes.created_on") }}
                           </div>
-                          <div class="w-1/5 p-3 font-semibold text-center">
+                          <div
+                            class="flex flex-1 p-3 font-semibold justify-center"
+                          >
                             {{ t("shortcodes.actions") }}
                           </div>
                         </div>

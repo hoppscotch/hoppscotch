@@ -22,10 +22,12 @@
       class="table-column lg:w-1/5"
       :data-label="t('shortcodes.created_on')"
     >
-      {{ timestampHovered ? timeStamp : dateStamp }}
+      <span v-tippy="{ theme: 'tooltip' }" :title="timeStamp">
+        {{ dateStamp }}
+      </span>
     </div>
     <div
-      class="flex items-center justify-center lg:w-1/5 px-3 py-1 divide-x divide-dividerLight"
+      class="flex items-center justify-center lg:w-1/5 px-3"
       :data-label="t('shortcodes.actions')"
     >
       <SmartAnchor
@@ -59,7 +61,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from "@nuxtjs/composition-api"
-import { useElementHover } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as RR from "fp-ts/ReadonlyRecord"
 import * as O from "fp-ts/Option"
@@ -93,7 +94,6 @@ const requestMethodLabels = {
 
 const timeStampRef = ref()
 const copyIconRefs = ref<"copy" | "check">("copy")
-const timestampHovered = useElementHover(timeStampRef)
 
 const parseShortcodeRequest = computed(() =>
   pipe(props.shortcode.request, JSON.parse, translateToNewRequest)

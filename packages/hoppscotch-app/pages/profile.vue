@@ -218,30 +218,28 @@
                       class="table w-full border-collapse table-auto"
                     >
                       <div
-                        class="bg-primaryLight hidden lg:flex rounded w-full"
+                        class="bg-primaryLight hidden lg:flex rounded-t w-full"
                       >
                         <div class="flex w-full">
-                          <div class="w-1/5 px-3 py-2 font-semibold">
+                          <div class="w-1/5 p-3 font-semibold">
                             {{ t("shortcodes.short_code") }}
                           </div>
-                          <div class="w-1/5 px-3 py-2 font-semibold">
+                          <div class="w-1/5 p-3 font-semibold">
                             {{ t("shortcodes.method") }}
                           </div>
-                          <div class="w-3/5 px-3 py-2 font-semibold">
+                          <div class="w-3/5 p-3 font-semibold">
                             {{ t("shortcodes.url") }}
                           </div>
-                          <div class="w-1/5 px-3 py-2 font-semibold">
+                          <div class="w-1/5 p-3 font-semibold">
                             {{ t("shortcodes.created_on") }}
                           </div>
-                          <div
-                            class="w-1/5 px-3 py-2 font-semibold text-center"
-                          >
+                          <div class="w-1/5 p-3 font-semibold text-center">
                             {{ t("shortcodes.actions") }}
                           </div>
                         </div>
                       </div>
                       <div
-                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll hide-scrollbar rounded lg:border lg:divide-y border-dividerLight divide-dividerLight"
+                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll hide-scrollbar rounded-b lg:border lg:divide-y border-dividerLight divide-dividerLight"
                       >
                         <ProfileShortcode
                           v-for="(shortcode, shortcodeIndex) in myShortcodes"

@@ -21,6 +21,7 @@
     "more": "More",
     "new": "New",
     "no": "No",
+    "open_workspace": "Open workspace",
     "paste": "Paste",
     "prettify": "Prettify",
     "remove": "Remove",
@@ -167,6 +168,7 @@
     "profile": "Login in to view your profile",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
+    "shortcodes": "Shortcodes are empty",
     "team_name": "Team name empty",
     "teams": "You don't belong to any teams",
     "tests": "There are no tests for this request"
@@ -367,7 +369,8 @@
     "title": "Request",
     "type": "Request type",
     "url": "URL",
-    "variables": "Variables"
+    "variables": "Variables",
+    "view_my_links": "View my links"
   },
   "response": {
     "body": "Response Body",
@@ -422,6 +425,8 @@
     "proxy_use_toggle": "Use the proxy middleware to send requests",
     "read_the": "Read the",
     "reset_default": "Reset to default",
+    "short_codes": "Short codes",
+    "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Sidebar on left",
     "sync": "Synchronise",
     "sync_collections": "Collections",
@@ -482,6 +487,15 @@
       "system": "Switch  theme to system mode",
       "title": "Theme"
     }
+  },
+  "shortcodes":{
+    "actions":"Actions",
+    "created_on": "Created on",
+    "deleted" : "Shortcode deleted",
+    "method": "Method",
+    "not_found":"Shortcode not found",
+    "short_code":"Short code",
+    "url": "URL"
   },
   "show": {
     "code": "Show code",

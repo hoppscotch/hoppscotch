@@ -83,6 +83,8 @@ export default class ShortcodeListAdapter {
     if (E.isLeft(result)) {
       this.error$.next(result.left)
       console.error(result.left)
+      this.loading$.next(false)
+
       throw new Error(`Failed fetching short codes list: ${result.left}`)
     }
 

@@ -239,25 +239,29 @@
                         </div>
                       </div>
                       <div
-                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll hide-scrollbar rounded-b lg:border lg:divide-y border-dividerLight divide-dividerLight"
+                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll rounded lg:rounded-t-none border lg:divide-y border-dividerLight divide-dividerLight"
                       >
-                        <ProfileShortcode
-                          v-for="(shortcode, shortcodeIndex) in myShortcodes"
-                          :key="`shortcode-${shortcodeIndex}`"
-                          :shortcode="shortcode"
-                          @delete-shortcode="deleteShortcode"
-                        />
-                        <SmartIntersection
-                          v-if="hasMoreShortcodes && myShortcodes.length > 0"
-                          @intersecting="loadMoreShortcodes()"
+                        <div
+                          class="flex flex-col h-auto h-full border-r border-dividerLight w-full"
                         >
-                          <div
-                            v-if="adapterLoading"
-                            class="flex flex-col items-center py-3"
+                          <ProfileShortcode
+                            v-for="(shortcode, shortcodeIndex) in myShortcodes"
+                            :key="`shortcode-${shortcodeIndex}`"
+                            :shortcode="shortcode"
+                            @delete-shortcode="deleteShortcode"
+                          />
+                          <SmartIntersection
+                            v-if="hasMoreShortcodes && myShortcodes.length > 0"
+                            @intersecting="loadMoreShortcodes()"
                           >
-                            <SmartSpinner />
-                          </div>
-                        </SmartIntersection>
+                            <div
+                              v-if="adapterLoading"
+                              class="flex flex-col items-center py-3"
+                            >
+                              <SmartSpinner />
+                            </div>
+                          </SmartIntersection>
+                        </div>
                       </div>
                     </div>
                     <div

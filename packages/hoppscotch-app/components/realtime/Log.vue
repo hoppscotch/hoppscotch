@@ -9,6 +9,12 @@
       <div>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.search')"
+          svg="search"
+          @click.native="patternInputted = !patternInputted"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="t('action.delete')"
           svg="trash"
           @click.native="emit('delete')"
@@ -37,6 +43,20 @@
         />
       </div>
     </div>
+
+    <div
+      v-if="patternInputted"
+      class="w-full p-2 sticky top-0 z-10 text-center border-b border-dividerLight"
+    >
+      <input
+        id=""
+        v-model="pattern"
+        type="text"
+        placeholder="Enter search pattern"
+        class="p-1 border rounded bg-primaryLight border-divider text-secondaryDark text-center"
+      />
+    </div>
+
     <div
       v-if="log.length !== 0"
       ref="logs"
@@ -46,7 +66,7 @@
         class="flex flex-col h-auto h-full border-r divide-y divide-dividerLight border-dividerLight"
       >
         <RealtimeLogEntry
-          v-for="(entry, index) in log"
+          v-for="(entry, index) in logEntries"
           :key="`entry-${index}`"
           :entry="entry"
         />
@@ -56,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, PropType, computed, watch } from "@nuxtjs/composition-api"
+import { ref, computed, watch } from "@nuxtjs/composition-api"
 import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "~/helpers/utils/composables"
 
@@ -68,13 +88,7 @@ export type LogEntryData = {
   event: "connecting" | "connected" | "disconnected" | "error"
 }
 
-const props = defineProps({
-  log: { type: Array as PropType<LogEntryData[]>, default: () => [] },
-  title: {
-    type: String,
-    default: "",
-  },
-})
+const props = defineProps<{ log: LogEntryData[]; title: string }>()
 
 const emit = defineEmits<{
   (e: "delete"): void
@@ -120,6 +134,15 @@ watch(
 const toggleAutoscroll = () => {
   autoScrollEnabled.value = !autoScrollEnabled.value
 }
+
+const pattern = ref("")
+const patternInputted = ref(false)
+
+const logEntries = computed(() => {
+  if (pattern.value) {
+    return props.log.filter((entry) => entry.payload.includes(pattern.value))
+  } else return props.log
+})
 
 const toggleAutoscrollColor = computed(() =>
   autoScrollEnabled.value ? "text-green-500" : "text-red-500"

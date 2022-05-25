@@ -358,7 +358,9 @@ onMounted(() => {
 
       case "MESSAGE_SENT":
         addSIOLogLine({
-          prefix: `[${event.message.eventName}]`,
+          prefix: `[${event.message.eventName}] ${getMessagePayload(
+            event.message
+          )}`,
           payload: getMessagePayload(event.message),
           source: "client",
           ts: event.time,
@@ -367,7 +369,9 @@ onMounted(() => {
 
       case "MESSAGE_RECEIVED":
         addSIOLogLine({
-          prefix: `[${event.message.eventName}]`,
+          prefix: `[${event.message.eventName}] ${getMessagePayload(
+            event.message
+          )}`,
           payload: getMessagePayload(event.message),
           source: "server",
           ts: event.time,

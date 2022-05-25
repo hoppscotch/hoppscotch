@@ -238,7 +238,8 @@ onMounted(() => {
 
       case "MESSAGE_SENT":
         addMQTTLogLine({
-          payload: getI18nMessage("state.published_message", event.message),
+          prefix: getI18nMessage("state.published_message", event.message),
+          payload: event.message.message,
           source: "client",
           ts: Date.now(),
         })
@@ -246,7 +247,8 @@ onMounted(() => {
 
       case "MESSAGE_RECEIVED":
         addMQTTLogLine({
-          payload: getI18nMessage("state.message_received", event.message),
+          prefix: getI18nMessage("state.message_received", event.message),
+          payload: event.message.message,
           source: "server",
           ts: event.time,
         })

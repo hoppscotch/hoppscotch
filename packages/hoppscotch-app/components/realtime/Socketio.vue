@@ -304,7 +304,7 @@ const workerResponseHandler = ({
 }
 
 const getMessagePayload = (data: SIOMessage): string => {
-  let message = `[${data.eventName}] `
+  let message = ``
   switch (typeof data.value) {
     case "object":
       message += JSON.stringify(data.value)
@@ -358,6 +358,7 @@ onMounted(() => {
 
       case "MESSAGE_SENT":
         addSIOLogLine({
+          prefix: `[${event.message.eventName}]`,
           payload: getMessagePayload(event.message),
           source: "client",
           ts: event.time,
@@ -366,6 +367,7 @@ onMounted(() => {
 
       case "MESSAGE_RECEIVED":
         addSIOLogLine({
+          prefix: `[${event.message.eventName}]`,
           payload: getMessagePayload(event.message),
           source: "server",
           ts: event.time,

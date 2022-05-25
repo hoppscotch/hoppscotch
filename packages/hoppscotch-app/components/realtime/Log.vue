@@ -61,6 +61,7 @@ import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "~/helpers/utils/composables"
 
 export type LogEntryData = {
+  prefix?: string
   ts: number | undefined
   source: "info" | "client" | "server" | "disconnected"
   payload: string

@@ -16,9 +16,7 @@
       {{ parseShortcodeRequest.method }}
     </div>
     <div class="table-column" :data-label="t('shortcodes.url')">
-      <div class="max-w-50 lg:max-w-90 truncate">
-        {{ parseShortcodeRequest.endpoint }}
-      </div>
+      {{ parseShortcodeRequest.endpoint }}
     </div>
     <div
       ref="timeStampRef"
@@ -126,7 +124,7 @@ const copyShortcode = (codeID: string) => {
 
 <style lang="scss">
 .table-column {
-  @apply flex flex-1 items-center justify-between px-3 py-3;
+  @apply flex flex-1 items-center px-3 py-3 truncate;
 }
 
 .table-row-groups {

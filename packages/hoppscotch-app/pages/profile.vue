@@ -213,10 +213,7 @@
                         {{ t("empty.shortcodes") }}
                       </span>
                     </div>
-                    <div
-                      v-else-if="!loading"
-                      class="table w-full border-collapse table-auto"
-                    >
+                    <div v-else-if="!loading">
                       <div
                         class="bg-primaryLight hidden lg:flex rounded-t w-full"
                       >

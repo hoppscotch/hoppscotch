@@ -1,6 +1,6 @@
 <template>
   <div
-    class="table-row-groups lg:flex block my-6 lg:my-0 w-full border lg:border-0 divide-y lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
+    class="table-row-groups lg:flex block my-6 lg:my-0 first:mt-0 w-full border lg:border-0 divide-y lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
   >
     <div
       class="table-column font-mono text-tiny"
@@ -16,7 +16,9 @@
       {{ parseShortcodeRequest.method }}
     </div>
     <div class="table-column" :data-label="t('shortcodes.url')">
-      {{ parseShortcodeRequest.endpoint }}
+      <div class="max-w-50 truncate">
+        {{ parseShortcodeRequest.endpoint }}
+      </div>
     </div>
     <div
       ref="timeStampRef"
@@ -28,7 +30,7 @@
       </span>
     </div>
     <div
-      class="flex flex-1 items-center justify-center px-3"
+      class="flex flex-1 items-center justify-center px-3 py-1"
       :data-label="t('shortcodes.actions')"
     >
       <SmartAnchor
@@ -124,7 +126,7 @@ const copyShortcode = (codeID: string) => {
 
 <style lang="scss">
 .table-column {
-  @apply flex flex-1 items-center px-3 py-3 truncate;
+  @apply flex flex-1 justify-between items-center p-3 truncate;
 }
 
 .table-row-groups {

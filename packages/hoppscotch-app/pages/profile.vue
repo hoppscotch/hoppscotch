@@ -240,10 +240,10 @@
                         </div>
                       </div>
                       <div
-                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll rounded lg:rounded-t-none border lg:divide-y border-dividerLight divide-dividerLight"
+                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll rounded lg:rounded-t-none lg:border lg:divide-y border-dividerLight divide-dividerLight"
                       >
                         <div
-                          class="flex flex-col h-auto h-full border-r border-dividerLight w-full"
+                          class="flex flex-col h-auto h-full lg:border-r border-dividerLight w-full"
                         >
                           <ProfileShortcode
                             v-for="(shortcode, shortcodeIndex) in myShortcodes"

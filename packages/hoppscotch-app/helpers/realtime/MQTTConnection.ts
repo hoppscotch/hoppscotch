@@ -24,10 +24,11 @@ export type MQTTEvent = { time: number } & (
 export type ConnectionState = "CONNECTING" | "CONNECTED" | "DISCONNECTED"
 
 export class MQTTConnection {
-  private mqttclient: Paho.Client | undefined
   subscriptionState$ = new BehaviorSubject<boolean>(false)
   connectionState$ = new BehaviorSubject<ConnectionState>("DISCONNECTED")
   event$: Subject<MQTTEvent> = new Subject()
+
+  private mqttClient: Paho.Client | undefined
   private manualDisconnect = false
 
   private addEvent(event: MQTTEvent) {
@@ -45,7 +46,7 @@ export class MQTTConnection {
 
       const parseUrl = new URL(url)
       const { hostname, pathname, port } = parseUrl
-      this.mqttclient = new Paho.Client(
+      this.mqttClient = new Paho.Client(
         `${hostname + (pathname !== "/" ? pathname : "")}`,
         port !== "" ? Number(port) : 8081,
         "hoppscotch"
@@ -61,9 +62,9 @@ export class MQTTConnection {
       if (password !== "") {
         connectOptions.password = password
       }
-      this.mqttclient.connect(connectOptions)
-      this.mqttclient.onConnectionLost = this.onConnectionLost.bind(this)
-      this.mqttclient.onMessageArrived = this.onMessageArrived.bind(this)
+      this.mqttClient.connect(connectOptions)
+      this.mqttClient.onConnectionLost = this.onConnectionLost.bind(this)
+      this.mqttClient.onMessageArrived = this.onMessageArrived.bind(this)
     } catch (e) {
       this.handleError(e)
     }
@@ -113,8 +114,13 @@ export class MQTTConnection {
     this.subscriptionState$.next(false)
   }
 
-  onMessageArrived(data: { payloadString: string; destinationName: string }) {
-    const { payloadString: message, destinationName: topic } = data
+  onMessageArrived({
+    payloadString: message,
+    destinationName: topic,
+  }: {
+    payloadString: string
+    destinationName: string
+  }) {
     this.addEvent({
       time: Date.now(),
       type: "MESSAGE_RECEIVED",
@@ -142,7 +148,7 @@ export class MQTTConnection {
 
     try {
       // it was publish
-      this.mqttclient?.send(topic, message, 0, false)
+      this.mqttClient?.send(topic, message, 0, false)
       this.addEvent({
         time: Date.now(),
         type: "MESSAGE_SENT",
@@ -166,7 +172,7 @@ export class MQTTConnection {
 
   subscribe(topic: string) {
     try {
-      this.mqttclient?.subscribe(topic, {
+      this.mqttClient?.subscribe(topic, {
         onSuccess: this.usubSuccess.bind(this, topic),
         onFailure: this.usubFailure.bind(this, topic),
       })
@@ -203,7 +209,7 @@ export class MQTTConnection {
   }
 
   unsubscribe(topic: string) {
-    this.mqttclient?.unsubscribe(topic, {
+    this.mqttClient?.unsubscribe(topic, {
       onSuccess: this.usubSuccess.bind(this, topic),
       onFailure: this.usubFailure.bind(this, topic),
     })
@@ -211,7 +217,7 @@ export class MQTTConnection {
 
   disconnect() {
     this.manualDisconnect = true
-    this.mqttclient?.disconnect()
+    this.mqttClient?.disconnect()
     this.connectionState$.next("DISCONNECTED")
   }
 }

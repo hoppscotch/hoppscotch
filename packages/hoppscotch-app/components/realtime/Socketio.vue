@@ -245,7 +245,7 @@ import {
   SIOConnection,
   SIOError,
   SIOMessage,
-  SocketClients,
+  SOCKET_CLIENTS,
 } from "~/helpers/realtime/SIOConnection"
 import {
   useI18n,
@@ -273,9 +273,10 @@ const toast = useToast()
 const nuxt = useNuxt()
 const { subscribeToStream } = useStreamSubscriber()
 
-const selectedTab = ref("communication")
+type SIOTab = "communication" | "protocols"
+const selectedTab = ref<SIOTab>("communication")
 
-const SIOVersions = Object.keys(SocketClients)
+const SIOVersions = Object.keys(SOCKET_CLIENTS)
 const url = useStream(SIOEndpoint$, "", setSIOEndpoint)
 const clientVersion = useStream(SIOVersion$, "v4", setSIOVersion)
 const path = useStream(SIOPath$, "", setSIOPath)

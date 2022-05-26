@@ -12,7 +12,7 @@ import { getHeaders, recordToHoppHeaders } from "./sub_helpers/headers"
 // import { getCookies } from "./sub_helpers/cookies"
 import { getQueries } from "./sub_helpers/queries"
 import { getMethod } from "./sub_helpers/method"
-import { concatParams, parseURL } from "./sub_helpers/url"
+import { concatParams, getURLObject } from "./sub_helpers/url"
 import { preProcessCurlCommand } from "./sub_helpers/preproc"
 import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
@@ -42,7 +42,7 @@ export const parseCurlCommand = (curlCommand: string) => {
 
   const method = getMethod(parsedArguments)
   // const cookies = getCookies(parsedArguments)
-  const urlObject = parseURL(parsedArguments)
+  const urlObject = getURLObject(parsedArguments)
   const auth = getAuthObject(parsedArguments, headers, urlObject)
 
   let rawData: string | string[] = pipe(

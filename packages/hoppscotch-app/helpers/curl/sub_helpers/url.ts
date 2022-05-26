@@ -1,24 +1,68 @@
 import parser from "yargs-parser"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
 import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 import { stringArrayJoin } from "~/helpers/functional/array"
 
 const defaultRESTReq = getDefaultRESTRequest()
 
-const getProtocolForBaseURL = (baseURL: string) =>
+const getProtocolFromURL = (url: string) =>
   pipe(
     // get the base URL
-    /^([^\s:@]+:[^\s:@]+@)?([^:/\s]+)([:]*)/.exec(baseURL),
+    /^([^\s:@]+:[^\s:@]+@)?([^:/\s]+)([:]*)/.exec(url),
     O.fromNullable,
     O.filter((burl) => burl.length > 1),
     O.map((burl) => burl[2]),
     // set protocol to http for local URLs
     O.map((burl) =>
-      burl === "localhost" || burl === "127.0.0.1"
-        ? "http://" + baseURL
-        : "https://" + baseURL
+      burl === "localhost" ||
+      burl === "2130706433" ||
+      /127(\.0){0,2}\.1/.test(burl) ||
+      /0177(\.0){0,2}\.1/.test(burl) ||
+      /0x7f(\.0){0,2}\.1/.test(burl) ||
+      /192\.168(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){2}/.test(burl) ||
+      /10(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}/.test(burl)
+        ? "http://" + url
+        : "https://" + url
     )
+  )
+
+/**
+ * Checks if the URL is valid using the URL constructor
+ * @param urlString URL string (with protocol)
+ * @returns boolean whether the URL is valid using the inbuilt URL class
+ */
+const isURLValid = (urlString: string) =>
+  pipe(
+    O.tryCatch(() => new URL(urlString)),
+    O.isSome
+  )
+
+/**
+ * Checks and returns URL object for the valid URL
+ * @param urlText Raw URL string provided by argument parser
+ * @returns Option of URL object
+ */
+const parseURL = (urlText: string | number) =>
+  pipe(
+    urlText,
+    O.fromNullable,
+    // preprocess url string
+    O.map((u) => u.toString().replaceAll(/[^a-zA-Z0-9_\-./?&=:@%+#,;\s]/g, "")),
+    O.filter((u) => u.length > 0),
+    O.chain((u) =>
+      pipe(
+        u,
+        // check if protocol is available
+        O.fromPredicate(
+          (url: string) => /^[^:\s]+(?=:\/\/)/.exec(url) !== null
+        ),
+        O.alt(() => getProtocolFromURL(u))
+      )
+    ),
+    O.filter(isURLValid),
+    O.map((u) => new URL(u))
   )
 
 /**
@@ -26,23 +70,11 @@ const getProtocolForBaseURL = (baseURL: string) =>
  * @param parsedArguments Parsed Arguments object
  * @returns URL object
  */
-export function parseURL(parsedArguments: parser.Arguments) {
+export function getURLObject(parsedArguments: parser.Arguments) {
   return pipe(
-    // contains raw url string
-    parsedArguments._[1],
-    O.fromNullable,
-    // preprocess url string
-    O.map((u) => u.toString().replace(/["']/g, "").trim()),
-    O.chain((u) =>
-      pipe(
-        // check if protocol is available
-        /^[^:\s]+(?=:\/\/)/.exec(u),
-        O.fromNullable,
-        O.map((_) => u),
-        O.alt(() => getProtocolForBaseURL(u))
-      )
-    ),
-    O.map((u) => new URL(u)),
+    // contains raw url strings
+    parsedArguments._.slice(1),
+    A.findFirstMap(parseURL),
     // no url found
     O.getOrElse(() => new URL(defaultRESTReq.endpoint))
   )

@@ -160,7 +160,7 @@ const getXMLBody = (rawData: string) =>
 
 const getFormattedJSON = (jsonString: string) =>
   pipe(
-    jsonString.replaceAll("\\", ""),
+    jsonString.replaceAll('\\"', '"'),
     safeParseJSON,
     O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
     O.getOrElse(() => "{ }"),

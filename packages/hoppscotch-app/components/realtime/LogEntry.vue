@@ -28,7 +28,7 @@
             @click="toggleExpandPayload()"
           >
             <div class="truncate">
-              {{ entry.prefix || entry.payload }}
+              {{ entry.prefix ?? entry.payload }}
             </div>
           </div>
         </div>

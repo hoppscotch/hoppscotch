@@ -303,18 +303,8 @@ const workerResponseHandler = ({
   if (data.url === url.value) isUrlValid.value = data.result
 }
 
-const getMessagePayload = (data: SIOMessage): string => {
-  let message = ``
-  switch (typeof data.value) {
-    case "object":
-      message += JSON.stringify(data.value)
-      break
-    default:
-      message += data.value
-      break
-  }
-  return message
-}
+const getMessagePayload = (data: SIOMessage): string =>
+  typeof data.value === "object" ? JSON.stringify(data.value) : `${data.value}`
 
 const getErrorPayload = (error: SIOError): string => {
   switch (error.type) {

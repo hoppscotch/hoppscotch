@@ -3,11 +3,11 @@ import { logHoppRequestRunToAnalytics } from "../fb/analytics"
 import { SIOClientV2, SIOClientV3, SIOClientV4, SIOClient } from "./SIOClients"
 import { SIOClientVersion } from "~/newstore/SocketIOSession"
 
-export const SocketClients = {
+export const SOCKET_CLIENTS = {
   v2: SIOClientV2,
   v3: SIOClientV3,
   v4: SIOClientV4,
-}
+} as const
 
 type SIOAuth = { type: "None" } | { type: "Bearer"; token: string }
 
@@ -59,7 +59,7 @@ export class SIOConnection {
       type: "CONNECTING",
     })
     try {
-      this.socket = new SocketClients[clientVersion]()
+      this.socket = new SOCKET_CLIENTS[clientVersion]()
 
       if (auth?.type === "Bearer") {
         this.socket.connect(url, {

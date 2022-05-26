@@ -6,7 +6,7 @@ Thanks for showing your interest in helping us to translate the software.
 
 Before you start working on a new language, please look through the [open pull requests](https://github.com/hoppscotch/hoppscotch/pulls) to see if anyone is already working on a translation. If you find one, please join the discussion and help us keep the existing translations up to date.
 
-if there is no existing translation, you can create a new one by following these steps:
+If there is no existing translation, you can create a new one by following these steps:
 
 1. **[Fork the repository](https://github.com/hoppscotch/hoppscotch/fork).**
 2. **Checkout the `i18n` branch for latest translations.**

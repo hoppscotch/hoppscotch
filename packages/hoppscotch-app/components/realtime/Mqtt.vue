@@ -140,11 +140,7 @@ import {
   watch,
 } from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
-import {
-  MQTTConnection,
-  MQTTMessage,
-  MQTTError,
-} from "~/helpers/realtime/MQTTConnection"
+import { MQTTConnection, MQTTError } from "~/helpers/realtime/MQTTConnection"
 import {
   useI18n,
   useNuxt,
@@ -238,7 +234,7 @@ onMounted(() => {
 
       case "MESSAGE_SENT":
         addMQTTLogLine({
-          prefix: getI18nMessage("state.published_message", event.message),
+          prefix: `${event.message.topic}`,
           payload: event.message.message,
           source: "client",
           ts: Date.now(),
@@ -247,7 +243,7 @@ onMounted(() => {
 
       case "MESSAGE_RECEIVED":
         addMQTTLogLine({
-          prefix: getI18nMessage("state.message_received", event.message),
+          prefix: `${event.message.topic}`,
           payload: event.message.message,
           source: "server",
           ts: event.time,
@@ -326,9 +322,6 @@ const toggleSubscription = () => {
   } else {
     socket.value.subscribe(subTopic.value)
   }
-}
-const getI18nMessage = (key: string, data: MQTTMessage): string => {
-  return t(key, data).toString()
 }
 
 const getI18nError = (error: MQTTError): string => {

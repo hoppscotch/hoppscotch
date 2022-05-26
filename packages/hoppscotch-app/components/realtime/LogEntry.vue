@@ -28,7 +28,10 @@
             @click="toggleExpandPayload()"
           >
             <div class="truncate">
-              {{ entry.prefix ?? entry.payload }}
+              <span v-if="entry.prefix !== undefined" class="!inline">{{
+                entry.prefix
+              }}</span>
+              {{ entry.payload }}
             </div>
           </div>
         </div>
@@ -318,24 +321,17 @@ const copyQuery = (entry: string) => {
 // TS could be undefined here. We're just assigning a default value to 0 because we're not showing it in the UI
 const relativeTime = useTimeAgo(computed(() => props.entry.ts ?? 0))
 
-// Assigns color based on entry event
-const entryColor = computed(() => {
-  switch (props.entry.event) {
-    case "connected":
-      return "#10b981"
-    case "connecting":
-      return "#10b981"
-    case "error":
-      return "#ff5555"
-    case "disconnected":
-      return "#ff5555"
-  }
-})
+const ENTRY_COLORS = {
+  connected: "#10b981",
+  connecting: "#10b981",
+  error: "#ff5555",
+  disconnected: "#ff5555",
+} as const
 
-const ICONS: Record<
-  LogEntryData["source"],
-  { iconName: string; iconColor: string }
-> = {
+// Assigns color based on entry event
+const entryColor = computed(() => ENTRY_COLORS[props.entry.event])
+
+const ICONS = {
   info: {
     iconName: "info-realtime",
     iconColor: "#10b981",
@@ -352,7 +348,7 @@ const ICONS: Record<
     iconName: "info-disconnect",
     iconColor: "#ff5555",
   },
-}
+} as const
 
 const iconColor = computed(() => ICONS[props.entry.source].iconColor)
 const iconName = computed(() => ICONS[props.entry.source].iconName)

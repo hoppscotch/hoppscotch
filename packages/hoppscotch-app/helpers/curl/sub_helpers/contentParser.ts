@@ -7,7 +7,8 @@ import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { optionChoose } from "~/helpers/functional/option"
 
-const isJSON = flow(safeParseJSON, O.isSome)
+const isJSON = (jsonString: string) =>
+  pipe(jsonString.replaceAll('\\"', '"'), safeParseJSON, O.isSome)
 
 const isXML = (rawData: string) =>
   pipe(

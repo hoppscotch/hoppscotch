@@ -19,10 +19,11 @@ const replaceables: { [key: string]: string } = {
 const paperCuts = flow(
   // remove '\' and newlines
   S.replace(/ ?\\ ?$/gm, " "),
-  S.replace(/\n/g, ""),
+  S.replace(/\n/g, " "),
   // remove all $ symbols from start of argument values
   S.replace(/\$'/g, "'"),
-  S.replace(/\$"/g, '"')
+  S.replace(/\$"/g, '"'),
+  S.trim
 )
 
 // replace --zargs option with -Z

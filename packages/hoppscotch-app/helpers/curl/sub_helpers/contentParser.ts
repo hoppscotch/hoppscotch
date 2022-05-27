@@ -158,12 +158,14 @@ const getXMLBody = (rawData: string) =>
     O.alt(() => O.some(rawData))
   )
 
-const getFormattedJSON = flow(
-  safeParseJSON,
-  O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
-  O.getOrElse(() => "{}"),
-  O.of
-)
+const getFormattedJSON = (jsonString: string) =>
+  pipe(
+    jsonString.replaceAll('\\"', '"'),
+    safeParseJSON,
+    O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
+    O.getOrElse(() => "{ }"),
+    O.of
+  )
 
 const getXWWWFormUrlEncodedBody = flow(
   decodeURIComponent,

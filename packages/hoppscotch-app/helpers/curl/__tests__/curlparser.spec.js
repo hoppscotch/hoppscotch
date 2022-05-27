@@ -768,11 +768,52 @@ const samples = [
       testScript: "",
     }),
   },
+  {
+    command: `curl \`
+  google.com -H "content-type: application/json"`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "https://google.com/",
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
+  {
+    command: `curl 192.168.0.24:8080/ping`,
+    response: makeRESTRequest({
+      method: "GET",
+      name: "Untitled request",
+      endpoint: "http://192.168.0.24:8080/ping",
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      body: {
+        contentType: null,
+        body: null,
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
 ]
 
-describe("parseCurlToHoppRESTReq", () => {
+describe("Parse curl command to Hopp REST Request", () => {
   for (const [i, { command, response }] of samples.entries()) {
-    test(`matches expectation for sample #${i + 1}`, () => {
+    test(`for sample #${i + 1}:\n\n${command}`, () => {
       expect(parseCurlToHoppRESTReq(command)).toEqual(response)
     })
   }

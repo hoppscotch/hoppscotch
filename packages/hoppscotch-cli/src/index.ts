@@ -46,10 +46,10 @@ program.exitOverride().configureOutput({
 program
   .command("test")
   .argument(
-    "<file>",
+    "<file_path>",
     "path to a hoppscotch collection.json file for CI testing"
   )
-  .option("-e, --env <file>", "path to an env.json file")
+  .option("-e, --env <file_path>", "path to an env.json file")
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")

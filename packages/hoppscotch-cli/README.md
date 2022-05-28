@@ -24,12 +24,23 @@ hopp [options or commands] arguments
 
    - Displays the help text
 
-3. #### **`hopp test <file_path>`**
+3. #### **`hopp test [options] <file_path>`**
    - Interactive CLI to accept Hoppscotch collection JSON path
    - Parses the collection JSON and executes each requests
    - Executes pre-request script.
    - Outputs the response of each request.
    - Executes and outputs test-script response.
+
+    #### Options:
+    ##### `hopp test -e / --env <file_path> test <file_path>`
+    - Accepts path to env.json with contents in below format:   
+        ```json
+        {
+            "ENV1":"value1",
+            "ENV2":"value2"
+        }
+        ```
+    - Applies ENVs from env.json file as selected env variables.
 
 ## Install
 

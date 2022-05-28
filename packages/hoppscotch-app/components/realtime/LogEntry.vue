@@ -11,7 +11,10 @@
               @click.native="copyQuery(entry.payload)"
             />
           </div>
-          <div class="items-center hidden px-1 w-18 sm:inline-flex">
+          <div
+            v-if="entry.ts !== undefined"
+            class="items-center hidden px-1 w-18 sm:inline-flex"
+          >
             <span
               v-tippy="{ theme: 'tooltip' }"
               :title="relativeTime"
@@ -25,6 +28,9 @@
             @click="toggleExpandPayload()"
           >
             <div class="truncate">
+              <span v-if="entry.prefix !== undefined" class="!inline">{{
+                entry.prefix
+              }}</span>
               {{ entry.payload }}
             </div>
           </div>
@@ -312,26 +318,20 @@ const copyQuery = (entry: string) => {
 }
 
 // Relative Time
-const relativeTime = useTimeAgo(computed(() => props.entry.ts))
+// TS could be undefined here. We're just assigning a default value to 0 because we're not showing it in the UI
+const relativeTime = useTimeAgo(computed(() => props.entry.ts ?? 0))
+
+const ENTRY_COLORS = {
+  connected: "#10b981",
+  connecting: "#10b981",
+  error: "#ff5555",
+  disconnected: "#ff5555",
+} as const
 
 // Assigns color based on entry event
-const entryColor = computed(() => {
-  switch (props.entry.event) {
-    case "connected":
-      return "#10b981"
-    case "connecting":
-      return "#10b981"
-    case "error":
-      return "#ff5555"
-    case "disconnected":
-      return "#ff5555"
-  }
-})
+const entryColor = computed(() => ENTRY_COLORS[props.entry.event])
 
-const ICONS: Record<
-  LogEntryData["source"],
-  { iconName: string; iconColor: string }
-> = {
+const ICONS = {
   info: {
     iconName: "info-realtime",
     iconColor: "#10b981",
@@ -348,7 +348,7 @@ const ICONS: Record<
     iconName: "info-disconnect",
     iconColor: "#ff5555",
   },
-}
+} as const
 
 const iconColor = computed(() => ICONS[props.entry.source].iconColor)
 const iconName = computed(() => ICONS[props.entry.source].iconName)

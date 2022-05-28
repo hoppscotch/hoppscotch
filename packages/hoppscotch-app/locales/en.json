@@ -508,7 +508,8 @@
     "event_name": "Event Name",
     "events": "Events",
     "log": "Log",
-    "url": "URL"
+    "url": "URL",
+    "connection_not_authorized": "This SocketIO connection does not use any authentication."
   },
   "sse": {
     "event_type": "Event type",
@@ -538,7 +539,19 @@
     "loading": "Loading...",
     "none": "None",
     "nothing_found": "Nothing found for",
-    "waiting_send_request": "Waiting to send request"
+    "waiting_send_request": "Waiting to send request",
+    "subscribed_success": "Successfully subscribed to topic: {topic}",
+    "unsubscribed_success": "Successfully unsubscribed from topic: {topic}",
+    "subscribed_failed": "Failed to subscribe to topic: {topic}",
+    "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
+    "published_message": "Published message: {message} to topic: {topic}",
+    "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
+    "message_received": "Message: {message} arrived on topic: {topic}",
+    "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}",
+    "connection_lost": "Connection lost",
+    "connection_failed": "Connection failed",
+    "connection_error": "Failed to connect",
+    "reconnection_error": "Failed to reconnect"
   },
   "support": {
     "changelog": "Read more about latest releases",

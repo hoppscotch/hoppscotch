@@ -1,6 +1,8 @@
 import { Environment } from "@hoppscotch/data";
 import { getEffectiveFinalMetaData } from "../../../utils/getters";
 
+import "@relmify/jest-fp-ts";
+
 const DEFAULT_ENV = <Environment>{
   name: "name",
   variables: [{ key: "PARAM", value: "parsed_param" }],

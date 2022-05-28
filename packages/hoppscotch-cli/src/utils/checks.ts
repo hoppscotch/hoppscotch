@@ -9,8 +9,11 @@ import {
 import * as A from "fp-ts/Array";
 import * as S from "fp-ts/string";
 import * as TE from "fp-ts/TaskEither";
-import { error, HoppCLIError, HoppErrnoException } from "../types/errors";
+import * as E from "fp-ts/Either";
 import { CommanderError } from "commander";
+import { error, HoppCLIError, HoppErrnoException } from "../types/errors";
+import { HoppCollectionFileExt } from "../types/collections";
+import { HoppEnvFileExt } from "../types/commands";
 
 /**
  * Determines whether an object has a property with given name.
@@ -68,19 +71,33 @@ export const isRESTCollection = (
 };
 
 /**
- * Checks if the given file path exists and is of JSON type.
+ * Checks if the file path matches the requried file type with of required extension.
+ * @param path The input file path to check.
+ * @param extension The required extension for input file path.
+ * @returns Absolute path for valid file extension OR HoppCLIError in case of error.
+ */
+export const checkFileExt = (
+  path: string,
+  extension: HoppCollectionFileExt | HoppEnvFileExt
+): E.Either<HoppCLIError, string> =>
+  pipe(
+    path,
+    E.fromPredicate(
+      (x) => x.endsWith(`.${extension}`),
+      (_) => error({ code: "INVALID_FILE_TYPE", data: extension })
+    )
+  );
+
+/**
+ * Checks if the given file path exists and is of given type.
  * @param path The input file path to check.
  * @returns Absolute path for valid file path OR HoppCLIError in case of error.
  */
-export const checkFilePath = (
-  path: string
-): TE.TaskEither<HoppCLIError, string> =>
+export const checkFile = (path: string): TE.TaskEither<HoppCLIError, string> =>
   pipe(
     path,
 
-    /**
-     * Check the path type and returns string if passes else HoppCLIError.
-     */
+    // Checking if path is string.
     TE.fromPredicate(S.isString, () => error({ code: "NO_FILE_PATH" })),
 
     /**
@@ -96,15 +113,11 @@ export const checkFilePath = (
     ),
 
     /**
-     * On successfully accessing given file path, we map file path to
-     * absolute path and return abs file path if file is JSON type.
+     * On successfully accessing given file path, we map file path to absolute
+     * path and return abs file path, if file is of given extension type.
      */
     TE.map(join),
-    TE.chainW(
-      TE.fromPredicate(S.endsWith(".json"), (absPath) =>
-        error({ code: "FILE_NOT_JSON", path: absPath })
-      )
-    )
+    TE.chainW((absPath) => pipe(checkFileExt(absPath, "json"), TE.fromEither))
   );
 
 /**

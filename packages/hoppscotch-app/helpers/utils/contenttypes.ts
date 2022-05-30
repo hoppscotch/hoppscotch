@@ -14,6 +14,38 @@ export const knownContentTypes: Record<ValidContentTypes, Content> = {
   "text/plain": "plain",
 }
 
+type ContentTypeTitle = "Text" | "Structured" | "Others"
+
+type SegmentedContentType = {
+  title: ContentTypeTitle
+  icon: string
+  contentTypes: ValidContentTypes[]
+}
+
+export const segmentedContentTypes: SegmentedContentType[] = [
+  {
+    title: "Text",
+    icon: "file-code",
+    contentTypes: [
+      "application/json",
+      "application/ld+json",
+      "application/hal+json",
+      "application/vnd.api+json",
+      "application/xml",
+    ],
+  },
+  {
+    title: "Structured",
+    icon: "layers",
+    contentTypes: ["application/x-www-form-urlencoded", "multipart/form-data"],
+  },
+  {
+    title: "Others",
+    icon: "more-vertical",
+    contentTypes: ["text/html", "text/plain"],
+  },
+]
+
 export function isJSONContentType(contentType: string) {
   return /\bjson\b/i.test(contentType)
 }

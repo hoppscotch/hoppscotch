@@ -31,7 +31,13 @@
               <span v-if="entry.prefix !== undefined" class="!inline">{{
                 entry.prefix
               }}</span>
-              {{ entry.payload }}
+              <span
+                v-for="(section, index) in highlightingSections"
+                :key="index"
+                class="!inline"
+                :class="section.mode === 'highlight' ? 'highlight' : ''"
+                >{{ section.text }}</span
+              >
             </div>
           </div>
         </div>
@@ -208,6 +214,7 @@ import { LogEntryData } from "./Log.vue"
 import { useI18n } from "~/helpers/utils/composables"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { isJSON } from "~/helpers/functional/json"
+import { regexFindAllMatches } from "~/helpers/functional/regex"
 import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
 import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
 import { useCodemirror } from "~/helpers/editor/codemirror"
@@ -220,11 +227,54 @@ import {
 
 const t = useI18n()
 
-const props = defineProps<{ entry: LogEntryData }>()
+const props = defineProps<{
+  entry: LogEntryData
+  highlightRegex?: RegExp
+}>()
 const outlineOptions = ref<any | null>(null)
 const editor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 const logPayload = computed(() => props.entry.payload)
+
+type HighlightSection = {
+  mode: "normal" | "highlight"
+  text: string
+}
+
+const highlightingSections = computed<HighlightSection[]>(() => {
+  if (!props.highlightRegex)
+    return [{ mode: "normal", text: props.entry.payload }]
+
+  const line = props.entry.payload.split("\n")[0]
+
+  const ranges = pipe(line, regexFindAllMatches(props.highlightRegex))
+
+  const result: HighlightSection[] = []
+  let point = 0
+
+  ranges.forEach(({ startIndex, endIndex }) => {
+    if (point < startIndex)
+      result.push({
+        mode: "normal",
+        text: line.slice(point, startIndex),
+      })
+
+    result.push({
+      mode: "highlight",
+      text: line.slice(startIndex, endIndex + 1),
+    })
+
+    point = endIndex + 1
+  })
+
+  if (point < line.length)
+    result.push({
+      mode: "normal",
+      text: line.slice(point, line.length),
+    })
+
+  return result
+})
 
 const selectedTab = ref<"json" | "raw">(
   isJSON(props.entry.payload) ? "json" : "raw"
@@ -384,5 +434,9 @@ const iconName = computed(() => ICONS[props.entry.source].iconName)
 
 .ts-font {
   font-size: 0.6rem;
+}
+
+.highlight {
+  color: yellow;
 }
 </style>

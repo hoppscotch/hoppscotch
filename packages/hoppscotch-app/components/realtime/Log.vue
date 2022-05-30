@@ -11,7 +11,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.search')"
           svg="search"
-          @click.native="patternInputted = !patternInputted"
+          @click.native="toggleSearch = !toggleSearch"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -45,16 +45,22 @@
     </div>
 
     <div
-      v-if="patternInputted"
+      v-if="toggleSearch"
       class="w-full p-2 sticky top-0 z-10 text-center border-b border-dividerLight"
     >
-      <input
-        id=""
-        v-model="pattern"
-        type="text"
-        placeholder="Enter search pattern"
-        class="p-1 border rounded bg-primaryLight border-divider text-secondaryDark text-center"
-      />
+      <span
+        class="bg-primaryLight border-divider text-secondaryDark rounded inline-flex"
+      >
+        <ButtonSecondary svg="search" class="item-center" />
+
+        <input
+          id=""
+          v-model="pattern"
+          type="text"
+          placeholder="Enter search pattern"
+          class="rounded w-64 bg-primaryLight text-secondaryDark text-center"
+        />
+      </span>
     </div>
 
     <div
@@ -69,6 +75,7 @@
           v-for="(entry, index) in logEntries"
           :key="`entry-${index}`"
           :entry="entry"
+          :highlight-regex="pattern === '' ? undefined : patternRegex"
         />
       </div>
     </div>
@@ -78,6 +85,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "@nuxtjs/composition-api"
 import { useThrottleFn, useScroll } from "@vueuse/core"
+import { regexEscape } from "~/helpers/functional/regex"
 import { useI18n } from "~/helpers/utils/composables"
 
 export type LogEntryData = {
@@ -136,11 +144,15 @@ const toggleAutoscroll = () => {
 }
 
 const pattern = ref("")
-const patternInputted = ref(false)
+const toggleSearch = ref(false)
+
+const patternRegex = computed(
+  () => new RegExp(regexEscape(pattern.value), "gi")
+)
 
 const logEntries = computed(() => {
-  if (pattern.value) {
-    return props.log.filter((entry) => entry.payload.includes(pattern.value))
+  if (patternRegex.value) {
+    return props.log.filter((entry) => entry.payload.match(patternRegex.value))
   } else return props.log
 })
 

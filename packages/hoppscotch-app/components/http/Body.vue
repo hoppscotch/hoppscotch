@@ -23,7 +23,7 @@
             </span>
           </template>
           <div
-            class="flex flex-col space-y-1 divide-y divide-dividerDark"
+            class="flex flex-col space-y-1 divide-y divide-dividerLight"
             role="menu"
           >
             <SmartItem
@@ -45,15 +45,11 @@
               class="flex flex-col py-2 text-left"
             >
               <div class="flex rounded py-2 px-4">
-                <SmartIcon
-                  :name="contentTypeItems.icon"
-                  class="svg-icons mr-2 text-secondaryLight"
-                />
                 <span class="text-tiny text-secondaryLight font-bold">
                   {{ contentTypeItems.title }}
                 </span>
               </div>
-              <div class="pl-2 flex flex-col">
+              <div class="flex flex-col">
                 <SmartItem
                   v-for="(
                     contentTypeItem, contentTypeIndex

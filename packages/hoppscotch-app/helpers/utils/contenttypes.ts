@@ -14,6 +14,11 @@ export const knownContentTypes: Record<ValidContentTypes, Content> = {
   "text/plain": "plain",
 }
 
+type ContentTypeTitle =
+  | "request.content_type_titles.text"
+  | "request.content_type_titles.structured"
+  | "request.content_type_titles.others"
+
 type SegmentedContentType = {
   title: ContentTypeTitle
   contentTypes: ValidContentTypes[]

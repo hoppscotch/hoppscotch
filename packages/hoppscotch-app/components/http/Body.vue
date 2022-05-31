@@ -46,7 +46,7 @@
             >
               <div class="flex rounded py-2 px-4">
                 <span class="text-tiny text-secondaryLight font-bold">
-                  {{ contentTypeItems.title }}
+                  {{ $t(contentTypeItems.title) }}
                 </span>
               </div>
               <div class="flex flex-col">

@@ -14,8 +14,6 @@ export const knownContentTypes: Record<ValidContentTypes, Content> = {
   "text/plain": "plain",
 }
 
-type ContentTypeTitle = "Text" | "Structured" | "Others"
-
 type SegmentedContentType = {
   title: ContentTypeTitle
   contentTypes: ValidContentTypes[]
@@ -23,7 +21,7 @@ type SegmentedContentType = {
 
 export const segmentedContentTypes: SegmentedContentType[] = [
   {
-    title: "Text",
+    title: "request.content_type_titles.text",
     contentTypes: [
       "application/json",
       "application/ld+json",
@@ -33,11 +31,11 @@ export const segmentedContentTypes: SegmentedContentType[] = [
     ],
   },
   {
-    title: "Structured",
+    title: "request.content_type_titles.structured",
     contentTypes: ["application/x-www-form-urlencoded", "multipart/form-data"],
   },
   {
-    title: "Others",
+    title: "request.content_type_titles.others",
     contentTypes: ["text/html", "text/plain"],
   },
 ]

@@ -340,6 +340,11 @@
     "body": "Request Body",
     "choose_language": "Choose language",
     "content_type": "Content Type",
+    "content_type_titles": {
+      "others": "Others",
+      "structured": "Structured",
+      "text": "Text"
+    },
     "copy_link": "Copy link",
     "duration": "Duration",
     "enter_curl": "Enter cURL",

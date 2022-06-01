@@ -312,6 +312,7 @@ import {
 import draggable from "vuedraggable"
 import isEqual from "lodash/isEqual"
 import cloneDeep from "lodash/cloneDeep"
+import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useNuxt,
@@ -612,10 +613,13 @@ useCodemirror(queryEditor, gqlQueryString, {
   environmentHighlights: false,
 })
 
-const copyQueryIcon = ref("copy")
-const copyVariablesIcon = ref("copy")
-const prettifyQueryIcon = ref("wand")
-const prettifyVariablesIcon = ref("wand")
+const copyQueryIcon = refAutoReset<"copy" | "check">("copy", 1000)
+const copyVariablesIcon = refAutoReset<"copy" | "check">("copy", 1000)
+const prettifyQueryIcon = refAutoReset<"wand" | "check" | "info">("wand", 1000)
+const prettifyVariablesIcon = refAutoReset<"wand" | "check" | "info">(
+  "wand",
+  1000
+)
 
 const showSaveRequestModal = ref(false)
 
@@ -623,7 +627,6 @@ const copyQuery = () => {
   copyToClipboard(gqlQueryString.value)
   copyQueryIcon.value = "check"
   toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
 }
 
 const response = useStream(gqlResponse$, "", setGQLResponse)
@@ -699,7 +702,6 @@ const prettifyQuery = () => {
     toast.error(`${t("error.gql_prettify_invalid_query")}`)
     prettifyQueryIcon.value = "info"
   }
-  setTimeout(() => (prettifyQueryIcon.value = "wand"), 1000)
 }
 
 const saveRequest = () => {
@@ -710,7 +712,6 @@ const copyVariables = () => {
   copyToClipboard(variableString.value)
   copyVariablesIcon.value = "check"
   toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyVariablesIcon.value = "copy"), 1000)
 }
 
 const prettifyVariableString = () => {
@@ -723,7 +724,6 @@ const prettifyVariableString = () => {
     prettifyVariablesIcon.value = "info"
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
-  setTimeout(() => (prettifyVariablesIcon.value = "wand"), 1000)
 }
 
 const clearGQLQuery = () => {

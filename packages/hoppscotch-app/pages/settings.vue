@@ -236,6 +236,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, defineComponent } from "@nuxtjs/composition-api"
+import { refAutoReset } from "@vueuse/core"
 import { applySetting, toggleSetting, useSetting } from "~/newstore/settings"
 import {
   useToast,
@@ -276,7 +277,7 @@ const hasFirefoxExtInstalled = computed(
   () => browserIsFirefox() && currentExtensionStatus.value === "available"
 )
 
-const clearIcon = ref("rotate-ccw")
+const clearIcon = refAutoReset<"rotate-ccw" | "check">("rotate-ccw", 1000)
 
 const confirmRemove = ref(false)
 
@@ -322,7 +323,6 @@ const resetProxy = () => {
   applySetting("PROXY_URL", `https://proxy.hoppscotch.io/`)
   clearIcon.value = "check"
   toast.success(`${t("state.cleared")}`)
-  setTimeout(() => (clearIcon.value = "rotate-ccw"), 1000)
 }
 
 const getColorModeName = (colorMode: string) => {

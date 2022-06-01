@@ -120,6 +120,7 @@ import clone from "lodash/clone"
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 import {
   createEnvironment,
   environments$,
@@ -160,7 +161,8 @@ const emit = defineEmits<{
 
 const name = ref<string | null>(null)
 const vars = ref([{ key: "", value: "" }])
-const clearIcon = ref("trash-2")
+
+const clearIcon = refAutoReset<"trash-2" | "check">("trash-2", 1000)
 
 const globalVars = useReadonlyStream(globalEnv$, [])
 
@@ -225,7 +227,6 @@ const clearContent = () => {
   vars.value = []
   clearIcon.value = "check"
   toast.success(`${t("state.cleared")}`)
-  setTimeout(() => (clearIcon.value = "trash-2"), 1000)
 }
 
 const addEnvironmentVariable = () => {

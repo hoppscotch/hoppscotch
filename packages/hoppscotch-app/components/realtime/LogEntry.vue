@@ -203,7 +203,7 @@ import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { ref, computed, reactive, watch } from "@nuxtjs/composition-api"
-import { useTimeAgo } from "@vueuse/core"
+import { refAutoReset, useTimeAgo } from "@vueuse/core"
 import { LogEntryData } from "./Log.vue"
 import { useI18n } from "~/helpers/utils/composables"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -310,11 +310,11 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   logPayload
 )
 
-const copyQueryIcon = ref("copy")
+const copyQueryIcon = refAutoReset<"copy" | "check">("copy", 1000)
+
 const copyQuery = (entry: string) => {
   copyToClipboard(entry)
   copyQueryIcon.value = "check"
-  setTimeout(() => (copyQueryIcon.value = "copy"), 1000)
 }
 
 // Relative Time

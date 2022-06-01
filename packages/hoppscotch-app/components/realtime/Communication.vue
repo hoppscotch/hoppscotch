@@ -113,6 +113,7 @@ import { computed, reactive, ref } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TO from "fp-ts/TaskOption"
 import * as O from "fp-ts/Option"
+import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { readFileAsText } from "~/helpers/functional/files"
@@ -145,7 +146,8 @@ const toast = useToast()
 
 const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()
-const prettifyIcon = ref<"wand" | "check" | "info">("wand")
+
+const prettifyIcon = refAutoReset<"wand" | "check" | "info">("wand", 1000)
 
 const knownContentTypes = {
   JSON: "application/ld+json",
@@ -216,6 +218,5 @@ const prettifyRequestBody = () => {
     prettifyIcon.value = "info"
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
-  setTimeout(() => (prettifyIcon.value = "wand"), 1000)
 }
 </script>

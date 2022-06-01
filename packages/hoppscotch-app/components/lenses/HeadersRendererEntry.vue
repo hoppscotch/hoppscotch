@@ -41,7 +41,7 @@ defineProps<{
   header: HoppRESTHeader
 }>()
 
-const copyIcon = refAutoReset("copy", 1000)
+const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const copyHeader = (headerValue: string) => {
   copyToClipboard(headerValue)

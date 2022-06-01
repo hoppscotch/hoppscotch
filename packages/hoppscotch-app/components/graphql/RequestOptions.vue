@@ -613,10 +613,13 @@ useCodemirror(queryEditor, gqlQueryString, {
   environmentHighlights: false,
 })
 
-const copyQueryIcon = refAutoReset("copy", 1000)
-const copyVariablesIcon = refAutoReset("copy", 1000)
-const prettifyQueryIcon = refAutoReset("wand", 1000)
-const prettifyVariablesIcon = refAutoReset("wand", 1000)
+const copyQueryIcon = refAutoReset<"copy" | "check">("copy", 1000)
+const copyVariablesIcon = refAutoReset<"copy" | "check">("copy", 1000)
+const prettifyQueryIcon = refAutoReset<"wand" | "check" | "info">("wand", 1000)
+const prettifyVariablesIcon = refAutoReset<"wand" | "check" | "info">(
+  "wand",
+  1000
+)
 
 const showSaveRequestModal = ref(false)
 

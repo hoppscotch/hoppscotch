@@ -96,7 +96,7 @@ const handleImport = () => {
   hideModal()
 }
 
-const pasteIcon = refAutoReset("clipboard", 1000)
+const pasteIcon = refAutoReset<"clipboard" | "check">("clipboard", 1000)
 
 const handlePaste = async () => {
   try {

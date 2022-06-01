@@ -112,8 +112,11 @@ useCodemirror(
   })
 )
 
-const downloadResponseIcon = refAutoReset("download", 1000)
-const copyResponseIcon = refAutoReset("copy", 1000)
+const downloadResponseIcon = refAutoReset<"download" | "check">(
+  "download",
+  1000
+)
+const copyResponseIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const copyResponse = () => {
   copyToClipboard(responseString.value!)

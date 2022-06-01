@@ -93,7 +93,7 @@ const rawParamsBody = pluckRef(
   "body"
 )
 
-const prettifyIcon = refAutoReset("wand", 1000)
+const prettifyIcon = refAutoReset<"wand" | "check" | "info">("wand", 1000)
 
 const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(props.contentType)

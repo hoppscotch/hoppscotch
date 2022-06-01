@@ -147,7 +147,7 @@ const toast = useToast()
 const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()
 
-const prettifyIcon = refAutoReset("wand", 1000)
+const prettifyIcon = refAutoReset<"wand" | "check" | "info">("wand", 1000)
 
 const knownContentTypes = {
   JSON: "application/ld+json",

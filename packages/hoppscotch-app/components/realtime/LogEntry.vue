@@ -310,7 +310,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   logPayload
 )
 
-const copyQueryIcon = refAutoReset("copy", 1000)
+const copyQueryIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const copyQuery = (entry: string) => {
   copyToClipboard(entry)

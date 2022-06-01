@@ -394,9 +394,10 @@ const clearContent = () => {
   resetRESTRequest()
 }
 
-const copyLinkIcon = hasNavigatorShare
-  ? refAutoReset("share-2", 1000)
-  : refAutoReset("copy", 1000)
+const copyLinkIcon = refAutoReset<"share-2" | "copy" | "check">(
+  hasNavigatorShare ? "share-2" : "copy",
+  1000
+)
 
 const shareLink = ref<string | null>("")
 const fetchingShareLink = ref(false)

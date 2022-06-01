@@ -45,7 +45,7 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const copyIcon = refAutoReset("copy", 1000)
+const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 // Copy user auth token to clipboard
 const copyUserAuthToken = () => {

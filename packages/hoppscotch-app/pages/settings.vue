@@ -277,7 +277,7 @@ const hasFirefoxExtInstalled = computed(
   () => browserIsFirefox() && currentExtensionStatus.value === "available"
 )
 
-const clearIcon = refAutoReset("rotate-ccw", 1000)
+const clearIcon = refAutoReset<"rotate-ccw" | "check">("rotate-ccw", 1000)
 
 const confirmRemove = ref(false)
 

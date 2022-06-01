@@ -14,7 +14,7 @@ export default function useDownloadResponse(
   downloadIcon: Ref<string>
   downloadResponse: () => void
 } {
-  const downloadIcon = refAutoReset("download", 1000)
+  const downloadIcon = refAutoReset<"download" | "check">("download", 1000)
 
   const toast = useToast()
   const t = useI18n()

@@ -162,7 +162,7 @@ const emit = defineEmits<{
 const name = ref<string | null>(null)
 const vars = ref([{ key: "", value: "" }])
 
-const clearIcon = refAutoReset("trash-2", 1000)
+const clearIcon = refAutoReset<"trash-2" | "check">("trash-2", 1000)
 
 const globalVars = useReadonlyStream(globalEnv$, [])
 

@@ -10,7 +10,7 @@ export default function useCopyResponse(responseBodyText: Ref<any>): {
   const toast = useToast()
   const t = useI18n()
 
-  const copyIcon = refAutoReset("copy", 1000)
+  const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
   const copyResponse = () => {
     copyToClipboard(responseBodyText.value)

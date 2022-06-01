@@ -4,7 +4,7 @@ import * as QuickJS from "quickjs-emscripten"
 import { TestResult } from "./test-runner"
 
 export function marshalObjectToVM(
-  vm: QuickJS.QuickJSVm,
+  vm: QuickJS.QuickJSContext,
   obj: object
 ): E.Either<string, QuickJS.QuickJSHandle> {
   let jsonString

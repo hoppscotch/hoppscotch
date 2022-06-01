@@ -67,7 +67,7 @@ export type TestResult = {
  * @returns Handle to the expectation object in VM
  */
 function createExpectation(
-  vm: qjs.QuickJSVm,
+  vm: qjs.QuickJSContext,
   expectVal: any,
   negated: boolean,
   currTestStack: TestDescriptor[]
@@ -409,7 +409,7 @@ export const execTestScript = (
       (QuickJS) => {
         let currentEnvs = cloneDeep(envs)
 
-        const vm = QuickJS.createVm()
+        const vm = QuickJS.newContext()
 
         const pwHandle = vm.newObject()
 

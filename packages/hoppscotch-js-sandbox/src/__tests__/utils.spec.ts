@@ -3,11 +3,11 @@ import { pipe } from "fp-ts/lib/function"
 import * as QuickJS from "quickjs-emscripten"
 import { marshalObjectToVM } from "../utils"
 
-let vm: QuickJS.QuickJSVm
+let vm: QuickJS.QuickJSContext
 
 beforeAll(async () => {
   const qjs = await QuickJS.getQuickJS()
-  vm = qjs.createVm()
+  vm = qjs.newContext()
 })
 
 afterAll(() => {

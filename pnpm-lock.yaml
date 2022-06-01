@@ -442,7 +442,7 @@ importers:
       jest: ^27.5.1
       lodash: ^4.17.21
       prettier: ^2.6.2
-      quickjs-emscripten: ^0.15.0
+      quickjs-emscripten: ^0.20.0
       ts-jest: ^27.1.4
       tsup: ^5.12.5
       typescript: ^4.6.3
@@ -450,7 +450,7 @@ importers:
       '@hoppscotch/data': link:../hoppscotch-data
       fp-ts: 2.11.10
       lodash: 4.17.21
-      quickjs-emscripten: 0.15.0
+      quickjs-emscripten: 0.20.0
       tsup: 5.12.5_typescript@4.6.3
     devDependencies:
       '@digitak/esrun': 3.1.2
@@ -16457,8 +16457,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /quickjs-emscripten/0.15.0:
-    resolution: {integrity: sha512-7b32VY45/Rmo/S81W0VcHnsPW9yvCbGOCjf+xl8XYcQIL/FmbfmwroJPnyXHRYC0HO8mk8cTkvsMC+0bR/NrJA==}
+  /quickjs-emscripten/0.20.0:
+    resolution: {integrity: sha512-MQUFiFkM4zFPTSd9ZN4COL41wrYjsOx8qKvyrHI7UNzHRsmZPCJffeCm8lgfqHElcenLRkRrRPRzhS3CpH1tjA==}
     dev: false
 
   /radix3/0.1.1:

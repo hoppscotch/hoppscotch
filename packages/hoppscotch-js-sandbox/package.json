@@ -43,7 +43,7 @@
     "@hoppscotch/data": "workspace:^0.4.2",
     "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
-    "quickjs-emscripten": "^0.15.0",
+    "quickjs-emscripten": "^0.20.0",
     "tsup": "^5.12.5"
   },
   "devDependencies": {

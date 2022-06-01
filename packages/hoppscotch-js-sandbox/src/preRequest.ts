@@ -24,7 +24,7 @@ export const execPreRequestScript = (
     TE.chain((QuickJS) => {
       let currentEnvs = cloneDeep(envs)
 
-      const vm = QuickJS.createVm()
+      const vm = QuickJS.newContext()
 
       const pwHandle = vm.newObject()
 

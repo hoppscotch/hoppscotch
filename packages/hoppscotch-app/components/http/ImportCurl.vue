@@ -39,6 +39,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "@nuxtjs/composition-api"
+import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
@@ -95,7 +96,7 @@ const handleImport = () => {
   hideModal()
 }
 
-const pasteIcon = ref("clipboard")
+const pasteIcon = refAutoReset<"clipboard" | "check">("clipboard", 1000)
 
 const handlePaste = async () => {
   try {
@@ -103,7 +104,6 @@ const handlePaste = async () => {
     if (text) {
       curl.value = text
       pasteIcon.value = "check"
-      setTimeout(() => (pasteIcon.value = "clipboard"), 1000)
     }
   } catch (e) {
     console.error("Failed to copy: ", e)

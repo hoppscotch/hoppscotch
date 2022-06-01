@@ -78,6 +78,7 @@
 
 <script setup lang="ts">
 import { reactive, ref } from "@nuxtjs/composition-api"
+import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
@@ -111,14 +112,16 @@ useCodemirror(
   })
 )
 
-const downloadResponseIcon = ref("download")
-const copyResponseIcon = ref("copy")
+const downloadResponseIcon = refAutoReset<"download" | "check">(
+  "download",
+  1000
+)
+const copyResponseIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const copyResponse = () => {
   copyToClipboard(responseString.value!)
   copyResponseIcon.value = "check"
   toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyResponseIcon.value = "copy"), 1000)
 }
 
 const downloadResponse = () => {
@@ -135,7 +138,6 @@ const downloadResponse = () => {
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    downloadResponseIcon.value = "download"
   }, 1000)
 }
 </script>

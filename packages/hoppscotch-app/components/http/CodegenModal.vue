@@ -87,6 +87,7 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as O from "fp-ts/Option"
 import { Environment, makeRESTRequest } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
@@ -118,8 +119,9 @@ const options = ref<any | null>(null)
 
 const request = ref(getRESTRequest())
 const codegenType = ref<CodegenName>("shell-curl")
-const copyIcon = ref("copy")
 const errorState = ref(false)
+
+const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const requestCode = computed(() => {
   const aggregateEnvs = getAggregateEnvs()
@@ -184,7 +186,6 @@ const copyRequestCode = () => {
   copyToClipboard(requestCode.value)
   copyIcon.value = "check"
   toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 
 const searchQuery = ref("")

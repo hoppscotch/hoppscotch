@@ -65,6 +65,7 @@ import { pipe } from "fp-ts/function"
 import * as RR from "fp-ts/ReadonlyRecord"
 import * as O from "fp-ts/Option"
 import { translateToNewRequest } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { Shortcode } from "~/helpers/shortcodes/Shortcode"
@@ -93,7 +94,8 @@ const requestMethodLabels = {
 } as const
 
 const timeStampRef = ref()
-const copyIconRefs = ref<"copy" | "check">("copy")
+
+const copyIconRefs = refAutoReset<"copy" | "check">("copy", 1000)
 
 const parseShortcodeRequest = computed(() =>
   pipe(props.shortcode.request, JSON.parse, translateToNewRequest)
@@ -118,7 +120,6 @@ const copyShortcode = (codeID: string) => {
   copyToClipboard(`https://hopp.sh/r/${codeID}`)
   toast.success(`${t("state.copied_to_clipboard")}`)
   copyIconRefs.value = "check"
-  setTimeout(() => (copyIconRefs.value = "copy"), 1000)
 }
 </script>
 

@@ -193,6 +193,7 @@ import { computed, nextTick, reactive, ref } from "@nuxtjs/composition-api"
 import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
 import { GQLHeader } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -306,8 +307,8 @@ const graphqlTypes = useReadonlyStream(
   []
 )
 
-const downloadSchemaIcon = ref("download")
-const copySchemaIcon = ref("copy")
+const downloadSchemaIcon = refAutoReset<"download" | "check">("download", 1000)
+const copySchemaIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const graphqlFieldsFilterText = ref("")
 
@@ -423,7 +424,6 @@ const downloadSchema = () => {
   setTimeout(() => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    downloadSchemaIcon.value = "download"
   }, 1000)
 }
 
@@ -432,7 +432,6 @@ const copySchema = () => {
 
   copyToClipboard(schemaString.value)
   copySchemaIcon.value = "check"
-  setTimeout(() => (copySchemaIcon.value = "copy"), 1000)
 }
 
 const handleUseHistory = (entry: GQLHistoryEntry) => {

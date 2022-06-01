@@ -26,8 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
 import { HoppRESTHeader } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 
@@ -39,12 +39,11 @@ const props = defineProps<{
   headers: Array<HoppRESTHeader>
 }>()
 
-const copyIcon = ref("copy")
+const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const copyHeaders = () => {
   copyToClipboard(JSON.stringify(props.headers))
   copyIcon.value = "check"
   toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>

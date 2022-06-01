@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useI18n,
@@ -45,7 +45,7 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const copyIcon = ref("copy")
+const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 // Copy user auth token to clipboard
 const copyUserAuthToken = () => {
@@ -53,7 +53,6 @@ const copyUserAuthToken = () => {
     copyToClipboard(userAuthToken.value)
     copyIcon.value = "check"
     toast.success(`${t("state.copied_to_clipboard")}`)
-    setTimeout(() => (copyIcon.value = "copy"), 1000)
   } else {
     toast.error(`${t("error.something_went_wrong")}`)
   }

@@ -4,7 +4,7 @@
       src="https://avatars.githubusercontent.com/u/56705483"
       alt="Hoppscotch Logo"
       height="64"
-    />
+    />.  
   </a>
   <br />
   <p>

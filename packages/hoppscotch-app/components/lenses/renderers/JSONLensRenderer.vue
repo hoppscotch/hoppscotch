@@ -1,12 +1,19 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div v-if="response.type === 'success'" class="flex flex-col flex-1">
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">
         {{ t("response.body") }}
       </label>
-      <div class="flex">
+      <div class="flex items-center">
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.search')"
+          svg="search"
+          :class="{ '!text-accent': toggleSearch }"
+          @click.native="toggleSearch = !toggleSearch"
+        />
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
@@ -33,7 +40,25 @@
         />
       </div>
     </div>
-    <div ref="jsonResponse" class="flex flex-col flex-1"></div>
+    <div
+      v-if="toggleSearch"
+      class="bg-primary w-full p-2 sticky top-28.2 z-10 text-center border-b border-dividerLight"
+    >
+      <span
+        class="bg-primaryLight border-divider text-secondaryDark rounded inline-flex items-center px-2"
+      >
+        <SmartIcon name="search" class="h-4 w-4" />
+        <input
+          v-model="filterResponse"
+          class="input !border-0 !px-2"
+          placeholder="Filter response body"
+          type="text"
+          autocomplete="off"
+          @input="handleFilterResponse"
+        />
+      </span>
+    </div>
+    <div ref="jsonResponse" class="flex flex-col flex-1 h-auto h-full"></div>
     <div
       v-if="outlinePath"
       class="sticky bottom-0 z-10 flex px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
@@ -144,6 +169,7 @@ import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "@nuxtjs/composition-api"
+import { JSONPath } from "jsonpath-plus"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
@@ -172,9 +198,11 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseBodyText
 )
 
+const jsonResponseBodyText = ref(responseBodyText.value)
+
 const jsonBodyText = computed(() =>
   pipe(
-    responseBodyText.value,
+    jsonResponseBodyText.value,
     O.tryCatchK(LJSON.parse),
     O.map((val) => LJSON.stringify(val, undefined, 2)),
     O.getOrElse(() => responseBodyText.value)
@@ -227,6 +255,19 @@ const outlinePath = computed(() =>
     O.getOrElseW(() => null)
   )
 )
+
+const toggleSearch = ref(false)
+const filterResponse = ref("")
+
+const handleFilterResponse = () => {
+  if (jsonResponseBodyText.value) {
+    const parsedJSON = JSON.parse(responseBodyText.value)
+    const results = JSONPath({ path: filterResponse.value, json: parsedJSON })
+    if (results.length > 0) {
+      jsonResponseBodyText.value = JSON.stringify(results[0])
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

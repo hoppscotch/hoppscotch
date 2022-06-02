@@ -8,8 +8,9 @@
       </label>
       <div class="flex items-center">
         <ButtonSecondary
+          v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.search')"
+          :title="t('action.filter_response')"
           svg="search"
           :class="{ '!text-accent': toggleSearch }"
           @click.native="toggleSearch = !toggleSearch"

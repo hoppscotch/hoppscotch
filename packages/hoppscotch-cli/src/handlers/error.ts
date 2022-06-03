@@ -48,6 +48,7 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
     case "UNKNOWN_COMMAND":
       ERROR_MSG = `Unavailable command: ${error.command}`;
       break;
+    case "MALFORMED_ENV_FILE":
     case "MALFORMED_COLLECTION":
       ERROR_MSG = `${error.path}\n${parseErrorData(error.data)}`;
       break;

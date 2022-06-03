@@ -6,7 +6,7 @@ import "@relmify/jest-fp-ts";
 describe("parseCollectionData", () => {
   test("Reading non-existing file.", () => {
     return expect(
-      parseCollectionData("./src/__tests__/samples/notexist.txt")()
+      parseCollectionData("./src/__tests__/samples/notexist.json")()
     ).resolves.toSubsetEqualLeft(<HoppCLIError>{
       code: "FILE_NOT_FOUND",
     });

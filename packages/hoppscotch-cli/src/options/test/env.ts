@@ -5,7 +5,6 @@ import * as E from "fp-ts/Either";
 import * as J from "fp-ts/Json";
 import * as A from "fp-ts/Array";
 import * as S from "fp-ts/string";
-import entries from "lodash/entries";
 import isArray from "lodash/isArray";
 import { HoppCLIError, error } from "../../types/errors";
 import { HoppEnvs, HoppEnvPair } from "../../types/request";
@@ -17,7 +16,7 @@ import { checkFile } from "../../utils/checks";
  * @returns For successful parsing we get HoppEnvs object.
  */
 export const parseEnvsData = (
-  path: string
+  path: unknown
 ): TE.TaskEither<HoppCLIError, HoppEnvs> =>
   !S.isString(path)
     ? TE.right({ global: [], selected: [] })
@@ -28,7 +27,7 @@ export const parseEnvsData = (
         // Trying to read given env json file path.
         TE.chainW((checkedPath) =>
           TE.tryCatch(
-            () => pipe(checkedPath, fs.readFile),
+            () => fs.readFile(checkedPath),
             (reason) =>
               error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
           )
@@ -43,7 +42,7 @@ export const parseEnvsData = (
               jsonData && typeof jsonData === "object" && !isArray(jsonData)
                 ? pipe(
                     jsonData,
-                    entries,
+                    Object.entries,
                     A.map(
                       ([key, value]) =>
                         <HoppEnvPair>{

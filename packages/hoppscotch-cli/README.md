@@ -32,7 +32,7 @@ hopp [options or commands] arguments
    - Executes and outputs test-script response.
 
     #### Options:
-    ##### `hopp test -e / --env <file_path> test <file_path>`
+    ##### `-e <file_path>` / `--env <file_path>`
     - Accepts path to env.json with contents in below format:   
         ```json
         {
@@ -40,7 +40,9 @@ hopp [options or commands] arguments
             "ENV2":"value2"
         }
         ```
-    - Applies ENVs from env.json file as selected env variables.
+    - You can now access those variables using `pw.env.get('<var_name>')`
+			
+			Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
 
 ## Install
 

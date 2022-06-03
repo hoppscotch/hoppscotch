@@ -57,7 +57,7 @@ export const parseCollectionData = (
     // Trying to read give collection json path.
     TE.chainW((checkedPath) =>
       TE.tryCatch(
-        () => pipe(checkedPath, fs.readFile),
+        () => fs.readFile(checkedPath),
         (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
       )
     ),

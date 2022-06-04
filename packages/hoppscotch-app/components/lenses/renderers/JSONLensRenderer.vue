@@ -1,5 +1,8 @@
 <template>
-  <div v-if="response.type === 'success'" class="flex flex-col flex-1">
+  <div
+    v-if="response.type === 'success' || response.type === 'fail'"
+    class="flex flex-col flex-1"
+  >
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
@@ -13,7 +16,7 @@
           :title="t('action.filter_response')"
           svg="search"
           :class="{ '!text-accent': toggleSearch }"
-          @click.native="toggleSearch = !toggleSearch"
+          @click.native.prevent="toggleSearch = !toggleSearch"
         />
         <ButtonSecondary
           v-if="response.body"
@@ -54,7 +57,6 @@
           class="input !border-0 !px-2"
           placeholder="Filter response body"
           type="text"
-          autocomplete="off"
           @input="handleFilterResponse"
         />
       </span>
@@ -262,10 +264,28 @@ const filterResponse = ref("")
 
 const handleFilterResponse = () => {
   if (jsonResponseBodyText.value) {
-    const parsedJSON = JSON.parse(responseBodyText.value)
-    const results = JSONPath({ path: filterResponse.value, json: parsedJSON })
-    if (results.length > 0) {
-      jsonResponseBodyText.value = JSON.stringify(results[0])
+    const parsedJSON = pipe(
+      responseBodyText.value,
+      O.tryCatchK(LJSON.parse),
+      O.getOrElse(() => "")
+    )
+
+    if (filterResponse.value.length > 0) {
+      try {
+        const results = JSONPath({
+          path: filterResponse.value,
+          json: parsedJSON,
+        })
+        if (results.length && results.length > 0) {
+          jsonResponseBodyText.value = JSON.stringify(results[0])
+        } else {
+          jsonResponseBodyText.value = JSON.stringify("")
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    } else {
+      jsonResponseBodyText.value = responseBodyText.value
     }
   }
 }

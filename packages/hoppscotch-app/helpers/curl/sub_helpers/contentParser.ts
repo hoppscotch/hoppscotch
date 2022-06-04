@@ -7,8 +7,7 @@ import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { optionChoose } from "~/helpers/functional/option"
 
-const isJSON = (jsonString: string) =>
-  pipe(jsonString.replaceAll('\\"', '"'), safeParseJSON, O.isSome)
+const isJSON = flow(safeParseJSON, O.isSome)
 
 const isXML = (rawData: string) =>
   pipe(
@@ -159,14 +158,12 @@ const getXMLBody = (rawData: string) =>
     O.alt(() => O.some(rawData))
   )
 
-const getFormattedJSON = (jsonString: string) =>
-  pipe(
-    jsonString.replaceAll('\\"', '"'),
-    safeParseJSON,
-    O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
-    O.getOrElse(() => "{ }"),
-    O.of
-  )
+const getFormattedJSON = flow(
+  safeParseJSON,
+  O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
+  O.getOrElse(() => "{ }"),
+  O.of
+)
 
 const getXWWWFormUrlEncodedBody = flow(
   decodeURIComponent,

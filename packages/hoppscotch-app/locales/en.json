@@ -380,6 +380,7 @@
   },
   "response": {
     "body": "Response Body",
+    "filter_response_body":"Filter response body",
     "headers": "Headers",
     "html": "HTML",
     "image": "Image",

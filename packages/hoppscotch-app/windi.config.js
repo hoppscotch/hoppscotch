@@ -18,6 +18,7 @@ export default defineConfig({
           "var(--upper-mobile-raw-tertiary-sticky-fold)",
         lowerPrimaryStickyFold: "var(--lower-primary-sticky-fold)",
         lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
+        lowerTertiaryStickyFold: "var(--lower-tertiary-sticky-fold)",
         sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
       },
       colors: {

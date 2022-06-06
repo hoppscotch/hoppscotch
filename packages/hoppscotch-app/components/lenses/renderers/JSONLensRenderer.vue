@@ -46,7 +46,7 @@
     </div>
     <div
       v-if="toggleSearch"
-      class="bg-primary w-full p-2 sticky top-28.2 z-10 text-center border-b border-dividerLight"
+      class="bg-primary w-full p-2 sticky top-lowerTertiaryStickyFold z-10 text-center border-b border-dividerLight"
     >
       <span
         class="bg-primaryLight border-divider text-secondaryDark rounded inline-flex items-center px-2"
@@ -55,9 +55,8 @@
         <input
           v-model="filterResponse"
           class="input !border-0 !px-2"
-          placeholder="Filter response body"
+          :placeholder="`${t('response.filter_response_body')}`"
           type="text"
-          @input="handleFilterResponse"
         />
       </span>
     </div>
@@ -201,7 +200,35 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseBodyText
 )
 
-const jsonResponseBodyText = ref(responseBodyText.value)
+const toggleSearch = ref(false)
+const filterResponse = ref("")
+
+const jsonResponseBodyText = computed(() => {
+  if (filterResponse.value.length > 0) {
+    const parsedJSON = pipe(
+      responseBodyText.value,
+      O.tryCatchK(LJSON.parse),
+      O.getOrElse(() => "")
+    )
+
+    try {
+      const results = JSONPath({
+        path: filterResponse.value,
+        json: parsedJSON,
+      })
+      if (results.length && results.length > 0) {
+        return JSON.stringify(results[0])
+      } else {
+        return JSON.stringify("")
+      }
+    } catch (error) {
+      console.error(error)
+      return JSON.stringify("")
+    }
+  } else {
+    return responseBodyText.value
+  }
+})
 
 const jsonBodyText = computed(() =>
   pipe(
@@ -258,37 +285,6 @@ const outlinePath = computed(() =>
     O.getOrElseW(() => null)
   )
 )
-
-const toggleSearch = ref(false)
-const filterResponse = ref("")
-
-const handleFilterResponse = () => {
-  if (jsonResponseBodyText.value) {
-    const parsedJSON = pipe(
-      responseBodyText.value,
-      O.tryCatchK(LJSON.parse),
-      O.getOrElse(() => "")
-    )
-
-    if (filterResponse.value.length > 0) {
-      try {
-        const results = JSONPath({
-          path: filterResponse.value,
-          json: parsedJSON,
-        })
-        if (results.length && results.length > 0) {
-          jsonResponseBodyText.value = JSON.stringify(results[0])
-        } else {
-          jsonResponseBodyText.value = JSON.stringify("")
-        }
-      } catch (error) {
-        console.error(error)
-      }
-    } else {
-      jsonResponseBodyText.value = responseBodyText.value
-    }
-  }
-}
 </script>
 
 <style lang="scss" scoped>

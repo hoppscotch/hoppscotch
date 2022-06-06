@@ -1,0 +1,43 @@
+name: Deploy to Staging Netlify
+
+on:
+  push:
+    # TODO: Migrate to staging branch only
+    branches: [main]
+
+jobs:
+  build:
+    name: Push build files to Netlify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install pnpm
+        run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Build Site
+        env:
+          GA_ID: ${{ secrets.STAGING_GA_ID }}
+          GTM_ID: ${{ secrets.STAGING_GTM_ID }}
+          API_KEY: ${{ secrets.STAGING_FB_API_KEY }}
+          AUTH_DOMAIN: ${{ secrets.STAGING_FB_AUTH_DOMAIN }}
+          DATABASE_URL: ${{ secrets.STAGING_FB_DATABASE_URL }}
+          PROJECT_ID: ${{ secrets.STAGING_FB_PROJECT_ID }}
+          STORAGE_BUCKET: ${{ secrets.STAGING_FB_STORAGE_BUCKET }}
+          MESSAGING_SENDER_ID: ${{ secrets.STAGING_FB_MESSAGING_SENDER_ID }}
+          APP_ID: ${{ secrets.STAGING_FB_APP_ID }}
+          BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+        run: pnpm run generate
+
+      # Deploy the staging site with netlify-cli
+      - name: Deploy to Netlify (staging)
+        uses: netlify/actions/cli@master
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        with:
+          args: deploy --dir=packages/hoppscotch-app/dist --prod

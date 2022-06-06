@@ -45,28 +45,23 @@ import {
 } from "~/helpers/fb/auth"
 
 const BACKEND_GQL_URL =
-  process.env.context === "production"
-    ? "https://api.hoppscotch.io/graphql"
-    : "https://api.hoppscotch.io/graphql"
+  process.env.BACKEND_GQL_URL ?? "https://api.hoppscotch.io/graphql"
+const BACKEND_WS_URL =
+  process.env.BACKEND_WS_URL ?? "wss://api.hoppscotch.io/graphql"
 
 // const storage = makeDefaultStorage({
 //   idbName: "hoppcache-v1",
 //   maxAge: 7,
 // })
 
-const subscriptionClient = new SubscriptionClient(
-  process.env.context === "production"
-    ? "wss://api.hoppscotch.io/graphql"
-    : "wss://api.hoppscotch.io/graphql",
-  {
-    reconnect: true,
-    connectionParams: () => {
-      return {
-        authorization: `Bearer ${authIdToken$.value}`,
-      }
-    },
-  }
-)
+const subscriptionClient = new SubscriptionClient(BACKEND_WS_URL, {
+  reconnect: true,
+  connectionParams: () => {
+    return {
+      authorization: `Bearer ${authIdToken$.value}`,
+    }
+  },
+})
 
 authIdToken$.subscribe(() => {
   subscriptionClient.client?.close()

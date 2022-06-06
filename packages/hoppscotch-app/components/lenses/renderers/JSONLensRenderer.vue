@@ -13,18 +13,18 @@
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.filter_response')"
-          svg="search"
-          :class="{ '!text-accent': toggleSearch }"
-          @click.native.prevent="toggleSearch = !toggleSearch"
-        />
-        <ButtonSecondary
-          v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
           svg="wrap-text"
           @click.native.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
+          v-if="response.body"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.filter_response')"
+          svg="filter"
+          :class="{ '!text-accent': toggleSearch }"
+          @click.native.prevent="toggleSearch = !toggleSearch"
         />
         <ButtonSecondary
           v-if="response.body"
@@ -46,14 +46,15 @@
     </div>
     <div
       v-if="toggleSearch"
-      class="bg-primary w-full p-2 sticky top-lowerTertiaryStickyFold z-10 text-center border-b border-dividerLight"
+      class="bg-primary flex sticky top-lowerTertiaryStickyFold z-10 border-b border-dividerLight"
     >
       <span
-        class="bg-primaryLight border-divider text-secondaryDark rounded inline-flex items-center px-2"
+        class="bg-primaryLight border-divider text-secondaryDark inline-flex flex-1 items-center px-4"
       >
-        <SmartIcon name="search" class="h-4 w-4" />
+        <SmartIcon name="search" class="h-4 w-4 text-secondaryLight" />
         <input
           v-model="filterResponse"
+          v-focus
           class="input !border-0 !px-2"
           :placeholder="`${t('response.filter_response_body')}`"
           type="text"

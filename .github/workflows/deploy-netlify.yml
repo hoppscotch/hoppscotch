@@ -24,15 +24,6 @@ jobs:
       - name: Build Site
         run: pnpm run generate
 
-      # Deploy the staging site with netlify-cli
-      - name: Deploy to Netlify (staging)
-        uses: netlify/actions/cli@master
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        with:
-          args: deploy --dir=packages/hoppscotch-app/dist --prod
-
       # Deploy the production site with netlify-cli
       - name: Deploy to Netlify (production)
         uses: netlify/actions/cli@master

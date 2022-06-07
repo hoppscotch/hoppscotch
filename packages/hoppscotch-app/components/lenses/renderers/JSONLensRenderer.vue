@@ -170,6 +170,7 @@
 <script setup lang="ts">
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
+import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import { computed, ref, reactive } from "@nuxtjs/composition-api"
 import { JSONPath } from "jsonpath-plus"
@@ -204,36 +205,48 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 const toggleSearch = ref(false)
 const filterResponse = ref("")
 
+type BodyParseErrors =
+  | { type: "JSON_PARSE_FAILED" }
+  | { type: "JSON_PATH_QUERY_FAILED"; error: Error }
+
+const responseJsonObject = computed(() =>
+  pipe(
+    responseBodyText.value,
+    E.tryCatchK(
+      LJSON.parse,
+      (): BodyParseErrors => ({ type: "JSON_PARSE_FAILED" })
+    )
+  )
+)
+
 const jsonResponseBodyText = computed(() => {
   if (filterResponse.value.length > 0) {
-    const parsedJSON = pipe(
-      responseBodyText.value,
-      O.tryCatchK(LJSON.parse),
-      O.getOrElse(() => "")
+    return pipe(
+      responseJsonObject.value,
+      E.chain((parsedJSON) =>
+        E.tryCatch(
+          () =>
+            JSONPath({
+              path: filterResponse.value,
+              json: parsedJSON,
+            }) as unknown,
+          (err): BodyParseErrors => ({
+            type: "JSON_PATH_QUERY_FAILED",
+            error: err as Error,
+          })
+        )
+      ),
+      E.map(JSON.stringify)
     )
-
-    try {
-      const results = JSONPath({
-        path: filterResponse.value,
-        json: parsedJSON,
-      })
-      if (results.length && results.length > 0) {
-        return JSON.stringify(results[0])
-      } else {
-        return JSON.stringify("")
-      }
-    } catch (error) {
-      console.error(error)
-      return JSON.stringify("")
-    }
   } else {
-    return responseBodyText.value
+    return E.right(responseBodyText.value)
   }
 })
 
 const jsonBodyText = computed(() =>
   pipe(
     jsonResponseBodyText.value,
+    E.getOrElse(() => responseBodyText.value),
     O.tryCatchK(LJSON.parse),
     O.map((val) => LJSON.stringify(val, undefined, 2)),
     O.getOrElse(() => responseBodyText.value)

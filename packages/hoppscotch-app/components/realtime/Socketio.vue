@@ -85,7 +85,7 @@
 
       <SmartTabs
         v-model="selectedTab"
-        styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+        styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
       >
         <SmartTab
           :id="'communication'"
@@ -99,7 +99,7 @@
         </SmartTab>
         <SmartTab :id="'protocols'" :label="`${t('request.authorization')}`">
           <div
-            class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+            class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
           >
             <span class="flex items-center">
               <label class="font-semibold text-secondaryLight">

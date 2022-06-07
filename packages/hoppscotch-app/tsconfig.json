@@ -10,6 +10,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,
+    "jsx": "preserve",
     "noEmit": true,
     "baseUrl": ".",
     "paths": {

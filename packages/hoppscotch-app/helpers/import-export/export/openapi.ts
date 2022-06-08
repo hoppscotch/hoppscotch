@@ -6,83 +6,62 @@ import {
   HoppRESTReqBodyFormData,
   HoppRESTHeader,
   HoppRESTParam,
+  FormDataKeyValue,
+  HoppRESTReqBodyNonFormData,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import * as RA from "fp-ts/ReadonlyArray"
 import { OpenAPIV3 } from "openapi-types"
-import { isPlainObject, omit } from "lodash"
+import isPlainObject from "lodash/isPlainObject"
+import omit from "lodash/omit"
 import { HoppExporter } from "."
+import { tupleToRecord } from "~/helpers/functional/record"
+import { safeParseJSON } from "~/helpers/functional/json"
+import { objHasProperty } from "~/helpers/functional/object"
+
+const convertHoppFormDataEntryToOAFormDataEntry = (
+  entry: FormDataKeyValue
+): [string, OpenAPIV3.SchemaObject] =>
+  entry.isFile
+    ? [entry.key, { type: "string", format: "binary" }]
+    : [entry.key, { type: "string", default: entry.value }]
 
 const generateFormDataEntries = (
   formdataBody: HoppRESTReqBodyFormData
 ): OpenAPIV3.SchemaObject["properties"] =>
   pipe(
     formdataBody.body,
-    A.reduce(
-      {},
-      (
-        openApiRequestBody: OpenAPIV3.SchemaObject["properties"],
-        formDataItem
-      ) => {
-        const output: OpenAPIV3.SchemaObject["properties"] = formDataItem.isFile
-          ? {
-              ...openApiRequestBody,
-              [formDataItem.key]: {
-                type: "string",
-                format: "binary",
-              },
-            }
-          : isPlainObject(formDataItem.value)
-          ? {
-              ...openApiRequestBody,
-              [formDataItem.key]: {
-                type: "string",
-                default: formDataItem.value,
-              },
-            }
-          : {
-              ...openApiRequestBody,
-              [formDataItem.key]: {
-                default: formDataItem.value,
-              },
-            }
-
-        return output
-      }
-    )
+    A.map(convertHoppFormDataEntryToOAFormDataEntry),
+    tupleToRecord
   )
 
-const generateEntries = (
-  body: HoppRESTReqBody
-): OpenAPIV3.SchemaObject["properties"] =>
+const convertHoppRestReqBodyEntryToOpenApiBodyEntry = ([key, value]: [
+  string,
+  unknown
+]): [string, OpenAPIV3.SchemaObject] => {
+  return [
+    key,
+    isPlainObject(value)
+      ? {
+          properties: {
+            ...generateEntries(value as object),
+          },
+        }
+      : {
+          default: value,
+        },
+  ]
+}
+
+const generateEntries = (body: object): OpenAPIV3.SchemaObject["properties"] =>
   pipe(
     Object.entries(body),
-    A.reduce(
-      {},
-      (
-        openApiRequestBody: OpenAPIV3.SchemaObject["properties"],
-        [key, value]
-      ) => {
-        return isPlainObject(value)
-          ? {
-              ...openApiRequestBody,
-              [key]: {
-                properties: {
-                  ...generateEntries(value),
-                },
-              },
-            }
-          : {
-              ...openApiRequestBody,
-              [key]: {
-                default: value,
-              },
-            }
-      }
-    )
+    A.map(convertHoppRestReqBodyEntryToOpenApiBodyEntry),
+    tupleToRecord
   )
 
 const generateOpenApiHeaders = (
@@ -115,60 +94,104 @@ const generateOpenApiQueryParams = (
     }))
   )
 
-// TODO: Make fully functional
+const isValidContentType = (
+  contentType: unknown
+): contentType is keyof typeof knownContentTypes =>
+  !!(
+    contentType &&
+    typeof contentType === "string" &&
+    objHasProperty(contentType, "string")(knownContentTypes)
+  )
+
+const isNonFormDataBody = (
+  body: HoppRESTReqBody
+): body is HoppRESTReqBodyNonFormData =>
+  !!(
+    body.body &&
+    body.contentType &&
+    body.contentType !== "multipart/form-data"
+  )
+
+const isFormDataBody = (
+  body: HoppRESTReqBody
+): body is HoppRESTReqBodyFormData => body.contentType === "multipart/form-data"
+
+type RequestBodyGenerationErrors = "INVALID_CONTENT_TYPE" | "INVALID_BODY"
+
 export const generateOpenApiRequestBody = (
   hoppRequestBody: HoppRESTReqBody
-): E.Either<"INVALID_CONTENT_TYPE", OpenAPIV3.RequestBodyObject> => {
-  const contentType = hoppRequestBody.contentType
-  const isJson = contentType === "application/json"
-  const isValidContentType = contentType && knownContentTypes[contentType]
-  const isFormData = contentType === "multipart/form-data"
-
-  if (isValidContentType) {
-    if (isJson) {
-      const body: HoppRESTReqBody = JSON.parse(hoppRequestBody.body)
-
-      return E.right({
-        content: {
-          [contentType]: {
-            schema: {
-              properties: {
-                ...generateEntries(body),
-              },
-            },
-          },
-        },
-      })
-    }
-
-    if (isFormData) {
-      return E.right({
-        content: {
-          [contentType]: {
-            schema: {
-              properties: {
-                ...generateFormDataEntries(hoppRequestBody),
-              },
-            },
-          },
-        },
-      })
-    }
-
-    return E.right({
-      content: {
-        "text/plain": {
-          schema: {
-            type: "string",
-            default: hoppRequestBody.body,
-          },
-        },
-      },
-    })
-  }
-
-  return E.left("INVALID_CONTENT_TYPE" as const)
-}
+): E.Either<RequestBodyGenerationErrors, OpenAPIV3.RequestBodyObject> =>
+  pipe(
+    hoppRequestBody.contentType,
+    E.fromPredicate(isValidContentType, () => "INVALID_CONTENT_TYPE" as const),
+    E.chainW((contentType) =>
+      pipe(
+        hoppRequestBody,
+        O.fromPredicate(isNonFormDataBody),
+        O.chain((hoppRequestBody) =>
+          pipe(
+            hoppRequestBody,
+            O.fromPredicate(
+              (hoppRequestBody) =>
+                hoppRequestBody.contentType === "application/json"
+            ),
+            O.chain(({ body }) => safeParseJSON(body)),
+            O.map(
+              (body): OpenAPIV3.RequestBodyObject => ({
+                content: {
+                  [contentType]: {
+                    schema: {
+                      properties: {
+                        ...generateEntries(body),
+                      },
+                    },
+                  },
+                },
+              })
+            ),
+            O.alt(() =>
+              pipe(
+                hoppRequestBody,
+                (hoppRequestBody): OpenAPIV3.RequestBodyObject => ({
+                  content: {
+                    "text/plain": {
+                      schema: {
+                        type: "string",
+                        default: hoppRequestBody.body,
+                      },
+                    },
+                  },
+                }),
+                O.some
+              )
+            )
+          )
+        ),
+        O.alt(() =>
+          pipe(
+            hoppRequestBody,
+            (inp) => inp,
+            O.fromPredicate(isFormDataBody),
+            (inp) => inp,
+            O.map(
+              (body): OpenAPIV3.RequestBodyObject => ({
+                content: {
+                  [contentType]: {
+                    schema: {
+                      properties: {
+                        ...generateFormDataEntries(body),
+                      },
+                    },
+                  },
+                },
+              })
+            )
+          )
+        ),
+        E.fromOption(() => "INVALID_BODY" as const)
+      )
+    )
+  )
 
 const isValidMethod = (method: string): method is OpenAPIV3.HttpMethods =>
   [
@@ -193,9 +216,18 @@ const generateOpenApiDocument = (
   paths,
 })
 
+type PathGenerationErrors =
+  | "INVALID_METHOD"
+  | "INVALID_URL"
+  | "INVALID_CONTENT_TYPE"
+  | RequestBodyGenerationErrors
+
 const generateOpenApiPathFromRequest = (
   request: HoppRESTRequest
-): E.Either<string, OpenAPIV3.PathItemObject & { pathname: string }> =>
+): E.Either<
+  PathGenerationErrors,
+  OpenAPIV3.PathItemObject & { pathname: string }
+> =>
   pipe(
     E.Do,
     E.bind("method", () =>
@@ -214,7 +246,7 @@ const generateOpenApiPathFromRequest = (
     ),
 
     E.bindW("openApiBody", () =>
-      pipe(request.body, generateOpenApiRequestBody, E.right)
+      pipe(request.body, generateOpenApiRequestBody)
     ),
 
     E.bindW("openApiHeaders", () =>

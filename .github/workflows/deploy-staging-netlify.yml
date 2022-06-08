@@ -13,11 +13,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install pnpm
-        run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
-
-      - name: Install Dependencies
-        run: pnpm install
+      - name: Setup and run pnpm install
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+          run_install: true
 
       - name: Build Site
         env:

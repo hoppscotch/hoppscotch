@@ -17,12 +17,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
-      - name: Install pnpm
-        run: curl -f https://get.pnpm.io/v6.14.js | node - add --global pnpm@6
+      - name: Setup and run pnpm install
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+          run_install: true
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
       - name: Run tests
-        run: pnpm i && pnpm -r test
+        run: pnpm test

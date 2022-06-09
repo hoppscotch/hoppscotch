@@ -8,6 +8,7 @@ import {
   HoppRESTParam,
   FormDataKeyValue,
   HoppRESTReqBodyNonFormData,
+  HoppRestReqBodyEmpty,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -116,79 +117,94 @@ const isFormDataBody = (
   body: HoppRESTReqBody
 ): body is HoppRESTReqBodyFormData => body.contentType === "multipart/form-data"
 
+const isEmptyBody = (body: HoppRESTReqBody): body is HoppRestReqBodyEmpty =>
+  !(body.body && body.contentType)
+
 type RequestBodyGenerationErrors = "INVALID_CONTENT_TYPE" | "INVALID_BODY"
 
 export const generateOpenApiRequestBody = (
   hoppRequestBody: HoppRESTReqBody
 ): E.Either<RequestBodyGenerationErrors, OpenAPIV3.RequestBodyObject> =>
   pipe(
-    hoppRequestBody.contentType,
-    E.fromPredicate(isValidContentType, () => "INVALID_CONTENT_TYPE" as const),
-    E.chainW((contentType) =>
+    hoppRequestBody,
+    E.fromPredicate(isEmptyBody, () => "NON_EMPTY_BODY"),
+    E.map(
+      (): OpenAPIV3.RequestBodyObject => ({
+        content: {},
+      })
+    ),
+    E.altW(() =>
       pipe(
-        hoppRequestBody,
-        O.fromPredicate(isNonFormDataBody),
-        O.chain((hoppRequestBody) =>
+        hoppRequestBody.contentType,
+        E.fromPredicate(
+          isValidContentType,
+          () => "INVALID_CONTENT_TYPE" as const
+        ),
+        E.chainW((contentType) =>
           pipe(
             hoppRequestBody,
-            O.fromPredicate(
-              (hoppRequestBody) =>
-                hoppRequestBody.contentType === "application/json"
-            ),
-            O.chain(({ body }) => safeParseJSON(body)),
-            O.map(
-              (body): OpenAPIV3.RequestBodyObject => ({
-                content: {
-                  [contentType]: {
-                    schema: {
-                      properties: {
-                        ...generateEntries(body),
+            O.fromPredicate(isNonFormDataBody),
+            O.chain((hoppRequestBody) =>
+              pipe(
+                hoppRequestBody,
+                O.fromPredicate(
+                  (hoppRequestBody) =>
+                    knownContentTypes[hoppRequestBody.contentType] === "json"
+                ),
+                O.chain(({ body }) => safeParseJSON(body)),
+                O.map(
+                  (body): OpenAPIV3.RequestBodyObject => ({
+                    content: {
+                      [contentType]: {
+                        schema: {
+                          properties: {
+                            ...generateEntries(body),
+                          },
+                        },
                       },
                     },
-                  },
-                },
-              })
+                  })
+                ),
+                O.alt(() =>
+                  pipe(
+                    hoppRequestBody,
+                    (hoppRequestBody): OpenAPIV3.RequestBodyObject => ({
+                      content: {
+                        "text/plain": {
+                          schema: {
+                            type: "string",
+                            default: hoppRequestBody.body,
+                          },
+                        },
+                      },
+                    }),
+                    O.some
+                  )
+                )
+              )
             ),
             O.alt(() =>
               pipe(
                 hoppRequestBody,
-                (hoppRequestBody): OpenAPIV3.RequestBodyObject => ({
-                  content: {
-                    "text/plain": {
-                      schema: {
-                        type: "string",
-                        default: hoppRequestBody.body,
+                O.fromPredicate(isFormDataBody),
+                O.map(
+                  (body): OpenAPIV3.RequestBodyObject => ({
+                    content: {
+                      [contentType]: {
+                        schema: {
+                          properties: {
+                            ...generateFormDataEntries(body),
+                          },
+                        },
                       },
                     },
-                  },
-                }),
-                O.some
+                  })
+                )
               )
-            )
+            ),
+            E.fromOption(() => "INVALID_BODY" as const)
           )
-        ),
-        O.alt(() =>
-          pipe(
-            hoppRequestBody,
-            (inp) => inp,
-            O.fromPredicate(isFormDataBody),
-            (inp) => inp,
-            O.map(
-              (body): OpenAPIV3.RequestBodyObject => ({
-                content: {
-                  [contentType]: {
-                    schema: {
-                      properties: {
-                        ...generateFormDataEntries(body),
-                      },
-                    },
-                  },
-                },
-              })
-            )
-          )
-        ),
-        E.fromOption(() => "INVALID_BODY" as const)
+        )
       )
     )
   )

@@ -180,6 +180,49 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  moveFolder(
+    { state }: RESTCollectionStoreType,
+    { path, destinationPath }: { path: string; destinationPath: string }
+  ) {
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+    const destinationIndexPaths = destinationPath
+      .split("/")
+      .map((x) => parseInt(x))
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.error(
+        `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    if (containingFolder === null) {
+      console.error(
+        `Could not resolve path '${path}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+    if (target === null) {
+      console.error(
+        `Could not resolve destination path '${destinationPath}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const theFolder = containingFolder.folders.splice(folderIndex, 1)
+    target.folders.push(theFolder[0])
+
+    return { state }
+  },
+
   editRequest(
     { state }: RESTCollectionStoreType,
     {
@@ -681,6 +724,16 @@ export function removeRESTFolder(path: string) {
     dispatcher: "removeFolder",
     payload: {
       path,
+    },
+  })
+}
+
+export function moveRESTFolder(path: string, destinationPath: string) {
+  restCollectionStore.dispatch({
+    dispatcher: "moveFolder",
+    payload: {
+      path,
+      destinationPath,
     },
   })
 }

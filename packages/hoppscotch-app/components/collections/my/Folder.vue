@@ -2,6 +2,8 @@
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
       class="flex items-stretch group"
+      draggable="true"
+      @dragstart="dragStart"
       @dragover.prevent
       @drop.prevent="dropEvent"
       @dragover="dragging = true"
@@ -213,7 +215,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
 import { useI18n } from "~/helpers/utils/composables"
-import { moveRESTRequest } from "~/newstore/collections"
+import { moveRESTFolder, moveRESTRequest } from "~/newstore/collections"
 
 export default defineComponent({
   name: "Folder",
@@ -301,11 +303,23 @@ export default defineComponent({
         folderPath: this.folderPath,
       })
     },
-    dropEvent({ dataTransfer }) {
+    dragStart({ dataTransfer }: DragEvent) {
+      if (dataTransfer) {
+        this.dragging = !this.dragging
+        dataTransfer.setData("folderPath", this.folderPath)
+      }
+    },
+    dropEvent({ dataTransfer }: DragEvent) {
+      if (!dataTransfer) return
+
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      moveRESTRequest(folderPath, requestIndex, this.folderPath)
+
+      if (requestIndex)
+        moveRESTRequest(folderPath, parseInt(requestIndex), this.folderPath)
+      else if (folderPath && folderPath !== this.folderPath)
+        moveRESTFolder(folderPath, this.folderPath)
     },
   },
 })

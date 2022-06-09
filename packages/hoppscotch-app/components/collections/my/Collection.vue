@@ -239,7 +239,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { moveRESTRequest } from "~/newstore/collections"
+import { moveRESTRequest, moveRESTFolder } from "~/newstore/collections"
 
 export default defineComponent({
   props: {
@@ -324,11 +324,21 @@ export default defineComponent({
         collectionID: this.collection.id,
       })
     },
-    dropEvent({ dataTransfer }: any) {
+    dropEvent({ dataTransfer }: DragEvent) {
+      if (!dataTransfer) return
+
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")
-      moveRESTRequest(folderPath, requestIndex, `${this.collectionIndex}`)
+
+      if (requestIndex)
+        moveRESTRequest(
+          folderPath,
+          parseInt(requestIndex),
+          `${this.collectionIndex}`
+        )
+      else if (folderPath && `${folderPath}` !== `${this.collectionIndex}`)
+        moveRESTFolder(folderPath, `${this.collectionIndex}`)
     },
   },
 })

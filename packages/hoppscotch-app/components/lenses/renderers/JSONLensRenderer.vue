@@ -48,18 +48,41 @@
       v-if="toggleSearch"
       class="bg-primary flex sticky top-lowerTertiaryStickyFold z-10 border-b border-dividerLight"
     >
-      <span
-        class="bg-primaryLight border-divider text-secondaryDark inline-flex flex-1 items-center px-4"
+      <div
+        class="bg-primaryLight border-divider text-secondaryDark inline-flex flex-1 items-center"
       >
-        <SmartIcon name="search" class="h-4 w-4 text-secondaryLight" />
-        <input
-          v-model="filterResponse"
-          v-focus
-          class="input !border-0 !px-2"
-          :placeholder="`${t('response.filter_response_body')}`"
-          type="text"
+        <span class="inline-flex flex-1 items-center px-4">
+          <SmartIcon name="search" class="h-4 w-4 text-secondaryLight" />
+          <input
+            v-model="filterResponse"
+            v-focus
+            class="input !border-0 !px-2"
+            :placeholder="`${t('response.filter_response_body')}`"
+            type="text"
+          />
+        </span>
+        <span
+          v-if="filterResponseError"
+          class="text-tiny px-2"
+          :class="{
+            'text-red-500':
+              filterResponseError.type === 'JSON_PARSE_FAILED' ||
+              filterResponseError.type === 'JSON_PATH_QUERY_ERROR',
+            'text-secondaryLight':
+              filterResponseError.type === 'RESPONSE_EMPTY',
+          }"
+        >
+          {{ filterResponseError.error }}
+        </span>
+        <ButtonSecondary
+          v-if="response.body"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('app.wiki')"
+          svg="help-circle"
+          to="https://github.com/JSONPath-Plus/JSONPath"
+          blank
         />
-      </span>
+      </div>
     </div>
     <div ref="jsonResponse" class="flex flex-col flex-1 h-auto h-full"></div>
     <div
@@ -205,7 +228,7 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 const toggleSearch = ref(false)
 const filterResponse = ref("")
 
-type BodyParseErrors =
+type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
   | { type: "JSON_PATH_QUERY_FAILED"; error: Error }
 
@@ -214,7 +237,7 @@ const responseJsonObject = computed(() =>
     responseBodyText.value,
     E.tryCatchK(
       LJSON.parse,
-      (): BodyParseErrors => ({ type: "JSON_PARSE_FAILED" })
+      (): BodyParseError => ({ type: "JSON_PARSE_FAILED" })
     )
   )
 )
@@ -229,8 +252,8 @@ const jsonResponseBodyText = computed(() => {
             JSONPath({
               path: filterResponse.value,
               json: parsedJSON,
-            }) as unknown,
-          (err): BodyParseErrors => ({
+            }) as undefined,
+          (err): BodyParseError => ({
             type: "JSON_PATH_QUERY_FAILED",
             error: err as Error,
           })
@@ -260,6 +283,34 @@ const ast = computed(() =>
     O.getOrElseW(() => null)
   )
 )
+
+const filterResponseError = computed(() => {
+  if (
+    E.isLeft(jsonResponseBodyText.value) &&
+    jsonResponseBodyText.value.left.type === "JSON_PATH_QUERY_FAILED"
+  ) {
+    return {
+      type: "JSON_PATH_QUERY_ERROR",
+      error: jsonResponseBodyText.value.left.error.message,
+    }
+  } else if (
+    E.isLeft(jsonResponseBodyText.value) &&
+    jsonResponseBodyText.value.left.type === "JSON_PARSE_FAILED"
+  ) {
+    return {
+      type: "JSON_PATH_QUERY_ERROR",
+      error: t("error.no_results_found"),
+    }
+  } else if (
+    E.isRight(jsonResponseBodyText.value) &&
+    jsonResponseBodyText.value.right === "[]"
+  ) {
+    return {
+      type: "RESPONSE_EMPTY",
+      error: t("error.no_results_found"),
+    }
+  }
+})
 
 const outlineOptions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)

@@ -33,16 +33,24 @@ TypeSystemExtension {
   TypeExtension
 }
 
+SchemaKeyword {
+  @specialize<Name, "schema">
+}
+
 SchemaDefinition {
-  Description? @specialize<Name, "schema"> Directives? RootTypeDef
+  Description? SchemaKeyword Directives? RootTypeDef
 }
 
 RootTypeDef {
   "{" RootOperationTypeDefinition+ "}"
 }
 
+ExtendKeyword {
+  @specialize<Name, "extend">
+}
+
 SchemaExtension {
-  @specialize<Name, "extend"> @specialize<Name, "schema"> Directives? RootTypeDef
+  ExtendKeyword SchemaKeyword Directives? RootTypeDef
 }
 
 TypeExtension {
@@ -54,33 +62,53 @@ TypeExtension {
   InputObjectTypeExtension
 }
 
+ScalarKeyword {
+  @specialize<Name, "scalar">
+}
+
 ScalarTypeExtension {
-  @specialize<Name, "extend"> @specialize<Name, "scalar"> Name Directives
+  ExtendKeyword ScalarKeyword Name Directives
 }
 
 ObjectTypeExtension /* precedence: right 0 */ {
-  @specialize<Name, "extend"> @specialize<Name, "type"> Name ImplementsInterfaces? Directives? !typeDef FieldsDefinition |
-  @specialize<Name, "extend"> @specialize<Name, "type"> Name ImplementsInterfaces? Directives?
+  ExtendKeyword TypeKeyword Name ImplementsInterfaces? Directives? !typeDef FieldsDefinition |
+  ExtendKeyword TypeKeyword Name ImplementsInterfaces? Directives?
+}
+
+InterfaceKeyword {
+  @specialize<Name, "interface">
 }
 
 InterfaceTypeExtension /* precedence: right 0 */ {
-  @specialize<Name, "extend"> @specialize<Name, "interface"> Name ImplementsInterfaces? Directives? FieldsDefinition |
-  @specialize<Name, "extend"> @specialize<Name, "interface"> Name ImplementsInterfaces? Directives?
+  ExtendKeyword InterfaceKeyword Name ImplementsInterfaces? Directives? FieldsDefinition |
+  ExtendKeyword InterfaceKeyword Name ImplementsInterfaces? Directives?
+}
+
+UnionKeyword {
+  @specialize<Name, "union">
 }
 
 UnionTypeExtension /* precedence: right 0 */ {
-  @specialize<Name, "extend"> @specialize<Name, "union"> Name Directives? UnionMemberTypes |
-  @specialize<Name, "extend"> @specialize<Name, "union"> Name Directives?
+  ExtendKeyword UnionKeyword Name Directives? UnionMemberTypes |
+  ExtendKeyword UnionKeyword Name Directives?
+}
+
+EnumKeyword {
+  @specialize<Name, "enum">
 }
 
 EnumTypeExtension /* precedence: right 0 */ {
-  @specialize<Name, "extend"> @specialize<Name, "enum"> Name Directives? !typeDef EnumValuesDefinition |
-  @specialize<Name, "extend"> @specialize<Name, "enum"> Name Directives?
+  ExtendKeyword EnumKeyword Name Directives? !typeDef EnumValuesDefinition |
+  ExtendKeyword EnumKeyword Name Directives?
+}
+
+InputKeyword {
+  @specialize<Name, "input">
 }
 
 InputObjectTypeExtension /* precedence: right 0 */ {
-  @specialize<Name, "extend"> @specialize<Name, "input"> Name Directives? InputFieldsDefinition+ |
-  @specialize<Name, "extend"> @specialize<Name, "input"> Name Directives?
+  ExtendKeyword InputKeyword Name Directives? InputFieldsDefinition+ |
+  ExtendKeyword InputKeyword Name Directives?
 }
 
 InputFieldsDefinition {
@@ -95,9 +123,13 @@ EnumValueDefinition {
   Description? EnumValue Directives?
 }
 
+ImplementsKeyword {
+  @specialize<Name, "implements">
+}
+
 ImplementsInterfaces {
   ImplementsInterfaces "&" NamedType |
-  @specialize<Name, "implements"> "&"? NamedType
+  ImplementsKeyword "&"? NamedType
 }
 
 FieldsDefinition {
@@ -144,27 +176,31 @@ TypeDefinition {
 }
 
 ScalarTypeDefinition /* precedence: right 0 */ {
-  Description? @specialize<Name, "scalar"> Name Directives?
+  Description? ScalarKeyword Name Directives?
+}
+
+TypeKeyword {
+  @specialize<Name, "type">
 }
 
 ObjectTypeDefinition /* precedence: right 0 */ {
-  Description? @specialize<Name, "type"> Name ImplementsInterfaces? Directives? FieldsDefinition?
+  Description? TypeKeyword Name ImplementsInterfaces? Directives? FieldsDefinition?
 }
 
 InterfaceTypeDefinition /* precedence: right 0 */ {
-  Description? @specialize<Name, "interface"> Name ImplementsInterfaces? Directives? FieldsDefinition?
+  Description? InterfaceKeyword Name ImplementsInterfaces? Directives? FieldsDefinition?
 }
 
 UnionTypeDefinition /* precedence: right 0 */ {
-  Description? @specialize<Name, "union"> Name Directives? UnionMemberTypes?
+  Description? UnionKeyword Name Directives? UnionMemberTypes?
 }
 
 EnumTypeDefinition /* precedence: right 0 */ {
-  Description? @specialize<Name, "enum"> Name Directives? !typeDef EnumValuesDefinition?
+  Description? EnumKeyword Name Directives? !typeDef EnumValuesDefinition?
 }
 
 InputObjectTypeDefinition /* precedence: right 0 */ {
-  Description? @specialize<Name, "input"> Name Directives? !typeDef InputFieldsDefinition?
+  Description? InputKeyword Name Directives? !typeDef InputFieldsDefinition?
 }
 
 VariableDefinitions {
@@ -237,8 +273,12 @@ FragmentSpread {
   "..." FragmentName Directives?
 }
 
+FragmentKeyword {
+  @specialize<Name, "fragment">
+}
+
 FragmentDefinition {
-  @specialize<Name, "fragment"> FragmentName TypeCondition Directives? SelectionSet
+  FragmentKeyword FragmentName TypeCondition Directives? SelectionSet
 }
 
 FragmentName {
@@ -249,20 +289,36 @@ InlineFragment {
   "..." TypeCondition? Directives? SelectionSet
 }
 
+OnKeyword {
+  @specialize<Name, "on">
+}
+
 TypeCondition {
-  @specialize<Name, "on"> NamedType
+  OnKeyword NamedType
 }
 
 Directives {
   Directive+
 }
 
+DirectiveName {
+  "@" Name
+}
+
 Directive {
-  "@" Name Arguments?
+  DirectiveName Arguments?
+}
+
+DirectiveKeyword {
+  @specialize<Name, "directive">
+}
+
+RepeatableKeyword {
+  @specialize<Name, "repeatable">
 }
 
 DirectiveDefinition /* precedence: right 1 */ {
-  Description? @specialize<Name, "directive"> "@" Name ArgumentsDefinition? @specialize<Name, "repeatable"> ? @specialize<Name, "on"> DirectiveLocations
+  Description? DirectiveKeyword "@" Name ArgumentsDefinition? RepeatableKeyword ? OnKeyword DirectiveLocations
 }
 
 DirectiveLocations {
@@ -338,17 +394,14 @@ TypeSystemDirectiveLocation {
   | @specialize<Name, "INPUT_FIELD_DEFINITION">
 }
 
-@skip { whitespace | Comment }
 
 @tokens {
   whitespace {
     std.whitespace+
   }
-
   StringValue {
     "\"\"\"" (!["] | "\\n" | "\"" "\""? !["])* "\"\"\"" | "\"" !["\\\n]* "\""
   }
-
   IntValue {
     "-"? "0"
     | "-"? std.digit+
@@ -363,14 +416,19 @@ TypeSystemDirectiveLocation {
   Name {
     $[_A-Za-z] $[_0-9A-Za-z]*
   }
-  Comment {
-    "#" ![\n]*
-  }
+
   Comma {
     ","
   }
 
-  "{" "}" "[" "]"
+  Comment {
+    "#" ![\n]*
+  }
+
+
+  "{" "}"
 }
+
+@skip { whitespace | Comment }
 
 @detectDelim

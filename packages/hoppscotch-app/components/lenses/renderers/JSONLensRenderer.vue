@@ -298,8 +298,8 @@ const filterResponseError = computed(() => {
     jsonResponseBodyText.value.left.type === "JSON_PARSE_FAILED"
   ) {
     return {
-      type: "JSON_PATH_QUERY_ERROR",
-      error: t("error.no_results_found"),
+      type: "JSON_PARSE_FAILED",
+      error: t("error.json_parsing_failed"),
     }
   } else if (
     E.isRight(jsonResponseBodyText.value) &&

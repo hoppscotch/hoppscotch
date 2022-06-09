@@ -203,6 +203,7 @@
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
     "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
+    "json_parsing_failed": "JSON parsing failed",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Could not send request",
     "no_duration": "No duration",

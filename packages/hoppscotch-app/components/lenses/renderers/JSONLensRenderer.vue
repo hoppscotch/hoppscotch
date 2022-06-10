@@ -24,7 +24,7 @@
           :title="t('action.filter_response')"
           svg="filter"
           :class="{ '!text-accent': toggleFilter }"
-          @click.native.prevent="toggleFilter = !toggleFilter"
+          @click.native.prevent="toggleFilterState"
         />
         <ButtonSecondary
           v-if="response.body"
@@ -348,6 +348,11 @@ const outlinePath = computed(() =>
     O.getOrElseW(() => null)
   )
 )
+
+const toggleFilterState = () => {
+  filterQueryText.value = ""
+  toggleFilter.value = !toggleFilter.value
+}
 </script>
 
 <style lang="scss" scoped>

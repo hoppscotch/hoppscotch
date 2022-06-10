@@ -6,6 +6,8 @@ import * as qjs from "quickjs-emscripten"
 import cloneDeep from "lodash/clone"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import { getEnv, setEnv } from "./utils"
+import { artifactHandler } from "./apis/artifact"
+import { Artifacts } from "./apis/artifact/types"
 
 type Envs = {
   global: Environment["variables"]
@@ -27,6 +29,10 @@ export const execPreRequestScript = (
       const vm = QuickJS.newContext()
 
       const pwHandle = vm.newObject()
+
+      const currentArtifacts: Artifacts = {}
+
+      const artifactHandle = artifactHandler(vm, currentArtifacts)
 
       // Environment management APIs
       // TODO: Unified Implementation
@@ -146,6 +152,9 @@ export const execPreRequestScript = (
 
       vm.setProp(pwHandle, "env", envHandle)
       envHandle.dispose()
+
+      vm.setProp(pwHandle, "artifact", artifactHandle)
+      artifactHandle.dispose()
 
       vm.setProp(vm.global, "pw", pwHandle)
       pwHandle.dispose()

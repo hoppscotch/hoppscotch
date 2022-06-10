@@ -23,8 +23,8 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.filter_response')"
           svg="filter"
-          :class="{ '!text-accent': toggleSearch }"
-          @click.native.prevent="toggleSearch = !toggleSearch"
+          :class="{ '!text-accent': toggleFilter }"
+          @click.native.prevent="toggleFilter = !toggleFilter"
         />
         <ButtonSecondary
           v-if="response.body"
@@ -45,7 +45,7 @@
       </div>
     </div>
     <div
-      v-if="toggleSearch"
+      v-if="toggleFilter"
       class="bg-primary flex sticky top-lowerTertiaryStickyFold z-10 border-b border-dividerLight"
     >
       <div
@@ -54,7 +54,7 @@
         <span class="inline-flex flex-1 items-center px-4">
           <SmartIcon name="search" class="h-4 w-4 text-secondaryLight" />
           <input
-            v-model="filterResponse"
+            v-model="filterQueryText"
             v-focus
             class="input !border-0 !px-2"
             :placeholder="`${t('response.filter_response_body')}`"
@@ -225,8 +225,8 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseBodyText
 )
 
-const toggleSearch = ref(false)
-const filterResponse = ref("")
+const toggleFilter = ref(false)
+const filterQueryText = ref("")
 
 type BodyParseError =
   | { type: "JSON_PARSE_FAILED" }
@@ -243,14 +243,14 @@ const responseJsonObject = computed(() =>
 )
 
 const jsonResponseBodyText = computed(() => {
-  if (filterResponse.value.length > 0) {
+  if (filterQueryText.value.length > 0) {
     return pipe(
       responseJsonObject.value,
       E.chain((parsedJSON) =>
         E.tryCatch(
           () =>
             JSONPath({
-              path: filterResponse.value,
+              path: filterQueryText.value,
               json: parsedJSON,
             }) as undefined,
           (err): BodyParseError => ({

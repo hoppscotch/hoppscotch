@@ -284,33 +284,31 @@ const ast = computed(() =>
   )
 )
 
-const filterResponseError = computed(() => {
-  if (
-    E.isLeft(jsonResponseBodyText.value) &&
-    jsonResponseBodyText.value.left.type === "JSON_PATH_QUERY_FAILED"
-  ) {
-    return {
-      type: "JSON_PATH_QUERY_ERROR",
-      error: jsonResponseBodyText.value.left.error.message,
-    }
-  } else if (
-    E.isLeft(jsonResponseBodyText.value) &&
-    jsonResponseBodyText.value.left.type === "JSON_PARSE_FAILED"
-  ) {
-    return {
-      type: "JSON_PARSE_FAILED",
-      error: t("error.json_parsing_failed"),
-    }
-  } else if (
-    E.isRight(jsonResponseBodyText.value) &&
-    jsonResponseBodyText.value.right === "[]"
-  ) {
-    return {
-      type: "RESPONSE_EMPTY",
-      error: t("error.no_results_found"),
-    }
-  }
-})
+const filterResponseError = computed(() =>
+  pipe(
+    jsonResponseBodyText.value,
+    E.match(
+      (e) => {
+        switch (e.type) {
+          case "JSON_PATH_QUERY_FAILED":
+            return { type: "JSON_PATH_QUERY_ERROR", error: e.error.message }
+          case "JSON_PARSE_FAILED":
+            return {
+              type: "JSON_PARSE_FAILED",
+              error: t("error.json_parsing_failed").toString(),
+            }
+        }
+      },
+      (result) =>
+        result === "[]"
+          ? {
+              type: "RESPONSE_EMPTY",
+              error: t("error.no_results_found").toString(),
+            }
+          : undefined
+    )
+  )
+)
 
 const outlineOptions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)

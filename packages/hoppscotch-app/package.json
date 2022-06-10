@@ -88,6 +88,7 @@
     "io-ts": "^2.2.16",
     "js-yaml": "^4.1.0",
     "json-loader": "^0.5.7",
+    "jsonpath-plus": "^6.0.1",
     "lodash": "^4.17.21",
     "lossless-json": "^1.0.5",
     "mustache": "^4.2.0",

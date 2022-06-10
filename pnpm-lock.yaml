@@ -75,7 +75,7 @@ importers:
       '@graphql-codegen/typescript-urql-graphcache': ^2.2.10
       '@graphql-codegen/urql-introspection': ^2.1.1
       '@graphql-typed-document-node/core': ^3.1.1
-      '@hoppscotch/codemirror-lang-graphql': workspace:^0.1.0
+      '@hoppscotch/codemirror-lang-graphql': workspace:^0.2.0
       '@hoppscotch/data': workspace:^0.4.2
       '@hoppscotch/js-sandbox': workspace:^2.0.0
       '@nuxt/types': ^2.15.8

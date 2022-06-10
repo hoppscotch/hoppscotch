@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/codemirror-lang-graphql",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "GraphQL language support for CodeMirror",
   "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",

@@ -61,19 +61,19 @@
             type="text"
           />
         </span>
-        <span
+        <div
           v-if="filterResponseError"
-          class="text-tiny px-2"
+          class="px-2 py-1 text-tiny flex items-center justify-center text-accentContrast rounded"
           :class="{
-            'text-red-500':
+            'bg-red-500':
               filterResponseError.type === 'JSON_PARSE_FAILED' ||
               filterResponseError.type === 'JSON_PATH_QUERY_ERROR',
-            'text-secondaryLight':
-              filterResponseError.type === 'RESPONSE_EMPTY',
+            'bg-amber-500': filterResponseError.type === 'RESPONSE_EMPTY',
           }"
         >
-          {{ filterResponseError.error }}
-        </span>
+          <SmartIcon name="info" class="svg-icons mr-1.5" />
+          <span>{{ filterResponseError.error }}</span>
+        </div>
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"

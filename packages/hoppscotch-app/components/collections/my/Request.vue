@@ -323,7 +323,9 @@ const setRestReq = (request: any) => {
 }
 
 const selectRequest = () => {
-  if (!active.value) {
+  if (getRESTRequest().endpoint === getDefaultRESTRequest().endpoint) {
+    confirmChange.value = false
+  } else if (!active.value) {
     confirmChange.value = true
 
     if (props.saveRequest)

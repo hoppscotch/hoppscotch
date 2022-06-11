@@ -21,7 +21,7 @@
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="flex flex-col hide-scrollbar !overflow-auto"
+          class="flex flex-col !overflow-auto"
         >
           <slot name="secondary" />
         </Pane>

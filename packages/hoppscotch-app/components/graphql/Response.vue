@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="flex flex-col flex-1 overflow-auto hide-scrollbar whitespace-nowrap"
-  >
+  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
     <div
       v-if="responseString === 'loading'"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"

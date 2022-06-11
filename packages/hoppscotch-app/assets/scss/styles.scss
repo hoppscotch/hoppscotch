@@ -23,11 +23,13 @@
   @apply border-solid border-transparent border-4;
   @apply hover:bg-dividerDark;
   @apply hover:bg-clip-content;
+  @apply w-4;
+  @apply min-h-12;
 }
 
 ::-webkit-scrollbar {
   @apply w-4;
-  @apply h-4;
+  @apply min-h-12;
 }
 
 .hide-scrollbar {

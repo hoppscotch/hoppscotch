@@ -2,9 +2,9 @@
   <AppPaneLayout layout-id="mqtt">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+        class="sticky top-0 z-10 lg:flex lg:flex-shrink-0 p-4 overflow-x-auto lg:space-x-2 bg-primary hide-scrollbar"
       >
-        <div class="inline-flex flex-1 space-x-2">
+        <div class="flex flex-1 space-x-2">
           <input
             id="mqtt-url"
             v-model="url"
@@ -32,7 +32,7 @@
             @click.native="toggleConnection"
           />
         </div>
-        <div class="flex space-x-4">
+        <div class="flex space-x-4 mt-3 lg:mt-0">
           <input
             id="mqtt-username"
             v-model="username"

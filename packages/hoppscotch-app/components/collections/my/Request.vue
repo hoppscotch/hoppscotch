@@ -323,9 +323,7 @@ const setRestReq = (request: any) => {
 }
 
 const selectRequest = () => {
-  if (getRESTRequest().endpoint === getDefaultRESTRequest().endpoint) {
-    confirmChange.value = false
-  } else if (!active.value) {
+  if (!active.value) {
     confirmChange.value = true
 
     if (props.saveRequest)
@@ -363,6 +361,9 @@ const selectRequest = () => {
     } else {
       setRESTSaveContext(null)
     }
+  }
+  if (getRESTRequest().endpoint === getDefaultRESTRequest().endpoint) {
+    confirmChange.value = false
   }
 }
 

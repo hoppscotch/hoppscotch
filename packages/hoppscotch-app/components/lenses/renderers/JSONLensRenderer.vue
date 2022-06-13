@@ -218,11 +218,6 @@ const props = defineProps<{
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const { downloadIcon, downloadResponse } = useDownloadResponse(
-  "application/json",
-  responseBodyText
-)
-
 const toggleFilter = ref(false)
 const filterQueryText = ref("")
 
@@ -309,6 +304,10 @@ const filterResponseError = computed(() =>
 )
 
 const { copyIcon, copyResponse } = useCopyResponse(jsonBodyText)
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "application/json",
+  jsonBodyText
+)
 
 const outlineOptions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)

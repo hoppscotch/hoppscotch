@@ -43,7 +43,7 @@
     "@codemirror/gutter": "^0.19.9",
     "@codemirror/highlight": "^0.19.8",
     "@codemirror/history": "^0.19.2",
-    "@codemirror/lang-javascript": "^0.19.7",
+    "@codemirror/lang-javascript": "^6.0.0",
     "@codemirror/lang-json": "^0.19.2",
     "@codemirror/lang-xml": "^0.19.2",
     "@codemirror/language": "^0.19.10",

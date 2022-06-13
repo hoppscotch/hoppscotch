@@ -2,11 +2,13 @@ import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import {
   HoppCollection,
+  HoppRESTAuth,
   HoppRESTReqBody,
   HoppRESTRequest,
 } from "@hoppscotch/data"
 import {
   convertHoppToOpenApiCollection,
+  generateOpenApiAuth,
   generateOpenApiRequestBody,
 } from "../openapi"
 
@@ -26,7 +28,9 @@ describe("hopp to openapi converter", () => {
             headers: [],
             method: "POST",
             auth: {
-              authType: "none",
+              authType: "basic",
+              username: "testusername",
+              password: "testpassword",
               authActive: true,
             },
             preRequestScript: "",
@@ -111,6 +115,23 @@ describe("hopp to openapi converter", () => {
         (openApiDocument) => {
           expect(openApiDocument).toMatchInlineSnapshot(`
             Object {
+              "components": Object {
+                "securitySchemes": Object {
+                  "ApiKeyAuth": Object {
+                    "in": "header",
+                    "name": "api-key-header-name",
+                    "type": "apiKey",
+                  },
+                  "basicAuth": Object {
+                    "scheme": "basic",
+                    "type": "http",
+                  },
+                  "bearerAuth": Object {
+                    "scheme": "bearer",
+                    "type": "http",
+                  },
+                },
+              },
               "info": Object {
                 "title": "Hoppscotch Openapi Export",
                 "version": "1.0.0",
@@ -120,11 +141,16 @@ describe("hopp to openapi converter", () => {
                 "/posts": Object {
                   "get": Object {
                     "description": "1. Create All Todos",
+                    "parameters": Array [],
+                    "requestBody": Object {
+                      "content": Object {},
+                    },
                     "responses": Object {
                       "200": Object {
                         "description": "",
                       },
                     },
+                    "security": Object {},
                   },
                   "servers": Array [
                     Object {
@@ -135,11 +161,16 @@ describe("hopp to openapi converter", () => {
                 "/posts/1": Object {
                   "delete": Object {
                     "description": "3. Delete a post",
+                    "parameters": Array [],
+                    "requestBody": Object {
+                      "content": Object {},
+                    },
                     "responses": Object {
                       "200": Object {
                         "description": "",
                       },
                     },
+                    "security": Object {},
                   },
                   "servers": Array [
                     Object {
@@ -341,6 +372,106 @@ describe("openapi body generation", () => {
               },
             }
           `)
+        }
+      )
+    )
+  })
+})
+
+describe("openapi auth generation", () => {
+  test("authtype basic", () => {
+    const basicAuth: HoppRESTAuth = {
+      authActive: true,
+      authType: "basic",
+      username: "username",
+      password: "password",
+    }
+
+    pipe(
+      basicAuth,
+      generateOpenApiAuth,
+      E.fold(
+        (error) => {
+          throw new Error(`failed to generate openapi auth: ${error}`)
+        },
+        (security) => {
+          expect(security).toMatchInlineSnapshot(`
+            Object {
+              "basicAuth": Array [],
+            }
+          `)
+        }
+      )
+    )
+  })
+
+  test("authtype api key", () => {
+    const apiKeyAuth: HoppRESTAuth = {
+      authActive: true,
+      authType: "api-key",
+      addTo: "header",
+      value: "samplekey",
+      key: "X-API-KEY",
+    }
+
+    pipe(
+      apiKeyAuth,
+      generateOpenApiAuth,
+      E.fold(
+        (error) => {
+          throw new Error(`failed to generate openapi auth: ${error}`)
+        },
+        (security) => {
+          expect(security).toMatchInlineSnapshot(`
+            Object {
+              "ApiKeyAuth": Array [],
+            }
+          `)
+        }
+      )
+    )
+  })
+
+  test("authType bearer", () => {
+    const apiKeyAuth: HoppRESTAuth = {
+      authActive: true,
+      authType: "bearer",
+      token: "sampletoken",
+    }
+
+    pipe(
+      apiKeyAuth,
+      generateOpenApiAuth,
+      E.fold(
+        (error) => {
+          throw new Error(`failed to generate openapi auth: ${error}`)
+        },
+        (security) => {
+          expect(security).toMatchInlineSnapshot(`
+            Object {
+              "bearerAuth": Array [],
+            }
+          `)
+        }
+      )
+    )
+  })
+
+  test("authType none", () => {
+    const apiKeyAuth: HoppRESTAuth = {
+      authActive: true,
+      authType: "none",
+    }
+
+    pipe(
+      apiKeyAuth,
+      generateOpenApiAuth,
+      E.fold(
+        (error) => {
+          throw new Error(`failed to generate openapi auth: ${error}`)
+        },
+        (security) => {
+          expect(security).toMatchInlineSnapshot(`Object {}`)
         }
       )
     )

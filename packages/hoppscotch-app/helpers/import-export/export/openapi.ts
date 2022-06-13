@@ -9,6 +9,7 @@ import {
   FormDataKeyValue,
   HoppRESTReqBodyNonFormData,
   HoppRestReqBodyEmpty,
+  HoppRESTAuth,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -209,6 +210,37 @@ export const generateOpenApiRequestBody = (
     )
   )
 
+export const generateOpenApiAuth = (
+  hoppAuth: HoppRESTAuth
+): E.Either<"INVALID_AUTH", OpenAPIV3.SecurityRequirementObject> =>
+  pipe(
+    hoppAuth.authType,
+    O.fromPredicate((authType) => authType === "none"),
+    O.map(() => ({})),
+    O.alt(() =>
+      pipe(
+        hoppAuth.authType,
+        O.fromPredicate(
+          (authType): authType is "basic" | "api-key" | "bearer" =>
+            authType !== "none" && authType !== "oauth-2"
+        ),
+        O.map((authType) =>
+          pipe(
+            {
+              basic: "basicAuth",
+              "api-key": "ApiKeyAuth",
+              bearer: "bearerAuth",
+            },
+            (auths) => ({
+              [auths[authType]]: [],
+            })
+          )
+        )
+      )
+    ),
+    E.fromOption(() => "INVALID_AUTH" as const)
+  )
+
 const isValidMethod = (method: string): method is OpenAPIV3.HttpMethods =>
   [
     "get",
@@ -230,12 +262,30 @@ const generateOpenApiDocument = (
     version: "1.0.0",
   },
   paths,
+  components: {
+    securitySchemes: {
+      basicAuth: {
+        type: "http",
+        scheme: "basic",
+      },
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+      },
+      ApiKeyAuth: {
+        type: "apiKey",
+        name: "api-key-header-name",
+        in: "header",
+      },
+    },
+  },
 })
 
 type PathGenerationErrors =
   | "INVALID_METHOD"
   | "INVALID_URL"
   | "INVALID_CONTENT_TYPE"
+  | "INVALID_AUTH"
   | RequestBodyGenerationErrors
 
 const generateOpenApiPathFromRequest = (
@@ -273,6 +323,8 @@ const generateOpenApiPathFromRequest = (
       pipe(request.params, generateOpenApiQueryParams, E.right)
     ),
 
+    E.bindW("openapiAuth", () => pipe(request.auth, generateOpenApiAuth)),
+
     E.map(
       ({
         method,
@@ -280,6 +332,7 @@ const generateOpenApiPathFromRequest = (
         openApiBody,
         openApiHeaders,
         openapiQueryParams,
+        openapiAuth,
       }): OpenAPIV3.PathItemObject & { pathname: string } =>
         pipe({
           pathname: origin.pathname,
@@ -292,6 +345,7 @@ const generateOpenApiPathFromRequest = (
                 description: "",
               },
             },
+            security: openapiAuth,
           },
           servers: [
             {

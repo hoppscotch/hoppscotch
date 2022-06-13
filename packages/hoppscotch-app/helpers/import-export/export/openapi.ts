@@ -356,15 +356,25 @@ const generateOpenApiPathFromRequest = (
     )
   )
 
+const extractAllRequestsFromCollections = (
+  collections: HoppCollection<HoppRESTRequest>[]
+): HoppRESTRequest[] =>
+  pipe(
+    collections,
+    A.reduce([], (allRequests: HoppRESTRequest[], collection) => [
+      ...allRequests,
+      ...collection.requests,
+      ...extractAllRequestsFromCollections(collection.folders),
+    ])
+  )
+
 export const convertHoppToOpenApiCollection = (
   collections: HoppCollection<HoppRESTRequest>[]
 ): E.Either<string, OpenAPIV3.Document> =>
   pipe(
     collections,
-    A.map((collection) =>
-      pipe(collection.requests, A.map(generateOpenApiPathFromRequest))
-    ),
-    A.flatten,
+    extractAllRequestsFromCollections,
+    A.map(generateOpenApiPathFromRequest),
     E.sequenceArray,
     E.map(RA.toArray),
     E.map(

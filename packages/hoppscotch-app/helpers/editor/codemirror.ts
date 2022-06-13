@@ -38,7 +38,6 @@ import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
 import { HoppEnvironmentPlugin } from "./extensions/HoppEnvironment"
-import { IndentedLineWrapPlugin } from "./extensions/IndentedLineWrap"
 // TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
@@ -238,7 +237,7 @@ export function useCodemirror(
       ),
       lineWrapping.of(
         options.extendedEditorConfig.lineWrapping
-          ? [IndentedLineWrapPlugin]
+          ? [EditorView.lineWrapping]
           : []
       ),
       keymap.of([
@@ -325,7 +324,7 @@ export function useCodemirror(
     (newMode) => {
       view.value?.dispatch({
         effects: lineWrapping.reconfigure(
-          newMode ? [EditorView.lineWrapping, IndentedLineWrapPlugin] : []
+          newMode ? [EditorView.lineWrapping] : []
         ),
       })
     }

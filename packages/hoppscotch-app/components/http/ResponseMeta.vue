@@ -119,7 +119,9 @@
           </span>
           <span
             v-if="response.meta && response.meta.responseSize"
-            v-tippy="responseSizeTippy"
+            v-tippy="
+              responseSizeHint ? { theme: 'tooltip' } : { onShow: () => false }
+            "
             :title="responseSizeHint"
           >
             <span class="text-secondary"> {{ t("response.size") }}: </span>
@@ -145,23 +147,6 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const responseSizeTippy = computed(() => {
-  if (
-    props.response.type === "loading" ||
-    props.response.type === "network_fail" ||
-    props.response.type === "script_fail" ||
-    props.response.type === "fail"
-  )
-    return
-  if (Number(props.response.meta.responseSize) <= 1000)
-    return {
-      onShow: () => {
-        return false
-      },
-    }
-  else return { theme: "tooltip", allowHTML: true }
-})
-
 const responseSizeHint = computed(() => {
   if (
     props.response.type === "loading" ||
@@ -169,10 +154,11 @@ const responseSizeHint = computed(() => {
     props.response.type === "script_fail" ||
     props.response.type === "fail"
   )
-    return
-  const size = Number(props.response.meta.responseSize)
+    return undefined
+  const size = props.response.meta.responseSize
   if (size >= 100000) return (size / 1000000).toFixed(2) + " MB"
   if (size >= 1000) return (size / 1000).toFixed(2) + " KB"
+  return undefined
 })
 
 const statusCategory = computed(() => {

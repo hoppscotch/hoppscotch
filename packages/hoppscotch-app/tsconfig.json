@@ -30,6 +30,6 @@
   },
   "exclude": ["node_modules", ".nuxt", "dist"],
   "vueCompilerOptions": {
-    "experimentalCompatMode": 2
+    "target": 2,
   }
 }

@@ -362,7 +362,7 @@ const selectRequest = () => {
       setRESTSaveContext(null)
     }
   }
-  if (getRESTRequest().endpoint === getDefaultRESTRequest().endpoint) {
+  if (isEqualHoppRESTRequest(getRESTRequest(), getDefaultRESTRequest()) {
     confirmChange.value = false
   }
 }

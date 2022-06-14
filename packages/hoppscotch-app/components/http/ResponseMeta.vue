@@ -120,7 +120,7 @@
           <span
             v-if="response.meta && response.meta.responseSize"
             v-tippy="
-              responseSizeReadable
+              readableResponseSize
                 ? { theme: 'tooltip' }
                 : { onShow: () => false }
             "
@@ -128,8 +128,8 @@
           >
             <span class="text-secondary"> {{ t("response.size") }}: </span>
             {{
-              responseSizeReadable
-                ? responseSizeReadable
+              readableResponseSize
+                ? readableResponseSize
                 : `${response.meta.responseSize} B`
             }}
           </span>
@@ -153,7 +153,13 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const responseSizeReadable = computed(() => {
+/**
+ * Gives the response size in a human readable format
+ * (changes unit from B to MB/KB depending on the size)
+ * If no changes (error res state) or value can be made (size < 1KB ?),
+ * it returns undefined
+ */
+const readableResponseSize = computed(() => {
   if (
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
@@ -161,9 +167,12 @@ const responseSizeReadable = computed(() => {
     props.response.type === "fail"
   )
     return undefined
+
   const size = props.response.meta.responseSize
+
   if (size >= 100000) return (size / 1000000).toFixed(2) + " MB"
   if (size >= 1000) return (size / 1000).toFixed(2) + " KB"
+
   return undefined
 })
 

@@ -322,6 +322,7 @@ const setRestReq = (request: any) => {
   )
 }
 
+/** Loads request from the save once, checks for unsaved changes, but ignores default values */
 const selectRequest = () => {
   if (!active.value) {
     confirmChange.value = true
@@ -362,7 +363,7 @@ const selectRequest = () => {
       setRESTSaveContext(null)
     }
   }
-  if (isEqualHoppRESTRequest(getRESTRequest(), getDefaultRESTRequest()) {
+  if (isEqualHoppRESTRequest(getRESTRequest(), getDefaultRESTRequest())) {
     confirmChange.value = false
   }
 }

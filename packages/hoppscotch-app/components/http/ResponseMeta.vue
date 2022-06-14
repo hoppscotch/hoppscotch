@@ -117,9 +117,21 @@
             <span class="text-secondary"> {{ t("response.time") }}: </span>
             {{ `${response.meta.responseDuration} ms` }}
           </span>
-          <span v-if="response.meta && response.meta.responseSize">
+          <span
+            v-if="response.meta && response.meta.responseSize"
+            v-tippy="
+              readableResponseSize
+                ? { theme: 'tooltip' }
+                : { onShow: () => false }
+            "
+            :title="`${response.meta.responseSize} B`"
+          >
             <span class="text-secondary"> {{ t("response.size") }}: </span>
-            {{ `${response.meta.responseSize} B` }}
+            {{
+              readableResponseSize
+                ? readableResponseSize
+                : `${response.meta.responseSize} B`
+            }}
           </span>
         </div>
       </div>
@@ -140,6 +152,29 @@ const t = useI18n()
 const props = defineProps<{
   response: HoppRESTResponse
 }>()
+
+/**
+ * Gives the response size in a human readable format
+ * (changes unit from B to MB/KB depending on the size)
+ * If no changes (error res state) or value can be made (size < 1KB ?),
+ * it returns undefined
+ */
+const readableResponseSize = computed(() => {
+  if (
+    props.response.type === "loading" ||
+    props.response.type === "network_fail" ||
+    props.response.type === "script_fail" ||
+    props.response.type === "fail"
+  )
+    return undefined
+
+  const size = props.response.meta.responseSize
+
+  if (size >= 100000) return (size / 1000000).toFixed(2) + " MB"
+  if (size >= 1000) return (size / 1000).toFixed(2) + " KB"
+
+  return undefined
+})
 
 const statusCategory = computed(() => {
   if (

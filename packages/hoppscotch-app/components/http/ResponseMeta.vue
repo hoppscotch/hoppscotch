@@ -120,12 +120,18 @@
           <span
             v-if="response.meta && response.meta.responseSize"
             v-tippy="
-              responseSizeHint ? { theme: 'tooltip' } : { onShow: () => false }
+              responseSizeReadable
+                ? { theme: 'tooltip' }
+                : { onShow: () => false }
             "
-            :title="responseSizeHint"
+            :title="`${response.meta.responseSize} B`"
           >
             <span class="text-secondary"> {{ t("response.size") }}: </span>
-            {{ `${response.meta.responseSize} B` }}
+            {{
+              responseSizeReadable
+                ? responseSizeReadable
+                : `${response.meta.responseSize} B`
+            }}
           </span>
         </div>
       </div>
@@ -147,7 +153,7 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const responseSizeHint = computed(() => {
+const responseSizeReadable = computed(() => {
   if (
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||

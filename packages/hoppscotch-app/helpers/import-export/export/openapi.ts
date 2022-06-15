@@ -123,6 +123,14 @@ const isEmptyBody = (body: HoppRESTReqBody): body is HoppRestReqBodyEmpty =>
 
 type RequestBodyGenerationError = "INVALID_CONTENT_TYPE" | "INVALID_BODY"
 
+/**
+ * generates the openapi document body for different content types
+ * 1. when the body and content type are null, we return an empty openapi body
+ * 2. when the content type is an invalid one, we return INVALID_CONTENT_TYPE error
+ * 3. when the content type is json based content types, we convert that to openapi properties recursively
+ * 4. multipart/formdata is also handled differently
+ * 5. in other valid content types, the body is handled as a string
+ */
 export const generateOpenApiRequestBody = (
   hoppRequestBody: HoppRESTReqBody
 ): E.Either<RequestBodyGenerationError, OpenAPIV3.RequestBodyObject> =>

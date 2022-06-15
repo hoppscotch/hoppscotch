@@ -4,11 +4,14 @@ import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import { OpenAPIV3 } from "openapi-types"
+import { HoppToOpenAPIConversionErrors } from "./openapi"
+
+type ExportErrors = "INVALID_EXPORTER" | "IMPORT_ERROR"
 
 export type HoppExporter<T> = (
   content: T
 ) => TE.TaskEither<
-  string,
+  ExportErrors | HoppToOpenAPIConversionErrors,
   HoppCollection<HoppRESTRequest>[] | OpenAPIV3.Document
 >
 

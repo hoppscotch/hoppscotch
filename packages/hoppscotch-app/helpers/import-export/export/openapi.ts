@@ -368,9 +368,11 @@ const extractAllRequestsFromCollections = (
     ])
   )
 
+export type HoppToOpenAPIConversionErrors = PathGenerationErrors
+
 export const convertHoppToOpenApiCollection = (
   collections: HoppCollection<HoppRESTRequest>[]
-): E.Either<string, OpenAPIV3.Document> =>
+): E.Either<HoppToOpenAPIConversionErrors, OpenAPIV3.Document> =>
   pipe(
     collections,
     extractAllRequestsFromCollections,

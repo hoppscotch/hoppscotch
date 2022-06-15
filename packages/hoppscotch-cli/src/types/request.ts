@@ -7,15 +7,11 @@ export type FormDataEntry = {
   value: string | Blob;
 };
 
+export type HoppEnvPair = { key: string; value: string };
+
 export type HoppEnvs = {
-  global: {
-    key: string;
-    value: string;
-  }[];
-  selected: {
-    key: string;
-    value: string;
-  }[];
+  global: HoppEnvPair[];
+  selected: HoppEnvPair[];
 };
 
 export type CollectionStack = {

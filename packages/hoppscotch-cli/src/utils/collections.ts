@@ -27,21 +27,24 @@ import {
 import { getTestMetrics } from "./test";
 import { DEFAULT_DURATION_PRECISION } from "./constants";
 import { getPreRequestMetrics } from "./pre-request";
+import { CollectionRunnerParam } from "../types/collections";
 
 const { WARN, FAIL } = exceptionColors;
 
 /**
  * Processes each requests within collections to prints details of subsequent requests,
  * tests and to display complete errors-report, failed-tests-report and test-metrics.
- * @param collections Array of hopp-collection with hopp-requests to be processed.
+ * @param param Data of hopp-collection with hopp-requests, envs to be processed.
  * @returns List of report for each processed request.
  */
 export const collectionsRunner =
-  (collections: HoppCollection<HoppRESTRequest>[]): T.Task<RequestReport[]> =>
+  (param: CollectionRunnerParam): T.Task<RequestReport[]> =>
   async () => {
-    const envs: HoppEnvs = { global: [], selected: [] };
+    const envs: HoppEnvs = param.envs;
     const requestsReport: RequestReport[] = [];
-    const collectionStack: CollectionStack[] = getCollectionStack(collections);
+    const collectionStack: CollectionStack[] = getCollectionStack(
+      param.collections
+    );
 
     while (collectionStack.length) {
       // Pop out top-most collection from stack to be processed.

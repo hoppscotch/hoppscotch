@@ -5,14 +5,16 @@ import { version } from "../package.json";
 import { test } from "./commands/test";
 import { handleError } from "./handlers/error";
 
-const accent = chalk.greenBright
+const accent = chalk.greenBright;
 
 /**
  * * Program Default Configuration
  */
 const CLI_BEFORE_ALL_TXT = `hopp: The ${accent(
   "Hoppscotch"
-)} CLI - Version ${version} (${accent("https://hoppscotch.io")}) ${chalk.black.bold.bgYellowBright(" ALPHA ")} \n`;
+)} CLI - Version ${version} (${accent(
+  "https://hoppscotch.io"
+)}) ${chalk.black.bold.bgYellowBright(" ALPHA ")} \n`;
 
 const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
   "https://docs.hoppscotch.io/cli"
@@ -44,14 +46,18 @@ program.exitOverride().configureOutput({
 program
   .command("test")
   .argument(
-    "[file]",
+    "<file_path>",
     "path to a hoppscotch collection.json file for CI testing"
   )
+  .option("-e, --env <file_path>", "path to an environment variables json file")
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description("running hoppscotch collection.json file")
-  .addHelpText("after", `\nFor help, head on to ${accent("https://docs.hoppscotch.io/cli#test")}`)
-  .action(async (path) => await test(path)());
+  .addHelpText(
+    "after",
+    `\nFor help, head on to ${accent("https://docs.hoppscotch.io/cli#test")}`
+  )
+  .action(async (path, options) => await test(path, options)());
 
 export const cli = async (args: string[]) => {
   try {

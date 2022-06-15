@@ -1,10 +1,12 @@
 import { HoppCLIError } from "../../../types/errors";
-import { checkFilePath } from "../../../utils/checks";
+import { checkFile } from "../../../utils/checks";
 
-describe("checkFilePath", () => {
+import "@relmify/jest-fp-ts";
+
+describe("checkFile", () => {
   test("File doesn't exists.", () => {
     return expect(
-      checkFilePath("./src/samples/this-file-not-exists.json")()
+      checkFile("./src/samples/this-file-not-exists.json")()
     ).resolves.toSubsetEqualLeft(<HoppCLIError>{
       code: "FILE_NOT_FOUND",
     });
@@ -12,15 +14,15 @@ describe("checkFilePath", () => {
 
   test("File not of JSON type.", () => {
     return expect(
-      checkFilePath("./src/__tests__/samples/notjson.txt")()
+      checkFile("./src/__tests__/samples/notjson.txt")()
     ).resolves.toSubsetEqualLeft(<HoppCLIError>{
-      code: "FILE_NOT_JSON",
+      code: "INVALID_FILE_TYPE",
     });
   });
 
   test("Existing JSON file.", () => {
     return expect(
-      checkFilePath("./src/__tests__/samples/passes.json")()
+      checkFile("./src/__tests__/samples/passes.json")()
     ).resolves.toBeRight();
   });
 });

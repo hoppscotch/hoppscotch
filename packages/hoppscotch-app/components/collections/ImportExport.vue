@@ -122,11 +122,13 @@
         <hr />
         <div class="flex flex-col space-y-2">
           <SmartItem
+            v-for="exporter in RESTCollectionExporters"
+            :key="`exporter_${exporter.id}`"
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.download_file')"
+            :title="t(exporter.title)"
             svg="download"
-            :label="t('export.as_json')"
-            @click.native="exportJSON"
+            :label="t(exporter.label)"
+            @click.native="exportJSON(exporter.id)"
           />
           <span
             v-tippy="{ theme: 'tooltip' }"
@@ -182,6 +184,13 @@ import {
   ExportAsJsonDocument,
   ImportFromJsonDocument,
 } from "~/helpers/backend/graphql"
+
+import {
+  RESTCollectionExporters,
+  getDataToWrite,
+  ExportError,
+} from "~/helpers/import-export/export"
+import { HoppToOpenAPIConversionError } from "~/helpers/import-export/export/openapi"
 
 const props = defineProps<{
   show: boolean
@@ -316,10 +325,40 @@ const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
   importingMyCollections.value = false
 }
 
-const exportJSON = async () => {
-  await getJSONCollection()
+const exportJSON = async (exporterId: string) => {
+  getJSONCollection()
 
-  const dataToWrite = collectionJson.value
+  const dataToWrite = await getDataToWrite(exporterId)(myCollections.value)()
+
+  if (E.isRight(dataToWrite)) {
+    writeExport(JSON.stringify(dataToWrite.right))
+  } else {
+    failedExport(dataToWrite.left)
+  }
+}
+
+const failedExport = (error: ExportError | HoppToOpenAPIConversionError) => {
+  const errorMessages: {
+    // eslint-disable-next-line no-unused-vars
+    [_ in typeof error]: ReturnType<typeof t>
+  } = {
+    IMPORT_ERROR: t("error_generic"),
+    INVALID_EXPORTER: t("error_invalid_auth"),
+    INVALID_AUTH: "Invalid Authentication in one of the requests",
+    INVALID_BODY: t("error_invalid_body"),
+    INVALID_URL: t("error_invalid_url"),
+    INVALID_METHOD: t("error_invalid_method"),
+    INVALID_CONTENT_TYPE: t("error_invalid_method"),
+  }
+
+  const errorMessage = errorMessages[error]
+
+  if (typeof errorMessage === "string") {
+    toast.error(errorMessage)
+  }
+}
+
+const writeExport = (dataToWrite: string) => {
   const file = new Blob([dataToWrite], { type: "application/json" })
   const a = document.createElement("a")
   const url = URL.createObjectURL(file)

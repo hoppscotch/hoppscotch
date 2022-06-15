@@ -223,7 +223,13 @@
     "hopp_export_label": "Export as Hoppscotch Collections",
     "openapi_export_name": "Export as an Openapi Document",
     "openapi_export_title": "The collections will be exported as an openapi document",
-    "openapi_export_label": "Export as Openapi document"
+    "openapi_export_label": "Export as Openapi document",
+    "error_generic": "Something went wrong",
+    "error_invalid_auth": "Invalid Authentication in one of the requests",
+    "error_invalid_body": "Invalid Body in one of the requests",
+    "error_invalid_url": "Invalid Url in of the requests",
+    "error_invalid_method": "Invalid Method in one of the requests",
+    "error_invalid_content_type": "Invalid Content Type in of the requests"
   },
   "folder": {
     "created": "Folder created",

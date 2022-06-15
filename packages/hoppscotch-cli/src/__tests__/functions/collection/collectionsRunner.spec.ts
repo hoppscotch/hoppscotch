@@ -37,6 +37,8 @@ const SAMPLE_RESOLVED_RESPONSE = <AxiosResponse>{
   headers: [],
 };
 
+const SAMPLE_ENVS = { global: [], selected: [] };
+
 describe("collectionsRunner", () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -47,19 +49,24 @@ describe("collectionsRunner", () => {
   });
 
   test("Empty HoppCollection.", () => {
-    return expect(collectionsRunner([])()).resolves.toStrictEqual([]);
+    return expect(
+      collectionsRunner({ collections: [], envs: SAMPLE_ENVS })()
+    ).resolves.toStrictEqual([]);
   });
 
   test("Empty requests and folders in collection.", () => {
     return expect(
-      collectionsRunner([
-        {
-          v: 1,
-          name: "name",
-          folders: [],
-          requests: [],
-        },
-      ])()
+      collectionsRunner({
+        collections: [
+          {
+            v: 1,
+            name: "name",
+            folders: [],
+            requests: [],
+          },
+        ],
+        envs: SAMPLE_ENVS,
+      })()
     ).resolves.toMatchObject([]);
   });
 
@@ -67,14 +74,17 @@ describe("collectionsRunner", () => {
     (axios as unknown as jest.Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
 
     return expect(
-      collectionsRunner([
-        {
-          v: 1,
-          name: "collection",
-          folders: [],
-          requests: [SAMPLE_HOPP_REQUEST],
-        },
-      ])()
+      collectionsRunner({
+        collections: [
+          {
+            v: 1,
+            name: "collection",
+            folders: [],
+            requests: [SAMPLE_HOPP_REQUEST],
+          },
+        ],
+        envs: SAMPLE_ENVS,
+      })()
     ).resolves.toMatchObject([
       {
         path: "collection/request",
@@ -89,21 +99,24 @@ describe("collectionsRunner", () => {
     (axios as unknown as jest.Mock).mockResolvedValue(SAMPLE_RESOLVED_RESPONSE);
 
     return expect(
-      collectionsRunner([
-        {
-          v: 1,
-          name: "collection",
-          folders: [
-            {
-              v: 1,
-              name: "folder",
-              folders: [],
-              requests: [SAMPLE_HOPP_REQUEST],
-            },
-          ],
-          requests: [],
-        },
-      ])()
+      collectionsRunner({
+        collections: [
+          {
+            v: 1,
+            name: "collection",
+            folders: [
+              {
+                v: 1,
+                name: "folder",
+                folders: [],
+                requests: [SAMPLE_HOPP_REQUEST],
+              },
+            ],
+            requests: [],
+          },
+        ],
+        envs: SAMPLE_ENVS,
+      })()
     ).resolves.toMatchObject([
       {
         path: "collection/folder/request",

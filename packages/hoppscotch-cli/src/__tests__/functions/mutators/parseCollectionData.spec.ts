@@ -1,12 +1,14 @@
 import { HoppCLIError } from "../../../types/errors";
 import { parseCollectionData } from "../../../utils/mutators";
 
+import "@relmify/jest-fp-ts";
+
 describe("parseCollectionData", () => {
   test("Reading non-existing file.", () => {
     return expect(
-      parseCollectionData("./src/__tests__/samples/notexist.txt")()
+      parseCollectionData("./src/__tests__/samples/notexist.json")()
     ).resolves.toSubsetEqualLeft(<HoppCLIError>{
-      code: "UNKNOWN_ERROR",
+      code: "FILE_NOT_FOUND",
     });
   });
 

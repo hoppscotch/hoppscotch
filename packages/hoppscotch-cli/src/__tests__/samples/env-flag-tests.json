@@ -1,0 +1,22 @@
+{
+  "v": 1,
+  "name": "env-flag-tests",
+  "folders": [],
+  "requests": [
+    {
+      "v": "1",
+      "endpoint": "<<URL>>",
+      "name": "test1",
+      "params": [],
+      "headers": [],
+      "method": "POST",
+      "auth": { "authType": "none", "authActive": true },
+      "preRequestScript": "",
+      "testScript": "const HOST = pw.env.get(\"HOST\");\nconst UNSET_ENV = pw.env.get(\"UNSET_ENV\");\nconst EXPECTED_URL = \"https://echo.hoppscotch.io\";\nconst URL = pw.env.get(\"URL\");\nconst X_COUNTRY = pw.env.get(\"X-COUNTRY\");\nconst BODY_VALUE = pw.env.get(\"BODY_VALUE\");\n\n// Check JSON response property\npw.test(\"Check headers properties.\", ()=> {\n    pw.expect(pw.response.body.headers.host).toBe(HOST);\n\t   pw.expect(pw.response.body.headers[\"x-country\"]).toBe(X_COUNTRY);  \n});\n\npw.test(\"Check data properties.\", () => {\n\tconst DATA = pw.response.body.data;\n  \n    pw.expect(DATA).toBeType(\"string\");\n    pw.expect(JSON.parse(DATA).body_key).toBe(BODY_VALUE);\n});\n\npw.test(\"Check request URL.\", () => {\n  pw.expect(URL).toBe(EXPECTED_URL);\n})\n\npw.test(\"Check unset ENV.\", () => {\n  pw.expect(UNSET_ENV).toBeType(\"undefined\");\n})",
+      "body": {
+        "contentType": "application/json",
+        "body": "{\n  \"<<BODY_KEY>>\":\"<<BODY_VALUE>>\"\n}"
+      }
+    }
+  ]
+}

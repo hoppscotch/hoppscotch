@@ -3,6 +3,8 @@ import { EffectiveHoppRESTRequest } from "../../../interfaces/request";
 import { HoppCLIError } from "../../../types/errors";
 import { getEffectiveRESTRequest } from "../../../utils/pre-request";
 
+import "@relmify/jest-fp-ts";
+
 const DEFAULT_ENV = <Environment>{
   name: "name",
   variables: [

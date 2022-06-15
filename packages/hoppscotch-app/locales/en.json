@@ -217,7 +217,13 @@
     "create_secret_gist": "Create secret Gist",
     "gist_created": "Gist created",
     "require_github": "Login with GitHub to create secret gist",
-    "title": "Export"
+    "title": "Export",
+    "hopp_export_name": "Export as Hoppscotch Collections",
+    "hopp_export_title": "The collections will be exported as json",
+    "hopp_export_label": "Export as Hoppscotch Collections",
+    "openapi_export_name": "Export as an Openapi Document",
+    "openapi_export_title": "The collections will be exported as an openapi document",
+    "openapi_export_label": "Export as Openapi document"
   },
   "folder": {
     "created": "Folder created",
@@ -497,13 +503,13 @@
       "title": "Theme"
     }
   },
-  "shortcodes":{
-    "actions":"Actions",
+  "shortcodes": {
+    "actions": "Actions",
     "created_on": "Created on",
-    "deleted" : "Shortcode deleted",
+    "deleted": "Shortcode deleted",
     "method": "Method",
-    "not_found":"Shortcode not found",
-    "short_code":"Short code",
+    "not_found": "Shortcode not found",
+    "short_code": "Short code",
     "url": "URL"
   },
   "show": {

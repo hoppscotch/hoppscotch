@@ -390,8 +390,7 @@ export const convertHoppToOpenApiCollection = (
 
 const exporter: HoppExporter<HoppCollection<HoppRESTRequest>[]> = flow(
   convertHoppToOpenApiCollection,
-  JSON.stringify,
-  TE.right
+  TE.fromEither
 )
 
 export default exporter

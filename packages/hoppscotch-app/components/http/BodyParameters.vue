@@ -39,7 +39,7 @@
     >
       <div
         v-for="(param, index) in workingParams"
-        :key="`param-${index}`"
+        :key="`param=${param.id}-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
       >
         <span>
@@ -164,16 +164,22 @@
 
 <script setup lang="ts">
 import { ref, Ref, watch } from "@nuxtjs/composition-api"
+import { flow, pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import * as A from "fp-ts/Array"
 import { FormDataKeyValue } from "@hoppscotch/data"
 import isEqual from "lodash/isEqual"
 import { clone } from "lodash"
 import draggable from "vuedraggable"
 import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
+import { objRemoveKey } from "~/helpers/functional/object"
 
 const t = useI18n()
 
 const toast = useToast()
+
+const idTicker = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -182,8 +188,9 @@ const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body") as Ref<
 >
 
 // The UI representation of the parameters list (has the empty end param)
-const workingParams = ref<FormDataKeyValue[]>([
+const workingParams = ref<Array<FormDataKeyValue & { id: number }>>([
   {
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
@@ -195,6 +202,7 @@ const workingParams = ref<FormDataKeyValue[]>([
 watch(workingParams, (paramsList) => {
   if (paramsList.length > 0 && paramsList[paramsList.length - 1].key !== "") {
     workingParams.value.push({
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,
@@ -208,12 +216,21 @@ watch(
   bodyParams,
   (newParamsList) => {
     // Sync should overwrite working params
-    const filteredWorkingParams = workingParams.value.filter(
-      (e) => e.key !== ""
+    const filteredWorkingParams: FormDataKeyValue[] = pipe(
+      workingParams.value,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== ""),
+          O.map(objRemoveKey("id"))
+        )
+      )
     )
 
     if (!isEqual(newParamsList, filteredWorkingParams)) {
-      workingParams.value = newParamsList
+      workingParams.value = pipe(
+        newParamsList,
+        A.map((x) => ({ id: idTicker.value++, ...x }))
+      )
     }
   },
   { immediate: true }
@@ -228,6 +245,7 @@ watch(workingParams, (newWorkingParams) => {
 
 const addBodyParam = () => {
   workingParams.value.push({
+    id: idTicker.value++,
     key: "",
     value: "",
     active: true,
@@ -235,7 +253,10 @@ const addBodyParam = () => {
   })
 }
 
-const updateBodyParam = (index: number, param: FormDataKeyValue) => {
+const updateBodyParam = (
+  index: number,
+  param: FormDataKeyValue & { id: number }
+) => {
   workingParams.value = workingParams.value.map((h, i) =>
     i === index ? param : h
   )
@@ -280,6 +301,7 @@ const clearContent = () => {
   // set params list to the initial state
   workingParams.value = [
     {
+      id: idTicker.value++,
       key: "",
       value: "",
       active: true,
@@ -290,7 +312,7 @@ const clearContent = () => {
 
 const setRequestAttachment = (
   index: number,
-  entry: FormDataKeyValue,
+  entry: FormDataKeyValue & { id: number },
   event: InputEvent
 ) => {
   // check if file exists or not
@@ -303,7 +325,7 @@ const setRequestAttachment = (
     return
   }
 
-  const fileEntry: FormDataKeyValue = {
+  const fileEntry: FormDataKeyValue & { id: number } = {
     ...entry,
     isFile: true,
     value: Array.from((event.target as HTMLInputElement).files!),

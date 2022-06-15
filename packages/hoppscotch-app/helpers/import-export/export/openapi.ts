@@ -121,14 +121,14 @@ const isFormDataBody = (
 const isEmptyBody = (body: HoppRESTReqBody): body is HoppRestReqBodyEmpty =>
   !(body.body && body.contentType)
 
-type RequestBodyGenerationErrors = "INVALID_CONTENT_TYPE" | "INVALID_BODY"
+type RequestBodyGenerationError = "INVALID_CONTENT_TYPE" | "INVALID_BODY"
 
 export const generateOpenApiRequestBody = (
   hoppRequestBody: HoppRESTReqBody
-): E.Either<RequestBodyGenerationErrors, OpenAPIV3.RequestBodyObject> =>
+): E.Either<RequestBodyGenerationError, OpenAPIV3.RequestBodyObject> =>
   pipe(
     hoppRequestBody,
-    E.fromPredicate(isEmptyBody, () => "NON_EMPTY_BODY"),
+    E.fromPredicate(isEmptyBody, () => "NON_EMPTY_BODY" as const),
     E.map(
       (): OpenAPIV3.RequestBodyObject => ({
         content: {},
@@ -281,17 +281,17 @@ const generateOpenApiDocument = (
   },
 })
 
-type PathGenerationErrors =
+type PathGenerationError =
   | "INVALID_METHOD"
   | "INVALID_URL"
   | "INVALID_CONTENT_TYPE"
   | "INVALID_AUTH"
-  | RequestBodyGenerationErrors
+  | RequestBodyGenerationError
 
 const generateOpenApiPathFromRequest = (
   request: HoppRESTRequest
 ): E.Either<
-  PathGenerationErrors,
+  PathGenerationError,
   OpenAPIV3.PathItemObject & { pathname: string }
 > =>
   pipe(
@@ -368,7 +368,7 @@ const extractAllRequestsFromCollections = (
     ])
   )
 
-export type HoppToOpenAPIConversionError = PathGenerationErrors
+export type HoppToOpenAPIConversionError = PathGenerationError
 
 export const convertHoppToOpenApiCollection = (
   collections: HoppCollection<HoppRESTRequest>[]
@@ -378,9 +378,9 @@ export const convertHoppToOpenApiCollection = (
     extractAllRequestsFromCollections,
     A.map(generateOpenApiPathFromRequest),
     E.sequenceArray,
-    E.map(RA.toArray),
     E.map(
       flow(
+        RA.toArray,
         A.reduce({}, (allPaths: OpenAPIV3.PathsObject, path) => ({
           ...allPaths,
           [path.pathname]: omit(path, "pathname"),

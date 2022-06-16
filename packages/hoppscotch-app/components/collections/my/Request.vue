@@ -359,8 +359,6 @@ const selectRequest = () => {
       } else {
         confirmChange.value = true
       }
-    } else {
-      setRESTSaveContext(null)
     }
   }
   if (isEqualHoppRESTRequest(getRESTRequest(), getDefaultRESTRequest())) {

@@ -337,8 +337,6 @@ const selectRequest = () => {
       } else {
         confirmChange.value = true
       }
-    } else {
-      setRESTSaveContext(null)
     }
   }
 }

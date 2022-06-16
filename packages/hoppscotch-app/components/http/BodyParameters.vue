@@ -38,8 +38,8 @@
       drag-class="cursor-grabbing"
     >
       <div
-        v-for="(param, index) in workingParams"
-        :key="`param=${param.id}-${index}`"
+        v-for="({ id, entry }, index) in workingParams"
+        :key="`param=${id}-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
       >
         <span>
@@ -54,21 +54,21 @@
           />
         </span>
         <SmartEnvInput
-          v-model="param.key"
+          v-model="entry.key"
           :placeholder="`${$t('count.parameter', { count: index + 1 })}`"
           @change="
             updateBodyParam(index, {
               key: $event,
-              value: param.value,
-              active: param.active,
-              isFile: param.isFile,
+              value: entry.value,
+              active: entry.active,
+              isFile: entry.isFile,
             })
           "
         />
-        <div v-if="param.isFile" class="file-chips-container hide-scrollbar">
+        <div v-if="entry.isFile" class="file-chips-container hide-scrollbar">
           <div class="space-x-2 file-chips-wrapper">
             <SmartFileChip
-              v-for="(file, fileIndex) in param.value"
+              v-for="(file, fileIndex) in entry.value"
               :key="`param-${index}-file-${fileIndex}`"
               >{{ file.name }}</SmartFileChip
             >
@@ -76,14 +76,14 @@
         </div>
         <span v-else class="flex flex-1">
           <SmartEnvInput
-            v-model="param.value"
+            v-model="entry.value"
             :placeholder="`${$t('count.value', { count: index + 1 })}`"
             @change="
               updateBodyParam(index, {
-                key: param.key,
+                key: entry.key,
                 value: $event,
-                active: param.active,
-                isFile: param.isFile,
+                active: entry.active,
+                isFile: entry.isFile,
               })
             "
           />
@@ -97,7 +97,7 @@
               type="file"
               multiple
               class="p-1 cursor-pointer transition file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
-              @change="setRequestAttachment(index, param, $event)"
+              @change="setRequestAttachment(index, entry, $event)"
             />
           </label>
         </span>
@@ -105,15 +105,15 @@
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="
-              param.hasOwnProperty('active')
-                ? param.active
+              entry.hasOwnProperty('active')
+                ? entry.active
                   ? $t('action.turn_off')
                   : $t('action.turn_on')
                 : $t('action.turn_off')
             "
             :svg="
-              param.hasOwnProperty('active')
-                ? param.active
+              entry.hasOwnProperty('active')
+                ? entry.active
                   ? 'check-circle'
                   : 'circle'
                 : 'check-circle'
@@ -121,10 +121,10 @@
             color="green"
             @click.native="
               updateBodyParam(index, {
-                key: param.key,
-                value: param.value,
-                active: param.hasOwnProperty('active') ? !param.active : false,
-                isFile: param.isFile,
+                key: entry.key,
+                value: entry.value,
+                active: entry.hasOwnProperty('active') ? !entry.active : false,
+                isFile: entry.isFile,
               })
             "
           />
@@ -173,7 +173,8 @@ import { clone } from "lodash"
 import draggable from "vuedraggable"
 import { pluckRef, useI18n, useToast } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
-import { objRemoveKey } from "~/helpers/functional/object"
+
+type WorkingFormDataKeyValue = { id: number; entry: FormDataKeyValue }
 
 const t = useI18n()
 
@@ -188,25 +189,32 @@ const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body") as Ref<
 >
 
 // The UI representation of the parameters list (has the empty end param)
-const workingParams = ref<Array<FormDataKeyValue & { id: number }>>([
+const workingParams = ref<WorkingFormDataKeyValue[]>([
   {
     id: idTicker.value++,
-    key: "",
-    value: "",
-    active: true,
-    isFile: false,
+    entry: {
+      key: "",
+      value: "",
+      active: true,
+      isFile: false,
+    },
   },
 ])
 
 // Rule: Working Params always have last element is always an empty param
 watch(workingParams, (paramsList) => {
-  if (paramsList.length > 0 && paramsList[paramsList.length - 1].key !== "") {
+  if (
+    paramsList.length > 0 &&
+    paramsList[paramsList.length - 1].entry.key !== ""
+  ) {
     workingParams.value.push({
       id: idTicker.value++,
-      key: "",
-      value: "",
-      active: true,
-      isFile: false,
+      entry: {
+        key: "",
+        value: "",
+        active: true,
+        isFile: false,
+      },
     })
   }
 })
@@ -216,12 +224,12 @@ watch(
   bodyParams,
   (newParamsList) => {
     // Sync should overwrite working params
-    const filteredWorkingParams: FormDataKeyValue[] = pipe(
+    const filteredWorkingParams = pipe(
       workingParams.value,
       A.filterMap(
         flow(
-          O.fromPredicate((e) => e.key !== ""),
-          O.map(objRemoveKey("id"))
+          O.fromPredicate((e) => e.entry.key !== ""),
+          O.map((e) => e.entry)
         )
       )
     )
@@ -229,7 +237,7 @@ watch(
     if (!isEqual(newParamsList, filteredWorkingParams)) {
       workingParams.value = pipe(
         newParamsList,
-        A.map((x) => ({ id: idTicker.value++, ...x }))
+        A.map((x) => ({ id: idTicker.value++, entry: x }))
       )
     }
   },
@@ -237,7 +245,16 @@ watch(
 )
 
 watch(workingParams, (newWorkingParams) => {
-  const fixedParams = newWorkingParams.filter((e) => e.key !== "")
+  const fixedParams = pipe(
+    newWorkingParams,
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.entry.key !== ""),
+        O.map((e) => e.entry)
+      )
+    )
+  )
+
   if (!isEqual(bodyParams.value, fixedParams)) {
     bodyParams.value = fixedParams
   }
@@ -246,19 +263,18 @@ watch(workingParams, (newWorkingParams) => {
 const addBodyParam = () => {
   workingParams.value.push({
     id: idTicker.value++,
-    key: "",
-    value: "",
-    active: true,
-    isFile: false,
+    entry: {
+      key: "",
+      value: "",
+      active: true,
+      isFile: false,
+    },
   })
 }
 
-const updateBodyParam = (
-  index: number,
-  param: FormDataKeyValue & { id: number }
-) => {
+const updateBodyParam = (index: number, entry: FormDataKeyValue) => {
   workingParams.value = workingParams.value.map((h, i) =>
-    i === index ? param : h
+    i === index ? { id: h.id, entry } : h
   )
 }
 
@@ -302,17 +318,19 @@ const clearContent = () => {
   workingParams.value = [
     {
       id: idTicker.value++,
-      key: "",
-      value: "",
-      active: true,
-      isFile: false,
+      entry: {
+        key: "",
+        value: "",
+        active: true,
+        isFile: false,
+      },
     },
   ]
 }
 
 const setRequestAttachment = (
   index: number,
-  entry: FormDataKeyValue & { id: number },
+  entry: FormDataKeyValue,
   event: InputEvent
 ) => {
   // check if file exists or not
@@ -325,7 +343,7 @@ const setRequestAttachment = (
     return
   }
 
-  const fileEntry: FormDataKeyValue & { id: number } = {
+  const fileEntry: FormDataKeyValue = {
     ...entry,
     isFile: true,
     value: Array.from((event.target as HTMLInputElement).files!),

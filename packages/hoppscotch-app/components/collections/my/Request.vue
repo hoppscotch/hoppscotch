@@ -324,19 +324,22 @@ const setRestReq = (request: any) => {
 
 /** Loads request from the save once, checks for unsaved changes, but ignores default values */
 const selectRequest = () => {
-  if (!active.value) {
+  // Check if this is a save as request popup, if so we don't need to prompt the confirm change popup.
+  if (props.saveRequest) {
+    emit("select", {
+      picked: {
+        pickedType: "my-request",
+        collectionIndex: props.collectionIndex,
+        folderPath: props.folderPath,
+        folderName: props.folderName,
+        requestIndex: props.requestIndex,
+      },
+    })
+  } else if (isEqualHoppRESTRequest(props.request, getDefaultRESTRequest())) {
+    confirmChange.value = false
+    setRestReq(props.request)
+  } else if (!active.value) {
     confirmChange.value = true
-
-    if (props.saveRequest)
-      emit("select", {
-        picked: {
-          pickedType: "my-request",
-          collectionIndex: props.collectionIndex,
-          folderPath: props.folderPath,
-          folderName: props.folderName,
-          requestIndex: props.requestIndex,
-        },
-      })
   } else {
     const currentReqWithNoChange = active.value.req
     const currentFullReq = getRESTRequest()
@@ -346,25 +349,12 @@ const selectRequest = () => {
       // Check if there is any changes done on the current request
       if (isEqualHoppRESTRequest(currentReqWithNoChange, currentFullReq)) {
         setRestReq(props.request)
-        if (props.saveRequest)
-          emit("select", {
-            picked: {
-              pickedType: "my-request",
-              collectionIndex: props.collectionIndex,
-              folderPath: props.folderPath,
-              folderName: props.folderName,
-              requestIndex: props.requestIndex,
-            },
-          })
       } else {
         confirmChange.value = true
       }
     } else {
       setRESTSaveContext(null)
     }
-  }
-  if (isEqualHoppRESTRequest(getRESTRequest(), getDefaultRESTRequest())) {
-    confirmChange.value = false
   }
 }
 
@@ -378,16 +368,6 @@ const saveRequestChange = () => {
 /** Discard changes and change the current request and context */
 const discardRequestChange = () => {
   setRestReq(props.request)
-  if (props.saveRequest)
-    emit("select", {
-      picked: {
-        pickedType: "my-request",
-        collectionIndex: props.collectionIndex,
-        folderPath: props.folderPath,
-        folderName: props.folderName,
-        requestIndex: props.requestIndex,
-      },
-    })
   if (!isActive.value) {
     setRESTSaveContext({
       originLocation: "user-collection",

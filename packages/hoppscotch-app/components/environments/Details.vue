@@ -124,7 +124,7 @@ import { refAutoReset } from "@vueuse/core"
 import {
   createEnvironment,
   environments$,
-  getEnviroment,
+  getEnvironment,
   getGlobalVariables,
   globalEnv$,
   setCurrentEnvironment,
@@ -178,7 +178,7 @@ const workingEnv = computed(() => {
       variables: props.envVars(),
     }
   } else if (props.editingEnvironmentIndex !== null) {
-    return getEnviroment(props.editingEnvironmentIndex)
+    return getEnvironment(props.editingEnvironmentIndex)
   } else {
     return null
   }

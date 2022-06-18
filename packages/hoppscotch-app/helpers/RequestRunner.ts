@@ -25,7 +25,7 @@ import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 import {
   environmentsStore,
   getCurrentEnvironment,
-  getEnviroment,
+  getEnvironment,
   getGlobalVariables,
   setGlobalEnvVariables,
   updateEnvironment,
@@ -97,7 +97,7 @@ export const runRESTRequest$ = (): TaskEither<
               setGlobalEnvVariables(runResult.right.envs.global)
 
               if (environmentsStore.value.currentEnvironmentIndex !== -1) {
-                const env = getEnviroment(
+                const env = getEnvironment(
                   environmentsStore.value.currentEnvironmentIndex
                 )
                 updateEnvironment(

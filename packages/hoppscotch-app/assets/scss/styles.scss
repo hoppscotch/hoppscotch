@@ -15,6 +15,7 @@
 
 ::-webkit-scrollbar-track {
   @apply bg-transparent;
+  @apply border-solid border-l border-t-0 border-b-0 border-r-0 border-dividerLight;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -27,17 +28,17 @@
 
 ::-webkit-scrollbar {
   @apply w-4;
-  @apply h-4;
+  @apply h-0;
 }
 
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+// .hide-scrollbar {
+//   -ms-overflow-style: none;
+//   scrollbar-width: none;
+// }
 
-.hide-scrollbar::-webkit-scrollbar {
-  @apply hidden;
-}
+// .hide-scrollbar::-webkit-scrollbar {
+//   @apply hidden;
+// }
 
 input::placeholder,
 textarea::placeholder,

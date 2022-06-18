@@ -158,14 +158,11 @@ const getXMLBody = (rawData: string) =>
     O.alt(() => O.some(rawData))
   )
 
-const getFormattedJSON = (jsonString: string) =>
-  pipe(
-    jsonString.replaceAll('\\"', '"'),
-    safeParseJSON,
-    O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
-    O.getOrElse(() => "{ }"),
-    O.of
-  )
+const getFormattedJSON = flow(
+  safeParseJSON,
+  O.map((parsedJSON) => JSON.stringify(parsedJSON, null, 2)),
+  O.getOrElse(() => "{ }")
+)
 
 const getXWWWFormUrlEncodedBody = flow(
   decodeURIComponent,
@@ -191,7 +188,7 @@ export function parseBody(
     case "application/ld+json":
     case "application/vnd.api+json":
     case "application/json":
-      return getFormattedJSON(rawData)
+      return O.some(getFormattedJSON(rawData))
 
     case "application/x-www-form-urlencoded":
       return getXWWWFormUrlEncodedBody(rawData)

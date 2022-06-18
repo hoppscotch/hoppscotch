@@ -2,9 +2,11 @@
   <AppPaneLayout layout-id="socketio">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+        class="sticky top-0 z-10 md:flex md:flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
       >
-        <div class="inline-flex flex-1 space-x-2">
+        <div
+          class="block md:inline-flex md:flex-1 space-y-2 md:space-y-0 md:space-x-2"
+        >
           <div class="flex flex-1">
             <label for="client-version">
               <tippy
@@ -40,6 +42,7 @@
                 </div>
               </tippy>
             </label>
+
             <input
               id="socketio-url"
               v-model="url"
@@ -67,11 +70,12 @@
               @keyup.enter="isUrlValid ? toggleConnection() : null"
             />
           </div>
+
           <ButtonPrimary
             id="connect"
             :disabled="!isUrlValid"
             name="connect"
-            class="w-32"
+            class="w-full md:w-32"
             :label="
               connectionState === 'DISCONNECTED'
                 ? t('action.connect')

@@ -168,6 +168,7 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/TaskEither"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import {
   useAxios,
@@ -324,16 +325,14 @@ const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
   importingMyCollections.value = false
 }
 
-const exportJSON = async (exporterId: string) => {
+const exportJSON = (exporterId: string) => {
   getJSONCollection()
 
-  const dataToWrite = await exportCollection(exporterId)(myCollections.value)()
-
-  if (E.isRight(dataToWrite)) {
-    writeExport(dataToWrite.right)
-  } else {
-    failedExport(dataToWrite.left)
-  }
+  return pipe(
+    myCollections.value,
+    exportCollection(exporterId),
+    TE.match(failedExport, writeExport)
+  )()
 }
 
 const ExportErrorMessages: Record<

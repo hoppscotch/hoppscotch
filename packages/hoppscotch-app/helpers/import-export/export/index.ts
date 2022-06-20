@@ -42,7 +42,7 @@ export const RESTCollectionExporters: HoppExporterDefinition<
   },
 ]
 
-export const getDataToWrite =
+export const exportCollection =
   (exporterId: string) => (collections: HoppCollection<HoppRESTRequest>[]) =>
     pipe(
       RESTCollectionExporters,

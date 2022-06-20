@@ -187,7 +187,7 @@ import {
 
 import {
   RESTCollectionExporters,
-  getDataToWrite,
+  exportCollection,
   ExportError,
 } from "~/helpers/import-export/export"
 import { HoppToOpenAPIConversionError } from "~/helpers/import-export/export/openapi"
@@ -328,7 +328,7 @@ const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
 const exportJSON = async (exporterId: string) => {
   getJSONCollection()
 
-  const dataToWrite = await getDataToWrite(exporterId)(myCollections.value)()
+  const dataToWrite = await exportCollection(exporterId)(myCollections.value)()
 
   if (E.isRight(dataToWrite)) {
     writeExport(JSON.stringify(dataToWrite.right))

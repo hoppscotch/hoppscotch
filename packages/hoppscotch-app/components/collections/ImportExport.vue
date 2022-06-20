@@ -188,9 +188,8 @@ import {
 import {
   RESTCollectionExporters,
   exportCollection,
-  ExportError,
+  RESTCollectionExporterError,
 } from "~/helpers/import-export/export"
-import { HoppToOpenAPIConversionError } from "~/helpers/import-export/export/openapi"
 
 const props = defineProps<{
   show: boolean
@@ -331,18 +330,19 @@ const exportJSON = async (exporterId: string) => {
   const dataToWrite = await exportCollection(exporterId)(myCollections.value)()
 
   if (E.isRight(dataToWrite)) {
-    writeExport(JSON.stringify(dataToWrite.right))
+    writeExport(dataToWrite.right)
   } else {
     failedExport(dataToWrite.left)
   }
 }
 
 const ExportErrorMessages: Record<
-  ExportError | HoppToOpenAPIConversionError,
+  RESTCollectionExporterError,
   ReturnType<typeof t>
 > = {
   IMPORT_ERROR: t("error.something_went_wrong"),
-  INVALID_EXPORTER: t("export.error_invalid_auth"),
+  CANNOT_MAKE_BLOB: t("error.something_went_wrong"),
+  INVALID_EXPORTER: t("error.something_went_wrong"),
   INVALID_AUTH: t("export.error_invalid_auth"),
   INVALID_BODY: t("export.error_invalid_body"),
   INVALID_URL: t("export.error_invalid_url"),
@@ -350,15 +350,14 @@ const ExportErrorMessages: Record<
   INVALID_CONTENT_TYPE: t("export.error_invalid_method"),
 } as const
 
-const failedExport = (error: ExportError | HoppToOpenAPIConversionError) => {
+const failedExport = (error: RESTCollectionExporterError) => {
   const errorMessage = ExportErrorMessages[error]
   toast.error(errorMessage.toString())
 }
 
-const writeExport = (dataToWrite: string) => {
-  const file = new Blob([dataToWrite], { type: "application/json" })
+const writeExport = (dataToWrite: Blob) => {
   const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
+  const url = URL.createObjectURL(dataToWrite)
   a.href = url
 
   // TODO: get uri from meta

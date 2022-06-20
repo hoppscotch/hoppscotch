@@ -2,30 +2,22 @@ import * as TE from "fp-ts/TaskEither"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
-import { OpenAPIV3 } from "openapi-types"
-import { HoppToOpenAPIConversionError } from "./openapi"
+import {
+  HoppRESTRequest,
+  HoppCollection,
+  HoppGQLRequest,
+} from "@hoppscotch/data"
 
 export type ExportError = "INVALID_EXPORTER" | "IMPORT_ERROR"
 
-export type HoppExporter<T> = (
-  content: T
-) => TE.TaskEither<
-  ExportError | HoppToOpenAPIConversionError,
-  HoppCollection<HoppRESTRequest>[] | OpenAPIV3.Document
->
+export type HoppExporter<
+  ReqType extends HoppRESTRequest | HoppGQLRequest,
+  ErrorType extends string
+> = (
+  collections: Array<HoppCollection<ReqType>>
+) => TE.TaskEither<ErrorType, Blob>
 
-export type HoppExporterDefinition<T> = {
-  id: string
-  name: string
-  icon: string
-  title: string
-  exporter: () => Promise<HoppExporter<T>>
-}
-
-export const RESTCollectionExporters: HoppExporterDefinition<
-  HoppCollection<HoppRESTRequest>[]
->[] = [
+export const RESTCollectionExporters = [
   {
     id: "hopp",
     name: "export.hopp_export_name",
@@ -55,5 +47,19 @@ export const exportCollection =
           () => "IMPORT_ERROR" as const
         )
       ),
-      TE.chain((exporter) => exporter(collections))
+      TE.chainW((exporter) => exporter(collections))
     )
+
+type _RESTCollectionExporter = typeof RESTCollectionExporters extends Array<
+  infer Exporter
+>
+  ? Exporter
+  : never
+
+export type RESTCollectionExporterError =
+  | (_RESTCollectionExporter["exporter"] extends () => Promise<
+      HoppExporter<HoppRESTRequest, infer ErrorType>
+    >
+      ? ErrorType
+      : never)
+  | ExportError

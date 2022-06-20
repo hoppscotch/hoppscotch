@@ -127,7 +127,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t(exporter.title)"
             svg="download"
-            :label="t(exporter.label)"
+            :label="t(exporter.name)"
             @click.native="exportJSON(exporter.id)"
           />
           <span

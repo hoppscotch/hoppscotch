@@ -20,7 +20,6 @@ export type HoppExporterDefinition<T> = {
   name: string
   icon: string
   title: string
-  label: string
   exporter: () => Promise<HoppExporter<T>>
 }
 
@@ -32,7 +31,6 @@ export const RESTCollectionExporters: HoppExporterDefinition<
     name: "export.hopp_export_name",
     icon: "download",
     title: "export.hopp_export_title",
-    label: "export.hopp_export_label",
     exporter: () => import("./hopp").then((m) => m.default),
   },
   {
@@ -40,7 +38,6 @@ export const RESTCollectionExporters: HoppExporterDefinition<
     name: "export.openapi_export_name",
     icon: "download",
     title: "export.openapi_export_title",
-    label: "export.openapi_export_label",
     exporter: () => import("./openapi").then((m) => m.default),
   },
 ]

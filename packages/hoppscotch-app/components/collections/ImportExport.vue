@@ -337,25 +337,22 @@ const exportJSON = async (exporterId: string) => {
   }
 }
 
+const ExportErrorMessages: Record<
+  ExportError | HoppToOpenAPIConversionError,
+  ReturnType<typeof t>
+> = {
+  IMPORT_ERROR: t("error.something_went_wrong"),
+  INVALID_EXPORTER: t("export.error_invalid_auth"),
+  INVALID_AUTH: t("export.error_invalid_auth"),
+  INVALID_BODY: t("export.error_invalid_body"),
+  INVALID_URL: t("export.error_invalid_url"),
+  INVALID_METHOD: t("export.error_invalid_method"),
+  INVALID_CONTENT_TYPE: t("export.error_invalid_method"),
+} as const
+
 const failedExport = (error: ExportError | HoppToOpenAPIConversionError) => {
-  const errorMessages: {
-    // eslint-disable-next-line no-unused-vars
-    [_ in typeof error]: ReturnType<typeof t>
-  } = {
-    IMPORT_ERROR: t("error_generic"),
-    INVALID_EXPORTER: t("error_invalid_auth"),
-    INVALID_AUTH: "Invalid Authentication in one of the requests",
-    INVALID_BODY: t("error_invalid_body"),
-    INVALID_URL: t("error_invalid_url"),
-    INVALID_METHOD: t("error_invalid_method"),
-    INVALID_CONTENT_TYPE: t("error_invalid_method"),
-  }
-
-  const errorMessage = errorMessages[error]
-
-  if (typeof errorMessage === "string") {
-    toast.error(errorMessage)
-  }
+  const errorMessage = ExportErrorMessages[error]
+  toast.error(errorMessage.toString())
 }
 
 const writeExport = (dataToWrite: string) => {

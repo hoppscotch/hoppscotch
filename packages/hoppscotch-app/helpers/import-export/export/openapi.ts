@@ -213,6 +213,12 @@ export const generateOpenApiRequestBody = (
     )
   )
 
+const OpenAPIAuthNames = {
+  basic: "basicAuth",
+  "api-key": "ApiKeyAuth",
+  bearer: "bearerAuth",
+} as const
+
 export const generateOpenApiAuth = (
   hoppAuth: HoppRESTAuth
 ): E.Either<"INVALID_AUTH", OpenAPIV3.SecurityRequirementObject> =>
@@ -228,16 +234,9 @@ export const generateOpenApiAuth = (
             authType !== "none" && authType !== "oauth-2"
         ),
         O.map((authType) =>
-          pipe(
-            {
-              basic: "basicAuth",
-              "api-key": "ApiKeyAuth",
-              bearer: "bearerAuth",
-            },
-            (auths) => ({
-              [auths[authType]]: [],
-            })
-          )
+          pipe(OpenAPIAuthNames, (auths) => ({
+            [auths[authType]]: [],
+          }))
         )
       )
     ),

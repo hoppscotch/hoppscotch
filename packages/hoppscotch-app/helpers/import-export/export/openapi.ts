@@ -49,9 +49,7 @@ const convertHoppRestReqBodyEntryToOpenApiBodyEntry = ([key, value]: [
     key,
     isPlainObject(value)
       ? {
-          properties: {
-            ...generateEntries(value as object),
-          },
+          properties: generateEntries(value as object),
         }
       : {
           default: value,
@@ -166,9 +164,7 @@ export const generateOpenApiRequestBody = (
                     content: {
                       [contentType]: {
                         schema: {
-                          properties: {
-                            ...generateEntries(body),
-                          },
+                          properties: generateEntries(body),
                         },
                       },
                     },
@@ -201,9 +197,7 @@ export const generateOpenApiRequestBody = (
                     content: {
                       [contentType]: {
                         schema: {
-                          properties: {
-                            ...generateFormDataEntries(body),
-                          },
+                          properties: generateFormDataEntries(body),
                         },
                       },
                     },

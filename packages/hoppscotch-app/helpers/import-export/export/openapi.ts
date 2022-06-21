@@ -152,9 +152,8 @@ export const generateOpenApiRequestBody = (
           pipe(
             hoppRequestBody,
             O.fromPredicate(isNonFormDataBody),
-            O.chain((hoppRequestBody) =>
-              pipe(
-                hoppRequestBody,
+            O.chain(
+              flow(
                 O.fromPredicate(
                   (hoppRequestBody) =>
                     knownContentTypes[hoppRequestBody.contentType] === "json"

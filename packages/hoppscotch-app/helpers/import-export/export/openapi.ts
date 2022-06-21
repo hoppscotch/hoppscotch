@@ -231,7 +231,7 @@ export const generateOpenApiAuth = (
         hoppAuth.authType,
         O.fromPredicate(
           (authType): authType is "basic" | "api-key" | "bearer" =>
-            authType !== "none" && authType !== "oauth-2"
+            ["basic", "api-key", "bearer"].includes(authType)
         ),
         O.map((authType) =>
           pipe(OpenAPIAuthNames, (auths) => ({

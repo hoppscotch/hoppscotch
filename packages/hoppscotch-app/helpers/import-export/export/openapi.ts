@@ -10,6 +10,7 @@ import {
   HoppRESTReqBodyNonFormData,
   HoppRestReqBodyEmpty,
   HoppRESTAuth,
+  makeRESTRequest,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -25,6 +26,11 @@ import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON } from "~/helpers/functional/json"
 import { objHasProperty } from "~/helpers/functional/object"
 import { jsonToBlob } from "~/helpers/utils/export"
+import { getCombinedEnvVariables } from "~/helpers/preRequest"
+import {
+  getEffectiveRESTRequest,
+  resolvesEnvsInBody,
+} from "~/helpers/utils/EffectiveURL"
 
 const convertHoppFormDataEntryToOAFormDataEntry = (
   entry: FormDataKeyValue
@@ -369,6 +375,33 @@ const extractAllRequestsFromCollections = (
     ])
   )
 
+const applyEnvironmentVariables = (request: HoppRESTRequest): HoppRESTRequest =>
+  pipe(
+    getCombinedEnvVariables(),
+    (envVariables) => ({
+      name: "tempEnv",
+      variables: [...envVariables.selected, ...envVariables.global],
+    }),
+    (environment) => ({
+      effectiveRequest: getEffectiveRESTRequest(request, environment),
+      environment,
+    }),
+    ({ effectiveRequest, environment }) =>
+      makeRESTRequest({
+        ...effectiveRequest,
+        body: resolvesEnvsInBody(effectiveRequest.body, environment),
+        headers: effectiveRequest.effectiveFinalHeaders.map((header) => ({
+          ...header,
+          active: true,
+        })),
+        params: effectiveRequest.effectiveFinalParams.map((param) => ({
+          ...param,
+          active: true,
+        })),
+        endpoint: effectiveRequest.effectiveFinalURL,
+      })
+  )
+
 export type HoppToOpenAPIConversionError = PathGenerationError
 
 export const convertHoppToOpenApiCollection = (
@@ -377,6 +410,7 @@ export const convertHoppToOpenApiCollection = (
   pipe(
     collections,
     extractAllRequestsFromCollections,
+    A.map(applyEnvironmentVariables),
     A.map(generateOpenApiPathFromRequest),
     E.sequenceArray,
     E.map(

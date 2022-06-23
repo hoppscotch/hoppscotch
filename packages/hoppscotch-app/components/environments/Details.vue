@@ -139,6 +139,8 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 
+type EnvironmentVariable = { id: number; env: Environment["variables"] }
+
 const t = useI18n()
 const toast = useToast()
 
@@ -164,7 +166,9 @@ const emit = defineEmits<{
 const idTicker = ref(0)
 
 const name = ref<string | null>(null)
-const vars = ref([{ id: idTicker.value++, env: { key: "", value: "" } }])
+const vars = ref<EnvironmentVariable[]>([
+  { id: idTicker.value++, env: { key: "", value: "" } },
+])
 
 const clearIcon = refAutoReset<"trash-2" | "check">("trash-2", 1000)
 

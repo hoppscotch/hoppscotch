@@ -120,7 +120,8 @@ import clone from "lodash/clone"
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
-import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import { pipe, flow } from "fp-ts/function"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import {
@@ -284,7 +285,12 @@ const saveEnvironment = () => {
 
   const filterdVariables = pipe(
     vars.value,
-    A.map((x) => x.env)
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.env.key !== ""),
+        O.map((e) => e.env)
+      )
+    )
   )
 
   const environmentUpdated: Environment = {

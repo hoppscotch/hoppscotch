@@ -50,18 +50,18 @@
         </div>
         <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
-            v-for="(variable, index) in vars"
-            :key="`variable-${index}`"
+            v-for="({ id, env }, index) in vars"
+            :key="`variable-${id}-${index}`"
             class="flex divide-x divide-dividerLight"
           >
             <input
-              v-model="variable.key"
+              v-model="env.key"
               class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
             <SmartEnvInput
-              v-model="variable.value"
+              v-model="env.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :envs="liveEnvs"
               :name="'value' + index"
@@ -119,6 +119,8 @@
 import clone from "lodash/clone"
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
+import * as A from "fp-ts/Array"
+import { pipe } from "fp-ts/function"
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import {
@@ -159,8 +161,10 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
+const idTicker = ref(0)
+
 const name = ref<string | null>(null)
-const vars = ref([{ key: "", value: "" }])
+const vars = ref([{ id: idTicker.value++, env: { key: "", value: "" } }])
 
 const clearIcon = refAutoReset<"trash-2" | "check">("trash-2", 1000)
 
@@ -187,8 +191,13 @@ const workingEnv = computed(() => {
 const envList = useReadonlyStream(environments$, []) || props.envVars()
 
 const evnExpandError = computed(() => {
-  for (const variable of vars.value) {
-    const result = parseTemplateStringE(variable.value.toString(), vars.value)
+  const variables = pipe(
+    vars.value,
+    A.map((e) => e.env)
+  )
+
+  for (const variable of variables) {
+    const result = parseTemplateStringE(variable.value.toString(), variables)
 
     if (E.isLeft(result)) {
       console.error("error", result.left)
@@ -218,21 +227,38 @@ watch(
   (show) => {
     if (show) {
       name.value = workingEnv.value?.name ?? null
-      vars.value = clone(workingEnv.value?.variables ?? [])
+      vars.value = pipe(
+        workingEnv.value?.variables ?? [],
+        A.map((e) => ({
+          id: idTicker.value++,
+          env: clone(e),
+        }))
+      )
     }
   }
 )
 
 const clearContent = () => {
-  vars.value = []
+  vars.value = [
+    {
+      id: idTicker.value++,
+      env: {
+        key: "",
+        value: "",
+      },
+    },
+  ]
   clearIcon.value = "check"
   toast.success(`${t("state.cleared")}`)
 }
 
 const addEnvironmentVariable = () => {
   vars.value.push({
-    key: "",
-    value: "",
+    id: idTicker.value++,
+    env: {
+      key: "",
+      value: "",
+    },
   })
 }
 
@@ -246,9 +272,14 @@ const saveEnvironment = () => {
     return
   }
 
+  const filterdVariables = pipe(
+    vars.value,
+    A.map((x) => x.env)
+  )
+
   const environmentUpdated: Environment = {
     name: name.value,
-    variables: vars.value,
+    variables: filterdVariables,
   }
 
   if (props.action === "new") {

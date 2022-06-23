@@ -139,7 +139,13 @@ import {
   useToast,
 } from "~/helpers/utils/composables"
 
-type EnvironmentVariable = { id: number; env: Environment["variables"] }
+type EnvironmentVariable = {
+  id: number
+  env: {
+    key: string
+    value: string
+  }
+}
 
 const t = useI18n()
 const toast = useToast()

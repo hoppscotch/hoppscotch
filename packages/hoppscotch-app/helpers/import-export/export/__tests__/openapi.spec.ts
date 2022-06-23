@@ -376,6 +376,95 @@ describe("openapi body generation", () => {
       )
     )
   })
+
+  test("formdata content type", () => {
+    const hoppRequestBody: HoppRESTReqBody = {
+      contentType: "multipart/form-data",
+      body: [
+        {
+          key: "sample-key",
+          value: "sample-value",
+          active: true,
+          isFile: false,
+        },
+        {
+          key: "sample-file",
+          value: [
+            new Blob([JSON.stringify({ key1: "value1" })], {
+              type: "application/json",
+            }),
+          ],
+          isFile: true,
+          active: true,
+        },
+      ],
+    }
+
+    pipe(
+      hoppRequestBody,
+      generateOpenApiRequestBody,
+      E.fold(
+        (error) => {
+          throw new Error(`failed to generate open api body ${error}`)
+        },
+        (openapiRequestBody) => {
+          expect(openapiRequestBody).toMatchInlineSnapshot(`
+            Object {
+              "content": Object {
+                "multipart/form-data": Object {
+                  "schema": Object {
+                    "properties": Object {
+                      "sample-file": Object {
+                        "format": "binary",
+                        "type": "string",
+                      },
+                      "sample-key": Object {
+                        "default": "sample-value",
+                        "type": "string",
+                      },
+                    },
+                  },
+                },
+              },
+            }
+          `)
+        }
+      )
+    )
+  })
+
+  test("x-www-form-urlencoded content type", () => {
+    const hoppRequestBody: HoppRESTReqBody = {
+      contentType: "application/x-www-form-urlencoded",
+      body: "sampleKey1=sampleValue1&sampleKey2=sampleValue2",
+    }
+
+    pipe(
+      hoppRequestBody,
+      generateOpenApiRequestBody,
+      E.fold(
+        (error) => {
+          throw new Error(`failed to generate open api body ${error}`)
+        },
+        (openapiRequestBody) => {
+          expect(openapiRequestBody).toMatchInlineSnapshot(`
+            Object {
+              "content": Object {
+                "properties": Object {
+                  "sampleKey1": Object {
+                    "default": "sampleValue1",
+                  },
+                  "sampleKey2": Object {
+                    "default": "sampleValue2",
+                  },
+                },
+              },
+            }
+          `)
+        }
+      )
+    )
+  })
 })
 
 describe("openapi auth generation", () => {

@@ -11,99 +11,225 @@ import {
   generateOpenApiAuth,
   generateOpenApiRequestBody,
 } from "../openapi"
+import { getCombinedEnvVariables } from "~/helpers/preRequest"
+
+jest.mock("~/helpers/preRequest")
 
 describe("hopp to openapi converter", () => {
   test("multiple hoppscotch collections", () => {
+    // an example convering folders,params,headers,auth, multiple collections
+    // not all cases are covered because they were tested individually
+
     const collection: HoppCollection<HoppRESTRequest>[] = [
       {
         v: 1,
-        name: "JSONPlaceholder",
-        folders: [],
+        folders: [
+          {
+            v: 1,
+            folders: [],
+            name: "Hoppscotch OpenAPI Conversion Sample Folder",
+            requests: [
+              {
+                v: "2",
+                name: "Sample Request 3",
+                endpoint: "https://sampleurl.com/endpoint3",
+                params: [
+                  {
+                    key: "sampleparam1",
+                    value: "samplevalue1",
+                    active: true,
+                  },
+                  {
+                    key: "sampleparam2",
+                    value: "samplevalue2",
+                    active: true,
+                  },
+                ],
+                method: "POST",
+                body: {
+                  contentType: "application/json",
+                  body: JSON.stringify({
+                    key1: "value1",
+                    key2: {
+                      key3: "value3",
+                      key4: "value4",
+                      key5: "value5",
+                      key6: {
+                        key7: "value7",
+                      },
+                    },
+                  }),
+                },
+                preRequestScript: "",
+                testScript: "",
+                headers: [
+                  {
+                    active: true,
+                    key: "X-SAMPLE-HEADER",
+                    value: "sample_header_value",
+                  },
+                  {
+                    active: true,
+                    key: "X-ANOTHER-SAMPLE-HEADER",
+                    value: "another_sample_header",
+                  },
+                ],
+                auth: {
+                  authActive: true,
+                  authType: "bearer",
+                  token: "sampletoken",
+                },
+              },
+            ],
+          },
+        ],
+        name: "Hoppscotch OpenAPI Conversion Sample",
         requests: [
           {
-            v: "1",
-            endpoint: "https://jsonplaceholder.typicode.com/posts",
-            name: "1. Create A post",
-            params: [],
-            headers: [],
+            v: "2",
+            name: "Sample Request 1",
+            endpoint: "https://sampleurl.com/endpoint4",
+            params: [
+              {
+                key: "sampleparam1",
+                value: "samplevalue1",
+                active: true,
+              },
+              {
+                key: "sampleparam2",
+                value: "samplevalue2",
+                active: true,
+              },
+            ],
             method: "POST",
-            auth: {
-              authType: "basic",
-              username: "testusername",
-              password: "testpassword",
-              authActive: true,
+            body: {
+              contentType: "application/json",
+              body: JSON.stringify({
+                key1: "value1",
+                key2: {
+                  key3: "value3",
+                  key4: "value4",
+                  key5: "value5",
+                  key6: {
+                    key7: "value7",
+                  },
+                },
+              }),
             },
             preRequestScript: "",
             testScript: "",
-            body: {
-              contentType: "application/json",
-              body: '{\n  "userId": 1,\n  "id": 1,\n  "title": "Sample Title #1",\n  "body": "Sample Body #1"\n}',
+            headers: [
+              {
+                active: true,
+                key: "X-SAMPLE-HEADER",
+                value: "sample_header_value",
+              },
+              {
+                active: true,
+                key: "X-ANOTHER-SAMPLE-HEADER",
+                value: "another_sample_header",
+              },
+            ],
+            auth: {
+              authActive: true,
+              authType: "bearer",
+              token: "sampletoken",
             },
           },
           {
-            v: "1",
-            endpoint: "https://jsonplaceholder.typicode.com/posts",
-            name: "2. Get details about a post",
-            params: [],
-            headers: [],
+            v: "2",
+            name: "Sample Request 2",
+            endpoint: "<<baseUrl>>/endpoint2",
+            params: [
+              {
+                key: "sampleparam1",
+                value: "<<currentValue>>",
+                active: true,
+              },
+              {
+                key: "sampleparam2",
+                value: "samplevalue2",
+                active: true,
+              },
+            ],
             method: "POST",
-            auth: {
-              authType: "none",
-              authActive: true,
+            body: {
+              contentType: "application/x-www-form-urlencoded",
+              body: "sampleurlparam1=<<currentUrlParamValue1>>&sampleurlparam2=sampleurlvalue2",
             },
             preRequestScript: "",
             testScript: "",
-            body: {
-              contentType: "application/json",
-              body: '{\n  "userId": 1,\n  "id": 1,\n  "title": "Sample Title #1",\n  "body": "Sample Body #1"\n}',
-            },
-          },
-          {
-            v: "1",
-            endpoint: "https://jsonplaceholder.typicode.com/posts/1",
-            name: "3. Delete a post",
-            params: [],
-            headers: [],
-            method: "DELETE",
+            headers: [
+              {
+                active: true,
+                key: "X-SAMPLE-HEADER",
+                value: "sample_header_value",
+              },
+              {
+                active: true,
+                key: "X-ANOTHER-SAMPLE-HEADER",
+                value: "another_sample_header",
+              },
+            ],
             auth: {
-              authType: "none",
               authActive: true,
-            },
-            preRequestScript: "",
-            testScript: "",
-            body: {
-              contentType: "application/json",
-              body: "",
+              authType: "api-key",
+              addTo: "header",
+              key: "X-API-KEY",
+              value: "sampleapikey",
             },
           },
         ],
       },
       {
         v: 1,
-        name: "Todos",
         folders: [],
+        name: "Hoppscotch OpenAPI Conversion Sample",
         requests: [
           {
-            v: "1",
-            endpoint: "https://jsonplaceholder.typicode.com/posts",
-            name: "1. Create All Todos",
+            v: "2",
+            name: "Sample Request 4",
+            endpoint: "https://sampleurl.com/endpoint1",
             params: [],
-            headers: [],
-            method: "GET",
-            auth: {
-              authType: "none",
-              authActive: true,
-            },
-            preRequestScript: "",
-            testScript: "",
+            method: "POST",
             body: {
               contentType: null,
               body: null,
+            },
+            preRequestScript: "",
+            testScript: "",
+            headers: [],
+            auth: {
+              authActive: true,
+              authType: "none",
             },
           },
         ],
       },
     ]
+
+    const mocked = getCombinedEnvVariables as jest.MockedFunction<
+      typeof getCombinedEnvVariables
+    >
+
+    mocked.mockReturnValue({
+      global: [
+        {
+          key: "baseUrl",
+          value: "https://sampleurl.com",
+        },
+      ],
+      selected: [
+        {
+          key: "currentValue",
+          value: "samplevalue1",
+        },
+        {
+          key: "currentUrlParamValue1",
+          value: "sampleurlvalue1",
+        },
+      ],
+    })
 
     pipe(
       collection,
@@ -138,9 +264,9 @@ describe("hopp to openapi converter", () => {
               },
               "openapi": "3.0.0",
               "paths": Object {
-                "/posts": Object {
-                  "get": Object {
-                    "description": "1. Create All Todos",
+                "/endpoint1": Object {
+                  "post": Object {
+                    "description": "Sample Request 4",
                     "parameters": Array [],
                     "requestBody": Object {
                       "content": Object {},
@@ -150,31 +276,280 @@ describe("hopp to openapi converter", () => {
                         "description": "",
                       },
                     },
-                    "security": Object {},
+                    "security": Array [
+                      Object {},
+                    ],
                   },
                   "servers": Array [
                     Object {
-                      "url": "jsonplaceholder.typicode.com",
+                      "url": "sampleurl.com",
                     },
                   ],
                 },
-                "/posts/1": Object {
-                  "delete": Object {
-                    "description": "3. Delete a post",
-                    "parameters": Array [],
+                "/endpoint2": Object {
+                  "post": Object {
+                    "description": "Sample Request 2",
+                    "parameters": Array [
+                      Object {
+                        "in": "header",
+                        "name": "content-type",
+                        "schema": Object {
+                          "default": "application/x-www-form-urlencoded",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "X-SAMPLE-HEADER",
+                        "schema": Object {
+                          "default": "sample_header_value",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "X-ANOTHER-SAMPLE-HEADER",
+                        "schema": Object {
+                          "default": "another_sample_header",
+                        },
+                      },
+                      Object {
+                        "in": "query",
+                        "name": "sampleparam1",
+                        "schema": Object {
+                          "default": "samplevalue1",
+                        },
+                      },
+                      Object {
+                        "in": "query",
+                        "name": "sampleparam2",
+                        "schema": Object {
+                          "default": "samplevalue2",
+                        },
+                      },
+                    ],
                     "requestBody": Object {
-                      "content": Object {},
+                      "content": Object {
+                        "application/x-www-form-urlencoded": Object {
+                          "schema": Object {
+                            "properties": Object {
+                              "sampleurlparam1": Object {
+                                "default": "sampleurlvalue1",
+                              },
+                              "sampleurlparam2": Object {
+                                "default": "sampleurlvalue2",
+                              },
+                            },
+                          },
+                        },
+                      },
                     },
                     "responses": Object {
                       "200": Object {
                         "description": "",
                       },
                     },
-                    "security": Object {},
+                    "security": Array [
+                      Object {
+                        "ApiKeyAuth": Array [],
+                      },
+                    ],
                   },
                   "servers": Array [
                     Object {
-                      "url": "jsonplaceholder.typicode.com",
+                      "url": "sampleurl.com",
+                    },
+                  ],
+                },
+                "/endpoint3": Object {
+                  "post": Object {
+                    "description": "Sample Request 3",
+                    "parameters": Array [
+                      Object {
+                        "in": "header",
+                        "name": "Authorization",
+                        "schema": Object {
+                          "default": "Bearer sampletoken",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "content-type",
+                        "schema": Object {
+                          "default": "application/json",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "X-SAMPLE-HEADER",
+                        "schema": Object {
+                          "default": "sample_header_value",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "X-ANOTHER-SAMPLE-HEADER",
+                        "schema": Object {
+                          "default": "another_sample_header",
+                        },
+                      },
+                      Object {
+                        "in": "query",
+                        "name": "sampleparam1",
+                        "schema": Object {
+                          "default": "samplevalue1",
+                        },
+                      },
+                      Object {
+                        "in": "query",
+                        "name": "sampleparam2",
+                        "schema": Object {
+                          "default": "samplevalue2",
+                        },
+                      },
+                    ],
+                    "requestBody": Object {
+                      "content": Object {
+                        "application/json": Object {
+                          "schema": Object {
+                            "properties": Object {
+                              "key1": Object {
+                                "default": "value1",
+                              },
+                              "key2": Object {
+                                "properties": Object {
+                                  "key3": Object {
+                                    "default": "value3",
+                                  },
+                                  "key4": Object {
+                                    "default": "value4",
+                                  },
+                                  "key5": Object {
+                                    "default": "value5",
+                                  },
+                                  "key6": Object {
+                                    "properties": Object {
+                                      "key7": Object {
+                                        "default": "value7",
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    "responses": Object {
+                      "200": Object {
+                        "description": "",
+                      },
+                    },
+                    "security": Array [
+                      Object {
+                        "bearerAuth": Array [],
+                      },
+                    ],
+                  },
+                  "servers": Array [
+                    Object {
+                      "url": "sampleurl.com",
+                    },
+                  ],
+                },
+                "/endpoint4": Object {
+                  "post": Object {
+                    "description": "Sample Request 1",
+                    "parameters": Array [
+                      Object {
+                        "in": "header",
+                        "name": "Authorization",
+                        "schema": Object {
+                          "default": "Bearer sampletoken",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "content-type",
+                        "schema": Object {
+                          "default": "application/json",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "X-SAMPLE-HEADER",
+                        "schema": Object {
+                          "default": "sample_header_value",
+                        },
+                      },
+                      Object {
+                        "in": "header",
+                        "name": "X-ANOTHER-SAMPLE-HEADER",
+                        "schema": Object {
+                          "default": "another_sample_header",
+                        },
+                      },
+                      Object {
+                        "in": "query",
+                        "name": "sampleparam1",
+                        "schema": Object {
+                          "default": "samplevalue1",
+                        },
+                      },
+                      Object {
+                        "in": "query",
+                        "name": "sampleparam2",
+                        "schema": Object {
+                          "default": "samplevalue2",
+                        },
+                      },
+                    ],
+                    "requestBody": Object {
+                      "content": Object {
+                        "application/json": Object {
+                          "schema": Object {
+                            "properties": Object {
+                              "key1": Object {
+                                "default": "value1",
+                              },
+                              "key2": Object {
+                                "properties": Object {
+                                  "key3": Object {
+                                    "default": "value3",
+                                  },
+                                  "key4": Object {
+                                    "default": "value4",
+                                  },
+                                  "key5": Object {
+                                    "default": "value5",
+                                  },
+                                  "key6": Object {
+                                    "properties": Object {
+                                      "key7": Object {
+                                        "default": "value7",
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                    "responses": Object {
+                      "200": Object {
+                        "description": "",
+                      },
+                    },
+                    "security": Array [
+                      Object {
+                        "bearerAuth": Array [],
+                      },
+                    ],
+                  },
+                  "servers": Array [
+                    Object {
+                      "url": "sampleurl.com",
                     },
                   ],
                 },
@@ -450,12 +825,16 @@ describe("openapi body generation", () => {
           expect(openapiRequestBody).toMatchInlineSnapshot(`
             Object {
               "content": Object {
-                "properties": Object {
-                  "sampleKey1": Object {
-                    "default": "sampleValue1",
-                  },
-                  "sampleKey2": Object {
-                    "default": "sampleValue2",
+                "application/x-www-form-urlencoded": Object {
+                  "schema": Object {
+                    "properties": Object {
+                      "sampleKey1": Object {
+                        "default": "sampleValue1",
+                      },
+                      "sampleKey2": Object {
+                        "default": "sampleValue2",
+                      },
+                    },
                   },
                 },
               },

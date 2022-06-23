@@ -158,7 +158,11 @@ const generateOpenAPIBodyForUrlEncoded = (
     tupleToRecord,
     (properties) => ({
       content: {
-        properties,
+        "application/x-www-form-urlencoded": {
+          schema: {
+            properties,
+          },
+        },
       },
     })
   )
@@ -395,7 +399,7 @@ const generateOpenApiPathFromRequest = (
                 description: "",
               },
             },
-            security: openapiAuth,
+            security: [openapiAuth],
           },
           servers: [
             {

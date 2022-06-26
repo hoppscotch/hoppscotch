@@ -244,7 +244,7 @@ const createCollectionGist = async () => {
     return
   }
 
-  getJSONCollection()
+  await getJSONCollection()
 
   try {
     const res = await axios.$post(
@@ -316,8 +316,8 @@ const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
   importingMyCollections.value = false
 }
 
-const exportJSON = () => {
-  getJSONCollection()
+const exportJSON = async () => {
+  await getJSONCollection()
 
   const dataToWrite = collectionJson.value
   const file = new Blob([dataToWrite], { type: "application/json" })

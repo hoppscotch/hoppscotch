@@ -12,14 +12,10 @@
               v-for="(navigation, index) in realtimeNavigation"
               :key="`realtime-navigation-${index}`"
               :to="navigation.target"
+              class="nav-link"
               tabindex="0"
             >
-              <button
-                :key="`realtime-tab-${index}`"
-                class="tab"
-                :class="[{ active: navigation.target === selectedTab }]"
-                role="button"
-              >
+              <button :key="`realtime-tab-${index}`" class="tab" role="button">
                 <span v-if="navigation.title">{{ navigation.title }}</span>
               </button>
             </NuxtLink>
@@ -29,31 +25,15 @@
       </div>
     </div>
     <div class="w-full h-full contents">
-      <template v-if="selectedTab === 'websocket'">
-        <RealtimeWebsocket />
-      </template>
-      <template v-if="selectedTab === 'sse'">
-        <RealtimeSse />
-      </template>
-      <template v-if="selectedTab === 'socketio'">
-        <RealtimeSocketio />
-      </template>
-      <template v-if="selectedTab === 'mqtt'">
-        <RealtimeMqtt />
-      </template>
+      <slot></slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRoute, useRouter, onMounted, ref } from "@nuxtjs/composition-api"
 import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
-const route = useRoute()
-const router = useRouter()
-
-const selectedTab = ref("websocket")
 
 const realtimeNavigation = [
   {
@@ -73,17 +53,6 @@ const realtimeNavigation = [
     title: t("tab.mqtt"),
   },
 ]
-
-onMounted(() => {
-  const { tab } = route.value.params
-  if (!tab || !realtimeNavigation.some((nav) => nav.target === tab)) {
-    router.push({
-      path: "/realtime/websocket",
-    })
-  } else {
-    selectedTab.value = tab
-  }
-})
 </script>
 
 <style scoped lang="scss">
@@ -133,18 +102,18 @@ onMounted(() => {
     &:focus::after {
       @apply bg-divider;
     }
+  }
 
-    &.active {
-      @apply text-secondaryDark;
+  .active-link button.tab {
+    @apply text-secondaryDark;
 
-      .tab-info {
-        @apply text-secondary;
-        @apply border-dividerDark;
-      }
+    .tab-info {
+      @apply text-secondary;
+      @apply border-dividerDark;
+    }
 
-      &::after {
-        @apply bg-accent;
-      }
+    &::after {
+      @apply bg-accent;
     }
   }
 }

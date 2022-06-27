@@ -1,134 +1,136 @@
 <template>
-  <AppPaneLayout>
-    <template #primary>
-      <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
-      >
-        <div class="inline-flex flex-1 space-x-2">
+  <RealtimeNav>
+    <AppPaneLayout>
+      <template #primary>
+        <div
+          class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+        >
+          <div class="inline-flex flex-1 space-x-2">
+            <input
+              id="mqtt-url"
+              v-model="url"
+              type="url"
+              autocomplete="off"
+              spellcheck="false"
+              class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
+              :placeholder="$t('mqtt.url')"
+              :disabled="
+                connectionState === 'CONNECTED' ||
+                connectionState === 'CONNECTING'
+              "
+              @keyup.enter="isUrlValid ? toggleConnection() : null"
+            />
+            <ButtonPrimary
+              id="connect"
+              :disabled="!isUrlValid"
+              class="w-32"
+              :label="
+                connectionState === 'DISCONNECTED'
+                  ? t('action.connect')
+                  : t('action.disconnect')
+              "
+              :loading="connectionState === 'CONNECTING'"
+              @click.native="toggleConnection"
+            />
+          </div>
+          <div class="flex space-x-4">
+            <input
+              id="mqtt-username"
+              v-model="username"
+              type="text"
+              spellcheck="false"
+              class="input"
+              :placeholder="$t('authorization.username')"
+            />
+            <input
+              id="mqtt-password"
+              v-model="password"
+              type="password"
+              spellcheck="false"
+              class="input"
+              :placeholder="$t('authorization.password')"
+            />
+          </div>
+        </div>
+      </template>
+      <template #secondary>
+        <RealtimeLog
+          :title="$t('mqtt.log')"
+          :log="log"
+          @delete="clearLogEntries()"
+        />
+      </template>
+      <template #sidebar>
+        <div class="flex items-center justify-between p-4">
+          <label for="pubTopic" class="font-semibold text-secondaryLight">
+            {{ $t("mqtt.topic") }}
+          </label>
+        </div>
+        <div class="flex px-4">
           <input
-            id="mqtt-url"
-            v-model="url"
-            type="url"
+            id="pubTopic"
+            v-model="pubTopic"
+            class="input"
+            :placeholder="$t('mqtt.topic_name')"
+            type="text"
             autocomplete="off"
             spellcheck="false"
-            class="w-full px-4 py-2 border rounded bg-primaryLight border-divider text-secondaryDark"
-            :placeholder="$t('mqtt.url')"
-            :disabled="
-              connectionState === 'CONNECTED' ||
-              connectionState === 'CONNECTING'
-            "
-            @keyup.enter="isUrlValid ? toggleConnection() : null"
+          />
+        </div>
+        <div class="flex items-center justify-between p-4">
+          <label for="mqtt-message" class="font-semibold text-secondaryLight">
+            {{ $t("mqtt.communication") }}
+          </label>
+        </div>
+        <div class="flex px-4 space-x-2">
+          <input
+            id="mqtt-message"
+            v-model="message"
+            class="input"
+            type="text"
+            autocomplete="off"
+            :placeholder="$t('mqtt.message')"
+            spellcheck="false"
           />
           <ButtonPrimary
-            id="connect"
-            :disabled="!isUrlValid"
-            class="w-32"
-            :label="
-              connectionState === 'DISCONNECTED'
-                ? t('action.connect')
-                : t('action.disconnect')
-            "
-            :loading="connectionState === 'CONNECTING'"
-            @click.native="toggleConnection"
+            id="publish"
+            name="get"
+            :disabled="!canPublish"
+            :label="$t('mqtt.publish')"
+            @click.native="publish"
           />
         </div>
-        <div class="flex space-x-4">
+        <div
+          class="flex items-center justify-between p-4 mt-4 border-t border-dividerLight"
+        >
+          <label for="subTopic" class="font-semibold text-secondaryLight">
+            {{ $t("mqtt.topic") }}
+          </label>
+        </div>
+        <div class="flex px-4 space-x-2">
           <input
-            id="mqtt-username"
-            v-model="username"
+            id="subTopic"
+            v-model="subTopic"
             type="text"
+            autocomplete="off"
+            :placeholder="$t('mqtt.topic_name')"
             spellcheck="false"
             class="input"
-            :placeholder="$t('authorization.username')"
           />
-          <input
-            id="mqtt-password"
-            v-model="password"
-            type="password"
-            spellcheck="false"
-            class="input"
-            :placeholder="$t('authorization.password')"
+          <ButtonPrimary
+            id="subscribe"
+            name="get"
+            :disabled="!canSubscribe"
+            :label="
+              subscriptionState ? $t('mqtt.unsubscribe') : $t('mqtt.subscribe')
+            "
+            reverse
+            @click.native="toggleSubscription"
           />
         </div>
-      </div>
-    </template>
-    <template #secondary>
-      <RealtimeLog
-        :title="$t('mqtt.log')"
-        :log="log"
-        @delete="clearLogEntries()"
-      />
-    </template>
-    <template #sidebar>
-      <div class="flex items-center justify-between p-4">
-        <label for="pubTopic" class="font-semibold text-secondaryLight">
-          {{ $t("mqtt.topic") }}
-        </label>
-      </div>
-      <div class="flex px-4">
-        <input
-          id="pubTopic"
-          v-model="pubTopic"
-          class="input"
-          :placeholder="$t('mqtt.topic_name')"
-          type="text"
-          autocomplete="off"
-          spellcheck="false"
-        />
-      </div>
-      <div class="flex items-center justify-between p-4">
-        <label for="mqtt-message" class="font-semibold text-secondaryLight">
-          {{ $t("mqtt.communication") }}
-        </label>
-      </div>
-      <div class="flex px-4 space-x-2">
-        <input
-          id="mqtt-message"
-          v-model="message"
-          class="input"
-          type="text"
-          autocomplete="off"
-          :placeholder="$t('mqtt.message')"
-          spellcheck="false"
-        />
-        <ButtonPrimary
-          id="publish"
-          name="get"
-          :disabled="!canPublish"
-          :label="$t('mqtt.publish')"
-          @click.native="publish"
-        />
-      </div>
-      <div
-        class="flex items-center justify-between p-4 mt-4 border-t border-dividerLight"
-      >
-        <label for="subTopic" class="font-semibold text-secondaryLight">
-          {{ $t("mqtt.topic") }}
-        </label>
-      </div>
-      <div class="flex px-4 space-x-2">
-        <input
-          id="subTopic"
-          v-model="subTopic"
-          type="text"
-          autocomplete="off"
-          :placeholder="$t('mqtt.topic_name')"
-          spellcheck="false"
-          class="input"
-        />
-        <ButtonPrimary
-          id="subscribe"
-          name="get"
-          :disabled="!canSubscribe"
-          :label="
-            subscriptionState ? $t('mqtt.unsubscribe') : $t('mqtt.subscribe')
-          "
-          reverse
-          @click.native="toggleSubscription"
-        />
-      </div>
-    </template>
-  </AppPaneLayout>
+      </template>
+    </AppPaneLayout>
+  </RealtimeNav>
 </template>
 
 <script setup lang="ts">

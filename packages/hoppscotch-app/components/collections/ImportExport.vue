@@ -169,6 +169,7 @@ import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
+import * as O from "fp-ts/Option"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import {
   useAxios,
@@ -191,6 +192,7 @@ import {
   exportCollection,
   RESTCollectionExporterError,
 } from "~/helpers/import-export/export"
+import { safeParseJSON } from "~/helpers/functional/json"
 
 const props = defineProps<{
   show: boolean
@@ -329,19 +331,23 @@ const exportJSON = (exporterId: string) => {
   getJSONCollection()
 
   return pipe(
-    myCollections.value,
-    exportCollection(exporterId),
+    safeParseJSON(collectionJson.value) as O.Option<
+      HoppCollection<HoppRESTRequest>[]
+    >,
+    TE.fromOption(() => "INVALID_COLLECTIONS" as const),
+    TE.chainW((collections) => pipe(collections, exportCollection(exporterId))),
     TE.match(failedExport, writeExport)
   )()
 }
 
 const ExportErrorMessages: Record<
-  RESTCollectionExporterError,
+  RESTCollectionExporterError | "INVALID_COLLECTIONS",
   ReturnType<typeof t>
 > = {
   IMPORT_ERROR: t("error.something_went_wrong"),
   CANNOT_MAKE_BLOB: t("error.something_went_wrong"),
   INVALID_EXPORTER: t("error.something_went_wrong"),
+  INVALID_COLLECTIONS: t("error.something_went_wrong"),
   INVALID_AUTH: t("export.error_invalid_auth"),
   INVALID_BODY: t("export.error_invalid_body"),
   INVALID_URL: t("export.error_invalid_url"),
@@ -349,7 +355,9 @@ const ExportErrorMessages: Record<
   INVALID_CONTENT_TYPE: t("export.error_invalid_method"),
 } as const
 
-const failedExport = (error: RESTCollectionExporterError) => {
+const failedExport = (
+  error: RESTCollectionExporterError | "INVALID_COLLECTIONS"
+) => {
   const errorMessage = ExportErrorMessages[error]
   toast.error(errorMessage.toString())
 }

@@ -180,7 +180,7 @@
     "prettier": "^2.6.2",
     "raw-loader": "^4.0.2",
     "sass": "^1.50.0",
-    "sass-loader": "^10.2.0",
+    "sass-loader": "^13.0.1",
     "stylelint": "^14.7.1",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended-vue": "^1.4.0",

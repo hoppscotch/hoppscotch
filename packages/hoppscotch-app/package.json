@@ -47,7 +47,7 @@
     "@codemirror/lang-json": "^0.19.2",
     "@codemirror/lang-xml": "^0.19.2",
     "@codemirror/language": "^0.19.10",
-    "@codemirror/legacy-modes": "^0.19.1",
+    "@codemirror/legacy-modes": "^6.1.0",
     "@codemirror/lint": "^0.19.6",
     "@codemirror/matchbrackets": "^0.19.4",
     "@codemirror/rectangular-selection": "^0.19.2",

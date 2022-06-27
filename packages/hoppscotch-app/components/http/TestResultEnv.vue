@@ -12,10 +12,10 @@
       <span class="text-secondaryDark">
         {{ env.key }}
       </span>
-      <span class="text-secondaryDark">
+      <span class="text-secondaryDark pl-2 break-all">
         {{ ` \xA0 — \xA0 ${env.value}` }}
       </span>
-      <span v-if="status === 'updations'" class="text-secondaryLight">
+      <span v-if="status === 'updations'" class="text-secondaryLight px-2 break-all">
         {{ ` \xA0 ← \xA0 ${env.previousValue}` }}
       </span>
     </div>

@@ -331,6 +331,9 @@ const exportJSON = (exporterId: string) => {
   getJSONCollection()
 
   return pipe(
+    // here we know the collectionJson.value is serialized HoppCollection<HoppRESTRequest>[],
+    // because it was converted to a string in getJSONCollection function/we get it as a string from the teams server
+    // also the exportCollection expects a HoppCollection<HoppRESTRequest>[], hence casting it to a HoppCollection<HoppRESTRequest>[]
     safeParseJSON(collectionJson.value) as O.Option<
       HoppCollection<HoppRESTRequest>[]
     >,

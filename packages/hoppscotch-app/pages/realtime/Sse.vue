@@ -1,69 +1,65 @@
 <template>
-  <RealtimeNav>
-    <AppPaneLayout>
-      <template #primary>
-        <div
-          class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
-        >
-          <div class="inline-flex flex-1 space-x-2">
-            <div class="flex flex-1">
-              <input
-                id="server"
-                v-model="server"
-                type="url"
-                autocomplete="off"
-                :class="{ error: !isUrlValid }"
-                class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
-                :placeholder="$t('sse.url')"
-                :disabled="
-                  connectionState === 'STARTED' ||
-                  connectionState === 'STARTING'
-                "
-                @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
-              />
-              <label
-                for="event-type"
-                class="px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
-              >
-                {{ $t("sse.event_type") }}
-              </label>
-              <input
-                id="event-type"
-                v-model="eventType"
-                class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
-                spellcheck="false"
-                :disabled="
-                  connectionState === 'STARTED' ||
-                  connectionState === 'STARTING'
-                "
-                @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
-              />
-            </div>
-            <ButtonPrimary
-              id="start"
-              :disabled="!isUrlValid"
-              name="start"
-              class="w-32"
-              :label="
-                connectionState === 'STOPPED'
-                  ? t('action.start')
-                  : t('action.stop')
+  <AppPaneLayout>
+    <template #primary>
+      <div
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+      >
+        <div class="inline-flex flex-1 space-x-2">
+          <div class="flex flex-1">
+            <input
+              id="server"
+              v-model="server"
+              type="url"
+              autocomplete="off"
+              :class="{ error: !isUrlValid }"
+              class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
+              :placeholder="$t('sse.url')"
+              :disabled="
+                connectionState === 'STARTED' || connectionState === 'STARTING'
               "
-              :loading="connectionState === 'STARTING'"
-              @click.native="toggleSSEConnection"
+              @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
+            />
+            <label
+              for="event-type"
+              class="px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
+            >
+              {{ $t("sse.event_type") }}
+            </label>
+            <input
+              id="event-type"
+              v-model="eventType"
+              class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
+              spellcheck="false"
+              :disabled="
+                connectionState === 'STARTED' || connectionState === 'STARTING'
+              "
+              @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
             />
           </div>
+          <ButtonPrimary
+            id="start"
+            :disabled="!isUrlValid"
+            name="start"
+            class="w-32"
+            :label="
+              connectionState === 'STOPPED'
+                ? t('action.start')
+                : t('action.stop')
+            "
+            :loading="connectionState === 'STARTING'"
+            @click.native="toggleSSEConnection"
+          />
         </div>
-      </template>
-      <template #secondary>
-        <RealtimeLog
-          :title="$t('sse.log')"
-          :log="log"
-          @delete="clearLogEntries()"
-        />
-      </template>
-    </AppPaneLayout>
-  </RealtimeNav>
+      </div>
+    </template>
+    <template #secondary>
+      <RealtimeLog
+        :title="$t('sse.log')"
+        :log="log"
+        @delete="clearLogEntries()"
+      />
+    </template>
+  </AppPaneLayout>
 </template>
 
 <script setup lang="ts">

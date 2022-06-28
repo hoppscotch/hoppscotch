@@ -86,10 +86,12 @@
       <SmartTabs
         v-model="selectedTab"
         styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+        render-inactive-tabs
       >
         <SmartTab
           :id="'communication'"
           :label="`${t('websocket.communication')}`"
+          render-inactive-tabs
         >
           <RealtimeCommunication
             :show-event-field="true"

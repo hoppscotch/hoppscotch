@@ -1,5 +1,5 @@
 <template>
-  <div v-show="active" class="flex flex-col flex-1">
+  <div v-if="shouldRender" v-show="active" class="flex flex-col flex-1">
     <slot></slot>
   </div>
 </template>
@@ -33,10 +33,23 @@ const tabMeta = computed<TabMeta>(() => ({
   label: props.label,
 }))
 
-const { activeTabID, addTabEntry, updateTabEntry, removeTabEntry } =
-  inject<TabProvider>("tabs-system")!
+const {
+  activeTabID,
+  renderInactive,
+  addTabEntry,
+  updateTabEntry,
+  removeTabEntry,
+} = inject<TabProvider>("tabs-system")!
 
 const active = computed(() => activeTabID.value === props.id)
+
+const shouldRender = computed(() => {
+  // If render inactive is true, then it should be rendered nonetheless
+  if (renderInactive.value) return true
+
+  // Else, return whatever is the active state
+  return active.value
+})
 
 onMounted(() => {
   addTabEntry(props.id, tabMeta.value)

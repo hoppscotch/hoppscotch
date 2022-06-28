@@ -83,7 +83,7 @@
               <FirebaseLogout outline />
             </div>
           </div>
-          <SmartTabs v-model="selectedProfileTab">
+          <SmartTabs v-model="selectedProfileTab" render-inactive-tabs>
             <SmartTab :id="'sync'" :label="t('settings.account')">
               <div class="grid grid-cols-1">
                 <section class="p-4">

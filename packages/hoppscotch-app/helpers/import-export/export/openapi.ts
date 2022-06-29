@@ -265,7 +265,7 @@ export const generateOpenApiRequestBody = (
     )
   )
 
-const OpenAPIAuthNames = {
+const OPEN_API_AUTH_NAMES = {
   basic: "basicAuth",
   "api-key": "ApiKeyAuth",
   bearer: "bearerAuth",
@@ -286,7 +286,7 @@ export const generateOpenApiAuth = (
             ["basic", "api-key", "bearer"].includes(authType)
         ),
         O.map((authType) =>
-          pipe(OpenAPIAuthNames, (auths) => ({
+          pipe(OPEN_API_AUTH_NAMES, (auths) => ({
             [auths[authType]]: [],
           }))
         )
@@ -365,9 +365,7 @@ const generateOpenApiPathFromRequest = (
       )
     ),
 
-    E.bindW("openApiBody", () =>
-      pipe(request.body, generateOpenApiRequestBody)
-    ),
+    E.bindW("openApiBody", () => generateOpenApiRequestBody(request.body)),
 
     E.bindW("openApiHeaders", () =>
       pipe(request.headers, generateOpenApiHeaders, E.right)
@@ -377,7 +375,7 @@ const generateOpenApiPathFromRequest = (
       pipe(request.params, generateOpenApiQueryParams, E.right)
     ),
 
-    E.bindW("openapiAuth", () => pipe(request.auth, generateOpenApiAuth)),
+    E.bindW("openapiAuth", () => generateOpenApiAuth(request.auth)),
 
     E.map(
       ({

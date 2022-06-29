@@ -338,15 +338,12 @@ const exportJSON = (exporterId: string) => {
       HoppCollection<HoppRESTRequest>[]
     >,
     TE.fromOption(() => "INVALID_COLLECTIONS" as const),
-    TE.chainW((collections) => pipe(collections, exportCollection(exporterId))),
+    TE.chainW(exportCollection(exporterId)),
     TE.match(failedExport, writeExport)
   )()
 }
 
-const ExportErrorMessages: Record<
-  RESTCollectionExporterError | "INVALID_COLLECTIONS",
-  ReturnType<typeof t>
-> = {
+const EXPORT_ERROR_MESSAGES = {
   IMPORT_ERROR: t("error.something_went_wrong"),
   CANNOT_MAKE_BLOB: t("error.something_went_wrong"),
   INVALID_EXPORTER: t("error.something_went_wrong"),
@@ -361,7 +358,7 @@ const ExportErrorMessages: Record<
 const failedExport = (
   error: RESTCollectionExporterError | "INVALID_COLLECTIONS"
 ) => {
-  const errorMessage = ExportErrorMessages[error]
+  const errorMessage = EXPORT_ERROR_MESSAGES[error]
   toast.error(errorMessage.toString())
 }
 

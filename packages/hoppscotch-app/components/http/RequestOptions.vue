@@ -2,6 +2,7 @@
   <SmartTabs
     v-model="selectedRealtimeTab"
     styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+    render-inactive-tabs
   >
     <SmartTab
       :id="'params'"
@@ -18,7 +19,7 @@
       :label="`${$t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders />
+      <HttpHeaders @change-tab="changeTab" />
     </SmartTab>
     <SmartTab :id="'authorization'" :label="`${$t('tab.authorization')}`">
       <HttpAuthorization />

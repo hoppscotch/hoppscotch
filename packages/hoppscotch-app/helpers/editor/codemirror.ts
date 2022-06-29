@@ -28,8 +28,6 @@ import { javascriptLanguage } from "@codemirror/lang-javascript"
 import { xmlLanguage } from "@codemirror/lang-xml"
 import { jsonLanguage } from "@codemirror/lang-json"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
-import { pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
 import { StreamLanguage } from "@codemirror/stream-parser"
 import { html } from "@codemirror/legacy-modes/mode/xml"
 import { shell } from "@codemirror/legacy-modes/mode/shell"
@@ -40,7 +38,6 @@ import { Completer } from "./completion"
 import { LinterDefinition } from "./linting/linter"
 import { basicSetup, baseTheme, baseHighlightStyle } from "./themes/baseTheme"
 import { HoppEnvironmentPlugin } from "./extensions/HoppEnvironment"
-import { IndentedLineWrapPlugin } from "./extensions/IndentedLineWrap"
 // TODO: Migrate from legacy mode
 
 type ExtendedEditorConfig = {
@@ -96,8 +93,10 @@ const hoppCompleterExt = (completer: Completer): Extension => {
   })
 }
 
-const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
+const hoppLinterExt = (hoppLinter: LinterDefinition | undefined): Extension => {
   return linter(async (view) => {
+    if (!hoppLinter) return []
+
     // Requires full document scan, hence expensive on big files, force disable on big files ?
     const linterResult = await hoppLinter(
       view.state.doc.toJSON().join(view.state.lineBreak)
@@ -119,16 +118,16 @@ const hoppLinterExt = (hoppLinter: LinterDefinition): Extension => {
 }
 
 const hoppLang = (
-  language: Language,
+  language: Language | undefined,
   linter?: LinterDefinition | undefined,
   completer?: Completer | undefined
-) => {
+): Extension | LanguageSupport => {
   const exts: Extension[] = []
 
-  if (linter) exts.push(hoppLinterExt(linter))
+  exts.push(hoppLinterExt(linter))
   if (completer) exts.push(hoppCompleterExt(completer))
 
-  return new LanguageSupport(language, exts)
+  return language ? new LanguageSupport(language, exts) : exts
 }
 
 const getLanguage = (langMime: string): Language | null => {
@@ -156,12 +155,7 @@ const getEditorLanguage = (
   langMime: string,
   linter: LinterDefinition | undefined,
   completer: Completer | undefined
-): Extension =>
-  pipe(
-    O.fromNullable(getLanguage(langMime)),
-    O.map((lang) => hoppLang(lang, linter, completer)),
-    O.getOrElseW(() => [])
-  )
+): Extension => hoppLang(getLanguage(langMime) ?? undefined, linter, completer)
 
 export function useCodemirror(
   el: Ref<any | null>,
@@ -243,7 +237,7 @@ export function useCodemirror(
       ),
       lineWrapping.of(
         options.extendedEditorConfig.lineWrapping
-          ? [IndentedLineWrapPlugin]
+          ? [EditorView.lineWrapping]
           : []
       ),
       keymap.of([
@@ -330,7 +324,7 @@ export function useCodemirror(
     (newMode) => {
       view.value?.dispatch({
         effects: lineWrapping.reconfigure(
-          newMode ? [EditorView.lineWrapping, IndentedLineWrapPlugin] : []
+          newMode ? [EditorView.lineWrapping] : []
         ),
       })
     }

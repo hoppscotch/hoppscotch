@@ -48,9 +48,7 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
     case "UNKNOWN_COMMAND":
       ERROR_MSG = `Unavailable command: ${error.command}`;
       break;
-    case "FILE_NOT_JSON":
-      ERROR_MSG = `Please check file type: ${error.path}`;
-      break;
+    case "MALFORMED_ENV_FILE":
     case "MALFORMED_COLLECTION":
       ERROR_MSG = `${error.path}\n${parseErrorData(error.data)}`;
       break;
@@ -59,6 +57,9 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
       break;
     case "PARSING_ERROR":
       ERROR_MSG = `Unable to parse -\n${error.data}`;
+      break;
+    case "INVALID_FILE_TYPE":
+      ERROR_MSG = `Please provide file of extension type: ${error.data}`;
       break;
     case "REQUEST_ERROR":
     case "TEST_SCRIPT_ERROR":

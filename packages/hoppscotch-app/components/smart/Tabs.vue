@@ -80,6 +80,8 @@ export type TabMeta = {
 }
 
 export type TabProvider = {
+  // Whether inactive tabs should remain rendered
+  renderInactive: ComputedRef<boolean>
   activeTabID: ComputedRef<string>
   addTabEntry: (tabID: string, meta: TabMeta) => void
   updateTabEntry: (tabID: string, newMeta: TabMeta) => void
@@ -90,6 +92,10 @@ const props = defineProps({
   styles: {
     type: String,
     default: "",
+  },
+  renderInactiveTabs: {
+    type: Boolean,
+    default: false,
   },
   vertical: {
     type: Boolean,
@@ -144,6 +150,7 @@ const removeTabEntry = (tabID: string) => {
 }
 
 provide<TabProvider>("tabs-system", {
+  renderInactive: computed(() => props.renderInactiveTabs),
   activeTabID: computed(() => props.value),
   addTabEntry,
   updateTabEntry,

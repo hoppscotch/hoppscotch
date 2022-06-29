@@ -3,6 +3,7 @@
     v-model="selectedNavigationTab"
     styles="sticky bg-primary z-10 top-0"
     vertical
+    render-inactive-tabs
   >
     <SmartTab :id="'history'" icon="clock" :label="`${$t('tab.history')}`">
       <History ref="historyComponent" :page="'rest'" />

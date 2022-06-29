@@ -1,6 +1,10 @@
 <template>
   <div v-if="show">
-    <SmartTabs :id="'collections_tab'" v-model="selectedCollectionTab">
+    <SmartTabs
+      :id="'collections_tab'"
+      v-model="selectedCollectionTab"
+      render-inactive-tabs
+    >
       <SmartTab
         :id="'my-collections'"
         :label="`${$t('collection.my_collections')}`"

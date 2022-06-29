@@ -6,7 +6,7 @@ import * as J from "fp-ts/Json";
 import { pipe } from "fp-ts/function";
 import { FormDataEntry } from "../types/request";
 import { error, HoppCLIError } from "../types/errors";
-import { isRESTCollection, isHoppErrnoException } from "./checks";
+import { isRESTCollection, isHoppErrnoException, checkFile } from "./checks";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 
 /**
@@ -49,10 +49,17 @@ export const parseCollectionData = (
   path: string
 ): TE.TaskEither<HoppCLIError, HoppCollection<HoppRESTRequest>[]> =>
   pipe(
+    TE.of(path),
+
+    // Checking if given file path exists or not.
+    TE.chain(checkFile),
+
     // Trying to read give collection json path.
-    TE.tryCatch(
-      () => pipe(path, fs.readFile),
-      (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
+    TE.chainW((checkedPath) =>
+      TE.tryCatch(
+        () => fs.readFile(checkedPath),
+        (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
+      )
     ),
 
     // Checking if parsed file data is array.

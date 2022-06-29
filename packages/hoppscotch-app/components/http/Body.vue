@@ -22,7 +22,10 @@
               />
             </span>
           </template>
-          <div class="flex flex-col" role="menu">
+          <div
+            class="flex flex-col space-y-1 divide-y divide-dividerLight"
+            role="menu"
+          >
             <SmartItem
               :label="$t('state.none').toLowerCase()"
               :info-icon="contentType === null ? 'done' : ''"
@@ -34,19 +37,36 @@
                 }
               "
             />
-            <SmartItem
-              v-for="(contentTypeItem, index) in validContentTypes"
-              :key="`contentTypeItem-${index}`"
-              :label="contentTypeItem"
-              :info-icon="contentTypeItem === contentType ? 'done' : ''"
-              :active-info-icon="contentTypeItem === contentType"
-              @click.native="
-                () => {
-                  contentType = contentTypeItem
-                  $refs.contentTypeOptions.tippy().hide()
-                }
-              "
-            />
+            <div
+              v-for="(
+                contentTypeItems, contentTypeItemsIndex
+              ) in segmentedContentTypes"
+              :key="`contentTypeItems-${contentTypeItemsIndex}`"
+              class="flex flex-col py-2 text-left"
+            >
+              <div class="flex rounded py-2 px-4">
+                <span class="text-tiny text-secondaryLight font-bold">
+                  {{ $t(contentTypeItems.title) }}
+                </span>
+              </div>
+              <div class="flex flex-col">
+                <SmartItem
+                  v-for="(
+                    contentTypeItem, contentTypeIndex
+                  ) in contentTypeItems.contentTypes"
+                  :key="`contentTypeItem-${contentTypeIndex}`"
+                  :label="contentTypeItem"
+                  :info-icon="contentTypeItem === contentType ? 'done' : ''"
+                  :active-info-icon="contentTypeItem === contentType"
+                  @click.native="
+                    () => {
+                      contentType = contentTypeItem
+                      $refs.contentTypeOptions.tippy().hide()
+                    }
+                  "
+                />
+              </div>
+            </div>
           </div>
         </tippy>
         <ButtonSecondary
@@ -106,7 +126,7 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useStream } from "~/helpers/utils/composables"
-import { knownContentTypes } from "~/helpers/utils/contenttypes"
+import { segmentedContentTypes } from "~/helpers/utils/contenttypes"
 import {
   restContentType$,
   restHeaders$,
@@ -119,7 +139,6 @@ const emit = defineEmits<{
   (e: "change-tab", value: string): void
 }>()
 
-const validContentTypes = Object.keys(knownContentTypes)
 const contentType = useStream(restContentType$, null, setRESTContentType)
 
 // The functional headers list (the headers actually in the system)

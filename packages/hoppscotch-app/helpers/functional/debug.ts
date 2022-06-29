@@ -17,6 +17,6 @@ export const trace = <T>(x: T) => {
 export const namedTrace =
   (name: string) =>
   <T>(x: T) => {
-    console.log(`${name}: `, x)
+    console.log(`${name}:`, x)
     return x
   }

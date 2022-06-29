@@ -4,8 +4,9 @@ import {
   HoppRealtimeLog,
   HoppRealtimeLogLine,
 } from "~/helpers/types/HoppRealtimeLog"
+import { WSConnection } from "~/helpers/realtime/WSConnection"
 
-type HoppWSProtocol = {
+export type HoppWSProtocol = {
   value: string
   active: boolean
 }
@@ -17,10 +18,8 @@ type HoppWSRequest = {
 
 export type HoppWSSession = {
   request: HoppWSRequest
-  connectingState: boolean
-  connectionState: boolean
   log: HoppRealtimeLog
-  socket: WebSocket | null
+  socket: WSConnection
 }
 
 const defaultWSRequest: HoppWSRequest = {
@@ -30,9 +29,7 @@ const defaultWSRequest: HoppWSRequest = {
 
 const defaultWSSession: HoppWSSession = {
   request: defaultWSRequest,
-  connectionState: false,
-  connectingState: false,
-  socket: null,
+  socket: new WSConnection(),
   log: [],
 }
 
@@ -101,19 +98,9 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setSocket(_: HoppWSSession, { socket }: { socket: WebSocket }) {
+  setSocket(_: HoppWSSession, { socket }: { socket: WSConnection }) {
     return {
       socket,
-    }
-  },
-  setConnectionState(_: HoppWSSession, { state }: { state: boolean }) {
-    return {
-      connectionState: state,
-    }
-  },
-  setConnectingState(_: HoppWSSession, { state }: { state: boolean }) {
-    return {
-      connectingState: state,
     }
   },
   setLog(_: HoppWSSession, { log }: { log: HoppRealtimeLog }) {
@@ -195,28 +182,11 @@ export function updateWSProtocol(
   })
 }
 
-export function setWSSocket(socket: WebSocket) {
+export function setWSSocket(socket: WSConnection) {
   WSSessionStore.dispatch({
     dispatcher: "setSocket",
     payload: {
       socket,
-    },
-  })
-}
-
-export function setWSConnectionState(state: boolean) {
-  WSSessionStore.dispatch({
-    dispatcher: "setConnectionState",
-    payload: {
-      state,
-    },
-  })
-}
-export function setWSConnectingState(state: boolean) {
-  WSSessionStore.dispatch({
-    dispatcher: "setConnectingState",
-    payload: {
-      state,
     },
   })
 }

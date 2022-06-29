@@ -172,6 +172,12 @@
               "
             />
             <SmartItem
+              svg="link-2"
+              :label="`${t('request.view_my_links')}`"
+              to="/profile"
+            />
+            <hr />
+            <SmartItem
               ref="saveRequestAction"
               :label="`${t('request.save_as')}`"
               svg="folder-plus"
@@ -208,6 +214,8 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
+import cloneDeep from "lodash/cloneDeep"
+import { refAutoReset } from "@vueuse/core"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -386,7 +394,11 @@ const clearContent = () => {
   resetRESTRequest()
 }
 
-const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
+const copyLinkIcon = refAutoReset<"share-2" | "copy" | "check">(
+  hasNavigatorShare ? "share-2" : "copy",
+  1000
+)
+
 const shareLink = ref<string | null>("")
 const fetchingShareLink = ref(false)
 
@@ -441,7 +453,6 @@ const copyShareLink = (shareLink: string) => {
     copyLinkIcon.value = "check"
     copyToClipboard(`https://hopp.sh/r${shareLink}`)
     toast.success(`${t("state.copied_to_clipboard")}`)
-    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
 }
 
@@ -477,14 +488,21 @@ const saveRequest = () => {
     showSaveRequestModal.value = true
     return
   }
-
   if (saveCtx.originLocation === "user-collection") {
+    const req = getRESTRequest()
+
     try {
       editRESTRequest(
         saveCtx.folderPath,
         saveCtx.requestIndex,
         getRESTRequest()
       )
+      setRESTSaveContext({
+        originLocation: "user-collection",
+        folderPath: saveCtx.folderPath,
+        requestIndex: saveCtx.requestIndex,
+        req: cloneDeep(req),
+      })
       toast.success(`${t("request.saved")}`)
     } catch (e) {
       setRESTSaveContext(null)
@@ -505,6 +523,11 @@ const saveRequest = () => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
         } else {
+          setRESTSaveContext({
+            originLocation: "team-collection",
+            requestID: saveCtx.requestID,
+            req: cloneDeep(req),
+          })
           toast.success(`${t("request.saved")}`)
         }
       })

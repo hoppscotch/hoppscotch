@@ -132,7 +132,7 @@ export default {
     // https://github.com/nuxt/typescript
     ["@nuxt/typescript-build", { typeCheck: false }],
     // https://github.com/nuxt-community/dotenv-module
-    "@nuxtjs/dotenv",
+    ["@nuxtjs/dotenv", { systemvars: true }],
     // https://github.com/nuxt-community/composition-api
     "@nuxtjs/composition-api/module",
     "~/modules/emit-volar-types.ts",
@@ -339,6 +339,8 @@ export default {
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
     BASE_URL: process.env.BASE_URL,
+    BACKEND_GQL_URL: process.env.BACKEND_GQL_URL,
+    BACKEND_WS_URL: process.env.BACKEND_WS_URL,
   },
 
   publicRuntimeConfig: {

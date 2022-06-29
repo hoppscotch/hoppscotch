@@ -122,13 +122,6 @@ describe("cancelRunningExtensionRequest", () => {
     cancelRunningExtensionRequest()
     expect(cancelFunc).not.toHaveBeenCalled()
   })
-
-  test("does not cancel request if extension installed but function not present", () => {
-    global.__POSTWOMAN_EXTENSION_HOOK__ = {}
-
-    cancelRunningExtensionRequest()
-    expect(cancelFunc).not.toHaveBeenCalled()
-  })
 })
 
 describe("extensionStrategy", () => {

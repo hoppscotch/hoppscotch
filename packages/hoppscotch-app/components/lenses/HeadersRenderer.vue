@@ -17,32 +17,17 @@
         />
       </div>
     </div>
-    <div
+    <LensesHeadersRendererEntry
       v-for="(header, index) in headers"
-      :key="`header-${index}`"
-      class="flex border-b divide-x divide-dividerLight border-dividerLight group"
-    >
-      <span
-        class="flex flex-1 min-w-0 px-4 py-2 transition group-hover:text-secondaryDark"
-      >
-        <span class="truncate rounded-sm select-all">
-          {{ header.key }}
-        </span>
-      </span>
-      <span
-        class="flex flex-1 min-w-0 px-4 py-2 transition group-hover:text-secondaryDark"
-      >
-        <span class="truncate rounded-sm select-all">
-          {{ header.value }}
-        </span>
-      </span>
-    </div>
+      :key="index"
+      :header="header"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
 import { HoppRESTHeader } from "@hoppscotch/data"
+import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 
@@ -54,12 +39,11 @@ const props = defineProps<{
   headers: Array<HoppRESTHeader>
 }>()
 
-const copyIcon = ref("copy")
+const copyIcon = refAutoReset<"copy" | "check">("copy", 1000)
 
 const copyHeaders = () => {
   copyToClipboard(JSON.stringify(props.headers))
   copyIcon.value = "check"
   toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
 }
 </script>

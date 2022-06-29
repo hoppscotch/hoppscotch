@@ -261,7 +261,7 @@ const active = useReadonlyStream(restSaveContext$, null)
 const isSelected = computed(
   () =>
     props.picked &&
-    props.picked.pickedType === "team-collection" &&
+    props.picked.pickedType === "teams-collection" &&
     props.picked.requestID === props.requestIndex
 )
 
@@ -308,16 +308,19 @@ const setRestReq = (request: HoppRESTRequest) => {
 }
 
 const selectRequest = () => {
-  if (!active.value) {
+  // Check if this is a save as request popup, if so we don't need to prompt the confirm change popup.
+  if (props.saveRequest) {
+    emit("select", {
+      picked: {
+        pickedType: "teams-collection",
+        requestID: props.requestIndex,
+      },
+    })
+  } else if (isEqualHoppRESTRequest(props.request, getDefaultRESTRequest())) {
+    confirmChange.value = false
+    setRestReq(props.request)
+  } else if (!active.value) {
     confirmChange.value = true
-
-    if (props.saveRequest)
-      emit("select", {
-        picked: {
-          pickedType: "team-collection",
-          requestID: props.requestIndex,
-        },
-      })
   } else {
     const currentReqWithNoChange = active.value.req
     const currentFullReq = getRESTRequest()
@@ -327,13 +330,6 @@ const selectRequest = () => {
       // Check if there is any changes done on the current request
       if (isEqualHoppRESTRequest(currentReqWithNoChange, currentFullReq)) {
         setRestReq(props.request)
-        if (props.saveRequest)
-          emit("select", {
-            picked: {
-              pickedType: "team-collection",
-              requestID: props.requestIndex,
-            },
-          })
       } else {
         confirmChange.value = true
       }
@@ -353,13 +349,6 @@ const saveRequestChange = () => {
 /** Discard changes and change the current request and context */
 const discardRequestChange = () => {
   setRestReq(props.request)
-  if (props.saveRequest)
-    emit("select", {
-      picked: {
-        pickedType: "team-collection",
-        requestID: props.requestIndex,
-      },
-    })
   if (!isActive.value) {
     setRESTSaveContext({
       originLocation: "team-collection",
@@ -367,7 +356,6 @@ const discardRequestChange = () => {
       req: props.request,
     })
   }
-
   confirmChange.value = false
 }
 

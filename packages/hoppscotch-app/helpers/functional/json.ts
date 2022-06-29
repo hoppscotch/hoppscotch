@@ -1,4 +1,5 @@
 import * as O from "fp-ts/Option"
+import { flow } from "fp-ts/function"
 
 /**
  * Checks and Parses JSON string
@@ -15,3 +16,10 @@ export const safeParseJSON = (str: string): O.Option<object> =>
  */
 export const prettyPrintJSON = (obj: unknown): O.Option<string> =>
   O.tryCatch(() => JSON.stringify(obj, null, "\t"))
+
+/**
+ * Checks if given string is a JSON string
+ * @param str Raw string to be checked
+ * @returns If string is a JSON string
+ */
+export const isJSON = flow(safeParseJSON, O.isSome)

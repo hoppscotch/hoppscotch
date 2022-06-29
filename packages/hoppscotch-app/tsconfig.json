@@ -10,6 +10,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,
+    "jsx": "preserve",
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
@@ -29,6 +30,7 @@
   },
   "exclude": ["node_modules", ".nuxt", "dist"],
   "vueCompilerOptions": {
+    "target": 2,
     "experimentalCompatMode": 2
   }
 }

@@ -28,7 +28,7 @@
       </Splitpanes>
     </Pane>
     <Pane
-      v-if="SIDEBAR"
+      v-if="SIDEBAR && hasSidebar"
       size="25"
       min-size="20"
       class="hide-scrollbar !overflow-auto flex flex-col"
@@ -42,6 +42,7 @@
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
+import { computed, useSlots } from "@nuxtjs/composition-api"
 import { useSetting } from "~/newstore/settings"
 
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
@@ -52,4 +53,8 @@ const mdAndLarger = breakpoints.greater("md")
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const SIDEBAR = useSetting("SIDEBAR")
+
+const slots = useSlots()
+
+const hasSidebar = computed(() => !!slots.sidebar)
 </script>

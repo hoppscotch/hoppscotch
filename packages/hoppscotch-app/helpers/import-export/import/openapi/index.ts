@@ -24,8 +24,12 @@ import * as S from "fp-ts/string"
 import * as O from "fp-ts/Option"
 import * as TE from "fp-ts/TaskEither"
 import * as RA from "fp-ts/ReadonlyArray"
-import { step } from "../steps"
-import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "."
+import { step } from "../../steps"
+import { defineImporter, IMPORTER_INVALID_FILE_FORMAT } from "../"
+import { generateRequestBodyExampleFromMediaObject as generateExampleV31 } from "./exampleV31"
+import { generateRequestBodyExampleFromMediaObject as generateExampleV3 } from "./exampleV3"
+import { generateRequestBodyExampleFromOpenAPIV2Body } from "./exampleV2"
+import { prettyPrintJSON } from "~/helpers/functional/json"
 
 export const OPENAPI_DEREF_ERROR = "openapi/deref_error" as const
 
@@ -114,8 +118,12 @@ const parseOpenAPIV2Body = (op: OpenAPIV2.OperationObject): HoppRESTReqBody => {
   if (
     obj !== "multipart/form-data" &&
     obj !== "application/x-www-form-urlencoded"
-  )
-    return { contentType: obj as any, body: "" }
+  ) {
+    return {
+      contentType: obj as any,
+      body: generateRequestBodyExampleFromOpenAPIV2Body(op),
+    }
+  }
 
   const formDataValues = pipe(
     (op.parameters ?? []) as OpenAPIV2.Parameter[],
@@ -178,7 +186,8 @@ const parseOpenAPIV3BodyFormData = (
 }
 
 const parseOpenAPIV3Body = (
-  op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject
+  op: OpenAPIV3.OperationObject | OpenAPIV31.OperationObject,
+  isV31Request: boolean
 ): HoppRESTReqBody => {
   const objs = Object.entries(
     (
@@ -197,11 +206,20 @@ const parseOpenAPIV3Body = (
     OpenAPIV3.MediaTypeObject | OpenAPIV31.MediaTypeObject
   ] = objs[0]
 
+  const exampleBody = pipe(
+    prettyPrintJSON(
+      isV31Request
+        ? generateExampleV31(media as OpenAPIV31.MediaTypeObject)
+        : generateExampleV3(media as OpenAPIV3.MediaTypeObject)
+    ),
+    O.getOrElse(() => "")
+  )
+
   return contentType in knownContentTypes
     ? contentType === "multipart/form-data" ||
       contentType === "application/x-www-form-urlencoded"
       ? parseOpenAPIV3BodyFormData(contentType, media)
-      : { contentType: contentType as any, body: "" }
+      : { contentType: contentType as any, body: exampleBody }
     : { contentType: null, body: null }
 }
 
@@ -213,12 +231,20 @@ const isOpenAPIV3Operation = (
   typeof doc.openapi === "string" &&
   doc.openapi.startsWith("3.")
 
+const isOpenAPIV31Operation = (
+  doc: OpenAPI.Document,
+  op: OpenAPIOperationType
+): op is OpenAPIV31.OperationObject =>
+  objectHasProperty(doc, "openapi") &&
+  typeof doc.openapi === "string" &&
+  doc.openapi.startsWith("3.1")
+
 const parseOpenAPIBody = (
   doc: OpenAPI.Document,
   op: OpenAPIOperationType
 ): HoppRESTReqBody =>
   isOpenAPIV3Operation(doc, op)
-    ? parseOpenAPIV3Body(op)
+    ? parseOpenAPIV3Body(op, isOpenAPIV31Operation(doc, op))
     : parseOpenAPIV2Body(op)
 
 const resolveOpenAPIV3SecurityObj = (

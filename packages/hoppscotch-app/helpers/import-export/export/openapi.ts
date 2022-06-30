@@ -23,9 +23,8 @@ import isPlainObject from "lodash/isPlainObject"
 import omit from "lodash/omit"
 import { HoppExporter } from "."
 import { tupleToRecord } from "~/helpers/functional/record"
-import { safeParseJSON } from "~/helpers/functional/json"
+import { safeParseJSON, jsonToBlob } from "~/helpers/functional/json"
 import { objHasProperty } from "~/helpers/functional/object"
-import { jsonToBlob } from "~/helpers/utils/export"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
 import {
   getEffectiveRESTRequest,
@@ -470,9 +469,11 @@ export const convertHoppToOpenApiCollection = (
     )
   )
 
-const exporter: HoppExporter<
-  HoppRESTRequest,
-  "CANNOT_MAKE_BLOB" | HoppToOpenAPIConversionError
-> = flow(convertHoppToOpenApiCollection, E.chainW(jsonToBlob), TE.fromEither)
+const exporter: HoppExporter<HoppRESTRequest, HoppToOpenAPIConversionError> =
+  flow(
+    convertHoppToOpenApiCollection,
+    E.chainW(flow(jsonToBlob, E.right)),
+    TE.fromEither
+  )
 
 export default exporter

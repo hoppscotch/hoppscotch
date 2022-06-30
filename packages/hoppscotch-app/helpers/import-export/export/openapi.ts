@@ -238,15 +238,11 @@ export const generateOpenApiRequestBody = (
                   pipe(
                     hoppRequestBody,
                     O.fromPredicate(isContentTypeUrlEncoded),
-                    O.map(({ body }) => generateOpenAPIBodyForUrlEncoded(body)),
-                    O.alt(() =>
-                      pipe(
-                        hoppRequestBody,
-                        generateOpenAPIBodyForPlainText,
-                        O.some
-                      )
-                    )
+                    O.map(({ body }) => generateOpenAPIBodyForUrlEncoded(body))
                   )
+                ),
+                O.alt(() =>
+                  pipe(hoppRequestBody, generateOpenAPIBodyForPlainText, O.some)
                 )
               )
             ),

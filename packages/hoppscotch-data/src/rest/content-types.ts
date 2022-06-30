@@ -11,3 +11,12 @@ export const knownContentTypes = {
 }
 
 export type ValidContentTypes = keyof typeof knownContentTypes
+
+export const isKnownContentType = (
+  contentType: unknown
+): contentType is ValidContentTypes =>
+  !!(
+    contentType &&
+    typeof contentType === "string" &&
+    contentType in knownContentTypes
+  )

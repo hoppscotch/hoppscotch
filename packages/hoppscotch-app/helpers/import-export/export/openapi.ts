@@ -11,6 +11,7 @@ import {
   HoppRestReqBodyEmpty,
   HoppRESTAuth,
   makeRESTRequest,
+  isKnownContentType,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -24,7 +25,6 @@ import omit from "lodash/omit"
 import { HoppExporter } from "."
 import { tupleToRecord } from "~/helpers/functional/record"
 import { safeParseJSON, jsonToBlob } from "~/helpers/functional/json"
-import { objHasProperty } from "~/helpers/functional/object"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
 import {
   getEffectiveRESTRequest,
@@ -98,15 +98,6 @@ const generateOpenApiQueryParams = (
         default: param.value,
       },
     }))
-  )
-
-const isValidContentType = (
-  contentType: unknown
-): contentType is keyof typeof knownContentTypes =>
-  !!(
-    contentType &&
-    typeof contentType === "string" &&
-    objHasProperty(contentType, "string")(knownContentTypes)
   )
 
 const isNonFormDataBody = (
@@ -221,7 +212,7 @@ export const generateOpenApiRequestBody = (
       pipe(
         hoppRequestBody.contentType,
         E.fromPredicate(
-          isValidContentType,
+          isKnownContentType,
           () => "INVALID_CONTENT_TYPE" as const
         ),
         E.chainW((contentType) =>

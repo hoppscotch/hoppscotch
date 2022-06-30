@@ -232,7 +232,7 @@ export const generateOpenApiRequestBody = (
               pipe(
                 hoppRequestBody,
                 O.fromPredicate(() => isContentTypeJSON(contentType)),
-                O.chain(flow(({ body }) => safeParseJSON(body))),
+                O.chain(({ body }) => safeParseJSON(body)),
                 O.map(generateOpenAPIBodyForJSON(contentType)),
                 O.alt(() =>
                   pipe(
@@ -273,12 +273,9 @@ const OPEN_API_AUTH_NAMES = {
 export const generateOpenApiAuth = (
   hoppAuth: HoppRESTAuth
 ): E.Either<"INVALID_AUTH", OpenAPIV3.SecurityRequirementObject> =>
-  pipe(
-    hoppAuth.authType,
-    O.fromPredicate((authType) => authType === "none"),
-    O.map(() => ({})),
-    O.alt(() =>
-      pipe(
+  hoppAuth.authType === "none"
+    ? E.right({})
+    : pipe(
         hoppAuth.authType,
         O.fromPredicate(
           (authType): authType is "basic" | "api-key" | "bearer" =>
@@ -288,11 +285,9 @@ export const generateOpenApiAuth = (
           pipe(OPEN_API_AUTH_NAMES, (auths) => ({
             [auths[authType]]: [],
           }))
-        )
+        ),
+        E.fromOption(() => "INVALID_AUTH" as const)
       )
-    ),
-    E.fromOption(() => "INVALID_AUTH" as const)
-  )
 
 const isValidMethod = (method: string): method is OpenAPIV3.HttpMethods =>
   [
@@ -334,7 +329,7 @@ const generateOpenApiDocument = (
   },
 })
 
-type PathGenerationError =
+export type HoppToOpenAPIConversionError =
   | "INVALID_METHOD"
   | "INVALID_URL"
   | "INVALID_CONTENT_TYPE"
@@ -344,7 +339,7 @@ type PathGenerationError =
 const generateOpenApiPathFromRequest = (
   request: HoppRESTRequest
 ): E.Either<
-  PathGenerationError,
+  HoppToOpenAPIConversionError,
   OpenAPIV3.PathItemObject & { pathname: string }
 > =>
   pipe(
@@ -445,8 +440,6 @@ const applyEnvironmentVariables = (request: HoppRESTRequest): HoppRESTRequest =>
         endpoint: effectiveRequest.effectiveFinalURL,
       })
   )
-
-export type HoppToOpenAPIConversionError = PathGenerationError
 
 export const convertHoppToOpenApiCollection = (
   collections: HoppCollection<HoppRESTRequest>[]

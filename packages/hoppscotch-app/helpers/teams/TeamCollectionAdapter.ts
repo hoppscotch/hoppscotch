@@ -3,6 +3,7 @@ import { BehaviorSubject, Subscription } from "rxjs"
 import { translateToNewRequest } from "@hoppscotch/data"
 import pull from "lodash/pull"
 import remove from "lodash/remove"
+import { Subscription as WSubscription } from "wonka"
 import { runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import { TeamCollection } from "./TeamCollection"
 import { TeamRequest } from "./TeamRequest"
@@ -193,6 +194,13 @@ export default class NewTeamCollectionAdapter {
   private teamRequestUpdated$: Subscription | null
   private teamRequestDeleted$: Subscription | null
 
+  private teamCollectionAddedSub: WSubscription | null
+  private teamCollectionUpdatedSub: WSubscription | null
+  private teamCollectionRemovedSub: WSubscription | null
+  private teamRequestAddedSub: WSubscription | null
+  private teamRequestUpdatedSub: WSubscription | null
+  private teamRequestDeletedSub: WSubscription | null
+
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
     this.loadingCollections$ = new BehaviorSubject<string[]>([])
@@ -203,6 +211,13 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAdded$ = null
     this.teamRequestDeleted$ = null
     this.teamRequestUpdated$ = null
+
+    this.teamCollectionAddedSub = null
+    this.teamCollectionUpdatedSub = null
+    this.teamCollectionRemovedSub = null
+    this.teamRequestAddedSub = null
+    this.teamRequestDeletedSub = null
+    this.teamRequestUpdatedSub = null
 
     if (this.teamID) this.initialize()
   }
@@ -228,6 +243,13 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAdded$?.unsubscribe()
     this.teamRequestDeleted$?.unsubscribe()
     this.teamRequestUpdated$?.unsubscribe()
+
+    this.teamCollectionAddedSub?.unsubscribe()
+    this.teamCollectionUpdatedSub?.unsubscribe()
+    this.teamCollectionRemovedSub?.unsubscribe()
+    this.teamRequestAddedSub?.unsubscribe()
+    this.teamRequestDeletedSub?.unsubscribe()
+    this.teamRequestUpdatedSub?.unsubscribe()
   }
 
   private async initialize() {
@@ -406,12 +428,16 @@ export default class NewTeamCollectionAdapter {
   private registerSubscriptions() {
     if (!this.teamID) return
 
-    this.teamCollectionAdded$ = runGQLSubscription({
+    const [teamCollAdded$, teamCollAddedSub] = runGQLSubscription({
       query: TeamCollectionAddedDocument,
       variables: {
         teamID: this.teamID,
       },
-    }).subscribe((result) => {
+    })
+
+    this.teamCollectionAddedSub = teamCollAddedSub
+
+    this.teamCollectionAdded$ = teamCollAdded$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(`Team Collection Added Error: ${result.left}`)
 
@@ -426,12 +452,15 @@ export default class NewTeamCollectionAdapter {
       )
     })
 
-    this.teamCollectionUpdated$ = runGQLSubscription({
+    const [teamCollUpdated$, teamCollUpdatedSub] = runGQLSubscription({
       query: TeamCollectionUpdatedDocument,
       variables: {
         teamID: this.teamID,
       },
-    }).subscribe((result) => {
+    })
+
+    this.teamCollectionUpdatedSub = teamCollUpdatedSub
+    this.teamCollectionUpdated$ = teamCollUpdated$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(`Team Collection Updated Error: ${result.left}`)
 
@@ -441,24 +470,30 @@ export default class NewTeamCollectionAdapter {
       })
     })
 
-    this.teamCollectionRemoved$ = runGQLSubscription({
+    const [teamCollRemoved$, teamCollRemovedSub] = runGQLSubscription({
       query: TeamCollectionRemovedDocument,
       variables: {
         teamID: this.teamID,
       },
-    }).subscribe((result) => {
+    })
+
+    this.teamCollectionRemovedSub = teamCollRemovedSub
+    this.teamCollectionRemoved$ = teamCollRemoved$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(`Team Collection Removed Error: ${result.left}`)
 
       this.removeCollection(result.right.teamCollectionRemoved)
     })
 
-    this.teamRequestAdded$ = runGQLSubscription({
+    const [teamReqAdded$, teamReqAddedSub] = runGQLSubscription({
       query: TeamRequestAddedDocument,
       variables: {
         teamID: this.teamID,
       },
-    }).subscribe((result) => {
+    })
+
+    this.teamRequestAddedSub = teamReqAddedSub
+    this.teamRequestAdded$ = teamReqAdded$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(`Team Request Added Error: ${result.left}`)
 
@@ -472,12 +507,15 @@ export default class NewTeamCollectionAdapter {
       })
     })
 
-    this.teamRequestUpdated$ = runGQLSubscription({
+    const [teamReqUpdated$, teamReqUpdatedSub] = runGQLSubscription({
       query: TeamRequestUpdatedDocument,
       variables: {
         teamID: this.teamID,
       },
-    }).subscribe((result) => {
+    })
+
+    this.teamRequestUpdatedSub = teamReqUpdatedSub
+    this.teamRequestUpdated$ = teamReqUpdated$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(`Team Request Updated Error: ${result.left}`)
 
@@ -489,12 +527,15 @@ export default class NewTeamCollectionAdapter {
       })
     })
 
-    this.teamRequestDeleted$ = runGQLSubscription({
+    const [teamReqDeleted$, teamReqDeleted] = runGQLSubscription({
       query: TeamRequestDeletedDocument,
       variables: {
         teamID: this.teamID,
       },
-    }).subscribe((result) => {
+    })
+
+    this.teamRequestUpdatedSub = teamReqDeleted
+    this.teamRequestDeleted$ = teamReqDeleted$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(`Team Request Deleted Error ${result.left}`)
 

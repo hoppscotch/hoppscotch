@@ -50,14 +50,8 @@ export const exportCollection =
       TE.chainW((exporter) => exporter(collections))
     )
 
-type _RESTCollectionExporter = typeof RESTCollectionExporters extends Array<
-  infer Exporter
->
-  ? Exporter
-  : never
-
 export type RESTCollectionExporterError =
-  | (_RESTCollectionExporter["exporter"] extends () => Promise<
+  | (typeof RESTCollectionExporters[number]["exporter"] extends () => Promise<
       HoppExporter<HoppRESTRequest, infer ErrorType>
     >
       ? ErrorType

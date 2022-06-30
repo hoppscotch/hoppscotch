@@ -1,5 +1,5 @@
 import * as E from "fp-ts/Either"
-import { pipe } from "fp-ts/function"
+import { toMatchInlineSnapshot } from "jest-snapshot"
 import {
   HoppCollection,
   HoppRESTAuth,
@@ -13,9 +13,59 @@ import {
 } from "../openapi"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
 
+interface CustomMatchers<R = unknown> {
+  toMatchInlineSnapshotLeft(snapshot?: string): R
+  toMatchInlineSnapshotRight(snapshot?: string): R
+}
+
+declare global {
+  namespace jest {
+    interface Expect extends CustomMatchers {}
+    interface Matchers<R> extends CustomMatchers<R> {}
+  }
+}
+
+const toMatchInlineSnapshotLeft: jest.CustomMatcher = function (
+  received: E.Either<unknown, unknown>,
+  ...rest: any[]
+) {
+  return E.isLeft(received)
+    ? // @ts-ignore
+      toMatchInlineSnapshot.call(this, received.left, ...rest)
+    : {
+        message: () =>
+          `Expected Left of an either, Received: ${this.utils.printReceived(
+            received
+          )}`,
+        pass: false,
+      }
+}
+
+const toMatchInlineSnapshotRight: jest.CustomMatcher = function (
+  received: E.Either<unknown, unknown>,
+  ...rest
+) {
+  return E.isRight(received)
+    ? toMatchInlineSnapshot.call(
+        // @ts-ignore
+        this,
+        received.right,
+        ...rest
+      )
+    : {
+        message: () =>
+          `Expected Right of an either, Received: ${this.utils.printReceived(
+            received
+          )}`,
+        pass: false,
+      }
+}
+
+expect.extend({ toMatchInlineSnapshotLeft, toMatchInlineSnapshotRight })
+
 jest.mock("~/helpers/preRequest")
 
-describe("hopp to openapi converter", () => {
+describe("convertHoppToOpenApiCollection", () => {
   test("multiple hoppscotch collections", () => {
     // an example convering folders,params,headers,auth, multiple collections
     // not all cases are covered because they were tested individually
@@ -231,207 +281,197 @@ describe("hopp to openapi converter", () => {
       ],
     })
 
-    pipe(
-      collection,
-      convertHoppToOpenApiCollection,
-      E.fold(
-        (error) => {
-          throw new Error(`Failed to generate openapi document: ${error}`)
+    expect(convertHoppToOpenApiCollection(collection))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "components": Object {
+          "securitySchemes": Object {
+            "ApiKeyAuth": Object {
+              "in": "header",
+              "name": "api-key-header-name",
+              "type": "apiKey",
+            },
+            "basicAuth": Object {
+              "scheme": "basic",
+              "type": "http",
+            },
+            "bearerAuth": Object {
+              "scheme": "bearer",
+              "type": "http",
+            },
+          },
         },
-        (openApiDocument) => {
-          expect(openApiDocument).toMatchInlineSnapshot(`
-            Object {
-              "components": Object {
-                "securitySchemes": Object {
-                  "ApiKeyAuth": Object {
-                    "in": "header",
-                    "name": "api-key-header-name",
-                    "type": "apiKey",
+        "info": Object {
+          "title": "Hoppscotch Openapi Export",
+          "version": "1.0.0",
+        },
+        "openapi": "3.0.0",
+        "paths": Object {
+          "/endpoint1": Object {
+            "post": Object {
+              "description": "Sample Request 4",
+              "parameters": Array [],
+              "requestBody": Object {
+                "content": Object {},
+              },
+              "responses": Object {
+                "200": Object {
+                  "description": "",
+                },
+              },
+              "security": Array [
+                Object {},
+              ],
+            },
+            "servers": Array [
+              Object {
+                "url": "sampleurl.com",
+              },
+            ],
+          },
+          "/endpoint2": Object {
+            "post": Object {
+              "description": "Sample Request 2",
+              "parameters": Array [
+                Object {
+                  "in": "header",
+                  "name": "content-type",
+                  "schema": Object {
+                    "default": "application/x-www-form-urlencoded",
                   },
-                  "basicAuth": Object {
-                    "scheme": "basic",
-                    "type": "http",
+                },
+                Object {
+                  "in": "header",
+                  "name": "X-SAMPLE-HEADER",
+                  "schema": Object {
+                    "default": "sample_header_value",
                   },
-                  "bearerAuth": Object {
-                    "scheme": "bearer",
-                    "type": "http",
+                },
+                Object {
+                  "in": "header",
+                  "name": "X-ANOTHER-SAMPLE-HEADER",
+                  "schema": Object {
+                    "default": "another_sample_header",
+                  },
+                },
+                Object {
+                  "in": "query",
+                  "name": "sampleparam1",
+                  "schema": Object {
+                    "default": "samplevalue1",
+                  },
+                },
+                Object {
+                  "in": "query",
+                  "name": "sampleparam2",
+                  "schema": Object {
+                    "default": "samplevalue2",
+                  },
+                },
+              ],
+              "requestBody": Object {
+                "content": Object {
+                  "application/x-www-form-urlencoded": Object {
+                    "schema": Object {
+                      "properties": Object {
+                        "sampleurlparam1": Object {
+                          "default": "sampleurlvalue1",
+                        },
+                        "sampleurlparam2": Object {
+                          "default": "sampleurlvalue2",
+                        },
+                      },
+                    },
                   },
                 },
               },
-              "info": Object {
-                "title": "Hoppscotch Openapi Export",
-                "version": "1.0.0",
-              },
-              "openapi": "3.0.0",
-              "paths": Object {
-                "/endpoint1": Object {
-                  "post": Object {
-                    "description": "Sample Request 4",
-                    "parameters": Array [],
-                    "requestBody": Object {
-                      "content": Object {},
-                    },
-                    "responses": Object {
-                      "200": Object {
-                        "description": "",
-                      },
-                    },
-                    "security": Array [
-                      Object {},
-                    ],
-                  },
-                  "servers": Array [
-                    Object {
-                      "url": "sampleurl.com",
-                    },
-                  ],
+              "responses": Object {
+                "200": Object {
+                  "description": "",
                 },
-                "/endpoint2": Object {
-                  "post": Object {
-                    "description": "Sample Request 2",
-                    "parameters": Array [
-                      Object {
-                        "in": "header",
-                        "name": "content-type",
-                        "schema": Object {
-                          "default": "application/x-www-form-urlencoded",
+              },
+              "security": Array [
+                Object {
+                  "ApiKeyAuth": Array [],
+                },
+              ],
+            },
+            "servers": Array [
+              Object {
+                "url": "sampleurl.com",
+              },
+            ],
+          },
+          "/endpoint3": Object {
+            "post": Object {
+              "description": "Sample Request 3",
+              "parameters": Array [
+                Object {
+                  "in": "header",
+                  "name": "Authorization",
+                  "schema": Object {
+                    "default": "Bearer sampletoken",
+                  },
+                },
+                Object {
+                  "in": "header",
+                  "name": "content-type",
+                  "schema": Object {
+                    "default": "application/json",
+                  },
+                },
+                Object {
+                  "in": "header",
+                  "name": "X-SAMPLE-HEADER",
+                  "schema": Object {
+                    "default": "sample_header_value",
+                  },
+                },
+                Object {
+                  "in": "header",
+                  "name": "X-ANOTHER-SAMPLE-HEADER",
+                  "schema": Object {
+                    "default": "another_sample_header",
+                  },
+                },
+                Object {
+                  "in": "query",
+                  "name": "sampleparam1",
+                  "schema": Object {
+                    "default": "samplevalue1",
+                  },
+                },
+                Object {
+                  "in": "query",
+                  "name": "sampleparam2",
+                  "schema": Object {
+                    "default": "samplevalue2",
+                  },
+                },
+              ],
+              "requestBody": Object {
+                "content": Object {
+                  "application/json": Object {
+                    "schema": Object {
+                      "properties": Object {
+                        "key1": Object {
+                          "default": "value1",
                         },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "X-SAMPLE-HEADER",
-                        "schema": Object {
-                          "default": "sample_header_value",
-                        },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "X-ANOTHER-SAMPLE-HEADER",
-                        "schema": Object {
-                          "default": "another_sample_header",
-                        },
-                      },
-                      Object {
-                        "in": "query",
-                        "name": "sampleparam1",
-                        "schema": Object {
-                          "default": "samplevalue1",
-                        },
-                      },
-                      Object {
-                        "in": "query",
-                        "name": "sampleparam2",
-                        "schema": Object {
-                          "default": "samplevalue2",
-                        },
-                      },
-                    ],
-                    "requestBody": Object {
-                      "content": Object {
-                        "application/x-www-form-urlencoded": Object {
-                          "schema": Object {
-                            "properties": Object {
-                              "sampleurlparam1": Object {
-                                "default": "sampleurlvalue1",
-                              },
-                              "sampleurlparam2": Object {
-                                "default": "sampleurlvalue2",
-                              },
+                        "key2": Object {
+                          "properties": Object {
+                            "key3": Object {
+                              "default": "value3",
                             },
-                          },
-                        },
-                      },
-                    },
-                    "responses": Object {
-                      "200": Object {
-                        "description": "",
-                      },
-                    },
-                    "security": Array [
-                      Object {
-                        "ApiKeyAuth": Array [],
-                      },
-                    ],
-                  },
-                  "servers": Array [
-                    Object {
-                      "url": "sampleurl.com",
-                    },
-                  ],
-                },
-                "/endpoint3": Object {
-                  "post": Object {
-                    "description": "Sample Request 3",
-                    "parameters": Array [
-                      Object {
-                        "in": "header",
-                        "name": "Authorization",
-                        "schema": Object {
-                          "default": "Bearer sampletoken",
-                        },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "content-type",
-                        "schema": Object {
-                          "default": "application/json",
-                        },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "X-SAMPLE-HEADER",
-                        "schema": Object {
-                          "default": "sample_header_value",
-                        },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "X-ANOTHER-SAMPLE-HEADER",
-                        "schema": Object {
-                          "default": "another_sample_header",
-                        },
-                      },
-                      Object {
-                        "in": "query",
-                        "name": "sampleparam1",
-                        "schema": Object {
-                          "default": "samplevalue1",
-                        },
-                      },
-                      Object {
-                        "in": "query",
-                        "name": "sampleparam2",
-                        "schema": Object {
-                          "default": "samplevalue2",
-                        },
-                      },
-                    ],
-                    "requestBody": Object {
-                      "content": Object {
-                        "application/json": Object {
-                          "schema": Object {
-                            "properties": Object {
-                              "key1": Object {
-                                "default": "value1",
-                              },
-                              "key2": Object {
-                                "properties": Object {
-                                  "key3": Object {
-                                    "default": "value3",
-                                  },
-                                  "key4": Object {
-                                    "default": "value4",
-                                  },
-                                  "key5": Object {
-                                    "default": "value5",
-                                  },
-                                  "key6": Object {
-                                    "properties": Object {
-                                      "key7": Object {
-                                        "default": "value7",
-                                      },
-                                    },
-                                  },
+                            "key4": Object {
+                              "default": "value4",
+                            },
+                            "key5": Object {
+                              "default": "value5",
+                            },
+                            "key6": Object {
+                              "properties": Object {
+                                "key7": Object {
+                                  "default": "value7",
                                 },
                               },
                             },
@@ -439,96 +479,96 @@ describe("hopp to openapi converter", () => {
                         },
                       },
                     },
-                    "responses": Object {
-                      "200": Object {
-                        "description": "",
-                      },
-                    },
-                    "security": Array [
-                      Object {
-                        "bearerAuth": Array [],
-                      },
-                    ],
                   },
-                  "servers": Array [
-                    Object {
-                      "url": "sampleurl.com",
-                    },
-                  ],
                 },
-                "/endpoint4": Object {
-                  "post": Object {
-                    "description": "Sample Request 1",
-                    "parameters": Array [
-                      Object {
-                        "in": "header",
-                        "name": "Authorization",
-                        "schema": Object {
-                          "default": "Bearer sampletoken",
+              },
+              "responses": Object {
+                "200": Object {
+                  "description": "",
+                },
+              },
+              "security": Array [
+                Object {
+                  "bearerAuth": Array [],
+                },
+              ],
+            },
+            "servers": Array [
+              Object {
+                "url": "sampleurl.com",
+              },
+            ],
+          },
+          "/endpoint4": Object {
+            "post": Object {
+              "description": "Sample Request 1",
+              "parameters": Array [
+                Object {
+                  "in": "header",
+                  "name": "Authorization",
+                  "schema": Object {
+                    "default": "Bearer sampletoken",
+                  },
+                },
+                Object {
+                  "in": "header",
+                  "name": "content-type",
+                  "schema": Object {
+                    "default": "application/json",
+                  },
+                },
+                Object {
+                  "in": "header",
+                  "name": "X-SAMPLE-HEADER",
+                  "schema": Object {
+                    "default": "sample_header_value",
+                  },
+                },
+                Object {
+                  "in": "header",
+                  "name": "X-ANOTHER-SAMPLE-HEADER",
+                  "schema": Object {
+                    "default": "another_sample_header",
+                  },
+                },
+                Object {
+                  "in": "query",
+                  "name": "sampleparam1",
+                  "schema": Object {
+                    "default": "samplevalue1",
+                  },
+                },
+                Object {
+                  "in": "query",
+                  "name": "sampleparam2",
+                  "schema": Object {
+                    "default": "samplevalue2",
+                  },
+                },
+              ],
+              "requestBody": Object {
+                "content": Object {
+                  "application/json": Object {
+                    "schema": Object {
+                      "properties": Object {
+                        "key1": Object {
+                          "default": "value1",
                         },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "content-type",
-                        "schema": Object {
-                          "default": "application/json",
-                        },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "X-SAMPLE-HEADER",
-                        "schema": Object {
-                          "default": "sample_header_value",
-                        },
-                      },
-                      Object {
-                        "in": "header",
-                        "name": "X-ANOTHER-SAMPLE-HEADER",
-                        "schema": Object {
-                          "default": "another_sample_header",
-                        },
-                      },
-                      Object {
-                        "in": "query",
-                        "name": "sampleparam1",
-                        "schema": Object {
-                          "default": "samplevalue1",
-                        },
-                      },
-                      Object {
-                        "in": "query",
-                        "name": "sampleparam2",
-                        "schema": Object {
-                          "default": "samplevalue2",
-                        },
-                      },
-                    ],
-                    "requestBody": Object {
-                      "content": Object {
-                        "application/json": Object {
-                          "schema": Object {
-                            "properties": Object {
-                              "key1": Object {
-                                "default": "value1",
-                              },
-                              "key2": Object {
-                                "properties": Object {
-                                  "key3": Object {
-                                    "default": "value3",
-                                  },
-                                  "key4": Object {
-                                    "default": "value4",
-                                  },
-                                  "key5": Object {
-                                    "default": "value5",
-                                  },
-                                  "key6": Object {
-                                    "properties": Object {
-                                      "key7": Object {
-                                        "default": "value7",
-                                      },
-                                    },
-                                  },
+                        "key2": Object {
+                          "properties": Object {
+                            "key3": Object {
+                              "default": "value3",
+                            },
+                            "key4": Object {
+                              "default": "value4",
+                            },
+                            "key5": Object {
+                              "default": "value5",
+                            },
+                            "key6": Object {
+                              "properties": Object {
+                                "key7": Object {
+                                  "default": "value7",
                                 },
                               },
                             },
@@ -536,33 +576,33 @@ describe("hopp to openapi converter", () => {
                         },
                       },
                     },
-                    "responses": Object {
-                      "200": Object {
-                        "description": "",
-                      },
-                    },
-                    "security": Array [
-                      Object {
-                        "bearerAuth": Array [],
-                      },
-                    ],
                   },
-                  "servers": Array [
-                    Object {
-                      "url": "sampleurl.com",
-                    },
-                  ],
                 },
               },
-            }
-          `)
-        }
-      )
-    )
+              "responses": Object {
+                "200": Object {
+                  "description": "",
+                },
+              },
+              "security": Array [
+                Object {
+                  "bearerAuth": Array [],
+                },
+              ],
+            },
+            "servers": Array [
+              Object {
+                "url": "sampleurl.com",
+              },
+            ],
+          },
+        },
+      }
+    `)
   })
 })
 
-describe("openapi body generation", () => {
+describe("generateOpenApiRequestBody", () => {
   test("json content type", () => {
     const hoppRequestBody: HoppRESTReqBody = {
       contentType: "application/json",
@@ -578,52 +618,42 @@ describe("openapi body generation", () => {
       }),
     }
 
-    pipe(
-      hoppRequestBody,
-      generateOpenApiRequestBody,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate open api body ${error}`)
-        },
-        (openapiRequestBody) => {
-          expect(openapiRequestBody).toMatchInlineSnapshot(`
-            Object {
-              "content": Object {
-                "application/json": Object {
-                  "schema": Object {
-                    "properties": Object {
-                      "prop1": Object {
-                        "default": "value 1",
-                      },
-                      "prop2": Object {
-                        "default": "value 2",
-                      },
-                      "prop3": Object {
-                        "properties": Object {
-                          "prop4": Object {
-                            "properties": Object {
-                              "prop5": Object {
-                                "default": Array [
-                                  "value 4",
-                                  "value 5",
-                                ],
-                              },
-                            },
-                          },
-                          "prop6": Object {
-                            "default": "value 6",
-                          },
+    expect(generateOpenApiRequestBody(hoppRequestBody))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "content": Object {
+          "application/json": Object {
+            "schema": Object {
+              "properties": Object {
+                "prop1": Object {
+                  "default": "value 1",
+                },
+                "prop2": Object {
+                  "default": "value 2",
+                },
+                "prop3": Object {
+                  "properties": Object {
+                    "prop4": Object {
+                      "properties": Object {
+                        "prop5": Object {
+                          "default": Array [
+                            "value 4",
+                            "value 5",
+                          ],
                         },
                       },
+                    },
+                    "prop6": Object {
+                      "default": "value 6",
                     },
                   },
                 },
               },
-            }
-          `)
-        }
-      )
-    )
+            },
+          },
+        },
+      }
+    `)
   })
 
   test("empty content type", () => {
@@ -632,22 +662,12 @@ describe("openapi body generation", () => {
       contentType: null,
     }
 
-    pipe(
-      hoppRequestBody,
-      generateOpenApiRequestBody,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate openapi body ${error}`)
-        },
-        (openapiBody) => {
-          expect(openapiBody).toMatchInlineSnapshot(`
-            Object {
-              "content": Object {},
-            }
-          `)
-        }
-      )
-    )
+    expect(generateOpenApiRequestBody(hoppRequestBody))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "content": Object {},
+      }
+    `)
   })
 
   test("json content types other than application/json", () => {
@@ -665,52 +685,42 @@ describe("openapi body generation", () => {
       }),
     }
 
-    pipe(
-      hoppRequestBody,
-      generateOpenApiRequestBody,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate open api body ${error}`)
-        },
-        (openapiRequestBody) => {
-          expect(openapiRequestBody).toMatchInlineSnapshot(`
-            Object {
-              "content": Object {
-                "application/hal+json": Object {
-                  "schema": Object {
-                    "properties": Object {
-                      "prop1": Object {
-                        "default": "value 1",
-                      },
-                      "prop2": Object {
-                        "default": "value 2",
-                      },
-                      "prop3": Object {
-                        "properties": Object {
-                          "prop4": Object {
-                            "properties": Object {
-                              "prop5": Object {
-                                "default": Array [
-                                  "value 4",
-                                  "value 5",
-                                ],
-                              },
-                            },
-                          },
-                          "prop6": Object {
-                            "default": "value 6",
-                          },
+    expect(generateOpenApiRequestBody(hoppRequestBody))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "content": Object {
+          "application/hal+json": Object {
+            "schema": Object {
+              "properties": Object {
+                "prop1": Object {
+                  "default": "value 1",
+                },
+                "prop2": Object {
+                  "default": "value 2",
+                },
+                "prop3": Object {
+                  "properties": Object {
+                    "prop4": Object {
+                      "properties": Object {
+                        "prop5": Object {
+                          "default": Array [
+                            "value 4",
+                            "value 5",
+                          ],
                         },
                       },
+                    },
+                    "prop6": Object {
+                      "default": "value 6",
                     },
                   },
                 },
               },
-            }
-          `)
-        }
-      )
-    )
+            },
+          },
+        },
+      }
+    `)
   })
 
   test("valid content types other than json and formdata are treated as text/plain", () => {
@@ -723,33 +733,23 @@ describe("openapi body generation", () => {
       </root>`,
     }
 
-    pipe(
-      hoppRequestBody,
-      generateOpenApiRequestBody,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate open api body ${error}`)
+    expect(generateOpenApiRequestBody(hoppRequestBody))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "content": Object {
+          "text/plain": Object {
+            "schema": Object {
+              "default": <?xml version="1.0" encoding="UTF-8" ?>
+      <root>
+        <title>sample title</title>
+        <description>sample description</description>
+      </root>,
+              "type": "string",
+            },
+          },
         },
-        (openapiRequestBody) => {
-          expect(openapiRequestBody).toMatchInlineSnapshot(`
-            Object {
-              "content": Object {
-                "text/plain": Object {
-                  "schema": Object {
-                    "default": <?xml version="1.0" encoding="UTF-8" ?>
-            <root>
-              <title>sample title</title>
-              <description>sample description</description>
-            </root>,
-                    "type": "string",
-                  },
-                },
-              },
-            }
-          `)
-        }
-      )
-    )
+      }
+    `)
   })
 
   test("formdata content type", () => {
@@ -775,37 +775,27 @@ describe("openapi body generation", () => {
       ],
     }
 
-    pipe(
-      hoppRequestBody,
-      generateOpenApiRequestBody,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate open api body ${error}`)
-        },
-        (openapiRequestBody) => {
-          expect(openapiRequestBody).toMatchInlineSnapshot(`
-            Object {
-              "content": Object {
-                "multipart/form-data": Object {
-                  "schema": Object {
-                    "properties": Object {
-                      "sample-file": Object {
-                        "format": "binary",
-                        "type": "string",
-                      },
-                      "sample-key": Object {
-                        "default": "sample-value",
-                        "type": "string",
-                      },
-                    },
-                  },
+    expect(generateOpenApiRequestBody(hoppRequestBody))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "content": Object {
+          "multipart/form-data": Object {
+            "schema": Object {
+              "properties": Object {
+                "sample-file": Object {
+                  "format": "binary",
+                  "type": "string",
+                },
+                "sample-key": Object {
+                  "default": "sample-value",
+                  "type": "string",
                 },
               },
-            }
-          `)
-        }
-      )
-    )
+            },
+          },
+        },
+      }
+    `)
   })
 
   test("x-www-form-urlencoded content type", () => {
@@ -814,39 +804,29 @@ describe("openapi body generation", () => {
       body: "sampleKey1=sampleValue1&sampleKey2=sampleValue2",
     }
 
-    pipe(
-      hoppRequestBody,
-      generateOpenApiRequestBody,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate open api body ${error}`)
-        },
-        (openapiRequestBody) => {
-          expect(openapiRequestBody).toMatchInlineSnapshot(`
-            Object {
-              "content": Object {
-                "application/x-www-form-urlencoded": Object {
-                  "schema": Object {
-                    "properties": Object {
-                      "sampleKey1": Object {
-                        "default": "sampleValue1",
-                      },
-                      "sampleKey2": Object {
-                        "default": "sampleValue2",
-                      },
-                    },
-                  },
+    expect(generateOpenApiRequestBody(hoppRequestBody))
+      .toMatchInlineSnapshotRight(`
+      Object {
+        "content": Object {
+          "application/x-www-form-urlencoded": Object {
+            "schema": Object {
+              "properties": Object {
+                "sampleKey1": Object {
+                  "default": "sampleValue1",
+                },
+                "sampleKey2": Object {
+                  "default": "sampleValue2",
                 },
               },
-            }
-          `)
-        }
-      )
-    )
+            },
+          },
+        },
+      }
+    `)
   })
 })
 
-describe("openapi auth generation", () => {
+describe("generateOpenApiAuth", () => {
   test("authtype basic", () => {
     const basicAuth: HoppRESTAuth = {
       authActive: true,
@@ -855,22 +835,11 @@ describe("openapi auth generation", () => {
       password: "password",
     }
 
-    pipe(
-      basicAuth,
-      generateOpenApiAuth,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate openapi auth: ${error}`)
-        },
-        (security) => {
-          expect(security).toMatchInlineSnapshot(`
-            Object {
-              "basicAuth": Array [],
-            }
-          `)
-        }
-      )
-    )
+    expect(generateOpenApiAuth(basicAuth)).toMatchInlineSnapshotRight(`
+      Object {
+        "basicAuth": Array [],
+      }
+    `)
   })
 
   test("authtype api key", () => {
@@ -882,22 +851,11 @@ describe("openapi auth generation", () => {
       key: "X-API-KEY",
     }
 
-    pipe(
-      apiKeyAuth,
-      generateOpenApiAuth,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate openapi auth: ${error}`)
-        },
-        (security) => {
-          expect(security).toMatchInlineSnapshot(`
-            Object {
-              "ApiKeyAuth": Array [],
-            }
-          `)
-        }
-      )
-    )
+    expect(generateOpenApiAuth(apiKeyAuth)).toMatchInlineSnapshotRight(`
+      Object {
+        "ApiKeyAuth": Array [],
+      }
+    `)
   })
 
   test("authType bearer", () => {
@@ -907,22 +865,11 @@ describe("openapi auth generation", () => {
       token: "sampletoken",
     }
 
-    pipe(
-      apiKeyAuth,
-      generateOpenApiAuth,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate openapi auth: ${error}`)
-        },
-        (security) => {
-          expect(security).toMatchInlineSnapshot(`
-            Object {
-              "bearerAuth": Array [],
-            }
-          `)
-        }
-      )
-    )
+    expect(generateOpenApiAuth(apiKeyAuth)).toMatchInlineSnapshotRight(`
+      Object {
+        "bearerAuth": Array [],
+      }
+    `)
   })
 
   test("authType none", () => {
@@ -931,17 +878,8 @@ describe("openapi auth generation", () => {
       authType: "none",
     }
 
-    pipe(
-      apiKeyAuth,
-      generateOpenApiAuth,
-      E.fold(
-        (error) => {
-          throw new Error(`failed to generate openapi auth: ${error}`)
-        },
-        (security) => {
-          expect(security).toMatchInlineSnapshot(`Object {}`)
-        }
-      )
+    expect(generateOpenApiAuth(apiKeyAuth)).toMatchInlineSnapshotRight(
+      `Object {}`
     )
   })
 })

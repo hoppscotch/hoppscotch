@@ -174,6 +174,7 @@
     "eslint-plugin-vue": "^8.6.0",
     "jest": "^27.5.1",
     "jest-serializer-vue": "^2.0.2",
+    "jest-snapshot": "^27.5.1",
     "npm-run-all": "^4.1.5",
     "nuxt-windicss": "^2.2.11",
     "postcss-html": "^1.4.1",

@@ -207,15 +207,10 @@ const evnExpandError = computed(() => {
     A.map((e) => e.env)
   )
 
-  for (const variable of variables) {
-    const result = parseTemplateStringE(variable.value.toString(), variables)
-
-    if (E.isLeft(result)) {
-      console.error("error", result.left)
-      return true
-    }
-  }
-  return false
+  return pipe(
+    variables,
+    A.exists(({ value }) => E.isLeft(parseTemplateStringE(value, variables)))
+  )
 })
 
 const liveEnvs = computed(() => {

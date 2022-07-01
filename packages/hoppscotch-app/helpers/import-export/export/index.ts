@@ -1,5 +1,5 @@
 import * as TE from "fp-ts/TaskEither"
-import * as A from "fp-ts/Array"
+import * as RA from "fp-ts/ReadonlyArray"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import {
@@ -17,7 +17,7 @@ export type HoppExporter<
   collections: Array<HoppCollection<ReqType>>
 ) => TE.TaskEither<ErrorType, Blob>
 
-export const RESTCollectionExporters = [
+export const REST_COLLECTION_EXPORTERS = [
   {
     id: "hopp",
     name: "export.hopp_export_name",
@@ -32,13 +32,13 @@ export const RESTCollectionExporters = [
     title: "export.openapi_export_title",
     exporter: () => import("./openapi").then((m) => m.default),
   },
-]
+] as const
 
 export const exportCollection =
   (exporterId: string) => (collections: HoppCollection<HoppRESTRequest>[]) =>
     pipe(
-      RESTCollectionExporters,
-      A.findFirst((exporter) => exporter.id === exporterId),
+      REST_COLLECTION_EXPORTERS,
+      RA.findFirst((exporter) => exporter.id === exporterId),
       O.map(({ exporter }) => exporter),
       TE.fromOption(() => "INVALID_EXPORTER" as const),
       TE.chainW((getExporter) =>
@@ -51,7 +51,7 @@ export const exportCollection =
     )
 
 export type RESTCollectionExporterError =
-  | (typeof RESTCollectionExporters[number]["exporter"] extends () => Promise<
+  | (typeof REST_COLLECTION_EXPORTERS[number]["exporter"] extends () => Promise<
       HoppExporter<HoppRESTRequest, infer ErrorType>
     >
       ? ErrorType

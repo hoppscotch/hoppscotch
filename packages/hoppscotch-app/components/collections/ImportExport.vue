@@ -122,7 +122,7 @@
         <hr />
         <div class="flex flex-col space-y-2">
           <SmartItem
-            v-for="exporter in RESTCollectionExporters"
+            v-for="exporter in REST_COLLECTION_EXPORTERS"
             :key="`exporter_${exporter.id}`"
             v-tippy="{ theme: 'tooltip' }"
             :title="t(exporter.title)"
@@ -188,7 +188,7 @@ import {
 } from "~/helpers/backend/graphql"
 
 import {
-  RESTCollectionExporters,
+  REST_COLLECTION_EXPORTERS,
   exportCollection,
   RESTCollectionExporterError,
 } from "~/helpers/import-export/export"

@@ -51,7 +51,11 @@
       </div>
     </div>
     <div v-if="!minimized" class="overflow-hidden bg-primaryLight">
-      <SmartTabs v-model="selectedTab" styles="bg-primaryLight">
+      <SmartTabs
+        v-model="selectedTab"
+        styles="bg-primaryLight"
+        render-inactive-tabs
+      >
         <SmartTab v-if="isJSON(entry.payload)" id="json" label="JSON" />
         <SmartTab id="raw" label="Raw" />
       </SmartTabs>

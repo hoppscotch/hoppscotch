@@ -3,6 +3,7 @@
     v-model="selectedNavigationTab"
     styles="sticky bg-primary z-10 top-0"
     vertical
+    render-inactive-tabs
   >
     <SmartTab :id="'history'" icon="clock" :label="`${t('tab.history')}`">
       <History
@@ -64,6 +65,7 @@
         <SmartTabs
           v-model="selectedGqlTab"
           styles="border-t border-b border-dividerLight bg-primary sticky z-10 top-sidebarPrimaryStickyFold"
+          render-inactive-tabs
         >
           <SmartTab
             v-if="queryFields.length > 0"

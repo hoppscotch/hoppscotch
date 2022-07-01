@@ -3,6 +3,7 @@
     <SmartTabs
       v-model="selectedOptionTab"
       styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+      render-inactive-tabs
     >
       <SmartTab
         :id="'query'"

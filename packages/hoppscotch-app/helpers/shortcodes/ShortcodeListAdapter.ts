@@ -1,5 +1,6 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
+import { Subscription as WSubscription } from "wonka"
 import { GQLError, runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import {
   GetUserShortcodesQuery,
@@ -22,6 +23,9 @@ export default class ShortcodeListAdapter {
   private myShortcodesCreated: Subscription | null
   private myShortcodesRevoked: Subscription | null
 
+  private myShortcodesCreatedSub: WSubscription | null
+  private myShortcodesRevokedSub: WSubscription | null
+
   constructor(deferInit: boolean = false) {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
     this.loading$ = new BehaviorSubject<boolean>(false)
@@ -33,6 +37,8 @@ export default class ShortcodeListAdapter {
     this.isDispose = false
     this.myShortcodesCreated = null
     this.myShortcodesRevoked = null
+    this.myShortcodesCreatedSub = null
+    this.myShortcodesRevokedSub = null
 
     if (!deferInit) this.initialize()
   }
@@ -40,6 +46,8 @@ export default class ShortcodeListAdapter {
   unsubscribeSubscriptions() {
     this.myShortcodesCreated?.unsubscribe()
     this.myShortcodesRevoked?.unsubscribe()
+    this.myShortcodesCreatedSub?.unsubscribe()
+    this.myShortcodesRevokedSub?.unsubscribe()
   }
 
   initialize() {
@@ -124,9 +132,12 @@ export default class ShortcodeListAdapter {
   }
 
   private registerSubscriptions() {
-    this.myShortcodesCreated = runGQLSubscription({
+    const [myShortcodeCreated$, myShortcodeCreatedSub] = runGQLSubscription({
       query: ShortcodeCreatedDocument,
-    }).subscribe((result) => {
+    })
+
+    this.myShortcodesCreatedSub = myShortcodeCreatedSub
+    this.myShortcodesCreated = myShortcodeCreated$.subscribe((result) => {
       if (E.isLeft(result)) {
         console.error(result.left)
         throw new Error(`Shortcode Create Error ${result.left}`)
@@ -135,9 +146,12 @@ export default class ShortcodeListAdapter {
       this.createShortcode(result.right.myShortcodesCreated)
     })
 
-    this.myShortcodesRevoked = runGQLSubscription({
+    const [myShortcodesRevoked$, myShortcodeRevokedSub] = runGQLSubscription({
       query: ShortcodeDeletedDocument,
-    }).subscribe((result) => {
+    })
+
+    this.myShortcodesRevokedSub = myShortcodeRevokedSub
+    this.myShortcodesRevoked = myShortcodesRevoked$.subscribe((result) => {
       if (E.isLeft(result)) {
         console.error(result.left)
         throw new Error(`Shortcode Delete Error ${result.left}`)

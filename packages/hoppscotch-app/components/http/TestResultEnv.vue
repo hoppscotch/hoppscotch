@@ -15,7 +15,10 @@
       <span class="text-secondaryDark pl-2 break-all">
         {{ ` \xA0 — \xA0 ${env.value}` }}
       </span>
-      <span v-if="status === 'updations'" class="text-secondaryLight px-2 break-all">
+      <span
+        v-if="status === 'updations'"
+        class="text-secondaryLight px-2 break-all"
+      >
         {{ ` \xA0 ← \xA0 ${env.previousValue}` }}
       </span>
     </div>

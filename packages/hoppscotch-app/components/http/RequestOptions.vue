@@ -2,6 +2,7 @@
   <SmartTabs
     v-model="selectedRealtimeTab"
     styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+    render-inactive-tabs
   >
     <SmartTab
       :id="'params'"

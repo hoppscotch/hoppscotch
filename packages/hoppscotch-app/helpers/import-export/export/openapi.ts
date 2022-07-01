@@ -2,7 +2,6 @@ import {
   HoppRESTRequest,
   HoppCollection,
   HoppRESTReqBody,
-  knownContentTypes,
   HoppRESTReqBodyFormData,
   HoppRESTHeader,
   HoppRESTParam,
@@ -11,7 +10,6 @@ import {
   HoppRestReqBodyEmpty,
   HoppRESTAuth,
   makeRESTRequest,
-  isKnownContentType,
 } from "@hoppscotch/data"
 import { pipe, flow } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
@@ -30,6 +28,7 @@ import {
   getEffectiveRESTRequest,
   resolvesEnvsInBody,
 } from "~/helpers/utils/EffectiveURL"
+import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
 const convertHoppFormDataEntryToOAFormDataEntry = (
   entry: FormDataKeyValue
@@ -116,7 +115,7 @@ const isFormDataBody = (
 const isEmptyBody = (body: HoppRESTReqBody): body is HoppRestReqBodyEmpty =>
   !(body.body && body.contentType)
 
-type RequestBodyGenerationError = "INVALID_CONTENT_TYPE" | "INVALID_BODY"
+type RequestBodyGenerationError = "INVALID_BODY"
 
 const generateOpenAPIBodyForEmptyBody = (): OpenAPIV3.RequestBodyObject => ({
   content: {},
@@ -186,12 +185,41 @@ const generateOpenAPIBodyForFormData = (
     })
   )
 
-const isContentTypeJSON = (
-  contentType: Exclude<HoppRESTReqBody["contentType"], null>
-) => knownContentTypes[contentType] === "json"
-
 const isContentTypeUrlEncoded = (hoppRequestBody: HoppRESTReqBody) =>
   hoppRequestBody.contentType === "application/x-www-form-urlencoded"
+
+const generateOpenAPIBodyForNonFormData = (
+  hoppRequestBody: HoppRESTReqBodyNonFormData
+) =>
+  pipe(
+    hoppRequestBody,
+    O.fromPredicate(() => isJSONContentType(hoppRequestBody.contentType)),
+    O.chain(({ body }) =>
+      pipe(
+        safeParseJSON(body),
+        O.map(generateOpenAPIBodyForJSON(hoppRequestBody.contentType))
+      )
+    ),
+    O.alt(() =>
+      pipe(
+        hoppRequestBody,
+        O.fromPredicate(isContentTypeUrlEncoded),
+        O.map(({ body }) => generateOpenAPIBodyForUrlEncoded(body))
+      )
+    ),
+    O.alt(() => pipe(hoppRequestBody, generateOpenAPIBodyForPlainText, O.some))
+  )
+
+const generateOpenAPIBodyForNonEmptyBody = (
+  hoppRequestBody: Exclude<HoppRESTReqBody, HoppRestReqBodyEmpty>
+) =>
+  isNonFormDataBody(hoppRequestBody)
+    ? generateOpenAPIBodyForNonFormData(hoppRequestBody)
+    : pipe(
+        hoppRequestBody,
+        O.fromPredicate(isFormDataBody),
+        O.map(generateOpenAPIBodyForFormData)
+      )
 
 /**
  * generates the openapi document body for different content types
@@ -204,52 +232,12 @@ const isContentTypeUrlEncoded = (hoppRequestBody: HoppRESTReqBody) =>
 export const generateOpenApiRequestBody = (
   hoppRequestBody: HoppRESTReqBody
 ): E.Either<RequestBodyGenerationError, OpenAPIV3.RequestBodyObject> =>
-  pipe(
-    hoppRequestBody,
-    E.fromPredicate(isEmptyBody, () => "NON_EMPTY_BODY" as const),
-    E.map(generateOpenAPIBodyForEmptyBody),
-    E.altW(() =>
-      pipe(
-        hoppRequestBody.contentType,
-        E.fromPredicate(
-          isKnownContentType,
-          () => "INVALID_CONTENT_TYPE" as const
-        ),
-        E.chainW((contentType) =>
-          pipe(
-            hoppRequestBody,
-            O.fromPredicate(isNonFormDataBody),
-            O.chain((hoppRequestBody) =>
-              pipe(
-                hoppRequestBody,
-                O.fromPredicate(() => isContentTypeJSON(contentType)),
-                O.chain(({ body }) => safeParseJSON(body)),
-                O.map(generateOpenAPIBodyForJSON(contentType)),
-                O.alt(() =>
-                  pipe(
-                    hoppRequestBody,
-                    O.fromPredicate(isContentTypeUrlEncoded),
-                    O.map(({ body }) => generateOpenAPIBodyForUrlEncoded(body))
-                  )
-                ),
-                O.alt(() =>
-                  pipe(hoppRequestBody, generateOpenAPIBodyForPlainText, O.some)
-                )
-              )
-            ),
-            O.alt(() =>
-              pipe(
-                hoppRequestBody,
-                O.fromPredicate(isFormDataBody),
-                O.map(generateOpenAPIBodyForFormData)
-              )
-            ),
-            E.fromOption(() => "INVALID_BODY" as const)
-          )
-        )
+  isEmptyBody(hoppRequestBody)
+    ? E.right(generateOpenAPIBodyForEmptyBody())
+    : pipe(
+        generateOpenAPIBodyForNonEmptyBody(hoppRequestBody),
+        E.fromOption(() => "INVALID_BODY")
       )
-    )
-  )
 
 const OPEN_API_AUTH_NAMES = {
   basic: "basicAuth",
@@ -319,7 +307,6 @@ const generateOpenApiDocument = (
 export type HoppToOpenAPIConversionError =
   | "INVALID_METHOD"
   | "INVALID_URL"
-  | "INVALID_CONTENT_TYPE"
   | "INVALID_AUTH"
   | RequestBodyGenerationError
 
@@ -434,8 +421,7 @@ export const convertHoppToOpenApiCollection = (
   pipe(
     collections,
     extractAllRequestsFromCollections,
-    A.map(applyEnvironmentVariables),
-    A.map(generateOpenApiPathFromRequest),
+    A.map(flow(applyEnvironmentVariables, generateOpenApiPathFromRequest)),
     E.sequenceArray,
     E.map(
       flow(

@@ -221,7 +221,7 @@ export const runGQLSubscription = <
     createRequest(args.query, args.variables)
   )
 
-  wonkaPipe(
+  const sub = wonkaPipe(
     source,
     subscribe((res) => {
       result$.next(
@@ -256,7 +256,8 @@ export const runGQLSubscription = <
     })
   )
 
-  return result$
+  // Returns the stream and a subscription handle to unsub
+  return [result$, sub] as const
 }
 
 export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(

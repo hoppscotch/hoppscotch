@@ -3,6 +3,7 @@
     v-if="response"
     v-model="selectedLensTab"
     styles="sticky z-10 bg-primary top-lowerPrimaryStickyFold"
+    render-inactive-tabs
   >
     <SmartTab
       v-for="(lens, index) in validLenses"

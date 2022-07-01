@@ -14,7 +14,7 @@ import { getCombinedEnvVariables } from "~/helpers/preRequest"
 jest.mock("~/helpers/preRequest")
 
 describe("convertHoppToOpenApiCollection", () => {
-  test("multiple hoppscotch collections", () => {
+  test("returns correct output for multiple hoppscotch collections", () => {
     // an example convering folders,params,headers,auth, multiple collections
     // not all cases are covered because they were tested individually
 
@@ -551,7 +551,7 @@ describe("convertHoppToOpenApiCollection", () => {
 })
 
 describe("generateOpenApiRequestBody", () => {
-  test("json content type", () => {
+  test("returns correct output for json content type", () => {
     const hoppRequestBody: HoppRESTReqBody = {
       contentType: "application/json",
       body: JSON.stringify({
@@ -604,7 +604,7 @@ describe("generateOpenApiRequestBody", () => {
     `)
   })
 
-  test("empty content type", () => {
+  test("returns empty OpenAPI content defintion for empty content type", () => {
     const hoppRequestBody: HoppRESTReqBody = {
       body: null,
       contentType: null,
@@ -618,7 +618,7 @@ describe("generateOpenApiRequestBody", () => {
     `)
   })
 
-  test("json content types other than application/json", () => {
+  test("returns json content types other than application/json", () => {
     const hoppRequestBody: HoppRESTReqBody = {
       contentType: "application/hal+json",
       body: JSON.stringify({
@@ -700,7 +700,7 @@ describe("generateOpenApiRequestBody", () => {
     `)
   })
 
-  test("formdata content type", () => {
+  test("returns correct data for formdata content type", () => {
     const hoppRequestBody: HoppRESTReqBody = {
       contentType: "multipart/form-data",
       body: [
@@ -775,7 +775,7 @@ describe("generateOpenApiRequestBody", () => {
 })
 
 describe("generateOpenApiAuth", () => {
-  test("authtype basic", () => {
+  test("returns basicAuth OpenAPI auth object for authtype basic", () => {
     const basicAuth: HoppRESTAuth = {
       authActive: true,
       authType: "basic",
@@ -790,7 +790,7 @@ describe("generateOpenApiAuth", () => {
     `)
   })
 
-  test("authtype api key", () => {
+  test("returns ApiKeyAuth OpenAPI auth object for authtype api key", () => {
     const apiKeyAuth: HoppRESTAuth = {
       authActive: true,
       authType: "api-key",
@@ -806,7 +806,7 @@ describe("generateOpenApiAuth", () => {
     `)
   })
 
-  test("authType bearer", () => {
+  test("returns bearer auth object for authType bearer", () => {
     const apiKeyAuth: HoppRESTAuth = {
       authActive: true,
       authType: "bearer",

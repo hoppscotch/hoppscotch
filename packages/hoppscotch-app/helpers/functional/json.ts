@@ -16,6 +16,11 @@ export const safeParseJSON = (str: string): O.Option<object> =>
  */
 export const isJSON = flow(safeParseJSON, O.isSome)
 
+/**
+ * Converts a JS object to a Blob
+ * @param content The object to be converted
+ * @returns Blob version of the JS object
+ */
 export const jsonToBlob = (content: object) =>
   new Blob([JSON.stringify(content)], {
     type: "application/json",

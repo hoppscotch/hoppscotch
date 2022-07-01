@@ -157,6 +157,12 @@
     "name": "Svenska"
   },
   {
+    "code": "ta",
+    "file": "ta.json",
+    "iso": "ta-TA",
+    "name": "தமிழ்"
+  },
+  {
     "code": "tr",
     "file": "tr.json",
     "iso": "tr-TR",

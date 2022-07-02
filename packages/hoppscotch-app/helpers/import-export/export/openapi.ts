@@ -428,7 +428,13 @@ export const convertHoppToOpenApiCollection = (
         RA.toArray,
         A.reduce({}, (allPaths: OpenAPIV3.PathsObject, path) => ({
           ...allPaths,
-          [path.pathname]: omit(path, "pathname"),
+          [path.pathname]:
+            path.pathname in allPaths
+              ? {
+                  ...allPaths[path.pathname],
+                  ...omit(path, "pathname"),
+                }
+              : omit(path, "pathname"),
         })),
         generateOpenApiDocument
       )

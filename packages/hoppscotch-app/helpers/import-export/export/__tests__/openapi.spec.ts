@@ -772,6 +772,60 @@ describe("generateOpenApiRequestBody", () => {
       }
     `)
   })
+
+  test("returns duplicate path error for endpoints with colliding paths", () => {
+    const collection: HoppCollection<HoppRESTRequest> = {
+      v: 1,
+      name: "Collection with overridable paths",
+      folders: [],
+      requests: [
+        {
+          v: "2",
+          name: "Sample Endpoint 1",
+          auth: {
+            authType: "none",
+            authActive: true,
+          },
+          body: {
+            contentType: "application/json",
+            body: JSON.stringify({
+              title: "test body",
+            }),
+          },
+          method: "post",
+          preRequestScript: "",
+          testScript: "",
+          endpoint: "https://httpbin.org/post",
+          headers: [],
+          params: [],
+        },
+        {
+          v: "2",
+          name: "Sample Endpoint 1",
+          auth: {
+            authType: "none",
+            authActive: true,
+          },
+          body: {
+            contentType: "application/json",
+            body: JSON.stringify({
+              title: "body with different title",
+            }),
+          },
+          method: "post",
+          preRequestScript: "",
+          testScript: "",
+          endpoint: "https://httpbin.org/post",
+          headers: [],
+          params: [],
+        },
+      ],
+    }
+
+    expect(
+      convertHoppToOpenApiCollection([collection])
+    ).toMatchInlineSnapshotLeft(`"DUPLICATE_PATHS"`)
+  })
 })
 
 describe("generateOpenApiAuth", () => {

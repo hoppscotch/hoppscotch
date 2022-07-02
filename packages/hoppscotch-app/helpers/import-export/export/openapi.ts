@@ -308,13 +308,14 @@ export type HoppToOpenAPIConversionError =
   | "INVALID_METHOD"
   | "INVALID_URL"
   | "INVALID_AUTH"
+  | "DUPLICATE_PATHS"
   | RequestBodyGenerationError
 
 const generateOpenApiPathFromRequest = (
   request: HoppRESTRequest
 ): E.Either<
   HoppToOpenAPIConversionError,
-  OpenAPIV3.PathItemObject & { pathname: string }
+  OpenAPIV3.PathItemObject & { pathname: string; method: string }
 > =>
   pipe(
     E.Do,
@@ -353,9 +354,10 @@ const generateOpenApiPathFromRequest = (
         openApiHeaders,
         openapiQueryParams,
         openapiAuth,
-      }): OpenAPIV3.PathItemObject & { pathname: string } =>
+      }): OpenAPIV3.PathItemObject & { pathname: string; method: string } =>
         pipe({
           pathname: origin.pathname,
+          method,
           [method]: {
             description: request.name,
             requestBody: openApiBody,
@@ -415,6 +417,15 @@ const applyEnvironmentVariables = (request: HoppRESTRequest): HoppRESTRequest =>
       })
   )
 
+export const hasDuplicates = (
+  paths: Array<OpenAPIV3.PathItemObject & { pathname: string; method: string }>
+) =>
+  pipe(
+    paths,
+    A.map((path) => `${path.pathname}_${path.method}`),
+    (pathnames) => new Set(pathnames).size < pathnames.length
+  )
+
 export const convertHoppToOpenApiCollection = (
   collections: HoppCollection<HoppRESTRequest>[]
 ): E.Either<HoppToOpenAPIConversionError, OpenAPIV3.Document> =>
@@ -423,22 +434,28 @@ export const convertHoppToOpenApiCollection = (
     extractAllRequestsFromCollections,
     A.map(flow(applyEnvironmentVariables, generateOpenApiPathFromRequest)),
     E.sequenceArray,
-    E.map(
+    E.chainW(
       flow(
         RA.toArray,
-        A.reduce({}, (allPaths: OpenAPIV3.PathsObject, path) => ({
-          ...allPaths,
-          [path.pathname]:
-            path.pathname in allPaths
-              ? {
-                  ...allPaths[path.pathname],
-                  ...omit(path, "pathname"),
-                }
-              : omit(path, "pathname"),
-        })),
-        generateOpenApiDocument
+        E.fromPredicate(
+          (paths) => !hasDuplicates(paths),
+          () => "DUPLICATE_PATHS" as const
+        ),
+        E.map(
+          A.reduce({}, (allPaths: OpenAPIV3.PathsObject, path) => ({
+            ...allPaths,
+            [path.pathname]:
+              path.pathname in allPaths
+                ? {
+                    ...allPaths[path.pathname],
+                    ...omit(path, "pathname", "method"),
+                  }
+                : omit(path, "pathname", "method"),
+          }))
+        )
       )
-    )
+    ),
+    E.map(generateOpenApiDocument)
   )
 
 const exporter: HoppExporter<HoppRESTRequest, HoppToOpenAPIConversionError> =

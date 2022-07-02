@@ -13,9 +13,10 @@
 
 <script setup lang="ts">
 import { watch, ref, useRouter, useRoute } from "@nuxtjs/composition-api"
-import { useI18n } from "~/helpers/utils/composables"
+import { useI18n, useI18nPathInfo } from "~/helpers/utils/composables"
 
 const t = useI18n()
+const { localePath, getRouteBaseName } = useI18nPathInfo()
 const router = useRouter()
 const route = useRoute()
 
@@ -44,17 +45,21 @@ const currentTab = ref<RealtimeNavTab>("websocket")
 
 // Update the router when the tab is updated
 watch(currentTab, (newTab) => {
-  router.push(`/realtime/${newTab}`)
+  router.push(localePath(`/realtime/${newTab}`))
 })
 
 // Update the tab when router is upgrad
 watch(
   route,
   (updateRoute) => {
-    if (updateRoute.path === "/realtime") router.replace("/realtime/websocket")
+    const path = getRouteBaseName(updateRoute)
 
-    const destination: string | undefined =
-      updateRoute.path.split("/realtime/")[1]
+    if (path.endsWith("realtime")) {
+      router.replace(localePath(`/realtime/websocket`))
+      return
+    }
+
+    const destination: string | undefined = path.split("realtime-")[1]
 
     const target = REALTIME_NAVIGATION.find(
       ({ target }) => target === destination

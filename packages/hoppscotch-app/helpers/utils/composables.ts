@@ -143,6 +143,15 @@ export function useStreamSubscriber(): {
   }
 }
 
+export function useI18nPathInfo() {
+  const { localePath, getRouteBaseName } = useContext() as any
+
+  return {
+    localePath: localePath as (x: string) => string,
+    getRouteBaseName: getRouteBaseName as (x?: any) => string, // Should be a route
+  }
+}
+
 export function useI18n() {
   const {
     app: { i18n },

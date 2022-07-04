@@ -19,7 +19,7 @@
   "dependencies": {
     "@codemirror/highlight": "^0.19.8",
     "@codemirror/language": "^0.19.10",
-    "@lezer/lr": "^0.15.8"
+    "@lezer/lr": "^1.1.0"
   },
   "devDependencies": {
     "@lezer/generator": "^0.15.4",

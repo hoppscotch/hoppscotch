@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show">
+  <div v-show="show">
     <SmartTabs
       :id="'collections_tab'"
       v-model="selectedCollectionTab"

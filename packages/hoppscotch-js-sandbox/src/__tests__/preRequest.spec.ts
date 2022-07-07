@@ -14,14 +14,18 @@ describe("execPreRequestScript", () => {
             { key: "bob", value: "oldbob" },
             { key: "foo", value: "bar" },
           ],
-        }
+        },
+        {}
       )()
     ).resolves.toEqualRight({
-      global: [],
-      selected: [
-        { key: "bob", value: "newbob" },
-        { key: "foo", value: "bar" },
-      ],
+      envs: {
+        global: [],
+        selected: [
+          { key: "bob", value: "newbob" },
+          { key: "foo", value: "bar" },
+        ],
+      },
+      artifacts: {},
     })
   })
 
@@ -37,7 +41,8 @@ describe("execPreRequestScript", () => {
             { key: "bob", value: "oldbob" },
             { key: "foo", value: "bar" },
           ],
-        }
+        },
+        {}
       )()
     ).resolves.toBeLeft()
   })
@@ -54,7 +59,8 @@ describe("execPreRequestScript", () => {
             { key: "bob", value: "oldbob" },
             { key: "foo", value: "bar" },
           ],
-        }
+        },
+        {}
       )()
     ).resolves.toBeLeft()
   })
@@ -71,7 +77,8 @@ describe("execPreRequestScript", () => {
             { key: "bob", value: "oldbob" },
             { key: "foo", value: "bar" },
           ],
-        }
+        },
+        {}
       )()
     ).resolves.toBeLeft()
   })
@@ -82,11 +89,15 @@ describe("execPreRequestScript", () => {
         `
           pw.env.set("foo", "bar")
         `,
-        { selected: [], global: [] }
+        { selected: [], global: [] },
+        {}
       )()
     ).resolves.toEqualRight({
-      global: [],
-      selected: [{ key: "foo", value: "bar" }],
+      envs: {
+        global: [],
+        selected: [{ key: "foo", value: "bar" }],
+      },
+      artifacts: {},
     })
   })
 })

@@ -5,14 +5,16 @@ import {
   execTestScript,
   TestResponse as _TestResponse,
   TestDescriptor as _TestDescriptor,
-  TestResult,
+  TestScriptReport,
 } from "./test-runner"
 
 export * from "./test-runner"
 
 export type TestResponse = _TestResponse
 export type TestDescriptor = _TestDescriptor
-export type SandboxTestResult = TestResult & { tests: TestDescriptor }
+export type SandboxTestScriptReport = TestScriptReport & {
+  tests: TestDescriptor
+}
 
 /**
  * Executes a given test script on the test-runner sandbox
@@ -21,13 +23,13 @@ export type SandboxTestResult = TestResult & { tests: TestDescriptor }
  */
 export const runTestScript = (
   testScript: string,
-  envs: TestResult["envs"],
+  envs: TestScriptReport["envs"],
   response: TestResponse
 ) =>
   pipe(
     execTestScript(testScript, envs, response),
     TE.chain((results) =>
-      TE.right(<SandboxTestResult>{
+      TE.right(<SandboxTestScriptReport>{
         envs: results.envs,
         tests: results.tests[0],
       })

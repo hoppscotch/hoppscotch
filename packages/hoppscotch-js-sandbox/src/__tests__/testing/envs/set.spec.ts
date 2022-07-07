@@ -1,6 +1,11 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
-import { execTestScript, TestResponse, TestResult } from "../../../test-runner"
+import {
+  execTestScript,
+  TestResponse,
+  TestScriptReport,
+} from "../../../test-runner"
+import "@relmify/jest-fp-ts"
 
 const fakeResponse: TestResponse = {
   status: 200,
@@ -8,13 +13,13 @@ const fakeResponse: TestResponse = {
   headers: [],
 }
 
-const func = (script: string, envs: TestResult["envs"]) =>
+const func = (script: string, envs: TestScriptReport["envs"]) =>
   pipe(
     execTestScript(script, envs, fakeResponse),
     TE.map((x) => x.envs)
   )
 
-const funcTest = (script: string, envs: TestResult["envs"]) =>
+const funcTest = (script: string, envs: TestScriptReport["envs"]) =>
   pipe(
     execTestScript(script, envs, fakeResponse),
     TE.map((x) => x.tests)

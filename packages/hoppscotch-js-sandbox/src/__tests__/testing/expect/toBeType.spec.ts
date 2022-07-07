@@ -1,6 +1,7 @@
 import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { execTestScript, TestResponse } from "../../../test-runner"
+import "@relmify/jest-fp-ts"
 
 const fakeResponse: TestResponse = {
   status: 200,

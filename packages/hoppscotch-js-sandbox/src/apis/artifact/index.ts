@@ -1,26 +1,24 @@
-import { pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-import * as qjs from "quickjs-emscripten"
-import { Artifacts } from "./types"
+import clone from "lodash/clone"
+import { defineAPI, onPreRequestScriptComplete } from "../../api"
 import {
-  createArtifact,
-  deleteArtifact,
-  getArtifact,
-  updateArtifact,
-} from "./utils"
+  defineHandleFn,
+  disposeHandlers,
+  HandleFnPairs,
+  setHandlers,
+} from "../../utils"
 
-export const artifactHandler = (
-  vm: qjs.QuickJSContext,
-  artifacts: Artifacts
-): qjs.QuickJSHandle => {
-  const artifactHandle = vm.newObject()
+export type Artifacts = Record<string, string | undefined>
 
-  /**
-   * Method to create new artifact for given key-value.
-   */
-  const artifactCreateHandle = vm.newFunction(
-    "create",
-    (keyHandle, valueHandle) => {
+export type ArtifactKeys = "create" | "get" | "update" | "delete"
+
+export default (initialArtifacts: Record<string, string | undefined>) =>
+  defineAPI("artifact", (vm) => {
+    const handle = vm.newObject()
+
+    const currentArtifacts: Record<string, string | undefined> =
+      clone(initialArtifacts)
+
+    const createHandleFn = defineHandleFn((keyHandle, valueHandle) => {
       const key: unknown = vm.dump(keyHandle)
       const value: unknown = vm.dump(valueHandle)
 
@@ -36,47 +34,17 @@ export const artifactHandler = (
         }
       }
 
-      artifacts = createArtifact(key, value, artifacts)
+      if (!currentArtifacts[key]) {
+        currentArtifacts[key] = value
+      }
 
       return {
         value: vm.undefined,
       }
-    }
-  )
+    })
 
-  /**
-   * Method to get value for given key in artifacts.
-   */
-  const artifactGetHandle = vm.newFunction("get", (keyHandle) => {
-    const key: unknown = vm.dump(keyHandle)
-
-    if (typeof key !== "string") {
-      return {
-        error: vm.newString("Expected key to be a string"),
-      }
-    }
-
-    const result = pipe(
-      getArtifact(key, artifacts),
-      O.match(
-        () => vm.undefined,
-        (value) => vm.newString(value)
-      )
-    )
-
-    return {
-      value: result,
-    }
-  })
-
-  /**
-   * Method to update artifacts for given key.
-   */
-  const artifactUpdateHandle = vm.newFunction(
-    "update",
-    (keyHandle, newValueHandle) => {
+    const getHandleFn = defineHandleFn((keyHandle) => {
       const key: unknown = vm.dump(keyHandle)
-      const newValue: unknown = vm.dump(newValueHandle)
 
       if (typeof key !== "string") {
         return {
@@ -84,50 +52,88 @@ export const artifactHandler = (
         }
       }
 
-      if (typeof newValue !== "string") {
+      const value = currentArtifacts[key]
+
+      return {
+        value: value === undefined ? vm.undefined : vm.newString(value),
+      }
+    })
+
+    const deleteHandleFn = defineHandleFn((keyHandle) => {
+      const key: unknown = vm.dump(keyHandle)
+
+      if (typeof key !== "string") {
+        return {
+          error: vm.newString("Expected key to be a string"),
+        }
+      }
+
+      if (!currentArtifacts[key]) {
+        return {
+          error: vm.newString("Artifact key doesn't exist"),
+        }
+      }
+
+      delete currentArtifacts[key]
+
+      return {
+        value: vm.undefined,
+      }
+    })
+
+    const updateHandleFn = defineHandleFn((keyHandle, valueHandle) => {
+      const key: unknown = vm.dump(keyHandle)
+      const value: unknown = vm.dump(valueHandle)
+
+      if (typeof key !== "string") {
+        return {
+          error: vm.newString("Expected key to be a string"),
+        }
+      }
+
+      if (typeof value !== "string") {
         return {
           error: vm.newString("Expected value to be a string"),
         }
       }
 
-      artifacts = updateArtifact(key, newValue, artifacts)
+      if (!currentArtifacts[key]) {
+        return {
+          error: vm.newString("Artifact key doesn't exist"),
+        }
+      }
+
+      currentArtifacts[key] = value
 
       return {
         value: vm.undefined,
       }
+    })
+
+    const handleFnPairs: HandleFnPairs<ArtifactKeys>[] = [
+      { key: "create", func: createHandleFn },
+      { key: "delete", func: deleteHandleFn },
+      { key: "get", func: getHandleFn },
+      { key: "update", func: updateHandleFn },
+    ]
+
+    const handlers = setHandlers(vm, handle, handleFnPairs)
+    disposeHandlers(handlers)
+
+    const exposed = {
+      getArtifacts: () => currentArtifacts,
     }
-  )
 
-  /**
-   * Method to delete from artifacts for given key.
-   */
-  const artifactDeleteHandle = vm.newFunction("delete", (keyHandle) => {
-    const key: unknown = vm.dump(keyHandle)
-
-    if (typeof key !== "string") {
-      return {
-        error: vm.newString("Expected key to be a string"),
-      }
-    }
-
-    artifacts = deleteArtifact(key, artifacts)
+    onPreRequestScriptComplete((report) => ({
+      ...report,
+      artifacts: {
+        ...report.artifacts,
+        ...currentArtifacts,
+      },
+    }))
 
     return {
-      value: vm.undefined,
+      rootHandle: handle,
+      exposes: exposed,
     }
   })
-
-  vm.setProp(artifactHandle, "create", artifactCreateHandle)
-  artifactCreateHandle.dispose()
-
-  vm.setProp(artifactHandle, "get", artifactGetHandle)
-  artifactGetHandle.dispose()
-
-  vm.setProp(artifactHandle, "update", artifactUpdateHandle)
-  artifactUpdateHandle.dispose()
-
-  vm.setProp(artifactHandle, "delete", artifactDeleteHandle)
-  artifactDeleteHandle.dispose()
-
-  return artifactHandle
-}

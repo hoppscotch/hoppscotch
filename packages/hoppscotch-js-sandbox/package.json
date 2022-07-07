@@ -44,6 +44,7 @@
     "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
     "quickjs-emscripten": "^0.20.0",
+    "ts-adt": "^2.1.2",
     "tsup": "^5.12.5"
   },
   "devDependencies": {

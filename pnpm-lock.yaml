@@ -443,6 +443,7 @@ importers:
       lodash: ^4.17.21
       prettier: ^2.6.2
       quickjs-emscripten: ^0.20.0
+      ts-adt: ^2.1.2
       ts-jest: ^27.1.4
       tsup: ^5.12.5
       typescript: ^4.6.3
@@ -451,6 +452,7 @@ importers:
       fp-ts: 2.11.10
       lodash: 4.17.21
       quickjs-emscripten: 0.20.0
+      ts-adt: 2.1.2
       tsup: 5.12.5_typescript@4.6.3
     devDependencies:
       '@digitak/esrun': 3.1.2
@@ -18660,6 +18662,10 @@ packages:
     resolution: {integrity: sha512-c1PTsA3tYrIsLGkJkzHF+w9F2EyxfXGo4UyJc4pFL++FMjnq0HJS69T3M7d//gKrFKwy429bouPescbjecU+Zw==}
     engines: {node: '>=8'}
     dev: true
+
+  /ts-adt/2.1.2:
+    resolution: {integrity: sha512-UD0lr7eyiBjxogQjb1xMCjF7skrnxGZLNm4iROeU3ky5tJzXN0yQkkS4DfNGfM4RaUGMhgyrzf2wUynqK8AdWQ==}
+    dev: false
 
   /ts-clone-node/0.3.32_typescript@4.6.3:
     resolution: {integrity: sha512-YYGvoWy2Ba98/YC/0leD7IRsU/q5pu/KRg9dD8omzkbgoZ8g7gfYfED9mWMTyNp7J3CQiiKyvM62B7mXXHKU7Q==}

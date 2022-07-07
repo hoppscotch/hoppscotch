@@ -6,7 +6,7 @@ import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import { Environment } from "@hoppscotch/data"
 import {
-  SandboxTestResult,
+  SandboxTestScriptReport,
   runTestScript,
   TestDescriptor,
 } from "@hoppscotch/js-sandbox"
@@ -72,7 +72,7 @@ export const runRESTRequest$ = (): TaskEither<
       getRESTRequest().preRequestScript,
       getCombinedEnvVariables()
     ),
-    chain((envs) => {
+    chain(({ envs }) => {
       const effectiveRequest = getEffectiveRESTRequest(getRESTRequest(), {
         name: "Env",
         variables: combineEnvVariables(envs),
@@ -177,7 +177,7 @@ const getUpdatedEnvVariables = (
   )
 
 function translateToSandboxTestResults(
-  testDesc: SandboxTestResult
+  testDesc: SandboxTestScriptReport
 ): HoppTestResult {
   const translateChildTests = (child: TestDescriptor): HoppTestData => {
     return {

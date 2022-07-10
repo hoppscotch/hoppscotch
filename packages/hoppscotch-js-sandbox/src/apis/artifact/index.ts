@@ -1,4 +1,4 @@
-import clone from "lodash/clone"
+import cloneDeep from "lodash/cloneDeep"
 import { defineAPI, onPreRequestScriptComplete } from "../../api"
 import {
   defineHandleFn,
@@ -16,7 +16,7 @@ export default (initialArtifacts: Artifacts) =>
     const handle = vm.newObject()
 
     const currentArtifacts: Artifacts =
-      clone(initialArtifacts)
+      cloneDeep(initialArtifacts)
 
     const createHandleFn = defineHandleFn((keyHandle, valueHandle) => {
       const key: unknown = vm.dump(keyHandle)

@@ -1,5 +1,5 @@
 import { Environment, parseTemplateStringE } from "@hoppscotch/data"
-import { clone } from "lodash"
+import cloneDeep from "lodash/cloneDeep"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
@@ -28,7 +28,7 @@ export default (initialEnvs: Envs) =>
   defineAPI("env", (vm) => {
     const handle = vm.newObject()
 
-    let currentEnvs: Envs = clone(initialEnvs)
+    let currentEnvs: Envs = cloneDeep(initialEnvs)
 
     const getHandleFn = defineHandleFn((keyHandle) => {
       const key: unknown = vm.dump(keyHandle)

@@ -11,11 +11,11 @@ export type Artifacts = Record<string, string | undefined>
 
 export type ArtifactKeys = "create" | "get" | "update" | "delete"
 
-export default (initialArtifacts: Record<string, string | undefined>) =>
+export default (initialArtifacts: Artifacts) =>
   defineAPI("artifact", (vm) => {
     const handle = vm.newObject()
 
-    const currentArtifacts: Record<string, string | undefined> =
+    const currentArtifacts: Artifacts =
       clone(initialArtifacts)
 
     const createHandleFn = defineHandleFn((keyHandle, valueHandle) => {

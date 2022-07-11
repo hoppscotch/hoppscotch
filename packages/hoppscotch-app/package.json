@@ -61,7 +61,7 @@
     "@hoppscotch/data": "workspace:^0.4.2",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",
     "@nuxtjs/axios": "^5.13.6",
-    "@nuxtjs/composition-api": "^0.32.0",
+    "@nuxtjs/composition-api": "^0.33.0",
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/i18n": "^7.2.1",
     "@nuxtjs/robots": "^2.5.0",

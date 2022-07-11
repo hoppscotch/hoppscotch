@@ -52,7 +52,7 @@
     "@codemirror/matchbrackets": "^0.19.4",
     "@codemirror/rectangular-selection": "^0.19.2",
     "@codemirror/search": "^0.19.10",
-    "@codemirror/state": "^0.19.9",
+    "@codemirror/state": "^6.1.0",
     "@codemirror/stream-parser": "^0.19.9",
     "@codemirror/text": "^0.19.6",
     "@codemirror/tooltip": "^0.19.16",

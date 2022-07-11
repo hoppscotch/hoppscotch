@@ -75,9 +75,8 @@ import {
   provide,
   onMounted,
   onUpdated,
-  useSlots,
   SetupContext,
-  nextTick,
+  getCurrentInstance,
 } from "@nuxtjs/composition-api"
 
 import { isEqual } from "lodash"
@@ -138,8 +137,6 @@ const selectTab = (id: string) => {
   emit("input", id)
 }
 
-const slots = useSlots()
-
 type AnyComponent = VNode["componentInstance"]
 type TabComponent = InstanceType<typeof Tab>
 
@@ -151,8 +148,14 @@ const isTabComponent = (
 const getComponentFromNode = (node: VNode) =>
   node.componentInstance as AnyComponent | TabComponent
 
+/**
+ * proxy is the only allowed key to be used from getCurrentInstance
+ * see https://github.com/vuejs/vue/issues/12596#issuecomment-1173269807
+ */
+const instance = getCurrentInstance()?.proxy
+
 const getTabs = () => {
-  const nodes = slots?.default?.()
+  const nodes = instance?.$slots?.default
 
   const tabs = nodes
     ? pipe(
@@ -177,7 +180,7 @@ const getTabs = () => {
 }
 
 onUpdated(() => {
-  nextTick(getTabs)
+  getTabs()
 })
 
 onMounted(() => {

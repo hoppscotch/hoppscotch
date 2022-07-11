@@ -179,8 +179,17 @@ const getTabs = () => {
   }
 }
 
+const setActiveTab = () => {
+  const hasActiveTab = tabEntries.value.some((tab) => tab[0] === props.value)
+
+  if (!hasActiveTab && tabEntries.value.length > 0) {
+    selectTab(tabEntries.value[0][0])
+  }
+}
+
 onUpdated(() => {
   getTabs()
+  setActiveTab()
 })
 
 onMounted(() => {

@@ -57,7 +57,7 @@
           :key="`entry-${index}`"
         >
           <component
-            :is="page == 'rest' ? 'HistoryRestCard' : 'HistoryGraphqlCard'"
+            :is="page == 'rest' ? HistoryRestCard : HistoryGraphqlCard"
             :id="index"
             :entry="entry.entry"
             :show-more="showMore"
@@ -153,6 +153,9 @@ import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
+
+import HistoryRestCard from "./rest/Card.vue"
+import HistoryGraphqlCard from "./graphql/Card.vue"
 
 type HistoryEntry = GQLHistoryEntry | RESTHistoryEntry
 

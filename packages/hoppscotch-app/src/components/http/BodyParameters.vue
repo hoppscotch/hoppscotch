@@ -28,8 +28,10 @@
         />
       </div>
     </div>
+
     <draggable
       v-model="workingParams"
+      item-key="id"
       animation="250"
       handle=".draggable-handle"
       draggable=".draggable-content"
@@ -37,109 +39,112 @@
       chosen-class="bg-primaryLight"
       drag-class="cursor-grabbing"
     >
-      <div
-        v-for="({ id, entry }, index) in workingParams"
-        :key="`param=${id}-${index}`"
-        class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
-      >
-        <span>
-          <ButtonSecondary
-            :svg="IconGripVertical"
-            class="cursor-auto text-primary hover:text-primary"
-            :class="{
-              'draggable-handle group-hover:text-secondaryLight !cursor-grab':
-                index !== workingParams?.length - 1,
-            }"
-            tabindex="-1"
-          />
-        </span>
-        <SmartEnvInput
-          v-model="entry.key"
-          :placeholder="`${t('count.parameter', { count: index + 1 })}`"
-          @change="
-            updateBodyParam(index, {
-              key: $event,
-              value: entry.value,
-              active: entry.active,
-              isFile: entry.isFile,
-            })
-          "
-        />
-        <div v-if="entry.isFile" class="file-chips-container hide-scrollbar">
-          <div class="space-x-2 file-chips-wrapper">
-            <SmartFileChip
-              v-for="(file, fileIndex) in entry.value"
-              :key="`param-${index}-file-${fileIndex}`"
-              >{{ file.name }}</SmartFileChip
-            >
-          </div>
-        </div>
-        <span v-else class="flex flex-1">
+      <template #item="{ element: { id, entry }, index }">
+        <div
+          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+        >
+          <span>
+            <ButtonSecondary
+              :svg="IconGripVertical"
+              class="cursor-auto text-primary hover:text-primary"
+              :class="{
+                'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                  index !== workingParams?.length - 1,
+              }"
+              tabindex="-1"
+            />
+          </span>
           <SmartEnvInput
-            v-model="entry.value"
-            :placeholder="`${$t('count.value', { count: index + 1 })}`"
+            v-model="entry.key"
+            :placeholder="`${t('count.parameter', { count: index + 1 })}`"
             @change="
               updateBodyParam(index, {
-                key: entry.key,
-                value: $event,
+                key: $event,
+                value: entry.value,
                 active: entry.active,
                 isFile: entry.isFile,
               })
             "
           />
-        </span>
-        <span>
-          <label :for="`attachment${index}`" class="p-0">
-            <input
-              :id="`attachment${index}`"
-              :ref="`attachment${index}`"
-              :name="`attachment${index}`"
-              type="file"
-              multiple
-              class="p-1 cursor-pointer transition file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
-              @change="setRequestAttachment(index, entry, $event)"
+          <div v-if="entry.isFile" class="file-chips-container hide-scrollbar">
+            <div class="space-x-2 file-chips-wrapper">
+              <SmartFileChip
+                v-for="(file, fileIndex) in entry.value"
+                :key="`param-${index}-file-${fileIndex}`"
+                >{{ file.name }}</SmartFileChip
+              >
+            </div>
+          </div>
+          <span v-else class="flex flex-1">
+            <SmartEnvInput
+              v-model="entry.value"
+              :placeholder="`${t('count.value', { count: index + 1 })}`"
+              @change="
+                updateBodyParam(index, {
+                  key: entry.key,
+                  value: $event,
+                  active: entry.active,
+                  isFile: entry.isFile,
+                })
+              "
             />
-          </label>
-        </span>
-        <span>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              entry.hasOwnProperty('active')
-                ? entry.active
-                  ? t('action.turn_off')
-                  : t('action.turn_on')
-                : t('action.turn_off')
-            "
-            :svg="
-              entry.hasOwnProperty('active')
-                ? entry.active
-                  ? IconCheckCircle
-                  : IconCircle
-                : IconCheckCircle
-            "
-            color="green"
-            @click.native="
-              updateBodyParam(index, {
-                key: entry.key,
-                value: entry.value,
-                active: entry.hasOwnProperty('active') ? !entry.active : false,
-                isFile: entry.isFile,
-              })
-            "
-          />
-        </span>
-        <span>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.remove')"
-            :svg="IconTrash"
-            color="red"
-            @click.native="deleteBodyParam(index)"
-          />
-        </span>
-      </div>
+          </span>
+          <span>
+            <label :for="`attachment${index}`" class="p-0">
+              <input
+                :id="`attachment${index}`"
+                :ref="`attachment${index}`"
+                :name="`attachment${index}`"
+                type="file"
+                multiple
+                class="p-1 cursor-pointer transition file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                @change="setRequestAttachment(index, entry, $event)"
+              />
+            </label>
+          </span>
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="
+                entry.hasOwnProperty('active')
+                  ? entry.active
+                    ? t('action.turn_off')
+                    : t('action.turn_on')
+                  : t('action.turn_off')
+              "
+              :svg="
+                entry.hasOwnProperty('active')
+                  ? entry.active
+                    ? IconCheckCircle
+                    : IconCircle
+                  : IconCheckCircle
+              "
+              color="green"
+              @click.native="
+                updateBodyParam(index, {
+                  key: entry.key,
+                  value: entry.value,
+                  active: entry.hasOwnProperty('active')
+                    ? !entry.active
+                    : false,
+                  isFile: entry.isFile,
+                })
+              "
+            />
+          </span>
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.remove')"
+              :svg="IconTrash"
+              color="red"
+              @click.native="deleteBodyParam(index)"
+            />
+          </span>
+        </div>
+      </template>
     </draggable>
+
     <div
       v-if="workingParams.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -170,7 +175,7 @@ import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
-import { ref, Ref, watch } from "vue"
+import { ref, Ref, watch, computed } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"

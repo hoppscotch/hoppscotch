@@ -1,36 +1,48 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "sourceMap": true,
-    "skipLibCheck": true,
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
-    "noEmit": true,
-    "baseUrl": ".",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "skipLibCheck": true,
+    "baseUrl": "./",
     "paths": {
-      "~/*": ["./*"],
-      "@/*": ["./*"]
+      "~/*": [
+        "./src/*"
+      ],
+      "@composables/*": [
+        "./src/composables/*"
+      ],
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@helpers/*": [
+        "./src/helpers/*"
+      ],
+      "@modules/*": [
+        "./src/modules/*"
+      ],
+      "@workers/*": [
+        "./src/workers/*"
+      ],
+      "@functional/*": [
+        "./src/helpers/functional/*"
+      ],
     },
     "types": [
-      "@types/jest",
-      "@types/node",
-      "@nuxt/types",
-      "@nuxtjs/i18n",
-      "@nuxtjs/toast",
-      "@nuxtjs/sentry",
-      "@nuxtjs/color-mode",
-      "@nuxtjs/axios"
-    ]
+      "unplugin-icons/types/vue",
+      "@intlify/unplugin-plugin-vue-i18n/messages",
+      "vite-plugin-vue-layouts/client",
+      "vite-plugin-pwa/client"
+    ],
   },
-  "exclude": ["node_modules", ".nuxt", "dist"],
-  "vueCompilerOptions": {
-    "target": 2,
-    "experimentalCompatMode": 2
-  }
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "./components.d.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

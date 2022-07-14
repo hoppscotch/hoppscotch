@@ -48,80 +48,25 @@
           />
         </div>
       </tippy>
-      <div class="flex justify-between flex-1 border-b border-dividerLight">
-        <ButtonSecondary
-          svg="plus"
-          :label="`${t('action.new')}`"
-          class="!rounded-none"
-          @click.native="displayModalAdd(true)"
-        />
-        <div class="flex">
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            to="https://docs.hoppscotch.io/features/environments"
-            blank
-            :title="t('app.wiki')"
-            svg="help-circle"
-          />
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            svg="archive"
-            :title="t('modal.import_export')"
-            @click.native="displayModalImportExport(true)"
-          />
-        </div>
-      </div>
-    </div>
-    <div class="flex flex-col">
-      <EnvironmentsEnvironment
-        environment-index="Global"
-        :environment="globalEnvironment"
-        class="border-b border-dashed border-dividerLight"
-        @edit-environment="editEnvironment('Global')"
-      />
-      <EnvironmentsEnvironment
-        v-for="(environment, index) in environments"
-        :key="`environment-${index}`"
-        :environment-index="index"
-        :environment="environment"
-        @edit-environment="editEnvironment(index)"
+      <EnvironmentsChooseType
+        :environment-type="environmentType"
+        :show="showTeamEnvironment"
+        @update-environment-type="updateEnvironmentType"
+        @update-selected-team="updateSelectedTeam"
       />
     </div>
-    <div
-      v-if="environments.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <img
-        :src="`/images/states/${$colorMode.value}/blockchain.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.environments')}`"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.environments") }}
-      </span>
-      <ButtonSecondary
-        :label="`${t('add.new')}`"
-        filled
-        class="mb-4"
-        @click.native="displayModalAdd(true)"
-      />
-    </div>
-    <EnvironmentsDetails
-      :show="showModalDetails"
-      :action="action"
-      :editing-environment-index="editingEnvironmentIndex"
-      @hide-modal="displayModalEdit(false)"
-    />
-    <EnvironmentsImportExport
-      :show="showModalImportExport"
-      @hide-modal="displayModalImportExport(false)"
+    <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
+    <EnvironmentsTeams
+      v-else
+      :team-id="environmentType.selectedTeam && environmentType.selectedTeam.id"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, ref } from "@nuxtjs/composition-api"
+import { currentUser$ } from "~/helpers/fb/auth"
+import { Team } from "~/helpers/backend/graphql"
 import {
   useReadonlyStream,
   useStream,
@@ -131,19 +76,40 @@ import {
   environments$,
   setCurrentEnvironment,
   selectedEnvIndex$,
-  globalEnv$,
 } from "~/newstore/environments"
 
 const t = useI18n()
 
+type EnvironmentType = "my-environments" | "team-environments"
+
+type SelectedTeam = Team | undefined
+
+type EnvironmentsChooseType = {
+  type: EnvironmentType
+  selectedTeam: SelectedTeam
+}
+
+const environmentType = ref<EnvironmentsChooseType>({
+  type: "my-environments",
+  selectedTeam: undefined,
+})
+
+const currentUser = useReadonlyStream(currentUser$, null)
+
+const showTeamEnvironment = computed(() => {
+  if (currentUser.value == null) {
+    return false
+  }
+  return true
+})
+const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
+  environmentType.value.selectedTeam = newSelectedTeam
+}
+const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
+  environmentType.value.type = newEnvironmentType
+}
+
 const options = ref<any | null>(null)
-
-const globalEnv = useReadonlyStream(globalEnv$, [])
-
-const globalEnvironment = computed(() => ({
-  name: "Global",
-  variables: globalEnv.value,
-}))
 
 const environments = useReadonlyStream(environments$, [])
 
@@ -152,31 +118,4 @@ const selectedEnvironmentIndex = useStream(
   -1,
   setCurrentEnvironment
 )
-
-const showModalImportExport = ref(false)
-const showModalDetails = ref(false)
-const action = ref<"new" | "edit">("edit")
-const editingEnvironmentIndex = ref<number | "Global" | null>(null)
-
-const displayModalAdd = (shouldDisplay: boolean) => {
-  action.value = "new"
-  showModalDetails.value = shouldDisplay
-}
-const displayModalEdit = (shouldDisplay: boolean) => {
-  action.value = "edit"
-  showModalDetails.value = shouldDisplay
-
-  if (!shouldDisplay) resetSelectedData()
-}
-const displayModalImportExport = (shouldDisplay: boolean) => {
-  showModalImportExport.value = shouldDisplay
-}
-const editEnvironment = (environmentIndex: number | "Global") => {
-  editingEnvironmentIndex.value = environmentIndex
-  action.value = "edit"
-  displayModalEdit(true)
-}
-const resetSelectedData = () => {
-  editingEnvironmentIndex.value = null
-}
 </script>

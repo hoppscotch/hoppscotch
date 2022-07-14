@@ -13,10 +13,9 @@
             v-model="name"
             v-focus
             class="input floating-input"
-            placeholder=" "
+            placeholder=""
             type="text"
             autocomplete="off"
-            :disabled="editingEnvironmentIndex === 'Global'"
             @keyup.enter="saveEnvironment"
           />
           <label for="selectLabelEnvEdit">
@@ -116,29 +115,22 @@
 </template>
 
 <script setup lang="ts">
-import clone from "lodash/clone"
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import { pipe, flow } from "fp-ts/function"
-import { Environment, parseTemplateStringE } from "@hoppscotch/data"
+import * as TE from "fp-ts/TaskEither"
+import { flow, pipe } from "fp-ts/function"
+import { parseTemplateStringE } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
+import { clone } from "lodash"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 import {
-  createEnvironment,
-  environments$,
-  getEnvironment,
-  getGlobalVariables,
-  globalEnv$,
-  setCurrentEnvironment,
-  setGlobalEnvVariables,
-  updateEnvironment,
-} from "~/newstore/environments"
-import {
-  useReadonlyStream,
-  useI18n,
-  useToast,
-} from "~/helpers/utils/composables"
+  createTeamEnvironment,
+  updateTeamEnvironment,
+} from "~/helpers/backend/mutations/TeamEnvironment"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 
 type EnvironmentVariable = {
   id: number
@@ -155,14 +147,14 @@ const props = withDefaults(
   defineProps<{
     show: boolean
     action: "edit" | "new"
-    editingEnvironmentIndex: number | "Global" | null
-    envVars: () => Environment["variables"]
+    editingEnvironment: TeamEnvironment | null
+    editingTeamId: string
   }>(),
   {
     show: false,
     action: "edit",
-    editingEnvironmentIndex: null,
-    envVars: () => [],
+    editingEnvironment: null,
+    editingTeamId: "",
   }
 )
 
@@ -179,28 +171,6 @@ const vars = ref<EnvironmentVariable[]>([
 
 const clearIcon = refAutoReset<"trash-2" | "check">("trash-2", 1000)
 
-const globalVars = useReadonlyStream(globalEnv$, [])
-
-const workingEnv = computed(() => {
-  if (props.editingEnvironmentIndex === "Global") {
-    return {
-      name: "Global",
-      variables: getGlobalVariables(),
-    } as Environment
-  } else if (props.action === "new") {
-    return {
-      name: "",
-      variables: props.envVars(),
-    }
-  } else if (props.editingEnvironmentIndex !== null) {
-    return getEnvironment(props.editingEnvironmentIndex)
-  } else {
-    return null
-  }
-})
-
-const envList = useReadonlyStream(environments$, []) || props.envVars()
-
 const evnExpandError = computed(() => {
   const variables = pipe(
     vars.value,
@@ -216,15 +186,8 @@ const evnExpandError = computed(() => {
 const liveEnvs = computed(() => {
   if (evnExpandError) {
     return []
-  }
-
-  if (props.editingEnvironmentIndex === "Global") {
-    return [...vars.value.map((x) => ({ ...x, source: name.value! }))]
   } else {
-    return [
-      ...vars.value.map((x) => ({ ...x, source: name.value! })),
-      ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
-    ]
+    return [...vars.value.map((x) => ({ ...x, source: name.value! }))]
   }
 })
 
@@ -232,30 +195,28 @@ watch(
   () => props.show,
   (show) => {
     if (show) {
-      name.value = workingEnv.value?.name ?? null
-      vars.value = pipe(
-        workingEnv.value?.variables ?? [],
-        A.map((e) => ({
-          id: idTicker.value++,
-          env: clone(e),
-        }))
-      )
+      if (props.editingEnvironment === null) {
+        name.value = null
+        vars.value = []
+      } else {
+        name.value = props.editingEnvironment.name ?? null
+        vars.value = pipe(
+          JSON.parse(props.editingEnvironment.variables) ?? [],
+          A.map((e: { key: string; value: string }) => ({
+            id: idTicker.value++,
+            env: clone(e),
+          }))
+        )
+      }
     }
   }
 )
 
 const clearContent = () => {
-  vars.value = [
-    {
-      id: idTicker.value++,
-      env: {
-        key: "",
-        value: "",
-      },
-    },
-  ]
+  vars.value = []
   clearIcon.value = "check"
   toast.success(`${t("state.cleared")}`)
+  // TODO: DeleteAllVariablesFromTeamEnvironment
 }
 
 const addEnvironmentVariable = () => {
@@ -288,32 +249,64 @@ const saveEnvironment = () => {
     )
   )
 
-  const environmentUpdated: Environment = {
-    name: name.value,
-    variables: filterdVariables,
-  }
-
   if (props.action === "new") {
-    // Creating a new environment
-    createEnvironment(name.value)
-    updateEnvironment(envList.value.length - 1, environmentUpdated)
-    setCurrentEnvironment(envList.value.length - 1)
-    toast.success(`${t("environment.created")}`)
-  } else if (props.editingEnvironmentIndex === "Global") {
-    // Editing the Global environment
-    setGlobalEnvVariables(environmentUpdated.variables)
-    toast.success(`${t("environment.updated")}`)
-  } else if (props.editingEnvironmentIndex !== null) {
-    // Editing an environment
-    updateEnvironment(props.editingEnvironmentIndex, environmentUpdated)
-    toast.success(`${t("environment.updated")}`)
-  }
+    pipe(
+      createTeamEnvironment(
+        JSON.stringify(filterdVariables),
+        props.editingTeamId,
+        name.value
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          console.error(err)
+          toast.error(`${getErrorMessage(err)}`)
+        },
+        () => {
+          toast.success(`${t("environment.created")}`)
+        }
+      )
+    )()
+  } else {
+    if (!props.editingEnvironment) {
+      console.error("No Environment Found")
+      return
+    }
 
+    pipe(
+      updateTeamEnvironment(
+        JSON.stringify(filterdVariables),
+        props.editingEnvironment.id,
+        name.value
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          console.error(err)
+          toast.error(`${getErrorMessage(err)}`)
+        },
+        () => {
+          toast.success(`${t("environment.updated")}`)
+        }
+      )
+    )()
+  }
   hideModal()
 }
 
 const hideModal = () => {
   name.value = null
   emit("hide-modal")
+}
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_environment/not_found":
+        return t("team_environment.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
 }
 </script>

@@ -388,5 +388,7 @@ export const basicSetup: Extension = [
     ...completionKeymap,
     ...lintKeymap,
   ]),
-  search(),
+  search({
+    top: true,
+  }),
 ]

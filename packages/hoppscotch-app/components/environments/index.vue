@@ -55,9 +55,6 @@
         @update-selected-team="updateSelectedTeam"
       />
     </div>
-    <div>
-      {{ environmentType.type }}
-    </div>
     <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams v-else :team-id="environmentType.selectedTeam?.id" />
   </div>

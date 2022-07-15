@@ -133,7 +133,6 @@ const updateSelectedTeam = (team: TeamData | undefined) => {
 }
 
 watch(selectedEnvironmentTab, (newValue: string) => {
-  console.log("choose-type", newValue)
   updateEnvironmentType(newValue)
 })
 </script>

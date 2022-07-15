@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show">
+  <div v-show="show">
     <SmartTabs
       :id="'environments_tab'"
       v-model="selectedEnvironmentTab"
@@ -133,6 +133,7 @@ const updateSelectedTeam = (team: TeamData | undefined) => {
 }
 
 watch(selectedEnvironmentTab, (newValue: string) => {
+  console.log("choose-type", newValue)
   updateEnvironmentType(newValue)
 })
 </script>

@@ -1,5 +1,7 @@
 <template>
+  <!--Desktop Layout-->
   <Splitpanes
+    v-if="mdAndLarger"
     class="smart-splitter"
     :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
@@ -41,6 +43,43 @@
       <slot name="sidebar" />
     </Pane>
   </Splitpanes>
+
+  <!--Mobile Layout-->
+  <Splitpanes
+    v-else-if="(!mdAndLarger && !SIDEBAR) || !hasSidebar"
+    class="smart-splitter"
+    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
+    :class="{
+      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
+    }"
+    :horizontal="!mdAndLarger"
+  >
+    <Pane
+      size="75"
+      min-size="65"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
+      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto flex flex-col"
+        >
+          <slot name="primary" />
+        </Pane>
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="flex flex-col hide-scrollbar !overflow-auto"
+        >
+          <slot name="secondary" />
+        </Pane>
+      </Splitpanes>
+    </Pane>
+  </Splitpanes>
+
+  <!--Mobile Sidebar Layout-->
+  <div v-else>
+    <slot name="sidebar" />
+  </div>
 </template>
 
 <script setup lang="ts">

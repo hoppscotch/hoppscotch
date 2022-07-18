@@ -37,7 +37,7 @@
             class="inline-block w-full overflow-hidden text-left align-bottom shadow-lg transition-all transform bg-primary sm:rounded-xl sm:align-middle"
             :class="[
               { 'mt-24 md:mb-8': placement === 'top' },
-              { 'p-4': !fullWidth },
+              { 'py-4 px-2': !fullWidth },
               maxWidth,
             ]"
           >

@@ -15,8 +15,7 @@ export default (initialArtifacts: Artifacts) =>
   defineAPI("artifact", (vm) => {
     const handle = vm.newObject()
 
-    const currentArtifacts: Artifacts =
-      cloneDeep(initialArtifacts)
+    const currentArtifacts: Artifacts = cloneDeep(initialArtifacts)
 
     const createHandleFn = defineHandleFn((keyHandle, valueHandle) => {
       const key: unknown = vm.dump(keyHandle)
@@ -135,6 +134,6 @@ export default (initialArtifacts: Artifacts) =>
     return {
       rootHandle: handle,
       exposes: exposed,
-      apis: []
+      apis: [],
     }
   })

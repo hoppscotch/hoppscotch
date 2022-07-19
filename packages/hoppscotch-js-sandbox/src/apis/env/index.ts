@@ -148,7 +148,7 @@ export default (initialEnvs: Envs) =>
 
     const childAPIs = [
       api([EnvGlobalAPI(currentEnvs), Namespaced("global")]),
-      api([EnvActiveAPI(currentEnvs), Namespaced("active")])
+      api([EnvActiveAPI(currentEnvs), Namespaced("active")]),
     ]
 
     const exposed = {
@@ -174,6 +174,6 @@ export default (initialEnvs: Envs) =>
     return {
       rootHandle: handle,
       exposes: exposed,
-      apis: childAPIs
+      apis: childAPIs,
     }
   })

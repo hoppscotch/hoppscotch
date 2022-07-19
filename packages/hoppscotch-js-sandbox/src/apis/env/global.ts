@@ -3,7 +3,12 @@ import * as O from "fp-ts/Option"
 import cloneDeep from "lodash/cloneDeep"
 import { defineAPI } from "../../api"
 import { Envs } from "."
-import { defineHandleFn, disposeHandlers, HandleFnPairs, setHandlers } from "../../utils"
+import {
+  defineHandleFn,
+  disposeHandlers,
+  HandleFnPairs,
+  setHandlers,
+} from "../../utils"
 
 export type EnvGlobalAPINamespaces = "get"
 
@@ -11,7 +16,7 @@ export default (initialEnvs: Envs) =>
   defineAPI("global", (vm) => {
     const handle = vm.newObject()
 
-    let currentEnvs: Envs = cloneDeep(initialEnvs)
+    const currentEnvs: Envs = cloneDeep(initialEnvs)
 
     const getHandleFn = defineHandleFn((keyHandle) => {
       const key: unknown = vm.dump(keyHandle)
@@ -23,9 +28,7 @@ export default (initialEnvs: Envs) =>
       }
 
       const result = pipe(
-        O.fromNullable(
-          currentEnvs.global.find(x => x.key === key)
-        ),
+        O.fromNullable(currentEnvs.global.find((x) => x.key === key)),
         O.match(
           () => vm.undefined,
           ({ value }) => vm.newString(value)
@@ -33,12 +36,12 @@ export default (initialEnvs: Envs) =>
       )
 
       return {
-        value: result
+        value: result,
       }
     })
 
     const handleFnPairs: HandleFnPairs<EnvGlobalAPINamespaces>[] = [
-      { key: "get", func: getHandleFn }
+      { key: "get", func: getHandleFn },
     ]
 
     const handlers = setHandlers(vm, handle, handleFnPairs)
@@ -47,6 +50,6 @@ export default (initialEnvs: Envs) =>
     return {
       rootHandle: handle,
       exposes: {},
-      apis: []
+      apis: [],
     }
   })

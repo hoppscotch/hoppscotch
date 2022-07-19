@@ -54,10 +54,12 @@ type APIInit<Exposed> = {
 /**
  * Final representation of an API which is currently active and installed
  */
-export type APIInstance<
-  ID extends string,
-  Exposed
-> = APIInit<Exposed> & { id: ID; rootHandle: QuickJSHandle; exposes: Exposed, apis: APIDirEntry<string, unknown>[] }
+export type APIInstance<ID extends string, Exposed> = APIInit<Exposed> & {
+  id: ID
+  rootHandle: QuickJSHandle
+  exposes: Exposed
+  apis: APIDirEntry<string, unknown>[]
+}
 
 /**
  * A temporary variable to store the currently initializing API
@@ -71,31 +73,31 @@ let currentInstance: APIInit<unknown> | null = null
  */
 export const initializeAPI =
   (vm: QuickJSContext) =>
-    <ID extends string, Exposed>(
-      api: APIDefinition<ID, Exposed>
-    ): APIInstance<ID, Exposed> => {
-      // Initial State
-      currentInstance = {
-        creationFunc: api.creationFunc,
-        onPreRequestScriptComplete: identity,
-        onTestScriptComplete: identity,
-      }
-
-      const returnValue = api.creationFunc(vm)
-
-      // Final State
-      const result: APIInstance<ID, Exposed> = {
-        ...(currentInstance as APIInit<Exposed>), // Guaranteed because of the function
-        id: api.id,
-        exposes: returnValue.exposes,
-        rootHandle: returnValue.rootHandle,
-        apis: returnValue.apis
-      }
-
-      currentInstance = null
-
-      return result
+  <ID extends string, Exposed>(
+    api: APIDefinition<ID, Exposed>
+  ): APIInstance<ID, Exposed> => {
+    // Initial State
+    currentInstance = {
+      creationFunc: api.creationFunc,
+      onPreRequestScriptComplete: identity,
+      onTestScriptComplete: identity,
     }
+
+    const returnValue = api.creationFunc(vm)
+
+    // Final State
+    const result: APIInstance<ID, Exposed> = {
+      ...(currentInstance as APIInit<Exposed>), // Guaranteed because of the function
+      id: api.id,
+      exposes: returnValue.exposes,
+      rootHandle: returnValue.rootHandle,
+      apis: returnValue.apis,
+    }
+
+    currentInstance = null
+
+    return result
+  }
 
 /**
  * Defines the function to be called when the pre-request script is complete

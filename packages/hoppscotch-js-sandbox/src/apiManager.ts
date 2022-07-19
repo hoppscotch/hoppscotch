@@ -169,10 +169,7 @@ const injectToNamespace = (
  */
 const injectAPI =
   (vm: QuickJSContext, rootHandle: QuickJSHandle) =>
-    ([initedAPI, location]: [
-      APIInstance<string, unknown>,
-      APIDirLocation
-    ]) =>
+    ([initedAPI, location]: [APIInstance<string, unknown>, APIDirLocation]) =>
       pipe(
         location,
         match({
@@ -196,9 +193,9 @@ export const installAPIs = (
     const instance = initedAPI[0]
     const parentHandle = instance.rootHandle
     const apis = instance.apis
-    const childInstances = installAPIs(vm, parentHandle, apis);
+    const childInstances = installAPIs(vm, parentHandle, apis)
 
-    instances.push.apply(instances, childInstances)
+    instances.push(...childInstances)
     instances.push(initedAPI[0])
   }
 

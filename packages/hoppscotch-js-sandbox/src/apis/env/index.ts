@@ -16,6 +16,9 @@ import {
   HandleFnPairs,
 } from "../../utils"
 import { getEnv, setEnv } from "./utils"
+import { api, Namespaced } from "../../apiManager"
+import EnvGlobalAPI from "./global"
+import EnvActiveAPI from "./active"
 
 export type EnvKeys = "set" | "get" | "resolve" | "getResolve"
 
@@ -143,6 +146,11 @@ export default (initialEnvs: Envs) =>
     const handlers = setHandlers(vm, handle, handleFnPairs)
     disposeHandlers(handlers)
 
+    const childAPIs = [
+      api([EnvGlobalAPI(currentEnvs), Namespaced("global")]),
+      api([EnvActiveAPI(currentEnvs), Namespaced("active")])
+    ]
+
     const exposed = {
       getEnvs: () => currentEnvs,
     }
@@ -166,5 +174,6 @@ export default (initialEnvs: Envs) =>
     return {
       rootHandle: handle,
       exposes: exposed,
+      apis: childAPIs
     }
   })

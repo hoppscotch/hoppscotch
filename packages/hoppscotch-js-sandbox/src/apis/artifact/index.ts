@@ -135,5 +135,6 @@ export default (initialArtifacts: Artifacts) =>
     return {
       rootHandle: handle,
       exposes: exposed,
+      apis: []
     }
   })

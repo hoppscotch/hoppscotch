@@ -1,5 +1,6 @@
 import { identity } from "fp-ts/function"
 import { QuickJSHandle, QuickJSContext } from "quickjs-emscripten"
+import { APIDirEntry } from "./apiManager"
 import { PreRequestScriptReport } from "./preRequest"
 import { TestScriptReport } from "./test-runner"
 
@@ -15,12 +16,13 @@ export type APINamespaces = PreRequestScriptNamespaces | TestScriptNamespaces
 type APIMeta<Exposed> = {
   rootHandle: QuickJSHandle
   exposes: Exposed
+  apis: APIDirEntry<string, unknown>[]
 }
 
 /**
  * Just a collection of information defining an API
  */
-export type APIDefinition<ID extends APINamespaces, Exposed> = {
+export type APIDefinition<ID extends string, Exposed> = {
   id: ID
   creationFunc: (vm: QuickJSContext) => APIMeta<Exposed>
 }
@@ -31,7 +33,7 @@ export type APIDefinition<ID extends APINamespaces, Exposed> = {
  * @param func The implementation function
  * @returns The API definition object
  */
-export const defineAPI = <ID extends APINamespaces, Exposed>(
+export const defineAPI = <ID extends string, Exposed>(
   id: ID,
   func: APIDefinition<ID, Exposed>["creationFunc"]
 ): APIDefinition<ID, Exposed> => ({ id, creationFunc: func })
@@ -53,9 +55,9 @@ type APIInit<Exposed> = {
  * Final representation of an API which is currently active and installed
  */
 export type APIInstance<
-  ID extends APINamespaces,
+  ID extends string,
   Exposed
-> = APIInit<Exposed> & { id: ID; rootHandle: QuickJSHandle; exposes: Exposed }
+> = APIInit<Exposed> & { id: ID; rootHandle: QuickJSHandle; exposes: Exposed, apis: APIDirEntry<string, unknown>[] }
 
 /**
  * A temporary variable to store the currently initializing API
@@ -69,30 +71,31 @@ let currentInstance: APIInit<unknown> | null = null
  */
 export const initializeAPI =
   (vm: QuickJSContext) =>
-  <ID extends APINamespaces, Exposed>(
-    api: APIDefinition<ID, Exposed>
-  ): APIInstance<ID, Exposed> => {
-    // Initial State
-    currentInstance = {
-      creationFunc: api.creationFunc,
-      onPreRequestScriptComplete: identity,
-      onTestScriptComplete: identity,
+    <ID extends string, Exposed>(
+      api: APIDefinition<ID, Exposed>
+    ): APIInstance<ID, Exposed> => {
+      // Initial State
+      currentInstance = {
+        creationFunc: api.creationFunc,
+        onPreRequestScriptComplete: identity,
+        onTestScriptComplete: identity,
+      }
+
+      const returnValue = api.creationFunc(vm)
+
+      // Final State
+      const result: APIInstance<ID, Exposed> = {
+        ...(currentInstance as APIInit<Exposed>), // Guaranteed because of the function
+        id: api.id,
+        exposes: returnValue.exposes,
+        rootHandle: returnValue.rootHandle,
+        apis: returnValue.apis
+      }
+
+      currentInstance = null
+
+      return result
     }
-
-    const returnValue = api.creationFunc(vm)
-
-    // Final State
-    const result: APIInstance<ID, Exposed> = {
-      ...(currentInstance as APIInit<Exposed>), // Guaranteed because of the function
-      id: api.id,
-      exposes: returnValue.exposes,
-      rootHandle: returnValue.rootHandle,
-    }
-
-    currentInstance = null
-
-    return result
-  }
 
 /**
  * Defines the function to be called when the pre-request script is complete

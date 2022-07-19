@@ -7,7 +7,7 @@ import { flow, identity, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import * as Tu from "fp-ts/Tuple"
-import { APIDefinition, APIInstance, APINamespaces, initializeAPI } from "./api"
+import { APIDefinition, APIInstance, initializeAPI } from "./api"
 import {
   getObjectKeysFromHandle,
   throwErr,
@@ -17,7 +17,7 @@ import {
 import { TestScriptReport } from "./test-runner"
 import { PreRequestScriptReport } from "./preRequest"
 
-type APIDefPair<U extends APIDefinition<APINamespaces, unknown>> = {
+type APIDefPair<U extends APIDefinition<string, unknown>> = {
   [key in U["id"]]: U
 }
 
@@ -43,7 +43,7 @@ type APIRegistryExposedWithID<ID extends APIRegistryID> =
 /**
  * Temporary variable to store the currently completed instance of APIs during a init call
  */
-let completedAPIs: Array<APIInstance<APINamespaces, unknown>> = []
+let completedAPIs: Array<APIInstance<string, unknown>> = []
 
 /**
  * Access an already initialized API's exposed functions
@@ -87,13 +87,13 @@ export const MixWithRoot = <APIDirLocation>{ _type: "mixWithRoot" }
  * Constructor for Namespaced API Mix Location
  * @param namespace Namespace of the API
  */
-export const Namespaced = <T extends APINamespaces>(namespace: T) =>
+export const Namespaced = <T extends string>(namespace: T) =>
   <APIDirLocation>{ _type: "namespaced", namespace }
 
 /**
  * Defines the structure of one API Directory Entry
  */
-type APIDirEntry<ID extends APINamespaces, Exposed> = [
+export type APIDirEntry<ID extends string, Exposed> = [
   APIDefinition<ID, Exposed>,
   APIDirLocation
 ]
@@ -102,7 +102,7 @@ type APIDirEntry<ID extends APINamespaces, Exposed> = [
  * Constructor for a single API directory entry.
  * Used for allowing for Type Inference
  */
-export const api: <ID extends APINamespaces, Exposed>(
+export const api: <ID extends string, Exposed>(
   x: APIDirEntry<ID, Exposed>
 ) => APIDirEntry<ID, Exposed> = identity
 
@@ -112,7 +112,7 @@ export const api: <ID extends APINamespaces, Exposed>(
  * @returns Array of Tuples of the Instantiated APIs and the mix location
  */
 const initAPIs =
-  (vm: QuickJSContext) => (apis: Array<APIDirEntry<APINamespaces, unknown>>) =>
+  (vm: QuickJSContext) => (apis: Array<APIDirEntry<string, unknown>>) =>
     pipe(
       apis,
       A.map(
@@ -137,7 +137,7 @@ const initAPIs =
 const injectToRoot = (
   vm: QuickJSContext,
   rootHandle: QuickJSHandle,
-  api: APIInstance<APINamespaces, unknown>
+  api: APIInstance<string, unknown>
 ) => {
   pipe(
     api.rootHandle,
@@ -156,7 +156,7 @@ const injectToRoot = (
 const injectToNamespace = (
   vm: QuickJSContext,
   rootHandle: QuickJSHandle,
-  api: APIInstance<APINamespaces, unknown>,
+  api: APIInstance<string, unknown>,
   namespace: string
 ) => {
   vm.setProp(rootHandle, namespace, api.rootHandle)
@@ -169,33 +169,41 @@ const injectToNamespace = (
  */
 const injectAPI =
   (vm: QuickJSContext, rootHandle: QuickJSHandle) =>
-  ([initedAPI, location]: [
-    APIInstance<APINamespaces, unknown>,
-    APIDirLocation
-  ]) =>
-    pipe(
-      location,
-      match({
-        mixWithRoot: () => injectToRoot(vm, rootHandle, initedAPI),
-        namespaced: ({ namespace }) =>
-          injectToNamespace(vm, rootHandle, initedAPI, namespace),
-      })
-    )
+    ([initedAPI, location]: [
+      APIInstance<string, unknown>,
+      APIDirLocation
+    ]) =>
+      pipe(
+        location,
+        match({
+          mixWithRoot: () => injectToRoot(vm, rootHandle, initedAPI),
+          namespaced: ({ namespace }) =>
+            injectToNamespace(vm, rootHandle, initedAPI, namespace),
+        })
+      )
 
 export const installAPIs = (
   vm: QuickJSContext,
   rootHandle: QuickJSHandle,
-  apis: APIDirEntry<APINamespaces, unknown>[]
-) =>
-  pipe(
-    apis,
-    initAPIs(vm),
+  apis: APIDirEntry<string, unknown>[]
+) => {
+  const initedAPIs = initAPIs(vm)(apis)
+  const instances: APIInstance<string, unknown>[] = []
 
-    // We want to inject the APIs (effect) but do not want their return value
-    unsafeEffect(A.map(injectAPI(vm, rootHandle))),
+  for (const initedAPI of initedAPIs) {
+    injectAPI(vm, rootHandle)(initedAPI)
 
-    A.map(Tu.fst)
-  )
+    const instance = initedAPI[0]
+    const parentHandle = instance.rootHandle
+    const apis = instance.apis
+    const childInstances = installAPIs(vm, parentHandle, apis);
+
+    instances.push.apply(instances, childInstances)
+    instances.push(initedAPI[0])
+  }
+
+  return instances
+}
 
 /**
  * An ADT describing how an API completes
@@ -226,7 +234,7 @@ export const TestScriptCompleter = (report: TestScriptReport) =>
  */
 const completeAPI = (
   completer: Completer,
-  instance: APIInstance<APINamespaces, unknown>
+  instance: APIInstance<string, unknown>
 ) =>
   pipe(
     completer,
@@ -249,7 +257,7 @@ const completeAPI = (
  * @returns The completed report
  */
 export const completeAPIs = <T extends Completer>(
-  instances: APIInstance<APINamespaces, unknown>[],
+  instances: APIInstance<string, unknown>[],
   completer: T
 ): T["report"] =>
   pipe(

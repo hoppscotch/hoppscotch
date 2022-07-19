@@ -148,6 +148,10 @@
         />
       </div>
     </div>
+    <br />
+    <Variables>
+      <slot></slot>
+    </Variables>
   </div>
 </template>
 
@@ -167,6 +171,7 @@ import {
 import isEqual from "lodash/isEqual"
 import cloneDeep from "lodash/cloneDeep"
 import draggable from "vuedraggable"
+import Variables from "./Variables.vue"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { useI18n, useToast, useStream } from "~/helpers/utils/composables"

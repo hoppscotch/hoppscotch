@@ -9,13 +9,11 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           svg="plus"
-          :disabled="bulkMode"
           @click.native="addParamV"
         />
       </div>
     </div>
-    <div v-if="bulkMode" ref="bulkEditor" class="flex flex-col flex-1"></div>
-    <div v-else>
+    <div>
       <div
         v-for="(param, index) in workingParamsV"
         :key="`param-${param.id}-${index}`"
@@ -97,7 +95,6 @@ const idTickerV = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
-// The UI representation of the parameters list (has the empty end param)
 const workingParamsV = ref<Array<HoppRESTParam & { id: number }>>([
   {
     id: idTickerV.value++,
@@ -107,7 +104,6 @@ const workingParamsV = ref<Array<HoppRESTParam & { id: number }>>([
   },
 ])
 
-// Rule: Working Params always have last element is always an empty param
 watch(workingParamsV, (paramsList) => {
   if (paramsList.length > 0 && paramsList[paramsList.length - 1].key !== "") {
     workingParamsV.value.push({

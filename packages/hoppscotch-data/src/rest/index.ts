@@ -8,12 +8,17 @@ import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 export * from "./content-types"
 export * from "./HoppRESTAuth"
 
-export const RESTReqSchemaVersion = "1"
+export const RESTReqSchemaVersion = "2"
 
 export type HoppRESTParam = {
   key: string
   value: string
   active: boolean
+}
+
+export type HoppRESTVar = {
+  key: string
+  value: string
 }
 
 export type HoppRESTHeader = {
@@ -51,6 +56,7 @@ export interface HoppRESTRequest {
   method: string
   endpoint: string
   params: HoppRESTParam[]
+  vars: HoppRESTVar[]
   headers: HoppRESTHeader[]
   preRequestScript: string
   testScript: string
@@ -71,6 +77,10 @@ export const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
     lodashIsEqualEq
   ),
   params: mapThenEq(
+    (arr) => arr.filter((p) => p.key !== "" && p.value !== ""),
+    lodashIsEqualEq
+  ),
+  vars: mapThenEq(
     (arr) => arr.filter((p) => p.key !== "" && p.value !== ""),
     lodashIsEqualEq
   ),
@@ -125,6 +135,9 @@ export function safelyExtractRESTRequest(
 
     if (x.hasOwnProperty("params") && Array.isArray(x.params))
       req.params = x.params // TODO: Deep nested checks
+
+    if (x.hasOwnProperty("vars") && Array.isArray(x.vars))
+      req.vars = x.vars // TODO: Deep nested checks
 
     if (x.hasOwnProperty("headers") && Array.isArray(x.headers))
       req.headers = x.headers // TODO: Deep nested checks
@@ -186,6 +199,19 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       })
     )
 
+    const vars: HoppRESTVar[] = (x?.vars ?? []).map(
+      ({
+         key,
+         value,
+       }: {
+        key: string
+        value: string
+      }) => ({
+        key,
+        value,
+      })
+    )
+
     const name = x?.name ?? "Untitled request"
     const method = x?.method ?? ""
 
@@ -201,6 +227,7 @@ export function translateToNewRequest(x: any): HoppRESTRequest {
       endpoint,
       headers,
       params,
+      vars,
       method,
       preRequestScript,
       testScript,

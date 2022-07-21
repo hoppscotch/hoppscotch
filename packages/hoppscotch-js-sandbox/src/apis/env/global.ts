@@ -1,24 +1,24 @@
+import { parseTemplateStringE } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
-import * as O from "fp-ts/Option"
-import cloneDeep from "lodash/cloneDeep"
+import * as E from "fp-ts/Either"
 import { defineAPI } from "../../api"
 import { Envs } from "."
 import {
   defineHandleFn,
   disposeHandlers,
   HandleFnPairs,
-  setHandlers,
+  setFnHandlers,
 } from "../../utils"
+import { getGlobalEnv } from "./utils"
 
-export type EnvGlobalAPINamespaces = "get"
+export type EnvGlobalKeys = "get"
 
-export default (initialEnvs: Envs) =>
+export default (data: { envs: Envs }) =>
   defineAPI("global", (vm) => {
     const handle = vm.newObject()
 
-    const currentEnvs: Envs = cloneDeep(initialEnvs)
-
     const getHandleFn = defineHandleFn((keyHandle) => {
+      const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
 
       if (typeof key !== "string") {
@@ -28,11 +28,22 @@ export default (initialEnvs: Envs) =>
       }
 
       const result = pipe(
-        O.fromNullable(currentEnvs.global.find((x) => x.key === key)),
-        O.match(
-          () => vm.undefined,
-          ({ value }) => vm.newString(value)
-        )
+        getGlobalEnv(key, currentEnvs),
+        E.fromOption(() => "INVALID_KEY" as const),
+
+        E.map(({ value }) =>
+          pipe(
+            parseTemplateStringE(value, [
+              ...currentEnvs.selected,
+              ...currentEnvs.global,
+            ]),
+            E.getOrElse(() => value)
+          )
+        ),
+
+        E.map((x) => vm.newString(x)),
+
+        E.getOrElse(() => vm.undefined)
       )
 
       return {
@@ -40,16 +51,16 @@ export default (initialEnvs: Envs) =>
       }
     })
 
-    const handleFnPairs: HandleFnPairs<EnvGlobalAPINamespaces>[] = [
+    const handleFnPairs: HandleFnPairs<EnvGlobalKeys>[] = [
       { key: "get", func: getHandleFn },
     ]
 
-    const handlers = setHandlers(vm, handle, handleFnPairs)
+    const handlers = setFnHandlers(vm, handle, handleFnPairs)
     disposeHandlers(handlers)
 
     return {
       rootHandle: handle,
       exposes: {},
-      apis: [],
+      childAPIs: [],
     }
   })

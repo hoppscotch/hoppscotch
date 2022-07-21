@@ -8,9 +8,9 @@ import {
 import "@relmify/jest-fp-ts"
 
 const fakeResponse: TestResponse = {
-  status: 200,
-  body: "hoi",
+  status: 0,
   headers: [],
+  body: "",
 }
 
 const func = (script: string, envs: TestScriptReport["envs"]) =>
@@ -49,6 +49,35 @@ describe("pw.env.active.get", () => {
     ])
   })
 
+  test("returns the undefined value for an existing key in global environment value", () => {
+    return expect(
+      func(
+        `
+          const data = pw.env.active.get("a")
+          pw.expect(data).toBe(undefined)
+      `,
+        {
+          global: [
+            {
+              key: "a",
+              value: "b",
+            },
+          ],
+          selected: [],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [
+          {
+            status: "pass",
+            message: "Expected 'undefined' to be 'undefined'",
+          },
+        ],
+      }),
+    ])
+  })
+
   test("returns undefined for a key that is not present in selected environment", () => {
     return expect(
       func(
@@ -73,7 +102,75 @@ describe("pw.env.active.get", () => {
     ])
   })
 
-  test("does not resolve environment values", () => {
+  test("returns the value defined in selected environment if it is also present in global", () => {
+    return expect(
+      func(
+        `
+          const data = pw.env.active.get("a")
+          pw.expect(data).toBe("selected val")
+      `,
+        {
+          global: [
+            {
+              key: "a",
+              value: "global val",
+            },
+          ],
+          selected: [
+            {
+              key: "a",
+              value: "selected val",
+            },
+          ],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [
+          {
+            status: "pass",
+            message: "Expected 'selected val' to be 'selected val'",
+          },
+        ],
+      }),
+    ])
+  })
+
+  test("resolve environment values", () => {
+    return expect(
+      func(
+        `
+          const data = pw.env.active.get("a")
+          pw.expect(data).toBe("there")
+      `,
+        {
+          global: [
+            {
+              key: "hello",
+              value: "there",
+            },
+          ],
+          selected: [
+            {
+              key: "a",
+              value: "<<hello>>",
+            },
+          ],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [
+          {
+            status: "pass",
+            message: "Expected 'there' to be 'there'",
+          },
+        ],
+      }),
+    ])
+  })
+
+  test("returns unresolved value on infinite loop in resolution", () => {
     return expect(
       func(
         `
@@ -86,6 +183,10 @@ describe("pw.env.active.get", () => {
             {
               key: "a",
               value: "<<hello>>",
+            },
+            {
+              key: "hello",
+              value: "<<a>>",
             },
           ],
         }

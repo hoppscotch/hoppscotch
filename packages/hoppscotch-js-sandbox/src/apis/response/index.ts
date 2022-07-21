@@ -10,13 +10,13 @@ export default (response: TestResponse) =>
       return {
         rootHandle: vm.undefined,
         exposes: {},
-        apis: [],
+        childAPIs: [],
       }
     }
 
     return {
       rootHandle: handle.right,
       exposes: {},
-      apis: [],
+      childAPIs: [],
     }
   })

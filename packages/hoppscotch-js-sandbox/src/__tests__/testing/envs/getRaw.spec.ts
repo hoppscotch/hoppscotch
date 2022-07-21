@@ -4,13 +4,13 @@ import {
   execTestScript,
   TestResponse,
   TestScriptReport,
-} from "../../../../test-runner"
+} from "../../../test-runner"
 import "@relmify/jest-fp-ts"
 
 const fakeResponse: TestResponse = {
-  status: 0,
+  status: 200,
+  body: "hoi",
   headers: [],
-  body: "",
 }
 
 const func = (script: string, envs: TestScriptReport["envs"]) =>
@@ -19,12 +19,41 @@ const func = (script: string, envs: TestScriptReport["envs"]) =>
     TE.map((x) => x.tests)
   )
 
-describe("pw.env.global.get", () => {
+describe("pw.env.getRaw", () => {
+  test("returns the correct value for an existing selected environment value", () => {
+    return expect(
+      func(
+        `
+          const data = pw.env.getRaw("a")
+          pw.expect(data).toBe("b")
+      `,
+        {
+          global: [],
+          selected: [
+            {
+              key: "a",
+              value: "b",
+            },
+          ],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [
+          {
+            status: "pass",
+            message: "Expected 'b' to be 'b'",
+          },
+        ],
+      }),
+    ])
+  })
+
   test("returns the correct value for an existing global environment value", () => {
     return expect(
       func(
         `
-          const data = pw.env.global.get("a")
+          const data = pw.env.getRaw("a")
           pw.expect(data).toBe("b")
       `,
         {
@@ -49,40 +78,11 @@ describe("pw.env.global.get", () => {
     ])
   })
 
-  test("returns the undefined value for an existing key in selected environment value", () => {
+  test("returns undefined for a key that is not present in both selected or environment", () => {
     return expect(
       func(
         `
-          const data = pw.env.global.get("a")
-          pw.expect(data).toBe(undefined)
-      `,
-        {
-          global: [],
-          selected: [
-            {
-              key: "a",
-              value: "b",
-            },
-          ],
-        }
-      )()
-    ).resolves.toEqualRight([
-      expect.objectContaining({
-        expectResults: [
-          {
-            status: "pass",
-            message: "Expected 'undefined' to be 'undefined'",
-          },
-        ],
-      }),
-    ])
-  })
-
-  test("returns undefined for a key that is not present in global environment", () => {
-    return expect(
-      func(
-        `
-          const data = pw.env.global.get("a")
+          const data = pw.env.getRaw("a")
           pw.expect(data).toBe(undefined)
       `,
         {
@@ -102,12 +102,12 @@ describe("pw.env.global.get", () => {
     ])
   })
 
-  test("returns the value defined in global environment if it is also present in selected", () => {
+  test("returns the value defined in selected environment if it is also present in global", () => {
     return expect(
       func(
         `
-          const data = pw.env.global.get("a")
-          pw.expect(data).toBe("global val")
+          const data = pw.env.getRaw("a")
+          pw.expect(data).toBe("selected val")
       `,
         {
           global: [
@@ -129,66 +129,32 @@ describe("pw.env.global.get", () => {
         expectResults: [
           {
             status: "pass",
-            message: "Expected 'global val' to be 'global val'",
+            message: "Expected 'selected val' to be 'selected val'",
           },
         ],
       }),
     ])
   })
 
-  test("resolve environment values", () => {
+  test("does not resolve environment values", () => {
     return expect(
       func(
         `
-          const data = pw.env.global.get("a")
-          pw.expect(data).toBe("there")
-      `,
-        {
-          global: [
-            {
-              key: "a",
-              value: "<<hello>>",
-            },
-          ],
-          selected: [
-            {
-              key: "hello",
-              value: "there",
-            },
-          ],
-        }
-      )()
-    ).resolves.toEqualRight([
-      expect.objectContaining({
-        expectResults: [
-          {
-            status: "pass",
-            message: "Expected 'there' to be 'there'",
-          },
-        ],
-      }),
-    ])
-  })
-
-  test("returns unresolved value on infinite loop in resolution", () => {
-    return expect(
-      func(
-        `
-          const data = pw.env.global.get("a")
+          const data = pw.env.getRaw("a")
           pw.expect(data).toBe("<<hello>>")
       `,
         {
-          global: [
+          global: [],
+          selected: [
             {
               key: "a",
               value: "<<hello>>",
             },
             {
               key: "hello",
-              value: "<<a>>",
+              value: "hello",
             },
           ],
-          selected: [],
         }
       )()
     ).resolves.toEqualRight([
@@ -207,7 +173,7 @@ describe("pw.env.global.get", () => {
     return expect(
       func(
         `
-          const data = pw.env.global.get(5)
+          const data = pw.env.getRaw(5)
       `,
         {
           global: [],

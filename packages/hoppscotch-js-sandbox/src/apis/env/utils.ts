@@ -1,5 +1,25 @@
 import * as O from "fp-ts/Option"
+import cloneDeep from "lodash/cloneDeep"
 import { TestScriptReport } from "../../test-runner"
+
+export function deleteEnv(envName: string, envs: TestScriptReport["envs"]) {
+  const updatedEnvs = cloneDeep(envs)
+  const indexInGlobal = envs.global.findIndex((x) => x.key === envName)
+  const indexInSelected = envs.selected.findIndex((x) => x.key === envName)
+
+  updatedEnvs.global.splice(indexInGlobal, 1)
+  updatedEnvs.selected.splice(indexInSelected, 1)
+
+  return updatedEnvs
+}
+
+export function getActiveEnv(envName: string, envs: TestScriptReport["envs"]) {
+  return O.fromNullable(envs.selected.find((x) => x.key === envName))
+}
+
+export function getGlobalEnv(envName: string, envs: TestScriptReport["envs"]) {
+  return O.fromNullable(envs.global.find((x) => x.key === envName))
+}
 
 export function getEnv(envName: string, envs: TestScriptReport["envs"]) {
   return O.fromNullable(

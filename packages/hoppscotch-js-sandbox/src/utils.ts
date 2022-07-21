@@ -131,7 +131,7 @@ export const disposeHandlers = (handlers: QuickJSHandle[]) => {
   })
 }
 
-export const setHandlers = <T extends string>(
+export const setFnHandlers = <T extends string>(
   vm: QuickJSContext,
   handle: QuickJSHandle,
   handlerPairs: HandleFnPairs<T>[]

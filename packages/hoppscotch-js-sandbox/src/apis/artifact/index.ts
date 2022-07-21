@@ -4,7 +4,7 @@ import {
   defineHandleFn,
   disposeHandlers,
   HandleFnPairs,
-  setHandlers,
+  setFnHandlers,
 } from "../../utils"
 
 export type Artifacts = Record<string, string | undefined>
@@ -116,7 +116,7 @@ export default (initialArtifacts: Artifacts) =>
       { key: "update", func: updateHandleFn },
     ]
 
-    const handlers = setHandlers(vm, handle, handleFnPairs)
+    const handlers = setFnHandlers(vm, handle, handleFnPairs)
     disposeHandlers(handlers)
 
     const exposed = {
@@ -134,6 +134,6 @@ export default (initialArtifacts: Artifacts) =>
     return {
       rootHandle: handle,
       exposes: exposed,
-      apis: [],
+      childAPIs: [],
     }
   })

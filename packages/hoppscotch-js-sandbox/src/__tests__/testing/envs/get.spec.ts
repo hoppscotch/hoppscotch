@@ -136,7 +136,45 @@ describe("pw.env.get", () => {
     ])
   })
 
-  test("does not resolve environment values", () => {
+  test("resolve environment values", () => {
+    return expect(
+      func(
+        `
+          const data = pw.env.get("a")
+          pw.expect(data).toBe("there")
+      `,
+        {
+          global: [
+            {
+              key: "hello",
+              value: "<<there>>",
+            },
+          ],
+          selected: [
+            {
+              key: "a",
+              value: "<<hello>>",
+            },
+            {
+              key: "there",
+              value: "there",
+            },
+          ],
+        }
+      )()
+    ).resolves.toEqualRight([
+      expect.objectContaining({
+        expectResults: [
+          {
+            status: "pass",
+            message: "Expected 'there' to be 'there'",
+          },
+        ],
+      }),
+    ])
+  })
+
+  test("returns unresolved value on infinite loop in resolution", () => {
     return expect(
       func(
         `
@@ -149,6 +187,10 @@ describe("pw.env.get", () => {
             {
               key: "a",
               value: "<<hello>>",
+            },
+            {
+              key: "hello",
+              value: "<<a>>",
             },
           ],
         }

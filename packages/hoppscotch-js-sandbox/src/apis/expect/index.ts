@@ -26,6 +26,6 @@ export default () =>
     return {
       rootHandle: handle,
       exposes: exposed,
-      apis: [],
+      childAPIs: [],
     }
   })

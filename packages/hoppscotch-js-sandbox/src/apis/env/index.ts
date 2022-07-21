@@ -9,18 +9,24 @@ import {
   onTestScriptComplete,
 } from "../../api"
 import {
-  setHandlers,
+  setFnHandlers,
   disposeHandlers,
   mergeEnvs,
   defineHandleFn,
   HandleFnPairs,
 } from "../../utils"
-import { getEnv, setEnv } from "./utils"
+import { deleteEnv, getEnv, setEnv } from "./utils"
 import { api, Namespaced } from "../../apiManager"
 import EnvGlobalAPI from "./global"
 import EnvActiveAPI from "./active"
 
-export type EnvKeys = "set" | "get" | "resolve" | "getResolve"
+export type EnvKeys =
+  | "set"
+  | "get"
+  | "resolve"
+  | "getResolve"
+  | "delete"
+  | "getRaw"
 
 export type Envs = {
   global: Environment["variables"]
@@ -31,31 +37,10 @@ export default (initialEnvs: Envs) =>
   defineAPI("env", (vm) => {
     const handle = vm.newObject()
 
-    let currentEnvs: Envs = cloneDeep(initialEnvs)
+    const data = { envs: cloneDeep(initialEnvs) }
 
     const getHandleFn = defineHandleFn((keyHandle) => {
-      const key: unknown = vm.dump(keyHandle)
-
-      if (typeof key !== "string") {
-        return {
-          error: vm.newString("Expected key to be a string"),
-        }
-      }
-
-      const result = pipe(
-        getEnv(key, currentEnvs),
-        O.match(
-          () => vm.undefined,
-          ({ value }) => vm.newString(value)
-        )
-      )
-
-      return {
-        value: result,
-      }
-    })
-
-    const getResolveHandleFn = defineHandleFn((keyHandle) => {
+      const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
 
       if (typeof key !== "string") {
@@ -91,7 +76,10 @@ export default (initialEnvs: Envs) =>
       }
     })
 
+    const getResolveHandleFn = getHandleFn
+
     const setHandleFn = defineHandleFn((keyHandle, valueHandle) => {
+      const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
       const value: unknown = vm.dump(valueHandle)
 
@@ -107,14 +95,15 @@ export default (initialEnvs: Envs) =>
         }
       }
 
-      currentEnvs = setEnv(key, value, currentEnvs)
+      data.envs = setEnv(key, value, currentEnvs)
 
       return {
         value: vm.undefined,
       }
     })
 
-    const resolveHandle = defineHandleFn((valueHandle) => {
+    const resolveHandleFn = defineHandleFn((valueHandle) => {
+      const { envs: currentEnvs } = data
       const value: unknown = vm.dump(valueHandle)
 
       if (typeof value !== "string") {
@@ -136,44 +125,86 @@ export default (initialEnvs: Envs) =>
       }
     })
 
+    const deleteHandleFn = defineHandleFn((keyHandle) => {
+      const { envs: currentEnvs } = data
+      const key: unknown = vm.dump(keyHandle)
+
+      if (typeof key !== "string") {
+        return {
+          error: vm.newString("Expected key to be a string"),
+        }
+      }
+
+      data.envs = deleteEnv(key, currentEnvs)
+
+      return {
+        value: vm.undefined,
+      }
+    })
+
+    const getRawHandleFn = defineHandleFn((keyHandle) => {
+      const { envs: currentEnvs } = data
+      const key: unknown = vm.dump(keyHandle)
+
+      if (typeof key !== "string") {
+        return {
+          error: vm.newString("Expected key to be a string"),
+        }
+      }
+
+      const result = pipe(
+        getEnv(key, currentEnvs),
+        O.match(
+          () => vm.undefined,
+          ({ value }) => vm.newString(value)
+        )
+      )
+
+      return {
+        value: result,
+      }
+    })
+
     const handleFnPairs: HandleFnPairs<EnvKeys>[] = [
       { key: "get", func: getHandleFn },
       { key: "getResolve", func: getResolveHandleFn },
       { key: "set", func: setHandleFn },
-      { key: "resolve", func: resolveHandle },
+      { key: "resolve", func: resolveHandleFn },
+      { key: "delete", func: deleteHandleFn },
+      { key: "getRaw", func: getRawHandleFn },
     ]
 
-    const handlers = setHandlers(vm, handle, handleFnPairs)
+    const handlers = setFnHandlers(vm, handle, handleFnPairs)
     disposeHandlers(handlers)
 
     const childAPIs = [
-      api([EnvGlobalAPI(currentEnvs), Namespaced("global")]),
-      api([EnvActiveAPI(currentEnvs), Namespaced("active")]),
+      api([EnvGlobalAPI(data), Namespaced("global")]),
+      api([EnvActiveAPI(data), Namespaced("active")]),
     ]
 
     const exposed = {
-      getEnvs: () => currentEnvs,
+      getEnvs: () => cloneDeep(data.envs),
     }
 
     onPreRequestScriptComplete((report) => ({
       ...report,
       envs: {
-        global: mergeEnvs(report.envs.global, currentEnvs.global),
-        selected: mergeEnvs(report.envs.selected, currentEnvs.selected),
+        global: mergeEnvs(report.envs.global, data.envs.global),
+        selected: mergeEnvs(report.envs.selected, data.envs.selected),
       },
     }))
 
     onTestScriptComplete((report) => ({
       ...report,
       envs: {
-        global: mergeEnvs(report.envs.global, currentEnvs.global),
-        selected: mergeEnvs(report.envs.selected, currentEnvs.selected),
+        global: mergeEnvs(report.envs.global, data.envs.global),
+        selected: mergeEnvs(report.envs.selected, data.envs.selected),
       },
     }))
 
     return {
       rootHandle: handle,
       exposes: exposed,
-      apis: childAPIs,
+      childAPIs: childAPIs,
     }
   })

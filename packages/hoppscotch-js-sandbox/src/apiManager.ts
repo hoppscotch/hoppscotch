@@ -169,15 +169,15 @@ const injectToNamespace = (
  */
 const injectAPI =
   (vm: QuickJSContext, rootHandle: QuickJSHandle) =>
-    ([initedAPI, location]: [APIInstance<string, unknown>, APIDirLocation]) =>
-      pipe(
-        location,
-        match({
-          mixWithRoot: () => injectToRoot(vm, rootHandle, initedAPI),
-          namespaced: ({ namespace }) =>
-            injectToNamespace(vm, rootHandle, initedAPI, namespace),
-        })
-      )
+  ([initedAPI, location]: [APIInstance<string, unknown>, APIDirLocation]) =>
+    pipe(
+      location,
+      match({
+        mixWithRoot: () => injectToRoot(vm, rootHandle, initedAPI),
+        namespaced: ({ namespace }) =>
+          injectToNamespace(vm, rootHandle, initedAPI, namespace),
+      })
+    )
 
 export const installAPIs = (
   vm: QuickJSContext,
@@ -191,12 +191,10 @@ export const installAPIs = (
     injectAPI(vm, rootHandle)(initedAPI)
 
     const instance = initedAPI[0]
-    const parentHandle = instance.rootHandle
-    const apis = instance.apis
-    const childInstances = installAPIs(vm, parentHandle, apis)
+    const { rootHandle: parentHandle, childAPIs } = instance
+    const childInstances = installAPIs(vm, parentHandle, childAPIs)
 
-    instances.push(...childInstances)
-    instances.push(initedAPI[0])
+    instances.push(instance, ...childInstances)
   }
 
   return instances

@@ -16,7 +16,7 @@ export type APINamespaces = PreRequestScriptNamespaces | TestScriptNamespaces
 type APIMeta<Exposed> = {
   rootHandle: QuickJSHandle
   exposes: Exposed
-  apis: APIDirEntry<string, unknown>[]
+  childAPIs: APIDirEntry<string, unknown>[]
 }
 
 /**
@@ -58,7 +58,7 @@ export type APIInstance<ID extends string, Exposed> = APIInit<Exposed> & {
   id: ID
   rootHandle: QuickJSHandle
   exposes: Exposed
-  apis: APIDirEntry<string, unknown>[]
+  childAPIs: APIDirEntry<string, unknown>[]
 }
 
 /**
@@ -91,7 +91,7 @@ export const initializeAPI =
       id: api.id,
       exposes: returnValue.exposes,
       rootHandle: returnValue.rootHandle,
-      apis: returnValue.apis,
+      childAPIs: returnValue.childAPIs,
     }
 
     currentInstance = null

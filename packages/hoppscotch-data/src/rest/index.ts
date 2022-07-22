@@ -81,7 +81,7 @@ export const HoppRESTRequestEq = Eq.struct<HoppRESTRequest>({
     lodashIsEqualEq
   ),
   vars: mapThenEq(
-    (arr) => arr.filter((p) => p.key !== "" && p.value !== ""),
+    (arr) => arr.filter((v) => v.key !== "" && v.value !== ""),
     lodashIsEqualEq
   ),
   method: S.Eq,

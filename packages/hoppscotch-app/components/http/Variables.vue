@@ -9,37 +9,35 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           svg="plus"
-          @click.native="addParamV"
+          @click.native="addVar"
         />
       </div>
     </div>
     <div>
       <div
-        v-for="(param, index) in workingParamsV"
-        :key="`param-${param.id}-${index}`"
+        v-for="(vari, index) in workingVars"
+        :key="`vari-${vari.id}-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
       >
         <SmartEnvInput
-          v-model="param.key"
+          v-model="vari.key"
           :placeholder="`${t('count.parameter', { count: index + 1 })}`"
           @change="
-            updateParamV(index, {
-              id: param.id,
+            updateVar(index, {
+              id: vari.id,
               key: $event,
-              value: param.value,
-              active: param.active,
+              value: vari.value,
             })
           "
         />
         <SmartEnvInput
-          v-model="param.value"
+          v-model="vari.value"
           :placeholder="`${t('count.value', { count: index + 1 })}`"
           @change="
-            updateParamV(index, {
-              id: param.id,
-              key: param.key,
+            updateVar(index, {
+              id: vari.id,
+              key: vari.key,
               value: $event,
-              active: param.active,
             })
           "
         />
@@ -49,12 +47,12 @@
             :title="t('action.remove')"
             svg="trash"
             color="red"
-            @click.native="deleteParamV(index)"
+            @click.native="deleteVar(index)"
           />
         </span>
       </div>
       <div
-        v-if="workingParamsV.length === 0"
+        v-if="workingVars.length === 0"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
@@ -69,7 +67,7 @@
           svg="plus"
           filled
           class="mb-4"
-          @click.native="addParamV"
+          @click.native="addVar"
         />
       </div>
     </div>
@@ -77,14 +75,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "@nuxtjs/composition-api"
-import { pipe } from "fp-ts/function"
+import { Ref, ref, watch } from "@nuxtjs/composition-api"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
-import { HoppRESTParam } from "@hoppscotch/data"
+import { HoppRESTVar } from "@hoppscotch/data"
 import cloneDeep from "lodash/cloneDeep"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import isEqual from "lodash/isEqual"
+import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
 import { throwError } from "~/helpers/functional/error"
+import { restVars$, setRESTVars } from "~/newstore/RESTSession"
+import { objRemoveKey } from "~/helpers/functional/object"
 
 const t = useI18n()
 const toast = useToast()
@@ -95,49 +96,60 @@ const idTickerV = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
-const workingParamsV = ref<Array<HoppRESTParam & { id: number }>>([
+const vars = useStream(restVars$, [], setRESTVars) as Ref<HoppRESTVar[]>
+
+// The UI representation of the variables list (has the empty end variable)
+const workingVars = ref<Array<HoppRESTVar & { id: number }>>([
   {
     id: idTickerV.value++,
     key: "",
     value: "",
-    active: true,
   },
 ])
 
-watch(workingParamsV, (paramsList) => {
-  if (paramsList.length > 0 && paramsList[paramsList.length - 1].key !== "") {
-    workingParamsV.value.push({
+// Rule: Working vars always have last element is always an empty var
+watch(workingVars, (varsList) => {
+  if (varsList.length > 0 && varsList[varsList.length - 1].key !== "") {
+    workingVars.value.push({
       id: idTickerV.value++,
       key: "",
       value: "",
-      active: true,
     })
   }
 })
 
-const addParamV = () => {
-  workingParamsV.value.push({
+watch(workingVars, (newWorkingVars) => {
+  const fixedVars = pipe(
+    newWorkingVars,
+    A.filterMap(
+      flow(
+        O.fromPredicate((e) => e.key !== ""),
+        O.map(objRemoveKey("id"))
+      )
+    )
+  )
+
+  if (!isEqual(vars.value, fixedVars)) {
+    vars.value = cloneDeep(fixedVars)
+  }
+})
+
+const addVar = () => {
+  workingVars.value.push({
     id: idTickerV.value++,
     key: "",
     value: "",
-    active: true,
   })
 }
 
-const updateParamV = (index: number, param: HoppRESTParam & { id: number }) => {
-  workingParamsV.value = workingParamsV.value.map((h, i) =>
-    i === index ? param : h
-  )
+const updateVar = (index: number, vari: HoppRESTVar & { id: number }) => {
+  workingVars.value = workingVars.value.map((h, i) => (i === index ? vari : h))
 }
 
-const deleteParamV = (index: number) => {
-  const paramsBeforeDeletion = cloneDeep(workingParamsV.value)
-
+const deleteVar = (index: number) => {
+  const varsBeforeDeletion = cloneDeep(workingVars.value)
   if (
-    !(
-      paramsBeforeDeletion.length > 0 &&
-      index === paramsBeforeDeletion.length - 1
-    )
+    !(varsBeforeDeletion.length > 0 && index === varsBeforeDeletion.length - 1)
   ) {
     if (deletionToast.value) {
       deletionToast.value.goAway(0)
@@ -149,7 +161,7 @@ const deleteParamV = (index: number) => {
         {
           text: `${t("action.undo")}`,
           onClick: (_, toastObject) => {
-            workingParamsV.value = paramsBeforeDeletion
+            workingVars.value = varsBeforeDeletion
             toastObject.goAway(0)
             deletionToast.value = null
           },
@@ -162,8 +174,8 @@ const deleteParamV = (index: number) => {
     })
   }
 
-  workingParamsV.value = pipe(
-    workingParamsV.value,
+  workingVars.value = pipe(
+    workingVars.value,
     A.deleteAt(index),
     O.getOrElseW(() => throwError("Working Params Deletion Out of Bounds"))
   )

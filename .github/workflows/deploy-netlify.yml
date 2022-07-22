@@ -19,7 +19,7 @@ jobs:
           run_install: true
 
       - name: Setup Environment
-        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+        run: mv packages/hoppscotch-app/.env packages/hoppscotch-app/.env
 
       - name: Build Site
         run: pnpm run generate

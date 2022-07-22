@@ -4,12 +4,12 @@ import {
   FormDataKeyValue,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTVar,
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
   HoppRESTAuth,
   ValidContentTypes,
-  HoppRESTVar,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"

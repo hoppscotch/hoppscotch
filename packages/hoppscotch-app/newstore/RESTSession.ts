@@ -148,6 +148,16 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  deleteVar(curr: RESTSession, { index }: { index: number }) {
+    const newVars = curr.request.vars.filter((_x, i) => i !== index)
+
+    return {
+      request: {
+        ...curr.request,
+        vars: newVars,
+      },
+    }
+  },
   deleteAllParams(curr: RESTSession) {
     return {
       request: {
@@ -455,6 +465,15 @@ export function updateRESTVar(index: number, updatedVar: HoppRESTVar) {
 export function deleteRESTParam(index: number) {
   restSessionStore.dispatch({
     dispatcher: "deleteParam",
+    payload: {
+      index,
+    },
+  })
+}
+
+export function deleteRESTVar(index: number) {
+  restSessionStore.dispatch({
+    dispatcher: "deleteVar",
     payload: {
       index,
     },

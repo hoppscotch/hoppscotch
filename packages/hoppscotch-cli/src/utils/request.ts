@@ -1,4 +1,4 @@
-import axios, { Method } from "axios";
+import axios, { AxiosPromise, Method } from "axios";
 import { URL } from "url";
 import * as S from "fp-ts/string";
 import * as A from "fp-ts/Array";
@@ -7,12 +7,20 @@ import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { responseErrors } from "./constants";
-import { getDurationInSeconds, getMetaDataPairs } from "./getters";
+import {
+  getDurationInSeconds,
+  getMetaDataPairs,
+  roundDuration,
+} from "./getters";
 import { testRunner, getTestScriptParams, hasFailedTestCases } from "./test";
 import { RequestConfig, EffectiveHoppRESTRequest } from "../interfaces/request";
 import { RequestRunnerResponse } from "../interfaces/response";
 import { preRequestScriptRunner } from "./pre-request";
-import { HoppEnvs, RequestReport } from "../types/request";
+import {
+  HoppEnvs,
+  ProcessRequestParams,
+  RequestReport,
+} from "../types/request";
 import {
   printPreRequestRunner,
   printRequestRunner,
@@ -34,6 +42,7 @@ import { pipe } from "fp-ts/function";
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
     supported: true,
+    delay: 0,
   };
   const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
   const reqParams = finalParams(req);
@@ -86,13 +95,14 @@ export const requestRunner =
   ): TE.TaskEither<HoppCLIError, RequestRunnerResponse> =>
   async () => {
     const start = hrtime();
+    const { delay } = requestConfig;
 
     try {
       // NOTE: Temporary parsing check for request endpoint.
       requestConfig.url = new URL(requestConfig.url ?? "").toString();
 
       let status: number;
-      const baseResponse = await axios(requestConfig);
+      const baseResponse = await axiosDelay(requestConfig);
       const { config } = baseResponse;
       const runnerResponse: RequestRunnerResponse = {
         ...baseResponse,
@@ -110,8 +120,8 @@ export const requestRunner =
       }
 
       const end = hrtime(start);
-      const duration = getDurationInSeconds(end);
-      runnerResponse.duration = duration;
+      const duration = getDurationInSeconds(end) - delay / 1e3;
+      runnerResponse.duration = roundDuration(duration);
 
       return E.right(runnerResponse);
     } catch (e) {
@@ -144,8 +154,8 @@ export const requestRunner =
         }
 
         const end = hrtime(start);
-        const duration = getDurationInSeconds(end);
-        runnerResponse.duration = duration;
+        const duration = getDurationInSeconds(end) - delay / 1e3;
+        runnerResponse.duration = roundDuration(duration);
 
         return E.right(runnerResponse);
       }
@@ -189,11 +199,11 @@ const getRequest = {
  */
 export const processRequest =
   (
-    request: HoppRESTRequest,
-    envs: HoppEnvs,
-    path: string
+    params: ProcessRequestParams
   ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
   async () => {
+    const { envs, path, request, delay } = params;
+
     // Initialising updatedEnvs with given parameter envs, will eventually get updated.
     const result = {
       envs: <HoppEnvs>envs,
@@ -233,6 +243,7 @@ export const processRequest =
 
     // Creating request-config for request-runner.
     const requestConfig = createRequest(effectiveRequest);
+    requestConfig.delay = delay;
 
     printRequestRunner.start(requestConfig);
 
@@ -358,3 +369,21 @@ export const getRequestMetrics = (
       hasReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
     (requests) => <RequestMetrics>{ requests, duration }
   );
+
+/**
+ * Custom axios wrapper to support extra request configurations such as
+ * delay between consecutive requests.
+ * @param config Current request configuration with additional parameters.
+ * @returns Manipulated axios promise based on additional parameters.
+ */
+const axiosDelay = (config: RequestConfig): AxiosPromise => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      setTimeout(() => {
+        resolve(axios(config));
+      }, config.delay);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};

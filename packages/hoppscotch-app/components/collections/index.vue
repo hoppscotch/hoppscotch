@@ -4,16 +4,14 @@
       class="sticky z-10 flex flex-col border-b rounded-t divide-y divide-dividerLight bg-primary border-dividerLight"
       :style="saveRequest ? 'top: calc(-1 * var(--font-size-body))' : 'top: 0'"
     >
-      <div
-        v-if="!saveRequest && collectionsType.type != 'team-collections'"
-        class="flex flex-col"
-      >
+      <div v-if="!saveRequest" class="flex flex-col">
         <input
           v-model="filterText"
           type="search"
           autocomplete="off"
           :placeholder="$t('action.search')"
           class="py-2 pl-4 pr-2 bg-transparent"
+          :disabled="collectionsType.type == 'team-collections'"
         />
       </div>
       <CollectionsChooseType

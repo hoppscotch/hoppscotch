@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.0.3",
-    "@codemirror/autocomplete": "^0.19.15",
+    "@codemirror/autocomplete": "^6.1.0",
     "@codemirror/closebrackets": "^0.19.2",
     "@codemirror/commands": "^0.19.8",
     "@codemirror/comment": "^0.19.1",

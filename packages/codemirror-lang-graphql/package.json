@@ -18,7 +18,7 @@
   "sideEffects": false,
   "dependencies": {
     "@codemirror/highlight": "^0.19.8",
-    "@codemirror/language": "^0.19.10",
+    "@codemirror/language": "^6.2.1",
     "@lezer/lr": "^0.15.8"
   },
   "devDependencies": {

@@ -92,7 +92,7 @@ const toast = useToast()
 
 const emptyVars: string = "Add a new variable"
 
-const idTickerV = ref(0)
+const idTicker = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -101,7 +101,7 @@ const vars = useStream(restVars$, [], setRESTVars) as Ref<HoppRESTVar[]>
 // The UI representation of the variables list (has the empty end variable)
 const workingVars = ref<Array<HoppRESTVar & { id: number }>>([
   {
-    id: idTickerV.value++,
+    id: idTicker.value++,
     key: "",
     value: "",
   },
@@ -111,12 +111,37 @@ const workingVars = ref<Array<HoppRESTVar & { id: number }>>([
 watch(workingVars, (varsList) => {
   if (varsList.length > 0 && varsList[varsList.length - 1].key !== "") {
     workingVars.value.push({
-      id: idTickerV.value++,
+      id: idTicker.value++,
       key: "",
       value: "",
     })
   }
 })
+
+// Sync logic between params and working/bulk params
+watch(
+  vars,
+  (newVarsList) => {
+    // Sync should overwrite working params
+    const filteredWorkingVars: HoppRESTVar[] = pipe(
+      workingVars.value,
+      A.filterMap(
+        flow(
+          O.fromPredicate((e) => e.key !== ""),
+          O.map(objRemoveKey("id"))
+        )
+      )
+    )
+
+    if (!isEqual(newVarsList, filteredWorkingVars)) {
+      workingVars.value = pipe(
+        newVarsList,
+        A.map((x) => ({ id: idTicker.value++, ...x }))
+      )
+    }
+  },
+  { immediate: true }
+)
 
 watch(workingVars, (newWorkingVars) => {
   const fixedVars = pipe(
@@ -136,7 +161,7 @@ watch(workingVars, (newWorkingVars) => {
 
 const addVar = () => {
   workingVars.value.push({
-    id: idTickerV.value++,
+    id: idTicker.value++,
     key: "",
     value: "",
   })

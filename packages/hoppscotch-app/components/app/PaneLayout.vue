@@ -78,7 +78,21 @@
 
   <!--Mobile Sidebar Layout-->
   <div v-else>
-    <slot name="sidebar" />
+    <AppSlideOver :show="show" @close="close()">
+      <template #content>
+        <div class="sticky top-0 z-10 flex flex-col bg-primary">
+          <div
+            class="flex items-center justify-between p-2 border-b border-dividerLight"
+          >
+            <h3 class="ml-4 heading sticky">{{ t("tab.collections") }}</h3>
+            <ButtonSecondary svg="x" @click.native="SIDEBAR = !SIDEBAR" />
+          </div>
+        </div>
+        <div class="hide-scrollbar !overflow-auto">
+          <slot name="sidebar" />
+        </div>
+      </template>
+    </AppSlideOver>
   </div>
 </template>
 
@@ -89,6 +103,9 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { computed, useSlots, ref } from "@nuxtjs/composition-api"
 import { useSetting } from "~/newstore/settings"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
@@ -158,4 +175,13 @@ function getPaneData(type: "vertical" | "horizontal"): PaneEvent[] | null {
 }
 
 populatePaneEvent()
+const emit = defineEmits<{
+  (e: "close"): void
+}>()
+
+const show = computed(() => !!(SIDEBAR && hasSidebar.value))
+
+const close = () => {
+  emit("close")
+}
 </script>

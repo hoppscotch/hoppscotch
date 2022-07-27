@@ -208,6 +208,8 @@
           :save-request="saveRequest"
           :collections-type="collectionsType"
           :picked="picked"
+          :previous-workspace-request="previousWorkspaceRequest"
+          @update-previous-workspace-request="previousWorkspaceRequest = $event"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
@@ -271,6 +273,7 @@ export default defineComponent({
       prevCursor: "",
       cursor: "",
       pageNo: 0,
+      previousWorkspaceRequest: null,
     }
   },
   computed: {

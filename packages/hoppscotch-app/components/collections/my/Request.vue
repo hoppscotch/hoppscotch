@@ -180,6 +180,7 @@ import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 const props = defineProps<{
   request: HoppRESTRequest
+  previousWorkspaceRequest?: HoppRESTRequest | null
   collectionIndex: number
   folderIndex: number
   folderName: string
@@ -243,6 +244,11 @@ const emit = defineEmits<{
       folderPath: string
       requestIndex: number
     }
+  ): void
+
+  (
+    e: "update-previous-workspace-request",
+    previousWorkspaceRequest: HoppRESTRequest | null
   ): void
 }>()
 
@@ -335,25 +341,100 @@ const selectRequest = () => {
         requestIndex: props.requestIndex,
       },
     })
-  } else if (isEqualHoppRESTRequest(props.request, getDefaultRESTRequest())) {
-    confirmChange.value = false
-    setRestReq(props.request)
-  } else if (!active.value) {
-    confirmChange.value = true
   } else {
-    const currentReqWithNoChange = active.value.req
-    const currentFullReq = getRESTRequest()
+    const requestToSelect = props.request
+    const activeRequest = active.value?.req
+    const previousWorkspaceRequest = props.previousWorkspaceRequest
+    const workspaceRequest = getRESTRequest()
 
-    // Check if whether user clicked the same request or not
-    if (!isActive.value && currentReqWithNoChange !== undefined) {
-      // Check if there is any changes done on the current request
-      if (isEqualHoppRESTRequest(currentReqWithNoChange, currentFullReq)) {
-        setRestReq(props.request)
-      } else {
-        confirmChange.value = true
-      }
-    } else {
+    /**
+     * Switching from one request to another request
+     */
+
+    /**
+     * case 1 - the request we are switching from has unsaved changes
+     *
+     * workspaceRequest != activeRequest
+     */
+
+    if (
+      activeRequest &&
+      !isEqualHoppRESTRequest(workspaceRequest, activeRequest)
+    ) {
+      confirmChange.value = true
+      return
+    }
+
+    /**
+     * case 2 - the request we are switching from does not have unsaved changes
+     *
+     * workspaceRequest == activeRequest
+     */
+
+    if (
+      !isActive.value &&
+      activeRequest &&
+      isEqualHoppRESTRequest(workspaceRequest, activeRequest)
+    ) {
+      confirmChange.value = false
+      setRestReq(requestToSelect)
+      return
+    }
+
+    /**
+     * Switching from one request to nothing selected ( clicking on the same request twice )
+     *
+     * isActive is true
+     *
+     */
+
+    if (isActive.value) {
+      confirmChange.value = false
+      emit("update-previous-workspace-request", workspaceRequest)
       setRESTSaveContext(null)
+      return
+    }
+
+    /**
+     * Switching from nothing selected to one request
+     */
+
+    /**
+     * case 1 - we have unsaved changes in workspace request
+     *
+     * workspaceRequest != previousWorkspaceRequest
+     */
+
+    if (
+      previousWorkspaceRequest &&
+      !isEqualHoppRESTRequest(workspaceRequest, previousWorkspaceRequest)
+    ) {
+      confirmChange.value = true
+      return
+    }
+
+    /**
+     * case 2 - workspaceRequest has no changes
+     *
+     * workspaceRequest == previousWorkspaceRequest
+     */
+
+    if (
+      previousWorkspaceRequest &&
+      isEqualHoppRESTRequest(workspaceRequest, previousWorkspaceRequest)
+    ) {
+      confirmChange.value = false
+      setRestReq(requestToSelect)
+    }
+
+    /**
+     * initially when the page loads there won't be previousWorkspaceRequest and activeRequest
+     * in that case check if the workspaceRequest and requestToSelect are same, if not show the confirm change model
+     */
+    if (!previousWorkspaceRequest && !activeRequest) {
+      isEqualHoppRESTRequest(workspaceRequest, requestToSelect)
+        ? setRestReq(requestToSelect)
+        : (confirmChange.value = true)
     }
   }
 }

@@ -93,7 +93,8 @@ export const parseCurlCommand = (curlCommand: string) => {
     hasBodyBeenParsed = true
   } else if (
     rawContentType.includes("application/x-www-form-urlencoded") &&
-    !!pairs
+    !!pairs &&
+    Array.isArray(rawData)
   ) {
     body = pairs.map((p) => p.join(": ")).join("\n") || null
     contentType = "application/x-www-form-urlencoded"

@@ -153,7 +153,7 @@ watch(workingVars, (newWorkingVars) => {
       )
     )
   )
-
+  console.log("vars.value1", vars.value)
   if (!isEqual(vars.value, fixedVars)) {
     vars.value = cloneDeep(fixedVars)
   }

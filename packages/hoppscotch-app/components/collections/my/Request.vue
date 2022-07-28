@@ -339,7 +339,14 @@ const selectRequest = () => {
     confirmChange.value = false
     setRestReq(props.request)
   } else if (!active.value) {
-    confirmChange.value = true
+    // If the current request is the same as the request to be loaded in, there is no data loss
+    const currentReq = getRESTRequest()
+
+    if (isEqualHoppRESTRequest(currentReq, props.request)) {
+      setRestReq(props.request)
+    } else {
+      confirmChange.value = true
+    }
   } else {
     const currentReqWithNoChange = active.value.req
     const currentFullReq = getRESTRequest()

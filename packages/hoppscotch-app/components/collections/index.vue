@@ -11,6 +11,7 @@
           autocomplete="off"
           :placeholder="$t('action.search')"
           class="py-2 pl-4 pr-2 bg-transparent"
+          :disabled="collectionsType.type == 'team-collections'"
         />
       </div>
       <CollectionsChooseType

@@ -809,6 +809,37 @@ const samples = [
       testScript: "",
     }),
   },
+  {
+    command: `curl https://example.com -d "alpha=beta&request_id=4"`,
+    response: makeRESTRequest({
+      method: "POST",
+      name: "Untitled request",
+      endpoint: "https://example.com/",
+      auth: {
+        authType: "none",
+        authActive: true,
+      },
+      body: {
+        contentType: "application/x-www-form-urlencoded",
+        body: rawKeyValueEntriesToString([
+          {
+            active: true,
+            key: "alpha",
+            value: "beta",
+          },
+          {
+            active: true,
+            key: "request_id",
+            value: "4",
+          },
+        ]),
+      },
+      params: [],
+      headers: [],
+      preRequestScript: "",
+      testScript: "",
+    }),
+  },
 ]
 
 describe("Parse curl command to Hopp REST Request", () => {

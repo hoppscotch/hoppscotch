@@ -29,6 +29,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalHeaders: { key: string; value: string }[]
   effectiveFinalParams: { key: string; value: string }[]
   effectiveFinalBody: FormData | string | null
+  effectiveFinalVars: { key: string; value: string }[]
 }
 
 /**
@@ -299,14 +300,21 @@ export function getEffectiveRESTRequest(
     }))
   )
 
+  const effectiveFinalVars = request.vars
+
   const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables)
 
   return {
     ...request,
-    effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
+    effectiveFinalURL: parseTemplateString(
+      request.endpoint,
+      envVariables,
+      request.vars
+    ),
     effectiveFinalHeaders,
     effectiveFinalParams,
     effectiveFinalBody,
+    effectiveFinalVars,
   }
 }
 

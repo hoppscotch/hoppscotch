@@ -35,10 +35,12 @@ import { EditorState, Extension } from "@codemirror/state"
 import clone from "lodash/clone"
 import { tooltips } from "@codemirror/tooltip"
 import { history, historyKeymap } from "@codemirror/history"
+import { HoppRESTVar } from "@hoppscotch/data"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
 import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironment"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
+import { HoppReactiveVarPlugin } from "~/helpers/editor/extensions/HoppVariable"
 
 const props = withDefaults(
   defineProps<{
@@ -46,6 +48,7 @@ const props = withDefaults(
     placeholder: string
     styles: string
     envs: { key: string; value: string; source: string }[] | null
+    vars: { key: string; value: string }[] | null
     focus: boolean
     readonly: boolean
   }>(),
@@ -54,6 +57,7 @@ const props = withDefaults(
     placeholder: "",
     styles: "",
     envs: null,
+    vars: null,
     focus: false,
     readonly: false,
   }
@@ -120,7 +124,17 @@ const envVars = computed(() =>
     : aggregateEnvs.value
 )
 
+const varVars = computed(() =>
+  props.vars
+    ? props.vars.map((x) => ({
+        key: x.key,
+        value: x.value,
+      }))
+    : ([{ key: "size", value: "500" }] as HoppRESTVar[])
+)
+
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)
+const varTooltipPlugin = new HoppReactiveVarPlugin(varVars, view)
 
 const initView = (el: any) => {
   const extensions: Extension = [
@@ -146,6 +160,7 @@ const initView = (el: any) => {
       position: "absolute",
     }),
     envTooltipPlugin,
+    varTooltipPlugin,
     placeholderExt(props.placeholder),
     EditorView.domEventHandlers({
       paste(ev) {

@@ -96,6 +96,7 @@ const idTicker = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
+// The functional variables list (the variables actually applied to the session)
 const vars = useStream(restVars$, [], setRESTVars) as Ref<HoppRESTVar[]>
 
 // The UI representation of the variables list (has the empty end variable)
@@ -153,7 +154,6 @@ watch(workingVars, (newWorkingVars) => {
       )
     )
   )
-  console.log("vars.value1", vars.value)
   if (!isEqual(vars.value, fixedVars)) {
     vars.value = cloneDeep(fixedVars)
   }

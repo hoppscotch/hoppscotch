@@ -212,6 +212,7 @@ onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
   }
+  console.log("editor.value", editor.value)
 })
 
 watch(editor, () => {

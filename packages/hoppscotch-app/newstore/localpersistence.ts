@@ -321,8 +321,6 @@ function setupRequestPersistence() {
     }
     window.localStorage.setItem("restRequest", JSON.stringify(reqClone))
   })
-
-  console.log("localRequest", localRequest)
 }
 
 export function setupLocalPersistence() {

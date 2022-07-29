@@ -4,12 +4,12 @@ import {
   FormDataKeyValue,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTVar,
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
   HoppRESTAuth,
   ValidContentTypes,
-  HoppRESTVar,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
@@ -30,7 +30,12 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
   params: [],
-  vars: [],
+  vars: [
+    {
+      key: "amount",
+      value: "23",
+    },
+  ],
   headers: [],
   method: "GET",
   auth: {
@@ -145,6 +150,16 @@ const dispatchers = defineDispatchers({
       request: {
         ...curr.request,
         params: newParams,
+      },
+    }
+  },
+  deleteVar(curr: RESTSession, { index }: { index: number }) {
+    const newVars = curr.request.vars.filter((_x, i) => i !== index)
+
+    return {
+      request: {
+        ...curr.request,
+        vars: newVars,
       },
     }
   },
@@ -455,6 +470,15 @@ export function updateRESTVar(index: number, updatedVar: HoppRESTVar) {
 export function deleteRESTParam(index: number) {
   restSessionStore.dispatch({
     dispatcher: "deleteParam",
+    payload: {
+      index,
+    },
+  })
+}
+
+export function deleteRESTVar(index: number) {
+  restSessionStore.dispatch({
+    dispatcher: "deleteVar",
     payload: {
       index,
     },

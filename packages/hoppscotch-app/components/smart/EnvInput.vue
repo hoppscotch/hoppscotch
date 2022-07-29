@@ -41,6 +41,7 @@ import { HoppReactiveEnvPlugin } from "~/helpers/editor/extensions/HoppEnvironme
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import { AggregateEnvironment, aggregateEnvs$ } from "~/newstore/environments"
 import { HoppReactiveVarPlugin } from "~/helpers/editor/extensions/HoppVariable"
+import { restVars$ } from "~/newstore/RESTSession"
 
 const props = withDefaults(
   defineProps<{
@@ -114,6 +115,8 @@ const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
   AggregateEnvironment[]
 >
 
+const aggregateVars = useReadonlyStream(restVars$, []) as Ref<HoppRESTVar[]>
+
 const envVars = computed(() =>
   props.envs
     ? props.envs.map((x) => ({
@@ -130,7 +133,7 @@ const varVars = computed(() =>
         key: x.key,
         value: x.value,
       }))
-    : ([{ key: "size", value: "500" }] as HoppRESTVar[])
+    : aggregateVars.value
 )
 
 const envTooltipPlugin = new HoppReactiveEnvPlugin(envVars, view)

@@ -14,6 +14,7 @@ import {
   HoppRESTHeader,
   HoppRESTParam,
 } from "@hoppscotch/data"
+import { parseTemplateStringV } from "@hoppscotch/data/src/pathVariables"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleToRecord } from "../functional/record"
@@ -306,7 +307,7 @@ export function getEffectiveRESTRequest(
 
   return {
     ...request,
-    effectiveFinalURL: parseTemplateString(
+    effectiveFinalURL: parseTemplateStringV(
       request.endpoint,
       envVariables,
       request.vars

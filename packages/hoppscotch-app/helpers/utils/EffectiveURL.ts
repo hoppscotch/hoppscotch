@@ -14,6 +14,7 @@ import {
   HoppRESTHeader,
   HoppRESTParam,
 } from "@hoppscotch/data"
+import { parseTemplateStringV } from "@hoppscotch/data/src/pathVariables"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleToRecord } from "../functional/record"
@@ -29,6 +30,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   effectiveFinalHeaders: { key: string; value: string }[]
   effectiveFinalParams: { key: string; value: string }[]
   effectiveFinalBody: FormData | string | null
+  effectiveFinalVars: { key: string; value: string }[]
 }
 
 /**
@@ -298,15 +300,21 @@ export function getEffectiveRESTRequest(
       value: parseTemplateString(x.value, envVariables),
     }))
   )
+  const effectiveFinalVars = request.vars
 
   const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables)
 
   return {
     ...request,
-    effectiveFinalURL: parseTemplateString(request.endpoint, envVariables),
+    effectiveFinalURL: parseTemplateStringV(
+      request.endpoint,
+      envVariables,
+      request.vars
+    ),
     effectiveFinalHeaders,
     effectiveFinalParams,
     effectiveFinalBody,
+    effectiveFinalVars,
   }
 }
 

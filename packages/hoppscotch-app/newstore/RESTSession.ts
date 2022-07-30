@@ -30,12 +30,7 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
   params: [],
-  vars: [
-    {
-      key: "amount",
-      value: "23",
-    },
-  ],
+  vars: [],
   headers: [],
   method: "GET",
   auth: {

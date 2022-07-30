@@ -1,5 +1,6 @@
 import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
+import {parseTemplateStringE} from "./environment";
 
 export type Environment = {
   name: string
@@ -12,8 +13,7 @@ export type Environment = {
 export type Variables = {
   key: string
   value: string
-  }[]
-
+}[]
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
 const REGEX_PATHVAR = /{{([^>]*)}}/g // "{{myVariable}}"
@@ -29,46 +29,12 @@ const ENV_MAX_EXPAND_LIMIT = 10
  */
 const ENV_EXPAND_LOOP = "ENV_EXPAND_LOOP" as const
 
-export function parseBodyEnvVariablesE(
-  body: string,
-  env: Environment["variables"]
-) {
-  let result = body
-  let depth = 0
-
-  while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    result = result.replace(/<<\w+>>/g, (key) => {
-      const found = env.find(
-        (envVar) => envVar.key === key.replace(/[<>]/g, "")
-      )
-      return found ? found.value : key
-    })
-
-    depth++
-  }
-
-  return depth > ENV_MAX_EXPAND_LIMIT
-    ? E.left(ENV_EXPAND_LOOP)
-    : E.right(result)
-}
-
-/**
- * @deprecated Use `parseBodyEnvVariablesE` instead.
- */
-export const parseBodyEnvVariables = (
-  body: string,
-  env: Environment["variables"]
-) =>
-  pipe(
-    parseBodyEnvVariablesE(body, env),
-    E.getOrElse(() => body)
-  )
-
-export function parseTemplateStringE(
+export function parseTemplateStringEV(
   str: string,
   variables: Environment["variables"],
+  pathVariables: Variables
 ) {
-  if (!variables || !str ) {
+  if (!variables || !str || !pathVariables) {
     return E.right(str)
   }
 
@@ -83,6 +49,13 @@ export function parseTemplateStringE(
     depth++
   }
 
+  while (result.match(REGEX_PATHVAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
+    result = decodeURI(encodeURI(result)).replace(
+      REGEX_PATHVAR,
+      (_, p1) => pathVariables.find((x) => x.key === p1)?.value || ""
+    )
+  }
+
   return depth > ENV_MAX_EXPAND_LIMIT
     ? E.left(ENV_EXPAND_LOOP)
     : E.right(result)
@@ -91,11 +64,13 @@ export function parseTemplateStringE(
 /**
  * @deprecated Use `parseTemplateStringE` instead
  */
-export const parseTemplateString = (
+export const parseTemplateStringV = (
   str: string,
-  variables: Environment["variables"]
+  variables: Environment["variables"],
+  pathVariables: Variables
 ) =>
   pipe(
-    parseTemplateStringE(str, variables),
+    parseTemplateStringEV(str, variables, pathVariables),
     E.getOrElse(() => str)
   )
+

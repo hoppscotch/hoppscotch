@@ -143,11 +143,11 @@ a {
   }
 }
 
-.tooltip-theme {
+.tippy-content {
   @apply bg-tooltip;
   @apply text-primary;
   @apply font-semibold;
-  @apply py-1 px-2;
+  @apply p-1;
   @apply rounded;
   @apply truncate;
   @apply shadow;
@@ -395,7 +395,6 @@ pre.ace_editor {
   @apply text-dividerDark;
   @apply font-icon;
 }
-
 
 .smart-splitter .splitpanes__splitter:hover::before {
   @apply opacity-100;

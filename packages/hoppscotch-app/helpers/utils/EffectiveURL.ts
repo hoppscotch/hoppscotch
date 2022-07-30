@@ -19,7 +19,6 @@ import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleToRecord } from "../functional/record"
 import { getGlobalVariables } from "~/newstore/environments"
-import { parseTemplateStringEV } from "@hoppscotch/data/src/pathVariables"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
   /**

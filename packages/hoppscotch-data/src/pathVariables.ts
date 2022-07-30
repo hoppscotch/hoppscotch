@@ -64,9 +64,10 @@ export function parseTemplateStringEV(
  * @deprecated Use `parseTemplateStringE` instead
  */
 
-export const parseTemplateStringEV = (
+export const parseTemplateStringV = (
   str: string,
-  variables: Environment["variables"]
+  variables: Environment["variables"],
+  pathVariables: Variables
 ) =>
   pipe(
     parseTemplateStringEV(str, variables, pathVariables),

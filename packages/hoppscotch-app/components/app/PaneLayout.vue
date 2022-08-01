@@ -14,13 +14,13 @@
     >
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane
-          :size="COLUMN_LAYOUT ? 65 : 50"
+          :size="COLUMN_LAYOUT ? 55 : 50"
           class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <slot name="primary" />
         </Pane>
         <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
+          :size="COLUMN_LAYOUT ? 55 : 50"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <slot name="secondary" />

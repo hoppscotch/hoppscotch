@@ -16,7 +16,7 @@ export type Variables = {
 
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
-const REGEX_PATH_VAR = /{{([^>]*)}}/g // "{{myVariable}}"
+const REGEX_PATH_VAR = /{{([^}]*)}}/g // "{{myVariable}}"
 
 /**
  * How much times can we expand environment variables

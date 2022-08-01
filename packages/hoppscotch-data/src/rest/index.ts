@@ -8,7 +8,7 @@ import { lodashIsEqualEq, mapThenEq, undefinedEq } from "../utils/eq"
 export * from "./content-types"
 export * from "./HoppRESTAuth"
 
-export const RESTReqSchemaVersion = "2"
+export const RESTReqSchemaVersion = "1"
 
 export type HoppRESTParam = {
   key: string

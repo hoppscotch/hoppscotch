@@ -96,6 +96,7 @@ const idTicker = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
+// The functional variables list (the variables actually applied to the session)
 const vars = useStream(restVars$, [], setRESTVars) as Ref<HoppRESTVar[]>
 
 // The UI representation of the variables list (has the empty end variable)
@@ -121,7 +122,7 @@ watch(workingVars, (varsList) => {
 // Sync logic between params and working/bulk params
 watch(
   vars,
-  (newParamsList) => {
+  (newVarsList) => {
     // Sync should overwrite working params
     const filteredWorkingVars: HoppRESTVar[] = pipe(
       workingVars.value,
@@ -133,9 +134,9 @@ watch(
       )
     )
 
-    if (!isEqual(newParamsList, filteredWorkingVars)) {
+    if (!isEqual(newVarsList, filteredWorkingVars)) {
       workingVars.value = pipe(
-        newParamsList,
+        newVarsList,
         A.map((x) => ({ id: idTicker.value++, ...x }))
       )
     }

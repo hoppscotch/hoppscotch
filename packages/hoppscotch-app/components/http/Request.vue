@@ -348,7 +348,8 @@ const newSendRequest = async () => {
 const ensureMethodInEndpoint = () => {
   if (
     !/^http[s]?:\/\//.test(newEndpoint.value) &&
-    !newEndpoint.value.startsWith("<<")
+    !newEndpoint.value.startsWith("<<") &&
+    !newEndpoint.value.startsWith("{{")
   ) {
     const domain = newEndpoint.value.split(/[/:#?]+/)[0]
     if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {

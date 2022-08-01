@@ -77,7 +77,6 @@ export const runRESTRequest$ = (): TaskEither<
         name: "Env",
         variables: combineEnvVariables(envs),
       })
-      console.log("effectiveRequest", effectiveRequest)
 
       const stream = createRESTNetworkRequestStream(effectiveRequest)
 

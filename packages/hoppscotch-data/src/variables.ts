@@ -32,9 +32,9 @@ const ENV_EXPAND_LOOP = "ENV_EXPAND_LOOP" as const
 export function parseTemplateStringEV(
   str: string,
   variables: Environment["variables"],
-  pathVariables: Variables
+  myVariables: Variables
 ) {
-  if (!variables || !str || !pathVariables) {
+  if (!variables || !str || !myVariables) {
     return E.right(str)
   }
 
@@ -55,7 +55,7 @@ export function parseTemplateStringEV(
   while (result.match(REGEX_MY_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
       REGEX_MY_VAR,
-      (_, p1) => pathVariables.find((x) => x.key === p1)?.value || ""
+      (_, p1) => myVariables.find((x) => x.key === p1)?.value || ""
     )
   }
 
@@ -70,9 +70,9 @@ export function parseTemplateStringEV(
 export const parseTemplateStringV = (
   str: string,
   variables: Environment["variables"],
-  pathVariables: Variables
+  myVariables: Variables
 ) =>
   pipe(
-    parseTemplateStringEV(str, variables, pathVariables),
+    parseTemplateStringEV(str, variables, myVariables),
     E.getOrElse(() => str)
   )

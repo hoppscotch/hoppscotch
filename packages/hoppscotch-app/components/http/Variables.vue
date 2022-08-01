@@ -3,7 +3,7 @@
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
-      <label class="font-semibold text-secondaryLight"> Variables </label>
+      <label class="font-semibold text-secondaryLight"> My Variables </label>
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -15,28 +15,28 @@
     </div>
     <div>
       <div
-        v-for="(vari, index) in workingVars"
-        :key="`vari-${vari.id}-${index}`"
+        v-for="(variable, index) in workingVars"
+        :key="`vari-${variable.id}-${index}`"
         class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
       >
         <SmartEnvInput
-          v-model="vari.key"
+          v-model="variable.key"
           :placeholder="`${t('count.parameter', { count: index + 1 })}`"
           @change="
             updateVar(index, {
-              id: vari.id,
+              id: variable.id,
               key: $event,
-              value: vari.value,
+              value: variable.value,
             })
           "
         />
         <SmartEnvInput
-          v-model="vari.value"
+          v-model="variable.value"
           :placeholder="`${t('count.value', { count: index + 1 })}`"
           @change="
             updateVar(index, {
-              id: vari.id,
-              key: vari.key,
+              id: variable.id,
+              key: variable.key,
               value: $event,
             })
           "

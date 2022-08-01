@@ -16,7 +16,7 @@ export type Variables = {
 }[]
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
-const REGEX_PATH_VAR = /{{([^}]*)}}/g // "{{myVariable}}"
+const REGEX_MY_VAR = /{{([^}]*)}}/g // "{{myVariable}}"
 
 /**
  * How much times can we expand environment variables
@@ -49,9 +49,12 @@ export function parseTemplateStringEV(
     depth++
   }
 
-  while (result.match(REGEX_PATH_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
+  /**
+   * TODO: Create an error state when there is a suspected loop while recursively expanding these variables
+   */
+  while (result.match(REGEX_MY_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
-      REGEX_PATH_VAR,
+      REGEX_MY_VAR,
       (_, p1) => pathVariables.find((x) => x.key === p1)?.value || ""
     )
   }

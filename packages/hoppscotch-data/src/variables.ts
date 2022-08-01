@@ -40,6 +40,7 @@ export function parseTemplateStringEV(
 
   let result = str
   let depth = 0
+  let errorBound = 0
 
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
@@ -50,18 +51,21 @@ export function parseTemplateStringEV(
   }
 
   /**
-   * TODO: Create an error state when there is a suspected loop while recursively expanding these variables
+   * TODO: Create an error statement for variables
    */
-  while (result.match(REGEX_MY_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
+  while (result.match(REGEX_MY_VAR) != null && errorBound <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
       REGEX_MY_VAR,
       (_, p1) => myVariables.find((x) => x.key === p1)?.value || ""
     )
+    errorBound++
   }
 
-  return depth > ENV_MAX_EXPAND_LIMIT
-    ? E.left(ENV_EXPAND_LOOP)
-    : E.right(result)
+  if (depth <= ENV_MAX_EXPAND_LIMIT && errorBound <= ENV_MAX_EXPAND_LIMIT) {
+    return E.right(result)
+  } else {
+    return E.left(ENV_EXPAND_LOOP)
+  }
 }
 
 /**

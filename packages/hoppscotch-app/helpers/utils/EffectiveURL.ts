@@ -14,7 +14,11 @@ import {
   HoppRESTHeader,
   HoppRESTParam,
 } from "@hoppscotch/data"
+<<<<<<< HEAD
 import { parseTemplateStringV } from "@hoppscotch/data/src/pathVariables"
+=======
+import { parseTemplateStringV } from "@hoppscotch/data/src/variables"
+>>>>>>> origin/codeday/main
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleToRecord } from "../functional/record"
@@ -300,6 +304,8 @@ export function getEffectiveRESTRequest(
       value: parseTemplateString(x.value, envVariables),
     }))
   )
+  const effectiveFinalVars = request.vars
+
   const effectiveFinalVars = request.vars
 
   const effectiveFinalBody = getFinalBodyFromRequest(request, envVariables)

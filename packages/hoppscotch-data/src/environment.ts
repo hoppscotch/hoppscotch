@@ -12,11 +12,18 @@ export type Environment = {
 export type Variables = {
   key: string
   value: string
+<<<<<<< HEAD
   }[]
 
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
 const REGEX_PATHVAR = /{{([^>]*)}}/g // "{{myVariable}}"
+=======
+}[]
+
+const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
+const REGEX_PATH_VAR = /{{([^>]*)}}/g // "{{myVariable}}"
+>>>>>>> origin/codeday/main
 
 /**
  * How much times can we expand environment variables

@@ -116,6 +116,8 @@ const aggregateEnvs = useReadonlyStream(aggregateEnvs$, []) as Ref<
 >
 const aggregateVars = useReadonlyStream(restVars$, []) as Ref<HoppRESTVar[]>
 
+const aggregateVars = useReadonlyStream(restVars$, []) as Ref<HoppRESTVar[]>
+
 const envVars = computed(() =>
   props.envs
     ? props.envs.map((x) => ({

@@ -14,7 +14,7 @@ import {
   HoppRESTHeader,
   HoppRESTParam,
 } from "@hoppscotch/data"
-import { parseTemplateStringV } from "@hoppscotch/data/src/pathVariables"
+import { parseTemplateStringV } from "@hoppscotch/data/src/variables"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleToRecord } from "../functional/record"

@@ -14,43 +14,64 @@
       </div>
     </div>
     <div>
-      <div
-        v-for="(variable, index) in workingVars"
-        :key="`vari-${variable.id}-${index}`"
-        class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+      <draggable
+        v-model="workingVars"
+        animation="250"
+        handle=".draggable-handle"
+        draggable=".draggable-content"
+        ghost-class="cursor-move"
+        chosen-class="bg-primaryLight"
+        drag-class="cursor-grabbing"
       >
-        <SmartEnvInput
-          v-model="variable.key"
-          :placeholder="`${t('count.variable', { count: index + 1 })}`"
-          @change="
-            updateVar(index, {
-              id: variable.id,
-              key: $event,
-              value: variable.value,
-            })
-          "
-        />
-        <SmartEnvInput
-          v-model="variable.value"
-          :placeholder="`${t('count.value', { count: index + 1 })}`"
-          @change="
-            updateVar(index, {
-              id: variable.id,
-              key: variable.key,
-              value: $event,
-            })
-          "
-        />
-        <span>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.remove')"
-            svg="trash"
-            color="red"
-            @click.native="deleteVar(index)"
+        <div
+          v-for="(variable, index) in workingVars"
+          :key="`vari-${variable.id}-${index}`"
+          class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
+        >
+          <span>
+            <ButtonSecondary
+              svg="grip-vertical"
+              class="cursor-auto text-primary hover:text-primary"
+              :class="{
+                'draggable-handle group-hover:text-secondaryLight !cursor-grab':
+                  index !== workingVars?.length - 1,
+              }"
+              tabindex="-1"
+            />
+          </span>
+          <SmartEnvInput
+            v-model="variable.key"
+            :placeholder="`${t('count.variable', { count: index + 1 })}`"
+            @change="
+              updateVar(index, {
+                id: variable.id,
+                key: $event,
+                value: variable.value,
+              })
+            "
           />
-        </span>
-      </div>
+          <SmartEnvInput
+            v-model="variable.value"
+            :placeholder="`${t('count.value', { count: index + 1 })}`"
+            @change="
+              updateVar(index, {
+                id: variable.id,
+                key: variable.key,
+                value: $event,
+              })
+            "
+          />
+          <span>
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.remove')"
+              svg="trash"
+              color="red"
+              @click.native="deleteVar(index)"
+            />
+          </span>
+        </div>
+      </draggable>
       <div
         v-if="workingVars.length === 0"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -80,6 +101,7 @@ import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import { HoppRESTVar } from "@hoppscotch/data"
+import draggable from "vuedraggable"
 import cloneDeep from "lodash/cloneDeep"
 import isEqual from "lodash/isEqual"
 import { useI18n, useStream, useToast } from "~/helpers/utils/composables"

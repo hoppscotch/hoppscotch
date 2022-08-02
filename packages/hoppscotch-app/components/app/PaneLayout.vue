@@ -6,21 +6,26 @@
       '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
     }"
     :horizontal="!mdAndLarger"
+    @resize="setVerticalPanelInfo"
   >
     <Pane
-      size="75"
-      min-size="65"
+      :size="panelVerticalInfo[0].size"
+      :min-size="panelVerticalInfo[0].min"
       class="hide-scrollbar !overflow-auto flex flex-col"
     >
-      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
+      <Splitpanes
+        class="smart-splitter"
+        :horizontal="COLUMN_LAYOUT"
+        @resize="setHorizontalPanelInfo"
+      >
         <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
+          :size="COLUMN_LAYOUT ? panelHorizontalInfo[0].size : 50"
           class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <slot name="primary" />
         </Pane>
         <Pane
-          :size="COLUMN_LAYOUT ? 65 : 50"
+          :size="COLUMN_LAYOUT ? panelHorizontalInfo[1].size : 50"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <slot name="secondary" />
@@ -29,8 +34,8 @@
     </Pane>
     <Pane
       v-if="SIDEBAR && hasSidebar"
-      size="25"
-      min-size="20"
+      :size="panelVerticalInfo[1].size"
+      :min-size="panelVerticalInfo[1].min"
       class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <slot name="sidebar" />
@@ -55,6 +60,74 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const SIDEBAR = useSetting("SIDEBAR")
 
 const slots = useSlots()
+
+let panelVerticalInfo: any = [
+  {
+    max: 100,
+    min: 0,
+    size: 75,
+  },
+  {
+    max: 100,
+    min: 0,
+    size: 65,
+  },
+]
+
+let panelHorizontalInfo: any = [
+  {
+    max: 100,
+    min: 0,
+    size: 75,
+  },
+  {
+    max: 100,
+    min: 0,
+    size: 65,
+  },
+]
+
+function setVerticalPanelInfo(event: any) {
+  // eslint-disable-next-line no-restricted-globals
+  localStorage.setItem("vertical_panel_info", JSON.stringify(event))
+}
+
+function getVerticalPanelInfo() {
+  // eslint-disable-next-line no-restricted-globals
+  let panelDataFromStorage = localStorage.getItem("vertical_panel_info")
+  if (panelDataFromStorage) {
+    panelDataFromStorage = JSON.parse(panelDataFromStorage)
+  }
+  if (!panelDataFromStorage) {
+    setVerticalPanelInfo(panelVerticalInfo)
+    getVerticalPanelInfo()
+  }
+  panelVerticalInfo = panelDataFromStorage
+}
+
+function setHorizontalPanelInfo(event: any) {
+  // eslint-disable-next-line no-restricted-globals
+  localStorage.setItem("horizontal_panel_info", JSON.stringify(event))
+}
+
+function getHorizontallPanelInfo() {
+  // eslint-disable-next-line no-restricted-globals
+  let panelDataFromStorage = localStorage.getItem("horizontal_panel_info")
+
+  if (panelDataFromStorage) {
+    panelDataFromStorage = JSON.parse(panelDataFromStorage)
+  }
+
+  if (!panelDataFromStorage) {
+    setHorizontalPanelInfo(panelHorizontalInfo)
+    getHorizontallPanelInfo()
+  }
+
+  panelHorizontalInfo = panelDataFromStorage
+}
+
+getVerticalPanelInfo()
+getHorizontallPanelInfo()
 
 const hasSidebar = computed(() => !!slots.sidebar)
 </script>

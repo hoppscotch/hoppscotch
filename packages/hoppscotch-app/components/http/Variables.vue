@@ -21,7 +21,7 @@
       >
         <SmartEnvInput
           v-model="variable.key"
-          :placeholder="`${t('count.parameter', { count: index + 1 })}`"
+          :placeholder="`${t('count.variable', { count: index + 1 })}`"
           @change="
             updateVar(index, {
               id: variable.id,

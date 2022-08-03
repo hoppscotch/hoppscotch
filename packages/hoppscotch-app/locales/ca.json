@@ -99,12 +99,12 @@
     "we_sent_magic_link_description": "Comprova la vostra safata d'entrada - T'hem enviat un correu electrònic a {email}. Conté un enllaç màgic que us permetrà iniciar la sessió."
   },
   "authorization": {
-    "generate_token": "Generar testimoni",
+    "generate_token": "Generar Token",
     "include_in_url": "Inclou a l'URL",
     "learn": "Aprèn com",
-    "pass_key_by": "Pass by",
+    "pass_key_by": "Passar per",
     "password": "Contrasenya",
-    "token": "Testimoni",
+    "token": "Token",
     "type": "Tipus d'autorització",
     "username": "Nom d'usuari"
   },

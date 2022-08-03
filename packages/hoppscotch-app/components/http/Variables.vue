@@ -7,6 +7,19 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          to="https://docs.hoppscotch.io/features/#"
+          blank
+          :title="t('app.wiki')"
+          svg="help-circle"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.clear_all')"
+          svg="trash-2"
+          @click.native="clearContent()"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           svg="plus"
           @click.native="addVar"
@@ -226,5 +239,16 @@ const deleteVar = (index: number) => {
     A.deleteAt(index),
     O.getOrElseW(() => throwError("Working Params Deletion Out of Bounds"))
   )
+}
+
+const clearContent = () => {
+  // set params list to the initial state
+  workingVars.value = [
+    {
+      id: idTicker.value++,
+      key: "",
+      value: "",
+    },
+  ]
 }
 </script>

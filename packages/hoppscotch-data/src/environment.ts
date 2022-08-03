@@ -9,6 +9,11 @@ export type Environment = {
   }[]
 }
 
+export type Variables = {
+  key: string
+  value: string
+}[]
+
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
 const REGEX_MY_VAR = /{{([^}]*)}}/g // "{{myVariable}}"
 

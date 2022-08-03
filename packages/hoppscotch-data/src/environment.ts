@@ -10,6 +10,7 @@ export type Environment = {
 }
 
 const REGEX_ENV_VAR = /<<([^>]*)>>/g // "<<myVariable>>"
+const REGEX_MY_VAR = /{{([^}]*)}}/g // "{{myVariable}}"
 
 /**
  * How much times can we expand environment variables
@@ -60,13 +61,16 @@ export const parseBodyEnvVariables = (
 export function parseTemplateStringE(
   str: string,
   variables: Environment["variables"],
+  myVariables?: Variables
 ) {
-  if (!variables || !str ) {
+
+  if (!variables || !str || !myVariables) {
     return E.right(str)
   }
 
   let result = str
   let depth = 0
+  let errorBound = 0
 
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
@@ -76,9 +80,15 @@ export function parseTemplateStringE(
     depth++
   }
 
-  return depth > ENV_MAX_EXPAND_LIMIT
-    ? E.left(ENV_EXPAND_LOOP)
-    : E.right(result)
+  while (result.match(REGEX_MY_VAR) != null && errorBound <= ENV_MAX_EXPAND_LIMIT) {
+    result = decodeURI(encodeURI(result)).replace(
+      REGEX_MY_VAR,
+      (_, p1) => myVariables.find((x) => x.key === p1)?.value || ""
+    )
+    errorBound++
+  }
+
+  return depth <= ENV_MAX_EXPAND_LIMIT && errorBound <= ENV_MAX_EXPAND_LIMIT ? E.right(result) : E.left(ENV_EXPAND_LOOP);
 }
 
 /**
@@ -86,9 +96,10 @@ export function parseTemplateStringE(
  */
 export const parseTemplateString = (
   str: string,
-  variables: Environment["variables"]
+  variables: Environment["variables"],
+  myVariables?: Variables
 ) =>
   pipe(
-    parseTemplateStringE(str, variables),
+    parseTemplateStringE(str, variables, myVariables),
     E.getOrElse(() => str)
   )

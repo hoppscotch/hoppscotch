@@ -78,12 +78,14 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onUnmounted } from "@nuxtjs/composition-api"
+import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { onLoggedIn } from "~/helpers/fb/auth"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
-
+import { setTeamEnvironments } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
 
 const t = useI18n()
@@ -117,6 +119,29 @@ watch(
   () => props.teamId,
   (newTeamId) => {
     adapter.changeTeamID(newTeamId)
+  }
+)
+
+watch(
+  () => adapterLoading.value,
+  (loading) => {
+    if (!loading) {
+      const variables: {
+        name: string
+        variables: {
+          key: string
+          value: string
+        }[]
+      }[] = pipe(
+        teamEnvironmentList.value,
+        A.map((envs: TeamEnvironment) => ({
+          name: envs.name,
+          variables: JSON.parse(envs.variables),
+        }))
+      )
+
+      setTeamEnvironments(variables)
+    }
   }
 )
 

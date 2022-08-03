@@ -73,6 +73,8 @@ import {
   environments$,
   setCurrentEnvironment,
   selectedEnvIndex$,
+  setCurrentEnvironmentType,
+  teamEnvironments$,
 } from "~/newstore/environments"
 
 const t = useI18n()
@@ -104,11 +106,20 @@ const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
 }
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
+  setCurrentEnvironmentType(newEnvironmentType)
 }
 
 const options = ref<any | null>(null)
 
-const environments = useReadonlyStream(environments$, [])
+const myEnvironments = useReadonlyStream(environments$, [])
+const teamEnvironments = useReadonlyStream(teamEnvironments$, [])
+
+const environments = computed(() => {
+  if (environmentType.value.type === "my-environments") {
+    return myEnvironments.value
+  }
+  return teamEnvironments.value
+})
 
 const selectedEnvironmentIndex = useStream(
   selectedEnvIndex$,

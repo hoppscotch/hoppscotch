@@ -8,9 +8,18 @@ import DispatchingStore, {
 } from "~/newstore/DispatchingStore"
 
 const defaultEnvironmentsState = {
+  currentEnvironmentType: "my-environments" || "team-environments",
+
   environments: [
     {
       name: "My Environment Variables",
+      variables: [],
+    },
+  ] as Environment[],
+
+  teamEnvironments: [
+    {
+      name: "Team Environment Variables",
       variables: [],
     },
   ] as Environment[],
@@ -25,6 +34,24 @@ const defaultEnvironmentsState = {
 type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
+  setCurrentEnviromentType(
+    _: EnvironmentStore,
+    { environmentType }: { environmentType: EnvironmentType }
+  ) {
+    return {
+      currentEnvironmentType: environmentType,
+    }
+  },
+
+  setTeamEnvironments(
+    _,
+    { newTeamEnvironments }: { newTeamEnvironments: Environment[] }
+  ) {
+    return {
+      teamEnvironments: newTeamEnvironments,
+    }
+  },
+
   setCurrentEnviromentIndex(
     { environments }: EnvironmentStore,
     { newIndex }: { newIndex: number }
@@ -254,8 +281,36 @@ export const environmentsStore = new DispatchingStore(
   dispatchers
 )
 
+// new //
+export function setCurrentEnvironmentType(newEnvironmentType: string) {
+  environmentsStore.dispatch({
+    dispatcher: "setCurrentEnviromentType",
+    payload: {
+      environmentType: newEnvironmentType,
+    },
+  })
+}
+export function setTeamEnvironments(newTeamEnvironments: Environment[]) {
+  environmentsStore.dispatch({
+    dispatcher: "setTeamEnvironments",
+    payload: {
+      newTeamEnvironments,
+    },
+  })
+}
+
+export const selectedEnvironmentType$ = environmentsStore.subject$.pipe(
+  pluck("currentEnvironmentType"),
+  distinctUntilChanged()
+)
+
 export const environments$ = environmentsStore.subject$.pipe(
   pluck("environments"),
+  distinctUntilChanged()
+)
+
+export const teamEnvironments$ = environmentsStore.subject$.pipe(
+  pluck("teamEnvironments"),
   distinctUntilChanged()
 )
 
@@ -270,18 +325,29 @@ export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
 )
 
 export const currentEnvironment$ = environmentsStore.subject$.pipe(
-  map(({ currentEnvironmentIndex, environments }) => {
-    if (currentEnvironmentIndex === -1) {
-      const env: Environment = {
-        name: "No environment",
-        variables: [],
-      }
+  map(
+    ({
+      currentEnvironmentIndex,
+      environments,
+      teamEnvironments,
+      currentEnvironmentType,
+    }) => {
+      if (currentEnvironmentIndex === -1) {
+        const env: Environment = {
+          name: "No environment",
+          variables: [],
+        }
 
-      return env
-    } else {
-      return environments[currentEnvironmentIndex]
+        return env
+      } else {
+        if (currentEnvironmentType === "my-environments") {
+          return environments[currentEnvironmentIndex]
+        }
+
+        return teamEnvironments[currentEnvironmentIndex]
+      }
     }
-  })
+  )
 )
 
 export type AggregateEnvironment = {
@@ -314,7 +380,13 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 )
 
 export function getAggregateEnvs() {
-  const currentEnv = getCurrentEnvironment()
+  let currentEnv: Environment
+
+  if (environmentsStore.value.currentEnvironmentType === "my-environments") {
+    currentEnv = getCurrentEnvironment()
+  } else {
+    currentEnv = getCurrentTeamEnvironment()
+  }
 
   return [
     ...currentEnv.variables.map(
@@ -336,6 +408,18 @@ export function getAggregateEnvs() {
   ]
 }
 
+export function getCurrentTeamEnvironment(): Environment {
+  if (environmentsStore.value.currentEnvironmentIndex === -1) {
+    return {
+      name: "No environment",
+      variables: [],
+    }
+  }
+
+  return environmentsStore.value.teamEnvironments[
+    environmentsStore.value.currentEnvironmentIndex
+  ]
+}
 export function getCurrentEnvironment(): Environment {
   if (environmentsStore.value.currentEnvironmentIndex === -1) {
     return {

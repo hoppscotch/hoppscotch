@@ -139,7 +139,7 @@
   },
   "count": {
     "header": "Capçalera {count}",
-    "message": "{Compte} de missatges",
+    "message": "Missatges {count}",
     "parameter": "Paràmetre {count}",
     "protocol": "Protocol {count}",
     "value": "Valor {count}",

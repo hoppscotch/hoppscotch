@@ -1,5 +1,6 @@
 {
   "action": {
+    "autoscroll": "Autoscroll",
     "cancel": "Cancel·lar",
     "choose_file": "Triar un fitxer",
     "clear": "Netejar",
@@ -21,6 +22,7 @@
     "more": "Més",
     "new": "Novetat",
     "no": "No",
+    "open_workspace": "Obrir espai de treball",
     "paste": "Enganxar",
     "prettify": "Fes-ho bonic",
     "remove": "Eliminar",

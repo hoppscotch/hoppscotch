@@ -274,7 +274,11 @@
     "from_url": "Importar des de l'URL",
     "gist_url": "Introduïu l'URL del Gist",
     "json_description": "Importar col·leccions des d'un fitxer JSON de col·leccions Hoppscotch",
-    "title": "Importació"
+    "title": "Importació",
+    "import_from_url_success": "Col·leccions importades",
+    "import_from_url_invalid_file_format": "S'ha produït un error en importar les col·leccions",
+    "import_from_url_invalid_type": "Tipus no compatible. Els valors acceptats són 'hoppscotch', 'openapi', 'postman', 'insomnia'",
+    "import_from_url_invalid_fetch": "No s'han pogut obtenir dades de l'URL"
   },
   "layout": {
     "collapse_collection": "Amagar o Ampliar Col·leccions",

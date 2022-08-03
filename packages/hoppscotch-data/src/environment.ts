@@ -69,11 +69,6 @@ export function parseTemplateStringE(
   variables: Environment["variables"],
   myVariables?: Variables
 ) {
-  /*
-  if (!variables || !str ) {
-    return E.right(str)
-  }
-  */
 
   if (!variables || !str || !myVariables) {
     return E.right(str)
@@ -97,11 +92,8 @@ export function parseTemplateStringE(
     )
     errorBound++
   }
-  if(depth > ENV_MAX_EXPAND_LIMIT && errorBound <= ENV_MAX_EXPAND_LIMIT) {
-    return E.right(result)
-  }else{
-    return E.left(ENV_EXPAND_LOOP)
-  }
+
+  return depth <= ENV_MAX_EXPAND_LIMIT && errorBound <= ENV_MAX_EXPAND_LIMIT ? E.right(result) : E.left(ENV_EXPAND_LOOP);
 }
 
 /**

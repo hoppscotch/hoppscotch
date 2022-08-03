@@ -210,10 +210,10 @@
   },
   "export": {
     "as_json": "Exporta com a JSON",
-    "create_secret_gist": "Crea un resum secret",
+    "create_secret_gist": "Crear un Gist secret",
     "gist_created": "Gist creat",
-    "require_github": "Inicieu la sessió amb GitHub per crear un resum secret",
-    "title": "Export"
+    "require_github": "Inicieu la sessió amb GitHub per crear un Gisst secret",
+    "title": "Exportar"
   },
   "folder": {
     "created": "S'ha creat la carpeta",

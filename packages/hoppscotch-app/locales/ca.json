@@ -608,14 +608,14 @@
     "we_sent_invite_link_description": "Demaneu a tots els convidats que comprovin la seva safata d'entrada. Feu clic a l'enllaç per unir-vos a l'equip."
   },
   "test": {
-    "failed": "test failed",
+    "failed": "prova fallada",
     "javascript_code": "Codi JavaScript",
-    "learn": "Llegiu la documentació",
-    "passed": "test passed",
-    "report": "Informe de prova",
-    "results": "Resultats de l'exàmen",
-    "script": "Guió",
-    "snippets": "Fragments"
+    "learn": "Llegir la documentació",
+    "passed": "prova superada",
+    "report": "Informe de la prova",
+    "results": "Resultats de la prova",
+    "script": "Script",
+    "snippets": "Fragments (Snippets)"
   },
   "websocket": {
     "communication": "Comunicació",

@@ -80,23 +80,23 @@
     "wiki": "Wiki"
   },
   "auth": {
-    "account_exists": "El compte existeix amb credencials diferents: inicieu la sessió per enllaçar els dos comptes",
+    "account_exists": "El compte existeix amb credencials diferents - Inicieu sessió per enllaçar els dos comptes",
     "all_sign_in_options": "Totes les opcions d'inici de sessió",
-    "continue_with_email": "Continueu amb el correu electrònic",
-    "continue_with_github": "Continueu amb GitHub",
-    "continue_with_google": "Continueu amb Google",
-    "continue_with_microsoft": "Continue with Microsoft",
+    "continue_with_email": "Continuar amb el correu electrònic",
+    "continue_with_github": "Continuar amb GitHub",
+    "continue_with_google": "Continuar amb Google",
+    "continue_with_microsoft": "Continuar amb Microsoft",
     "email": "Correu electrònic",
-    "logged_out": "Desconnectat",
-    "login": "iniciar Sessió",
+    "logged_out": "Sessió tancada",
+    "login": "Iniciar Sessió",
     "login_success": "S'ha iniciat la sessió correctament",
-    "login_to_hoppscotch": "Inicieu la sessió a Hoppscotch",
+    "login_to_hoppscotch": "Iniciar la sessió a Hoppscotch",
     "logout": "Tancar sessió",
     "re_enter_email": "Re-escriu el teu correu",
     "send_magic_link": "Envia un enllaç màgic",
     "sync": "Sincronitzar",
-    "we_sent_magic_link": "Us hem enviat un enllaç màgic!",
-    "we_sent_magic_link_description": "Comproveu la vostra safata d'entrada: hem enviat un correu electrònic a {email}. Conté un enllaç màgic que us permetrà iniciar la sessió."
+    "we_sent_magic_link": "T'hem enviat un enllaç màgic!",
+    "we_sent_magic_link_description": "Comprova la vostra safata d'entrada - T'hem enviat un correu electrònic a {email}. Conté un enllaç màgic que us permetrà iniciar la sessió."
   },
   "authorization": {
     "generate_token": "Generar testimoni",

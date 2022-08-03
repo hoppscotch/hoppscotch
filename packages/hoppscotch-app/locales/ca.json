@@ -544,7 +544,7 @@
     "collections": "Col·leccions",
     "documentation": "Documentació",
     "headers": "Capçaleres",
-    "history": "Història",
+    "history": "Historial",
     "mqtt": "MQTT",
     "parameters": "Paràmetres",
     "pre_request_script": "Script de sol·licitud prèvia",
@@ -555,7 +555,7 @@
     "sse": "SSE",
     "tests": "Proves",
     "types": "Tipus",
-    "variables": "Les variables",
+    "variables": "Variables",
     "websocket": "WebSocket"
   },
   "team": {

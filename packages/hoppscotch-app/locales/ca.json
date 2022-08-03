@@ -484,10 +484,10 @@
     }
   },
   "show": {
-    "code": "Mostra el codi",
-    "collection": "Expand Collection Panel",
-    "more": "Mostra més",
-    "sidebar": "Mostra la barra lateral"
+    "code": "Mostrar el codi",
+    "collection": "Ampliar el Panell de Col·lecció",
+    "more": "Mostrar més",
+    "sidebar": "Mostrar la barra lateral"
   },
   "socketio": {
     "communication": "Comunicació",

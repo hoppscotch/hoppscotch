@@ -476,11 +476,11 @@
       "title": "Sol·licitud"
     },
     "theme": {
-      "black": "Switch  theme to black mode",
-      "dark": "Switch  theme to  dark mode",
-      "light": "Switch  theme to light mode",
-      "system": "Switch  theme to system mode",
-      "title": "Theme"
+      "black": "Canviar el tema al mode negre",
+      "dark": "Canviar el tema al mode fosc",
+      "light": "Canviar el tema al mode lluminós",
+      "system": "Canviar el tema al mode del sistema",
+      "title": "Tema"
     }
   },
   "show": {

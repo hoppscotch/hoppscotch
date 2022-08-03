@@ -173,20 +173,20 @@
     "tests": "No hi ha proves per a aquesta sol·licitud"
   },
   "environment": {
-    "add_to_global": "Add to Global",
-    "added": "Environment addition",
+    "add_to_global": "Afegir-ho a Global",
+    "added": "Addició d'entorn",
     "create_new": "Crea un entorn nou",
-    "created": "Environment created",
-    "deleted": "Environment deletion",
-    "edit": "Edita l'entorn",
+    "created": "Etorn creat",
+    "deleted": "Entorn eliminat",
+    "edit": "Editar l'entorn",
     "invalid_name": "Proporcioneu un nom vàlid per a l'entorn",
-    "nested_overflow": "nested environment variables are limited to 10 levels",
+    "nested_overflow": "Les variables d'entorn niuades estan limitades a 10 nivells",
     "new": "Nou entorn",
     "no_environment": "Sense entorn",
-    "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
+    "no_environment_description": "No s'ha seleccionat cap entorn. Trieu què voleu fer amb les variables següents.",
     "select": "Seleccioneu un entorn",
     "title": "Entorns",
-    "updated": "Environment updation",
+    "updated": "Entorn actualitzat",
     "variable_list": "Llista de variables"
   },
   "error": {

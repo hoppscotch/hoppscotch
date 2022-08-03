@@ -282,9 +282,9 @@
   },
   "modal": {
     "collections": "Col·leccions",
-    "confirm": "Confirmeu",
+    "confirm": "Confirmar",
     "edit_request": "Sol·licitud d'edició",
-    "import_export": "Importació-exportació"
+    "import_export": "Importar / Exportar"
   },
   "mqtt": {
     "communication": "Comunicació",

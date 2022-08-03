@@ -109,19 +109,19 @@
     "username": "Nom d'usuari"
   },
   "collection": {
-    "created": "S'ha creat la col·lecció",
-    "edit": "Edita la col·lecció",
+    "created": "Col·lecció creada",
+    "edit": "Editar la col·lecció",
     "invalid_name": "Proporcioneu un nom vàlid per a la col·lecció",
     "my_collections": "Les meves col·leccions",
     "name": "La meva nova col·lecció",
-    "name_length_insufficient": "Collection name should be at least 3 characters long",
+    "name_length_insufficient": "El nom de la col·lecció ha de tenir almenys 3 caràcters",
     "new": "Nova col · lecció",
     "renamed": "S'ha canviat el nom de la col·lecció",
     "request_in_use": "Request in use",
     "save_as": "Guardar com",
-    "select": "Seleccioneu una col·lecció",
-    "select_location": "Seleccioneu la ubicació",
-    "select_team": "Selecciona un equip",
+    "select": "Seleccionar una col·lecció",
+    "select_location": "Seleccionar la ubicació",
+    "select_team": "Seleccionar un equip",
     "team_collections": "Col·leccions per equips"
   },
   "confirm": {

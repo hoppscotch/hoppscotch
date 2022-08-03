@@ -273,11 +273,11 @@
     "title": "Importació"
   },
   "layout": {
-    "collapse_collection": "Collapse or Expand Collections",
-    "collapse_sidebar": "Collapse or Expand the sidebar",
-    "column": "Vertical layout",
-    "name": "Layout",
-    "row": "Horizontal layout",
+    "collapse_collection": "Amagar o Ampliar Col·leccions",
+    "collapse_sidebar": "Amagar o Ampliar la barra lateral",
+    "column": "Distribució vertical",
+    "name": "Distribució",
+    "row": "Distribució horitzontal",
     "zen_mode": "Mode Zen"
   },
   "modal": {

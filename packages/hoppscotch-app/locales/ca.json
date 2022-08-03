@@ -548,7 +548,19 @@
     "loading": "S'està carregant...",
     "none": "Cap",
     "nothing_found": "No s'ha trobat res per",
-    "waiting_send_request": "S'està esperant l'enviament de la sol·licitud"
+    "waiting_send_request": "S'està esperant l'enviament de la sol·licitud",
+    "subscribed_success": "S'ha subscrit correctament al tema: {topic}",
+    "unsubscribed_success": "S'ha cancel·lat correctament la subscripció del tema: {topic}",
+    "subscribed_failed": "No s'ha pogut subscriure al tema: {topic}",
+    "unsubscribed_failed": "No s'ha pogut cancel·lar la subscripció al tema: {topic}",
+    "published_message": "Missatge publicat: {missatge} al tema: {tema}",
+    "published_error": "S'ha produït un error en publicar el missatge: {topic} al tema: {message}",
+    "message_received": "Missatge: {message} ha arribat al tema: {topic}",
+    "mqtt_subscription_failed": "S'ha produït un error en subscriure's al tema: {topic}",
+    "connection_lost": "Connexió perduda",
+    "connection_failed": "Connexió fallida",
+    "connection_error": "No s'ha pogut connectar",
+    "reconnection_error": "No s'ha pogut tornar a connectar"
   },
   "support": {
     "changelog": "Llegiu més sobre les darreres versions",

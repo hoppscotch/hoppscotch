@@ -497,6 +497,15 @@
       "title": "Tema"
     }
   },
+  "shortcodes":{
+    "actions":"Accions",
+    "created_on": "Creat el",
+    "deleted" : "S'ha suprimit el shortcode",
+    "method": "Mètode",
+    "not_found":"No s'ha trobat el shortcode",
+    "short_code":"Short code",
+    "url": "URL"
+  },
   "show": {
     "code": "Mostrar el codi",
     "collection": "Ampliar el Panell de Col·lecció",

@@ -17,9 +17,18 @@ type SelectedEnvironmentIndex =
     }
 
 const defaultEnvironmentsState = {
+  currentEnvironmentType: "my-environments" || "team-environments",
+
   environments: [
     {
       name: "My Environment Variables",
+      variables: [],
+    },
+  ] as Environment[],
+
+  teamEnvironments: [
+    {
+      name: "Team Environment Variables",
       variables: [],
     },
   ] as Environment[],
@@ -272,8 +281,36 @@ export const environmentsStore = new DispatchingStore(
   dispatchers
 )
 
+// new //
+export function setCurrentEnvironmentType(newEnvironmentType: string) {
+  environmentsStore.dispatch({
+    dispatcher: "setCurrentEnviromentType",
+    payload: {
+      environmentType: newEnvironmentType,
+    },
+  })
+}
+export function setTeamEnvironments(newTeamEnvironments: Environment[]) {
+  environmentsStore.dispatch({
+    dispatcher: "setTeamEnvironments",
+    payload: {
+      newTeamEnvironments,
+    },
+  })
+}
+
+export const selectedEnvironmentType$ = environmentsStore.subject$.pipe(
+  pluck("currentEnvironmentType"),
+  distinctUntilChanged()
+)
+
 export const environments$ = environmentsStore.subject$.pipe(
   pluck("environments"),
+  distinctUntilChanged()
+)
+
+export const teamEnvironments$ = environmentsStore.subject$.pipe(
+  pluck("teamEnvironments"),
   distinctUntilChanged()
 )
 
@@ -333,7 +370,13 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 )
 
 export function getAggregateEnvs() {
-  const currentEnv = getCurrentEnvironment()
+  let currentEnv: Environment
+
+  if (environmentsStore.value.currentEnvironmentType === "my-environments") {
+    currentEnv = getCurrentEnvironment()
+  } else {
+    currentEnv = getCurrentTeamEnvironment()
+  }
 
   return [
     ...currentEnv.variables.map(

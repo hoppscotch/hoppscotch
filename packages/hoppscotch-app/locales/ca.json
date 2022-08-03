@@ -313,18 +313,18 @@
     "snippets": "Fragments (Snippets)"
   },
   "profile": {
-    "app_settings": "App Settings",
+    "app_settings": "Configuració de l'aplicació",
     "editor": "Editor",
-    "editor_description": "Editors can add, edit, and delete requests.",
-    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
-    "no_permission": "You do not have permission to perform this action.",
-    "owner": "Owner",
-    "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
-    "roles": "Roles",
-    "roles_description": "Roles are used to control access to the shared collections.",
-    "updated": "Profile updated",
-    "viewer": "Viewer",
-    "viewer_description": "Viewers can only view and use requests."
+    "editor_description": "Els editors poden afegir, editar i eliminar sol·licituds.",
+    "email_verification_mail": "S'ha enviat un correu electrònic de verificació a la vostra adreça electrònica. Feu clic a l'enllaç per verificar la vostra adreça de correu electrònic.",
+    "no_permission": "No teniu permís per dur a terme aquesta acció.",
+    "owner": "Propietari",
+    "owner_description": "Els propietaris poden afegir, editar i suprimir sol·licituds, col·leccions i membres de l'equip.",
+    "roles": "Rols",
+    "roles_description": "Els rols s'utilitzen per controlar l'accés a les col·leccions compartides.",
+    "updated": "Perfil actualitzat",
+    "viewer": "Espectador",
+    "viewer_description": "Els espectadors només poden veure i utilitzar sol·licituds."
   },
   "remove": {
     "star": "Elimina l'estrella"

@@ -73,6 +73,7 @@ export function parseTemplateStringE(
   if (!variables || !str || !myVariables) {
     return E.right(str)
   }
+
   let result = str
   let depth = 0
   let errorBound = 0

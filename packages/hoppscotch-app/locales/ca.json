@@ -451,13 +451,13 @@
     },
     "navigation": {
       "back": "Torneu a la pàgina anterior",
-      "documentation": "Aneu a la pàgina Documentació",
-      "forward": "Aneu a la pàgina següent",
-      "graphql": "Aneu a la pàgina GraphQL",
-      "profile": "Go to Profile page",
-      "realtime": "Aneu a la pàgina en temps real",
-      "rest": "Aneu a la pàgina REST",
-      "settings": "Aneu a la pàgina Configuració",
+      "documentation": "Anar a la pàgina Documentació",
+      "forward": "Anar a la pàgina següent",
+      "graphql": "Anar a la pàgina de GraphQL",
+      "profile": "Anar a la pàgina de Perfil",
+      "realtime": "Anar a la pàgina de Temps Real (Realtime)",
+      "rest": "Anar a la pàgina de REST",
+      "settings": "Anar a la pàgina de Configuració",
       "title": "Navegació"
     },
     "request": {

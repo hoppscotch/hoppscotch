@@ -517,7 +517,8 @@
     "event_name": "Nom de l'esdeveniment",
     "events": "Esdeveniments",
     "log": "Registre",
-    "url": "URL"
+    "url": "URL",
+    "connection_not_authorized": "Aquesta connexió SocketIO no utilitza cap autenticació."
   },
   "sse": {
     "event_type": "Tipus d'esdeveniment",

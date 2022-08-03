@@ -203,9 +203,11 @@
     "invalid_link": "Enllaç invalid",
     "invalid_link_description": "L'enllaç en que heu fet clic no és vàlid o ha caducat.",
     "json_prettify_invalid_body": "No s'ha pogut personalitzar un cos no vàlid, resol els errors de sintaxi json i tornar-ho a provar",
+    "json_parsing_failed": "JSON no vàlid",
     "network_error": "Sembla que hi ha un error de xarxa. Si us plau torna-ho a provar.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",
     "no_duration": "Sense durada",
+    "no_results_found": "No s'ha trobat cap coincidència",
     "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament",
     "test_script_fail": "No s'ha pogut executar l'script posterior a la sol·licitud"

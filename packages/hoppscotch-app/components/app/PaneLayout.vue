@@ -9,8 +9,8 @@
     @resize="setVerticalPanelInfo"
   >
     <Pane
-      :size="panelVerticalInfo[0].size"
-      :min-size="panelVerticalInfo[0].min"
+      :size="PANE_MAIN_SIZE.value"
+      min-size="65"
       class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <Splitpanes
@@ -19,13 +19,15 @@
         @resize="setHorizontalPanelInfo"
       >
         <Pane
-          :size="COLUMN_LAYOUT ? panelHorizontalInfo[0].size : 50"
+          :size="PANE_MAIN_TOP_SIZE.value"
+          min-size="50"
           class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <slot name="primary" />
         </Pane>
         <Pane
-          :size="COLUMN_LAYOUT ? panelHorizontalInfo[1].size : 50"
+          :size="PANE_MAIN_BOTTOM_SIZE.value"
+          min-size="20"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <slot name="secondary" />
@@ -34,8 +36,8 @@
     </Pane>
     <Pane
       v-if="SIDEBAR && hasSidebar"
-      :size="panelVerticalInfo[1].size"
-      :min-size="panelVerticalInfo[1].min"
+      :size="PANE_SIDEBAR_SIZE.value"
+      min-size="20"
       class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <slot name="sidebar" />
@@ -48,7 +50,9 @@ import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { computed, useSlots } from "@nuxtjs/composition-api"
+import { ref } from "@vue/runtime-dom"
 import { useSetting } from "~/newstore/settings"
+import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
 
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
@@ -61,69 +65,54 @@ const SIDEBAR = useSetting("SIDEBAR")
 
 const slots = useSlots()
 
-let panelVerticalInfo: any = [
-  {
-    max: 100,
-    min: 0,
-    size: 75,
+const props = defineProps({
+  layoutId: {
+    type: String,
+    default: "default",
   },
-  {
-    max: 100,
-    min: 0,
-    size: 65,
-  },
-]
+})
 
-let panelHorizontalInfo: any = [
-  {
-    max: 100,
-    min: 0,
-    size: 75,
-  },
-  {
-    max: 100,
-    min: 0,
-    size: 65,
-  },
-]
+type PanelInfo = {
+  max: number
+  min: number
+  size: number
+}
 
-function setVerticalPanelInfo(event: any) {
-  // eslint-disable-next-line no-restricted-globals
-  localStorage.setItem("vertical_panel_info", JSON.stringify(event))
+const PANE_SIDEBAR_SIZE = ref()
+const PANE_MAIN_SIZE = ref()
+const PANE_MAIN_TOP_SIZE = ref()
+const PANE_MAIN_BOTTOM_SIZE = ref()
+const PANE_STORAGE_KEY = `${props.layoutId}-app-pane-layout`
+
+function setVerticalPanelInfo(event: PanelInfo[]) {
+  setLocalConfig(`${PANE_STORAGE_KEY}_vertical`, JSON.stringify(event))
 }
 
 function getVerticalPanelInfo() {
-  // eslint-disable-next-line no-restricted-globals
-  let panelDataFromStorage = localStorage.getItem("vertical_panel_info")
+  PANE_SIDEBAR_SIZE.value = 25
+  PANE_MAIN_SIZE.value = 75
+  const panelDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_vertical`)
   if (panelDataFromStorage) {
-    panelDataFromStorage = JSON.parse(panelDataFromStorage)
+    const panelData = JSON.parse(panelDataFromStorage)
+    PANE_MAIN_SIZE.value = panelData[0].size
+    PANE_SIDEBAR_SIZE.value = panelData[1].size
   }
-  if (!panelDataFromStorage) {
-    setVerticalPanelInfo(panelVerticalInfo)
-    getVerticalPanelInfo()
-  }
-  panelVerticalInfo = panelDataFromStorage
 }
 
-function setHorizontalPanelInfo(event: any) {
-  // eslint-disable-next-line no-restricted-globals
-  localStorage.setItem("horizontal_panel_info", JSON.stringify(event))
+function setHorizontalPanelInfo(event: PanelInfo[]) {
+  setLocalConfig(`${PANE_STORAGE_KEY}_horizontal`, JSON.stringify(event))
 }
 
 function getHorizontallPanelInfo() {
-  // eslint-disable-next-line no-restricted-globals
-  let panelDataFromStorage = localStorage.getItem("horizontal_panel_info")
+  PANE_MAIN_TOP_SIZE.value = 45
+  PANE_MAIN_BOTTOM_SIZE.value = 65
 
+  const panelDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_horizontal`)
   if (panelDataFromStorage) {
-    panelDataFromStorage = JSON.parse(panelDataFromStorage)
+    const panelData = JSON.parse(panelDataFromStorage)
+    PANE_MAIN_TOP_SIZE.value = panelData[0].size
+    PANE_MAIN_BOTTOM_SIZE.value = panelData[1].size
   }
-
-  if (!panelDataFromStorage) {
-    setHorizontalPanelInfo(panelHorizontalInfo)
-    getHorizontallPanelInfo()
-  }
-
-  panelHorizontalInfo = panelDataFromStorage
 }
 
 getVerticalPanelInfo()

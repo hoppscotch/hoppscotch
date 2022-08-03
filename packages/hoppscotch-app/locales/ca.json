@@ -301,8 +301,8 @@
   "navigation": {
     "doc": "Documents",
     "graphql": "GraphQL",
-    "profile": "Profile",
-    "realtime": "Temps real",
+    "profile": "Perfil",
+    "realtime": "En temps real",
     "rest": "REST",
     "settings": "Configuració"
   },

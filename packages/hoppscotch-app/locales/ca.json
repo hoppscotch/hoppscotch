@@ -343,6 +343,11 @@
     "body": "Cos de la sol·licitud",
     "choose_language": "Tria l'idioma",
     "content_type": "Tipus de contingut",
+    "content_type_titles": {
+      "others": "Altres",
+      "structured": "Estructurat",
+      "text": "Text"
+    },
     "copy_link": "Copia l'enllaç",
     "duration": "Durada",
     "enter_curl": "Introduïu cURL",

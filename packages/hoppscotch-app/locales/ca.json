@@ -246,10 +246,10 @@
     "tests": "Escriviu un script de prova per automatitzar la depuració."
   },
   "hide": {
-    "collection": "Collapse Collection Panel",
-    "more": "Amaga més",
-    "preview": "Amaga la previsualització",
-    "sidebar": "Amaga la barra lateral"
+    "collection": "Redueix el tauler de col·lecció",
+    "more": "Amagar més",
+    "preview": "Amagar la previsualització",
+    "sidebar": "Amagar la barra lateral"
   },
   "import": {
     "collections": "Importar col·leccions",

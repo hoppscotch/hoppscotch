@@ -21,7 +21,6 @@ export interface RequestStack {
  */
 export interface RequestConfig extends AxiosRequestConfig {
   supported: boolean;
-  delay: number;
 }
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {

@@ -12,7 +12,6 @@ describe("requestRunner", () => {
     url: "https://example.com",
     supported: false,
     method: "GET",
-    delay: 0,
   };
 
   beforeEach(() => {

@@ -1,4 +1,4 @@
-import axios, { AxiosPromise, Method } from "axios";
+import axios, { Method } from "axios";
 import { URL } from "url";
 import * as S from "fp-ts/string";
 import * as A from "fp-ts/Array";
@@ -7,11 +7,7 @@ import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import { HoppRESTRequest } from "@hoppscotch/data";
 import { responseErrors } from "./constants";
-import {
-  getDurationInSeconds,
-  getMetaDataPairs,
-  roundDuration,
-} from "./getters";
+import { getDurationInSeconds, getMetaDataPairs } from "./getters";
 import { testRunner, getTestScriptParams, hasFailedTestCases } from "./test";
 import { RequestConfig, EffectiveHoppRESTRequest } from "../interfaces/request";
 import { RequestRunnerResponse } from "../interfaces/response";
@@ -42,7 +38,6 @@ import { pipe } from "fp-ts/function";
 export const createRequest = (req: EffectiveHoppRESTRequest): RequestConfig => {
   const config: RequestConfig = {
     supported: true,
-    delay: 0,
   };
   const { finalBody, finalEndpoint, finalHeaders, finalParams } = getRequest;
   const reqParams = finalParams(req);
@@ -95,14 +90,13 @@ export const requestRunner =
   ): TE.TaskEither<HoppCLIError, RequestRunnerResponse> =>
   async () => {
     const start = hrtime();
-    const { delay } = requestConfig;
 
     try {
       // NOTE: Temporary parsing check for request endpoint.
       requestConfig.url = new URL(requestConfig.url ?? "").toString();
 
       let status: number;
-      const baseResponse = await axiosDelay(requestConfig);
+      const baseResponse = await axios(requestConfig);
       const { config } = baseResponse;
       const runnerResponse: RequestRunnerResponse = {
         ...baseResponse,
@@ -120,8 +114,8 @@ export const requestRunner =
       }
 
       const end = hrtime(start);
-      const duration = getDurationInSeconds(end) - delay / 1e3;
-      runnerResponse.duration = roundDuration(duration);
+      const duration = getDurationInSeconds(end);
+      runnerResponse.duration = duration;
 
       return E.right(runnerResponse);
     } catch (e) {
@@ -154,8 +148,8 @@ export const requestRunner =
         }
 
         const end = hrtime(start);
-        const duration = getDurationInSeconds(end) - delay / 1e3;
-        runnerResponse.duration = roundDuration(duration);
+        const duration = getDurationInSeconds(end);
+        runnerResponse.duration = duration;
 
         return E.right(runnerResponse);
       }
@@ -243,7 +237,6 @@ export const processRequest =
 
     // Creating request-config for request-runner.
     const requestConfig = createRequest(effectiveRequest);
-    requestConfig.delay = delay;
 
     printRequestRunner.start(requestConfig);
 
@@ -258,7 +251,9 @@ export const processRequest =
       duration: 0,
     };
     // Executing request-runner.
-    const requestRunnerRes = await requestRunner(requestConfig)();
+    const requestRunnerRes = await delayPromiseFunction<
+      E.Either<HoppCLIError, RequestRunnerResponse>
+    >(requestRunner(requestConfig), delay);
     if (E.isLeft(requestRunnerRes)) {
       // Updating report for errors & current result
       report.errors.push(requestRunnerRes.left);
@@ -371,19 +366,13 @@ export const getRequestMetrics = (
   );
 
 /**
- * Custom axios wrapper to support extra request configurations such as
- * delay between consecutive requests.
- * @param config Current request configuration with additional parameters.
- * @returns Manipulated axios promise based on additional parameters.
+ * A function to execute promises with specific delay in milliseconds.
+ * @param func Function with promise with return type T.
+ * @param delay TIme in milliseconds to delay function.
+ * @returns Promise of type same as func.
  */
-const axiosDelay = (config: RequestConfig): AxiosPromise => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      setTimeout(() => {
-        resolve(axios(config));
-      }, config.delay);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
+export const delayPromiseFunction = <T>(
+  func: () => Promise<T>,
+  delay: number
+): Promise<T> =>
+  new Promise((resolve) => setTimeout(() => resolve(func()), delay));

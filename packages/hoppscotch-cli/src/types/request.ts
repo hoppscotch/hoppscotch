@@ -26,3 +26,10 @@ export type RequestReport = {
   result: boolean;
   duration: { test: number; request: number; preRequest: number };
 };
+
+export type ProcessRequestParams = {
+  request: HoppRESTRequest;
+  envs: HoppEnvs;
+  path: string;
+  delay: number;
+};

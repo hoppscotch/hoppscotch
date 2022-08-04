@@ -5,7 +5,12 @@ import { bold } from "chalk";
 import { log } from "console";
 import round from "lodash/round";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
-import { HoppEnvs, CollectionStack, RequestReport } from "../types/request";
+import {
+  HoppEnvs,
+  CollectionStack,
+  RequestReport,
+  ProcessRequestParams,
+} from "../types/request";
 import {
   getRequestMetrics,
   preProcessRequest,
@@ -41,6 +46,7 @@ export const collectionsRunner =
   (param: CollectionRunnerParam): T.Task<RequestReport[]> =>
   async () => {
     const envs: HoppEnvs = param.envs;
+    const delay = param.delay ?? 0;
     const requestsReport: RequestReport[] = [];
     const collectionStack: CollectionStack[] = getCollectionStack(
       param.collections
@@ -54,12 +60,18 @@ export const collectionsRunner =
       for (const request of collection.requests) {
         const _request = preProcessRequest(request);
         const requestPath = `${path}/${_request.name}`;
+        const processRequestParams: ProcessRequestParams = {
+          path: requestPath,
+          request: _request,
+          envs,
+          delay,
+        };
 
         // Request processing initiated message.
         log(WARN(`\nRunning: ${bold(requestPath)}`));
 
         // Processing current request.
-        const result = await processRequest(_request, envs, requestPath)();
+        const result = await processRequest(processRequestParams)();
 
         // Updating global & selected envs with new envs from processed-request output.
         const { global, selected } = result.envs;

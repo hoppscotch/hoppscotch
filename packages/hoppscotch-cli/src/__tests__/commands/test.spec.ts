@@ -92,12 +92,41 @@ describe("Test 'hopp test <file> --env <file>' command:", () => {
     expect(out).toBe<HoppErrorCode>("FILE_NOT_FOUND");
   });
 
-  // test("No errors occured (exit code 0).", async () => {
-  //   const TESTS_PATH = getTestJsonFilePath("env-flag-tests.json");
-  //   const ENV_PATH = getTestJsonFilePath("env-flag-envs.json");
-  //   const cmd = `node ./bin/hopp test ${TESTS_PATH} --env ${ENV_PATH}`;
-  //   const { error } = await execAsync(cmd);
+  test("No errors occured (exit code 0).", async () => {
+    const TESTS_PATH = getTestJsonFilePath("env-flag-tests.json");
+    const ENV_PATH = getTestJsonFilePath("env-flag-envs.json");
+    const cmd = `node ./bin/hopp test ${TESTS_PATH} --env ${ENV_PATH}`;
+    const { error } = await execAsync(cmd);
 
-  //   expect(error).toBeNull();
-  // });
+    expect(error).toBeNull();
+  });
+});
+
+describe("Test 'hopp test <file> --delay <delay_in_ms>' command:", () => {
+  const VALID_TEST_CMD = `node ./bin/hopp test ${getTestJsonFilePath(
+    "passes.json"
+  )}`;
+
+  test("No value passed to delay flag.", async () => {
+    const cmd = `${VALID_TEST_CMD} --delay`;
+    const { stdout } = await execAsync(cmd);
+    const out = getErrorCode(stdout);
+
+    expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+  });
+
+  test("Invalid value passed to delay flag.", async () => {
+    const cmd = `${VALID_TEST_CMD} --delay 'NaN'`;
+    const { stdout } = await execAsync(cmd);
+    const out = getErrorCode(stdout);
+
+    expect(out).toBe<HoppErrorCode>("INVALID_ARGUMENT");
+  });
+
+  test("Valid value passed to delay flag.", async () => {
+    const cmd = `${VALID_TEST_CMD} --delay 1`;
+    const { error } = await execAsync(cmd);
+
+    expect(error).toBeNull();
+  });
 });

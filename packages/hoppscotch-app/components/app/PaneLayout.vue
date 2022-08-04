@@ -6,27 +6,27 @@
       '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
     }"
     :horizontal="!mdAndLarger"
-    @resize="setVerticalPanelInfo"
+    @resize="setVerticalPaneEvent"
   >
     <Pane
-      :size="PANE_MAIN_SIZE.value"
+      :size="PANE_MAIN_SIZE"
       min-size="65"
       class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <Splitpanes
         class="smart-splitter"
         :horizontal="COLUMN_LAYOUT"
-        @resize="setHorizontalPanelInfo"
+        @resize="setHorizontalPaneEvent"
       >
         <Pane
-          :size="PANE_MAIN_TOP_SIZE.value"
+          :size="PANE_MAIN_TOP_SIZE"
           min-size="50"
           class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <slot name="primary" />
         </Pane>
         <Pane
-          :size="PANE_MAIN_BOTTOM_SIZE.value"
+          :size="PANE_MAIN_BOTTOM_SIZE"
           min-size="20"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
@@ -36,7 +36,7 @@
     </Pane>
     <Pane
       v-if="SIDEBAR && hasSidebar"
-      :size="PANE_SIDEBAR_SIZE.value"
+      :size="PANE_SIDEBAR_SIZE"
       min-size="20"
       class="hide-scrollbar !overflow-auto flex flex-col"
     >
@@ -49,8 +49,7 @@
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { computed, useSlots } from "@nuxtjs/composition-api"
-import { ref } from "@vue/runtime-dom"
+import { computed, useSlots, ref } from "@nuxtjs/composition-api"
 import { useSetting } from "~/newstore/settings"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
 
@@ -68,55 +67,59 @@ const slots = useSlots()
 const props = defineProps({
   layoutId: {
     type: String,
-    default: "default",
+    default: null,
   },
 })
 
-type PanelInfo = {
+type PaneEvent = {
   max: number
   min: number
   size: number
 }
 
-const PANE_SIDEBAR_SIZE = ref()
-const PANE_MAIN_SIZE = ref()
-const PANE_MAIN_TOP_SIZE = ref()
-const PANE_MAIN_BOTTOM_SIZE = ref()
+const PANE_SIDEBAR_SIZE = ref(25)
+const PANE_MAIN_SIZE = ref(75)
+const PANE_MAIN_TOP_SIZE = ref(45)
+const PANE_MAIN_BOTTOM_SIZE = ref(65)
 const PANE_STORAGE_KEY = `${props.layoutId}-app-pane-layout`
 
-function setVerticalPanelInfo(event: PanelInfo[]) {
+if (!COLUMN_LAYOUT) {
+  PANE_MAIN_TOP_SIZE.value = 50
+  PANE_MAIN_BOTTOM_SIZE.value = 50
+}
+
+function setVerticalPaneEvent(event: PaneEvent[]) {
+  if (!props.layoutId) return
+
   setLocalConfig(`${PANE_STORAGE_KEY}_vertical`, JSON.stringify(event))
 }
 
-function getVerticalPanelInfo() {
-  PANE_SIDEBAR_SIZE.value = 25
-  PANE_MAIN_SIZE.value = 75
-  const panelDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_vertical`)
-  if (panelDataFromStorage) {
-    const panelData = JSON.parse(panelDataFromStorage)
-    PANE_MAIN_SIZE.value = panelData[0].size
-    PANE_SIDEBAR_SIZE.value = panelData[1].size
+function getVerticalPaneEvent() {
+  const paneDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_vertical`)
+  if (paneDataFromStorage) {
+    const paneData: PaneEvent[] = JSON.parse(paneDataFromStorage)
+    PANE_MAIN_SIZE.value = paneData[0].size
+    PANE_SIDEBAR_SIZE.value = paneData[1].size
   }
 }
 
-function setHorizontalPanelInfo(event: PanelInfo[]) {
+function setHorizontalPaneEvent(event: PaneEvent[]) {
+  if (!props.layoutId) return
+
   setLocalConfig(`${PANE_STORAGE_KEY}_horizontal`, JSON.stringify(event))
 }
 
-function getHorizontallPanelInfo() {
-  PANE_MAIN_TOP_SIZE.value = 45
-  PANE_MAIN_BOTTOM_SIZE.value = 65
-
-  const panelDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_horizontal`)
-  if (panelDataFromStorage) {
-    const panelData = JSON.parse(panelDataFromStorage)
-    PANE_MAIN_TOP_SIZE.value = panelData[0].size
-    PANE_MAIN_BOTTOM_SIZE.value = panelData[1].size
+function getHorizontallPaneEvent() {
+  const paneDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_horizontal`)
+  if (paneDataFromStorage) {
+    const paneData: PaneEvent[] = JSON.parse(paneDataFromStorage)
+    PANE_MAIN_TOP_SIZE.value = paneData[0].size
+    PANE_MAIN_BOTTOM_SIZE.value = paneData[1].size
   }
 }
 
-getVerticalPanelInfo()
-getHorizontallPanelInfo()
+getVerticalPaneEvent()
+getHorizontallPaneEvent()
 
 const hasSidebar = computed(() => !!slots.sidebar)
 </script>

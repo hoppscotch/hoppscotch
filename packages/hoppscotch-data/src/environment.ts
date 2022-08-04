@@ -85,6 +85,9 @@ export function parseTemplateStringE(
     depth++
   }
 
+  /**
+   * TODO: Create an error statement for variables
+   */
   while (result.match(REGEX_MY_VAR) != null && errorBound <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
       REGEX_MY_VAR,

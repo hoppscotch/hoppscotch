@@ -12,7 +12,11 @@ import { testRunner, getTestScriptParams, hasFailedTestCases } from "./test";
 import { RequestConfig, EffectiveHoppRESTRequest } from "../interfaces/request";
 import { RequestRunnerResponse } from "../interfaces/response";
 import { preRequestScriptRunner } from "./pre-request";
-import { HoppEnvs, RequestReport } from "../types/request";
+import {
+  HoppEnvs,
+  ProcessRequestParams,
+  RequestReport,
+} from "../types/request";
 import {
   printPreRequestRunner,
   printRequestRunner,
@@ -189,11 +193,11 @@ const getRequest = {
  */
 export const processRequest =
   (
-    request: HoppRESTRequest,
-    envs: HoppEnvs,
-    path: string
+    params: ProcessRequestParams
   ): T.Task<{ envs: HoppEnvs; report: RequestReport }> =>
   async () => {
+    const { envs, path, request, delay } = params;
+
     // Initialising updatedEnvs with given parameter envs, will eventually get updated.
     const result = {
       envs: <HoppEnvs>envs,
@@ -247,7 +251,9 @@ export const processRequest =
       duration: 0,
     };
     // Executing request-runner.
-    const requestRunnerRes = await requestRunner(requestConfig)();
+    const requestRunnerRes = await delayPromiseFunction<
+      E.Either<HoppCLIError, RequestRunnerResponse>
+    >(requestRunner(requestConfig), delay);
     if (E.isLeft(requestRunnerRes)) {
       // Updating report for errors & current result
       report.errors.push(requestRunnerRes.left);
@@ -358,3 +364,15 @@ export const getRequestMetrics = (
       hasReqErrors ? { failed: 1, passed: 0 } : { failed: 0, passed: 1 },
     (requests) => <RequestMetrics>{ requests, duration }
   );
+
+/**
+ * A function to execute promises with specific delay in milliseconds.
+ * @param func Function with promise with return type T.
+ * @param delay TIme in milliseconds to delay function.
+ * @returns Promise of type same as func.
+ */
+export const delayPromiseFunction = <T>(
+  func: () => Promise<T>,
+  delay: number
+): Promise<T> =>
+  new Promise((resolve) => setTimeout(() => resolve(func()), delay));

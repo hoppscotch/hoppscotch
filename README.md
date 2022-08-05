@@ -84,7 +84,7 @@
 
 _Customized themes are synced with cloud / local session_
 
-🔥 **PWA:** Install as a [PWA](https://developers.google.com/web/progressive-web-apps) on your device.
+🔥 **PWA:** Install as a [PWA](https://web.dev/what-are-pwas/) on your device.
 
 - Instant loading with Service Workers
 - Offline support

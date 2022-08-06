@@ -6,7 +6,7 @@
       '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
     }"
     :horizontal="!mdAndLarger"
-    @resize="setVerticalPaneEvent"
+    @resize="setPaneEvent($event)"
   >
     <Pane
       :size="PANE_MAIN_SIZE"
@@ -16,18 +16,16 @@
       <Splitpanes
         class="smart-splitter"
         :horizontal="COLUMN_LAYOUT"
-        @resize="setHorizontalPaneEvent"
+        @resize="setPaneEvent($event, 'horizontal')"
       >
         <Pane
           :size="PANE_MAIN_TOP_SIZE"
-          min-size="50"
           class="hide-scrollbar !overflow-auto flex flex-col"
         >
           <slot name="primary" />
         </Pane>
         <Pane
           :size="PANE_MAIN_BOTTOM_SIZE"
-          min-size="20"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <slot name="secondary" />
@@ -81,45 +79,47 @@ const PANE_SIDEBAR_SIZE = ref(25)
 const PANE_MAIN_SIZE = ref(75)
 const PANE_MAIN_TOP_SIZE = ref(45)
 const PANE_MAIN_BOTTOM_SIZE = ref(65)
-const PANE_STORAGE_KEY = `${props.layoutId}-app-pane-layout`
 
-if (!COLUMN_LAYOUT) {
+if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50
   PANE_MAIN_BOTTOM_SIZE.value = 50
 }
 
-function setVerticalPaneEvent(event: PaneEvent[]) {
+function setPaneEvent(
+  event: PaneEvent[],
+  _type: "vertical" | "horizontal" = "vertical"
+) {
   if (!props.layoutId) return
 
-  setLocalConfig(`${PANE_STORAGE_KEY}_vertical`, JSON.stringify(event))
+  const storageKey = `${props.layoutId}-app-pane-layout-${_type}`
+
+  if (_type === "vertical") {
+    setLocalConfig(storageKey, JSON.stringify(event))
+  }
+
+  if (_type === "horizontal") {
+    setLocalConfig(storageKey, JSON.stringify(event))
+  }
 }
 
-function getVerticalPaneEvent() {
-  const paneDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_vertical`)
-  if (paneDataFromStorage) {
-    const paneData: PaneEvent[] = JSON.parse(paneDataFromStorage)
+;(() => {
+  if (!props.layoutId) return
+
+  const storageKey = `${props.layoutId}-app-pane-layout`
+  const verticalPaneEvent = getLocalConfig(`${storageKey}-vertical`)
+  if (verticalPaneEvent) {
+    const paneData: PaneEvent[] = JSON.parse(verticalPaneEvent)
     PANE_MAIN_SIZE.value = paneData[0].size
     PANE_SIDEBAR_SIZE.value = paneData[1].size
   }
-}
 
-function setHorizontalPaneEvent(event: PaneEvent[]) {
-  if (!props.layoutId) return
-
-  setLocalConfig(`${PANE_STORAGE_KEY}_horizontal`, JSON.stringify(event))
-}
-
-function getHorizontallPaneEvent() {
-  const paneDataFromStorage = getLocalConfig(`${PANE_STORAGE_KEY}_horizontal`)
-  if (paneDataFromStorage) {
-    const paneData: PaneEvent[] = JSON.parse(paneDataFromStorage)
+  const horizontalPaneEvent = getLocalConfig(`${storageKey}-horizontal`)
+  if (horizontalPaneEvent) {
+    const paneData: PaneEvent[] = JSON.parse(horizontalPaneEvent)
     PANE_MAIN_TOP_SIZE.value = paneData[0].size
     PANE_MAIN_BOTTOM_SIZE.value = paneData[1].size
   }
-}
-
-getVerticalPaneEvent()
-getHorizontallPaneEvent()
+})()
 
 const hasSidebar = computed(() => !!slots.sidebar)
 </script>

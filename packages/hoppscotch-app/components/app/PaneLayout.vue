@@ -91,21 +91,16 @@ function setPaneEvent(
 ) {
   if (!props.layoutId) return
 
-  const storageKey = `${props.layoutId}-app-pane-layout-${_type}`
-
-  if (_type === "vertical") {
-    setLocalConfig(storageKey, JSON.stringify(event))
-  }
-
-  if (_type === "horizontal") {
-    setLocalConfig(storageKey, JSON.stringify(event))
-  }
+  setLocalConfig(
+    `${props.layoutId}-pane-config-${_type}`,
+    JSON.stringify(event)
+  )
 }
 
 ;(() => {
   if (!props.layoutId) return
 
-  const storageKey = `${props.layoutId}-app-pane-layout`
+  const storageKey = `${props.layoutId}-pane-config`
   const verticalPaneEvent = getLocalConfig(`${storageKey}-vertical`)
   if (verticalPaneEvent) {
     const paneData: PaneEvent[] = JSON.parse(verticalPaneEvent)

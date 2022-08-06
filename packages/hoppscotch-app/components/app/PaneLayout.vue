@@ -97,7 +97,7 @@ function setPaneEvent(
   )
 }
 
-;(() => {
+function populatePaneEvent() {
   if (!props.layoutId) return
 
   const storageKey = `${props.layoutId}-pane-config`
@@ -114,7 +114,9 @@ function setPaneEvent(
     PANE_MAIN_TOP_SIZE.value = paneData[0].size
     PANE_MAIN_BOTTOM_SIZE.value = paneData[1].size
   }
-})()
+}
+
+populatePaneEvent()
 
 const hasSidebar = computed(() => !!slots.sidebar)
 </script>

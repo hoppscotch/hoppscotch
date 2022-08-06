@@ -6,7 +6,7 @@
       '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
     }"
     :horizontal="!mdAndLarger"
-    @resize="setPaneEvent($event)"
+    @resize="setPaneEvent($event, 'vertical')"
   >
     <Pane
       :size="PANE_MAIN_SIZE"
@@ -62,6 +62,8 @@ const SIDEBAR = useSetting("SIDEBAR")
 
 const slots = useSlots()
 
+const hasSidebar = computed(() => !!slots.sidebar)
+
 const props = defineProps({
   layoutId: {
     type: String,
@@ -85,38 +87,36 @@ if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_BOTTOM_SIZE.value = 50
 }
 
-function setPaneEvent(
-  event: PaneEvent[],
-  _type: "vertical" | "horizontal" = "vertical"
-) {
+function setPaneEvent(event: PaneEvent[], _type: "vertical" | "horizontal") {
   if (!props.layoutId) return
-
-  setLocalConfig(
-    `${props.layoutId}-pane-config-${_type}`,
-    JSON.stringify(event)
-  )
+  const STORAGE_KEY = `${props.layoutId}-pane-config-${_type}`
+  setLocalConfig(STORAGE_KEY, JSON.stringify(event))
 }
 
 function populatePaneEvent() {
   if (!props.layoutId) return
 
-  const storageKey = `${props.layoutId}-pane-config`
-  const verticalPaneEvent = getLocalConfig(`${storageKey}-vertical`)
-  if (verticalPaneEvent) {
-    const paneData: PaneEvent[] = JSON.parse(verticalPaneEvent)
-    PANE_MAIN_SIZE.value = paneData[0].size
-    PANE_SIDEBAR_SIZE.value = paneData[1].size
+  const verticalPaneData = getPaneData("vertical")
+  if (verticalPaneData) {
+    const [mainPane, sidebarPane] = verticalPaneData
+    PANE_MAIN_SIZE.value = mainPane?.size
+    PANE_SIDEBAR_SIZE.value = sidebarPane?.size
   }
 
-  const horizontalPaneEvent = getLocalConfig(`${storageKey}-horizontal`)
-  if (horizontalPaneEvent) {
-    const paneData: PaneEvent[] = JSON.parse(horizontalPaneEvent)
-    PANE_MAIN_TOP_SIZE.value = paneData[0].size
-    PANE_MAIN_BOTTOM_SIZE.value = paneData[1].size
+  const horizontalPaneData = getPaneData("horizontal")
+  if (horizontalPaneData) {
+    const [mainTopPane, mainBottomPane] = horizontalPaneData
+    PANE_MAIN_TOP_SIZE.value = mainTopPane?.size
+    PANE_MAIN_BOTTOM_SIZE.value = mainBottomPane?.size
   }
 }
 
-populatePaneEvent()
+function getPaneData(_type: "vertical" | "horizontal"): PaneEvent[] | null {
+  const STORAGE_KEY = `${props.layoutId}-pane-config-${_type}`
+  const paneEvent = getLocalConfig(STORAGE_KEY)
+  if (!paneEvent) return null
+  return JSON.parse(paneEvent)
+}
 
-const hasSidebar = computed(() => !!slots.sidebar)
+populatePaneEvent()
 </script>

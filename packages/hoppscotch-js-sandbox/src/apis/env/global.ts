@@ -4,20 +4,20 @@ import * as E from "fp-ts/Either"
 import { defineAPI } from "../../api"
 import { Envs } from "."
 import {
-  defineHandleFn,
+  defineVmFn,
   disposeHandlers,
-  HandleFnPairs,
+  VmFnPairs,
   setFnHandlers,
 } from "../../utils"
 import { getGlobalEnv } from "./utils"
 
-export type EnvGlobalKeys = "get"
+type EnvGlobalKeys = "get"
 
 export default (data: { envs: Envs }) =>
   defineAPI("global", (vm) => {
     const handle = vm.newObject()
 
-    const getHandleFn = defineHandleFn((keyHandle) => {
+    const getHandleFn = defineVmFn((keyHandle) => {
       const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
 
@@ -51,11 +51,11 @@ export default (data: { envs: Envs }) =>
       }
     })
 
-    const handleFnPairs: HandleFnPairs<EnvGlobalKeys>[] = [
+    const vmFnPairs: VmFnPairs<EnvGlobalKeys>[] = [
       { key: "get", func: getHandleFn },
     ]
 
-    const handlers = setFnHandlers(vm, handle, handleFnPairs)
+    const handlers = setFnHandlers(vm, handle, vmFnPairs)
     disposeHandlers(handlers)
 
     return {

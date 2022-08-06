@@ -4,12 +4,6 @@ import { APIDirEntry } from "./apiManager"
 import { PreRequestScriptReport } from "./preRequest"
 import { TestScriptReport } from "./test-runner"
 
-export type PreRequestScriptNamespaces = "artifact" | "env"
-
-export type TestScriptNamespaces = "env" | "test" | "expect" | "response"
-
-export type APINamespaces = PreRequestScriptNamespaces | TestScriptNamespaces
-
 /**
  * Defines what should be returned on a `defineAPI` block
  */

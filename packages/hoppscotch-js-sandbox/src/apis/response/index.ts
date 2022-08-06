@@ -1,6 +1,6 @@
 import * as E from "fp-ts/Either"
 import { defineAPI } from "../../api"
-import { marshalObjectToVM } from "./utils"
+import { marshalObjectToVM } from "../../utils"
 import { TestResponse } from "../../test-runner"
 
 export default (response: TestResponse) =>

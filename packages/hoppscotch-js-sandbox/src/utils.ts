@@ -1,4 +1,3 @@
-import * as O from "fp-ts/Option"
 import * as E from "fp-ts/Either"
 import { pipe } from "fp-ts/function"
 import cloneDeep from "lodash/cloneDeep"
@@ -7,7 +6,6 @@ import {
   QuickJSHandle,
   VmFunctionImplementation,
 } from "quickjs-emscripten"
-import { TestScriptReport } from "./test-runner"
 import { Environment } from "@hoppscotch/data"
 
 export function marshalObjectToVM(
@@ -45,54 +43,6 @@ export function marshalObjectToVM(
   jsonHandle.dispose()
 
   return E.right(resultHandle)
-}
-
-export function getEnv(envName: string, envs: TestScriptReport["envs"]) {
-  return O.fromNullable(
-    envs.selected.find((x) => x.key === envName) ??
-      envs.global.find((x) => x.key === envName)
-  )
-}
-
-export function setEnv(
-  envName: string,
-  envValue: string,
-  envs: TestScriptReport["envs"]
-): TestScriptReport["envs"] {
-  const indexInSelected = envs.selected.findIndex((x) => x.key === envName)
-
-  // Found the match in selected
-  if (indexInSelected >= 0) {
-    envs.selected[indexInSelected].value = envValue
-
-    return {
-      global: envs.global,
-      selected: envs.selected,
-    }
-  }
-
-  const indexInGlobal = envs.global.findIndex((x) => x.key == envName)
-
-  // Found a match in globals
-  if (indexInGlobal >= 0) {
-    envs.global[indexInGlobal].value = envValue
-
-    return {
-      global: envs.global,
-      selected: envs.selected,
-    }
-  }
-
-  // Didn't find in both places, create a new variable in selected
-  envs.selected.push({
-    key: envName,
-    value: envValue,
-  })
-
-  return {
-    global: envs.global,
-    selected: envs.selected,
-  }
 }
 
 export const throwErr = (err: string) => {
@@ -134,12 +84,11 @@ export const disposeHandlers = (handlers: QuickJSHandle[]) => {
 export const setFnHandlers = <T extends string>(
   vm: QuickJSContext,
   handle: QuickJSHandle,
-  handlerPairs: HandleFnPairs<T>[]
+  vmFnPairs: VmFnPairs<T>[]
 ): QuickJSHandle[] => {
   const handlers: QuickJSHandle[] = []
 
-  handlerPairs.forEach((handlerPair) => {
-    const { func, key } = handlerPair
+  vmFnPairs.forEach(({ func, key }) => {
     const funcHandle = vm.newFunction(key, func)
     vm.setProp(handle, key, funcHandle)
     handlers.push(funcHandle)
@@ -172,8 +121,13 @@ export const mergeEnvs = (
   return envs
 }
 
-export type HandleFnImplementation = VmFunctionImplementation<QuickJSHandle>
+type VmFnImplementation = VmFunctionImplementation<QuickJSHandle>
 
-export type HandleFnPairs<T> = { key: T; func: HandleFnImplementation }
+export type VmFnPairs<T> = { key: T; func: VmFnImplementation }
 
-export const defineHandleFn = (func: HandleFnImplementation) => func
+/**
+ * A wrapper to define function for QuickJS.newFunction(...) supporting type-checks independently.
+ * @param func Defined function of type VmFnImplementation.
+ * @returns Lazy function for QuickJS.newFunction(...)
+ */
+export const defineVmFn = (func: VmFnImplementation) => func

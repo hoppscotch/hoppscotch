@@ -12,21 +12,15 @@ import {
   setFnHandlers,
   disposeHandlers,
   mergeEnvs,
-  defineHandleFn,
-  HandleFnPairs,
+  defineVmFn,
+  VmFnPairs,
 } from "../../utils"
 import { deleteEnv, getEnv, setEnv } from "./utils"
 import { api, Namespaced } from "../../apiManager"
 import EnvGlobalAPI from "./global"
 import EnvActiveAPI from "./active"
 
-export type EnvKeys =
-  | "set"
-  | "get"
-  | "resolve"
-  | "getResolve"
-  | "delete"
-  | "getRaw"
+type EnvKeys = "set" | "get" | "resolve" | "getResolve" | "delete" | "getRaw"
 
 export type Envs = {
   global: Environment["variables"]
@@ -39,7 +33,7 @@ export default (initialEnvs: Envs) =>
 
     const data = { envs: cloneDeep(initialEnvs) }
 
-    const getHandleFn = defineHandleFn((keyHandle) => {
+    const getHandleFn = defineVmFn((keyHandle) => {
       const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
 
@@ -78,7 +72,7 @@ export default (initialEnvs: Envs) =>
 
     const getResolveHandleFn = getHandleFn
 
-    const setHandleFn = defineHandleFn((keyHandle, valueHandle) => {
+    const setHandleFn = defineVmFn((keyHandle, valueHandle) => {
       const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
       const value: unknown = vm.dump(valueHandle)
@@ -102,7 +96,7 @@ export default (initialEnvs: Envs) =>
       }
     })
 
-    const resolveHandleFn = defineHandleFn((valueHandle) => {
+    const resolveHandleFn = defineVmFn((valueHandle) => {
       const { envs: currentEnvs } = data
       const value: unknown = vm.dump(valueHandle)
 
@@ -125,7 +119,7 @@ export default (initialEnvs: Envs) =>
       }
     })
 
-    const deleteHandleFn = defineHandleFn((keyHandle) => {
+    const deleteHandleFn = defineVmFn((keyHandle) => {
       const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
 
@@ -142,7 +136,7 @@ export default (initialEnvs: Envs) =>
       }
     })
 
-    const getRawHandleFn = defineHandleFn((keyHandle) => {
+    const getRawHandleFn = defineVmFn((keyHandle) => {
       const { envs: currentEnvs } = data
       const key: unknown = vm.dump(keyHandle)
 
@@ -165,7 +159,7 @@ export default (initialEnvs: Envs) =>
       }
     })
 
-    const handleFnPairs: HandleFnPairs<EnvKeys>[] = [
+    const vmFnPairs: VmFnPairs<EnvKeys>[] = [
       { key: "get", func: getHandleFn },
       { key: "getResolve", func: getResolveHandleFn },
       { key: "set", func: setHandleFn },
@@ -174,7 +168,7 @@ export default (initialEnvs: Envs) =>
       { key: "getRaw", func: getRawHandleFn },
     ]
 
-    const handlers = setFnHandlers(vm, handle, handleFnPairs)
+    const handlers = setFnHandlers(vm, handle, vmFnPairs)
     disposeHandlers(handlers)
 
     const childAPIs = [

@@ -1,5 +1,21 @@
 import { QuickJSContext, QuickJSHandle } from "quickjs-emscripten"
+import {
+  defineVmFn,
+  disposeHandlers,
+  setFnHandlers,
+  VmFnPairs,
+} from "../../utils"
 import { TestDescriptor } from "../../test-runner"
+
+type ExpectKeys =
+  | "toBe"
+  | "toBeLevel2xx"
+  | "toBeLevel3xx"
+  | "toBeLevel4xx"
+  | "toBeLevel5xx"
+  | "toBeType"
+  | "toHaveLength"
+  | "toInclude"
 
 /**
  * Creates an Expectation object for use inside the sandbox
@@ -15,9 +31,9 @@ export function createExpectation(
   negated: boolean,
   currTestStack: TestDescriptor[]
 ): QuickJSHandle {
-  const resultHandle = vm.newObject()
+  const handle = vm.newObject()
 
-  const toBeFnHandle = vm.newFunction("toBe", (expectedValHandle) => {
+  const toBeFnHandle = defineVmFn((expectedValHandle) => {
     const expectedVal = vm.dump(expectedValHandle)
 
     let assertion = expectVal === expectedVal
@@ -42,7 +58,7 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  const toBeLevel2xxHandle = vm.newFunction("toBeLevel2xx", () => {
+  const toBeLevel2xxHandleFn = defineVmFn(() => {
     // Check if the expected value is a number, else it is an error
     if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
       let assertion = expectVal >= 200 && expectVal <= 299
@@ -73,7 +89,7 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  const toBeLevel3xxHandle = vm.newFunction("toBeLevel3xx", () => {
+  const toBeLevel3xxHandleFn = defineVmFn(() => {
     // Check if the expected value is a number, else it is an error
     if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
       let assertion = expectVal >= 300 && expectVal <= 399
@@ -104,7 +120,7 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  const toBeLevel4xxHandle = vm.newFunction("toBeLevel4xx", () => {
+  const toBeLevel4xxHandleFn = defineVmFn(() => {
     // Check if the expected value is a number, else it is an error
     if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
       let assertion = expectVal >= 400 && expectVal <= 499
@@ -135,7 +151,7 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  const toBeLevel5xxHandle = vm.newFunction("toBeLevel5xx", () => {
+  const toBeLevel5xxHandleFn = defineVmFn(() => {
     // Check if the expected value is a number, else it is an error
     if (typeof expectVal === "number" && !Number.isNaN(expectVal)) {
       let assertion = expectVal >= 500 && expectVal <= 599
@@ -166,7 +182,7 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  const toBeTypeHandle = vm.newFunction("toBeType", (expectedValHandle) => {
+  const toBeTypeHandleFn = defineVmFn((expectedValHandle) => {
     const expectedType = vm.dump(expectedValHandle)
 
     // Check if the expectation param is a valid type name string, else error
@@ -210,52 +226,49 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  const toHaveLengthHandle = vm.newFunction(
-    "toHaveLength",
-    (expectedValHandle) => {
-      const expectedLength = vm.dump(expectedValHandle)
+  const toHaveLengthHandleFn = defineVmFn((expectedValHandle) => {
+    const expectedLength = vm.dump(expectedValHandle)
 
-      if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "error",
-          message: `Expected toHaveLength to be called for an array or string`,
-        })
-
-        return { value: vm.undefined }
-      }
-
-      // Check if the parameter is a number, else error
-      if (typeof expectedLength === "number" && !Number.isNaN(expectedLength)) {
-        let assertion = (expectVal as any[]).length === expectedLength
-        if (negated) assertion = !assertion
-
-        if (assertion) {
-          currTestStack[currTestStack.length - 1].expectResults.push({
-            status: "pass",
-            message: `Expected the array to${
-              negated ? " not" : ""
-            } be of length '${expectedLength}'`,
-          })
-        } else {
-          currTestStack[currTestStack.length - 1].expectResults.push({
-            status: "fail",
-            message: `Expected the array to${
-              negated ? " not" : ""
-            } be of length '${expectedLength}'`,
-          })
-        }
-      } else {
-        currTestStack[currTestStack.length - 1].expectResults.push({
-          status: "error",
-          message: `Argument for toHaveLength should be a number`,
-        })
-      }
+    if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message: `Expected toHaveLength to be called for an array or string`,
+      })
 
       return { value: vm.undefined }
     }
-  )
 
-  const toIncludeHandle = vm.newFunction("toInclude", (needleHandle) => {
+    // Check if the parameter is a number, else error
+    if (typeof expectedLength === "number" && !Number.isNaN(expectedLength)) {
+      let assertion = (expectVal as any[]).length === expectedLength
+      if (negated) assertion = !assertion
+
+      if (assertion) {
+        currTestStack[currTestStack.length - 1].expectResults.push({
+          status: "pass",
+          message: `Expected the array to${
+            negated ? " not" : ""
+          } be of length '${expectedLength}'`,
+        })
+      } else {
+        currTestStack[currTestStack.length - 1].expectResults.push({
+          status: "fail",
+          message: `Expected the array to${
+            negated ? " not" : ""
+          } be of length '${expectedLength}'`,
+        })
+      }
+    } else {
+      currTestStack[currTestStack.length - 1].expectResults.push({
+        status: "error",
+        message: `Argument for toHaveLength should be a number`,
+      })
+    }
+
+    return { value: vm.undefined }
+  })
+
+  const toIncludeHandleFn = defineVmFn((needleHandle) => {
     const expectedVal = vm.dump(needleHandle)
 
     if (!(Array.isArray(expectVal) || typeof expectVal === "string")) {
@@ -310,29 +323,26 @@ export function createExpectation(
     return { value: vm.undefined }
   })
 
-  vm.setProp(resultHandle, "toBe", toBeFnHandle)
-  vm.setProp(resultHandle, "toBeLevel2xx", toBeLevel2xxHandle)
-  vm.setProp(resultHandle, "toBeLevel3xx", toBeLevel3xxHandle)
-  vm.setProp(resultHandle, "toBeLevel4xx", toBeLevel4xxHandle)
-  vm.setProp(resultHandle, "toBeLevel5xx", toBeLevel5xxHandle)
-  vm.setProp(resultHandle, "toBeType", toBeTypeHandle)
-  vm.setProp(resultHandle, "toHaveLength", toHaveLengthHandle)
-  vm.setProp(resultHandle, "toInclude", toIncludeHandle)
+  const vmFnPairs: VmFnPairs<ExpectKeys>[] = [
+    { key: "toBe", func: toBeFnHandle },
+    { key: "toBeLevel2xx", func: toBeLevel2xxHandleFn },
+    { key: "toBeLevel3xx", func: toBeLevel3xxHandleFn },
+    { key: "toBeLevel4xx", func: toBeLevel4xxHandleFn },
+    { key: "toBeLevel5xx", func: toBeLevel5xxHandleFn },
+    { key: "toBeType", func: toBeTypeHandleFn },
+    { key: "toHaveLength", func: toHaveLengthHandleFn },
+    { key: "toInclude", func: toIncludeHandleFn },
+  ]
 
-  vm.defineProp(resultHandle, "not", {
+  const handlers = setFnHandlers(vm, handle, vmFnPairs)
+
+  vm.defineProp(handle, "not", {
     get: () => {
       return createExpectation(vm, expectVal, !negated, currTestStack)
     },
   })
 
-  toBeFnHandle.dispose()
-  toBeLevel2xxHandle.dispose()
-  toBeLevel3xxHandle.dispose()
-  toBeLevel4xxHandle.dispose()
-  toBeLevel5xxHandle.dispose()
-  toBeTypeHandle.dispose()
-  toHaveLengthHandle.dispose()
-  toIncludeHandle.dispose()
+  disposeHandlers(handlers)
 
-  return resultHandle
+  return handle
 }

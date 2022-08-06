@@ -1,15 +1,15 @@
 import cloneDeep from "lodash/cloneDeep"
 import { defineAPI, onPreRequestScriptComplete } from "../../api"
 import {
-  defineHandleFn,
+  defineVmFn,
   disposeHandlers,
-  HandleFnPairs,
+  VmFnPairs,
   setFnHandlers,
 } from "../../utils"
 
 export type Artifacts = Record<string, string | undefined>
 
-export type ArtifactKeys = "create" | "get" | "update" | "delete"
+type ArtifactKeys = "create" | "get" | "update" | "delete"
 
 export default (initialArtifacts: Artifacts) =>
   defineAPI("artifact", (vm) => {
@@ -17,7 +17,7 @@ export default (initialArtifacts: Artifacts) =>
 
     const currentArtifacts: Artifacts = cloneDeep(initialArtifacts)
 
-    const createHandleFn = defineHandleFn((keyHandle, valueHandle) => {
+    const createHandleFn = defineVmFn((keyHandle, valueHandle) => {
       const key: unknown = vm.dump(keyHandle)
       const value: unknown = vm.dump(valueHandle)
 
@@ -42,7 +42,7 @@ export default (initialArtifacts: Artifacts) =>
       }
     })
 
-    const getHandleFn = defineHandleFn((keyHandle) => {
+    const getHandleFn = defineVmFn((keyHandle) => {
       const key: unknown = vm.dump(keyHandle)
 
       if (typeof key !== "string") {
@@ -58,7 +58,7 @@ export default (initialArtifacts: Artifacts) =>
       }
     })
 
-    const deleteHandleFn = defineHandleFn((keyHandle) => {
+    const deleteHandleFn = defineVmFn((keyHandle) => {
       const key: unknown = vm.dump(keyHandle)
 
       if (typeof key !== "string") {
@@ -80,7 +80,7 @@ export default (initialArtifacts: Artifacts) =>
       }
     })
 
-    const updateHandleFn = defineHandleFn((keyHandle, valueHandle) => {
+    const updateHandleFn = defineVmFn((keyHandle, valueHandle) => {
       const key: unknown = vm.dump(keyHandle)
       const value: unknown = vm.dump(valueHandle)
 
@@ -109,14 +109,14 @@ export default (initialArtifacts: Artifacts) =>
       }
     })
 
-    const handleFnPairs: HandleFnPairs<ArtifactKeys>[] = [
+    const vmFnPairs: VmFnPairs<ArtifactKeys>[] = [
       { key: "create", func: createHandleFn },
       { key: "delete", func: deleteHandleFn },
       { key: "get", func: getHandleFn },
       { key: "update", func: updateHandleFn },
     ]
 
-    const handlers = setFnHandlers(vm, handle, handleFnPairs)
+    const handlers = setFnHandlers(vm, handle, vmFnPairs)
     disposeHandlers(handlers)
 
     const exposed = {

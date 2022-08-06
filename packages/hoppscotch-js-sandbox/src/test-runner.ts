@@ -13,6 +13,7 @@ import TestAPI from "./apis/test"
 import EnvAPI from "./apis/env"
 import ExpectAPI from "./apis/expect"
 import ResponseAPI from "./apis/response"
+import ConsoleAPI, { HoppConsole } from "./apis/console"
 
 /**
  * The response object structure exposed to the test script
@@ -63,6 +64,7 @@ export type TestScriptReport = {
     global: Environment["variables"]
     selected: Environment["variables"]
   }
+  consoles: Array<HoppConsole>
 }
 
 export const execTestScript = (
@@ -80,6 +82,7 @@ export const execTestScript = (
       const pw = vm.newObject()
 
       const apis = [
+        api([ConsoleAPI(script), Namespaced("console")]),
         api([TestAPI(), Namespaced("test")]),
         api([ExpectAPI(), Namespaced("expect")]),
         api([ResponseAPI(response), Namespaced("response")]),
@@ -104,6 +107,7 @@ export const execTestScript = (
         TestScriptCompleter({
           envs,
           tests: [],
+          consoles: [],
         })
       )
 

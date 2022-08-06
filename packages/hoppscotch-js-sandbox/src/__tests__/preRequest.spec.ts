@@ -26,6 +26,7 @@ describe("execPreRequestScript", () => {
         ],
       },
       artifacts: {},
+      consoles: [],
     })
   })
 
@@ -98,6 +99,7 @@ describe("execPreRequestScript", () => {
         selected: [{ key: "foo", value: "bar" }],
       },
       artifacts: {},
+      consoles: [],
     })
   })
 })

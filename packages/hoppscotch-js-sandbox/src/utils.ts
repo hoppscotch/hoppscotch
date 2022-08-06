@@ -131,3 +131,46 @@ export type VmFnPairs<T> = { key: T; func: VmFnImplementation }
  * @returns Lazy function for QuickJS.newFunction(...)
  */
 export const defineVmFn = (func: VmFnImplementation) => func
+
+/**
+ * Get the starting line number of given function in test-script or pre-request-script.
+ *
+ * For example:- For below script.
+ *
+ * `
+ * pw.env.get("a")
+ *
+ * pw.console.log("DATA")
+ * `
+ *
+ * Line number for pw.env.get function is 2
+ * Line number for pw.console.log function is 4
+ *
+ * @param target Function name in string format to search within script.
+ * @param source Script to where target function needs will be searched.
+ * @returns Line number of target within script.
+ */
+export const getFunctionLineNumber = (target: string, source: string) => {
+  const codeBlocks = source.split("\n")
+  const codeBlocksCount = codeBlocks.length
+
+  for (let index = 0; index < codeBlocksCount; index++) {
+    if (codeBlocks[index].includes(target)) {
+      return index + 1
+    }
+  }
+
+  return -1
+}
+
+export const updateScript = (
+  lineNumber: number,
+  source: string,
+  target?: string
+) => {
+  const codeBlocks = source.split("\n")
+
+  codeBlocks[lineNumber - 1] = target ?? ""
+
+  return codeBlocks.join("\n")
+}

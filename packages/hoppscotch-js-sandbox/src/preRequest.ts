@@ -4,6 +4,7 @@ import * as qjs from "quickjs-emscripten"
 import { Artifacts } from "./apis/artifact"
 import ArtifactAPI from "./apis/artifact"
 import EnvAPI, { Envs } from "./apis/env"
+import ConsoleAPI, { HoppConsole } from "./apis/console"
 import {
   api,
   completeAPIs,
@@ -15,6 +16,7 @@ import {
 export type PreRequestScriptReport = {
   envs: Envs
   artifacts: Artifacts
+  consoles: Array<HoppConsole>
 }
 
 export const execPreRequestScript = (
@@ -32,6 +34,7 @@ export const execPreRequestScript = (
       const pw = vm.newObject()
 
       const apis = [
+        api([ConsoleAPI(script), Namespaced("console")]),
         api([EnvAPI(envs), Namespaced("env")]),
         api([ArtifactAPI(artifacts), Namespaced("artifact")]),
       ]
@@ -54,6 +57,7 @@ export const execPreRequestScript = (
         PreRequestCompleter({
           envs,
           artifacts,
+          consoles: [],
         })
       )
 

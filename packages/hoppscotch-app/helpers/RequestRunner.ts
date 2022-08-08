@@ -96,18 +96,29 @@ export const runRESTRequest$ = (): TaskEither<
 
               setGlobalEnvVariables(runResult.right.envs.global)
 
-              if (environmentsStore.value.currentEnvironmentIndex !== -1) {
-                const env = getEnvironment(
-                  environmentsStore.value.currentEnvironmentIndex
-                )
-                updateEnvironment(
-                  environmentsStore.value.currentEnvironmentIndex,
-                  {
-                    name: env.name,
-                    variables: runResult.right.envs.selected,
-                  }
-                )
+              if (
+                environmentsStore.value.selectedEnvironmentIndex.type ===
+                "MY_ENV"
+              ) {
+                const env = getEnvironment({
+                  type: "MY_ENV",
+                  index: environmentsStore.value.selectedEnvironmentIndex.index,
+                })
+                if (env.name) {
+                  updateEnvironment(
+                    environmentsStore.value.selectedEnvironmentIndex.index,
+                    {
+                      name: env.name,
+                      variables: runResult.right.envs.selected,
+                    }
+                  )
+                }
               }
+            } else if (
+              environmentsStore.value.selectedEnvironmentIndex.type ===
+              "TEAM_ENV"
+            ) {
+              console.log("TEAM-VAR-UPDATED")
             } else {
               setRESTTestResults({
                 description: "",

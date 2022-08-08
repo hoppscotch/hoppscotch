@@ -182,7 +182,7 @@
         class="my-4"
       />
     </div>
-    <EnvironmentsDetails
+    <EnvironmentsMyDetails
       :show="showModalDetails"
       action="new"
       :env-vars="getAdditionVars"
@@ -201,9 +201,9 @@ import {
 } from "~/helpers/utils/composables"
 import {
   globalEnv$,
-  selectedEnvIndex$,
-  setCurrentEnvironment,
+  selectedEnvironmentIndex$,
   setGlobalEnvVariables,
+  setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -245,9 +245,9 @@ const haveEnvVariables = computed(() => {
 })
 
 const selectedEnvironmentIndex = useStream(
-  selectedEnvIndex$,
-  -1,
-  setCurrentEnvironment
+  selectedEnvironmentIndex$,
+  { type: "NO_ENV_SELECTED" },
+  setSelectedEnvironmentIndex
 )
 
 const globalEnvVars = useReadonlyStream(globalEnv$, []) as Ref<
@@ -257,7 +257,9 @@ const globalEnvVars = useReadonlyStream(globalEnv$, []) as Ref<
   }>
 >
 
-const noEnvSelected = computed(() => selectedEnvironmentIndex.value === -1)
+const noEnvSelected = computed(
+  () => selectedEnvironmentIndex.value.type === "NO_ENV_SELECTED"
+)
 
 const globalHasAdditions = computed(() => {
   if (!testResults.value?.envDiff.selected.additions) return false

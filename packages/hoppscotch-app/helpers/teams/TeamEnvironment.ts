@@ -5,4 +5,5 @@ export interface TeamEnvironment {
   id: string
   name: string
   variables: string
+  teamID: string
 }

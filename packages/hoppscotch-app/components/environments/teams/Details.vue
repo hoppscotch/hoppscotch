@@ -148,7 +148,7 @@ const props = withDefaults(
     show: boolean
     action: "edit" | "new"
     editingEnvironment: TeamEnvironment | null
-    editingTeamId: string
+    editingTeamId: string | undefined
   }>(),
   {
     show: false,

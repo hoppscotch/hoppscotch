@@ -130,8 +130,8 @@ import {
   getEnvironment,
   getGlobalVariables,
   globalEnv$,
-  setCurrentEnvironment,
   setGlobalEnvVariables,
+  setSelectedEnvironmentIndex,
   updateEnvironment,
 } from "~/newstore/environments"
 import {
@@ -193,7 +193,10 @@ const workingEnv = computed(() => {
       variables: props.envVars(),
     }
   } else if (props.editingEnvironmentIndex !== null) {
-    return getEnvironment(props.editingEnvironmentIndex)
+    return getEnvironment({
+      type: "MY_ENV",
+      index: props.editingEnvironmentIndex,
+    })
   } else {
     return null
   }
@@ -289,7 +292,10 @@ const saveEnvironment = () => {
     // Creating a new environment
     createEnvironment(name.value)
     updateEnvironment(envList.value.length - 1, environmentUpdated)
-    setCurrentEnvironment(envList.value.length - 1)
+    setSelectedEnvironmentIndex({
+      type: "MY_ENV",
+      index: envList.value.length - 1,
+    })
     toast.success(`${t("environment.created")}`)
   } else if (props.editingEnvironmentIndex === "Global") {
     // Editing the Global environment

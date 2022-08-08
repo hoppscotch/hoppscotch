@@ -24,7 +24,7 @@
       </div>
     </div>
     <div
-      v-if="!loading && teamEnvironmentList.length === 0 && !adapterError"
+      v-if="!loading && teamEnvironments.length === 0 && !adapterError"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
@@ -45,7 +45,7 @@
     </div>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
-        v-for="(environment, index) in teamEnvironmentList"
+        v-for="(environment, index) in teamEnvironments"
         :key="`environment-${index}`"
         :environment="environment"
         @edit-environment="editEnvironment(environment)"
@@ -77,73 +77,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed, onUnmounted } from "@nuxtjs/composition-api"
-import { pipe } from "fp-ts/function"
-import * as A from "fp-ts/Array"
+import { ref } from "@nuxtjs/composition-api"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { onLoggedIn } from "~/helpers/fb/auth"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
-import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
-import { setTeamEnvironments } from "~/newstore/environments"
-import { useLocalState } from "~/newstore/localstate"
+import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
 
-const props = defineProps<{
+defineProps<{
   teamId: "" | undefined
+  teamEnvironments: TeamEnvironment[]
+  adapterError: GQLError<string>
+  loading: false
 }>()
-
-const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
-
-const adapter = new TeamEnvironmentAdapter(undefined)
-const adapterLoading = useReadonlyStream(adapter.loading$, false)
-const adapterError = useReadonlyStream(adapter.error$, null)
-const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
-
-const loading = computed(
-  () => adapterLoading.value && teamEnvironmentList.value.length === 0
-)
-
-onLoggedIn(() => {
-  if (REMEMBERED_TEAM_ID.value) {
-    adapter.changeTeamID(REMEMBERED_TEAM_ID.value)
-  }
-})
-
-onUnmounted(() => {
-  adapter.dispose()
-})
-
-watch(
-  () => props.teamId,
-  (newTeamId) => {
-    adapter.changeTeamID(newTeamId)
-  }
-)
-
-watch(
-  () => adapterLoading.value,
-  (loading) => {
-    if (!loading) {
-      const variables: {
-        name: string
-        variables: {
-          key: string
-          value: string
-        }[]
-      }[] = pipe(
-        teamEnvironmentList.value,
-        A.map((envs: TeamEnvironment) => ({
-          name: envs.name,
-          variables: JSON.parse(envs.variables),
-        }))
-      )
-
-      setTeamEnvironments(variables)
-    }
-  }
-)
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)

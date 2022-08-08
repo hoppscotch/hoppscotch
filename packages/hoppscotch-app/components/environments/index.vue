@@ -1,7 +1,14 @@
 <template>
   <div>
     <div class="sticky top-0 z-10 flex flex-col rounded-t bg-primary">
-      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+      <tippy
+        v-if="environmentType.type === 'my-environments'"
+        ref="options"
+        interactive
+        trigger="click"
+        theme="popover"
+        arrow
+      >
         <template #trigger>
           <span
             v-tippy="{ theme: 'tooltip' }"
@@ -9,8 +16,10 @@
             class="flex-1 bg-transparent border-b border-dividerLight select-wrapper"
           >
             <ButtonSecondary
-              v-if="selectedEnvironmentIndex !== -1"
-              :label="environments[selectedEnvironmentIndex].name"
+              v-if="
+                selectedEnv.type === 'MY_ENV' && selectedEnv.index !== undefined
+              "
+              :label="myEnvironments[selectedEnv.index].name"
               class="flex-1 !justify-start pr-8 rounded-none"
             />
             <ButtonSecondary
@@ -23,29 +32,114 @@
         <div class="flex flex-col" role="menu">
           <SmartItem
             :label="`${t('environment.no_environment')}`"
-            :info-icon="selectedEnvironmentIndex === -1 ? 'done' : ''"
-            :active-info-icon="selectedEnvironmentIndex === -1"
+            :info-icon="
+              selectedEnvironmentIndex.type !== 'MY_ENV' ? 'done' : ''
+            "
+            :active-info-icon="selectedEnvironmentIndex.type !== 'MY_ENV'"
             @click.native="
               () => {
-                selectedEnvironmentIndex = -1
+                selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
                 options.tippy().hide()
               }
             "
           />
-          <hr v-if="environments.length > 0" />
+          <hr v-if="myEnvironments.length > 0" />
           <SmartItem
-            v-for="(gen, index) in environments"
+            v-for="(gen, index) in myEnvironments"
             :key="`gen-${index}`"
             :label="gen.name"
-            :info-icon="index === selectedEnvironmentIndex ? 'done' : ''"
-            :active-info-icon="index === selectedEnvironmentIndex"
+            :info-icon="index === selectedEnv.index ? 'done' : ''"
+            :active-info-icon="index === selectedEnv.index"
             @click.native="
               () => {
-                selectedEnvironmentIndex = index
+                selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
                 options.tippy().hide()
               }
             "
           />
+        </div>
+      </tippy>
+      <tippy
+        v-else
+        ref="options"
+        interactive
+        trigger="click"
+        theme="popover"
+        arrow
+      >
+        <template #trigger>
+          <span
+            v-tippy="{ theme: 'tooltip' }"
+            :title="`${t('environment.select')}`"
+            class="flex-1 bg-transparent border-b border-dividerLight select-wrapper"
+          >
+            <ButtonSecondary
+              v-if="selectedEnv.name"
+              :label="selectedEnv.name"
+              class="flex-1 !justify-start pr-8 rounded-none"
+            />
+            <ButtonSecondary
+              v-else
+              :label="`${t('environment.select')}`"
+              class="flex-1 !justify-start pr-8 rounded-none"
+            />
+          </span>
+        </template>
+        <div class="flex flex-col" role="menu">
+          <SmartItem
+            :label="`${t('environment.no_environment')}`"
+            :info-icon="
+              selectedEnvironmentIndex.type !== 'TEAM_ENV' ? 'done' : ''
+            "
+            :active-info-icon="selectedEnvironmentIndex.type !== 'TEAM_ENV'"
+            @click.native="
+              () => {
+                selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+                options.tippy().hide()
+              }
+            "
+          />
+          <div
+            v-if="loading"
+            class="flex flex-col items-center justify-center p-4"
+          >
+            <SmartSpinner class="my-4" />
+            <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+          </div>
+          <hr v-if="teamEnvironments.length > 0" />
+          <div
+            v-if="environmentType.selectedTeam !== undefined"
+            class="flex flex-col"
+          >
+            <SmartItem
+              v-for="(gen, index) in teamEnvironments"
+              :key="`gen-team-${index}`"
+              :label="gen.name"
+              :info-icon="gen.teamEnvID === selectedEnv.teamEnvID ? 'done' : ''"
+              :active-info-icon="gen.teamEnvID === selectedEnv.teamEnvID"
+              @click.native="
+                () => {
+                  selectedEnvironmentIndex = {
+                    type: 'TEAM_ENV',
+                    teamID: gen.teamID,
+                    teamEnvID: gen.teamEnvID,
+                    environment: {
+                      name: gen.name,
+                      variables: gen.variables,
+                    },
+                  }
+                  options.tippy().hide()
+                }
+              "
+            />
+          </div>
+          <div
+            v-if="!loading && adapterError"
+            class="flex flex-col items-center py-4"
+          >
+            <i class="mb-4 material-icons">help_outline</i>
+            {{ getErrorMessage(adapterError) }}
+          </div>
         </div>
       </tippy>
       <EnvironmentsChooseType
@@ -56,14 +150,23 @@
       />
     </div>
     <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
-    <EnvironmentsTeams v-else :team-id="environmentType.selectedTeam?.id" />
+    <EnvironmentsTeams
+      v-else
+      :team-id="environmentType.selectedTeam?.id"
+      :team-environments="teamEnvironmentList"
+      :loading="loading"
+      :adapter-error="adapterError"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "@nuxtjs/composition-api"
+import { computed, ref, watch } from "@nuxtjs/composition-api"
+import { pipe } from "fp-ts/function"
+import * as A from "fp-ts/Array"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { Team } from "~/helpers/backend/graphql"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import {
   useReadonlyStream,
   useStream,
@@ -71,11 +174,11 @@ import {
 } from "~/helpers/utils/composables"
 import {
   environments$,
-  setCurrentEnvironment,
-  selectedEnvIndex$,
-  setCurrentEnvironmentType,
-  teamEnvironments$,
+  selectedEnvironmentIndex$,
+  setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import { GQLError } from "~/helpers/backend/GQLClient"
 
 const t = useI18n()
 
@@ -101,29 +204,91 @@ const showTeamEnvironment = computed(() => {
   }
   return true
 })
+
 const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
   environmentType.value.selectedTeam = newSelectedTeam
 }
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
-  setCurrentEnvironmentType(newEnvironmentType)
 }
 
 const options = ref<any | null>(null)
 
-const myEnvironments = useReadonlyStream(environments$, [])
-const teamEnvironments = useReadonlyStream(teamEnvironments$, [])
+const adapter = new TeamEnvironmentAdapter(undefined)
+const adapterLoading = useReadonlyStream(adapter.loading$, false)
+const adapterError = useReadonlyStream(adapter.error$, null)
+const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
 
-const environments = computed(() => {
-  if (environmentType.value.type === "my-environments") {
-    return myEnvironments.value
+const loading = computed(
+  () => adapterLoading.value && teamEnvironmentList.value.length === 0
+)
+
+watch(
+  () => environmentType.value.selectedTeam?.id,
+  (newTeamID) => {
+    adapter.changeTeamID(newTeamID)
   }
-  return teamEnvironments.value
+)
+
+const myEnvironments = useReadonlyStream(environments$, [])
+
+const teamEnvironments = computed(() => {
+  return pipe(
+    teamEnvironmentList.value,
+    A.map((envs: TeamEnvironment) => ({
+      name: envs.name,
+      variables: JSON.parse(envs.variables),
+      teamEnvID: envs.id,
+      teamID: envs.teamID,
+    }))
+  )
 })
 
 const selectedEnvironmentIndex = useStream(
-  selectedEnvIndex$,
-  -1,
-  setCurrentEnvironment
+  selectedEnvironmentIndex$,
+  { type: "NO_ENV_SELECTED" },
+  setSelectedEnvironmentIndex
 )
+
+const selectedEnv = computed(() => {
+  if (selectedEnvironmentIndex.value.type === "MY_ENV") {
+    return {
+      type: "MY_ENV",
+      index: selectedEnvironmentIndex.value.index,
+    }
+  } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
+    const teamEnv = teamEnvironments.value.find(
+      (env) =>
+        env.teamEnvID ===
+        (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+          selectedEnvironmentIndex.value.teamEnvID)
+    )
+    if (teamEnv) {
+      return {
+        type: "TEAM_ENV",
+        name: teamEnv.name,
+        teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
+      }
+    } else {
+      selectedEnvironmentIndex.value = { type: "NO_ENV_SELECTED" }
+      return { type: "NO_ENV_SELECTED" }
+    }
+  } else {
+    selectedEnvironmentIndex.value = { type: "NO_ENV_SELECTED" }
+    return { type: "NO_ENV_SELECTED" }
+  }
+})
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_environment/not_found":
+        return t("team_environment.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
+}
 </script>

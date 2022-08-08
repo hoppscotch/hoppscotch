@@ -7,9 +7,17 @@ import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
 
-const defaultEnvironmentsState = {
-  currentEnvironmentType: "my-environments" || "team-environments",
+type SelectedEnvironmentIndex =
+  | { type: "NO_ENV_SELECTED" }
+  | { type: "MY_ENV"; index: number }
+  | {
+      type: "TEAM_ENV"
+      teamID: string
+      teamEnvID: string
+      environment: Environment
+    }
 
+const defaultEnvironmentsState = {
   environments: [
     {
       name: "My Environment Variables",
@@ -17,54 +25,24 @@ const defaultEnvironmentsState = {
     },
   ] as Environment[],
 
-  teamEnvironments: [
-    {
-      name: "Team Environment Variables",
-      variables: [],
-    },
-  ] as Environment[],
-
   globals: [] as Environment["variables"],
 
-  // Current environment index specifies the index
-  // -1 means no environments are selected
-  currentEnvironmentIndex: -1,
+  selectedEnvironmentIndex: {
+    type: "NO_ENV_SELECTED",
+  } as SelectedEnvironmentIndex,
 }
 
 type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
-  setCurrentEnviromentType(
+  setSelectedEnvironmentIndex(
     _: EnvironmentStore,
-    { environmentType }: { environmentType: EnvironmentType }
+    {
+      selectedEnvironmentIndex,
+    }: { selectedEnvironmentIndex: SelectedEnvironmentIndex }
   ) {
     return {
-      currentEnvironmentType: environmentType,
-    }
-  },
-
-  setTeamEnvironments(
-    _,
-    { newTeamEnvironments }: { newTeamEnvironments: Environment[] }
-  ) {
-    return {
-      teamEnvironments: newTeamEnvironments,
-    }
-  },
-
-  setCurrentEnviromentIndex(
-    { environments }: EnvironmentStore,
-    { newIndex }: { newIndex: number }
-  ) {
-    if (newIndex >= environments.length || newIndex <= -2) {
-      // console.log(
-      //   `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
-      // )
-      return {}
-    }
-
-    return {
-      currentEnvironmentIndex: newIndex,
+      selectedEnvironmentIndex,
     }
   },
   appendEnvironments(
@@ -118,22 +96,36 @@ const dispatchers = defineDispatchers({
     }
   },
   deleteEnvironment(
-    { environments, currentEnvironmentIndex }: EnvironmentStore,
+    {
+      environments,
+      // currentEnvironmentIndex,
+      selectedEnvironmentIndex,
+    }: EnvironmentStore,
     { envIndex }: { envIndex: number }
   ) {
-    let newCurrEnvIndex = currentEnvironmentIndex
+    let newCurrEnvIndex = selectedEnvironmentIndex
 
     // Scenario 1: Currently Selected Env is removed -> Set currently selected to none
-    if (envIndex === currentEnvironmentIndex) newCurrEnvIndex = -1
+    if (
+      selectedEnvironmentIndex.type === "MY_ENV" &&
+      envIndex === selectedEnvironmentIndex.index
+    )
+      newCurrEnvIndex = { type: "NO_ENV_SELECTED" }
 
     // Scenario 2: Currently Selected Env Index > Deletion Index -> Current Selection Index Shifts One Position to the left -> Correct Env Index by moving back 1 index
-    if (envIndex < currentEnvironmentIndex)
-      newCurrEnvIndex = currentEnvironmentIndex - 1
+    if (
+      selectedEnvironmentIndex.type === "MY_ENV" &&
+      envIndex < selectedEnvironmentIndex.index
+    )
+      newCurrEnvIndex = {
+        type: "MY_ENV",
+        index: selectedEnvironmentIndex.index - 1,
+      }
 
     // Scenario 3: Currently Selected Env Index < Deletion Index -> No change happens at selection position -> Noop
     return {
       environments: environments.filter((_, index) => index !== envIndex),
-      currentEnvironmentIndex: newCurrEnvIndex,
+      selectedEnvironmentIndex: newCurrEnvIndex,
     }
   },
   renameEnvironment(
@@ -281,36 +273,8 @@ export const environmentsStore = new DispatchingStore(
   dispatchers
 )
 
-// new //
-export function setCurrentEnvironmentType(newEnvironmentType: string) {
-  environmentsStore.dispatch({
-    dispatcher: "setCurrentEnviromentType",
-    payload: {
-      environmentType: newEnvironmentType,
-    },
-  })
-}
-export function setTeamEnvironments(newTeamEnvironments: Environment[]) {
-  environmentsStore.dispatch({
-    dispatcher: "setTeamEnvironments",
-    payload: {
-      newTeamEnvironments,
-    },
-  })
-}
-
-export const selectedEnvironmentType$ = environmentsStore.subject$.pipe(
-  pluck("currentEnvironmentType"),
-  distinctUntilChanged()
-)
-
 export const environments$ = environmentsStore.subject$.pipe(
   pluck("environments"),
-  distinctUntilChanged()
-)
-
-export const teamEnvironments$ = environmentsStore.subject$.pipe(
-  pluck("teamEnvironments"),
   distinctUntilChanged()
 )
 
@@ -319,35 +283,26 @@ export const globalEnv$ = environmentsStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
-  pluck("currentEnvironmentIndex"),
+export const selectedEnvironmentIndex$ = environmentsStore.subject$.pipe(
+  pluck("selectedEnvironmentIndex"),
   distinctUntilChanged()
 )
 
 export const currentEnvironment$ = environmentsStore.subject$.pipe(
-  map(
-    ({
-      currentEnvironmentIndex,
-      environments,
-      teamEnvironments,
-      currentEnvironmentType,
-    }) => {
-      if (currentEnvironmentIndex === -1) {
-        const env: Environment = {
-          name: "No environment",
-          variables: [],
-        }
-
-        return env
-      } else {
-        if (currentEnvironmentType === "my-environments") {
-          return environments[currentEnvironmentIndex]
-        }
-
-        return teamEnvironments[currentEnvironmentIndex]
+  map(({ environments, selectedEnvironmentIndex }) => {
+    if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
+      const env: Environment = {
+        name: "No environment",
+        variables: [],
       }
+
+      return env
+    } else if (selectedEnvironmentIndex.type === "MY_ENV") {
+      return environments[selectedEnvironmentIndex.index]
+    } else {
+      return selectedEnvironmentIndex.environment
     }
-  )
+  })
 )
 
 export type AggregateEnvironment = {
@@ -380,13 +335,7 @@ export const aggregateEnvs$: Observable<AggregateEnvironment[]> = combineLatest(
 )
 
 export function getAggregateEnvs() {
-  let currentEnv: Environment
-
-  if (environmentsStore.value.currentEnvironmentType === "my-environments") {
-    currentEnv = getCurrentEnvironment()
-  } else {
-    currentEnv = getCurrentTeamEnvironment()
-  }
+  const currentEnv = getCurrentEnvironment()
 
   return [
     ...currentEnv.variables.map(
@@ -408,36 +357,32 @@ export function getAggregateEnvs() {
   ]
 }
 
-export function getCurrentTeamEnvironment(): Environment {
-  if (environmentsStore.value.currentEnvironmentIndex === -1) {
-    return {
-      name: "No environment",
-      variables: [],
-    }
-  }
-
-  return environmentsStore.value.teamEnvironments[
-    environmentsStore.value.currentEnvironmentIndex
-  ]
-}
 export function getCurrentEnvironment(): Environment {
-  if (environmentsStore.value.currentEnvironmentIndex === -1) {
+  if (
+    environmentsStore.value.selectedEnvironmentIndex.type === "NO_ENV_SELECTED"
+  ) {
     return {
       name: "No environment",
       variables: [],
     }
+  } else if (
+    environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
+  ) {
+    return environmentsStore.value.environments[
+      environmentsStore.value.selectedEnvironmentIndex.index
+    ]
+  } else {
+    return environmentsStore.value.selectedEnvironmentIndex.environment
   }
-
-  return environmentsStore.value.environments[
-    environmentsStore.value.currentEnvironmentIndex
-  ]
 }
 
-export function setCurrentEnvironment(newEnvIndex: number) {
+export function setSelectedEnvironmentIndex(
+  selectedEnvironmentIndex: SelectedEnvironmentIndex
+) {
   environmentsStore.dispatch({
-    dispatcher: "setCurrentEnviromentIndex",
+    dispatcher: "setSelectedEnvironmentIndex",
     payload: {
-      newIndex: newEnvIndex,
+      selectedEnvironmentIndex,
     },
   })
 }
@@ -624,6 +569,18 @@ export function updateEnvironmentVariable(
   })
 }
 
-export function getEnvironment(index: number) {
-  return environmentsStore.value.environments[index]
+export function getEnvironment(selectedEnv: SelectedEnvironmentIndex) {
+  if (selectedEnv.type === "MY_ENV") {
+    return environmentsStore.value.environments[selectedEnv.index]
+  } else if (
+    selectedEnv.type === "TEAM_ENV" &&
+    environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
+  ) {
+    return environmentsStore.value.selectedEnvironmentIndex.environment
+  } else {
+    return {
+      name: "N0_ENV",
+      variables: [],
+    }
+  }
 }

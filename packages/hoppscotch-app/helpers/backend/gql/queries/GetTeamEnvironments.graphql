@@ -4,6 +4,7 @@ query GetTeamEnvironments($teamID: ID!){
       id
       name
       variables
+      teamID
     }
   }
 }

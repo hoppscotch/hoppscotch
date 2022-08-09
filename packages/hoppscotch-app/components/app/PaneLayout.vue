@@ -87,10 +87,10 @@ if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_BOTTOM_SIZE.value = 50
 }
 
-function setPaneEvent(event: PaneEvent[], _type: "vertical" | "horizontal") {
+function setPaneEvent(event: PaneEvent[], type: "vertical" | "horizontal") {
   if (!props.layoutId) return
-  const STORAGE_KEY = `${props.layoutId}-pane-config-${_type}`
-  setLocalConfig(STORAGE_KEY, JSON.stringify(event))
+  const storageKey = `${props.layoutId}-pane-config-${type}`
+  setLocalConfig(storageKey, JSON.stringify(event))
 }
 
 function populatePaneEvent() {
@@ -111,9 +111,9 @@ function populatePaneEvent() {
   }
 }
 
-function getPaneData(_type: "vertical" | "horizontal"): PaneEvent[] | null {
-  const STORAGE_KEY = `${props.layoutId}-pane-config-${_type}`
-  const paneEvent = getLocalConfig(STORAGE_KEY)
+function getPaneData(type: "vertical" | "horizontal"): PaneEvent[] | null {
+  const storageKey = `${props.layoutId}-pane-config-${type}`
+  const paneEvent = getLocalConfig(storageKey)
   if (!paneEvent) return null
   return JSON.parse(paneEvent)
 }

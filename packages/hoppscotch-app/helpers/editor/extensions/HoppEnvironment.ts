@@ -16,7 +16,7 @@ import {
   getAggregateEnvs,
 } from "~/newstore/environments"
 
-const HOPP_ENVIRONMENT_REGEX = /(<<\w+>>)/g
+const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
@@ -44,8 +44,9 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       let start = pos
       let end = pos
 
-      while (start > from && /\w/.test(text[start - from - 1])) start--
-      while (end < to && /\w/.test(text[end - from])) end++
+      while (start > from && /[a-zA-Z0-9-_]+/.test(text[start - from - 1]))
+        start--
+      while (end < to && /[a-zA-Z0-9-_]+/.test(text[end - from])) end++
 
       if (
         (start === pos && side < 0) ||

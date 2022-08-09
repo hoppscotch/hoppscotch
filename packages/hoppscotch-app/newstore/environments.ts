@@ -295,7 +295,6 @@ export const currentEnvironment$ = environmentsStore.subject$.pipe(
         name: "No environment",
         variables: [],
       }
-
       return env
     } else if (selectedEnvironmentIndex.type === "MY_ENV") {
       return environments[selectedEnvironmentIndex.index]
@@ -374,6 +373,10 @@ export function getCurrentEnvironment(): Environment {
   } else {
     return environmentsStore.value.selectedEnvironmentIndex.environment
   }
+}
+
+export function getSelectedEnvironmentType() {
+  return environmentsStore.value.selectedEnvironmentIndex.type
 }
 
 export function setSelectedEnvironmentIndex(

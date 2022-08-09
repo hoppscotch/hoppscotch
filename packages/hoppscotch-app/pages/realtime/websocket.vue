@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout>
+  <AppPaneLayout layout-id="websocket">
     <template #primary>
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"

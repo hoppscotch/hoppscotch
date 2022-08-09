@@ -374,6 +374,10 @@ export function getCurrentEnvironment(): Environment {
   }
 }
 
+export function getSelectedEnvironmentType() {
+  return environmentsStore.value.selectedEnvironmentIndex.type
+}
+
 export function setSelectedEnvironmentIndex(
   selectedEnvironmentIndex: SelectedEnvironmentIndex
 ) {

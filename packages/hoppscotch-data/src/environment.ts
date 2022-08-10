@@ -66,37 +66,36 @@ export const parseBodyEnvVariables = (
 export function parseTemplateStringE(
   str: string,
   variables: Environment["variables"],
-  myVariables?: Variables
+  myVariables?: Variables | undefined
 ) {
 
-  if (!variables || !str || !myVariables) {
+  if (!variables || !str) {
     return E.right(str)
   }
 
   let result = str
-  let depth = 0
-  let errorBound = 0
+  let depthEnv = 0
+  let depthVar = 0
 
-  while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
+  while (result.match(REGEX_ENV_VAR) != null && depthEnv <= ENV_MAX_EXPAND_LIMIT) {
     result = decodeURI(encodeURI(result)).replace(
       REGEX_ENV_VAR,
       (_, p1) => variables.find((x) => x.key === p1)?.value || ""
     )
-    depth++
+    depthEnv++
   }
 
-  /**
-   * TODO: Create an error statement for variables
-   */
-  while (result.match(REGEX_MY_VAR) != null && errorBound <= ENV_MAX_EXPAND_LIMIT) {
-    result = decodeURI(encodeURI(result)).replace(
-      REGEX_MY_VAR,
-      (_, p1) => myVariables.find((x) => x.key === p1)?.value || ""
-    )
-    errorBound++
+  if (myVariables) {
+    while (result.match(REGEX_MY_VAR) != null && depthVar <= ENV_MAX_EXPAND_LIMIT) {
+      result = decodeURI(encodeURI(result)).replace(
+        REGEX_MY_VAR,
+        (_, p1) => myVariables.find((x) => x.key === p1)?.value || ""
+      )
+      depthVar++
+    }
   }
 
-  return depth <= ENV_MAX_EXPAND_LIMIT && errorBound <= ENV_MAX_EXPAND_LIMIT ? E.right(result) : E.left(ENV_EXPAND_LOOP);
+  return depthEnv <= ENV_MAX_EXPAND_LIMIT && depthVar <= ENV_MAX_EXPAND_LIMIT ? E.right(result) : E.left(ENV_EXPAND_LOOP);
 }
 
 /**

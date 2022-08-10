@@ -103,7 +103,7 @@ export default [
         label: "shortcut.navigation.settings",
       },
       {
-        keys: [getPlatformAlternateKey(), "P"],
+        keys: [getPlatformAlternateKey(), "M"],
         label: "shortcut.navigation.profile",
       },
     ],
@@ -171,7 +171,7 @@ export const spotlight = [
         icon: "arrow-right",
       },
       {
-        keys: [getPlatformAlternateKey(), "P"],
+        keys: [getPlatformAlternateKey(), "M"],
         label: "shortcut.navigation.profile",
         action: "navigation.jump.profile",
         icon: "arrow-right",
@@ -267,7 +267,7 @@ export const fuse = [
     tags: ["settings", "jump", "page", "navigation", "account", "theme", "go"],
   },
   {
-    keys: [getPlatformAlternateKey(), "P"],
+    keys: [getPlatformAlternateKey(), "M"],
     label: "shortcut.navigation.profile",
     action: "navigation.jump.profile",
     icon: "arrow-right",

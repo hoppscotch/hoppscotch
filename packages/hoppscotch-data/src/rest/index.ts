@@ -32,16 +32,20 @@ export type HoppRESTReqBodyFormData = {
   body: FormDataKeyValue[]
 }
 
+export type HoppRESTReqBodyNonFormData = {
+  contentType: Exclude<ValidContentTypes, "multipart/form-data">
+  body: string
+}
+
+export type HoppRestReqBodyEmpty = {
+  contentType: null
+  body: null
+}
+
 export type HoppRESTReqBody =
-  | {
-      contentType: Exclude<ValidContentTypes, "multipart/form-data">
-      body: string
-    }
   | HoppRESTReqBodyFormData
-  | {
-      contentType: null
-      body: null
-    }
+  | HoppRESTReqBodyNonFormData
+  | HoppRestReqBodyEmpty
 
 export interface HoppRESTRequest {
   v: string

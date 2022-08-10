@@ -1,18 +1,59 @@
 import * as TE from "fp-ts/TaskEither"
-import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as O from "fp-ts/Option"
+import { pipe } from "fp-ts/function"
+import {
+  HoppRESTRequest,
+  HoppCollection,
+  HoppGQLRequest,
+} from "@hoppscotch/data"
 
-export type HoppExporter<T> = (content: T) => TE.TaskEither<string, string>
+export type ExportError = "INVALID_EXPORTER" | "IMPORT_ERROR"
 
-export type HoppExporterDefinition<T> = {
-  name: string
-  exporter: () => Promise<HoppExporter<T>>
-}
+export type HoppExporter<
+  ReqType extends HoppRESTRequest | HoppGQLRequest,
+  ErrorType extends string
+> = (
+  collections: Array<HoppCollection<ReqType>>
+) => TE.TaskEither<ErrorType, Blob>
 
-export const RESTCollectionExporters: HoppExporterDefinition<
-  HoppCollection<HoppRESTRequest>
->[] = [
+export const REST_COLLECTION_EXPORTERS = [
   {
-    name: "Hoppscotch REST Collection JSON",
+    id: "hopp",
+    name: "export.hopp_export_name",
+    icon: "download",
+    title: "export.hopp_export_title",
     exporter: () => import("./hopp").then((m) => m.default),
   },
-]
+  {
+    id: "openapi",
+    name: "export.openapi_export_name",
+    icon: "download",
+    title: "export.openapi_export_title",
+    exporter: () => import("./openapi").then((m) => m.default),
+  },
+] as const
+
+export const exportCollection =
+  (exporterId: string) => (collections: HoppCollection<HoppRESTRequest>[]) =>
+    pipe(
+      REST_COLLECTION_EXPORTERS,
+      RA.findFirst((exporter) => exporter.id === exporterId),
+      O.map(({ exporter }) => exporter),
+      TE.fromOption(() => "INVALID_EXPORTER" as const),
+      TE.chainW((getExporter) =>
+        TE.tryCatch(
+          () => getExporter(),
+          () => "IMPORT_ERROR" as const
+        )
+      ),
+      TE.chainW((exporter) => exporter(collections))
+    )
+
+export type RESTCollectionExporterError =
+  | (typeof REST_COLLECTION_EXPORTERS[number]["exporter"] extends () => Promise<
+      HoppExporter<HoppRESTRequest, infer ErrorType>
+    >
+      ? ErrorType
+      : never)
+  | ExportError

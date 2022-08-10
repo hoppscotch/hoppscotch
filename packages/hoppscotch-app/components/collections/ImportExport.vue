@@ -122,11 +122,13 @@
         <hr />
         <div class="flex flex-col space-y-2">
           <SmartItem
+            v-for="exporter in REST_COLLECTION_EXPORTERS"
+            :key="`exporter_${exporter.id}`"
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.download_file')"
+            :title="t(exporter.title)"
             svg="download"
-            :label="t('export.as_json')"
-            @click.native="exportJSON"
+            :label="t(exporter.name)"
+            @click.native="exportJSON(exporter.id)"
           />
           <span
             v-tippy="{ theme: 'tooltip' }"
@@ -166,6 +168,8 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
+import * as TE from "fp-ts/TaskEither"
+import * as O from "fp-ts/Option"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import {
   useAxios,
@@ -182,6 +186,13 @@ import {
   ExportAsJsonDocument,
   ImportFromJsonDocument,
 } from "~/helpers/backend/graphql"
+
+import {
+  REST_COLLECTION_EXPORTERS,
+  exportCollection,
+  RESTCollectionExporterError,
+} from "~/helpers/import-export/export"
+import { safeParseJSON } from "~/helpers/functional/json"
 
 const props = defineProps<{
   show: boolean
@@ -316,13 +327,44 @@ const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
   importingMyCollections.value = false
 }
 
-const exportJSON = async () => {
-  await getJSONCollection()
+const exportJSON = (exporterId: string) => {
+  getJSONCollection()
 
-  const dataToWrite = collectionJson.value
-  const file = new Blob([dataToWrite], { type: "application/json" })
+  return pipe(
+    // here we know the collectionJson.value is serialized HoppCollection<HoppRESTRequest>[],
+    // because it was converted to a string in getJSONCollection function/we get it as a string from the teams server
+    // also the exportCollection expects a HoppCollection<HoppRESTRequest>[], hence casting it to a HoppCollection<HoppRESTRequest>[]
+    safeParseJSON(collectionJson.value) as O.Option<
+      HoppCollection<HoppRESTRequest>[]
+    >,
+    TE.fromOption(() => "INVALID_COLLECTIONS" as const),
+    TE.chainW(exportCollection(exporterId)),
+    TE.match(failedExport, writeExport)
+  )()
+}
+
+const EXPORT_ERROR_MESSAGES = {
+  IMPORT_ERROR: t("error.something_went_wrong"),
+  CANNOT_MAKE_BLOB: t("error.something_went_wrong"),
+  INVALID_EXPORTER: t("error.something_went_wrong"),
+  INVALID_COLLECTIONS: t("error.something_went_wrong"),
+  INVALID_AUTH: t("export.error_invalid_auth"),
+  INVALID_BODY: t("export.error_invalid_body"),
+  INVALID_URL: t("export.error_invalid_url"),
+  INVALID_METHOD: t("export.error_invalid_method"),
+  INVALID_CONTENT_TYPE: t("export.error_invalid_method"),
+} as const
+
+const failedExport = (
+  error: RESTCollectionExporterError | "INVALID_COLLECTIONS"
+) => {
+  const errorMessage = EXPORT_ERROR_MESSAGES[error]
+  toast.error(errorMessage.toString())
+}
+
+const writeExport = (dataToWrite: Blob) => {
   const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
+  const url = URL.createObjectURL(dataToWrite)
   a.href = url
 
   // TODO: get uri from meta

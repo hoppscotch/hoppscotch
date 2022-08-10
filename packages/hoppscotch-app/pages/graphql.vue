@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout>
+  <AppPaneLayout layout-id="graphql">
     <template #primary>
       <GraphqlRequest :conn="gqlConn" />
       <GraphqlRequestOptions :conn="gqlConn" />

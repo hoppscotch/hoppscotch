@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout>
+  <AppPaneLayout layout-id="docs">
     <template #primary>
       <div class="flex items-start justify-between p-4">
         <label>

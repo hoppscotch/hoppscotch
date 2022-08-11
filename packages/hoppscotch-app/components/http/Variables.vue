@@ -1,6 +1,12 @@
 <template>
   <div>
     <div
+      v-if="envExpandError"
+      class="w-full px-4 py-2 mb-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+    >
+      {{ nestedVars }}
+    </div>
+    <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight"> My Variables </label>
@@ -109,14 +115,15 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from "@nuxtjs/composition-api"
+import { computed, Ref, ref, watch } from "@nuxtjs/composition-api"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
-import { HoppRESTVar } from "@hoppscotch/data"
+import { HoppRESTVar, parseMyVariablesString } from "@hoppscotch/data"
 import draggable from "vuedraggable"
 import cloneDeep from "lodash/cloneDeep"
 import isEqual from "lodash/isEqual"
+import * as E from "fp-ts/Either"
 import { useI18n, useStream, useToast } from "~/helpers/utils/composables"
 import { throwError } from "~/helpers/functional/error"
 import { restVars$, setRESTVars } from "~/newstore/RESTSession"
@@ -126,6 +133,7 @@ const t = useI18n()
 const toast = useToast()
 
 const emptyVars: string = "Add a new variable"
+const nestedVars: string = "nested variables greater than 10 levels"
 
 const idTicker = ref(0)
 
@@ -240,6 +248,24 @@ const deleteVar = (index: number) => {
     O.getOrElseW(() => throwError("Working Params Deletion Out of Bounds"))
   )
 }
+
+const envExpandError = computed(() => {
+  const variables = pipe(vars.value)
+
+  console.log(
+    pipe(
+      variables,
+      A.exists(({ value }) =>
+        E.isLeft(parseMyVariablesString(value, variables))
+      )
+    )
+  )
+
+  return pipe(
+    variables,
+    A.exists(({ value }) => E.isLeft(parseMyVariablesString(value, variables)))
+  )
+})
 
 const clearContent = () => {
   // set params list to the initial state

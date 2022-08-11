@@ -110,3 +110,26 @@ export const parseTemplateString = (
     parseTemplateStringE(str, variables, myVariables),
     E.getOrElse(() => str)
   )
+
+export function parseMyVariablesString(
+  str: string,
+  variables: Variables,
+) {
+
+  if (!variables || !str) {
+    return E.right(str)
+  }
+
+  let result = str
+  let depthVar = 0
+
+  while (result.match(REGEX_MY_VAR) != null && depthVar <= ENV_MAX_EXPAND_LIMIT) {
+    result = decodeURI(encodeURI(result)).replace(
+      REGEX_MY_VAR,
+      (_, p1) => variables.find((x) => x.key === p1)?.value || ""
+    )
+    depthVar++
+  }
+
+  return depthVar <= ENV_MAX_EXPAND_LIMIT ? E.right(result) : E.left(ENV_EXPAND_LOOP);
+}

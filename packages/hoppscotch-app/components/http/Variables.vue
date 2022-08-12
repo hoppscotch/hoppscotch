@@ -252,15 +252,6 @@ const deleteVar = (index: number) => {
 const envExpandError = computed(() => {
   const variables = pipe(vars.value)
 
-  console.log(
-    pipe(
-      variables,
-      A.exists(({ value }) =>
-        E.isLeft(parseMyVariablesString(value, variables))
-      )
-    )
-  )
-
   return pipe(
     variables,
     A.exists(({ value }) => E.isLeft(parseMyVariablesString(value, variables)))

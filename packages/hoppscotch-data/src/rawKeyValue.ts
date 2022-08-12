@@ -8,6 +8,7 @@ import * as E from "fp-ts/Either"
 import * as P from "parser-ts/Parser"
 import * as S from "parser-ts/string"
 import * as C from "parser-ts/char"
+import { recordUpdate } from "./utils/record"
 
 export type RawKeyValueEntry = {
   key: string
@@ -31,14 +32,31 @@ const stringTakeUntilCharsInclusive = flow(
   P.chainFirst(() => P.sat(() => true)),
 )
 
+const quotedString = pipe(
+  S.doubleQuotedString,
+  P.map((x) => JSON.parse(`"${x}"`))
+)
+
 const key = pipe(
-  stringTakeUntilChars([":", "\n"]),
-  P.map(Str.trim)
+  wsSurround(quotedString),
+
+  P.alt(() =>
+    pipe(
+      stringTakeUntilChars([":", "\n"]),
+      P.map(Str.trim)
+    )
+  )
 )
 
 const value = pipe(
-  stringTakeUntilChars(["\n"]),
-  P.map(Str.trim)
+  wsSurround(quotedString),
+
+  P.alt(() =>
+    pipe(
+      stringTakeUntilChars(["\n"]),
+      P.map(Str.trim)
+    )
+  )
 )
 
 const commented = pipe(
@@ -104,6 +122,33 @@ const tolerantFile = pipe(
 )
 
 /* End of Parser Definitions */
+/**
+ * Detect whether the string needs to have escape characters in raw key value strings
+ * @param input The string to check against
+ */
+const stringNeedsEscapingForRawKVString = (input: string) => {
+  // The theory behind this impl is that if we apply JSON.stringify on a string
+  // it does escaping and then return a JSON string representation.
+  // We remove the quotes of the JSON and see if it can be matched against the input string
+
+  const stringified = JSON.stringify(input)
+
+  const y = stringified
+    .substring(1, stringified.length - 1)
+    .trim()
+
+  return y !== input
+}
+
+/**
+ * Applies Raw Key Value escaping (via quotes + escape chars) if needed
+ * @param input The input to apply escape on
+ * @returns If needed, the escaped string, else the input string itself
+ */
+const applyEscapeIfNeeded = (input: string) =>
+  stringNeedsEscapingForRawKVString(input)
+    ? JSON.stringify(input)
+    : input
 
 /**
  * Converts Raw Key Value Entries to the file string format
@@ -113,8 +158,13 @@ const tolerantFile = pipe(
 export const rawKeyValueEntriesToString = (entries: RawKeyValueEntry[]) =>
   pipe(
     entries,
-    A.map(({ key, value, active }) =>
-      active ? `${key}: ${value}` : `# ${key}: ${value}`
+    A.map(
+      flow(
+        recordUpdate("key", applyEscapeIfNeeded),
+        recordUpdate("value", applyEscapeIfNeeded),
+        ({ key, value, active }) =>
+          active ? `${(key)}: ${value}` : `# ${key}: ${value}`
+      )
     ),
     stringArrayJoin("\n")
   )

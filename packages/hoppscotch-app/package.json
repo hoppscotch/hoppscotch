@@ -58,7 +58,7 @@
     "@codemirror/tooltip": "^0.19.16",
     "@codemirror/view": "^0.19.48",
     "@hoppscotch/codemirror-lang-graphql": "workspace:^0.2.0",
-    "@hoppscotch/data": "workspace:^0.4.2",
+    "@hoppscotch/data": "workspace:^0.4.3",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/composition-api": "^0.32.0",

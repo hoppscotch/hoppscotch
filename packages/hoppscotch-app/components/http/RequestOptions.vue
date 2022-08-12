@@ -7,7 +7,7 @@
     <SmartTab
       :id="'params'"
       :label="`${$t('tab.parameters')}`"
-      :info="`${newActiveParamsCount$}`"
+      :info="`${Number(newActiveParamsCount$) + Number(newActiveVarsCount$)}`"
     >
       <HttpParameters />
     </SmartTab>
@@ -50,6 +50,7 @@ import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restActiveHeadersCount$,
   restActiveParamsCount$,
+  restActiveVarsCount$,
   usePreRequestScript,
   useTestScript,
 } from "~/newstore/RESTSession"
@@ -68,6 +69,16 @@ const changeTab = (e: RequestOptionTabs) => {
 
 const newActiveParamsCount$ = useReadonlyStream(
   restActiveParamsCount$.pipe(
+    map((e) => {
+      if (e === 0) return null
+      return `${e}`
+    })
+  ),
+  null
+)
+
+const newActiveVarsCount$ = useReadonlyStream(
+  restActiveVarsCount$.pipe(
     map((e) => {
       if (e === 0) return null
       return `${e}`

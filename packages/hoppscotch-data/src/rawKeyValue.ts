@@ -10,6 +10,11 @@ import * as S from "parser-ts/string"
 import * as C from "parser-ts/char"
 import { recordUpdate } from "./utils/record"
 
+/**
+ * Special characters in the Raw Key Value Grammar
+ */
+const SPECIAL_CHARS = ["#", ":"] as const
+
 export type RawKeyValueEntry = {
   key: string
   value: string
@@ -122,15 +127,19 @@ const tolerantFile = pipe(
 )
 
 /* End of Parser Definitions */
+
 /**
  * Detect whether the string needs to have escape characters in raw key value strings
  * @param input The string to check against
  */
 const stringNeedsEscapingForRawKVString = (input: string) => {
+  // If there are any of our special characters, it needs to be escaped definitely
+  if (SPECIAL_CHARS.some((x) => input.includes(x)))
+    return true
+
   // The theory behind this impl is that if we apply JSON.stringify on a string
   // it does escaping and then return a JSON string representation.
   // We remove the quotes of the JSON and see if it can be matched against the input string
-
   const stringified = JSON.stringify(input)
 
   const y = stringified

@@ -114,7 +114,7 @@
     "vue-tippy": "^4.13.0",
     "vuedraggable": "^2.24.3",
     "vuejs-auto-complete": "^0.9.0",
-    "wonka": "^4.0.15",
+    "wonka": "^6.0.0",
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {

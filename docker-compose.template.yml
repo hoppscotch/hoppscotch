@@ -1,0 +1,19 @@
+version: "3.7"
+
+x-uffizzi:
+  ingress:
+    service: web
+    port: 3000
+
+services:
+  web:
+    image:  ${HOPPSCOTCH_IMAGE}
+    ports:
+      - "3000:3000"
+    environment:
+      HOST: 0.0.0.0
+    deploy:
+      resources:
+        limits:
+          memory: 500M
+    

@@ -1,0 +1,91 @@
+name: Build Images and Create Uffizzi Environment.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened,reopened,synchronize]
+
+jobs:
+  build-hoppscotch:
+    name: Build and Push `hoppscotch`
+    runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
+    steps:
+      - name: Set Build Variables
+        run: |
+          if [[ "$GITHUB_REF" =~ ^refs/tags/v* ]]; then
+            echo "Using TAG mode: $GITHUB_REF_NAME"
+            echo "REL_VERSION=$GITHUB_REF_NAME" >> $GITHUB_ENV
+            echo "REL_VERSION_STRICT=${GITHUB_REF_NAME#?}" >> $GITHUB_ENV
+          else
+            echo "Using BRANCH mode: v$BASE_DEV_VERSION-dev.$GITHUB_RUN_NUMBER"
+            echo "REL_VERSION=v$BASE_DEV_VERSION-dev.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+            echo "REL_VERSION_STRICT=$BASE_DEV_VERSION-dev.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+          fi
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images:  ghcr.io/${{ github.repository_owner }}/hoppscotch${{ env.REL_VERSION_STRICT }}
+      - name: Build and Push Image to GHCR
+        uses: docker/build-push-action@v2.9.0
+        with:
+          context: ./
+          file: Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+
+  render-compose-file:
+    name: Render Docker Compose File
+    runs-on: ubuntu-latest
+    needs: 
+      - build-hoppscotch
+    outputs:
+      compose-file-cache-key: ${{ steps.hash.outputs.hash }}
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+      - name: Render Compose File
+        run: |
+          HOPPSCOTCH_IMAGE=$(echo ${{ needs.build-hoppscotch.outputs.tags }})
+          export HOPPSCOTCH_IMAGE
+          # Render simple template from environment variables.
+          envsubst < docker-compose.template.yml > docker-compose.rendered.yml
+          cat docker-compose.rendered.yml
+      - name: Hash Rendered Compose File
+        id: hash
+        run: echo "::set-output name=hash::$(md5sum docker-compose.rendered.yml | awk '{ print $1 }')"
+      - name: Cache Rendered Compose File
+        uses: actions/cache@v3
+        with:
+          path: docker-compose.rendered.yml
+          key: ${{ steps.hash.outputs.hash }}
+
+  deploy-uffizzi-preview:
+    name: Use Remote Workflow to Preview on Uffizzi
+    needs: render-compose-file
+    uses: UffizziCloud/preview-action/.github/workflows/reusable.yaml@add_credentials
+    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+    with:
+      compose-file-cache-key: ${{ needs.render-compose-file.outputs.compose-file-cache-key }}
+      compose-file-cache-path: docker-compose.rendered.yml
+      username: vibhav.bobade+hoppscotch@uffizzi.com
+      server: https://app.uffizzi.com
+      project: hoppscotch-46my
+    secrets:
+      password: ${{ secrets.UFFIZZI_PASSWORD }}
+    permissions:
+      contents: read
+      pull-requests: write

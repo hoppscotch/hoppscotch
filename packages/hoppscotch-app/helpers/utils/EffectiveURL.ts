@@ -21,7 +21,7 @@ import {
 } from "@hoppscotch/data"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
-import { tupleToRecordWithSameKeys } from "../functional/record"
+import { tupleWithSameKeysToRecord } from "../functional/record"
 import { getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -243,7 +243,7 @@ function getFinalBodyFromRequest(
               ? O.some([key.right, value.right] as [string, string])
               : O.none
           ),
-          tupleToRecordWithSameKeys,
+          tupleWithSameKeysToRecord,
           (obj) => qs.stringify(obj, { indices: false })
         )
       )

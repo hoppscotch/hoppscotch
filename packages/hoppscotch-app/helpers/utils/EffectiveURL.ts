@@ -1,6 +1,10 @@
 import * as A from "fp-ts/Array"
+import * as E from "fp-ts/Either"
+import * as O from "fp-ts/Option"
+import * as RA from "fp-ts/ReadonlyArray"
+import * as S from "fp-ts/string"
 import qs from "qs"
-import { pipe } from "fp-ts/function"
+import { flow, pipe } from "fp-ts/function"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
 import {
@@ -9,14 +13,15 @@ import {
   HoppRESTRequest,
   parseTemplateString,
   parseBodyEnvVariables,
-  parseRawKeyValueEntries,
   Environment,
   HoppRESTHeader,
   HoppRESTParam,
+  parseRawKeyValueEntriesE,
+  parseTemplateStringE,
 } from "@hoppscotch/data"
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
-import { tupleToRecord } from "../functional/record"
+import { tupleWithSameKeysToRecord } from "../functional/record"
 import { getGlobalVariables } from "~/newstore/environments"
 
 export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
@@ -210,25 +215,40 @@ function getFinalBodyFromRequest(
   }
 
   if (request.body.contentType === "application/x-www-form-urlencoded") {
-    return pipe(
+    const parsedBodyRecord = pipe(
       request.body.body,
-      parseRawKeyValueEntries,
+      parseRawKeyValueEntriesE,
+      E.map(
+        flow(
+          RA.toArray,
+          /**
+           * Filtering out empty keys and non-active pairs.
+           */
+          A.filter(({ active, key }) => active && !S.isEmpty(key)),
 
-      // Filter out active
-      A.filter((x) => x.active),
-      // Convert to tuple
-      A.map(
-        ({ key, value }) =>
-          [
-            parseTemplateString(key, envVariables),
-            parseTemplateString(value, envVariables),
-          ] as [string, string]
-      ),
-      // Tuple to Record object
-      tupleToRecord,
-      // Stringify
-      qs.stringify
+          /**
+           * Mapping each key-value to template-string-parser with either on array,
+           * which will be resolved in further steps.
+           */
+          A.map(({ key, value }) => [
+            parseTemplateStringE(key, envVariables),
+            parseTemplateStringE(value, envVariables),
+          ]),
+
+          /**
+           * Filtering and mapping only right-eithers for each key-value as [string, string].
+           */
+          A.filterMap(([key, value]) =>
+            E.isRight(key) && E.isRight(value)
+              ? O.some([key.right, value.right] as [string, string])
+              : O.none
+          ),
+          tupleWithSameKeysToRecord,
+          (obj) => qs.stringify(obj, { indices: false })
+        )
+      )
     )
+    return E.isRight(parsedBodyRecord) ? parsedBodyRecord.right : null
   }
 
   if (request.body.contentType === "multipart/form-data") {

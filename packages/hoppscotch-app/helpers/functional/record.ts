@@ -13,7 +13,7 @@ export const tupleToRecord = <
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType> =>
   tuples.length > 0
-    ? (Object.assign as any)(...tuples.map(([key, val]) => ({ [key]: val })))
+    ? (Object.assign as any)(...tuples.map(([key, val]) => ({ [key]: val }))) // This is technically valid, but we have no way of telling TypeScript it is valid. Hence the assertion
     : {}
 
 /**
@@ -29,6 +29,7 @@ export const tupleWithSameKeysToRecord = <
 >(
   tuples: [KeyType, ValueType][]
 ): Record<KeyType, ValueType[]> => {
+  // By the end of the function we do ensure this typing, this can't be infered now though, hence the assertion
   const out = {} as Record<KeyType, ValueType[]>
 
   for (const [key, value] of tuples) {

@@ -2,7 +2,7 @@
   <div>
     <HttpQueryParams />
     <br />
-    <HttpVariables />
+    <HttpPathVariables />
   </div>
 </template>
 

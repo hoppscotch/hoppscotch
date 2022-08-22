@@ -246,14 +246,9 @@ function getFinalBodyFromRequest(
           tupleToRecordWithSameKeys,
           (obj) => qs.stringify(obj, { indices: false })
         )
-      ),
-      E.mapLeft(() => "Error while parsing body")
+      )
     )
-    if (parsedBodyRecord._tag === "Left") {
-      throw new Error(parsedBodyRecord.left)
-    } else {
-      return parsedBodyRecord.right
-    }
+    return E.isRight(parsedBodyRecord) ? parsedBodyRecord.right : null
   }
 
   if (request.body.contentType === "multipart/form-data") {

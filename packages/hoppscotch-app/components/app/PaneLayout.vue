@@ -67,6 +67,7 @@
           <slot name="primary" />
         </Pane>
         <Pane
+          v-if="mdAndLarger || (!mdAndLarger && !loading && hasResponse)"
           :size="COLUMN_LAYOUT ? 65 : 50"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
@@ -103,7 +104,8 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { computed, useSlots, ref } from "@nuxtjs/composition-api"
 import { useSetting } from "~/newstore/settings"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
-import { useI18n } from "~/helpers/utils/composables"
+import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
+import { restResponse$ } from "~/newstore/RESTSession"
 
 const t = useI18n()
 
@@ -178,6 +180,16 @@ populatePaneEvent()
 const emit = defineEmits<{
   (e: "close"): void
 }>()
+
+const response = useReadonlyStream(restResponse$, null)
+
+const hasResponse = computed(
+  () => response.value?.type === "success" || response.value?.type === "fail"
+)
+
+const loading = computed(
+  () => response.value === null || response.value.type === "loading"
+)
 
 const show = computed(() => !!(SIDEBAR && hasSidebar.value))
 

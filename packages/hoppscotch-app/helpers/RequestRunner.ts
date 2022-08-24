@@ -21,6 +21,7 @@ import { HoppRESTResponse } from "./types/HoppRESTResponse"
 import { createRESTNetworkRequestStream } from "./network"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { isJSONContentType } from "./utils/contenttypes"
+import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
 import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 import {
   environmentsStore,
@@ -104,21 +105,28 @@ export const runRESTRequest$ = (): TaskEither<
                   type: "MY_ENV",
                   index: environmentsStore.value.selectedEnvironmentIndex.index,
                 })
-                if (env.name) {
-                  updateEnvironment(
-                    environmentsStore.value.selectedEnvironmentIndex.index,
-                    {
-                      name: env.name,
-                      variables: runResult.right.envs.selected,
-                    }
+                updateEnvironment(
+                  environmentsStore.value.selectedEnvironmentIndex.index,
+                  {
+                    name: env.name,
+                    variables: runResult.right.envs.selected,
+                  }
+                )
+              } else if (
+                environmentsStore.value.selectedEnvironmentIndex.type ===
+                "TEAM_ENV"
+              ) {
+                const env = getEnvironment({
+                  type: "TEAM_ENV",
+                })
+                pipe(
+                  updateTeamEnvironment(
+                    JSON.stringify(runResult.right.envs.selected),
+                    environmentsStore.value.selectedEnvironmentIndex.teamEnvID,
+                    env.name
                   )
-                }
+                )()
               }
-            } else if (
-              environmentsStore.value.selectedEnvironmentIndex.type ===
-              "TEAM_ENV"
-            ) {
-              console.log("TEAM-VAR-UPDATED")
             } else {
               setRESTTestResults({
                 description: "",
@@ -199,7 +207,7 @@ function translateToSandboxTestResults(
   }
 
   const globals = cloneDeep(getGlobalVariables())
-  const env = cloneDeep(getCurrentEnvironment())
+  const env = getCurrentEnvironment()
 
   return {
     description: "",

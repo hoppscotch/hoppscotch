@@ -572,7 +572,12 @@ export function updateEnvironmentVariable(
   })
 }
 
-export function getEnvironment(selectedEnv: SelectedEnvironmentIndex) {
+type SelectedEnv =
+  | { type: "NO_ENV_SELECTED" }
+  | { type: "MY_ENV"; index: number }
+  | { type: "TEAM_ENV" }
+
+export function getEnvironment(selectedEnv: SelectedEnv) {
   if (selectedEnv.type === "MY_ENV") {
     return environmentsStore.value.environments[selectedEnv.index]
   } else if (

@@ -103,6 +103,7 @@
       <span>
         <ButtonPrimary
           :label="`${t('action.save')}`"
+          :loading="isLoading"
           @click.native="saveEnvironment"
         />
         <ButtonSecondary
@@ -216,7 +217,6 @@ const clearContent = () => {
   vars.value = []
   clearIcon.value = "check"
   toast.success(`${t("state.cleared")}`)
-  // TODO: DeleteAllVariablesFromTeamEnvironment
 }
 
 const addEnvironmentVariable = () => {
@@ -233,7 +233,11 @@ const removeEnvironmentVariable = (index: number) => {
   vars.value.splice(index, 1)
 }
 
-const saveEnvironment = () => {
+const isLoading = ref(false)
+
+const saveEnvironment = async () => {
+  isLoading.value = true
+
   if (!name.value) {
     toast.error(`${t("environment.invalid_name")}`)
     return
@@ -250,7 +254,7 @@ const saveEnvironment = () => {
   )
 
   if (props.action === "new") {
-    pipe(
+    await pipe(
       createTeamEnvironment(
         JSON.stringify(filterdVariables),
         props.editingTeamId,
@@ -262,6 +266,7 @@ const saveEnvironment = () => {
           toast.error(`${getErrorMessage(err)}`)
         },
         () => {
+          hideModal()
           toast.success(`${t("environment.created")}`)
         }
       )
@@ -272,7 +277,7 @@ const saveEnvironment = () => {
       return
     }
 
-    pipe(
+    await pipe(
       updateTeamEnvironment(
         JSON.stringify(filterdVariables),
         props.editingEnvironment.id,
@@ -284,12 +289,14 @@ const saveEnvironment = () => {
           toast.error(`${getErrorMessage(err)}`)
         },
         () => {
+          hideModal()
           toast.success(`${t("environment.updated")}`)
         }
       )
     )()
   }
-  hideModal()
+
+  isLoading.value = false
 }
 
 const hideModal = () => {

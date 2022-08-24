@@ -1,8 +1,0 @@
-mutation DeleteAllVariablesFromTeamEnvironment($id: ID!){
-  deleteAllVariablesFromTeamEnvironment (id: $id ){
-    id
-    teamID
-    name
-    variables
-  }
-}

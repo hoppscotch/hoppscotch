@@ -123,9 +123,9 @@ _Customized themes are synced with cloud / local session_
 
 - None
 - Basic
-- Bearer Token
-- OAuth 2.0
-- OIDC Access Token/PKCE
+- [Bearer Token](https://oauth.net/2/bearer-tokens/#:~:text=Bearer%20Tokens%20are%20the%20predominant,such%20as%20JSON%20Web%20Tokens.)
+- [OAuth 2.0](https://oauth.net/2/)
+- [OIDC Access Token/PKCE](https://developers.onelogin.com/openid-connect/guides/auth-flow-pkce)
 
 📢 **Headers:** Describes the format the body of your request is being sent as.
 

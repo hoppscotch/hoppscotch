@@ -105,7 +105,7 @@ let teamListFetched = false
 watch(myTeams, (teams) => {
   if (teams && !teamListFetched) {
     teamListFetched = true
-    if (REMEMBERED_TEAM_ID.value && currentUser) {
+    if (REMEMBERED_TEAM_ID.value && currentUser.value) {
       const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
       if (team) updateSelectedTeam(team)
     }

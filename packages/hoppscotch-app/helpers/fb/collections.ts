@@ -16,7 +16,7 @@ import {
   setRESTCollections,
   setGraphqlCollections,
 } from "~/newstore/collections"
-import { settingsStore } from "~/newstore/settings"
+import { getSettingSubject, settingsStore } from "~/newstore/settings"
 
 type CollectionFlags = "collectionsGraphql" | "collections"
 
@@ -67,7 +67,7 @@ export async function writeCollections(
 }
 
 export function initCollections() {
-  restCollections$.subscribe((collections) => {
+  const restCollSub = restCollections$.subscribe((collections) => {
     if (
       loadedRESTCollections &&
       currentUser$.value &&
@@ -77,7 +77,7 @@ export function initCollections() {
     }
   })
 
-  graphqlCollections$.subscribe((collections) => {
+  const gqlCollSub = graphqlCollections$.subscribe((collections) => {
     if (
       loadedGraphqlCollections &&
       currentUser$.value &&
@@ -90,7 +90,7 @@ export function initCollections() {
   let restSnapshotStop: (() => void) | null = null
   let graphqlSnapshotStop: (() => void) | null = null
 
-  currentUser$.subscribe((user) => {
+  const currentUserSub = currentUser$.subscribe((user) => {
     if (!user) {
       if (restSnapshotStop) {
         restSnapshotStop()
@@ -116,7 +116,7 @@ export function initCollections() {
           loadedRESTCollections = false
 
           // TODO: Wth is with collections[0]
-          if (collections.length > 0) {
+          if (collections.length > 0 && settingsStore.value.syncCollections) {
             setRESTCollections(
               (collections[0].collection ?? []).map(
                 translateToNewRESTCollection
@@ -142,7 +142,7 @@ export function initCollections() {
           loadedGraphqlCollections = false
 
           // TODO: Wth is with collections[0]
-          if (collections.length > 0) {
+          if (collections.length > 0 && settingsStore.value.syncCollections) {
             setGraphqlCollections(
               (collections[0].collection ?? []).map(translateToNewGQLCollection)
             )
@@ -153,4 +153,24 @@ export function initCollections() {
       )
     }
   })
+
+  let oldSyncStatus = settingsStore.value.syncCollections
+
+  const syncStop = getSettingSubject("syncCollections").subscribe(
+    (newStatus) => {
+      if (oldSyncStatus === true && newStatus === false) {
+        restSnapshotStop?.()
+        graphqlSnapshotStop?.()
+
+        oldSyncStatus = newStatus
+      } else if (oldSyncStatus === false && newStatus === true) {
+        syncStop.unsubscribe()
+        restCollSub.unsubscribe()
+        gqlCollSub.unsubscribe()
+        currentUserSub.unsubscribe()
+
+        initCollections()
+      }
+    }
+  )
 }

@@ -13,7 +13,7 @@ import {
   replaceEnvironments,
   setGlobalEnvVariables,
 } from "~/newstore/environments"
-import { settingsStore } from "~/newstore/settings"
+import { getSettingSubject, settingsStore } from "~/newstore/settings"
 
 /**
  * Used locally to prevent infinite loop when environment sync update
@@ -84,7 +84,7 @@ async function writeGlobalEnvironment(variables: Environment["variables"]) {
 }
 
 export function initEnvironments() {
-  environments$.subscribe((envs) => {
+  const envListenSub = environments$.subscribe((envs) => {
     if (
       currentUser$.value &&
       settingsStore.value.syncEnvironments &&
@@ -94,7 +94,7 @@ export function initEnvironments() {
     }
   })
 
-  globalEnv$.subscribe((vars) => {
+  const globalListenSub = globalEnv$.subscribe((vars) => {
     if (
       currentUser$.value &&
       settingsStore.value.syncEnvironments &&
@@ -107,7 +107,7 @@ export function initEnvironments() {
   let envSnapshotStop: (() => void) | null = null
   let globalsSnapshotStop: (() => void) | null = null
 
-  currentUser$.subscribe((user) => {
+  const currentUserSub = currentUser$.subscribe((user) => {
     if (!user) {
       // User logged out, clean up snapshot listener
       if (envSnapshotStop) {
@@ -132,7 +132,7 @@ export function initEnvironments() {
           })
 
           loadedEnvironments = false
-          if (environments.length > 0) {
+          if (environments.length > 0 && settingsStore.value.syncEnvironments) {
             replaceEnvironments(environments[0].environment)
           }
           loadedEnvironments = true
@@ -148,10 +148,31 @@ export function initEnvironments() {
 
           const doc = globalsRef.docs[0].data()
           loadedGlobals = false
-          setGlobalEnvVariables(doc.variables)
+          if (settingsStore.value.syncEnvironments)
+            setGlobalEnvVariables(doc.variables)
           loadedGlobals = true
         }
       )
     }
   })
+
+  let oldSyncStatus = settingsStore.value.syncEnvironments
+
+  const syncStop = getSettingSubject("syncEnvironments").subscribe(
+    (newStatus) => {
+      if (oldSyncStatus === true && newStatus === false) {
+        envSnapshotStop?.()
+        globalsSnapshotStop?.()
+
+        oldSyncStatus = newStatus
+      } else if (oldSyncStatus === false && newStatus === true) {
+        syncStop.unsubscribe()
+        envListenSub.unsubscribe()
+        globalListenSub.unsubscribe()
+        currentUserSub.unsubscribe()
+
+        initEnvironments()
+      }
+    }
+  )
 }

@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore"
 import { FormDataKeyValue } from "@hoppscotch/data"
 import { currentUser$ } from "./auth"
-import { settingsStore } from "~/newstore/settings"
+import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import {
   GQLHistoryEntry,
   graphqlHistoryStore,
@@ -142,7 +142,7 @@ async function toggleStar(
 }
 
 export function initHistory() {
-  restHistoryStore.dispatches$.subscribe((dispatch) => {
+  const restHistorySub = restHistoryStore.dispatches$.subscribe((dispatch) => {
     if (
       loadedRESTHistory &&
       currentUser$.value &&
@@ -160,28 +160,30 @@ export function initHistory() {
     }
   })
 
-  graphqlHistoryStore.dispatches$.subscribe((dispatch) => {
-    if (
-      loadedGraphqlHistory &&
-      currentUser$.value &&
-      settingsStore.value.syncHistory
-    ) {
-      if (dispatch.dispatcher === "addEntry") {
-        writeHistory(dispatch.payload.entry, "graphqlHistory")
-      } else if (dispatch.dispatcher === "deleteEntry") {
-        deleteHistory(dispatch.payload.entry, "graphqlHistory")
-      } else if (dispatch.dispatcher === "clearHistory") {
-        clearHistory("graphqlHistory")
-      } else if (dispatch.dispatcher === "toggleStar") {
-        toggleStar(dispatch.payload.entry, "graphqlHistory")
+  const gqlHistorySub = graphqlHistoryStore.dispatches$.subscribe(
+    (dispatch) => {
+      if (
+        loadedGraphqlHistory &&
+        currentUser$.value &&
+        settingsStore.value.syncHistory
+      ) {
+        if (dispatch.dispatcher === "addEntry") {
+          writeHistory(dispatch.payload.entry, "graphqlHistory")
+        } else if (dispatch.dispatcher === "deleteEntry") {
+          deleteHistory(dispatch.payload.entry, "graphqlHistory")
+        } else if (dispatch.dispatcher === "clearHistory") {
+          clearHistory("graphqlHistory")
+        } else if (dispatch.dispatcher === "toggleStar") {
+          toggleStar(dispatch.payload.entry, "graphqlHistory")
+        }
       }
     }
-  })
+  )
 
   let restSnapshotStop: (() => void) | null = null
   let graphqlSnapshotStop: (() => void) | null = null
 
-  currentUser$.subscribe((user) => {
+  const currentUserSub = currentUser$.subscribe((user) => {
     if (!user) {
       // Clear the snapshot listeners when the user logs out
       if (restSnapshotStop) {
@@ -237,6 +239,24 @@ export function initHistory() {
           loadedGraphqlHistory = true
         }
       )
+    }
+  })
+
+  let oldSyncStatus = settingsStore.value.syncHistory
+
+  const syncStop = getSettingSubject("syncHistory").subscribe((newStatus) => {
+    if (oldSyncStatus === true && newStatus === false) {
+      restSnapshotStop?.()
+      graphqlSnapshotStop?.()
+
+      oldSyncStatus = newStatus
+    } else if (oldSyncStatus === false && newStatus === true) {
+      syncStop.unsubscribe()
+      restHistorySub.unsubscribe()
+      gqlHistorySub.unsubscribe()
+      currentUserSub.unsubscribe()
+
+      initHistory()
     }
   })
 }

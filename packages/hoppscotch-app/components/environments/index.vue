@@ -114,19 +114,14 @@
             <SmartItem
               v-for="(gen, index) in teamEnvironments"
               :key="`gen-team-${index}`"
-              :label="gen.name"
+              :label="gen.environment.name"
               :info-icon="gen.teamEnvID === selectedEnv.teamEnvID ? 'done' : ''"
               :active-info-icon="gen.teamEnvID === selectedEnv.teamEnvID"
               @click.native="
                 () => {
                   selectedEnvironmentIndex = {
                     type: 'TEAM_ENV',
-                    teamID: gen.teamID,
-                    teamEnvID: gen.teamEnvID,
-                    environment: {
-                      name: gen.name,
-                      variables: gen.variables,
-                    },
+                    ...gen,
                   }
                   options.tippy().hide()
                 }
@@ -164,6 +159,7 @@
 import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
+import isEqual from "lodash/isEqual"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { Team } from "~/helpers/backend/graphql"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
@@ -236,10 +232,12 @@ const teamEnvironments = computed(() => {
   return pipe(
     teamEnvironmentList.value,
     A.map((envs: TeamEnvironment) => ({
-      name: envs.name,
-      variables: JSON.parse(envs.variables),
       teamEnvID: envs.id,
       teamID: envs.teamID,
+      environment: {
+        name: envs.name,
+        variables: JSON.parse(envs.variables),
+      },
     }))
   )
 })
@@ -248,6 +246,40 @@ const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
   { type: "NO_ENV_SELECTED" },
   setSelectedEnvironmentIndex
+)
+
+/* Checking if there are any changes in the selected team environment when there are any updates 
+in the selected team environment list */
+watch(
+  () => teamEnvironments.value,
+  (newTeamEnvironmentList) => {
+    if (
+      newTeamEnvironmentList.length > 0 &&
+      selectedEnvironmentIndex.value.type === "TEAM_ENV"
+    ) {
+      const selectedEnv = newTeamEnvironmentList.find(
+        (env) =>
+          env.teamEnvID ===
+          (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+            selectedEnvironmentIndex.value.teamEnvID)
+      )
+
+      if (selectedEnv) {
+        // Checking if the currently selected environment is still the same after the new list is loaded
+        const isChange = !isEqual(
+          selectedEnvironmentIndex.value.environment,
+          selectedEnv.environment
+        )
+
+        if (isChange) {
+          selectedEnvironmentIndex.value = {
+            type: "TEAM_ENV",
+            ...selectedEnv,
+          }
+        }
+      }
+    }
+  }
 )
 
 const selectedEnv = computed(() => {
@@ -266,7 +298,7 @@ const selectedEnv = computed(() => {
     if (teamEnv) {
       return {
         type: "TEAM_ENV",
-        name: teamEnv.name,
+        name: teamEnv.environment.name,
         teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
       }
     } else {

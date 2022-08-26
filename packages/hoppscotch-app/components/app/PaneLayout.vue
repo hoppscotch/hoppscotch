@@ -67,7 +67,7 @@
           <slot name="primary" />
         </Pane>
         <Pane
-          v-if="mdAndLarger || (!mdAndLarger && !loading && hasResponse)"
+          v-if="mdAndLarger || (!mdAndLarger && hasResponse)"
           :size="COLUMN_LAYOUT ? 65 : 50"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
@@ -185,10 +185,6 @@ const response = useReadonlyStream(restResponse$, null)
 
 const hasResponse = computed(
   () => response.value?.type === "success" || response.value?.type === "fail"
-)
-
-const loading = computed(
-  () => response.value === null || response.value.type === "loading"
 )
 
 const show = computed(() => !!(SIDEBAR && hasSidebar.value))

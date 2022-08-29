@@ -56,7 +56,7 @@
     "@codemirror/stream-parser": "^0.19.9",
     "@codemirror/text": "^0.19.6",
     "@codemirror/tooltip": "^0.19.16",
-    "@codemirror/view": "^0.19.48",
+    "@codemirror/view": "^6.2.1",
     "@hoppscotch/codemirror-lang-graphql": "workspace:^0.2.0",
     "@hoppscotch/data": "workspace:^0.4.3",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",

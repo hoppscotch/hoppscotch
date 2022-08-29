@@ -1,6 +1,7 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
 import { Subscription as WSubscription } from "wonka"
+import { pipe } from "fp-ts/function"
 import { GQLError, runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
 import {
   GetTeamEnvironmentsDocument,
@@ -99,7 +100,19 @@ export default class TeamEnvironmentAdapter {
     }
 
     if (result.right.team !== undefined && result.right.team !== null) {
-      results.push(...result.right.team.teamEnvironments)
+      results.push(
+        ...result.right.team.teamEnvironments.map(
+          (x) =>
+            <TeamEnvironment>{
+              id: x.id,
+              teamID: x.teamID,
+              environment: {
+                name: x.name,
+                variables: JSON.parse(x.variables),
+              },
+            }
+        )
+      )
     }
 
     this.teamEnvironmentList$.next(results)
@@ -155,7 +168,20 @@ export default class TeamEnvironmentAdapter {
           console.error(result.left)
           throw new Error(`Team Environment Create Error ${result.left}`)
         }
-        this.createNewTeamEnvironment(result.right.teamEnvironmentCreated)
+        this.createNewTeamEnvironment(
+          pipe(
+            result.right.teamEnvironmentCreated,
+            (x) =>
+              <TeamEnvironment>{
+                id: x.id,
+                teamID: x.teamID,
+                environment: {
+                  name: x.name,
+                  variables: JSON.parse(x.variables),
+                },
+              }
+          )
+        )
       }
     )
 
@@ -195,7 +221,20 @@ export default class TeamEnvironmentAdapter {
           console.error(result.left)
           throw new Error(`Team Environment Update Error ${result.left}`)
         }
-        this.updateTeamEnvironment(result.right.teamEnvironmentUpdated)
+        this.updateTeamEnvironment(
+          pipe(
+            result.right.teamEnvironmentUpdated,
+            (x) =>
+              <TeamEnvironment>{
+                id: x.id,
+                teamID: x.teamID,
+                environment: {
+                  name: x.name,
+                  variables: JSON.parse(x.variables),
+                },
+              }
+          )
+        )
       }
     )
   }

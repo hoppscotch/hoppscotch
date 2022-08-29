@@ -106,22 +106,24 @@
             <SmartSpinner class="my-4" />
             <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
           </div>
-          <hr v-if="teamEnvironments.length > 0" />
+          <hr v-if="teamEnvironmentList.length > 0" />
           <div
             v-if="environmentType.selectedTeam !== undefined"
             class="flex flex-col"
           >
             <SmartItem
-              v-for="(gen, index) in teamEnvironments"
+              v-for="(gen, index) in teamEnvironmentList"
               :key="`gen-team-${index}`"
               :label="gen.environment.name"
-              :info-icon="gen.teamEnvID === selectedEnv.teamEnvID ? 'done' : ''"
-              :active-info-icon="gen.teamEnvID === selectedEnv.teamEnvID"
+              :info-icon="gen.id === selectedEnv.teamEnvID ? 'done' : ''"
+              :active-info-icon="gen.id === selectedEnv.teamEnvID"
               @click.native="
                 () => {
                   selectedEnvironmentIndex = {
                     type: 'TEAM_ENV',
-                    ...gen,
+                    teamEnvID: gen.id,
+                    teamID: gen.teamID,
+                    environment: gen.environment,
                   }
                   options.tippy().hide()
                 }
@@ -157,12 +159,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
-import { pipe } from "fp-ts/function"
-import * as A from "fp-ts/Array"
 import isEqual from "lodash/isEqual"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { Team } from "~/helpers/backend/graphql"
-import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import {
   useReadonlyStream,
   useStream,
@@ -228,20 +227,6 @@ watch(
 
 const myEnvironments = useReadonlyStream(environments$, [])
 
-const teamEnvironments = computed(() => {
-  return pipe(
-    teamEnvironmentList.value,
-    A.map((envs: TeamEnvironment) => ({
-      teamEnvID: envs.id,
-      teamID: envs.teamID,
-      environment: {
-        name: envs.name,
-        variables: JSON.parse(envs.variables),
-      },
-    }))
-  )
-})
-
 const selectedEnvironmentIndex = useStream(
   selectedEnvironmentIndex$,
   { type: "NO_ENV_SELECTED" },
@@ -251,7 +236,7 @@ const selectedEnvironmentIndex = useStream(
 /* Checking if there are any changes in the selected team environment when there are any updates 
 in the selected team environment list */
 watch(
-  () => teamEnvironments.value,
+  () => teamEnvironmentList.value,
   (newTeamEnvironmentList) => {
     if (
       newTeamEnvironmentList.length > 0 &&
@@ -259,7 +244,7 @@ watch(
     ) {
       const selectedEnv = newTeamEnvironmentList.find(
         (env) =>
-          env.teamEnvID ===
+          env.id ===
           (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
             selectedEnvironmentIndex.value.teamEnvID)
       )
@@ -274,12 +259,15 @@ watch(
         if (isChange) {
           selectedEnvironmentIndex.value = {
             type: "TEAM_ENV",
-            ...selectedEnv,
+            teamEnvID: selectedEnv.id,
+            teamID: selectedEnv.teamID,
+            environment: selectedEnv.environment,
           }
         }
       }
     }
-  }
+  },
+  { deep: true }
 )
 
 const selectedEnv = computed(() => {
@@ -289,9 +277,9 @@ const selectedEnv = computed(() => {
       index: selectedEnvironmentIndex.value.index,
     }
   } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
-    const teamEnv = teamEnvironments.value.find(
+    const teamEnv = teamEnvironmentList.value.find(
       (env) =>
-        env.teamEnvID ===
+        env.id ===
         (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
           selectedEnvironmentIndex.value.teamEnvID)
     )

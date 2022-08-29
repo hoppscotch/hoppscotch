@@ -200,9 +200,9 @@ watch(
         name.value = null
         vars.value = []
       } else {
-        name.value = props.editingEnvironment.name ?? null
+        name.value = props.editingEnvironment.environment.name ?? null
         vars.value = pipe(
-          JSON.parse(props.editingEnvironment.variables) ?? [],
+          props.editingEnvironment.environment.variables ?? [],
           A.map((e: { key: string; value: string }) => ({
             id: idTicker.value++,
             env: clone(e),

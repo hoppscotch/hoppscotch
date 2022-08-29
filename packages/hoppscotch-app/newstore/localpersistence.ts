@@ -242,7 +242,7 @@ function setupSelectedEnvPersistence() {
     if (envIndex.type === "MY_ENV") {
       window.localStorage.setItem("selectedEnvIndex", envIndex.index.toString())
     } else {
-      window.localStorage.setItem("selectedEnvIndex", "0")
+      window.localStorage.setItem("selectedEnvIndex", "-1")
     }
   })
 }

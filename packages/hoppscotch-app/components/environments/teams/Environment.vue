@@ -14,7 +14,7 @@
       @click="emit('edit-environment')"
     >
       <span class="truncate">
-        {{ environment.name }}
+        {{ environment.environment.name }}
       </span>
     </span>
     <span>

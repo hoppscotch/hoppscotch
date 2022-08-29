@@ -25,10 +25,6 @@ const HOPP_ENV_HIGHLIGHT_FOUND =
   "bg-accentDark text-accentContrast hover:bg-accent"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND =
   "bg-red-500 text-accentContrast hover:bg-red-600"
-const HOPP_TEAM_ENV_HIGHLIGHT_FOUND =
-  "bg-accentDark text-primary hover:bg-accent"
-const HOPP_TEAM_ENV_HIGHLIGHT_NOT_FOUND =
-  "bg-red-500 text-primary hover:bg-red-600"
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -78,6 +74,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const finalEnv = E.isLeft(result) ? "error" : result.right
 
+      const selectedEnvType = getSelectedEnvironmentType()
+
+      const envTypeIcon = `<i class="material-icons inline-flex items-center">${
+        selectedEnvType === "TEAM_ENV" ? "people" : "person"
+      }</i>`
+
       return {
         pos: start,
         end: to,
@@ -86,10 +88,14 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         create() {
           const dom = document.createElement("span")
           const xmp = document.createElement("xmp")
+          const icon = document.createElement("span")
+          icon.innerHTML = envTypeIcon
           xmp.textContent = finalEnv
+          dom.appendChild(icon)
           dom.appendChild(document.createTextNode(`${envName} `))
           dom.appendChild(xmp)
           dom.className = "tooltip-theme"
+          icon.className = "env-icon"
           return { dom }
         },
       }
@@ -101,23 +107,11 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   )
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
-  let className
-
-  const selectedEnvType = getSelectedEnvironmentType()
-
-  if (selectedEnvType === "TEAM_ENV") {
-    className = aggregateEnvs.find(
-      (k: { key: string }) => k.key === env.slice(2, -2)
-    )
-      ? HOPP_TEAM_ENV_HIGHLIGHT_FOUND
-      : HOPP_TEAM_ENV_HIGHLIGHT_NOT_FOUND
-  } else {
-    className = aggregateEnvs.find(
-      (k: { key: string }) => k.key === env.slice(2, -2)
-    )
-      ? HOPP_ENV_HIGHLIGHT_FOUND
-      : HOPP_ENV_HIGHLIGHT_NOT_FOUND
-  }
+  const className = aggregateEnvs.find(
+    (k: { key: string }) => k.key === env.slice(2, -2)
+  )
+    ? HOPP_ENV_HIGHLIGHT_FOUND
+    : HOPP_ENV_HIGHLIGHT_NOT_FOUND
 
   return Decoration.mark({
     class: `${HOPP_ENV_HIGHLIGHT} ${className}`,

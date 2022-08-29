@@ -139,6 +139,7 @@ a {
 .cm-tooltip {
   .tooltip-theme {
     @apply fixed;
+    @apply inline-flex;
     @apply -mt-6;
   }
 }
@@ -173,6 +174,14 @@ a {
       @apply text-accentContrast;
     }
   }
+
+  .env-icon{
+    @apply inline-flex;
+    @apply items-center;
+    @apply mr-1;
+    @apply text-accentDark;
+  }
+
 }
 
 .popover-theme {

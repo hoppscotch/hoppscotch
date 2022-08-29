@@ -25,10 +25,6 @@ const HOPP_ENV_HIGHLIGHT_FOUND =
   "bg-accentDark text-accentContrast hover:bg-accent"
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND =
   "bg-red-500 text-accentContrast hover:bg-red-600"
-const HOPP_TEAM_ENV_HIGHLIGHT_FOUND =
-  "bg-accentDark text-primary hover:bg-accent"
-const HOPP_TEAM_ENV_HIGHLIGHT_NOT_FOUND =
-  "bg-red-500 text-primary hover:bg-red-600"
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(
@@ -100,6 +96,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           dom.appendChild(xmp)
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
+          dom.className = "tooltip-theme"
           icon.className = "env-icon"
           return { dom }
         },
@@ -112,23 +109,11 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   )
 
 function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
-  let className
-
-  const selectedEnvType = getSelectedEnvironmentType()
-
-  if (selectedEnvType === "TEAM_ENV") {
-    className = aggregateEnvs.find(
-      (k: { key: string }) => k.key === env.slice(2, -2)
-    )
-      ? HOPP_TEAM_ENV_HIGHLIGHT_FOUND
-      : HOPP_TEAM_ENV_HIGHLIGHT_NOT_FOUND
-  } else {
-    className = aggregateEnvs.find(
-      (k: { key: string }) => k.key === env.slice(2, -2)
-    )
-      ? HOPP_ENV_HIGHLIGHT_FOUND
-      : HOPP_ENV_HIGHLIGHT_NOT_FOUND
-  }
+  const className = aggregateEnvs.find(
+    (k: { key: string }) => k.key === env.slice(2, -2)
+  )
+    ? HOPP_ENV_HIGHLIGHT_FOUND
+    : HOPP_ENV_HIGHLIGHT_NOT_FOUND
 
   return Decoration.mark({
     class: `${HOPP_ENV_HIGHLIGHT} ${className}`,

@@ -52,6 +52,7 @@ const currentTabId = ref("new")
 const defaultTab = {
   id: "new",
   name: "Untitled",
+  connection: new GQLConnection(),
 }
 const tabs = ref([defaultTab])
 
@@ -62,6 +63,7 @@ const addNewTab = () => {
   tabs.value.push({
     id: uniqueId("new_"),
     name: "Untitled",
+    connection: new GQLConnection(),
   })
   changeTab(tabs.value[tabs.value.length - 1].id)
 }
@@ -76,6 +78,18 @@ const removeTab = (tabID: string) => {
 }
 
 const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
+
+watch(isLoading, () => {
+  if (isLoading.value) nuxt.value.$loading.start()
+  else nuxt.value.$loading.finish()
+})
+
+watch(currentTabId, () => {
+  const tab = tabs.value.find((tab) => tab.id === currentTabId.value)
+  if (tab) {
+    gqlConn = tab.connection as GQLConnection
+  }
+})
 
 onBeforeUnmount(() => {
   if (gqlConn.connected$.value) {

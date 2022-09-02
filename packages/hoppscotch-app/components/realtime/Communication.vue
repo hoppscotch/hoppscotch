@@ -12,7 +12,8 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      :class="styles"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -53,8 +54,6 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-          :title="`${t('action.send')}`"
-          :label="`${t('action.send')}`"
           :disabled="!communicationBody || !isConnected"
           svg="send"
           class="rounded-none !text-accent !hover:text-accentDark"
@@ -120,7 +119,7 @@ import { readFileAsText } from "~/helpers/functional/files"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
 
-defineProps({
+const props = defineProps({
   showEventField: {
     type: Boolean,
     default: false,
@@ -143,6 +142,14 @@ const emit = defineEmits<{
 
 const t = useI18n()
 const toast = useToast()
+// const breakpoints = useBreakpoints(breakpointsTailwind)
+// const mdAndLarger = breakpoints.greater("md")
+
+const styles = computed(() => {
+  return props.showEventField
+    ? "top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+    : ""
+})
 
 const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()

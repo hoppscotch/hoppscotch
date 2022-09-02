@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="sse">
     <template #primary>
       <div
-        class="sticky top-0 z-10 md:flex md:flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+        class="sticky top-0 z-10 md:flex md:flex-shrink-0 p-4 sm:overflow-x-auto space-x-2 bg-primary hide-scrollbar"
       >
         <div
           class="md:inline-flex md:flex-1 md:space-x-2 space-y-3 md:space-y-0"
@@ -25,7 +25,7 @@
             <div class="flex mt-2 md:mt-0">
               <label
                 for="event-type"
-                class="inline-flex px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
+                class="inline-flex flex-1 px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
               >
                 {{ $t("sse.event_type") }}
               </label>

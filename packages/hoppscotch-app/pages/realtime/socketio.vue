@@ -2,10 +2,10 @@
   <AppPaneLayout layout-id="socketio">
     <template #primary>
       <div
-        class="sticky top-0 z-10 md:flex md:flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
+        class="sticky top-0 z-10 sm:flex sm:flex-shrink-0 p-4 sm:overflow-x-auto space-x-2 bg-primary"
       >
         <div
-          class="block md:inline-flex md:flex-1 space-y-2 md:space-y-0 md:space-x-2"
+          class="block sm:inline-flex sm:flex-1 space-y-2 sm:space-y-0 sm:space-x-2"
         >
           <div class="flex flex-1">
             <label for="client-version">
@@ -75,7 +75,7 @@
             id="connect"
             :disabled="!isUrlValid"
             name="connect"
-            class="w-full md:w-32"
+            class="w-full sm:w-32"
             :label="
               connectionState === 'DISCONNECTED'
                 ? t('action.connect')
@@ -89,7 +89,7 @@
 
       <SmartTabs
         v-model="selectedTab"
-        styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+        :styles="tabsStyles"
         render-inactive-tabs
       >
         <SmartTab
@@ -103,6 +103,7 @@
             @send-message="sendMessage($event)"
           ></RealtimeCommunication>
         </SmartTab>
+
         <SmartTab :id="'protocols'" :label="`${t('request.authorization')}`">
           <div
             class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
@@ -245,7 +246,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "@nuxtjs/composition-api"
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
 import {
   SIOConnection,
@@ -273,6 +280,18 @@ import {
   SIOPath$,
   SIOVersion$,
 } from "~/newstore/SocketIOSession"
+
+const tabsStyles = computed(() => {
+  return {
+    classes: [
+      "sticky",
+      "bg-primary",
+      "top-upperMobilePrimaryStickyFold",
+      "sm:top-upperPrimaryStickyFold",
+      "z-10",
+    ].join(" "),
+  }
+})
 
 const t = useI18n()
 const toast = useToast()

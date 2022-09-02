@@ -20,7 +20,7 @@
       >
         <Pane
           :size="PANE_MAIN_TOP_SIZE"
-          class="hide-scrollbar !overflow-auto flex flex-col"
+          class="flex flex-col hide-scrollbar sm:!overflow-auto"
         >
           <slot name="primary" />
         </Pane>

@@ -55,6 +55,8 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :disabled="!communicationBody || !isConnected"
+          :title="`${t('action.send')}`"
+          :label="`${mdAndLarger ? t('action.send') : t('')}`"
           svg="send"
           class="rounded-none !text-accent !hover:text-accentDark"
           @click.native="sendMessage()"
@@ -112,7 +114,7 @@ import { computed, reactive, ref } from "@nuxtjs/composition-api"
 import { pipe } from "fp-ts/function"
 import * as TO from "fp-ts/TaskOption"
 import * as O from "fp-ts/Option"
-import { refAutoReset } from "@vueuse/core"
+import { refAutoReset, breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { readFileAsText } from "~/helpers/functional/files"
@@ -142,8 +144,8 @@ const emit = defineEmits<{
 
 const t = useI18n()
 const toast = useToast()
-// const breakpoints = useBreakpoints(breakpointsTailwind)
-// const mdAndLarger = breakpoints.greater("md")
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const styles = computed(() => {
   return props.showEventField

@@ -68,7 +68,7 @@
     "@nuxtjs/sentry": "^5.1.7",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
-    "@urql/core": "^2.4.4",
+    "@urql/core": "^3.0.3",
     "@urql/exchange-auth": "^0.1.7",
     "@urql/exchange-graphcache": "^4.3.6",
     "acorn": "^8.7.0",

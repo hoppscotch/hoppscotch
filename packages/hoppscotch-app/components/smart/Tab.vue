@@ -5,41 +5,26 @@
 </template>
 
 <script setup lang="ts">
-import {
-  onMounted,
-  onBeforeUnmount,
-  inject,
-  computed,
-  watch,
-} from "@nuxtjs/composition-api"
-import { TabMeta, TabProvider } from "./Tabs.vue"
+import { inject, computed } from "@nuxtjs/composition-api"
+import { TabProvider } from "./Tabs.vue"
 
-const props = defineProps({
-  label: { type: String, default: null },
-  info: { type: String, default: null },
-  indicator: { type: Boolean, default: false },
-  icon: { type: String, default: null },
-  id: { type: String, default: null, required: true },
-  selected: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    label?: string
+    info?: string
+    indicator?: boolean
+    icon?: string
+    id: string
+  }>(),
+  {
+    label: undefined,
+    indicator: false,
+    info: undefined,
+    icon: undefined,
+  }
+)
 
-const tabMeta = computed<TabMeta>(() => ({
-  icon: props.icon,
-  indicator: props.indicator,
-  info: props.info,
-  label: props.label,
-}))
-
-const {
-  activeTabID,
-  renderInactive,
-  addTabEntry,
-  updateTabEntry,
-  removeTabEntry,
-} = inject<TabProvider>("tabs-system")!
+const { activeTabID, renderInactive } = inject<TabProvider>("tabs-system")!
 
 const active = computed(() => activeTabID.value === props.id)
 
@@ -51,15 +36,9 @@ const shouldRender = computed(() => {
   return active.value
 })
 
-onMounted(() => {
-  addTabEntry(props.id, tabMeta.value)
-})
-
-watch(tabMeta, (newMeta) => {
-  updateTabEntry(props.id, newMeta)
-})
-
-onBeforeUnmount(() => {
-  removeTabEntry(props.id)
+// the tabs component uses implementsTab to identify the components which needs to be treated as a tab
+const implementsTab = true
+defineExpose({
+  implementsTab,
 })
 </script>

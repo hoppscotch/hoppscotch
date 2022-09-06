@@ -66,27 +66,42 @@
 
 <script setup lang="ts">
 import { pipe } from "fp-ts/function"
-import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
-import * as O from "fp-ts/Option"
-import { ref, ComputedRef, computed, provide } from "@nuxtjs/composition-api"
-import { throwError } from "~/helpers/functional/error"
+
+import {
+  ref,
+  ComputedRef,
+  computed,
+  provide,
+  onMounted,
+  onUpdated,
+  SetupContext,
+  getCurrentInstance,
+} from "@nuxtjs/composition-api"
+
+import { isEqual } from "lodash"
+import Tab from "./Tab.vue"
 
 export type TabMeta = {
-  label: string | null
-  icon: string | null
-  indicator: boolean
-  info: string | null
+  label?: string
+  icon?: string
+  indicator?: boolean
+  info?: string
 }
 
 export type TabProvider = {
   // Whether inactive tabs should remain rendered
   renderInactive: ComputedRef<boolean>
   activeTabID: ComputedRef<string>
-  addTabEntry: (tabID: string, meta: TabMeta) => void
-  updateTabEntry: (tabID: string, newMeta: TabMeta) => void
-  removeTabEntry: (tabID: string) => void
 }
+
+type Slot = SetupContext["slots"] extends {
+  [k: string]: infer Slot | undefined
+}
+  ? Slot
+  : never
+
+type VNode = ReturnType<Slot> extends Array<infer VNode> ? VNode : never
 
 const props = defineProps({
   styles: {
@@ -113,53 +128,73 @@ const emit = defineEmits<{
 
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 
-const addTabEntry = (tabID: string, meta: TabMeta) => {
-  tabEntries.value = pipe(
-    tabEntries.value,
-    O.fromPredicate(not(A.exists(([id]) => id === tabID))),
-    O.map(A.append([tabID, meta] as [string, TabMeta])),
-    O.getOrElseW(() => throwError(`Tab with duplicate ID created: '${tabID}'`))
-  )
-}
-
-const updateTabEntry = (tabID: string, newMeta: TabMeta) => {
-  tabEntries.value = pipe(
-    tabEntries.value,
-    A.findIndex(([id]) => id === tabID),
-    O.chain((index) =>
-      pipe(
-        tabEntries.value,
-        A.updateAt(index, [tabID, newMeta] as [string, TabMeta])
-      )
-    ),
-    O.getOrElseW(() => throwError(`Failed to update tab entry: ${tabID}`))
-  )
-}
-
-const removeTabEntry = (tabID: string) => {
-  tabEntries.value = pipe(
-    tabEntries.value,
-    A.findIndex(([id]) => id === tabID),
-    O.chain((index) => pipe(tabEntries.value, A.deleteAt(index))),
-    O.getOrElseW(() => throwError(`Failed to remove tab entry: ${tabID}`))
-  )
-
-  // If we tried to remove the active tabEntries, switch to first tab entry
-  if (props.value === tabID)
-    if (tabEntries.value.length > 0) selectTab(tabEntries.value[0][0])
-}
-
 provide<TabProvider>("tabs-system", {
   renderInactive: computed(() => props.renderInactiveTabs),
   activeTabID: computed(() => props.value),
-  addTabEntry,
-  updateTabEntry,
-  removeTabEntry,
 })
 
 const selectTab = (id: string) => {
   emit("input", id)
 }
+
+type AnyComponent = VNode["componentInstance"]
+type TabComponent = InstanceType<typeof Tab>
+
+const isTabComponent = (
+  componentInstance: AnyComponent | TabComponent
+): componentInstance is TabComponent =>
+  !!(componentInstance && "implementsTab" in componentInstance)
+
+const getComponentFromNode = (node: VNode) =>
+  node.componentInstance as AnyComponent | TabComponent
+
+/**
+ * proxy is the only allowed key to be used from getCurrentInstance
+ * see https://github.com/vuejs/vue/issues/12596#issuecomment-1173269807
+ */
+const instance = getCurrentInstance()?.proxy
+
+const getTabs = () => {
+  const nodes = instance?.$slots?.default
+
+  const tabs = nodes
+    ? pipe(
+        nodes,
+        A.map(getComponentFromNode),
+        A.filter(isTabComponent),
+        A.map(({ $props }): [string, TabMeta] => [
+          $props.id,
+          {
+            icon: $props.icon,
+            label: $props.label,
+            indicator: $props.indicator,
+            info: $props.info,
+          },
+        ])
+      )
+    : []
+
+  if (!isEqual(tabEntries.value, tabs)) {
+    tabEntries.value = tabs
+  }
+}
+
+const setActiveTab = () => {
+  const hasActiveTab = tabEntries.value.some((tab) => tab[0] === props.value)
+
+  if (!hasActiveTab && tabEntries.value.length > 0) {
+    selectTab(tabEntries.value[0][0])
+  }
+}
+
+onUpdated(() => {
+  getTabs()
+  setActiveTab()
+})
+
+onMounted(() => {
+  getTabs()
+})
 </script>
 
 <style scoped lang="scss">

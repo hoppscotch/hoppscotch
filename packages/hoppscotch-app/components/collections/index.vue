@@ -376,6 +376,9 @@ export default defineComponent({
       if (!newValue) this.updateCollectionType("my-collections")
     },
   },
+  beforeDestroy() {
+    this.teamCollectionAdapter.unsubscribeSubscriptions()
+  },
   mounted() {
     this.subscribeTo(this.teamCollectionAdapter.collections$, (colls) => {
       this.teamCollectionsNew = cloneDeep(colls)

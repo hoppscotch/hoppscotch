@@ -181,11 +181,20 @@ function findCollWithReqIDInTree(
   return null
 }
 
+type EntityType = "request" | "collection"
+type EntityID = `${EntityType}-${string}`
+
 export default class NewTeamCollectionAdapter {
   collections$: BehaviorSubject<TeamCollection[]>
 
   // Stream to the list of collections/folders that are being loaded in
   loadingCollections$: BehaviorSubject<string[]>
+
+  /**
+   * Stores the entity (collection/request/folder) ids of all the loaded entities.
+   * Used for preventing duplication of data which definitely is not possible (duplication due to network problems etc.)
+   */
+  private entityIDs: Set<EntityID>
 
   private teamCollectionAdded$: Subscription | null
   private teamCollectionUpdated$: Subscription | null
@@ -204,6 +213,8 @@ export default class NewTeamCollectionAdapter {
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
     this.loadingCollections$ = new BehaviorSubject<string[]>([])
+
+    this.entityIDs = new Set()
 
     this.teamCollectionAdded$ = null
     this.teamCollectionUpdated$ = null
@@ -225,6 +236,8 @@ export default class NewTeamCollectionAdapter {
   changeTeamID(newTeamID: string | null) {
     this.teamID = newTeamID
     this.collections$.next([])
+    this.entityIDs.clear()
+
     this.loadingCollections$.next([])
 
     this.unsubscribeSubscriptions()
@@ -283,6 +296,9 @@ export default class NewTeamCollectionAdapter {
       }
     }
 
+    // Add to entity ids set
+    this.entityIDs.add(`collection-${collection.id}`)
+
     this.collections$.next(tree)
   }
 
@@ -335,6 +351,11 @@ export default class NewTeamCollectionAdapter {
       this.loadingCollections$.getValue().filter((x) => x !== "root")
     )
 
+    // Add all the collections to the entity ids list
+    totalCollections.forEach((coll) =>
+      this.entityIDs.add(`collection-${coll.id}`)
+    )
+
     this.collections$.next(totalCollections)
   }
 
@@ -363,6 +384,8 @@ export default class NewTeamCollectionAdapter {
 
     deleteCollInTree(tree, collectionID)
 
+    this.entityIDs.delete(`collection-${collectionID}`)
+
     this.collections$.next(tree)
   }
 
@@ -372,6 +395,9 @@ export default class NewTeamCollectionAdapter {
    * @param {TeamRequest} request - The request to add to the tree
    */
   private addRequest(request: TeamRequest) {
+    // Check if we have it already in the entity tree, if so, we don't need it again
+    if (this.entityIDs.has(`request-${request.id}`)) return
+
     const tree = this.collections$.value
 
     // Check if we have the collection (if not, then not loaded?)
@@ -383,6 +409,9 @@ export default class NewTeamCollectionAdapter {
 
     // Collection is expanded hence append request
     coll.requests.push(request)
+
+    // Update the Entity IDs list
+    this.entityIDs.add(`request-${request.id}`)
 
     this.collections$.next(tree)
   }
@@ -420,6 +449,9 @@ export default class NewTeamCollectionAdapter {
 
     // Remove the collection
     remove(coll.requests, (req) => req.id === requestID)
+
+    // Remove from entityIDs set
+    this.entityIDs.delete(`request-${requestID}`)
 
     // Publish new tree
     this.collections$.next(tree)
@@ -643,6 +675,10 @@ export default class NewTeamCollectionAdapter {
 
     collection.children = collections
     collection.requests = requests
+
+    // Add to the entity ids set
+    collections.forEach((coll) => this.entityIDs.add(`collection-${coll.id}`))
+    requests.forEach((req) => this.entityIDs.add(`request-${req.id}`))
 
     this.loadingCollections$.next(
       this.loadingCollections$.getValue().filter((x) => x !== collectionID)

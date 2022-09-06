@@ -208,6 +208,8 @@ export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   })
 }
 
+// TODO: The subscription system seems to be firing multiple updates for certain subscriptions.
+// Make sure to handle cases if the subscription fires with the same update multiple times
 export const runGQLSubscription = <
   DocType,
   DocVarType,

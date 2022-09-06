@@ -128,6 +128,7 @@ import {
   currentUser$,
   signInWithEmail,
   linkWithFBCredential,
+  linkWithFBCredentialFromAuthError,
   getGithubCredentialFromResult,
 } from "~/helpers/fb/auth"
 import { setLocalConfig } from "~/newstore/localpersistence"
@@ -218,8 +219,6 @@ export default defineComponent({
         if (e.code === "auth/account-exists-with-different-credential") {
           // Step 2.
           // User's email already exists.
-          // The pending Google credential.
-          const pendingCred = e.credential
           this.$toast.info(`${this.$t("auth.account_exists")}`, {
             duration: 0,
             closeOnSwipe: false,
@@ -227,7 +226,7 @@ export default defineComponent({
               text: `${this.$t("action.yes")}`,
               onClick: async (_, toastObject) => {
                 const { user } = await signInUserWithGoogle()
-                await linkWithFBCredential(user, pendingCred)
+                await linkWithFBCredentialFromAuthError(user, e)
 
                 this.showLoginSuccess()
 

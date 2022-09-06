@@ -16,6 +16,7 @@ import {
   signOut,
   linkWithCredential,
   AuthCredential,
+  AuthError,
   UserCredential,
   updateProfile,
   updateEmail,
@@ -237,6 +238,24 @@ export async function linkWithFBCredential(
   credential: AuthCredential
 ) {
   return await linkWithCredential(user, credential)
+}
+
+/**
+ * Links account with another account given in a auth/account-exists-with-different-credential error
+ *
+ * @param user - User who has the errors
+ *
+ * @param error - Error caught after trying to login
+ *
+ * @returns Promise of UserCredential
+ */
+export async function linkWithFBCredentialFromAuthError(
+  user: User,
+  error: unknown
+) {
+  // Marked as not null since this function is supposed to be called after an auth/account-exists-with-different-credential error, ie credentials actually exist
+  const credentials = OAuthProvider.credentialFromError(error as AuthError)!
+  return await linkWithCredential(user, credentials)
 }
 
 /**

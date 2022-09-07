@@ -17,8 +17,55 @@
             {{ t("request.query") }}
           </label>
           <div class="flex">
+            <tippy
+              v-if="operations.length > 1"
+              ref="operationTippy"
+              interactive
+              trigger="click"
+              theme="popover"
+              placement="bottom"
+            >
+              <template #trigger>
+                <span
+                  v-tippy="{
+                    theme: 'tooltip',
+                    delay: [500, 20],
+                    allowHTML: true,
+                  }"
+                  :title="`${t(
+                    'request.run'
+                  )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+                  class="bg-transparent select-wrapper"
+                >
+                  <HoppButtonSecondary
+                    :label="`${t('request.run')}`"
+                    svg="play"
+                    class="rounded-none !text-accent !hover:text-accentDark"
+                  />
+                </span>
+              </template>
+              <div class="flex flex-col" role="menu">
+                <SmartItem
+                  v-for="item in operations"
+                  :key="`gql-operation-${item}`"
+                  :label="item"
+                  @click.native="
+                    () => {
+                      runQuery(item)
+                      operationTippy.tippy().hide()
+                    }
+                  "
+                />
+              </div>
+            </tippy>
+
             <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
+              v-else
+              v-tippy="{
+                theme: 'tooltip',
+                delay: [500, 20],
+                allowHTML: true,
+              }"
               :title="`${t(
                 'request.run'
               )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
@@ -27,6 +74,7 @@
               class="rounded-none !text-accent !hover:text-accentDark"
               @click="runQuery()"
             />
+
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
@@ -387,6 +435,7 @@ type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const colorMode = useColorMode()
 
 const selectedOptionTab = ref<OptionTabs>("query")
+const operationTippy = ref<any | null>(null)
 
 const t = useI18n()
 
@@ -431,6 +480,23 @@ const auth = useStream(
   gqlAuth$,
   { authType: "none", authActive: true },
   setGQLAuth
+)
+
+// Watch operations on graphql query string
+const operations = ref<string[]>([])
+watch(
+  gqlQueryString,
+  (query) => {
+    try {
+      const parsedQuery = gql.parse(query)
+      operations.value = parsedQuery.definitions.map((def: any) => {
+        return def.name.value
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  },
+  { immediate: true }
 )
 
 // The UI representation of the headers list (has the empty end header)
@@ -688,7 +754,7 @@ const copyQuery = () => {
 
 const response = useStream(gqlResponse$, "", setGQLResponse)
 
-const runQuery = async () => {
+const runQuery = async (operationName: string | null = "") => {
   const startTime = Date.now()
 
   startPageProgress()
@@ -706,7 +772,8 @@ const runQuery = async () => {
       runHeaders,
       runQuery,
       runVariables,
-      runAuth
+      runAuth,
+      operationName
     )
     const duration = Date.now() - startTime
 

@@ -215,7 +215,8 @@ export class GQLConnection {
     headers: GQLHeader[],
     query: string,
     variables: string,
-    auth: HoppGQLAuth
+    auth: HoppGQLAuth,
+    operationName: string
   ) {
     const finalHeaders: Record<string, string> = {}
 
@@ -254,6 +255,7 @@ export class GQLConnection {
       data: JSON.stringify({
         query,
         variables: parsedVariables,
+        operationName,
       }),
       params: {
         ...params,

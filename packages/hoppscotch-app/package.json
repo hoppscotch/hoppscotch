@@ -65,7 +65,7 @@
     "@nuxtjs/gtm": "^2.4.0",
     "@nuxtjs/i18n": "^7.2.1",
     "@nuxtjs/robots": "^2.5.0",
-    "@nuxtjs/sentry": "^5.1.7",
+    "@nuxtjs/sentry": "^6.0.0",
     "@nuxtjs/sitemap": "^2.4.0",
     "@nuxtjs/toast": "^3.3.1",
     "@urql/core": "^2.4.4",

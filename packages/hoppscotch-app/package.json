@@ -147,7 +147,7 @@
     "@types/esprima": "^4.0.3",
     "@types/har-format": "^1.2.8",
     "@types/httpsnippet": "^1.23.1",
-    "@types/jest": "^27.4.1",
+    "@types/jest": "^29.0.1",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.181",
     "@types/lossless-json": "^1.0.1",

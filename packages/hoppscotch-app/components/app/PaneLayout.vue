@@ -67,7 +67,7 @@
           <slot name="primary" />
         </Pane>
         <Pane
-          v-if="mdAndLarger || (!mdAndLarger && hasResponse)"
+          v-if="mdAndLarger || (!mdAndLarger && secondary)"
           :size="COLUMN_LAYOUT ? 65 : 50"
           class="flex flex-col hide-scrollbar !overflow-auto"
         >
@@ -181,11 +181,9 @@ const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-const response = useReadonlyStream(restResponse$, null)
-
-const hasResponse = computed(
-  () => response.value?.type === "success" || response.value?.type === "fail"
-)
+defineProps<{
+  secondary: boolean
+}>()
 
 const show = computed(() => !!(SIDEBAR && hasSidebar.value))
 

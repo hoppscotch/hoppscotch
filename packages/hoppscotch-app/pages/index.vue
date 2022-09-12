@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="http">
+  <AppPaneLayout layout-id="http" :secondary="hasResponse">
     <template #primary>
       <HttpRequest />
       <HttpRequestOptions />
@@ -15,6 +15,7 @@
 
 <script lang="ts">
 import {
+  computed,
   defineComponent,
   onBeforeMount,
   onBeforeUnmount,
@@ -36,6 +37,7 @@ import {
   setRESTRequest,
   setRESTAuth,
   restAuth$,
+  restResponse$,
   getDefaultRESTRequest,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
@@ -43,6 +45,7 @@ import {
   pluckRef,
   useI18n,
   useStream,
+  useReadonlyStream,
   useToast,
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
@@ -127,6 +130,13 @@ export default defineComponent({
     const toast = useToast()
     const t = useI18n()
 
+    const response = useReadonlyStream(restResponse$, null)
+
+    const hasResponse = computed(
+      () =>
+        response.value?.type === "success" || response.value?.type === "fail"
+    )
+
     watch(confirmSync, (newValue) => {
       if (newValue) {
         toast.show(`${t("confirm.sync")}`, {
@@ -162,6 +172,7 @@ export default defineComponent({
 
     return {
       confirmSync,
+      hasResponse,
       syncRequest,
       oAuthURL,
       requestForSync,

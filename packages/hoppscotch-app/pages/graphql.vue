@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="graphql">
+  <AppPaneLayout layout-id="graphql" :secondary="hasGqlConn">
     <template #primary>
       <GraphqlRequest :conn="gqlConn" />
       <GraphqlRequestOptions :conn="gqlConn" />
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from "@nuxtjs/composition-api"
+import { defineComponent, ref, watch } from "@nuxtjs/composition-api"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { useNuxt, useReadonlyStream } from "~/helpers/utils/composables"
 
@@ -29,16 +29,20 @@ export default defineComponent({
     const nuxt = useNuxt()
 
     const gqlConn = new GQLConnection()
+    const hasGqlConn = ref(false)
 
     const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
 
     watch(isLoading, () => {
-      if (isLoading.value) nuxt.value.$loading.start()
-      else nuxt.value.$loading.finish()
+      if (isLoading.value) {
+        nuxt.value.$loading.start()
+        hasGqlConn.value = true
+      } else nuxt.value.$loading.finish()
     })
 
     return {
       gqlConn,
+      hasGqlConn,
     }
   },
   head() {

@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="socketio">
+  <AppPaneLayout layout-id="socketio" :secondary="hasLogs">
     <template #primary>
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
@@ -241,7 +241,13 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "@nuxtjs/composition-api"
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
 import {
   SIOConnection,
@@ -288,6 +294,7 @@ const connectionState = useReadonlyStream(
   "DISCONNECTED"
 )
 const log = useStream(SIOLog$, [], setSIOLog)
+const hasLogs = computed(() => log.value.length > 0)
 const authTypeOptions = ref<any>(null)
 const versionOptions = ref<any | null>(null)
 

@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="websocket">
+  <AppPaneLayout layout-id="websocket" :secondary="hasLogs">
     <template #primary>
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary hide-scrollbar"
@@ -174,9 +174,16 @@
   </AppPaneLayout>
 </template>
 <script setup lang="ts">
-import { ref, watch, onUnmounted, onMounted } from "@nuxtjs/composition-api"
+import {
+  computed,
+  ref,
+  watch,
+  onUnmounted,
+  onMounted,
+} from "@nuxtjs/composition-api"
 import debounce from "lodash/debounce"
 import draggable from "vuedraggable"
+
 import {
   setWSEndpoint,
   WSEndpoint$,
@@ -220,6 +227,8 @@ const connectionState = useReadonlyStream(
 )
 
 const log = useStream(WSLog$, [], setWSLog)
+const hasLogs = computed(() => log.value.length > 0)
+
 // DATA
 const isUrlValid = ref(true)
 const activeProtocols = ref<string[]>([])

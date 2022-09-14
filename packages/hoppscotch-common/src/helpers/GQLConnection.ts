@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { BehaviorSubject } from "rxjs"
 import {
   getIntrospectionQuery,
@@ -15,6 +16,28 @@ import { sendNetworkRequest } from "./network"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
+type RunQueryOptions = {
+  url: string
+  headers: GQLHeader[]
+  query: string
+  variables: string
+  auth: HoppGQLAuth
+  operationName: string | undefined
+}
+
+const GQL = {
+  CONNECTION_INIT: "connection_init",
+  CONNECTION_ACK: "connection_ack",
+  CONNECTION_ERROR: "connection_error",
+  CONNECTION_KEEP_ALIVE: "ka",
+  START: "start",
+  STOP: "stop",
+  CONNECTION_TERMINATE: "connection_terminate",
+  DATA: "data",
+  ERROR: "error",
+  COMPLETE: "complete",
+}
+
 /**
   GQLConnection deals with all the operations (like polling, schema extraction) that runs
   when a connection is made to a GraphQL server.
@@ -23,6 +46,7 @@ export class GQLConnection {
   public isLoading$ = new BehaviorSubject<boolean>(false)
   public connected$ = new BehaviorSubject<boolean>(false)
   public schema$ = new BehaviorSubject<GraphQLSchema | null>(null)
+  socket: WebSocket | undefined
 
   public schemaString$ = this.schema$.pipe(
     distinctUntilChanged(),
@@ -210,14 +234,9 @@ export class GQLConnection {
     }
   }
 
-  public async runQuery(
-    url: string,
-    headers: GQLHeader[],
-    query: string,
-    variables: string,
-    auth: HoppGQLAuth,
-    operationName: string
-  ) {
+  public async runQuery(options: RunQueryOptions) {
+    const { url, headers, query, variables, auth, operationName } = options
+
     const finalHeaders: Record<string, string> = {}
 
     const parsedVariables = JSON.parse(variables || "{}")
@@ -270,5 +289,56 @@ export class GQLConnection {
       .replace(/\0+$/, "")
 
     return responseText
+  }
+
+  runSubscription(
+    url: string,
+    operationName: string | undefined,
+    query: string
+  ) {
+    const socket = new WebSocket(url, "graphql-ws")
+
+    socket.onopen = (event) => {
+      console.log("WebSocket is open now.", event)
+      socket.send(
+        JSON.stringify({
+          type: GQL.CONNECTION_INIT,
+          payload: {},
+        })
+      )
+
+      socket.send(
+        JSON.stringify({
+          type: GQL.START,
+          id: "1",
+          payload: { query, operationName },
+        })
+      )
+    }
+
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      switch (data.type) {
+        case GQL.CONNECTION_ACK: {
+          console.log("success")
+          break
+        }
+        case GQL.CONNECTION_ERROR: {
+          console.error(data.payload)
+          break
+        }
+        case GQL.CONNECTION_KEEP_ALIVE: {
+          break
+        }
+        case GQL.DATA: {
+          console.log(data.id, data.payload.errors, data.payload.data)
+          break
+        }
+        case GQL.COMPLETE: {
+          console.log("completed", data.id)
+          break
+        }
+      }
+    }
   }
 }

@@ -24,9 +24,10 @@
               trigger="click"
               theme="popover"
               placement="bottom"
+              :on-shown="() => tippyActions.focus()"
             >
               <template #trigger>
-                <span
+                <HoppButtonSecondary
                   v-tippy="{
                     theme: 'tooltip',
                     delay: [500, 20],
@@ -35,20 +36,16 @@
                   :title="`${t(
                     'request.run'
                   )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
-                  class="bg-transparent select-wrapper"
-                >
-                  <HoppButtonSecondary
-                    :label="`${t('request.run')}`"
-                    svg="play"
-                    class="rounded-none !text-accent !hover:text-accentDark"
-                  />
-                </span>
+                  :label="`${t('request.run')}`"
+                  svg="play"
+                  class="rounded-none !text-accent !hover:text-accentDark"
+                />
               </template>
-              <div class="flex flex-col" role="menu">
+              <div ref="tippyActions" class="flex flex-col" role="menu">
                 <SmartItem
                   v-for="item in operations"
-                  :key="`gql-operation-${item}`"
-                  :label="item"
+                  :key="`gql-operation-${item.name?.value}`"
+                  :label="item?.name?.value"
                   @click.native="
                     () => {
                       runQuery(item)
@@ -435,7 +432,6 @@ type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const colorMode = useColorMode()
 
 const selectedOptionTab = ref<OptionTabs>("query")
-const operationTippy = ref<any | null>(null)
 
 const t = useI18n()
 
@@ -483,15 +479,14 @@ const auth = useStream(
 )
 
 // Watch operations on graphql query string
-const operations = ref<string[]>([])
+const operations = ref<gql.OperationDefinitionNode[]>([])
 watch(
   gqlQueryString,
   (query) => {
     try {
       const parsedQuery = gql.parse(query)
-      operations.value = parsedQuery.definitions.map((def: any) => {
-        return def.name.value
-      })
+      operations.value =
+        parsedQuery.definitions as gql.OperationDefinitionNode[]
     } catch (e) {
       console.log(e)
     }
@@ -754,7 +749,9 @@ const copyQuery = () => {
 
 const response = useStream(gqlResponse$, "", setGQLResponse)
 
-const runQuery = async (operationName: string | null = "") => {
+const runQuery = async (
+  definition: gql.OperationDefinitionNode | null = null
+) => {
   const startTime = Date.now()
 
   startPageProgress()
@@ -767,14 +764,22 @@ const runQuery = async (operationName: string | null = "") => {
     const runVariables = clone(variableString.value)
     const runAuth = clone(auth.value)
 
-    const responseText = await props.conn.runQuery(
-      runURL,
-      runHeaders,
-      runQuery,
-      runVariables,
-      runAuth,
-      operationName
-    )
+    let responseText = ""
+
+    if (definition?.operation === "subscription") {
+      const wsUrl = runURL.replace(/^http/, "ws")
+      props.conn.runSubscription(wsUrl, definition?.name?.value, runQuery)
+    } else {
+      responseText = await props.conn.runQuery({
+        url: runURL,
+        headers: runHeaders,
+        query: runQuery,
+        variables: runVariables,
+        auth: runAuth,
+        operationName: definition?.name?.value,
+      })
+    }
+
     const duration = Date.now() - startTime
 
     completePageProgress()

@@ -17,10 +17,12 @@
           >
             <GraphqlRequest :conn="gqlConn" />
             <GraphqlRequestOptions :conn="gqlConn" />
-            <GraphqlResponse :conn="gqlConn" />
           </SmartWindow>
         </template>
       </SmartWindows>
+    </template>
+    <template #secondary>
+      <GraphqlResponse :conn="gqlConn" />
     </template>
     <template #sidebar>
       <GraphqlSidebar :conn="gqlConn" />
@@ -58,6 +60,10 @@ const tabs = ref([defaultTab])
 
 const changeTab = (id: string) => {
   currentTabId.value = id
+  const currentTab = tabs.value.find((tab) => tab.id === id)
+  if (currentTab) {
+    gqlConn = currentTab.connection as GQLConnection
+  }
 }
 const addNewTab = () => {
   tabs.value.push({

@@ -104,8 +104,7 @@ import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { computed, useSlots, ref } from "@nuxtjs/composition-api"
 import { useSetting } from "~/newstore/settings"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
-import { useI18n, useReadonlyStream } from "~/helpers/utils/composables"
-import { restResponse$ } from "~/newstore/RESTSession"
+import { useI18n } from "~/helpers/utils/composables"
 
 const t = useI18n()
 
@@ -126,6 +125,10 @@ const props = defineProps({
   layoutId: {
     type: String,
     default: null,
+  },
+  secondary: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -179,10 +182,6 @@ function getPaneData(type: "vertical" | "horizontal"): PaneEvent[] | null {
 populatePaneEvent()
 const emit = defineEmits<{
   (e: "close"): void
-}>()
-
-defineProps<{
-  secondary: boolean
 }>()
 
 const show = computed(() => !!(SIDEBAR && hasSidebar.value))

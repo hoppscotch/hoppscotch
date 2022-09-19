@@ -70,7 +70,7 @@
     "@nuxtjs/toast": "^3.3.1",
     "@urql/core": "^2.4.4",
     "@urql/exchange-auth": "^0.1.7",
-    "@urql/exchange-graphcache": "^4.3.6",
+    "@urql/exchange-graphcache": "^5.0.1",
     "acorn": "^8.7.0",
     "acorn-walk": "^8.2.0",
     "axios": "^0.26.1",

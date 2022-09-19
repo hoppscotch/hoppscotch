@@ -12,7 +12,6 @@ import {
   HoppRESTReqBody,
   HoppRESTRequest,
   parseTemplateString,
-  parseBodyEnvVariables,
   Environment,
   HoppRESTHeader,
   HoppRESTParam,
@@ -280,7 +279,9 @@ function getFinalBodyFromRequest(
       ),
       toFormData
     )
-  } else return parseBodyEnvVariables(request.body.body, envVariables)
+  }
+
+  return parseTemplateString(request.body.body, envVariables)
 }
 
 /**

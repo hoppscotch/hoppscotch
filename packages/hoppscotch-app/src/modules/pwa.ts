@@ -1,5 +1,6 @@
 import { HoppModule } from "."
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
+import { usePwaPrompt } from "@composables/pwa"
 
 import { registerSW } from "virtual:pwa-register"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
@@ -83,6 +84,11 @@ export default <HoppModule>{
           error,
         }
       },
+    })
+  },
+  onRootSetup() {
+    onMounted(() => {
+      usePwaPrompt()
     })
   },
 }

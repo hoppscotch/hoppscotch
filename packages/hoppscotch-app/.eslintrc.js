@@ -1,3 +1,6 @@
+/* eslint-env node */
+require("@rushstack/eslint-patch/modern-module-resolution")
+
 module.exports = {
   root: true,
   env: {
@@ -10,25 +13,31 @@ module.exports = {
     requireConfigFile: false,
   },
   extends: [
-    "@nuxtjs",
-    "@nuxtjs/eslint-config-typescript",
-    "prettier/prettier",
-    "eslint:recommended",
-    "plugin:vue/recommended",
+    "@vue/typescript/recommended",
+    "plugin:vue/vue3-recommended",
     "plugin:prettier/recommended",
-    "plugin:nuxt/recommended",
   ],
-  ignorePatterns: ["helpers/backend/graphql.ts"],
-  plugins: ["vue", "nuxt", "prettier"],
+  ignorePatterns: [
+    "static/**/*",
+    "./helpers/backend/graphql.ts",
+    "**/*.d.ts",
+    "types/**/*",
+  ],
+  plugins: ["vue", "prettier"],
   // add your custom rules here
   rules: {
     semi: [2, "never"],
     "import/named": "off", // because, named import issue with typescript see: https://github.com/typescript-eslint/typescript-eslint/issues/154
-    "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
-    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
+    "no-console": "off",
+    "no-debugger": process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
+    "prettier/prettier":
+      process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
     "vue/multi-word-component-names": "off",
+    "vue/no-side-effects-in-computed-properties": "off",
     "import/no-named-as-default": "off",
     "import/no-named-as-default-member": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "import/default": "off",
     "no-undef": "off",
     // localStorage block
@@ -49,8 +58,5 @@ module.exports = {
           "Do not use 'localStorage' directly. Please use localpersistence.ts functions or stores",
       },
     ],
-  },
-  globals: {
-    $nuxt: true,
   },
 }

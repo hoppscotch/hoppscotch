@@ -111,10 +111,6 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
     content: APP_INFO.app.background,
   },
   {
-    name: "apple-touch-icon",
-    content: `/icon.png`,
-  },
-  {
     name: "mask-icon",
     content: "/icon.png",
     color: APP_INFO.app.background,

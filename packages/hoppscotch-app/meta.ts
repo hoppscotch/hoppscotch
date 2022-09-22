@@ -92,4 +92,31 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
     name: "msapplication-tap-highlight",
     content: "no",
   },
+  // iOS Safari
+  {
+    name: "apple-mobile-web-app-title",
+    content: APP_INFO.name,
+  },
+  {
+    name: "apple-mobile-web-app-capable",
+    content: "yes",
+  },
+  {
+    name: "apple-mobile-web-app-status-bar-style",
+    content: "black-translucent",
+  },
+  // PWA
+  {
+    name: "theme-color",
+    content: APP_INFO.app.background,
+  },
+  {
+    name: "apple-touch-icon",
+    content: `/icon.png`,
+  },
+  {
+    name: "mask-icon",
+    content: "/icon.png",
+    color: APP_INFO.app.background,
+  },
 ]

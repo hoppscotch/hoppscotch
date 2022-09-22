@@ -1,3 +1,5 @@
+import { IHTMLTag } from "vite-plugin-html-config"
+
 export const APP_INFO = {
   name: "Hoppscotch",
   shortDescription: "Open source API development ecosystem",
@@ -13,7 +15,7 @@ export const APP_INFO = {
   },
 } as const
 
-export const META_TAGS = (env: Record<string, string>) => [
+export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   {
     name: "keywords",
     content: APP_INFO.keywords,
@@ -23,15 +25,53 @@ export const META_TAGS = (env: Record<string, string>) => [
     content: "IE=edge, chrome=1",
   },
   {
-    itemprop: "name",
+    name: "name",
     content: `${APP_INFO.name} • ${APP_INFO.shortDescription}`,
   },
   {
-    itemprop: "description",
+    name: "description",
     content: APP_INFO.description,
   },
   {
-    itemprop: "image",
+    name: "image",
+    content: `${env.VITE_BASE_URL}/banner.png`,
+  },
+  // Open Graph tags
+  {
+    name: "og:title",
+    content: `${APP_INFO.name} • ${APP_INFO.shortDescription}`,
+  },
+  {
+    name: "og:description",
+    content: APP_INFO.description,
+  },
+  {
+    name: "og:image",
+    content: `${env.VITE_BASE_URL}/banner.png`,
+  },
+  // Twitter tags
+  {
+    name: "twitter:card",
+    content: "summary_large_image",
+  },
+  {
+    name: "twitter:site",
+    content: APP_INFO.social.twitter,
+  },
+  {
+    name: "twitter:creator",
+    content: APP_INFO.social.twitter,
+  },
+  {
+    name: "twitter:title",
+    content: `${APP_INFO.name} • ${APP_INFO.shortDescription}`,
+  },
+  {
+    name: "twitter:description",
+    content: APP_INFO.description,
+  },
+  {
+    name: "twitter:image",
     content: `${env.VITE_BASE_URL}/banner.png`,
   },
   // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)

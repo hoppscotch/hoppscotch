@@ -147,6 +147,8 @@ export default defineComponent({
       this.selectionStart = this.text.length
       this.suggestionsVisible = true
       this.currentSuggestionIndex = -1
+
+      this.$emit("input", this.text)
     },
 
     handleKeystroke(event) {

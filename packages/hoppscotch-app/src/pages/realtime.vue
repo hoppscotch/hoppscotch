@@ -12,8 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "vue"
+import { watch, ref, computed } from "vue"
 import { RouterView, useRouter, useRoute } from "vue-router"
+import { usePageHead } from "~/composables/head"
 import { useI18n } from "~/composables/i18n"
 
 const t = useI18n()
@@ -42,6 +43,10 @@ const REALTIME_NAVIGATION = [
 type RealtimeNavTab = typeof REALTIME_NAVIGATION[number]["target"]
 
 const currentTab = ref<RealtimeNavTab>("websocket")
+
+usePageHead({
+  title: computed(() => t(`tab.${currentTab.value}`)),
+})
 
 // Update the router when the tab is updated
 watch(currentTab, (newTab) => {

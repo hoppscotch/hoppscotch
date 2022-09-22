@@ -1,10 +1,11 @@
 <template>
   <div>
-    <div v-if="isLoadingInitialRoute">
-      <!-- Hi Liyas, fit stuff inside this div-->
-      Loading... :) (This is temporary until Liyas implements a initial loader!)
+    <div
+      v-if="isLoadingInitialRoute"
+      class="flex flex-col items-center justify-center min-h-screen"
+    >
+      <AppLogo class="w-16 h-16 rounded animate-bounce" />
     </div>
-
     <ErrorPage v-if="errorInfo !== null" :error="errorInfo" />
     <RouterView v-else />
   </div>

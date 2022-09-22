@@ -6,10 +6,10 @@
         {{ t("state.loading") }}
       </div>
     </div>
-    <div v-else class="text-secondaryLight">
+    <div v-else>
       <AppLogo class="w-16 h-16 rounded" />
     </div>
-    <pre v-if="error" class="mt-4">{{ error }}</pre>
+    <pre v-if="error" class="mt-4 text-secondaryLight">{{ error }}</pre>
   </div>
 </template>
 

@@ -17,9 +17,9 @@ import { devtoolsExchange } from "@urql/devtools"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
 import * as TE from "fp-ts/TaskEither"
-import { pipe, constVoid } from "fp-ts/function"
+import { pipe, constVoid, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
-import { Subject } from "rxjs"
+import { filter, map, Subject } from "rxjs"
 // import { keyDefs } from "./caching/keys"
 // import { optimisticDefs } from "./caching/optimistic"
 // import { updatesDef } from "./caching/updates"
@@ -238,6 +238,31 @@ export const runGQLSubscription = <
   // Returns the stream and a subscription handle to unsub
   return [result$, sub] as const
 }
+
+/**
+ * Same as `runGQLSubscription` but stops the subscription silently
+ * if there is an authentication error because of logged out
+ */
+export const runAuthOnlyGQLSubscription = flow(
+  runGQLSubscription,
+  ([result$, sub]) => {
+    const updatedResult$ = result$.pipe(
+      map((res) => {
+        if (
+          E.isLeft(res) &&
+          res.left.type === "gql_error" &&
+          res.left.error === "auth/fail"
+        ) {
+          sub.unsubscribe()
+          return null
+        } else return res
+      }),
+      filter((res): res is Exclude<typeof res, null> => res !== null)
+    )
+
+    return [updatedResult$, sub] as const
+  }
+)
 
 export const parseGQLErrorString = (s: string) =>
   s.startsWith("[GraphQL] ") ? s.split("[GraphQL] ")[1] : s

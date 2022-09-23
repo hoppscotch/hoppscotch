@@ -1,7 +1,11 @@
 import * as E from "fp-ts/Either"
 import { BehaviorSubject, Subscription } from "rxjs"
 import { Subscription as WSubscription } from "wonka"
-import { GQLError, runGQLQuery, runGQLSubscription } from "../backend/GQLClient"
+import {
+  GQLError,
+  runAuthOnlyGQLSubscription,
+  runGQLQuery,
+} from "../backend/GQLClient"
 import {
   GetUserShortcodesQuery,
   GetUserShortcodesDocument,
@@ -17,7 +21,6 @@ export default class ShortcodeListAdapter {
   shortcodes$: BehaviorSubject<GetUserShortcodesQuery["myShortcodes"]>
   hasMoreShortcodes$: BehaviorSubject<boolean>
 
-  private timeoutHandle: ReturnType<typeof setTimeout> | null
   private isDispose: boolean
 
   private myShortcodesCreated: Subscription | null
@@ -33,8 +36,7 @@ export default class ShortcodeListAdapter {
       GetUserShortcodesQuery["myShortcodes"]
     >([])
     this.hasMoreShortcodes$ = new BehaviorSubject<boolean>(true)
-    this.timeoutHandle = null
-    this.isDispose = false
+    this.isDispose = true
     this.myShortcodesCreated = null
     this.myShortcodesRevoked = null
     this.myShortcodesCreatedSub = null
@@ -51,20 +53,23 @@ export default class ShortcodeListAdapter {
   }
 
   initialize() {
-    if (this.timeoutHandle) throw new Error(`Adapter already initialized`)
-    if (this.isDispose) throw new Error(`Adapter has been disposed`)
+    if (!this.isDispose) throw new Error(`Adapter is already initialized`)
 
     this.fetchList()
     this.registerSubscriptions()
   }
 
+  /**
+   * Returns whether the shortcode adapter is active and initialized
+   */
+  public isInitialized() {
+    return !this.isDispose
+  }
+
   public dispose() {
-    if (!this.timeoutHandle) throw new Error(`Adapter has not been initialized`)
-    if (!this.isDispose) throw new Error(`Adapter has been disposed`)
+    if (this.isDispose) throw new Error(`Adapter has been disposed`)
 
     this.isDispose = true
-    clearTimeout(this.timeoutHandle)
-    this.timeoutHandle = null
     this.unsubscribeSubscriptions()
   }
 
@@ -132,9 +137,10 @@ export default class ShortcodeListAdapter {
   }
 
   private registerSubscriptions() {
-    const [myShortcodeCreated$, myShortcodeCreatedSub] = runGQLSubscription({
-      query: ShortcodeCreatedDocument,
-    })
+    const [myShortcodeCreated$, myShortcodeCreatedSub] =
+      runAuthOnlyGQLSubscription({
+        query: ShortcodeCreatedDocument,
+      })
 
     this.myShortcodesCreatedSub = myShortcodeCreatedSub
     this.myShortcodesCreated = myShortcodeCreated$.subscribe((result) => {
@@ -146,9 +152,10 @@ export default class ShortcodeListAdapter {
       this.createShortcode(result.right.myShortcodesCreated)
     })
 
-    const [myShortcodesRevoked$, myShortcodeRevokedSub] = runGQLSubscription({
-      query: ShortcodeDeletedDocument,
-    })
+    const [myShortcodesRevoked$, myShortcodeRevokedSub] =
+      runAuthOnlyGQLSubscription({
+        query: ShortcodeDeletedDocument,
+      })
 
     this.myShortcodesRevokedSub = myShortcodeRevokedSub
     this.myShortcodesRevoked = myShortcodesRevoked$.subscribe((result) => {

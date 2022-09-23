@@ -1,4 +1,9 @@
-import { currentUser$, HoppUser } from "@helpers/fb/auth"
+import {
+  currentUser$,
+  HoppUser,
+  AuthEvent,
+  authEvents$,
+} from "@helpers/fb/auth"
 import { map, distinctUntilChanged, filter, Subscription } from "rxjs"
 import { onBeforeUnmount, onMounted } from "vue"
 
@@ -21,6 +26,32 @@ export function onLoggedIn(exec: (user: HoppUser) => void) {
       .subscribe(() => {
         exec(currentUser$.value!)
       })
+  })
+
+  onBeforeUnmount(() => {
+    sub?.unsubscribe()
+  })
+}
+
+/**
+ * A Vue composable function that calls its param function
+ * when a new event (login, logout etc.) happens in
+ * the auth system.
+ *
+ * NOTE: Unlike `onLoggedIn` for which the callback will be called once on mount with the current state,
+ * here the callback will only be called on authentication event occurances.
+ * You might want to check the auth state from an `onMounted` hook or something
+ * if you want to access the initial state
+ *
+ * @param func A function which accepts an event
+ */
+export function onAuthEvent(func: (ev: AuthEvent) => void) {
+  let sub: Subscription | null = null
+
+  onMounted(() => {
+    sub = authEvents$.subscribe((ev) => {
+      func(ev)
+    })
   })
 
   onBeforeUnmount(() => {

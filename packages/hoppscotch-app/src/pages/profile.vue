@@ -293,12 +293,13 @@ import {
   verifyEmailAddress,
 } from "~/helpers/fb/auth"
 
-import { onLoggedIn } from "@composables/auth"
+import { onAuthEvent, onLoggedIn } from "@composables/auth"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useSetting } from "@composables/settings"
-import { useColorMode } from "~/composables/theming"
+import { useColorMode } from "@composables/theming"
+import { usePageHead } from "@composables/head"
 
 import { toggleSetting } from "~/newstore/settings"
 import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
@@ -307,7 +308,6 @@ import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mut
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
 import IconHelpCircle from "~icons/lucide/help-circle"
-import { usePageHead } from "~/composables/head"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -399,6 +399,13 @@ const loading = computed(
 
 onLoggedIn(() => {
   adapter.initialize()
+})
+
+onAuthEvent((ev) => {
+  if (ev.event === "logout" && adapter.isInitialized()) {
+    adapter.dispose()
+    return
+  }
 })
 
 const deleteShortcode = (codeID: string) => {

@@ -42,7 +42,7 @@ export type HoppUser = User & {
   accessToken?: string
 }
 
-type AuthEvents =
+export type AuthEvent =
   | { event: "probable_login"; user: HoppUser } // We have previous login state, but the app is waiting for authentication
   | { event: "login"; user: HoppUser } // We are authenticated
   | { event: "logout" } // No authentication and we have no previous state
@@ -60,7 +60,7 @@ export const authIdToken$ = new BehaviorSubject<string | null>(null)
 /**
  * A subject that emits events related to authentication flows
  */
-export const authEvents$ = new Subject<AuthEvents>()
+export const authEvents$ = new Subject<AuthEvent>()
 
 /**
  * Like currentUser$ but also gives probable user value

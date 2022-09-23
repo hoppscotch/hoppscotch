@@ -129,7 +129,8 @@
         @click="toggleShowChildren()"
       ></div>
       <div class="flex flex-col flex-1 truncate">
-        <CollectionsGraphqlFolder
+        <!-- Referring to this component only (this is recursive) -->
+        <Folder
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="`subFolder-${String(subFolderIndex)}`"
           :picked="picked"

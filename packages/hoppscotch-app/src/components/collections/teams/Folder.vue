@@ -146,7 +146,8 @@
         @click="toggleShowChildren()"
       ></div>
       <div class="flex flex-col flex-1 truncate">
-        <CollectionsTeamsFolder
+        <!-- Referring to this component only (this is recursive) -->
+        <Folder
           v-for="(subFolder, subFolderIndex) in folder.children"
           :key="`subFolder-${subFolderIndex}`"
           :folder="subFolder"

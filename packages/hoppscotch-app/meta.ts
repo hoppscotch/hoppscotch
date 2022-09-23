@@ -82,7 +82,7 @@ export const META_TAGS = (env: Record<string, string>): IHTMLTag[] => [
   // Windows phone tile icon
   {
     name: "msapplication-TileImage",
-    content: `/icon.png`,
+    content: `${env.VITE_BASE_URL}/icon.png`,
   },
   {
     name: "msapplication-TileColor",

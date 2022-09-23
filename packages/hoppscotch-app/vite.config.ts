@@ -129,6 +129,12 @@ export default defineConfig({
         theme_color: APP_INFO.app.background,
         icons: [
           {
+            src: "/icon.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
             src: "/logo.svg",
             sizes: "48x48 72x72 96x96 128x128 256x256 512x512",
             type: "image/svg+xml",

@@ -57,6 +57,20 @@
                     }
                   "
                 />
+                <div
+                  v-if="
+                    !(
+                      filteredCodegenDefinitions.length !== 0 ||
+                      CodegenDefinitions.length === 0
+                    )
+                  "
+                  class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+                >
+                  <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+                  <span class="my-2 text-center">
+                    {{ t("state.nothing_found") }} "{{ searchQuery }}"
+                  </span>
+                </div>
               </div>
             </div>
           </template>
@@ -208,7 +222,9 @@ const searchQuery = ref("")
 
 const filteredCodegenDefinitions = computed(() => {
   return CodegenDefinitions.filter((obj) =>
-    Object.values(obj).some((val) => val.includes(searchQuery.value))
+    Object.values(obj).some((val) =>
+      val.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
   )
 })
 </script>

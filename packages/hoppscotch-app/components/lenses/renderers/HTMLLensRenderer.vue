@@ -67,6 +67,7 @@ import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "~/helpers/utils/composables"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -102,6 +103,12 @@ useCodemirror(
     environmentHighlights: true,
   })
 )
+
+defineActionHandler("response.preview.toggle", () => {
+  if (previewEnabled) {
+    togglePreview()
+  }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -495,6 +495,10 @@
       "light": "Switch  theme to light mode",
       "system": "Switch  theme to system mode",
       "title": "Theme"
+    },
+    "response": {
+      "title": "Response",
+      "preview": "Toggle response preview"
     }
   },
   "shortcodes":{

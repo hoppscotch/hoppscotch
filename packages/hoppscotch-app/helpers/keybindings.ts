@@ -58,6 +58,7 @@ export const bindings: {
   "alt-d": "navigation.jump.documentation",
   "alt-m": "navigation.jump.profile",
   "alt-s": "navigation.jump.settings",
+  "alt-shift-p": "response.preview.toggle",
 }
 
 /**

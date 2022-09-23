@@ -32,6 +32,7 @@ export type HoppAction =
   | "settings.theme.light" // Use light theme
   | "settings.theme.dark" // Use dark theme
   | "settings.theme.black" // Use black theme
+  | "response.preview.toggle" // Toggle preview mode on and off on response
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

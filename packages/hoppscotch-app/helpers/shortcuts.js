@@ -117,6 +117,15 @@ export default [
       },
     ],
   },
+  {
+    section: "shortcut.response.title",
+    shortcuts: [
+      {
+        keys: [getPlatformAlternateKey(), "Shift", "P"],
+        label: "shortcut.response.preview",
+      },
+    ],
+  },
 ]
 
 export const spotlight = [

@@ -60,6 +60,11 @@ export default defineComponent({
       name: null,
     }
   },
+  watch: {
+    show(isShowing: boolean) {
+      if (!isShowing) this.name = null
+    },
+  },
   methods: {
     addFolder() {
       if (!this.name) {

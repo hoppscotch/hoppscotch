@@ -29,7 +29,7 @@
               {{ result.message }}
             </span>
             <span class="inline-flex text-secondaryLight">
-              <icon-lucide-minus class="svg-icons mr-2" />
+              <icon-lucide-minus class="mr-2 svg-icons" />
               {{
                 result.status === "pass" ? t("test.passed") : t("test.failed")
               }}

@@ -13,14 +13,14 @@
           {{ env.key }}
         </span>
         <span class="inline-flex text-secondaryDark">
-          <icon-lucide-minus class="svg-icons mr-2" />
+          <icon-lucide-minus class="mr-2 svg-icons" />
           {{ env.value }}
         </span>
         <span
           v-if="status === 'updations'"
           class="inline-flex text-secondaryLight"
         >
-          <icon-lucide-arrow-left class="svg-icons mr-2" />
+          <icon-lucide-arrow-left class="mr-2 svg-icons" />
           {{ env.previousValue }}
         </span>
       </div>

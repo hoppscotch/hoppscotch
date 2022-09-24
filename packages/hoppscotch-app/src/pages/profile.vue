@@ -216,7 +216,7 @@
                     </div>
                     <div v-else-if="!loading">
                       <div
-                        class="bg-primaryLight hidden lg:flex rounded-t w-full border-x border-t border-dividerLight"
+                        class="hidden w-full border-t rounded-t bg-primaryLight lg:flex border-x border-dividerLight"
                       >
                         <div class="flex w-full overflow-y-scroll">
                           <div class="table-box">
@@ -237,7 +237,7 @@
                         </div>
                       </div>
                       <div
-                        class="w-full max-h-sm flex flex-col items-center justify-between overflow-y-scroll rounded lg:rounded-t-none border lg:divide-y border-dividerLight divide-dividerLight"
+                        class="flex flex-col items-center justify-between w-full overflow-y-scroll border rounded max-h-sm lg:rounded-t-none lg:divide-y border-dividerLight divide-dividerLight"
                       >
                         <ProfileShortcode
                           v-for="(shortcode, shortcodeIndex) in myShortcodes"

@@ -20,12 +20,12 @@
           class="svg-icons"
           :class="{ 'text-accent': isSelected }"
         />
-        <span v-else class="truncate text-tiny font-semibold">
+        <span v-else class="font-semibold truncate text-tiny">
           {{ request.method }}
         </span>
       </span>
       <span
-        class="flex items-center flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
+        class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">

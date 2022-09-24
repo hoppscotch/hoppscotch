@@ -20,7 +20,7 @@
         />
       </span>
       <span
-        class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
+        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">

@@ -16,7 +16,7 @@
     <Transition name="slide" appear>
       <aside
         v-if="show"
-        class="fixed top-0 right-0 z-30 flex flex-col h-full max-w-full overflow-auto bg-primary w-96 shadow-xl"
+        class="fixed top-0 right-0 z-30 flex flex-col h-full max-w-full overflow-auto shadow-xl bg-primary w-96"
       >
         <slot name="content"></slot>
       </aside>

@@ -41,8 +41,8 @@
           <span
             class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary"
           >
-            <icon-lucide-chevron-right class="indicator mr-2" />
-            <span class="capitalize-first truncate">
+            <icon-lucide-chevron-right class="mr-2 indicator" />
+            <span class="truncate capitalize-first">
               {{ filteredHistoryGroupIndex }}
             </span>
           </span>

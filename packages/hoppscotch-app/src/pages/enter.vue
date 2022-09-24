@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center justify-center min-h-screen">
     <div v-if="signingInWithEmail">
       <SmartSpinner />
-      <div class="mt-2 text-secondaryLight text-sm">
+      <div class="mt-2 text-sm text-secondaryLight">
         {{ t("state.loading") }}
       </div>
     </div>

@@ -8,7 +8,7 @@
       :title="`${duration}`"
       @click="emit('use-entry')"
     >
-      <span class="truncate text-tiny font-semibold">
+      <span class="font-semibold truncate text-tiny">
         {{ entry.request.method }}
       </span>
     </span>

@@ -4,7 +4,7 @@
       v-if="isLoadingInitialRoute"
       class="flex flex-col items-center justify-center min-h-screen"
     >
-      <AppLogo class="w-16 h-16 rounded animate-bounce" />
+      <SmartSpinner />
     </div>
     <ErrorPage v-if="errorInfo !== null" :error="errorInfo" />
     <RouterView v-else />

@@ -56,6 +56,7 @@ export const baseTheme = EditorView.theme({
   ".cm-selectionBackground": {
     backgroundColor: "var(--accent-dark-color)",
     color: "var(--accent-contrast-color)",
+    borderRadius: "2px",
   },
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
@@ -121,14 +122,17 @@ export const baseTheme = EditorView.theme({
   ".cm-searchMatch": {
     outline: "1px solid var(--accent-dark-color)",
     backgroundColor: "var(--divider-dark-color)",
+    borderRadius: "2px",
   },
   ".cm-selectionMatch": {
     outline: "1px solid var(--accent-dark-color)",
     backgroundColor: "var(--divider-light-color)",
+    borderRadius: "2px",
   },
   ".cm-matchingBracket, .cm-nonmatchingBracket": {
     backgroundColor: "var(--divider-color)",
     outline: "1px solid var(--accent-dark-color)",
+    borderRadius: "2px",
   },
   ".cm-gutters": {
     fontFamily: "var(--font-mono)",
@@ -185,6 +189,7 @@ export const inputTheme = EditorView.theme({
   ".cm-selectionBackground": {
     backgroundColor: "var(--accent-dark-color)",
     color: "var(--accent-contrast-color)",
+    borderRadius: "2px",
   },
   ".cm-panels": {
     backgroundColor: "var(--primary-light-color)",
@@ -248,14 +253,17 @@ export const inputTheme = EditorView.theme({
   ".cm-searchMatch": {
     outline: "1px solid var(--accent-dark-color)",
     backgroundColor: "var(--divider-dark-color)",
+    borderRadius: "2px",
   },
   ".cm-selectionMatch": {
     outline: "1px solid var(--accent-dark-color)",
     backgroundColor: "var(--divider-light-color)",
+    borderRadius: "2px",
   },
   ".cm-matchingBracket, .cm-nonmatchingBracket": {
     backgroundColor: "var(--divider-color)",
     outline: "1px solid var(--accent-dark-color)",
+    borderRadius: "2px",
   },
   ".cm-gutters": {
     fontFamily: "var(--font-mono)",

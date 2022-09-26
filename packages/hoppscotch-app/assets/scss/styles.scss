@@ -321,6 +321,7 @@ pre.ace_editor {
       @apply font-medium;
       @apply transition;
       @apply leading-body;
+      @apply rounded;
 
       .action {
         @apply relative;

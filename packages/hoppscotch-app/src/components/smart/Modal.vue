@@ -38,9 +38,11 @@
             <div
               v-if="title"
               class="flex items-center justify-between border-b border-dividerLight"
-              :class="{ 'p-4 pl-6': !fullWidth }"
+              :class="{ 'p-4': !fullWidth }"
             >
-              <h3 class="heading">{{ title }}</h3>
+              <h3 class="heading" :class="{ 'ml-4': !fullWidth }">
+                {{ title }}
+              </h3>
               <span class="flex">
                 <slot name="actions"></slot>
                 <ButtonSecondary

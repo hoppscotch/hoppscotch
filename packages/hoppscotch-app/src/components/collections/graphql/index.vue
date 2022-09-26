@@ -132,22 +132,7 @@
   </div>
 </template>
 
-<script setup>
-import IconPlus from "~icons/lucide/plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconArchive from "~icons/lucide/archive"
-import { useI18n } from "@composables/i18n"
-import { useReadonlyStream } from "@composables/stream"
-import { useColorMode } from "@composables/theming"
-
-const collections = useReadonlyStream(graphqlCollections$, [])
-const colorMode = useColorMode()
-const t = useI18n()
-
-defineEmits(["select", "use-collection"])
-</script>
-
-<script>
+<script lang="ts">
 // TODO: TypeScript + Script Setup this :)
 import { defineComponent } from "vue"
 import { cloneDeep, clone } from "lodash-es"
@@ -158,6 +143,13 @@ import {
 } from "~/newstore/collections"
 import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
 
+import IconPlus from "~icons/lucide/plus"
+import IconHelpCircle from "~icons/lucide/help-circle"
+import IconArchive from "~icons/lucide/archive"
+import { useI18n } from "@composables/i18n"
+import { useReadonlyStream } from "@composables/stream"
+import { useColorMode } from "@composables/theming"
+
 export default defineComponent({
   props: {
     // Whether to activate the ability to pick items (activates 'select' events)
@@ -165,6 +157,21 @@ export default defineComponent({
     picked: { type: Object, default: null },
     // Whether to show the 'New' and 'Import/Export' actions
     showCollActions: { type: Boolean, default: true },
+  },
+  emits: ["select", "use-collection"],
+  setup() {
+    const collections = useReadonlyStream(graphqlCollections$, [])
+    const colorMode = useColorMode()
+    const t = useI18n()
+
+    return {
+      collections,
+      colorMode,
+      t,
+      IconPlus,
+      IconHelpCircle,
+      IconArchive,
+    }
   },
   data() {
     return {

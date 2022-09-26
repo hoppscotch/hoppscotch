@@ -37,6 +37,9 @@ if (APP_IS_IN_DEV_MODE) {
       statusCode: 500,
       message: formatErrorMessage(err) ?? t("error.something_went_wrong"),
     }
+
+    // Returning false here will not cancel the error and will log it to console
+    return false
   }
 }
 

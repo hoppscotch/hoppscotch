@@ -620,15 +620,15 @@ useCodemirror(
 )
 
 const queryEditor = ref<any | null>(null)
-const schemaString = useReadonlyStream(props.conn.schema$, null)
+const schema = useReadonlyStream(props.conn.schema$, null, false)
 
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
     mode: "graphql",
     placeholder: `${t("request.query")}`,
   },
-  linter: createGQLQueryLinter(schemaString),
-  completer: queryCompleter(schemaString),
+  linter: createGQLQueryLinter(schema),
+  completer: queryCompleter(schema),
   environmentHighlights: false,
 })
 

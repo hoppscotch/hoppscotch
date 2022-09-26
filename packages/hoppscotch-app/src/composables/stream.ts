@@ -1,10 +1,18 @@
 import { clone } from "lodash-es"
 import { Observable, Subscription } from "rxjs"
-import { customRef, onBeforeUnmount, readonly, ref, Ref } from "vue"
+import { customRef, onBeforeUnmount, readonly, Ref } from "vue"
 
+/**
+ * Returns a readonly (no writes) ref for an RxJS Observable
+ * @param stream$ The RxJS Observable to listen to
+ * @param initialValue The initial value to apply until the stream emits a value
+ * @param cloneEmittedValue Whether to clone the value emitted by the observable, defaults to true
+ * @returns A readonly ref which has the latest value from the stream
+ */
 export function useReadonlyStream<T>(
   stream$: Observable<T>,
-  initialValue: T
+  initialValue: T,
+  cloneEmittedValue = true
 ): Ref<T> {
   let sub: Subscription | null = null
 
@@ -14,14 +22,28 @@ export function useReadonlyStream<T>(
     }
   })
 
-  const targetRef = ref(initialValue) as Ref<T>
+  const r = customRef((track, trigger) => {
+    let val = initialValue
 
-  sub = stream$.subscribe((value) => {
-    // Perform shallow clone to force trigger reactivity updates
-    targetRef.value = clone(value)
+    sub = stream$.subscribe((value) => {
+      val = cloneEmittedValue ? clone(value) : value
+      trigger()
+    })
+
+    return {
+      get() {
+        track()
+        return val
+      },
+      set() {
+        trigger() // <- Not exactly needed here
+        throw new Error("Cannot write to a ref from useReadonlyStream")
+      },
+    }
   })
 
-  return readonly(targetRef) as Ref<T>
+  // Casting to still maintain the proper type signature for ease of use
+  return readonly(r) as Ref<T>
 }
 
 export function useStream<T>(

@@ -24,7 +24,7 @@ export const createGQLQueryLinter: (
       ({ locations, message }) =>
         <LinterResult>{
           from: {
-            line: locations![0].line - 1,
+            line: locations![0].line,
             ch: locations![0].column - 1,
           },
           to: {
@@ -43,11 +43,11 @@ export const createGQLQueryLinter: (
     return Promise.resolve([
       <LinterResult>{
         from: {
-          line: err.locations![0].line - 1,
+          line: err.locations![0].line,
           ch: err.locations![0].column - 1,
         },
         to: {
-          line: err.locations![0].line - 1,
+          line: err.locations![0].line,
           ch: err.locations![0].column,
         },
         message: err.message,

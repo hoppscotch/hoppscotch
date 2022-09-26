@@ -6,7 +6,7 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <div class="flex flex-col px-2">
+      <div class="flex flex-col">
         <input
           id="selectLabelAddFolder"
           v-model="name"

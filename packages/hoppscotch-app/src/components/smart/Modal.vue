@@ -33,15 +33,12 @@
         <Transition name="bounce" appear>
           <div
             class="inline-block w-full overflow-hidden text-left align-bottom shadow-lg transition-all transform bg-primary sm:rounded-xl sm:align-middle"
-            :class="[
-              { 'mt-24 md:mb-8': placement === 'top' },
-              { 'p-4': !fullWidth },
-              maxWidth,
-            ]"
+            :class="[{ 'mt-24 md:mb-8': placement === 'top' }, maxWidth]"
           >
             <div
               v-if="title"
-              class="flex items-center justify-between pl-2 mb-4"
+              class="flex items-center justify-between border-b border-dividerLight"
+              :class="{ 'p-4 pl-6': !fullWidth }"
             >
               <h3 class="heading">{{ title }}</h3>
               <span class="flex">
@@ -56,14 +53,15 @@
               </span>
             </div>
             <div
-              class="flex flex-col overflow-y-auto max-h-md"
-              :class="{ 'py-2': !fullWidth }"
+              class="flex flex-col overflow-y-auto max-h-lg"
+              :class="{ 'p-4': !fullWidth }"
             >
               <slot name="body"></slot>
             </div>
             <div
               v-if="hasFooterSlot"
-              class="flex items-center justify-between flex-1 p-2 mt-4"
+              class="flex items-center justify-between flex-1 border-t border-dividerLight"
+              :class="{ 'p-4': !fullWidth }"
             >
               <slot name="footer"></slot>
             </div>
@@ -203,6 +201,7 @@ const getPortal = () => {
   0% {
     transform: scale(0.95);
   }
+
   100% {
     transform: scale(1);
   }

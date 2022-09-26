@@ -6,10 +6,10 @@
     @close="hideModal"
   >
     <template #body>
-      <p class="px-2 mb-8 text-secondaryLight">
+      <p class="mb-4 text-secondaryLight">
         {{ t("app.invite_description") }}
       </p>
-      <div class="flex flex-col px-2 space-y-2">
+      <div class="flex flex-col space-y-2">
         <div class="grid grid-cols-3 gap-4">
           <a
             v-for="(platform, index) in platforms"
@@ -121,9 +121,9 @@ const hideModal = () => {
   @apply items-center;
   @apply justify-center;
   @apply font-semibold;
-  @apply hover:(bg-primaryLight text-secondaryDark);
-  @apply focus:outline-none;
-  @apply focus-visible:border-divider;
+  @apply hover: (bg-primaryLight text-secondaryDark);
+  @apply focus: outline-none;
+  @apply focus-visible: border-divider;
 
   svg {
     @apply opacity-80;

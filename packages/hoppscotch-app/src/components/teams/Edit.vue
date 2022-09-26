@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" dialog :title="t('team.edit')" @close="hideModal">
     <template #body>
-      <div class="flex flex-col px-2">
+      <div class="flex flex-col">
         <div class="relative flex">
           <input
             id="selectLabelTeamEdit"

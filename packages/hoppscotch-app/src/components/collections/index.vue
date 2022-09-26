@@ -1,10 +1,12 @@
 <template>
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky z-10 flex flex-col border-b rounded-t divide-y divide-dividerLight bg-primary border-dividerLight"
-      :style="saveRequest ? 'top: calc(-1 * var(--font-size-body))' : 'top: 0'"
+      class="sticky z-10 flex flex-col border-b rounded-t bg-primary border-dividerLight"
+      :style="
+        saveRequest ? 'top: calc(-1.35 * var(--font-size-body))' : 'top: 0'
+      "
     >
-      <div class="flex flex-col">
+      <div class="flex flex-col border-b border-dividerLight">
         <input
           v-model="filterText"
           type="search"

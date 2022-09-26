@@ -42,7 +42,7 @@
       >
         <SmartSpinner />
       </div>
-      <div v-else class="flex flex-col px-2">
+      <div v-else class="flex flex-col">
         <div class="flex items-center justify-between flex-1">
           <label for="memberList" class="px-4 pb-4">
             {{ t("team.pending_invites") }}

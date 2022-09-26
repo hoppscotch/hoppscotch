@@ -17,7 +17,7 @@
     </template>
     <template #body>
       <div v-if="importerType !== null" class="flex flex-col">
-        <div class="flex flex-col px-2 pb-6">
+        <div class="flex flex-col pb-6">
           <div
             v-for="(step, index) in importerSteps"
             :key="`step-${index}`"
@@ -74,7 +74,7 @@
             </div>
             <div
               v-else-if="step.name === 'TARGET_MY_COLLECTION'"
-              class="flex flex-col px-2"
+              class="flex flex-col"
             >
               <div class="select-wrapper">
                 <select
@@ -102,12 +102,11 @@
         <ButtonPrimary
           :label="t('import.title')"
           :disabled="enableImportButton"
-          class="mx-2"
           :loading="importingMyCollections"
           @click="finishImport"
         />
       </div>
-      <div v-else class="flex flex-col px-2">
+      <div v-else class="flex flex-col">
         <SmartExpand>
           <template #body>
             <SmartItem

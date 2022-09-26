@@ -6,7 +6,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col px-2">
+      <div class="flex flex-col">
         <input
           id="selectLabelGqlEditReq"
           v-model="requestUpdateData.name"

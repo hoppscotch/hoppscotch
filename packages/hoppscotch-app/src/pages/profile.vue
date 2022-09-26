@@ -270,7 +270,7 @@
               </div>
             </SmartTab>
             <SmartTab :id="'teams'" :label="t('team.title')">
-              <Teams :modal="false" />
+              <Teams :modal="false" class="p-4" />
             </SmartTab>
           </SmartTabs>
         </div>

@@ -6,7 +6,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col px-2">
+      <div class="flex flex-col">
         <label for="requestType" class="px-4 pb-4">
           {{ t("request.choose_language") }}
         </label>

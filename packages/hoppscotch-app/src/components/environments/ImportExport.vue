@@ -65,7 +65,7 @@
       </span>
     </template>
     <template #body>
-      <div class="flex flex-col px-2 space-y-2">
+      <div class="flex flex-col space-y-2">
         <SmartItem
           :icon="IconFolderPlus"
           :label="t('import.from_json')"

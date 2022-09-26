@@ -7,7 +7,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div v-if="mode === 'sign-in'" class="flex flex-col px-2 space-y-2">
+      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
         <SmartItem
           :loading="signingInWithGitHub"
           :icon="IconGithub"

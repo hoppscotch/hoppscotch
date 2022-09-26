@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="p-4 space-y-4">
+    <div class="space-y-4">
       <ButtonSecondary
         :label="`${t('team.create_new')}`"
         outline

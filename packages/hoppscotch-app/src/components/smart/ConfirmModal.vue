@@ -8,7 +8,7 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col px-2">
+      <div class="flex flex-col">
         <label>
           {{ title }}
         </label>

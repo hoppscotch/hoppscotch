@@ -140,6 +140,7 @@
     "vite-plugin-html-config": "^1.0.9",
     "vite-plugin-inspect": "^0.6.1",
     "vite-plugin-pages": "^0.25.0",
+    "vite-plugin-pages-sitemap": "^1.3.0",
     "vite-plugin-pwa": "^0.12.2",
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",

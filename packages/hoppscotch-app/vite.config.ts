@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from "vite"
 import { META_TAGS } from "./meta"
+import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
 import VueI18n from "@intlify/vite-plugin-vue-i18n"
@@ -84,6 +85,14 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: "src/pages",
       importMode: "async",
+      onRoutesGenerated(routes) {
+        return generateSitemap({
+          routes,
+          nuxtStyle: true,
+          allowRobots: true,
+          hostname: ENV.VITE_BASE_URL,
+        })
+      },
     }),
     Layouts({
       layoutsDirs: "./src/layouts",

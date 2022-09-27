@@ -103,10 +103,6 @@ export default [
         label: "shortcut.navigation.realtime",
       },
       {
-        keys: [getPlatformAlternateKey(), "D"],
-        label: "shortcut.navigation.documentation",
-      },
-      {
         keys: [getPlatformAlternateKey(), "S"],
         label: "shortcut.navigation.settings",
       },
@@ -164,12 +160,6 @@ export const spotlight = [
         keys: [getPlatformAlternateKey(), "W"],
         label: "shortcut.navigation.realtime",
         action: "navigation.jump.realtime",
-        icon: IconArrowRight,
-      },
-      {
-        keys: [getPlatformAlternateKey(), "D"],
-        label: "shortcut.navigation.documentation",
-        action: "navigation.jump.documentation",
         icon: IconArrowRight,
       },
       {
@@ -259,13 +249,6 @@ export const fuse = [
       "sse",
       "go",
     ],
-  },
-  {
-    keys: [getPlatformAlternateKey(), "D"],
-    label: "shortcut.navigation.documentation",
-    action: "navigation.jump.documentation",
-    icon: IconArrowRight,
-    tags: ["documentation", "jump", "page", "navigation", "go"],
   },
   {
     keys: [getPlatformAlternateKey(), "S"],

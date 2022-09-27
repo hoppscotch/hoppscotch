@@ -160,7 +160,7 @@ export default defineComponent({
   },
   emits: ["select", "use-collection"],
   setup() {
-    const collections = useReadonlyStream(graphqlCollections$, [])
+    const collections = useReadonlyStream(graphqlCollections$, [], "deep")
     const colorMode = useColorMode()
     const t = useI18n()
 

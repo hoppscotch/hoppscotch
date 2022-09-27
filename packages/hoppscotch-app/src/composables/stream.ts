@@ -1,18 +1,21 @@
-import { clone } from "lodash-es"
+import { clone, cloneDeep } from "lodash-es"
 import { Observable, Subscription } from "rxjs"
 import { customRef, onBeforeUnmount, readonly, Ref } from "vue"
+
+type CloneMode = "noclone" | "shallow" | "deep"
 
 /**
  * Returns a readonly (no writes) ref for an RxJS Observable
  * @param stream$ The RxJS Observable to listen to
  * @param initialValue The initial value to apply until the stream emits a value
- * @param cloneEmittedValue Whether to clone the value emitted by the observable, defaults to true
+ * @param cloneMode Determines whether or not and how deep to clone the emitted value.
+ *                  Useful for issues in reactivity due to reference sharing. Defaults to shallow clone
  * @returns A readonly ref which has the latest value from the stream
  */
 export function useReadonlyStream<T>(
   stream$: Observable<T>,
   initialValue: T,
-  cloneEmittedValue = true
+  cloneMode: CloneMode = "shallow"
 ): Ref<T> {
   let sub: Subscription | null = null
 
@@ -26,7 +29,14 @@ export function useReadonlyStream<T>(
     let val = initialValue
 
     sub = stream$.subscribe((value) => {
-      val = cloneEmittedValue ? clone(value) : value
+      if (cloneMode === "noclone") {
+        val = value
+      } else if (cloneMode === "shallow") {
+        val = clone(value)
+      } else if (cloneMode === "deep") {
+        val = cloneDeep(value)
+      }
+
       trigger()
     })
 

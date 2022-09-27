@@ -75,7 +75,7 @@
         v-for="(collection, index) in filteredCollections"
         :key="`collection-${index}`"
         :collection-index="parseInt(index)"
-        :collection="{ ...collection }"
+        :collection="collection"
         :is-filtered="filterText.length > 0"
         :save-request="saveRequest"
         :collections-type="collectionsType"
@@ -279,7 +279,7 @@ export default defineComponent({
     return {
       subscribeTo: subscribeToStream,
 
-      collections: useReadonlyStream(restCollections$, []),
+      collections: useReadonlyStream(restCollections$, [], "deep"),
       currentUser: useReadonlyStream(currentUser$, null),
       colorMode: useColorMode(),
       toast: useToast(),

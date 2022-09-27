@@ -620,7 +620,7 @@ useCodemirror(
 )
 
 const queryEditor = ref<any | null>(null)
-const schema = useReadonlyStream(props.conn.schema$, null, false)
+const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
 
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {

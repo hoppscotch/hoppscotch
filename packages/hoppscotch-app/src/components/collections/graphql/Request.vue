@@ -209,6 +209,7 @@ const dragStart = ({ dataTransfer }: any) => {
 const removeRequest = () => {
   // Cancel pick if the picked request is deleted
   if (
+    props.picked &&
     props.picked.pickedType === "gql-my-request" &&
     props.picked.folderPath === props.folderPath &&
     props.picked.requestIndex === props.requestIndex

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { BehaviorSubject } from "rxjs"
+import { BehaviorSubject, Subject } from "rxjs"
 import {
   getIntrospectionQuery,
   buildClientSchema,
@@ -11,8 +11,10 @@ import {
   GraphQLInterfaceType,
 } from "graphql"
 import { distinctUntilChanged, map } from "rxjs/operators"
-import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
+import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
+import { OperationType } from "@urql/core"
 import { sendNetworkRequest } from "./network"
+import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -23,7 +25,18 @@ type RunQueryOptions = {
   variables: string
   auth: HoppGQLAuth
   operationName: string | undefined
+  operationType: OperationType
 }
+
+export type GQLEvent = {
+  time: number
+  operationName: string | undefined
+  operationType: OperationType
+  data: string
+  rawQuery?: RunQueryOptions
+}
+
+export type SubscriptionState = "SUBSCRIBING" | "SUBSCRIBED" | "UNSUBSCRIBED"
 
 const GQL = {
   CONNECTION_INIT: "connection_init",
@@ -45,7 +58,13 @@ const GQL = {
 export class GQLConnection {
   public isLoading$ = new BehaviorSubject<boolean>(false)
   public connected$ = new BehaviorSubject<boolean>(false)
+  public subscriptionState$ = new BehaviorSubject<SubscriptionState>(
+    "UNSUBSCRIBED"
+  )
+
+  public event$: Subject<GQLEvent> = new Subject()
   public schema$ = new BehaviorSubject<GraphQLSchema | null>(null)
+
   socket: WebSocket | undefined
 
   public schemaString$ = this.schema$.pipe(
@@ -235,7 +254,15 @@ export class GQLConnection {
   }
 
   public async runQuery(options: RunQueryOptions) {
-    const { url, headers, query, variables, auth, operationName } = options
+    const {
+      url,
+      headers,
+      query,
+      variables,
+      auth,
+      operationName,
+      operationType,
+    } = options
 
     const finalHeaders: Record<string, string> = {}
 
@@ -281,6 +308,10 @@ export class GQLConnection {
       },
     }
 
+    if (operationType === "subscription") {
+      return this.runSubscription(options)
+    }
+
     const res = await sendNetworkRequest(reqOptions)
 
     // HACK: Temporary trailing null character issue from the extension fix
@@ -288,15 +319,26 @@ export class GQLConnection {
       .decode(res.data)
       .replace(/\0+$/, "")
 
+    this.event$.next({
+      time: Date.now(),
+      operationName: operationName ?? "query",
+      data: responseText,
+      rawQuery: options,
+      operationType,
+    })
+
+    this.addQueryToHistory(options, responseText)
+
     return responseText
   }
 
-  runSubscription(
-    url: string,
-    operationName: string | undefined,
-    query: string
-  ) {
-    const socket = new WebSocket(url, "graphql-ws")
+  runSubscription(options: RunQueryOptions) {
+    const { url, query, operationName } = options
+    const wsUrl = url.replace(/^http/, "ws")
+
+    this.subscriptionState$.next("SUBSCRIBING")
+
+    const socket = new WebSocket(wsUrl, "graphql-ws")
 
     socket.onopen = (event) => {
       console.log("WebSocket is open now.", event)
@@ -320,7 +362,7 @@ export class GQLConnection {
       const data = JSON.parse(event.data)
       switch (data.type) {
         case GQL.CONNECTION_ACK: {
-          console.log("success")
+          this.subscriptionState$.next("SUBSCRIBED")
           break
         }
         case GQL.CONNECTION_ERROR: {
@@ -331,7 +373,13 @@ export class GQLConnection {
           break
         }
         case GQL.DATA: {
-          console.log(data.id, data.payload.errors, data.payload.data)
+          console.log(data.id, data.payload.errors)
+          this.event$.next({
+            time: Date.now(),
+            operationName,
+            data: JSON.stringify(data.payload),
+            operationType: "subscription",
+          })
           break
         }
         case GQL.COMPLETE: {
@@ -340,5 +388,32 @@ export class GQLConnection {
         }
       }
     }
+
+    socket.onclose = (event) => {
+      console.log("WebSocket is closed now.", event)
+      this.subscriptionState$.next("UNSUBSCRIBED")
+    }
+
+    this.addQueryToHistory(options, "")
+
+    return socket
+  }
+
+  addQueryToHistory(options: RunQueryOptions, response: string) {
+    const { url, headers, query, variables, auth } = options
+    addGraphqlHistoryEntry(
+      makeGQLHistoryEntry({
+        request: makeGQLRequest({
+          name: "",
+          url,
+          query,
+          headers,
+          variables,
+          auth,
+        }),
+        response,
+        star: false,
+      })
+    )
   }
 }

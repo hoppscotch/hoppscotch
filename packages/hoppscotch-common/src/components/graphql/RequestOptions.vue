@@ -387,7 +387,6 @@ import * as RA from "fp-ts/ReadonlyArray"
 import { pipe, flow } from "fp-ts/function"
 import {
   GQLHeader,
-  makeGQLRequest,
   rawKeyValueEntriesToString,
   parseRawKeyValueEntriesE,
   RawKeyValueEntry,
@@ -396,7 +395,11 @@ import draggable from "vuedraggable-es"
 import { clone, cloneDeep, isEqual } from "lodash-es"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { useReadonlyStream, useStream } from "@composables/stream"
+import {
+  useReadonlyStream,
+  useStream,
+  useStreamSubscriber,
+} from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -440,6 +443,8 @@ const props = defineProps<{
 }>()
 
 const toast = useToast()
+const nuxt = useNuxt()
+const { subscribeToStream } = useStreamSubscriber()
 
 const url = useReadonlyStream(gqlURL$, "")
 const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
@@ -648,7 +653,7 @@ const deleteHeader = (index: number) => {
       action: [
         {
           text: `${t("action.undo")}`,
-          onClick: (_, toastObject) => {
+          onClick: (_: any, toastObject: any) => {
             workingHeaders.value = headersBeforeDeletion
             toastObject.goAway(0)
             deletionToast.value = null
@@ -764,42 +769,21 @@ const runQuery = async (
     const runVariables = clone(variableString.value)
     const runAuth = clone(auth.value)
 
-    let responseText = ""
+    console.log(definition)
 
-    if (definition?.operation === "subscription") {
-      const wsUrl = runURL.replace(/^http/, "ws")
-      props.conn.runSubscription(wsUrl, definition?.name?.value, runQuery)
-    } else {
-      responseText = await props.conn.runQuery({
-        url: runURL,
-        headers: runHeaders,
-        query: runQuery,
-        variables: runVariables,
-        auth: runAuth,
-        operationName: definition?.name?.value,
-      })
-    }
+    await props.conn.runQuery({
+      url: runURL,
+      headers: runHeaders,
+      query: runQuery,
+      variables: runVariables,
+      auth: runAuth,
+      operationName: definition?.name?.value,
+      operationType: definition?.operation ?? "query",
+    })
 
     const duration = Date.now() - startTime
 
     completePageProgress()
-
-    response.value = JSON.stringify(JSON.parse(responseText), null, 2)
-
-    addGraphqlHistoryEntry(
-      makeGQLHistoryEntry({
-        request: makeGQLRequest({
-          name: "",
-          url: runURL,
-          query: runQuery,
-          headers: runHeaders,
-          variables: runVariables,
-          auth: runAuth,
-        }),
-        response: response.value,
-        star: false,
-      })
-    )
 
     toast.success(`${t("state.finished_in", { duration })}`)
   } catch (e: any) {
@@ -819,6 +803,19 @@ const runQuery = async (
     strategy: getCurrentStrategyID(),
   })
 }
+
+onMounted(() => {
+  subscribeToStream(props.conn.event$, (event) => {
+    console.log(event)
+    const { data } = event
+    console.log(JSON.parse(data))
+    try {
+      response.value = JSON.stringify(JSON.parse(data), null, 2)
+    } catch (error) {
+      console.log(error)
+    }
+  })
+})
 
 const hideRequestModal = () => {
   showSaveRequestModal.value = false

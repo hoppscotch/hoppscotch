@@ -6,9 +6,6 @@
     @close="hideModal"
   >
     <template #body>
-      <p class="mb-4 text-secondaryLight">
-        {{ t("app.invite_description") }}
-      </p>
       <div class="flex flex-col space-y-2">
         <div class="grid grid-cols-3 gap-4">
           <a
@@ -32,6 +29,11 @@
           </button>
         </div>
       </div>
+    </template>
+    <template #footer>
+      <p class="text-secondaryLight">
+        {{ t("app.invite_description") }}
+      </p>
     </template>
   </SmartModal>
 </template>

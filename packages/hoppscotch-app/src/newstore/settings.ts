@@ -68,7 +68,7 @@ export const defaultSettings: SettingsType = {
     bearerToken: true,
     oauth2Token: true,
   },
-  THEME_COLOR: "orange",
+  THEME_COLOR: "indigo",
   BG_COLOR: "system",
   TELEMETRY_ENABLED: true,
   EXPAND_NAVIGATION: true,

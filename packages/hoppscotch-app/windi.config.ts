@@ -25,6 +25,7 @@ export default defineConfig({
         primary: "var(--primary-color)",
         primaryLight: "var(--primary-light-color)",
         primaryDark: "var(--primary-dark-color)",
+        primaryContrast: "var(--primary-contrast-color)",
         secondary: "var(--secondary-color)",
         secondaryLight: "var(--secondary-light-color)",
         secondaryDark: "var(--secondary-dark-color)",

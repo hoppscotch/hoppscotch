@@ -75,9 +75,9 @@ const hideModal = () => {
   @apply items-center;
   @apply justify-center;
   @apply font-semibold;
-  @apply hover:(bg-primaryLight text-secondaryDark);
-  @apply focus:outline-none;
-  @apply focus-visible:border-divider;
+  @apply hover: (bg-primaryLight text-secondaryDark);
+  @apply focus: outline-none;
+  @apply focus-visible: border-divider;
 
   svg {
     @apply opacity-80;

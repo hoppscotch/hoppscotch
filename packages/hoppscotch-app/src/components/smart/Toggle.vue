@@ -1,7 +1,9 @@
 <template>
   <div
-    class="inline-flex items-center justify-center cursor-pointer transition flex-nowrap group hover:text-secondaryDark"
+    class="inline-flex items-center justify-center cursor-pointer transition flex-nowrap group hover:text-secondaryDark rounded py-0.5 px-1 -my-0.5 -mx-1 focus:outline-none focus-visible:ring focus-visible:ring-accent focus-visible:text-secondaryDark"
+    tabindex="0"
     @click="emit('change')"
+    @keyup.enter="emit('change')"
   >
     <span ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
@@ -25,7 +27,7 @@ const emit = defineEmits<{
 }>()
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 $useBorder: true;
 $borderColor: var(--divider-color);
 $activeColor: var(--divider-dark-color);
@@ -49,9 +51,10 @@ $transition: all 0.2s ease-in-out;
   @apply mr-4;
   @apply cursor-pointer;
   @apply flex-shrink-0;
-  @apply group-hover:border-accentDark;
   @apply transition;
-
+  @apply group-hover: border-accentDark;
+  @apply focus: outline-none;
+  @apply focus-visible: border-accentDark;
   width: $width;
   height: $height;
   border: if($useBorder, 2px solid $borderColor, none);
@@ -65,7 +68,6 @@ $transition: all 0.2s ease-in-out;
     @apply inset-0;
     @apply rounded-full;
     @apply pointer-events-none;
-
     transition: $transition;
     margin: $handleSpacing;
     background-color: $inactiveHandleColor;
@@ -76,6 +78,7 @@ $transition: all 0.2s ease-in-out;
   &.on {
     // background-color: $activeColor;
     border-color: $activeColor;
+    @apply focus-visible: border-accentDark;
 
     .handle {
       background-color: $activeHandleColor;

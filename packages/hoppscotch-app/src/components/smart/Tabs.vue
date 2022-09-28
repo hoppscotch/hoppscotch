@@ -165,7 +165,7 @@ const selectTab = (id: string) => {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .tabs {
   @apply flex;
   @apply whitespace-nowrap;
@@ -179,7 +179,6 @@ const selectTab = (id: string) => {
   //   @apply bg-dividerLight;
   //   @apply z-1;
   //   @apply h-0.5;
-
   //   content: "";
   // }
 
@@ -193,9 +192,9 @@ const selectTab = (id: string) => {
     @apply text-secondary;
     @apply font-semibold;
     @apply cursor-pointer;
-    @apply hover:text-secondaryDark;
-    @apply focus:outline-none;
-    @apply focus-visible:text-secondaryDark;
+    @apply hover: text-secondaryDark;
+    @apply focus: outline-none;
+    @apply focus-visible: text-secondaryDark;
 
     .tab-info {
       @apply inline-flex;
@@ -206,7 +205,6 @@ const selectTab = (id: string) => {
       @apply ml-2;
       @apply text-8px;
       @apply border border-divider;
-
       @apply rounded;
       @apply text-secondaryLight;
     }
@@ -219,7 +217,6 @@ const selectTab = (id: string) => {
       @apply bg-transparent;
       @apply z-2;
       @apply h-0.5;
-
       content: "";
     }
 

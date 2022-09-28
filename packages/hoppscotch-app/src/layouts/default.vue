@@ -161,7 +161,7 @@ defineActionHandler("settings.theme.black", () => {
 hookKeybindingsListener()
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .spacer-small {
   margin-bottom: 4.2rem;
 }

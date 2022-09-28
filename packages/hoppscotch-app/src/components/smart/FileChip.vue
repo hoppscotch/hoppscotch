@@ -9,7 +9,7 @@
 import IconFile from "~icons/lucide/file"
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .chip {
   @apply inline-flex;
   @apply items-center;

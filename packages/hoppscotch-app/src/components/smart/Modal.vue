@@ -195,7 +195,6 @@ const getPortal = () => {
 <style lang="scss" scoped>
 .bounce-enter-active {
   @apply transition;
-
   animation: bounce-in 150ms;
 }
 

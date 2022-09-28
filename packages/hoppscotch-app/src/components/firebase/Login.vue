@@ -76,7 +76,7 @@
       </div>
     </template>
     <template #footer>
-      <p v-if="mode === 'sign-in'" class="text-secondaryLight">
+      <div v-if="mode === 'sign-in'" class="text-secondaryLight text-tiny">
         By signing in, you are agreeing to our
         <SmartAnchor
           class="link"
@@ -90,17 +90,17 @@
           to="https://docs.hoppscotch.io/privacy"
           blank
           label="Privacy Policy"
-        />.
-      </p>
-      <p v-if="mode === 'email'" class="text-secondaryLight">
-        <SmartAnchor
-          class="link"
+        />
+      </div>
+      <div v-if="mode === 'email'">
+        <ButtonSecondary
           :label="t('auth.all_sign_in_options')"
           :icon="IconArrowLeft"
+          class="!p-0"
           @click="mode = 'sign-in'"
         />
-      </p>
-      <p
+      </div>
+      <div
         v-if="mode === 'email-sent'"
         class="flex justify-between flex-1 text-secondaryLight"
       >
@@ -115,7 +115,7 @@
           :label="`${t('action.dismiss')}`"
           @click="hideModal"
         />
-      </p>
+      </div>
     </template>
   </SmartModal>
 </template>

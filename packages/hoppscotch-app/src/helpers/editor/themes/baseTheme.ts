@@ -45,7 +45,8 @@ export const baseTheme = EditorView.theme({
   ".cm-content": {
     caretColor: "var(--secondary-dark-color)",
     fontFamily: "var(--font-mono)",
-    backgroundColor: "var(--primary-color)",
+    color: "var(--secondary-dark-color)",
+    backgroundColor: "transparent",
   },
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",
@@ -64,8 +65,6 @@ export const baseTheme = EditorView.theme({
   },
   ".cm-panels.cm-panels-top": {
     borderBottom: "1px solid var(--divider-light-color)",
-    top: "var(--lower-tertiary-sticky-fold) !important",
-    "z-index": "10",
   },
   ".cm-panels.cm-panels-bottom": {
     borderTop: "1px solid var(--divider-light-color)",
@@ -85,13 +84,14 @@ export const baseTheme = EditorView.theme({
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-light-color)",
-    borderRadius: "3px",
+    borderRadius: "4px",
   },
   ".cm-button": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-dark-color)",
     backgroundImage: "none",
     border: "none",
+    borderRadius: "4px",
   },
   ".cm-completionLabel": {
     color: "var(--secondary-color)",
@@ -100,7 +100,7 @@ export const baseTheme = EditorView.theme({
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
     border: "none",
-    borderRadius: "3px",
+    borderRadius: "4px",
   },
   ".cm-tooltip-arrow:after": {
     borderColor: "transparent !important",
@@ -216,13 +216,14 @@ export const inputTheme = EditorView.theme({
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-light-color)",
-    borderRadius: "3px",
+    borderRadius: "4px",
   },
   ".cm-button": {
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-dark-color)",
     backgroundImage: "none",
     border: "none",
+    borderRadius: "4px",
   },
   ".cm-completionLabel": {
     color: "var(--secondary-color)",
@@ -231,7 +232,7 @@ export const inputTheme = EditorView.theme({
     backgroundColor: "var(--primary-dark-color)",
     color: "var(--secondary-light-color)",
     border: "none",
-    borderRadius: "3px",
+    borderRadius: "4px",
   },
   ".cm-tooltip-arrow:after": {
     borderColor: "transparent !important",

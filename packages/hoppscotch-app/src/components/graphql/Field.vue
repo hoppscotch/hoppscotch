@@ -82,7 +82,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .field-highlighted {
   @apply border-accent border-b-2;
 }

@@ -34,7 +34,7 @@ const emit = defineEmits<{
 }>()
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 input[type="checkbox"] {
   @apply appearance-none;
   @apply hidden;
@@ -46,7 +46,7 @@ input[type="checkbox"] {
     &::before {
       @apply border-divider border-2;
       @apply rounded;
-      @apply group-hover:border-accentDark;
+      @apply group-hover: border-accentDark;
       @apply inline-flex;
       @apply items-center;
       @apply justify-center;
@@ -56,7 +56,6 @@ input[type="checkbox"] {
       @apply font-icon;
       @apply mr-3;
       @apply transition;
-
       content: "\e876";
     }
   }

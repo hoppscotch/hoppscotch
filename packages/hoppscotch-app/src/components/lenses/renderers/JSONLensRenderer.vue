@@ -370,6 +370,6 @@ const toggleFilterState = () => {
   @apply px-2;
   @apply py-1;
   @apply transition;
-  @apply hover:text-secondary;
+  @apply hover: text-secondary;
 }
 </style>

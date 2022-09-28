@@ -69,30 +69,29 @@ const primaryNavigation = [
 ]
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .nav-link {
   @apply relative;
   @apply p-4;
   @apply flex flex-col flex-1;
   @apply items-center;
   @apply justify-center;
-  @apply hover:(bg-primaryDark text-secondaryDark);
-  @apply focus-visible:text-secondaryDark;
+  @apply hover: (bg-primaryDark text-secondaryDark);
+  @apply focus-visible: text-secondaryDark;
 
   &::after {
     @apply absolute;
     @apply inset-x-0;
-    @apply md:inset-x-auto;
-    @apply md:inset-y-0;
+    @apply md: inset-x-auto;
+    @apply md: inset-y-0;
     @apply bottom-0;
-    @apply md:bottom-auto;
-    @apply md:left-0;
+    @apply md: bottom-auto;
+    @apply md: left-0;
     @apply z-2;
     @apply h-0.5;
-    @apply md:h-full;
+    @apply md: h-full;
     @apply w-full;
-    @apply md:w-0.5;
-
+    @apply md: w-0.5;
     content: "";
   }
 
@@ -112,7 +111,7 @@ const primaryNavigation = [
   &.router-link-active {
     @apply text-secondaryDark;
     @apply bg-primaryLight;
-    @apply hover:text-secondaryDark;
+    @apply hover: text-secondaryDark;
 
     .svg-icons {
       @apply opacity-100;
@@ -122,10 +121,11 @@ const primaryNavigation = [
       @apply bg-accent;
     }
   }
+
   &.exact-active-link {
     @apply text-secondaryDark;
     @apply bg-primaryLight;
-    @apply hover:text-secondaryDark;
+    @apply hover: text-secondaryDark;
 
     .svg-icons {
       @apply opacity-100;

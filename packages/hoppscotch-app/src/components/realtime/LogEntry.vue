@@ -358,7 +358,7 @@ const iconColor = computed(() => ICONS[props.entry.source].iconColor)
 const icon = computed(() => markRaw(ICONS[props.entry.source].icon))
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .realtime-log {
   @apply text-secondary;
   @apply overflow-hidden;

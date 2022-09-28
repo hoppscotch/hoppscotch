@@ -58,13 +58,12 @@
             </h4>
             <div class="my-1 text-secondaryLight">
               {{ t("settings.experiments_notice") }}
-              <SmartLink
+              <SmartAnchor
                 class="link"
                 to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
                 blank
-              >
-                {{ t("app.contact_us") }} </SmartLink
-              >.
+                :label="t('app.contact_us')"
+              />.
             </div>
             <div class="py-4 space-y-4">
               <div class="flex items-center">
@@ -170,13 +169,12 @@
                   "settings.read_the"
                 )}`
               }}
-              <SmartLink
+              <SmartAnchor
                 class="link"
                 to="https://docs.hoppscotch.io/privacy"
                 blank
-              >
-                {{ t("app.proxy_privacy_policy") }} </SmartLink
-              >.
+                :label="t('app.proxy_privacy_policy')"
+              />.
             </div>
             <div class="py-4 space-y-4">
               <div class="flex items-center">

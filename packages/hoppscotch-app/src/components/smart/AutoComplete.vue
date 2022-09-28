@@ -200,7 +200,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .autocomplete-wrapper {
   @apply relative;
   @apply contents;
@@ -220,7 +220,6 @@ export default defineComponent({
     @apply shadow-lg;
     @apply max-h-46;
     @apply overflow-y-auto;
-
     top: calc(100% - 4px);
     border-radius: 0 0 8px 8px;
 

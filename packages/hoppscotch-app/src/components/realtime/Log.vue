@@ -129,5 +129,3 @@ const toggleAutoscrollColor = computed(() =>
   autoScrollEnabled.value ? "text-green-500" : "text-red-500"
 )
 </script>
-
-<style></style>

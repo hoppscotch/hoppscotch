@@ -102,7 +102,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .type-highlighted {
   @apply text-accent;
 }

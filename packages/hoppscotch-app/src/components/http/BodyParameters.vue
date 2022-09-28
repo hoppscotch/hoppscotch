@@ -374,7 +374,7 @@ const setRequestAttachment = (
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .file-chips-container {
   @apply flex flex-1;
   @apply whitespace-nowrap;

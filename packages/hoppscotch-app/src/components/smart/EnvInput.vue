@@ -128,9 +128,9 @@ const initView = (el: any) => {
     props.readonly
       ? EditorView.theme({
           ".cm-content": {
-            caretColor: "var(--secondary-dark-color) !important",
-            color: "var(--secondary-dark-color) !important",
-            backgroundColor: "var(--divider-color) !important",
+            caretColor: "var(--secondary-dark-color)",
+            color: "var(--secondary-dark-color)",
+            backgroundColor: "var(--divider-color)",
             opacity: 0.25,
           },
         })

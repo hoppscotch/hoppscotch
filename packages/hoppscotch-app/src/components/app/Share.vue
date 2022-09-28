@@ -17,6 +17,7 @@
             :href="platform.link"
             target="_blank"
             class="share-link"
+            tabindex="0"
           >
             <component :is="platform.icon" class="w-6 h-6" />
             <span class="mt-3">

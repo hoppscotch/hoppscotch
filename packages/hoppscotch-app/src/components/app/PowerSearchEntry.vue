@@ -60,12 +60,10 @@ const emit = defineEmits<{
     @apply bg-transparent;
     @apply z-2;
     @apply w-0.5;
-
     content: "";
   }
 
   &.active {
-    @apply outline-none;
     @apply bg-primaryLight;
 
     &::after {

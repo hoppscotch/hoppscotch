@@ -12,6 +12,7 @@
       { 'flex-row-reverse': reverse },
     ]"
     :disabled="disabled"
+    tabindex="0"
   >
     <component
       :is="icon"

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="block w-full my-6 border lg:flex lg:my-0 lg:border-0 divide-y lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
+    class="block w-full my-6 border divide-y lg:flex lg:my-0 lg:border-0 lg:divide-y-0 lg:divide-x divide-dividerLight border-dividerLight"
   >
     <div class="font-mono text-tiny table-box">
       {{ shortcode.id }}

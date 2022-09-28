@@ -1,9 +1,7 @@
 import { HoppModule } from "."
 import { ref, onMounted } from "vue"
 import { usePwaPrompt } from "@composables/pwa"
-
 import { registerSW } from "virtual:pwa-register"
-import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 
 export type HoppPWARegistrationStatus =
   | { status: "NOT_INSTALLED" }
@@ -11,7 +9,6 @@ export type HoppPWARegistrationStatus =
   | { status: "INSTALL_FAILED"; error: any }
 
 export const pwaNeedsRefresh = ref(false)
-export const pwaInstalled = ref(false)
 export const pwaReadyForOffline = ref(false)
 export const pwaDefferedPrompt = ref<Event | null>(null)
 export const pwaRegistered = ref<HoppPWARegistrationStatus>({
@@ -27,7 +24,9 @@ export const refreshAppForPWAUpdate = async () => {
 export const installPWA = async () => {
   if (pwaDefferedPrompt.value) {
     ;(pwaDefferedPrompt.value as any).prompt()
-    const outcome: string = await (pwaDefferedPrompt.value as any).userChoice
+    const { outcome }: { outcome: string } = await (
+      pwaDefferedPrompt.value as any
+    ).userChoice
 
     if (outcome === "accepted") {
       console.info("Hoppscotch was installed successfully.")
@@ -45,21 +44,6 @@ export const installPWA = async () => {
 
 export default <HoppModule>{
   onVueAppInit() {
-    pwaInstalled.value = getLocalConfig("pwaInstalled") === "yes"
-
-    if (
-      !pwaInstalled.value &&
-      window.matchMedia("(display-mode: standalone)").matches
-    ) {
-      setLocalConfig("pwaInstalled", "yes")
-      pwaInstalled.value = true
-    }
-
-    if (!pwaInstalled.value && (window.navigator as any).standalone === true) {
-      setLocalConfig("pwaInstalled", "yes")
-      pwaInstalled.value = true
-    }
-
     window.addEventListener("beforeinstallprompt", (event) => {
       pwaDefferedPrompt.value = event
     })

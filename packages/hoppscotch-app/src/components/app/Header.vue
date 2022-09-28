@@ -13,12 +13,11 @@
       </div>
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
-          id="installPWA"
+          v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('header.install_pwa')"
           :icon="IconDownload"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          :class="{ 'inline-flex': showInstallButton }"
           @click="installPWA()"
         />
         <ButtonSecondary
@@ -154,7 +153,7 @@ import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUserPlus from "~icons/lucide/user-plus"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
-import { pwaInstalled, pwaDefferedPrompt, installPWA } from "@modules/pwa"
+import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
 import { probableUser$ } from "@helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import { useI18n } from "@composables/i18n"
@@ -172,9 +171,7 @@ const toast = useToast()
  * prompt.
  */
 
-const showInstallButton = computed(
-  () => pwaInstalled.value && !!pwaDefferedPrompt.value
-)
+const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
 
 const showLogin = ref(false)
 const showTeamsModal = ref(false)

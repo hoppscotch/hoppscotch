@@ -13,7 +13,7 @@
       </div>
     </template>
     <template #footer>
-      <span>
+      <span class="flex">
         <ButtonPrimary
           v-focus
           :label="yes ?? t('action.yes')"

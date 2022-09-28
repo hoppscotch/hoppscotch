@@ -23,7 +23,7 @@
       </div>
     </template>
     <template #footer>
-      <span>
+      <span class="flex">
         <ButtonPrimary :label="t('action.save')" @click="addFolder" />
         <ButtonSecondary :label="t('action.cancel')" @click="hideModal" />
       </span>

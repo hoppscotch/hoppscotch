@@ -21,7 +21,7 @@
       </div>
     </template>
     <template #footer>
-      <span>
+      <span class="flex">
         <ButtonPrimary
           :label="t('action.save')"
           :loading="loadingState"

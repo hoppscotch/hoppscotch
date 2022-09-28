@@ -18,7 +18,7 @@
             @mousedown="!dialog ? close() : null"
           >
             <div
-              class="absolute inset-0 bg-primaryLight opacity-90"
+              class="absolute inset-0 opacity-80 bg-primaryLight"
               tabindex="0"
               @click="!dialog ? close() : null"
             ></div>
@@ -32,7 +32,7 @@
         >
         <Transition name="bounce" appear>
           <div
-            class="inline-block w-full overflow-hidden text-left align-bottom shadow-lg transition-all transform bg-primary sm:rounded-xl sm:align-middle"
+            class="inline-block w-full overflow-hidden text-left align-bottom border shadow-lg transition-all transform border-dividerDark bg-primary sm:rounded-xl sm:align-middle"
             :class="[{ 'mt-24 md:mb-8': placement === 'top' }, maxWidth]"
           >
             <div

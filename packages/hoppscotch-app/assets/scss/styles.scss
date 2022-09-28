@@ -197,6 +197,7 @@ hr {
 .heading {
   @apply font-bold;
   @apply text-secondaryDark text-lg;
+  @apply tracking-tight;
 }
 
 .input,

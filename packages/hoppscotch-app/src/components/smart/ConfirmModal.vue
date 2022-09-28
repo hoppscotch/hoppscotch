@@ -8,10 +8,8 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <label>
-          {{ title }}
-        </label>
+      <div class="flex flex-col items-center justify-center">
+        {{ title }}
       </div>
     </template>
     <template #footer>

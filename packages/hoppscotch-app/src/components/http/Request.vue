@@ -161,7 +161,7 @@
               name="request-name"
               type="text"
               autocomplete="off"
-              class="mb-2 input"
+              class="mb-2 input !bg-primaryContrast"
               @keyup.enter="hide()"
             />
             <div

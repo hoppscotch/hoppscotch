@@ -18,7 +18,7 @@
               v-model="searchQuery"
               type="search"
               autocomplete="off"
-              class="flex w-full p-4 py-2 !bg-popover input"
+              class="flex w-full p-4 py-2 input !bg-primaryContrast"
               :placeholder="`${t('action.search')}`"
             />
           </div>

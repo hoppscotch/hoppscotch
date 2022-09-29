@@ -7,25 +7,31 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="flex flex-col">
-        <label>
-          {{ t("confirm.request_change") }}
-        </label>
+      <div class="flex flex-col items-center justify-center">
+        {{ t("confirm.request_change") }}
       </div>
     </template>
     <template #footer>
-      <span class="flex">
+      <span class="flex space-x-2">
         <ButtonPrimary
           v-focus
           :label="t('action.save')"
+          outline
           @click="saveApiChange"
         />
         <ButtonSecondary
           :label="t('action.dont_save')"
+          outline
+          filled
           @click="discardApiChange"
         />
       </span>
-      <ButtonSecondary :label="t('action.cancel')" @click="hideModal" />
+      <ButtonSecondary
+        :label="t('action.cancel')"
+        outline
+        filled
+        @click="hideModal"
+      />
     </template>
   </SmartModal>
 </template>

@@ -34,7 +34,7 @@
                   v-model="searchQuery"
                   type="search"
                   autocomplete="off"
-                  class="flex w-full p-4 py-2 !bg-popover input"
+                  class="flex w-full p-4 py-2 input !bg-primaryContrast"
                   :placeholder="`${t('action.search')}`"
                 />
               </div>
@@ -94,13 +94,19 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex">
+      <span class="flex space-x-2">
         <ButtonPrimary
           :label="`${t('action.copy')}`"
           :icon="copyIcon"
+          outline
           @click="copyRequestCode"
         />
-        <ButtonSecondary :label="`${t('action.dismiss')}`" @click="hideModal" />
+        <ButtonSecondary
+          :label="`${t('action.dismiss')}`"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

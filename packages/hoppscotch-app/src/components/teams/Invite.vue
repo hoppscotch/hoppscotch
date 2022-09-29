@@ -294,8 +294,8 @@
         v-if="sendInvitesResult.length"
         class="flex justify-between flex-1 text-secondaryLight"
       >
-        <SmartAnchor
-          class="link"
+        <ButtonSecondary
+          class="link !p-0"
           :label="t('team.invite_more')"
           :icon="IconArrowLeft"
           @click="
@@ -310,15 +310,20 @@
             }
           "
         />
-        <SmartAnchor
-          class="link"
+        <ButtonSecondary
+          class="link !p-0"
           :label="`${t('action.dismiss')}`"
           @click="hideModal"
         />
       </p>
-      <span v-else>
-        <ButtonPrimary :label="t('team.invite')" @click="sendInvites" />
-        <ButtonSecondary :label="t('action.cancel')" @click="hideModal" />
+      <span v-else class="flex space-x-2">
+        <ButtonPrimary :label="t('team.invite')" outline @click="sendInvites" />
+        <ButtonSecondary
+          :label="t('action.cancel')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

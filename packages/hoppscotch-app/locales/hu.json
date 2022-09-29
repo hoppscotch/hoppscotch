@@ -5,6 +5,7 @@
     "choose_file": "Válasszon egy fájlt",
     "clear": "Törlés",
     "clear_all": "Összes törlése",
+    "close": "Close",
     "connect": "Kapcsolódás",
     "copy": "Másolás",
     "delete": "Törlés",
@@ -12,8 +13,10 @@
     "dismiss": "Eltüntetés",
     "dont_save": "Ne mentse",
     "download_file": "Fájl letöltése",
+    "drag_to_reorder": "Drag to reorder",
     "duplicate": "Kettőzés",
     "edit": "Szerkesztés",
+    "filter_response": "Filter response",
     "go_back": "Vissza",
     "label": "Címke",
     "learn_more": "Tudjon meg többet",
@@ -21,6 +24,7 @@
     "more": "Több",
     "new": "Új",
     "no": "Nem",
+    "open_workspace": "Open workspace",
     "paste": "Beillesztés",
     "prettify": "Csinosítás",
     "remove": "Eltávolítás",
@@ -167,6 +171,7 @@
     "profile": "Jelentkezzen be a profilja megtekintéséhez",
     "protocols": "A protokollok üresek",
     "schema": "Kapcsolódjon egy GraphQL-végponthoz a séma megtekintéséhez",
+    "shortcodes": "Shortcodes are empty",
     "team_name": "A csapat neve üres",
     "teams": "Ön nem tartozik semmilyen csapathoz",
     "tests": "Nincsenek tesztek ehhez a kéréshez"
@@ -199,10 +204,13 @@
     "incorrect_email": "Hibás e-mail",
     "invalid_link": "Érvénytelen hivatkozás",
     "invalid_link_description": "A kattintott hivatkozás érvénytelen vagy lejárt.",
+    "json_parsing_failed": "Invalid JSON",
     "json_prettify_invalid_body": "Nem sikerült csinosítani egy érvénytelen törzset, oldja meg a JSON szintaktikai hibáit, és próbálja újra",
     "network_error": "Úgy tűnik, hogy hálózati hiba van. Próbálja újra.",
     "network_fail": "Nem sikerült elküldeni a kérést",
     "no_duration": "Nincs időtartam",
+    "no_results_found": "No matches found",
+    "page_not_found": "This page could not be found",
     "script_fail": "Nem sikerült végrehajtani a kérés előtti parancsfájlt",
     "something_went_wrong": "Valami elromlott",
     "test_script_fail": "Nem sikerült végrehajtani a kérés utáni parancsfájlt"
@@ -268,12 +276,12 @@
     "from_postman_description": "Importálás Postman-gyűjteményből",
     "from_url": "Importálás URL-ből",
     "gist_url": "Gist URL megadása",
-    "json_description": "Gyűjtemények importálása Hoppscotch-gyűjtemények JSON-fájlból",
-    "title": "Importálás",
-    "import_from_url_success": "Gyűjtemények importálva",
+    "import_from_url_invalid_fetch": "Nem sikerült lekérni az adatokat az URL-ről",
     "import_from_url_invalid_file_format": "Hiba a gyűjtemények importálása során",
     "import_from_url_invalid_type": "Nem támogatott típus. Az elfogadott értékek: „hoppscotch”, „openapi”, „postman” vagy „insomnia”.",
-    "import_from_url_invalid_fetch": "Nem sikerült lekérni az adatokat az URL-ről"
+    "import_from_url_success": "Gyűjtemények importálva",
+    "json_description": "Gyűjtemények importálása Hoppscotch-gyűjtemények JSON-fájlból",
+    "title": "Importálás"
   },
   "layout": {
     "collapse_collection": "Gyűjtemények összecsukása vagy kinyitása",
@@ -338,6 +346,11 @@
     "body": "Kérés törzse",
     "choose_language": "Nyelv kiválasztása",
     "content_type": "Tartalom típusa",
+    "content_type_titles": {
+      "others": "Others",
+      "structured": "Structured",
+      "text": "Text"
+    },
     "copy_link": "Hivatkozás másolása",
     "duration": "Időtartam",
     "enter_curl": "cURL megadása",
@@ -367,10 +380,12 @@
     "title": "Kérés",
     "type": "Kérés típusa",
     "url": "URL",
-    "variables": "Változók"
+    "variables": "Változók",
+    "view_my_links": "View my links"
   },
   "response": {
     "body": "Válasz törzse",
+    "filter_response_body": "Filter JSON response body (uses JSONPath syntax)",
     "headers": "Fejlécek",
     "html": "HTML",
     "image": "Kép",
@@ -422,6 +437,8 @@
     "proxy_use_toggle": "A proxy középprogram használata a kérések küldéséhez",
     "read_the": "Olvassa el:",
     "reset_default": "Visszaállítás az alapértelmezettre",
+    "short_codes": "Short codes",
+    "short_codes_description": "Short codes which were created by you.",
     "sidebar_on_left": "Oldalsáv a bal oldalon",
     "sync": "Szinkronizálás",
     "sync_collections": "Gyűjtemények",
@@ -435,7 +452,17 @@
     "theme_description": "Az alkalmazás témájának személyre szabása.",
     "use_experimental_url_bar": "Kísérleti URL-sáv használata a környezet kiemelésével",
     "user": "Felhasználó",
+    "verified_email": "Verified email",
     "verify_email": "E-mail-cím ellenőrzése"
+  },
+  "shortcodes": {
+    "actions": "Actions",
+    "created_on": "Created on",
+    "deleted": "Shortcode deleted",
+    "method": "Method",
+    "not_found": "Shortcode not found",
+    "short_code": "Short code",
+    "url": "URL"
   },
   "shortcut": {
     "general": {
@@ -491,6 +518,7 @@
   },
   "socketio": {
     "communication": "Kommunikáció",
+    "connection_not_authorized": "This SocketIO connection does not use any authentication.",
     "event_name": "Esemény neve",
     "events": "Események",
     "log": "Napló",
@@ -508,6 +536,9 @@
     "connected": "Kapcsolódva",
     "connected_to": "Kapcsolódva ehhez: {name}",
     "connecting_to": "Kapcsolódás ehhez: {name}…",
+    "connection_error": "Failed to connect",
+    "connection_failed": "Connection failed",
+    "connection_lost": "Connection lost",
     "copied_to_clipboard": "Vágólapra másolva",
     "deleted": "Törölve",
     "deprecated": "ELAVULT",
@@ -522,8 +553,17 @@
     "history_deleted": "Előzmények törölve",
     "linewrap": "Sorok tördelése",
     "loading": "Betöltés…",
+    "message_received": "Message: {message} arrived on topic: {topic}",
+    "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}",
     "none": "Nincs",
     "nothing_found": "Semmi sem található ehhez:",
+    "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
+    "published_message": "Published message: {message} to topic: {topic}",
+    "reconnection_error": "Failed to reconnect",
+    "subscribed_failed": "Failed to subscribe to topic: {topic}",
+    "subscribed_success": "Successfully subscribed to topic: {topic}",
+    "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
+    "unsubscribed_success": "Successfully unsubscribed from topic: {topic}",
     "waiting_send_request": "Várakozás a kérés elküldésére"
   },
   "support": {

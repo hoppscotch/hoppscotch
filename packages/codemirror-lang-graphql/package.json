@@ -17,12 +17,12 @@
   "types": "dist/index.d.ts",
   "sideEffects": false,
   "dependencies": {
-    "@codemirror/highlight": "^0.19.8",
-    "@codemirror/language": "^0.19.10",
-    "@lezer/lr": "^0.15.8"
+    "@codemirror/language": "^6.2.0",
+    "@lezer/highlight": "^1.0.0",
+    "@lezer/lr": "^1.2.0"
   },
   "devDependencies": {
-    "@lezer/generator": "^0.15.4",
+    "@lezer/generator": "^1.1.0",
     "mocha": "^9.2.2",
     "rollup": "^2.70.2",
     "rollup-plugin-dts": "^4.2.1",

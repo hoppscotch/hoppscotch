@@ -5,6 +5,7 @@
     "choose_file": "選擇一個檔案",
     "clear": "清除",
     "clear_all": "全部清除",
+    "close": "Close",
     "connect": "連線",
     "copy": "複製",
     "delete": "刪除",
@@ -12,6 +13,7 @@
     "dismiss": "忽略",
     "dont_save": "不要儲存",
     "download_file": "下載檔案",
+    "drag_to_reorder": "Drag to reorder",
     "duplicate": "複製",
     "edit": "編輯",
     "filter_response": "篩選回應",
@@ -127,7 +129,6 @@
     "team_collections": "團隊組合"
   },
   "confirm": {
-    "request_change": "您確定要捨棄當前請求嗎？未儲存的變更將遺失。",
     "exit_team": "您確定要離開此團隊嗎？",
     "logout": "您確定要登出嗎？",
     "remove_collection": "您確定要永久刪除該組合嗎？",
@@ -137,6 +138,7 @@
     "remove_request": "您確定要永久刪除該請求嗎？",
     "remove_team": "您確定要刪除該團隊嗎？",
     "remove_telemetry": "您確定要退出遙測服務嗎？",
+    "request_change": "您確定要捨棄當前請求嗎？未儲存的變更將遺失。",
     "sync": "您想從雲端恢復您的工作區嗎？這將丟棄您的本地進度。"
   },
   "count": {
@@ -177,8 +179,8 @@
   "environment": {
     "add_to_global": "新增至全域",
     "added": "新增環境",
-    "created": "已建立環境",
     "create_new": "建立新環境",
+    "created": "已建立環境",
     "deleted": "刪除環境",
     "edit": "編輯環境",
     "invalid_name": "請提供有效的環境名稱",
@@ -202,12 +204,13 @@
     "incorrect_email": "錯誤的電子信箱",
     "invalid_link": "連結無效",
     "invalid_link_description": "您點擊的連結無效或已過期。",
-    "json_prettify_invalid_body": "無法美化無效的請求主體，處理 JSON 語法錯誤並重試",
     "json_parsing_failed": "JSON 無效",
+    "json_prettify_invalid_body": "無法美化無效的請求主體，處理 JSON 語法錯誤並重試",
     "network_error": "似乎有網路錯誤。請再試一次。",
     "network_fail": "無法傳送請求",
     "no_duration": "無持續時間",
     "no_results_found": "找不到結果",
+    "page_not_found": "This page could not be found",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
     "test_script_fail": "無法執行測試指令碼"
@@ -250,10 +253,10 @@
     "tests": "編寫測試指令碼以自動除錯。"
   },
   "hide": {
+    "collection": "隱藏組合面板",
     "more": "隱藏更多",
     "preview": "隱藏預覽",
-    "sidebar": "隱藏側邊欄",
-    "collection": "隱藏組合面板"
+    "sidebar": "隱藏側邊欄"
   },
   "import": {
     "collections": "匯入組合",
@@ -273,12 +276,12 @@
     "from_postman_description": "從 Postman 組合匯入",
     "from_url": "從網址匯入",
     "gist_url": "輸入 Gist 網址",
-    "json_description": "從 Hoppscotch 組合 JSON 檔匯入組合",
-    "title": "匯入",
-    "import_from_url_success": "已匯入組合",
+    "import_from_url_invalid_fetch": "無法從網址取得資料",
     "import_from_url_invalid_file_format": "匯入組合時發生錯誤",
     "import_from_url_invalid_type": "不支援此類型。可接受的值為 'hoppscotch'、'openapi'、'postman'、'insomnia'",
-    "import_from_url_invalid_fetch": "無法從網址取得資料"
+    "import_from_url_success": "已匯入組合",
+    "json_description": "從 Hoppscotch 組合 JSON 檔匯入組合",
+    "title": "匯入"
   },
   "layout": {
     "collapse_collection": "隱藏或顯示組合",
@@ -415,11 +418,11 @@
     "extension_version": "擴充套件版本",
     "extensions": "擴充套件",
     "extensions_use_toggle": "使用瀏覽器擴充套件傳送請求（如果存在）",
+    "follow": "關注我們",
     "font_size": "字型大小",
     "font_size_large": "大",
     "font_size_medium": "中",
     "font_size_small": "小",
-    "follow": "關注我們",
     "interceptor": "攔截器",
     "interceptor_description": "應用程式和 API 之間的中介軟體。",
     "language": "語言",
@@ -449,7 +452,17 @@
     "theme_description": "自定義您的應用程式主題。",
     "use_experimental_url_bar": "使用帶有環境高亮的實驗性網址欄",
     "user": "使用者",
+    "verified_email": "Verified email",
     "verify_email": "確認電子郵件地址"
+  },
+  "shortcodes": {
+    "actions": "操作",
+    "created_on": "建立於",
+    "deleted": "已刪除快捷碼",
+    "method": "方法",
+    "not_found": "找不到快捷碼",
+    "short_code": "快捷碼",
+    "url": "網址"
   },
   "shortcut": {
     "general": {
@@ -497,28 +510,19 @@
       "title": "主題"
     }
   },
-  "shortcodes":{
-    "actions":"操作",
-    "created_on": "建立於",
-    "deleted" : "已刪除快捷碼",
-    "method": "方法",
-    "not_found":"找不到快捷碼",
-    "short_code":"快捷碼",
-    "url": "網址"
-  },
   "show": {
     "code": "顯示程式碼",
+    "collection": "顯示組合面板",
     "more": "顯示更多",
-    "sidebar": "顯示側邊欄",
-    "collection": "顯示組合面板"
+    "sidebar": "顯示側邊欄"
   },
   "socketio": {
     "communication": "通訊",
+    "connection_not_authorized": "此 SocketIO 連線未使用任何驗證。",
     "event_name": "事件名稱",
     "events": "事件",
     "log": "日誌",
-    "url": "網址",
-    "connection_not_authorized": "此 SocketIO 連線未使用任何驗證。"
+    "url": "網址"
   },
   "sse": {
     "event_type": "事件類型",
@@ -532,6 +536,9 @@
     "connected": "已連線",
     "connected_to": "已連線到 {name}",
     "connecting_to": "正在連線到 {name}……",
+    "connection_error": "連線失敗",
+    "connection_failed": "連線失敗",
+    "connection_lost": "失去連線",
     "copied_to_clipboard": "已複製到剪貼簿",
     "deleted": "已刪除",
     "deprecated": "已棄用",
@@ -546,21 +553,18 @@
     "history_deleted": "歷史記錄已刪除",
     "linewrap": "換行",
     "loading": "正在載入……",
-    "none": "無",
-    "nothing_found": "沒有找到",
-    "waiting_send_request": "等待傳送請求",
-    "subscribed_success": "成功訂閱此主題：{topic}",
-    "unsubscribed_success": "成功取消訂閱此主題：{topic}",
-    "subscribed_failed": "無法訂閱此主題：{topic}",
-    "unsubscribed_failed": "無法取消訂閱此主題：{topic}",
-    "published_message": "已將此訊息：{message} 發布至主題：{topic}",
-    "published_error": "將訊息：{topic} 發布至主題：{message} 時發生錯誤",
     "message_received": "訊息：{message}已抵達主題：{topic}",
     "mqtt_subscription_failed": "訂閱此主題時發生錯誤：{topic}",
-    "connection_lost": "失去連線",
-    "connection_failed": "連線失敗",
-    "connection_error": "連線失敗",
-    "reconnection_error": "重新連線失敗"
+    "none": "無",
+    "nothing_found": "沒有找到",
+    "published_error": "將訊息：{topic} 發布至主題：{message} 時發生錯誤",
+    "published_message": "已將此訊息：{message} 發布至主題：{topic}",
+    "reconnection_error": "重新連線失敗",
+    "subscribed_failed": "無法訂閱此主題：{topic}",
+    "subscribed_success": "成功訂閱此主題：{topic}",
+    "unsubscribed_failed": "無法取消訂閱此主題：{topic}",
+    "unsubscribed_success": "成功取消訂閱此主題：{topic}",
+    "waiting_send_request": "等待傳送請求"
   },
   "support": {
     "changelog": "閱讀更多有關最新版本的內容",
@@ -568,11 +572,11 @@
     "community": "提問與互助",
     "documentation": "閱讀更多有關 Hoppscotch 的內容",
     "forum": "答疑解惑",
+    "github": "在 GitHub 關注我們",
     "shortcuts": "更快瀏覽應用程式",
     "team": "與團隊保持聯絡",
     "title": "支援",
-    "twitter": "在 Twitter 關注我們",
-    "github": "在 GitHub 關注我們"
+    "twitter": "在 Twitter 關注我們"
   },
   "tab": {
     "authorization": "授權",

@@ -2,23 +2,24 @@
   "name": "@hoppscotch/data",
   "version": "0.4.3",
   "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
-  "main": "dist/index.js",
-  "module": "true",
-  "files": [
-    "dist"
-  ],
+  "type": "module",
+  "main": "dist/hoppscotch-data.cjs",
+  "module": "dist/hoppscotch-data.js",
+  "types": "./dist/index.d.ts",
+  "files": [ "dist/*" ],
   "scripts": {
-    "build": "tsup src --dts",
-    "prepare": "tsup src --dts",
+    "build:code": "vite build",
+    "build:decl": "tsc --project tsconfig.decl.json",
+    "build": "pnpm run build:code && pnpm run build:decl",
+    "prepare": "pnpm run build:code && pnpm run build:decl",
     "do-typecheck": "pnpm exec tsc --noEmit"
   },
   "exports": {
-    ".": "./dist/index.js",
-    "./graphql": "./dist/graphql/index.js",
-    "./rest": "./dist/rest/index.js",
-    "./rawKeyValue": "./dist/rawKeyValue.js",
-    "./collection": "./dist/index.js",
-    "./environment": "./dist/environment.js"
+    ".": {
+      "import": "./dist/hoppscotch-data.js",
+      "require": "./dist/hoppscotch-data.cjs",
+      "type": "./dist/index.d.ts"
+    }
   },
   "repository": {
     "type": "git",
@@ -32,8 +33,8 @@
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
     "@types/lodash": "^4.14.181",
-    "tsup": "^5.12.5",
-    "typescript": "^4.6.3"
+    "typescript": "^4.6.3",
+    "vite": "^3.1.0"
   },
   "dependencies": {
     "fp-ts": "^2.11.10",

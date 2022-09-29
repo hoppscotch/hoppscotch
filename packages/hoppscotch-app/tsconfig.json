@@ -1,36 +1,41 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
+    "target": "ESNext",
+    "useDefineForClassFields": true,
     "module": "ESNext",
     "moduleResolution": "Node",
-    "lib": ["ESNext", "ESNext.AsyncIterable", "DOM"],
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "allowJs": true,
-    "sourceMap": true,
-    "skipLibCheck": true,
     "strict": true,
     "jsx": "preserve",
-    "noEmit": true,
-    "baseUrl": ".",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
     "paths": {
-      "~/*": ["./*"],
-      "@/*": ["./*"]
+      "~/*": [ "./src/*" ],
+      "@composables/*": [ "./src/composables/*" ],
+      "@components/*": [ "./src/components/*" ],
+      "@helpers/*": [ "./src/helpers/*" ],
+      "@modules/*": [ "./src/modules/*" ],
+      "@workers/*": [ "./src/workers/*" ],
+      "@functional/*": [ "./src/helpers/functional/*" ],
     },
     "types": [
-      "@types/jest",
-      "@types/node",
-      "@nuxt/types",
-      "@nuxtjs/i18n",
-      "@nuxtjs/toast",
-      "@nuxtjs/sentry",
-      "@nuxtjs/color-mode",
-      "@nuxtjs/axios"
-    ]
+      "vite/client",
+      "unplugin-icons/types/vue",
+      "vite-plugin-pages/client",
+      "vite-plugin-vue-layouts/client",
+      "vite-plugin-pwa/client"
+    ],
   },
-  "exclude": ["node_modules", ".nuxt", "dist"],
-  "vueCompilerOptions": {
-    "target": 2,
-    "experimentalCompatMode": 2
-  }
+  "include": [
+    "meta.ts",
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

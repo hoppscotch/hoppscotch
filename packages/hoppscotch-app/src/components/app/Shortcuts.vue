@@ -7,7 +7,7 @@
             v-model="filterText"
             type="search"
             autocomplete="off"
-            class="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
+            class="flex px-4 py-2 border rounded bg-primaryContrast border-dividerLight focus-visible:border-divider"
             :placeholder="`${t('action.search')}`"
           />
         </div>

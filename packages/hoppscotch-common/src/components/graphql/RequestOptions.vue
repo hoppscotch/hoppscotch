@@ -26,34 +26,34 @@
               placement="bottom"
               :on-shown="() => tippyActions.focus()"
             >
-              <template #trigger>
-                <HoppButtonSecondary
-                  v-tippy="{
-                    theme: 'tooltip',
-                    delay: [500, 20],
-                    allowHTML: true,
-                  }"
-                  :title="`${t(
-                    'request.run'
-                  )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
-                  :label="`${t('request.run')}`"
-                  svg="play"
-                  class="rounded-none !text-accent !hover:text-accentDark"
-                />
+              <HoppButtonSecondary
+                v-tippy="{
+                  theme: 'tooltip',
+                  delay: [500, 20],
+                  allowHTML: true,
+                }"
+                :title="`${t(
+                  'request.run'
+                )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+                :label="`${t('request.run')}`"
+                :icon="IconPlay"
+                class="rounded-none !text-accent !hover:text-accentDark"
+              />
+              <template #content="{ hide }">
+                <div ref="tippyActions" class="flex flex-col" role="menu">
+                  <SmartItem
+                    v-for="item in operations"
+                    :key="`gql-operation-${item.name?.value}`"
+                    :label="item?.name?.value"
+                    @click="
+                      () => {
+                        runQuery(item)
+                        hide()
+                      }
+                    "
+                  />
+                </div>
               </template>
-              <div ref="tippyActions" class="flex flex-col" role="menu">
-                <SmartItem
-                  v-for="item in operations"
-                  :key="`gql-operation-${item.name?.value}`"
-                  :label="item?.name?.value"
-                  @click="
-                    () => {
-                      runQuery(item)
-                      operationTippy.tippy().hide()
-                    }
-                  "
-                />
-              </div>
             </tippy>
 
             <HoppButtonSecondary

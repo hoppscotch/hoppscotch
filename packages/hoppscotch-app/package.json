@@ -145,7 +145,7 @@
     "vite-plugin-pwa": "^0.12.2",
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",
-    "vue-tsc": "^0.38.2",
+    "vue-tsc": "^0.40.13",
     "windicss": "^3.5.6"
   }
 }

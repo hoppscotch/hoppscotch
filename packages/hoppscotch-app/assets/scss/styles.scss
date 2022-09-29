@@ -169,6 +169,7 @@ a {
   @apply p-2;
   @apply shadow-lg;
   @apply leading-body;
+  @apply border border-dividerDark;
   @apply focus: outline-none;
 
   .tippy-svg-arrow svg {

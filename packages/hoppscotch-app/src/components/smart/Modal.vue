@@ -62,7 +62,7 @@
             </div>
             <div
               v-if="hasFooterSlot"
-              class="flex items-center justify-between flex-1 border-t border-dividerLight"
+              class="flex items-center justify-between flex-1 border-t border-dividerLight bg-primaryContrast"
               :class="{ 'p-4': !fullWidth }"
             >
               <slot name="footer"></slot>

@@ -45,6 +45,16 @@
           @click="chatWithUs()"
         />
         <SmartItem
+          :icon="IconGitHub"
+          :label="t('app.github')"
+          to="https://hoppscotch.io/github"
+          blank
+          :description="t('support.github')"
+          :info-icon="IconChevronRight"
+          active
+          @click="hideModal()"
+        />
+        <SmartItem
           :icon="IconDiscord"
           :label="t('app.join_discord_community')"
           to="https://hoppscotch.io/discord"
@@ -72,6 +82,7 @@
 <script setup lang="ts">
 import IconTwitter from "~icons/brands/twitter"
 import IconDiscord from "~icons/brands/discord"
+import IconGitHub from "~icons/hopp/github"
 import IconMessageCircle from "~icons/lucide/message-circle"
 import IconGift from "~icons/lucide/gift"
 import IconZap from "~icons/lucide/zap"

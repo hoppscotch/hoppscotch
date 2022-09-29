@@ -21,18 +21,20 @@ jobs:
 
       - name: Build Site
         env:
-          GA_ID: ${{ secrets.STAGING_GA_ID }}
-          GTM_ID: ${{ secrets.STAGING_GTM_ID }}
-          API_KEY: ${{ secrets.STAGING_FB_API_KEY }}
-          AUTH_DOMAIN: ${{ secrets.STAGING_FB_AUTH_DOMAIN }}
-          DATABASE_URL: ${{ secrets.STAGING_FB_DATABASE_URL }}
-          PROJECT_ID: ${{ secrets.STAGING_FB_PROJECT_ID }}
-          STORAGE_BUCKET: ${{ secrets.STAGING_FB_STORAGE_BUCKET }}
-          MESSAGING_SENDER_ID: ${{ secrets.STAGING_FB_MESSAGING_SENDER_ID }}
-          APP_ID: ${{ secrets.STAGING_FB_APP_ID }}
-          BASE_URL: ${{ secrets.STAGING_BASE_URL }}
-          BACKEND_GQL_URL: ${{ secrets.STAGING_BACKEND_GQL_URL }}
-          BACKEND_WS_URL: ${{ secrets.STAGING_BACKEND_WS_URL }}
+          VITE_GA_ID: ${{ secrets.STAGING_GA_ID }}
+          VITE_GTM_ID: ${{ secrets.STAGING_GTM_ID }}
+          VITE_API_KEY: ${{ secrets.STAGING_FB_API_KEY }}
+          VITE_AUTH_DOMAIN: ${{ secrets.STAGING_FB_AUTH_DOMAIN }}
+          VITE_DATABASE_URL: ${{ secrets.STAGING_FB_DATABASE_URL }}
+          VITE_PROJECT_ID: ${{ secrets.STAGING_FB_PROJECT_ID }}
+          VITE_STORAGE_BUCKET: ${{ secrets.STAGING_FB_STORAGE_BUCKET }}
+          VITE_MESSAGING_SENDER_ID: ${{ secrets.STAGING_FB_MESSAGING_SENDER_ID }}
+          VITE_APP_ID: ${{ secrets.STAGING_FB_APP_ID }}
+          VITE_BASE_URL: ${{ secrets.STAGING_BASE_URL }}
+          VITE_BACKEND_GQL_URL: ${{ secrets.STAGING_BACKEND_GQL_URL }}
+          VITE_BACKEND_WS_URL: ${{ secrets.STAGING_BACKEND_WS_URL }}
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_ENVIRONMENT: staging
         run: pnpm run generate
 
       # Deploy the staging site with netlify-cli

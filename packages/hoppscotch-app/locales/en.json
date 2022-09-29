@@ -5,6 +5,7 @@
     "choose_file": "Choose a file",
     "clear": "Clear",
     "clear_all": "Clear all",
+    "close": "Close",
     "connect": "Connect",
     "copy": "Copy",
     "delete": "Delete",
@@ -12,6 +13,7 @@
     "dismiss": "Dismiss",
     "dont_save": "Don't save",
     "download_file": "Download file",
+    "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Edit",
     "filter_response": "Filter response",
@@ -202,12 +204,13 @@
     "incorrect_email": "Incorrect email",
     "invalid_link": "Invalid link",
     "invalid_link_description": "The link you clicked is invalid or expired.",
-    "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
     "json_parsing_failed": "Invalid JSON",
+    "json_prettify_invalid_body": "Couldn't prettify an invalid body, solve json syntax errors and try again",
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Could not send request",
     "no_duration": "No duration",
     "no_results_found": "No matches found",
+    "page_not_found": "This page could not be found",
     "script_fail": "Could not execute pre-request script",
     "something_went_wrong": "Something went wrong",
     "test_script_fail": "Could not execute post-request script"
@@ -273,12 +276,12 @@
     "from_postman_description": "Import from Postman collection",
     "from_url": "Import from URL",
     "gist_url": "Enter Gist URL",
-    "json_description": "Import collections from a Hoppscotch Collections JSON file",
-    "title": "Import",
-    "import_from_url_success": "Collections Imported",
+    "import_from_url_invalid_fetch": "Couldn't get data from the url",
     "import_from_url_invalid_file_format": "Error while importing collections",
     "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
-    "import_from_url_invalid_fetch": "Couldn't get data from the url"
+    "import_from_url_success": "Collections Imported",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
+    "title": "Import"
   },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
@@ -449,7 +452,17 @@
     "theme_description": "Customize your application theme.",
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
     "user": "User",
+    "verified_email": "Verified email",
     "verify_email": "Verify email"
+  },
+  "shortcodes": {
+    "actions": "Actions",
+    "created_on": "Created on",
+    "deleted": "Shortcode deleted",
+    "method": "Method",
+    "not_found": "Shortcode not found",
+    "short_code": "Short code",
+    "url": "URL"
   },
   "shortcut": {
     "general": {
@@ -497,15 +510,6 @@
       "title": "Theme"
     }
   },
-  "shortcodes":{
-    "actions":"Actions",
-    "created_on": "Created on",
-    "deleted" : "Shortcode deleted",
-    "method": "Method",
-    "not_found":"Shortcode not found",
-    "short_code":"Short code",
-    "url": "URL"
-  },
   "show": {
     "code": "Show code",
     "collection": "Expand Collection Panel",
@@ -514,11 +518,11 @@
   },
   "socketio": {
     "communication": "Communication",
+    "connection_not_authorized": "This SocketIO connection does not use any authentication.",
     "event_name": "Event Name",
     "events": "Events",
     "log": "Log",
-    "url": "URL",
-    "connection_not_authorized": "This SocketIO connection does not use any authentication."
+    "url": "URL"
   },
   "sse": {
     "event_type": "Event type",
@@ -532,6 +536,9 @@
     "connected": "Connected",
     "connected_to": "Connected to {name}",
     "connecting_to": "Connecting to {name}...",
+    "connection_error": "Failed to connect",
+    "connection_failed": "Connection failed",
+    "connection_lost": "Connection lost",
     "copied_to_clipboard": "Copied to clipboard",
     "deleted": "Deleted",
     "deprecated": "DEPRECATED",
@@ -546,21 +553,18 @@
     "history_deleted": "History deleted",
     "linewrap": "Wrap lines",
     "loading": "Loading...",
-    "none": "None",
-    "nothing_found": "Nothing found for",
-    "waiting_send_request": "Waiting to send request",
-    "subscribed_success": "Successfully subscribed to topic: {topic}",
-    "unsubscribed_success": "Successfully unsubscribed from topic: {topic}",
-    "subscribed_failed": "Failed to subscribe to topic: {topic}",
-    "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
-    "published_message": "Published message: {message} to topic: {topic}",
-    "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
     "message_received": "Message: {message} arrived on topic: {topic}",
     "mqtt_subscription_failed": "Something went wrong while subscribing to topic: {topic}",
-    "connection_lost": "Connection lost",
-    "connection_failed": "Connection failed",
-    "connection_error": "Failed to connect",
-    "reconnection_error": "Failed to reconnect"
+    "none": "None",
+    "nothing_found": "Nothing found for",
+    "published_error": "Something went wrong while publishing msg: {topic} to topic: {message}",
+    "published_message": "Published message: {message} to topic: {topic}",
+    "reconnection_error": "Failed to reconnect",
+    "subscribed_failed": "Failed to subscribe to topic: {topic}",
+    "subscribed_success": "Successfully subscribed to topic: {topic}",
+    "unsubscribed_failed": "Failed to unsubscribe from topic: {topic}",
+    "unsubscribed_success": "Successfully unsubscribed from topic: {topic}",
+    "waiting_send_request": "Waiting to send request"
   },
   "support": {
     "changelog": "Read more about latest releases",

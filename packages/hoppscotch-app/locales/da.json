@@ -502,6 +502,11 @@
       "send_request": "Send anmodning",
       "title": "Anmodning"
     },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "theme": {
       "black": "Switch  theme to black mode",
       "dark": "Switch  theme to  dark mode",

@@ -23,7 +23,7 @@ type Key =
   | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
-  | "right" | "/" | "?"
+  | "right" | "/" | "?" | "."
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -58,6 +58,9 @@ export const bindings: {
   "alt-d": "navigation.jump.documentation",
   "alt-m": "navigation.jump.profile",
   "alt-s": "navigation.jump.settings",
+  "ctrl-shift-p": "response.preview.toggle",
+  "ctrl-j": "response.file.download",
+  "ctrl-.": "response.copy",
 }
 
 /**
@@ -129,6 +132,9 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check if question mark
   if (val === "/") return "/"
+
+  // Check if period
+  if (val === ".") return "."
 
   // If no other cases match, this is not a valid key
   return null

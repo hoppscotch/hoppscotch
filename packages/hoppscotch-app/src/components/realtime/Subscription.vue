@@ -1,7 +1,7 @@
 <template>
   <SmartModal v-if="show" dialog :title="t('mqtt.new')" @close="hideModal">
     <template #body>
-      <div class="flex justify-between px-2 mb-4">
+      <div class="flex justify-between mb-4">
         <div class="flex items-center">
           <label class="font-semibold text-secondaryLight">
             {{ t("mqtt.qos") }}
@@ -13,29 +13,29 @@
             theme="popover"
             arrow
           >
-            <template #trigger>
-              <span class="select-wrapper">
-                <ButtonSecondary
-                  class="pr-8 ml-2 rounded-none"
-                  :label="`${QoS}`"
-                />
-              </span>
-            </template>
-            <div class="flex flex-col" role="menu">
-              <SmartItem
-                v-for="item in QOS_VALUES"
-                :key="`qos-${item}`"
-                :label="`${item}`"
-                :icon="QoS === item ? IconCheckCircle : IconCircle"
-                :active="QoS === item"
-                @click="
-                  () => {
-                    QoS = item
-                    QoSOptions.tippy().hide()
-                  }
-                "
+            <span class="select-wrapper">
+              <ButtonSecondary
+                class="pr-8 ml-2 rounded-none"
+                :label="`${QoS}`"
               />
-            </div>
+            </span>
+            <template #content="{ hide }">
+              <div class="flex flex-col" role="menu">
+                <SmartItem
+                  v-for="item in QOS_VALUES"
+                  :key="`qos-${item}`"
+                  :label="`${item}`"
+                  :icon="QoS === item ? IconCheckCircle : IconCircle"
+                  :active="QoS === item"
+                  @click="
+                    () => {
+                      QoS = item
+                      hide()
+                    }
+                  "
+                />
+              </div>
+            </template>
           </tippy>
         </div>
 
@@ -55,7 +55,7 @@
         </div>
       </div>
 
-      <div class="flex flex-col px-2">
+      <div class="flex flex-col">
         <input
           id="selectLabelAdd"
           v-model="name"

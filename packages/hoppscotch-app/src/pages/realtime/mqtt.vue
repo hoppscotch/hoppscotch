@@ -155,14 +155,10 @@
         >
           <div class="flex items-stretch group">
             <span class="flex items-center justify-center px-4 cursor-pointer">
-              <SmartIcon
-                class="svg-icons"
-                name="square"
-                :style="{
-                  fill: topic.color,
-                  color: topic.color,
-                }"
-              />
+              <span
+                class="h-4 w-4 rounded-sm"
+                :style="{ backgroundColor: topic.color }"
+              ></span>
             </span>
             <span
               class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"

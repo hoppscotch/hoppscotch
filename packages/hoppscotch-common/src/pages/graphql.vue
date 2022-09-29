@@ -37,10 +37,7 @@ import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { GQLConnection } from "@helpers/GQLConnection"
-import { cloneDeep } from "lodash-es"
-import { computed, onBeforeUnmount } from "vue"
-import { defineActionHandler } from "~/helpers/actions"
-import { getGQLSession, setGQLSession } from "~/newstore/GQLSession"
+import { uniqueId } from "lodash-es"
 
 const t = useI18n()
 
@@ -48,7 +45,8 @@ usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
 
-const gqlConn = new GQLConnection()
+let gqlConn = new GQLConnection()
+const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
 
 const currentTabId = ref("new")
 const defaultTab = {
@@ -83,11 +81,9 @@ const removeTab = (tabID: string) => {
   tabs.value.splice(index, 1)
 }
 
-const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
-
 watch(isLoading, () => {
-  if (isLoading.value) nuxt.value.$loading.start()
-  else nuxt.value.$loading.finish()
+  if (isLoading.value) startPageProgress()
+  else completePageProgress()
 })
 
 watch(currentTabId, () => {

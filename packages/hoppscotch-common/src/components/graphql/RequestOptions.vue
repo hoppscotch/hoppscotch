@@ -709,7 +709,6 @@ useCodemirror(
   })
 )
 
-const queryEditor = ref<any | null>(null)
 const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
 const linewrapEnabledQuery = ref(true)
 

@@ -46,7 +46,7 @@
                   v-for="item in operations"
                   :key="`gql-operation-${item.name?.value}`"
                   :label="item?.name?.value"
-                  @click.native="
+                  @click="
                     () => {
                       runQuery(item)
                       operationTippy.tippy().hide()
@@ -443,7 +443,6 @@ const props = defineProps<{
 }>()
 
 const toast = useToast()
-const nuxt = useNuxt()
 const { subscribeToStream } = useStreamSubscriber()
 
 const url = useReadonlyStream(gqlURL$, "")

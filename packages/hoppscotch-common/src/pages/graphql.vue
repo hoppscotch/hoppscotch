@@ -4,8 +4,8 @@
       <SmartWindows
         :id="'communication_tab'"
         v-model="currentTabId"
-        @removeTab="removeTab"
-        @addTab="addNewTab"
+        @remove-tab="removeTab"
+        @add-tab="addNewTab"
         @sort="sortTabs"
       >
         <template v-for="tab in tabs" :key="'removable_tab_' + tab.id">

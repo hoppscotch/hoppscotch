@@ -40,7 +40,7 @@
                       :label="`Client ${version}`"
                       @click="
                         () => {
-                          onSelectVersion(version)
+                          onSelectVersion(version as SIOClientVersion)
                           hide()
                         }
                       "

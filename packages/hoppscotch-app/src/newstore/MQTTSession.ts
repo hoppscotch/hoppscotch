@@ -8,6 +8,7 @@ import {
 
 type HoppMQTTRequest = {
   endpoint: string
+  clientID: string
 }
 
 type HoppMQTTSession = {
@@ -19,6 +20,7 @@ type HoppMQTTSession = {
 
 const defaultMQTTRequest: HoppMQTTRequest = {
   endpoint: "wss://test.mosquitto.org:8081",
+  clientID: "hoppscotch",
 }
 
 const defaultMQTTSession: HoppMQTTSession = {
@@ -37,10 +39,19 @@ const dispatchers = defineDispatchers({
       request: newRequest,
     }
   },
-  setEndpoint(_: HoppMQTTSession, { newEndpoint }: { newEndpoint: string }) {
+  setEndpoint(curr: HoppMQTTSession, { newEndpoint }: { newEndpoint: string }) {
     return {
       request: {
+        clientID: curr.request.clientID,
         endpoint: newEndpoint,
+      },
+    }
+  },
+  setClientID(curr: HoppMQTTSession, { newClientID }: { newClientID: string }) {
+    return {
+      request: {
+        endpoint: curr.request.endpoint,
+        clientID: newClientID,
       },
     }
   },
@@ -82,6 +93,15 @@ export function setMQTTEndpoint(newEndpoint: string) {
     dispatcher: "setEndpoint",
     payload: {
       newEndpoint,
+    },
+  })
+}
+
+export function setMQTTClientID(newClientID: string) {
+  MQTTSessionStore.dispatch({
+    dispatcher: "setClientID",
+    payload: {
+      newClientID,
     },
   })
 }
@@ -129,6 +149,11 @@ export const MQTTRequest$ = MQTTSessionStore.subject$.pipe(
 
 export const MQTTEndpoint$ = MQTTSessionStore.subject$.pipe(
   pluck("request", "endpoint"),
+  distinctUntilChanged()
+)
+
+export const MQTTClientID$ = MQTTSessionStore.subject$.pipe(
+  pluck("request", "clientID"),
   distinctUntilChanged()
 )
 

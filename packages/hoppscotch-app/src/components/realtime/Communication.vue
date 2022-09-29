@@ -12,7 +12,8 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      :class="{ 'top-upperSecondaryStickyFold': showEventField }"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -207,7 +208,7 @@ const sendMessage = () => {
     eventName: eventName.value,
     message: communicationBody.value,
   })
-  communicationBody.value = ""
+  clearContent()
 }
 
 const uploadPayload = async (e: InputEvent) => {

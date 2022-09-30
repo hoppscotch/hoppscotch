@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="flex justify-between flex-1 border-b border-dividerLight">
+    <div class="flex justify-between flex-1 border-y border-dividerLight">
       <ButtonSecondary
-        svg="plus"
+        :icon="IconPlus"
         :label="`${t('action.new')}`"
         class="!rounded-none"
-        @click.native="displayModalAdd(true)"
+        @click="displayModalAdd(true)"
       />
       <div class="flex">
         <ButtonSecondary
@@ -13,13 +13,13 @@
           to="https://docs.hoppscotch.io/features/environments"
           blank
           :title="t('app.wiki')"
-          svg="help-circle"
+          :icon="IconHelpCircle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          svg="archive"
+          :icon="IconArchive"
           :title="t('modal.import_export')"
-          @click.native="displayModalImportExport(true)"
+          @click="displayModalImportExport(true)"
         />
       </div>
     </div>
@@ -28,7 +28,7 @@
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
-        :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
         loading="lazy"
         class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${t('empty.environments')}`"
@@ -40,7 +40,7 @@
         :label="`${t('add.new')}`"
         filled
         class="mb-4"
-        @click.native="displayModalAdd(true)"
+        @click="displayModalAdd(true)"
       />
     </div>
     <div v-else-if="!loading">
@@ -53,7 +53,7 @@
     </div>
     <div v-if="loading" class="flex flex-col items-center justify-center p-4">
       <SmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div
       v-if="!loading && adapterError"
@@ -77,18 +77,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref } from "vue"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
-import { useI18n } from "~/helpers/utils/composables"
+import { useI18n } from "~/composables/i18n"
+import { useColorMode } from "~/composables/theming"
+import IconPlus from "~icons/lucide/plus"
+import IconArchive from "~icons/lucide/archive"
+import IconHelpCircle from "~icons/lucide/help-circle"
 
 const t = useI18n()
 
+const colorMode = useColorMode()
+
 defineProps<{
-  teamId: "" | undefined
+  teamId: string | undefined
   teamEnvironments: TeamEnvironment[]
-  adapterError: GQLError<string>
-  loading: false
+  adapterError: GQLError<string> | null
+  loading: boolean
 }>()
 
 const showModalImportExport = ref(false)

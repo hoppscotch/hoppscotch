@@ -1,13 +1,13 @@
 <template>
   <div
     class="flex items-stretch group"
-    @contextmenu.prevent="options.tippy().show()"
+    @contextmenu.prevent="options.tippy.show()"
   >
     <span
       class="flex items-center justify-center px-4 cursor-pointer"
       @click="emit('edit-environment')"
     >
-      <SmartIcon class="svg-icons" name="layers" />
+      <icon-lucide-layers class="svg-icons" />
     </span>
     <span
       class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
@@ -19,67 +19,66 @@
     </span>
     <span>
       <tippy
-        ref="options"
         interactive
         trigger="click"
         theme="popover"
         arrow
         :on-shown="() => tippyActions.focus()"
       >
-        <template #trigger>
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.more')"
-            svg="more-vertical"
-          />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.more')"
+          :icon="IconMoreVertical"
+        />
+        <template #content="{ hide }">
+          <div
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            role="menu"
+            @keyup.e="edit.$el.click()"
+            @keyup.d="duplicate.$el.click()"
+            @keyup.delete="deleteAction.$el.click()"
+            @keyup.escape="options.tippy().hide()"
+          >
+            <SmartItem
+              ref="edit"
+              :icon="IconEdit"
+              :label="`${t('action.edit')}`"
+              :shortcut="['E']"
+              @click="
+                () => {
+                  emit('edit-environment')
+                  hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="duplicate"
+              :icon="IconCopy"
+              :label="`${t('action.duplicate')}`"
+              :shortcut="['D']"
+              @click="
+                () => {
+                  duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="deleteAction"
+              :icon="IconTrash2"
+              :label="`${t('action.delete')}`"
+              :shortcut="['⌫']"
+              @click="
+                () => {
+                  confirmRemove = true
+                  hide()
+                }
+              "
+            />
+          </div>
         </template>
-        <div
-          ref="tippyActions"
-          class="flex flex-col focus:outline-none"
-          tabindex="0"
-          role="menu"
-          @keyup.e="edit.$el.click()"
-          @keyup.d="duplicate.$el.click()"
-          @keyup.delete="deleteAction.$el.click()"
-          @keyup.escape="options.tippy().hide()"
-        >
-          <SmartItem
-            ref="edit"
-            svg="edit"
-            :label="`${t('action.edit')}`"
-            :shortcut="['E']"
-            @click.native="
-              () => {
-                emit('edit-environment')
-                options.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            ref="duplicate"
-            svg="copy"
-            :label="`${t('action.duplicate')}`"
-            :shortcut="['D']"
-            @click.native="
-              () => {
-                duplicateEnvironments()
-                options.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            ref="deleteAction"
-            svg="trash-2"
-            :label="`${t('action.delete')}`"
-            :shortcut="['⌫']"
-            @click.native="
-              () => {
-                confirmRemove = true
-                options.tippy().hide()
-              }
-            "
-          />
-        </div>
       </tippy>
     </span>
     <SmartConfirmModal
@@ -92,16 +91,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref } from "vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useToast } from "@composables/toast"
+import { useI18n } from "~/composables/i18n"
 import {
   deleteTeamEnvironment,
   createDuplicateEnvironment as duplicateEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import IconEdit from "~icons/lucide/edit"
+import IconCopy from "~icons/lucide/copy"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconMoreVertical from "~icons/lucide/more-vertical"
 
 const t = useI18n()
 const toast = useToast()

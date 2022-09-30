@@ -167,13 +167,12 @@ a {
     @apply fill-tooltip;
   }
 
-  .env-icon{
+  .env-icon {
     @apply inline-flex;
     @apply items-center;
     @apply mr-1;
     @apply text-accentDark;
   }
-
 }
 
 .tippy-box[data-theme="popover"] {
@@ -353,7 +352,6 @@ pre.ace_editor {
         @apply font-semibold;
         @apply leading-body;
         @apply tracking-normal;
-        @apply rounded;
         @apply last: ml-4;
         @apply sm: ml-8;
         @apply before: absolute;

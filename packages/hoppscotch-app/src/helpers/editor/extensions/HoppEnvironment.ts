@@ -96,7 +96,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           dom.appendChild(xmp)
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
-          dom.className = "tooltip-theme"
           icon.className = "env-icon"
           return { dom }
         },

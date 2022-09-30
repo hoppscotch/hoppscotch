@@ -114,7 +114,7 @@
 
 <script setup lang="ts">
 import IconTrash2 from "~icons/lucide/trash-2"
-import IconCheck from "~icons/lucide/check"
+import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
 import { clone } from "lodash-es"
@@ -178,7 +178,7 @@ const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "" } },
 ])
 
-const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconCheck>(
+const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   IconTrash2,
   1000
 )
@@ -252,21 +252,8 @@ watch(
 )
 
 const clearContent = () => {
-<<<<<<<< HEAD:packages/hoppscotch-app/src/components/environments/my/Details.vue
   vars.value = []
-  clearIcon.value = "check"
-========
-  vars.value = [
-    {
-      id: idTicker.value++,
-      env: {
-        key: "",
-        value: "",
-      },
-    },
-  ]
-  clearIcon.value = IconCheck
->>>>>>>> 8b300fab (feat: migrate to vue 3 + vite (#2553)):packages/hoppscotch-app/src/components/environments/Details.vue
+  clearIcon.value = IconDone
   toast.success(`${t("state.cleared")}`)
 }
 

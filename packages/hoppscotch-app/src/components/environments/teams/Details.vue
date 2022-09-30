@@ -30,14 +30,14 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.clear_all')"
-              :svg="clearIcon"
-              @click.native="clearContent()"
+              :icon="clearIcon"
+              @click="clearContent()"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
-              svg="plus"
+              :icon="IconPlus"
               :title="t('add.new')"
-              @click.native="addEnvironmentVariable"
+              @click="addEnvironmentVariable"
             />
           </div>
         </div>
@@ -70,9 +70,9 @@
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.remove')"
-                svg="trash"
+                :icon="IconTrash"
                 color="red"
-                @click.native="removeEnvironmentVariable(index)"
+                @click="removeEnvironmentVariable(index)"
               />
             </div>
           </div>
@@ -81,7 +81,7 @@
             class="flex flex-col items-center justify-center p-4 text-secondaryLight"
           >
             <img
-              :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+              :src="`/images/states/${colorMode.value}/blockchain.svg`"
               loading="lazy"
               class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="`${t('empty.environments')}`"
@@ -93,7 +93,7 @@
               :label="`${t('add.new')}`"
               filled
               class="mb-4"
-              @click.native="addEnvironmentVariable"
+              @click="addEnvironmentVariable"
             />
           </div>
         </div>
@@ -104,19 +104,16 @@
         <ButtonPrimary
           :label="`${t('action.save')}`"
           :loading="isLoading"
-          @click.native="saveEnvironment"
+          @click.="saveEnvironment"
         />
-        <ButtonSecondary
-          :label="`${t('action.cancel')}`"
-          @click.native="hideModal"
-        />
+        <ButtonSecondary :label="`${t('action.cancel')}`" @click="hideModal" />
       </span>
     </template>
   </SmartModal>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "@nuxtjs/composition-api"
+import { computed, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -124,14 +121,20 @@ import * as TE from "fp-ts/TaskEither"
 import { flow, pipe } from "fp-ts/function"
 import { parseTemplateStringE } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
-import { clone } from "lodash"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { clone } from "lodash-es"
+import { useToast } from "@composables/toast"
+import { useI18n } from "~/composables/i18n"
 import {
   createTeamEnvironment,
   updateTeamEnvironment,
 } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import { useColorMode } from "~/composables/theming"
+import IconTrash from "~icons/lucide/trash"
+import IconTrash2 from "~icons/lucide/trash-2"
+import IconDone from "~icons/lucide/check"
+import IconPlus from "~icons/lucide/plus"
 
 type EnvironmentVariable = {
   id: number
@@ -143,6 +146,7 @@ type EnvironmentVariable = {
 
 const t = useI18n()
 const toast = useToast()
+const colorMode = useColorMode()
 
 const props = withDefaults(
   defineProps<{
@@ -170,7 +174,10 @@ const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "" } },
 ])
 
-const clearIcon = refAutoReset<"trash-2" | "check">("trash-2", 1000)
+const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
+  IconTrash2,
+  1000
+)
 
 const evnExpandError = computed(() => {
   const variables = pipe(
@@ -185,7 +192,7 @@ const evnExpandError = computed(() => {
 })
 
 const liveEnvs = computed(() => {
-  if (evnExpandError) {
+  if (evnExpandError.value) {
     return []
   } else {
     return [...vars.value.map((x) => ({ ...x, source: name.value! }))]
@@ -215,7 +222,7 @@ watch(
 
 const clearContent = () => {
   vars.value = []
-  clearIcon.value = "check"
+  clearIcon.value = IconDone
   toast.success(`${t("state.cleared")}`)
 }
 

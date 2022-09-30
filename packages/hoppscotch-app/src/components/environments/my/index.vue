@@ -2,10 +2,10 @@
   <div>
     <div class="flex justify-between flex-1 border-b border-dividerLight">
       <ButtonSecondary
-        svg="plus"
+        :icon="IconPlus"
         :label="`${t('action.new')}`"
         class="!rounded-none"
-        @click.native="displayModalAdd(true)"
+        @click="displayModalAdd(true)"
       />
       <div class="flex">
         <ButtonSecondary
@@ -13,13 +13,13 @@
           to="https://docs.hoppscotch.io/features/environments"
           blank
           :title="t('app.wiki')"
-          svg="help-circle"
+          :icon="IconHelpCircle"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          svg="archive"
+          :icon="IconArchive"
           :title="t('modal.import_export')"
-          @click.native="displayModalImportExport(true)"
+          @click="displayModalImportExport(true)"
         />
       </div>
     </div>
@@ -43,7 +43,7 @@
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
-        :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+        :src="`/images/states/${colorMode.value}/blockchain.svg`"
         loading="lazy"
         class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${t('empty.environments')}`"
@@ -55,7 +55,7 @@
         :label="`${t('add.new')}`"
         filled
         class="mb-4"
-        @click.native="displayModalAdd(true)"
+        @click="displayModalAdd(true)"
       />
     </div>
     <EnvironmentsMyDetails
@@ -72,11 +72,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "@nuxtjs/composition-api"
-import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
+import { computed, ref } from "vue"
 import { environments$, globalEnv$ } from "~/newstore/environments"
+import { useColorMode } from "~/composables/theming"
+import { useReadonlyStream } from "@composables/stream"
+import { useI18n } from "~/composables/i18n"
+import IconArchive from "~icons/lucide/archive"
+import IconPlus from "~icons/lucide/plus"
+import IconHelpCircle from "~icons/lucide/help-circle"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 const globalEnv = useReadonlyStream(globalEnv$, [])
 

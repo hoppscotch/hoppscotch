@@ -3,87 +3,66 @@
     <div class="sticky top-0 z-10 flex flex-col rounded-t bg-primary">
       <tippy
         v-if="environmentType.type === 'my-environments'"
-        ref="options"
         interactive
         trigger="click"
         theme="popover"
         arrow
       >
-        <template #trigger>
-          <span
-            v-tippy="{ theme: 'tooltip' }"
-            :title="`${t('environment.select')}`"
-            class="flex-1 bg-transparent border-b border-dividerLight select-wrapper"
+        <span
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${t('environment.select')}`"
+          class="bg-transparent border-b border-dividerLight select-wrapper"
+        >
+          <ButtonSecondary
+            v-if="
+              selectedEnv.type === 'MY_ENV' && selectedEnv.index !== undefined
+            "
+            :label="myEnvironments[selectedEnv.index].name"
+            class="flex-1 !justify-start pr-8 rounded-none"
+          />
+          <ButtonSecondary
+            v-else
+            :label="`${t('environment.select')}`"
+            class="flex-1 !justify-start pr-8 rounded-none"
+          />
+        </span>
+        <template #content="{ hide }">
+          <div
+            class="flex flex-col"
+            role="menu"
+            tabindex="0"
+            @keyup.escape="hide()"
           >
-            <ButtonSecondary
-              v-if="
-                selectedEnv.type === 'MY_ENV' && selectedEnv.index !== undefined
+            <SmartItem
+              :label="`${t('environment.no_environment')}`"
+              :info-icon="
+                selectedEnvironmentIndex.type !== 'MY_ENV'
+                  ? IconCheck
+                  : undefined
               "
-              :label="myEnvironments[selectedEnv.index].name"
-              class="flex-1 !justify-start pr-8 rounded-none"
+              :active-info-icon="selectedEnvironmentIndex.type !== 'MY_ENV'"
+              @click="
+                () => {
+                  selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+                  hide()
+                }
+              "
             />
-            <ButtonSecondary
-              v-else
-              :label="`${t('environment.select')}`"
-              class="flex-1 !justify-start pr-8 rounded-none"
+            <hr v-if="myEnvironments.length > 0" />
+            <SmartItem
+              v-for="(gen, index) in myEnvironments"
+              :key="`gen-${index}`"
+              :label="gen.name"
+              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
+              :active-info-icon="index === selectedEnv.index"
+              @click="
+                () => {
+                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
+                  hide()
+                }
+              "
             />
-          </span>
-        </template>
-        <div class="flex flex-col" role="menu">
-          <SmartItem
-            :label="`${t('environment.no_environment')}`"
-            :info-icon="
-              selectedEnvironmentIndex.type !== 'MY_ENV' ? 'done' : ''
-            "
-            :active-info-icon="selectedEnvironmentIndex.type !== 'MY_ENV'"
-            @click.native="
-              () => {
-                selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
-                options.tippy().hide()
-              }
-            "
-          />
-          <hr v-if="myEnvironments.length > 0" />
-          <SmartItem
-            v-for="(gen, index) in myEnvironments"
-            :key="`gen-${index}`"
-            :label="gen.name"
-            :info-icon="index === selectedEnv.index ? 'done' : ''"
-            :active-info-icon="index === selectedEnv.index"
-            @click.native="
-              () => {
-                selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
-                options.tippy().hide()
-              }
-            "
-          />
-        </div>
-      </tippy>
-      <tippy
-        v-else
-        ref="options"
-        interactive
-        trigger="click"
-        theme="popover"
-        arrow
-      >
-        <template #trigger>
-          <span
-            v-tippy="{ theme: 'tooltip' }"
-            :title="`${t('environment.select')}`"
-            class="flex-1 bg-transparent border-b border-dividerLight select-wrapper"
-          >
-            <ButtonSecondary
-              v-if="selectedEnv.name"
-              :label="selectedEnv.name"
-              class="flex-1 !justify-start pr-8 rounded-none"
-            />
-            <ButtonSecondary
-              v-else
-              :label="`${t('environment.select')}`"
-              class="flex-1 !justify-start pr-8 rounded-none"
-            />
-          </span>
+          </div>
         </template>
         <div class="flex flex-col" role="menu">
           <SmartItem
@@ -152,16 +131,12 @@
 </template>
 
 <script setup lang="ts">
-import IconDone from "~icons/lucide/check"
-import IconPlus from "~icons/lucide/plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconArchive from "~icons/lucide/archive"
+import { computed, ref, watch } from "vue"
+import { isEqual } from "lodash-es"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { Team } from "~/helpers/backend/graphql"
-import { computed, ref } from "vue"
 import { useReadonlyStream, useStream } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@composables/theming"
+import { useI18n } from "~/composables/i18n"
 import {
   environments$,
   selectedEnvironmentIndex$,
@@ -169,6 +144,7 @@ import {
 } from "~/newstore/environments"
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { GQLError } from "~/helpers/backend/GQLClient"
+import IconCheck from "~icons/lucide/check"
 
 const t = useI18n()
 
@@ -202,7 +178,24 @@ const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
 }
 
-const options = ref<any | null>(null)
+const adapter = new TeamEnvironmentAdapter(undefined)
+const adapterLoading = useReadonlyStream(adapter.loading$, false)
+const adapterError = useReadonlyStream(adapter.error$, null)
+const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
+
+const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
+  environmentType.value.selectedTeam = newSelectedTeam
+}
+const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
+  environmentType.value.type = newEnvironmentType
+}
+
+watch(
+  () => environmentType.value.selectedTeam?.id,
+  (newTeamID) => {
+    adapter.changeTeamID(newTeamID)
+  }
+)
 
 const adapter = new TeamEnvironmentAdapter(undefined)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)

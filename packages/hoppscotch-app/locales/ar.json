@@ -142,12 +142,12 @@
     "sync": "هل أنت متأكد أنك تريد مزامنة مساحة العمل هذه؟"
   },
   "count": {
-    "header": "رأس {عدد}",
-    "message": "الرسالة {عدد}",
+    "header": "رأس {count}",
+    "message": "الرسالة {count}",
     "parameter": "المعلمة {count}",
-    "protocol": "البروتوكول {عدد}",
-    "value": "القيمة {عدد}",
-    "variable": "متغير {عدد}"
+    "protocol": "البروتوكول {count}",
+    "value": "القيمة {count}",
+    "variable": "متغير {count}"
   },
   "documentation": {
     "generate": "توليد الوثائق",

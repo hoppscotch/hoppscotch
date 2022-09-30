@@ -1,4 +1,3 @@
-// TODO: fix cache
 import { ref } from "vue"
 import {
   createClient,
@@ -9,10 +8,11 @@ import {
   makeOperation,
   createRequest,
   subscriptionExchange,
+  errorExchange,
+  CombinedError,
+  Operation,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
-// import { offlineExchange } from "@urql/exchange-graphcache"
-// import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage"
 import { devtoolsExchange } from "@urql/devtools"
 import { SubscriptionClient } from "subscriptions-transport-ws"
 import * as E from "fp-ts/Either"
@@ -20,11 +20,6 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
 import { filter, map, Subject } from "rxjs"
-// import { keyDefs } from "./caching/keys"
-// import { optimisticDefs } from "./caching/optimistic"
-// import { updatesDef } from "./caching/updates"
-// import { resolversDef } from "./caching/resolvers"
-// import schema from "./backend-schema.json"
 import {
   authIdToken$,
   getAuthIDToken,
@@ -32,21 +27,39 @@ import {
   waitProbableLoginToConfirm,
 } from "~/helpers/fb/auth"
 
+// TODO: Implement caching
+
 const BACKEND_GQL_URL =
   import.meta.env.VITE_BACKEND_GQL_URL ?? "https://api.hoppscotch.io/graphql"
 const BACKEND_WS_URL =
   import.meta.env.VITE_BACKEND_WS_URL ?? "wss://api.hoppscotch.io/graphql"
 
-// const storage = makeDefaultStorage({
-//   idbName: "hoppcache-v1",
-//   maxAge: 7,
-// })
+/**
+ * A type that defines error events that are possible during backend operations on the GQLCLient
+ */
+export type GQLClientErrorEvent =
+  | { type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT"; errors: Error[] }
+  | { type: "CLIENT_REPORTED_ERROR"; error: CombinedError; op: Operation }
+
+/**
+ * A stream of the errors that occur during GQLClient operations.
+ * Exposed to be subscribed to by systems like sentry for error reporting
+ */
+export const gqlClientError$ = new Subject<GQLClientErrorEvent>()
 
 const subscriptionClient = new SubscriptionClient(BACKEND_WS_URL, {
   reconnect: true,
   connectionParams: () => {
     return {
       authorization: `Bearer ${authIdToken$.value}`,
+    }
+  },
+  connectionCallback(error) {
+    if (error?.length > 0) {
+      gqlClientError$.next({
+        type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT",
+        errors: error,
+      })
     }
   },
 })
@@ -61,14 +74,6 @@ const createHoppClient = () =>
     exchanges: [
       devtoolsExchange,
       dedupExchange,
-      // offlineExchange({
-      //   schema: schema as any,
-      //   keys: keyDefs,
-      //   optimistic: optimisticDefs,
-      //   updates: updatesDef,
-      //   resolvers: resolversDef,
-      //   storage,
-      // }),
       authExchange({
         addAuthToOperation({ authState, operation }) {
           if (!authState || !authState.authToken) {
@@ -108,6 +113,15 @@ const createHoppClient = () =>
       subscriptionExchange({
         forwardSubscription: (operation) =>
           subscriptionClient.request(operation),
+      }),
+      errorExchange({
+        onError(error, op) {
+          gqlClientError$.next({
+            type: "CLIENT_REPORTED_ERROR",
+            error,
+            op,
+          })
+        },
       }),
     ],
   })

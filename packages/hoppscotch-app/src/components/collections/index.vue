@@ -128,12 +128,14 @@
         :label="t('add.new')"
         class="mb-4"
         filled
+        outline
       />
       <ButtonSecondary
         v-else
         :label="t('add.new')"
         filled
         class="mb-4"
+        outline
         @click="displayModalAdd(true)"
       />
     </div>

@@ -139,7 +139,12 @@
               />
               <div
                 class="flex px-4 py-2 opacity-50"
-                @dblclick="showDeveloperOptionModal()"
+                @dblclick="
+                  () => {
+                    showDeveloperOptionModal()
+                    hide()
+                  }
+                "
               >
                 {{ `${t("app.name")} v${version}` }}
               </div>
@@ -271,7 +276,6 @@ const chatWithUs = () => {
 const showDeveloperOptionModal = () => {
   if (currentUser.value) {
     showDeveloperOptions.value = true
-    options.value.tippy().hide()
   }
 }
 

@@ -144,10 +144,10 @@
   "count": {
     "header": "Nagłówek {count}",
     "message": "Wiadomość {count}",
-    "parameter": "Parametr {liczba}",
-    "protocol": "Protokół {liczba}",
-    "value": "Wartość {liczba}",
-    "variable": "Zmienna {liczba}"
+    "parameter": "Parametr {count}",
+    "protocol": "Protokół {count}",
+    "value": "Wartość {count}",
+    "variable": "Zmienna {count}"
   },
   "documentation": {
     "generate": "Wygeneruj dokumentację",

@@ -144,8 +144,8 @@
   "count": {
     "header": "Başlık {count}",
     "message": "Mesaj {count}",
-    "parameter": "Parametre {sayım}",
-    "protocol": "Protokol {sayım}",
+    "parameter": "Parametre {count}",
+    "protocol": "Protokol {count}",
     "value": "Değer {count}",
     "variable": "Değişken {count}"
   },

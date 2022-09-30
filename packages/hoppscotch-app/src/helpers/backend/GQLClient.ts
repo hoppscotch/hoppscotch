@@ -11,6 +11,7 @@ import {
   errorExchange,
   CombinedError,
   Operation,
+  OperationResult,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
 import { devtoolsExchange } from "@urql/devtools"
@@ -34,12 +35,18 @@ const BACKEND_GQL_URL =
 const BACKEND_WS_URL =
   import.meta.env.VITE_BACKEND_WS_URL ?? "wss://api.hoppscotch.io/graphql"
 
+type GQLOpType = "query" | "mutation" | "subscription"
 /**
  * A type that defines error events that are possible during backend operations on the GQLCLient
  */
 export type GQLClientErrorEvent =
   | { type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT"; errors: Error[] }
   | { type: "CLIENT_REPORTED_ERROR"; error: CombinedError; op: Operation }
+  | {
+      type: "GQL_CLIENT_REPORTED_ERROR"
+      opType: GQLOpType
+      opResult: OperationResult
+    }
 
 /**
  * A stream of the errors that occur during GQLClient operations.
@@ -178,11 +185,20 @@ export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
               E.fromNullable(res.error?.message),
               E.match(
                 // The left case (network error was null)
-                (gqlErr) =>
-                  <GQLError<DocErrorType>>{
+                (gqlErr) => {
+                  if (res.error) {
+                    gqlClientError$.next({
+                      type: "GQL_CLIENT_REPORTED_ERROR",
+                      opType: "query",
+                      opResult: res,
+                    })
+                  }
+
+                  return <GQLError<DocErrorType>>{
                     type: "gql_error",
                     error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
-                  },
+                  }
+                },
                 // The right case (it was a GraphQL Error)
                 (networkErr) =>
                   <GQLError<DocErrorType>>{
@@ -230,11 +246,20 @@ export const runGQLSubscription = <
               E.fromNullable(res.error?.message),
               E.match(
                 // The left case (network error was null)
-                (gqlErr) =>
-                  <GQLError<DocErrorType>>{
+                (gqlErr) => {
+                  if (res.error) {
+                    gqlClientError$.next({
+                      type: "GQL_CLIENT_REPORTED_ERROR",
+                      opType: "subscription",
+                      opResult: res,
+                    })
+                  }
+
+                  return <GQLError<DocErrorType>>{
                     type: "gql_error",
                     error: parseGQLErrorString(gqlErr ?? "") as DocErrorType,
-                  },
+                  }
+                },
                 // The right case (it was a GraphQL Error)
                 (networkErr) =>
                   <GQLError<DocErrorType>>{
@@ -311,11 +336,20 @@ export const runMutation = <
             E.fromNullable(result.error?.message),
             E.match(
               // The left case (network error was null)
-              (gqlErr) =>
-                <GQLError<DocErrors>>{
+              (gqlErr) => {
+                if (result.error) {
+                  gqlClientError$.next({
+                    type: "GQL_CLIENT_REPORTED_ERROR",
+                    opType: "mutation",
+                    opResult: result,
+                  })
+                }
+
+                return <GQLError<DocErrors>>{
                   type: "gql_error",
                   error: parseGQLErrorString(gqlErr ?? ""),
-                },
+                }
+              },
               // The right case (it was a network error)
               (networkErr) =>
                 <GQLError<DocErrors>>{

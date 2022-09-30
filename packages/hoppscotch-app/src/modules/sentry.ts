@@ -7,6 +7,7 @@ import { settingsStore } from "~/newstore/settings"
 import { App } from "vue"
 import { APP_IS_IN_DEV_MODE } from "~/helpers/dev"
 import { gqlClientError$ } from "~/helpers/backend/GQLClient"
+import { currentUser$ } from "~/helpers/fb/auth"
 
 /**
  * The tag names we allow giving to Sentry
@@ -97,6 +98,12 @@ function reportErrors(
       }
       if (extras !== null && extras === undefined) scope.setExtras(extras)
 
+      scope.addAttachment({
+        filename: "extras-dump.json",
+        data: JSON.stringify(extras),
+        contentType: "application/json",
+      })
+
       errs.forEach((err) => Sentry.captureException(err))
     })
   }
@@ -137,6 +144,29 @@ function subscribeToAppEventsForReporting() {
           { op: ev.op }
         )
         break
+
+      case "GQL_CLIENT_REPORTED_ERROR":
+        reportError(
+          new Error("Backend Query Failed"),
+          "BACKEND_OPERATIONS",
+          { opType: ev.opType },
+          {
+            opResult: ev.opResult,
+          }
+        )
+        break
+    }
+  })
+}
+
+/**
+ * Subscribe to app system events for adding
+ * additional data tags for the error reporting
+ */
+function subscribeForAppDataTags() {
+  currentUser$.subscribe((user) => {
+    if (sentryActive) {
+      Sentry.setTag("user_logged_in", !!user)
     }
   })
 }
@@ -163,5 +193,6 @@ export default <HoppModule>{
     })
 
     subscribeToAppEventsForReporting()
+    subscribeForAppDataTags()
   },
 }

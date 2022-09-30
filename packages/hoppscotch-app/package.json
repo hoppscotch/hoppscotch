@@ -91,7 +91,7 @@
     "vue-i18n": "^9.2.2",
     "vue-pdf-embed": "^1.1.4",
     "vue-router": "^4.0.16",
-    "vue-tippy": "6.0.0-alpha.58",
+    "vue-tippy": "6.0.0-alpha.64",
     "vuedraggable": "^4.1.0",
     "wonka": "^4.0.15",
     "workbox-window": "^6.5.4",

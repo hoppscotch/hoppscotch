@@ -185,7 +185,7 @@ a {
   @apply flex flex-1;
 }
 
-[interactive]>div {
+[interactive] > div {
   @apply flex flex-1;
   @apply h-full;
 }
@@ -232,7 +232,7 @@ button {
   @apply hidden;
 }
 
-.floating-input~label {
+.floating-input ~ label {
   @apply absolute;
   @apply px-2 py-0.5;
   @apply m-2;
@@ -241,8 +241,8 @@ button {
   @apply origin-top-left;
 }
 
-.floating-input:focus-within~label,
-.floating-input:not(:placeholder-shown)~label {
+.floating-input:focus-within ~ label,
+.floating-input:not(:placeholder-shown) ~ label {
   @apply bg-primary;
   @apply transform;
   @apply origin-top-left;
@@ -250,7 +250,7 @@ button {
   @apply translate-x-1 -translate-y-4;
 }
 
-.floating-input:focus-within~label {
+.floating-input:focus-within ~ label {
   @apply text-secondaryDark;
 }
 
@@ -336,6 +336,7 @@ pre.ace_editor {
         @apply font-semibold;
         @apply leading-body;
         @apply tracking-normal;
+        @apply rounded;
         @apply last: ml-4;
         @apply sm: ml-8;
         @apply before: absolute;
@@ -397,7 +398,7 @@ pre.ace_editor {
   @apply bg-primaryLight;
 }
 
-.smart-splitter.splitpanes--vertical>.splitpanes__splitter {
+.smart-splitter.splitpanes--vertical > .splitpanes__splitter {
   @apply w-1;
   @apply before: -left-0.5;
   @apply before: -right-0.5;
@@ -405,7 +406,7 @@ pre.ace_editor {
   @apply after: content-["\e5d4"];
 }
 
-.smart-splitter.splitpanes--horizontal>.splitpanes__splitter {
+.smart-splitter.splitpanes--horizontal > .splitpanes__splitter {
   @apply h-1;
   @apply before: -top-0.5;
   @apply before: -bottom-0.5;
@@ -413,19 +414,19 @@ pre.ace_editor {
   @apply after: content-["\e5d3"];
 }
 
-.no-splitter.splitpanes--vertical>.splitpanes__splitter {
+.no-splitter.splitpanes--vertical > .splitpanes__splitter {
   @apply w-0.5;
   @apply pointer-events-none;
 }
 
-.no-splitter.splitpanes--horizontal>.splitpanes__splitter {
+.no-splitter.splitpanes--horizontal > .splitpanes__splitter {
   @apply h-0.5;
   @apply pointer-events-none;
 }
 
 .cm-focused {
   @apply select-auto;
-  @apply outline-none;
+  @apply outline-none #{!important};
 
   .cm-activeLine {
     @apply bg-primaryLight;

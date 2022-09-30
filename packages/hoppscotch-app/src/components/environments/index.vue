@@ -109,6 +109,7 @@
         :label="`${t('add.new')}`"
         filled
         class="mb-4"
+        outline
         @click="displayModalAdd(true)"
       />
     </div>

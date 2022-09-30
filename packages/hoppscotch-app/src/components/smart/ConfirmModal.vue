@@ -13,14 +13,20 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex">
+      <span class="flex space-x-2">
         <ButtonPrimary
           v-focus
           :label="yes ?? t('action.yes')"
           :loading="!!loadingState"
+          outline
           @click="resolve"
         />
-        <ButtonSecondary :label="no ?? t('action.no')" @click="hideModal" />
+        <ButtonSecondary
+          :label="no ?? t('action.no')"
+          filled
+          outline
+          @click="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

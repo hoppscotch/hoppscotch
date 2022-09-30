@@ -73,6 +73,7 @@
       <ButtonSecondary
         :label="t('add.new')"
         filled
+        outline
         @click="displayModalAdd(true)"
       />
     </div>

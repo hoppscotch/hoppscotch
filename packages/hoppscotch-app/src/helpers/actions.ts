@@ -32,6 +32,9 @@ export type HoppAction =
   | "settings.theme.light" // Use light theme
   | "settings.theme.dark" // Use dark theme
   | "settings.theme.black" // Use black theme
+  | "response.preview.toggle" // Toggle response preview
+  | "response.file.download" // Download response as file
+  | "response.copy" // Copy response to clipboard
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars

@@ -28,15 +28,19 @@
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.download_file'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.copy')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.copy'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>.</xmp>`"
           :icon="copyIcon"
           @click="copyResponse"
         />
@@ -215,6 +219,8 @@ import {
   useResponseBody,
   useDownloadResponse,
 } from "@composables/lens-actions"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -358,6 +364,9 @@ const toggleFilterState = () => {
   filterQueryText.value = ""
   toggleFilter.value = !toggleFilter.value
 }
+
+defineActionHandler("response.file.download", () => downloadResponse())
+defineActionHandler("response.copy", () => copyResponse())
 </script>
 
 <style lang="scss" scoped>

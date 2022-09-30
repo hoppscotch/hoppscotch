@@ -80,6 +80,19 @@ export default [
     ],
   },
   {
+    section: "shortcut.response.title",
+    shortcuts: [
+      {
+        keys: [getPlatformSpecialKey(), "J"],
+        label: "shortcut.response.download",
+      },
+      {
+        keys: [getPlatformSpecialKey(), "."],
+        label: "shortcut.response.copy",
+      },
+    ],
+  },
+  {
     section: "shortcut.navigation.title",
     shortcuts: [
       {

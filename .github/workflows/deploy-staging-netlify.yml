@@ -34,6 +34,7 @@ jobs:
           VITE_BACKEND_GQL_URL: ${{ secrets.STAGING_BACKEND_GQL_URL }}
           VITE_BACKEND_WS_URL: ${{ secrets.STAGING_BACKEND_WS_URL }}
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_RELEASE_TAG: ${{ github.sha }}
           VITE_SENTRY_ENVIRONMENT: staging
         run: pnpm run generate
 
@@ -43,3 +44,15 @@ jobs:
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Create Sentry Release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: staging
+          ignore_missing: true
+          ignore_empty: true
+          version: ${{ github.sha }}

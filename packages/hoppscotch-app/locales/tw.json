@@ -502,6 +502,11 @@
       "send_request": "傳送請求",
       "title": "請求"
     },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "theme": {
       "black": "將主題切換至黑色模式",
       "dark": "將主題切換至暗色模式",

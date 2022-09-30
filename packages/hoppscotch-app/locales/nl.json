@@ -142,10 +142,10 @@
     "sync": "Weet u zeker dat u deze werkruimte wilt synchroniseren?"
   },
   "count": {
-    "header": "Kop {telling}",
-    "message": "Bericht {tel}",
-    "parameter": "Parameter {aantal}",
-    "protocol": "Protocol {tel}",
+    "header": "Kop {count}",
+    "message": "Bericht {count}",
+    "parameter": "Parameter {count}",
+    "protocol": "Protocol {count}",
     "value": "Waarde {count}",
     "variable": "Variabele {count}"
   },
@@ -501,6 +501,11 @@
       "save_to_collections": "Opslaan in collecties",
       "send_request": "Verstuur verzoek",
       "title": "Verzoek"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Switch  theme to black mode",

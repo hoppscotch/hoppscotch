@@ -144,8 +144,8 @@
   "count": {
     "header": "Başlık {count}",
     "message": "Mesaj {count}",
-    "parameter": "Parametre {sayım}",
-    "protocol": "Protokol {sayım}",
+    "parameter": "Parametre {count}",
+    "protocol": "Protokol {count}",
     "value": "Değer {count}",
     "variable": "Değişken {count}"
   },
@@ -501,6 +501,11 @@
       "save_to_collections": "Koleksiyonlara kaydet",
       "send_request": "İstek gönder",
       "title": "İstek"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Temayı siyah mod olarak ayarla",

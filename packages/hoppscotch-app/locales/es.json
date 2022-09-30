@@ -502,6 +502,11 @@
       "send_request": "Enviar petición",
       "title": "Petición"
     },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "theme": {
       "black": "Cambiar el tema al modo negro",
       "dark": "Cambiar el tema al modo oscuro",

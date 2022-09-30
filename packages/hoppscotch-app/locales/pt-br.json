@@ -142,12 +142,12 @@
     "sync": "Tem certeza de que deseja sincronizar este espaço de trabalho?"
   },
   "count": {
-    "header": "Cabeçalho {contagem}",
-    "message": "Mensagem {contagem}",
-    "parameter": "Parâmetro {contagem}",
-    "protocol": "Protocolo {contagem}",
-    "value": "Valor {contagem}",
-    "variable": "Variável {contagem}"
+    "header": "Cabeçalho {count}",
+    "message": "Mensagem {count}",
+    "parameter": "Parâmetro {count}",
+    "protocol": "Protocolo {count}",
+    "value": "Valor {count}",
+    "variable": "Variável {count}"
   },
   "documentation": {
     "generate": "Gerar documentação",
@@ -501,6 +501,11 @@
       "save_to_collections": "Salvar em coleções",
       "send_request": "Enviar requisição",
       "title": "Solicitar"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Trocar para o tema preto",

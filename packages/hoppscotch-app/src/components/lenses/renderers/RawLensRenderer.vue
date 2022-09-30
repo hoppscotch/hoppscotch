@@ -17,15 +17,19 @@
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.download_file'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.copy')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.copy'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>.</xmp>`"
           :icon="copyIcon"
           @click="copyResponse"
         />
@@ -52,6 +56,8 @@ import {
   useCopyResponse,
 } from "@composables/lens-actions"
 import { objFieldMatches } from "~/helpers/functional/object"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -107,4 +113,7 @@ useCodemirror(
     environmentHighlights: true,
   })
 )
+
+defineActionHandler("response.file.download", () => downloadResponse())
+defineActionHandler("response.copy", () => copyResponse())
 </script>

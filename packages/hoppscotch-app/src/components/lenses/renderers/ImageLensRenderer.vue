@@ -9,9 +9,11 @@
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
-          :icon="downloadIcon === 'download' ? IconDownload : IconCheck"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.download_file'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
+          :icon="downloadIcon"
           @click="downloadResponse"
         />
       </div>
@@ -25,92 +27,76 @@
   </div>
 </template>
 
-<script lang="ts">
-import IconDownload from "~icons/lucide/download"
-import IconCheck from "~icons/lucide/check"
+<script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
-import { defineComponent } from "vue"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { computed, onMounted, ref, watch } from "vue"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { useDownloadResponse } from "~/composables/lens-actions"
+import { flow, pipe } from "fp-ts/function"
+import * as S from "fp-ts/string"
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
+import { objFieldMatches } from "~/helpers/functional/object"
 
-export default defineComponent({
-  props: {
-    response: { type: Object, default: () => ({}) },
-  },
-  setup() {
-    return {
-      t: useI18n(),
-      toast: useToast(),
-      IconDownload,
-      IconCheck,
-    }
-  },
-  data() {
-    return {
-      imageSource: "",
-      downloadIcon: "download",
-    }
-  },
-  computed: {
-    responseType() {
-      return (
-        this.response.headers.find(
-          (h) => h.key.toLowerCase() === "content-type"
-        ).value || ""
+const t = useI18n()
+
+const props = defineProps<{
+  response: HoppRESTResponse & { type: "success" | "fail" }
+}>()
+
+const imageSource = ref("")
+
+const responseType = computed(() =>
+  pipe(
+    props.response,
+    O.fromPredicate(objFieldMatches("type", ["fail", "success"] as const)),
+    O.chain(
+      // Try getting content-type
+      flow(
+        (res) => res.headers,
+        A.findFirst((h) => h.key.toLowerCase() === "content-type"),
+        O.map(flow((h) => h.value, S.split(";"), RNEA.head, S.toLowerCase))
       )
-        .split(";")[0]
-        .toLowerCase()
-    },
-  },
-  watch: {
-    response: {
-      immediate: true,
-      handler() {
-        this.imageSource = ""
+    ),
+    O.getOrElse(() => "text/plain")
+  )
+)
 
-        const buf = this.response.body
-        const bytes = new Uint8Array(buf)
-        const blob = new Blob([bytes.buffer])
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  responseType.value,
+  computed(() => props.response.body)
+)
 
-        const reader = new FileReader()
-        reader.onload = ({ target }) => {
-          this.imageSource = target.result
-        }
-        reader.readAsDataURL(blob)
-      },
-    },
-  },
-  mounted() {
-    this.imageSource = ""
+watch(props.response, () => {
+  imageSource.value = ""
+  const buf = props.response.body
+  const bytes = new Uint8Array(buf)
+  const blob = new Blob([bytes.buffer])
 
-    const buf = this.response.body
-    const bytes = new Uint8Array(buf)
-    const blob = new Blob([bytes.buffer])
-
-    const reader = new FileReader()
-    reader.onload = ({ target }) => {
-      this.imageSource = target.result
-    }
-    reader.readAsDataURL(blob)
-  },
-  methods: {
-    downloadResponse() {
-      const dataToWrite = this.response.body
-      const file = new Blob([dataToWrite], { type: this.responseType })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-      // TODO get uri from meta
-      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-      document.body.appendChild(a)
-      a.click()
-      this.downloadIcon = "check"
-      this.toast.success(this.t("state.download_started"))
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-        this.downloadIcon = "download"
-      }, 1000)
-    },
-  },
+  const reader = new FileReader()
+  reader.onload = ({ target }) => {
+    // target.result will always be string because we're using FileReader.readAsDataURL
+    imageSource.value = target!.result as string
+  }
+  reader.readAsDataURL(blob)
 })
+
+onMounted(() => {
+  imageSource.value = ""
+  const buf = props.response.body
+  const bytes = new Uint8Array(buf)
+  const blob = new Blob([bytes.buffer])
+
+  const reader = new FileReader()
+  reader.onload = ({ target }) => {
+    // target.result will always be string because we're using FileReader.readAsDataURL
+    imageSource.value = target!.result as string
+  }
+  reader.readAsDataURL(blob)
+})
+
+defineActionHandler("response.file.download", () => downloadResponse())
 </script>

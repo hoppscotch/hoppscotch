@@ -14,19 +14,26 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex">
+      <span class="flex space-x-2">
         <ButtonPrimary
           ref="importButton"
           :label="`${t('import.title')}`"
+          outline
           @click="handleImport"
         />
-        <ButtonSecondary :label="`${t('action.cancel')}`" @click="hideModal" />
+        <ButtonSecondary
+          :label="`${t('action.cancel')}`"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
       <span class="flex">
         <ButtonSecondary
           :icon="pasteIcon"
           :label="`${t('action.paste')}`"
           filled
+          outline
           @click="handlePaste"
         />
       </span>

@@ -7,7 +7,7 @@
         @keydown.esc="close()"
       >
         <div
-          class="absolute inset-0 bg-primaryLight opacity-90"
+          class="absolute inset-0 bg-primaryLight opacity-90 focus:outline-none"
           tabindex="0"
           @click="close()"
         ></div>

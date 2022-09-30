@@ -176,13 +176,19 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex">
+      <span class="flex space-x-2">
         <ButtonPrimary
           :label="t('action.save')"
           :loading="isLoading"
+          outline
           @click="saveTeam"
         />
-        <ButtonSecondary :label="t('action.cancel')" @click="hideModal" />
+        <ButtonSecondary
+          :label="t('action.cancel')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

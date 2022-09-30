@@ -23,9 +23,18 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex">
-        <ButtonPrimary :label="`${t('action.save')}`" @click="editFolder" />
-        <ButtonSecondary :label="`${t('action.cancel')}`" @click="hideModal" />
+      <span class="flex space-x-2">
+        <ButtonPrimary
+          :label="`${t('action.save')}`"
+          outline
+          @click="editFolder"
+        />
+        <ButtonSecondary
+          :label="`${t('action.cancel')}`"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

@@ -18,7 +18,7 @@
             @mousedown="!dialog ? close() : null"
           >
             <div
-              class="absolute inset-0 opacity-80 bg-primaryLight"
+              class="absolute inset-0 opacity-80 bg-primaryLight focus:outline-none"
               tabindex="0"
               @click="!dialog ? close() : null"
             ></div>

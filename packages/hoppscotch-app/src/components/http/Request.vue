@@ -132,80 +132,84 @@
           </template>
         </tippy>
       </span>
-      <ButtonSecondary
-        class="flex-1 ml-2 rounded rounded-r-none"
-        :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
-        filled
-        :icon="IconSave"
-        @click="saveRequest()"
-      />
-      <span class="flex">
-        <tippy
-          ref="saveOptions"
-          interactive
-          trigger="click"
-          theme="popover"
-          arrow
-          :on-shown="() => saveTippyActions.focus()"
-        >
-          <ButtonSecondary
-            :icon="IconChevronDown"
-            filled
-            class="rounded rounded-l-none"
-          />
-          <template #content="{ hide }">
-            <input
-              id="request-name"
-              v-model="requestName"
-              :placeholder="`${t('request.name')}`"
-              name="request-name"
-              type="text"
-              autocomplete="off"
-              class="mb-2 input"
-              @keyup.enter="hide()"
+      <span
+        class="flex ml-2 border rounded border-dividerLight hover:border-dividerDark transition"
+      >
+        <ButtonSecondary
+          class="flex-1 rounded rounded-r-none"
+          :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
+          filled
+          :icon="IconSave"
+          @click="saveRequest()"
+        />
+        <span class="flex">
+          <tippy
+            ref="saveOptions"
+            interactive
+            trigger="click"
+            theme="popover"
+            arrow
+            :on-shown="() => saveTippyActions.focus()"
+          >
+            <ButtonSecondary
+              :icon="IconChevronDown"
+              filled
+              class="rounded rounded-l-none"
             />
-            <div
-              ref="saveTippyActions"
-              class="flex flex-col focus:outline-none"
-              tabindex="0"
-              role="menu"
-              @keyup.c="copyRequestAction.$el.click()"
-              @keyup.s="saveRequestAction.$el.click()"
-              @keyup.escape="hide()"
-            >
-              <SmartItem
-                ref="copyRequestAction"
-                :label="shareButtonText"
-                :icon="copyLinkIcon"
-                :loading="fetchingShareLink"
-                :shortcut="['C']"
-                @click="
-                  () => {
-                    copyRequest()
-                  }
-                "
+            <template #content="{ hide }">
+              <input
+                id="request-name"
+                v-model="requestName"
+                :placeholder="`${t('request.name')}`"
+                name="request-name"
+                type="text"
+                autocomplete="off"
+                class="mb-2 input !bg-primaryContrast"
+                @keyup.enter="hide()"
               />
-              <SmartItem
-                :icon="IconLink2"
-                :label="`${t('request.view_my_links')}`"
-                to="/profile"
-              />
-              <hr />
-              <SmartItem
-                ref="saveRequestAction"
-                :label="`${t('request.save_as')}`"
-                :icon="IconFolderPlus"
-                :shortcut="['S']"
-                @click="
-                  () => {
-                    showSaveRequestModal = true
-                    hide()
-                  }
-                "
-              />
-            </div>
-          </template>
-        </tippy>
+              <div
+                ref="saveTippyActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                role="menu"
+                @keyup.c="copyRequestAction.$el.click()"
+                @keyup.s="saveRequestAction.$el.click()"
+                @keyup.escape="hide()"
+              >
+                <SmartItem
+                  ref="copyRequestAction"
+                  :label="shareButtonText"
+                  :icon="copyLinkIcon"
+                  :loading="fetchingShareLink"
+                  :shortcut="['C']"
+                  @click="
+                    () => {
+                      copyRequest()
+                    }
+                  "
+                />
+                <SmartItem
+                  :icon="IconLink2"
+                  :label="`${t('request.view_my_links')}`"
+                  to="/profile"
+                />
+                <hr />
+                <SmartItem
+                  ref="saveRequestAction"
+                  :label="`${t('request.save_as')}`"
+                  :icon="IconFolderPlus"
+                  :shortcut="['S']"
+                  @click="
+                    () => {
+                      showSaveRequestModal = true
+                      hide()
+                    }
+                  "
+                />
+              </div>
+            </template>
+          </tippy>
+        </span>
       </span>
     </div>
     <HttpImportCurl

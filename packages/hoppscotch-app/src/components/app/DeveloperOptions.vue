@@ -6,16 +6,17 @@
     @close="hideModal"
   >
     <template #body>
-      <p class="px-2 mb-8 text-secondaryLight">
+      <p class="px-2 mb-4 text-secondaryLight">
         {{ t("app.developer_option_description") }}
       </p>
       <div class="flex flex-1">
-        <button class="share-link" @click="copyUserAuthToken">
-          <component :is="copyIcon" />
-          <span>
-            {{ t("app.copy_user_id") }}
-          </span>
-        </button>
+        <ButtonSecondary
+          outline
+          filled
+          :icon="copyIcon"
+          :label="t('app.copy_user_id')"
+          @click="copyUserAuthToken"
+        />
       </div>
     </template>
   </SmartModal>
@@ -65,29 +66,3 @@ const hideModal = () => {
   emit("hide-modal")
 }
 </script>
-
-<style lang="scss" scoped>
-.share-link {
-  @apply border border-dividerLight;
-  @apply rounded;
-  @apply flex;
-  @apply p-3;
-  @apply items-center;
-  @apply justify-center;
-  @apply font-semibold;
-  @apply hover: (bg-primaryLight text-secondaryDark);
-  @apply focus: outline-none;
-  @apply focus-visible: border-divider;
-
-  svg {
-    @apply opacity-80;
-    @apply mr-2;
-  }
-
-  &:hover {
-    svg {
-      @apply opacity-100;
-    }
-  }
-}
-</style>

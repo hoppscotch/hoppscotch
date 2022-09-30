@@ -34,6 +34,7 @@ jobs:
           VITE_BACKEND_GQL_URL: ${{ secrets.STAGING_BACKEND_GQL_URL }}
           VITE_BACKEND_WS_URL: ${{ secrets.STAGING_BACKEND_WS_URL }}
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_RELEASE_TAG: ${{ github.sha }}
           VITE_SENTRY_ENVIRONMENT: staging
         run: pnpm run generate
 

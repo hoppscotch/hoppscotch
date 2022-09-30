@@ -64,53 +64,88 @@
             />
           </div>
         </template>
-        <div class="flex flex-col" role="menu">
-          <SmartItem
-            :label="`${t('environment.no_environment')}`"
-            :info-icon="
-              selectedEnvironmentIndex.type !== 'TEAM_ENV' ? 'done' : ''
-            "
-            :active-info-icon="selectedEnvironmentIndex.type !== 'TEAM_ENV'"
-            @click.native="
-              () => {
-                selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
-                options.tippy().hide()
-              }
-            "
+      </tippy>
+      <tippy v-else interactive trigger="click" theme="popover" arrow>
+        <span
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${t('environment.select')}`"
+          class="bg-transparent border-b border-dividerLight select-wrapper"
+        >
+          <ButtonSecondary
+            v-if="selectedEnv.name"
+            :label="selectedEnv.name"
+            class="flex-1 !justify-start pr-8 rounded-none"
           />
-        </div>
-          <hr v-if="teamEnvironmentList.length > 0" />
+          <ButtonSecondary
+            v-else
+            :label="`${t('environment.select')}`"
+            class="flex-1 !justify-start pr-8 rounded-none"
+          />
+        </span>
+        <template #content="{ hide }">
           <div
-            v-if="environmentType.selectedTeam !== undefined"
             class="flex flex-col"
+            role="menu"
+            tabindex="0"
+            @keyup.escape="hide()"
           >
             <SmartItem
-              v-for="(gen, index) in teamEnvironmentList"
-              :key="`gen-team-${index}`"
-              :label="gen.environment.name"
-              :info-icon="gen.id === selectedEnv.teamEnvID ? 'done' : ''"
-              :active-info-icon="gen.id === selectedEnv.teamEnvID"
-              @click.native="
+              :label="`${t('environment.no_environment')}`"
+              :info-icon="
+                selectedEnvironmentIndex.type !== 'TEAM_ENV'
+                  ? IconCheck
+                  : undefined
+              "
+              :active-info-icon="selectedEnvironmentIndex.type !== 'TEAM_ENV'"
+              @click="
                 () => {
-                  selectedEnvironmentIndex = {
-                    type: 'TEAM_ENV',
-                    teamEnvID: gen.id,
-                    teamID: gen.teamID,
-                    environment: gen.environment,
-                  }
-                  options.tippy().hide()
+                  selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+                  hide()
                 }
               "
             />
+            <div
+              v-if="loading"
+              class="flex flex-col items-center justify-center p-4"
+            >
+              <SmartSpinner class="my-4" />
+              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+            </div>
+            <hr v-if="teamEnvironmentList.length > 0" />
+            <div
+              v-if="environmentType.selectedTeam !== undefined"
+              class="flex flex-col"
+            >
+              <SmartItem
+                v-for="(gen, index) in teamEnvironmentList"
+                :key="`gen-team-${index}`"
+                :label="gen.environment.name"
+                :info-icon="
+                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
+                "
+                :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                @click="
+                  () => {
+                    selectedEnvironmentIndex = {
+                      type: 'TEAM_ENV',
+                      teamEnvID: gen.id,
+                      teamID: gen.teamID,
+                      environment: gen.environment,
+                    }
+                    hide()
+                  }
+                "
+              />
+            </div>
+            <div
+              v-if="!loading && adapterError"
+              class="flex flex-col items-center py-4"
+            >
+              <i class="mb-4 material-icons">help_outline</i>
+              {{ getErrorMessage(adapterError) }}
+            </div>
           </div>
-          <div
-            v-if="!loading && adapterError"
-            class="flex flex-col items-center py-4"
-          >
-            <i class="mb-4 material-icons">help_outline</i>
-            {{ getErrorMessage(adapterError) }}
-          </div>
-        </div>
+        </template>
       </tippy>
       <EnvironmentsChooseType
         :environment-type="environmentType"
@@ -177,25 +212,6 @@ const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
 }
-
-const adapter = new TeamEnvironmentAdapter(undefined)
-const adapterLoading = useReadonlyStream(adapter.loading$, false)
-const adapterError = useReadonlyStream(adapter.error$, null)
-const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
-
-const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
-  environmentType.value.selectedTeam = newSelectedTeam
-}
-const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
-  environmentType.value.type = newEnvironmentType
-}
-
-watch(
-  () => environmentType.value.selectedTeam?.id,
-  (newTeamID) => {
-    adapter.changeTeamID(newTeamID)
-  }
-)
 
 const adapter = new TeamEnvironmentAdapter(undefined)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)

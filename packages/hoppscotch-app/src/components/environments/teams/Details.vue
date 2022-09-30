@@ -104,7 +104,7 @@
         <ButtonPrimary
           :label="`${t('action.save')}`"
           :loading="isLoading"
-          @click.="saveEnvironment"
+          @click="saveEnvironment"
         />
         <ButtonSecondary :label="`${t('action.cancel')}`" @click="hideModal" />
       </span>

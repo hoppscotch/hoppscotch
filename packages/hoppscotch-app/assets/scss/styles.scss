@@ -155,14 +155,6 @@ a {
     }
   }
 
-  .env-icon{
-    @apply inline-flex;
-    @apply items-center;
-    @apply mr-1;
-    @apply text-accentDark;
-  }
-
-
   .tippy-svg-arrow svg {
     @apply fill-tooltip;
   }

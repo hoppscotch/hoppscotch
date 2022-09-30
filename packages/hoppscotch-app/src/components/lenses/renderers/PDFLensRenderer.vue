@@ -9,8 +9,10 @@
       <div class="flex">
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.download_file'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />
@@ -30,6 +32,8 @@ import VuePdfEmbed from "vue-pdf-embed"
 import { useI18n } from "@composables/i18n"
 import { useDownloadResponse } from "@composables/lens-actions"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -51,4 +55,6 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   "application/pdf",
   computed(() => props.response.body)
 )
+
+defineActionHandler("response.file.download", () => downloadResponse())
 </script>

@@ -502,6 +502,11 @@
       "send_request": "Kérés elküldése",
       "title": "Kérés"
     },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "theme": {
       "black": "Téma átváltása fekete módra",
       "dark": "Téma átváltása sötét módra",

@@ -502,6 +502,11 @@
       "send_request": "요청 보내기",
       "title": "요청"
     },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "theme": {
       "black": "검은 테마로 전환",
       "dark": "어두운 테마로 전환",

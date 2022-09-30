@@ -44,7 +44,7 @@ import { objFieldMatches } from "~/helpers/functional/object"
 const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse
+  response: HoppRESTResponse & { type: "success" | "fail" }
 }>()
 
 const imageSource = ref("")
@@ -72,14 +72,14 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
 
 watch(props.response, () => {
   imageSource.value = ""
-
   const buf = props.response.body
   const bytes = new Uint8Array(buf)
   const blob = new Blob([bytes.buffer])
 
   const reader = new FileReader()
   reader.onload = ({ target }) => {
-    imageSource.value = target.result
+    // target.result will always be string because we're using FileReader.readAsDataURL
+    imageSource.value = target!.result as string
   }
   reader.readAsDataURL(blob)
 })
@@ -92,7 +92,8 @@ onMounted(() => {
 
   const reader = new FileReader()
   reader.onload = ({ target }) => {
-    imageSource.value = target.result
+    // target.result will always be string because we're using FileReader.readAsDataURL
+    imageSource.value = target!.result as string
   }
   reader.readAsDataURL(blob)
 })

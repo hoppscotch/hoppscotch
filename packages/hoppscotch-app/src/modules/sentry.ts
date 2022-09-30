@@ -6,6 +6,12 @@ import { RouteLocationNormalized, Router } from "vue-router"
 import { settingsStore } from "~/newstore/settings"
 import { App } from "vue"
 import { APP_IS_IN_DEV_MODE } from "~/helpers/dev"
+import { gqlClientError$ } from "~/helpers/backend/GQLClient"
+
+/**
+ * The tag names we allow giving to Sentry
+ */
+type SentryTag = "BACKEND_OPERATIONS"
 
 interface SentryVueRouter {
   onError: (fn: (err: Error) => void) => void
@@ -44,7 +50,7 @@ let sentryActive = false
 function initSentry(dsn: string, router: Router, app: App) {
   Sentry.init({
     app,
-    dsn: import.meta.env.VITE_SENTRY_DSN,
+    dsn,
     environment: APP_IS_IN_DEV_MODE
       ? "dev"
       : import.meta.env.VITE_SENTRY_ENVIRONMENT,
@@ -67,6 +73,73 @@ function deinitSentry() {
   sentryActive = false
 }
 
+/**
+ * Reports a set of related errors to Sentry
+ * @param errs The errors to report
+ * @param tag The tag for the errord
+ * @param extraTags Additional tag data to add
+ * @param extras Extra information to attach
+ */
+function reportErrors(
+  errs: Error[],
+  tag: SentryTag,
+  extraTags: Record<string, string | number | boolean> | null = null,
+  extras: any = undefined
+) {
+  if (sentryActive) {
+    Sentry.withScope((scope) => {
+      scope.setTag("tag", tag)
+      if (extraTags) {
+        Object.entries(extraTags).forEach(([key, value]) => {
+          scope.setTag(key, value)
+        })
+      }
+      if (extras !== null && extras === undefined) scope.setExtras(extras)
+
+      errs.forEach((err) => Sentry.captureException(err))
+    })
+  }
+}
+
+/**
+ * Reports a specific error to Sentry
+ * @param err The error to report
+ * @param tag The tag for the error
+ * @param extraTags Additional tag data to add
+ * @param extras Extra information to attach
+ */
+function reportError(
+  err: Error,
+  tag: SentryTag,
+  extraTags: Record<string, string | number | boolean> | null = null,
+  extras: any = undefined
+) {
+  reportErrors([err], tag, extraTags, extras)
+}
+
+/**
+ * Subscribes to events occuring in various subsystems in the app
+ * for personalized error reporting
+ */
+function subscribeToAppEventsForReporting() {
+  gqlClientError$.subscribe((ev) => {
+    switch (ev.type) {
+      case "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT":
+        reportErrors(ev.errors, "BACKEND_OPERATIONS", { from: ev.type })
+        break
+
+      case "CLIENT_REPORTED_ERROR":
+        reportError(
+          ev.error,
+          "BACKEND_OPERATIONS",
+          { from: ev.type },
+          { op: ev.op }
+        )
+        break
+    }
+  })
+}
+
 export default <HoppModule>{
   onRouterInit(app, router) {
     if (!import.meta.env.VITE_SENTRY_DSN) {
@@ -87,5 +160,7 @@ export default <HoppModule>{
         initSentry(import.meta.env.VITE_SENTRY_DSN!, router, app)
       }
     })
+
+    subscribeToAppEventsForReporting()
   },
 }

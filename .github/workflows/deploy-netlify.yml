@@ -25,6 +25,7 @@ jobs:
         env:
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           VITE_SENTRY_ENVIRONMENT: production
+          VITE_SENTRY_RELEASE_TAG: ${{ github.sha }}
         run: pnpm run generate
 
       # Deploy the production site with netlify-cli

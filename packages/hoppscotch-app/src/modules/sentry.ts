@@ -51,6 +51,7 @@ function initSentry(dsn: string, router: Router, app: App) {
   Sentry.init({
     app,
     dsn,
+    release: import.meta.env.VITE_SENTRY_RELEASE_TAG ?? undefined,
     environment: APP_IS_IN_DEV_MODE
       ? "dev"
       : import.meta.env.VITE_SENTRY_ENVIRONMENT,

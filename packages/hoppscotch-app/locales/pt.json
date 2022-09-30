@@ -142,12 +142,12 @@
     "sync": "Tem certeza de que deseja sincronizar este espaço de trabalho?"
   },
   "count": {
-    "header": "Cabeçalho {contagem}",
-    "message": "Mensagem {contagem}",
-    "parameter": "Parâmetro {contagem}",
-    "protocol": "Protocolo {contagem}",
-    "value": "Valor {contagem}",
-    "variable": "Variável {contagem}"
+    "header": "Cabeçalho {count}",
+    "message": "Mensagem {count}",
+    "parameter": "Parâmetro {count}",
+    "protocol": "Protocolo {count}",
+    "value": "Valor {count}",
+    "variable": "Variável {count}"
   },
   "documentation": {
     "generate": "Gerar documentação",

@@ -79,7 +79,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const envTypeIcon = `<i class="material-icons inline-flex items-center">${
         selectedEnvType === "TEAM_ENV" ? "people" : "person"
       }</i>`
-
       return {
         pos: start,
         end: to,

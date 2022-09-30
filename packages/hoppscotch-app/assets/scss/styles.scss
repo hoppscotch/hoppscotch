@@ -344,6 +344,7 @@ pre.ace_editor {
         @apply font-semibold;
         @apply leading-body;
         @apply tracking-normal;
+        @apply rounded;
         @apply last: ml-4;
         @apply sm: ml-8;
         @apply before: absolute;

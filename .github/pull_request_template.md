@@ -23,4 +23,4 @@ Closes # <!-- Issue # here -->
 - [ ] All the tests have passed
 
 ### Additional Information
-<!-- Any additional information like breaking changes, dependencies added, screenshots, comparisons between new and old behavior, etc. -->
+<!-- Any additional information like breaking changes, dependencies added, screenshots, comparisons between new and old behaviour, etc. -->

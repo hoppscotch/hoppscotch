@@ -62,7 +62,6 @@
             interactive
             trigger="click"
             theme="popover"
-            arrow
             :on-shown="() => tippyActions.focus()"
           >
             <ButtonSecondary
@@ -75,7 +74,6 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.e="edit.$el.click()"
                 @keyup.d="duplicate.$el.click()"
                 @keyup.delete="deleteAction.$el.click()"

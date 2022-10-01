@@ -1,6 +1,11 @@
 <template>
   <span class="inline-flex">
-    <tippy interactive trigger="click" theme="popover" arrow>
+    <tippy
+      interactive
+      trigger="click"
+      theme="popover"
+      :on-shown="() => tippyActions.focus()"
+    >
       <span class="select-wrapper">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -15,9 +20,9 @@
       </span>
       <template #content="{ hide }">
         <div
-          class="flex flex-col"
+          ref="tippyActions"
+          class="flex flex-col focus:outline-none"
           tabindex="0"
-          role="menu"
           @keyup.escape="hide()"
         >
           <SmartItem
@@ -46,6 +51,7 @@ import IconType from "~icons/lucide/type"
 import { HoppFontSizes, HoppFontSize, applySetting } from "~/newstore/settings"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
+import { ref } from "vue"
 
 const t = useI18n()
 
@@ -59,4 +65,7 @@ const getFontSizeName = (size: HoppFontSize) => {
 const setActiveFont = (size: HoppFontSize) => {
   applySetting("FONT_SIZE", size)
 }
+
+// Template refs
+const tippyActions = ref<any | null>(null)
 </script>

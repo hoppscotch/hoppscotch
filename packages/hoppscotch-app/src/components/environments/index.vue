@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="sticky top-0 z-10 flex flex-col rounded-t bg-primary">
-      <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+      <tippy
+        interactive
+        trigger="click"
+        theme="popover"
+        :on-shown="() => tippyActions.focus()"
+      >
         <span
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('environment.select')}`"
@@ -20,9 +25,9 @@
         </span>
         <template #content="{ hide }">
           <div
-            class="flex flex-col"
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
             tabindex="0"
-            role="menu"
             @keyup.escape="hide()"
           >
             <SmartItem
@@ -144,8 +149,6 @@ import {
 
 const t = useI18n()
 
-const options = ref<any | null>(null)
-
 const colorMode = useColorMode()
 
 const globalEnv = useReadonlyStream(globalEnv$, [])
@@ -163,6 +166,8 @@ const selectedEnvironmentIndex = useStream(
   setCurrentEnvironment
 )
 
+// Template refs
+const tippyActions = ref<any | null>(null)
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")

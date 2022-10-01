@@ -19,8 +19,8 @@
             interactive
             trigger="click"
             theme="popover"
-            arrow
             placement="bottom"
+            :on-shown="() => tippyActions.focus()"
           >
             <span
               v-tippy="{ theme: 'tooltip' }"
@@ -41,9 +41,9 @@
             </span>
             <template #content="{ hide }">
               <div
-                class="flex flex-col"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -93,6 +93,8 @@ type CollectionTabs = "my-collections" | "team-collections"
 
 const t = useI18n()
 
+// Template refs
+const tippyActions = ref<any | null>(null)
 const selectedCollectionTab = ref<CollectionTabs>("my-collections")
 
 defineProps<{

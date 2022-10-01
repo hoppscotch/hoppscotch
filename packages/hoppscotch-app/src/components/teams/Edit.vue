@@ -87,11 +87,10 @@
               />
               <span>
                 <tippy
-                  ref="memberOptions"
                   interactive
                   trigger="click"
                   theme="popover"
-                  arrow
+                  :on-shown="() => tippyActions.focus()"
                 >
                   <span class="select-wrapper">
                     <input
@@ -104,9 +103,9 @@
                   </span>
                   <template #content="{ hide }">
                     <div
-                      class="flex flex-col"
+                      ref="tippyActions"
+                      class="flex flex-col focus:outline-none"
                       tabindex="0"
-                      role="menu"
                       @keyup.escape="hide()"
                     >
                       <SmartItem
@@ -233,7 +232,8 @@ const emit = defineEmits<{
   (e: "invite-team"): void
 }>()
 
-const memberOptions = ref<any | null>(null)
+// Template refs
+const tippyActions = ref<any | null>(null)
 
 const props = defineProps<{
   show: boolean

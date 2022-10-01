@@ -97,11 +97,10 @@
         class="flex items-center"
       >
         <tippy
-          ref="outlineOptions"
           interactive
           trigger="click"
           theme="popover"
-          arrow
+          :on-shown="() => tippyActions.focus()"
         >
           <div v-if="item.kind === 'RootObject'" class="outline-item">{}</div>
           <div v-if="item.kind === 'RootArray'" class="outline-item">[]</div>
@@ -117,9 +116,9 @@
             >
               <div
                 v-if="item.kind === 'ArrayMember'"
-                class="flex flex-col"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -136,9 +135,9 @@
               </div>
               <div
                 v-if="item.kind === 'ObjectMember'"
-                class="flex flex-col"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -156,8 +155,8 @@
             </div>
             <div
               v-if="item.kind === 'RootObject'"
+              ref="tippyActions"
               class="flex flex-col"
-              role="menu"
             >
               <SmartItem
                 label="{}"
@@ -171,8 +170,8 @@
             </div>
             <div
               v-if="item.kind === 'RootArray'"
+              ref="tippyActions"
               class="flex flex-col"
-              role="menu"
             >
               <SmartItem
                 label="[]"
@@ -321,7 +320,8 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   jsonBodyText
 )
 
-const outlineOptions = ref<any | null>(null)
+// Template refs
+const tippyActions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 

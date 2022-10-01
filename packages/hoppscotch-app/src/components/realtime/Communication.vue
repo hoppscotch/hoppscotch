@@ -19,11 +19,10 @@
           {{ t("websocket.message") }}
         </label>
         <tippy
-          ref="contentTypeOptions"
           interactive
           trigger="click"
           theme="popover"
-          arrow
+          :on-shown="() => tippyActions.focus()"
         >
           <span class="select-wrapper">
             <ButtonSecondary
@@ -33,9 +32,9 @@
           </span>
           <template #content="{ hide }">
             <div
-              class="flex flex-col"
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
               tabindex="0"
-              role="menu"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -158,9 +157,10 @@ const emit = defineEmits<{
 const t = useI18n()
 const toast = useToast()
 
+// Template refs
+const tippyActions = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()
-const contentTypeOptions = ref<Element>()
 const payload = ref<HTMLInputElement>()
 
 const prettifyIcon = refAutoReset<Component>(IconWand, 1000)

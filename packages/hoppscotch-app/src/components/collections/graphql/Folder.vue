@@ -49,7 +49,6 @@
             interactive
             trigger="click"
             theme="popover"
-            arrow
             :on-shown="() => tippyActions.focus()"
           >
             <ButtonSecondary
@@ -62,7 +61,6 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
@@ -231,6 +229,7 @@ const emit = defineEmits([
   "duplicate-request",
 ])
 
+// Template refs
 const tippyActions = ref<any | null>(null)
 const options = ref<any | null>(null)
 const requestAction = ref<any | null>(null)

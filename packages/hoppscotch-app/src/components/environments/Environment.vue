@@ -23,7 +23,6 @@
         interactive
         trigger="click"
         theme="popover"
-        arrow
         :on-shown="() => tippyActions.focus()"
       >
         <ButtonSecondary
@@ -36,7 +35,6 @@
             ref="tippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
-            role="menu"
             @keyup.e="edit.$el.click()"
             @keyup.d="duplicate.$el.click()"
             @keyup.delete="
@@ -127,6 +125,7 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
+// Template refs
 const tippyActions = ref<any | null>(null)
 const options = ref<any | null>(null)
 const edit = ref<any | null>(null)

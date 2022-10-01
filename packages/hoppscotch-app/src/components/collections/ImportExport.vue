@@ -17,7 +17,7 @@
     </template>
     <template #body>
       <div v-if="importerType !== null" class="flex flex-col">
-        <div class="flex flex-col pb-6">
+        <div class="flex flex-col pb-4">
           <div
             v-for="(step, index) in importerSteps"
             :key="`step-${index}`"
@@ -37,13 +37,15 @@
                   {{ t(`${step.metadata.caption}`) }}
                 </span>
               </p>
-              <p class="flex flex-col ml-10">
+              <p
+                class="flex flex-col ml-10 border border-dashed rounded border-dividerDark"
+              >
                 <input
                   id="inputChooseFileToImportFrom"
                   ref="inputChooseFileToImportFrom"
                   name="inputChooseFileToImportFrom"
                   type="file"
-                  class="cursor-pointer transition file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                  class="p-4 cursor-pointer transition file:transition file:cursor-pointer text-secondary hover:text-secondaryDark file:mr-2 file:py-2 file:px-4 file:rounded file:border-0 file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
                   :accept="step.metadata.acceptedFileTypes"
                   @change="onFileChange"
                 />

@@ -63,7 +63,6 @@
               interactive
               trigger="click"
               theme="popover"
-              arrow
               :on-shown="() => tippyActions.focus()"
             >
               <ProfilePicture
@@ -103,7 +102,6 @@
                   ref="tippyActions"
                   class="flex flex-col focus:outline-none"
                   tabindex="0"
-                  role="menu"
                   @keyup.enter="profile.$el.click()"
                   @keyup.s="settings.$el.click()"
                   @keyup.l="logout.$el.click()"

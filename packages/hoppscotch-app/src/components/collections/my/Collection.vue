@@ -58,7 +58,6 @@
             interactive
             trigger="click"
             theme="popover"
-            arrow
             :on-shown="() => tippyActions.focus()"
           >
             <ButtonSecondary
@@ -71,13 +70,12 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
                 @keyup.delete="deleteAction.$el.click()"
                 @keyup.x="exportAction.$el.click()"
-                @keyup.escape="options.tippy().hide()"
+                @keyup.escape="hide()"
               >
                 <SmartItem
                   ref="requestAction"
@@ -265,6 +263,7 @@ export default defineComponent({
       toast: useToast(),
       t: useI18n(),
 
+      // Template refs
       tippyActions: ref<any | null>(null),
       options: ref<any | null>(null),
       requestAction: ref<any | null>(null),

@@ -11,12 +11,11 @@
           {{ t("request.choose_language") }}
         </label>
         <tippy
-          ref="options"
-          placement="bottom"
           interactive
           trigger="click"
           theme="popover"
-          arrow
+          placement="bottom"
+          :on-shown="() => tippyActions.focus()"
         >
           <span class="select-wrapper">
             <ButtonSecondary
@@ -39,9 +38,9 @@
                 />
               </div>
               <div
-                class="flex flex-col"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -148,8 +147,6 @@ const emit = defineEmits<{
 
 const toast = useToast()
 
-const options = ref<any | null>(null)
-
 const request = ref(getRESTRequest())
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
@@ -195,6 +192,8 @@ const requestCode = computed(() => {
   }
 })
 
+// Template refs
+const tippyActions = ref<any | null>(null)
 const generatedCode = ref<any | null>(null)
 
 useCodemirror(generatedCode, requestCode, {

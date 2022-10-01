@@ -362,7 +362,7 @@
     "name": "請求名稱",
     "new": "新請求",
     "override": "覆寫",
-    "override_help": "在標頭設置 <xmp>Content-Type</xmp>",
+    "override_help": "在標頭設置 <kbd>Content-Type</kbd>",
     "overriden": "已覆寫",
     "parameter_list": "查詢參數",
     "parameters": "參數",

@@ -20,7 +20,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${
             previewEnabled ? t('hide.preview') : t('response.preview_html')
-          } <xmp>${getSpecialKey()}</xmp><xmp>Shift</xmp><xmp>P</xmp>`"
+          } <kbd>${getSpecialKey()}</kbd><kbd>Shift</kbd><kbd>P</kbd>`"
           :icon="!previewEnabled ? IconEye : IconEyeOff"
           @click.prevent="togglePreview"
         />
@@ -29,7 +29,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
-          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
+          )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />
@@ -38,7 +38,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.copy'
-          )} <xmp>${getSpecialKey()}</xmp><xmp>.</xmp>`"
+          )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
           :icon="copyIcon"
           @click="copyResponse"
         />

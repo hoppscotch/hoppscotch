@@ -362,7 +362,7 @@
     "name": "请求名称",
     "new": "新请求",
     "override": "覆盖",
-    "override_help": "设置 <xmp>Content-Type</xmp> 头",
+    "override_help": "设置 <kbd>Content-Type</kbd> 头",
     "overriden": "覆盖",
     "parameter_list": "查询参数",
     "parameters": "参数",

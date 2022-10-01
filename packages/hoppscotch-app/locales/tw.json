@@ -145,7 +145,7 @@
     "header": "請求標頭 {count}",
     "message": "訊息 {count}",
     "parameter": "參數 {count}",
-    "protocol": "協議 {count}",
+    "protocol": "協定 {count}",
     "value": "值 {count}",
     "variable": "變數 {count}"
   },
@@ -169,7 +169,7 @@
     "parameters": "該請求沒有任何參數",
     "pending_invites": "這個團隊沒有待定的邀請",
     "profile": "登入以檢視您的設定檔",
-    "protocols": "協議為空",
+    "protocols": "協定為空",
     "schema": "連線至 GraphQL 端點",
     "shortcodes": "Shortcodes 為空",
     "team_name": "團隊名稱為空",
@@ -286,9 +286,9 @@
   "layout": {
     "collapse_collection": "隱藏或顯示組合",
     "collapse_sidebar": "隱藏或顯示側邊欄",
-    "column": "垂直布局",
+    "column": "垂直版面",
     "name": "配置",
-    "row": "水平布局",
+    "row": "水平版面",
     "zen_mode": "專注模式"
   },
   "modal": {
@@ -313,7 +313,7 @@
     "doc": "文件",
     "graphql": "GraphQL",
     "profile": "設定檔",
-    "realtime": "實時",
+    "realtime": "即時",
     "rest": "REST",
     "settings": "設定"
   },
@@ -450,7 +450,7 @@
     "telemetry_helps_us": "遙測服務幫助我們進行個性化操作，為您提供最佳體驗。",
     "theme": "主題",
     "theme_description": "自定義您的應用程式主題。",
-    "use_experimental_url_bar": "使用帶有環境高亮的實驗性網址欄",
+    "use_experimental_url_bar": "使用帶有環境醒目標示的實驗性網址欄",
     "user": "使用者",
     "verified_email": "Verified email",
     "verify_email": "確認電子郵件地址"
@@ -482,7 +482,7 @@
       "forward": "前往下一頁面",
       "graphql": "前往 GraphQL 頁面",
       "profile": "前往個人檔案頁面",
-      "realtime": "前往實時頁面",
+      "realtime": "前往即時頁面",
       "rest": "前往 REST 頁面",
       "settings": "前往設定頁面",
       "title": "導航"
@@ -622,7 +622,7 @@
     "invite_tooltip": "邀請他人到這個工作區",
     "invited_to_team": "{owner} 邀請您加入 {team}",
     "join": "已接受邀請",
-    "join_beta": "加入 Beta 計劃以存取團隊。",
+    "join_beta": "加入 Beta 計畫以存取團隊。",
     "join_team": "加入 {team}",
     "joined_team": "您已加入 {team}",
     "joined_team_description": "您現在是這個團隊的成員",
@@ -666,7 +666,7 @@
     "communication": "通訊",
     "log": "日誌",
     "message": "資訊",
-    "protocols": "協議",
+    "protocols": "協定",
     "url": "網址"
   }
 }

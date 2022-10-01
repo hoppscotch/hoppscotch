@@ -80,10 +80,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         arrow: true,
         create() {
           const dom = document.createElement("span")
-          const xmp = document.createElement("xmp")
-          xmp.textContent = finalEnv
+          const kbd = document.createElement("kbd")
+          kbd.textContent = finalEnv
           dom.appendChild(document.createTextNode(`${envName} `))
-          dom.appendChild(xmp)
+          dom.appendChild(kbd)
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
           return { dom }

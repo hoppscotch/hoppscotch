@@ -362,7 +362,7 @@
     "name": "Sol·licita el nom",
     "new": "Nova sol·licitud",
     "override": "Sobreescriure",
-    "override_help": "Estableix <xmp>Content-Type</xmp> a les capçaleres (Headers)",
+    "override_help": "Estableix <kbd>Content-Type</kbd> a les capçaleres (Headers)",
     "overriden": "Sobreescrit",
     "parameter_list": "Paràmetres de consulta",
     "parameters": "Paràmetres",

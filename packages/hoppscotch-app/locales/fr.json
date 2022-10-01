@@ -362,7 +362,7 @@
     "name": "Nom de la requête",
     "new": "New Request",
     "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
     "parameter_list": "Paramètres de requête",
     "parameters": "Paramètres",

@@ -362,7 +362,7 @@
     "name": "Kérés neve",
     "new": "Új kérés",
     "override": "Felülbírálás",
-    "override_help": "A <xmp>Content-Type</xmp> beállítása a fejlécekben",
+    "override_help": "A <kbd>Content-Type</kbd> beállítása a fejlécekben",
     "overriden": "Felülbírálva",
     "parameter_list": "Lekérdezési paraméterek",
     "parameters": "Paraméterek",

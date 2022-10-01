@@ -62,7 +62,6 @@
             interactive
             trigger="click"
             theme="popover"
-            arrow
             :on-shown="() => tippyActions.focus()"
           >
             <ButtonSecondary
@@ -75,7 +74,6 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.r="requestAction.$el.click()"
                 @keyup.n="folderAction.$el.click()"
                 @keyup.e="edit.$el.click()"
@@ -276,6 +274,7 @@ export default defineComponent({
     const t = useI18n()
 
     return {
+      // Template refs
       tippyActions: ref<any | null>(null),
       options: ref<any | null>(null),
       requestAction: ref<any | null>(null),

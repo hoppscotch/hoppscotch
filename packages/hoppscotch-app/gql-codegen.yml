@@ -6,8 +6,8 @@ generates:
     plugins:
       - add:
           content: >
-            // Auto-generated file (DO NOT EDIT!!!), refer gql-codegen.yml
             /* eslint-disable */
+            // Auto-generated file (DO NOT EDIT!!!), refer gql-codegen.yml
       - typescript
       - typescript-operations
       - typed-document-node

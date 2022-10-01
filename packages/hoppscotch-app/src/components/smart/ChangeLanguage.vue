@@ -1,6 +1,11 @@
 <template>
   <span class="inline-flex">
-    <tippy interactive trigger="click" theme="popover" arrow>
+    <tippy
+      interactive
+      trigger="click"
+      theme="popover"
+      :on-shown="() => tippyActions.focus()"
+    >
       <span class="select-wrapper">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -23,9 +28,9 @@
             />
           </div>
           <div
-            class="flex flex-col"
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
             tabindex="0"
-            role="menu"
             @keyup.escape="hide()"
           >
             <SmartLink
@@ -96,6 +101,8 @@ const changeLocale = (locale: string) => {
   changeAppLanguage(locale)
 }
 
+// Template refs
+const tippyActions = ref<any | null>(null)
 const searchQuery = ref("")
 
 const filteredAppLanguages = computed(() => {

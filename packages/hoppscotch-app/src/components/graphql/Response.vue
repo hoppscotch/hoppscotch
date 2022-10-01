@@ -23,14 +23,18 @@
             @click.prevent="linewrapEnabled = !linewrapEnabled"
           />
           <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.download_file')"
+            v-tippy="{ theme: 'tooltip', allowHTML: true }"
+            :title="`${t(
+              'action.download_file'
+            )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
             :icon="downloadResponseIcon"
             @click="downloadResponse"
           />
           <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.copy')"
+            v-tippy="{ theme: 'tooltip', allowHTML: true }"
+            :title="`${t(
+              'action.copy'
+            )} <xmp>${getSpecialKey()}</xmp><xmp>.</xmp>`"
             :icon="copyResponseIcon"
             @click="copyResponse"
           />
@@ -86,6 +90,8 @@ import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { gqlResponse$ } from "~/newstore/GQLSession"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -141,4 +147,7 @@ const downloadResponse = () => {
     URL.revokeObjectURL(url)
   }, 1000)
 }
+
+defineActionHandler("response.file.download", () => downloadResponse())
+defineActionHandler("response.copy", () => copyResponse())
 </script>

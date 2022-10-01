@@ -8,7 +8,12 @@
   >
     <template #actions>
       <span>
-        <tippy ref="options" interactive trigger="click" theme="popover" arrow>
+        <tippy
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => tippyActions.focus()"
+        >
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.more')"
@@ -16,9 +21,9 @@
           />
           <template #content="{ hide }">
             <div
-              class="flex flex-col"
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
               tabindex="0"
-              role="menu"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -123,7 +128,7 @@ const environments = useReadonlyStream(environments$, [])
 const currentUser = useReadonlyStream(currentUser$, null)
 
 // Template refs
-const options = ref<any>()
+const tippyActions = ref<any | null>(null)
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const environmentJson = computed(() => {

@@ -8,17 +8,18 @@
   >
     <template #actions>
       <span>
-        <tippy interactive trigger="click" theme="popover" arrow>
+        <tippy interactive trigger="click" theme="popover">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.more')"
             :icon="IconMoreVertical"
+            :on-shown="() => tippyActions.focus()"
           />
           <template #content="{ hide }">
             <div
-              class="flex flex-col"
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
               tabindex="0"
-              role="menu"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -122,6 +123,7 @@ const collections = useReadonlyStream(graphqlCollections$, [])
 const currentUser = useReadonlyStream(currentUser$, null)
 
 // Template refs
+const tippyActions = ref<any | null>(null)
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const collectionJson = computed(() => {

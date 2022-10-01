@@ -502,6 +502,11 @@
       "send_request": "发送请求",
       "title": "请求"
     },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
+    },
     "theme": {
       "black": "切换为黑色主题",
       "dark": "切换为深色主题",

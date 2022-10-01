@@ -22,7 +22,7 @@
           }"
           @click="ZEN_MODE = !ZEN_MODE"
         />
-        <tippy interactive trigger="click" theme="popover" arrow>
+        <tippy interactive trigger="click" theme="popover">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('settings.interceptor')"
@@ -35,11 +35,9 @@
       </div>
       <div class="flex">
         <tippy
-          ref="options"
           interactive
           trigger="click"
           theme="popover"
-          arrow
           :on-shown="() => tippyActions.focus()"
         >
           <ButtonSecondary
@@ -52,7 +50,6 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              role="menu"
               @keyup.d="documentation.$el.click()"
               @keyup.s="shortcuts.$el.click()"
               @keyup.c="chat.$el.click()"
@@ -284,5 +281,4 @@ const tippyActions = ref<any | null>(null)
 const documentation = ref<any | null>(null)
 const shortcuts = ref<any | null>(null)
 const chat = ref<any | null>(null)
-const options = ref<any | null>(null)
 </script>

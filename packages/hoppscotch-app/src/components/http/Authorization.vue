@@ -8,20 +8,19 @@
           {{ t("authorization.type") }}
         </label>
         <tippy
-          ref="authTypeOptions"
           interactive
           trigger="click"
           theme="popover"
-          arrow
+          :on-shown="() => tippyActions.focus()"
         >
           <span class="select-wrapper">
             <ButtonSecondary class="pr-8 ml-2 rounded-none" :label="authName" />
           </span>
           <template #content="{ hide }">
             <div
-              class="flex flex-col"
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
               tabindex="0"
-              role="menu"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -172,11 +171,10 @@
                 {{ t("authorization.pass_key_by") }}
               </label>
               <tippy
-                ref="addToOptions"
                 interactive
                 trigger="click"
                 theme="popover"
-                arrow
+                :on-shown="() => authTippyActions.focus()"
               >
                 <span class="select-wrapper">
                   <ButtonSecondary
@@ -186,9 +184,9 @@
                 </span>
                 <template #content="{ hide }">
                   <div
-                    class="flex flex-col"
+                    ref="authTippyActions"
+                    class="flex flex-col focus:outline-none"
                     tabindex="0"
-                    role="menu"
                     @keyup.escape="hide()"
                   >
                     <SmartItem
@@ -297,6 +295,8 @@ const clearContent = () => {
     authActive: true,
   }
 }
-const authTypeOptions = ref<any | null>(null)
-const addToOptions = ref<any | null>(null)
+
+// Template refs
+const tippyActions = ref<any | null>(null)
+const authTippyActions = ref<any | null>(null)
 </script>

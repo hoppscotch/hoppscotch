@@ -8,11 +8,9 @@
       <div class="relative flex">
         <label for="method">
           <tippy
-            ref="methodOptions"
             interactive
             trigger="click"
             theme="popover"
-            arrow
             :on-shown="() => methodTippyActions.focus()"
           >
             <span class="select-wrapper">
@@ -30,7 +28,6 @@
                 ref="methodTippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -69,11 +66,9 @@
       />
       <span class="flex">
         <tippy
-          ref="sendOptions"
           interactive
           trigger="click"
           theme="popover"
-          arrow
           :on-shown="() => sendTippyActions.focus()"
         >
           <ButtonPrimary
@@ -86,7 +81,6 @@
               ref="sendTippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              role="menu"
               @keyup.c="curl.$el.click()"
               @keyup.s="show.$el.click()"
               @keyup.delete="clearAll.$el.click()"
@@ -133,7 +127,7 @@
         </tippy>
       </span>
       <span
-        class="flex ml-2 border rounded border-dividerLight hover:border-dividerDark transition"
+        class="flex ml-2 border rounded transition border-dividerLight hover:border-dividerDark"
       >
         <ButtonSecondary
           class="flex-1 rounded rounded-r-none"
@@ -144,11 +138,9 @@
         />
         <span class="flex">
           <tippy
-            ref="saveOptions"
             interactive
             trigger="click"
             theme="popover"
-            arrow
             :on-shown="() => saveTippyActions.focus()"
           >
             <ButtonSecondary
@@ -171,7 +163,6 @@
                 ref="saveTippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.c="copyRequestAction.$el.click()"
                 @keyup.s="saveRequestAction.$el.click()"
                 @keyup.escape="hide()"
@@ -307,9 +298,6 @@ const showSaveRequestModal = ref(false)
 const hasNavigatorShare = !!navigator.share
 
 // Template refs
-const methodOptions = ref<any | null>(null)
-const saveOptions = ref<any | null>(null)
-const sendOptions = ref<any | null>(null)
 const methodTippyActions = ref<any | null>(null)
 const sendTippyActions = ref<any | null>(null)
 const saveTippyActions = ref<any | null>(null)

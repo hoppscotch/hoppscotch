@@ -96,7 +96,12 @@
           :key="`item-${index}`"
           class="flex items-center"
         >
-          <tippy interactive trigger="click" theme="popover" arrow>
+          <tippy
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => tippyActions.focus()"
+          >
             <div v-if="item.kind === 'RootObject'" class="outline-item">{}</div>
             <div v-if="item.kind === 'RootArray'" class="outline-item">[]</div>
             <div v-if="item.kind === 'ArrayMember'" class="outline-item">
@@ -113,9 +118,9 @@
               >
                 <div
                   v-if="item.kind === 'ArrayMember'"
-                  class="flex flex-col"
+                  ref="tippyActions"
+                  class="flex flex-col focus:outline-none"
                   tabindex="0"
-                  role="menu"
                   @keyup.escape="hide()"
                 >
                   <SmartItem
@@ -132,9 +137,9 @@
                 </div>
                 <div
                   v-if="item.kind === 'ObjectMember'"
-                  class="flex flex-col"
+                  ref="tippyActions"
+                  class="flex flex-col focus:outline-none"
                   tabindex="0"
-                  role="menu"
                   @keyup.escape="hide()"
                 >
                   <SmartItem
@@ -152,8 +157,8 @@
               </div>
               <div
                 v-if="item.kind === 'RootObject'"
-                class="flex flex-col"
-                role="menu"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
               >
                 <SmartItem
                   label="{}"
@@ -167,8 +172,8 @@
               </div>
               <div
                 v-if="item.kind === 'RootArray'"
-                class="flex flex-col"
-                role="menu"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
               >
                 <SmartItem
                   label="[]"
@@ -223,8 +228,12 @@ import { shortDateTime } from "~/helpers/utils/date"
 const t = useI18n()
 
 const props = defineProps<{ entry: LogEntryData }>()
+
+// Template refs
+const tippyActions = ref<any | null>(null)
 const editor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
+
 const logPayload = computed(() => props.entry.payload)
 
 const selectedTab = ref<"json" | "raw">(

@@ -7,7 +7,12 @@
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
             <label for="client-version">
-              <tippy interactive trigger="click" theme="popover" arrow>
+              <tippy
+                interactive
+                trigger="click"
+                theme="popover"
+                :on-shown="() => tippyActions.focus()"
+              >
                 <span class="select-wrapper">
                   <input
                     id="client-version"
@@ -24,9 +29,9 @@
                 </span>
                 <template #content="{ hide }">
                   <div
-                    class="flex flex-col"
+                    ref="tippyActions"
+                    class="flex flex-col focus:outline-none"
                     tabindex="0"
-                    role="menu"
                     @keyup.escape="hide()"
                   >
                     <SmartItem
@@ -111,7 +116,12 @@
               <label class="font-semibold text-secondaryLight">
                 {{ t("authorization.type") }}
               </label>
-              <tippy interactive trigger="click" theme="popover" arrow>
+              <tippy
+                interactive
+                trigger="click"
+                theme="popover"
+                :on-shown="() => authTippyActions.focus()"
+              >
                 <span class="select-wrapper">
                   <ButtonSecondary
                     class="pr-8 ml-2 rounded-none"
@@ -120,9 +130,9 @@
                 </span>
                 <template #content="{ hide }">
                   <div
-                    class="flex flex-col"
+                    ref="authTippyActions"
+                    class="flex flex-col focus:outline-none"
                     tabindex="0"
-                    role="menu"
                     @keyup.escape="hide()"
                   >
                     <SmartItem
@@ -294,6 +304,9 @@ const connectionState = useReadonlyStream(
 )
 const log = useStream(SIOLog$, [], setSIOLog)
 
+// Template refs
+const tippyActions = ref<any | null>(null)
+const authTippyActions = ref<any | null>(null)
 const isUrlValid = ref(true)
 const authType = ref<"None" | "Bearer">("None")
 const bearerToken = ref("")

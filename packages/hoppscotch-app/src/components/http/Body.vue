@@ -7,7 +7,12 @@
         <label class="font-semibold text-secondaryLight">
           {{ t("request.content_type") }}
         </label>
-        <tippy interactive trigger="click" theme="popover" arrow>
+        <tippy
+          interactive
+          trigger="click"
+          theme="popover"
+          :on-shown="() => tippyActions.focus()"
+        >
           <span class="select-wrapper">
             <ButtonSecondary
               :label="contentType || t('state.none')"
@@ -16,9 +21,9 @@
           </span>
           <template #content="{ hide }">
             <div
-              class="flex flex-col space-y-1 divide-y divide-dividerLight"
+              ref="tippyActions"
+              class="flex flex-col space-y-2 divide-y focus:outline-none divide-dividerLight"
               tabindex="0"
-              role="menu"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -122,7 +127,7 @@ import IconDone from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
 import IconExternalLink from "~icons/lucide/external-link"
-import { computed } from "vue"
+import { computed, ref } from "vue"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
@@ -177,4 +182,7 @@ const isContentTypeAlreadyExist = () => {
     A.some((e) => e.key.toLowerCase() === "content-type")
   )
 }
+
+// Template refs
+const tippyActions = ref<any | null>(null)
 </script>

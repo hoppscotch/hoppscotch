@@ -7,6 +7,7 @@
         trigger="click"
         theme="popover"
         arrow
+        :on-shown="() => tippyActions.focus()"
       >
         <span
           v-tippy="{ theme: 'tooltip' }"
@@ -28,8 +29,9 @@
         </span>
         <template #content="{ hide }">
           <div
-            class="flex flex-col"
             role="menu"
+            ref="tippyActions"
+            class="flex flex-col focus:outline-none"
             tabindex="0"
             @keyup.escape="hide()"
           >

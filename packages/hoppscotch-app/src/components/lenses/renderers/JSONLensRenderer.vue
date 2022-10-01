@@ -28,15 +28,19 @@
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.download_file'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.copy')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.copy'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>.</xmp>`"
           :icon="copyIcon"
           @click="copyResponse"
         />
@@ -93,11 +97,10 @@
         class="flex items-center"
       >
         <tippy
-          ref="outlineOptions"
           interactive
           trigger="click"
           theme="popover"
-          arrow
+          :on-shown="() => tippyActions.focus()"
         >
           <div v-if="item.kind === 'RootObject'" class="outline-item">{}</div>
           <div v-if="item.kind === 'RootArray'" class="outline-item">[]</div>
@@ -113,9 +116,9 @@
             >
               <div
                 v-if="item.kind === 'ArrayMember'"
-                class="flex flex-col"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -132,9 +135,9 @@
               </div>
               <div
                 v-if="item.kind === 'ObjectMember'"
-                class="flex flex-col"
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none"
                 tabindex="0"
-                role="menu"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -152,8 +155,8 @@
             </div>
             <div
               v-if="item.kind === 'RootObject'"
+              ref="tippyActions"
               class="flex flex-col"
-              role="menu"
             >
               <SmartItem
                 label="{}"
@@ -167,8 +170,8 @@
             </div>
             <div
               v-if="item.kind === 'RootArray'"
+              ref="tippyActions"
               class="flex flex-col"
-              role="menu"
             >
               <SmartItem
                 label="[]"
@@ -215,6 +218,8 @@ import {
   useResponseBody,
   useDownloadResponse,
 } from "@composables/lens-actions"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -315,7 +320,8 @@ const { downloadIcon, downloadResponse } = useDownloadResponse(
   jsonBodyText
 )
 
-const outlineOptions = ref<any | null>(null)
+// Template refs
+const tippyActions = ref<any | null>(null)
 const jsonResponse = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
@@ -358,6 +364,9 @@ const toggleFilterState = () => {
   filterQueryText.value = ""
   toggleFilter.value = !toggleFilter.value
 }
+
+defineActionHandler("response.file.download", () => downloadResponse())
+defineActionHandler("response.copy", () => copyResponse())
 </script>
 
 <style lang="scss" scoped>

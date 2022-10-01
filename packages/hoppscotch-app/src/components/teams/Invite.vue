@@ -140,11 +140,10 @@
             />
             <span>
               <tippy
-                ref="newInviteeOptions"
                 interactive
                 trigger="click"
                 theme="popover"
-                arrow
+                :on-shown="() => tippyActions.focus()"
               >
                 <span class="select-wrapper">
                   <input
@@ -157,9 +156,9 @@
                 </span>
                 <template #content="{ hide }">
                   <div
-                    class="flex flex-col"
+                    ref="tippyActions"
+                    class="flex flex-col focus:outline-none"
                     tabindex="0"
-                    role="menu"
                     @keyup.escape="hide()"
                   >
                     <SmartItem
@@ -171,7 +170,7 @@
                       @click="
                         () => {
                           updateNewInviteeRole(index, 'OWNER')
-                          newInviteeOptions[index].tippy().hide()
+                          hide()
                         }
                       "
                     />
@@ -184,7 +183,7 @@
                       @click="
                         () => {
                           updateNewInviteeRole(index, 'EDITOR')
-                          newInviteeOptions[index].tippy().hide()
+                          hide()
                         }
                       "
                     />
@@ -197,7 +196,7 @@
                       @click="
                         () => {
                           updateNewInviteeRole(index, 'VIEWER')
-                          newInviteeOptions[index].tippy().hide()
+                          hide()
                         }
                       "
                     />
@@ -372,7 +371,8 @@ const toast = useToast()
 
 const colorMode = useColorMode()
 
-const newInviteeOptions = ref<any | null>(null)
+// Template refs
+const tippyActions = ref<any | null>(null)
 
 const props = defineProps({
   show: Boolean,

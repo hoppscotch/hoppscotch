@@ -9,11 +9,7 @@ import { HoppModule } from "."
 export default <HoppModule>{
   onVueAppInit(app) {
     app.directive("focus", {
-      mounted(el) {
-        nextTick(() => {
-          el.focus()
-        })
-      },
+      mounted: (el) => nextTick(() => el.focus()),
     })
   },
 }

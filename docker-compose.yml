@@ -20,4 +20,4 @@ services:
       - "3000:3000"
     environment:
       HOST: 0.0.0.0
-    command: "npm run dev"
+    command: "pnpm run dev"

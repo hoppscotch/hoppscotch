@@ -138,7 +138,18 @@ export default defineConfig({
       workbox: {
         cleanupOutdatedCaches: true,
         maximumFileSizeToCacheInBytes: 4194304,
-        navigateFallbackDenylist: [/robots.txt/, /sitemap.xml/]
+        navigateFallbackDenylist: [
+          /robots.txt/,
+          /sitemap.xml/,
+          /discord/,
+          /telegram/,
+          /beta/,
+          /careers/,
+          /newsletter/,
+          /twitter/,
+          /github/,
+          /announcements/,
+        ],
       },
     }),
     VitePluginFonts({

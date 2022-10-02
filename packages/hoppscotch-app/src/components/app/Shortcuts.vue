@@ -1,38 +1,42 @@
 <template>
-  <AppSlideOver :show="show" @close="close()">
+  <AppSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
     <template #content>
       <div class="sticky top-0 z-10 flex flex-col bg-primary">
-        <div
-          class="flex items-center justify-between p-2 border-b border-dividerLight"
-        >
-          <h3 class="ml-4 heading">{{ t("app.shortcuts") }}</h3>
-          <ButtonSecondary :icon="IconX" @click="close()" />
-        </div>
         <div class="flex flex-col px-6 py-4 border-b border-dividerLight">
           <input
             v-model="filterText"
             type="search"
             autocomplete="off"
-            class="flex px-4 py-2 border rounded bg-primaryContrast border-dividerLight focus-visible:border-divider"
+            class="flex px-4 py-2 border rounded bg-primaryContrast border-divider hover:border-dividerDark focus-visible:border-dividerDark"
             :placeholder="`${t('action.search')}`"
           />
         </div>
       </div>
       <div v-if="filterText" class="flex flex-col divide-y divide-dividerLight">
-        <div
+        <details
           v-for="(map, mapIndex) in searchResults"
           :key="`map-${mapIndex}`"
-          class="px-6 py-4 space-y-4"
+          class="flex flex-col"
+          open
         >
-          <h1 class="font-semibold text-secondaryDark">
-            {{ t(map.item.section) }}
-          </h1>
-          <AppShortcutsEntry
-            v-for="(shortcut, index) in map.item.shortcuts"
-            :key="`shortcut-${index}`"
-            :shortcut="shortcut"
-          />
-        </div>
+          <summary
+            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold transition cursor-pointer focus:outline-none text-secondaryLight hover:text-secondaryDark"
+          >
+            <icon-lucide-chevron-right class="mr-2 indicator" />
+            <span
+              class="font-semibold truncate capitalize-first text-secondaryDark"
+            >
+              {{ t(map.item.section) }}
+            </span>
+          </summary>
+          <div class="flex flex-col px-6 pb-4 space-y-2">
+            <AppShortcutsEntry
+              v-for="(shortcut, index) in map.item.shortcuts"
+              :key="`shortcut-${index}`"
+              :shortcut="shortcut"
+            />
+          </div>
+        </details>
         <div
           v-if="searchResults.length === 0"
           class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -44,27 +48,36 @@
         </div>
       </div>
       <div v-else class="flex flex-col divide-y divide-dividerLight">
-        <div
+        <details
           v-for="(map, mapIndex) in mappings"
           :key="`map-${mapIndex}`"
-          class="px-6 py-4 space-y-4"
+          class="flex flex-col"
+          open
         >
-          <h1 class="font-semibold text-secondaryDark">
-            {{ t(map.section) }}
-          </h1>
-          <AppShortcutsEntry
-            v-for="(shortcut, shortcutIndex) in map.shortcuts"
-            :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
-            :shortcut="shortcut"
-          />
-        </div>
+          <summary
+            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold transition cursor-pointer focus:outline-none text-secondaryLight hover:text-secondaryDark"
+          >
+            <icon-lucide-chevron-right class="mr-2 indicator" />
+            <span
+              class="font-semibold truncate capitalize-first text-secondaryDark"
+            >
+              {{ t(map.section) }}
+            </span>
+          </summary>
+          <div class="flex flex-col px-6 pb-4 space-y-2">
+            <AppShortcutsEntry
+              v-for="(shortcut, shortcutIndex) in map.shortcuts"
+              :key="`map-${mapIndex}-shortcut-${shortcutIndex}`"
+              :shortcut="shortcut"
+            />
+          </div>
+        </details>
       </div>
     </template>
   </AppSlideOver>
 </template>
 
 <script setup lang="ts">
-import IconX from "~icons/lucide/x"
 import { computed, ref } from "vue"
 import Fuse from "fuse.js"
 import mappings from "~/helpers/shortcuts"

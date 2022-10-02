@@ -166,6 +166,7 @@ a {
   @apply leading-body;
   @apply border border-dividerDark;
   @apply focus: outline-none;
+  scroll-behavior: smooth;
 
   .tippy-svg-arrow svg {
     @apply fill-popover;

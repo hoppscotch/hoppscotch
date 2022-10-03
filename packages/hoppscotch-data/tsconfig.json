@@ -8,6 +8,7 @@
     "strict": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+  },
+  "include": ["src/*.ts"]
 }

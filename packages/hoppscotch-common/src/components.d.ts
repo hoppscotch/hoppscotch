@@ -77,6 +77,7 @@ declare module '@vue/runtime-core' {
     GraphqlSidebar: typeof import('./components/graphql/Sidebar.vue')['default']
     GraphqlType: typeof import('./components/graphql/Type.vue')['default']
     GraphqlTypeLink: typeof import('./components/graphql/TypeLink.vue')['default']
+    GraphqlVariable: typeof import('./components/graphql/Variable.vue')['default']
     History: typeof import('./components/history/index.vue')['default']
     HistoryGraphqlCard: typeof import('./components/history/graphql/Card.vue')['default']
     HistoryRestCard: typeof import('./components/history/rest/Card.vue')['default']

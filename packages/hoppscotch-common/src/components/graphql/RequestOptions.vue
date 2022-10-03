@@ -224,7 +224,7 @@
         <div v-else>
           <draggable
             v-model="workingHeaders"
-            :item-key="(header) => `header-${header.id}`"
+            :item-key="(header: any) => `header-${header.id}`"
             animation="250"
             handle=".draggable-handle"
             draggable=".draggable-content"
@@ -376,9 +376,8 @@ import IconCircle from "~icons/lucide/circle"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
-import IconWand2 from "~icons/lucide/wand-2"
-import IconWrapText from "~icons/lucide/wrap-text"
-import { Ref, computed, reactive, ref, watch } from "vue"
+import IconWand from "~icons/lucide/wand"
+import { Ref, computed, ref, watch, onMounted } from "vue"
 import * as gql from "graphql"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
@@ -423,7 +422,6 @@ import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useCodemirror } from "@composables/codemirror"
-import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { defineActionHandler } from "~/helpers/actions"
@@ -689,26 +687,6 @@ const activeGQLHeadersCount = computed(
       .length
 )
 
-const variableEditor = ref<any | null>(null)
-const linewrapEnabledVariable = ref(true)
-
-useCodemirror(
-  variableEditor,
-  variableString,
-  reactive({
-    extendedEditorConfig: {
-      mode: "application/ld+json",
-      placeholder: `${t("request.variables")}`,
-      lineWrapping: linewrapEnabledVariable,
-    },
-    linter: computed(() =>
-      variableString.value.length > 0 ? jsonLinter : null
-    ),
-    completer: null,
-    environmentHighlights: false,
-  })
-)
-
 const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
 const linewrapEnabledQuery = ref(true)
 
@@ -728,10 +706,6 @@ useCodemirror(
 )
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
-  IconCopy,
-  1000
-)
-const copyVariablesIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
 )
@@ -833,30 +807,8 @@ const saveRequest = () => {
   showSaveRequestModal.value = true
 }
 
-const copyVariables = () => {
-  copyToClipboard(variableString.value)
-  copyVariablesIcon.value = IconCheck
-  toast.success(`${t("state.copied_to_clipboard")}`)
-}
-
-const prettifyVariableString = () => {
-  try {
-    const jsonObj = JSON.parse(variableString.value)
-    variableString.value = JSON.stringify(jsonObj, null, 2)
-    prettifyVariablesIcon.value = IconCheck
-  } catch (e) {
-    console.error(e)
-    prettifyVariablesIcon.value = IconInfo
-    toast.error(`${t("error.json_prettify_invalid_body")}`)
-  }
-}
-
 const clearGQLQuery = () => {
   gqlQueryString.value = ""
-}
-
-const clearGQLVariables = () => {
-  variableString.value = ""
 }
 
 defineActionHandler("request.send-cancel", runQuery)

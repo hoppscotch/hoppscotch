@@ -7,55 +7,42 @@
         v-bind="dragOptions"
         :list="tabEntries"
         :style="tabsWidth"
+        :item-key="'window-'"
         class="flex overflow-x-auto transition hide-scrollbar"
         @sort="sortTabs"
       >
         <template #item="{ element: [tabID, tabMeta] }">
-          <transition-group
-            class="flex divide-primaryDark divide-x"
-            name="fade"
-            appear
+          <button
+            :key="`removable-tab-${tabID}`"
+            class="tab"
+            :class="[{ active: modelValue === tabID }]"
+            :aria-label="tabMeta.label || ''"
+            role="button"
+            @keyup.enter="selectTab(tabID)"
+            @click="selectTab(tabID)"
           >
-            <button
-              :key="`removable-tab-${tabID}`"
-              class="tab"
-              :class="[{ active: modelValue === tabID }]"
-              :aria-label="tabMeta.label || ''"
-              role="button"
-              @keyup.enter="selectTab(tabID)"
-              @click="selectTab(tabID)"
-            >
-              <div class="flex items-stretch group">
-                <span
-                  class="flex items-center justify-center px-4 cursor-pointer"
-                >
-                  <SmartIcon
-                    v-if="tabMeta.icon"
-                    class="svg-icons"
-                    :name="tabMeta.icon"
-                    :style="{
-                      fill: tabMeta.iconColor,
-                      stroke: tabMeta.iconColor,
-                    }"
-                  />
-                </span>
-                <span class="truncate">
-                  {{ tabMeta.label }}
-                </span>
-              </div>
+            <div class="flex items-stretch group">
+              <span
+                class="flex items-center justify-center px-4 cursor-pointer"
+              >
+                <!-- ICON will be there -->
+              </span>
+              <span class="truncate">
+                {{ tabMeta.label }}
+              </span>
+            </div>
 
-              <!-- close button -->
-              <ButtonSecondary
-                :icon="IconX"
-                :style="{
-                  visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
-                }"
-                :class="[{ active: modelValue === tabID }, 'close']"
-                class="rounded my-0.5 mr-0.5 ml-4 !p-1"
-                @click.stop="emit('removeTab', tabID)"
-              />
-            </button>
-          </transition-group>
+            <!-- close button -->
+            <ButtonSecondary
+              :icon="IconX"
+              :style="{
+                visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
+              }"
+              :class="[{ active: modelValue === tabID }, 'close']"
+              class="rounded my-0.5 mr-0.5 ml-4 !p-1"
+              @click.stop="emit('removeTab', tabID)"
+            />
+          </button>
         </template>
       </draggable>
       <span

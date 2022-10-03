@@ -15,6 +15,12 @@ import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
 import { OperationType } from "@urql/core"
 import { sendNetworkRequest } from "./network"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
+import {
+  defaultGQLSession,
+  getGQLSession,
+  GQLSession,
+  setGQLSession,
+} from "~/newstore/GQLSession"
 
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
@@ -65,7 +71,26 @@ export class GQLConnection {
   public event$: Subject<GQLEvent> = new Subject()
   public schema$ = new BehaviorSubject<GraphQLSchema | null>(null)
 
+  session: GQLSession | undefined
+
   socket: WebSocket | undefined
+
+  constructor() {
+    this.restoreSession()
+  }
+
+  takeSessionSnapshot() {
+    this.session = getGQLSession()
+    console.log(this.session)
+  }
+
+  restoreSession() {
+    if (this.session) {
+      setGQLSession(this.session)
+    } else {
+      setGQLSession(defaultGQLSession)
+    }
+  }
 
   public schemaString$ = this.schema$.pipe(
     distinctUntilChanged(),

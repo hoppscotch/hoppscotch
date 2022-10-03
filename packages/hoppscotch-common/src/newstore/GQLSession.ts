@@ -8,7 +8,7 @@ import {
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { useStream } from "@composables/stream"
 
-type GQLSession = {
+export type GQLSession = {
   request: HoppGQLRequest
   schema: string
   response: string

@@ -2,6 +2,7 @@
   <AppPaneLayout layout-id="graphql">
     <template #primary>
       <SmartWindows
+        v-if="currentTabId"
         :id="'communication_tab'"
         v-model="currentTabId"
         @remove-tab="removeTab"
@@ -31,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch, ref } from "vue"
+import { computed, onBeforeUnmount, watch, ref, onMounted } from "vue"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
@@ -48,28 +49,33 @@ usePageHead({
 let gqlConn = new GQLConnection()
 const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
 
-const currentTabId = ref("new")
-const defaultTab = {
-  id: "new",
-  name: "Untitled",
-  connection: new GQLConnection(),
+const currentTabId = ref<string>()
+type Tab = {
+  id: string
+  name: string
+  connection: GQLConnection
 }
-const tabs = ref([defaultTab])
+const tabs = ref<Tab[]>([])
 
-const changeTab = (id: string) => {
-  currentTabId.value = id
-  const currentTab = tabs.value.find((tab) => tab.id === id)
-  if (currentTab) {
-    gqlConn = currentTab.connection as GQLConnection
+onMounted(() => {
+  if (!tabs.value.length) {
+    tabs.value.push({
+      id: "new",
+      name: "Untitled",
+      connection: gqlConn,
+    })
+    currentTabId.value = "new"
   }
-}
+})
+
 const addNewTab = () => {
+  gqlConn.takeSessionSnapshot()
   tabs.value.push({
     id: uniqueId("new_"),
     name: "Untitled",
     connection: new GQLConnection(),
   })
-  changeTab(tabs.value[tabs.value.length - 1].id)
+  currentTabId.value = tabs.value[tabs.value.length - 1].id
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   const newTabs = [...tabs.value]
@@ -86,10 +92,16 @@ watch(isLoading, () => {
   else completePageProgress()
 })
 
-watch(currentTabId, () => {
+watch(currentTabId, (newTabID, oldTabID) => {
+  if (oldTabID) {
+    const oldTab = tabs.value.find((tab) => tab.id === oldTabID)
+    oldTab?.connection.takeSessionSnapshot()
+  }
+
   const tab = tabs.value.find((tab) => tab.id === currentTabId.value)
   if (tab) {
     gqlConn = tab.connection as GQLConnection
+    gqlConn.restoreSession()
   }
 })
 

@@ -577,7 +577,7 @@
     "community": "Sorular sorun ve başkalarına yardım edin",
     "documentation": "Hoppscotch hakkında daha fazla bilgi edin",
     "forum": "Sorular sorun ve cevaplar alın",
-    "github": "Follow us on Github",
+    "github": "Bizi Github'da takip edin",
     "shortcuts": "Uygulamaya daha hızlı göz atın",
     "team": "Takımla iletişim kurun",
     "title": "Destek",
@@ -585,7 +585,7 @@
   },
   "tab": {
     "authorization": "Yetki",
-    "body": "Vücut",
+    "body": "Gövde",
     "collections": "Koleksiyonlar",
     "documentation": "Belgeler",
     "headers": "Başlıklar",

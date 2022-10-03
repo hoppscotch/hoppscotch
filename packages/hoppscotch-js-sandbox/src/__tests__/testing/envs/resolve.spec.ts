@@ -18,12 +18,12 @@ const func = (script: string, envs: TestScriptReport["envs"]) =>
     TE.map((x) => x.tests)
   )
 
-describe("pw.env.resolve", () => {
+describe("env.resolve", () => {
   test("value should be a string", () => {
     return expect(
       func(
         `
-          pw.env.resolve(5)
+          env.resolve(5)
         `,
         {
           global: [],
@@ -37,8 +37,8 @@ describe("pw.env.resolve", () => {
     return expect(
       func(
         `
-          const data = pw.env.resolve("<<hello>>")
-          pw.expect(data).toBe("there")
+          const data = env.resolve("<<hello>>")
+          expect(data).toBe("there")
         `,
         {
           global: [
@@ -66,8 +66,8 @@ describe("pw.env.resolve", () => {
     return expect(
       func(
         `
-          const data = pw.env.resolve("<<hello>>")
-          pw.expect(data).toBe("there")
+          const data = env.resolve("<<hello>>")
+          expect(data).toBe("there")
         `,
         {
           global: [],
@@ -95,8 +95,8 @@ describe("pw.env.resolve", () => {
     return expect(
       func(
         `
-          const data = pw.env.resolve("<<hello>>")
-          pw.expect(data).toBe("there")
+          const data = env.resolve("<<hello>>")
+          expect(data).toBe("there")
         `,
         {
           global: [
@@ -129,8 +129,8 @@ describe("pw.env.resolve", () => {
     return expect(
       func(
         `
-          const data = pw.env.resolve("<<hello>>")
-          pw.expect(data).toBe("<<hello>>")
+          const data = env.resolve("<<hello>>")
+          expect(data).toBe("<<hello>>")
         `,
         {
           global: [],

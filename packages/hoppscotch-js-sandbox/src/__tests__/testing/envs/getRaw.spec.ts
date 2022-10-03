@@ -19,13 +19,13 @@ const func = (script: string, envs: TestScriptReport["envs"]) =>
     TE.map((x) => x.tests)
   )
 
-describe("pw.env.getRaw", () => {
+describe("env.getRaw", () => {
   test("returns the correct value for an existing selected environment value", () => {
     return expect(
       func(
         `
-          const data = pw.env.getRaw("a")
-          pw.expect(data).toBe("b")
+          const data = env.getRaw("a")
+          expect(data).toBe("b")
       `,
         {
           global: [],
@@ -53,8 +53,8 @@ describe("pw.env.getRaw", () => {
     return expect(
       func(
         `
-          const data = pw.env.getRaw("a")
-          pw.expect(data).toBe("b")
+          const data = env.getRaw("a")
+          expect(data).toBe("b")
       `,
         {
           global: [
@@ -82,8 +82,8 @@ describe("pw.env.getRaw", () => {
     return expect(
       func(
         `
-          const data = pw.env.getRaw("a")
-          pw.expect(data).toBe(undefined)
+          const data = env.getRaw("a")
+          expect(data).toBe(undefined)
       `,
         {
           global: [],
@@ -106,8 +106,8 @@ describe("pw.env.getRaw", () => {
     return expect(
       func(
         `
-          const data = pw.env.getRaw("a")
-          pw.expect(data).toBe("selected val")
+          const data = env.getRaw("a")
+          expect(data).toBe("selected val")
       `,
         {
           global: [
@@ -140,8 +140,8 @@ describe("pw.env.getRaw", () => {
     return expect(
       func(
         `
-          const data = pw.env.getRaw("a")
-          pw.expect(data).toBe("<<hello>>")
+          const data = env.getRaw("a")
+          expect(data).toBe("<<hello>>")
       `,
         {
           global: [],
@@ -173,7 +173,7 @@ describe("pw.env.getRaw", () => {
     return expect(
       func(
         `
-          const data = pw.env.getRaw(5)
+          const data = env.getRaw(5)
       `,
         {
           global: [],

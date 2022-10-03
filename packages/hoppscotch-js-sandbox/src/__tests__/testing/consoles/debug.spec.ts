@@ -17,22 +17,22 @@ const func = (script: string, envs: Envs, artifacts: Artifacts) =>
     TE.map((x) => x.consoles)
   )
 
-describe("pw.console.debug", () => {
+describe("console.debug", () => {
   test("provides console data correctly.", () => {
     return expect(
       func(
         `
-        pw.env.set("ENV","ENV_VALUE")
-        const data = pw.env.get("ENV")
+        env.set("ENV","ENV_VALUE")
+        const data = env.get("ENV")
         const obj = {
           a:1,
           b:2
         }
 
-        pw.console.debug("Obj:", obj)
-        pw.console.debug("Data:", data)
+        console.debug("Obj:", obj)
+        console.debug("Data:", data)
 
-        pw.console.debug()
+        console.debug()
         `,
         DEFAULT_ENV,
         {}

@@ -21,7 +21,7 @@ describe("toBe", () => {
       return expect(
         func(
           `
-              pw.expect(2).toBe(2)
+              expect(2).toBe(2)
           `,
           fakeResponse
         )()
@@ -38,7 +38,7 @@ describe("toBe", () => {
       return expect(
         func(
           `
-              pw.expect(2).toBe(4)
+              expect(2).toBe(4)
           `,
           fakeResponse
         )()
@@ -57,7 +57,7 @@ describe("toBe", () => {
       return expect(
         func(
           `
-            pw.expect(2).not.toBe(2)
+            expect(2).not.toBe(2)
           `,
           fakeResponse
         )()
@@ -77,7 +77,7 @@ describe("toBe", () => {
       return expect(
         func(
           `
-              pw.expect(2).not.toBe(4)
+              expect(2).not.toBe(4)
           `,
           fakeResponse
         )()
@@ -99,7 +99,7 @@ test("strict checks types", () => {
   return expect(
     func(
       `
-          pw.expect(2).toBe("2")
+          expect(2).toBe("2")
         `,
       fakeResponse
     )()

@@ -20,12 +20,12 @@ const func = (
     TE.map((x) => x.artifacts)
   )
 
-describe("pw.artifact.create", () => {
+describe("artifact.create", () => {
   test("creates new artifact key correctly", () => {
     return expect(
       func(
         `
-          pw.artifact.create("a", "c")
+          artifact.create("a", "c")
         `,
         DEFAULT_ENV,
         {}
@@ -41,7 +41,7 @@ describe("pw.artifact.create", () => {
     return expect(
       func(
         `
-          pw.artifact.create("a", "b")
+          artifact.create("a", "b")
         `,
         DEFAULT_ENV,
         { a: "c" }
@@ -57,7 +57,7 @@ describe("pw.artifact.create", () => {
     return expect(
       func(
         `
-          pw.artifact.create(5, "c")
+          artifact.create(5, "c")
         `,
         DEFAULT_ENV,
         {}
@@ -69,7 +69,7 @@ describe("pw.artifact.create", () => {
     return expect(
       func(
         `
-          pw.artifact.create("a", 5)
+          artifact.create("a", 5)
         `,
         DEFAULT_ENV,
         {}
@@ -81,7 +81,7 @@ describe("pw.artifact.create", () => {
     return expect(
       func(
         `
-          pw.artifact.create(5, 5)
+          artifact.create(5, 5)
         `,
         DEFAULT_ENV,
         {}

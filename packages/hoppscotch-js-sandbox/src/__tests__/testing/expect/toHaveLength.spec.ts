@@ -20,8 +20,8 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3, 4]).toHaveLength(4)
-          pw.expect([]).toHaveLength(0)
+          expect([1, 2, 3, 4]).toHaveLength(4)
+          expect([]).toHaveLength(0)
         `,
         fakeResponse
       )()
@@ -39,8 +39,8 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect([]).toHaveLength(4)
-          pw.expect([1, 2, 3, 4]).toHaveLength(0)
+          expect([]).toHaveLength(4)
+          expect([1, 2, 3, 4]).toHaveLength(0)
         `,
         fakeResponse
       )()
@@ -58,8 +58,8 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3, 4]).not.toHaveLength(4)
-          pw.expect([]).not.toHaveLength(0)
+          expect([1, 2, 3, 4]).not.toHaveLength(4)
+          expect([]).not.toHaveLength(0)
         `,
         fakeResponse
       )()
@@ -83,8 +83,8 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect([]).not.toHaveLength(4)
-          pw.expect([1, 2, 3, 4]).not.toHaveLength(0)
+          expect([]).not.toHaveLength(4)
+          expect([1, 2, 3, 4]).not.toHaveLength(0)
         `,
         fakeResponse
       )()
@@ -108,8 +108,8 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect(5).toHaveLength(0)
-          pw.expect(true).toHaveLength(0)
+          expect(5).toHaveLength(0)
+          expect(true).toHaveLength(0)
         `,
         fakeResponse
       )()
@@ -135,8 +135,8 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect(5).not.toHaveLength(0)
-          pw.expect(true).not.toHaveLength(0)
+          expect(5).not.toHaveLength(0)
+          expect(true).not.toHaveLength(0)
         `,
         fakeResponse
       )()
@@ -162,7 +162,7 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3, 4]).toHaveLength("a")
+          expect([1, 2, 3, 4]).toHaveLength("a")
         `,
         fakeResponse
       )()
@@ -182,7 +182,7 @@ describe("toHaveLength", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3, 4]).not.toHaveLength("a")
+          expect([1, 2, 3, 4]).not.toHaveLength("a")
         `,
         fakeResponse
       )()

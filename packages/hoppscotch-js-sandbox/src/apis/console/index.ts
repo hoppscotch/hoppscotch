@@ -32,7 +32,7 @@ export default (script: string) =>
     const consoleTemplateFn = (type: ConsoleType) =>
       defineVmFn((...args) => {
         const data = args.map(vm.dump)
-        const target = `pw.console.${type}`
+        const target = `console.${type}`
         const lineNumber = getFunctionLineNumber(target, scriptSource)
         scriptSource = updateScript(lineNumber, scriptSource)
 

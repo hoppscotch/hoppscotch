@@ -6,7 +6,7 @@ describe("execPreRequestScript", () => {
     return expect(
       execPreRequestScript(
         `
-          pw.env.set("bob", "newbob")
+          env.set("bob", "newbob")
         `,
         {
           global: [],
@@ -34,7 +34,7 @@ describe("execPreRequestScript", () => {
     return expect(
       execPreRequestScript(
         `
-          pw.env.set(10, "newbob")
+          env.set(10, "newbob")
         `,
         {
           global: [],
@@ -52,7 +52,7 @@ describe("execPreRequestScript", () => {
     return expect(
       execPreRequestScript(
         `
-          pw.env.set("bob", 10)
+          env.set("bob", 10)
         `,
         {
           global: [],
@@ -70,7 +70,7 @@ describe("execPreRequestScript", () => {
     return expect(
       execPreRequestScript(
         `
-          pw.env.set("bob",
+          env.set("bob",
         `,
         {
           global: [],
@@ -88,7 +88,7 @@ describe("execPreRequestScript", () => {
     return expect(
       execPreRequestScript(
         `
-          pw.env.set("foo", "bar")
+          env.set("foo", "bar")
         `,
         { selected: [], global: [] },
         {}

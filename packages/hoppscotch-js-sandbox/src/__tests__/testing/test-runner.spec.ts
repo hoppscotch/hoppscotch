@@ -20,12 +20,12 @@ describe("execTestScript function behavior", () => {
     return expect(
       func(
         `
-          pw.test("Arithmetic operations", () => {
+          test("Arithmetic operations", () => {
             const size = 500 + 500;
-            pw.expect(size).toBe(1000);
-            pw.expect(size - 500).toBe(500);
-            pw.expect(size * 4).toBe(4000);
-            pw.expect(size / 4).toBe(250);
+            expect(size).toBe(1000);
+            expect(size - 500).toBe(500);
+            expect(size * 4).toBe(4000);
+            expect(size / 4).toBe(250);
           });
         `,
         fakeResponse
@@ -37,12 +37,12 @@ describe("execTestScript function behavior", () => {
     return expect(
       func(
         `
-          pw.test("Arithmetic operations", () => {
+          test("Arithmetic operations", () => {
             const size = 500 + 500;
-            pw.expect(size).toBe(1000);
-            pw.expect(size - 500).not.toBe(500);
-            pw.expect(size * 4).toBe(4000);
-            pw.expect(size / 4).not.toBe(250);
+            expect(size).toBe(1000);
+            expect(size - 500).not.toBe(500);
+            expect(size * 4).toBe(4000);
+            expect(size / 4).not.toBe(250);
           });
         `,
         fakeResponse
@@ -55,12 +55,12 @@ describe("execTestScript function behavior", () => {
     return expect(
       func(
         `
-          pw.test("Arithmetic operations", () => {
+          test("Arithmetic operations", () => {
             const size = 500 + 500;
-            pw.expect(size).
-            pw.expect(size - 500).not.toBe(500);
-            pw.expect(size * 4).toBe(4000);
-            pw.expect(size / 4).not.toBe(250);
+            expect(size).
+            expect(size - 500).not.toBe(500);
+            expect(size * 4).toBe(4000);
+            expect(size / 4).not.toBe(250);
           });
         `,
         fakeResponse

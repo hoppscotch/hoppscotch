@@ -20,11 +20,11 @@ describe("toBeType", () => {
     return expect(
       func(
         `
-          pw.expect(2).toBeType("number")
-          pw.expect("2").toBeType("string")
-          pw.expect(true).toBeType("boolean")
-          pw.expect({}).toBeType("object")
-          pw.expect(undefined).toBeType("undefined")
+          expect(2).toBeType("number")
+          expect("2").toBeType("string")
+          expect(true).toBeType("boolean")
+          expect({}).toBeType("object")
+          expect(undefined).toBeType("undefined")
         `,
         fakeResponse
       )()
@@ -51,11 +51,11 @@ describe("toBeType", () => {
     return expect(
       func(
         `
-          pw.expect(2).toBeType("string")
-          pw.expect("2").toBeType("number")
-          pw.expect(true).toBeType("string")
-          pw.expect({}).toBeType("number")
-          pw.expect(undefined).toBeType("number")
+          expect(2).toBeType("string")
+          expect("2").toBeType("number")
+          expect(true).toBeType("string")
+          expect({}).toBeType("number")
+          expect(undefined).toBeType("number")
         `,
         fakeResponse
       )()
@@ -82,11 +82,11 @@ describe("toBeType", () => {
     return expect(
       func(
         `
-          pw.expect(2).not.toBeType("number")
-          pw.expect("2").not.toBeType("string")
-          pw.expect(true).not.toBeType("boolean")
-          pw.expect({}).not.toBeType("object")
-          pw.expect(undefined).not.toBeType("undefined")
+          expect(2).not.toBeType("number")
+          expect("2").not.toBeType("string")
+          expect(true).not.toBeType("boolean")
+          expect({}).not.toBeType("object")
+          expect(undefined).not.toBeType("undefined")
         `,
         fakeResponse
       )()
@@ -116,11 +116,11 @@ describe("toBeType", () => {
     return expect(
       func(
         `
-          pw.expect(2).not.toBeType("string")
-          pw.expect("2").not.toBeType("number")
-          pw.expect(true).not.toBeType("string")
-          pw.expect({}).not.toBeType("number")
-          pw.expect(undefined).not.toBeType("number")
+          expect(2).not.toBeType("string")
+          expect("2").not.toBeType("number")
+          expect(true).not.toBeType("string")
+          expect({}).not.toBeType("number")
+          expect(undefined).not.toBeType("number")
         `,
         fakeResponse
       )()
@@ -150,11 +150,11 @@ describe("toBeType", () => {
     return expect(
       func(
         `
-          pw.expect(2).toBeType("foo")
-          pw.expect("2").toBeType("bar")
-          pw.expect(true).toBeType("baz")
-          pw.expect({}).toBeType("qux")
-          pw.expect(undefined).toBeType("quux")
+          expect(2).toBeType("foo")
+          expect("2").toBeType("bar")
+          expect(true).toBeType("baz")
+          expect({}).toBeType("qux")
+          expect(undefined).toBeType("quux")
         `,
         fakeResponse
       )()
@@ -190,11 +190,11 @@ describe("toBeType", () => {
     return expect(
       func(
         `
-          pw.expect(2).not.toBeType("foo")
-          pw.expect("2").not.toBeType("bar")
-          pw.expect(true).not.toBeType("baz")
-          pw.expect({}).not.toBeType("qux")
-          pw.expect(undefined).not.toBeType("quux")
+          expect(2).not.toBeType("foo")
+          expect("2").not.toBeType("bar")
+          expect(true).not.toBeType("baz")
+          expect({}).not.toBeType("qux")
+          expect(undefined).not.toBeType("quux")
         `,
         fakeResponse
       )()

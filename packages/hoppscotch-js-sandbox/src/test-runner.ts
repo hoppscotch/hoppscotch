@@ -79,7 +79,6 @@ export const execTestScript = (
     ),
     TE.chain((QuickJS) => {
       const vm = QuickJS.newContext()
-      const pw = vm.newObject()
 
       const apis = [
         api([ConsoleAPI(script), Namespaced("console")]),
@@ -89,11 +88,7 @@ export const execTestScript = (
         api([EnvAPI(envs), Namespaced("env")]),
       ]
 
-      const instances = installAPIs(vm, pw, apis)
-
-      vm.setProp(vm.global, "pw", pw)
-      pw.dispose()
-
+      const instances = installAPIs(vm, vm.global, apis)
       const evalRes = vm.evalCode(script)
       if (evalRes.error) {
         const errorData = vm.dump(evalRes.error)

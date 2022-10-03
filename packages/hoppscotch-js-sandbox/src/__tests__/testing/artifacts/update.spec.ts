@@ -20,12 +20,12 @@ const func = (
     TE.map((x) => x.artifacts)
   )
 
-describe("pw.artifact.update", () => {
+describe("artifact.update", () => {
   test("updates artifact for existing key", () => {
     return expect(
       func(
         `
-          pw.artifact.update("a", "updated_c")
+          artifact.update("a", "updated_c")
         `,
         DEFAULT_ENV,
         { a: "c" }
@@ -37,7 +37,7 @@ describe("pw.artifact.update", () => {
     return expect(
       func(
         `
-          pw.artifact.update("a", "b")
+          artifact.update("a", "b")
         `,
         DEFAULT_ENV,
         {}
@@ -49,7 +49,7 @@ describe("pw.artifact.update", () => {
     return expect(
       func(
         `
-          pw.artifact.update(1, "b")
+          artifact.update(1, "b")
         `,
         DEFAULT_ENV,
         {}
@@ -61,7 +61,7 @@ describe("pw.artifact.update", () => {
     return expect(
       func(
         `
-          pw.artifact.update("a", 2)
+          artifact.update("a", 2)
         `,
         DEFAULT_ENV,
         {}

@@ -9,6 +9,7 @@ import {
   api,
   completeAPIs,
   installAPIs,
+  MixWithRoot,
   Namespaced,
   PreRequestCompleter,
 } from "./apiManager"
@@ -31,19 +32,13 @@ export const execPreRequestScript = (
     ),
     TE.chain((QuickJS) => {
       const vm = QuickJS.newContext()
-      const pw = vm.newObject()
-
       const apis = [
         api([ConsoleAPI(script), Namespaced("console")]),
         api([EnvAPI(envs), Namespaced("env")]),
         api([ArtifactAPI(artifacts), Namespaced("artifact")]),
       ]
 
-      const instances = installAPIs(vm, pw, apis)
-
-      vm.setProp(vm.global, "pw", pw)
-      pw.dispose()
-
+      const instances = installAPIs(vm, vm.global, apis)
       const evalRes = vm.evalCode(script)
       if (evalRes.error) {
         const errorData = vm.dump(evalRes.error)

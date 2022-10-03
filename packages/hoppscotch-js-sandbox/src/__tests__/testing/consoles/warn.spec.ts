@@ -17,22 +17,22 @@ const func = (script: string, envs: Envs, artifacts: Artifacts) =>
     TE.map((x) => x.consoles)
   )
 
-describe("pw.console.warn", () => {
+describe("console.warn", () => {
   test("provides console data correctly.", () => {
     return expect(
       func(
         `
-        pw.env.set("ENV","ENV_VALUE")
-        const data = pw.env.get("ENV")
+        env.set("ENV","ENV_VALUE")
+        const data = env.get("ENV")
         const obj = {
           a:1,
           b:2
         }
 
-        pw.console.warn("Obj:", obj)
-        pw.console.warn("Data:", data)
+        console.warn("Obj:", obj)
+        console.warn("Data:", data)
 
-        pw.console.warn()
+        console.warn()
         `,
         DEFAULT_ENV,
         {}

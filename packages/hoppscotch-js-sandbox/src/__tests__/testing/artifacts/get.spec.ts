@@ -14,13 +14,13 @@ const func = (
   artifacts: Artifacts
 ) => execPreRequestScript(script, envs, artifacts)
 
-describe("pw.artifact.get", () => {
+describe("artifact.get", () => {
   test("returns the correct value for an existing artifact", () => {
     return expect(
       func(
         `
-          const data = pw.artifact.get("a")
-          pw.env.set("a", data)
+          const data = artifact.get("a")
+          env.set("a", data)
       `,
         DEFAULT_ENV,
         { a: "b" }
@@ -37,10 +37,10 @@ describe("pw.artifact.get", () => {
     return expect(
       func(
         `
-          const data = pw.artifact.get("a")
+          const data = artifact.get("a")
 
           if(data === undefined) {
-            pw.artifact.create("a", "undefined")
+            artifact.create("a", "undefined")
           }
       `,
         DEFAULT_ENV,
@@ -57,7 +57,7 @@ describe("pw.artifact.get", () => {
     return expect(
       func(
         `
-          const data = pw.artifact.get(5)
+          const data = artifact.get(5)
       `,
         DEFAULT_ENV,
         {}

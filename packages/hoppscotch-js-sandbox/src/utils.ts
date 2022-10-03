@@ -138,13 +138,13 @@ export const defineVmFn = (func: VmFnImplementation) => func
  * For example:- For below script.
  *
  * `
- * pw.env.get("a")
+ * env.get("a")
  *
- * pw.console.log("DATA")
+ * console.log("DATA")
  * `
  *
- * Line number for pw.env.get function is 2
- * Line number for pw.console.log function is 4
+ * Line number for env.get function is 2
+ * Line number for console.log function is 4
  *
  * @param target Function name in string format to search within script.
  * @param source Script to where target function needs will be searched.

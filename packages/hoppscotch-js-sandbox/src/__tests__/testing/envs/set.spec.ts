@@ -25,12 +25,12 @@ const funcTest = (script: string, envs: TestScriptReport["envs"]) =>
     TE.map((x) => x.tests)
   )
 
-describe("pw.env.set", () => {
+describe("env.set", () => {
   test("updates the selected environment variable correctly", () => {
     return expect(
       func(
         `
-          pw.env.set("a", "c")
+          env.set("a", "c")
         `,
         {
           global: [],
@@ -58,7 +58,7 @@ describe("pw.env.set", () => {
     return expect(
       func(
         `
-          pw.env.set("a", "c")
+          env.set("a", "c")
         `,
         {
           global: [
@@ -86,7 +86,7 @@ describe("pw.env.set", () => {
     return expect(
       func(
         `
-          pw.env.set("a", "c")
+          env.set("a", "c")
         `,
         {
           global: [
@@ -125,7 +125,7 @@ describe("pw.env.set", () => {
     return expect(
       func(
         `
-          pw.env.set("a", "c")
+          env.set("a", "c")
         `,
         {
           global: [],
@@ -149,7 +149,7 @@ describe("pw.env.set", () => {
     return expect(
       func(
         `
-          pw.env.set(5, "c")
+          env.set(5, "c")
         `,
         {
           global: [],
@@ -163,7 +163,7 @@ describe("pw.env.set", () => {
     return expect(
       func(
         `
-          pw.env.set("a", 5)
+          env.set("a", 5)
         `,
         {
           global: [],
@@ -177,7 +177,7 @@ describe("pw.env.set", () => {
     return expect(
       func(
         `
-          pw.env.set(5, 5)
+          env.set(5, 5)
         `,
         {
           global: [],
@@ -191,8 +191,8 @@ describe("pw.env.set", () => {
     return expect(
       funcTest(
         `
-          pw.env.set("a", "b")
-          pw.expect(pw.env.get("a")).toBe("b")
+          env.set("a", "b")
+          expect(env.get("a")).toBe("b")
         `,
         {
           global: [],

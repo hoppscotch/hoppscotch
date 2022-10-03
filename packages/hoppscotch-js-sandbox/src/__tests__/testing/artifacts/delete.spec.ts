@@ -20,12 +20,12 @@ const func = (
     TE.map((x) => x.artifacts)
   )
 
-describe("pw.artifact.delete", () => {
+describe("artifact.delete", () => {
   test("deletes from artifact for given key", () => {
     return expect(
       func(
         `
-          pw.artifact.delete("a")
+          artifact.delete("a")
         `,
         DEFAULT_ENV,
         { a: "c", b: "d" }
@@ -37,7 +37,7 @@ describe("pw.artifact.delete", () => {
     return expect(
       func(
         `
-          pw.artifact.delete(5)
+          artifact.delete(5)
         `,
         DEFAULT_ENV,
         {}
@@ -49,7 +49,7 @@ describe("pw.artifact.delete", () => {
     return expect(
       func(
         `
-          pw.artifact.delete("a")
+          artifact.delete("a")
         `,
         DEFAULT_ENV,
         {}

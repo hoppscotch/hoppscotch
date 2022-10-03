@@ -19,14 +19,14 @@ const func = (script: string, envs: TestScriptReport["envs"]) =>
     TE.map((x) => x.tests)
   )
 
-describe("pw.env.delete", () => {
+describe("env.delete", () => {
   test("deletes environment variable from both selected and global", () => {
     return expect(
       func(
         `
-          pw.env.delete("a")
-          const data = pw.env.get("a")
-          pw.expect(data).toBe(undefined)
+          env.delete("a")
+          const data = env.get("a")
+          expect(data).toBe(undefined)
       `,
         {
           global: [
@@ -59,19 +59,19 @@ describe("pw.env.delete", () => {
     return expect(
       func(
         `
-          let dataGlobal = pw.env.global.get("a")
-          let dataActive = pw.env.active.get("a")
+          let dataGlobal = env.global.get("a")
+          let dataActive = env.active.get("a")
           
-          pw.expect(dataGlobal).toBe("b1")
-          pw.expect(dataActive).toBe("b1")
+          expect(dataGlobal).toBe("b1")
+          expect(dataActive).toBe("b1")
 
-          pw.env.delete("a")
+          env.delete("a")
 
-          dataGlobal = pw.env.global.get("a")
-          dataActive = pw.env.active.get("a")
+          dataGlobal = env.global.get("a")
+          dataActive = env.active.get("a")
           
-          pw.expect(dataGlobal).toBe("b2")
-          pw.expect(dataActive).toBe("b2")
+          expect(dataGlobal).toBe("b2")
+          expect(dataActive).toBe("b2")
       `,
         {
           global: [
@@ -124,7 +124,7 @@ describe("pw.env.delete", () => {
     return expect(
       func(
         `
-          pw.env.delete(5)
+          env.delete(5)
       `,
         {
           global: [],
@@ -138,7 +138,7 @@ describe("pw.env.delete", () => {
     return expect(
       func(
         `
-          pw.env.delete("a")
+          env.delete("a")
       `,
         {
           global: [],

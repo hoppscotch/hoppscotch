@@ -20,8 +20,8 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3]).toInclude(1)
-          pw.expect("123").toInclude(1)
+          expect([1, 2, 3]).toInclude(1)
+          expect("123").toInclude(1)
         `,
         fakeResponse
       )()
@@ -39,8 +39,8 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3]).toInclude(4)
-          pw.expect("123").toInclude(4)
+          expect([1, 2, 3]).toInclude(4)
+          expect("123").toInclude(4)
         `,
         fakeResponse
       )()
@@ -58,8 +58,8 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect([]).not.toInclude(0)
-          pw.expect("").not.toInclude(0)
+          expect([]).not.toInclude(0)
+          expect("").not.toInclude(0)
         `,
         fakeResponse
       )()
@@ -83,7 +83,7 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect([1]).not.toInclude("1")
+          expect([1]).not.toInclude("1")
         `,
         fakeResponse
       )()
@@ -104,7 +104,7 @@ describe("toInclude", () => {
     // (`"123".includes(123)` returns `True` in Node.js v14.19.1)
     // See https://tc39.es/ecma262/multipage/text-processing.html#sec-string.prototype.includes
     return expect(
-      func(`pw.expect("123").toInclude(123)`, fakeResponse)()
+      func(`expect("123").toInclude(123)`, fakeResponse)()
     ).resolves.toEqualRight([
       expect.objectContaining({
         expectResults: [
@@ -121,8 +121,8 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect(5).not.toInclude(0)
-          pw.expect(true).not.toInclude(0)
+          expect(5).not.toInclude(0)
+          expect(true).not.toInclude(0)
         `,
         fakeResponse
       )()
@@ -146,7 +146,7 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3, 4]).not.toInclude(null)
+          expect([1, 2, 3, 4]).not.toInclude(null)
         `,
         fakeResponse
       )()
@@ -166,7 +166,7 @@ describe("toInclude", () => {
     return expect(
       func(
         `
-          pw.expect([1, 2, 3, 4]).not.toInclude(undefined)
+          expect([1, 2, 3, 4]).not.toInclude(undefined)
         `,
         fakeResponse
       )()

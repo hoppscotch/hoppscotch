@@ -244,10 +244,13 @@ export async function linkWithFBCredential(
 export async function linkWithFBCredentialFromAuthError(error: unknown) {
   // credential is not null since this function is called after an auth/account-exists-with-different-credential error, ie credentials actually exist
   const credentials = OAuthProvider.credentialFromError(error as AuthError)!
+
   const otherLinkedProviders = (
     await getSignInMethodsForEmail((error as AuthError).customData.email!)
   ).filter((providerId) => credentials.providerId !== providerId)
+
   let user: User | null = null
+
   if (otherLinkedProviders.indexOf("google.com") >= -1) {
     user = (await signInUserWithGoogle()).user
   } else if (otherLinkedProviders.indexOf("github.com") >= -1) {
@@ -255,6 +258,7 @@ export async function linkWithFBCredentialFromAuthError(error: unknown) {
   } else if (otherLinkedProviders.indexOf("microsoft.com") >= -1) {
     user = (await signInUserWithMicrosoft()).user
   }
+
   // user is not null since going through each provider will return a user
   return await linkWithCredential(user!, credentials)
 }

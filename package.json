@@ -21,8 +21,8 @@
     "./packages/*"
   ],
   "dependencies": {
-    "husky": "^7.0.4",
-    "lint-staged": "^12.3.8"
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

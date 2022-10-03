@@ -18,6 +18,15 @@
         v-if="show"
         class="fixed top-0 right-0 z-30 flex flex-col h-full max-w-full overflow-auto border-l shadow-xl border-dividerDark bg-primary w-96"
       >
+        <div
+          class="flex items-center justify-between p-2 border-b border-dividerLight"
+        >
+          <h3 class="ml-4 heading">{{ title }}</h3>
+          <span class="flex items-center">
+            <kbd class="mr-2 shortcut-key">ESC</kbd>
+            <ButtonSecondary :icon="IconX" @click="close()" />
+          </span>
+        </div>
         <slot name="content"></slot>
       </aside>
     </Transition>
@@ -26,9 +35,11 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from "vue"
+import IconX from "~icons/lucide/x"
 
 const props = defineProps<{
   show: boolean
+  title: string
 }>()
 
 const emit = defineEmits<{

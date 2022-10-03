@@ -22,7 +22,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('app.search')} <xmp>/</xmp>`"
+          :title="`${t('app.search')} <kbd>/</kbd>`"
           :icon="IconSearch"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.search.toggle')"
@@ -31,7 +31,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${
             mdAndLarger ? t('support.title') : t('app.options')
-          } <xmp>?</xmp>`"
+          } <kbd>?</kbd>`"
           :icon="IconLifeBuoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"

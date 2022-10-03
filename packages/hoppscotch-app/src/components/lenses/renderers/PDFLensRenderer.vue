@@ -12,7 +12,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'action.download_file'
-          )} <xmp>${getSpecialKey()}</xmp><xmp>J</xmp>`"
+          )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />

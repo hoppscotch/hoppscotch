@@ -362,7 +362,7 @@
     "name": "Nome da requisição",
     "new": "Nova requisição",
     "override": "Substituir",
-    "override_help": "Substituir <xmp>Content-Type</xmp> em Headers",
+    "override_help": "Substituir <kbd>Content-Type</kbd> em Headers",
     "overriden": "Substituído",
     "parameter_list": "Parâmetros da requisição",
     "parameters": "Parâmetros",

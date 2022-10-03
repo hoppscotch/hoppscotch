@@ -43,8 +43,9 @@
               <h3 class="heading" :class="{ 'ml-4': !fullWidth }">
                 {{ title }}
               </h3>
-              <span class="flex">
+              <span class="flex items-center">
                 <slot name="actions"></slot>
+                <kbd class="mr-2 shortcut-key">ESC</kbd>
                 <ButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"

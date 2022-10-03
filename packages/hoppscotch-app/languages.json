@@ -85,6 +85,12 @@
     "name": "Magyar"
   },
   {
+    "code": "id",
+    "file": "id.json",
+    "iso": "id",
+    "name": "Indonesian"
+  },
+  {
     "code": "it",
     "file": "it.json",
     "iso": "it",

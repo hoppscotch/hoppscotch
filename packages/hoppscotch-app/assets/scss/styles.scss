@@ -138,7 +138,7 @@ a {
   @apply leading-body;
   font-size: 86%;
 
-  xmp {
+  kbd {
     @apply hidden;
     @apply font-sans;
     @apply bg-gray-500/45;
@@ -148,11 +148,6 @@ a {
     @apply my-0 ml-1;
     @apply truncate;
     @apply sm: inline-flex;
-
-    &.expand-loop {
-      @apply bg-error;
-      @apply text-accentContrast;
-    }
   }
 
   .tippy-svg-arrow svg {
@@ -169,7 +164,7 @@ a {
 
 .tippy-box[data-theme="popover"] {
   @apply flex flex-col;
-  @apply max-h-46;
+  @apply max-h-48;
   @apply items-stretch;
   @apply overflow-y-auto;
   @apply bg-popover;
@@ -179,6 +174,7 @@ a {
   @apply leading-body;
   @apply border border-dividerDark;
   @apply focus: outline-none;
+  scroll-behavior: smooth;
 
   .tippy-svg-arrow svg {
     @apply fill-popover;
@@ -465,7 +461,8 @@ pre.ace_editor {
   @apply rounded;
   @apply ml-2;
   @apply px-1;
-  @apply transition;
+  @apply border border-dividerDark;
+  @apply shadow-sm;
 }
 
 .capitalize-first {

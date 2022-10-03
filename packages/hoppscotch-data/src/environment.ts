@@ -30,7 +30,7 @@ export function parseBodyEnvVariablesE(
   let depth = 0
 
   while (result.match(REGEX_ENV_VAR) != null && depth <= ENV_MAX_EXPAND_LIMIT) {
-    result = result.replace(/<<\w+>>/g, (key) => {
+    result = result.replace(REGEX_ENV_VAR, (key) => {
       const found = env.find(
         (envVar) => envVar.key === key.replace(/[<>]/g, "")
       )

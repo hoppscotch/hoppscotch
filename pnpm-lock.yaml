@@ -65,7 +65,7 @@ importers:
       '@graphql-codegen/urql-introspection': ^2.2.0
       '@graphql-typed-document-node/core': ^3.1.1
       '@hoppscotch/codemirror-lang-graphql': workspace:^0.2.0
-      '@hoppscotch/data': workspace:^0.4.2
+      '@hoppscotch/data': workspace:^0.4.4
       '@hoppscotch/js-sandbox': workspace:^2.1.0
       '@hoppscotch/vue-toasted': ^0.1.0
       '@iconify-json/lucide': ^1.1.40
@@ -295,7 +295,7 @@ importers:
 
   packages/hoppscotch-cli:
     specifiers:
-      '@hoppscotch/data': workspace:^0.4.3
+      '@hoppscotch/data': workspace:^0.4.4
       '@hoppscotch/js-sandbox': workspace:^2.0.0
       '@relmify/jest-fp-ts': ^2.0.2
       '@swc/core': ^1.2.181
@@ -365,7 +365,7 @@ importers:
   packages/hoppscotch-js-sandbox:
     specifiers:
       '@digitak/esrun': ^3.1.2
-      '@hoppscotch/data': workspace:^0.4.3
+      '@hoppscotch/data': workspace:^0.4.4
       '@relmify/jest-fp-ts': ^2.0.1
       '@types/jest': ^27.4.1
       '@types/lodash': ^4.14.181

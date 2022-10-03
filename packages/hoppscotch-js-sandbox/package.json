@@ -40,7 +40,7 @@
   "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
   "dependencies": {
-    "@hoppscotch/data": "workspace:^0.4.3",
+    "@hoppscotch/data": "workspace:^0.4.4",
     "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
     "quickjs-emscripten": "^0.15.0",

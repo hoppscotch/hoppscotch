@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/data",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
   "type": "module",
   "main": "dist/hoppscotch-data.cjs",

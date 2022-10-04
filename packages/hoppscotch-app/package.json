@@ -16,7 +16,6 @@
     "postinstall": "pnpm run gql-codegen",
     "do-dev": "pnpm run dev",
     "do-build-prod": "pnpm run build",
-    "do-prod-start": "pnpm run preview",
     "do-lint": "pnpm run prod-lint",
     "do-typecheck": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix"

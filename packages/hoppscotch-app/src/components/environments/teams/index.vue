@@ -2,6 +2,16 @@
   <div>
     <div class="flex justify-between flex-1 border-y border-dividerLight">
       <ButtonSecondary
+        v-if="team === undefined || team.myRole === 'VIEWER'"
+        v-tippy="{ theme: 'tooltip' }"
+        disabled
+        class="!rounded-none"
+        :icon="IconPlus"
+        :title="t('team.no_access')"
+        :label="t('action.new')"
+      />
+      <ButtonSecondary
+        v-else
         :icon="IconPlus"
         :label="`${t('action.new')}`"
         class="!rounded-none"
@@ -16,6 +26,14 @@
           :icon="IconHelpCircle"
         />
         <ButtonSecondary
+          v-if="team !== undefined && team.myRole === 'VIEWER'"
+          v-tippy="{ theme: 'tooltip' }"
+          disabled
+          :icon="IconArchive"
+          :title="t('modal.import_export')"
+        />
+        <ButtonSecondary
+          v-else
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconArchive"
           :title="t('modal.import_export')"
@@ -37,6 +55,17 @@
         {{ t("empty.environments") }}
       </span>
       <ButtonSecondary
+        v-if="team === undefined || team.myRole === 'VIEWER'"
+        v-tippy="{ theme: 'tooltip' }"
+        disabled
+        filled
+        class="mb-4"
+        :icon="IconPlus"
+        :title="t('team.no_access')"
+        :label="t('action.new')"
+      />
+      <ButtonSecondary
+        v-else
         :label="`${t('add.new')}`"
         filled
         class="mb-4"
@@ -48,6 +77,7 @@
         v-for="(environment, index) in teamEnvironments"
         :key="`environment-${index}`"
         :environment="environment"
+        :is-viewer="team?.myRole === 'VIEWER'"
         @edit-environment="editEnvironment(environment)"
       />
     </div>
@@ -66,11 +96,14 @@
       :show="showModalDetails"
       :action="action"
       :editing-environment="editingEnvironment"
-      :editing-team-id="teamId"
+      :editing-team-id="team?.id"
+      :is-viewer="team?.myRole === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
       :show="showModalImportExport"
+      :team-environments="teamEnvironments"
+      :team-id="team?.id"
       @hide-modal="displayModalImportExport(false)"
     />
   </div>
@@ -85,13 +118,16 @@ import { useColorMode } from "~/composables/theming"
 import IconPlus from "~icons/lucide/plus"
 import IconArchive from "~icons/lucide/archive"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import { Team } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
+type SelectedTeam = Team | undefined
+
 defineProps<{
-  teamId: string | undefined
+  team: SelectedTeam
   teamEnvironments: TeamEnvironment[]
   adapterError: GQLError<string> | null
   loading: boolean

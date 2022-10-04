@@ -13,9 +13,11 @@
             v-model="name"
             v-focus
             class="input floating-input"
+            :class="isViewer && 'opacity-25'"
             placeholder=""
             type="text"
             autocomplete="off"
+            :disabled="isViewer"
             @keyup.enter="saveEnvironment"
           />
           <label for="selectLabelEnvEdit">
@@ -26,7 +28,7 @@
           <label for="variableList" class="p-4">
             {{ t("environment.variable_list") }}
           </label>
-          <div class="flex">
+          <div v-if="!isViewer" class="flex">
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.clear_all')"
@@ -56,16 +58,19 @@
             <input
               v-model="env.key"
               class="flex flex-1 px-4 py-2 bg-transparent"
+              :class="isViewer && 'opacity-25'"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
+              :disabled="isViewer"
             />
             <SmartEnvInput
               v-model="env.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :envs="liveEnvs"
               :name="'value' + index"
+              :readonly="isViewer"
             />
-            <div class="flex">
+            <div v-if="!isViewer" class="flex">
               <ButtonSecondary
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
@@ -90,6 +95,14 @@
               {{ t("empty.environments") }}
             </span>
             <ButtonSecondary
+              v-if="isViewer"
+              disabled
+              :label="`${t('add.new')}`"
+              filled
+              class="mb-4"
+            />
+            <ButtonSecondary
+              v-else
               :label="`${t('add.new')}`"
               filled
               class="mb-4"
@@ -99,7 +112,7 @@
         </div>
       </div>
     </template>
-    <template #footer>
+    <template v-if="!isViewer" #footer>
       <span>
         <ButtonPrimary
           :label="`${t('action.save')}`"
@@ -154,6 +167,7 @@ const props = withDefaults(
     action: "edit" | "new"
     editingEnvironment: TeamEnvironment | null
     editingTeamId: string | undefined
+    isViewer: boolean
   }>(),
   {
     show: false,

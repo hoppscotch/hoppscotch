@@ -19,6 +19,8 @@
     </span>
     <span>
       <tippy
+        v-if="!isViewer"
+        ref="options"
         interactive
         trigger="click"
         theme="popover"
@@ -112,6 +114,7 @@ const toast = useToast()
 
 const props = defineProps<{
   environment: TeamEnvironment
+  isViewer: boolean
 }>()
 
 const emit = defineEmits<{

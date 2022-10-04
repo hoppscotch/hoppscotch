@@ -129,7 +129,6 @@ import {
   setProviderInfo,
   currentUser$,
   signInWithEmail,
-  linkWithFBCredential,
   linkWithFBCredentialFromAuthError,
   getGithubCredentialFromResult,
 } from "~/helpers/fb/auth"
@@ -191,32 +190,11 @@ export default defineComponent({
         this.showLoginSuccess()
       } catch (e) {
         console.error(e)
-        // An error happened.
-        if (
-          (e as any).code === "auth/account-exists-with-different-credential"
-        ) {
-          // Step 2.
-          // User's email already exists.
-          // The pending Google credential.
-          const pendingCred = (e as any).credential
-          this.toast.info(`${this.t("auth.account_exists")}`, {
-            duration: 0,
-            closeOnSwipe: false,
-            action: {
-              text: `${this.t("action.yes")}`,
-              onClick: async (_, toastObject) => {
-                const { user } = await signInUserWithGithub()
-                await linkWithFBCredential(user, pendingCred)
-
-                this.showLoginSuccess()
-
-                toastObject.goAway(0)
-              },
-            },
-          })
-        } else {
-          this.toast.error(`${this.t("error.something_went_wrong")}`)
-        }
+        /*
+        A auth/account-exists-with-different-credential Firebase error wont happen between Google and any other providers
+        Seems Google account overwrites accounts of other providers https://github.com/firebase/firebase-android-sdk/issues/25
+        */
+        this.toast.error(`${this.t("error.something_went_wrong")}`)
       }
 
       this.signingInWithGoogle = false
@@ -228,27 +206,22 @@ export default defineComponent({
         const result = await signInUserWithGithub()
         const credential = getGithubCredentialFromResult(result)!
         const token = credential.accessToken
-
         setProviderInfo(result.providerId!, token!)
 
         this.showLoginSuccess()
       } catch (e) {
         console.error(e)
-        // An error happened.
+        // This user's email is already present in Firebase but with other providers, namely Google or Microsoft
         if (
           (e as any).code === "auth/account-exists-with-different-credential"
         ) {
-          // Step 2.
-          // User's email already exists.
           this.toast.info(`${this.t("auth.account_exists")}`, {
             duration: 0,
             closeOnSwipe: false,
             action: {
               text: `${this.t("action.yes")}`,
               onClick: async (_, toastObject) => {
-                const { user } = await signInUserWithGoogle()
-                await linkWithFBCredentialFromAuthError(user, e)
-
+                await linkWithFBCredentialFromAuthError(e)
                 this.showLoginSuccess()
 
                 toastObject.goAway(0)
@@ -270,32 +243,15 @@ export default defineComponent({
         this.showLoginSuccess()
       } catch (e) {
         console.error(e)
-        // An error happened.
-        if (
-          (e as any).code === "auth/account-exists-with-different-credential"
-        ) {
-          // Step 2.
-          // User's email already exists.
-          // The pending Microsoft credential.
-          const pendingCred = (e as any).credential
-          this.toast.info(`${this.t("auth.account_exists")}`, {
-            duration: 0,
-            closeOnSwipe: false,
-            action: {
-              text: `${this.t("action.yes")}`,
-              onClick: async (_, toastObject) => {
-                const { user } = await signInUserWithGithub()
-                await linkWithFBCredential(user, pendingCred)
-
-                this.showLoginSuccess()
-
-                toastObject.goAway(0)
-              },
-            },
-          })
-        } else {
-          this.toast.error(`${this.t("error.something_went_wrong")}`)
-        }
+        /*
+        A auth/account-exists-with-different-credential Firebase error wont happen between MS with Google or Github
+        If a Github account exists and user then logs in with MS email we get a "Something went wrong toast" and console errors and MS replaces GH as only provider.
+        The error messages are as follows:
+            FirebaseError: Firebase: Error (auth/popup-closed-by-user).
+            @firebase/auth: Auth (9.6.11): INTERNAL ASSERTION FAILED: Pending promise was never set
+        They may be related to https://github.com/firebase/firebaseui-web/issues/947
+        */
+        this.toast.error(`${this.t("error.something_went_wrong")}`)
       }
 
       this.signingInWithMicrosoft = false

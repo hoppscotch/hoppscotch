@@ -29,8 +29,8 @@
         </span>
         <template #content="{ hide }">
           <div
-            role="menu"
             ref="tippyActions"
+            role="menu"
             class="flex flex-col focus:outline-none"
             tabindex="0"
             @keyup.escape="hide()"
@@ -159,7 +159,7 @@
     <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
       v-else
-      :team-id="environmentType.selectedTeam?.id"
+      :team="environmentType.selectedTeam"
       :team-environments="teamEnvironmentList"
       :loading="loading"
       :adapter-error="adapterError"
@@ -317,4 +317,7 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
+
+// Template refs
+const tippyActions = ref<any | null>(null)
 </script>

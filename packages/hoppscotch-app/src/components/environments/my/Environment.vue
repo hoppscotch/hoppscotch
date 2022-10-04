@@ -23,7 +23,6 @@
         interactive
         trigger="click"
         theme="popover"
-        arrow
         :on-shown="() => tippyActions.focus()"
       >
         <ButtonSecondary

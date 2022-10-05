@@ -142,7 +142,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue"
+import { computed, reactive, ref } from "vue"
 import IconUser from "~icons/lucide/user"
 import IconSettings from "~icons/lucide/settings"
 import IconDownload from "~icons/lucide/download"
@@ -153,15 +153,11 @@ import IconUserPlus from "~icons/lucide/user-plus"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
 import { probableUser$ } from "@helpers/fb/auth"
-import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
 
 const t = useI18n()
-
-const toast = useToast()
 
 /**
  * Once the PWA code is initialized, this holds a method
@@ -180,32 +176,6 @@ const mdAndLarger = breakpoints.greater("md")
 const network = reactive(useNetwork())
 
 const currentUser = useReadonlyStream(probableUser$, null)
-
-onMounted(() => {
-  const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
-  if (!cookiesAllowed) {
-    toast.show(`${t("app.we_use_cookies")}`, {
-      duration: 0,
-      action: [
-        {
-          text: `${t("action.learn_more")}`,
-          onClick: (_, toastObject) => {
-            setLocalConfig("cookiesAllowed", "yes")
-            toastObject.goAway(0)
-            window.open("https://docs.hoppscotch.io/privacy", "_blank")?.focus()
-          },
-        },
-        {
-          text: `${t("action.dismiss")}`,
-          onClick: (_, toastObject) => {
-            setLocalConfig("cookiesAllowed", "yes")
-            toastObject.goAway(0)
-          },
-        },
-      ],
-    })
-  }
-})
 
 // Template refs
 const tippyActions = ref<any | null>(null)

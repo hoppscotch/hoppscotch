@@ -455,6 +455,7 @@ pre.ace_editor {
   @apply px-1;
   @apply border border-dividerDark;
   @apply shadow-sm;
+  @apply <sm:hidden;
 }
 
 .capitalize-first {

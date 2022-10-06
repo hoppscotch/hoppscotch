@@ -143,7 +143,7 @@
                 interactive
                 trigger="click"
                 theme="popover"
-                :on-shown="() => tippyActions.focus()"
+                :on-shown="() => tippyActions[index].focus()"
               >
                 <span class="select-wrapper">
                   <input

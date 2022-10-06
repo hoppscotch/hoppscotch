@@ -77,6 +77,7 @@
                 "
                 :title="
                   currentUser.displayName ||
+                  currentUser.email ||
                   t('profile.default_hopp_displayname')
                 "
                 indicator
@@ -89,9 +90,10 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="
                   currentUser.displayName ||
+                  currentUser.email ||
                   t('profile.default_hopp_displayname')
                 "
-                :initial="currentUser.displayName"
+                :initial="currentUser.displayName || currentUser.email"
                 indicator
                 :indicator-styles="
                   network.isOnline ? 'bg-green-500' : 'bg-red-500'

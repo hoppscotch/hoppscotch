@@ -72,10 +72,12 @@
                 }"
                 :url="currentUser.photoURL"
                 :alt="
-                  currentUser.displayName || t('profile.default_hopp_username')
+                  currentUser.displayName ||
+                  t('profile.default_hopp_displayname')
                 "
                 :title="
-                  currentUser.displayName || t('profile.default_hopp_username')
+                  currentUser.displayName ||
+                  t('profile.default_hopp_displayname')
                 "
                 indicator
                 :indicator-styles="
@@ -86,7 +88,8 @@
                 v-else
                 v-tippy="{ theme: 'tooltip' }"
                 :title="
-                  currentUser.displayName || t('profile.default_hopp_username')
+                  currentUser.displayName ||
+                  t('profile.default_hopp_displayname')
                 "
                 :initial="currentUser.displayName"
                 indicator

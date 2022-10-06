@@ -37,7 +37,9 @@
               <ProfilePicture
                 v-if="currentUser.photoURL"
                 :url="currentUser.photoURL"
-                :alt="currentUser.displayName || 'Hoppscotch User'"
+                :alt="
+                  currentUser.displayName || t('profile.default_hopp_username')
+                "
                 class="ring-primary ring-4"
                 size="16"
                 rounded="lg"

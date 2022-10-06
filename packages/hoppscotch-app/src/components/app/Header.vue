@@ -71,8 +71,12 @@
                   theme: 'tooltip',
                 }"
                 :url="currentUser.photoURL"
-                :alt="currentUser.displayName || 'Hoppscotch User'"
-                :title="currentUser.displayName || 'Hoppscotch User'"
+                :alt="
+                  currentUser.displayName || t('profile.default_hopp_username')
+                "
+                :title="
+                  currentUser.displayName || t('profile.default_hopp_username')
+                "
                 indicator
                 :indicator-styles="
                   network.isOnline ? 'bg-green-500' : 'bg-red-500'
@@ -81,7 +85,9 @@
               <ProfilePicture
                 v-else
                 v-tippy="{ theme: 'tooltip' }"
-                :title="currentUser.displayName || 'Hoppscotch User'"
+                :title="
+                  currentUser.displayName || t('profile.default_hopp_username')
+                "
                 :initial="currentUser.displayName"
                 indicator
                 :indicator-styles="

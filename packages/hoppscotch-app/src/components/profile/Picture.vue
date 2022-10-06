@@ -16,11 +16,9 @@
       v-else
       class="absolute flex items-center justify-center object-cover object-center transition bg-primaryDark text-accentContrast"
       :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
-      :style="`background-color: ${toHex(initial)}`"
+      :style="`background-color: ${initial ? toHex(initial) : '#480000'}`"
     >
-      <template
-        v-if="isValidInitial(initial) && initial.charAt(0).toUpperCase()"
-      >
+      <template v-if="initial && initial.charAt(0).toUpperCase()">
         {{ initial.charAt(0).toUpperCase() }}
       </template>
 
@@ -36,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, PropType } from "vue"
 
 export default defineComponent({
   props: {
@@ -65,16 +63,12 @@ export default defineComponent({
       default: "5",
     },
     initial: {
-      type: String,
+      type: String as PropType<string | undefined | null>,
       default: "",
     },
   },
   methods: {
     toHex(initial: string) {
-      if (!this.isValidInitial(initial)) {
-        initial = "HS"
-      }
-
       let hash = 0
       if (initial.length === 0) return hash
       for (let i = 0; i < initial.length; i++) {
@@ -87,9 +81,6 @@ export default defineComponent({
         color += `00${value.toString(16)}`.slice(-2)
       }
       return color
-    },
-    isValidInitial(initial: unknown) {
-      return typeof initial == "string"
     },
   },
 })

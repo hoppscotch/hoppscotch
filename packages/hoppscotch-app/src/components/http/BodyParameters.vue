@@ -250,7 +250,7 @@ watch(
       workingParams.value,
       A.filterMap(
         flow(
-          O.fromPredicate((e) => e.entry.key !== ""),
+          O.fromPredicate((e) => e.entry.key !== "" || e.entry.isFile),
           O.map((e) => e.entry)
         )
       )
@@ -271,7 +271,7 @@ watch(workingParams, (newWorkingParams) => {
     newWorkingParams,
     A.filterMap(
       flow(
-        O.fromPredicate((e) => e.entry.key !== ""),
+        O.fromPredicate((e) => e.entry.key !== "" || e.entry.isFile),
         O.map((e) => e.entry)
       )
     )

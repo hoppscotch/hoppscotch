@@ -452,17 +452,20 @@ const copyRequest = async () => {
 }
 
 const copyShareLink = (shareLink: string) => {
+  const link = `${
+    import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+  }/r${shareLink}`
   if (navigator.share) {
     const time = new Date().toLocaleTimeString()
     const date = new Date().toLocaleDateString()
     navigator.share({
       title: "Hoppscotch",
       text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-      url: `https://hopp.sh/r${shareLink}`,
+      url: link,
     })
   } else {
     copyLinkIcon.value = IconCheck
-    copyToClipboard(`https://hopp.sh/r${shareLink}`)
+    copyToClipboard(link)
     toast.success(`${t("state.copied_to_clipboard")}`)
   }
 }

@@ -37,14 +37,14 @@
               <ProfilePicture
                 v-if="currentUser.photoURL"
                 :url="currentUser.photoURL"
-                :alt="currentUser.displayName"
+                :alt="currentUser.displayName || 'Hoppscotch User'"
                 class="ring-primary ring-4"
                 size="16"
                 rounded="lg"
               />
               <ProfilePicture
                 v-else
-                :initial="currentUser.displayName"
+                :initial="currentUser.displayName || 'HS'"
                 rounded="lg"
                 size="16"
                 class="ring-primary ring-4"

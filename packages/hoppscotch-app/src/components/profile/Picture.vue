@@ -18,7 +18,7 @@
       :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
       :style="`background-color: ${toHex(initial)}`"
     >
-      {{ initial.charAt(0).toUpperCase() }}
+      {{ (isValidInitial(initial) && initial.charAt(0).toUpperCase()) || "HS" }}
     </div>
     <span
       v-if="indicator"
@@ -65,6 +65,10 @@ export default defineComponent({
   },
   methods: {
     toHex(initial: string) {
+      if (!this.isValidInitial(initial)) {
+        initial = "HS"
+      }
+
       let hash = 0
       if (initial.length === 0) return hash
       for (let i = 0; i < initial.length; i++) {
@@ -77,6 +81,9 @@ export default defineComponent({
         color += `00${value.toString(16)}`.slice(-2)
       }
       return color
+    },
+    isValidInitial(initial: unknown) {
+      return typeof initial == "string"
     },
   },
 })

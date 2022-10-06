@@ -8,7 +8,7 @@
       @drop="dragging = false"
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="options.tippy.show()"
+      @contextmenu.prevent="options!.tippy.show()"
     >
       <span
         class="flex items-center justify-center px-4 cursor-pointer"
@@ -62,7 +62,7 @@
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => tippyActions.focus()"
+            :on-shown="() => tippyActions!.focus()"
           >
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -74,11 +74,11 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.r="requestAction.$el.click()"
-                @keyup.n="folderAction.$el.click()"
-                @keyup.e="edit.$el.click()"
-                @keyup.delete="deleteAction.$el.click()"
-                @keyup.x="exportAction.$el.click()"
+                @keyup.r="requestAction!.$el.click()"
+                @keyup.n="folderAction!.$el.click()"
+                @keyup.e="edit!.$el.click()"
+                @keyup.delete="deleteAction!.$el.click()"
+                @keyup.x="exportAction!.$el.click()"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -246,6 +246,8 @@ import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { TippyComponent } from "vue-tippy"
+import SmartItem from "@components/smart/Item.vue"
 
 export default defineComponent({
   props: {
@@ -275,13 +277,13 @@ export default defineComponent({
 
     return {
       // Template refs
-      tippyActions: ref<any | null>(null),
-      options: ref<any | null>(null),
-      requestAction: ref<any | null>(null),
-      folderAction: ref<any | null>(null),
-      edit: ref<any | null>(null),
-      deleteAction: ref<any | null>(null),
-      exportAction: ref<any | null>(null),
+      tippyActions: ref<TippyComponent | null>(null),
+      options: ref<TippyComponent | null>(null),
+      requestAction: ref<typeof SmartItem | null>(null),
+      folderAction: ref<typeof SmartItem | null>(null),
+      edit: ref<typeof SmartItem | null>(null),
+      deleteAction: ref<typeof SmartItem | null>(null),
+      exportAction: ref<typeof SmartItem | null>(null),
       exportLoading: ref<boolean>(false),
       t,
       toast: useToast(),
@@ -332,7 +334,7 @@ export default defineComponent({
         this.toast.error(this.t("error.something_went_wrong").toString())
         console.log(result.left)
         this.exportLoading = false
-        this.options.tippy().hide()
+        this.options!.tippy.hide()
 
         return
       }
@@ -358,7 +360,7 @@ export default defineComponent({
 
       this.exportLoading = false
 
-      this.options.tippy().hide()
+      this.options!.tippy.hide()
     },
     editRequest(event: any) {
       this.$emit("edit-request", event)

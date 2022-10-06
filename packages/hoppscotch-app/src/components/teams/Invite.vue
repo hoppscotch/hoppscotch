@@ -143,7 +143,7 @@
                 interactive
                 trigger="click"
                 theme="popover"
-                :on-shown="() => tippyActions.focus()"
+                :on-shown="() => tippyActions![index].focus()"
               >
                 <span class="select-wrapper">
                   <input
@@ -364,6 +364,7 @@ import IconMailCheck from "~icons/lucide/mail-check"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
 import IconArrowLeft from "~icons/lucide/arrow-left"
+import { TippyComponent } from "vue-tippy"
 
 const t = useI18n()
 
@@ -372,7 +373,7 @@ const toast = useToast()
 const colorMode = useColorMode()
 
 // Template refs
-const tippyActions = ref<any | null>(null)
+const tippyActions = ref<TippyComponent[] | null>(null)
 
 const props = defineProps({
   show: Boolean,

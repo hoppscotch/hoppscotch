@@ -77,6 +77,7 @@
                 "
                 :title="
                   currentUser.displayName ||
+                  currentUser.email ||
                   t('profile.default_hopp_displayname')
                 "
                 indicator
@@ -89,9 +90,10 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="
                   currentUser.displayName ||
+                  currentUser.email ||
                   t('profile.default_hopp_displayname')
                 "
-                :initial="currentUser.displayName"
+                :initial="currentUser.displayName || currentUser.email"
                 indicator
                 :indicator-styles="
                   network.isOnline ? 'bg-green-500' : 'bg-red-500'
@@ -100,7 +102,10 @@
               <template #content="{ hide }">
                 <div class="flex flex-col px-2 text-tiny">
                   <span class="inline-flex font-semibold truncate">
-                    {{ currentUser.displayName }}
+                    {{
+                      currentUser.displayName ||
+                      t("profile.default_hopp_displayname")
+                    }}
                   </span>
                   <span class="inline-flex truncate text-secondaryLight">
                     {{ currentUser.email }}

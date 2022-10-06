@@ -46,14 +46,17 @@
               />
               <ProfilePicture
                 v-else
-                :initial="currentUser.displayName"
+                :initial="currentUser.displayName || currentUser.email"
                 rounded="lg"
                 size="16"
                 class="ring-primary ring-4"
               />
               <div class="ml-4">
                 <label class="heading">
-                  {{ currentUser.displayName || t("state.nothing_found") }}
+                  {{
+                    currentUser.displayName ||
+                    t("profile.default_hopp_displayname")
+                  }}
                 </label>
                 <p class="flex items-center text-secondaryLight">
                   {{ currentUser.email }}

@@ -336,7 +336,7 @@
     "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests.",
-    "default_hopp_displayname": "Hoppscotch User"
+    "default_hopp_displayname": "Unnamed User"
   },
   "remove": {
     "star": "Remove star"

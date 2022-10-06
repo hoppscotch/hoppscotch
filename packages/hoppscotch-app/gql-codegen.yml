@@ -1,5 +1,6 @@
 overwrite: true
-schema: https://api.hoppscotch.io/graphql
+schema:
+  - ${VITE_BACKEND_GQL_URL}
 generates:
   src/helpers/backend/graphql.ts:
     documents: "src/**/*.graphql"

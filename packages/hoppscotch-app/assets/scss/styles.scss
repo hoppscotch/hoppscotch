@@ -470,6 +470,10 @@ details summary::-webkit-details-marker {
   @apply hidden;
 }
 
+details summary .indicator {
+  @apply transition;
+}
+
 details[open] summary .indicator {
   @apply transform;
   @apply rotate-90;

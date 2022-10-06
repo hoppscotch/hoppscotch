@@ -102,6 +102,7 @@ declare module '@vue/runtime-core' {
     IconLucideLoader: typeof import('~icons/lucide/loader')['default']
     IconLucideMinus: typeof import('~icons/lucide/minus')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
+    IconLucideUser: typeof import('~icons/lucide/user')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
     LensesHeadersRenderer: typeof import('./components/lenses/HeadersRenderer.vue')['default']
     LensesHeadersRendererEntry: typeof import('./components/lenses/HeadersRendererEntry.vue')['default']

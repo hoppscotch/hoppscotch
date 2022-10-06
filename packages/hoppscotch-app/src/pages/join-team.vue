@@ -79,7 +79,8 @@
             {{
               t("team.invited_to_team", {
                 owner:
-                  inviteDetails.data.right.teamInvitation.creator.displayName,
+                  inviteDetails.data.right.teamInvitation.creator.displayName ??
+                  inviteDetails.data.right.teamInvitation.creator.email,
                 team: inviteDetails.data.right.teamInvitation.team.name,
               })
             }}

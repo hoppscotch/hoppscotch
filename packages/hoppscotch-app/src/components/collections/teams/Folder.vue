@@ -317,7 +317,7 @@ export default defineComponent({
         this.toast.error(this.t("error.something_went_wrong").toString())
         console.log(result.left)
         this.exportLoading = false
-        this.options.tippy().hide()
+        this.options.tippy.hide()
 
         return
       }
@@ -343,7 +343,7 @@ export default defineComponent({
 
       this.exportLoading = false
 
-      this.options.tippy().hide()
+      this.options.tippy.hide()
     },
     toggleShowChildren() {
       if (this.$props.saveRequest)

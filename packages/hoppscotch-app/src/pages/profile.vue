@@ -37,7 +37,9 @@
               <ProfilePicture
                 v-if="currentUser.photoURL"
                 :url="currentUser.photoURL"
-                :alt="currentUser.displayName"
+                :alt="
+                  currentUser.displayName || t('profile.default_displayname')
+                "
                 class="ring-primary ring-4"
                 size="16"
                 rounded="lg"

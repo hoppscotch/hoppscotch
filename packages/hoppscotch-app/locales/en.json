@@ -335,7 +335,8 @@
     "roles_description": "Roles are used to control access to the shared collections.",
     "updated": "Profile updated",
     "viewer": "Viewer",
-    "viewer_description": "Viewers can only view and use requests."
+    "viewer_description": "Viewers can only view and use requests.",
+    "default_hopp_displayname": "Hoppscotch User"
   },
   "remove": {
     "star": "Remove star"

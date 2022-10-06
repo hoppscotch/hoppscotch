@@ -44,7 +44,7 @@
               />
               <ProfilePicture
                 v-else
-                :initial="currentUser.displayName || 'HS'"
+                :initial="currentUser.displayName"
                 rounded="lg"
                 size="16"
                 class="ring-primary ring-4"

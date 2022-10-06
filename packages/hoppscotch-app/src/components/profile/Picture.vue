@@ -18,7 +18,13 @@
       :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
       :style="`background-color: ${toHex(initial)}`"
     >
-      {{ (isValidInitial(initial) && initial.charAt(0).toUpperCase()) || "HS" }}
+      <template
+        v-if="isValidInitial(initial) && initial.charAt(0).toUpperCase()"
+      >
+        {{ initial.charAt(0).toUpperCase() }}
+      </template>
+
+      <icon-lucide-user v-else></icon-lucide-user>
     </div>
     <span
       v-if="indicator"

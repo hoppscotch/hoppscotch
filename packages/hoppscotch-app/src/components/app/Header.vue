@@ -82,7 +82,7 @@
                 v-else
                 v-tippy="{ theme: 'tooltip' }"
                 :title="currentUser.displayName || 'Hoppscotch User'"
-                :initial="currentUser.displayName || 'HS'"
+                :initial="currentUser.displayName"
                 indicator
                 :indicator-styles="
                   network.isOnline ? 'bg-green-500' : 'bg-red-500'

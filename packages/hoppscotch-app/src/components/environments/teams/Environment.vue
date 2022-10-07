@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex items-stretch group"
-    @contextmenu.prevent="options.tippy.show()"
+    @contextmenu.prevent="options!.tippy.show()"
   >
     <span
       class="flex items-center justify-center px-4 cursor-pointer"
@@ -25,7 +25,7 @@
         trigger="click"
         theme="popover"
         arrow
-        :on-shown="() => tippyActions.focus()"
+        :on-shown="() => tippyActions!.focus()"
       >
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -38,10 +38,10 @@
             class="flex flex-col focus:outline-none"
             tabindex="0"
             role="menu"
-            @keyup.e="edit.$el.click()"
-            @keyup.d="duplicate.$el.click()"
-            @keyup.delete="deleteAction.$el.click()"
-            @keyup.escape="options.tippy().hide()"
+            @keyup.e="edit!.$el.click()"
+            @keyup.d="duplicate!.$el.click()"
+            @keyup.delete="deleteAction!.$el.click()"
+            @keyup.escape="options!.tippy().hide()"
           >
             <SmartItem
               ref="edit"
@@ -108,6 +108,8 @@ import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconMoreVertical from "~icons/lucide/more-vertical"
+import { TippyComponent } from "vue-tippy"
+import SmartItem from "@components/smart/Item.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -123,11 +125,11 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
-const tippyActions = ref<any | null>(null)
-const options = ref<any | null>(null)
-const edit = ref<any | null>(null)
-const duplicate = ref<any | null>(null)
-const deleteAction = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
+const options = ref<TippyComponent | null>(null)
+const edit = ref<typeof SmartItem | null>(null)
+const duplicate = ref<typeof SmartItem | null>(null)
+const deleteAction = ref<typeof SmartItem | null>(null)
 
 const removeEnvironment = () => {
   pipe(

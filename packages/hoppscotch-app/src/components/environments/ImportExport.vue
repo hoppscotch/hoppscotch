@@ -12,7 +12,7 @@
           interactive
           trigger="click"
           theme="popover"
-          :on-shown="() => tippyActions.focus()"
+          :on-shown="() => tippyActions!.focus()"
         >
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -123,6 +123,7 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe } from "fp-ts/function"
 import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
 import { GQLError } from "~/helpers/backend/GQLClient"
+import { TippyComponent } from "vue-tippy"
 
 const props = defineProps<{
   show: boolean
@@ -153,7 +154,7 @@ const currentSelectedEnvionmentType = computed(() => {
 })
 
 // Template refs
-const tippyActions = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const environmentJson = computed(() => {

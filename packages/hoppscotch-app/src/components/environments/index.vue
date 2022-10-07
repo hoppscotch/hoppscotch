@@ -7,7 +7,7 @@
         trigger="click"
         theme="popover"
         arrow
-        :on-shown="() => tippyActions.focus()"
+        :on-shown="() => tippyActions!.focus()"
       >
         <span
           v-tippy="{ theme: 'tooltip' }"
@@ -182,6 +182,7 @@ import {
 import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import IconCheck from "~icons/lucide/check"
+import { TippyComponent } from "vue-tippy"
 
 const t = useI18n()
 
@@ -319,5 +320,5 @@ const getErrorMessage = (err: GQLError<string>) => {
 }
 
 // Template refs
-const tippyActions = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
 </script>

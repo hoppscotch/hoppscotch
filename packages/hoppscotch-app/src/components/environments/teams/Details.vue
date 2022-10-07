@@ -209,7 +209,7 @@ const liveEnvs = computed(() => {
   if (evnExpandError.value) {
     return []
   } else {
-    return [...vars.value.map((x) => ({ ...x, source: name.value! }))]
+    return [...vars.value.map((x) => ({ ...x.env, source: name.value! }))]
   }
 })
 

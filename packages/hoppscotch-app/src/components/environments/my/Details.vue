@@ -226,10 +226,10 @@ const liveEnvs = computed(() => {
   }
 
   if (props.editingEnvironmentIndex === "Global") {
-    return [...vars.value.map((x) => ({ ...x, source: name.value! }))]
+    return [...vars.value.map((x) => ({ ...x.env, source: name.value! }))]
   } else {
     return [
-      ...vars.value.map((x) => ({ ...x, source: name.value! })),
+      ...vars.value.map((x) => ({ ...x.env, source: name.value! })),
       ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
     ]
   }

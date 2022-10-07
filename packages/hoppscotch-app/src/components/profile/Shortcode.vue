@@ -18,7 +18,7 @@
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.open_workspace')"
-        :to="`https://hopp.sh/r/${shortcode.id}`"
+        :to="`${shortcodeBaseURL}/r/${shortcode.id}`"
         blank
         :icon="IconExternalLink"
         class="px-3 text-accent hover:text-accent"
@@ -105,8 +105,11 @@ const requestLabelColor = computed(() =>
 
 const dateStamp = computed(() => shortDateTime(props.shortcode.createdOn))
 
+const shortcodeBaseURL =
+  import.meta.env.VITE_SHORTCODE_BASE_URL ?? "https://hopp.sh"
+
 const copyShortcode = (codeID: string) => {
-  copyToClipboard(`https://hopp.sh/r/${codeID}`)
+  copyToClipboard(`${shortcodeBaseURL}/r/${codeID}`)
   toast.success(`${t("state.copied_to_clipboard")}`)
   copyIconRefs.value = IconCheck
 }

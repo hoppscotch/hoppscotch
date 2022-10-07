@@ -32,7 +32,11 @@
             v-for="(member, index) in team.teamMembers"
             :key="`member-${index}`"
             v-tippy="{ theme: 'tooltip' }"
-            :title="member.user.displayName"
+            :title="
+              member.user.displayName ||
+              member.user.email ||
+              t('default_hopp_displayName')
+            "
             class="inline-flex"
           >
             <ProfilePicture
@@ -43,7 +47,7 @@
             />
             <ProfilePicture
               v-else
-              :initial="member.user.displayName"
+              :initial="member.user.displayName || member.user.email"
               class="ring-primary ring-2"
             />
           </div>
@@ -193,6 +197,7 @@ const props = defineProps<{
       user: {
         displayName: string
         photoURL: string | null
+        email: string | null
       }
     }>
   }

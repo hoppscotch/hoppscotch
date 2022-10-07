@@ -42,11 +42,11 @@
         ]"
       />
       {{ label }}
-      <div v-if="shortcut.length" class="ml-2 <sm:hidden">
+      <div v-if="shortcut.length" class="<sm:hidden">
         <kbd
           v-for="(key, index) in shortcut"
           :key="`key-${index}`"
-          class="shortcut-key"
+          class="shortcut-key !bg-inherit"
         >
           {{ key }}
         </kbd>

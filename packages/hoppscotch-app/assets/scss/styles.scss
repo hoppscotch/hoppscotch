@@ -464,6 +464,7 @@ pre.ace_editor {
   @apply px-1;
   @apply border border-dividerDark;
   @apply shadow-sm;
+  @apply <sm:hidden;
 }
 
 .capitalize-first {
@@ -476,6 +477,10 @@ details {
 
 details summary::-webkit-details-marker {
   @apply hidden;
+}
+
+details summary .indicator {
+  @apply transition;
 }
 
 details[open] summary .indicator {

@@ -11,22 +11,19 @@
     <Pane
       :size="PANE_MAIN_SIZE"
       min-size="65"
-      class="hide-scrollbar !overflow-auto flex flex-col"
+      class="flex flex-col !overflow-auto"
     >
       <Splitpanes
         class="smart-splitter"
         :horizontal="COLUMN_LAYOUT"
         @resize="setPaneEvent($event, 'horizontal')"
       >
-        <Pane
-          :size="PANE_MAIN_TOP_SIZE"
-          class="hide-scrollbar !overflow-auto flex flex-col"
-        >
+        <Pane :size="PANE_MAIN_TOP_SIZE" class="flex flex-col !overflow-auto">
           <slot name="primary" />
         </Pane>
         <Pane
           :size="PANE_MAIN_BOTTOM_SIZE"
-          class="flex flex-col hide-scrollbar !overflow-auto"
+          class="flex flex-col !overflow-auto"
         >
           <slot name="secondary" />
         </Pane>
@@ -36,7 +33,7 @@
       v-if="SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
       min-size="20"
-      class="!overflow-auto flex flex-col bg-primaryContrast"
+      class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
     </Pane>

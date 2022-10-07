@@ -74,7 +74,9 @@
     </div>
     <div v-else-if="!loading">
       <EnvironmentsTeamsEnvironment
-        v-for="(environment, index) in teamEnvironments"
+        v-for="(environment, index) in JSON.parse(
+          JSON.stringify(teamEnvironments)
+        )"
         :key="`environment-${index}`"
         :environment="environment"
         :is-viewer="team?.myRole === 'VIEWER'"

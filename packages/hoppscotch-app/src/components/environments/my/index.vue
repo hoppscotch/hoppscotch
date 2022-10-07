@@ -32,7 +32,6 @@
     <EnvironmentsMyEnvironment
       v-for="(environment, index) in environments"
       :key="`environment-${index}`"
-      environment-type="my-environment"
       :environment-index="index"
       :environment="environment"
       @edit-environment="editEnvironment(index)"

@@ -16,7 +16,6 @@ export default class TeamEnvironmentAdapter {
   loading$: BehaviorSubject<boolean>
   teamEnvironmentList$: BehaviorSubject<TeamEnvironment[]>
 
-  private timeoutHandle: ReturnType<typeof setTimeout> | null
   private isDispose: boolean
 
   private teamEnvironmentCreated$: Subscription | null
@@ -31,8 +30,7 @@ export default class TeamEnvironmentAdapter {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
     this.loading$ = new BehaviorSubject<boolean>(false)
     this.teamEnvironmentList$ = new BehaviorSubject<TeamEnvironment[]>([])
-    this.timeoutHandle = null
-    this.isDispose = false
+    this.isDispose = true
 
     this.teamEnvironmentCreated$ = null
     this.teamEnvironmentDeleted$ = null
@@ -64,17 +62,16 @@ export default class TeamEnvironmentAdapter {
   }
 
   async initialize() {
-    if (this.timeoutHandle) throw new Error(`Adapter already initialized`)
-    if (this.isDispose) throw new Error(`Adapter has been disposed`)
+    if (!this.isDispose) throw new Error(`Adapter is already initialized`)
 
     await this.fetchList()
     this.registerSubscriptions()
   }
 
   public dispose() {
+    if (this.isDispose) throw new Error(`Adapter has been disposed`)
+
     this.isDispose = true
-    clearTimeout(this.timeoutHandle as any)
-    this.timeoutHandle = null
     this.unsubscribeSubscriptions()
   }
 

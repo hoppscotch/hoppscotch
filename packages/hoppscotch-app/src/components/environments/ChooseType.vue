@@ -16,7 +16,6 @@
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
-            ref="options"
             interactive
             trigger="click"
             theme="popover"
@@ -138,8 +137,6 @@ const onTeamSelectIntersect = () => {
 const updateEnvironmentType = (tabID: EnvironmentTabs) => {
   emit("update-environment-type", tabID)
 }
-
-const options = ref<any | null>(null)
 
 const updateSelectedTeam = (team: SelectedTeam) => {
   REMEMBERED_TEAM_ID.value = team?.id

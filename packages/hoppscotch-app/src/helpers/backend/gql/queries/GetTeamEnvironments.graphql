@@ -1,0 +1,10 @@
+query GetTeamEnvironments($teamID: ID!){
+  team(teamID: $teamID){
+    teamEnvironments{
+      id
+      name
+      variables
+      teamID
+    }
+  }
+}

@@ -101,18 +101,12 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex space-x-2">
+      <span class="flex">
         <ButtonPrimary
           :label="`${t('action.save')}`"
-          outline
           @click="saveEnvironment"
         />
-        <ButtonSecondary
-          :label="`${t('action.cancel')}`"
-          outline
-          filled
-          @click="hideModal"
-        />
+        <ButtonSecondary :label="`${t('action.cancel')}`" @click="hideModal" />
       </span>
     </template>
   </SmartModal>
@@ -120,7 +114,7 @@
 
 <script setup lang="ts">
 import IconTrash2 from "~icons/lucide/trash-2"
-import IconCheck from "~icons/lucide/check"
+import IconDone from "~icons/lucide/check"
 import IconPlus from "~icons/lucide/plus"
 import IconTrash from "~icons/lucide/trash"
 import { clone } from "lodash-es"
@@ -137,8 +131,8 @@ import {
   getEnvironment,
   getGlobalVariables,
   globalEnv$,
-  setCurrentEnvironment,
   setGlobalEnvVariables,
+  setSelectedEnvironmentIndex,
   updateEnvironment,
 } from "~/newstore/environments"
 import { useI18n } from "@composables/i18n"
@@ -184,7 +178,7 @@ const vars = ref<EnvironmentVariable[]>([
   { id: idTicker.value++, env: { key: "", value: "" } },
 ])
 
-const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconCheck>(
+const clearIcon = refAutoReset<typeof IconTrash2 | typeof IconDone>(
   IconTrash2,
   1000
 )
@@ -203,7 +197,10 @@ const workingEnv = computed(() => {
       variables: props.envVars(),
     }
   } else if (props.editingEnvironmentIndex !== null) {
-    return getEnvironment(props.editingEnvironmentIndex)
+    return getEnvironment({
+      type: "MY_ENV",
+      index: props.editingEnvironmentIndex,
+    })
   } else {
     return null
   }
@@ -229,10 +226,10 @@ const liveEnvs = computed(() => {
   }
 
   if (props.editingEnvironmentIndex === "Global") {
-    return [...vars.value.map((x) => ({ ...x, source: name.value! }))]
+    return [...vars.value.map((x) => ({ ...x.env, source: name.value! }))]
   } else {
     return [
-      ...vars.value.map((x) => ({ ...x, source: name.value! })),
+      ...vars.value.map((x) => ({ ...x.env, source: name.value! })),
       ...globalVars.value.map((x) => ({ ...x, source: "Global" })),
     ]
   }
@@ -255,16 +252,8 @@ watch(
 )
 
 const clearContent = () => {
-  vars.value = [
-    {
-      id: idTicker.value++,
-      env: {
-        key: "",
-        value: "",
-      },
-    },
-  ]
-  clearIcon.value = IconCheck
+  vars.value = []
+  clearIcon.value = IconDone
   toast.success(`${t("state.cleared")}`)
 }
 
@@ -307,7 +296,10 @@ const saveEnvironment = () => {
     // Creating a new environment
     createEnvironment(name.value)
     updateEnvironment(envList.value.length - 1, environmentUpdated)
-    setCurrentEnvironment(envList.value.length - 1)
+    setSelectedEnvironmentIndex({
+      type: "MY_ENV",
+      index: envList.value.length - 1,
+    })
     toast.success(`${t("environment.created")}`)
   } else if (props.editingEnvironmentIndex === "Global") {
     // Editing the Global environment

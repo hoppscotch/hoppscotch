@@ -1,0 +1,7 @@
+mutation UpdateTeamEnvironment($variables: String!,$id: ID!,$name: String!){
+  updateTeamEnvironment( variables: $variables ,id: $id ,name: $name){
+    variables
+    name
+    id
+  }
+}

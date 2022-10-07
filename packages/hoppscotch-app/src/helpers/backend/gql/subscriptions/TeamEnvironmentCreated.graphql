@@ -1,0 +1,8 @@
+subscription TeamEnvironmentCreated ($teamID: ID!) {
+  teamEnvironmentCreated(teamID: $teamID) {
+    id
+    teamID
+    name
+    variables
+  }
+}

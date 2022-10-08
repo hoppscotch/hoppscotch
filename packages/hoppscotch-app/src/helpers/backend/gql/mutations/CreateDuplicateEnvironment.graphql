@@ -1,0 +1,8 @@
+mutation CreateDuplicateEnvironment($id: ID!){
+  createDuplicateEnvironment (id: $id ){
+    id
+    teamID
+    name
+    variables
+  }
+}

@@ -14,6 +14,7 @@ import {
   AggregateEnvironment,
   aggregateEnvs$,
   getAggregateEnvs,
+  getSelectedEnvironmentType,
 } from "~/newstore/environments"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
@@ -73,6 +74,11 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const finalEnv = E.isLeft(result) ? "error" : result.right
 
+      const selectedEnvType = getSelectedEnvironmentType()
+
+      const envTypeIcon = `<i class="material-icons inline-flex items-center">${
+        selectedEnvType === "TEAM_ENV" ? "people" : "person"
+      }</i>`
       return {
         pos: start,
         end: to,
@@ -81,11 +87,15 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         create() {
           const dom = document.createElement("span")
           const kbd = document.createElement("kbd")
+          const icon = document.createElement("span")
+          icon.innerHTML = envTypeIcon
           kbd.textContent = finalEnv
+          dom.appendChild(icon)
           dom.appendChild(document.createTextNode(`${envName} `))
           dom.appendChild(kbd)
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
+          icon.className = "env-icon"
           return { dom }
         },
       }

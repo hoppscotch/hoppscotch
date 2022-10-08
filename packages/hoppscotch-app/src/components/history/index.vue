@@ -56,7 +56,7 @@
           />
         </summary>
         <component
-          :is="page == 'rest' ? HistoryRestCard : HistoryGraphqlCard"
+          :is="page === 'rest' ? HistoryRestCard : HistoryGraphqlCard"
           v-for="(entry, index) in filteredHistoryGroup"
           :id="index"
           :key="`entry-${index}`"
@@ -122,7 +122,7 @@ import {
   isEqualHoppRESTRequest,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
-import { groupBy } from "lodash-es"
+import { groupBy, escapeRegExp } from "lodash-es"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -213,7 +213,10 @@ const filteredHistory = computed(() =>
         return (
           !!input.updatedOn &&
           (filterText.value.length === 0 ||
-            deepCheckForRegex(input, new RegExp(filterText.value, "gi")))
+            deepCheckForRegex(
+              input,
+              new RegExp(escapeRegExp(filterText.value), "gi")
+            ))
         )
       }
     ),

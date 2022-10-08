@@ -15,19 +15,25 @@ jobs:
         node-version: ["lts/*"]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Setup Environment
+        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
       - uses: actions/setup-node@v2
+
       - name: Setup and run pnpm install
         uses: pnpm/action-setup@v2.2.2
-        env:
-          VITE_BACKEND_GQL_URL: ${{ secrets.BACKEND_GQL_URL }}
         with:
           version: 7
           run_install: true
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
+
       - name: Run tests
         run: pnpm test

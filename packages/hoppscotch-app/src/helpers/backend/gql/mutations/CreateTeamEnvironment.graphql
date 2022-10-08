@@ -1,0 +1,7 @@
+mutation CreateTeamEnvironment($variables: String!,$teamID: ID!,$name: String!){
+  createTeamEnvironment( variables: $variables ,teamID: $teamID ,name: $name){
+    variables
+    name
+    teamID
+  }
+}

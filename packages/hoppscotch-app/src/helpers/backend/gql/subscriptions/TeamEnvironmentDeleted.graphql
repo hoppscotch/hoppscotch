@@ -1,0 +1,5 @@
+subscription TeamEnvironmentDeleted ($teamID: ID!) {
+  teamEnvironmentDeleted(teamID: $teamID) {
+    id
+  }
+}

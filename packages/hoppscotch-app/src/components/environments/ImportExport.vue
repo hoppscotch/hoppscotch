@@ -12,7 +12,7 @@
           interactive
           trigger="click"
           theme="popover"
-          :on-shown="() => tippyActions.focus()"
+          :on-shown="() => tippyActions!.focus()"
         >
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -70,7 +70,11 @@
       </span>
     </template>
     <template #body>
-      <div class="flex flex-col space-y-2">
+      <div v-if="loading" class="flex flex-col items-center justify-center p-4">
+        <SmartSpinner class="my-4" />
+        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+      </div>
+      <div v-else class="flex flex-col space-y-2">
         <SmartItem
           :icon="IconFolderPlus"
           :label="t('import.from_json')"
@@ -112,10 +116,19 @@ import {
   environments$,
   replaceEnvironments,
   appendEnvironments,
+  getSelectedEnvironmentType,
 } from "~/newstore/environments"
+import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
+import * as TE from "fp-ts/TaskEither"
+import { pipe } from "fp-ts/function"
+import { createTeamEnvironment } from "~/helpers/backend/mutations/TeamEnvironment"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { TippyComponent } from "vue-tippy"
 
-defineProps<{
+const props = defineProps<{
   show: boolean
+  teamEnvironments?: TeamEnvironment[]
+  teamId?: string | undefined
 }>()
 
 const emit = defineEmits<{
@@ -124,15 +137,38 @@ const emit = defineEmits<{
 
 const toast = useToast()
 const t = useI18n()
-const environments = useReadonlyStream(environments$, [])
+
+const loading = ref(false)
+
+const myEnvironments = useReadonlyStream(environments$, [])
 const currentUser = useReadonlyStream(currentUser$, null)
 
+const selectedEnvType = getSelectedEnvironmentType()
+
+const currentSelectedEnvionmentType = computed(() => {
+  if (selectedEnvType === "MY_ENV" || props.teamEnvironments === undefined) {
+    return "MY_ENV"
+  } else {
+    return "TEAM_ENV"
+  }
+})
+
 // Template refs
-const tippyActions = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const environmentJson = computed(() => {
-  return JSON.stringify(environments.value, null, 2)
+  if (
+    currentSelectedEnvionmentType.value === "TEAM_ENV" &&
+    props.teamEnvironments !== undefined
+  ) {
+    const teamEnvironments = props.teamEnvironments.map(
+      (x) => x.environment as Environment
+    )
+    return JSON.stringify(teamEnvironments, null, 2)
+  } else {
+    return JSON.stringify(myEnvironments.value, null, 2)
+  }
 })
 
 const createEnvironmentGist = async () => {
@@ -196,8 +232,13 @@ const readEnvironmentGist = async () => {
       }
     }
     const environments = JSON.parse(Object.values(files)[0].content)
-    replaceEnvironments(environments)
-    fileImported()
+
+    if (currentSelectedEnvionmentType.value === "MY_ENV") {
+      replaceEnvironments(environments)
+      fileImported()
+    } else {
+      importToTeams(environments)
+    }
   } catch (e) {
     failedImport()
     console.error(e)
@@ -211,6 +252,34 @@ const hideModal = () => {
 const openDialogChooseFileToImportFrom = () => {
   if (inputChooseFileToImportFrom.value)
     inputChooseFileToImportFrom.value.click()
+}
+
+const importToTeams = async (content: Environment[]) => {
+  loading.value = true
+  for (const [i, env] of content.entries()) {
+    if (i === content.length - 1) {
+      loading.value = false
+      hideModal()
+      fileImported()
+    } else {
+      await pipe(
+        createTeamEnvironment(
+          JSON.stringify(env.variables),
+          props.teamId as string,
+          env.name
+        ),
+        TE.match(
+          (err: GQLError<string>) => {
+            console.error(err)
+            toast.error(`${getErrorMessage(err)}`)
+          },
+          () => {
+            // wait for all the environments to be created then fire the toast
+          }
+        )
+      )()
+    }
+  }
 }
 
 const importFromJSON = () => {
@@ -235,6 +304,7 @@ const importFromJSON = () => {
     }
 
     const environments = JSON.parse(content)
+
     if (
       environments._postman_variable_scope === "environment" ||
       environments._postman_variable_scope === "globals"
@@ -256,8 +326,12 @@ const importFromJSON = () => {
 }
 
 const importFromHoppscotch = (environments: Environment[]) => {
-  appendEnvironments(environments)
-  fileImported()
+  if (currentSelectedEnvionmentType.value === "MY_ENV") {
+    appendEnvironments(environments)
+    fileImported()
+  } else {
+    importToTeams(environments)
+  }
 }
 
 const importFromPostman = ({
@@ -289,5 +363,18 @@ const exportJSON = () => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }, 1000)
+}
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_environment/not_found":
+        return t("team_environment.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
 }
 </script>

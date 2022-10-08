@@ -1,17 +1,17 @@
 {
   "action": {
-    "autoscroll": "Autoscroll",
+    "autoscroll": "자동 스크롤",
     "cancel": "취소",
     "choose_file": "파일 선택",
     "clear": "지우기",
     "clear_all": "모두 지우기",
-    "close": "Close",
+    "close": "닫기",
     "connect": "연결",
     "copy": "복사",
     "delete": "삭제",
     "disconnect": "연결 해제",
     "dismiss": "닫기",
-    "dont_save": "Don't save",
+    "dont_save": "저장 안함",
     "download_file": "파일 다운로드",
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "복제",
@@ -20,7 +20,7 @@
     "go_back": "돌아가기",
     "label": "이름",
     "learn_more": "더 알아보기",
-    "less": "Less",
+    "less": "접기",
     "more": "더보기",
     "new": "추가",
     "no": "아니요",
@@ -138,7 +138,7 @@
     "remove_request": "이 요청을 영구적으로 삭제하겠습니까?",
     "remove_team": "이 팀을 삭제하겠습니까?",
     "remove_telemetry": "진단 데이터를 보내지 않겠습니까?",
-    "request_change": "Are you sure you want to discard current request, unsaved changes will be lost.",
+    "request_change": "현재 요청을 취소하시겠습니까? 저장되지 않은 변경사항은 삭제됩니다.",
     "sync": "이 작업 공간을 동기화하겠습니까?"
   },
   "count": {
@@ -210,7 +210,7 @@
     "network_fail": "요청을 보낼 수 없습니다.",
     "no_duration": "소요 시간 없음",
     "no_results_found": "No matches found",
-    "page_not_found": "This page could not be found",
+    "page_not_found": "해당 페이지를 찾을 수 없습니다.",
     "script_fail": "사전 요청 스크립트를 실행할 수 없습니다.",
     "something_went_wrong": "문제가 발생했습니다.",
     "test_script_fail": "테스트 스크립트를 실행할 수 없습니다."
@@ -276,12 +276,12 @@
     "from_postman_description": "Postman 모음집을 가져옵니다.",
     "from_url": "URL에서 가져오기",
     "gist_url": "Gist URL 입력",
-    "import_from_url_invalid_fetch": "Couldn't get data from the url",
-    "import_from_url_invalid_file_format": "Error while importing collections",
-    "import_from_url_invalid_type": "Unsupported type. accepted values are 'hoppscotch', 'openapi', 'postman', 'insomnia'",
-    "import_from_url_success": "Collections Imported",
+    "import_from_url_invalid_fetch": "URL에서 데이터를 가져올 수 없습니다.",
+    "import_from_url_invalid_file_format": "모음집을 가져오는데 실패하였습니다.",
+    "import_from_url_invalid_type": "지원되지 않는 타입입니다. 지원되는 타입은 'hoppscotch', 'openapi', 'postman', 'insomnia' 입니다.",
+    "import_from_url_success": "모음집을 성공적으로 가져왔습니다.",
     "json_description": "호프스카치 모음집 JSON 파일을 가져옵니다.",
-    "title": "가저오기"
+    "title": "가져오기"
   },
   "layout": {
     "collapse_collection": "Collapse or Expand Collections",
@@ -295,7 +295,7 @@
     "collections": "모음집",
     "confirm": "확인",
     "edit_request": "요청 수정",
-    "import_export": "가저오기 / 내보내기"
+    "import_export": "가져오기 / 내보내기"
   },
   "mqtt": {
     "communication": "통신",
@@ -360,9 +360,9 @@
     "invalid_name": "요청 이름을 바르게 입력하세요.",
     "method": "메서드",
     "name": "요청 이름",
-    "new": "New Request",
-    "override": "Override",
-    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
+    "new": "새로운 요청",
+    "override": "덮어쓰기",
+    "override_help": "헤더에 <kbd>Content-Type</kbd>를 설정해주세요.",
     "overriden": "Overridden",
     "parameter_list": "쿼리 파라미터 목록",
     "parameters": "파라미터",
@@ -381,7 +381,7 @@
     "type": "요청 유형",
     "url": "URL",
     "variables": "변수",
-    "view_my_links": "View my links"
+    "view_my_links": "내 링크 보기"
   },
   "response": {
     "body": "응답 본문",
@@ -517,7 +517,7 @@
   },
   "show": {
     "code": "코드 표시",
-    "collection": "Expand Collection Panel",
+    "collection": "모음집 보기",
     "more": "자세히 보기",
     "sidebar": "사이드바 표시"
   },
@@ -541,9 +541,9 @@
     "connected": "연결됨",
     "connected_to": "{name}에 연결됨",
     "connecting_to": "{name}에 연결 중...",
-    "connection_error": "Failed to connect",
-    "connection_failed": "Connection failed",
-    "connection_lost": "Connection lost",
+    "connection_error": "연결 실패",
+    "connection_failed": "연결 실패",
+    "connection_lost": "연결 끊김",
     "copied_to_clipboard": "클립보드에 복사됨",
     "deleted": "삭제됨",
     "deprecated": "더 이상 사용되지 않음",

@@ -178,9 +178,9 @@
   },
   "environment": {
     "add_to_global": "Globale ekle",
-    "added": "Çevre eklendi",
+    "added": "Ortam eklendi",
     "create_new": "Yeni ortam oluştur",
-    "created": "Environment created",
+    "created": "Ortam oluşturuldu",
     "deleted": "Ortam silindi",
     "edit": "Ortamı düzenle",
     "invalid_name": "Lütfen ortam için geçerli bir ad girin",
@@ -190,7 +190,7 @@
     "no_environment_description": "Hiçbir ortam seçilmedi. Aşağıdaki değişkenlerle ne yapacağınızı seçin.",
     "select": "Ortam seçin",
     "title": "Ortamlar",
-    "updated": "Çevre güncellendi",
+    "updated": "Ortam güncellendi",
     "variable_list": "Değişken listesi"
   },
   "error": {
@@ -392,8 +392,8 @@
     "json": "JSON",
     "pdf": "PDF",
     "preview_html": "HTML'yi önizle",
-    "raw": "Çiğ",
-    "size": "Boy",
+    "raw": "Ham",
+    "size": "Boyut",
     "status": "Durum",
     "time": "Zaman",
     "title": "Cevap",

@@ -184,11 +184,13 @@
     "deleted": "Видалення середовища",
     "edit": "Редагувати середовище",
     "invalid_name": "Укажіть дійсну назву середовища",
+    "my_environments": "My Environments",
     "nested_overflow": "вкладені змінні середовища обмежені до 10 рівнів",
     "new": "Нове середовище",
     "no_environment": "Жодного середовища",
     "no_environment_description": "Не було обрано жодного середовища. Виберіть, що робити з наступними змінними.",
     "select": "Виберіть середовище",
+    "team_environments": "Team Environments",
     "title": "Середовища",
     "updated": "Environment updation",
     "variable_list": "Список змінних"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Параметри програми",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Редактор",
     "editor_description": "Редактори можуть додавати, змінювати та видаляти запити.",
     "email_verification_mail": "Лист для підтвердження електронної пошти було надіслано на вашу електронну адресу. Будь ласка, натисніть на посилання для підтвердження своєї адреси електронної пошти.",
@@ -651,6 +654,11 @@
     "title": "Команди",
     "we_sent_invite_link": "Ми надіслали запрошення всім запрошеним!",
     "we_sent_invite_link_description": "Попросіть всіх запрошених перевірити свої поштові скриньки. Перейдіть за посиланням, щоб приєднатися до команди."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "помилка тесту",

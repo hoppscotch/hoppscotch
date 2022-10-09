@@ -184,11 +184,13 @@
     "deleted": "Deleção de ambiente",
     "edit": "Editar Ambiente",
     "invalid_name": "Forneça um nome válido para o ambiente",
+    "my_environments": "My Environments",
     "nested_overflow": "Variáveis de ambiente aninhadas são limitadas a 10 níveis",
     "new": "Novo ambiente",
     "no_environment": "Sem ambiente",
     "no_environment_description": "Nenhum ambiente foi selecionado. Escolha o que fazer com as seguintes variáveis.",
     "select": "Selecione o ambiente",
+    "team_environments": "Team Environments",
     "title": "Ambientes",
     "updated": "Atualizacao de ambientes",
     "variable_list": "Lista de Variáveis"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "App Settings",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Editor",
     "editor_description": "Editores podem adicionar, editar e deletar requisições.",
     "email_verification_mail": "Um e-mail de verificação foi enviado ao seu endereço de e-mail. Por favor, clique no link para verificar seu endereço e-mail.",
@@ -651,6 +654,11 @@
     "title": "Equipes",
     "we_sent_invite_link": "Link de convite enviado para todos os convidados!",
     "we_sent_invite_link_description": "Peça a todos os convidados que verifiquem sua caixa de entrada. Clique no link para se juntar à equipe."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "teste falhou",

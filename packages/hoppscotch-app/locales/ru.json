@@ -184,11 +184,13 @@
     "deleted": "Environment deletion",
     "edit": "Редактировать среду",
     "invalid_name": "Укажите допустимое имя для среды",
+    "my_environments": "My Environments",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "Новая среда",
     "no_environment": "Нет окружающей среды",
     "no_environment_description": "No environments were selected. Choose what to do with the following variables.",
     "select": "Выберите среду",
+    "team_environments": "Team Environments",
     "title": "Среды",
     "updated": "Environment updation",
     "variable_list": "Список переменных"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Настройки приложения",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Редактор",
     "editor_description": "Редакторы могут добавлять, редактировать, а так же удалять запросы.",
     "email_verification_mail": "На вашу электронную почту отправлено письмо для подтверждения. Перейдите по ссылке из письма, чтобы подтвердить свой электронный адрес.",
@@ -651,6 +654,11 @@
     "title": "Команды",
     "we_sent_invite_link": "Мы отправили все приглашения!",
     "we_sent_invite_link_description": "Попросите тех, кого Вы пригласили, проверить их почтовые ящики. Им нужно перейди по ссылке, чтобы подтвердить вступление в эту команду."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "Тест не пройден",

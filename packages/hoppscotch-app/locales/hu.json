@@ -184,11 +184,13 @@
     "deleted": "Környezet törlése",
     "edit": "Környezet szerkesztése",
     "invalid_name": "Adjon nevet a környezetnek",
+    "my_environments": "My Environments",
     "nested_overflow": "az egymásba ágyazott környezeti változók 10 szintre vannak korlátozva",
     "new": "Új környezet",
     "no_environment": "Nincs környezet",
     "no_environment_description": "Nem lettek környezetek kiválasztva. Válassza ki, hogy mit kell tenni a következő változókkal.",
     "select": "Környezet kiválasztása",
+    "team_environments": "Team Environments",
     "title": "Környezetek",
     "updated": "Környezet frissítve",
     "variable_list": "Változólista"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Alkalmazás beállításai",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Szerkesztő",
     "editor_description": "A szerkesztők hozzáadhatnak, szerkeszthetnek és törölhetnek kéréseket.",
     "email_verification_mail": "Egy ellenőrző e-mail el lett küldve az e-mail-címére. Kattintson a hivatkozásra az e-mail-címe ellenőrzéséhez.",
@@ -651,6 +654,11 @@
     "title": "Csapatok",
     "we_sent_invite_link": "Elküldtünk egy meghívási hivatkozást az összes meghívottnak.",
     "we_sent_invite_link_description": "Kérje meg az összes meghívottat, hogy nézzék meg a beérkező leveleiket. Kattintsanak a hivatkozásra a csapathoz való csatlakozáshoz."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "teszt sikertelen",

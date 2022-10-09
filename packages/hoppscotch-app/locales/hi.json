@@ -184,11 +184,13 @@
     "deleted": " पर्यावरण विलोपन",
     "edit": " पर्यावरण संपादित करें",
     "invalid_name": " कृपया पर्यावरण के लिए एक नाम प्रदान करें",
+    "my_environments": "My Environments",
     "nested_overflow": " नेस्टेड पर्यावरण चर 10 स्तरों तक सीमित हैं",
     "new": " नया वातावरण",
     "no_environment": " कोई वातावरण नहीं",
     "no_environment_description": " कोई परिवेश नहीं चुना गया था. चुनें कि निम्नलिखित चर के साथ क्या करना है।",
     "select": " पर्यावरण का चयन करें",
+    "team_environments": "Team Environments",
     "title": " वातावरण",
     "updated": " पर्यावरण अद्यतन",
     "variable_list": " परिवर्तनीय सूची"
@@ -250,6 +252,7 @@
     "pre_request_script": " पूर्व-अनुरोध स्क्रिप्ट जावास्क्रिप्ट में लिखी जाती हैं, और अनुरोध भेजे जाने से पहले चलाई जाती हैं।",
     "script_fail": " ऐसा लगता है कि प्री-रिक्वेस्ट स्क्रिप्ट में गड़बड़ है। नीचे दी गई त्रुटि की जाँच करें और उसके अनुसार स्क्रिप्ट को ठीक करें।",
     "test_script_fail": " ऐसा लगता है कि परीक्षण स्क्रिप्ट में कोई त्रुटि है। कृपया त्रुटियों को ठीक करें और फिर से परीक्षण चलाएं",
+    "tests": "Write a test script to automate debugging.",
     "test": "डिबगिंग को स्वचालित करने के लिए एक परीक्षण स्क्रिप्ट लिखें"
   },
   "hide": {
@@ -325,6 +328,7 @@
   },
   "profile": {
     "app_settings": "एप्लिकेशन सेटिंग",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "संपादक",
     "editor_description": "संपादक अनुरोधों को जोड़ सकते हैं, संपादित कर सकते हैं और हटा सकते हैं।",
     "email_verification_mail": "आपके ईमेल पते पर एक सत्यापन ईमेल भेजा गया है। कृपया अपना ईमेल पता सत्यापित करने के लिए लिंक पर क्लिक करें।",
@@ -651,6 +655,11 @@
     "title": "टीमों",
     "we_sent_invite_link": "हमने सभी आमंत्रणों के लिए एक आमंत्रण लिंक भेजा!",
     "we_sent_invite_link_description": "सभी आमंत्रणों से उनके इनबॉक्स की जांच करने के लिए पूछें। टीम में शामिल होने के लिए लिंक पर क्लिक करें।"
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "परीक्षण विफल",

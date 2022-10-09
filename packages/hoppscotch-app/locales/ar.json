@@ -184,11 +184,13 @@
     "deleted": "حذف بيئة العمل",
     "edit": "تحرير البيئة",
     "invalid_name": "الرجاء تقديم اسم صالح للبيئة",
+    "my_environments": "My Environments",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "بيئة جديدة",
     "no_environment": "لا بيئة",
     "no_environment_description": "لم يتم اختيار أي بيئة عمل. اختر ما تريد فعله بالمتغيرات التالية.",
     "select": "حدد البيئة",
+    "team_environments": "Team Environments",
     "title": "البيئات",
     "updated": "تحديث بيئة العمل",
     "variable_list": "قائمة متغيرة"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "إعدادات التطبيق",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "محرر",
     "editor_description": "المحررين يمكنهم اضافة و تعديل و حذف الطلبات.",
     "email_verification_mail": "تم إرسال رابط التحقق إلى بريدك الإلكتروني. الرجاء الضغط على الرابط لتأكيد بريدك الإلكتروني.",
@@ -651,6 +654,11 @@
     "title": "فرق",
     "we_sent_invite_link": "لقد أرسلنا رابط دعوة لجميع المدعوين!",
     "we_sent_invite_link_description": "اطلب من جميع المدعوين التحقق من صندوق الوارد الخاص بهم. انقر على الرابط للانضمام إلى الفريق."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "فشل التجربة",

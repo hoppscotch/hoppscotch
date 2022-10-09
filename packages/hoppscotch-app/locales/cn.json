@@ -184,11 +184,13 @@
     "deleted": "环境已删除",
     "edit": "编辑环境",
     "invalid_name": "请提供有效的环境名称",
+    "my_environments": "My Environments",
     "nested_overflow": "环境嵌套深度超过限制（10层）",
     "new": "新建环境",
     "no_environment": "无环境",
     "no_environment_description": "没有选择环境。选择如何处理以下变量。",
     "select": "选择环境",
+    "team_environments": "Team Environments",
     "title": "环境",
     "updated": "环境已更新",
     "variable_list": "变量列表"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "应用设置",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "编辑者",
     "editor_description": "编辑者可以添加、编辑和删除请求。",
     "email_verification_mail": "确认邮件已发送至你的邮箱，请点击链接以验证你的电子邮箱。",
@@ -651,6 +654,11 @@
     "title": "团队",
     "we_sent_invite_link": "我们向所有受邀者发送了邀请链接！",
     "we_sent_invite_link_description": "请所有受邀者检查他们的收件箱，点击链接以加入团队。"
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "测试失败",

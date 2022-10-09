@@ -184,11 +184,13 @@
     "deleted": "Mediu șters",
     "edit": "Editați mediul",
     "invalid_name": "Vă rugăm să furnizați un nume valid pentru mediu",
+    "my_environments": "My Environments",
     "nested_overflow": "Variabilele de mediu impricate sunt limitate la 10 nivele",
     "new": "Mediu nou",
     "no_environment": "Fără mediu",
     "no_environment_description": "Niciun mediu nu a fost selectat. Alegeți acțiuni pentru următoarele variabile.",
     "select": "Selectați mediul",
+    "team_environments": "Team Environments",
     "title": "Medii",
     "updated": "Mediu actualizat",
     "variable_list": "Lista variabilelor"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Setări aplicație",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Editor",
     "editor_description": "Editorii pot adăuga, edita și șterge cereri.",
     "email_verification_mail": "Un email de verificare a fost trimis la adresa dumneavoastră de email. Apăsați link-ul pentru verificarea adresei.",
@@ -651,6 +654,11 @@
     "title": "Echipe",
     "we_sent_invite_link": "Am trimis un link de invitație către toți invitații!",
     "we_sent_invite_link_description": "Rugați toate persoanele invitate să iși verifice căsuța. Click pe link pentru a se alătura echipei."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "test eșuat",

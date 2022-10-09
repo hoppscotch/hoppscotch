@@ -184,11 +184,13 @@
     "deleted": "Environment dihapus",
     "edit": "Sunting Environment",
     "invalid_name": "Tolong beri nama untuk environment",
+    "my_environments": "My Environments",
     "nested_overflow": "variabel environment bersarang dibatasi hingga 10 level",
     "new": "Environment Baru",
     "no_environment": "No environment",
     "no_environment_description": "Tidak ada environment yang dipilih. Pilih apa yang harus dilakukan dengan variabel berikut.",
     "select": "Pilih environment",
+    "team_environments": "Team Environments",
     "title": "Environments",
     "updated": "Environment diperbarui",
     "variable_list": "Daftar Variable"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Pengaturan aplikasi",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Editor",
     "editor_description": "Editor dapat menambah, mengedit, dan menghapus request.",
     "email_verification_mail": "Surel verifikasi telah dikirim ke alamat surel Anda. Silakan klik tautan untuk memverifikasi alamat surel Anda.",
@@ -651,6 +654,11 @@
     "title": "tim",
     "we_sent_invite_link": "Kami mengirim tautan undangan ke semua undangan!",
     "we_sent_invite_link_description": "Minta semua undangan untuk memeriksa kotak masuk mereka. Klik tautan untuk bergabung dengan tim."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "tes gagal",

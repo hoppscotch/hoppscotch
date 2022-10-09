@@ -184,11 +184,13 @@
     "deleted": "Ortam silindi",
     "edit": "Ortamı düzenle",
     "invalid_name": "Lütfen ortam için geçerli bir ad girin",
+    "my_environments": "My Environments",
     "nested_overflow": "İç içe ortam değişkenleri 10 düzeyle sınırlıdır",
     "new": "Yeni ortam",
     "no_environment": "Ortam yok",
     "no_environment_description": "Hiçbir ortam seçilmedi. Aşağıdaki değişkenlerle ne yapacağınızı seçin.",
     "select": "Ortam seçin",
+    "team_environments": "Team Environments",
     "title": "Ortamlar",
     "updated": "Ortam güncellendi",
     "variable_list": "Değişken listesi"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Uygulama ayarları",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Düzenleyici",
     "editor_description": "Editors can add, edit, and delete requests.",
     "email_verification_mail": "Doğrulama bağlantısı e-postanıza gönderildi. E-postanızı doğrulamak için gelen bağlantıya tıklayınız.",
@@ -651,6 +654,11 @@
     "title": "Başlık",
     "we_sent_invite_link": "Tüm davetlilere bir davet bağlantısı gönderdik!",
     "we_sent_invite_link_description": "Tüm davetlilerden gelen kutularını kontrol etmelerini isteyin. Ekibe katılmak için bağlantıya tıklayın."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "Test başarısız",

@@ -184,7 +184,7 @@
     "deleted": "Environment deletion",
     "edit": "Edit Environment",
     "invalid_name": "Please provide a name for the environment",
-    "my_environments":"My Environments",
+    "my_environments": "My Environments",
     "nested_overflow": "nested environment variables are limited to 10 levels",
     "new": "New Environment",
     "no_environment": "No environment",
@@ -327,6 +327,7 @@
   },
   "profile": {
     "app_settings": "App Settings",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
     "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
@@ -337,8 +338,7 @@
     "roles_description": "Roles are used to control access to the shared collections.",
     "updated": "Profile updated",
     "viewer": "Viewer",
-    "viewer_description": "Viewers can only view and use requests.",
-    "default_hopp_displayname": "Unnamed User"
+    "viewer_description": "Viewers can only view and use requests."
   },
   "remove": {
     "star": "Remove star"

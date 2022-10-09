@@ -184,11 +184,13 @@
     "deleted": "刪除環境",
     "edit": "編輯環境",
     "invalid_name": "請提供有效的環境名稱",
+    "my_environments": "My Environments",
     "nested_overflow": "巢狀環境變數不得大於 10 層",
     "new": "建立環境",
     "no_environment": "無環境",
     "no_environment_description": "未選取任何環境。請選擇要對以下變數進行的動作。",
     "select": "選擇環境",
+    "team_environments": "Team Environments",
     "title": "環境",
     "updated": "更新環境",
     "variable_list": "變數列表"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "應用程式設定",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "編輯者",
     "editor_description": "編輯者可以新增、編輯和刪除請求。",
     "email_verification_mail": "已將驗證信寄送至您的電子郵件地址。請點擊信中連結以驗證您的電子郵件地址。",
@@ -651,6 +654,11 @@
     "title": "團隊",
     "we_sent_invite_link": "我們向所有受邀者傳送了邀請連結！",
     "we_sent_invite_link_description": "請所有受邀者檢查他們的收件匣。點擊連結加入團隊。"
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "測試未通過",

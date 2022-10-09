@@ -184,11 +184,13 @@
     "deleted": "Entorn eliminat",
     "edit": "Editar l'entorn",
     "invalid_name": "Proporcioneu un nom vàlid per a l'entorn",
+    "my_environments": "My Environments",
     "nested_overflow": "Les variables d'entorn niuades estan limitades a 10 nivells",
     "new": "Nou entorn",
     "no_environment": "Sense entorn",
     "no_environment_description": "No s'ha seleccionat cap entorn. Trieu què voleu fer amb les variables següents.",
     "select": "Seleccioneu un entorn",
+    "team_environments": "Team Environments",
     "title": "Entorns",
     "updated": "Entorn actualitzat",
     "variable_list": "Llista de variables"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "Configuració de l'aplicació",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "Editor",
     "editor_description": "Els editors poden afegir, editar i eliminar sol·licituds.",
     "email_verification_mail": "S'ha enviat un correu electrònic de verificació a la vostra adreça electrònica. Feu clic a l'enllaç per verificar la vostra adreça de correu electrònic.",
@@ -651,6 +654,11 @@
     "title": "Equips",
     "we_sent_invite_link": "Hem enviat un enllaç d'invitació a tots els convidats!",
     "we_sent_invite_link_description": "Demaneu a tots els convidats que comprovin la seva safata d'entrada. Feu clic a l'enllaç per unir-vos a l'equip."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "prova fallada",

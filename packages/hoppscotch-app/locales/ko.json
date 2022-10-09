@@ -184,11 +184,13 @@
     "deleted": "Environment deletion",
     "edit": "환경 편집",
     "invalid_name": "환경 이름을 바르게 입력하세요.",
+    "my_environments": "My Environments",
     "nested_overflow": "환경 변수는 열 단계까지만 중첩될 수 있습니다.",
     "new": "새 환경",
     "no_environment": "환경 없음",
     "no_environment_description": "선택한 환경이 없습니다. 선택해주세요.",
     "select": "환경 선택",
+    "team_environments": "Team Environments",
     "title": "환경",
     "updated": "환경 수정됨",
     "variable_list": "변수 목록"
@@ -325,6 +327,7 @@
   },
   "profile": {
     "app_settings": "앱 설정",
+    "default_hopp_displayname": "Unnamed User",
     "editor": "편집자",
     "editor_description": "편집자는 요청을 추가, 수정, 삭제할 수 있습니다.",
     "email_verification_mail": "인증 이메일을 보냈습니다. 이메일에 있는 인증용 링크를 눌러주세요.",
@@ -651,6 +654,11 @@
     "title": "팀",
     "we_sent_invite_link": "모든 초대 대상에게 초대 링크를 보냈습니다.",
     "we_sent_invite_link_description": "초대 대상들이 이메일을 확인하도록 권하세요. 이메일 속 링크를 클릭하면 팀에 합류할 수 있습니다."
+  },
+  "team_environment": {
+    "deleted": "Environment Deleted",
+    "duplicate": "Environment Duplicated",
+    "not_found": "Environment not found."
   },
   "test": {
     "failed": "테스트 실패",

@@ -16,24 +16,24 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
 
       - name: Setup Environment
         run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
 
-      - uses: actions/setup-node@v2
-
-      - name: Setup and run pnpm install
-        uses: pnpm/action-setup@v2.2.2
-        with:
-          version: 7
-          run_install: true
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: pnpm
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
         run: pnpm test

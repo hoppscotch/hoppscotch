@@ -122,6 +122,7 @@ a {
 .cm-tooltip {
   .tippy-box {
     @apply fixed;
+    @apply inline-flex;
     @apply -mt-6;
   }
 }
@@ -134,7 +135,8 @@ a {
   @apply rounded;
   @apply truncate;
   @apply shadow;
-  @apply leading-body;
+  @apply leading-normal;
+  @apply items-center;
   font-size: 86%;
 
   kbd {
@@ -152,6 +154,13 @@ a {
   .tippy-svg-arrow svg {
     @apply fill-tooltip;
   }
+
+  .env-icon {
+    @apply inline-flex;
+    @apply items-center;
+    @apply mr-1;
+    @apply text-accentDark;
+  }
 }
 
 .tippy-box[data-theme="popover"] {
@@ -163,7 +172,7 @@ a {
   @apply text-secondary text-body;
   @apply p-2;
   @apply shadow-lg;
-  @apply leading-body;
+  @apply leading-normal;
   @apply border border-dividerDark;
   @apply focus: outline-none;
   scroll-behavior: smooth;

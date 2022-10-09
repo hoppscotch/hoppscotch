@@ -15,8 +15,12 @@ jobs:
         node-version: ["lts/*"]
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Environment
+        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
       - name: Setup and run pnpm install
         uses: pnpm/action-setup@v2.2.2
         env:
@@ -24,10 +28,12 @@ jobs:
         with:
           version: 7
           run_install: true
+
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
+
       - name: Run tests
         run: pnpm test

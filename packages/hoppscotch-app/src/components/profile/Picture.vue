@@ -16,9 +16,13 @@
       v-else
       class="absolute flex items-center justify-center object-cover object-center transition bg-primaryDark text-accentContrast"
       :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
-      :style="`background-color: ${toHex(initial)}`"
+      :style="`background-color: ${initial ? toHex(initial) : '#480000'}`"
     >
-      {{ initial.charAt(0).toUpperCase() }}
+      <template v-if="initial && initial.charAt(0).toUpperCase()">
+        {{ initial.charAt(0).toUpperCase() }}
+      </template>
+
+      <icon-lucide-user v-else></icon-lucide-user>
     </div>
     <span
       v-if="indicator"
@@ -30,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, PropType } from "vue"
 
 export default defineComponent({
   props: {
@@ -59,7 +63,7 @@ export default defineComponent({
       default: "5",
     },
     initial: {
-      type: String,
+      type: String as PropType<string | undefined | null>,
       default: "",
     },
   },

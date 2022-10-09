@@ -12,14 +12,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Setup Environment
+        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
       - name: Setup and run pnpm install
         uses: pnpm/action-setup@v2.2.2
         with:
           version: 7
           run_install: true
-
-      - name: Setup Environment
-        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
 
       - name: Build Site
         env:

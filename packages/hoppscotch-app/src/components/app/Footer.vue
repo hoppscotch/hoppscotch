@@ -38,7 +38,7 @@
           interactive
           trigger="click"
           theme="popover"
-          :on-shown="() => tippyActions.focus()"
+          :on-shown="() => tippyActions!.focus()"
         >
           <ButtonSecondary
             :icon="IconHelpCircle"
@@ -221,6 +221,8 @@ import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { currentUser$ } from "~/helpers/fb/auth"
+import { TippyComponent } from "vue-tippy"
+import SmartItem from "@components/smart/Item.vue"
 
 const t = useI18n()
 const showShortcuts = ref(false)
@@ -277,8 +279,8 @@ const showDeveloperOptionModal = () => {
 }
 
 // Template refs
-const tippyActions = ref<any | null>(null)
-const documentation = ref<any | null>(null)
-const shortcuts = ref<any | null>(null)
-const chat = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
+const documentation = ref<typeof SmartItem | null>(null)
+const shortcuts = ref<typeof SmartItem | null>(null)
+const chat = ref<typeof SmartItem | null>(null)
 </script>

@@ -1,18 +1,18 @@
 <template>
   <div v-show="show">
     <SmartTabs
-      :id="'collections_tab'"
-      v-model="selectedCollectionTab"
+      :id="'environments_tab'"
+      v-model="selectedEnvironmentTab"
       render-inactive-tabs
     >
       <SmartTab
-        :id="'my-collections'"
-        :label="`${t('collection.my_collections')}`"
+        :id="'my-environments'"
+        :label="`${t('environment.my_environments')}`"
       />
       <SmartTab
         v-if="currentUser"
-        :id="'team-collections'"
-        :label="`${t('collection.team_collections')}`"
+        :id="'team-environments'"
+        :label="`${t('environment.team_environments')}`"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
@@ -25,12 +25,12 @@
             <span
               v-tippy="{ theme: 'tooltip' }"
               :title="`${t('collection.select_team')}`"
-              class="bg-transparent border-b border-dividerLight select-wrapper"
+              class="bg-transparent border-t border-dividerLight select-wrapper"
             >
               <ButtonSecondary
-                v-if="collectionsType.selectedTeam"
+                v-if="environmentType.selectedTeam"
                 :icon="IconUsers"
-                :label="collectionsType.selectedTeam.name"
+                :label="environmentType.selectedTeam.name"
                 class="flex-1 !justify-start pr-8 rounded-none"
               />
               <ButtonSecondary
@@ -51,12 +51,12 @@
                   :key="`team-${index}`"
                   :label="team.name"
                   :info-icon="
-                    team.id === collectionsType.selectedTeam?.id
+                    team.id === environmentType.selectedTeam?.id
                       ? IconDone
                       : undefined
                   "
                   :active-info-icon="
-                    team.id === collectionsType.selectedTeam?.id
+                    team.id === environmentType.selectedTeam?.id
                   "
                   :icon="IconUsers"
                   @click="
@@ -76,38 +76,38 @@
 </template>
 
 <script setup lang="ts">
-import IconUsers from "~icons/lucide/users"
-import IconDone from "~icons/lucide/check"
 import { ref, watch } from "vue"
-import { GetMyTeamsQuery, Team } from "~/helpers/backend/graphql"
+import { Team } from "~/helpers/backend/graphql"
+import { onLoggedIn } from "@composables/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "@composables/stream"
-import { onLoggedIn } from "@composables/auth"
-import { useI18n } from "@composables/i18n"
 import { useLocalState } from "~/newstore/localstate"
-
-type TeamData = GetMyTeamsQuery["myTeams"][number]
-
-type CollectionTabs = "my-collections" | "team-collections"
+import { useI18n } from "@composables/i18n"
+import IconDone from "~icons/lucide/check"
+import IconUsers from "~icons/lucide/users"
 
 const t = useI18n()
 
+type SelectedTeam = Team | undefined
+
+type EnvironmentTabs = "my-environments" | "team-environments"
+
 // Template refs
 const tippyActions = ref<any | null>(null)
-const selectedCollectionTab = ref<CollectionTabs>("my-collections")
+const selectedEnvironmentTab = ref<EnvironmentTabs>("my-environments")
 
 defineProps<{
   show: boolean
-  collectionsType: {
-    type: "my-collections" | "team-collections"
-    selectedTeam: Team | undefined
+  environmentType: {
+    type: "my-environments" | "team-environments"
+    selectedTeam: SelectedTeam
   }
 }>()
 
 const emit = defineEmits<{
-  (e: "update-collection-type", tabID: string): void
-  (e: "update-selected-team", team: TeamData | undefined): void
+  (e: "update-environment-type", tabID: EnvironmentTabs): void
+  (e: "update-selected-team", team: SelectedTeam): void
 }>()
 
 const currentUser = useReadonlyStream(currentUserInfo$, null)
@@ -120,7 +120,7 @@ let teamListFetched = false
 watch(myTeams, (teams) => {
   if (teams && !teamListFetched) {
     teamListFetched = true
-    if (REMEMBERED_TEAM_ID.value && currentUser) {
+    if (REMEMBERED_TEAM_ID.value && currentUser.value) {
       const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
       if (team) updateSelectedTeam(team)
     }
@@ -136,16 +136,16 @@ const onTeamSelectIntersect = () => {
   adapter.fetchList()
 }
 
-const updateCollectionsType = (tabID: string) => {
-  emit("update-collection-type", tabID)
+const updateEnvironmentType = (tabID: EnvironmentTabs) => {
+  emit("update-environment-type", tabID)
 }
 
-const updateSelectedTeam = (team: TeamData | undefined) => {
+const updateSelectedTeam = (team: SelectedTeam) => {
   REMEMBERED_TEAM_ID.value = team?.id
   emit("update-selected-team", team)
 }
 
-watch(selectedCollectionTab, (newValue: string) => {
-  updateCollectionsType(newValue)
+watch(selectedEnvironmentTab, (newValue: EnvironmentTabs) => {
+  updateEnvironmentType(newValue)
 })
 </script>

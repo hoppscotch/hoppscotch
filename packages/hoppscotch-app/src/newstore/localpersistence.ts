@@ -38,8 +38,8 @@ import {
   addGlobalEnvVariable,
   setGlobalEnvVariables,
   globalEnv$,
-  selectedEnvIndex$,
-  setCurrentEnvironment,
+  setSelectedEnvironmentIndex,
+  selectedEnvironmentIndex$,
 } from "./environments"
 import {
   getDefaultRESTRequest,
@@ -224,11 +224,24 @@ function setupSelectedEnvPersistence() {
     ),
     O.getOrElse(() => -1) // If all the above conditions pass, we are good, else set default value (-1)
   )
+  // Check if current environment index is -1 ie. no environment is selected
+  if (selectedEnvIndex === -1) {
+    setSelectedEnvironmentIndex({
+      type: "NO_ENV_SELECTED",
+    })
+  } else {
+    setSelectedEnvironmentIndex({
+      type: "MY_ENV",
+      index: selectedEnvIndex,
+    })
+  }
 
-  setCurrentEnvironment(selectedEnvIndex)
-
-  selectedEnvIndex$.subscribe((index) => {
-    window.localStorage.setItem("selectedEnvIndex", index.toString())
+  selectedEnvironmentIndex$.subscribe((envIndex) => {
+    if (envIndex.type === "MY_ENV") {
+      window.localStorage.setItem("selectedEnvIndex", envIndex.index.toString())
+    } else {
+      window.localStorage.setItem("selectedEnvIndex", "-1")
+    }
   })
 }
 

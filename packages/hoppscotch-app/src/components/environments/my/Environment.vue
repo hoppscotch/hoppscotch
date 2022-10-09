@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex items-stretch group"
-    @contextmenu.prevent="options.tippy.show()"
+    @contextmenu.prevent="options!.tippy.show()"
   >
     <span
       class="flex items-center justify-center px-4 cursor-pointer"
@@ -23,7 +23,7 @@
         interactive
         trigger="click"
         theme="popover"
-        :on-shown="() => tippyActions.focus()"
+        :on-shown="() => tippyActions!.focus()"
       >
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -35,10 +35,13 @@
             ref="tippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
-            @keyup.e="edit.$el.click()"
-            @keyup.d="duplicate.$el.click()"
+            role="menu"
+            @keyup.e="edit!.$el.click()"
+            @keyup.d="duplicate!.$el.click()"
             @keyup.delete="
-              !(environmentIndex === 'Global') ? deleteAction.$el.click() : null
+              !(environmentIndex === 'Global')
+                ? deleteAction!.$el.click()
+                : null
             "
             @keyup.escape="hide()"
           >
@@ -110,6 +113,8 @@ import {
 } from "~/newstore/environments"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { TippyComponent } from "vue-tippy"
+import SmartItem from "@components/smart/Item.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -125,12 +130,11 @@ const emit = defineEmits<{
 
 const confirmRemove = ref(false)
 
-// Template refs
-const tippyActions = ref<any | null>(null)
-const options = ref<any | null>(null)
-const edit = ref<any | null>(null)
-const duplicate = ref<any | null>(null)
-const deleteAction = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
+const options = ref<TippyComponent | null>(null)
+const edit = ref<typeof SmartItem | null>(null)
+const duplicate = ref<typeof SmartItem | null>(null)
+const deleteAction = ref<typeof SmartItem | null>(null)
 
 const removeEnvironment = () => {
   if (props.environmentIndex === null) return

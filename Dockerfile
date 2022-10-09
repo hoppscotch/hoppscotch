@@ -17,11 +17,13 @@ COPY . .
 
 RUN npm install -g pnpm
 
+RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
 RUN pnpm i --unsafe-perm=true
 
 ENV HOST 0.0.0.0
 EXPOSE 3000
 
-RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+RUN pnpm run generate
 
-CMD ["pnpm", "run", "start", "--host", "0.0.0.0"]
+CMD ["pnpm", "run", "start"]

@@ -2,19 +2,23 @@
   <div>
     <div class="sticky top-0 z-10 flex flex-col rounded-t bg-primary">
       <tippy
+        v-if="environmentType.type === 'my-environments'"
         interactive
         trigger="click"
         theme="popover"
-        :on-shown="() => tippyActions.focus()"
+        arrow
+        :on-shown="() => tippyActions!.focus()"
       >
         <span
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('environment.select')}`"
-          class="flex-1 bg-transparent border-b border-dividerLight select-wrapper"
+          class="bg-transparent border-b border-dividerLight select-wrapper"
         >
           <ButtonSecondary
-            v-if="selectedEnvironmentIndex !== -1"
-            :label="environments[selectedEnvironmentIndex].name"
+            v-if="
+              selectedEnv.type === 'MY_ENV' && selectedEnv.index !== undefined
+            "
+            :label="myEnvironments[selectedEnv.index].name"
             class="flex-1 !justify-start pr-8 rounded-none"
           />
           <ButtonSecondary
@@ -26,31 +30,36 @@
         <template #content="{ hide }">
           <div
             ref="tippyActions"
+            role="menu"
             class="flex flex-col focus:outline-none"
             tabindex="0"
             @keyup.escape="hide()"
           >
             <SmartItem
               :label="`${t('environment.no_environment')}`"
-              :info-icon="selectedEnvironmentIndex === -1 ? IconDone : null"
-              :active-info-icon="selectedEnvironmentIndex === -1"
+              :info-icon="
+                selectedEnvironmentIndex.type !== 'MY_ENV'
+                  ? IconCheck
+                  : undefined
+              "
+              :active-info-icon="selectedEnvironmentIndex.type !== 'MY_ENV'"
               @click="
                 () => {
-                  selectedEnvironmentIndex = -1
+                  selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
                   hide()
                 }
               "
             />
-            <hr v-if="environments.length > 0" />
+            <hr v-if="myEnvironments.length > 0" />
             <SmartItem
-              v-for="(gen, index) in environments"
+              v-for="(gen, index) in myEnvironments"
               :key="`gen-${index}`"
               :label="gen.name"
-              :info-icon="index === selectedEnvironmentIndex ? IconDone : null"
-              :active-info-icon="index === selectedEnvironmentIndex"
+              :info-icon="index === selectedEnv.index ? IconCheck : undefined"
+              :active-info-icon="index === selectedEnv.index"
               @click="
                 () => {
-                  selectedEnvironmentIndex = index
+                  selectedEnvironmentIndex = { type: 'MY_ENV', index: index }
                   hide()
                 }
               "
@@ -58,140 +67,258 @@
           </div>
         </template>
       </tippy>
-      <div class="flex justify-between flex-1 border-b border-dividerLight">
-        <ButtonSecondary
-          :icon="IconPlus"
-          :label="`${t('action.new')}`"
-          class="!rounded-none"
-          @click="displayModalAdd(true)"
-        />
-        <div class="flex">
+      <tippy v-else interactive trigger="click" theme="popover" arrow>
+        <span
+          v-tippy="{ theme: 'tooltip' }"
+          :title="`${t('environment.select')}`"
+          class="bg-transparent border-b border-dividerLight select-wrapper"
+        >
           <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            to="https://docs.hoppscotch.io/features/environments"
-            blank
-            :title="t('app.wiki')"
-            :icon="IconHelpCircle"
+            v-if="selectedEnv.name"
+            :label="selectedEnv.name"
+            class="flex-1 !justify-start pr-8 rounded-none"
           />
           <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconArchive"
-            :title="t('modal.import_export')"
-            @click="displayModalImportExport(true)"
+            v-else
+            :label="`${t('environment.select')}`"
+            class="flex-1 !justify-start pr-8 rounded-none"
           />
-        </div>
-      </div>
+        </span>
+        <template #content="{ hide }">
+          <div
+            class="flex flex-col"
+            role="menu"
+            tabindex="0"
+            @keyup.escape="hide()"
+          >
+            <SmartItem
+              :label="`${t('environment.no_environment')}`"
+              :info-icon="
+                selectedEnvironmentIndex.type !== 'TEAM_ENV'
+                  ? IconCheck
+                  : undefined
+              "
+              :active-info-icon="selectedEnvironmentIndex.type !== 'TEAM_ENV'"
+              @click="
+                () => {
+                  selectedEnvironmentIndex = { type: 'NO_ENV_SELECTED' }
+                  hide()
+                }
+              "
+            />
+            <div
+              v-if="loading"
+              class="flex flex-col items-center justify-center p-4"
+            >
+              <SmartSpinner class="my-4" />
+              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+            </div>
+            <hr v-if="teamEnvironmentList.length > 0" />
+            <div
+              v-if="environmentType.selectedTeam !== undefined"
+              class="flex flex-col"
+            >
+              <SmartItem
+                v-for="(gen, index) in teamEnvironmentList"
+                :key="`gen-team-${index}`"
+                :label="gen.environment.name"
+                :info-icon="
+                  gen.id === selectedEnv.teamEnvID ? IconCheck : undefined
+                "
+                :active-info-icon="gen.id === selectedEnv.teamEnvID"
+                @click="
+                  () => {
+                    selectedEnvironmentIndex = {
+                      type: 'TEAM_ENV',
+                      teamEnvID: gen.id,
+                      teamID: gen.teamID,
+                      environment: gen.environment,
+                    }
+                    hide()
+                  }
+                "
+              />
+            </div>
+            <div
+              v-if="!loading && adapterError"
+              class="flex flex-col items-center py-4"
+            >
+              <i class="mb-4 material-icons">help_outline</i>
+              {{ getErrorMessage(adapterError) }}
+            </div>
+          </div>
+        </template>
+      </tippy>
+      <EnvironmentsChooseType
+        :environment-type="environmentType"
+        :show="showTeamEnvironment"
+        @update-environment-type="updateEnvironmentType"
+        @update-selected-team="updateSelectedTeam"
+      />
     </div>
-    <div class="flex flex-col">
-      <EnvironmentsEnvironment
-        environment-index="Global"
-        :environment="globalEnvironment"
-        class="border-b border-dashed border-dividerLight"
-        @edit-environment="editEnvironment('Global')"
-      />
-      <EnvironmentsEnvironment
-        v-for="(environment, index) in environments"
-        :key="`environment-${index}`"
-        :environment-index="index"
-        :environment="environment"
-        @edit-environment="editEnvironment(index)"
-      />
-    </div>
-    <div
-      v-if="environments.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <img
-        :src="`/images/states/${colorMode.value}/blockchain.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="`${t('empty.environments')}`"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.environments") }}
-      </span>
-      <ButtonSecondary
-        :label="`${t('add.new')}`"
-        filled
-        class="mb-4"
-        outline
-        @click="displayModalAdd(true)"
-      />
-    </div>
-    <EnvironmentsDetails
-      :show="showModalDetails"
-      :action="action"
-      :editing-environment-index="editingEnvironmentIndex"
-      @hide-modal="displayModalEdit(false)"
-    />
-    <EnvironmentsImportExport
-      :show="showModalImportExport"
-      @hide-modal="displayModalImportExport(false)"
+    <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
+    <EnvironmentsTeams
+      v-else
+      :team="environmentType.selectedTeam"
+      :team-environments="teamEnvironmentList"
+      :loading="loading"
+      :adapter-error="adapterError"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import IconDone from "~icons/lucide/check"
-import IconPlus from "~icons/lucide/plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
-import IconArchive from "~icons/lucide/archive"
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
+import { isEqual } from "lodash-es"
+import { currentUser$ } from "~/helpers/fb/auth"
+import { Team } from "~/helpers/backend/graphql"
 import { useReadonlyStream, useStream } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@composables/theming"
+import { useI18n } from "~/composables/i18n"
 import {
   environments$,
-  setCurrentEnvironment,
-  selectedEnvIndex$,
-  globalEnv$,
+  selectedEnvironmentIndex$,
+  setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
+import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import IconCheck from "~icons/lucide/check"
+import { TippyComponent } from "vue-tippy"
 
 const t = useI18n()
 
-const colorMode = useColorMode()
+type EnvironmentType = "my-environments" | "team-environments"
 
-const globalEnv = useReadonlyStream(globalEnv$, [])
+type SelectedTeam = Team | undefined
 
-const globalEnvironment = computed(() => ({
-  name: "Global",
-  variables: globalEnv.value,
-}))
+type EnvironmentsChooseType = {
+  type: EnvironmentType
+  selectedTeam: SelectedTeam
+}
 
-const environments = useReadonlyStream(environments$, [])
+const environmentType = ref<EnvironmentsChooseType>({
+  type: "my-environments",
+  selectedTeam: undefined,
+})
 
-const selectedEnvironmentIndex = useStream(
-  selectedEnvIndex$,
-  -1,
-  setCurrentEnvironment
+const currentUser = useReadonlyStream(currentUser$, null)
+
+const showTeamEnvironment = computed(() => {
+  if (currentUser.value == null) {
+    return false
+  }
+  return true
+})
+
+const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
+  environmentType.value.selectedTeam = newSelectedTeam
+}
+const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
+  environmentType.value.type = newEnvironmentType
+}
+
+const adapter = new TeamEnvironmentAdapter(undefined)
+const adapterLoading = useReadonlyStream(adapter.loading$, false)
+const adapterError = useReadonlyStream(adapter.error$, null)
+const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
+
+const loading = computed(
+  () => adapterLoading.value && teamEnvironmentList.value.length === 0
 )
 
+watch(
+  () => environmentType.value.selectedTeam?.id,
+  (newTeamID) => {
+    adapter.changeTeamID(newTeamID)
+  }
+)
+
+const myEnvironments = useReadonlyStream(environments$, [])
+
+const selectedEnvironmentIndex = useStream(
+  selectedEnvironmentIndex$,
+  { type: "NO_ENV_SELECTED" },
+  setSelectedEnvironmentIndex
+)
+
+/* Checking if there are any changes in the selected team environment when there are any updates
+in the selected team environment list */
+watch(
+  () => teamEnvironmentList.value,
+  (newTeamEnvironmentList) => {
+    if (
+      newTeamEnvironmentList.length > 0 &&
+      selectedEnvironmentIndex.value.type === "TEAM_ENV"
+    ) {
+      const selectedEnv = newTeamEnvironmentList.find(
+        (env) =>
+          env.id ===
+          (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+            selectedEnvironmentIndex.value.teamEnvID)
+      )
+
+      if (selectedEnv) {
+        // Checking if the currently selected environment is still the same after the new list is loaded
+        const isChange = !isEqual(
+          selectedEnvironmentIndex.value.environment,
+          selectedEnv.environment
+        )
+
+        if (isChange) {
+          selectedEnvironmentIndex.value = {
+            type: "TEAM_ENV",
+            teamEnvID: selectedEnv.id,
+            teamID: selectedEnv.teamID,
+            environment: selectedEnv.environment,
+          }
+        }
+      }
+    }
+  },
+  { deep: true }
+)
+
+const selectedEnv = computed(() => {
+  if (selectedEnvironmentIndex.value.type === "MY_ENV") {
+    return {
+      type: "MY_ENV",
+      index: selectedEnvironmentIndex.value.index,
+    }
+  } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
+    const teamEnv = teamEnvironmentList.value.find(
+      (env) =>
+        env.id ===
+        (selectedEnvironmentIndex.value.type === "TEAM_ENV" &&
+          selectedEnvironmentIndex.value.teamEnvID)
+    )
+    if (teamEnv) {
+      return {
+        type: "TEAM_ENV",
+        name: teamEnv.environment.name,
+        teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
+      }
+    } else {
+      selectedEnvironmentIndex.value = { type: "NO_ENV_SELECTED" }
+      return { type: "NO_ENV_SELECTED" }
+    }
+  } else {
+    selectedEnvironmentIndex.value = { type: "NO_ENV_SELECTED" }
+    return { type: "NO_ENV_SELECTED" }
+  }
+})
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_environment/not_found":
+        return t("team_environment.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
+}
+
 // Template refs
-const tippyActions = ref<any | null>(null)
-const showModalImportExport = ref(false)
-const showModalDetails = ref(false)
-const action = ref<"new" | "edit">("edit")
-const editingEnvironmentIndex = ref<number | "Global" | null>(null)
-
-const displayModalAdd = (shouldDisplay: boolean) => {
-  action.value = "new"
-  showModalDetails.value = shouldDisplay
-}
-const displayModalEdit = (shouldDisplay: boolean) => {
-  action.value = "edit"
-  showModalDetails.value = shouldDisplay
-
-  if (!shouldDisplay) resetSelectedData()
-}
-const displayModalImportExport = (shouldDisplay: boolean) => {
-  showModalImportExport.value = shouldDisplay
-}
-const editEnvironment = (environmentIndex: number | "Global") => {
-  editingEnvironmentIndex.value = environmentIndex
-  action.value = "edit"
-  displayModalEdit(true)
-}
-const resetSelectedData = () => {
-  editingEnvironmentIndex.value = null
-}
+const tippyActions = ref<TippyComponent | null>(null)
 </script>

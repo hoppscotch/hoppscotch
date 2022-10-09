@@ -6,6 +6,16 @@ import DispatchingStore, {
   defineDispatchers,
 } from "~/newstore/DispatchingStore"
 
+type SelectedEnvironmentIndex =
+  | { type: "NO_ENV_SELECTED" }
+  | { type: "MY_ENV"; index: number }
+  | {
+      type: "TEAM_ENV"
+      teamID: string
+      teamEnvID: string
+      environment: Environment
+    }
+
 const defaultEnvironmentsState = {
   environments: [
     {
@@ -16,27 +26,22 @@ const defaultEnvironmentsState = {
 
   globals: [] as Environment["variables"],
 
-  // Current environment index specifies the index
-  // -1 means no environments are selected
-  currentEnvironmentIndex: -1,
+  selectedEnvironmentIndex: {
+    type: "NO_ENV_SELECTED",
+  } as SelectedEnvironmentIndex,
 }
 
 type EnvironmentStore = typeof defaultEnvironmentsState
 
 const dispatchers = defineDispatchers({
-  setCurrentEnviromentIndex(
-    { environments }: EnvironmentStore,
-    { newIndex }: { newIndex: number }
+  setSelectedEnvironmentIndex(
+    _: EnvironmentStore,
+    {
+      selectedEnvironmentIndex,
+    }: { selectedEnvironmentIndex: SelectedEnvironmentIndex }
   ) {
-    if (newIndex >= environments.length || newIndex <= -2) {
-      // console.log(
-      //   `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
-      // )
-      return {}
-    }
-
     return {
-      currentEnvironmentIndex: newIndex,
+      selectedEnvironmentIndex,
     }
   },
   appendEnvironments(
@@ -90,22 +95,36 @@ const dispatchers = defineDispatchers({
     }
   },
   deleteEnvironment(
-    { environments, currentEnvironmentIndex }: EnvironmentStore,
+    {
+      environments,
+      // currentEnvironmentIndex,
+      selectedEnvironmentIndex,
+    }: EnvironmentStore,
     { envIndex }: { envIndex: number }
   ) {
-    let newCurrEnvIndex = currentEnvironmentIndex
+    let newCurrEnvIndex = selectedEnvironmentIndex
 
     // Scenario 1: Currently Selected Env is removed -> Set currently selected to none
-    if (envIndex === currentEnvironmentIndex) newCurrEnvIndex = -1
+    if (
+      selectedEnvironmentIndex.type === "MY_ENV" &&
+      envIndex === selectedEnvironmentIndex.index
+    )
+      newCurrEnvIndex = { type: "NO_ENV_SELECTED" }
 
     // Scenario 2: Currently Selected Env Index > Deletion Index -> Current Selection Index Shifts One Position to the left -> Correct Env Index by moving back 1 index
-    if (envIndex < currentEnvironmentIndex)
-      newCurrEnvIndex = currentEnvironmentIndex - 1
+    if (
+      selectedEnvironmentIndex.type === "MY_ENV" &&
+      envIndex < selectedEnvironmentIndex.index
+    )
+      newCurrEnvIndex = {
+        type: "MY_ENV",
+        index: selectedEnvironmentIndex.index - 1,
+      }
 
     // Scenario 3: Currently Selected Env Index < Deletion Index -> No change happens at selection position -> Noop
     return {
       environments: environments.filter((_, index) => index !== envIndex),
-      currentEnvironmentIndex: newCurrEnvIndex,
+      selectedEnvironmentIndex: newCurrEnvIndex,
     }
   },
   renameEnvironment(
@@ -263,22 +282,23 @@ export const globalEnv$ = environmentsStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const selectedEnvIndex$ = environmentsStore.subject$.pipe(
-  pluck("currentEnvironmentIndex"),
+export const selectedEnvironmentIndex$ = environmentsStore.subject$.pipe(
+  pluck("selectedEnvironmentIndex"),
   distinctUntilChanged()
 )
 
 export const currentEnvironment$ = environmentsStore.subject$.pipe(
-  map(({ currentEnvironmentIndex, environments }) => {
-    if (currentEnvironmentIndex === -1) {
+  map(({ environments, selectedEnvironmentIndex }) => {
+    if (selectedEnvironmentIndex.type === "NO_ENV_SELECTED") {
       const env: Environment = {
         name: "No environment",
         variables: [],
       }
-
       return env
+    } else if (selectedEnvironmentIndex.type === "MY_ENV") {
+      return environments[selectedEnvironmentIndex.index]
     } else {
-      return environments[currentEnvironmentIndex]
+      return selectedEnvironmentIndex.environment
     }
   })
 )
@@ -336,23 +356,35 @@ export function getAggregateEnvs() {
 }
 
 export function getCurrentEnvironment(): Environment {
-  if (environmentsStore.value.currentEnvironmentIndex === -1) {
+  if (
+    environmentsStore.value.selectedEnvironmentIndex.type === "NO_ENV_SELECTED"
+  ) {
     return {
       name: "No environment",
       variables: [],
     }
+  } else if (
+    environmentsStore.value.selectedEnvironmentIndex.type === "MY_ENV"
+  ) {
+    return environmentsStore.value.environments[
+      environmentsStore.value.selectedEnvironmentIndex.index
+    ]
+  } else {
+    return environmentsStore.value.selectedEnvironmentIndex.environment
   }
-
-  return environmentsStore.value.environments[
-    environmentsStore.value.currentEnvironmentIndex
-  ]
 }
 
-export function setCurrentEnvironment(newEnvIndex: number) {
+export function getSelectedEnvironmentType() {
+  return environmentsStore.value.selectedEnvironmentIndex.type
+}
+
+export function setSelectedEnvironmentIndex(
+  selectedEnvironmentIndex: SelectedEnvironmentIndex
+) {
   environmentsStore.dispatch({
-    dispatcher: "setCurrentEnviromentIndex",
+    dispatcher: "setSelectedEnvironmentIndex",
     payload: {
-      newIndex: newEnvIndex,
+      selectedEnvironmentIndex,
     },
   })
 }
@@ -539,6 +571,23 @@ export function updateEnvironmentVariable(
   })
 }
 
-export function getEnvironment(index: number) {
-  return environmentsStore.value.environments[index]
+type SelectedEnv =
+  | { type: "NO_ENV_SELECTED" }
+  | { type: "MY_ENV"; index: number }
+  | { type: "TEAM_ENV" }
+
+export function getEnvironment(selectedEnv: SelectedEnv) {
+  if (selectedEnv.type === "MY_ENV") {
+    return environmentsStore.value.environments[selectedEnv.index]
+  } else if (
+    selectedEnv.type === "TEAM_ENV" &&
+    environmentsStore.value.selectedEnvironmentIndex.type === "TEAM_ENV"
+  ) {
+    return environmentsStore.value.selectedEnvironmentIndex.environment
+  } else {
+    return {
+      name: "N0_ENV",
+      variables: [],
+    }
+  }
 }

@@ -1,5 +1,7 @@
 <template>
+  <!--Desktop Layout-->
   <Splitpanes
+    v-if="mdAndLarger"
     class="smart-splitter"
     :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
@@ -11,20 +13,23 @@
     <Pane
       :size="PANE_MAIN_SIZE"
       min-size="65"
-      class="flex flex-col !overflow-auto"
+      class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <Splitpanes
         class="smart-splitter"
         :horizontal="COLUMN_LAYOUT"
         @resize="setPaneEvent($event, 'horizontal')"
       >
-        <Pane :size="PANE_MAIN_TOP_SIZE" class="flex flex-col !overflow-auto">
+        <Pane
+          :size="PANE_MAIN_TOP_SIZE"
+          class="hide-scrollbar !overflow-auto flex flex-col"
+        >
           <slot name="primary" />
         </Pane>
         <Pane
           v-if="mdAndLarger || (!mdAndLarger && secondary)"
           :size="PANE_MAIN_BOTTOM_SIZE"
-          class="flex flex-col !overflow-auto"
+          class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <slot name="secondary" />
         </Pane>
@@ -35,7 +40,7 @@
       v-if="mdAndLarger && SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
       min-size="20"
-      class="flex flex-col !overflow-auto bg-primaryContrast"
+      class="hide-scrollbar !overflow-auto flex flex-col"
     >
       <slot name="sidebar" />
     </Pane>
@@ -54,6 +59,54 @@
       </template>
     </SmartSlideOver>
   </Splitpanes>
+
+  <!--Mobile Layout-->
+  <Splitpanes
+    v-else-if="(!mdAndLarger && !SIDEBAR) || !hasSidebar"
+    class="smart-splitter"
+    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
+    :class="{
+      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
+    }"
+    :horizontal="!mdAndLarger"
+  >
+    <Pane
+      size="75"
+      min-size="65"
+      class="hide-scrollbar !overflow-auto flex flex-col"
+    >
+      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto flex flex-col"
+        >
+          <slot name="primary" />
+        </Pane>
+        <Pane
+          v-if="mdAndLarger || (!mdAndLarger && secondary)"
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="flex flex-col hide-scrollbar !overflow-auto"
+        >
+          <slot name="secondary" />
+        </Pane>
+      </Splitpanes>
+    </Pane>
+  </Splitpanes>
+
+  <!--Mobile Sidebar Layout-->
+  <div v-else>
+    <AppSlideOver
+      :show="show"
+      :title="t('tab.collections')"
+      @close="SIDEBAR = !SIDEBAR"
+    >
+      <template #content>
+        <div class="hide-scrollbar !overflow-auto">
+          <slot name="sidebar" />
+        </div>
+      </template>
+    </AppSlideOver>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -92,6 +145,8 @@ const props = defineProps({
     default: false,
   },
 })
+
+const show = computed(() => !!(SIDEBAR && hasSidebar.value))
 
 type PaneEvent = {
   max: number

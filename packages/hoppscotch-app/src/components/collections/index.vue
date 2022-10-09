@@ -421,41 +421,49 @@ export default defineComponent({
     },
     // Intented to be called by the CollectionAdd modal submit event
     addNewRootCollection(name) {
-      if (this.collectionsType.type === "my-collections") {
-        addRESTCollection(
-          makeCollection({
-            name,
-            folders: [],
-            requests: [],
-          })
-        )
+      if (!this.collections.some((collection) => collection.name === name)) {
+        if (this.collectionsType.type === "my-collections") {
+          addRESTCollection(
+            makeCollection({
+              name,
+              folders: [],
+              requests: [],
+            })
+          )
 
+          this.displayModalAdd(false)
+        } else if (
+          this.collectionsType.type === "team-collections" &&
+          this.collectionsType.selectedTeam.myRole !== "VIEWER"
+        ) {
+          this.modalLoadingState = true
+          runMutation(CreateNewRootCollectionDocument, {
+            title: name,
+            teamID: this.collectionsType.selectedTeam.id,
+          })().then((result) => {
+            this.modalLoadingState = false
+            if (E.isLeft(result)) {
+              if (result.left.error === "team_coll/short_title")
+                this.toast.error(this.t("collection.name_length_insufficient"))
+              else this.toast.error(this.t("error.something_went_wrong"))
+              console.error(result.left.error)
+            } else {
+              this.toast.success(this.t("collection.created"))
+              this.displayModalAdd(false)
+            }
+          })
+        }
+      } else {
+        this.toast.error(this.t("collection.invalid_name"))
         this.displayModalAdd(false)
-      } else if (
-        this.collectionsType.type === "team-collections" &&
-        this.collectionsType.selectedTeam.myRole !== "VIEWER"
-      ) {
-        this.modalLoadingState = true
-        runMutation(CreateNewRootCollectionDocument, {
-          title: name,
-          teamID: this.collectionsType.selectedTeam.id,
-        })().then((result) => {
-          this.modalLoadingState = false
-          if (E.isLeft(result)) {
-            if (result.left.error === "team_coll/short_title")
-              this.toast.error(this.t("collection.name_length_insufficient"))
-            else this.toast.error(this.t("error.something_went_wrong"))
-            console.error(result.left.error)
-          } else {
-            this.toast.success(this.t("collection.created"))
-            this.displayModalAdd(false)
-          }
-        })
       }
     },
     // Intented to be called by CollectionEdit modal submit event
     updateEditingCollection(newName) {
-      if (!newName) {
+      if (
+        !newName ||
+        this.collections.some((collection) => collection.name === name)
+      ) {
         this.toast.error(this.t("collection.invalid_name"))
         return
       }

@@ -136,16 +136,16 @@
     "remove_folder": "Apakah Anda yakin ingin menghapus folder ini secara permanen?",
     "remove_history": "Apakah Anda yakin ingin menghapus semua riwayat secara permanen?",
     "remove_request": "Apakah Anda yakin ingin menghapus permintaan ini secara permanen?",
-    "remove_team": "Apakah Anda yakin ingin menghapus tim ini??",
+    "remove_team": "Apakah Anda yakin ingin menghapus tim ini?",
     "remove_telemetry": "Apakah Anda yakin ingin menyisih dari Telemetri?",
     "request_change": "Apakah Anda yakin ingin membuang permintaan saat ini, perubahan yang belum disimpan akan hilang.",
     "sync": "Apakah Anda ingin memulihkan ruang kerja Anda dari cloud? Ini akan membuang kemajuan lokal Anda."
   },
   "count": {
     "header": "Header {count}",
-    "message": "pesan {count}",
+    "message": "Pesan {count}",
     "parameter": "Parameter {count}",
-    "protocol": "protocol {count}",
+    "protocol": "Protocol {count}",
     "value": "Nilai {count}",
     "variable": "Variabel {count}"
   },
@@ -378,7 +378,7 @@
     "share": "Membagikan",
     "share_description": "Bagikan Hoppscotch dengan teman-teman Anda",
     "title": "Request",
-    "type": "Request Tipe",
+    "type": "Tipe Request",
     "url": "URL",
     "variables": "Variables",
     "view_my_links": "Lihat tautan saya"
@@ -434,7 +434,7 @@
     "profile_name": "Nama profil",
     "proxy": "Proxy",
     "proxy_url": "Proxy URL",
-    "proxy_use_toggle": "Gunakan middleware proxy untuk mengirim requests ",
+    "proxy_use_toggle": "Gunakan middleware proxy untuk mengirim requests",
     "read_the": "Baca",
     "reset_default": "Setel ulang ke default",
     "short_codes": "Short codes",
@@ -469,7 +469,7 @@
       "close_current_menu": "Tutup menu saat ini",
       "command_menu": "Cari & menu perintah",
       "help_menu": "Menu bantuan",
-      "show_all": "Keyboard shortcuts",
+      "show_all": "Pintasan keyboard",
       "title": "Umum"
     },
     "miscellaneous": {
@@ -478,13 +478,13 @@
     },
     "navigation": {
       "back": "Kembali ke halaman sebelumnya",
-      "documentation": "Pergi halaman Dokumentasi",
+      "documentation": "Pergi ke halaman Dokumentasi",
       "forward": "Pergi ke halaman berikutnya",
       "graphql": "Pergi ke halaman GraphQL",
       "profile": "Pergi ke halaman Profile",
       "realtime": "Pergi ke halaman Realtime",
       "rest": "Pergi ke halaman REST",
-      "settings": "Pergi halaman Pengaturan",
+      "settings": "Pergi ke halaman Pengaturan",
       "title": "Navigasi"
     },
     "request": {
@@ -519,7 +519,7 @@
     "code": "Tampilkan code",
     "collection": "Luaskan Panel Collection",
     "more": "Lebih banyak",
-    "sidebar": "memperluas sidebar"
+    "sidebar": "Memperluas sidebar"
   },
   "socketio": {
     "communication": "Komunikasi",
@@ -530,7 +530,7 @@
     "url": "URL"
   },
   "sse": {
-    "event_type": "Event tipe",
+    "event_type": "Tipe Event",
     "log": "Log",
     "url": "URL"
   },
@@ -554,7 +554,7 @@
     "download_started": "Unduhan dimulai",
     "enabled": "Diaktifkan",
     "file_imported": "File diimpor",
-    "finished_in": "Selesai di {duration} ms",
+    "finished_in": "Selesai dalam {duration} ms",
     "history_deleted": "Riwayat dihapus",
     "linewrap": "Wrap lines",
     "loading": "Memuat...",
@@ -562,22 +562,22 @@
     "mqtt_subscription_failed": "Terjadi masalah saat berlangganan topik: {topic}",
     "none": "Tidak ada",
     "nothing_found": "Tidak ada yang ditemukan untuk",
-    "published_error": "Terjadi masalah saat memublikasikan msg: {topic} ke topic: {message}",
-    "published_message": "Pesan yang dipublikasikan: {message} ke topic: {topic}",
+    "published_error": "Terjadi masalah saat memublikasikan msg: {topic} ke topik: {message}",
+    "published_message": "Pesan yang dipublikasikan: {message} ke topik: {topic}",
     "reconnection_error": "Gagal menyambung kembali",
-    "subscribed_failed": "Gagal berlangganan topic: {topic}",
-    "subscribed_success": "Berhasil berlangganan topic: {topic}",
-    "unsubscribed_failed": "Gagal berhenti berlangganan dari topic: {topic}",
-    "unsubscribed_success": "Berhasil berhenti berlangganan dari topic: {topic}",
+    "subscribed_failed": "Gagal berlangganan topik: {topic}",
+    "subscribed_success": "Berhasil berlangganan topik: {topic}",
+    "unsubscribed_failed": "Gagal berhenti berlangganan dari topik: {topic}",
+    "unsubscribed_success": "Berhasil berhenti berlangganan dari topik: {topic}",
     "waiting_send_request": "Menunggu untuk mengirim request"
   },
   "support": {
     "changelog": "Baca lebih lanjut tentang rilis terbaru",
     "chat": "Pertanyaan? berbincanglah dengan kami!",
-    "community": "Ajukan pertanyaan dan bantu orang lain",
+    "community": "Ajukan pertanyaan dan bantu orang lain",
     "documentation": "Baca lebih lanjut tentang Hoppscotch",
     "forum": "Ajukan pertanyaan dan dapatkan jawaban",
-    "github": "Ikuti kami di Github",
+    "github": "Ikuti kami di GitHub",
     "shortcuts": "Jelajahi aplikasi lebih cepat",
     "team": "Hubungi tim",
     "title": "Mendukung",
@@ -638,8 +638,8 @@
     "name_length_insufficient": "Nama tim harus setidaknya 6 karakter",
     "name_updated": "Nama tim diperbarui",
     "new": "Tim Baru",
-    "new_created": "New team created",
-    "new_name": "Tim baru dibuat",
+    "new_created": "Tim baru dibuat",
+    "new_name": "Tim baru saya",
     "no_access": "Anda tidak memiliki akses edit ke collections ini",
     "no_invite_found": "Undangan tidak ditemukan. Hubungi pemilik tim Anda.",
     "not_found": "Tim tidak ditemukan. Hubungi pemilik tim Anda.",

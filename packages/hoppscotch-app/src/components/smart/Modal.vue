@@ -37,7 +37,7 @@
             <div
               v-if="title"
               class="flex items-center justify-between border-b border-dividerLight"
-              :class="{ 'p-4': !fullWidth }"
+              :class="{ 'py-4 px-2': !fullWidth }"
             >
               <h3 class="heading" :class="{ 'ml-4': !fullWidth }">
                 {{ title }}

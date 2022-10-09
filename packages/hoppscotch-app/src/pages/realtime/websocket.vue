@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="websocket">
+  <AppPaneLayout layout-id="websocket" :secondary="hasLogs">
     <template #primary>
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
@@ -253,6 +253,8 @@ const connectionState = useReadonlyStream(
 )
 
 const log = useStream(WSLog$, [], setWSLog)
+const hasLogs = computed(() => log.value.length > 0)
+
 // DATA
 const isUrlValid = ref(true)
 

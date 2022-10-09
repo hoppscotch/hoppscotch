@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout layout-id="mqtt">
+  <AppPaneLayout layout-id="mqtt" :secondary="hasLogs">
     <template #primary>
       <div
         class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
@@ -161,6 +161,7 @@ const { subscribeToStream } = useStreamSubscriber()
 
 const url = useStream(MQTTEndpoint$, "", setMQTTEndpoint)
 const log = useStream(MQTTLog$, [], setMQTTLog)
+const hasLogs = computed(() => log.value.length > 0)
 const socket = useStream(MQTTConn$, new MQTTConnection(), setMQTTConn)
 const connectionState = useReadonlyStream(
   socket.value.connectionState$,

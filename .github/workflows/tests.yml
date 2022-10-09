@@ -23,8 +23,6 @@ jobs:
 
       - name: Setup and run pnpm install
         uses: pnpm/action-setup@v2.2.2
-        env:
-          VITE_BACKEND_GQL_URL: ${{ secrets.BACKEND_GQL_URL }}
         with:
           version: 7
           run_install: true

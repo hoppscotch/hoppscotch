@@ -46,6 +46,13 @@
         <span class="flex">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
+            blank
+            :title="Order"
+            :icon="IconSort"
+            @click="ChangeFlagOrder()"
+          />
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
             to="https://docs.hoppscotch.io/features/collections"
             blank
             :title="t('app.wiki')"
@@ -217,6 +224,7 @@
 import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import IconSort from "~icons/lucide/sort-asc"
 import { cloneDeep } from "lodash-es"
 import { defineComponent, markRaw } from "vue"
 import { makeCollection } from "@hoppscotch/data"
@@ -293,6 +301,7 @@ export default defineComponent({
       IconArchive: markRaw(IconArchive),
       IconHelpCircle: markRaw(IconHelpCircle),
       IconPlus: markRaw(IconPlus),
+      IconSort: markRaw(IconSort),
       showModalAdd: false,
       showModalEdit: false,
       showModalImportExport: false,
@@ -320,6 +329,7 @@ export default defineComponent({
       teamCollectionAdapter: new TeamCollectionAdapter(null),
       teamCollectionsNew: [],
       loadingCollectionIDs: [],
+      flagOrder: false,
     }
   },
   computed: {
@@ -335,9 +345,9 @@ export default defineComponent({
           ? this.collections
           : this.teamCollectionsNew
 
-      if (!this.filterText) {
+      /* if (!this.filterText) {
         return collections
-      }
+      }*/
 
       if (this.collectionsType.type === "team-collections") {
         return []
@@ -373,6 +383,12 @@ export default defineComponent({
           collection.name.toLowerCase().includes(filterText)
         ) {
           const filteredCollection = Object.assign({}, collection)
+          if (this.flagOrder) {
+            filteredRequests.sort((a, b) => {
+              if (a.name > b.name) return 1
+              return a.name < b.name ? -1 : 0
+            })
+          }
           filteredCollection.requests = filteredRequests
           filteredCollection.folders = filteredFolders
           filteredCollections.push(filteredCollection)
@@ -954,6 +970,9 @@ export default defineComponent({
         this.toast.error(this.t("error.something_went_wrong"))
         this.displayConfirmModal(false)
       }
+    },
+    ChangeFlagOrder() {
+      this.flagOrder = !this.flagOrder
     },
   },
 })

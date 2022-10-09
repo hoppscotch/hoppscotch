@@ -9,8 +9,11 @@ jobs:
   deploy_live_website:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to Firebase (production)
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_POSTWOMAN_API }}'

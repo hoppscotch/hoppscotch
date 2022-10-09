@@ -113,7 +113,7 @@
       </div>
     </template>
     <template v-if="!isViewer" #footer>
-      <span>
+      <span class="flex space-x-2">
         <ButtonPrimary
           :label="`${t('action.save')}`"
           :loading="isLoading"

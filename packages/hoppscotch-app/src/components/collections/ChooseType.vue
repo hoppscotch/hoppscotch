@@ -53,7 +53,7 @@
                   :info-icon="
                     team.id === collectionsType.selectedTeam?.id
                       ? IconDone
-                      : null
+                      : undefined
                   "
                   :active-info-icon="
                     team.id === collectionsType.selectedTeam?.id

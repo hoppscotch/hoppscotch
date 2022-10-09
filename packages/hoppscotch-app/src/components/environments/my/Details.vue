@@ -101,7 +101,7 @@
       </div>
     </template>
     <template #footer>
-      <span class="flex">
+      <span class="flex space-x-2">
         <ButtonPrimary
           :label="`${t('action.save')}`"
           @click="saveEnvironment"

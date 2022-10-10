@@ -65,6 +65,7 @@
     />
     <EnvironmentsImportExport
       :show="showModalImportExport"
+      environment-type="MY_ENV"
       @hide-modal="displayModalImportExport(false)"
     />
   </div>

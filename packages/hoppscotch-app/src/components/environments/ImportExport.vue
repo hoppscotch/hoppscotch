@@ -116,7 +116,6 @@ import {
   environments$,
   replaceEnvironments,
   appendEnvironments,
-  getSelectedEnvironmentType,
 } from "~/newstore/environments"
 import { TeamEnvironment } from "~/helpers/teams/TeamEnvironment"
 import * as TE from "fp-ts/TaskEither"
@@ -129,6 +128,7 @@ const props = defineProps<{
   show: boolean
   teamEnvironments?: TeamEnvironment[]
   teamId?: string | undefined
+  environmentType: "MY_ENV" | "TEAM_ENV"
 }>()
 
 const emit = defineEmits<{
@@ -143,23 +143,13 @@ const loading = ref(false)
 const myEnvironments = useReadonlyStream(environments$, [])
 const currentUser = useReadonlyStream(currentUser$, null)
 
-const selectedEnvType = getSelectedEnvironmentType()
-
-const currentSelectedEnvionmentType = computed(() => {
-  if (selectedEnvType === "MY_ENV" || props.teamEnvironments === undefined) {
-    return "MY_ENV"
-  } else {
-    return "TEAM_ENV"
-  }
-})
-
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
 const inputChooseFileToImportFrom = ref<HTMLInputElement>()
 
 const environmentJson = computed(() => {
   if (
-    currentSelectedEnvionmentType.value === "TEAM_ENV" &&
+    props.environmentType === "TEAM_ENV" &&
     props.teamEnvironments !== undefined
   ) {
     const teamEnvironments = props.teamEnvironments.map(
@@ -233,7 +223,7 @@ const readEnvironmentGist = async () => {
     }
     const environments = JSON.parse(Object.values(files)[0].content)
 
-    if (currentSelectedEnvionmentType.value === "MY_ENV") {
+    if (props.environmentType === "MY_ENV") {
       replaceEnvironments(environments)
       fileImported()
     } else {
@@ -258,9 +248,24 @@ const importToTeams = async (content: Environment[]) => {
   loading.value = true
   for (const [i, env] of content.entries()) {
     if (i === content.length - 1) {
-      loading.value = false
-      hideModal()
-      fileImported()
+      await pipe(
+        createTeamEnvironment(
+          JSON.stringify(env.variables),
+          props.teamId as string,
+          env.name
+        ),
+        TE.match(
+          (err: GQLError<string>) => {
+            console.error(err)
+            toast.error(`${getErrorMessage(err)}`)
+          },
+          () => {
+            loading.value = false
+            hideModal()
+            fileImported()
+          }
+        )
+      )()
     } else {
       await pipe(
         createTeamEnvironment(
@@ -326,7 +331,7 @@ const importFromJSON = () => {
 }
 
 const importFromHoppscotch = (environments: Environment[]) => {
-  if (currentSelectedEnvionmentType.value === "MY_ENV") {
+  if (props.environmentType === "MY_ENV") {
     appendEnvironments(environments)
     fileImported()
   } else {

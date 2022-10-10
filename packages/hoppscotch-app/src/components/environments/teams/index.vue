@@ -106,6 +106,7 @@
       :show="showModalImportExport"
       :team-environments="teamEnvironments"
       :team-id="team?.id"
+      environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
     />
   </div>

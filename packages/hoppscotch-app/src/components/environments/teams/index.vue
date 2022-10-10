@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="flex justify-between flex-1 border-y border-dividerLight">
+    <div
+      class="sticky z-10 top-upperSecondaryStickyFold flex justify-between flex-1 border-b border-dividerLight bg-primary"
+    >
       <ButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
@@ -68,6 +70,7 @@
         v-else
         :label="`${t('add.new')}`"
         filled
+        outline
         class="mb-4"
         @click="displayModalAdd(true)"
       />
@@ -106,6 +109,7 @@
       :show="showModalImportExport"
       :team-environments="teamEnvironments"
       :team-id="team?.id"
+      environment-type="TEAM_ENV"
       @hide-modal="displayModalImportExport(false)"
     />
   </div>

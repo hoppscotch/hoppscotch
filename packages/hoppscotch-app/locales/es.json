@@ -178,7 +178,7 @@
   },
   "environment": {
     "add_to_global": "Añadir a Global",
-    "added": "Añadir al entorno",
+    "added": "Añadido al entorno",
     "create_new": "Crear un nuevo entorno",
     "created": "Entorno creado",
     "deleted": "Eliminar el entorno",

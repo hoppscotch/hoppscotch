@@ -134,6 +134,11 @@ const props = defineProps<{
   conn: GQLConnection
 }>()
 
+const emit = defineEmits<{
+  (e: "save-request"): void
+  (e: "run-query", definition: gql.OperationDefinitionNode | null): void
+}>()
+
 const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
@@ -166,7 +171,7 @@ watch(
       operations.value =
         parsedQuery.definitions as gql.OperationDefinitionNode[]
     } catch (e) {
-      console.log(e)
+      // console.log(e)
     }
   },
   { immediate: true }
@@ -192,10 +197,10 @@ const clearGQLQuery = () => {
   gqlQueryString.value = ""
 }
 
-const runQuery = (e: any = null) => {
-  console.log(e)
+const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
+  emit("run-query", definition)
 }
 const saveRequest = () => {
-  console.log("save request")
+  emit("save-request")
 }
 </script>

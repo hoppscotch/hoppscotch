@@ -10,7 +10,11 @@
         :label="`${t('tab.query')}`"
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
-        <GraphqlQuery :conn="props.conn" />
+        <GraphqlQuery
+          :conn="props.conn"
+          @run-query="runQuery"
+          @save-request="saveRequest"
+        />
       </SmartTab>
       <SmartTab
         :id="'variables'"

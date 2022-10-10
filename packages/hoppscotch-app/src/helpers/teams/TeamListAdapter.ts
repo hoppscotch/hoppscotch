@@ -2,6 +2,7 @@ import * as E from "fp-ts/Either"
 import { BehaviorSubject } from "rxjs"
 import { GQLError, runGQLQuery } from "../backend/GQLClient"
 import { GetMyTeamsDocument, GetMyTeamsQuery } from "../backend/graphql"
+import { authIdToken$ } from "~/helpers/fb/auth"
 
 const BACKEND_PAGE_SIZE = 10
 const POLL_DURATION = 10000
@@ -46,6 +47,9 @@ export default class TeamListAdapter {
   }
 
   async fetchList() {
+    // if the authIdToken is not present, don't fetch the teams list, as it will fail anyway
+    if (!authIdToken$.value) return
+
     this.loading$.next(true)
 
     const results: GetMyTeamsQuery["myTeams"] = []

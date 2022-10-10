@@ -116,7 +116,7 @@ export default defineConfig({
         name: APP_INFO.name,
         short_name: APP_INFO.name,
         description: APP_INFO.shortDescription,
-        start_url: "?source=pwa",
+        start_url: "/?source=pwa",
         background_color: APP_INFO.app.background,
         theme_color: APP_INFO.app.background,
         icons: [

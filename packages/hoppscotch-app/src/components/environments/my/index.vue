@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="flex justify-between flex-1 border-b border-dividerLight">
+    <div
+      class="sticky z-10 top-sidebarSecondaryStickyFold flex justify-between flex-1 border-b border-dividerLight bg-primary"
+    >
       <ButtonSecondary
         :icon="IconPlus"
         :label="`${t('action.new')}`"

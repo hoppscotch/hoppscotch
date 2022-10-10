@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 top-sidebarSecondaryStickyFold flex justify-between flex-1 border-b border-dividerLight bg-primary"
+      class="sticky z-10 top-upperPrimaryStickyFold flex justify-between flex-1 border-b border-dividerLight bg-primary"
     >
       <ButtonSecondary
         :icon="IconPlus"
@@ -55,6 +55,7 @@
       <ButtonSecondary
         :label="`${t('add.new')}`"
         filled
+        outline
         class="mb-4"
         @click="displayModalAdd(true)"
       />

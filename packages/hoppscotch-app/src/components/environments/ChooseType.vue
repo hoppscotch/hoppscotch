@@ -25,7 +25,7 @@
             <span
               v-tippy="{ theme: 'tooltip' }"
               :title="`${t('collection.select_team')}`"
-              class="bg-transparent border-t border-dividerLight select-wrapper"
+              class="bg-transparent border-b border-dividerLight select-wrapper"
             >
               <ButtonSecondary
                 v-if="environmentType.selectedTeam"

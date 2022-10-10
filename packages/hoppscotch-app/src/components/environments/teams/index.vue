@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 top-sidebarTertiaryStickyFold flex justify-between flex-1 border-y border-dividerLight bg-primary"
+      class="sticky z-10 top-upperSecondaryStickyFold flex justify-between flex-1 border-b border-dividerLight bg-primary"
     >
       <ButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
@@ -70,6 +70,7 @@
         v-else
         :label="`${t('add.new')}`"
         filled
+        outline
         class="mb-4"
         @click="displayModalAdd(true)"
       />

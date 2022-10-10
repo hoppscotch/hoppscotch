@@ -260,8 +260,6 @@
   --lower-secondary-sticky-fold: 5.063rem;
   --lower-tertiary-sticky-fold: 7.125rem;
   --sidebar-primary-sticky-fold: 2rem;
-  --sidebar-secondary-sticky-fold: 4.125rem;
-  --sidebar-tertiary-sticky-fold: 6.18rem;
 }
 
 @mixin font-medium {
@@ -278,8 +276,6 @@
   --lower-secondary-sticky-fold: 5.563rem;
   --lower-tertiary-sticky-fold: 7.875rem;
   --sidebar-primary-sticky-fold: 2.25rem;
-  --sidebar-secondary-sticky-fold: 4.6rem;
-  --sidebar-tertiary-sticky-fold: 6.96rem;
 }
 
 @mixin font-large {
@@ -296,8 +292,6 @@
   --lower-secondary-sticky-fold: 6.063rem;
   --lower-tertiary-sticky-fold: 8.625rem;
   --sidebar-primary-sticky-fold: 2.5rem;
-  --sidebar-secondary-sticky-fold: 5.1rem;
-  --sidebar-tertiary-sticky-fold: 7.69rem;
 }
 
 :root[data-font-size="small"] {

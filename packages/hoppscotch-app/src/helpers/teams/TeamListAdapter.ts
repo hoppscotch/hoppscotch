@@ -65,7 +65,9 @@ export default class TeamListAdapter {
 
       if (E.isLeft(result)) {
         this.error$.next(result.left)
-        throw new Error(`Failed fetching teams list: ${result.left}`)
+        throw new Error(
+          `Failed fetching teams list: ${JSON.stringify(result.left)}`
+        )
       }
 
       results.push(...result.right.myTeams)

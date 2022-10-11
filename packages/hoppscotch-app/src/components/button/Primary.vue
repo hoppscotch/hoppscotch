@@ -2,7 +2,7 @@
   <SmartLink
     :to="to"
     :blank="blank"
-    class="inline-flex items-center justify-center py-2 font-bold transition focus:outline-none focus-visible:bg-accentDark"
+    class="relative inline-flex items-center justify-center py-2 font-bold transition focus:outline-none focus-visible:bg-accentDark"
     :class="[
       color
         ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus-visible:(text-${color}-900 bg-${color}-300)`
@@ -27,9 +27,8 @@
     role="button"
   >
     <span
-      v-if="!loading"
       class="inline-flex items-center justify-center whitespace-nowrap"
-      :class="{ 'flex-row-reverse': reverse }"
+      :class="[{ 'flex-row-reverse': reverse }, { 'opacity-50': loading }]"
     >
       <component
         :is="icon"
@@ -51,7 +50,12 @@
         </kbd>
       </div>
     </span>
-    <SmartSpinner v-else />
+    <span
+      v-if="loading"
+      class="absolute inset-0 flex items-center justify-center"
+    >
+      <SmartSpinner />
+    </span>
   </SmartLink>
 </template>
 

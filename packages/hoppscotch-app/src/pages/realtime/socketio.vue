@@ -88,6 +88,7 @@
                 ? t('action.connect')
                 : t('action.disconnect')
             "
+            :loading="connectionState === 'CONNECTING'"
             @click="toggleConnection"
           />
         </div>

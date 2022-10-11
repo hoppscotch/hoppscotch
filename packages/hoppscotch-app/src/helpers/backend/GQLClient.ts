@@ -54,88 +54,112 @@ export type GQLClientErrorEvent =
  */
 export const gqlClientError$ = new Subject<GQLClientErrorEvent>()
 
-const subscriptionClient = new SubscriptionClient(BACKEND_WS_URL, {
-  reconnect: true,
-  connectionParams: () => {
-    return {
-      authorization: `Bearer ${authIdToken$.value}`,
-    }
-  },
-  connectionCallback(error) {
-    if (error?.length > 0) {
-      gqlClientError$.next({
-        type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT",
-        errors: error,
-      })
-    }
-  },
-})
-
-authIdToken$.subscribe(() => {
-  subscriptionClient.client?.close()
-})
-
-const createHoppClient = () =>
-  createClient({
-    url: BACKEND_GQL_URL,
-    exchanges: [
-      devtoolsExchange,
-      dedupExchange,
-      authExchange({
-        addAuthToOperation({ authState, operation }) {
-          if (!authState || !authState.authToken) {
-            return operation
-          }
-
-          const fetchOptions =
-            typeof operation.context.fetchOptions === "function"
-              ? operation.context.fetchOptions()
-              : operation.context.fetchOptions || {}
-
-          return makeOperation(operation.kind, operation, {
-            ...operation.context,
-            fetchOptions: {
-              ...fetchOptions,
-              headers: {
-                ...fetchOptions.headers,
-                Authorization: `Bearer ${authState.authToken}`,
-              },
-            },
-          })
-        },
-        willAuthError({ authState }) {
-          return !authState || !authState.authToken
-        },
-        getAuth: async () => {
-          if (!probableUser$.value) return { authToken: null }
-
-          await waitProbableLoginToConfirm()
-
-          return {
-            authToken: getAuthIDToken(),
-          }
-        },
-      }),
-      fetchExchange,
-      subscriptionExchange({
-        forwardSubscription: (operation) =>
-          subscriptionClient.request(operation),
-      }),
-      errorExchange({
-        onError(error, op) {
-          gqlClientError$.next({
-            type: "CLIENT_REPORTED_ERROR",
-            error,
-            op,
-          })
-        },
-      }),
-    ],
+const createSubscriptionClient = () => {
+  return new SubscriptionClient(BACKEND_WS_URL, {
+    reconnect: true,
+    connectionParams: () => {
+      return {
+        authorization: `Bearer ${authIdToken$.value}`,
+      }
+    },
+    connectionCallback(error) {
+      if (error?.length > 0) {
+        gqlClientError$.next({
+          type: "SUBSCRIPTION_CONN_CALLBACK_ERR_REPORT",
+          errors: error,
+        })
+      }
+    },
   })
+}
 
+const createHoppClient = () => {
+  const exchanges = [
+    devtoolsExchange,
+    dedupExchange,
+    authExchange({
+      addAuthToOperation({ authState, operation }) {
+        if (!authState || !authState.authToken) {
+          return operation
+        }
+
+        const fetchOptions =
+          typeof operation.context.fetchOptions === "function"
+            ? operation.context.fetchOptions()
+            : operation.context.fetchOptions || {}
+
+        return makeOperation(operation.kind, operation, {
+          ...operation.context,
+          fetchOptions: {
+            ...fetchOptions,
+            headers: {
+              ...fetchOptions.headers,
+              Authorization: `Bearer ${authState.authToken}`,
+            },
+          },
+        })
+      },
+      willAuthError({ authState }) {
+        return !authState || !authState.authToken
+      },
+      getAuth: async () => {
+        if (!probableUser$.value) return { authToken: null }
+
+        await waitProbableLoginToConfirm()
+
+        return {
+          authToken: getAuthIDToken(),
+        }
+      },
+    }),
+    fetchExchange,
+    errorExchange({
+      onError(error, op) {
+        gqlClientError$.next({
+          type: "CLIENT_REPORTED_ERROR",
+          error,
+          op,
+        })
+      },
+    }),
+  ]
+
+  if (subscriptionClient) {
+    exchanges.push(
+      subscriptionExchange({
+        forwardSubscription: (operation) => {
+          return subscriptionClient!.request(operation)
+        },
+      })
+    )
+  }
+
+  return createClient({
+    url: BACKEND_GQL_URL,
+    exchanges,
+  })
+}
+
+let subscriptionClient: SubscriptionClient | null
 export const client = ref(createHoppClient())
 
-authIdToken$.subscribe(() => {
+authIdToken$.subscribe((idToken) => {
+  // triggering reconnect by closing the websocket client
+  if (idToken && subscriptionClient) {
+    subscriptionClient?.client?.close()
+  }
+
+  // creating new subscription
+  if (idToken && !subscriptionClient) {
+    subscriptionClient = createSubscriptionClient()
+  }
+
+  // closing existing subscription client.
+  if (!idToken && subscriptionClient) {
+    subscriptionClient.close()
+    subscriptionClient = null
+  }
+
   client.value = createHoppClient()
 })
 

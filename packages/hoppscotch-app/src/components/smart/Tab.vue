@@ -23,11 +23,13 @@ const props = withDefaults(
     icon?: Component | object | string | null
     info?: string | null
     indicator?: boolean
+    disabled?: boolean
   }>(),
   {
     icon: null,
     indicator: false,
     info: null,
+    disabled: false,
   }
 )
 
@@ -41,6 +43,7 @@ const tabMeta = computed<TabMeta>(() => ({
   indicator: props.indicator,
   info: props.info,
   label: props.label,
+  disabled: props.disabled,
 }))
 
 const {

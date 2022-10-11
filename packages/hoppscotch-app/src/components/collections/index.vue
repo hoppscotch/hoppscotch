@@ -18,7 +18,6 @@
       </div>
       <CollectionsChooseType
         :collections-type="collectionsType"
-        :show="showTeamCollections"
         @update-collection-type="updateCollectionType"
         @update-selected-team="updateSelectedTeam"
       />
@@ -323,12 +322,6 @@ export default defineComponent({
     }
   },
   computed: {
-    showTeamCollections() {
-      if (this.currentUser == null) {
-        return false
-      }
-      return true
-    },
     filteredCollections() {
       const collections =
         this.collectionsType.type === "my-collections"

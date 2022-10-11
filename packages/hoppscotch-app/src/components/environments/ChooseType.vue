@@ -1,5 +1,5 @@
 <template>
-  <div v-show="show">
+  <div>
     <SmartTabs
       :id="'environments_tab'"
       v-model="selectedEnvironmentTab"
@@ -10,9 +10,9 @@
         :label="`${t('environment.my_environments')}`"
       />
       <SmartTab
-        v-if="currentUser"
         :id="'team-environments'"
         :label="`${t('environment.team_environments')}`"
+        :disabled="!currentUser"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
@@ -98,7 +98,6 @@ const tippyActions = ref<any | null>(null)
 const selectedEnvironmentTab = ref<EnvironmentTabs>("my-environments")
 
 defineProps<{
-  show: boolean
   environmentType: {
     type: "my-environments" | "team-environments"
     selectedTeam: SelectedTeam

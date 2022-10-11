@@ -151,7 +151,6 @@
       </tippy>
       <EnvironmentsChooseType
         :environment-type="environmentType"
-        :show="showTeamEnvironment"
         @update-environment-type="updateEnvironmentType"
         @update-selected-team="updateSelectedTeam"
       />
@@ -202,13 +201,6 @@ const environmentType = ref<EnvironmentsChooseType>({
 
 const currentUser = useReadonlyStream(currentUser$, null)
 
-const showTeamEnvironment = computed(() => {
-  if (currentUser.value == null) {
-    return false
-  }
-  return true
-})
-
 const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
   environmentType.value.selectedTeam = newSelectedTeam
 }
@@ -229,6 +221,15 @@ watch(
   () => environmentType.value.selectedTeam?.id,
   (newTeamID) => {
     adapter.changeTeamID(newTeamID)
+  }
+)
+
+watch(
+  () => currentUser.value,
+  (newValue) => {
+    if (!newValue) {
+      updateEnvironmentType("my-environments")
+    }
   }
 )
 

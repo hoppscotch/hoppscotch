@@ -168,7 +168,7 @@
     "members": "Team is empty",
     "parameters": "This request does not have any parameters",
     "pending_invites": "There are no pending invites for this team",
-    "profile": "Login in to view your profile",
+    "profile": "Login to view your profile",
     "protocols": "Protocols are empty",
     "schema": "Connect to a GraphQL endpoint to view schema",
     "shortcodes": "Shortcodes are empty",

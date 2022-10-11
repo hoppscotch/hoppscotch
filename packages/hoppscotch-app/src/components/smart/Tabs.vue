@@ -25,8 +25,10 @@
               :class="[
                 { active: modelValue === tabID },
                 { vertical: vertical },
+                { 'opacity-75 !cursor-not-allowed': tabMeta.disabled },
               ]"
               :aria-label="tabMeta.label || ''"
+              :disabled="tabMeta.disabled"
               role="button"
               @keyup.enter="selectTab(tabID)"
               @click="selectTab(tabID)"
@@ -80,6 +82,7 @@ export type TabMeta = {
   icon: string | Component | null
   indicator: boolean
   info: string | null
+  disabled: boolean
 }
 
 export type TabProvider = {

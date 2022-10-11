@@ -1,5 +1,5 @@
 <template>
-  <div v-show="show">
+  <div>
     <SmartTabs
       :id="'collections_tab'"
       v-model="selectedCollectionTab"
@@ -10,9 +10,9 @@
         :label="`${t('collection.my_collections')}`"
       />
       <SmartTab
-        v-if="currentUser"
         :id="'team-collections'"
         :label="`${t('collection.team_collections')}`"
+        :disabled="!currentUser"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
@@ -98,7 +98,6 @@ const tippyActions = ref<any | null>(null)
 const selectedCollectionTab = ref<CollectionTabs>("my-collections")
 
 defineProps<{
-  show: boolean
   collectionsType: {
     type: "my-collections" | "team-collections"
     selectedTeam: Team | undefined

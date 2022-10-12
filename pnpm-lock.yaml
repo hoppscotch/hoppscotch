@@ -93,9 +93,9 @@ importers:
       '@vue/eslint-config-typescript': ^11.0.2
       '@vue/runtime-core': ^3.2.40
       '@vueuse/core': ^9.3.0
-      '@vueuse/head': ^0.8.2
+      '@vueuse/head': ^0.9.8
       acorn-walk: ^8.2.0
-      axios: ^0.27.2
+      axios: ^1.1.2
       buffer: ^6.0.3
       eslint: ^8.24.0
       eslint-plugin-prettier: ^4.0.0
@@ -190,9 +190,9 @@ importers:
       '@urql/exchange-auth': 1.0.0_graphql@15.8.0
       '@urql/exchange-graphcache': 5.0.1_graphql@15.8.0
       '@vueuse/core': 9.3.0_vue@3.2.40
-      '@vueuse/head': 0.8.2_vue@3.2.40
+      '@vueuse/head': 0.9.8_vue@3.2.40
       acorn-walk: 8.2.0
-      axios: 0.27.2
+      axios: 1.1.2
       buffer: 6.0.3
       esprima: 4.0.1
       events: 3.3.0
@@ -5238,13 +5238,14 @@ packages:
       - vue
     dev: false
 
-  /@vueuse/head/0.8.2_vue@3.2.40:
-    resolution: {integrity: sha512-xq62ddpq2jjeh5+pVZuyJ24FKwUwl2NOMJ9ChVDkEYicc4maxcMCoq7mXcFAri+Hb98wokJ00xMTztei2NF06Q==}
+  /@vueuse/head/0.9.8_vue@3.2.40:
+    resolution: {integrity: sha512-zt8+JksoVFKxRvmABlaUHA62w+8nOcD8cJnaJ0+SHcr6xaIP3GXgh7/n2TzUoWw4l3d9UxRNs+tapgHdsQ7RbA==}
     peerDependencies:
       vue: '>=2.7 || >=3'
     dependencies:
       '@vueuse/shared': 9.3.0_vue@3.2.40
-      '@zhead/schema-vue': 0.8.0_vue@3.2.40
+      '@zhead/schema': 0.8.5
+      '@zhead/schema-vue': 0.8.5_vue@3.2.40
       vue: 3.2.40
     transitivePeerDependencies:
       - '@vue/composition-api'
@@ -5323,27 +5324,27 @@ packages:
       - supports-color
     dev: true
 
-  /@zhead/schema-raw/0.8.0:
-    resolution: {integrity: sha512-mP7nPbnHOMMZCBh0QFIkQVM6PgTaFNEtN2rggP4Gi2QjFcEM35BWTNgxITRIt/O0qZnfXkUfR2jhqiXqF47AXQ==}
+  /@zhead/schema-raw/0.8.5:
+    resolution: {integrity: sha512-Aq+9mksf5zbtj7HYluT6PVyfpQ6z7mja9MzjFxg76Vt+Q9i0oL1XN6ZYaCXImWRafwbyAxjFQ5aUCVyFn79OpA==}
     dependencies:
-      '@zhead/schema': 0.8.0
+      '@zhead/schema': 0.8.5
     dev: false
 
-  /@zhead/schema-vue/0.8.0_vue@3.2.40:
-    resolution: {integrity: sha512-wRB6Jn1Da9ELNYFyQ6u5Qi20liT2X8RvxXblGmVFXlizWUjBGMiRHS6qmqMzDTT+DOF45MU4Q0KvReksOgjgxQ==}
+  /@zhead/schema-vue/0.8.5_vue@3.2.40:
+    resolution: {integrity: sha512-6aXjYy3fZVeYBLrHcJQqzqwzC/2tafRO5UxZEgBHnryRnzeLNZV6nTptDvIPWiJObMoJTK21vbg3gkfLNQg84g==}
     peerDependencies:
       vue: '>=2.7 || >=3'
     dependencies:
       '@vueuse/shared': 9.3.0_vue@3.2.40
-      '@zhead/schema': 0.8.0
-      '@zhead/schema-raw': 0.8.0
+      '@zhead/schema': 0.8.5
+      '@zhead/schema-raw': 0.8.5
       vue: 3.2.40
     transitivePeerDependencies:
       - '@vue/composition-api'
     dev: false
 
-  /@zhead/schema/0.8.0:
-    resolution: {integrity: sha512-/uRApgsOmKdUmjmKeFAwc2mkA3DxJDbreHXLBy4QLYxBbrmCak2ibIlUKiN8LJtKo9LaUyW4GXgLUKaI2SuIew==}
+  /@zhead/schema/0.8.5:
+    resolution: {integrity: sha512-1S3Otr2zpl1zwP72dNseVXQNG9tnTQ6hHUEUYwINvBjRj6bHcUwdE+Itc9OLxnGAJT/7p8P7GHGo5sshXJNJsA==}
     dev: false
 
   /JSONStream/1.3.5:
@@ -5638,11 +5639,12 @@ packages:
       - debug
     dev: true
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+  /axios/1.1.2:
+    resolution: {integrity: sha512-bznQyETwElsXl2RK7HLLwb5GPpOLlycxHCtrpDR/4RqqBzjARaOTo3jz4IgtntWUYee7Ne4S8UHd92VCuzPaWA==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
+      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -11180,6 +11182,10 @@ packages:
       '@protobufjs/utf8': 1.1.0
       '@types/node': 18.8.0
       long: 5.2.0
+    dev: false
+
+  /proxy-from-env/1.1.0:
+    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
     dev: false
 
   /prr/1.0.1:

@@ -1,4 +1,3 @@
-
 <template>
   <div
     class="sticky top-0 z-20 flex-none p-4 sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
@@ -131,37 +130,27 @@
           </template>
         </tippy>
       </span>
-      <ButtonSecondary
-        class="flex-1 ml-2 rounded rounded-r-none"
-        :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
-        filled
-        :icon="IconSave"
-        @click="saveRequest()"
-      />
-      <span class="flex">
-        <tippy
-          ref="saveOptions"
-          interactive
-          trigger="click"
-          theme="popover"
-          arrow
-          :on-shown="() => saveTippyActions.focus()"
-        >
-          <ButtonSecondary
-            :icon="IconChevronDown"
-            filled
-            class="rounded rounded-l-none"
-          />
-          <template #content="{ hide }">
-            <input
-              id="request-name"
-              v-model="requestName"
-              :placeholder="`${t('request.name')}`"
-              name="request-name"
-              type="text"
-              autocomplete="off"
-              class="mb-2 input !bg-primaryContrast"
-              @keyup.enter="hide()"
+      <span
+        class="flex ml-2 border rounded transition border-dividerLight hover:border-dividerDark"
+      >
+        <ButtonSecondary
+          class="flex-1 rounded rounded-r-none"
+          :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
+          filled
+          :icon="IconSave"
+          @click="saveRequest()"
+        />
+        <span class="flex">
+          <tippy
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => saveTippyActions.focus()"
+          >
+            <ButtonSecondary
+              :icon="IconChevronDown"
+              filled
+              class="rounded rounded-l-none"
             />
             <template #content="{ hide }">
               <div

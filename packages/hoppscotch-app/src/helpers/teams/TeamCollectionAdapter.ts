@@ -470,7 +470,9 @@ export default class NewTeamCollectionAdapter {
 
     this.teamCollectionAdded$ = teamCollAdded$.subscribe((result) => {
       if (E.isLeft(result))
-        throw new Error(`Team Collection Added Error: ${result.left}`)
+        throw new Error(
+          `Team Collection Added Error: ${JSON.stringify(result.left)}`
+        )
 
       this.addCollection(
         {
@@ -493,7 +495,9 @@ export default class NewTeamCollectionAdapter {
     this.teamCollectionUpdatedSub = teamCollUpdatedSub
     this.teamCollectionUpdated$ = teamCollUpdated$.subscribe((result) => {
       if (E.isLeft(result))
-        throw new Error(`Team Collection Updated Error: ${result.left}`)
+        throw new Error(
+          `Team Collection Updated Error: ${JSON.stringify(result.left)}`
+        )
 
       this.updateCollection({
         id: result.right.teamCollectionUpdated.id,
@@ -511,7 +515,9 @@ export default class NewTeamCollectionAdapter {
     this.teamCollectionRemovedSub = teamCollRemovedSub
     this.teamCollectionRemoved$ = teamCollRemoved$.subscribe((result) => {
       if (E.isLeft(result))
-        throw new Error(`Team Collection Removed Error: ${result.left}`)
+        throw new Error(
+          `Team Collection Removed Error: ${JSON.stringify(result.left)}`
+        )
 
       this.removeCollection(result.right.teamCollectionRemoved)
     })
@@ -526,7 +532,9 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAddedSub = teamReqAddedSub
     this.teamRequestAdded$ = teamReqAdded$.subscribe((result) => {
       if (E.isLeft(result))
-        throw new Error(`Team Request Added Error: ${result.left}`)
+        throw new Error(
+          `Team Request Added Error: ${JSON.stringify(result.left)}`
+        )
 
       this.addRequest({
         id: result.right.teamRequestAdded.id,
@@ -548,7 +556,9 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestUpdatedSub = teamReqUpdatedSub
     this.teamRequestUpdated$ = teamReqUpdated$.subscribe((result) => {
       if (E.isLeft(result))
-        throw new Error(`Team Request Updated Error: ${result.left}`)
+        throw new Error(
+          `Team Request Updated Error: ${JSON.stringify(result.left)}`
+        )
 
       this.updateRequest({
         id: result.right.teamRequestUpdated.id,
@@ -568,7 +578,9 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestUpdatedSub = teamReqDeleted
     this.teamRequestDeleted$ = teamReqDeleted$.subscribe((result) => {
       if (E.isLeft(result))
-        throw new Error(`Team Request Deleted Error ${result.left}`)
+        throw new Error(
+          `Team Request Deleted Error ${JSON.stringify(result.left)}`
+        )
 
       this.removeRequest(result.right.teamRequestDeleted)
     })

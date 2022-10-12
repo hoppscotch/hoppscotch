@@ -46,7 +46,7 @@ export type HoppModule = {
  * All the modules Hoppscotch loads into the app
  */
 export const HOPP_MODULES = pipe(
-  import.meta.globEager("@modules/*.ts"),
+  import.meta.glob("@modules/*.ts", { eager: true }),
   Object.values,
   A.map(({ default: defaultVal }) => defaultVal as HoppModule)
 )

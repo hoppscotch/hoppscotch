@@ -204,10 +204,7 @@ import {
   MQTTError,
   MQTTTopic,
 } from "~/helpers/realtime/MQTTConnection"
-import {
-  HoppRealtimeLog,
-  HoppRealtimeLogLine,
-} from "~/helpers/types/HoppRealtimeLog"
+import { HoppRealtimeLogLine } from "~/helpers/types/HoppRealtimeLog"
 import { useColorMode } from "@composables/theming"
 import {
   useReadonlyStream,
@@ -230,6 +227,8 @@ import {
   setMQTTTabs,
   MQTTCurrentTab$,
   setCurrentTab,
+  MQTTCurrentTabLog$,
+  setMQTTCurrentTabLog,
 } from "~/newstore/MQTTSession"
 import RegexWorker from "@workers/regex?worker"
 
@@ -251,7 +250,7 @@ const config = ref<MQTTConnectionConfig>({
   lwRetain: false,
 })
 const logs = useStream(MQTTLog$, [], setMQTTLog)
-const currentTabLogs = ref<HoppRealtimeLog>([])
+const currentTabLogs = useStream(MQTTCurrentTabLog$, [], setMQTTCurrentTabLog)
 const socket = useStream(MQTTConn$, new MQTTConnection(), setMQTTConn)
 const connectionState = useReadonlyStream(
   socket.value.connectionState$,

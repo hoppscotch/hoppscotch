@@ -25,6 +25,7 @@ type HoppMQTTSession = {
   socket: MQTTConnection
   tabs: MQTTTab[]
   currentTabId: string
+  currentTabLogs: HoppRealtimeLog
 }
 
 const defaultMQTTRequest: HoppMQTTRequest = {
@@ -46,6 +47,7 @@ const defaultMQTTSession: HoppMQTTSession = {
   log: [],
   tabs: [defaultTab],
   currentTabId: defaultTab.id,
+  currentTabLogs: [],
 }
 
 const dispatchers = defineDispatchers({
@@ -106,6 +108,19 @@ const dispatchers = defineDispatchers({
   setCurrentTabId(_: HoppMQTTSession, { tabId }: { tabId: string }) {
     return {
       currentTabId: tabId,
+    }
+  },
+  setCurrentTabLog(_: HoppMQTTSession, { log }: { log: HoppRealtimeLog }) {
+    return {
+      currentTabLogs: log,
+    }
+  },
+  addCurrentTabLogLine(
+    curr: HoppMQTTSession,
+    { line }: { line: HoppRealtimeLogLine }
+  ) {
+    return {
+      currentTabLogs: [...curr.currentTabLogs, line],
     }
   },
 })
@@ -202,6 +217,24 @@ export function setCurrentTab(tabId: string) {
   })
 }
 
+export function setMQTTCurrentTabLog(log: HoppRealtimeLog) {
+  MQTTSessionStore.dispatch({
+    dispatcher: "setCurrentTabLog",
+    payload: {
+      log,
+    },
+  })
+}
+
+export function addMQTTCurrentTabLogLine(line: HoppRealtimeLogLine) {
+  MQTTSessionStore.dispatch({
+    dispatcher: "addCurrentTabLogLine",
+    payload: {
+      line,
+    },
+  })
+}
+
 export const MQTTRequest$ = MQTTSessionStore.subject$.pipe(
   pluck("request"),
   distinctUntilChanged()
@@ -249,5 +282,10 @@ export const MQTTTabs$ = MQTTSessionStore.subject$.pipe(
 
 export const MQTTCurrentTab$ = MQTTSessionStore.subject$.pipe(
   pluck("currentTabId"),
+  distinctUntilChanged()
+)
+
+export const MQTTCurrentTabLog$ = MQTTSessionStore.subject$.pipe(
+  pluck("currentTabLogs"),
   distinctUntilChanged()
 )

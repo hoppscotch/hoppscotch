@@ -82,7 +82,9 @@
             name="connect"
             class="w-32"
             :label="
-              connectionState === 'DISCONNECTED'
+              connectionState === 'CONNECTING'
+                ? t('action.connecting')
+                : connectionState === 'DISCONNECTED'
                 ? t('action.connect')
                 : t('action.disconnect')
             "

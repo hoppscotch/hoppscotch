@@ -39,7 +39,10 @@ export class SSEConnection {
             time: Date.now(),
           })
         }
-        this.sse.onerror = this.handleError
+        this.sse.onerror = (e) => {
+          this.handleError(e)
+          this.stop()
+        }
         this.sse.addEventListener(eventType, ({ data }) => {
           this.addEvent({
             type: "MESSAGE_RECEIVED",
@@ -66,7 +69,6 @@ export class SSEConnection {
   }
 
   private handleError(error: Event) {
-    this.stop()
     this.addEvent({
       time: Date.now(),
       type: "ERROR",

@@ -62,13 +62,13 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         aggregateEnvs.find(
           (env) => env.key === text.slice(start - from, end - from)
           // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
-        )?.sourceEnv ?? "choose an environment"
+        )?.sourceEnv ?? "Choose an Environment"
 
       const envValue =
         aggregateEnvs.find(
           (env) => env.key === text.slice(start - from, end - from)
           // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
-        )?.value ?? "not found"
+        )?.value ?? "Not found"
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
 

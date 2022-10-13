@@ -82,6 +82,7 @@
       <SmartWindows
         :id="'communication_tab'"
         v-model="currentTabId"
+        :can-add-new-tab="false"
         @remove-tab="removeTab"
         @sort="sortTabs"
       >
@@ -225,6 +226,10 @@ import {
   setMQTTEndpoint,
   setMQTTClientID,
   setMQTTLog,
+  MQTTTabs$,
+  setMQTTTabs,
+  MQTTCurrentTab$,
+  setCurrentTab,
 } from "~/newstore/MQTTSession"
 import RegexWorker from "@workers/regex?worker"
 
@@ -235,7 +240,16 @@ const colorMode = useColorMode()
 const { subscribeToStream } = useStreamSubscriber()
 const url = useStream(MQTTEndpoint$, "", setMQTTEndpoint)
 const clientID = useStream(MQTTClientID$, "", setMQTTClientID)
-const config = ref<MQTTConnectionConfig>()
+const config = ref<MQTTConnectionConfig>({
+  username: "",
+  password: "",
+  keepAlive: "60",
+  cleanSession: true,
+  lwTopic: "",
+  lwMessage: "",
+  lwQos: 0,
+  lwRetain: false,
+})
 const logs = useStream(MQTTLog$, [], setMQTTLog)
 const currentTabLogs = ref<HoppRealtimeLog>([])
 const socket = useStream(MQTTConn$, new MQTTConnection(), setMQTTConn)
@@ -255,14 +269,8 @@ const subscriptionModalShown = ref(false)
 const canSubscribe = computed(() => connectionState.value === "CONNECTED")
 const topics = useReadonlyStream(socket.value.subscribedTopics$, [])
 
-const currentTabId = ref("all")
-const defaultTab = {
-  id: "all",
-  name: "All Topics",
-  color: "var(--accent-color)",
-  removable: false,
-}
-const tabs = ref([defaultTab])
+const currentTabId = useStream(MQTTCurrentTab$, "", setCurrentTab)
+const tabs = useStream(MQTTTabs$, [], setMQTTTabs)
 watch(currentTabId, (tabID) => {
   if (tabID !== "all") {
     currentTabLogs.value = logs.value.filter((log) => {
@@ -429,13 +437,11 @@ const getI18nError = (error: MQTTError): string => {
 const clearLogEntries = () => {
   logs.value = []
 }
-const changeTab = (id: string) => {
-  currentTabId.value = id
-}
+
 const openTopicAsTab = (topic: MQTTTopic) => {
   const { name, color } = topic
   if (tabs.value.some((tab) => tab.id === topic.name)) {
-    return changeTab(topic.name)
+    return (currentTabId.value = topic.name)
   }
   tabs.value.push({
     id: name,
@@ -443,7 +449,7 @@ const openTopicAsTab = (topic: MQTTTopic) => {
     color,
     removable: true,
   })
-  changeTab(topic.name)
+  currentTabId.value = name
 }
 
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {

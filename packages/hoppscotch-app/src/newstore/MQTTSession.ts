@@ -6,6 +6,13 @@ import {
   HoppRealtimeLogLine,
 } from "~/helpers/types/HoppRealtimeLog"
 
+type MQTTTab = {
+  id: string
+  name: string
+  color: string
+  removable: boolean
+}
+
 type HoppMQTTRequest = {
   endpoint: string
   clientID: string
@@ -16,6 +23,8 @@ type HoppMQTTSession = {
   subscriptionState: boolean
   log: HoppRealtimeLog
   socket: MQTTConnection
+  tabs: MQTTTab[]
+  currentTabId: string
 }
 
 const defaultMQTTRequest: HoppMQTTRequest = {
@@ -23,11 +32,20 @@ const defaultMQTTRequest: HoppMQTTRequest = {
   clientID: "hoppscotch",
 }
 
+const defaultTab = {
+  id: "all",
+  name: "All Topics",
+  color: "var(--accent-color)",
+  removable: false,
+}
+
 const defaultMQTTSession: HoppMQTTSession = {
   request: defaultMQTTRequest,
   subscriptionState: false,
   socket: new MQTTConnection(),
   log: [],
+  tabs: [defaultTab],
+  currentTabId: defaultTab.id,
 }
 
 const dispatchers = defineDispatchers({
@@ -73,6 +91,21 @@ const dispatchers = defineDispatchers({
   addLogLine(curr: HoppMQTTSession, { line }: { line: HoppRealtimeLogLine }) {
     return {
       log: [...curr.log, line],
+    }
+  },
+  setTabs(_: HoppMQTTSession, { tabs }: { tabs: MQTTTab[] }) {
+    return {
+      tabs,
+    }
+  },
+  addTab(curr: HoppMQTTSession, { tab }: { tab: MQTTTab }) {
+    return {
+      tabs: [...curr.tabs, tab],
+    }
+  },
+  setCurrentTabId(_: HoppMQTTSession, { tabId }: { tabId: string }) {
+    return {
+      currentTabId: tabId,
     }
   },
 })
@@ -142,6 +175,33 @@ export function addMQTTLogLine(line: HoppRealtimeLogLine) {
   })
 }
 
+export function setMQTTTabs(tabs: MQTTTab[]) {
+  MQTTSessionStore.dispatch({
+    dispatcher: "setTabs",
+    payload: {
+      tabs,
+    },
+  })
+}
+
+export function addMQTTTab(tab: MQTTTab) {
+  MQTTSessionStore.dispatch({
+    dispatcher: "addTab",
+    payload: {
+      tab,
+    },
+  })
+}
+
+export function setCurrentTab(tabId: string) {
+  MQTTSessionStore.dispatch({
+    dispatcher: "setCurrentTabId",
+    payload: {
+      tabId,
+    },
+  })
+}
+
 export const MQTTRequest$ = MQTTSessionStore.subject$.pipe(
   pluck("request"),
   distinctUntilChanged()
@@ -179,5 +239,15 @@ export const MQTTConn$ = MQTTSessionStore.subject$.pipe(
 
 export const MQTTLog$ = MQTTSessionStore.subject$.pipe(
   pluck("log"),
+  distinctUntilChanged()
+)
+
+export const MQTTTabs$ = MQTTSessionStore.subject$.pipe(
+  pluck("tabs"),
+  distinctUntilChanged()
+)
+
+export const MQTTCurrentTab$ = MQTTSessionStore.subject$.pipe(
+  pluck("currentTabId"),
   distinctUntilChanged()
 )

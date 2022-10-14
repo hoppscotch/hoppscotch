@@ -117,6 +117,7 @@
     "@types/paho-mqtt": "^1.0.6",
     "@types/postman-collection": "^3.5.7",
     "@types/splitpanes": "^2.2.1",
+    "@types/uuid": "^8.3.4",
     "@types/yargs-parser": "^21.0.0",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",

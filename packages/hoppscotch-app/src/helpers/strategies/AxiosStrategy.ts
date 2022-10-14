@@ -74,7 +74,11 @@ const axiosWithProxy: NetworkStrategy = (req) =>
 
     // If the request has FormData, the proxy needs a key
     TE.bind("multipartKey", ({ processedReq }) =>
-      TE.of(processedReq.data instanceof FormData ? v4() : null)
+      TE.of(
+        processedReq.data instanceof FormData
+          ? `proxyRequestData-${v4()}`
+          : null
+      )
     ),
 
     // Build headers to send
@@ -82,7 +86,7 @@ const axiosWithProxy: NetworkStrategy = (req) =>
       TE.of(
         processedReq.data instanceof FormData
           ? <ProxyHeaders>{
-              "multipart-part-key": `proxyRequestData-${multipartKey}`,
+              "multipart-part-key": multipartKey,
             }
           : <ProxyHeaders>{}
       )

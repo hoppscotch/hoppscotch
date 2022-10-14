@@ -83,6 +83,7 @@ importers:
       '@types/paho-mqtt': ^1.0.6
       '@types/postman-collection': ^3.5.7
       '@types/splitpanes': ^2.2.1
+      '@types/uuid': ^8.3.4
       '@types/yargs-parser': ^21.0.0
       '@typescript-eslint/eslint-plugin': ^5.19.0
       '@typescript-eslint/parser': ^5.19.0
@@ -264,6 +265,7 @@ importers:
       '@types/paho-mqtt': 1.0.6
       '@types/postman-collection': 3.5.7
       '@types/splitpanes': 2.2.1
+      '@types/uuid': 8.3.4
       '@types/yargs-parser': 21.0.0
       '@typescript-eslint/eslint-plugin': 5.30.6_hu4fhyobdl4qfb4p4ewioh73ay
       '@typescript-eslint/parser': 5.30.6_oma37ntcsyoxqn5sr4l7ekf4na
@@ -4164,6 +4166,10 @@ packages:
 
   /@types/ua-parser-js/0.7.36:
     resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
+    dev: true
+
+  /@types/uuid/8.3.4:
+    resolution: {integrity: sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==}
     dev: true
 
   /@types/web-bluetooth/0.0.14:

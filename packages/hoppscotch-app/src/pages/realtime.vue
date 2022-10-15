@@ -1,5 +1,9 @@
 <template>
-  <SmartTabs v-model="currentTab">
+  <SmartTabs
+    v-model="currentTab"
+    styles="sticky bg-primary top-0 z-50"
+    content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)]"
+  >
     <SmartTab
       v-for="{ target, title } in REALTIME_NAVIGATION"
       :id="target"

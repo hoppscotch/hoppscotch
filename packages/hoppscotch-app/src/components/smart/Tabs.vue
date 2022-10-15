@@ -58,10 +58,13 @@
       </div>
     </div>
     <div
-      class="w-full h-full contents"
-      :class="{
-        '!flex flex-col flex-1 overflow-y-auto ': vertical,
-      }"
+      class="flex w-full h-full"
+      :class="[
+        {
+          'flex-col flex-1 overflow-y-auto ': vertical,
+        },
+        contentStyles,
+      ]"
     >
       <slot></slot>
     </div>
@@ -110,6 +113,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     required: true,
+  },
+  contentStyles: {
+    type: String,
+    default: "",
   },
 })
 

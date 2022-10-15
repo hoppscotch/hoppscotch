@@ -1,12 +1,12 @@
 <template>
-  <div ref="container" class="flex flex-col flex-1 overflow-y-auto">
+  <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
     >
-      <label for="log" class="py-2 font-semibold text-secondaryLight">
+      <label for="log" class="font-semibold text-secondaryLight">
         {{ title }}
       </label>
-      <div>
+      <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.delete')"
@@ -40,10 +40,10 @@
     <div
       v-if="log.length !== 0"
       ref="logs"
-      class="overflow-y-auto border-b border-dividerLight"
+      class="flex flex-col overflow-y-auto border-b border-dividerLight"
     >
       <div
-        class="flex flex-col h-auto h-full border-r divide-y divide-dividerLight border-dividerLight"
+        class="flex flex-col h-full border-r divide-y divide-dividerLight border-dividerLight"
       >
         <RealtimeLogEntry
           v-for="(entry, index) in log"
@@ -86,8 +86,7 @@ const emit = defineEmits<{
 
 const t = useI18n()
 
-const container = ref<HTMLElement | null>(null)
-const logs = ref<HTMLElement | null>(null)
+const logs = ref<HTMLElement>()
 
 const autoScrollEnabled = ref(true)
 

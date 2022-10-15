@@ -18,7 +18,10 @@
         :horizontal="COLUMN_LAYOUT"
         @resize="setPaneEvent($event, 'horizontal')"
       >
-        <Pane :size="PANE_MAIN_TOP_SIZE" class="flex flex-col !overflow-auto">
+        <Pane
+          :size="PANE_MAIN_TOP_SIZE"
+          class="flex flex-col sm:!overflow-auto"
+        >
           <slot name="primary" />
         </Pane>
         <Pane

@@ -2,9 +2,11 @@
   <AppPaneLayout layout-id="socketio">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+        class="sticky top-0 z-10 sm:flex sm:flex-shrink-0 p-4 sm:overflow-x-auto space-x-2 bg-primary"
       >
-        <div class="inline-flex flex-1 space-x-2">
+        <div
+          class="block sm:inline-flex sm:flex-1 space-y-2 sm:space-y-0 sm:space-x-2"
+        >
           <div class="flex flex-1">
             <label for="client-version">
               <tippy
@@ -80,7 +82,7 @@
             id="connect"
             :disabled="!isUrlValid"
             name="connect"
-            class="w-32"
+            class="w-full sm:w-32"
             :label="
               connectionState === 'CONNECTING'
                 ? t('action.connecting')
@@ -96,7 +98,7 @@
 
       <SmartTabs
         v-model="selectedTab"
-        styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+        :styles="tabsStyles.classes"
         render-inactive-tabs
       >
         <SmartTab
@@ -250,7 +252,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch } from "vue"
+import { computed, onMounted, onUnmounted, ref, watch } from "vue"
 
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
@@ -313,6 +315,18 @@ const isUrlValid = ref(true)
 const authType = ref<"None" | "Bearer">("None")
 const bearerToken = ref("")
 const authActive = ref(true)
+
+const tabsStyles = computed(() => {
+  return {
+    classes: [
+      "sticky",
+      "bg-primary",
+      "top-upperMobilePrimaryStickyFold",
+      "sm:top-upperPrimaryStickyFold",
+      "z-10",
+    ].join(" "),
+  }
+})
 
 let worker: Worker
 

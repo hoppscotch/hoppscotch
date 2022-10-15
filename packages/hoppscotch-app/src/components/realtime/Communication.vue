@@ -12,7 +12,8 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      :class="styles"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -58,7 +59,7 @@
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t('action.send')}`"
-          :label="`${t('action.send')}`"
+          :label="`${mdAndLarger ? t('action.send') : t('')}`"
           :disabled="!communicationBody || !isConnected"
           :icon="IconSend"
           class="rounded-none !text-accent !hover:text-accentDark"
@@ -125,7 +126,7 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import { pipe } from "fp-ts/function"
 import * as TO from "fp-ts/TaskOption"
 import * as O from "fp-ts/Option"
-import { refAutoReset } from "@vueuse/core"
+import { refAutoReset, breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import jsonLinter from "@helpers/editor/linting/json"
 import { readFileAsText } from "@functional/files"
@@ -133,7 +134,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 
-defineProps({
+const props = defineProps({
   showEventField: {
     type: Boolean,
     default: false,
@@ -156,6 +157,14 @@ const emit = defineEmits<{
 
 const t = useI18n()
 const toast = useToast()
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
+const styles = computed(() => {
+  return props.showEventField
+    ? "top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+    : ""
+})
 
 // Template refs
 const tippyActions = ref<any | null>(null)

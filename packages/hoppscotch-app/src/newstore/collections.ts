@@ -7,6 +7,7 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { getRESTSaveContext, setRESTSaveContext } from "./RESTSession"
+import { cloneDeep } from "lodash-es"
 
 const defaultRESTCollectionState = {
   state: [
@@ -143,6 +144,39 @@ const restCollectionDispatchers = defineDispatchers({
     }
 
     Object.assign(target, folder)
+
+    return {
+      state: newState,
+    }
+  },
+
+  duplicateFolder(
+    { state }: RESTCollectionStoreType,
+    { path }: { path: string; folder: string }
+  ) {
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const parentPath = indexPaths.slice(0, indexPaths.length - 1)
+    const parent = navigateToFolderWithIndexPath(newState, parentPath)
+
+    const target = navigateToFolderWithIndexPath(newState, indexPaths)
+
+    if (target === null) {
+      console.log(
+        `Could not parse path '${path}'. Ignoring edit folder request`
+      )
+      return {}
+    }
+
+    const newFolder = makeCollection({
+      name: target.name,
+      folders: cloneDeep(target.folders),
+      requests: cloneDeep(target.requests),
+    })
+
+    parent?.folders.push(newFolder)
 
     return {
       state: newState,
@@ -669,6 +703,19 @@ export function editRESTFolder(
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editFolder",
+    payload: {
+      path,
+      folder,
+    },
+  })
+}
+
+export function duplicateRESTFolder(
+  path: string,
+  folder: HoppCollection<HoppRESTRequest>
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "duplicateFolder",
     payload: {
       path,
       folder,

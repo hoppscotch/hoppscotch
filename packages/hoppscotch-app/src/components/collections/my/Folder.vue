@@ -110,6 +110,23 @@
                   "
                 />
                 <SmartItem
+                  ref="copy"
+                  :icon="IconCopy"
+                  :label="t('folder.duplicate')"
+                  :shortcut="['D']"
+                  @click="
+                    () => {
+                      $emit('duplicate-folder', {
+                        folder,
+                        folderIndex,
+                        collectionIndex,
+                        folderPath,
+                      })
+                      hide()
+                    }
+                  "
+                />
+                <SmartItem
                   ref="exportAction"
                   :icon="IconDownload"
                   :label="t('export.title')"
@@ -159,6 +176,7 @@
           @add-request="$emit('add-request', $event)"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
+          @duplicate-folder="$emit('duplicate-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @update-team-collections="$emit('update-team-collections')"
@@ -212,6 +230,7 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
+import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconFolder from "~icons/lucide/folder"
@@ -241,6 +260,7 @@ export default defineComponent({
     "edit-folder",
     "update-team",
     "remove-folder",
+    "duplicate-folder",
     "edit-request",
     "duplicate-request",
     "select",
@@ -266,6 +286,7 @@ export default defineComponent({
       IconFolderPlus,
       IconMoreVertical,
       IconEdit,
+      IconCopy,
       IconDownload,
       IconTrash2,
     }

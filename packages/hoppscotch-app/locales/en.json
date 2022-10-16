@@ -232,7 +232,9 @@
     "invalid_name": "Please provide a name for the folder",
     "name_length_insufficient": "Folder name should be at least 3 characters long",
     "new": "New Folder",
-    "renamed": "Folder renamed"
+    "renamed": "Folder renamed",
+    "duplicate": "Duplicate"
+
   },
   "graphql": {
     "mutations": "Mutations",

@@ -51,6 +51,26 @@
   </p>
 </div>
 
+<!-- toc -->
+* [**Support**](#support)
+* [**Features**](#features)
+* [**Demo**](#demo)
+* [**Usage**](#usage)
+* [**Built with**](#built-with)
+* [**Developing**](#developing)
+  * [Browser-based development environment](#browser-based-development-environment)
+  * [Local development environment](#local-development-environment)
+  * [Docker compose](#docker-compose)
+* [**Docker**](#docker)
+* [**Releasing**](#releasing)
+* [**Contributing**](#contributing)
+* [**Continuous Integration**](#continuous-integration)
+* [**Changelog**](#changelog)
+* [**Authors**](#authors)
+* [**License**](#license)
+
+<!-- toc stop -->
+
 #### **Support**
 
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=telegram)](https://hoppscotch.io/telegram) [![Discuss on GitHub](https://img.shields.io/badge/discussions-GitHub-333333?logo=github)](https://github.com/hoppscotch/hoppscotch/discussions)

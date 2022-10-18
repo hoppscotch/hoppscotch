@@ -7,6 +7,72 @@
     </label>
     <div class="flex">
       <ButtonSecondary
+        v-if="subscriptionState === 'SUBSCRIBED'"
+        v-tippy="{
+          theme: 'tooltip',
+          delay: [500, 20],
+          allowHTML: true,
+        }"
+        :title="`${t('request.stop')}`"
+        :label="`${t('request.stop')}`"
+        :icon="IconStop"
+        class="rounded-none !text-accent !hover:text-accentDark"
+        @click="unsubscribe()"
+      />
+      <tippy
+        v-else-if="operations.length > 1"
+        ref="operationTippy"
+        interactive
+        trigger="click"
+        theme="popover"
+        placement="bottom"
+        :on-shown="() => tippyActions.focus()"
+      >
+        <ButtonSecondary
+          v-tippy="{
+            theme: 'tooltip',
+            delay: [500, 20],
+            allowHTML: true,
+          }"
+          :title="`${t(
+            'request.run'
+          )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+          :label="`${t('request.run')}`"
+          :icon="IconPlay"
+          class="rounded-none !text-accent !hover:text-accentDark"
+        />
+        <template #content="{ hide }">
+          <div ref="tippyActions" class="flex flex-col" role="menu">
+            <SmartItem
+              v-for="item in operations"
+              :key="`gql-operation-${item.name?.value}`"
+              :label="item?.name?.value"
+              @click="
+                () => {
+                  runQuery(item)
+                  hide()
+                }
+              "
+            />
+          </div>
+        </template>
+      </tippy>
+
+      <ButtonSecondary
+        v-else
+        v-tippy="{
+          theme: 'tooltip',
+          delay: [500, 20],
+          allowHTML: true,
+        }"
+        :title="`${t('request.run')} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+        :label="`${t('request.run')}`"
+        :icon="IconPlay"
+        class="rounded-none !text-accent !hover:text-accentDark"
+        @click="runQuery()"
+      />
+
+      <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/graphql"
         blank
@@ -37,24 +103,67 @@
 </template>
 
 <script setup lang="ts">
+import IconPlay from "~icons/lucide/play"
+import IconStop from "~icons/lucide/stop-circle"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import { gqlVariables$, setGQLVariables } from "~/newstore/GQLSession"
-import { useStream } from "@composables/stream"
+import {
+  gqlQuery$,
+  gqlVariables$,
+  setGQLQuery,
+  setGQLVariables,
+} from "~/newstore/GQLSession"
+import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
+import * as gql from "graphql"
 import { useI18n } from "@composables/i18n"
 import { refAutoReset } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { GQLConnection } from "~/helpers/GQLConnection"
+
+const tippyActions = ref<any | null>(null)
 
 const t = useI18n()
 const toast = useToast()
+
+const props = defineProps<{
+  conn: GQLConnection
+}>()
+
+const emit = defineEmits<{
+  (e: "save-request"): void
+  (e: "run-query", definition: gql.OperationDefinitionNode | null): void
+}>()
+
+const subscriptionState = useReadonlyStream(
+  props.conn.subscriptionState$,
+  "UNSUBSCRIBED"
+)
+
+// Watch operations on graphql query string
+const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
+const operations = ref<gql.OperationDefinitionNode[]>([])
+watch(
+  gqlQueryString,
+  (query) => {
+    try {
+      const parsedQuery = gql.parse(query)
+      operations.value =
+        parsedQuery.definitions as gql.OperationDefinitionNode[]
+    } catch (e) {
+      // console.log(e)
+    }
+  },
+  { immediate: true }
+)
 
 const variableString = useStream(gqlVariables$, "", setGQLVariables)
 const variableEditor = ref<any | null>(null)
@@ -103,5 +212,12 @@ const prettifyVariableString = () => {
 
 const clearGQLVariables = () => {
   variableString.value = ""
+}
+
+const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
+  emit("run-query", definition)
+}
+const unsubscribe = () => {
+  props.conn.socketDisconnect()
 }
 </script>

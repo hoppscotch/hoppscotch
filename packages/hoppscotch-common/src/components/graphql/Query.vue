@@ -13,9 +13,7 @@
           delay: [500, 20],
           allowHTML: true,
         }"
-        :title="`${t(
-          'request.stop'
-        )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+        :title="`${t('request.stop')}`"
         :label="`${t('request.stop')}`"
         :icon="IconStop"
         class="rounded-none !text-accent !hover:text-accentDark"

@@ -15,6 +15,7 @@ type GQLTab = HoppGQLRequest & {
   name: string
   connection: GQLConnection
   response: GQLEvent[]
+  seen: boolean
 }
 
 export type GQLSession = {
@@ -24,10 +25,11 @@ export type GQLSession = {
 
 const url = "https://echo.hoppscotch.io/graphql"
 
-const makeTab = (id: string, connection: GQLConnection) => ({
+const makeTab = (id: string, connection: GQLConnection): GQLTab => ({
   id,
   connection,
   response: [],
+  seen: true,
   ...makeGQLRequest({
     name: "Untitled request",
     url,
@@ -196,6 +198,21 @@ const dispatchers = defineDispatchers({
       ),
     }
   },
+  setUnseen(
+    { tabs }: GQLSession,
+    { tabId, value }: { tabId: string; value: boolean }
+  ) {
+    return {
+      tabs: tabs.map((tab) =>
+        tab.id === tabId
+          ? {
+              ...tab,
+              seen: value,
+            }
+          : tab
+      ),
+    }
+  },
   setAuth(
     { tabs, currentTabId }: GQLSession,
     { newAuth }: { newAuth: HoppGQLAuth }
@@ -316,6 +333,16 @@ export function setGQLResponse(tabId: string, newResponse: GQLEvent[]) {
   })
 }
 
+export function setResponseUnseen(tabId: string, value: boolean) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setUnseen",
+    payload: {
+      tabId,
+      value,
+    },
+  })
+}
+
 export function getGQLSession() {
   return gqlSessionStore.value
 }
@@ -429,10 +456,11 @@ export const gqlHeaders$ = gqlSessionStore.subject$.pipe(
 export const gqlAuth$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
     return (
-      tabs.find((tab) => tab.id === currentTabId)?.auth ?? {
-        authActive: true,
+      tabs.find((tab) => tab.id === currentTabId)?.auth ??
+      ({
         authType: "none",
-      }
+        authActive: true,
+      } as HoppGQLAuth)
     )
   }),
   distinctUntilChanged()

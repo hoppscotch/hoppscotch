@@ -21,52 +21,9 @@
         :label="`${t('tab.variables')}`"
         :indicator="variableString && variableString.length > 0 ? true : false"
       >
-        <div
-          class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
-        >
-          <label class="font-semibold truncate text-secondaryLight">
-            {{ t("request.variables") }}
-          </label>
-          <div class="flex">
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              to="https://docs.hoppscotch.io/documentation/features/graphql-api-testing"
-              blank
-              :title="t('app.wiki')"
-              :icon="IconHelpCircle"
-            />
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.clear_all')"
-              :icon="IconTrash2"
-              @click="clearGQLVariables()"
-            />
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('state.linewrap')"
-              :class="{ '!text-accent': linewrapEnabledVariable }"
-              :icon="IconWrapText"
-              @click.prevent="
-                linewrapEnabledVariable = !linewrapEnabledVariable
-              "
-            />
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.prettify')"
-              :icon="prettifyVariablesIcon"
-              @click="prettifyVariableString"
-            />
-            <HoppButtonSecondary
-              v-tippy="{ theme: 'tooltip' }"
-              :title="t('action.copy')"
-              :icon="copyVariablesIcon"
-              @click="copyVariables"
-            />
-          </div>
-        </div>
-        <div ref="variableEditor" class="flex flex-col flex-1"></div>
-      </HoppSmartTab>
-      <HoppSmartTab
+        <GraphqlVariable :conn="conn" />
+      </SmartTab>
+      <SmartTab
         :id="'headers'"
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
@@ -101,6 +58,7 @@ import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import {
   getGQLResponse,
   gqlAuth$,
+  GQLCurrentTabId$,
   gqlHeaders$,
   gqlQuery$,
   gqlURL$,
@@ -110,6 +68,7 @@ import {
   setGQLQuery,
   setGQLResponse,
   setGQLVariables,
+  setResponseUnseen,
 } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
@@ -135,6 +94,7 @@ const auth = useStream(
   { authType: "none", authActive: true },
   setGQLAuth
 )
+const currentTabId = useReadonlyStream(GQLCurrentTabId$, "")
 const activeGQLHeadersCount = computed(
   () =>
     headers.value.filter((x) => x.active && (x.key !== "" || x.value !== ""))
@@ -193,6 +153,9 @@ onMounted(() => {
         setGQLResponse(props.tabId, [event])
       } else {
         setGQLResponse(props.tabId, [...getGQLResponse(props.tabId), event])
+        if (currentTabId.value !== props.tabId) {
+          setResponseUnseen(props.tabId, false)
+        }
       }
     } catch (error) {
       console.log(error)

@@ -209,7 +209,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import * as LJSON from "lossless-json"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
-import { ref, computed, reactive, watch, markRaw } from "vue"
+import { ref, computed, reactive, watch, markRaw, PropType } from "vue"
 import { refAutoReset, useTimeAgo } from "@vueuse/core"
 import { LogEntryData } from "./Log.vue"
 import { useI18n } from "@composables/i18n"
@@ -227,7 +227,16 @@ import { shortDateTime } from "~/helpers/utils/date"
 
 const t = useI18n()
 
-const props = defineProps<{ entry: LogEntryData }>()
+const props = defineProps({
+  entry: {
+    type: Object as PropType<LogEntryData>,
+    required: true,
+  },
+  isOpen: {
+    type: Boolean,
+    default: false,
+  },
+})
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -304,7 +313,7 @@ const outlinePath = computed(() =>
 )
 
 // Code for UI Changes
-const minimized = ref(true)
+const minimized = ref(props.isOpen ? false : true)
 watch(minimized, () => {
   selectedTab.value = isJSON(props.entry.payload) ? "json" : "raw"
 })
@@ -342,7 +351,9 @@ const ENTRY_COLORS = {
 } as const
 
 // Assigns color based on entry event
-const entryColor = computed(() => ENTRY_COLORS[props.entry.event])
+const entryColor = computed(
+  () => props.entry.event && ENTRY_COLORS[props.entry.event]
+)
 
 const ICONS = {
   info: {

@@ -7,17 +7,17 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { useStream } from "@composables/stream"
-import { GQLConnection } from "~/helpers/GQLConnection"
-import { uniqueId } from "lodash-es"
+import { GQLConnection, GQLEvent } from "~/helpers/GQLConnection"
+import { clone, uniqueId } from "lodash-es"
 
 type GQLTab = HoppGQLRequest & {
   id: string
   name: string
   connection: GQLConnection
+  response: GQLEvent[]
 }
 
 export type GQLSession = {
-  response: string
   tabs: GQLTab[]
   currentTabId: string
 }
@@ -25,6 +25,7 @@ export type GQLSession = {
 const defaultTab = {
   id: "new",
   connection: new GQLConnection(),
+  response: [],
   ...makeGQLRequest({
     name: "Untitled request",
     url: "https://echo.hoppscotch.io/graphql",
@@ -48,7 +49,6 @@ const defaultTab = {
 }
 
 export const defaultGQLSession: GQLSession = {
-  response: "",
   tabs: [defaultTab],
   currentTabId: defaultTab.id,
 }
@@ -179,9 +179,19 @@ const dispatchers = defineDispatchers({
       ),
     }
   },
-  setResponse(_: GQLSession, { newResponse }: { newResponse: string }) {
+  setResponse(
+    { tabs, currentTabId }: GQLSession,
+    { newResponse }: { newResponse: GQLEvent[] }
+  ) {
     return {
-      response: newResponse,
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              response: newResponse,
+            }
+          : tab
+      ),
     }
   },
   setAuth(
@@ -294,7 +304,7 @@ export function setGQLVariables(newVariables: string) {
   })
 }
 
-export function setGQLResponse(newResponse: string) {
+export function setGQLResponse(newResponse: GQLEvent[]) {
   gqlSessionStore.dispatch({
     dispatcher: "setResponse",
     payload: {
@@ -384,38 +394,43 @@ export const gqlName$ = gqlSessionStore.subject$.pipe(
 )
 export const gqlURL$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return tabs.find((tab) => tab.id === currentTabId)?.url
+    return tabs.find((tab) => tab.id === currentTabId)?.url ?? defaultTab.url
   }),
   distinctUntilChanged()
 )
 export const gqlQuery$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return tabs.find((tab) => tab.id === currentTabId)?.query
+    return tabs.find((tab) => tab.id === currentTabId)?.query ?? ""
   }),
   distinctUntilChanged()
 )
 export const gqlVariables$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return tabs.find((tab) => tab.id === currentTabId)?.variables
+    return tabs.find((tab) => tab.id === currentTabId)?.variables ?? ""
   }),
   distinctUntilChanged()
 )
 export const gqlHeaders$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return tabs.find((tab) => tab.id === currentTabId)?.headers
+    return tabs.find((tab) => tab.id === currentTabId)?.headers ?? []
   }),
   distinctUntilChanged()
 )
 
 export const gqlAuth$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return tabs.find((tab) => tab.id === currentTabId)?.auth
+    return (
+      tabs.find((tab) => tab.id === currentTabId)?.auth ??
+      clone(defaultTab).auth
+    )
   }),
   distinctUntilChanged()
 )
 
 export const gqlResponse$ = gqlSessionStore.subject$.pipe(
-  pluck("response"),
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.response || []
+  }),
   distinctUntilChanged()
 )
 

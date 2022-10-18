@@ -140,20 +140,19 @@ const activeGQLHeadersCount = computed(
       .length
 )
 const showSaveRequestModal = ref(false)
-const response = useStream(gqlResponse$, "", setGQLResponse)
+const response = useStream(gqlResponse$, [], setGQLResponse)
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
   const startTime = Date.now()
   startPageProgress()
-  response.value = "loading"
   try {
     const runURL = clone(url.value)
     const runHeaders = clone(headers.value)
     const runQuery = clone(gqlQueryString.value)
     const runVariables = clone(variableString.value)
     const runAuth = clone(auth.value)
-    console.log(definition)
+
     await props.conn.runQuery({
       url: runURL,
       headers: runHeaders,
@@ -167,7 +166,8 @@ const runQuery = async (
     completePageProgress()
     toast.success(`${t("state.finished_in", { duration })}`)
   } catch (e: any) {
-    response.value = `${e}`
+    console.log(e)
+    // response.value = [`${e}`]
     completePageProgress()
     toast.error(
       `${t("error.something_went_wrong")}. ${t("error.check_console_details")}`,
@@ -184,11 +184,13 @@ const runQuery = async (
 }
 onMounted(() => {
   subscribeToStream(props.conn.event$, (event) => {
-    console.log(event)
-    const { data } = event
-    console.log(JSON.parse(data))
     try {
-      response.value = JSON.stringify(JSON.parse(data), null, 2)
+      if (event.operationType !== "subscription") {
+        response.value = [event]
+      } else {
+        response.value = [...response.value, event]
+        console.log(response.value)
+      }
     } catch (error) {
       console.log(error)
     }

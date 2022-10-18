@@ -1,14 +1,6 @@
 <template>
   <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
-    <HoppSmartPlaceholder
-      v-if="responseString === 'loading'"
-      :text="t('state.loading')"
-    >
-      <template #icon>
-        <HoppSmartSpinner class="my-4" />
-      </template>
-    </HoppSmartPlaceholder>
-    <div v-else-if="responseString" class="flex flex-col flex-1">
+    <div v-if="responses.length === 1" class="flex flex-col flex-1">
       <div
         class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       >
@@ -37,11 +29,14 @@
               'action.copy'
             )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
             :icon="copyResponseIcon"
-            @click="copyResponse"
+            @click="copyResponse(responses[0].data)"
           />
         </div>
       </div>
       <div ref="schemaEditor" class="flex flex-col flex-1"></div>
+    </div>
+    <div v-else-if="responses.length > 1" class="flex flex-col flex-1">
+      <GraphqlSubscriptionLog :log="responses" />
     </div>
     <AppShortcutsPrompt v-else class="p-4" />
   </div>
@@ -52,7 +47,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconDownload from "~icons/lucide/download"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
-import { reactive, ref } from "vue"
+import { reactive, ref, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -67,7 +62,8 @@ const t = useI18n()
 
 const toast = useToast()
 
-const responseString = useReadonlyStream(gqlResponse$, "")
+const responseString = ref("")
+const responses = useReadonlyStream(gqlResponse$, [])
 
 const schemaEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
@@ -87,6 +83,21 @@ useCodemirror(
   })
 )
 
+watch(
+  responses,
+  (responses) => {
+    console.log("responses", responses)
+    if (responses.length === 1) {
+      responseString.value = JSON.stringify(
+        JSON.parse(responses[0].data),
+        null,
+        2
+      )
+    }
+  },
+  { immediate: true }
+)
+
 const downloadResponseIcon = refAutoReset<
   typeof IconDownload | typeof IconCheck
 >(IconDownload, 1000)
@@ -95,14 +106,14 @@ const copyResponseIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   1000
 )
 
-const copyResponse = () => {
-  copyToClipboard(responseString.value!)
+const copyResponse = (str: string) => {
+  copyToClipboard(str)
   copyResponseIcon.value = IconCheck
   toast.success(`${t("state.copied_to_clipboard")}`)
 }
 
-const downloadResponse = () => {
-  const dataToWrite = responseString.value
+const downloadResponse = (str: string) => {
+  const dataToWrite = str
   const file = new Blob([dataToWrite!], { type: "application/json" })
   const a = document.createElement("a")
   const url = URL.createObjectURL(file)
@@ -118,6 +129,10 @@ const downloadResponse = () => {
   }, 1000)
 }
 
-defineActionHandler("response.file.download", () => downloadResponse())
-defineActionHandler("response.copy", () => copyResponse())
+defineActionHandler("response.file.download", () =>
+  downloadResponse.bind(responseString.value)
+)
+defineActionHandler("response.copy", () =>
+  copyResponse.bind(responseString.value)
+)
 </script>

@@ -16,15 +16,23 @@
             :is-removable="tabs.length > 1"
             class="flex flex-col flex-1 overflow-y-auto"
           >
-            <GraphqlRequest :conn="tab.connection" />
-            <GraphqlRequestOptions :conn="tab.connection" />
+            <AppPaneLayout layout-id="gql-primary">
+              <template #primary>
+                <GraphqlRequest :conn="tab.connection" />
+                <GraphqlRequestOptions
+                  :tab-id="tab.id"
+                  :conn="tab.connection"
+                />
+              </template>
+              <template #secondary>
+                <GraphqlResponse :tab-id="tab.id" />
+              </template>
+            </AppPaneLayout>
           </SmartWindow>
         </template>
       </SmartWindows>
     </template>
-    <template #secondary>
-      <GraphqlResponse :conn="gqlConn" />
-    </template>
+
     <template #sidebar>
       <GraphqlSidebar :conn="gqlConn" />
     </template>
@@ -44,6 +52,7 @@ import {
   GQLCurrentTabId$,
   setCurrentTabId,
   addNewGQLTab,
+  gqlConn$,
 } from "~/newstore/GQLSession"
 
 const t = useI18n()
@@ -52,8 +61,8 @@ usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
 
-const gqlConn = new GQLConnection()
-const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
+const gqlConn = useReadonlyStream(gqlConn$, new GQLConnection())
+const isLoading = useReadonlyStream(gqlConn.value.isLoading$, false)
 
 const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
 const tabs = useStream(GQLTabs$, [], setGQLTabs)
@@ -81,8 +90,8 @@ watch(isLoading, () => {
 })
 
 onBeforeUnmount(() => {
-  if (gqlConn.connected$.value) {
-    gqlConn.disconnect()
+  if (gqlConn.value.connected$.value) {
+    gqlConn.value.disconnect()
   }
 })
 

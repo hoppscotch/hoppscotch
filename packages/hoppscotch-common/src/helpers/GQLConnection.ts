@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { BehaviorSubject, Subject } from "rxjs"
 import {
   getIntrospectionQuery,
@@ -62,7 +61,7 @@ export class GQLConnection {
     "UNSUBSCRIBED"
   )
 
-  public event$: Subject<GQLEvent> = new Subject()
+  public event$: Subject<GQLEvent | "reset"> = new Subject()
   public schema$ = new BehaviorSubject<GraphQLSchema | null>(null)
 
   socket: WebSocket | undefined
@@ -338,18 +337,18 @@ export class GQLConnection {
 
     this.subscriptionState$.next("SUBSCRIBING")
 
-    const socket = new WebSocket(wsUrl, "graphql-ws")
+    this.socket = new WebSocket(wsUrl, "graphql-ws")
 
-    socket.onopen = (event) => {
+    this.socket.onopen = (event) => {
       console.log("WebSocket is open now.", event)
-      socket.send(
+      this.socket?.send(
         JSON.stringify({
           type: GQL.CONNECTION_INIT,
           payload: {},
         })
       )
 
-      socket.send(
+      this.socket?.send(
         JSON.stringify({
           type: GQL.START,
           id: "1",
@@ -358,7 +357,9 @@ export class GQLConnection {
       )
     }
 
-    socket.onmessage = (event) => {
+    this.event$.next("reset")
+
+    this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data)
       switch (data.type) {
         case GQL.CONNECTION_ACK: {
@@ -373,7 +374,6 @@ export class GQLConnection {
           break
         }
         case GQL.DATA: {
-          console.log(data.id, data.payload.errors)
           this.event$.next({
             time: Date.now(),
             operationName,
@@ -389,14 +389,18 @@ export class GQLConnection {
       }
     }
 
-    socket.onclose = (event) => {
+    this.socket.onclose = (event) => {
       console.log("WebSocket is closed now.", event)
       this.subscriptionState$.next("UNSUBSCRIBED")
     }
 
     this.addQueryToHistory(options, "")
 
-    return socket
+    return this.socket
+  }
+
+  socketDisconnect() {
+    this.socket?.close()
   }
 
   addQueryToHistory(options: RunQueryOptions, response: string) {

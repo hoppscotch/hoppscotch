@@ -6,8 +6,23 @@
       {{ t("request.query") }}
     </label>
     <div class="flex">
+      <ButtonSecondary
+        v-if="subscriptionState === 'SUBSCRIBED'"
+        v-tippy="{
+          theme: 'tooltip',
+          delay: [500, 20],
+          allowHTML: true,
+        }"
+        :title="`${t(
+          'request.stop'
+        )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+        :label="`${t('request.stop')}`"
+        :icon="IconStop"
+        class="rounded-none !text-accent !hover:text-accentDark"
+        @click="unsubscribe()"
+      />
       <tippy
-        v-if="operations.length > 1"
+        v-else-if="operations.length > 1"
         ref="operationTippy"
         interactive
         trigger="click"
@@ -101,6 +116,7 @@
 
 <script setup lang="ts">
 import IconPlay from "~icons/lucide/play"
+import IconStop from "~icons/lucide/stop-circle"
 import IconSave from "~icons/lucide/save"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
@@ -139,6 +155,10 @@ const emit = defineEmits<{
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
 }>()
 
+const subscriptionState = useReadonlyStream(
+  props.conn.subscriptionState$,
+  "UNSUBSCRIBED"
+)
 const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
@@ -199,6 +219,9 @@ const clearGQLQuery = () => {
 
 const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
+}
+const unsubscribe = () => {
+  props.conn.socketDisconnect()
 }
 const saveRequest = () => {
   emit("save-request")

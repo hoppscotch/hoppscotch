@@ -99,10 +99,10 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import {
+  getGQLResponse,
   gqlAuth$,
   gqlHeaders$,
   gqlQuery$,
-  gqlResponse$,
   gqlURL$,
   gqlVariables$,
   setGQLAuth,
@@ -121,6 +121,7 @@ const selectedOptionTab = ref<OptionTabs>("query")
 const t = useI18n()
 const props = defineProps<{
   conn: GQLConnection
+  tabId: string
 }>()
 const toast = useToast()
 const { subscribeToStream } = useStreamSubscriber()
@@ -140,7 +141,6 @@ const activeGQLHeadersCount = computed(
       .length
 )
 const showSaveRequestModal = ref(false)
-const response = useStream(gqlResponse$, [], setGQLResponse)
 const runQuery = async (
   definition: gql.OperationDefinitionNode | null = null
 ) => {
@@ -184,12 +184,15 @@ const runQuery = async (
 }
 onMounted(() => {
   subscribeToStream(props.conn.event$, (event) => {
+    if (event === "reset") {
+      return setGQLResponse(props.tabId, [])
+    }
+
     try {
       if (event.operationType !== "subscription") {
-        response.value = [event]
+        setGQLResponse(props.tabId, [event])
       } else {
-        response.value = [...response.value, event]
-        console.log(response.value)
+        setGQLResponse(props.tabId, [...getGQLResponse(props.tabId), event])
       }
     } catch (error) {
       console.log(error)

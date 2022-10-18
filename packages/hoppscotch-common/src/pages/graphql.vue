@@ -16,8 +16,8 @@
             :is-removable="tabs.length > 1"
             class="flex flex-col flex-1 overflow-y-auto"
           >
-            <GraphqlRequest :conn="gqlConn" />
-            <GraphqlRequestOptions :conn="gqlConn" />
+            <GraphqlRequest :conn="tab.connection" />
+            <GraphqlRequestOptions :conn="tab.connection" />
           </SmartWindow>
         </template>
       </SmartWindows>
@@ -32,13 +32,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, watch, ref, onMounted } from "vue"
-import { useReadonlyStream } from "@composables/stream"
+import { computed, onBeforeUnmount, watch } from "vue"
+import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
 import { useI18n } from "@composables/i18n"
 import { GQLConnection } from "@helpers/GQLConnection"
-import { uniqueId } from "lodash-es"
+import {
+  GQLTabs$,
+  setGQLTabs,
+  GQLCurrentTabId$,
+  setCurrentTabId,
+  addNewGQLTab,
+} from "~/newstore/GQLSession"
 
 const t = useI18n()
 
@@ -46,35 +52,17 @@ usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
 
-let gqlConn = new GQLConnection()
+const gqlConn = new GQLConnection()
 const isLoading = useReadonlyStream(gqlConn.isLoading$, false)
 
-const currentTabId = ref<string>()
-type Tab = {
-  id: string
-  name: string
-  connection: GQLConnection
-}
-const tabs = ref<Tab[]>([])
-
-onMounted(() => {
-  if (!tabs.value.length) {
-    tabs.value.push({
-      id: "new",
-      name: "Untitled",
-      connection: gqlConn,
-    })
-    currentTabId.value = "new"
-  }
+const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
+const tabs = useStream(GQLTabs$, [], setGQLTabs)
+watch(currentTabId, (tabID) => {
+  console.log("currentTabId", tabID)
 })
 
 const addNewTab = () => {
-  gqlConn.takeSessionSnapshot()
-  tabs.value.push({
-    id: uniqueId("new_"),
-    name: "Untitled",
-    connection: new GQLConnection(),
-  })
+  addNewGQLTab()
   currentTabId.value = tabs.value[tabs.value.length - 1].id
 }
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
@@ -83,26 +71,13 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.value = newTabs
 }
 const removeTab = (tabID: string) => {
-  const index = tabs.value.findIndex((tab) => tab.id === tabID)
-  tabs.value.splice(index, 1)
+  console.log("removetab", tabID)
+  tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
 }
 
 watch(isLoading, () => {
   if (isLoading.value) startPageProgress()
   else completePageProgress()
-})
-
-watch(currentTabId, (newTabID, oldTabID) => {
-  if (oldTabID) {
-    const oldTab = tabs.value.find((tab) => tab.id === oldTabID)
-    oldTab?.connection.takeSessionSnapshot()
-  }
-
-  const tab = tabs.value.find((tab) => tab.id === currentTabId.value)
-  if (tab) {
-    gqlConn = tab.connection as GQLConnection
-    gqlConn.restoreSession()
-  }
 })
 
 onBeforeUnmount(() => {

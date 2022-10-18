@@ -1,4 +1,4 @@
-import { distinctUntilChanged, pluck } from "rxjs/operators"
+import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import {
   GQLHeader,
   HoppGQLRequest,
@@ -7,17 +7,31 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { useStream } from "@composables/stream"
+import { GQLConnection } from "~/helpers/GQLConnection"
+import { uniqueId } from "lodash-es"
 
-export type GQLSession = {
-  request: HoppGQLRequest
-  schema: string
-  response: string
+type GQLTab = HoppGQLRequest & {
+  id: string
+  name: string
+  connection: GQLConnection
 }
 
-export const defaultGQLSession: GQLSession = {
-  request: makeGQLRequest({
+export type GQLSession = {
+  response: string
+  tabs: GQLTab[]
+  currentTabId: string
+}
+
+const defaultTab = {
+  id: "new",
+  connection: new GQLConnection(),
+  ...makeGQLRequest({
     name: "Untitled request",
     url: "https://echo.hoppscotch.io/graphql",
+    auth: {
+      authType: "none",
+      authActive: true,
+    },
     headers: [],
     variables: `{
   "id": "1"
@@ -29,91 +43,140 @@ export const defaultGQLSession: GQLSession = {
     key
     value
   }
-}
-`,
-    auth: {
-      authType: "none",
-      authActive: true,
-    },
+}`,
   }),
-  schema: "",
+}
+
+export const defaultGQLSession: GQLSession = {
   response: "",
+  tabs: [defaultTab],
+  currentTabId: defaultTab.id,
 }
 
 const dispatchers = defineDispatchers({
   setSession(_: GQLSession, { session }: { session: GQLSession }) {
     return session
   },
-  setName(curr: GQLSession, { newName }: { newName: string }) {
+  setName(
+    { tabs, currentTabId }: GQLSession,
+    { newName }: { newName: string }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        name: newName,
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              name: newName,
+            }
+          : tab
+      ),
     }
   },
-  setURL(curr: GQLSession, { newURL }: { newURL: string }) {
+  setURL({ tabs, currentTabId }: GQLSession, { newURL }: { newURL: string }) {
     return {
-      request: {
-        ...curr.request,
-        url: newURL,
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              url: newURL,
+            }
+          : tab
+      ),
     }
   },
-  setHeaders(curr: GQLSession, { headers }: { headers: GQLHeader[] }) {
+  setHeaders(
+    { tabs, currentTabId }: GQLSession,
+    { headers }: { headers: GQLHeader[] }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        headers,
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              headers,
+            }
+          : tab
+      ),
     }
   },
-  addHeader(curr: GQLSession, { header }: { header: GQLHeader }) {
+  addHeader(
+    { tabs, currentTabId }: GQLSession,
+    { header }: { header: GQLHeader }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        headers: [...curr.request.headers, header],
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              headers: [...tab.headers, header],
+            }
+          : tab
+      ),
     }
   },
-  removeHeader(curr: GQLSession, { headerIndex }: { headerIndex: number }) {
+  removeHeader(
+    { tabs, currentTabId }: GQLSession,
+    { headerIndex }: { headerIndex: number }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        headers: curr.request.headers.filter((_x, i) => i !== headerIndex),
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              headers: tab.headers.filter((_x, i) => i !== headerIndex),
+            }
+          : tab
+      ),
     }
   },
   updateHeader(
-    curr: GQLSession,
+    { tabs, currentTabId }: GQLSession,
     {
       headerIndex,
       updatedHeader,
     }: { headerIndex: number; updatedHeader: GQLHeader }
   ) {
     return {
-      request: {
-        ...curr.request,
-        headers: curr.request.headers.map((x, i) =>
-          i === headerIndex ? updatedHeader : x
-        ),
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              headers: tab.headers.map((x, i) =>
+                i === headerIndex ? updatedHeader : x
+              ),
+            }
+          : tab
+      ),
     }
   },
-  setQuery(curr: GQLSession, { newQuery }: { newQuery: string }) {
+  setQuery(
+    { tabs, currentTabId }: GQLSession,
+    { newQuery }: { newQuery: string }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        query: newQuery,
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              query: newQuery,
+            }
+          : tab
+      ),
     }
   },
-  setVariables(curr: GQLSession, { newVariables }: { newVariables: string }) {
+  setVariables(
+    { tabs, currentTabId }: GQLSession,
+    { newVariables }: { newVariables: string }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        variables: newVariables,
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              variables: newVariables,
+            }
+          : tab
+      ),
     }
   },
   setResponse(_: GQLSession, { newResponse }: { newResponse: string }) {
@@ -121,12 +184,34 @@ const dispatchers = defineDispatchers({
       response: newResponse,
     }
   },
-  setAuth(curr: GQLSession, { newAuth }: { newAuth: HoppGQLAuth }) {
+  setAuth(
+    { tabs, currentTabId }: GQLSession,
+    { newAuth }: { newAuth: HoppGQLAuth }
+  ) {
     return {
-      request: {
-        ...curr.request,
-        auth: newAuth,
-      },
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              auth: newAuth,
+            }
+          : tab
+      ),
+    }
+  },
+  setTabs(_: GQLSession, { tabs }: { tabs: GQLTab[] }) {
+    return {
+      tabs,
+    }
+  },
+  addTab(curr: GQLSession, { tab }: { tab: GQLTab }) {
+    return {
+      tabs: [...curr.tabs, tab],
+    }
+  },
+  setCurrentTabId(_: GQLSession, { tabId }: { tabId: string }) {
+    return {
+      currentTabId: tabId,
     }
   },
 })
@@ -232,12 +317,18 @@ export function setGQLSession(session: GQLSession) {
 }
 
 export function useGQLRequestName() {
-  return useStream(gqlName$, gqlSessionStore.value.request.name, (newName) => {
-    gqlSessionStore.dispatch({
-      dispatcher: "setName",
-      payload: { newName },
-    })
-  })
+  return useStream(
+    gqlName$,
+    gqlSessionStore.value.tabs.find(
+      (tab) => tab.id === gqlSessionStore.value.currentTabId
+    )?.name,
+    (newName) => {
+      gqlSessionStore.dispatch({
+        dispatcher: "setName",
+        payload: { newName },
+      })
+    }
+  )
 }
 
 export function setGQLAuth(newAuth: HoppGQLAuth) {
@@ -249,24 +340,77 @@ export function setGQLAuth(newAuth: HoppGQLAuth) {
   })
 }
 
+export function setGQLTabs(tabs: GQLTab[]) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setTabs",
+    payload: {
+      tabs,
+    },
+  })
+}
+
+export function addGQLTab(tab: GQLTab) {
+  gqlSessionStore.dispatch({
+    dispatcher: "addTab",
+    payload: {
+      tab,
+    },
+  })
+}
+
+export function addNewGQLTab() {
+  gqlSessionStore.dispatch({
+    dispatcher: "addTab",
+    payload: {
+      tab: { ...defaultTab, id: uniqueId("new_") },
+    },
+  })
+}
+
+export function setCurrentTabId(tabId: string) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setCurrentTabId",
+    payload: {
+      tabId,
+    },
+  })
+}
+
 export const gqlName$ = gqlSessionStore.subject$.pipe(
-  pluck("request", "name"),
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.name
+  }),
   distinctUntilChanged()
 )
 export const gqlURL$ = gqlSessionStore.subject$.pipe(
-  pluck("request", "url"),
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.url
+  }),
   distinctUntilChanged()
 )
 export const gqlQuery$ = gqlSessionStore.subject$.pipe(
-  pluck("request", "query"),
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.query
+  }),
   distinctUntilChanged()
 )
 export const gqlVariables$ = gqlSessionStore.subject$.pipe(
-  pluck("request", "variables"),
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.variables
+  }),
   distinctUntilChanged()
 )
 export const gqlHeaders$ = gqlSessionStore.subject$.pipe(
-  pluck("request", "headers"),
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.headers
+  }),
+  distinctUntilChanged()
+)
+
+export const gqlAuth$ = gqlSessionStore.subject$.pipe(
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId)?.auth
+  }),
   distinctUntilChanged()
 )
 
@@ -275,4 +419,12 @@ export const gqlResponse$ = gqlSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const gqlAuth$ = gqlSessionStore.subject$.pipe(pluck("request", "auth"))
+export const GQLTabs$ = gqlSessionStore.subject$.pipe(
+  pluck("tabs"),
+  distinctUntilChanged()
+)
+
+export const GQLCurrentTabId$ = gqlSessionStore.subject$.pipe(
+  pluck("currentTabId"),
+  distinctUntilChanged()
+)

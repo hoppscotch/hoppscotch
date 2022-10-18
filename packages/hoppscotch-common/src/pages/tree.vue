@@ -1,43 +1,19 @@
 <template>
-  <SmartTree :adapter="adapter" :transform-function="transformFunction">
-    <slot>
-      <SmartTreeBranch v-for="item in adapter.treeData.value" :key="item.id">
-        <template #content="{ toggleChildren }">
-          <div
-            class="flex flex-col bg-blue-400 p-4 text-white"
-            @click="
-              () => {
-                toggleChildren()
-                getChild(item.id, 'node')
-              }
-            "
-          >
-            <h1>{{ item.name }}</h1>
-            <h2>{{ item.description }}</h2>
-          </div>
-        </template>
-        <template #child>
-          <SmartTreeBranch v-for="child in item.items" :key="child.id">
-            <template #content="{ toggleChildren }">
-              <div
-                class="flex flex-col bg-blue-500 p-4 text-white"
-                @click="toggleChildren"
-              >
-                <h1>{{ child.name }}</h1>
-                <h2 @click="getChild(child.id, 'child')">
-                  {{ child.description }}
-                </h2>
-              </div>
-            </template>
-          </SmartTreeBranch>
+  <SmartTree :adapter="adapter">
+    <template #content="{ node }">
+      <SmartTreeBranch :data="node" :adapter="adapter">
+        <template #default="{ data, toggleChildren }">
+          <h2 class="bg-blue-200 p-2" @click="toggleChildren">
+            {{ data.name }} - {{ data.id }}
+          </h2>
         </template>
       </SmartTreeBranch>
-    </slot>
+    </template>
   </SmartTree>
 </template>
 
 <script setup lang="ts">
-import SmartTreeAdapter from "~/helpers/tree/SmartTreeAdapter"
+import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
 
 const fake_data = [
   {
@@ -45,19 +21,41 @@ const fake_data = [
     name: "Root 1",
     description: "Root node 1",
     icon: "folder",
+    requests: [
+      {
+        id: 1,
+        name: "Request 1",
+        description: "Request node 1",
+        icon: "file",
+      },
+      {
+        id: 2,
+        name: "Request 2",
+        description: "Request node 2",
+        icon: "file",
+      },
+    ],
     folders: [
       {
         id: 11,
-        name: "Child 1",
+        name: "Child 11",
         description: "Child 1",
         icon: "folder",
         folders: [
           {
             id: 111,
-            name: "Child 1",
+            name: "Child 111",
             description: "Child 1",
             icon: "folder",
-            folders: [],
+            folders: [
+              {
+                id: 1111,
+                name: "Child 1111",
+                description: "Child 1",
+                icon: "folder",
+                folders: [],
+              },
+            ],
           },
           {
             id: 112,
@@ -127,6 +125,20 @@ const fake_data = [
         name: "Child 1",
         description: "Child 1",
         icon: "folder",
+        folders: [
+          {
+            id: 441,
+            name: "Child 1",
+            description: "Child 1",
+            icon: "folder",
+          },
+          {
+            id: 442,
+            name: "Child 2",
+            description: "Child 2",
+            icon: "folder",
+          },
+        ],
       },
       {
         id: 42,
@@ -138,19 +150,36 @@ const fake_data = [
   },
 ]
 
-const transformFunction = (data: any) => {
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.description,
-    icon: data.icon,
-    items: data.folders,
+class FakeDataDdapter implements SmartTreeAdapter<any> {
+  constructor(public data: any) {}
+
+  findItem(items: any, id: string | null) {
+    for (const item of items) {
+      if (item.id === id) {
+        return item
+      }
+
+      if (item.folders) {
+        const found: any = this.findItem(item.folders, id)
+        if (found) return found
+      }
+    }
+  }
+
+  getChildren(id: string | null) {
+    if (id === null) {
+      return this.data
+    }
+
+    const item = this.findItem(this.data, id)
+
+    if (item) {
+      return item.folders
+    } else {
+      return null
+    }
   }
 }
 
-const adapter = new SmartTreeAdapter(fake_data)
-
-const getChild = (id: string, type: "node" | "child") => {
-  adapter.getChildNodes(id.toString(), type)
-}
+const adapter = new FakeDataDdapter(fake_data)
 </script>

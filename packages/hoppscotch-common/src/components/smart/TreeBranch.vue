@@ -1,32 +1,26 @@
 <template>
-  <slot :data="data" :toggle-children="toggleChildren"> </slot>
-  <slot name="child" :node-data="data" :toggle-node-children="toggleChildren">
-  </slot>
-  <div v-if="showChildren">
-    <div
-      v-for="child in adapter.getChildren(data.id)"
-      :key="child.id"
-      class="bg-red-500 p-2 mx-5"
+  <slot :node="node" :toggle-children="toggleChildren"></slot>
+  <div v-if="showChildren" class="mx-5">
+    <TreeBranch
+      v-for="childNode in adapter.getChildren(node.id)"
+      :key="childNode.id"
+      :node="childNode"
+      :adapter="adapter"
     >
-      <TreeBranch v-if="child" :data="child" :adapter="adapter">
-        <template #child="{ nodeData, toggleNodeChildren }">
-          <h2 class="bg-orange-200 p-2" @click="toggleNodeChildren">
-            {{ nodeData.name }} - {{ nodeData.id }}
-          </h2>
-        </template>
-      </TreeBranch>
-      <div v-else>sdsd</div>
-    </div>
+      <template #default="{ node, toggleChildren }">
+        <slot :node="node" :toggle-children="toggleChildren"></slot>
+      </template>
+    </TreeBranch>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends any">
 import { ref } from "vue"
-import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
+import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
 
 defineProps<{
-  adapter: SmartTreeAdapter<any>
-  data: any
+  adapter: SmartTreeAdapter<T>
+  node: TreeNode<T>
 }>()
 
 const showChildren = ref(false)

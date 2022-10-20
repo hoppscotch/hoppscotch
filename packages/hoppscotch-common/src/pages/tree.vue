@@ -1,18 +1,15 @@
 <template>
   <SmartTree :adapter="adapter">
-    <template #content="{ node }">
-      <SmartTreeBranch :data="node" :adapter="adapter">
-        <template #default="{ data, toggleChildren }">
-          <h2 class="bg-blue-200 p-2" @click="toggleChildren">
-            {{ data.name }} - {{ data.id }}
-          </h2>
-        </template>
-      </SmartTreeBranch>
+    <template #content="{ node, toggleChildren }">
+      <h2 class="bg-orange-200 p-2" @click="toggleChildren">
+        {{ node.data.name }} - {{ node.id }}
+      </h2>
     </template>
   </SmartTree>
 </template>
 
 <script setup lang="ts">
+import { objHasProperty } from "~/helpers/functional/object"
 import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
 
 const fake_data = [
@@ -41,6 +38,20 @@ const fake_data = [
         name: "Child 11",
         description: "Child 1",
         icon: "folder",
+        requests: [
+          {
+            id: 1,
+            name: "Request 11",
+            description: "Request node 1",
+            icon: "file",
+          },
+          {
+            id: 2,
+            name: "Request 22",
+            description: "Request node 2",
+            icon: "file",
+          },
+        ],
         folders: [
           {
             id: 111,
@@ -150,36 +161,76 @@ const fake_data = [
   },
 ]
 
-class FakeDataDdapter implements SmartTreeAdapter<any> {
-  constructor(public data: any) {}
+type FakeData = typeof fake_data
 
-  findItem(items: any, id: string | null) {
+type Request = {
+  id: number
+  name: string
+  description: string
+  icon: string
+}
+
+type Folder = Collection["folders"][number]
+
+type Collection = FakeData[number]
+
+type Node = Collection | Folder | Request | undefined | null
+
+class FakeDataAdapter implements SmartTreeAdapter<Node> {
+  constructor(public data: Collection[]) {}
+
+  findItem(items: Node[], id: string | null): Node {
     for (const item of items) {
-      if (item.id === id) {
-        return item
-      }
+      if (item) {
+        if (item.id.toString() === id) {
+          return item
+        }
 
-      if (item.folders) {
-        const found: any = this.findItem(item.folders, id)
-        if (found) return found
+        if (objHasProperty("folders")(item)) {
+          const found: Node = this.findItem(item.folders, id)
+          if (found) return found
+        }
+
+        return null
+      } else {
+        return null
       }
     }
+
+    return null
   }
 
   getChildren(id: string | null) {
     if (id === null) {
-      return this.data
+      return this.data.map((item) => ({
+        id: item.id.toString(),
+        data: item,
+      }))
     }
 
-    const item = this.findItem(this.data, id)
+    const item = this.findItem(this.data, id.toString())
 
     if (item) {
-      return item.folders
+      if (objHasProperty("folders")(item)) {
+        return item.folders.map((item) => ({
+          id: item.id.toString(),
+          data: item,
+        }))
+      }
+
+      if (objHasProperty("requests")(item)) {
+        return (item.requests as Request[]).map((item) => ({
+          id: item.id.toString(),
+          data: item,
+        }))
+      }
+
+      return []
     } else {
-      return null
+      return []
     }
   }
 }
 
-const adapter = new FakeDataDdapter(fake_data)
+const adapter = new FakeDataAdapter(fake_data)
 </script>

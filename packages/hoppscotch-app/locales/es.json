@@ -5,7 +5,7 @@
     "choose_file": "Seleccionar archivo",
     "clear": "Limpiar",
     "clear_all": "Limpiar todo",
-    "close": "Close",
+    "close": "Cerrar",
     "connect": "Conectar",
     "connecting": "Connecting",
     "copy": "Copiar",
@@ -14,7 +14,7 @@
     "dismiss": "Descartar",
     "dont_save": "Don't save",
     "download_file": "Descargar archivo",
-    "drag_to_reorder": "Drag to reorder",
+    "drag_to_reorder": "Arrastrar para reordenar",
     "duplicate": "Duplicar",
     "edit": "Editar",
     "filter_response": "Filter response",
@@ -173,7 +173,7 @@
     "profile": "Iniciar sesión para ver tu perfil",
     "protocols": "Los protocolos están vacíos",
     "schema": "Conectarse a un punto final de GraphQL",
-    "shortcodes": "Shortcodes are empty",
+    "shortcodes": "Los shortcodes están vacíos",
     "team_name": "Nombre del equipo vacío",
     "teams": "Los equipos están vacíos",
     "tests": "No hay pruebas para esta petición"
@@ -386,7 +386,7 @@
     "type": "Tipo de petición",
     "url": "URL",
     "variables": "Variables",
-    "view_my_links": "View my links"
+    "view_my_links": "Ver mis enlaces"
   },
   "response": {
     "body": "Cuerpo de respuesta",
@@ -423,7 +423,7 @@
     "extension_version": "Versión de extensión",
     "extensions": "Extensiones",
     "extensions_use_toggle": "Utilizar la extensión del navegador para enviar peticiones (si está presente)",
-    "follow": "Follow Us",
+    "follow": "Síguenos",
     "font_size": "Tamaño de fuente",
     "font_size_large": "Grande",
     "font_size_medium": "Mediano",
@@ -508,9 +508,9 @@
       "title": "Petición"
     },
     "response": {
-      "copy": "Copy response to clipboard",
-      "download": "Download response as file",
-      "title": "Response"
+      "copy": "Copiar la respuesta al portapapeles",
+      "download": "Descargar la respuesta como archivo",
+      "title": "Respuesta"
     },
     "theme": {
       "black": "Cambiar el tema al modo negro",
@@ -582,10 +582,10 @@
     "community": "Haz preguntas y ayuda a los demás",
     "documentation": "Leer más sobre Hoppscotch",
     "forum": "Haz preguntas y obtén respuestas",
-    "github": "Follow us on Github",
+    "github": "Síguenos en Github",
     "shortcuts": "Navega por la aplicación más rápido",
     "team": "Ponte en contacto con el equipo",
-    "title": "Apoyo",
+    "title": "Ayuda",
     "twitter": "Síguenos en Twitter"
   },
   "tab": {
@@ -600,7 +600,7 @@
     "pre_request_script": "Script previo a la petición",
     "queries": "Consultas",
     "query": "Consulta",
-    "schema": "Schema",
+    "schema": "Esquema",
     "socketio": "Socket.IO",
     "sse": "SSE",
     "tests": "Pruebas",

@@ -40,6 +40,8 @@ import {
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
 // TODO: Migrate from legacy mode
 
+import { captureException } from "@sentry/vue"
+
 type ExtendedEditorConfig = {
   mode: string
   placeholder: string
@@ -286,16 +288,31 @@ export function useCodemirror(
     view.value?.destroy()
   })
 
-  watch(value, (newVal) => {
+  watch(value, (newVal, oldVal) => {
     if (cachedValue.value !== newVal) {
-      view.value?.dispatch({
-        filter: false,
-        changes: {
-          from: 0,
-          to: view.value.state.doc.length,
-          insert: newVal,
-        },
-      })
+      try {
+        view.value?.dispatch({
+          filter: false,
+          changes: {
+            from: 0,
+            to: view.value.state.doc.length,
+            insert: newVal,
+          },
+        })
+      } catch (e) {
+        captureException(e, {
+          extra: {
+            newVal,
+            oldVal,
+            changes: {
+              from: 0,
+              to: view.value?.state.doc.length,
+              insert: newVal,
+              cachedValue,
+            },
+          },
+        })
+      }
     }
     cachedValue.value = newVal
   })

@@ -1,7 +1,7 @@
 <template>
   <SmartModal
     v-if="show"
-    max-width="sm:max-w-lg"
+    styles="sm:max-w-lg"
     full-width
     @close="emit('hide-modal')"
   >

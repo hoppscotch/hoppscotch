@@ -3,13 +3,12 @@
     v-if="show"
     dialog
     :title="t('app.options')"
-    max-width="sm:max-w-md"
-    class="text-sm"
+    styles="sm:max-w-md"
     @close="emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col space-y-2">
-        <h2 class="p-2 font-semibold font-bold text-secondaryDark">
+        <h2 class="p-4 font-semibold font-bold text-secondaryDark">
           {{ t("layout.name") }}
         </h2>
         <SmartItem
@@ -28,7 +27,7 @@
           active
           @click="expandCollection"
         />
-        <h2 class="p-2 font-semibold font-bold text-secondaryDark">
+        <h2 class="p-4 font-semibold font-bold text-secondaryDark">
           {{ t("support.title") }}
         </h2>
         <SmartItem
@@ -71,7 +70,7 @@
           active
           @click="hideModal()"
         />
-        <h2 class="p-2 font-semibold font-bold text-secondaryDark">
+        <h2 class="p-4 font-semibold font-bold text-secondaryDark">
           {{ t("settings.follow") }}
         </h2>
         <SmartItem

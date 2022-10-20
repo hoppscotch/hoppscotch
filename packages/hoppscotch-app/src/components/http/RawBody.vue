@@ -60,7 +60,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconFilePlus from "~icons/lucide/file-plus"
-import IconWand from "~icons/lucide/wand"
+import IconWand2 from "~icons/lucide/wand-2"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import { computed, reactive, Ref, ref } from "vue"
@@ -102,8 +102,8 @@ const rawParamsBody = pluckRef(
 )
 
 const prettifyIcon = refAutoReset<
-  typeof IconWand | typeof IconCheck | typeof IconInfo
->(IconWand, 1000)
+  typeof IconWand2 | typeof IconCheck | typeof IconInfo
+>(IconWand2, 1000)
 
 const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(props.contentType)

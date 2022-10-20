@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="t('support.title')"
-    max-width="sm:max-w-md"
+    styles="sm:max-w-md"
     @close="emit('hide-modal')"
   >
     <template #body>

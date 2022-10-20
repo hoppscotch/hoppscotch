@@ -1,5 +1,5 @@
 <template>
-  <AppSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
+  <SmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
     <template #content>
       <div class="sticky top-0 z-10 flex flex-col bg-primary">
         <div class="flex flex-col px-6 py-4 border-b border-dividerLight">
@@ -74,7 +74,7 @@
         </details>
       </div>
     </template>
-  </AppSlideOver>
+  </SmartSlideOver>
 </template>
 
 <script setup lang="ts">

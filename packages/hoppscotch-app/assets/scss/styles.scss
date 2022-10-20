@@ -91,6 +91,17 @@ body {
   @apply translate-x-full;
 }
 
+.bounce-enter-active,
+.bounce-leave-active {
+  @apply transition;
+}
+
+.bounce-enter-from,
+.bounce-leave-to {
+  @apply transform;
+  @apply scale-95;
+}
+
 .svg-icons {
   @apply flex-shrink-0;
   @apply overflow-hidden;

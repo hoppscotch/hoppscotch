@@ -4,6 +4,7 @@
     dialog
     :title="t('app.options')"
     styles="sm:max-w-md"
+    class="text-sm"
     @close="emit('hide-modal')"
   >
     <template #body>

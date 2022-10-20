@@ -190,8 +190,6 @@ class FakeDataAdapter implements SmartTreeAdapter<Node> {
           const found: Node = this.findItem(item.folders, id)
           if (found) return found
         }
-
-        return null
       } else {
         return null
       }

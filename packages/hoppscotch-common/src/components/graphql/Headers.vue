@@ -182,7 +182,7 @@ import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconTrash from "~icons/lucide/trash"
 import IconCircle from "~icons/lucide/circle"
-import { Ref, ref, watch } from "vue"
+import { ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -200,16 +200,18 @@ import { useStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { gqlHeaders$, setGQLHeaders } from "~/newstore/GQLSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useCodemirror } from "@composables/codemirror"
 import { objRemoveKey } from "~/helpers/functional/object"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const colorMode = useColorMode()
-
 const t = useI18n()
-
 const toast = useToast()
+
+const props = defineProps<{
+  request: GQLRequest
+}>()
 
 const idTicker = ref(0)
 
@@ -231,7 +233,11 @@ useCodemirror(bulkEditor, bulkHeaders, {
 })
 
 // The functional headers list (the headers actually in the system)
-const headers = useStream(gqlHeaders$, [], setGQLHeaders) as Ref<GQLHeader[]>
+const headers = useStream(
+  props.request.headers$,
+  [],
+  props.request.setGQLHeaders
+)
 
 // The UI representation of the headers list (has the empty end header)
 const workingHeaders = ref<Array<GQLHeader & { id: number }>>([

@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="flex flex-col flex-1 overflow-y-auto">
+  <div ref="container" class="flex flex-col flex-1">
     <div
       class="sticky top-0 z-10 flex items-center justify-between flex-none pl-4 border-b bg-primary border-dividerLight"
     >
@@ -64,7 +64,7 @@ import IconArrowDown from "~icons/lucide/arrow-down"
 import IconChevronsDown from "~icons/lucide/chevron-down"
 import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "@composables/i18n"
-import { GQLEvent } from "~/helpers/GQLConnection"
+import { GQLEvent } from "~/helpers/graphql/GQLConnection"
 
 const props = defineProps({
   log: { type: Array as PropType<GQLEvent[]>, default: () => [] },

@@ -141,7 +141,7 @@ export class GQLConnection {
 
   private timeoutSubscription: any
 
-  public connect(url: string, headers: GQLHeader[], auth: HoppGQLAuth) {
+  public connect(url: string, headers: GQLHeader[]) {
     if (this.connected$.value) {
       throw new Error(
         "A connection is already running. Close it before starting another."
@@ -152,7 +152,7 @@ export class GQLConnection {
     this.connected$.next(true)
 
     const poll = async () => {
-      await this.getSchema(url, headers, auth)
+      await this.getSchema(url, headers)
       this.timeoutSubscription = setTimeout(() => {
         poll()
       }, GQL_SCHEMA_POLL_INTERVAL)
@@ -177,11 +177,7 @@ export class GQLConnection {
     this.schema$.next(null)
   }
 
-  private async getSchema(
-    url: string,
-    reqHeaders: GQLHeader[],
-    auth: HoppGQLAuth
-  ) {
+  private async getSchema(url: string, headers: GQLHeader[]) {
     try {
       this.isLoading$.next(true)
 
@@ -189,38 +185,10 @@ export class GQLConnection {
         query: getIntrospectionQuery(),
       })
 
-      const headers = reqHeaders.filter((x) => x.active && x.key !== "")
-
-      // TODO: Support a better b64 implementation than btoa ?
-      if (auth.authType === "basic") {
-        const username = auth.username
-        const password = auth.password
-
-        headers.push({
-          active: true,
-          key: "Authorization",
-          value: `Basic ${btoa(`${username}:${password}`)}`,
-        })
-      } else if (auth.authType === "bearer" || auth.authType === "oauth-2") {
-        headers.push({
-          active: true,
-          key: "Authorization",
-          value: `Bearer ${auth.token}`,
-        })
-      } else if (auth.authType === "api-key") {
-        const { key, value, addTo } = auth
-
-        if (addTo === "Headers") {
-          headers.push({
-            active: true,
-            key,
-            value,
-          })
-        }
-      }
-
       const finalHeaders: Record<string, string> = {}
-      headers.forEach((x) => (finalHeaders[x.key] = x.value))
+      headers
+        .filter((x) => x.active && x.key !== "")
+        .forEach((x) => (finalHeaders[x.key] = x.value))
 
       const reqOptions = {
         method: "POST",

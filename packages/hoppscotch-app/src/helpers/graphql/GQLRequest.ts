@@ -1,0 +1,106 @@
+import { GQLHeader, HoppGQLAuth } from "@hoppscotch/data"
+import { BehaviorSubject } from "rxjs"
+import { GQLEvent } from "./GQLConnection"
+import * as gql from "graphql"
+
+export class GQLRequest {
+  public name$ = new BehaviorSubject<string>("Untitled Request")
+  public url$ = new BehaviorSubject<string>("http://localhost:4000/")
+  public headers$ = new BehaviorSubject<GQLHeader[]>([])
+  public auth$ = new BehaviorSubject<HoppGQLAuth>({
+    authType: "none",
+    authActive: false,
+  })
+
+  public query$ = new BehaviorSubject<string>(`query Message {
+    messages {
+      user
+      content
+    }
+  }
+
+
+  subscription RealtimeMessage {
+    messages{
+      content
+      user
+    }
+  }
+
+  mutation SendMessage {
+    postMessage(user: "User ID", content: "Hi")
+  }
+
+  `)
+  public variables$ = new BehaviorSubject<string>(`{
+    "id": "1"
+  }`)
+
+  public response$ = new BehaviorSubject<GQLEvent[]>([])
+  public operations$ = new BehaviorSubject<gql.OperationDefinitionNode[]>([])
+
+  constructor() {
+    this.setOperations(this.query$.value)
+  }
+
+  setGQLURL(newURL: string) {
+    this.url$.next(newURL)
+  }
+
+  setGQLHeaders(headers: GQLHeader[]) {
+    this.headers$.next(headers)
+  }
+
+  clearGQLHeaders() {
+    this.headers$.next([])
+  }
+
+  setGQLAuth(newAuth: HoppGQLAuth) {
+    this.auth$.next(newAuth)
+  }
+
+  setGQLQuery(newQuery: string) {
+    this.query$.next(newQuery)
+    this.setOperations(newQuery)
+  }
+
+  setGQLVariables(newVariables: string) {
+    this.variables$.next(newVariables)
+  }
+
+  setGQLResponse(newResponse: GQLEvent[]) {
+    this.response$.next(newResponse)
+  }
+
+  setRequest(request: {
+    name: string
+    url: string
+    headers: GQLHeader[]
+    query: string
+    variables: string
+    auth: HoppGQLAuth
+    response: string
+  }) {
+    this.name$.next(request.name ?? "Untitled Request")
+    this.url$.next(request.url)
+    this.headers$.next(request.headers)
+    this.query$.next(request.query)
+    this.variables$.next(request.variables)
+    this.auth$.next(request.auth)
+  }
+
+  setOperations(query: string) {
+    try {
+      const parsedQuery = gql.parse(query)
+      this.operations$.next(
+        parsedQuery.definitions as gql.OperationDefinitionNode[]
+      )
+    } catch (e) {
+      // console.log(e)
+    }
+  }
+
+  getName() {
+    return this.name$.value
+  }
+}

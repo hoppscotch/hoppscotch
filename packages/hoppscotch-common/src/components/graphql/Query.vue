@@ -122,9 +122,8 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { ref, watch } from "vue"
+import { ref } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import { gqlQuery$, setGQLQuery } from "~/newstore/GQLSession"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
@@ -134,7 +133,8 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import * as gql from "graphql"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
-import { GQLConnection } from "~/helpers/GQLConnection"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 // Template refs
 const tippyActions = ref<any | null>(null)
@@ -146,6 +146,7 @@ const toast = useToast()
 
 const props = defineProps<{
   conn: GQLConnection
+  request: GQLRequest
 }>()
 
 const emit = defineEmits<{
@@ -167,7 +168,11 @@ const prettifyQueryIcon = refAutoReset<
   typeof IconWand | typeof IconCheck | typeof IconInfo
 >(IconWand, 1000)
 
-const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
+const gqlQueryString = useStream(
+  props.request.query$,
+  "",
+  props.request.setGQLQuery
+)
 
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
@@ -179,21 +184,8 @@ useCodemirror(queryEditor, gqlQueryString, {
   environmentHighlights: false,
 })
 
-// Watch operations on graphql query string
-const operations = ref<gql.OperationDefinitionNode[]>([])
-watch(
-  gqlQueryString,
-  (query) => {
-    try {
-      const parsedQuery = gql.parse(query)
-      operations.value =
-        parsedQuery.definitions as gql.OperationDefinitionNode[]
-    } catch (e) {
-      // console.log(e)
-    }
-  },
-  { immediate: true }
-)
+// operations on graphql query string
+const operations = useReadonlyStream(props.request.operations$, [])
 
 const prettifyQuery = () => {
   try {

@@ -12,20 +12,21 @@
         <template v-for="tab in tabs" :key="'removable_tab_' + tab.id">
           <SmartWindow
             :id="tab.id"
-            :label="tab.name"
+            :label="tab.request.getName()"
             :is-removable="tabs.length > 1"
             class="flex flex-col flex-1 overflow-y-auto"
           >
             <AppPaneLayout layout-id="gql-primary">
               <template #primary>
-                <GraphqlRequest :conn="tab.connection" />
+                <GraphqlRequest :conn="tab.connection" :request="tab.request" />
                 <GraphqlRequestOptions
                   :tab-id="tab.id"
                   :conn="tab.connection"
+                  :request="tab.request"
                 />
               </template>
               <template #secondary>
-                <GraphqlResponse :tab-id="tab.id" />
+                <GraphqlResponse :request="tab.request" />
               </template>
             </AppPaneLayout>
           </SmartWindow>
@@ -34,7 +35,7 @@
     </template>
 
     <template #sidebar>
-      <GraphqlSidebar :conn="gqlConn" />
+      <GraphqlSidebar :conn="gqlConn" :request="gqlRequest" />
     </template>
   </AppPaneLayout>
 </template>
@@ -44,8 +45,8 @@ import { computed, onBeforeUnmount, watch } from "vue"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
-import { useI18n } from "@composables/i18n"
-import { GQLConnection } from "@helpers/GQLConnection"
+import { startPageProgress, completePageProgress } from "@modules/loadingbar"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import {
   GQLTabs$,
   setGQLTabs,
@@ -53,7 +54,9 @@ import {
   setCurrentTabId,
   addNewGQLTab,
   gqlConn$,
+  gqlRequest$,
 } from "~/newstore/GQLSession"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const t = useI18n()
 
@@ -62,6 +65,7 @@ usePageHead({
 })
 
 const gqlConn = useReadonlyStream(gqlConn$, new GQLConnection())
+const gqlRequest = useReadonlyStream(gqlRequest$, new GQLRequest())
 const isLoading = useReadonlyStream(gqlConn.value.isLoading$, false)
 
 const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)

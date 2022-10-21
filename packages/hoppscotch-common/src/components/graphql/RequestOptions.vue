@@ -2,8 +2,8 @@
   <div class="flex flex-col flex-1 h-full">
     <HoppSmartTabs
       v-model="selectedOptionTab"
-      styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
-      render-inactive-tabs
+      styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+      :render-inactive-tabs="true"
     >
       <HoppSmartTab
         :id="'query'"
@@ -12,6 +12,7 @@
       >
         <GraphqlQuery
           :conn="props.conn"
+          :request="request"
           @run-query="runQuery"
           @save-request="saveRequest"
         />
@@ -21,19 +22,25 @@
         :label="`${t('tab.variables')}`"
         :indicator="variableString && variableString.length > 0 ? true : false"
       >
-        <GraphqlVariable :conn="conn" />
+        <GraphqlVariable
+          :conn="conn"
+          :request="request"
+          @run-query="runQuery"
+          @save-request="saveRequest"
+        />
       </SmartTab>
       <SmartTab
         :id="'headers'"
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
-        <GraphqlHeaders />
+        <GraphqlHeaders :request="request" />
       </SmartTab>
       <SmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-        <GraphqlAuthorization />
-      </HoppSmartTab>
-    </HoppSmartTabs>
+        Under construction
+        <!-- <GraphqlAuthorization :request="request" /> -->
+      </SmartTab>
+    </SmartTabs>
     <CollectionsSaveRequest
       mode="graphql"
       :show="showSaveRequestModal"
@@ -43,56 +50,59 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, computed, ref, onMounted } from "vue"
-import * as gql from "graphql"
-import { GQLHeader } from "@hoppscotch/data"
-import { clone } from "lodash-es"
+import { useI18n } from "@composables/i18n"
 import {
   useReadonlyStream,
   useStream,
   useStreamSubscriber,
 } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { startPageProgress, completePageProgress } from "@modules/loadingbar"
-import {
-  getGQLResponse,
-  gqlAuth$,
-  GQLCurrentTabId$,
-  gqlHeaders$,
-  gqlQuery$,
-  gqlURL$,
-  gqlVariables$,
-  setGQLAuth,
-  setGQLHeaders,
-  setGQLQuery,
-  setGQLResponse,
-  setGQLVariables,
-  setResponseUnseen,
-} from "~/newstore/GQLSession"
-import { GQLConnection } from "~/helpers/GQLConnection"
-import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
-import { platform } from "~/platform"
-import { getCurrentStrategyID } from "~/helpers/network"
+import { completePageProgress, startPageProgress } from "@modules/loadingbar"
+import * as gql from "graphql"
+import { clone } from "lodash-es"
+import { computed, onMounted, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
+import { getCurrentStrategyID } from "~/helpers/network"
+import { GQLCurrentTabId$, setResponseUnseen } from "~/newstore/GQLSession"
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")
 const t = useI18n()
 const props = defineProps<{
   conn: GQLConnection
+  request: GQLRequest
   tabId: string
 }>()
 const toast = useToast()
 const { subscribeToStream } = useStreamSubscriber()
-const url = useReadonlyStream(gqlURL$, "")
-const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
-const variableString = useStream(gqlVariables$, "", setGQLVariables)
+const url = useReadonlyStream(props.request.url$, "")
+const gqlQueryString = useStream(
+  props.request.query$,
+  "",
+  props.request.setGQLQuery
+)
+const variableString = useStream(
+  props.request.variables$,
+  "",
+  props.request.setGQLVariables
+)
 // The functional headers list (the headers actually in the system)
-const headers = useStream(gqlHeaders$, [], setGQLHeaders) as Ref<GQLHeader[]>
+const headers = useStream(
+  props.request.headers$,
+  [],
+  props.request.setGQLHeaders
+)
 const auth = useStream(
-  gqlAuth$,
+  props.request.auth$,
   { authType: "none", authActive: true },
-  setGQLAuth
+  props.request.setGQLAuth
+)
+const response = useStream(
+  props.request.response$,
+  [],
+  props.request.setGQLResponse
 )
 const currentTabId = useReadonlyStream(GQLCurrentTabId$, "")
 const activeGQLHeadersCount = computed(
@@ -145,14 +155,14 @@ const runQuery = async (
 onMounted(() => {
   subscribeToStream(props.conn.event$, (event) => {
     if (event === "reset") {
-      return setGQLResponse(props.tabId, [])
+      return props.request.setGQLResponse([])
     }
 
     try {
       if (event.operationType !== "subscription") {
-        setGQLResponse(props.tabId, [event])
+        props.request.setGQLResponse([event])
       } else {
-        setGQLResponse(props.tabId, [...getGQLResponse(props.tabId), event])
+        props.request.setGQLResponse([...response.value, event])
         if (currentTabId.value !== props.tabId) {
           setResponseUnseen(props.tabId, false)
         }

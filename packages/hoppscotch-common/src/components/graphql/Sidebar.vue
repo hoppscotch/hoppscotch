@@ -192,20 +192,13 @@ import { map } from "rxjs/operators"
 import { GQLHeader } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
-import { GQLConnection } from "@helpers/GQLConnection"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
-import {
-  setGQLAuth,
-  setGQLHeaders,
-  setGQLQuery,
-  setGQLResponse,
-  setGQLURL,
-  setGQLVariables,
-} from "~/newstore/GQLSession"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -280,6 +273,7 @@ type GQLHistoryEntry = {
 
 const props = defineProps<{
   conn: GQLConnection
+  request: GQLRequest
 }>()
 
 const toast = useToast()
@@ -444,15 +438,19 @@ const handleUseHistory = (entry: GQLHistoryEntry) => {
   const variableString = entry.variables
   const responseText = entry.response
 
-  setGQLURL(url)
-  setGQLHeaders(headers)
-  setGQLQuery(gqlQueryString)
-  setGQLVariables(variableString)
-  setGQLResponse(responseText)
-  setGQLAuth({
-    authType: "none",
-    authActive: true,
+  props.request.setRequest({
+    name: "Untitled Request",
+    url,
+    headers,
+    auth: {
+      authType: "none",
+      authActive: true,
+    },
+    query: gqlQueryString,
+    variables: variableString,
+    response: responseText,
   })
+
   props.conn.reset()
 }
 </script>

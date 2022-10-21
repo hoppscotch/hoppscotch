@@ -269,21 +269,25 @@ import { pluckRef } from "@composables/ref"
 import { useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { gqlAuth$, setGQLAuth } from "~/newstore/GQLSession"
 
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const t = useI18n()
 const colorMode = useColorMode()
 
+const props = defineProps<{
+  request: GQLRequest
+}>()
+
 const auth = useStream(
-  gqlAuth$,
+  props.request.auth$,
   { authType: "none", authActive: true },
-  setGQLAuth
+  props.request.setGQLAuth
 )
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {

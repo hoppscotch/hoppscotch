@@ -111,15 +111,9 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { computed, reactive, ref, watch } from "vue"
+import { computed, reactive, ref } from "vue"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import {
-  gqlQuery$,
-  gqlVariables$,
-  setGQLQuery,
-  setGQLVariables,
-} from "~/newstore/GQLSession"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
 import * as gql from "graphql"
@@ -127,7 +121,8 @@ import { useI18n } from "@composables/i18n"
 import { refAutoReset } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLConnection } from "~/helpers/GQLConnection"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const tippyActions = ref<any | null>(null)
 
@@ -136,6 +131,7 @@ const toast = useToast()
 
 const props = defineProps<{
   conn: GQLConnection
+  request: GQLRequest
 }>()
 
 const emit = defineEmits<{
@@ -149,23 +145,13 @@ const subscriptionState = useReadonlyStream(
 )
 
 // Watch operations on graphql query string
-const gqlQueryString = useStream(gqlQuery$, "", setGQLQuery)
-const operations = ref<gql.OperationDefinitionNode[]>([])
-watch(
-  gqlQueryString,
-  (query) => {
-    try {
-      const parsedQuery = gql.parse(query)
-      operations.value =
-        parsedQuery.definitions as gql.OperationDefinitionNode[]
-    } catch (e) {
-      // console.log(e)
-    }
-  },
-  { immediate: true }
-)
+const operations = useReadonlyStream(props.request.operations$, [])
 
-const variableString = useStream(gqlVariables$, "", setGQLVariables)
+const variableString = useStream(
+  props.request.variables$,
+  "",
+  props.request.setGQLVariables
+)
 const variableEditor = ref<any | null>(null)
 
 const copyVariablesIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

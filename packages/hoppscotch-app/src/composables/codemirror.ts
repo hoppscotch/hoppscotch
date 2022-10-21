@@ -161,7 +161,7 @@ const getEditorLanguage = (
 
 export function useCodemirror(
   el: Ref<any | null>,
-  value: Ref<string>,
+  value: Ref<string | undefined>,
   options: CodeMirrorOptions
 ): { cursor: Ref<{ line: number; ch: number }> } {
   const { subscribeToStream } = useStreamSubscriber()
@@ -289,6 +289,15 @@ export function useCodemirror(
   })
 
   watch(value, (newVal, oldVal) => {
+    if (newVal === undefined) {
+      view.value?.destroy()
+      view.value = undefined
+      return
+    }
+
+    if (!view.value && el.value) {
+      initView(el.value)
+    }
     if (cachedValue.value !== newVal) {
       try {
         view.value?.dispatch({

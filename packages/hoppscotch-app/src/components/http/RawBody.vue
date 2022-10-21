@@ -119,6 +119,13 @@ watch(rawParamsBody, (newVal) => {
     : (codemirrorValue.value = undefined)
 })
 
+// propagate the edits from codemirror back to the body
+watch(codemirrorValue, (updatedValue) => {
+  if (updatedValue && updatedValue != rawParamsBody.value) {
+    rawParamsBody.value = updatedValue
+  }
+})
+
 useCodemirror(
   rawBodyParameters,
   codemirrorValue,

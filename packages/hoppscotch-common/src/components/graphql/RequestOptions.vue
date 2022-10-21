@@ -37,8 +37,7 @@
         <GraphqlHeaders :request="request" />
       </SmartTab>
       <SmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-        Under construction
-        <!-- <GraphqlAuthorization :request="request" /> -->
+        <GraphqlAuthorization :request="request" />
       </SmartTab>
     </SmartTabs>
     <CollectionsSaveRequest
@@ -81,28 +80,28 @@ const url = useReadonlyStream(props.request.url$, "")
 const gqlQueryString = useStream(
   props.request.query$,
   "",
-  props.request.setGQLQuery
+  props.request.setGQLQuery.bind(props.request)
 )
 const variableString = useStream(
   props.request.variables$,
   "",
-  props.request.setGQLVariables
+  props.request.setGQLVariables.bind(props.request)
 )
 // The functional headers list (the headers actually in the system)
 const headers = useStream(
   props.request.headers$,
   [],
-  props.request.setGQLHeaders
+  props.request.setGQLHeaders.bind(props.request)
 )
 const auth = useStream(
   props.request.auth$,
   { authType: "none", authActive: true },
-  props.request.setGQLAuth
+  props.request.setGQLAuth.bind(props.request)
 )
 const response = useStream(
   props.request.response$,
   [],
-  props.request.setGQLResponse
+  props.request.setGQLResponse.bind(props.request)
 )
 const currentTabId = useReadonlyStream(GQLCurrentTabId$, "")
 const activeGQLHeadersCount = computed(
@@ -155,14 +154,14 @@ const runQuery = async (
 onMounted(() => {
   subscribeToStream(props.conn.event$, (event) => {
     if (event === "reset") {
-      return props.request.setGQLResponse([])
+      return (response.value = [])
     }
 
     try {
       if (event.operationType !== "subscription") {
-        props.request.setGQLResponse([event])
+        response.value = [event]
       } else {
-        props.request.setGQLResponse([...response.value, event])
+        response.value = [...response.value, event]
         if (currentTabId.value !== props.tabId) {
           setResponseUnseen(props.tabId, false)
         }

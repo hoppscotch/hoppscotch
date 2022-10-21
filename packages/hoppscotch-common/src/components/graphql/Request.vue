@@ -44,7 +44,11 @@ const props = defineProps<{
 const connected = useReadonlyStream(props.conn.connected$, false)
 const headers = useReadonlyStream(props.request.headers$, [])
 
-const url = useStream(props.request.url$, "", props.request.setGQLURL)
+const url = useStream(
+  props.request.url$,
+  "",
+  props.request.setGQLURL.bind(props.request)
+)
 
 const onConnectClick = () => {
   if (!connected.value) {

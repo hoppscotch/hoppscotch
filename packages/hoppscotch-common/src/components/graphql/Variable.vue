@@ -150,7 +150,7 @@ const operations = useReadonlyStream(props.request.operations$, [])
 const variableString = useStream(
   props.request.variables$,
   "",
-  props.request.setGQLVariables
+  props.request.setGQLVariables.bind(props.request)
 )
 const variableEditor = ref<any | null>(null)
 

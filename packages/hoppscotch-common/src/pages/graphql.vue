@@ -35,7 +35,10 @@
     </template>
 
     <template #sidebar>
-      <GraphqlSidebar :conn="gqlConn" :request="gqlRequest" />
+      <GraphqlSidebar
+        :conn="currentTab.connection"
+        :request="currentTab.request"
+      />
     </template>
   </AppPaneLayout>
 </template>
@@ -46,17 +49,14 @@ import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { usePageHead } from "@composables/head"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import {
   GQLTabs$,
   setGQLTabs,
   GQLCurrentTabId$,
   setCurrentTabId,
   addNewGQLTab,
-  gqlConn$,
-  gqlRequest$,
+  gqlCurrentTab$,
 } from "~/newstore/GQLSession"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const t = useI18n()
 
@@ -64,9 +64,11 @@ usePageHead({
   title: computed(() => t("navigation.graphql")),
 })
 
-const gqlConn = useReadonlyStream(gqlConn$, new GQLConnection())
-const gqlRequest = useReadonlyStream(gqlRequest$, new GQLRequest())
-const isLoading = useReadonlyStream(gqlConn.value.isLoading$, false)
+const currentTab = useReadonlyStream(gqlCurrentTab$)
+const isLoading = useReadonlyStream(
+  currentTab.value.connection.isLoading$,
+  false
+)
 
 const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
 const tabs = useStream(GQLTabs$, [], setGQLTabs)
@@ -94,8 +96,8 @@ watch(isLoading, () => {
 })
 
 onBeforeUnmount(() => {
-  if (gqlConn.value.connected$.value) {
-    gqlConn.value.disconnect()
+  if (currentTab.value.connection.connected$.value) {
+    currentTab.value.connection.disconnect()
   }
 })
 

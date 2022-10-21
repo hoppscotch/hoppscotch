@@ -1,5 +1,6 @@
 import { uniqueId } from "lodash-es"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
+import { useStream } from "~/composables/stream"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
@@ -83,6 +84,22 @@ export function getGQLSession() {
   return gqlSessionStore.value
 }
 
+export function getGQLRequest() {
+  const { tabs, currentTabId } = gqlSessionStore.value
+  const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
+  return tab.request.getRequest()
+}
+
+export function useGQLRequestName() {
+  const { tabs, currentTabId } = gqlSessionStore.value
+  const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
+  return useStream(
+    tab.request.name$,
+    tab.request.name$.value,
+    tab.request.setGQLName.bind(tab.request)
+  )
+}
+
 export function setGQLSession(session: GQLSession) {
   gqlSessionStore.dispatch({
     dispatcher: "setSession",
@@ -128,21 +145,9 @@ export function setCurrentTabId(tabId: string) {
   })
 }
 
-export const gqlConn$ = gqlSessionStore.subject$.pipe(
+export const gqlCurrentTab$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return (
-      tabs.find((tab) => tab.id === currentTabId)?.connection ??
-      new GQLConnection()
-    )
-  }),
-  distinctUntilChanged()
-)
-
-export const gqlRequest$ = gqlSessionStore.subject$.pipe(
-  map(({ tabs, currentTabId }) => {
-    return (
-      tabs.find((tab) => tab.id === currentTabId)?.request ?? new GQLRequest()
-    )
+    return tabs.find((tab) => tab.id === currentTabId) as GQLTab
   }),
   distinctUntilChanged()
 )

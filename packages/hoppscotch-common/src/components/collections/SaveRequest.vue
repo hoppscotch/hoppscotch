@@ -71,9 +71,12 @@ import {
   updateTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
-import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
+import { getGQLRequest, useGQLRequestName } from "~/newstore/GQLSession"
+import {
+  getRESTRequest,
+  setRESTSaveContext,
+  useRESTRequestName,
+} from "~/newstore/RESTSession"
 import {
   editGraphqlRequest,
   editRESTRequest,
@@ -202,15 +205,10 @@ const saveRequestAs = async () => {
     return
   }
 
-  let requestUpdated
-
-  if (props.request) {
-    requestUpdated = cloneDeep(props.request)
-  } else if (props.mode === "rest") {
-    requestUpdated = cloneDeep(currentActiveTab.value.document.request)
-  } else {
-    requestUpdated = cloneDeep(getGQLSession().request)
-  }
+  const requestUpdated =
+    props.mode === "rest"
+      ? cloneDeep(getRESTRequest())
+      : cloneDeep(getGQLRequest())
 
   requestUpdated.name = requestName.value
 

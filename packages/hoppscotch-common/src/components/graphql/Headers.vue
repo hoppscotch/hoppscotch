@@ -236,7 +236,7 @@ useCodemirror(bulkEditor, bulkHeaders, {
 const headers = useStream(
   props.request.headers$,
   [],
-  props.request.setGQLHeaders
+  props.request.setGQLHeaders.bind(props.request)
 )
 
 // The UI representation of the headers list (has the empty end header)

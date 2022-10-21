@@ -170,8 +170,8 @@ const prettifyQueryIcon = refAutoReset<
 
 const gqlQueryString = useStream(
   props.request.query$,
-  "",
-  props.request.setGQLQuery
+  "q",
+  props.request.setGQLQuery.bind(props.request)
 )
 
 useCodemirror(queryEditor, gqlQueryString, {

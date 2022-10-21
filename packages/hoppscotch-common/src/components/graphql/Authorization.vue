@@ -287,7 +287,7 @@ const props = defineProps<{
 const auth = useStream(
   props.request.auth$,
   { authType: "none", authActive: true },
-  props.request.setGQLAuth
+  props.request.setGQLAuth.bind(props.request)
 )
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {

@@ -128,8 +128,7 @@ const resetSelectedData = () => {
 }
 
 defineActionHandler("modals.my.environment.edit", (args?: any[]) => {
-  const envName: any = args?.[0]
-  const variableName: string = args?.[1]
+  const [envName, variableName]: any = args
   editingVariableName.value = variableName
   const envIndex: number = environments.value.findIndex(
     (environment: Environment) => {

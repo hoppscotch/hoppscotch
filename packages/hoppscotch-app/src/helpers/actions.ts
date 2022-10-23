@@ -22,8 +22,8 @@ export type HoppAction =
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
-  | "modals.my.environment.edit" // Edit current environment
-  | "modals.team.environment.edit" // Edit current environment
+  | "modals.my.environment.edit" // Edit current personal environment
+  | "modals.team.environment.edit" // Edit current team environment
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page

@@ -102,6 +102,7 @@
       :action="action"
       :editing-environment="editingEnvironment"
       :editing-team-id="team?.id"
+      :editing-variable-name="editingVariableName"
       :is-viewer="team?.myRole === 'VIEWER'"
       @hide-modal="displayModalEdit(false)"
     />
@@ -125,6 +126,7 @@ import IconPlus from "~icons/lucide/plus"
 import IconArchive from "~icons/lucide/archive"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { Team } from "~/helpers/backend/graphql"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -132,7 +134,7 @@ const colorMode = useColorMode()
 
 type SelectedTeam = Team | undefined
 
-defineProps<{
+const props = defineProps<{
   team: SelectedTeam
   teamEnvironments: TeamEnvironment[]
   adapterError: GQLError<string> | null
@@ -143,6 +145,7 @@ const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
+const editingVariableName = ref<string>("")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"
@@ -178,4 +181,15 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
+
+defineActionHandler("modals.team.environment.edit", (args?: any[]) => {
+  const envName: any = args?.[0]
+  const variableName: string = args?.[1]
+  editingVariableName.value = variableName
+  const teamEnvToEdit: TeamEnvironment | undefined =
+    props.teamEnvironments.find((environment: TeamEnvironment) => {
+      return environment.environment.name === envName
+    })
+  if (teamEnvToEdit) editEnvironment(teamEnvToEdit)
+})
 </script>

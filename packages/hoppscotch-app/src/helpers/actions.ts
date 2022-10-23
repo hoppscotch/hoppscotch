@@ -22,6 +22,8 @@ export type HoppAction =
   | "modals.search.toggle" // Shows the search modal
   | "modals.support.toggle" // Shows the support modal
   | "modals.share.toggle" // Shows the share modal
+  | "modals.my.environment.edit" // Edit current environment
+  | "modals.team.environment.edit" // Edit current environment
   | "navigation.jump.rest" // Jump to REST page
   | "navigation.jump.graphql" // Jump to GraphQL page
   | "navigation.jump.realtime" // Jump to realtime page
@@ -38,7 +40,7 @@ export type HoppAction =
 
 type BoundActionList = {
   // eslint-disable-next-line no-unused-vars
-  [_ in HoppAction]?: Array<() => void>
+  [_ in HoppAction]?: Array<(args?: any[]) => void>
 }
 
 const boundActions: BoundActionList = {}
@@ -55,8 +57,8 @@ export function bindAction(action: HoppAction, handler: () => void) {
   activeActions$.next(Object.keys(boundActions) as HoppAction[])
 }
 
-export function invokeAction(action: HoppAction) {
-  boundActions[action]?.forEach((handler) => handler())
+export function invokeAction(action: HoppAction, args?: any[]) {
+  boundActions[action]?.forEach((handler) => handler(args))
 }
 
 export function unbindAction(action: HoppAction, handler: () => void) {
@@ -69,7 +71,10 @@ export function unbindAction(action: HoppAction, handler: () => void) {
   activeActions$.next(Object.keys(boundActions) as HoppAction[])
 }
 
-export function defineActionHandler(action: HoppAction, handler: () => void) {
+export function defineActionHandler(
+  action: HoppAction,
+  handler: (args?: any[]) => void
+) {
   onMounted(() => {
     bindAction(action, handler)
   })

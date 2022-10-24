@@ -44,7 +44,7 @@
     "fp-ts": "^2.11.10",
     "lodash": "^4.17.21",
     "quickjs-emscripten": "^0.15.0",
-    "tsup": "^5.12.5"
+    "tsup": "^6.3.0"
   },
   "devDependencies": {
     "@digitak/esrun": "^3.1.2",

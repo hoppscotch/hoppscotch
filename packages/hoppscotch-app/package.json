@@ -44,7 +44,7 @@
     "@urql/devtools": "^2.0.3",
     "@urql/exchange-auth": "^0.1.7",
     "@urql/exchange-graphcache": "^4.4.3",
-    "@vueuse/core": "^8.7.5",
+    "@vueuse/core": "^9.3.1",
     "@vueuse/head": "^0.7.9",
     "acorn-walk": "^8.2.0",
     "axios": "^0.21.4",

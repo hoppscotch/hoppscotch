@@ -63,10 +63,10 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import IconWand2 from "~icons/lucide/wand-2"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
-import { computed, reactive, Ref, ref } from "vue"
+import { computed, reactive, Ref, ref, watch } from "vue"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
-import { HoppRESTReqBody, ValidContentTypes } from "@hoppscotch/data"
+import { ValidContentTypes } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { getEditorLangForMimeType } from "@helpers/editorutils"
@@ -92,14 +92,7 @@ const props = defineProps<{
 
 const toast = useToast()
 
-const rawParamsBody = pluckRef(
-  useRESTRequestBody() as Ref<
-    HoppRESTReqBody & {
-      contentType: PossibleContentTypes
-    }
-  >,
-  "body"
-)
+const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
 
 const prettifyIcon = refAutoReset<
   typeof IconWand2 | typeof IconCheck | typeof IconInfo
@@ -115,9 +108,27 @@ const langLinter = computed(() =>
 const linewrapEnabled = ref(true)
 const rawBodyParameters = ref<any | null>(null)
 
+const codemirrorValue: Ref<string | undefined> =
+  typeof rawParamsBody.value == "string"
+    ? ref(rawParamsBody.value)
+    : ref(undefined)
+
+watch(rawParamsBody, (newVal) => {
+  typeof newVal == "string"
+    ? (codemirrorValue.value = newVal)
+    : (codemirrorValue.value = undefined)
+})
+
+// propagate the edits from codemirror back to the body
+watch(codemirrorValue, (updatedValue) => {
+  if (updatedValue && updatedValue != rawParamsBody.value) {
+    rawParamsBody.value = updatedValue
+  }
+})
+
 useCodemirror(
   rawBodyParameters,
-  rawParamsBody,
+  codemirrorValue,
   reactive({
     extendedEditorConfig: {
       lineWrapping: linewrapEnabled,

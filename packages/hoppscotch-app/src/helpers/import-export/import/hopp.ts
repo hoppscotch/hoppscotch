@@ -33,12 +33,7 @@ export default defineImporter({
       O.chain(
         flow(
           makeCollectionsArray,
-          RA.map(
-            flow(
-              O.fromPredicate(isValidCollection),
-              O.map(translateToNewRESTCollection)
-            )
-          ),
+          RA.map(validateCollection),
           O.sequenceArray,
           O.map(RA.toArray)
         )
@@ -60,6 +55,18 @@ const isValidCollection = (
   collection: unknown
 ): collection is HoppCollection<HoppRESTRequest> =>
   isPlainObject(collection) && "v" in collection
+
+/**
+ * checks if a collection is a valid hoppscotch collection.
+ * else translate it into one.
+ */
+const validateCollection = (collection: unknown) => {
+  if (isValidCollection(collection)) {
+    return O.some(collection)
+  } else {
+    return O.some(translateToNewRESTCollection(collection))
+  }
+}
 
 /**
  * convert single collection object into an array so it can be handled the same as multiple collections

@@ -36,7 +36,7 @@
           }"
           :title="`${t(
             'request.run'
-          )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+          )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
           :label="`${t('request.run')}`"
           :icon="IconPlay"
           class="rounded-none !text-accent !hover:text-accentDark"

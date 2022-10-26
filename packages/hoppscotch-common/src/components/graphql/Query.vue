@@ -36,7 +36,7 @@
           }"
           :title="`${t(
             'request.run'
-          )} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+          )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
           :label="`${t('request.run')}`"
           :icon="IconPlay"
           class="rounded-none !text-accent !hover:text-accentDark"
@@ -65,7 +65,7 @@
           delay: [500, 20],
           allowHTML: true,
         }"
-        :title="`${t('request.run')} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
+        :title="`${t('request.run')} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
         :label="`${t('request.run')}`"
         :icon="IconPlay"
         class="rounded-none !text-accent !hover:text-accentDark"
@@ -76,7 +76,7 @@
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
         :title="`${t(
           'request.save'
-        )} <xmp>${getSpecialKey()}</xmp><xmp>S</xmp>`"
+        )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
         :label="`${t('request.save')}`"
         :icon="IconSave"
         class="rounded-none"

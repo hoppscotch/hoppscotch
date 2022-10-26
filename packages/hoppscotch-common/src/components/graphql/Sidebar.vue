@@ -202,7 +202,7 @@ import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
 
-const selectedNavigationTab = ref<NavigationTabs>("history")
+const selectedNavigationTab = ref<NavigationTabs>("docs")
 const selectedGqlTab = ref<GqlTabs>("queries")
 
 const t = useI18n()
@@ -266,6 +266,8 @@ const props = defineProps<{
   conn: GQLConnection
   request: GQLRequest
 }>()
+
+console.log(props.conn, props.request)
 
 const toast = useToast()
 

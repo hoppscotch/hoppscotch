@@ -189,7 +189,6 @@ import IconBox from "~icons/lucide/box"
 import { computed, nextTick, reactive, ref } from "vue"
 import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
-import { GQLHeader } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
@@ -261,14 +260,6 @@ function resolveRootType(type: GraphQLType) {
   let t: any = type
   while (t.ofType) t = t.ofType
   return t
-}
-
-type GQLHistoryEntry = {
-  url: string
-  headers: GQLHeader[]
-  query: string
-  response: string
-  variables: string
 }
 
 const props = defineProps<{
@@ -429,28 +420,5 @@ const copySchema = () => {
 
   copyToClipboard(schemaString.value)
   copySchemaIcon.value = IconCheck
-}
-
-const handleUseHistory = (entry: GQLHistoryEntry) => {
-  const url = entry.url
-  const headers = entry.headers
-  const gqlQueryString = entry.query
-  const variableString = entry.variables
-  const responseText = entry.response
-
-  props.request.setRequest({
-    name: "Untitled Request",
-    url,
-    headers,
-    auth: {
-      authType: "none",
-      authActive: true,
-    },
-    query: gqlQueryString,
-    variables: variableString,
-    response: responseText,
-  })
-
-  props.conn.reset()
 }
 </script>

@@ -1,4 +1,9 @@
-import { GQLHeader, HoppGQLAuth, makeGQLRequest } from "@hoppscotch/data"
+import {
+  GQLHeader,
+  HoppGQLAuth,
+  HoppGQLRequest,
+  makeGQLRequest,
+} from "@hoppscotch/data"
 import { BehaviorSubject } from "rxjs"
 import { GQLEvent } from "./GQLConnection"
 import * as gql from "graphql"
@@ -6,7 +11,9 @@ import { useReadonlyStream } from "~/composables/stream"
 
 export class GQLRequest {
   public name$ = new BehaviorSubject<string>("Untitled Request")
-  public url$ = new BehaviorSubject<string>("http://localhost:4000/")
+  public url$ = new BehaviorSubject<string>(
+    "https://echo.hoppscotch.io/graphql"
+  )
   public headers$ = new BehaviorSubject<GQLHeader[]>([])
   public auth$ = new BehaviorSubject<HoppGQLAuth>({
     authType: "none",
@@ -14,23 +21,15 @@ export class GQLRequest {
   })
 
   public query$ = new BehaviorSubject<string>(`
-query Message {
-  messages {
-    user
-    content
+query Request {
+  method
+  url
+  headers {
+    key
+    value
   }
 }
 
-subscription RealtimeMessage {
-  messages{
-    content
-    user
-  }
-}
-
-mutation SendMessage {
-  postMessage(user: "User ID", content: "Hi")
-}
   `)
   public variables$ = new BehaviorSubject<string>(
     `{
@@ -78,15 +77,7 @@ mutation SendMessage {
     this.response$.next(newResponse)
   }
 
-  setRequest(request: {
-    name: string
-    url: string
-    headers: GQLHeader[]
-    query: string
-    variables: string
-    auth: HoppGQLAuth
-    response: string
-  }) {
+  setRequest(request: HoppGQLRequest) {
     this.name$.next(request.name ?? "Untitled Request")
     this.url$.next(request.url)
     this.headers$.next(request.headers)

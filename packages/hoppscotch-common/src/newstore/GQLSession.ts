@@ -1,3 +1,4 @@
+import { HoppGQLRequest } from "@hoppscotch/data"
 import { uniqueId } from "lodash-es"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import { useStream } from "~/composables/stream"
@@ -88,6 +89,12 @@ export function getGQLRequest() {
   const { tabs, currentTabId } = gqlSessionStore.value
   const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
   return tab.request.getRequest()
+}
+
+export function setGQLRequest(request: HoppGQLRequest) {
+  const { tabs, currentTabId } = gqlSessionStore.value
+  const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
+  return tab.request.setRequest(request)
 }
 
 export function useGQLRequestName() {

@@ -123,6 +123,7 @@ const runQuery = async (
     const runAuth = clone(auth.value)
 
     await props.conn.runQuery({
+      name: props.request.getName(),
       url: runURL,
       headers: runHeaders,
       query: runQuery,

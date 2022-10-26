@@ -18,6 +18,7 @@ import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 const GQL_SCHEMA_POLL_INTERVAL = 7000
 
 type RunQueryOptions = {
+  name?: string
   url: string
   headers: GQLHeader[]
   query: string
@@ -372,11 +373,11 @@ export class GQLConnection {
   }
 
   addQueryToHistory(options: RunQueryOptions, response: string) {
-    const { url, headers, query, variables, auth } = options
+    const { name, url, headers, query, variables, auth } = options
     addGraphqlHistoryEntry(
       makeGQLHistoryEntry({
         request: makeGQLRequest({
-          name: "",
+          name: name ?? "Untitled Request",
           url,
           query,
           headers,

@@ -32,7 +32,11 @@ export class SIOClientV4 implements SIOClient {
   }
 
   on(event: PossibleEvent, cb: (data: any) => void) {
-    this.client?.on(event, cb)
+    if (event === "*") {
+      this.client?.onAny((...data) => {
+        cb({ data })
+      })
+    } else this.client?.on(event, cb)
   }
 
   emit(event: string, data: any, cb: (data: any) => void): void {
@@ -51,7 +55,11 @@ export class SIOClientV3 implements SIOClient {
   }
 
   on(event: PossibleEvent, cb: (data: any) => void): void {
-    this.client?.on(event, cb)
+    if (event === "*") {
+      this.client?.onAny((...data) => {
+        cb({ data })
+      })
+    } else this.client?.on(event, cb)
   }
 
   emit(event: string, data: any, cb: (data: any) => void): void {

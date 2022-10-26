@@ -38,7 +38,7 @@
 import { useI18n } from "@composables/i18n"
 
 import IconPlusCircle from "~icons/lucide/plus-circle"
-import IconCheckCircle from "~icons/lucide/check-circle-2"
+import IconCheckCircle2 from "~icons/lucide/check-circle-2"
 import IconMinusCircle from "~icons/lucide/minus-circle"
 
 type Status = "updations" | "additions" | "deletions"
@@ -63,7 +63,7 @@ const getIcon = (status: Status) => {
     case "additions":
       return IconPlusCircle
     case "updations":
-      return IconCheckCircle
+      return IconCheckCircle2
     case "deletions":
       return IconMinusCircle
   }

@@ -315,7 +315,7 @@ import IconCircle from "~icons/lucide/circle"
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
-import IconWand from "~icons/lucide/wand"
+import IconWand2 from "~icons/lucide/wand-2"
 import { Ref, computed, reactive, ref, watch } from "vue"
 import * as gql from "graphql"
 import * as E from "fp-ts/Either"
@@ -641,11 +641,11 @@ const copyVariablesIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   1000
 )
 const prettifyQueryIcon = refAutoReset<
-  typeof IconWand | typeof IconCheck | typeof IconInfo
->(IconWand, 1000)
+  typeof IconWand2 | typeof IconCheck | typeof IconInfo
+>(IconWand2, 1000)
 const prettifyVariablesIcon = refAutoReset<
-  typeof IconWand | typeof IconCheck | typeof IconInfo
->(IconWand, 1000)
+  typeof IconWand2 | typeof IconCheck | typeof IconInfo
+>(IconWand2, 1000)
 
 const showSaveRequestModal = ref(false)
 

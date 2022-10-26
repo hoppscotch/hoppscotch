@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="`${t('modal.collections')}`"
-    max-width="sm:max-w-md"
+    styles="sm:max-w-md"
     @close="hideModal"
   >
     <template #actions>

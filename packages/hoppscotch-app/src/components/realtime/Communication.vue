@@ -117,7 +117,7 @@ import IconSend from "~icons/lucide/send"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconTrash2 from "~icons/lucide/trash-2"
-import IconWand from "~icons/lucide/wand"
+import IconWand2 from "~icons/lucide/wand-2"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconDone from "~icons/lucide/check"
@@ -163,7 +163,7 @@ const linewrapEnabled = ref(true)
 const wsCommunicationBody = ref<HTMLElement>()
 const payload = ref<HTMLInputElement>()
 
-const prettifyIcon = refAutoReset<Component>(IconWand, 1000)
+const prettifyIcon = refAutoReset<Component>(IconWand2, 1000)
 
 const knownContentTypes = {
   JSON: "application/ld+json",

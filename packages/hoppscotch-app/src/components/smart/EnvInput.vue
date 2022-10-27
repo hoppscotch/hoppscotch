@@ -1,17 +1,19 @@
 <template>
   <div
-    class="flex items-center flex-1 flex-shrink-0 overflow-auto whitespace-nowrap"
+    class="relative flex items-center flex-1 flex-shrink-0 py-4 overflow-auto whitespace-nowrap"
   >
-    <div
-      ref="editor"
-      :placeholder="placeholder"
-      class="flex flex-1"
-      :class="styles"
-      @keydown.enter.prevent="emit('enter', $event)"
-      @keyup="emit('keyup', $event)"
-      @click="emit('click', $event)"
-      @keydown="emit('keydown', $event)"
-    ></div>
+    <div class="absolute inset-0 flex flex-1">
+      <div
+        ref="editor"
+        :placeholder="placeholder"
+        class="flex flex-1"
+        :class="styles"
+        @keydown.enter.prevent="emit('enter', $event)"
+        @keyup="emit('keyup', $event)"
+        @click="emit('click', $event)"
+        @keydown="emit('keydown', $event)"
+      ></div>
+    </div>
   </div>
 </template>
 

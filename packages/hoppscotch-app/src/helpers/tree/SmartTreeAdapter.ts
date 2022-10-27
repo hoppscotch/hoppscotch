@@ -1,4 +1,5 @@
 export type TreeNode<T> = {
+  type: string
   id: string
   data: T
 }

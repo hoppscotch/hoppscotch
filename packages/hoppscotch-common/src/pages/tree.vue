@@ -1,8 +1,18 @@
 <template>
   <SmartTree :adapter="adapter">
     <template #content="{ node, toggleChildren }">
-      <h2 class="bg-orange-200 p-2" @click="toggleChildren">
-        {{ node.data.name }} - {{ node.id }}
+      <h2
+        v-if="node.type === 'folders'"
+        class="bg-orange-200 p-2"
+        @click="toggleChildren"
+      >
+        {{ node.data.name }} - {{ node.data.id }}
+      </h2>
+      <h2 v-else-if="node.type === 'requests'" class="bg-red-200 p-2">
+        {{ node.data.name }}
+      </h2>
+      <h2 v-else class="bg-pink-200 p-2" @click="toggleChildren">
+        {{ node.data.name }}
       </h2>
     </template>
   </SmartTree>
@@ -96,6 +106,20 @@ const fake_data = [
         name: "Child 1",
         description: "Child 1",
         icon: "folder",
+        requests: [
+          {
+            id: 211,
+            name: "Request 211",
+            description: "Request node 211",
+            icon: "file",
+          },
+          {
+            id: 222,
+            name: "Request 222",
+            description: "Request node 222",
+            icon: "file",
+          },
+        ],
       },
       {
         id: 22,
@@ -201,6 +225,7 @@ class FakeDataAdapter implements SmartTreeAdapter<Node> {
   getChildren(id: string | null) {
     if (id === null) {
       return this.data.map((item) => ({
+        type: "collections",
         id: item.id.toString(),
         data: item,
       }))
@@ -209,8 +234,24 @@ class FakeDataAdapter implements SmartTreeAdapter<Node> {
     const item = this.findItem(this.data, id.toString())
 
     if (item) {
+      if (objHasProperty("folders")(item) && objHasProperty("requests")(item)) {
+        return [
+          ...item.folders.map((item) => ({
+            type: "folders",
+            id: item.id.toString(),
+            data: item,
+          })),
+          ...item.requests.map((item) => ({
+            type: "requests",
+            id: item.id.toString(),
+            data: item,
+          })),
+        ]
+      }
+
       if (objHasProperty("folders")(item)) {
         return item.folders.map((item) => ({
+          type: "folders",
           id: item.id.toString(),
           data: item,
         }))
@@ -218,6 +259,7 @@ class FakeDataAdapter implements SmartTreeAdapter<Node> {
 
       if (objHasProperty("requests")(item)) {
         return (item.requests as Request[]).map((item) => ({
+          type: "requests",
           id: item.id.toString(),
           data: item,
         }))

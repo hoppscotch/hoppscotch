@@ -1,8 +1,8 @@
 <template>
   <div
-    class="relative py-4 flex items-center flex-1 flex-shrink-0 overflow-auto whitespace-nowrap"
+    class="relative flex items-center flex-1 flex-shrink-0 py-4 overflow-auto whitespace-nowrap"
   >
-    <div class="absolute flex flex-1">
+    <div class="absolute inset-0 flex flex-1">
       <div
         ref="editor"
         :placeholder="placeholder"

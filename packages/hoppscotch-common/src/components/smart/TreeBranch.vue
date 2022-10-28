@@ -1,13 +1,13 @@
 <template>
-  <slot :node="node" :toggle-children="toggleChildren"></slot>
+  <slot :node="nodeItem" :toggle-children="toggleNodeChildren"></slot>
   <div v-if="showChildren" class="mx-5">
     <TreeBranch
-      v-for="childNode in adapter.getChildren(node.id)"
+      v-for="childNode in adapter.getChildren(nodeItem.id)"
       :key="childNode.id"
-      :node="childNode"
+      :node-item="childNode"
       :adapter="adapter"
     >
-      <template #default="{ node, toggleChildren }">
+      <template #[slotName]="{ node, toggleChildren }">
         <slot :node="node" :toggle-children="toggleChildren"></slot>
       </template>
     </TreeBranch>
@@ -20,12 +20,14 @@ import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
 
 defineProps<{
   adapter: SmartTreeAdapter<T>
-  node: TreeNode<T>
+  nodeItem: TreeNode<T>
 }>()
+
+const slotName = "default"
 
 const showChildren = ref(false)
 
-const toggleChildren = () => {
+const toggleNodeChildren = () => {
   showChildren.value = !showChildren.value
 }
 </script>

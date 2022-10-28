@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-5">
     <div v-for="rootNode in adapter.getChildren(null)" :key="rootNode.id">
-      <SmartTreeBranch :node="rootNode" :adapter="adapter">
+      <SmartTreeBranch :node-item="rootNode" :adapter="adapter">
         <template #default="{ node, toggleChildren }">
           <slot
             name="content"

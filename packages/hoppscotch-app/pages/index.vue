@@ -1,5 +1,5 @@
 <template>
-  <AppPaneLayout>
+  <AppPaneLayout layout-id="http">
     <template #primary>
       <HttpRequest />
       <HttpRequestOptions />

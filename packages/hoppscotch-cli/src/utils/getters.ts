@@ -129,3 +129,8 @@ export const getDurationInSeconds = (
   const durationInSeconds = (end[0] * 1e9 + end[1]) / 1e9;
   return round(durationInSeconds, precision);
 };
+
+export const roundDuration = (
+  duration: number,
+  precision: number = DEFAULT_DURATION_PRECISION
+) => round(duration, precision);

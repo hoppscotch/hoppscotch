@@ -315,6 +315,7 @@ completedRESTResponse$.subscribe((res) => {
           method: res.req.method,
           name: res.req.name,
           params: res.req.params,
+          vars: res.req.vars,
           preRequestScript: res.req.preRequestScript,
           testScript: res.req.testScript,
           v: res.req.v,

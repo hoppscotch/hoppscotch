@@ -58,7 +58,12 @@ describe("processRequest", () => {
     (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
-      processRequest(SAMPLE_REQUEST, DEFAULT_ENVS, "fake/collection/path")()
+      processRequest({
+        request: SAMPLE_REQUEST,
+        envs: DEFAULT_ENVS,
+        path: "fake/collection/path",
+        delay: 0,
+      })()
     ).resolves.toMatchObject({
       report: {
         result: true,
@@ -79,7 +84,12 @@ describe("processRequest", () => {
     (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
-      processRequest(SAMPLE_REQUEST, DEFAULT_ENVS, "fake/collection/path")()
+      processRequest({
+        request: SAMPLE_REQUEST,
+        envs: DEFAULT_ENVS,
+        path: "fake/collection/path",
+        delay: 0,
+      })()
     ).resolves.toMatchObject({
       envs: {
         selected: [{ key: "ENDPOINT", value: "https://example.com" }],
@@ -96,7 +106,12 @@ describe("processRequest", () => {
     (axios as unknown as jest.Mock).mockResolvedValue(DEFAULT_RESPONSE);
 
     return expect(
-      processRequest(SAMPLE_REQUEST, DEFAULT_ENVS, "fake/request/path")()
+      processRequest({
+        request: SAMPLE_REQUEST,
+        envs: DEFAULT_ENVS,
+        path: "fake/request/path",
+        delay: 0,
+      })()
     ).resolves.toMatchObject({
       report: { result: false },
     });

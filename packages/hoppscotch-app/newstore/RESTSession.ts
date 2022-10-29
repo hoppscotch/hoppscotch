@@ -4,6 +4,7 @@ import {
   FormDataKeyValue,
   HoppRESTHeader,
   HoppRESTParam,
+  HoppRESTVar,
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
@@ -29,6 +30,7 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   endpoint: "https://echo.hoppscotch.io",
   name: "Untitled request",
   params: [],
+  vars: [],
   headers: [],
   method: "GET",
   auth: {
@@ -80,11 +82,27 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  setVars(curr: RESTSession, { entries }: { entries: HoppRESTVar[] }) {
+    return {
+      request: {
+        ...curr.request,
+        vars: entries,
+      },
+    }
+  },
   addParam(curr: RESTSession, { newParam }: { newParam: HoppRESTParam }) {
     return {
       request: {
         ...curr.request,
         params: [...curr.request.params, newParam],
+      },
+    }
+  },
+  addVar(curr: RESTSession, { newVar }: { newVar: HoppRESTVar }) {
+    return {
+      request: {
+        ...curr.request,
+        vars: [...curr.request.vars, newVar],
       },
     }
   },
@@ -104,6 +122,22 @@ const dispatchers = defineDispatchers({
       },
     }
   },
+  updateVar(
+    curr: RESTSession,
+    { index, updatedVar }: { index: number; updatedVar: HoppRESTVar }
+  ) {
+    const newVars = curr.request.vars.map((vari, i) => {
+      if (i === index) return updatedVar
+      else return vari
+    })
+
+    return {
+      request: {
+        ...curr.request,
+        vars: newVars,
+      },
+    }
+  },
   deleteParam(curr: RESTSession, { index }: { index: number }) {
     const newParams = curr.request.params.filter((_x, i) => i !== index)
 
@@ -111,6 +145,16 @@ const dispatchers = defineDispatchers({
       request: {
         ...curr.request,
         params: newParams,
+      },
+    }
+  },
+  deleteVar(curr: RESTSession, { index }: { index: number }) {
+    const newVars = curr.request.vars.filter((_x, i) => i !== index)
+
+    return {
+      request: {
+        ...curr.request,
+        vars: newVars,
       },
     }
   },
@@ -373,12 +417,28 @@ export function setRESTParams(entries: HoppRESTParam[]) {
     },
   })
 }
+export function setRESTVars(entries: HoppRESTVar[]) {
+  restSessionStore.dispatch({
+    dispatcher: "setVars",
+    payload: {
+      entries,
+    },
+  })
+}
 
 export function addRESTParam(newParam: HoppRESTParam) {
   restSessionStore.dispatch({
     dispatcher: "addParam",
     payload: {
       newParam,
+    },
+  })
+}
+export function addRESTVar(newVar: HoppRESTVar) {
+  restSessionStore.dispatch({
+    dispatcher: "addVar",
+    payload: {
+      newVar,
     },
   })
 }
@@ -392,10 +452,28 @@ export function updateRESTParam(index: number, updatedParam: HoppRESTParam) {
     },
   })
 }
+export function updateRESTVar(index: number, updatedVar: HoppRESTVar) {
+  restSessionStore.dispatch({
+    dispatcher: "updateVar",
+    payload: {
+      updatedVar,
+      index,
+    },
+  })
+}
 
 export function deleteRESTParam(index: number) {
   restSessionStore.dispatch({
     dispatcher: "deleteParam",
+    payload: {
+      index,
+    },
+  })
+}
+
+export function deleteRESTVar(index: number) {
+  restSessionStore.dispatch({
+    dispatcher: "deleteVar",
     payload: {
       index,
     },
@@ -592,11 +670,19 @@ export const restParams$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
+export const restVars$ = restSessionStore.subject$.pipe(
+  pluck("request", "vars"),
+  distinctUntilChanged()
+)
+
 export const restActiveParamsCount$ = restParams$.pipe(
   map(
     (params) =>
       params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
   )
+)
+export const restActiveVarsCount$ = restVars$.pipe(
+  map((vars) => vars.filter((x) => x.key !== "" || x.value !== "").length)
 )
 
 export const restMethod$ = restSessionStore.subject$.pipe(

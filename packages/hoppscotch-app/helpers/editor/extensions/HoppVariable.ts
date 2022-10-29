@@ -8,15 +8,9 @@ import {
   ViewPlugin,
 } from "@codemirror/view"
 import * as E from "fp-ts/Either"
-import { parseTemplateStringE } from "@hoppscotch/data"
-import { StreamSubscriberFunc } from "~/helpers/utils/composables"
-import {
-  AggregateEnvironment,
-  aggregateEnvs$,
-  getAggregateEnvs,
-} from "~/newstore/environments"
+import { HoppRESTVar, parseTemplateStringE } from "@hoppscotch/data"
 
-const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
+const HOPP_ENVIRONMENT_REGEX = /({{\w+}})/g
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
@@ -25,7 +19,7 @@ const HOPP_ENV_HIGHLIGHT_FOUND =
 const HOPP_ENV_HIGHLIGHT_NOT_FOUND =
   "bg-red-500 text-accentContrast hover:bg-red-600"
 
-const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
+const cursorTooltipField = (aggregateEnvs: HoppRESTVar[]) =>
   hoverTooltip(
     (view, pos, side) => {
       const { from, to, text } = view.state.doc.lineAt(pos)
@@ -44,9 +38,8 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       let start = pos
       let end = pos
 
-      while (start > from && /[a-zA-Z0-9-_]+/.test(text[start - from - 1]))
-        start--
-      while (end < to && /[a-zA-Z0-9-_]+/.test(text[end - from])) end++
+      while (start > from && /\w/.test(text[start - from - 1])) start--
+      while (end < to && /\w/.test(text[end - from])) end++
 
       if (
         (start === pos && side < 0) ||
@@ -56,12 +49,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         )
       )
         return null
-
-      const envName =
-        aggregateEnvs.find(
-          (env) => env.key === text.slice(start - from, end - from)
-          // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
-        )?.sourceEnv ?? "choose an environment"
 
       const envValue =
         aggregateEnvs.find(
@@ -82,7 +69,6 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const dom = document.createElement("span")
           const xmp = document.createElement("xmp")
           xmp.textContent = finalEnv
-          dom.appendChild(document.createTextNode(`${envName} `))
           dom.appendChild(xmp)
           dom.className = "tooltip-theme"
           return { dom }
@@ -95,7 +81,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
     { hoverTime: 1 } as any
   )
 
-function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
+function checkEnv(env: string, aggregateEnvs: HoppRESTVar[]) {
   const className = aggregateEnvs.find(
     (k: { key: string }) => k.key === env.slice(2, -2)
   )
@@ -107,15 +93,13 @@ function checkEnv(env: string, aggregateEnvs: AggregateEnvironment[]) {
   })
 }
 
-const getMatchDecorator = (aggregateEnvs: AggregateEnvironment[]) =>
+const getMatchDecorator = (aggregateEnvs: HoppRESTVar[]) =>
   new MatchDecorator({
     regexp: HOPP_ENVIRONMENT_REGEX,
     decoration: (m) => checkEnv(m[0], aggregateEnvs),
   })
 
-export const environmentHighlightStyle = (
-  aggregateEnvs: AggregateEnvironment[]
-) => {
+export const environmentHighlightStyle = (aggregateEnvs: HoppRESTVar[]) => {
   const decorator = getMatchDecorator(aggregateEnvs)
 
   return ViewPlugin.define(
@@ -131,44 +115,13 @@ export const environmentHighlightStyle = (
   )
 }
 
-export class HoppEnvironmentPlugin {
+export class HoppReactiveVarPlugin {
   private compartment = new Compartment()
 
-  private envs: AggregateEnvironment[] = []
+  private envs: HoppRESTVar[] = []
 
   constructor(
-    subscribeToStream: StreamSubscriberFunc,
-    private editorView: Ref<EditorView | undefined>
-  ) {
-    this.envs = getAggregateEnvs()
-
-    subscribeToStream(aggregateEnvs$, (envs) => {
-      this.envs = envs
-
-      this.editorView.value?.dispatch({
-        effects: this.compartment.reconfigure([
-          cursorTooltipField(this.envs),
-          environmentHighlightStyle(this.envs),
-        ]),
-      })
-    })
-  }
-
-  get extension() {
-    return this.compartment.of([
-      cursorTooltipField(this.envs),
-      environmentHighlightStyle(this.envs),
-    ])
-  }
-}
-
-export class HoppReactiveEnvPlugin {
-  private compartment = new Compartment()
-
-  private envs: AggregateEnvironment[] = []
-
-  constructor(
-    envsRef: Ref<AggregateEnvironment[]>,
+    envsRef: Ref<HoppRESTVar[]>,
     private editorView: Ref<EditorView | undefined>
   ) {
     watch(

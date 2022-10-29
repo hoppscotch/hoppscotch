@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/cli",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A CLI to run Hoppscotch test scripts in CI environments.",
   "homepage": "https://hoppscotch.io",
   "main": "dist/index.js",
@@ -36,7 +36,7 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
-    "@hoppscotch/data": "workspace:^0.4.2",
+    "@hoppscotch/data": "workspace:^0.4.3",
     "@hoppscotch/js-sandbox": "workspace:^2.0.0",
     "@relmify/jest-fp-ts": "^2.0.2",
     "@swc/core": "^1.2.181",

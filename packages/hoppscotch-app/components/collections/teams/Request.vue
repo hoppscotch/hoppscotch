@@ -261,7 +261,7 @@ const active = useReadonlyStream(restSaveContext$, null)
 const isSelected = computed(
   () =>
     props.picked &&
-    props.picked.pickedType === "teams-collection" &&
+    props.picked.pickedType === "teams-request" &&
     props.picked.requestID === props.requestIndex
 )
 
@@ -312,7 +312,7 @@ const selectRequest = () => {
   if (props.saveRequest) {
     emit("select", {
       picked: {
-        pickedType: "teams-collection",
+        pickedType: "teams-request",
         requestID: props.requestIndex,
       },
     })

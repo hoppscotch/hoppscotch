@@ -1,7 +1,5 @@
 <template>
-  <!--Desktop Layout-->
   <Splitpanes
-    v-if="mdAndLarger"
     class="smart-splitter"
     :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
@@ -24,6 +22,7 @@
           <slot name="primary" />
         </Pane>
         <Pane
+          v-if="mdAndLarger || (!mdAndLarger && secondary)"
           :size="PANE_MAIN_BOTTOM_SIZE"
           class="flex flex-col !overflow-auto"
         >
@@ -31,48 +30,19 @@
         </Pane>
       </Splitpanes>
     </Pane>
+
     <Pane
-      v-if="SIDEBAR && hasSidebar"
+      v-if="mdAndLarger && SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
       min-size="20"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
     </Pane>
-  </Splitpanes>
 
-  <!--Mobile Layout-->
-  <Splitpanes
-    v-else-if="(!mdAndLarger && !SIDEBAR) || !hasSidebar"
-    class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
-    :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
-    }"
-    :horizontal="!mdAndLarger"
-  >
-    <Pane size="75" min-size="65" class="!overflow-auto flex flex-col">
-      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
-          class="!overflow-auto flex flex-col"
-        >
-          <slot name="primary" />
-        </Pane>
-        <Pane
-          v-if="mdAndLarger || (!mdAndLarger && secondary)"
-          :size="COLUMN_LAYOUT ? 65 : 50"
-          class="flex flex-col !overflow-auto"
-        >
-          <slot name="secondary" />
-        </Pane>
-      </Splitpanes>
-    </Pane>
-  </Splitpanes>
-
-  <!--Mobile Sidebar Layout-->
-  <div v-else>
+    <!-- Mobile Collections Layout -->
     <SmartSlideOver
+      v-if="!mdAndLarger && SIDEBAR && hasSidebar"
       :show="show"
       :title="t('tab.collections')"
       @close="SIDEBAR = !SIDEBAR"
@@ -83,7 +53,7 @@
         </div>
       </template>
     </SmartSlideOver>
-  </div>
+  </Splitpanes>
 </template>
 
 <script setup lang="ts">
@@ -110,6 +80,8 @@ const slots = useSlots()
 
 const hasSidebar = computed(() => !!slots.sidebar)
 
+const show = computed(() => !!(SIDEBAR && hasSidebar.value))
+
 const props = defineProps({
   layoutId: {
     type: String,
@@ -120,8 +92,6 @@ const props = defineProps({
     default: false,
   },
 })
-
-const show = computed(() => !!(SIDEBAR && hasSidebar.value))
 
 type PaneEvent = {
   max: number

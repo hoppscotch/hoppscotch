@@ -16,6 +16,7 @@ import IconResolver from "unplugin-icons/resolver"
 import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import * as path from "path"
 import { VitePluginFonts } from "vite-plugin-fonts"
+import legacy from "@vitejs/plugin-legacy"
 
 const ENV = loadEnv("development", process.cwd())
 
@@ -160,6 +161,10 @@ export default defineConfig({
           "Material+Icons",
         ],
       },
+    }),
+    legacy({
+      modernPolyfills: ["es.string.replace-all"],
+      renderLegacyChunks: false,
     }),
   ],
 })

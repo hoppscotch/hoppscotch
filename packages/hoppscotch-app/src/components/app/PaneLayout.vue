@@ -1,7 +1,5 @@
 <template>
-  <!--Desktop Layout-->
   <Splitpanes
-    v-if="mdAndLarger"
     class="smart-splitter"
     :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
     :class="{
@@ -56,50 +54,6 @@
       </template>
     </SmartSlideOver>
   </Splitpanes>
-
-  <!--Mobile Layout-->
-  <Splitpanes
-    v-else-if="(!mdAndLarger && !SIDEBAR) || !hasSidebar"
-    class="smart-splitter"
-    :rtl="SIDEBAR_ON_LEFT && mdAndLarger"
-    :class="{
-      '!flex-row-reverse': SIDEBAR_ON_LEFT && mdAndLarger,
-    }"
-    :horizontal="!mdAndLarger"
-  >
-    <Pane size="75" min-size="65" class="!overflow-auto flex flex-col">
-      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane
-          :size="COLUMN_LAYOUT ? 45 : 50"
-          class="!overflow-auto flex flex-col"
-        >
-          <slot name="primary" />
-        </Pane>
-        <Pane
-          v-if="mdAndLarger || (!mdAndLarger && secondary)"
-          :size="COLUMN_LAYOUT ? 65 : 50"
-          class="flex flex-col !overflow-auto"
-        >
-          <slot name="secondary" />
-        </Pane>
-      </Splitpanes>
-    </Pane>
-  </Splitpanes>
-
-  <!--Mobile Sidebar Layout-->
-  <div v-else>
-    <SmartSlideOver
-      :show="show"
-      :title="t('tab.collections')"
-      @close="SIDEBAR = !SIDEBAR"
-    >
-      <template #content>
-        <div class="!overflow-auto">
-          <slot name="sidebar" />
-        </div>
-      </template>
-    </SmartSlideOver>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -125,8 +79,6 @@ const SIDEBAR = useSetting("SIDEBAR")
 const slots = useSlots()
 
 const hasSidebar = computed(() => !!slots.sidebar)
-
-const show = computed(() => !!(SIDEBAR && hasSidebar.value))
 
 const props = defineProps({
   layoutId: {

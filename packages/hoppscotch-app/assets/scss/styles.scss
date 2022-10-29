@@ -169,8 +169,9 @@ a {
   .env-icon {
     @apply inline-flex;
     @apply items-center;
-    @apply mr-1;
     @apply text-accentDark;
+    @apply hover:text-accent;
+    @apply hover:cursor-pointer;
   }
 }
 

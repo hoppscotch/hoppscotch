@@ -5,16 +5,16 @@
     "choose_file": "選擇一個檔案",
     "clear": "清除",
     "clear_all": "全部清除",
-    "close": "Close",
+    "close": "關閉",
     "connect": "連線",
-    "connecting": "Connecting",
+    "connecting": "正在連接",
     "copy": "複製",
     "delete": "刪除",
     "disconnect": "斷開連線",
     "dismiss": "忽略",
     "dont_save": "不要儲存",
     "download_file": "下載檔案",
-    "drag_to_reorder": "Drag to reorder",
+    "drag_to_reorder": "拖曳以重新排序",
     "duplicate": "複製",
     "edit": "編輯",
     "filter_response": "篩選回應",
@@ -36,7 +36,7 @@
     "search": "搜尋",
     "send": "傳送",
     "start": "開始",
-    "starting": "Starting",
+    "starting": "正在開始",
     "stop": "停止",
     "to_close": "以關閉",
     "to_navigate": "以瀏覽",
@@ -108,7 +108,7 @@
     "generate_token": "產生權杖",
     "include_in_url": "包含在網址",
     "learn": "瞭解更多",
-    "pass_key_by": "Pass by",
+    "pass_key_by": "傳遞方式",
     "password": "密碼",
     "token": "權杖",
     "type": "授權類型",
@@ -186,13 +186,13 @@
     "deleted": "刪除環境",
     "edit": "編輯環境",
     "invalid_name": "請提供有效的環境名稱",
-    "my_environments": "My Environments",
+    "my_environments": "我的環境",
     "nested_overflow": "巢狀環境變數不得大於 10 層",
     "new": "建立環境",
     "no_environment": "無環境",
     "no_environment_description": "未選取任何環境。請選擇要對以下變數進行的動作。",
     "select": "選擇環境",
-    "team_environments": "Team Environments",
+    "team_environments": "團隊環境",
     "title": "環境",
     "updated": "更新環境",
     "variable_list": "變數列表"
@@ -214,7 +214,7 @@
     "network_fail": "無法傳送請求",
     "no_duration": "無持續時間",
     "no_results_found": "找不到結果",
-    "page_not_found": "This page could not be found",
+    "page_not_found": "找不到此頁面",
     "script_fail": "無法執行預請求指令碼",
     "something_went_wrong": "發生了一些錯誤",
     "test_script_fail": "無法執行測試指令碼"
@@ -224,7 +224,7 @@
     "create_secret_gist": "建立私密 Gist",
     "gist_created": "已建立 Gist",
     "require_github": "使用 GitHub 登入以建立私密 Gist",
-    "title": "Export"
+    "title": "匯出"
   },
   "folder": {
     "created": "已建立資料夾",
@@ -329,7 +329,7 @@
   },
   "profile": {
     "app_settings": "應用程式設定",
-    "default_hopp_displayname": "Unnamed User",
+    "default_hopp_displayname": "未命名使用者",
     "editor": "編輯者",
     "editor_description": "編輯者可以新增、編輯和刪除請求。",
     "email_verification_mail": "已將驗證信寄送至您的電子郵件地址。請點擊信中連結以驗證您的電子郵件地址。",
@@ -457,7 +457,7 @@
     "theme_description": "自定義您的應用程式主題。",
     "use_experimental_url_bar": "使用帶有環境醒目標示的實驗性網址欄",
     "user": "使用者",
-    "verified_email": "Verified email",
+    "verified_email": "已確認電子郵件地址",
     "verify_email": "確認電子郵件地址"
   },
   "shortcodes": {
@@ -508,9 +508,9 @@
       "title": "請求"
     },
     "response": {
-      "copy": "Copy response to clipboard",
-      "download": "Download response as file",
-      "title": "Response"
+      "copy": "複製回應至剪貼簿",
+      "download": "下載回應",
+      "title": "回應"
     },
     "theme": {
       "black": "將主題切換至黑色模式",
@@ -658,9 +658,9 @@
     "we_sent_invite_link_description": "請所有受邀者檢查他們的收件匣。點擊連結加入團隊。"
   },
   "team_environment": {
-    "deleted": "Environment Deleted",
-    "duplicate": "Environment Duplicated",
-    "not_found": "Environment not found."
+    "deleted": "已刪除環境",
+    "duplicate": "已複製環境",
+    "not_found": "找不到環境。"
   },
   "test": {
     "failed": "測試未通過",

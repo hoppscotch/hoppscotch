@@ -44,6 +44,7 @@
     "@urql/devtools": "^2.0.3",
     "@urql/exchange-auth": "^0.1.7",
     "@urql/exchange-graphcache": "^4.4.3",
+    "@vitejs/plugin-legacy": "^2.3.0",
     "@vueuse/core": "^8.7.5",
     "@vueuse/head": "^0.7.9",
     "acorn-walk": "^8.2.0",

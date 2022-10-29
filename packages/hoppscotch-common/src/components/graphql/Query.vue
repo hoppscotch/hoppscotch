@@ -19,57 +19,20 @@
         class="rounded-none !text-accent !hover:text-accentDark"
         @click="unsubscribe()"
       />
-      <tippy
-        v-else-if="operations.length > 1"
-        ref="operationTippy"
-        interactive
-        trigger="click"
-        theme="popover"
-        placement="bottom"
-        :on-shown="() => tippyActions.focus()"
-      >
-        <ButtonSecondary
-          v-tippy="{
-            theme: 'tooltip',
-            delay: [500, 20],
-            allowHTML: true,
-          }"
-          :title="`${t(
-            'request.run'
-          )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
-          :label="`${t('request.run')}`"
-          :icon="IconPlay"
-          class="rounded-none !text-accent !hover:text-accentDark"
-        />
-        <template #content="{ hide }">
-          <div ref="tippyActions" class="flex flex-col" role="menu">
-            <SmartItem
-              v-for="item in operations"
-              :key="`gql-operation-${item.name?.value}`"
-              :label="item?.name?.value"
-              @click="
-                () => {
-                  runQuery(item)
-                  hide()
-                }
-              "
-            />
-          </div>
-        </template>
-      </tippy>
 
       <ButtonSecondary
-        v-else
+        v-if="selectedOperation && subscriptionState !== 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
           allowHTML: true,
         }"
         :title="`${t('request.run')} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
-        :label="`${t('request.run')}`"
+        :label="`${selectedOperation.name?.value ?? t('request.run')}`"
         :icon="IconPlay"
+        :disabled="!selectedOperation"
         class="rounded-none !text-accent !hover:text-accentDark"
-        @click="runQuery()"
+        @click="runQuery(selectedOperation)"
       />
 
       <ButtonSecondary
@@ -135,10 +98,11 @@ import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
+import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
+import { debounce } from "lodash-es"
+import { ViewUpdate } from "@codemirror/view"
 
 // Template refs
-const tippyActions = ref<any | null>(null)
-const operationTippy = ref<any | null>(null)
 const queryEditor = ref<any | null>(null)
 
 const t = useI18n()
@@ -168,11 +132,38 @@ const prettifyQueryIcon = refAutoReset<
   typeof IconWand | typeof IconCheck | typeof IconInfo
 >(IconWand, 1000)
 
+const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
+
 const gqlQueryString = useStream(
   props.request.query$,
   "q",
   props.request.setGQLQuery.bind(props.request)
 )
+
+const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
+  if (!update.selectionSet) return
+
+  const selectedPos = update.state.selection.main.head
+  const queryString = update.state.doc.toJSON().join(update.state.lineBreak)
+
+  try {
+    const operations = gql.parse(queryString)
+    if (operations.definitions.length === 1) {
+      selectedOperation.value = operations
+        .definitions[0] as gql.OperationDefinitionNode
+      return
+    }
+
+    selectedOperation.value =
+      (operations.definitions.find((def) => {
+        if (def.kind !== "OperationDefinition") return false
+        const { start, end } = def.loc!
+        return selectedPos >= start && selectedPos <= end
+      }) as gql.OperationDefinitionNode) ?? null
+  } catch (error) {
+    // console.error(error)
+  }
+}, 300)
 
 useCodemirror(queryEditor, gqlQueryString, {
   extendedEditorConfig: {
@@ -181,11 +172,13 @@ useCodemirror(queryEditor, gqlQueryString, {
   },
   linter: createGQLQueryLinter(schema),
   completer: queryCompleter(schema),
+  additionalExts: [selectedGQLOpHighlight],
   environmentHighlights: false,
+  onUpdate: debouncedOnUpdateQueryState,
 })
 
 // operations on graphql query string
-const operations = useReadonlyStream(props.request.operations$, [])
+// const operations = useReadonlyStream(props.request.operations$, [])
 
 const prettifyQuery = () => {
   try {

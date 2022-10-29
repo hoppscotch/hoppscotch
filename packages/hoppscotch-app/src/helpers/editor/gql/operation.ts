@@ -21,7 +21,11 @@ function getOperationDefsPosInEditor(state: EditorState) {
 function generateSelectedOpDecors(state: EditorState) {
   const selectedPos = state.selection.main.head // Cursor Pos
 
-  const decors = getOperationDefsPosInEditor(state)
+  const defsPositions = getOperationDefsPosInEditor(state)
+
+  if (defsPositions.length === 1) return Decoration.none
+
+  const decors = defsPositions
     .map(({ from, to }) => ({
       selected: selectedPos >= from && selectedPos <= to,
       from,

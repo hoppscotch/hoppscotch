@@ -32,7 +32,7 @@
         <Transition name="bounce" appear>
           <div
             class="inline-block w-full overflow-hidden text-left align-bottom border shadow-lg transition-all transform border-dividerDark bg-primary sm:rounded-xl sm:align-middle"
-            :class="[{ 'mt-24 md:mb-8': placement === 'top' }, maxWidth]"
+            :class="[{ 'mt-24 md:mb-8': placement === 'top' }, styles]"
           >
             <div
               v-if="title"
@@ -120,7 +120,7 @@ defineProps({
     type: Boolean,
     default: false,
   },
-  maxWidth: {
+  styles: {
     type: String,
     default: "sm:max-w-lg",
   },

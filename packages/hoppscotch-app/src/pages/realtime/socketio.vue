@@ -242,7 +242,7 @@
     <template #secondary>
       <RealtimeLog
         :title="t('socketio.log')"
-        :log="log"
+        :log="(log as LogEntryData[])"
         @delete="clearLogEntries()"
       />
     </template>
@@ -286,6 +286,7 @@ import {
 } from "~/newstore/SocketIOSession"
 import { useColorMode } from "@composables/theming"
 import RegexWorker from "@workers/regex?worker"
+import { LogEntryData } from "~/components/realtime/Log.vue"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -397,7 +398,7 @@ onMounted(() => {
       case "DISCONNECTED":
         addSIOLogLine({
           payload: t("state.disconnected_from", { name: url.value }).toString(),
-          source: "info",
+          source: "disconnected",
           color: "#ff5555",
           ts: event.time,
         })

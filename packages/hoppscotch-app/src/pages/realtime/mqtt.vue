@@ -97,7 +97,7 @@
           >
             <RealtimeLog
               :title="t('mqtt.log')"
-              :log="tab.id === 'all' ? logs : currentTabLogs"
+              :log="((tab.id === 'all' ? logs : currentTabLogs) as LogEntryData[])"
               @delete="clearLogEntries()"
             />
           </SmartWindow>
@@ -231,6 +231,7 @@ import {
   setMQTTCurrentTabLog,
 } from "~/newstore/MQTTSession"
 import RegexWorker from "@workers/regex?worker"
+import { LogEntryData } from "~/components/realtime/Log.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -364,7 +365,7 @@ onMounted(() => {
       case "DISCONNECTED":
         addMQTTLogLine({
           payload: t("state.disconnected_from", { name: url.value }).toString(),
-          source: "info",
+          source: "disconnected",
           color: "#ff5555",
           ts: event.time,
         })
@@ -413,6 +414,7 @@ const subscribeToTopic = (topic: MQTTTopic) => {
 }
 const unsubscribeFromTopic = (topic: string) => {
   socket.value.unsubscribe(topic)
+  removeTab(topic)
 }
 const getI18nError = (error: MQTTError): string => {
   if (typeof error === "string") return error
@@ -458,7 +460,6 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 }
 
 const removeTab = (tabID: string) => {
-  const index = tabs.value.findIndex((tab) => tab.id === tabID)
-  tabs.value.splice(index, 1)
+  tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
 }
 </script>

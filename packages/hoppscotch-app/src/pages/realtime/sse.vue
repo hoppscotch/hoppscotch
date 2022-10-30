@@ -57,7 +57,7 @@
     <template #secondary>
       <RealtimeLog
         :title="t('sse.log')"
-        :log="log"
+        :log="(log as LogEntryData[])"
         @delete="clearLogEntries()"
       />
     </template>
@@ -88,6 +88,7 @@ import {
 } from "@composables/stream"
 import { SSEConnection } from "@helpers/realtime/SSEConnection"
 import RegexWorker from "@workers/regex?worker"
+import { LogEntryData } from "~/components/realtime/Log.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -170,7 +171,7 @@ onMounted(() => {
           payload: t("state.disconnected_from", {
             name: server.value,
           }).toString(),
-          source: "info",
+          source: "disconnected",
           color: "#ff5555",
           ts: event.time,
         })

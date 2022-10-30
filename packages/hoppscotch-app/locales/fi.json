@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Muokata",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Mene takaisin",
+    "group_by": "Group by",
     "label": "Etiketti",
     "learn_more": "Lue lisää",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Kirjaudu sisään GitHubilla luodaksesi salaisen sisällön",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Kansio luotu",
     "edit": "Muokkaa kansiota",
@@ -238,6 +244,10 @@
     "mutations": "Mutaatiot",
     "schema": "Kaavio",
     "subscriptions": "Tilaukset"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Asenna sovellus",

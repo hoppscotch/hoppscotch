@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplizieren",
     "edit": "Bearbeiten",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Zurück",
+    "group_by": "Group by",
     "label": "Etikett",
     "learn_more": "Mehr erfahren",
     "less": "Weniger",
@@ -226,6 +227,11 @@
     "require_github": "Melde Dich bei GitHub an, um einen geheimen Gist zu erstellen",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Ordner erstellt",
     "edit": "Ordner bearbeiten",
@@ -238,6 +244,10 @@
     "mutations": "Mutationen",
     "schema": "Schema",
     "subscriptions": "Abonnements"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "App installieren",

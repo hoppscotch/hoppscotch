@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicar",
     "edit": "Editar",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Voltar",
+    "group_by": "Group by",
     "label": "Etiqueta",
     "learn_more": "Saber mais",
     "less": "Menos",
@@ -226,6 +227,11 @@
     "require_github": "Faça login com GitHub para criar um gist secreta",
     "title": "Exportar"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Pasta criada",
     "edit": "Editar pasta",
@@ -238,6 +244,10 @@
     "mutations": "Mutações",
     "schema": "Esquema",
     "subscriptions": "Assinaturas"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Instalar aplicativo",

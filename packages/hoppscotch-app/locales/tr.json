@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Klonla",
     "edit": "Düzenle",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Geri git",
+    "group_by": "Group by",
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
     "less": "Daha az",
@@ -226,6 +227,11 @@
     "require_github": "Gizli Gist oluşturmak için GitHub ile giriş yapın",
     "title": "Dışarı Aktar"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Klasör oluşturuldu",
     "edit": "Klasörü düzenle",
@@ -238,6 +244,10 @@
     "mutations": "Mutasyonlar",
     "schema": "Şema",
     "subscriptions": "Abonelikler"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Uygulamayı yükle",

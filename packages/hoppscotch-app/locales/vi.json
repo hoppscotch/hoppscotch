@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Chỉnh sửa",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Quay lại",
+    "group_by": "Group by",
     "label": "Nhãn",
     "learn_more": "Tìm hiểu thêm",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Đăng nhập bằng GitHub để tạo ý chính bí mật",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Thư mục đã được tạo",
     "edit": "Chỉnh sửa thư mục",
@@ -238,6 +244,10 @@
     "mutations": "Đột biến",
     "schema": "Lược đồ",
     "subscriptions": "Đăng ký"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Cài đặt ứng dụng",

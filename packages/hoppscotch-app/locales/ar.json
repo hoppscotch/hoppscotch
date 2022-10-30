@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "كرر",
     "edit": "يحرر",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "عد",
+    "group_by": "Group by",
     "label": "ملصق",
     "learn_more": "اقرأ أكثر",
     "less": "اقل",
@@ -226,6 +227,11 @@
     "require_github": "تسجيل الدخول باستخدام GitHub لإنشاء جوهر سري",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "تم إنشاء المجلد",
     "edit": "تحرير المجلد",
@@ -238,6 +244,10 @@
     "mutations": "الطفرات",
     "schema": "مخطط",
     "subscriptions": "الاشتراكات"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "تثبيت التطبيق",

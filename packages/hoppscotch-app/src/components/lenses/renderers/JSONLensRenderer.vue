@@ -21,7 +21,7 @@
         <ButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.filter_response')"
+          :title="t('action.filter')"
           :icon="IconFilter"
           :class="{ '!text-accent': toggleFilter }"
           @click.prevent="toggleFilterState"

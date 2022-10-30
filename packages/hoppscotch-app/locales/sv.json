@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Redigera",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Gå tillbaka",
+    "group_by": "Group by",
     "label": "Märka",
     "learn_more": "Läs mer",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Logga in med GitHub för att skapa hemlig information",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Mapp skapad",
     "edit": "Redigera mapp",
@@ -238,6 +244,10 @@
     "mutations": "Mutationer",
     "schema": "Schema",
     "subscriptions": "Prenumerationer"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Installera app",

@@ -17,8 +17,9 @@
     "drag_to_reorder": "व्यवस्थित करने के लिए घसीटे",
     "duplicate": "नकल करें",
     "edit": "संपादित करें",
-    "filter_response": "फ़िल्टर प्रतिक्रिया",
+    "filter": "फ़िल्टर प्रतिक्रिया",
     "go_back": "वापस जाओ",
+    "group_by": "Group by",
     "label": "लेबल",
     "learn_more": "और अधिक जानें",
     "less": "कम",
@@ -226,6 +227,11 @@
     "require_github": " गुप्त सार बनाने के लिए GitHub के साथ लॉगिन करें",
     "title": " निर्यात करना"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": " फोल्डर बनाया",
     "edit": " फ़ोल्डर संपादित करें",
@@ -238,6 +244,10 @@
     "mutations": " उत्परिवर्तन",
     "schema": " योजना",
     "subscriptions": " सदस्यता"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": " एप्लिकेशन इंस्टॉल करें",

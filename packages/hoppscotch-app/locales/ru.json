@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Дублировать",
     "edit": "Редактировать",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Вернуться",
+    "group_by": "Group by",
     "label": "Название",
     "learn_more": "Узнать больше",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Войдите через GitHub, чтобы создать секретную суть",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Папка создана",
     "edit": "Редактировать папку",
@@ -238,6 +244,10 @@
     "mutations": "Мутации",
     "schema": "Схема",
     "subscriptions": "Подписки"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Установить приложение",

@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Upravit",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Vrať se",
+    "group_by": "Group by",
     "label": "Označení",
     "learn_more": "Další informace",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Přihlaste se pomocí GitHub a vytvořte tajný seznam",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Složka vytvořena",
     "edit": "Upravit složku",
@@ -238,6 +244,10 @@
     "mutations": "Mutace",
     "schema": "Schéma",
     "subscriptions": "Předplatné"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Nainstalovat aplikaci",

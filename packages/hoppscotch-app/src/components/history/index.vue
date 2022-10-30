@@ -16,6 +16,34 @@
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
+        <tippy interactive trigger="click" theme="popover">
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.filter')"
+            :icon="IconFilter"
+          />
+          <template #content="{ hide }">
+            <div ref="tippyActions" class="flex flex-col focus:outline-none">
+              <div class="pb-2 pl-4 text-tiny text-secondaryLight">
+                {{ t("action.filter") }}
+              </div>
+              <SmartRadioGroup
+                v-model="filterSelection"
+                :radios="filters"
+                @update:model-value="hide()"
+              />
+              <hr />
+              <div class="pb-2 pl-4 text-tiny text-secondaryLight">
+                {{ t("action.group_by") }}
+              </div>
+              <SmartRadioGroup
+                v-model="groupSelection"
+                :radios="groups"
+                @update:model-value="hide()"
+              />
+            </div>
+          </template>
+        </tippy>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           data-testid="clear_history"
@@ -36,13 +64,18 @@
         open
       >
         <summary
-          class="flex items-center justify-between flex-1 min-w-0 cursor-pointer transition focus:outline-none text-secondaryLight text-tiny group"
+          class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer focus:outline-none text-secondaryLight text-tiny group"
         >
           <span
             class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary"
           >
             <icon-lucide-chevron-right class="mr-2 indicator" />
-            <span class="truncate capitalize-first">
+            <span
+              :class="[
+                { 'capitalize-first': groupSelection === 'TIME' },
+                'truncate',
+              ]"
+            >
               {{ filteredHistoryGroupIndex }}
             </span>
           </span>
@@ -69,15 +102,6 @@
       </details>
     </div>
     <div
-      v-if="!(filteredHistory.length !== 0 || history.length === 0)"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-      <span class="my-2 text-center">
-        {{ t("state.nothing_found") }} "{{ filterText }}"
-      </span>
-    </div>
-    <div
       v-if="history.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
@@ -90,6 +114,28 @@
       <span class="mb-4 text-center">
         {{ t("empty.history") }}
       </span>
+    </div>
+    <div
+      v-else-if="
+        Object.keys(filteredHistoryGroups).length === 0 ||
+        filteredHistory.length === 0
+      "
+      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+    >
+      <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+      <span class="mt-2 mb-4 text-center">
+        {{ t("state.nothing_found") }} "{{ filterText || filterSelection }}"
+      </span>
+      <ButtonSecondary
+        :label="t('action.clear')"
+        outline
+        @click="
+          () => {
+            filterText = ''
+            filterSelection = 'ALL'
+          }
+        "
+      />
     </div>
     <SmartConfirmModal
       :show="confirmRemove"
@@ -115,14 +161,16 @@
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconTrash from "~icons/lucide/trash"
+import IconFilter from "~icons/lucide/filter"
 import { computed, ref, Ref } from "vue"
 import { useColorMode } from "@composables/theming"
 import {
+  HoppGQLRequest,
   HoppRESTRequest,
   isEqualHoppRESTRequest,
   safelyExtractRESTRequest,
 } from "@hoppscotch/data"
-import { groupBy, escapeRegExp } from "lodash-es"
+import { groupBy, escapeRegExp, filter } from "lodash-es"
 import { useTimeAgo } from "@vueuse/core"
 import { pipe } from "fp-ts/function"
 import * as A from "fp-ts/Array"
@@ -229,9 +277,43 @@ const filteredHistory = computed(() =>
   )
 )
 
+const filters = computed(() => [
+  { value: "ALL" as const, label: t("filter.all") },
+  { value: "STARRED" as const, label: t("filter.starred") },
+])
+
+type FilterMode = typeof filters["value"][number]["value"]
+
+const filterSelection = ref<FilterMode>("ALL")
+
+const groups = computed(() => [
+  { value: "TIME" as const, label: t("group.time") },
+  { value: "URL" as const, label: t("group.url") },
+])
+
+type GroupMode = typeof groups["value"][number]["value"]
+
+const groupSelection = ref<GroupMode>("TIME")
+
 const filteredHistoryGroups = computed(() =>
-  groupBy(filteredHistory.value, (entry) => entry.timeAgo.value)
+  groupBy(
+    filter(filteredHistory.value, (input) =>
+      filterSelection.value === "STARRED" ? input.entry.star : true
+    ),
+    (input) =>
+      groupSelection.value === "TIME"
+        ? input.timeAgo.value
+        : getAppropriateURL(input.entry)
+  )
 )
+
+const getAppropriateURL = (entry: HistoryEntry) => {
+  if (props.page === "rest") {
+    return (entry.request as HoppRESTRequest).endpoint
+  } else if (props.page === "graphql") {
+    return (entry.request as HoppGQLRequest).url
+  }
+}
 
 const clearHistory = () => {
   if (props.page === "rest") clearRESTHistory()

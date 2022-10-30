@@ -17,8 +17,9 @@
     "drag_to_reorder": "拖曳以重新排序",
     "duplicate": "複製",
     "edit": "編輯",
-    "filter_response": "篩選回應",
+    "filter": "篩選回應",
     "go_back": "返回",
+    "group_by": "Group by",
     "label": "標籤",
     "learn_more": "瞭解更多",
     "less": "更少",
@@ -226,6 +227,11 @@
     "require_github": "使用 GitHub 登入以建立私密 Gist",
     "title": "匯出"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "已建立資料夾",
     "edit": "編輯資料夾",
@@ -238,6 +244,10 @@
     "mutations": "變體",
     "schema": "綱要",
     "subscriptions": "訂閱"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "安裝應用程式",

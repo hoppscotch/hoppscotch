@@ -176,7 +176,7 @@ a {
 
 .tippy-box[data-theme="popover"] {
   @apply flex flex-col;
-  @apply max-h-48;
+  @apply max-h-56;
   @apply items-stretch;
   @apply overflow-y-auto;
   @apply bg-popover;

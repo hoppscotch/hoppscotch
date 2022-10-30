@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Kettőzés",
     "edit": "Szerkesztés",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Vissza",
+    "group_by": "Group by",
     "label": "Címke",
     "learn_more": "Tudjon meg többet",
     "less": "Kevesebb",
@@ -226,6 +227,11 @@
     "require_github": "Jelentkezzen be GitHub használatával a titkos Gist létrehozásához",
     "title": "Exportálás"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Mappa létrehozva",
     "edit": "Mappa szerkesztése",
@@ -238,6 +244,10 @@
     "mutations": "Mutációk",
     "schema": "Séma",
     "subscriptions": "Feliratkozások"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Alkalmazás telepítése",

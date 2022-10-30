@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Edytuj",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Wróć",
+    "group_by": "Group by",
     "label": "Etykieta",
     "learn_more": "Dowiedz się więcej",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Zaloguj się za pomocą GitHub, aby utworzyć tajny Gist",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Utworzono folder",
     "edit": "Edytuj folder",
@@ -238,6 +244,10 @@
     "mutations": "Mutacje",
     "schema": "Schemat",
     "subscriptions": "Subskrypcje"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Zainstaluj aplikację",

@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "לַעֲרוֹך",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "תחזור",
+    "group_by": "Group by",
     "label": "תווית",
     "learn_more": "למד עוד",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "התחבר עם GitHub כדי ליצור תמצית סודית",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "תיקייה נוצרה",
     "edit": "ערוך תיקייה",
@@ -238,6 +244,10 @@
     "mutations": "מוטציות",
     "schema": "סכֵימָה",
     "subscriptions": "מנויים"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "התקן אפליקציה",

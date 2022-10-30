@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "复制",
     "edit": "编辑",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "返回",
+    "group_by": "Group by",
     "label": "标签",
     "learn_more": "了解更多",
     "less": "更少",
@@ -226,6 +227,11 @@
     "require_github": "使用 GitHub 登录以创建私密 Gist",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "已创建文件夹",
     "edit": "编辑文件夹",
@@ -238,6 +244,10 @@
     "mutations": "变更",
     "schema": "模式",
     "subscriptions": "订阅"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "安装应用",

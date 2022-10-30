@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicate",
     "edit": "Επεξεργασία",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "Πήγαινε πίσω",
+    "group_by": "Group by",
     "label": "Επιγραφή",
     "learn_more": "Μάθε περισσότερα",
     "less": "Less",
@@ -226,6 +227,11 @@
     "require_github": "Συνδεθείτε με το GitHub για να δημιουργήσετε μυστική ουσία",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Ο φάκελος δημιουργήθηκε",
     "edit": "Επεξεργασία φακέλου",
@@ -238,6 +244,10 @@
     "mutations": "Μεταλλάξεις",
     "schema": "Σχήμα",
     "subscriptions": "Συνδρομές"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Εγκατάσταση εφαρμογής",

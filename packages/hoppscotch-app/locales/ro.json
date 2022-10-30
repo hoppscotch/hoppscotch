@@ -17,8 +17,9 @@
     "drag_to_reorder": "Trage pentru a rearanja",
     "duplicate": "Duplicare",
     "edit": "Editare",
-    "filter_response": "Filtrare răspuns",
+    "filter": "Filtrare răspuns",
     "go_back": "Înapoi",
+    "group_by": "Group by",
     "label": "Etichetă",
     "learn_more": "Află mai multe",
     "less": "Mai puțin",
@@ -226,6 +227,11 @@
     "require_github": "Conectați-vă cu GitHub pentru a crea un Gist secret",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Dosar creat",
     "edit": "Editați dosarul",
@@ -238,6 +244,10 @@
     "mutations": "Mutații",
     "schema": "Schemă",
     "subscriptions": "Abonamente"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Instalează aplicația",

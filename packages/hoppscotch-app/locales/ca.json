@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "Duplicar",
     "edit": "Editar",
-    "filter_response": "Filtrar resposta",
+    "filter": "Filtrar resposta",
     "go_back": "Tornar",
+    "group_by": "Group by",
     "label": "Etiquetar",
     "learn_more": "Aprèn més",
     "less": "Menys",
@@ -226,6 +227,11 @@
     "require_github": "Inicieu la sessió amb GitHub per crear un Gisst secret",
     "title": "Exportar"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "S'ha creat la carpeta",
     "edit": "Editar la carpeta",
@@ -238,6 +244,10 @@
     "mutations": "Mutacions",
     "schema": "Esquema",
     "subscriptions": "Subscripcions"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Instal·la l'aplicació",

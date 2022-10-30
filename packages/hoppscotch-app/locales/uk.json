@@ -17,8 +17,9 @@
     "drag_to_reorder": "Перетягніть для зміни порядку",
     "duplicate": "Дублювати",
     "edit": "Редагувати",
-    "filter_response": "Фільтр відповіді",
+    "filter": "Фільтр відповіді",
     "go_back": "Повертайся",
+    "group_by": "Group by",
     "label": "Мітка",
     "learn_more": "Вчи більше",
     "less": "Менше",
@@ -226,6 +227,11 @@
     "require_github": "Увійдіть за допомогою GitHub, щоб створити секретну історію",
     "title": "Експорт"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Папка створена",
     "edit": "Редагувати папку",
@@ -238,6 +244,10 @@
     "mutations": "Мутації",
     "schema": "Схема",
     "subscriptions": "Підписки"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Встановити додаток",

@@ -17,8 +17,9 @@
     "drag_to_reorder": "Seret untuk menyusun ulang",
     "duplicate": "Duplikat",
     "edit": "Edit",
-    "filter_response": "Tanggapan filter",
+    "filter": "Tanggapan filter",
     "go_back": "Kembali",
+    "group_by": "Group by",
     "label": "Label",
     "learn_more": "Pelajari lebih lanjut",
     "less": "Lebih sedikit",
@@ -226,6 +227,11 @@
     "require_github": "Masuk dengan GitHub untuk membuat secret gist",
     "title": "Export"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "Folder dibuat",
     "edit": "Edit Folder",
@@ -238,6 +244,10 @@
     "mutations": "Mutations",
     "schema": "Schema",
     "subscriptions": "Subscriptions"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "Pasang app",

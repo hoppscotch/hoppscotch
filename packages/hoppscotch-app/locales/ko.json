@@ -17,8 +17,9 @@
     "drag_to_reorder": "Drag to reorder",
     "duplicate": "복제",
     "edit": "편집",
-    "filter_response": "Filter response",
+    "filter": "Filter",
     "go_back": "돌아가기",
+    "group_by": "Group by",
     "label": "이름",
     "learn_more": "더 알아보기",
     "less": "접기",
@@ -226,6 +227,11 @@
     "require_github": "GitHub에 로그인하여 secret gist 만들기",
     "title": "내보내기"
   },
+  "filter": {
+    "all": "All",
+    "none": "None",
+    "starred": "Starred"
+  },
   "folder": {
     "created": "폴더 생성됨",
     "edit": "폴더 수정",
@@ -238,6 +244,10 @@
     "mutations": "뮤테이션",
     "schema": "스키마",
     "subscriptions": "섭스크립션"
+  },
+  "group": {
+    "time": "Time",
+    "url": "URL"
   },
   "header": {
     "install_pwa": "앱을 설치",

@@ -28,8 +28,8 @@ export const createGQLQueryLinter: (
             ch: locations![0].column - 1,
           },
           to: {
-            line: locations![0].line - 1,
-            ch: locations![0].column,
+            line: locations![0].line,
+            ch: locations![0].column - 1,
           },
           message,
           severity: "error",

@@ -66,10 +66,16 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/features/body"
+          to="https://docs.hoppscotch.io/realtime"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.clear')"
+          :icon="IconTrash2"
+          @click="clearContent"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -77,12 +83,6 @@
           :class="{ '!text-accent': linewrapEnabled }"
           :icon="IconWrapText"
           @click.prevent="linewrapEnabled = !linewrapEnabled"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.clear')"
-          :icon="IconTrash2"
-          @click="clearContent"
         />
         <ButtonSecondary
           v-if="contentType && contentType == 'JSON'"

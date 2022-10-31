@@ -16,16 +16,16 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
+          :title="t('action.clear')"
+          :icon="IconTrash2"
+          @click="clearContent"
+        />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
           :icon="IconWrapText"
           @click.prevent="linewrapEnabled = !linewrapEnabled"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.clear')"
-          :icon="IconTrash2"
-          @click="clearContent"
         />
       </div>
     </div>

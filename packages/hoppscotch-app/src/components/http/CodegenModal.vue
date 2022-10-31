@@ -74,29 +74,54 @@
             </div>
           </template>
         </tippy>
-        <div class="flex justify-between flex-1">
-          <label for="generatedCode" class="p-4">
-            {{ t("request.generated_code") }}
-          </label>
-        </div>
         <div
           v-if="errorState"
-          class="w-full px-4 py-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+          class="w-full px-4 py-2 mt-4 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
         >
           {{ t("error.something_went_wrong") }}
         </div>
         <div
           v-else-if="codegenType"
-          ref="generatedCode"
-          class="border rounded border-dividerLight"
-        ></div>
+          class="mt-4 border rounded border-dividerLight"
+        >
+          <div class="flex items-center justify-between pl-4">
+            <label class="font-semibold text-secondaryLight">
+              {{ t("request.generated_code") }}
+            </label>
+            <div class="flex items-center">
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('state.linewrap')"
+                :class="{ '!text-accent': linewrapEnabled }"
+                :icon="IconWrapText"
+                @click.prevent="linewrapEnabled = !linewrapEnabled"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="t('action.download_file')"
+                :icon="downloadIcon"
+                @click="downloadResponse"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="t('action.copy')"
+                :icon="copyIcon"
+                @click="copyResponse"
+              />
+            </div>
+          </div>
+          <div
+            ref="generatedCode"
+            class="border-t rounded-b border-dividerLight"
+          ></div>
+        </div>
       </div>
     </template>
     <template #footer>
       <span class="flex space-x-2">
         <ButtonPrimary
           :label="`${t('action.copy')}`"
-          :icon="copyIcon"
+          :icon="copyCodeIcon"
           outline
           @click="copyRequestCode"
         />
@@ -112,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import * as O from "fp-ts/Option"
 import { Environment, makeRESTRequest } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
@@ -131,9 +156,14 @@ import {
   CodegenName,
   generateCode,
 } from "~/helpers/new-codegen"
+import {
+  useCopyResponse,
+  useDownloadResponse,
+} from "~/composables/lens-actions"
 
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
+import IconWrapText from "~icons/lucide/wrap-text"
 
 const t = useI18n()
 
@@ -151,7 +181,7 @@ const request = ref(getRESTRequest())
 const codegenType = ref<CodegenName>("shell-curl")
 const errorState = ref(false)
 
-const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
+const copyCodeIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
   1000
 )
@@ -195,16 +225,22 @@ const requestCode = computed(() => {
 // Template refs
 const tippyActions = ref<any | null>(null)
 const generatedCode = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
-useCodemirror(generatedCode, requestCode, {
-  extendedEditorConfig: {
-    mode: "text/plain",
-    readOnly: true,
-  },
-  linter: null,
-  completer: null,
-  environmentHighlights: false,
-})
+useCodemirror(
+  generatedCode,
+  requestCode,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/plain",
+      readOnly: true,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 watch(
   () => props.show,
@@ -219,7 +255,7 @@ const hideModal = () => emit("hide-modal")
 
 const copyRequestCode = () => {
   copyToClipboard(requestCode.value)
-  copyIcon.value = IconCheck
+  copyCodeIcon.value = IconCheck
   toast.success(`${t("state.copied_to_clipboard")}`)
 }
 
@@ -232,4 +268,7 @@ const filteredCodegenDefinitions = computed(() => {
     )
   )
 })
+
+const { copyIcon, copyResponse } = useCopyResponse(requestCode)
+const { downloadIcon, downloadResponse } = useDownloadResponse("", requestCode)
 </script>

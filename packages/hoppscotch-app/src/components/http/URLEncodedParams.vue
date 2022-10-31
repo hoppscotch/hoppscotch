@@ -21,6 +21,14 @@
           @click="clearContent()"
         />
         <ButtonSecondary
+          v-if="bulkMode"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          :icon="IconWrapText"
+          @click.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.bulk_mode')"
           :icon="IconEdit"
@@ -169,7 +177,8 @@ import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
-import { computed, ref, watch } from "vue"
+import IconWrapText from "~icons/lucide/wrap-text"
+import { computed, reactive, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
 import {
   parseRawKeyValueEntries,
@@ -202,18 +211,24 @@ const idTicker = ref(0)
 const bulkMode = ref(false)
 const bulkUrlEncodedParams = ref("")
 const bulkEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
-useCodemirror(bulkEditor, bulkUrlEncodedParams, {
-  extendedEditorConfig: {
-    mode: "text/x-yaml",
-    placeholder: `${t("state.bulk_mode_placeholder")}`,
-  },
-  linter,
-  completer: null,
-  environmentHighlights: true,
-})
+useCodemirror(
+  bulkEditor,
+  bulkUrlEncodedParams,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/x-yaml",
+      placeholder: `${t("state.bulk_mode_placeholder")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
 
 // The functional urlEncodedParams list (the urlEncodedParams actually in the system)
 const urlEncodedParamsRaw = pluckRef(useRESTRequestBody(), "body")

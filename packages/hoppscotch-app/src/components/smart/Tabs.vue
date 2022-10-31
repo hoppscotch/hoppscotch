@@ -58,10 +58,10 @@
       </div>
     </div>
     <div
-      class="flex w-full h-full"
+      class="w-full h-full contents"
       :class="[
         {
-          'flex-col flex-1 overflow-y-auto ': vertical,
+          '!flex flex-col flex-1 overflow-y-auto': vertical,
         },
         contentStyles,
       ]"

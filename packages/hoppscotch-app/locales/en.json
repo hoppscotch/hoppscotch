@@ -368,7 +368,7 @@
     },
     "copy_link": "Copy link",
     "duration": "Duration",
-    "enter_curl": "Enter cURL",
+    "enter_curl": "Enter cURL command",
     "generate_code": "Generate code",
     "generated_code": "Generated code",
     "header_list": "Header List",

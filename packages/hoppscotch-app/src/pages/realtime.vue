@@ -2,7 +2,7 @@
   <SmartTabs
     v-model="currentTab"
     styles="sticky bg-primary top-0 z-50"
-    content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)]"
+    content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
   >
     <SmartTab
       v-for="{ target, title } in REALTIME_NAVIGATION"
@@ -79,8 +79,3 @@ watch(
   { immediate: true }
 )
 </script>
-
-<route lang="yaml">
-meta:
-  layout: default
-</route>

@@ -21,6 +21,14 @@
           @click="clearContent()"
         />
         <ButtonSecondary
+          v-if="bulkMode"
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('state.linewrap')"
+          :class="{ '!text-accent': linewrapEnabled }"
+          :icon="IconWrapText"
+          @click.prevent="linewrapEnabled = !linewrapEnabled"
+        />
+        <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.bulk_mode')"
           :icon="IconEdit"
@@ -230,8 +238,9 @@ import IconLock from "~icons/lucide/lock"
 import IconEye from "~icons/lucide/eye"
 import IconEyeOff from "~icons/lucide/eye-off"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
+import IconWrapText from "~icons/lucide/wrap-text"
 import { useColorMode } from "@composables/theming"
-import { computed, Ref, ref, watch } from "vue"
+import { computed, reactive, Ref, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
 import {
   HoppRESTHeader,
@@ -275,6 +284,7 @@ const idTicker = ref(0)
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
@@ -282,15 +292,20 @@ const emit = defineEmits<{
   (e: "change-tab", value: RequestOptionTabs): void
 }>()
 
-useCodemirror(bulkEditor, bulkHeaders, {
-  extendedEditorConfig: {
-    mode: "text/x-yaml",
-    placeholder: `${t("state.bulk_mode_placeholder")}`,
-  },
-  linter,
-  completer: null,
-  environmentHighlights: true,
-})
+useCodemirror(
+  bulkEditor,
+  bulkHeaders,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/x-yaml",
+      placeholder: `${t("state.bulk_mode_placeholder")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter,
+    completer: null,
+    environmentHighlights: true,
+  })
+)
 
 // The functional headers list (the headers actually in the system)
 const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<

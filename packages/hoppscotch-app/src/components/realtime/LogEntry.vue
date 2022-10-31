@@ -23,7 +23,7 @@
             </span>
           </div>
           <div
-            class="items-center flex-1 min-w-0 p-2 inline-grid"
+            class="inline-grid items-center flex-1 min-w-0 p-2"
             @click="toggleExpandPayload()"
           >
             <div class="truncate">
@@ -49,7 +49,7 @@
         />
       </div>
     </div>
-    <div v-if="!minimized" class="overflow-hidden bg-primaryLight">
+    <div v-if="!minimized" class="overflow-hidden bg-primaryContrast">
       <SmartTabs
         v-model="selectedTab"
         styles="bg-primaryLight"

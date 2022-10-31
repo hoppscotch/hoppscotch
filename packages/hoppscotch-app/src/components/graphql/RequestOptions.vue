@@ -52,6 +52,13 @@
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
+              :title="t('state.linewrap')"
+              :class="{ '!text-accent': linewrapEnabledQuery }"
+              :icon="IconWrapText"
+              @click.prevent="linewrapEnabledQuery = !linewrapEnabledQuery"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
               :title="t('action.prettify')"
               :icon="prettifyQueryIcon"
               @click="prettifyQuery"
@@ -93,6 +100,15 @@
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
+              :title="t('state.linewrap')"
+              :class="{ '!text-accent': linewrapEnabledVariable }"
+              :icon="IconWrapText"
+              @click.prevent="
+                linewrapEnabledVariable = !linewrapEnabledVariable
+              "
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
               :title="t('action.prettify')"
               :icon="prettifyVariablesIcon"
               @click="prettifyVariableString"
@@ -131,6 +147,13 @@
               :title="t('action.clear_all')"
               :icon="IconTrash2"
               @click="clearContent()"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('state.linewrap')"
+              :class="{ '!text-accent': linewrapEnabled }"
+              :icon="IconWrapText"
+              @click.prevent="linewrapEnabled = !linewrapEnabled"
             />
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -316,6 +339,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand2 from "~icons/lucide/wand-2"
+import IconWrapText from "~icons/lucide/wrap-text"
 import { Ref, computed, reactive, ref, watch } from "vue"
 import * as gql from "graphql"
 import * as E from "fp-ts/Either"
@@ -388,18 +412,24 @@ const idTicker = ref(0)
 const bulkMode = ref(false)
 const bulkHeaders = ref("")
 const bulkEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
-useCodemirror(bulkEditor, bulkHeaders, {
-  extendedEditorConfig: {
-    mode: "text/x-yaml",
-    placeholder: `${t("state.bulk_mode_placeholder")}`,
-  },
-  linter: null,
-  completer: null,
-  environmentHighlights: false,
-})
+useCodemirror(
+  bulkEditor,
+  bulkHeaders,
+  reactive({
+    extendedEditorConfig: {
+      mode: "text/x-yaml",
+      placeholder: `${t("state.bulk_mode_placeholder")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 // The functional headers list (the headers actually in the system)
 const headers = useStream(gqlHeaders$, [], setGQLHeaders) as Ref<GQLHeader[]>
@@ -602,6 +632,7 @@ const activeGQLHeadersCount = computed(
 )
 
 const variableEditor = ref<any | null>(null)
+const linewrapEnabledVariable = ref(true)
 
 useCodemirror(
   variableEditor,
@@ -610,6 +641,7 @@ useCodemirror(
     extendedEditorConfig: {
       mode: "application/ld+json",
       placeholder: `${t("request.variables")}`,
+      lineWrapping: linewrapEnabledVariable,
     },
     linter: computed(() =>
       variableString.value.length > 0 ? jsonLinter : null
@@ -621,16 +653,22 @@ useCodemirror(
 
 const queryEditor = ref<any | null>(null)
 const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
+const linewrapEnabledQuery = ref(true)
 
-useCodemirror(queryEditor, gqlQueryString, {
-  extendedEditorConfig: {
-    mode: "graphql",
-    placeholder: `${t("request.query")}`,
-  },
-  linter: createGQLQueryLinter(schema),
-  completer: queryCompleter(schema),
-  environmentHighlights: false,
-})
+useCodemirror(
+  queryEditor,
+  gqlQueryString,
+  reactive({
+    extendedEditorConfig: {
+      mode: "graphql",
+      placeholder: `${t("request.query")}`,
+      lineWrapping: linewrapEnabledQuery,
+    },
+    linter: createGQLQueryLinter(schema),
+    completer: queryCompleter(schema),
+    environmentHighlights: false,
+  })
+)
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,

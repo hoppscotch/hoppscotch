@@ -348,8 +348,3 @@ const getColorModeName = (colorMode: string) => {
   }
 }
 </script>
-
-<route lang="yaml">
-meta:
-  layout: default
-</route>

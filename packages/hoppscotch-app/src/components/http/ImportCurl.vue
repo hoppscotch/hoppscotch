@@ -6,11 +6,45 @@
     @close="hideModal"
   >
     <template #body>
-      <div class="px-2 h-46">
-        <div
-          ref="curlEditor"
-          class="h-full border rounded border-dividerLight"
-        ></div>
+      <div class="border rounded border-dividerLight">
+        <div class="flex flex-col">
+          <div class="flex items-center justify-between pl-4">
+            <label class="font-semibold text-secondaryLight"> cURL </label>
+            <div class="flex items-center">
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.clear_all')"
+                :icon="IconTrash2"
+                @click="clearContent()"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('state.linewrap')"
+                :class="{ '!text-accent': linewrapEnabled }"
+                :icon="IconWrapText"
+                @click.prevent="linewrapEnabled = !linewrapEnabled"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="t('action.download_file')"
+                :icon="downloadIcon"
+                @click="downloadResponse"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip', allowHTML: true }"
+                :title="t('action.copy')"
+                :icon="copyIcon"
+                @click="copyResponse"
+              />
+            </div>
+          </div>
+          <div class="h-46">
+            <div
+              ref="curlEditor"
+              class="h-full border-t rounded-b border-dividerLight"
+            ></div>
+          </div>
+        </div>
       </div>
     </template>
     <template #footer>
@@ -42,16 +76,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { parseCurlToHoppRESTReq } from "~/helpers/curl"
+import {
+  useCopyResponse,
+  useDownloadResponse,
+} from "~/composables/lens-actions"
 
+import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
+import IconTrash2 from "~icons/lucide/trash-2"
 
 const t = useI18n()
 
@@ -60,18 +100,24 @@ const toast = useToast()
 const curl = ref("")
 
 const curlEditor = ref<any | null>(null)
+const linewrapEnabled = ref(true)
 
 const props = defineProps<{ show: boolean; text: string }>()
 
-useCodemirror(curlEditor, curl, {
-  extendedEditorConfig: {
-    mode: "application/x-sh",
-    placeholder: `${t("request.enter_curl")}`,
-  },
-  linter: null,
-  completer: null,
-  environmentHighlights: false,
-})
+useCodemirror(
+  curlEditor,
+  curl,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/x-sh",
+      placeholder: `${t("request.enter_curl")}`,
+      lineWrapping: linewrapEnabled,
+    },
+    linter: null,
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 watch(
   () => props.show,
@@ -120,5 +166,12 @@ const handlePaste = async () => {
     console.error("Failed to copy: ", e)
     toast.error(t("profile.no_permission").toString())
   }
+}
+
+const { copyIcon, copyResponse } = useCopyResponse(curl)
+const { downloadIcon, downloadResponse } = useDownloadResponse("", curl)
+
+const clearContent = () => {
+  curl.value = ""
 }
 </script>

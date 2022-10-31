@@ -14,7 +14,7 @@
         <label class="font-semibold text-secondaryLight">
           {{ t("response.title") }}
         </label>
-        <div class="flex">
+        <div class="flex items-center">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
@@ -47,7 +47,7 @@
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <div class="flex pb-4 my-4 space-x-2">
-        <div class="flex flex-col items-end text-right space-y-4">
+        <div class="flex flex-col items-end space-y-4 text-right">
           <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>

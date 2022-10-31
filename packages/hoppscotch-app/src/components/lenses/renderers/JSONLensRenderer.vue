@@ -100,7 +100,7 @@
           interactive
           trigger="click"
           theme="popover"
-          :on-shown="() => tippyActions.focus()"
+          :on-shown="() => tippyActions[index].focus()"
         >
           <div v-if="item.kind === 'RootObject'" class="outline-item">{}</div>
           <div v-if="item.kind === 'RootArray'" class="outline-item">[]</div>

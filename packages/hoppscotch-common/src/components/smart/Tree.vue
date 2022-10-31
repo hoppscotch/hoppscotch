@@ -1,15 +1,26 @@
 <template>
   <div class="flex flex-col gap-5">
-    <div v-for="rootNode in adapter.getChildren(null)" :key="rootNode.id">
-      <SmartTreeBranch :node-item="rootNode" :adapter="adapter">
-        <template #default="{ node, toggleChildren }">
-          <slot
-            name="content"
-            :node="node"
-            :toggle-children="toggleChildren"
-          ></slot>
-        </template>
-      </SmartTreeBranch>
+    <div
+      v-if="adapter.getChildren(null).length > 0"
+      class="flex flex-col gap-5"
+    >
+      <div v-for="rootNode in adapter.getChildren(null)" :key="rootNode.id">
+        <SmartTreeBranch :node-item="rootNode" :adapter="adapter">
+          <template #default="{ node, toggleChildren }">
+            <slot
+              name="content"
+              :node="node"
+              :toggle-children="toggleChildren"
+            ></slot>
+          </template>
+          <template #empty>
+            <slot name="emptyRoot"></slot>
+          </template>
+        </SmartTreeBranch>
+      </div>
+    </div>
+    <div v-else class="bg-orange-300">
+      <slot name="emptyRoot"></slot>
     </div>
   </div>
 </template>

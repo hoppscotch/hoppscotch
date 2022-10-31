@@ -3,17 +3,28 @@
     <template #content="{ node, toggleChildren }">
       <h2
         v-if="node.type === 'folders'"
-        class="bg-orange-200 p-2"
+        class="bg-blue-600 p-2"
         @click="toggleChildren"
       >
         {{ node.data.name }} - {{ node.data.id }}
+        <p v-if="!node.data.folders">EMPTY FOLDER</p>
       </h2>
-      <h2 v-else-if="node.type === 'requests'" class="bg-red-200 p-2">
+      <h2 v-else-if="node.type === 'requests'" class="bg-red-900 p-2">
         {{ node.data.name }}
       </h2>
-      <h2 v-else class="bg-pink-200 p-2" @click="toggleChildren">
+      <h2
+        v-else-if="node.type === 'collections'"
+        class="bg-red-300 p-2"
+        @click="toggleChildren"
+      >
         {{ node.data.name }}
       </h2>
+      <h2 v-else>
+        {{ node.data.name }}
+      </h2>
+    </template>
+    <template #emptyRoot>
+      <h2 class="bg-yellow-200 p-2">Empty Root Node</h2>
     </template>
   </SmartTree>
 </template>
@@ -183,6 +194,12 @@ const fake_data = [
       },
     ],
   },
+  {
+    id: 5,
+    name: "Root 5",
+    description: "Root node 5",
+    icon: "folder",
+  },
 ]
 
 type FakeData = typeof fake_data
@@ -232,6 +249,8 @@ class FakeDataAdapter implements SmartTreeAdapter<Node> {
     }
 
     const item = this.findItem(this.data, id.toString())
+
+    console.log("adapter-item", item)
 
     if (item) {
       if (objHasProperty("folders")(item) && objHasProperty("requests")(item)) {

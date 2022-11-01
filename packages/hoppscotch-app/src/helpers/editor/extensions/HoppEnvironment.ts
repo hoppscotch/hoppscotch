@@ -61,10 +61,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const parsedEnvKey = text.slice(start - from, end - from)
 
-      const tooltipEnv = aggregateEnvs.find(
-        (env) => env.key === parsedEnvKey
-        // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
-      )
+      const tooltipEnv = aggregateEnvs.find((env) => env.key === parsedEnvKey)
 
       const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
 

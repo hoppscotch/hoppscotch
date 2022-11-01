@@ -42,7 +42,7 @@ const props = withDefaults(
     styles?: string
     envs?: { key: string; value: string; source: string }[] | null
     focus?: boolean
-    isTextSelected?: boolean
+    selectTextOnMount?: boolean
     readonly?: boolean
   }>(),
   {
@@ -218,14 +218,14 @@ const triggerTextSelection = () => {
 onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
-    if (props.isTextSelected) triggerTextSelection()
+    if (props.selectTextOnMount) triggerTextSelection()
   }
 })
 
 watch(editor, () => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
-    if (props.isTextSelected) triggerTextSelection()
+    if (props.selectTextOnMount) triggerTextSelection()
   } else {
     view.value?.destroy()
     view.value = undefined

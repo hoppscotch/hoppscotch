@@ -7,7 +7,7 @@
         @click="toggleChildren"
       >
         {{ node.data.name }} - {{ node.data.id }}
-        <p v-if="!node.data.folders">EMPTY FOLDER</p>
+        <p v-if="!node.data.folders && !node.data.requests">EMPTY FOLDER</p>
       </h2>
       <h2 v-else-if="node.type === 'requests'" class="bg-red-900 p-2">
         {{ node.data.name }}
@@ -18,6 +18,7 @@
         @click="toggleChildren"
       >
         {{ node.data.name }}
+        <p v-if="!node.data.folders && !node.data.requests">EMPTY COLLECTION</p>
       </h2>
       <h2 v-else>
         {{ node.data.name }}
@@ -199,6 +200,7 @@ const fake_data = [
     name: "Root 5",
     description: "Root node 5",
     icon: "folder",
+    folders: [],
   },
 ]
 

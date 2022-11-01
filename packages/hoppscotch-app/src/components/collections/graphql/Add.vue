@@ -32,6 +32,7 @@
         <ButtonSecondary
           :label="`${t('action.cancel')}`"
           outline
+          filled
           @click="hideModal"
         />
       </span>

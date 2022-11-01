@@ -1,14 +1,7 @@
 <template>
   <div class="flex flex-col items-center justify-center min-h-screen">
-    <div v-if="signingInWithEmail">
-      <SmartSpinner />
-      <div class="mt-2 text-sm text-secondaryLight">
-        {{ t("state.loading") }}
-      </div>
-    </div>
-    <div v-else>
-      <AppLogo class="w-16 h-16 rounded" />
-    </div>
+    <SmartSpinner v-if="signingInWithEmail" />
+    <AppLogo v-else class="w-16 h-16 rounded" />
     <pre v-if="error" class="mt-4 text-secondaryLight">{{ error }}</pre>
   </div>
 </template>

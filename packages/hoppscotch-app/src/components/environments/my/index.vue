@@ -135,6 +135,6 @@ defineActionHandler("modals.my.environment.edit", (args?: any[]) => {
       return environment.name === envName
     }
   )
-  editEnvironment(envIndex >= 0 ? envIndex : envName)
+  editEnvironment(envIndex >= 0 ? envIndex : "Global")
 })
 </script>

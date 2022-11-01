@@ -145,7 +145,7 @@ const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironment = ref<TeamEnvironment | null>(null)
-const editingVariableName = ref<string>("")
+const editingVariableName = ref("")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"
@@ -185,10 +185,9 @@ const getErrorMessage = (err: GQLError<string>) => {
 defineActionHandler("modals.team.environment.edit", (args?: any[]) => {
   const [envName, variableName]: any = args
   editingVariableName.value = variableName
-  const teamEnvToEdit: TeamEnvironment | undefined =
-    props.teamEnvironments.find((environment: TeamEnvironment) => {
-      return environment.environment.name === envName
-    })
+  const teamEnvToEdit = props.teamEnvironments.find(
+    (environment) => environment.environment.name === envName
+  )
   if (teamEnvToEdit) editEnvironment(teamEnvToEdit)
 })
 </script>

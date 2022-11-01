@@ -103,7 +103,7 @@ const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<number | "Global" | null>(null)
-const editingVariableName = ref<string>("")
+const editingVariableName = ref("")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"

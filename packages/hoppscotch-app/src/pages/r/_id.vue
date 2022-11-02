@@ -124,6 +124,7 @@ export default defineComponent({
       shortcodeDetails,
       reloadApplication,
       t,
+      route,
       IconHome,
       IconRefreshCW,
     }
@@ -135,8 +136,8 @@ export default defineComponent({
     }
   },
   mounted() {
-    if (typeof this.$route.params.id === "string") {
-      this.shortcodeID = this.$route.params.id
+    if (typeof this.route.params.id === "string") {
+      this.shortcodeID = this.route.params.id
     }
     this.invalidLink = !this.shortcodeID
   },

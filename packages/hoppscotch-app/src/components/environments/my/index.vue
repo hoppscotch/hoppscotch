@@ -89,7 +89,7 @@ const environments = useReadonlyStream(environments$, [])
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
-const editingEnvironmentIndex = ref<number | "Global" | null>(null)
+const editingEnvironmentIndex = ref<number | null>(null)
 const editingVariableName = ref("")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
@@ -105,7 +105,7 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 const displayModalImportExport = (shouldDisplay: boolean) => {
   showModalImportExport.value = shouldDisplay
 }
-const editEnvironment = (environmentIndex: number | "Global") => {
+const editEnvironment = (environmentIndex: number) => {
   editingEnvironmentIndex.value = environmentIndex
   action.value = "edit"
   displayModalEdit(true)
@@ -123,7 +123,7 @@ defineActionHandler(
         return environment.name === envName
       }
     )
-    editEnvironment(envIndex >= 0 ? envIndex : "Global")
+    envName !== "Global" && editEnvironment(envIndex)
   }
 )
 </script>

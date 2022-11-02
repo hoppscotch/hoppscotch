@@ -161,9 +161,9 @@
         @update-selected-team="updateSelectedTeam"
       />
     </div>
-    <EnvironmentsMy v-show="environmentType.type === 'my-environments'" />
+    <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
-      v-show="environmentType.type === 'team-environments'"
+      v-if="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
       :team-environments="teamEnvironmentList"
       :loading="loading"
@@ -195,6 +195,7 @@ import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -256,6 +257,7 @@ watch(
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<"Global" | null>(null)
+const editingVariableName = ref("")
 
 const displayModalEdit = (shouldDisplay: boolean) => {
   action.value = "edit"
@@ -273,6 +275,14 @@ const editEnvironment = (environmentIndex: "Global") => {
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
 }
+
+defineActionHandler(
+  "modals.my.environment.edit",
+  ({ envName, variableName }) => {
+    editingVariableName.value = variableName
+    envName === "Global" && editEnvironment("Global")
+  }
+)
 
 const myEnvironments = useReadonlyStream(environments$, [])
 

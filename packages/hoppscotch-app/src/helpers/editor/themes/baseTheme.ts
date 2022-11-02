@@ -103,10 +103,10 @@ export const baseTheme = EditorView.theme({
     borderRadius: "4px",
   },
   ".cm-tooltip-arrow:after": {
-    borderColor: "transparent !important",
+    borderTopColor: "var(--tooltip-color) !important",
   },
   ".cm-tooltip-arrow:before": {
-    borderColor: "transparent !important",
+    borderTopColor: "var(--tooltip-color) !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -235,10 +235,10 @@ export const inputTheme = EditorView.theme({
     borderRadius: "4px",
   },
   ".cm-tooltip-arrow:after": {
-    borderColor: "transparent !important",
+    borderTopColor: "var(--tooltip-color) !important",
   },
   ".cm-tooltip-arrow:before": {
-    borderColor: "transparent !important",
+    borderTopColor: "var(--tooltip-color) !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",

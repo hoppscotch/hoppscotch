@@ -100,18 +100,6 @@
                 "
               />
               <template #content="{ hide }">
-                <div class="flex flex-col px-2 text-tiny">
-                  <span class="inline-flex font-semibold truncate">
-                    {{
-                      currentUser.displayName ||
-                      t("profile.default_hopp_displayname")
-                    }}
-                  </span>
-                  <span class="inline-flex truncate text-secondaryLight">
-                    {{ currentUser.email }}
-                  </span>
-                </div>
-                <hr />
                 <div
                   ref="tippyActions"
                   class="flex flex-col focus:outline-none"
@@ -121,6 +109,18 @@
                   @keyup.l="logout.$el.click()"
                   @keyup.escape="hide()"
                 >
+                  <div class="flex flex-col px-2 text-tiny">
+                    <span class="inline-flex font-semibold truncate">
+                      {{
+                        currentUser.displayName ||
+                        t("profile.default_hopp_displayname")
+                      }}
+                    </span>
+                    <span class="inline-flex truncate text-secondaryLight">
+                      {{ currentUser.email }}
+                    </span>
+                  </div>
+                  <hr />
                   <SmartItem
                     ref="profile"
                     to="/profile"

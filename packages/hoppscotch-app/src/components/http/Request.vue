@@ -60,8 +60,10 @@
     <div class="flex mt-2 sm:mt-0">
       <ButtonPrimary
         id="send"
-        class="flex-1 rounded-r-none min-w-20"
+        v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
+        :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
+        class="flex-1 rounded-r-none min-w-20"
         @click="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -72,9 +74,11 @@
           :on-shown="() => sendTippyActions.focus()"
         >
           <ButtonPrimary
-            class="rounded-l-none"
-            filled
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('app.options')"
             :icon="IconChevronDown"
+            filled
+            class="rounded-l-none"
           />
           <template #content="{ hide }">
             <div
@@ -130,10 +134,14 @@
         class="flex ml-2 border rounded transition border-dividerLight hover:border-dividerDark"
       >
         <ButtonSecondary
-          class="flex-1 rounded rounded-r-none"
+          v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
+          :title="`${t(
+            'request.save'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
           :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
           filled
           :icon="IconSave"
+          class="flex-1 rounded rounded-r-none"
           @click="saveRequest()"
         />
         <span class="flex">
@@ -144,21 +152,13 @@
             :on-shown="() => saveTippyActions.focus()"
           >
             <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('app.options')"
               :icon="IconChevronDown"
               filled
               class="rounded rounded-l-none"
             />
             <template #content="{ hide }">
-              <input
-                id="request-name"
-                v-model="requestName"
-                :placeholder="`${t('request.name')}`"
-                name="request-name"
-                type="text"
-                autocomplete="off"
-                class="mb-2 input !bg-primaryContrast"
-                @keyup.enter="hide()"
-              />
               <div
                 ref="saveTippyActions"
                 class="flex flex-col focus:outline-none"
@@ -167,6 +167,16 @@
                 @keyup.s="saveRequestAction.$el.click()"
                 @keyup.escape="hide()"
               >
+                <input
+                  id="request-name"
+                  v-model="requestName"
+                  :placeholder="`${t('request.name')}`"
+                  name="request-name"
+                  type="text"
+                  autocomplete="off"
+                  class="mb-2 input !bg-primaryContrast"
+                  @keyup.enter="hide()"
+                />
                 <SmartItem
                   ref="copyRequestAction"
                   :label="shareButtonText"
@@ -265,6 +275,7 @@ import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 

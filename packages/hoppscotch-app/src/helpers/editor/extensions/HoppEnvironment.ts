@@ -86,16 +86,19 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
         arrow: true,
         create() {
           const dom = document.createElement("span")
+          const tooltipContainer = document.createElement("span")
           const kbd = document.createElement("kbd")
           const icon = document.createElement("span")
           icon.innerHTML = envTypeIcon
+          icon.className = "env-icon"
           kbd.textContent = finalEnv
-          dom.appendChild(icon)
-          dom.appendChild(document.createTextNode(`${envName} `))
-          dom.appendChild(kbd)
+          tooltipContainer.appendChild(icon)
+          tooltipContainer.appendChild(document.createTextNode(`${envName} `))
+          tooltipContainer.appendChild(kbd)
+          tooltipContainer.className = "tippy-content"
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"
-          icon.className = "env-icon"
+          dom.appendChild(tooltipContainer)
           return { dom }
         },
       }

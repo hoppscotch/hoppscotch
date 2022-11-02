@@ -138,63 +138,79 @@ a {
   }
 }
 
-.tippy-box[data-theme="tooltip"] {
+.tippy-box[data-theme~="tooltip"] {
   @apply bg-tooltip;
-  @apply text-primary;
-  @apply font-semibold;
-  @apply py-1 px-2;
+  @apply border-solid border-tooltip;
   @apply rounded;
-  @apply truncate;
   @apply shadow;
-  @apply leading-normal;
-  @apply items-center;
-  font-size: 86%;
 
-  kbd {
-    @apply hidden;
-    @apply font-sans;
-    @apply bg-gray-500/45;
-    @apply text-primaryLight;
-    @apply rounded-sm;
-    @apply px-1;
-    @apply my-0 ml-1;
+  .tippy-content {
+    @apply flex;
+    @apply text-tiny text-primary;
+    @apply font-semibold;
+    @apply py-1 px-2;
     @apply truncate;
-    @apply sm: inline-flex;
-  }
-
-  .tippy-svg-arrow svg {
-    @apply fill-tooltip;
-  }
-
-  .env-icon {
-    @apply inline-flex;
+    @apply leading-normal;
     @apply items-center;
-    @apply mr-1;
-    @apply text-accentDark;
+
+    kbd {
+      @apply hidden;
+      @apply font-sans;
+      @apply bg-gray-500/45;
+      @apply text-primaryLight;
+      @apply rounded-sm;
+      @apply px-1;
+      @apply my-0 ml-1;
+      @apply truncate;
+      @apply sm: inline-flex;
+    }
+
+    .env-icon {
+      @apply inline-flex;
+      @apply items-center;
+      @apply mr-1;
+      @apply text-accentDark;
+    }
+  }
+
+  .tippy-svg-arrow {
+    svg:first-child {
+      @apply fill-tooltip;
+    }
+
+    svg:last-child {
+      @apply fill-tooltip;
+    }
   }
 }
 
-.tippy-box[data-theme="popover"] {
-  @apply flex flex-col;
-  @apply max-h-56;
-  @apply items-stretch;
-  @apply overflow-y-auto;
+.tippy-box[data-theme~="popover"] {
   @apply bg-popover;
-  @apply text-secondary text-body;
-  @apply p-2;
+  @apply border-solid border-dividerDark;
+  @apply rounded;
   @apply shadow-lg;
-  @apply leading-normal;
-  @apply border border-dividerDark;
-  @apply focus: outline-none;
-  scroll-behavior: smooth;
 
-  .tippy-svg-arrow svg {
-    @apply fill-popover;
+  .tippy-content {
+    @apply flex flex-col;
+    @apply max-h-56;
+    @apply items-stretch;
+    @apply overflow-y-auto;
+    @apply text-secondary text-body;
+    @apply p-2;
+    @apply leading-normal;
+    @apply focus: outline-none;
+    scroll-behavior: smooth;
   }
-}
 
-.tippy-content {
-  @apply p-0;
+  .tippy-svg-arrow {
+    svg:first-child {
+      @apply fill-dividerDark;
+    }
+
+    svg:last-child {
+      @apply fill-popover;
+    }
+  }
 }
 
 [data-v-tippy] {

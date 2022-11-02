@@ -165,7 +165,7 @@ const props = withDefaults(
     show: boolean
     action: "edit" | "new"
     editingEnvironmentIndex: number | "Global" | null
-    editingVariableName?: string | null
+    editingVariableName: string | null
     envVars?: () => Environment["variables"]
   }>(),
   {

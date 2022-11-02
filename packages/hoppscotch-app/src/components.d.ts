@@ -100,6 +100,7 @@ declare module '@vue/runtime-core' {
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
     IconLucideCheckCircle: typeof import('~icons/lucide/check-circle')['default']
     IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
+    IconLucideGlobe: typeof import('~icons/lucide/globe')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
     IconLucideInfo: typeof import('~icons/lucide/info')['default']
     IconLucideLayers: typeof import('~icons/lucide/layers')['default']

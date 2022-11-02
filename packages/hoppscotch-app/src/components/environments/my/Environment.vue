@@ -4,6 +4,14 @@
     @contextmenu.prevent="options!.tippy.show()"
   >
     <span
+      v-if="environmentIndex === 'Global'"
+      class="flex items-center justify-center px-4 cursor-pointer"
+      @click="emit('edit-environment')"
+    >
+      <icon-lucide-globe class="svg-icons" />
+    </span>
+    <span
+      v-else
       class="flex items-center justify-center px-4 cursor-pointer"
       @click="emit('edit-environment')"
     >
@@ -70,7 +78,7 @@
               "
             />
             <SmartItem
-              v-if="!(environmentIndex === 'Global')"
+              v-if="environmentIndex !== 'Global'"
               ref="deleteAction"
               :icon="IconTrash2"
               :label="`${t('action.delete')}`"

@@ -149,6 +149,12 @@
           </div>
         </template>
       </tippy>
+      <EnvironmentsMyEnvironment
+        environment-index="Global"
+        :environment="globalEnvironment"
+        class="border-b border-dividerLight py-1"
+        @edit-environment="editEnvironment('Global')"
+      />
       <EnvironmentsChooseType
         :environment-type="environmentType"
         @update-environment-type="updateEnvironmentType"
@@ -163,6 +169,12 @@
       :loading="loading"
       :adapter-error="adapterError"
     />
+    <EnvironmentsMyDetails
+      :show="showModalDetails"
+      :action="action"
+      :editing-environment-index="editingEnvironmentIndex"
+      @hide-modal="displayModalEdit(false)"
+    />
   </div>
 </template>
 
@@ -175,6 +187,7 @@ import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
 import {
   environments$,
+  globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
@@ -198,6 +211,13 @@ const environmentType = ref<EnvironmentsChooseType>({
   type: "my-environments",
   selectedTeam: undefined,
 })
+
+const globalEnv = useReadonlyStream(globalEnv$, [])
+
+const globalEnvironment = computed(() => ({
+  name: "Global",
+  variables: globalEnv.value,
+}))
 
 const currentUser = useReadonlyStream(currentUser$, null)
 
@@ -232,6 +252,27 @@ watch(
     }
   }
 )
+
+const showModalDetails = ref(false)
+const action = ref<"new" | "edit">("edit")
+const editingEnvironmentIndex = ref<"Global" | null>(null)
+
+const displayModalEdit = (shouldDisplay: boolean) => {
+  action.value = "edit"
+  showModalDetails.value = shouldDisplay
+
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const editEnvironment = (environmentIndex: "Global") => {
+  editingEnvironmentIndex.value = environmentIndex
+  action.value = "edit"
+  displayModalEdit(true)
+}
+
+const resetSelectedData = () => {
+  editingEnvironmentIndex.value = null
+}
 
 const myEnvironments = useReadonlyStream(environments$, [])
 

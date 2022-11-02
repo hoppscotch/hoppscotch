@@ -104,7 +104,7 @@
                   ref="tippyActions"
                   class="flex flex-col focus:outline-none"
                   tabindex="0"
-                  @keyup.enter="profile.$el.click()"
+                  @keyup.p="profile.$el.click()"
                   @keyup.s="settings.$el.click()"
                   @keyup.l="logout.$el.click()"
                   @keyup.escape="hide()"
@@ -126,7 +126,7 @@
                     to="/profile"
                     :icon="IconUser"
                     :label="t('navigation.profile')"
-                    :shortcut="['↩']"
+                    :shortcut="['P']"
                     @click="hide()"
                   />
                   <SmartItem

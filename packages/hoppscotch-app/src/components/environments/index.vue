@@ -173,6 +173,7 @@
       :show="showModalDetails"
       :action="action"
       :editing-environment-index="editingEnvironmentIndex"
+      :editing-variable-name="editingVariableName"
       @hide-modal="displayModalEdit(false)"
     />
   </div>

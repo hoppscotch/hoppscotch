@@ -99,11 +99,14 @@ declare module '@vue/runtime-core' {
     HttpTestResultReport: typeof import('./components/http/TestResultReport.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']
+    IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
+    IconLucideCheckCircle: typeof import('~icons/lucide/check-circle')['default']
     IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
     IconLucideGlobe: typeof import('~icons/lucide/globe')['default']
     IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
     IconLucideInfo: typeof import('~icons/lucide/info')['default']
     IconLucideLoader: typeof import('~icons/lucide/loader')['default']
+    IconLucideMinus: typeof import('~icons/lucide/minus')['default']
     IconLucideSearch: typeof import('~icons/lucide/search')['default']
     IconLucideUser: typeof import('~icons/lucide/user')['default']
     IconLucideUsers: typeof import('~icons/lucide/users')['default']
@@ -158,6 +161,7 @@ declare module '@vue/runtime-core' {
     TeamsInvite: typeof import('./components/teams/Invite.vue')['default']
     TeamsModal: typeof import('./components/teams/Modal.vue')['default']
     TeamsTeam: typeof import('./components/teams/Team.vue')['default']
+    Test: typeof import('./components/test/index.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']
   }
 

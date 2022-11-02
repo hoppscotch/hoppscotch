@@ -1,6 +1,10 @@
 <template>
-  <slot :node="nodeItem" :toggle-children="toggleNodeChildren"></slot>
-  <div v-if="showChildren" class="mx-5">
+  <slot
+    :node="nodeItem"
+    :toggle-children="toggleNodeChildren"
+    :is-open="isOpen"
+  ></slot>
+  <div v-if="showChildren" class="ml-2">
     <div v-if="isShowChildren" class="text-red">
       <TreeBranch
         v-for="childNode in adapter.getChildren(nodeItem.id)"
@@ -8,12 +12,16 @@
         :node-item="childNode"
         :adapter="adapter"
       >
-        <template #[slotName]="{ node, toggleChildren }">
-          <slot :node="node" :toggle-children="toggleChildren"></slot>
+        <template #[slotName]="{ node, toggleChildren, isOpen }">
+          <slot
+            :node="node"
+            :toggle-children="toggleChildren"
+            :is-open="isOpen"
+          ></slot>
         </template>
       </TreeBranch>
     </div>
-    <div v-else class="bg-orange-200 px-5">
+    <div v-else class="px-5">
       <slot name="empty"></slot>
     </div>
   </div>
@@ -31,6 +39,7 @@ const props = defineProps<{
 const slotName = "default"
 
 const showChildren = ref(false)
+const isOpen = ref(false)
 
 const isShowChildren = computed(
   () => props.adapter.getChildren(props.nodeItem.id).length > 0
@@ -38,5 +47,6 @@ const isShowChildren = computed(
 
 const toggleNodeChildren = () => {
   showChildren.value = !showChildren.value
+  isOpen.value = !isOpen.value
 }
 </script>

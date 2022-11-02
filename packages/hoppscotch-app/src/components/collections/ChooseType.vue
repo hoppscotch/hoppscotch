@@ -130,6 +130,15 @@ onLoggedIn(() => {
   adapter.initialize()
 })
 
+watch(
+  () => currentUser.value,
+  (user) => {
+    if (!user) {
+      selectedCollectionTab.value = "my-collections"
+    }
+  }
+)
+
 const onTeamSelectIntersect = () => {
   // Load team data as soon as intersection
   adapter.fetchList()

@@ -84,10 +84,10 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const isPersonalEnv =
             envName === "Global" || selectedEnvType !== "TEAM_ENV"
           const action = isPersonalEnv ? "my" : "team"
-          invokeAction(`modals.${action}.environment.edit`, [
+          invokeAction(`modals.${action}.environment.edit`, {
             envName,
-            parsedEnvKey,
-          ])
+            variableName: parsedEnvKey,
+          })
         })
         editIcon.innerHTML = `<i class="inline-flex items-center px-1 ml-2 -my-1 text-base border-x material-icons border-secondary">edit</i>`
         tooltip.appendChild(editIcon)

@@ -155,9 +155,9 @@
         @update-selected-team="updateSelectedTeam"
       />
     </div>
-    <EnvironmentsMy v-show="environmentType.type === 'my-environments'" />
+    <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
-      v-show="environmentType.type === 'team-environments'"
+      v-if="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
       :team-environments="teamEnvironmentList"
       :loading="loading"

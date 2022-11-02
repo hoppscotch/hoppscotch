@@ -182,12 +182,14 @@ const getErrorMessage = (err: GQLError<string>) => {
   }
 }
 
-defineActionHandler("modals.team.environment.edit", (args?: any[]) => {
-  const [envName, variableName]: any = args
-  editingVariableName.value = variableName
-  const teamEnvToEdit = props.teamEnvironments.find(
-    (environment) => environment.environment.name === envName
-  )
-  if (teamEnvToEdit) editEnvironment(teamEnvToEdit)
-})
+defineActionHandler(
+  "modals.team.environment.edit",
+  ({ envName, variableName }) => {
+    editingVariableName.value = variableName
+    const teamEnvToEdit = props.teamEnvironments.find(
+      (environment) => environment.environment.name === envName
+    )
+    if (teamEnvToEdit) editEnvironment(teamEnvToEdit)
+  }
+)
 </script>

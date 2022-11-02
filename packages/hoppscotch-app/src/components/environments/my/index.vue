@@ -64,6 +64,7 @@
       :show="showModalDetails"
       :action="action"
       :editing-environment-index="editingEnvironmentIndex"
+      :editing-variable-name="editingVariableName"
       @hide-modal="displayModalEdit(false)"
     />
     <EnvironmentsImportExport
@@ -83,6 +84,8 @@ import { useI18n } from "~/composables/i18n"
 import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import { Environment } from "@hoppscotch/data"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -100,6 +103,7 @@ const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
 const editingEnvironmentIndex = ref<number | "Global" | null>(null)
+const editingVariableName = ref("")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
   action.value = "new"
@@ -122,4 +126,17 @@ const editEnvironment = (environmentIndex: number | "Global") => {
 const resetSelectedData = () => {
   editingEnvironmentIndex.value = null
 }
+
+defineActionHandler(
+  "modals.my.environment.edit",
+  ({ envName, variableName }) => {
+    editingVariableName.value = variableName
+    const envIndex: number = environments.value.findIndex(
+      (environment: Environment) => {
+        return environment.name === envName
+      }
+    )
+    editEnvironment(envIndex >= 0 ? envIndex : "Global")
+  }
+)
 </script>

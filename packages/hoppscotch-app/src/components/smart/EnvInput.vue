@@ -27,7 +27,7 @@ import {
   keymap,
   tooltips,
 } from "@codemirror/view"
-import { EditorState, Extension } from "@codemirror/state"
+import { EditorSelection, EditorState, Extension } from "@codemirror/state"
 import { clone } from "lodash-es"
 import { history, historyKeymap } from "@codemirror/commands"
 import { inputTheme } from "~/helpers/editor/themes/baseTheme"
@@ -42,6 +42,7 @@ const props = withDefaults(
     styles?: string
     envs?: { key: string; value: string; source: string }[] | null
     focus?: boolean
+    selectTextOnMount?: boolean
     readonly?: boolean
   }>(),
   {
@@ -203,15 +204,28 @@ const initView = (el: any) => {
   })
 }
 
+const triggerTextSelection = () => {
+  nextTick(() => {
+    view.value?.focus()
+    view.value?.dispatch({
+      selection: EditorSelection.create([
+        EditorSelection.range(0, props.modelValue.length),
+      ]),
+    })
+  })
+}
+
 onMounted(() => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
+    if (props.selectTextOnMount) triggerTextSelection()
   }
 })
 
 watch(editor, () => {
   if (editor.value) {
     if (!view.value) initView(editor.value)
+    if (props.selectTextOnMount) triggerTextSelection()
   } else {
     view.value?.destroy()
     view.value = undefined

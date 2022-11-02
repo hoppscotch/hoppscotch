@@ -65,6 +65,7 @@
             />
             <SmartEnvInput
               v-model="env.value"
+              :select-text-on-mount="env.key === editingVariableName"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :envs="liveEnvs"
               :name="'value' + index"
@@ -173,6 +174,7 @@ const props = withDefaults(
     action: "edit" | "new"
     editingEnvironment: TeamEnvironment | null
     editingTeamId: string | undefined
+    editingVariableName: string | null
     isViewer: boolean
   }>(),
   {

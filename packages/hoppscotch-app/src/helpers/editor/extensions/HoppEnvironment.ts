@@ -16,6 +16,7 @@ import {
   getAggregateEnvs,
   getSelectedEnvironmentType,
 } from "~/newstore/environments"
+import { invokeAction } from "~/helpers/actions"
 
 const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
@@ -58,17 +59,13 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       )
         return null
 
-      const envName =
-        aggregateEnvs.find(
-          (env) => env.key === text.slice(start - from, end - from)
-          // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
-        )?.sourceEnv ?? "Choose an Environment"
+      const parsedEnvKey = text.slice(start - from, end - from)
 
-      const envValue =
-        aggregateEnvs.find(
-          (env) => env.key === text.slice(start - from, end - from)
-          // env.key === word.slice(wordSelection.from + 2, wordSelection.to - 2)
-        )?.value ?? "Not found"
+      const tooltipEnv = aggregateEnvs.find((env) => env.key === parsedEnvKey)
+
+      const envName = tooltipEnv?.sourceEnv ?? "Choose an Environment"
+
+      const envValue = tooltipEnv?.value ?? "Not found"
 
       const result = parseTemplateStringE(envValue, aggregateEnvs)
 
@@ -76,9 +73,27 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
 
       const selectedEnvType = getSelectedEnvironmentType()
 
-      const envTypeIcon = `<i class="inline-flex items-center pr-2 mr-2 -my-1 text-base border-r material-icons border-secondary">${
+      const envTypeIcon = `<i class="inline-flex -my-1 -mx-0.5 opacity-65 items-center text-base material-icons border-secondary">${
         selectedEnvType === "TEAM_ENV" ? "people" : "person"
       }</i>`
+
+      const appendEditAction = (tooltip: HTMLElement) => {
+        const editIcon = document.createElement("span")
+        editIcon.className =
+          "env-icon ml-2 text-accent cursor-pointer hover:text-accentDark"
+        editIcon.addEventListener("click", () => {
+          const isPersonalEnv =
+            envName === "Global" || selectedEnvType !== "TEAM_ENV"
+          const action = isPersonalEnv ? "my" : "team"
+          invokeAction(`modals.${action}.environment.edit`, {
+            envName,
+            variableName: parsedEnvKey,
+          })
+        })
+        editIcon.innerHTML = `<i class="inline-flex -my-1 -mx-1 items-center px-1 text-base material-icons border-secondary">drive_file_rename_outline</i>`
+        tooltip.appendChild(editIcon)
+      }
+
       return {
         pos: start,
         end: to,
@@ -90,11 +105,12 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const kbd = document.createElement("kbd")
           const icon = document.createElement("span")
           icon.innerHTML = envTypeIcon
-          icon.className = "env-icon"
+          icon.className = "env-icon mr-2"
           kbd.textContent = finalEnv
           tooltipContainer.appendChild(icon)
           tooltipContainer.appendChild(document.createTextNode(`${envName} `))
           tooltipContainer.appendChild(kbd)
+          if (tooltipEnv) appendEditAction(tooltipContainer)
           tooltipContainer.className = "tippy-content"
           dom.className = "tippy-box"
           dom.dataset.theme = "tooltip"

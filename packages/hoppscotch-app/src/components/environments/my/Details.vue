@@ -56,6 +56,7 @@
           >
             <input
               v-model="env.key"
+              v-focus
               class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"

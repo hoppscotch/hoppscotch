@@ -132,6 +132,7 @@ a {
 
 .cm-tooltip {
   .tippy-box {
+    @apply shadow-none;
     @apply fixed;
     @apply inline-flex;
     @apply -mt-6;
@@ -166,11 +167,9 @@ a {
     }
 
     .env-icon {
+      @apply transition;
       @apply inline-flex;
       @apply items-center;
-      @apply text-accentDark;
-      @apply hover:text-accent;
-      @apply hover:cursor-pointer;
     }
   }
 

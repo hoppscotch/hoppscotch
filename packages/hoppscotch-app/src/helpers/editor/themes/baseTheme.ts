@@ -102,11 +102,14 @@ export const baseTheme = EditorView.theme({
     border: "none",
     borderRadius: "4px",
   },
+  ".cm-tooltip-arrow": {
+    color: "var(--tooltip-color)",
+  },
   ".cm-tooltip-arrow:after": {
-    borderTopColor: "var(--tooltip-color) !important",
+    borderTopColor: "inherit !important",
   },
   ".cm-tooltip-arrow:before": {
-    borderTopColor: "var(--tooltip-color) !important",
+    borderTopColor: "inherit !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",
@@ -234,11 +237,14 @@ export const inputTheme = EditorView.theme({
     border: "none",
     borderRadius: "4px",
   },
+  ".cm-tooltip-arrow": {
+    color: "var(--tooltip-color)",
+  },
   ".cm-tooltip-arrow:after": {
-    borderTopColor: "var(--tooltip-color) !important",
+    borderTopColor: "currentColor !important",
   },
   ".cm-tooltip-arrow:before": {
-    borderTopColor: "var(--tooltip-color) !important",
+    borderTopColor: "currentColor !important",
   },
   ".cm-tooltip.cm-tooltip-autocomplete > ul": {
     fontFamily: "var(--font-mono)",

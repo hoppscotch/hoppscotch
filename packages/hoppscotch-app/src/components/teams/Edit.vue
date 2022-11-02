@@ -90,7 +90,7 @@
                   interactive
                   trigger="click"
                   theme="popover"
-                  :on-shown="() => tippyActions.focus()"
+                  :on-shown="() => tippyActions![index].focus()"
                 >
                   <span class="select-wrapper">
                     <input
@@ -216,6 +216,7 @@ import { useGQLQuery } from "~/composables/graphql"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
+import { TippyComponent } from "vue-tippy"
 
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
@@ -233,7 +234,7 @@ const emit = defineEmits<{
 }>()
 
 // Template refs
-const tippyActions = ref<any | null>(null)
+const tippyActions = ref<TippyComponent[] | null>(null)
 
 const props = defineProps<{
   show: boolean

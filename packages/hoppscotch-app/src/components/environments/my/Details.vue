@@ -172,6 +172,7 @@ const props = withDefaults(
     show: false,
     action: "edit",
     editingEnvironmentIndex: null,
+    editingVariableName: null,
     envVars: () => [],
   }
 )

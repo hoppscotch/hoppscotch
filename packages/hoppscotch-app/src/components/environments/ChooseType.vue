@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import { Team } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { onLoggedIn } from "@composables/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
@@ -89,7 +89,9 @@ import IconUsers from "~icons/lucide/users"
 
 const t = useI18n()
 
-type SelectedTeam = Team | undefined
+type TeamData = GetMyTeamsQuery["myTeams"][number]
+
+type SelectedTeam = TeamData | undefined
 
 type EnvironmentTabs = "my-environments" | "team-environments"
 
@@ -125,6 +127,15 @@ watch(myTeams, (teams) => {
     }
   }
 })
+
+watch(
+  () => currentUser.value,
+  (user) => {
+    if (!user) {
+      selectedEnvironmentTab.value = "my-environments"
+    }
+  }
+)
 
 onLoggedIn(() => {
   adapter.initialize()

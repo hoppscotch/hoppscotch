@@ -26,19 +26,12 @@
       </div>
     </div>
     <EnvironmentsMyEnvironment
-      environment-index="Global"
-      :environment="globalEnvironment"
-      class="border-b border-dashed border-dividerLight"
-      @edit-environment="editEnvironment('Global')"
-    />
-    <EnvironmentsMyEnvironment
       v-for="(environment, index) in environments"
       :key="`environment-${index}`"
       :environment-index="index"
       :environment="environment"
       @edit-environment="editEnvironment(index)"
     />
-
     <div
       v-if="environments.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
@@ -76,8 +69,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue"
-import { environments$, globalEnv$ } from "~/newstore/environments"
+import { ref } from "vue"
+import { environments$ } from "~/newstore/environments"
 import { useColorMode } from "~/composables/theming"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
@@ -90,19 +83,12 @@ import { defineActionHandler } from "~/helpers/actions"
 const t = useI18n()
 const colorMode = useColorMode()
 
-const globalEnv = useReadonlyStream(globalEnv$, [])
-
-const globalEnvironment = computed(() => ({
-  name: "Global",
-  variables: globalEnv.value,
-}))
-
 const environments = useReadonlyStream(environments$, [])
 
 const showModalImportExport = ref(false)
 const showModalDetails = ref(false)
 const action = ref<"new" | "edit">("edit")
-const editingEnvironmentIndex = ref<number | "Global" | null>(null)
+const editingEnvironmentIndex = ref<number | null>(null)
 const editingVariableName = ref("")
 
 const displayModalAdd = (shouldDisplay: boolean) => {
@@ -118,7 +104,7 @@ const displayModalEdit = (shouldDisplay: boolean) => {
 const displayModalImportExport = (shouldDisplay: boolean) => {
   showModalImportExport.value = shouldDisplay
 }
-const editEnvironment = (environmentIndex: number | "Global") => {
+const editEnvironment = (environmentIndex: number) => {
   editingEnvironmentIndex.value = environmentIndex
   action.value = "edit"
   displayModalEdit(true)
@@ -136,7 +122,7 @@ defineActionHandler(
         return environment.name === envName
       }
     )
-    editEnvironment(envIndex >= 0 ? envIndex : "Global")
+    if (envName !== "Global") editEnvironment(envIndex)
   }
 )
 </script>

@@ -149,19 +149,32 @@
           </div>
         </template>
       </tippy>
+      <EnvironmentsMyEnvironment
+        environment-index="Global"
+        :environment="globalEnvironment"
+        class="border-b border-dividerLight"
+        @edit-environment="editEnvironment('Global')"
+      />
       <EnvironmentsChooseType
         :environment-type="environmentType"
         @update-environment-type="updateEnvironmentType"
         @update-selected-team="updateSelectedTeam"
       />
     </div>
-    <EnvironmentsMy v-show="environmentType.type === 'my-environments'" />
+    <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
-      v-show="environmentType.type === 'team-environments'"
+      v-if="environmentType.type === 'team-environments'"
       :team="environmentType.selectedTeam"
       :team-environments="teamEnvironmentList"
       :loading="loading"
       :adapter-error="adapterError"
+    />
+    <EnvironmentsMyDetails
+      :show="showModalDetails"
+      :action="action"
+      :editing-environment-index="editingEnvironmentIndex"
+      :editing-variable-name="editingVariableName"
+      @hide-modal="displayModalEdit(false)"
     />
   </div>
 </template>
@@ -175,6 +188,7 @@ import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
 import {
   environments$,
+  globalEnv$,
   selectedEnvironmentIndex$,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
@@ -182,6 +196,7 @@ import TeamEnvironmentAdapter from "~/helpers/teams/TeamEnvironmentAdapter"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
+import { defineActionHandler } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -198,6 +213,13 @@ const environmentType = ref<EnvironmentsChooseType>({
   type: "my-environments",
   selectedTeam: undefined,
 })
+
+const globalEnv = useReadonlyStream(globalEnv$, [])
+
+const globalEnvironment = computed(() => ({
+  name: "Global",
+  variables: globalEnv.value,
+}))
 
 const currentUser = useReadonlyStream(currentUser$, null)
 
@@ -230,6 +252,36 @@ watch(
     if (!newValue) {
       updateEnvironmentType("my-environments")
     }
+  }
+)
+
+const showModalDetails = ref(false)
+const action = ref<"new" | "edit">("edit")
+const editingEnvironmentIndex = ref<"Global" | null>(null)
+const editingVariableName = ref("")
+
+const displayModalEdit = (shouldDisplay: boolean) => {
+  action.value = "edit"
+  showModalDetails.value = shouldDisplay
+
+  if (!shouldDisplay) resetSelectedData()
+}
+
+const editEnvironment = (environmentIndex: "Global") => {
+  editingEnvironmentIndex.value = environmentIndex
+  action.value = "edit"
+  displayModalEdit(true)
+}
+
+const resetSelectedData = () => {
+  editingEnvironmentIndex.value = null
+}
+
+defineActionHandler(
+  "modals.my.environment.edit",
+  ({ envName, variableName }) => {
+    editingVariableName.value = variableName
+    envName === "Global" && editEnvironment("Global")
   }
 )
 

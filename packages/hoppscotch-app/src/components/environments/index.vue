@@ -152,7 +152,7 @@
       <EnvironmentsMyEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
-        class="border-b border-dividerLight py-1"
+        class="border-b border-dividerLight"
         @edit-environment="editEnvironment('Global')"
       />
       <EnvironmentsChooseType

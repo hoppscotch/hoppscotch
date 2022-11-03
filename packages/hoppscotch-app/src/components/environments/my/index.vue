@@ -32,7 +32,6 @@
       :environment="environment"
       @edit-environment="editEnvironment(index)"
     />
-
     <div
       v-if="environments.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"

@@ -123,7 +123,7 @@ defineActionHandler(
         return environment.name === envName
       }
     )
-    envName !== "Global" && editEnvironment(envIndex)
+    if (envName !== "Global") editEnvironment(envIndex)
   }
 )
 </script>

@@ -31,13 +31,13 @@
         >
         <Transition name="bounce" appear>
           <div
-            class="inline-block w-full overflow-hidden text-left align-bottom border shadow-lg transition-all transform border-dividerDark bg-primary sm:rounded-xl sm:align-middle"
+            class="inline-block w-full overflow-hidden text-left align-bottom transition-all transform border shadow-lg border-dividerDark bg-primary sm:rounded-xl sm:align-middle"
             :class="[{ 'mt-24 md:mb-8': placement === 'top' }, styles]"
           >
             <div
               v-if="title"
               class="flex items-center justify-between border-b border-dividerLight"
-              :class="{ 'py-4 px-2': !fullWidth }"
+              :class="{ 'p-4': !fullWidth }"
             >
               <h3 class="heading" :class="{ 'ml-4': !fullWidth }">
                 {{ title }}

@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col">
-    <div v-if="adapter.getChildren(null).length > 0" class="flex flex-col">
+  <div class="flex flex-col flex-1">
+    <div v-if="adapter.getChildren(null).length > 0">
       <div v-for="rootNode in adapter.getChildren(null)" :key="rootNode.id">
         <SmartTreeBranch :node-item="rootNode" :adapter="adapter">
           <template #default="{ node, toggleChildren, isOpen }">

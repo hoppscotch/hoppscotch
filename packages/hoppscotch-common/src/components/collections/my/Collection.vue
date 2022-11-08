@@ -148,7 +148,7 @@
         </span>
       </div>
     </div>
-    <div v-if="showChildren || isFiltered" class="flex">
+    <!-- <div v-if="showChildren || isFiltered" class="flex">
       <div
         class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
         @click="toggleShowChildren()"
@@ -211,7 +211,7 @@
           </span>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -240,8 +240,10 @@ export default defineComponent({
     saveRequest: Boolean,
     collectionsType: { type: Object, default: () => ({}) },
     picked: { type: Object, default: () => ({}) },
+    toggleChildren: { type: Function, default: () => ({}) },
   },
   emits: [
+    "toggle-children",
     "select",
     "expand-collection",
     "add-collection",
@@ -334,7 +336,8 @@ export default defineComponent({
           },
         })
 
-      this.$emit("expand-collection", this.collection.id)
+      // this.$emit("expand-collection", this.collection.id)
+      this.$emit("toggle-children")
       this.showChildren = !this.showChildren
     },
     removeCollection() {

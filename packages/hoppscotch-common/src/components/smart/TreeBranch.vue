@@ -2,10 +2,14 @@
   <slot
     :node="nodeItem"
     :toggle-children="toggleNodeChildren"
-    :is-open="isOpen"
+    :is-open="isNodeOpen"
   ></slot>
-  <div v-if="showChildren" class="ml-2">
-    <div v-if="isShowChildren" class="text-red">
+  <div v-if="showChildren" class="flex flex-1">
+    <div
+      class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
+      @click="toggleNodeChildren"
+    ></div>
+    <div v-if="hasChildren" class="flex flex-1 flex-col">
       <TreeBranch
         v-for="childNode in adapter.getChildren(nodeItem.id)"
         :key="childNode.id"
@@ -21,7 +25,7 @@
         </template>
       </TreeBranch>
     </div>
-    <div v-else class="px-5">
+    <div v-else class="px-5 flex-1">
       <slot name="empty"></slot>
     </div>
   </div>
@@ -39,14 +43,14 @@ const props = defineProps<{
 const slotName = "default"
 
 const showChildren = ref(false)
-const isOpen = ref(false)
+const isNodeOpen = ref(false)
 
-const isShowChildren = computed(
+const hasChildren = computed(
   () => props.adapter.getChildren(props.nodeItem.id).length > 0
 )
 
 const toggleNodeChildren = () => {
   showChildren.value = !showChildren.value
-  isOpen.value = !isOpen.value
+  isNodeOpen.value = !isNodeOpen.value
 }
 </script>

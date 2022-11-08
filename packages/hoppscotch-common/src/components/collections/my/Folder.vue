@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
+  <div class="flex flex-col flex-1" :class="[{ 'bg-primaryLight': dragging }]">
     <div
       class="flex items-stretch group"
       @dragover.prevent
@@ -139,14 +139,35 @@
         </span>
       </div>
     </div>
-    <div v-if="showChildren || isFiltered" class="flex">
+    <div v-if="isOpen">
+      <div
+        v-if="
+          folder.folders &&
+          folder.folders.length === 0 &&
+          folder.requests &&
+          folder.requests.length === 0
+        "
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+          :alt="`${t('empty.folder')}`"
+        />
+        <span class="text-center">
+          {{ t("empty.folder") }}
+        </span>
+      </div>
+    </div>
+    <!-- <div v-if="showChildren || isFiltered" class="flex">
       <div
         class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
         @click="toggleShowChildren()"
       ></div>
-      <div class="flex flex-col flex-1 truncate">
-        <!-- Referring to this component only (this is recursive) -->
-        <Folder
+      <div class="flex flex-col flex-1 truncate"> -->
+    <!-- Referring to this component only (this is recursive) -->
+    <!-- <Folder
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="`subFolder-${subFolderIndex}`"
           :folder="subFolder"
@@ -203,7 +224,7 @@
           </span>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -234,8 +255,10 @@ export default defineComponent({
     isFiltered: Boolean,
     collectionsType: { type: Object, default: () => ({}) },
     picked: { type: Object, default: () => ({}) },
+    isOpen: { type: Boolean, default: false },
   },
   emits: [
+    "toggle-children",
     "add-request",
     "add-folder",
     "edit-folder",
@@ -288,8 +311,8 @@ export default defineComponent({
     },
     getCollectionIcon() {
       if (this.isSelected) return IconCheckCircle
-      else if (!this.showChildren && !this.isFiltered) return IconFolder
-      else if (this.showChildren || this.isFiltered) return IconFolderOpen
+      else if (!this.isOpen && !this.isFiltered) return IconFolder
+      else if (this.isOpen || this.isFiltered) return IconFolderOpen
       else return IconFolder
     },
   },
@@ -321,6 +344,7 @@ export default defineComponent({
             folderPath: this.folderPath,
           },
         })
+      this.$emit("toggle-children")
       this.showChildren = !this.showChildren
     },
     removeFolder() {

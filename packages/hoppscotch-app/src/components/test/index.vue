@@ -1,351 +1,28 @@
 <template>
+  <ButtonSecondary
+    :label="t('action.new')"
+    class="!rounded-none"
+    @click="displayModalAdd(true)"
+  />
   <SmartTree :adapter="adapter">
     <template #content="{ node, toggleChildren, isOpen }">
-      <div
-        v-if="node.type === 'folders'"
-        class="flex items-stretch group"
-        @dragover.prevent
-        @dragover="dragging = true"
-        @drop="dragging = false"
-        @dragleave="dragging = false"
-        @dragend="dragging = false"
-      >
-        <span
-          class="flex items-center justify-center px-4 cursor-pointer"
-          @click="toggleChildren"
-        >
-          <component :is="getCollectionIcon(isOpen)" class="svg-icons" />
-        </span>
-        <span
-          class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-          @click="toggleChildren"
-        >
-          <span class="truncate">
-            {{ node.data.name }}
-          </span>
-        </span>
-        <div class="flex">
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconFilePlus"
-            :title="t('request.new')"
-            class="hidden group-hover:inline-flex"
-          />
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconFolderPlus"
-            :title="t('folder.new')"
-            class="hidden group-hover:inline-flex"
-          />
-          <span>
-            <tippy
-              ref="options"
-              interactive
-              trigger="click"
-              theme="popover"
-              :on-shown="() => tippyActions.focus()"
-            >
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.more')"
-                :icon="IconMoreVertical"
-              />
-              <template #content="{ hide }">
-                <div
-                  ref="tippyActions"
-                  class="flex flex-col focus:outline-none"
-                  tabindex="0"
-                  @keyup.escape="hide()"
-                >
-                  <SmartItem
-                    ref="requestAction"
-                    :icon="IconFilePlus"
-                    :label="t('request.new')"
-                    :shortcut="['R']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="folderAction"
-                    :icon="IconFolderPlus"
-                    :label="t('folder.new')"
-                    :shortcut="['N']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="edit"
-                    :icon="IconEdit"
-                    :label="t('action.edit')"
-                    :shortcut="['E']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="exportAction"
-                    :icon="IconDownload"
-                    :label="t('export.title')"
-                    :shortcut="['X']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="deleteAction"
-                    :icon="IconTrash2"
-                    :label="t('action.delete')"
-                    :shortcut="['⌫']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                </div>
-              </template>
-            </tippy>
-          </span>
-        </div>
+      <CollectionsMyCollection
+        v-if="node.type === 'collections'"
+        :collection="node.data"
+        @toggle-children="toggleChildren"
+        @add-folder="addFolder($event)"
+      />
+
+      <div v-if="node.type === 'folders'" class="flex flex-1">
+        <CollectionsMyFolder
+          :folder="node.data"
+          :is-open="isOpen"
+          @add-folder="addFolder($event)"
+          @toggle-children="toggleChildren"
+        />
       </div>
-      <div
-        v-else-if="node.type === 'requests'"
-        class="flex items-stretch group"
-        draggable="true"
-        @dragover.stop
-        @dragleave="dragging = false"
-        @dragend="dragging = false"
-      >
-        <span
-          class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
-          :class="getRequestLabelColor(node.data.method)"
-        >
-          <!-- <component
-          :is="IconCheckCircle"
-          v-if="isSelected"
-          class="svg-icons"
-          :class="{ 'text-accent': isSelected }"
-        /> -->
-          <span class="font-semibold truncate text-tiny">
-            {{ node.data.method }}
-          </span>
-        </span>
-        <span
-          class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-        >
-          <span class="truncate">
-            {{ node.data.name }}
-          </span>
-          <!-- <span
-            v-if="true"
-            v-tippy="{ theme: 'tooltip' }"
-            class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
-            :title="`${t('collection.request_in_use')}`"
-          >
-            <span
-              class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
-            >
-            </span>
-            <span
-              class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
-            ></span>
-          </span> -->
-        </span>
-        <div class="flex">
-          <!-- <ButtonSecondary
-          v-if="!saveRequest"
-          v-tippy="{ theme: 'tooltip' }"
-          :icon="IconRotateCCW"
-          :title="t('action.restore')"
-          class="hidden group-hover:inline-flex"
-          @click="selectRequest()"
-        /> -->
-          <span>
-            <tippy
-              ref="options"
-              interactive
-              trigger="click"
-              theme="popover"
-              :on-shown="() => tippyActions.focus()"
-            >
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.more')"
-                :icon="IconMoreVertical"
-              />
-              <template #content="{ hide }">
-                <div
-                  ref="tippyActions"
-                  class="flex flex-col focus:outline-none"
-                  tabindex="0"
-                  @keyup.escape="hide()"
-                >
-                  <SmartItem
-                    ref="edit"
-                    :icon="IconEdit"
-                    :label="t('action.edit')"
-                    :shortcut="['E']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="duplicate"
-                    :icon="IconCopy"
-                    :label="t('action.duplicate')"
-                    :shortcut="['D']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="deleteAction"
-                    :icon="IconTrash2"
-                    :label="t('action.delete')"
-                    :shortcut="['⌫']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                </div>
-              </template>
-            </tippy>
-          </span>
-        </div>
-      </div>
-      <div
-        v-else-if="node.type === 'collections'"
-        class="flex items-stretch group"
-        @dragover.prevent
-        @dragover="dragging = true"
-        @drop="dragging = false"
-        @dragleave="dragging = false"
-        @dragend="dragging = false"
-      >
-        <span
-          class="flex items-center justify-center px-4 cursor-pointer"
-          @click="toggleChildren"
-        >
-          <component :is="getCollectionIcon(isOpen)" class="svg-icons" />
-        </span>
-        <span
-          class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-          @click="toggleChildren"
-        >
-          <span class="truncate" :class="{ 'text-accent': isSelected }">
-            {{ node.data.name }}
-          </span>
-        </span>
-        <div class="flex">
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconFilePlus"
-            :title="t('request.new')"
-            class="hidden group-hover:inline-flex"
-          />
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :icon="IconFolderPlus"
-            :title="t('folder.new')"
-            class="hidden group-hover:inline-flex"
-          />
-          <span>
-            <tippy
-              ref="options"
-              interactive
-              trigger="click"
-              theme="popover"
-              :on-shown="() => tippyActions.focus()"
-            >
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.more')"
-                :icon="IconMoreVertical"
-              />
-              <template #content="{ hide }">
-                <div
-                  ref="tippyActions"
-                  class="flex flex-col focus:outline-none"
-                  tabindex="0"
-                  @keyup.escape="hide()"
-                >
-                  <SmartItem
-                    ref="requestAction"
-                    :icon="IconFilePlus"
-                    :label="t('request.new')"
-                    :shortcut="['R']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="folderAction"
-                    :icon="IconFolderPlus"
-                    :label="t('folder.new')"
-                    :shortcut="['N']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="edit"
-                    :icon="IconEdit"
-                    :label="t('action.edit')"
-                    :shortcut="['E']"
-                    @click="
-                      () => {
-                        $emit('edit-collection')
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="exportAction"
-                    :icon="IconDownload"
-                    :label="t('export.title')"
-                    :shortcut="['X']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                  <SmartItem
-                    ref="deleteAction"
-                    :icon="IconTrash2"
-                    :label="t('action.delete')"
-                    :shortcut="['⌫']"
-                    @click="
-                      () => {
-                        hide()
-                      }
-                    "
-                  />
-                </div>
-              </template>
-            </tippy>
-          </span>
-        </div>
+      <div v-if="node.type === 'requests'" class="flex flex-1">
+        <CollectionsMyRequest :request="node.data" />
       </div>
     </template>
     <template #emptyRoot>
@@ -364,24 +41,36 @@
       </div>
     </template>
   </SmartTree>
+  <CollectionsAddFolder
+    :show="showModalAddFolder"
+    :folder="editingFolder"
+    :folder-path="editingFolderPath"
+    :loading-state="modalLoadingState"
+    @add-folder="onAddFolder($event)"
+    @hide-modal="displayModalAddFolder(false)"
+  />
+  <CollectionsAdd
+    :show="showModalAddCollection"
+    :loading-state="modalLoadingState"
+    @submit="addNewRootCollection"
+    @hide-modal="displayModalAdd(false)"
+  />
 </template>
 
 <script setup lang="ts">
-import IconCopy from "~icons/lucide/copy"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import IconFilePlus from "~icons/lucide/file-plus"
-import IconMoreVertical from "~icons/lucide/more-vertical"
-import IconDownload from "~icons/lucide/download"
-import IconTrash2 from "~icons/lucide/trash-2"
-import IconEdit from "~icons/lucide/edit"
-import IconFolder from "~icons/lucide/folder"
-import IconFolderOpen from "~icons/lucide/folder-open"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppCollection,
+  HoppRESTRequest,
+  makeCollection,
+} from "@hoppscotch/data"
 import { useReadonlyStream } from "~/composables/stream"
 import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
-import { restCollections$ } from "~/newstore/collections"
+import {
+  addRESTCollection,
+  addRESTFolder,
+  restCollections$,
+} from "~/newstore/collections"
 import { ref } from "vue"
-import { TippyComponent } from "vue-tippy"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "~/composables/theming"
 
@@ -391,25 +80,53 @@ const colorMode = useColorMode()
 
 const collection = useReadonlyStream(restCollections$, [], "deep")
 
-const dragging = ref(false)
+const editingFolder = ref<HoppCollection<HoppRESTRequest>>()
+// const editingFolderName = ref(undefined)
+// const editingFolderIndex = ref(undefined)
+const editingFolderPath = ref("")
+const showModalAddFolder = ref(false)
+const showModalAddCollection = ref(false)
 
-const getCollectionIcon = (open: boolean) => {
-  if (open) return IconFolderOpen
-  else return IconFolder
+const modalLoadingState = ref(false)
+
+const displayModalAdd = (shouldDisplay: boolean) => {
+  showModalAddCollection.value = shouldDisplay
 }
 
-const requestMethodLabels = {
-  get: "text-green-500",
-  post: "text-yellow-500",
-  put: "text-blue-500",
-  delete: "text-red-500",
-  default: "text-gray-500",
+const displayModalAddFolder = (shouldDisplay: boolean) => {
+  showModalAddFolder.value = shouldDisplay
 }
 
-const getRequestLabelColor = (method: string) =>
-  requestMethodLabels[
-    method.toLowerCase() as keyof typeof requestMethodLabels
-  ] || requestMethodLabels.default
+type FolderProperties = {
+  name: string
+  folder: HoppCollection<HoppRESTRequest>
+  path: string
+}
+
+const addFolder = (payload: FolderProperties) => {
+  const { folder, path } = payload
+  editingFolder.value = folder
+  editingFolderPath.value = path
+  displayModalAddFolder(true)
+  console.log("folder-add", payload)
+}
+
+const onAddFolder = ({ name, folder, path }: FolderProperties) => {
+  console.log(name, folder, path)
+  addRESTFolder(name, path)
+  displayModalAddFolder(false)
+}
+
+const addNewRootCollection = (name: string) => {
+  addRESTCollection(
+    makeCollection({
+      name,
+      folders: [],
+      requests: [],
+    })
+  )
+  displayModalAdd(false)
+}
 
 type Collection = HoppCollection<HoppRESTRequest>
 
@@ -417,13 +134,13 @@ type Folder = HoppCollection<HoppRESTRequest>
 
 type Requests = HoppRESTRequest
 
-type Node = Collection | Folder | Requests
+type Node = Collection | Folder | Requests | null | undefined
 
 class CollectionAdapter implements SmartTreeAdapter<Node> {
   constructor(public data: Collection[]) {}
 
   navigateToFolderWithIndexPath(
-    collections: HoppCollection<HoppRESTRequest>[],
+    collections: Collection[],
     indexPaths: number[]
   ) {
     if (indexPaths.length === 0) return null
@@ -469,6 +186,4 @@ class CollectionAdapter implements SmartTreeAdapter<Node> {
 }
 
 const adapter = new CollectionAdapter(collection.value)
-
-const tippyActions = ref<TippyComponent | null>(null)
 </script>

@@ -97,7 +97,7 @@
           >
             <RealtimeLog
               :title="t('mqtt.log')"
-              :log="((tab.id === 'all' ? logs : currentTabLogs) as LogEntryData[])"
+              :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
               @delete="clearLogEntries()"
             />
           </SmartWindow>
@@ -227,8 +227,7 @@ import {
   setMQTTTabs,
   MQTTCurrentTab$,
   setCurrentTab,
-  MQTTCurrentTabLog$,
-  setMQTTCurrentTabLog,
+  addMQTTCurrentTabLogLine,
 } from "~/newstore/MQTTSession"
 import RegexWorker from "@workers/regex?worker"
 import { LogEntryData } from "~/components/realtime/Log.vue"
@@ -251,7 +250,6 @@ const config = ref<MQTTConnectionConfig>({
   lwRetain: false,
 })
 const logs = useStream(MQTTLog$, [], setMQTTLog)
-const currentTabLogs = useStream(MQTTCurrentTabLog$, [], setMQTTCurrentTabLog)
 const socket = useStream(MQTTConn$, new MQTTConnection(), setMQTTConn)
 const connectionState = useReadonlyStream(
   socket.value.connectionState$,
@@ -271,13 +269,6 @@ const topics = useReadonlyStream(socket.value.subscribedTopics$, [])
 
 const currentTabId = useStream(MQTTCurrentTab$, "", setCurrentTab)
 const tabs = useStream(MQTTTabs$, [], setMQTTTabs)
-watch(currentTabId, (tabID) => {
-  if (tabID !== "all") {
-    currentTabLogs.value = logs.value.filter((log) => {
-      return log.prefix?.includes(tabID)
-    })
-  }
-})
 
 const onChangeConfig = (e: MQTTConnectionConfig) => {
   config.value = e
@@ -376,7 +367,7 @@ onMounted(() => {
 })
 const addLog = (line: HoppRealtimeLogLine) => {
   if (currentTabId.value !== "all") {
-    currentTabLogs.value.push(line)
+    addMQTTCurrentTabLogLine(currentTabId.value, line)
   }
   addMQTTLogLine(line)
 }
@@ -444,12 +435,16 @@ const openTopicAsTab = (topic: MQTTTopic) => {
   if (tabs.value.some((tab) => tab.id === topic.name)) {
     return (currentTabId.value = topic.name)
   }
-  tabs.value.push({
-    id: name,
-    name,
-    color,
-    removable: true,
-  })
+  tabs.value = [
+    ...tabs.value,
+    {
+      id: name,
+      name,
+      color,
+      removable: true,
+      logs: [],
+    },
+  ]
   currentTabId.value = name
 }
 

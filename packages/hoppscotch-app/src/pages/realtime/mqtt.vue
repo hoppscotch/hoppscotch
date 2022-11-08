@@ -311,20 +311,26 @@ onMounted(() => {
         toast.success(`${t("state.connected")}`)
         break
       case "MESSAGE_SENT":
-        addLog({
-          prefix: `${event.message.topic}`,
-          payload: event.message.message,
-          source: "client",
-          ts: Date.now(),
-        })
+        addLog(
+          {
+            prefix: `${event.message.topic}`,
+            payload: event.message.message,
+            source: "client",
+            ts: Date.now(),
+          },
+          event.message.topic
+        )
         break
       case "MESSAGE_RECEIVED":
-        addLog({
-          prefix: `${event.message.topic}`,
-          payload: event.message.message,
-          source: "server",
-          ts: event.time,
-        })
+        addLog(
+          {
+            prefix: `${event.message.topic}`,
+            payload: event.message.message,
+            source: "server",
+            ts: event.time,
+          },
+          event.message.topic
+        )
         break
       case "SUBSCRIBED":
         showSubscriptionModal(false)
@@ -365,10 +371,8 @@ onMounted(() => {
     }
   })
 })
-const addLog = (line: HoppRealtimeLogLine) => {
-  if (currentTabId.value !== "all") {
-    addMQTTCurrentTabLogLine(currentTabId.value, line)
-  }
+const addLog = (line: HoppRealtimeLogLine, topic: string | undefined) => {
+  if (topic) addMQTTCurrentTabLogLine(topic, line)
   addMQTTLogLine(line)
 }
 const debouncer = debounce(function () {

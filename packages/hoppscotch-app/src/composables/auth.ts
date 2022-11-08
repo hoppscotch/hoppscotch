@@ -3,8 +3,15 @@ import {
   HoppUser,
   AuthEvent,
   authEvents$,
+  authIdToken$,
 } from "@helpers/fb/auth"
-import { map, distinctUntilChanged, filter, Subscription } from "rxjs"
+import {
+  map,
+  distinctUntilChanged,
+  filter,
+  Subscription,
+  combineLatestWith,
+} from "rxjs"
 import { onBeforeUnmount, onMounted } from "vue"
 
 /**
@@ -19,6 +26,10 @@ export function onLoggedIn(exec: (user: HoppUser) => void) {
   onMounted(() => {
     sub = currentUser$
       .pipe(
+        // We don't consider the state as logged in unless we also have an id token
+        combineLatestWith(authIdToken$),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        filter(([_, token]) => !!token),
         map((user) => !!user), // Get a logged in status (true or false)
         distinctUntilChanged(), // Don't propagate unless the status updates
         filter((x) => x) // Don't propagate unless it is logged in

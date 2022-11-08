@@ -10,14 +10,14 @@
         v-if="node.type === 'collections'"
         :collection="node.data"
         @toggle-children="toggleChildren"
-        @add-folder="addFolder($event)"
+        @add-folder="addFolder(node)"
       />
 
       <div v-if="node.type === 'folders'" class="flex flex-1">
         <CollectionsMyFolder
           :folder="node.data"
           :is-open="isOpen"
-          @add-folder="addFolder($event)"
+          @add-folder="addFolder(node)"
           @toggle-children="toggleChildren"
         />
       </div>
@@ -64,7 +64,7 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import { useReadonlyStream } from "~/composables/stream"
-import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
+import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
 import {
   addRESTCollection,
   addRESTFolder,
@@ -97,18 +97,17 @@ const displayModalAddFolder = (shouldDisplay: boolean) => {
   showModalAddFolder.value = shouldDisplay
 }
 
+const addFolder = (payload: TreeNode<HoppCollection<HoppRESTRequest>>) => {
+  const { data, id } = payload
+  editingFolder.value = data
+  editingFolderPath.value = id
+  displayModalAddFolder(true)
+}
+
 type FolderProperties = {
   name: string
   folder: HoppCollection<HoppRESTRequest>
   path: string
-}
-
-const addFolder = (payload: FolderProperties) => {
-  const { folder, path } = payload
-  editingFolder.value = folder
-  editingFolderPath.value = path
-  displayModalAddFolder(true)
-  console.log("folder-add", payload)
 }
 
 const onAddFolder = ({ name, folder, path }: FolderProperties) => {

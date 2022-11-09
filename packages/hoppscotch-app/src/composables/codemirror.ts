@@ -195,21 +195,19 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
-            if (update.selectionSet) {
-              const cursorPos = update.state.selection.main.head
+            const cursorPos = update.state.selection.main.head
+            const line = update.state.doc.lineAt(cursorPos)
 
-              const line = update.state.doc.lineAt(cursorPos)
-
-              cachedCursor.value = {
-                line: line.number - 1,
-                ch: cursorPos - line.from,
-              }
-
-              cursor.value = {
-                line: cachedCursor.value.line,
-                ch: cachedCursor.value.ch,
-              }
+            cachedCursor.value = {
+              line: line.number - 1,
+              ch: cursorPos - line.from,
             }
+
+            cursor.value = {
+              line: cachedCursor.value.line,
+              ch: cachedCursor.value.ch,
+            }
+
             if (update.docChanged) {
               // Expensive on big files ?
               cachedValue.value = update.state.doc

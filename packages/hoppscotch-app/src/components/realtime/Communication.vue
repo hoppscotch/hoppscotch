@@ -42,7 +42,9 @@
                 v-for="(contentTypeItem, index) in validContentTypes"
                 :key="`contentTypeItem-${index}`"
                 :label="contentTypeItem"
-                :info-icon="contentTypeItem === contentType ? IconDone : null"
+                :info-icon="
+                  contentTypeItem === contentType ? IconDone : undefined
+                "
                 :active-info-icon="contentTypeItem === contentType"
                 @click="
                   () => {
@@ -133,6 +135,7 @@ import { readFileAsText } from "@functional/files"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
+import { defineActionHandler } from "~/helpers/actions"
 
 defineProps({
   showEventField: {
@@ -211,7 +214,7 @@ const sendMessage = () => {
   clearContent()
 }
 
-const uploadPayload = async (e: InputEvent) => {
+const uploadPayload = async (e: Event) => {
   const result = await pipe(
     (e.target as HTMLInputElement).files?.[0],
     TO.fromNullable,
@@ -236,4 +239,6 @@ const prettifyRequestBody = () => {
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
 }
+
+defineActionHandler("request.send-cancel", sendMessage)
 </script>

@@ -5,13 +5,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, inject, computed, watch } from "vue"
+import {
+  onMounted,
+  onBeforeUnmount,
+  inject,
+  computed,
+  watch,
+  useSlots,
+} from "vue"
 import { TabMeta, TabProvider } from "./Windows.vue"
+
+const slots = useSlots()
+
 const props = defineProps({
   label: { type: String, default: null },
   info: { type: String, default: null },
-  icon: { type: String, default: null },
-  iconColor: { type: String, default: null },
   id: { type: String, default: null, required: true },
   isRemovable: { type: Boolean, default: true },
   selected: {
@@ -20,15 +28,15 @@ const props = defineProps({
   },
 })
 const tabMeta = computed<TabMeta>(() => ({
-  icon: props.icon,
-  iconColor: props.iconColor,
   info: props.info,
   label: props.label,
   isRemovable: props.isRemovable,
+  icon: slots.icon,
 }))
 const { activeTabID, addTabEntry, updateTabEntry, removeTabEntry } =
   inject<TabProvider>("tabs-system")!
 const active = computed(() => activeTabID.value === props.id)
+
 onMounted(() => {
   addTabEntry(props.id, tabMeta.value)
 })

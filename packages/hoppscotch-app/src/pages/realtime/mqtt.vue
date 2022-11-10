@@ -91,10 +91,17 @@
             :id="tab.id"
             :label="tab.name"
             :is-removable="tab.removable"
-            :icon="'square'"
-            :icon-color="tab.color"
             class="flex flex-col flex-1 overflow-y-auto"
           >
+            <template #icon>
+              <IconSquare
+                :style="{
+                  color: tab.color,
+                  backgroundColor: tab.color,
+                }"
+              />
+            </template>
+
             <RealtimeLog
               :title="t('mqtt.log')"
               :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
@@ -194,6 +201,7 @@
 
 <script setup lang="ts">
 import IconPlus from "~icons/lucide/plus"
+import IconSquare from "~icons/lucide/square"
 import IconTrash from "~icons/lucide/trash"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { computed, onMounted, onUnmounted, ref, watch } from "vue"

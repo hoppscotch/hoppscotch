@@ -1,5 +1,5 @@
 import { onBeforeUnmount, onMounted } from "vue"
-import { HoppAction, invokeAction } from "./actions"
+import { HoppActionWithNoArgs, invokeAction } from "./actions"
 import { isAppleDevice } from "./platformutils"
 import { isDOMElement, isTypableElement } from "./utils/dom"
 
@@ -23,7 +23,7 @@ type Key =
   | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
   | "u" | "v" | "w" | "x" | "y" | "z" | "0" | "1" | "2" | "3"
   | "4" | "5" | "6" | "7" | "8" | "9" | "up" | "down" | "left"
-  | "right" | "/" | "?" | "."
+  | "right" | "/" | "?" | "." | "enter"
 /* eslint-enable */
 
 type ModifierBasedShortcutKey = `${ModifierKeys}-${Key}`
@@ -34,9 +34,9 @@ type ShortcutKey = ModifierBasedShortcutKey | SingleCharacterShortcutKey
 
 export const bindings: {
   // eslint-disable-next-line no-unused-vars
-  [_ in ShortcutKey]?: HoppAction
+  [_ in ShortcutKey]?: HoppActionWithNoArgs
 } = {
-  "ctrl-g": "request.send-cancel",
+  "ctrl-enter": "request.send-cancel",
   "ctrl-i": "request.reset",
   "ctrl-u": "request.copy-link",
   "ctrl-s": "request.save",
@@ -135,6 +135,8 @@ function getPressedKey(ev: KeyboardEvent): Key | null {
 
   // Check if period
   if (val === ".") return "."
+
+  if (val === "enter") return "enter"
 
   // If no other cases match, this is not a valid key
   return null

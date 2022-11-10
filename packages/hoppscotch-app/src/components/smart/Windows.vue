@@ -22,11 +22,17 @@
             @click="selectTab(tabID)"
           >
             <div class="flex items-stretch group">
+              <!-- icon -->
+
               <span
-                class="flex items-center justify-center px-4 cursor-pointer"
+                v-if="tabMeta.icon"
+                class="flex items-center justify-center cursor-pointer mr-2"
               >
-                <!-- ICON will be there -->
+                <component :is="tabMeta.icon"> </component>
               </span>
+
+              <!-- icon -->
+
               <span class="truncate">
                 {{ tabMeta.label }}
               </span>
@@ -68,12 +74,13 @@ import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { ref, ComputedRef, computed, provide } from "vue"
+import type { Slot } from "vue"
 import draggable from "vuedraggable"
 import { throwError } from "~/helpers/functional/error"
+
 export type TabMeta = {
   label: string | null
-  icon: string | null
-  iconColor: string | null
+  icon: Slot | undefined
   info: string | null
   isRemovable: boolean
 }

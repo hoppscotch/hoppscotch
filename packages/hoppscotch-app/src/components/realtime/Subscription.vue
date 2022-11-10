@@ -6,13 +6,7 @@
           <label class="font-semibold text-secondaryLight">
             {{ t("mqtt.qos") }}
           </label>
-          <tippy
-            ref="QoSOptions"
-            interactive
-            trigger="click"
-            theme="popover"
-            arrow
-          >
+          <tippy interactive trigger="click" theme="popover" arrow>
             <span class="select-wrapper">
               <ButtonSecondary
                 class="pr-8 ml-2 rounded-none"
@@ -94,8 +88,6 @@ import { useToast } from "@composables/toast"
 
 const toastr = useToast()
 const t = useI18n()
-
-const QoSOptions = ref<any>()
 
 defineProps({
   show: {

@@ -275,7 +275,7 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org)
 - [Vue](https://vuejs.org)
-- [Nuxt](https://nuxtjs.org)
+- [Vite](https://vitejs.dev)
 
 ## **Developing**
 

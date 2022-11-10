@@ -80,7 +80,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
       const appendEditAction = (tooltip: HTMLElement) => {
         const editIcon = document.createElement("span")
         editIcon.className =
-          "env-icon ml-2 text-accent cursor-pointer hover:text-accentDark"
+          "ml-2 cursor-pointer env-icon text-accent hover:text-accentDark"
         editIcon.addEventListener("click", () => {
           const isPersonalEnv =
             envName === "Global" || selectedEnvType !== "TEAM_ENV"
@@ -90,7 +90,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
             variableName: parsedEnvKey,
           })
         })
-        editIcon.innerHTML = `<i class="inline-flex -my-1 -mx-1 items-center px-1 text-base material-icons border-secondary">drive_file_rename_outline</i>`
+        editIcon.innerHTML = `<i class="inline-flex items-center px-1 -mx-1 -my-1 text-base material-icons border-secondary">drive_file_rename_outline</i>`
         tooltip.appendChild(editIcon)
       }
 
@@ -105,7 +105,7 @@ const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
           const kbd = document.createElement("kbd")
           const icon = document.createElement("span")
           icon.innerHTML = envTypeIcon
-          icon.className = "env-icon mr-2"
+          icon.className = "mr-2 env-icon"
           kbd.textContent = finalEnv
           tooltipContainer.appendChild(icon)
           tooltipContainer.appendChild(document.createTextNode(`${envName} `))

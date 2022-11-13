@@ -16,6 +16,12 @@
             :is-removable="tabs.length > 1"
             class="flex flex-col flex-1 overflow-y-auto"
           >
+            <template v-if="tab.unseen" #suffix>
+              <span
+                class="w-1 h-1 ml-auto rounded-full bg-accentLight mr-2"
+              ></span>
+            </template>
+
             <AppPaneLayout layout-id="gql-primary">
               <template #primary>
                 <GraphqlRequest :conn="tab.connection" :request="tab.request" />
@@ -56,6 +62,7 @@ import {
   setCurrentTabId,
   addNewGQLTab,
   gqlCurrentTab$,
+  setResponseUnseen,
 } from "~/newstore/GQLSession"
 
 const t = useI18n()
@@ -74,6 +81,7 @@ const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
 const tabs = useStream(GQLTabs$, [], setGQLTabs)
 watch(currentTabId, (tabID) => {
   console.log("currentTabId", tabID)
+  setResponseUnseen(tabID, false)
 })
 
 const addNewTab = () => {

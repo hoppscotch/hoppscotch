@@ -10,7 +10,7 @@ type GQLTab = {
   id: string
   request: GQLRequest
   connection: GQLConnection
-  seen: boolean
+  unseen: boolean
 }
 
 export type GQLSession = {
@@ -22,7 +22,7 @@ const makeTab = (id: string): GQLTab => ({
   id,
   connection: new GQLConnection(),
   request: new GQLRequest(),
-  seen: true,
+  unseen: false,
 })
 
 export const defaultGQLSession: GQLSession = {
@@ -43,7 +43,7 @@ const dispatchers = defineDispatchers({
         tab.id === tabId
           ? {
               ...tab,
-              seen: value,
+              unseen: value,
             }
           : tab
       ),

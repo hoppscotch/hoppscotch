@@ -19,59 +19,20 @@
         class="rounded-none !text-accent !hover:text-accentDark"
         @click="unsubscribe()"
       />
-      <tippy
-        v-else-if="operations.length > 1"
-        ref="operationTippy"
-        interactive
-        trigger="click"
-        theme="popover"
-        placement="bottom"
-        :on-shown="() => tippyActions.focus()"
-      >
-        <ButtonSecondary
-          v-tippy="{
-            theme: 'tooltip',
-            delay: [500, 20],
-            allowHTML: true,
-          }"
-          :title="`${t(
-            'request.run'
-          )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
-          :label="`${t('request.run')}`"
-          :icon="IconPlay"
-          class="rounded-none !text-accent !hover:text-accentDark"
-        />
-        <template #content="{ hide }">
-          <div ref="tippyActions" class="flex flex-col" role="menu">
-            <SmartItem
-              v-for="item in operations"
-              :key="`gql-operation-${item.name?.value}`"
-              :label="item?.name?.value"
-              @click="
-                () => {
-                  runQuery(item)
-                  hide()
-                }
-              "
-            />
-          </div>
-        </template>
-      </tippy>
-
       <ButtonSecondary
-        v-else
+        v-if="selectedOperation && subscriptionState !== 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
           delay: [500, 20],
           allowHTML: true,
         }"
-        :title="`${t('request.run')} <xmp>${getSpecialKey()}</xmp><xmp>G</xmp>`"
-        :label="`${t('request.run')}`"
+        :title="`${t('request.run')} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
+        :label="`${selectedOperation.name?.value ?? t('request.run')}`"
         :icon="IconPlay"
+        :disabled="!selectedOperation"
         class="rounded-none !text-accent !hover:text-accentDark"
-        @click="runQuery()"
+        @click="runQuery(selectedOperation)"
       />
-
       <ButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/graphql"
@@ -124,8 +85,6 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
-const tippyActions = ref<any | null>(null)
-
 const t = useI18n()
 const toast = useToast()
 
@@ -145,7 +104,7 @@ const subscriptionState = useReadonlyStream(
 )
 
 // Watch operations on graphql query string
-const operations = useReadonlyStream(props.request.operations$, [])
+const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
 const variableString = useStream(
   props.request.variables$,

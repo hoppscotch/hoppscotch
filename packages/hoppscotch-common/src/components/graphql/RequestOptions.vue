@@ -164,7 +164,7 @@ onMounted(() => {
       } else {
         response.value = [...response.value, event]
         if (currentTabId.value !== props.tabId) {
-          setResponseUnseen(props.tabId, false)
+          setResponseUnseen(props.tabId, true)
         }
       }
     } catch (error) {

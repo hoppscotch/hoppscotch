@@ -101,6 +101,7 @@ import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
 import { debounce } from "lodash-es"
 import { ViewUpdate } from "@codemirror/view"
+import { defineActionHandler } from "~/helpers/actions"
 
 // Template refs
 const queryEditor = ref<any | null>(null)
@@ -209,4 +210,6 @@ const unsubscribe = () => {
 const saveRequest = () => {
   emit("save-request")
 }
+
+defineActionHandler("editor.format", prettifyQuery)
 </script>

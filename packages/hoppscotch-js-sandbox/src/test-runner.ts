@@ -367,6 +367,73 @@ function createExpectation(
     return { value: vm.undefined }
   })
 
+  const toHaveHeaderValue = vm.newFunction(
+    "toHaveHeaderValue",
+    (expectedValue) => {
+      // construct expected header tuple...
+      const expectedVal = vm.dump(expectedValue).split(":")
+      const expected_header = expectedVal[0].toLowerCase()
+      const expected_value = expectedVal[1]
+      // ...and validate types, but almost unreachable from direct user-input
+      if (
+        typeof expected_header !== "string" &&
+        typeof expected_value !== "string"
+      ) {
+        currTestStack[currTestStack.length - 1].expectResults.push({
+          status: "error",
+          message: `Expected header and value should be strings with ':' seperator, e.g. content-type:application/json`,
+        })
+      }
+
+      // construct header_map
+      const header_map = new Map()
+      expectVal.forEach((header: { key: string; value: string }) => {
+        header_map.set(header.key, header.value)
+      })
+
+      // check for presense, else throw error
+      if (header_map.has(expected_header)) {
+        // check for value equity, if not throw error
+        if (header_map.get(expected_header) === expected_value) {
+          // if `not` is specified, then this branch is illegal
+          if (negated) {
+            currTestStack[currTestStack.length - 1].expectResults.push({
+              status: "fail",
+              message: `Header, ${expected_header} is ${expected_value}, but shouldn't have`,
+            })
+          } else {
+            currTestStack[currTestStack.length - 1].expectResults.push({
+              status: "pass",
+              message: `Header, ${expected_header} is ${expected_value}`,
+            })
+          }
+        } else {
+          // if `not` is specified then this branch is actually legal
+          if (negated) {
+            currTestStack[currTestStack.length - 1].expectResults.push({
+              status: "pass",
+              message: `Header, ${expected_header} is not ${expected_value}`,
+            })
+          } else {
+            currTestStack[currTestStack.length - 1].expectResults.push({
+              status: "fail",
+              message: `Header, ${expected_header} is ${header_map.get(
+                expected_header
+              )}, expected ${expected_value}`,
+            })
+          }
+        }
+      } else {
+        currTestStack[currTestStack.length - 1].expectResults.push({
+          status: "fail",
+          message: `Header, ${expected_header} is missing to test`,
+        })
+      }
+
+      return { value: vm.undefined }
+    }
+  )
+
   vm.setProp(resultHandle, "toBe", toBeFnHandle)
   vm.setProp(resultHandle, "toBeLevel2xx", toBeLevel2xxHandle)
   vm.setProp(resultHandle, "toBeLevel3xx", toBeLevel3xxHandle)
@@ -375,6 +442,7 @@ function createExpectation(
   vm.setProp(resultHandle, "toBeType", toBeTypeHandle)
   vm.setProp(resultHandle, "toHaveLength", toHaveLengthHandle)
   vm.setProp(resultHandle, "toInclude", toIncludeHandle)
+  vm.setProp(resultHandle, "toHaveHeaderValue", toHaveHeaderValue)
 
   vm.defineProp(resultHandle, "not", {
     get: () => {
@@ -390,6 +458,7 @@ function createExpectation(
   toBeTypeHandle.dispose()
   toHaveLengthHandle.dispose()
   toIncludeHandle.dispose()
+  toHaveHeaderValue.dispose()
 
   return resultHandle
 }

@@ -168,3 +168,6 @@ tests/*/videos
 
 # Local Netlify folder
 .netlify
+
+# PNPM
+.pnpm-store

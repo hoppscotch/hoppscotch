@@ -40,8 +40,6 @@ import {
 import { HoppEnvironmentPlugin } from "@helpers/editor/extensions/HoppEnvironment"
 // TODO: Migrate from legacy mode
 
-import { captureException } from "@sentry/vue"
-
 type ExtendedEditorConfig = {
   mode: string
   placeholder: string
@@ -195,21 +193,19 @@ export function useCodemirror(
       ViewPlugin.fromClass(
         class {
           update(update: ViewUpdate) {
-            if (update.selectionSet) {
-              const cursorPos = update.state.selection.main.head
+            const cursorPos = update.state.selection.main.head
+            const line = update.state.doc.lineAt(cursorPos)
 
-              const line = update.state.doc.lineAt(cursorPos)
-
-              cachedCursor.value = {
-                line: line.number - 1,
-                ch: cursorPos - line.from,
-              }
-
-              cursor.value = {
-                line: cachedCursor.value.line,
-                ch: cachedCursor.value.ch,
-              }
+            cachedCursor.value = {
+              line: line.number - 1,
+              ch: cursorPos - line.from,
             }
+
+            cursor.value = {
+              line: cachedCursor.value.line,
+              ch: cachedCursor.value.ch,
+            }
+
             if (update.docChanged) {
               // Expensive on big files ?
               cachedValue.value = update.state.doc
@@ -288,7 +284,7 @@ export function useCodemirror(
     view.value?.destroy()
   })
 
-  watch(value, (newVal, oldVal) => {
+  watch(value, (newVal) => {
     if (newVal === undefined) {
       view.value?.destroy()
       view.value = undefined
@@ -299,29 +295,14 @@ export function useCodemirror(
       initView(el.value)
     }
     if (cachedValue.value !== newVal) {
-      try {
-        view.value?.dispatch({
-          filter: false,
-          changes: {
-            from: 0,
-            to: view.value.state.doc.length,
-            insert: newVal,
-          },
-        })
-      } catch (e) {
-        captureException(e, {
-          extra: {
-            newVal,
-            oldVal,
-            changes: {
-              from: 0,
-              to: view.value?.state.doc.length,
-              insert: newVal,
-              cachedValue,
-            },
-          },
-        })
-      }
+      view.value?.dispatch({
+        filter: false,
+        changes: {
+          from: 0,
+          to: view.value.state.doc.length,
+          insert: newVal,
+        },
+      })
     }
     cachedValue.value = newVal
   })

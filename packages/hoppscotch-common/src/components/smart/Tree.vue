@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1">
-    <div v-if="adapter.getChildren(null).length > 0">
-      <div v-for="rootNode in adapter.getChildren(null)" :key="rootNode.id">
+    <div v-if="rootNodes && rootNodes.length > 0">
+      <div v-for="rootNode in rootNodes" :key="rootNode.id">
         <SmartTreeBranch :node-item="rootNode" :adapter="adapter">
           <template #default="{ node, toggleChildren, isOpen }">
             <slot
@@ -17,16 +17,22 @@
         </SmartTreeBranch>
       </div>
     </div>
-    <div v-else class="bg-orange-300">
+    <div v-else class="flex flex-1 flex-col">
       <slot name="emptyRoot"></slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts" generic="T extends any">
+import { computed } from "vue"
 import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
 
-defineProps<{
+const props = defineProps<{
+  /**
+   * The adapter to use for the tree.
+   */
   adapter: SmartTreeAdapter<T>
 }>()
+
+const rootNodes = computed(() => props.adapter.getChildren(null).value)
 </script>

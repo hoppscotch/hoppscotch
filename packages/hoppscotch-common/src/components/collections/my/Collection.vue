@@ -25,7 +25,7 @@
         @click="toggleShowChildren()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ collection.name }}
+          {{ getCollectionName }}
         </span>
       </span>
       <div class="flex">
@@ -307,6 +307,13 @@ export default defineComponent({
       else if (!this.showChildren && !this.isFiltered) return IconFolder
       else if (this.showChildren || this.isFiltered) return IconFolderOpen
       else return IconFolder
+    },
+    getCollectionName() {
+      if (this.collection.name) {
+        return this.collection.name
+      } else {
+        return this.collection.title
+      }
     },
   },
   methods: {

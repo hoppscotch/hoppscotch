@@ -1,3 +1,5 @@
+import { Ref } from "vue"
+
 export type TreeNode<T> = {
   type: string
   id: string
@@ -5,5 +7,5 @@ export type TreeNode<T> = {
 }
 
 export interface SmartTreeAdapter<T> {
-  getChildren: (nodeID: string | null) => Array<TreeNode<T>>
+  getChildren: (nodeID: string | null) => Ref<Array<TreeNode<T>>>
 }

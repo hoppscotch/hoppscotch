@@ -29,7 +29,7 @@
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ request.name }}
+          {{ request.name ? request.name : request.title }}
         </span>
         <span
           v-if="isActive"

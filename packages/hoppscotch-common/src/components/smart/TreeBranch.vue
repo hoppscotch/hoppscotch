@@ -11,7 +11,7 @@
     ></div>
     <div v-if="hasChildren" class="flex flex-1 flex-col">
       <TreeBranch
-        v-for="childNode in adapter.getChildren(nodeItem.id)"
+        v-for="childNode in childNodes"
         :key="childNode.id"
         :node-item="childNode"
         :adapter="adapter"
@@ -25,7 +25,7 @@
         </template>
       </TreeBranch>
     </div>
-    <div v-else class="px-5 flex-1">
+    <div v-else class="flex flex-1 flex-col">
       <slot name="empty"></slot>
     </div>
   </div>
@@ -45,9 +45,11 @@ const slotName = "default"
 const showChildren = ref(false)
 const isNodeOpen = ref(false)
 
-const hasChildren = computed(
-  () => props.adapter.getChildren(props.nodeItem.id).length > 0
+const childNodes = computed(
+  () => props.adapter.getChildren(props.nodeItem.id).value
 )
+
+const hasChildren = computed(() => childNodes.value.length > 0)
 
 const toggleNodeChildren = () => {
   showChildren.value = !showChildren.value

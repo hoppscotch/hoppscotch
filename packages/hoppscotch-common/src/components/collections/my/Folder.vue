@@ -139,7 +139,11 @@
         </span>
       </div>
     </div>
-    <div v-if="isOpen">
+    <div v-if="isOpen" class="flex flex-1">
+      <div
+        class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
+        @click="toggleShowChildren()"
+      ></div>
       <div
         v-if="
           folder.folders &&
@@ -147,7 +151,7 @@
           folder.requests &&
           folder.requests.length === 0
         "
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        class="flex flex-col flex-1 items-center justify-center p-4 text-secondaryLight"
       >
         <img
           :src="`/images/states/${colorMode.value}/pack.svg`"

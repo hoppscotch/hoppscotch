@@ -9,34 +9,35 @@
         @add-tab="addNewTab"
         @sort="sortTabs"
       >
-        <template v-for="tab in tabs" :key="'removable_tab_' + tab.id">
-          <SmartWindow
-            :id="tab.id"
-            :label="tab.request.getName()"
-            :is-removable="tabs.length > 1"
-            class="flex flex-col flex-1 overflow-y-auto"
-          >
-            <template v-if="tab.unseen" #suffix>
-              <span
-                class="w-1 h-1 ml-auto rounded-full bg-accentLight mr-2"
-              ></span>
-            </template>
+        <SmartWindow
+          v-for="tab in tabs"
+          :id="tab.id"
+          :key="'removable_tab_' + tab.id"
+          :label="tab.request.getName()"
+          :is-removable="tabs.length > 1"
+          class="flex flex-col flex-1 overflow-y-auto"
+        >
+          <template #suffix>
+            <span
+              v-if="tabsUnseenState[tab.id]"
+              class="w-1 h-1 ml-auto rounded-full bg-accentLight mr-2"
+            ></span>
+          </template>
 
-            <AppPaneLayout layout-id="gql-primary">
-              <template #primary>
-                <GraphqlRequest :conn="tab.connection" :request="tab.request" />
-                <GraphqlRequestOptions
-                  :tab-id="tab.id"
-                  :conn="tab.connection"
-                  :request="tab.request"
-                />
-              </template>
-              <template #secondary>
-                <GraphqlResponse :request="tab.request" />
-              </template>
-            </AppPaneLayout>
-          </SmartWindow>
-        </template>
+          <AppPaneLayout layout-id="gql-primary">
+            <template #primary>
+              <GraphqlRequest :conn="tab.connection" :request="tab.request" />
+              <GraphqlRequestOptions
+                :tab-id="tab.id"
+                :conn="tab.connection"
+                :request="tab.request"
+              />
+            </template>
+            <template #secondary>
+              <GraphqlResponse :request="tab.request" />
+            </template>
+          </AppPaneLayout>
+        </SmartWindow>
       </SmartWindows>
     </template>
 
@@ -78,11 +79,15 @@ const isLoading = useReadonlyStream(
 )
 
 const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
+
 const tabs = useStream(GQLTabs$, [], setGQLTabs)
 watch(currentTabId, (tabID) => {
-  console.log("currentTabId", tabID)
   setResponseUnseen(tabID, false)
 })
+
+const tabsUnseenState = computed(() =>
+  Object.fromEntries(tabs.value.map((tab) => [tab.id, tab.unseen]))
+)
 
 const addNewTab = () => {
   addNewGQLTab()
@@ -94,7 +99,6 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.value = newTabs
 }
 const removeTab = (tabID: string) => {
-  console.log("removetab", tabID)
   tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
 }
 

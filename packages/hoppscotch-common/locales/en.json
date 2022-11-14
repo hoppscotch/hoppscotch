@@ -574,6 +574,10 @@
       "show_all": "Keyboard shortcuts",
       "title": "General"
     },
+    "others": {
+      "title": "Others",
+      "prettify": "Prettify Editor's Content"
+    },
     "miscellaneous": {
       "invite": "Invite people to Hoppscotch",
       "title": "Miscellaneous"

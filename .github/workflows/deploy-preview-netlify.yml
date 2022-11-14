@@ -1,0 +1,49 @@
+name: Deploy to Preview Netlify
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Push build files to Netlify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Environment
+        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+
+      - name: Setup and run pnpm install
+        uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+          run_install: true
+
+      - name: Build Site
+        env:
+          VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          VITE_SENTRY_ENVIRONMENT: preview
+          VITE_SENTRY_RELEASE_TAG: ${{ github.sha }}
+        run: pnpm run generate
+
+      # Deploy the preview site with netlify-cli
+      - name: Deploy to Netlify (preview)
+        run: npx netlify-cli deploy --dir=packages/hoppscotch-app/dist --alias=preview
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+
+      - name: Create Sentry Release
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: preview
+          ignore_missing: true
+          ignore_empty: true
+          version: ${{ github.sha }}

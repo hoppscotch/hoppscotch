@@ -16,11 +16,13 @@
         :node-item="childNode"
         :adapter="adapter"
       >
-        <template #[slotName]="{ node, toggleChildren, isOpen }">
+        <!-- The child slot is given a dynamic name in order to not break Volar -->
+        <template #[CHILD_SLOT_NAME]="{ node, toggleChildren, isOpen }">
+          <!-- Casting to help with type checking -->
           <slot
-            :node="node"
-            :toggle-children="toggleChildren"
-            :is-open="isOpen"
+            :node="node as TreeNode<T>"
+            :toggle-children="toggleChildren as () => void"
+            :is-open="isOpen as boolean"
           ></slot>
         </template>
       </TreeBranch>
@@ -40,7 +42,7 @@ const props = defineProps<{
   nodeItem: TreeNode<T>
 }>()
 
-const slotName = "default"
+const CHILD_SLOT_NAME = "default"
 
 const showChildren = ref(false)
 const isNodeOpen = ref(false)

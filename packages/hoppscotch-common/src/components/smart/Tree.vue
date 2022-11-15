@@ -2,13 +2,16 @@
   <div class="flex flex-col flex-1">
     <div v-if="rootNodes && rootNodes.length > 0">
       <div v-for="rootNode in rootNodes" :key="rootNode.id">
-        <SmartTreeBranch :node-item="rootNode" :adapter="adapter">
+        <SmartTreeBranch
+          :node-item="rootNode"
+          :adapter="adapter as SmartTreeAdapter<T>"
+        >
           <template #default="{ node, toggleChildren, isOpen }">
             <slot
               name="content"
-              :node="node"
-              :toggle-children="toggleChildren"
-              :is-open="isOpen"
+              :node="node as TreeNode<T>"
+              :toggle-children="toggleChildren as () => void"
+              :is-open="isOpen as boolean"
             ></slot>
           </template>
           <template #empty>
@@ -25,7 +28,7 @@
 
 <script setup lang="ts" generic="T extends any">
 import { computed } from "vue"
-import { SmartTreeAdapter } from "~/helpers/tree/SmartTreeAdapter"
+import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
 
 const props = defineProps<{
   /**

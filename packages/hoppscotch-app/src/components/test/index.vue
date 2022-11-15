@@ -309,9 +309,9 @@ type Folder = HoppCollection<HoppRESTRequest>
 
 type Requests = HoppRESTRequest
 
-type Node = Collection | Folder | Requests | null | undefined
+type MyCollectionNode = Collection | Folder | Requests | null | undefined
 
-class MyCollectionsAdapter implements SmartTreeAdapter<Node> {
+class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
   constructor(public data: Ref<Collection[]>) {}
 
   navigateToFolderWithIndexPath(
@@ -364,7 +364,9 @@ class MyCollectionsAdapter implements SmartTreeAdapter<Node> {
   }
 }
 
-class TeamCollectionsAdapter implements SmartTreeAdapter<Node> {
+type TeamCollectionNode = TeamCollection | HoppRESTRequest | null | undefined
+
+class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
   constructor(public data: Ref<TeamCollection[]>) {}
 
   public loading = false
@@ -397,29 +399,28 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<Node> {
           data: item,
         }))
       }
-      if (id !== null && !teamLoadingCollections.value.includes(id)) {
-        teamCollectionAdapter.expandCollection(id)
-        const item = this.findCollInTree(this.data.value, id)
-        if (item) {
-          return [
-            ...(item.children
-              ? item.children.map((item) => ({
-                  type: "folders",
-                  id: item.id,
-                  data: item,
-                }))
-              : []),
-            ...(item.requests
-              ? item.requests.map((item) => ({
-                  type: "requests",
-                  id: item.id,
-                  data: item.request,
-                }))
-              : []),
-          ]
-        } else return []
+      teamCollectionAdapter.expandCollection(id)
+      const item = this.findCollInTree(this.data.value, id)
+      if (item) {
+        return [
+          ...(item.children
+            ? item.children.map((item) => ({
+                type: "folders",
+                id: item.id,
+                data: item,
+              }))
+            : []),
+          ...(item.requests
+            ? item.requests.map((item) => ({
+                type: "requests",
+                id: item.id,
+                data: item.request,
+              }))
+            : []),
+        ]
+      } else {
+        return []
       }
-      return []
     })
   }
 }

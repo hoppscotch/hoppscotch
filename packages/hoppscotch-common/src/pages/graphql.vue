@@ -13,7 +13,7 @@
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
-          :label="tab.request.getName()"
+          :label="tab.request.name$.value"
           :is-removable="tabs.length > 1"
           class="flex flex-col flex-1 overflow-y-auto"
         >
@@ -43,6 +43,7 @@
 
     <template #sidebar>
       <GraphqlSidebar
+        v-if="currentTab.connection"
         :conn="currentTab.connection"
         :request="currentTab.request"
       />

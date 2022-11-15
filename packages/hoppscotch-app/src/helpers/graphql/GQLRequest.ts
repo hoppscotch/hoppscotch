@@ -7,7 +7,6 @@ import {
 import { BehaviorSubject } from "rxjs"
 import { GQLEvent } from "./GQLConnection"
 import * as gql from "graphql"
-import { useReadonlyStream } from "~/composables/stream"
 
 export class GQLRequest {
   public name$ = new BehaviorSubject<string>("Untitled Request")
@@ -98,7 +97,7 @@ query Request {
   }
 
   getName() {
-    return useReadonlyStream(this.name$).value
+    return this.name$.value
   }
 
   getRequest() {

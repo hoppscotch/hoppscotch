@@ -390,7 +390,7 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
     return null
   }
 
-  getChildren(id: string | null) {
+  getChildren(id: string | null): Ref<TreeNode<TeamCollectionNode>[]> {
     return computed(() => {
       if (id === null) {
         return this.data.value.map((item) => ({
@@ -425,6 +425,9 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
   }
 }
 
-const myAdapter = new MyCollectionsAdapter(myCollection)
-const teamAdapter = new TeamCollectionsAdapter(teamCollectionList)
+const myAdapter: SmartTreeAdapter<MyCollectionNode> = new MyCollectionsAdapter(
+  myCollection
+)
+const teamAdapter: SmartTreeAdapter<TeamCollectionNode> =
+  new TeamCollectionsAdapter(teamCollectionList)
 </script>

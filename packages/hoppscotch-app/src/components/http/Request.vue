@@ -244,7 +244,7 @@ import IconFolderPlus from "~icons/lucide/folder-plus"
 import { computed, ref, watch } from "vue"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, debounce } from "lodash-es"
 import { refAutoReset } from "@vueuse/core"
 import {
   updateRESTResponse,
@@ -258,6 +258,7 @@ import {
   getRESTRequest,
   restRequest$,
   setRESTSaveContext,
+  setRESTParams,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -317,6 +318,13 @@ const show = ref<any | null>(null)
 const clearAll = ref<any | null>(null)
 const copyRequestAction = ref<any | null>(null)
 const saveRequestAction = ref<any | null>(null)
+
+watch(
+  newEndpoint,
+  debounce((newEndpointValue) => {
+    tryParseParams(newEndpointValue)
+  }, 100)
+)
 
 // Update Nuxt Loading bar
 watch(loading, () => {
@@ -385,6 +393,24 @@ const ensureMethodInEndpoint = () => {
       setRESTEndpoint("https://" + newEndpoint.value)
     }
   }
+}
+
+const tryParseParams = (url: string) => {
+  try {
+    const u = new URL(url)
+    const entries = Array.from(u.searchParams.entries())
+    if (entries.length) {
+      setRESTParams(
+        entries.map(([key, value]) => ({
+          key,
+          value,
+          active: true,
+        }))
+      )
+    } else {
+      setRESTParams([{ key: "", value: "", active: true }])
+    }
+  } catch (error) {}
 }
 
 const onPasteUrl = (e: { pastedValue: string; prevValue: string }) => {

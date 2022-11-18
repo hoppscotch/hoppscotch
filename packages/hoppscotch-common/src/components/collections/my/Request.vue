@@ -185,7 +185,7 @@ const props = defineProps<{
   collectionIndex: number
   folderIndex: number
   folderName: string
-  requestIndex: number
+  requestIndex: string
   saveRequest: boolean
   collectionsType: object
   folderPath: string

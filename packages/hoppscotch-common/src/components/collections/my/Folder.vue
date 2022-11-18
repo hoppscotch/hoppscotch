@@ -139,18 +139,20 @@
         </span>
       </div>
     </div>
-    <div v-if="isOpen" class="flex flex-1">
+    <!-- <div v-if="isOpen" class="flex flex-1">
       <div
         class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
         @click="toggleShowChildren()"
       ></div>
       <div
-        v-if="
-          folder.folders &&
-          folder.folders.length === 0 &&
-          folder.requests &&
-          folder.requests.length === 0
-        "
+        v-if="isLoading"
+        class="flex flex-col flex-1 items-center justify-center p-4"
+      >
+        <SmartSpinner class="my-4" />
+        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+      </div>
+      <div
+        v-if="isFolderEmpty"
         class="flex flex-col flex-1 items-center justify-center p-4 text-secondaryLight"
       >
         <img
@@ -163,7 +165,7 @@
           {{ t("empty.folder") }}
         </span>
       </div>
-    </div>
+    </div> -->
     <!-- <div v-if="showChildren || isFiltered" class="flex">
       <div
         class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
@@ -260,6 +262,7 @@ export default defineComponent({
     collectionsType: { type: Object, default: () => ({}) },
     picked: { type: Object, default: () => ({}) },
     isOpen: { type: Boolean, default: false },
+    isLoading: { type: Boolean, default: false },
   },
   emits: [
     "toggle-children",
@@ -318,6 +321,26 @@ export default defineComponent({
       else if (!this.isOpen && !this.isFiltered) return IconFolder
       else if (this.isOpen || this.isFiltered) return IconFolderOpen
       else return IconFolder
+    },
+    isFolderEmpty() {
+      if (
+        this.folder.name &&
+        this.folder.folders &&
+        this.folder.folders.length === 0 &&
+        this.folder.requests &&
+        this.folder.requests.length === 0
+      ) {
+        return true
+      } else if (
+        this.folder.title &&
+        (this.folder.children == undefined ||
+          this.folder.children.length === 0) &&
+        (this.folder.requests == undefined || this.folder.requests.length === 0)
+      ) {
+        return true
+      } else {
+        return false
+      }
     },
   },
   methods: {

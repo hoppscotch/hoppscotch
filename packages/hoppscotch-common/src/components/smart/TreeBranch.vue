@@ -9,9 +9,9 @@
       class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
       @click="toggleNodeChildren"
     ></div>
-    <div v-if="hasChildren" class="flex flex-1 flex-col">
+    <div v-if="childNodes.status === 'loaded'" class="flex flex-col flex-1">
       <TreeBranch
-        v-for="childNode in childNodes"
+        v-for="childNode in childNodes.data"
         :key="childNode.id"
         :node-item="childNode"
         :adapter="adapter"
@@ -27,14 +27,23 @@
         </template>
       </TreeBranch>
     </div>
-    <div v-else class="flex flex-1 flex-col">
-      <slot name="empty"></slot>
+    <div
+      v-if="childNodes.status === 'loading'"
+      class="flex flex-1 flex-col items-center justify-center p-4"
+    >
+      <SmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    </div>
+    <div v-else class="flex flex-1">
+      Emoty
+      <!-- <slot name="emptyBranchNode"></slot> -->
     </div>
   </div>
 </template>
 
 <script setup lang="ts" generic="T extends any">
 import { computed, ref } from "vue"
+import { useI18n } from "~/composables/i18n"
 import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
 
 const props = defineProps<{
@@ -43,6 +52,7 @@ const props = defineProps<{
 }>()
 
 const CHILD_SLOT_NAME = "default"
+const t = useI18n()
 
 const showChildren = ref(false)
 const isNodeOpen = ref(false)
@@ -51,7 +61,9 @@ const childNodes = computed(
   () => props.adapter.getChildren(props.nodeItem.id).value
 )
 
-const hasChildren = computed(() => childNodes.value.length > 0)
+// const hasChildren = computed(
+//   () => childNodes.value.status === "loaded" && childNodes.value.data.length > 0
+// )
 
 const toggleNodeChildren = () => {
   showChildren.value = !showChildren.value

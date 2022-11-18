@@ -5,8 +5,14 @@
     @update-selected-team="updateSelectedTeam"
   />
   <ButtonSecondary
+    :icon="IconPlus"
     :label="t('action.new')"
     class="!rounded-none"
+    :disabled="
+      collectionsType.type == 'team-collections' &&
+      (collectionsType.selectedTeam == undefined ||
+        collectionsType.selectedTeam.myRole == 'VIEWER')
+    "
     @click="displayModalAdd(true)"
   />
   <SmartTree
@@ -15,27 +21,57 @@
   >
     <template #content="{ node, toggleChildren, isOpen }">
       <CollectionsMyCollection
-        v-if="node.type === 'collections'"
-        :collection="node.data"
+        v-if="node.data.type === 'collections'"
+        :collection="node.data.data"
         @add-folder="addFolder(node)"
         @remove-collection="removeCollection(node)"
         @toggle-children="toggleChildren"
       />
 
-      <div v-if="node.type === 'folders'" class="flex flex-1">
+      <div v-if="node.data.type === 'folders'" class="flex flex-1">
         <CollectionsMyFolder
-          :folder="node.data"
+          :folder="node.data.data"
           :is-open="isOpen"
           @add-folder="addFolder(node)"
           @remove-folder="removeFolder(node)"
           @toggle-children="toggleChildren"
         />
       </div>
-      <div v-if="node.type === 'requests'" class="flex flex-1">
+      <div v-if="node.data.type === 'requests'" class="flex flex-1">
         <CollectionsMyRequest
-          :request="node.data"
+          :request="node.data.data"
           :request-index="pathToId(node.id)[pathToId(node.id).length - 1]"
         />
+      </div>
+    </template>
+    <!-- <template #emptyBranchNode>
+      <div
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+          :alt="`${t('empty.collection')}`"
+        />
+        <span class="text-center">
+          {{ t("empty.folder") }}
+        </span>
+      </div>
+    </template> -->
+    <template #emptyRootNode>
+      <div
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+          :alt="`${t('empty.collection')}`"
+        />
+        <span class="text-center">
+          {{ t("empty.collection") }}
+        </span>
       </div>
     </template>
     <template #emptyRoot>
@@ -57,29 +93,27 @@
   <SmartTree v-else :adapter="teamAdapter">
     <template #content="{ node, toggleChildren, isOpen }">
       <CollectionsMyCollection
-        v-if="node.type === 'collections'"
-        :collection="node.data"
-        :loading-collection-i-ds="teamLoadingCollections.value"
+        v-if="node.data.type === 'collections'"
+        :collection="node.data.data"
         @add-folder="addFolder(node)"
         @remove-collection="removeCollection(node)"
         @toggle-children="toggleChildren"
       />
 
-      <div v-if="node.type === 'folders'" class="flex flex-1">
-        <!-- {{ node }} -->
+      <div v-if="node.data.type === 'folders'" class="flex flex-1">
         <CollectionsMyFolder
-          :folder="node.data"
+          :folder="node.data.data"
           :is-open="isOpen"
-          :loading-collection-i-ds="teamLoadingCollections.value"
+          :collections-type="collectionsType"
           @add-folder="addFolder(node)"
           @remove-folder="removeFolder(node)"
           @toggle-children="toggleChildren"
         />
       </div>
-      <div v-if="node.type === 'requests'" class="flex flex-1">
+      <div v-if="node.data.type === 'requests'" class="flex flex-1">
         <CollectionsMyRequest
-          :request="node.data"
-          :request-index="pathToId(node.id)[pathToId(node.id).length - 1]"
+          :request="node.data.data"
+          :request-index="node.id"
         />
       </div>
     </template>
@@ -95,6 +129,36 @@
         />
         <span class="text-center">
           {{ t("empty.collection") }}
+        </span>
+      </div>
+    </template>
+    <template #emptyRootNode>
+      <div
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+          :alt="`${t('empty.collection')}`"
+        />
+        <span class="text-center">
+          {{ t("empty.collections") }}
+        </span>
+      </div>
+    </template>
+    <template #emptyBranchNode>
+      <div
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+          :alt="`${t('empty.folder')}`"
+        />
+        <span class="text-center">
+          {{ t("empty.folder") }}
         </span>
       </div>
     </template>
@@ -123,13 +187,18 @@
 </template>
 
 <script setup lang="ts">
+import IconPlus from "~icons/lucide/plus"
 import {
   HoppCollection,
   HoppRESTRequest,
   makeCollection,
 } from "@hoppscotch/data"
 import { useReadonlyStream } from "~/composables/stream"
-import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
+import {
+  SmartTreeAdapter,
+  TreeNode,
+  ChildrenResult,
+} from "~/helpers/tree/SmartTreeAdapter"
 import {
   addRESTCollection,
   addRESTFolder,
@@ -141,9 +210,14 @@ import { computed, Ref, ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
-import { Team } from "~/helpers/backend/graphql"
+import {
+  CreateNewRootCollectionDocument,
+  Team,
+} from "~/helpers/backend/graphql"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import { runMutation } from "~/helpers/backend/GQLClient"
+import * as E from "fp-ts/Either"
 
 const t = useI18n()
 const toast = useToast()
@@ -215,9 +289,14 @@ const displayConfirmModal = (shouldDisplay: boolean) => {
   showConfirmModal.value = shouldDisplay
 }
 
-const addFolder = (payload: TreeNode<HoppCollection<HoppRESTRequest>>) => {
+const addFolder = (
+  payload: TreeNode<{
+    type: "folders" | "collections"
+    data: HoppCollection<HoppRESTRequest>
+  }>
+) => {
   const { data, id } = payload
-  editingFolder.value = data
+  editingFolder.value = data.data
   editingFolderPath.value = id
   displayModalAddFolder(true)
 }
@@ -287,14 +366,39 @@ const onAddFolder = ({ name, folder, path }: FolderProperties) => {
 }
 
 const addNewRootCollection = (name: string) => {
-  addRESTCollection(
-    makeCollection({
-      name,
-      folders: [],
-      requests: [],
+  if (!name) return
+
+  if (collectionsType.value.type === "my-collections") {
+    addRESTCollection(
+      makeCollection({
+        name,
+        folders: [],
+        requests: [],
+      })
+    )
+    displayModalAdd(false)
+  } else if (
+    collectionsType.value.type === "team-collections" &&
+    collectionsType.value.selectedTeam?.myRole !== "VIEWER"
+  ) {
+    if (!collectionsType.value.selectedTeam) return
+    modalLoadingState.value = true
+    runMutation(CreateNewRootCollectionDocument, {
+      title: name,
+      teamID: collectionsType.value.selectedTeam?.id,
+    })().then((result) => {
+      modalLoadingState.value = false
+      if (E.isLeft(result)) {
+        if (result.left.error === "team_coll/short_title")
+          toast.error(t("collection.name_length_insufficient"))
+        else toast.error(t("error.something_went_wrong"))
+        console.error(result.left.error)
+      } else {
+        toast.success(t("collection.created"))
+        displayModalAdd(false)
+      }
     })
-  )
-  displayModalAdd(false)
+  }
 }
 
 const pathToId = computed(() => {
@@ -303,19 +407,28 @@ const pathToId = computed(() => {
   }
 })
 
-type Collection = HoppCollection<HoppRESTRequest>
+type Collection = {
+  type: "collections"
+  data: HoppCollection<HoppRESTRequest>
+}
 
-type Folder = HoppCollection<HoppRESTRequest>
+type Folder = {
+  type: "folders"
+  data: HoppCollection<HoppRESTRequest>
+}
 
-type Requests = HoppRESTRequest
+type Requests = {
+  type: "requests"
+  data: HoppRESTRequest
+}
 
-type MyCollectionNode = Collection | Folder | Requests | null | undefined
+type MyCollectionNode = Collection | Folder | Requests
 
 class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
-  constructor(public data: Ref<Collection[]>) {}
+  constructor(public data: Ref<HoppCollection<HoppRESTRequest>[]>) {}
 
   navigateToFolderWithIndexPath(
-    collections: Collection[],
+    collections: HoppCollection<HoppRESTRequest>[],
     indexPaths: number[]
   ) {
     if (indexPaths.length === 0) return null
@@ -328,14 +441,20 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
     return target !== undefined ? target : null
   }
 
-  getChildren(id: string | null) {
-    return computed(() => {
+  getChildren(id: string | null): Ref<ChildrenResult<MyCollectionNode>> {
+    return computed((): ChildrenResult<MyCollectionNode> => {
       if (id === null) {
-        return this.data.value.map((item, index) => ({
-          type: "collections",
+        const data = this.data.value.map((item, index) => ({
           id: index.toString(),
-          data: item,
+          data: {
+            type: "collections",
+            data: item,
+          },
         }))
+        return {
+          status: "loaded",
+          data: data,
+        }
       }
       const indexPath = id.split("/").map((x) => parseInt(x))
 
@@ -345,39 +464,68 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
       )
 
       if (item) {
-        return [
+        const data = [
           ...item.folders.map((item, index) => ({
-            type: "folders",
             id: `${id}/${index}`,
-            data: item,
+            data: {
+              type: "folders",
+              data: item,
+            },
           })),
           ...item.requests.map((item, index) => ({
-            type: "requests",
             id: `${id}/${index}`,
-            data: item,
+            data: {
+              type: "requests",
+              data: item,
+            },
           })),
         ]
+
+        return {
+          status: "loaded",
+          data: data,
+        }
       } else {
-        return []
+        return {
+          status: "loaded",
+          data: [],
+        }
       }
     })
   }
 }
 
-type TeamCollectionNode = TeamCollection | HoppRESTRequest | null | undefined
+type TeamCollections = {
+  type: "collections"
+  data: TeamCollection
+}
+
+type TeamFolder = {
+  type: "folders"
+  data: TeamCollection
+}
+
+type TeamRequests = {
+  type: "requests"
+  data: HoppRESTRequest
+}
+
+type TeamCollectionNode = TeamCollections | TeamFolder | TeamRequests
 
 class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
   constructor(public data: Ref<TeamCollection[]>) {}
 
-  public loading = false
-
   findCollInTree(
     tree: TeamCollection[],
     targetID: string
-  ): TeamCollection | null {
+  ): TeamCollections | null {
     for (const coll of tree) {
       // If the direct child matched, then return that
-      if (coll.id === targetID) return coll
+      if (coll.id === targetID)
+        return {
+          type: "collections",
+          data: coll,
+        }
 
       // Else run it in the children
       if (coll.children) {
@@ -390,36 +538,68 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
     return null
   }
 
-  getChildren(id: string | null): Ref<TreeNode<TeamCollectionNode>[]> {
-    return computed(() => {
+  getChildren(id: string | null): Ref<ChildrenResult<TeamCollectionNode>> {
+    return computed((): ChildrenResult<TeamCollectionNode> => {
       if (id === null) {
-        return this.data.value.map((item) => ({
-          type: "collections",
-          id: item.id,
-          data: item,
-        }))
+        if (teamLoadingCollections.value.includes("root")) {
+          return {
+            status: "loading",
+          }
+        } else {
+          const data = this.data.value.map((item) => ({
+            id: item.id,
+            data: {
+              type: "collections",
+              data: item,
+            },
+          }))
+          return {
+            status: "loaded",
+            data: data,
+          }
+        }
       }
+
       teamCollectionAdapter.expandCollection(id)
-      const item = this.findCollInTree(this.data.value, id)
-      if (item) {
-        return [
-          ...(item.children
-            ? item.children.map((item) => ({
-                type: "folders",
-                id: item.id,
-                data: item,
-              }))
-            : []),
-          ...(item.requests
-            ? item.requests.map((item) => ({
-                type: "requests",
-                id: item.id,
-                data: item.request,
-              }))
-            : []),
-        ]
+      console.log("id-to-team-load", id, teamLoadingCollections.value)
+
+      if (teamLoadingCollections.value.includes(id)) {
+        return {
+          status: "loading",
+        }
       } else {
-        return []
+        const item = this.findCollInTree(this.data.value, id)
+        if (item) {
+          const data = [
+            ...(item.data.children
+              ? item.data.children.map((item) => ({
+                  id: item.id,
+                  data: {
+                    type: "folders",
+                    data: item,
+                  },
+                }))
+              : []),
+            ...(item.data.requests
+              ? item.data.requests.map((item) => ({
+                  id: item.id,
+                  data: {
+                    type: "requests",
+                    data: item.request,
+                  },
+                }))
+              : []),
+          ]
+          return {
+            status: "loaded",
+            data: data,
+          }
+        } else {
+          return {
+            status: "loaded",
+            data: [],
+          }
+        }
       }
     })
   }

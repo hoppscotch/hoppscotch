@@ -1,23 +1,35 @@
 <template>
   <div class="flex flex-col flex-1">
-    <div v-if="rootNodes && rootNodes.length > 0">
-      <div v-for="rootNode in rootNodes" :key="rootNode.id">
-        <SmartTreeBranch
-          :node-item="rootNode"
-          :adapter="adapter as SmartTreeAdapter<T>"
-        >
-          <template #default="{ node, toggleChildren, isOpen }">
-            <slot
-              name="content"
-              :node="node as TreeNode<T>"
-              :toggle-children="toggleChildren as () => void"
-              :is-open="isOpen as boolean"
-            ></slot>
-          </template>
-          <template #empty>
-            <slot name="emptyRoot"></slot>
-          </template>
-        </SmartTreeBranch>
+    <div v-if="hasRootNodes">
+      <div v-if="rootNodes.status === 'loaded'">
+        <div v-for="rootNode in rootNodes.data" :key="rootNode.id">
+          <SmartTreeBranch
+            :node-item="rootNode"
+            :adapter="adapter as SmartTreeAdapter<T>"
+          >
+            <template #default="{ node, toggleChildren, isOpen }">
+              <slot
+                name="content"
+                :node="node as TreeNode<T>"
+                :toggle-children="toggleChildren as () => void"
+                :is-open="isOpen as boolean"
+              ></slot>
+            </template>
+            <template #emptyBranchNode>
+              <slot name="emptyRootNode"></slot>
+            </template>
+            <!-- <template #emptyBranchNode>
+              <slot name="emptyBranchNode"></slot>
+            </template> -->
+          </SmartTreeBranch>
+        </div>
+      </div>
+      <div
+        v-if="rootNodes.status === 'loading'"
+        class="flex flex-1 flex-col items-center justify-center p-4"
+      >
+        <SmartSpinner class="my-4" />
+        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
     </div>
     <div v-else class="flex flex-1 flex-col">
@@ -29,6 +41,7 @@
 <script setup lang="ts" generic="T extends any">
 import { computed } from "vue"
 import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
+import { useI18n } from "~/composables/i18n"
 
 const props = defineProps<{
   /**
@@ -37,5 +50,11 @@ const props = defineProps<{
   adapter: SmartTreeAdapter<T>
 }>()
 
+const t = useI18n()
+
 const rootNodes = computed(() => props.adapter.getChildren(null).value)
+
+const hasRootNodes = computed(
+  () => rootNodes.value.status === "loaded" && rootNodes.value.data.length > 0
+)
 </script>

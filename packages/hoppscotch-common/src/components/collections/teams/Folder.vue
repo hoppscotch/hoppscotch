@@ -138,14 +138,14 @@
         </span>
       </div>
     </div>
-    <div v-if="showChildren || isFiltered" class="flex">
+    <!-- <div v-if="showChildren || isFiltered" class="flex">
       <div
         class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
         @click="toggleShowChildren()"
       ></div>
-      <div class="flex flex-col flex-1 truncate">
-        <!-- Referring to this component only (this is recursive) -->
-        <Folder
+      <div class="flex flex-col flex-1 truncate"> -->
+    <!-- Referring to this component only (this is recursive) -->
+    <!-- <Folder
           v-for="(subFolder, subFolderIndex) in folder.children"
           :key="`subFolder-${subFolderIndex}`"
           :folder="subFolder"
@@ -209,7 +209,7 @@
           </span>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

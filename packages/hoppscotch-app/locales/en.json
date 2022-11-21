@@ -338,7 +338,9 @@
     "lw_qos": "Last-Will QoS",
     "lw_retain": "Last-Will Retain",
     "lw_topic": "Last-Will Topic",
-    "lw_message": "Last-Will Message"
+    "lw_message": "Last-Will Message",
+    "clear_input": "Clear input",
+    "clear_input_on_send": "Clear input on send"
   },
   "navigation": {
     "doc": "Docs",

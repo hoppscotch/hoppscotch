@@ -67,6 +67,17 @@
           class="rounded-none !text-accent !hover:text-accentDark"
           @click="sendMessage()"
         />
+
+        <SmartCheckbox
+          v-tippy="{ theme: 'tooltip' }"
+          :on="clearInputOnSend"
+          class="px-2"
+          :title="`${t('mqtt.clear_input_on_send')}`"
+          @change="clearInputOnSend = !clearInputOnSend"
+        >
+          {{ t("mqtt.clear_input") }}
+        </SmartCheckbox>
+
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/realtime"
@@ -168,6 +179,7 @@ const wsCommunicationBody = ref<HTMLElement>()
 const payload = ref<HTMLInputElement>()
 
 const prettifyIcon = refAutoReset<Component>(IconWand2, 1000)
+const clearInputOnSend = ref(false)
 
 const knownContentTypes = {
   JSON: "application/ld+json",
@@ -201,7 +213,10 @@ useCodemirror(
 )
 
 const clearContent = () => {
-  communicationBody.value = ""
+  if (clearInputOnSend.value) {
+    communicationBody.value = ""
+    eventName.value = ""
+  }
 }
 
 const sendMessage = () => {

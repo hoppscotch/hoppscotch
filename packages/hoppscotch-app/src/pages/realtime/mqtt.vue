@@ -94,14 +94,14 @@
             class="flex flex-col flex-1 overflow-y-auto"
           >
             <template #icon>
-              <IconSquare
+              <icon-lucide-circle
                 :style="{
                   color: tab.color,
                   backgroundColor: tab.color,
                 }"
+                class="w-4 h-4 svg-icons rounded-full"
               />
             </template>
-
             <RealtimeLog
               :title="t('mqtt.log')"
               :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
@@ -151,6 +151,7 @@
         <ButtonSecondary
           :label="t('mqtt.new')"
           filled
+          outline
           @click="showSubscriptionModal(true)"
         />
       </div>
@@ -164,7 +165,7 @@
           <div class="flex items-stretch group">
             <span class="flex items-center justify-center px-4 cursor-pointer">
               <span
-                class="h-4 w-4 rounded-sm"
+                class="h-4 w-4 rounded-full"
                 :style="{ backgroundColor: topic.color }"
               ></span>
             </span>
@@ -201,7 +202,6 @@
 
 <script setup lang="ts">
 import IconPlus from "~icons/lucide/plus"
-import IconSquare from "~icons/lucide/square"
 import IconTrash from "~icons/lucide/trash"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { computed, onMounted, onUnmounted, ref, watch } from "vue"

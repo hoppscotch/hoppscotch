@@ -2,16 +2,15 @@
   <SmartModal v-if="show" dialog :title="t('mqtt.new')" @close="hideModal">
     <template #body>
       <div class="flex justify-between mb-4">
-        <div class="flex items-center">
-          <label class="font-semibold text-secondaryLight">
+        <div
+          class="flex items-center border border-divider rounded divide-x divide-divider"
+        >
+          <label class="mx-4">
             {{ t("mqtt.qos") }}
           </label>
           <tippy interactive trigger="click" theme="popover" arrow>
             <span class="select-wrapper">
-              <ButtonSecondary
-                class="pr-8 ml-2 rounded-none"
-                :label="`${QoS}`"
-              />
+              <ButtonSecondary class="pr-8" :label="`${QoS}`" />
             </span>
             <template #content="{ hide }">
               <div class="flex flex-col" role="menu">
@@ -32,23 +31,18 @@
             </template>
           </tippy>
         </div>
-
         <div class="flex items-center">
-          <label
-            for="select-color"
-            class="px-4 font-semibold text-secondaryLight"
-          >
+          <label for="select-color">
             {{ t("mqtt.color") }}
           </label>
           <input
             id="select-color"
             v-model="color"
             type="color"
-            class="px-1 rounded-md"
+            class="p-1 ml-4 h-8 w-8 rounded bg-primary border border-divider"
           />
         </div>
       </div>
-
       <div class="flex flex-col">
         <input
           id="selectLabelAdd"
@@ -66,13 +60,19 @@
       </div>
     </template>
     <template #footer>
-      <span>
+      <span class="flex space-x-2">
         <ButtonPrimary
           :label="t('mqtt.subscribe')"
           :loading="loadingState"
+          outline
           @click="addNewSubscription"
         />
-        <ButtonSecondary :label="t('action.cancel')" @click="hideModal" />
+        <ButtonSecondary
+          :label="t('action.cancel')"
+          outline
+          filled
+          @click="hideModal"
+        />
       </span>
     </template>
   </SmartModal>

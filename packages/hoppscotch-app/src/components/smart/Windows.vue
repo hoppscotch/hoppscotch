@@ -1,14 +1,12 @@
 <template>
   <div class="h-full flex flex-col !overflow-auto">
-    <div
-      class="relative sticky top-0 inline-flex w-full divide-divider divide-x bg-primaryLight"
-    >
+    <div class="relative sticky top-0 inline-flex w-full bg-primaryLight">
       <draggable
         v-bind="dragOptions"
         :list="tabEntries"
         :style="tabsWidth"
         :item-key="'window-'"
-        class="flex overflow-x-auto transition"
+        class="flex overflow-x-auto transition divide-divider divide-x"
         @sort="sortTabs"
       >
         <template #item="{ element: [tabID, tabMeta] }">
@@ -28,7 +26,10 @@
                 v-if="tabMeta.icon"
                 class="flex items-center justify-center cursor-pointer mr-2"
               >
-                <component :is="tabMeta.icon"> </component>
+                <component
+                  :is="tabMeta.icon"
+                  class="w-4 h-4 svg-icons rounded-full"
+                />
               </span>
 
               <!-- icon -->
@@ -196,7 +197,7 @@ const addTab = () => {
   @apply hover:bg-primaryDark;
   @apply hover:text-secondary;
   @apply focus-visible:text-secondaryDark;
-  &::after {
+  &::before {
     @apply absolute;
     @apply left-0;
     @apply right-0;
@@ -206,14 +207,27 @@ const addTab = () => {
     @apply h-0.5;
     content: "";
   }
-  &:focus::after {
+  &::after {
+    @apply absolute;
+    @apply left-0;
+    @apply right-0;
+    @apply bottom-0;
+    @apply bg-divider;
+    @apply z-2;
+    @apply h-0.25;
+    content: "";
+  }
+  &:focus::before {
     @apply bg-divider;
   }
   &.active {
     @apply text-secondaryDark;
     @apply bg-primary;
-    &::after {
+    &::before {
       @apply bg-accent;
+    }
+    &::after {
+      @apply bg-transparent;
     }
   }
 }

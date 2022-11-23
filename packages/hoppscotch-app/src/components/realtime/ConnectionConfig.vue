@@ -55,7 +55,9 @@
             :placeholder="t('mqtt.lw_message')"
           />
         </div>
-        <div class="flex items-center justify-between px-4">
+        <div
+          class="flex items-center justify-between border-b border-dividerLight px-4"
+        >
           <div class="flex items-center">
             <label class="font-semibold text-secondaryLight">
               {{ t("mqtt.lw_qos") }}

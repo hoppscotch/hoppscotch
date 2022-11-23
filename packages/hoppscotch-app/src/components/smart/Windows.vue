@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col hide-scrollbar !overflow-auto">
+  <div class="h-full flex flex-col !overflow-auto">
     <div
       class="relative sticky top-0 inline-flex w-full divide-divider divide-x bg-primaryLight"
     >
@@ -8,7 +8,7 @@
         :list="tabEntries"
         :style="tabsWidth"
         :item-key="'window-'"
-        class="flex overflow-x-auto transition hide-scrollbar"
+        class="flex overflow-x-auto transition"
         @sort="sortTabs"
       >
         <template #item="{ element: [tabID, tabMeta] }">

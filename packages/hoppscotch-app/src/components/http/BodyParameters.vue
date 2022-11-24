@@ -332,7 +332,9 @@ const deleteBodyParam = (index: number) => {
     })
   }
 
-  workingParams.value.splice(index, 1)
+  workingParams.value = workingParams.value.filter(
+    (_, arrIndex) => arrIndex != index
+  )
 }
 
 const clearContent = () => {

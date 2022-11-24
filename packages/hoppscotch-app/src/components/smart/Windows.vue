@@ -22,18 +22,13 @@
                   @keyup.enter="selectTab(tabID)"
                   @click="selectTab(tabID)"
                 >
-                  <div class="flex items-stretch group">
-                    <!-- icon -->
-
+                  <div class="flex items-stretch group truncate">
                     <span
                       v-if="tabMeta.icon"
-                      class="flex items-center justify-center cursor-pointer mr-4"
+                      class="flex items-center justify-center cursor-pointer mx-4"
                     >
                       <component :is="tabMeta.icon" class="w-4 h-4 svg-icons" />
                     </span>
-
-                    <!-- icon -->
-
                     <span class="truncate">
                       {{ tabMeta.label }}
                     </span>
@@ -48,7 +43,7 @@
                     }"
                     :title="t('action.close')"
                     :class="[{ active: modelValue === tabID }, 'close']"
-                    class="rounded my-0.5 mr-0.5 ml-4 !p-1"
+                    class="rounded mx-2 !py-0.5 !px-1"
                     @click.stop="emit('removeTab', tabID)"
                   />
                 </button>
@@ -202,22 +197,20 @@ const addTab = () => {
   @apply overflow-auto;
   @apply flex-shrink-0;
 
-  // &::after {
-  //   @apply absolute;
-  //   @apply inset-x-0;
-  //   @apply bottom-0;
-  //   @apply bg-dividerLight;
-  //   @apply z-1;
-  //   @apply h-0.5;
-  //   content: "";
-  // }
+  &::after {
+    @apply absolute;
+    @apply inset-x-0;
+    @apply bottom-0;
+    @apply bg-dividerLight;
+    @apply z-1;
+    @apply h-0.25;
+    content: "";
+  }
 
   .tab {
     @apply relative;
     @apply flex;
-    @apply pl-4;
-    @apply pr-1;
-    @apply py-1;
+    @apply py-2;
     @apply font-semibold;
     @apply w-46;
     @apply transition;
@@ -228,6 +221,7 @@ const addTab = () => {
     @apply hover:bg-primaryDark;
     @apply hover:text-secondary;
     @apply focus-visible:text-secondaryDark;
+
     &::before {
       @apply absolute;
       @apply left-0;
@@ -238,6 +232,7 @@ const addTab = () => {
       @apply h-0.5;
       content: "";
     }
+
     &::after {
       @apply absolute;
       @apply left-0;
@@ -248,25 +243,31 @@ const addTab = () => {
       @apply h-0.25;
       content: "";
     }
+
     &:focus::before {
       @apply bg-divider;
     }
+
     &.active {
       @apply text-secondaryDark;
       @apply bg-primary;
+
       &::before {
         @apply bg-accent;
       }
+
       &::after {
         @apply bg-transparent;
       }
     }
-  }
-}
-.close {
-  @apply opacity-50;
-  &.active {
-    @apply opacity-80;
+
+    .close {
+      @apply opacity-50;
+
+      &.active {
+        @apply opacity-80;
+      }
+    }
   }
 }
 </style>

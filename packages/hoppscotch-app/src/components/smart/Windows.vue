@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-1 h-full flex-nowrap flex-col h-auto">
     <div class="relative tabs sticky top-0 bg-primaryLight z-10">
-      <div class="flex flex-1 overflow-x-auto">
-        <div class="flex justify-between flex-1">
+      <div class="flex flex-1 overflow-x-auto w-0">
+        <div class="flex justify-between divide-divider divide-x">
           <div class="flex">
             <draggable
               v-bind="dragOptions"
@@ -55,7 +55,7 @@
               </template>
             </draggable>
           </div>
-          <div class="flex items-center justify-center">
+          <div class="flex sticky right-0 items-center justify-center">
             <slot name="actions">
               <span
                 v-if="canAddNewTab"

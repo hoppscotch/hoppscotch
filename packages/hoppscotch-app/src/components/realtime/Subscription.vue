@@ -81,7 +81,7 @@
 <script lang="ts" setup>
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { MQTTTopic, QOS_VALUES } from "~/helpers/realtime/MQTTConnection"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -89,7 +89,7 @@ import { useToast } from "@composables/toast"
 const toastr = useToast()
 const t = useI18n()
 
-defineProps({
+const props = defineProps({
   show: {
     type: Boolean,
     default: false,
@@ -109,6 +109,16 @@ const QoS = ref<typeof QOS_VALUES[number]>(2)
 const name = ref("")
 const color = ref("#f58290")
 
+watch(
+  () => props.show,
+  () => {
+    name.value = ""
+    QoS.value = 2
+    const randomColor = Math.floor(Math.random() * 16777215).toString(16)
+    color.value = `#${randomColor}`
+  }
+)
+
 const addNewSubscription = () => {
   if (!name.value) {
     toastr.error(t("mqtt.invalid_topic").toString())
@@ -119,11 +129,6 @@ const addNewSubscription = () => {
     qos: QoS.value,
     color: color.value,
   })
-
-  name.value = ""
-
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16)
-  color.value = `#${randomColor}`
 }
 const hideModal = () => {
   name.value = ""

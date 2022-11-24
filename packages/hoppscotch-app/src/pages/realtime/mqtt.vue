@@ -86,29 +86,27 @@
         @remove-tab="removeTab"
         @sort="sortTabs"
       >
-        <template v-for="tab in tabs" :key="'removable_tab_' + tab.id">
-          <SmartWindow
-            :id="tab.id"
-            :label="tab.name"
-            :is-removable="tab.removable"
-            class="flex flex-col flex-1 overflow-y-auto"
-          >
-            <template #icon>
-              <icon-lucide-circle
-                :style="{
-                  color: tab.color,
-                  backgroundColor: tab.color,
-                }"
-                class="w-4 h-4 svg-icons rounded-full"
-              />
-            </template>
-            <RealtimeLog
-              :title="t('mqtt.log')"
-              :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
-              @delete="clearLogEntries()"
+        <SmartWindow
+          v-for="tab in tabs"
+          :id="tab.id"
+          :key="'removable_tab_' + tab.id"
+          :label="tab.name"
+          :is-removable="tab.removable"
+        >
+          <template #icon>
+            <icon-lucide-rss
+              :style="{
+                color: tab.color,
+              }"
+              class="w-4 h-4 svg-icons"
             />
-          </SmartWindow>
-        </template>
+          </template>
+          <RealtimeLog
+            :title="t('mqtt.log')"
+            :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
+            @delete="clearLogEntries()"
+          />
+        </SmartWindow>
       </SmartWindows>
     </template>
 
@@ -164,10 +162,12 @@
         >
           <div class="flex items-stretch group">
             <span class="flex items-center justify-center px-4 cursor-pointer">
-              <span
-                class="h-4 w-4 rounded-full"
-                :style="{ backgroundColor: topic.color }"
-              ></span>
+              <icon-lucide-rss
+                :style="{
+                  color: topic.color,
+                }"
+                class="w-4 h-4 svg-icons"
+              />
             </span>
             <span
               class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"

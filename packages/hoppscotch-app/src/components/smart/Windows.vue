@@ -1,69 +1,80 @@
 <template>
-  <div class="h-full flex flex-col !overflow-auto">
-    <div class="relative sticky top-0 inline-flex w-full bg-primaryLight">
-      <draggable
-        v-bind="dragOptions"
-        :list="tabEntries"
-        :style="tabsWidth"
-        :item-key="'window-'"
-        class="flex overflow-x-auto transition divide-divider divide-x"
-        @sort="sortTabs"
-      >
-        <template #item="{ element: [tabID, tabMeta] }">
-          <button
-            :key="`removable-tab-${tabID}`"
-            class="tab"
-            :class="[{ active: modelValue === tabID }]"
-            :aria-label="tabMeta.label || ''"
-            role="button"
-            @keyup.enter="selectTab(tabID)"
-            @click="selectTab(tabID)"
-          >
-            <div class="flex items-stretch group">
-              <!-- icon -->
+  <div class="flex flex-1 h-full flex-nowrap flex-col h-auto">
+    <div class="relative tabs sticky top-0 bg-primaryLight z-10">
+      <div class="flex flex-1 overflow-x-auto">
+        <div class="flex justify-between flex-1">
+          <div class="flex">
+            <draggable
+              v-bind="dragOptions"
+              :list="tabEntries"
+              :style="tabsWidth"
+              :item-key="'window-'"
+              class="flex overflow-x-auto transition divide-divider divide-x"
+              @sort="sortTabs"
+            >
+              <template #item="{ element: [tabID, tabMeta] }">
+                <button
+                  :key="`removable-tab-${tabID}`"
+                  class="tab"
+                  :class="[{ active: modelValue === tabID }]"
+                  :aria-label="tabMeta.label || ''"
+                  role="button"
+                  @keyup.enter="selectTab(tabID)"
+                  @click="selectTab(tabID)"
+                >
+                  <div class="flex items-stretch group">
+                    <!-- icon -->
 
+                    <span
+                      v-if="tabMeta.icon"
+                      class="flex items-center justify-center cursor-pointer mr-4"
+                    >
+                      <component :is="tabMeta.icon" class="w-4 h-4 svg-icons" />
+                    </span>
+
+                    <!-- icon -->
+
+                    <span class="truncate">
+                      {{ tabMeta.label }}
+                    </span>
+                  </div>
+
+                  <!-- close button -->
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+                    :icon="IconX"
+                    :style="{
+                      visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
+                    }"
+                    :title="t('action.close')"
+                    :class="[{ active: modelValue === tabID }, 'close']"
+                    class="rounded my-0.5 mr-0.5 ml-4 !p-1"
+                    @click.stop="emit('removeTab', tabID)"
+                  />
+                </button>
+              </template>
+            </draggable>
+          </div>
+          <div class="flex items-center justify-center">
+            <slot name="actions">
               <span
-                v-if="tabMeta.icon"
-                class="flex items-center justify-center cursor-pointer mr-2"
+                v-if="canAddNewTab"
+                class="flex items-center justify-center p-1 bg-primaryLight"
               >
-                <component
-                  :is="tabMeta.icon"
-                  class="w-4 h-4 svg-icons rounded-full"
+                <ButtonSecondary
+                  :icon="IconPlus"
+                  class="sticky right-0 rounded"
+                  @click="addTab"
                 />
               </span>
-
-              <!-- icon -->
-
-              <span class="truncate">
-                {{ tabMeta.label }}
-              </span>
-            </div>
-
-            <!-- close button -->
-            <ButtonSecondary
-              :icon="IconX"
-              :style="{
-                visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
-              }"
-              :class="[{ active: modelValue === tabID }, 'close']"
-              class="rounded my-0.5 mr-0.5 ml-4 !p-1"
-              @click.stop="emit('removeTab', tabID)"
-            />
-          </button>
-        </template>
-      </draggable>
-      <span
-        v-if="canAddNewTab"
-        class="flex items-center justify-center p-1 bg-primaryLight"
-      >
-        <ButtonSecondary
-          :icon="IconPlus"
-          class="sticky right-0 rounded"
-          @click="addTab"
-        />
-      </span>
+            </slot>
+          </div>
+        </div>
+      </div>
     </div>
-    <slot></slot>
+    <div class="w-full h-full contents">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -78,6 +89,7 @@ import { ref, ComputedRef, computed, provide } from "vue"
 import type { Slot } from "vue"
 import draggable from "vuedraggable"
 import { throwError } from "~/helpers/functional/error"
+import { useI18n } from "~/composables/i18n"
 
 export type TabMeta = {
   label: string | null
@@ -91,6 +103,9 @@ export type TabProvider = {
   updateTabEntry: (tabID: string, newMeta: TabMeta) => void
   removeTabEntry: (tabID: string) => void
 }
+
+const t = useI18n()
+
 const props = defineProps({
   styles: {
     type: String,
@@ -181,67 +196,77 @@ const addTab = () => {
 </script>
 
 <style scoped lang="scss">
-.tab {
-  @apply relative;
+.tabs {
   @apply flex;
-  @apply pl-4;
-  @apply pr-1;
-  @apply py-1;
-  @apply font-semibold;
-  @apply w-46;
-  @apply transition;
-  @apply flex-1;
-  @apply items-center;
-  @apply justify-between;
-  @apply text-secondaryLight;
-  @apply hover:bg-primaryDark;
-  @apply hover:text-secondary;
-  @apply focus-visible:text-secondaryDark;
-  &::before {
-    @apply absolute;
-    @apply left-0;
-    @apply right-0;
-    @apply top-0;
-    @apply bg-transparent;
-    @apply z-2;
-    @apply h-0.5;
-    content: "";
-  }
-  &::after {
-    @apply absolute;
-    @apply left-0;
-    @apply right-0;
-    @apply bottom-0;
-    @apply bg-divider;
-    @apply z-2;
-    @apply h-0.25;
-    content: "";
-  }
-  &:focus::before {
-    @apply bg-divider;
-  }
-  &.active {
-    @apply text-secondaryDark;
-    @apply bg-primary;
+  @apply whitespace-nowrap;
+  @apply overflow-auto;
+  @apply flex-shrink-0;
+
+  // &::after {
+  //   @apply absolute;
+  //   @apply inset-x-0;
+  //   @apply bottom-0;
+  //   @apply bg-dividerLight;
+  //   @apply z-1;
+  //   @apply h-0.5;
+  //   content: "";
+  // }
+
+  .tab {
+    @apply relative;
+    @apply flex;
+    @apply pl-4;
+    @apply pr-1;
+    @apply py-1;
+    @apply font-semibold;
+    @apply w-46;
+    @apply transition;
+    @apply flex-1;
+    @apply items-center;
+    @apply justify-between;
+    @apply text-secondaryLight;
+    @apply hover:bg-primaryDark;
+    @apply hover:text-secondary;
+    @apply focus-visible:text-secondaryDark;
     &::before {
-      @apply bg-accent;
+      @apply absolute;
+      @apply left-0;
+      @apply right-0;
+      @apply top-0;
+      @apply bg-transparent;
+      @apply z-2;
+      @apply h-0.5;
+      content: "";
     }
     &::after {
-      @apply bg-transparent;
+      @apply absolute;
+      @apply left-0;
+      @apply right-0;
+      @apply bottom-0;
+      @apply bg-divider;
+      @apply z-2;
+      @apply h-0.25;
+      content: "";
     }
-  }
-}
-.tab-content {
-  @apply p-4;
-  @apply hidden;
-  &.active {
-    @apply flex;
+    &:focus::before {
+      @apply bg-divider;
+    }
+    &.active {
+      @apply text-secondaryDark;
+      @apply bg-primary;
+      &::before {
+        @apply bg-accent;
+      }
+      &::after {
+        @apply bg-transparent;
+      }
+    }
   }
 }
 .close {
   @apply opacity-50;
   &.active {
-    @apply opacity-100;
+    @apply opacity-80;
   }
 }
 </style>

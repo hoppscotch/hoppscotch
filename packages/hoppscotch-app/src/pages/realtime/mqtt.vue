@@ -77,7 +77,6 @@
         "
       />
     </template>
-
     <template #secondary>
       <SmartWindows
         :id="'communication_tab'"
@@ -109,7 +108,6 @@
         </SmartWindow>
       </SmartWindows>
     </template>
-
     <template #sidebar>
       <div
         class="sticky z-10 flex flex-col border-b rounded-t divide-y divide-dividerLight bg-primary border-dividerLight"

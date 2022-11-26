@@ -134,10 +134,14 @@
         class="flex ml-2 border rounded transition border-dividerLight hover:border-dividerDark"
       >
         <ButtonSecondary
-          class="flex-1 rounded rounded-r-none"
+          v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
+          :title="`${t(
+            'request.save'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>S</kbd>`"
           :label="COLUMN_LAYOUT ? `${t('request.save')}` : ''"
           filled
           :icon="IconSave"
+          class="flex-1 rounded rounded-r-none"
           @click="saveRequest()"
         />
         <span class="flex">
@@ -148,6 +152,8 @@
             :on-shown="() => saveTippyActions.focus()"
           >
             <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('app.options')"
               :icon="IconChevronDown"
               filled
               class="rounded rounded-l-none"

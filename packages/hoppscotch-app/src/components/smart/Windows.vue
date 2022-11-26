@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1 h-auto flex-nowrap">
+  <div class="flex flex-col flex-1 h-auto flex-nowrap overflow-y-hidden">
     <div class="relative sticky top-0 z-10 tabs bg-primaryLight">
       <div class="flex flex-1 w-0 overflow-x-auto">
         <div class="flex justify-between divide-x divide-dividerLight">

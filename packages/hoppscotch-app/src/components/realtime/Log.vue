@@ -42,9 +42,7 @@
       ref="logs"
       class="flex flex-col overflow-y-auto border-b border-dividerLight"
     >
-      <div
-        class="flex flex-col h-full border-r divide-y divide-dividerLight border-dividerLight"
-      >
+      <div class="flex flex-col h-full divide-y divide-dividerLight">
         <RealtimeLogEntry
           v-for="(entry, index) in log"
           :key="`entry-${index}`"

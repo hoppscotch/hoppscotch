@@ -93,7 +93,6 @@
           />
         </div>
       </div>
-
       <SmartTabs
         v-model="selectedTab"
         styles="sticky bg-primary top-upperPrimaryStickyFold z-10"

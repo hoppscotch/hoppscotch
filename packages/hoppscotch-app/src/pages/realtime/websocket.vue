@@ -48,6 +48,7 @@
         >
           <RealtimeCommunication
             :is-connected="connectionState === 'CONNECTED'"
+            sticky-header-styles="top-upperSecondaryStickyFold"
             @send-message="sendMessage($event)"
           />
         </SmartTab>
@@ -178,7 +179,7 @@
     <template #secondary>
       <RealtimeLog
         :title="t('websocket.log')"
-        :log="log"
+        :log="(log as LogEntryData[])"
         @delete="clearLogEntries()"
       />
     </template>
@@ -220,6 +221,7 @@ import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
 import { WSConnection, WSErrorMessage } from "@helpers/realtime/WSConnection"
 import RegexWorker from "@workers/regex?worker"
+import { LogEntryData } from "~/components/realtime/Log.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -349,7 +351,7 @@ onMounted(() => {
       case "DISCONNECTED":
         addWSLogLine({
           payload: t("state.disconnected_from", { name: url.value }).toString(),
-          source: "info",
+          source: "disconnected",
           color: "#ff5555",
           ts: event.time,
         })

@@ -1,10 +1,15 @@
 <template>
   <div class="flex flex-col flex-1">
-    <div v-if="showEventField" class="flex items-center justify-between p-4">
+    <div
+      v-if="showEventField"
+      class="sticky z-10 flex items-center justify-center border-b bg-primary border-dividerLight"
+      :class="eventFieldStyles"
+    >
+      <icon-lucide-rss class="mx-4 svg-icons text-accentLight" />
       <input
         id="event_name"
         v-model="eventName"
-        class="input"
+        class="w-full py-2 pr-4 truncate bg-primary"
         name="event_name"
         :placeholder="`${t('socketio.event_name')}`"
         type="text"
@@ -12,7 +17,8 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      :class="stickyHeaderStyles"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -41,7 +47,9 @@
                 v-for="(contentTypeItem, index) in validContentTypes"
                 :key="`contentTypeItem-${index}`"
                 :label="contentTypeItem"
-                :info-icon="contentTypeItem === contentType ? IconDone : null"
+                :info-icon="
+                  contentTypeItem === contentType ? IconDone : undefined
+                "
                 :active-info-icon="contentTypeItem === contentType"
                 @click="
                   () => {
@@ -64,6 +72,15 @@
           class="rounded-none !text-accent !hover:text-accentDark"
           @click="sendMessage()"
         />
+        <SmartCheckbox
+          v-tippy="{ theme: 'tooltip' }"
+          :on="clearInputOnSend"
+          class="px-2"
+          :title="`${t('mqtt.clear_input_on_send')}`"
+          @change="clearInputOnSend = !clearInputOnSend"
+        >
+          {{ t("mqtt.clear_input") }}
+        </SmartCheckbox>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/realtime"
@@ -132,11 +149,20 @@ import { readFileAsText } from "@functional/files"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
+import { defineActionHandler } from "~/helpers/actions"
 
 defineProps({
   showEventField: {
     type: Boolean,
     default: false,
+  },
+  eventFieldStyles: {
+    type: String,
+    default: "",
+  },
+  stickyHeaderStyles: {
+    type: String,
+    default: "",
   },
   isConnected: {
     type: Boolean,
@@ -164,6 +190,7 @@ const wsCommunicationBody = ref<HTMLElement>()
 const payload = ref<HTMLInputElement>()
 
 const prettifyIcon = refAutoReset<Component>(IconWand2, 1000)
+const clearInputOnSend = ref(false)
 
 const knownContentTypes = {
   JSON: "application/ld+json",
@@ -197,7 +224,10 @@ useCodemirror(
 )
 
 const clearContent = () => {
-  communicationBody.value = ""
+  if (clearInputOnSend.value) {
+    communicationBody.value = ""
+    eventName.value = ""
+  }
 }
 
 const sendMessage = () => {
@@ -207,10 +237,10 @@ const sendMessage = () => {
     eventName: eventName.value,
     message: communicationBody.value,
   })
-  communicationBody.value = ""
+  clearContent()
 }
 
-const uploadPayload = async (e: InputEvent) => {
+const uploadPayload = async (e: Event) => {
   const result = await pipe(
     (e.target as HTMLInputElement).files?.[0],
     TO.fromNullable,
@@ -235,4 +265,6 @@ const prettifyRequestBody = () => {
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
 }
+
+defineActionHandler("request.send-cancel", sendMessage)
 </script>

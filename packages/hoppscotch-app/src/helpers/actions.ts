@@ -68,7 +68,7 @@ type HoppActionWithArgs = keyof HoppActionArgs
 /**
  * HoppActions which do not require arguments for their invocation
  */
-type HoppActionWithNoArgs = Exclude<HoppAction, HoppActionWithArgs>
+export type HoppActionWithNoArgs = Exclude<HoppAction, HoppActionWithArgs>
 
 /**
  * Resolves the argument type for a given HoppAction

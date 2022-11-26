@@ -72,7 +72,6 @@
           class="rounded-none !text-accent !hover:text-accentDark"
           @click="sendMessage()"
         />
-
         <SmartCheckbox
           v-tippy="{ theme: 'tooltip' }"
           :on="clearInputOnSend"
@@ -82,7 +81,6 @@
         >
           {{ t("mqtt.clear_input") }}
         </SmartCheckbox>
-
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/realtime"

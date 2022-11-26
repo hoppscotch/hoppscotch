@@ -21,7 +21,7 @@
               v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.run'
-              )} <kbd>${getSpecialKey()}</kbd><kbd>G</kbd>`"
+              )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
               :label="`${t('request.run')}`"
               :icon="IconPlay"
               class="rounded-none !text-accent !hover:text-accentDark"

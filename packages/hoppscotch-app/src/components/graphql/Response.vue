@@ -49,6 +49,12 @@
       <div class="flex pb-4 my-4 space-x-2">
         <div class="flex flex-col items-end space-y-4 text-right">
           <span class="flex items-center flex-1">
+            {{ t("shortcut.request.send_request") }}
+          </span>
+          <span class="flex items-center flex-1">
+            {{ t("shortcut.general.show_all") }}
+          </span>
+          <span class="flex items-center flex-1">
             {{ t("shortcut.general.command_menu") }}
           </span>
           <span class="flex items-center flex-1">
@@ -56,6 +62,14 @@
           </span>
         </div>
         <div class="flex flex-col space-y-4">
+          <div class="flex">
+            <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
+            <kbd class="shortcut-key">↩</kbd>
+          </div>
+          <div class="flex">
+            <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
+            <kbd class="shortcut-key">K</kbd>
+          </div>
           <div class="flex">
             <kbd class="shortcut-key">/</kbd>
           </div>

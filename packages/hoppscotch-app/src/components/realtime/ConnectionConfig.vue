@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-1 flex-col">
+  <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 pr-2 py-2 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+      class="sticky z-10 flex items-center justify-between py-2 pl-4 pr-2 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -18,7 +18,7 @@
         </SmartCheckbox>
       </div>
     </div>
-    <div class="flex flex-1 border-dividerLight h-full">
+    <div class="flex flex-1 h-full border-dividerLight">
       <div class="w-1/3 border-r border-dividerLight">
         <div class="flex flex-1 border-b border-dividerLight">
           <SmartEnvInput
@@ -56,7 +56,7 @@
           />
         </div>
         <div
-          class="flex items-center justify-between border-b border-dividerLight px-4"
+          class="flex items-center justify-between px-4 border-b border-dividerLight"
         >
           <div class="flex items-center">
             <label class="font-semibold text-secondaryLight">

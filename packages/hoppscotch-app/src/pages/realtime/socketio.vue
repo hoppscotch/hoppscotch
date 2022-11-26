@@ -107,6 +107,8 @@
           <RealtimeCommunication
             :show-event-field="true"
             :is-connected="connectionState === 'CONNECTED'"
+            event-field-styles="top-upperSecondaryStickyFold"
+            sticky-header-styles="top-upperTertiaryStickyFold"
             @send-message="sendMessage($event)"
           />
         </SmartTab>

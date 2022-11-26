@@ -1,19 +1,19 @@
 <template>
   <div class="flex flex-col flex-1">
-    <div v-if="showEventField" class="flex items-center justify-between p-4">
-      <input
-        id="event_name"
-        v-model="eventName"
-        class="input"
-        name="event_name"
-        :placeholder="`${t('socketio.event_name')}`"
-        type="text"
-        autocomplete="off"
-      />
-    </div>
+    <input
+      v-if="showEventField"
+      id="event_name"
+      v-model="eventName"
+      class="sticky z-10 px-4 py-2 border-b border-dividerLight"
+      :class="eventFieldStyles"
+      name="event_name"
+      :placeholder="`${t('socketio.event_name')}`"
+      type="text"
+      autocomplete="off"
+    />
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
-      :class="{ 'top-upperSecondaryStickyFold': showEventField }"
+      :class="stickyHeaderStyles"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -152,6 +152,14 @@ defineProps({
   showEventField: {
     type: Boolean,
     default: false,
+  },
+  eventFieldStyles: {
+    type: String,
+    default: "",
+  },
+  stickyHeaderStyles: {
+    type: String,
+    default: "",
   },
   isConnected: {
     type: Boolean,

@@ -48,6 +48,7 @@
         >
           <RealtimeCommunication
             :is-connected="connectionState === 'CONNECTED'"
+            sticky-header-styles="top-upperSecondaryStickyFold"
             @send-message="sendMessage($event)"
           />
         </SmartTab>

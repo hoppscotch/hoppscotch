@@ -1,15 +1,15 @@
 <template>
-  <div class="flex flex-1 h-full flex-nowrap flex-col h-auto">
-    <div class="relative tabs sticky top-0 bg-primaryLight z-10">
-      <div class="flex flex-1 overflow-x-auto w-0">
-        <div class="flex justify-between divide-divider divide-x">
+  <div class="flex flex-col flex-1 h-auto flex-nowrap">
+    <div class="relative sticky top-0 z-10 tabs bg-primaryLight">
+      <div class="flex flex-1 w-0 overflow-x-auto">
+        <div class="flex justify-between divide-x divide-dividerLight">
           <div class="flex">
             <draggable
               v-bind="dragOptions"
               :list="tabEntries"
               :style="tabsWidth"
               :item-key="'window-'"
-              class="flex overflow-x-auto transition divide-divider divide-x"
+              class="flex overflow-x-auto transition divide-x divide-dividerLight"
               @sort="sortTabs"
             >
               <template #item="{ element: [tabID, tabMeta] }">
@@ -22,10 +22,10 @@
                   @keyup.enter="selectTab(tabID)"
                   @click="selectTab(tabID)"
                 >
-                  <div class="flex items-stretch group truncate">
+                  <div class="flex items-stretch truncate">
                     <span
                       v-if="tabMeta.icon"
-                      class="flex items-center justify-center cursor-pointer mx-4"
+                      class="flex items-center justify-center mx-4 cursor-pointer"
                     >
                       <component :is="tabMeta.icon" class="w-4 h-4 svg-icons" />
                     </span>
@@ -50,15 +50,18 @@
               </template>
             </draggable>
           </div>
-          <div class="flex sticky right-0 items-center justify-center">
+          <div class="sticky right-0 flex items-center justify-center z-8">
             <slot name="actions">
               <span
                 v-if="canAddNewTab"
-                class="flex items-center justify-center p-1 bg-primaryLight"
+                class="flex items-center justify-center px-2 py-1.5 bg-primaryLight z-8"
               >
                 <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.new')"
                   :icon="IconPlus"
-                  class="sticky right-0 rounded"
+                  class="rounded !p-1"
+                  filled
                   @click="addTab"
                 />
               </span>
@@ -202,7 +205,7 @@ const addTab = () => {
     @apply inset-x-0;
     @apply bottom-0;
     @apply bg-dividerLight;
-    @apply z-1;
+    @apply z-10;
     @apply h-0.25;
     content: "";
   }
@@ -233,16 +236,16 @@ const addTab = () => {
       content: "";
     }
 
-    &::after {
-      @apply absolute;
-      @apply left-0;
-      @apply right-0;
-      @apply bottom-0;
-      @apply bg-divider;
-      @apply z-2;
-      @apply h-0.25;
-      content: "";
-    }
+    // &::after {
+    //   @apply absolute;
+    //   @apply left-0;
+    //   @apply right-0;
+    //   @apply bottom-0;
+    //   @apply bg-divider;
+    //   @apply z-2;
+    //   @apply h-0.25;
+    //   content: "";
+    // }
 
     &:focus::before {
       @apply bg-divider;
@@ -256,9 +259,9 @@ const addTab = () => {
         @apply bg-accent;
       }
 
-      &::after {
-        @apply bg-transparent;
-      }
+      // &::after {
+      //   @apply bg-transparent;
+      // }
     }
 
     .close {

@@ -371,6 +371,7 @@ const icon = computed(() => markRaw(ICONS[props.entry.source].icon))
 .realtime-log {
   @apply text-secondary;
   @apply overflow-hidden;
+  @apply hover:cursor-nsResize;
 
   &,
   span {

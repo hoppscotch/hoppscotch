@@ -3,12 +3,12 @@
     <template #body>
       <div class="flex justify-between mb-4">
         <div
-          class="flex items-center border border-divider rounded divide-x divide-divider"
+          class="flex items-center border divide-x rounded border-divider divide-divider"
         >
           <label class="mx-4">
             {{ t("mqtt.qos") }}
           </label>
-          <tippy interactive trigger="click" theme="popover" arrow>
+          <tippy interactive trigger="click" theme="popover">
             <span class="select-wrapper">
               <ButtonSecondary class="pr-8" :label="`${QoS}`" />
             </span>
@@ -39,7 +39,7 @@
             id="select-color"
             v-model="color"
             type="color"
-            class="p-1 ml-4 h-8 w-8 rounded bg-primary border border-divider"
+            class="w-8 h-8 p-1 ml-4 border rounded bg-primary border-divider"
           />
         </div>
       </div>

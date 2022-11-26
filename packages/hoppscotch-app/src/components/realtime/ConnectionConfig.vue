@@ -8,7 +8,6 @@
           {{ t("mqtt.connection_config") }}
         </label>
       </span>
-
       <div class="flex">
         <SmartCheckbox
           :on="config.cleanSession"
@@ -62,14 +61,13 @@
             <label class="font-semibold text-secondaryLight">
               {{ t("mqtt.lw_qos") }}
             </label>
-            <tippy interactive trigger="click" theme="popover" arrow>
+            <tippy interactive trigger="click" theme="popover">
               <span class="select-wrapper">
                 <ButtonSecondary
                   class="pr-8 ml-2 rounded-none"
                   :label="`${config.lwQos}`"
                 />
               </span>
-
               <template #content="{ hide }">
                 <div class="flex flex-col" role="menu">
                   <SmartItem
@@ -89,7 +87,6 @@
               </template>
             </tippy>
           </div>
-
           <SmartCheckbox
             :on="config.lwRetain"
             class="py-2"

@@ -66,7 +66,11 @@
         :show-event-field="currentTabId === 'all'"
         :is-connected="connectionState === 'CONNECTED'"
         event-field-styles="top-upperPrimaryStickyFold"
-        sticky-header-styles="top-upperSecondaryStickyFold"
+        :sticky-header-styles="
+          currentTabId === 'all'
+            ? 'top-upperSecondaryStickyFold'
+            : 'top-upperPrimaryStickyFold'
+        "
         @send-message="
           publish(
             currentTabId === 'all'

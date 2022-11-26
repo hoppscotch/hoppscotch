@@ -1,16 +1,21 @@
 <template>
   <div class="flex flex-col flex-1">
-    <input
+    <div
       v-if="showEventField"
-      id="event_name"
-      v-model="eventName"
-      class="sticky z-10 px-4 py-2 border-b border-dividerLight"
+      class="sticky z-10 flex items-center justify-center border-b bg-primary border-dividerLight"
       :class="eventFieldStyles"
-      name="event_name"
-      :placeholder="`${t('socketio.event_name')}`"
-      type="text"
-      autocomplete="off"
-    />
+    >
+      <icon-lucide-rss class="mx-4 svg-icons text-accentLight" />
+      <input
+        id="event_name"
+        v-model="eventName"
+        class="w-full py-2 pr-4 truncate bg-primary"
+        name="event_name"
+        :placeholder="`${t('socketio.event_name')}`"
+        type="text"
+        autocomplete="off"
+      />
+    </div>
     <div
       class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
       :class="stickyHeaderStyles"

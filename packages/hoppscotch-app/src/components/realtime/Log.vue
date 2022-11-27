@@ -50,51 +50,7 @@
         />
       </div>
     </div>
-    <div
-      v-else
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <div class="flex pb-4 my-4 space-x-2">
-        <div class="flex flex-col items-end space-y-4 text-right">
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.request.send_request") }}
-          </span>
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.general.show_all") }}
-          </span>
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.general.command_menu") }}
-          </span>
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.general.help_menu") }}
-          </span>
-        </div>
-        <div class="flex flex-col space-y-4">
-          <div class="flex">
-            <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
-            <kbd class="shortcut-key">↩</kbd>
-          </div>
-          <div class="flex">
-            <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
-            <kbd class="shortcut-key">K</kbd>
-          </div>
-          <div class="flex">
-            <kbd class="shortcut-key">/</kbd>
-          </div>
-          <div class="flex">
-            <kbd class="shortcut-key">?</kbd>
-          </div>
-        </div>
-      </div>
-      <ButtonSecondary
-        :label="`${t('app.documentation')}`"
-        to="https://docs.hoppscotch.io/realtime"
-        :icon="IconExternalLink"
-        blank
-        outline
-        reverse
-      />
-    </div>
+    <AppShortcutsPrompt v-else class="p-4" />
   </div>
 </template>
 
@@ -104,10 +60,8 @@ import IconTrash from "~icons/lucide/trash"
 import IconArrowUp from "~icons/lucide/arrow-up"
 import IconArrowDown from "~icons/lucide/arrow-down"
 import IconChevronsDown from "~icons/lucide/chevron-down"
-import IconExternalLink from "~icons/lucide/external-link"
 import { useThrottleFn, useScroll } from "@vueuse/core"
 import { useI18n } from "@composables/i18n"
-import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 export type LogEntryData = {
   prefix?: string

@@ -318,7 +318,7 @@
     "clear_input": "Clear input",
     "clear_input_on_send": "Clear input on send",
     "client_id": "Client ID",
-    "color": "Color",
+    "color": "Pick a color",
     "communication": "Kommunikasjon",
     "connection_config": "Connection Config",
     "connection_not_authorized": "This MQTT connection does not use any authentication.",

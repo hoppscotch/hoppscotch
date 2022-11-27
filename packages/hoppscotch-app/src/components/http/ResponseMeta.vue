@@ -1,52 +1,8 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-start p-4 overflow-auto bg-primary whitespace-nowrap"
+    class="sticky top-0 z-10 flex items-start justify-center p-4 overflow-auto bg-primary whitespace-nowrap"
   >
-    <div
-      v-if="response == null"
-      class="flex flex-col items-center justify-center flex-1 text-secondaryLight"
-    >
-      <div class="flex pb-4 my-4 space-x-2">
-        <div class="flex flex-col items-end space-y-4 text-right">
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.request.send_request") }}
-          </span>
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.general.show_all") }}
-          </span>
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.general.command_menu") }}
-          </span>
-          <span class="flex items-center flex-1">
-            {{ t("shortcut.general.help_menu") }}
-          </span>
-        </div>
-        <div class="flex flex-col space-y-4">
-          <div class="flex">
-            <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
-            <kbd class="shortcut-key">↩</kbd>
-          </div>
-          <div class="flex">
-            <kbd class="shortcut-key">{{ getSpecialKey() }}</kbd>
-            <kbd class="shortcut-key">K</kbd>
-          </div>
-          <div class="flex">
-            <kbd class="shortcut-key">/</kbd>
-          </div>
-          <div class="flex">
-            <kbd class="shortcut-key">?</kbd>
-          </div>
-        </div>
-      </div>
-      <ButtonSecondary
-        :label="t('app.documentation')"
-        to="https://docs.hoppscotch.io/features/response"
-        :icon="IconExternalLink"
-        blank
-        outline
-        reverse
-      />
-    </div>
+    <AppShortcutsPrompt v-if="response == null" class="flex-1" />
     <div v-else class="flex flex-col flex-1">
       <div
         v-if="response.type === 'loading'"
@@ -140,11 +96,9 @@
 </template>
 
 <script setup lang="ts">
-import IconExternalLink from "~icons/lucide/external-link"
 import { computed } from "vue"
 import findStatusGroup from "@helpers/findStatusGroup"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"

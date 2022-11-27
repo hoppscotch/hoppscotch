@@ -23,7 +23,7 @@
             </span>
           </div>
           <div
-            class="inline-grid items-center flex-1 min-w-0 p-2"
+            class="items-center flex-1 min-w-0 p-2 inline-grid"
             @click="toggleExpandPayload()"
           >
             <div class="truncate">

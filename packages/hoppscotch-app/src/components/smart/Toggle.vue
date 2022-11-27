@@ -8,7 +8,7 @@
     <span ref="toggle" class="toggle" :class="{ on: on }">
       <span class="handle"></span>
     </span>
-    <span class="pl-0 font-semibold align-middle cursor-pointer">
+    <span class="pl-0 font-semibold truncate align-middle cursor-pointer">
       <slot></slot>
     </span>
   </div>

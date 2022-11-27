@@ -65,7 +65,9 @@
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
-          :title="`${t('action.send')}`"
+          :title="`${t(
+            'request.run'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
           :label="`${t('action.send')}`"
           :disabled="!communicationBody || !isConnected"
           :icon="IconSend"
@@ -150,6 +152,7 @@ import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 defineProps({
   showEventField: {

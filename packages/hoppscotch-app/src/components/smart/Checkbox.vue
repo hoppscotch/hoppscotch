@@ -1,6 +1,6 @@
 <template>
   <div
-    class="inline-flex items-center justify-center cursor-pointer transition flex-nowrap group hover:text-secondaryDark"
+    class="inline-flex items-center justify-center transition cursor-pointer flex-nowrap group hover:text-secondaryDark"
     role="checkbox"
     :aria-checked="on"
     @click="emit('change')"
@@ -14,7 +14,7 @@
     />
     <label
       for="checkbox"
-      class="pl-0 font-semibold align-middle cursor-pointer"
+      class="pl-0 font-semibold truncate align-middle cursor-pointer"
     >
       <slot></slot>
     </label>

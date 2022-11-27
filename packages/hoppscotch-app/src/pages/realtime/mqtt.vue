@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="mqtt">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
       >
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
@@ -116,7 +116,7 @@
     </template>
     <template #sidebar>
       <div
-        class="sticky z-10 flex flex-col border-b divide-y rounded-t divide-dividerLight bg-primary border-dividerLight"
+        class="sticky z-10 flex flex-col border-b rounded-t divide-y divide-dividerLight bg-primary border-dividerLight"
       >
         <div class="flex justify-between flex-1">
           <ButtonSecondary
@@ -174,7 +174,7 @@
               />
             </span>
             <span
-              class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
+              class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
               @click="openTopicAsTab(topic)"
             >
               <span class="truncate">

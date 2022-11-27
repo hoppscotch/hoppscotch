@@ -16,7 +16,7 @@
             <span class="select-wrapper">
               <input
                 id="method"
-                class="flex px-4 py-2 font-semibold transition rounded-l cursor-pointer text-secondaryDark w-26 bg-primaryLight"
+                class="flex px-4 py-2 font-semibold rounded-l cursor-pointer transition text-secondaryDark w-26 bg-primaryLight"
                 :value="newMethod"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
@@ -47,7 +47,7 @@
         </label>
       </div>
       <div
-        class="flex flex-1 overflow-auto transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
+        class="flex flex-1 overflow-auto border-l rounded-r transition border-divider bg-primaryLight whitespace-nowrap"
       >
         <SmartEnvInput
           v-model="newEndpoint"
@@ -131,7 +131,7 @@
         </tippy>
       </span>
       <span
-        class="flex ml-2 transition border rounded border-dividerLight hover:border-dividerDark"
+        class="flex ml-2 border rounded transition border-dividerLight hover:border-dividerDark"
       >
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"

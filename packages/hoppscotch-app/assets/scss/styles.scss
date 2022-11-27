@@ -286,6 +286,18 @@ button {
   @apply text-secondaryDark;
 }
 
+.floating-input ~ .end-actions {
+  @apply absolute;
+  @apply right-0.2;
+  @apply inset-y-0;
+  @apply flex;
+  @apply items-center;
+}
+
+.floating-input:has(~ .end-actions) {
+  @apply pr-12;
+}
+
 pre.ace_editor {
   @apply font-mono;
   @apply resize-none;
@@ -529,4 +541,14 @@ details[open] summary .indicator {
 
 #nprogress .bar {
   @apply bg-accent #{!important};
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  @apply rounded;
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  @apply rounded;
+  border: none;
 }

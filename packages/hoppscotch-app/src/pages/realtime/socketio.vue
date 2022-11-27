@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="socketio">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
       >
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">

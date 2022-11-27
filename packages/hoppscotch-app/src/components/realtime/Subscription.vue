@@ -3,7 +3,7 @@
     <template #body>
       <div class="flex justify-between mb-4">
         <div
-          class="flex items-center border divide-x rounded border-divider divide-divider"
+          class="flex items-center border rounded divide-x border-divider divide-divider"
         >
           <label class="mx-4">
             {{ t("mqtt.qos") }}
@@ -31,19 +31,8 @@
             </template>
           </tippy>
         </div>
-        <div class="flex items-center">
-          <label for="select-color">
-            {{ t("mqtt.color") }}
-          </label>
-          <input
-            id="select-color"
-            v-model="color"
-            type="color"
-            class="w-8 h-8 p-1 ml-4 border rounded bg-primary border-divider"
-          />
-        </div>
       </div>
-      <div class="flex flex-col">
+      <div class="relative flex flex-col">
         <input
           id="selectLabelAdd"
           v-model="name"
@@ -57,6 +46,24 @@
         <label for="selectLabelAdd">
           {{ t("action.label") }}
         </label>
+        <span class="end-actions">
+          <label
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('mqtt.color')"
+            for="select-color"
+            class="absolute inset-0 flex items-center justify-center group hover:cursor-pointer"
+          >
+            <icon-lucide-brush
+              class="transition opacity-80 svg-icons group-hover:opacity-100 text-accentContrast"
+            />
+          </label>
+          <input
+            id="select-color"
+            v-model="color"
+            type="color"
+            class="w-8 h-8 p-1 rounded bg-primary"
+          />
+        </span>
       </div>
     </template>
     <template #footer>

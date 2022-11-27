@@ -19,7 +19,7 @@
     "edit": "編輯",
     "filter": "篩選回應",
     "go_back": "返回",
-    "group_by": "Group by",
+    "group_by": "分組方式",
     "label": "標籤",
     "learn_more": "瞭解更多",
     "less": "更少",
@@ -175,7 +175,7 @@
     "protocols": "協定為空",
     "schema": "連線至 GraphQL 端點",
     "shortcodes": "Shortcodes 為空",
-    "subscription": "Subscriptions are empty",
+    "subscription": "訂閱為空",
     "team_name": "團隊名稱為空",
     "teams": "團隊為空",
     "tests": "沒有針對該請求的測試"
@@ -229,9 +229,9 @@
     "title": "匯出"
   },
   "filter": {
-    "all": "All",
-    "none": "None",
-    "starred": "Starred"
+    "all": "全部",
+    "none": "無",
+    "starred": "已加星號"
   },
   "folder": {
     "created": "已建立資料夾",
@@ -247,8 +247,8 @@
     "subscriptions": "訂閱"
   },
   "group": {
-    "time": "Time",
-    "url": "URL"
+    "time": "時間",
+    "url": "網址"
   },
   "header": {
     "install_pwa": "安裝應用程式",
@@ -313,25 +313,25 @@
     "import_export": "匯入／匯出"
   },
   "mqtt": {
-    "already_subscribed": "You are already subscribed to this topic.",
-    "clean_session": "Clean Session",
-    "clear_input": "Clear input",
-    "clear_input_on_send": "Clear input on send",
-    "client_id": "Client ID",
-    "color": "Color",
+    "already_subscribed": "您已訂閱了此主題。",
+    "clean_session": "清除工作階段",
+    "clear_input": "清除輸入",
+    "clear_input_on_send": "傳送後清除輸入",
+    "client_id": "客戶端 ID",
+    "color": "顏色",
     "communication": "通訊",
-    "connection_config": "Connection Config",
-    "connection_not_authorized": "This MQTT connection does not use any authentication.",
-    "invalid_topic": "Please provide a topic for the subscription",
-    "keep_alive": "Keep Alive",
+    "connection_config": "連線設定",
+    "connection_not_authorized": "此 MQTT 連線未使用任何驗證。",
+    "invalid_topic": "請為此訂閱提供主題",
+    "keep_alive": "保持連線",
     "log": "日誌",
-    "lw_message": "Last-Will Message",
+    "lw_message": "Last-Will 訊息",
     "lw_qos": "Last-Will QoS",
-    "lw_retain": "Last-Will Retain",
-    "lw_topic": "Last-Will Topic",
+    "lw_retain": "Last-Will 保留",
+    "lw_topic": "Last-Will 主題",
     "message": "訊息",
-    "new": "New Subscription",
-    "not_connected": "Please start a MQTT connection first.",
+    "new": "新訂閱",
+    "not_connected": "請先啟動 MQTT 連線。",
     "publish": "發佈",
     "qos": "QoS",
     "ssl": "SSL",

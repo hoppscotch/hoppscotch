@@ -43,7 +43,7 @@ const tabMeta = computed<TabMeta>(() => ({
   info: props.info,
   label: props.label,
   isRemovable: props.isRemovable,
-  icon: slots.icon,
+  prefix: slots.prefix,
   suffix: slots.suffix,
   tabhead: slots.tabhead,
   closeVisibility: props.closeVisibility,

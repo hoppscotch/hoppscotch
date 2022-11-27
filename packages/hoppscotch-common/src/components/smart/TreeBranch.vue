@@ -4,12 +4,16 @@
     :toggle-children="toggleNodeChildren"
     :is-open="isNodeOpen"
   ></slot>
+
   <div v-if="showChildren" class="flex flex-1">
     <div
       class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
       @click="toggleNodeChildren"
     ></div>
-    <div v-if="childNodes.status === 'loaded'" class="flex flex-col flex-1">
+    <div
+      v-if="childNodes.status === 'loaded' && childNodes.data.length > 0"
+      class="flex flex-col flex-1"
+    >
       <TreeBranch
         v-for="childNode in childNodes.data"
         :key="childNode.id"
@@ -25,18 +29,20 @@
             :is-open="isOpen as boolean"
           ></slot>
         </template>
+        <template #emptyNode="{ node }">
+          <slot name="emptyNode" :node="node"></slot>
+        </template>
       </TreeBranch>
     </div>
     <div
-      v-if="childNodes.status === 'loading'"
+      v-else-if="childNodes.status === 'loading'"
       class="flex flex-1 flex-col items-center justify-center p-4"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
-    <div v-else class="flex flex-1">
-      Emoty
-      <!-- <slot name="emptyBranchNode"></slot> -->
+    <div v-else class="flex flex-col flex-1">
+      <slot name="emptyNode" :node="nodeItem"></slot>
     </div>
   </div>
 </template>

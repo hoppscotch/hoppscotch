@@ -1,39 +1,37 @@
 <template>
   <div class="flex flex-col flex-1">
-    <div v-if="hasRootNodes">
-      <div v-if="rootNodes.status === 'loaded'">
-        <div v-for="rootNode in rootNodes.data" :key="rootNode.id">
-          <SmartTreeBranch
-            :node-item="rootNode"
-            :adapter="adapter as SmartTreeAdapter<T>"
-          >
-            <template #default="{ node, toggleChildren, isOpen }">
-              <slot
-                name="content"
-                :node="node as TreeNode<T>"
-                :toggle-children="toggleChildren as () => void"
-                :is-open="isOpen as boolean"
-              ></slot>
-            </template>
-            <template #emptyBranchNode>
-              <slot name="emptyRootNode"></slot>
-            </template>
-            <!-- <template #emptyBranchNode>
-              <slot name="emptyBranchNode"></slot>
-            </template> -->
-          </SmartTreeBranch>
-        </div>
-      </div>
-      <div
-        v-if="rootNodes.status === 'loading'"
-        class="flex flex-1 flex-col items-center justify-center p-4"
-      >
-        <SmartSpinner class="my-4" />
-        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    <div v-if="rootNodes.status === 'loaded'">
+      <div v-for="rootNode in rootNodes.data" :key="rootNode.id">
+        <SmartTreeBranch
+          :node-item="rootNode"
+          :adapter="adapter as SmartTreeAdapter<T>"
+        >
+          <template #default="{ node, toggleChildren, isOpen }">
+            <slot
+              name="content"
+              :node="node as TreeNode<T>"
+              :toggle-children="toggleChildren as () => void"
+              :is-open="isOpen as boolean"
+            ></slot>
+          </template>
+          <template #emptyNode="{ node }">
+            <slot name="emptyNode" :node="node"></slot>
+          </template>
+        </SmartTreeBranch>
       </div>
     </div>
-    <div v-else class="flex flex-1 flex-col">
-      <slot name="emptyRoot"></slot>
+    <div
+      v-if="rootNodes.status === 'loading'"
+      class="flex flex-1 flex-col items-center justify-center p-4"
+    >
+      <SmartSpinner class="my-4" />
+      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+    </div>
+    <div
+      v-if="rootNodes.status === 'loaded' && rootNodes.data.length === 0"
+      class="flex flex-1 flex-col"
+    >
+      <slot name="emptyNode" :node="null"></slot>
     </div>
   </div>
 </template>

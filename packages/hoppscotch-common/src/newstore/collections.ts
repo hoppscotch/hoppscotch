@@ -644,6 +644,7 @@ export function editRESTCollection(
   collectionIndex: number,
   collection: HoppCollection<HoppRESTRequest>
 ) {
+  console.log("edit-coll", collectionIndex, collection)
   restCollectionStore.dispatch({
     dispatcher: "editCollection",
     payload: {
@@ -690,6 +691,7 @@ export function editRESTRequest(
   requestIndex: number,
   requestNew: HoppRESTRequest
 ) {
+  console.log("store-edit", path, requestIndex, requestNew)
   const indexPaths = path.split("/").map((x) => parseInt(x))
   if (
     !navigateToFolderWithIndexPath(restCollectionStore.value.state, indexPaths)
@@ -707,6 +709,7 @@ export function editRESTRequest(
 }
 
 export function saveRESTRequestAs(path: string, request: HoppRESTRequest) {
+  console.log("store-create", path, request)
   // For calculating the insertion request index
   const targetLocation = navigateToFolderWithIndexPath(
     restCollectionStore.value.state,

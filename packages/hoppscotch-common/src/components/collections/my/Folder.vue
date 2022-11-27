@@ -145,13 +145,6 @@
         @click="toggleShowChildren()"
       ></div>
       <div
-        v-if="isLoading"
-        class="flex flex-col flex-1 items-center justify-center p-4"
-      >
-        <SmartSpinner class="my-4" />
-        <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-      </div>
-      <div
         v-if="isFolderEmpty"
         class="flex flex-col flex-1 items-center justify-center p-4 text-secondaryLight"
       >
@@ -380,7 +373,7 @@ export default defineComponent({
         folderPath: this.folderPath,
       })
     },
-    dropEvent({ dataTransfer }) {
+    dropEvent({ dataTransfer }: any) {
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")

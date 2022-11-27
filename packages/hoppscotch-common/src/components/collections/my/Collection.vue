@@ -354,6 +354,12 @@ export default defineComponent({
       })
     },
     dropEvent({ dataTransfer }: any) {
+      console.log(
+        "dropEvent",
+        dataTransfer.getData("folderPath"),
+        dataTransfer.getData("requestIndex"),
+        this.collectionIndex
+      )
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")

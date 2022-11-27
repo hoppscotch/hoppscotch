@@ -190,6 +190,7 @@ const onUpdateCollType = (newCollType: CollectionType) => {
 }
 
 const onSelect = ({ picked: pickedVal }: { picked: Picked | null }) => {
+  console.log("picked", picked)
   picked.value = pickedVal
 }
 

@@ -40,12 +40,30 @@
       <div v-if="node.data.type === 'requests'" class="flex flex-1">
         <CollectionsMyRequest
           :request="node.data.data"
-          :request-index="pathToId(node.id)[pathToId(node.id).length - 1]"
+          :request-index="
+            pathToId(node.id)[pathToId(node.id).length - 1].toString()
+          "
         />
       </div>
     </template>
-    <!-- <template #emptyBranchNode>
+    <template #emptyNode="{ node }">
+      <div v-if="node === null">
+        <div
+          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        >
+          <img
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            loading="lazy"
+            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+            :alt="`${t('empty.collection')}`"
+          />
+          <span class="text-center">
+            {{ t("empty.collections") }}
+          </span>
+        </div>
+      </div>
       <div
+        v-else-if="node.data.type === 'collections'"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
@@ -53,39 +71,23 @@
           loading="lazy"
           class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
           :alt="`${t('empty.collection')}`"
+        />
+        <span class="text-center">
+          {{ t("empty.collections") }}
+        </span>
+      </div>
+      <div
+        v-else-if="node.data.type === 'folders'"
+        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+      >
+        <img
+          :src="`/images/states/${colorMode.value}/pack.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+          :alt="`${t('empty.folder')}`"
         />
         <span class="text-center">
           {{ t("empty.folder") }}
-        </span>
-      </div>
-    </template> -->
-    <template #emptyRootNode>
-      <div
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-      >
-        <img
-          :src="`/images/states/${colorMode.value}/pack.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-          :alt="`${t('empty.collection')}`"
-        />
-        <span class="text-center">
-          {{ t("empty.collection") }}
-        </span>
-      </div>
-    </template>
-    <template #emptyRoot>
-      <div
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-      >
-        <img
-          :src="`/images/states/${colorMode.value}/pack.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-          :alt="`${t('empty.collection')}`"
-        />
-        <span class="text-center">
-          {{ t("empty.collection") }}
         </span>
       </div>
     </template>
@@ -117,23 +119,24 @@
         />
       </div>
     </template>
-    <template #emptyRoot>
-      <div
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-      >
-        <img
-          :src="`/images/states/${colorMode.value}/pack.svg`"
-          loading="lazy"
-          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-          :alt="`${t('empty.collection')}`"
-        />
-        <span class="text-center">
-          {{ t("empty.collection") }}
-        </span>
+    <template #emptyNode="{ node }">
+      <div v-if="node === null">
+        <div
+          class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+        >
+          <img
+            :src="`/images/states/${colorMode.value}/pack.svg`"
+            loading="lazy"
+            class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+            :alt="`${t('empty.collection')}`"
+          />
+          <span class="text-center">
+            {{ t("empty.collections") }}
+          </span>
+        </div>
       </div>
-    </template>
-    <template #emptyRootNode>
       <div
+        v-else-if="node.data.type === 'collections'"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
@@ -146,9 +149,8 @@
           {{ t("empty.collections") }}
         </span>
       </div>
-    </template>
-    <template #emptyBranchNode>
       <div
+        v-else-if="node.data.type === 'folders'"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <img
@@ -408,17 +410,17 @@ const pathToId = computed(() => {
 })
 
 type Collection = {
-  type: "collections"
+  type: string
   data: HoppCollection<HoppRESTRequest>
 }
 
 type Folder = {
-  type: "folders"
+  type: string
   data: HoppCollection<HoppRESTRequest>
 }
 
 type Requests = {
-  type: "requests"
+  type: string
   data: HoppRESTRequest
 }
 
@@ -496,17 +498,17 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
 }
 
 type TeamCollections = {
-  type: "collections"
+  type: string
   data: TeamCollection
 }
 
 type TeamFolder = {
-  type: "folders"
+  type: string
   data: TeamCollection
 }
 
 type TeamRequests = {
-  type: "requests"
+  type: string
   data: HoppRESTRequest
 }
 
@@ -540,12 +542,20 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
 
   getChildren(id: string | null): Ref<ChildrenResult<TeamCollectionNode>> {
     return computed((): ChildrenResult<TeamCollectionNode> => {
+      console.log("root-loading", teamLoadingCollections.value.includes("root"))
+      //TODO: Root collections not reactive
       if (id === null) {
+        // console.log(
+        //   "root-loading",
+        //   teamLoadingCollections.value.includes("root")
+        // )
+
         if (teamLoadingCollections.value.includes("root")) {
           return {
             status: "loading",
           }
         } else {
+          console.log("root-loaded", teamLoadingCollections.value)
           const data = this.data.value.map((item) => ({
             id: item.id,
             data: {

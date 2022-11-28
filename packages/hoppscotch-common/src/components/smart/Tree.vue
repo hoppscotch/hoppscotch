@@ -43,16 +43,16 @@ import { useI18n } from "~/composables/i18n"
 
 const props = defineProps<{
   /**
-   * The adapter to use for the tree.
+   * The adapter that will be used to fetch the tree data
+   * @template T The type of the data that will be stored in the tree
    */
   adapter: SmartTreeAdapter<T>
 }>()
 
 const t = useI18n()
 
+/**
+ * Fetch the root nodes from the adapter by passing the node id as null
+ */
 const rootNodes = computed(() => props.adapter.getChildren(null).value)
-
-const hasRootNodes = computed(
-  () => rootNodes.value.status === "loaded" && rootNodes.value.data.length > 0
-)
 </script>

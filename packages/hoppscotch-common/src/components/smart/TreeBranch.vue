@@ -53,7 +53,14 @@ import { useI18n } from "~/composables/i18n"
 import { SmartTreeAdapter, TreeNode } from "~/helpers/tree/SmartTreeAdapter"
 
 const props = defineProps<{
+  /**
+   * The node item that will be used to render the tree branch
+   * @template T The type of the data passed to the tree branch
+   */
   adapter: SmartTreeAdapter<T>
+  /**
+   *  The node item that will be used to render the tree branch content
+   */
   nodeItem: TreeNode<T>
 }>()
 
@@ -63,13 +70,12 @@ const t = useI18n()
 const showChildren = ref(false)
 const isNodeOpen = ref(false)
 
+/**
+ * Fetch the child nodes from the adapter by passing the node id of the current node
+ */
 const childNodes = computed(
   () => props.adapter.getChildren(props.nodeItem.id).value
 )
-
-// const hasChildren = computed(
-//   () => childNodes.value.status === "loaded" && childNodes.value.data.length > 0
-// )
 
 const toggleNodeChildren = () => {
   showChildren.value = !showChildren.value

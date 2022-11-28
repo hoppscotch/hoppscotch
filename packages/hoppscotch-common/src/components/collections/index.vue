@@ -190,9 +190,7 @@
             @add-request="addRequest(node)"
             @add-folder="addFolder(node)"
             @remove-collection="removeCollection(node)"
-            @edit-collection="
-              editCollection(node.data.data.data, parseInt(node.id))
-            "
+            @edit-collection="editCollection(node.data.data, parseInt(node.id))"
             @toggle-children="toggleChildren"
             @export-data="exportData(node)"
           />

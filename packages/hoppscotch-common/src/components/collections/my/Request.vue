@@ -180,22 +180,43 @@ import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
+type Picked =
+  | {
+      pickedType: "my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "my-collection"
+      collectionIndex: number
+    }
+  | {
+      pickedType: "teams-request"
+      requestID: string
+    }
+  | {
+      pickedType: "teams-folder"
+      folderID: string
+    }
+  | {
+      pickedType: "teams-collection"
+      collectionID: string
+    }
+
 const props = defineProps<{
   request: HoppRESTRequest
-  collectionIndex: number
+  collectionIndex: number | string
   folderIndex: number
   folderName: string
-  requestIndex: string
+  requestIndex: string | number
   saveRequest: boolean
   collectionsType: object
   folderPath: string
-  picked?: {
-    pickedType: string
-    collectionIndex: number
-    folderPath: string
-    folderName: string
-    requestIndex: number
-  }
+  picked?: Picked
 }>()
 
 const emit = defineEmits<{
@@ -203,13 +224,7 @@ const emit = defineEmits<{
     e: "select",
     data:
       | {
-          picked: {
-            pickedType: string
-            collectionIndex: number
-            folderPath: string
-            folderName: string
-            requestIndex: number
-          }
+          picked: Picked
         }
       | undefined
   ): void

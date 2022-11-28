@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue"
+import { reactive, Ref, ref, watch } from "vue"
 import * as E from "fp-ts/Either"
 import { HoppGQLRequest, isHoppRESTRequest } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
@@ -185,8 +185,8 @@ watch(
 )
 
 // All the methods
-const onUpdateCollType = (newCollType: CollectionType) => {
-  collectionsType.value = newCollType
+const onUpdateCollType = (newCollType: Ref<CollectionType>) => {
+  collectionsType.value = newCollType.value
 }
 
 const onSelect = ({ picked: pickedVal }: { picked: Picked | null }) => {

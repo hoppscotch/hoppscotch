@@ -303,11 +303,19 @@ export default defineComponent({
   },
   computed: {
     isSelected(): boolean {
-      return (
-        this.picked &&
-        this.picked.pickedType === "my-folder" &&
-        this.picked.folderPath === this.folderPath
-      )
+      if (this.collectionsType.type === "my-collections") {
+        return (
+          this.picked &&
+          this.picked.pickedType === "my-folder" &&
+          this.picked.folderPath === this.folderPath
+        )
+      } else {
+        return (
+          this.picked &&
+          this.picked.pickedType === "teams-folder" &&
+          this.picked.folderID === this.folder.id
+        )
+      }
     },
     getCollectionIcon() {
       if (this.isSelected) return IconCheckCircle
@@ -355,15 +363,26 @@ export default defineComponent({
       }, 1000)
     },
     toggleShowChildren() {
-      if (this.$props.saveRequest)
-        this.$emit("select", {
-          picked: {
-            pickedType: "my-folder",
-            collectionIndex: this.collectionIndex,
-            folderName: this.folder.name,
-            folderPath: this.folderPath,
-          },
-        })
+      if (this.$props.saveRequest) {
+        if (this.collectionsType.type === "my-collections") {
+          this.$emit("select", {
+            picked: {
+              pickedType: "my-folder",
+              collectionIndex: this.collectionIndex,
+              folderName: this.folder.name,
+              folderPath: this.folderPath,
+            },
+          })
+        } else {
+          this.$emit("select", {
+            picked: {
+              pickedType: "teams-folder",
+              folderID: this.folder.id,
+            },
+          })
+        }
+      }
+
       this.$emit("toggle-children")
       this.showChildren = !this.showChildren
     },

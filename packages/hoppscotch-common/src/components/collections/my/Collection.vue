@@ -296,11 +296,19 @@ export default defineComponent({
   },
   computed: {
     isSelected(): boolean {
-      return (
-        this.picked &&
-        this.picked.pickedType === "my-collection" &&
-        this.picked.collectionIndex === this.collectionIndex
-      )
+      if (this.collectionsType.type === "my-collections") {
+        return (
+          this.picked &&
+          this.picked.pickedType === "my-collection" &&
+          this.picked.collectionIndex === this.collectionIndex
+        )
+      } else {
+        return (
+          this.picked &&
+          this.picked.pickedType === "teams-collection" &&
+          this.picked.collectionID === this.collection.id
+        )
+      }
     },
     getCollectionIcon() {
       if (this.isSelected) return IconCheckCircle
@@ -335,13 +343,23 @@ export default defineComponent({
       }, 1000)
     },
     toggleShowChildren() {
-      if (this.$props.saveRequest)
-        this.$emit("select", {
-          picked: {
-            pickedType: "my-collection",
-            collectionIndex: this.collectionIndex,
-          },
-        })
+      if (this.$props.saveRequest) {
+        if (this.collectionsType.type === "my-collections") {
+          this.$emit("select", {
+            picked: {
+              pickedType: "my-collection",
+              collectionIndex: this.collectionIndex,
+            },
+          })
+        } else {
+          this.$emit("select", {
+            picked: {
+              pickedType: "teams-collection",
+              collectionID: this.collection.id,
+            },
+          })
+        }
+      }
 
       // this.$emit("expand-collection", this.collection.id)
       this.$emit("toggle-children")

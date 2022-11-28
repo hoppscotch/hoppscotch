@@ -225,10 +225,6 @@ import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import { defineComponent, ref } from "vue"
 import * as E from "fp-ts/Either"
-import {
-  getCompleteCollectionTree,
-  teamCollToHoppRESTColl,
-} from "~/helpers/backend/helpers"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -260,6 +256,7 @@ export default defineComponent({
     "select",
     "remove-folder",
     "expand-collection",
+    "export-collection",
   ],
   setup() {
     return {
@@ -310,42 +307,43 @@ export default defineComponent({
     },
   },
   methods: {
-    async exportFolder() {
-      this.exportLoading = true
+    exportFolder() {
+      this.$emit("export-collection")
+      // this.exportLoading = true
 
-      const result = await getCompleteCollectionTree(this.folder.id)()
+      // const result = await getCompleteCollectionTree(this.folder.id)()
 
-      if (E.isLeft(result)) {
-        this.toast.error(this.t("error.something_went_wrong").toString())
-        console.log(result.left)
-        this.exportLoading = false
-        this.options!.tippy.hide()
+      // if (E.isLeft(result)) {
+      //   this.toast.error(this.t("error.something_went_wrong").toString())
+      //   console.log(result.left)
+      //   this.exportLoading = false
+      //   this.options!.tippy.hide()
 
-        return
-      }
+      //   return
+      // }
 
-      const hoppColl = teamCollToHoppRESTColl(result.right)
+      // const hoppColl = teamCollToHoppRESTColl(result.right)
 
-      const collectionJSON = JSON.stringify(hoppColl)
+      // const collectionJSON = JSON.stringify(hoppColl)
 
-      const file = new Blob([collectionJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
+      // const file = new Blob([collectionJSON], { type: "application/json" })
+      // const a = document.createElement("a")
+      // const url = URL.createObjectURL(file)
+      // a.href = url
 
-      a.download = `${hoppColl.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.toast.success(this.t("state.download_started").toString())
+      // a.download = `${hoppColl.name}.json`
+      // document.body.appendChild(a)
+      // a.click()
+      // this.toast.success(this.t("state.download_started").toString())
 
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
+      // setTimeout(() => {
+      //   document.body.removeChild(a)
+      //   URL.revokeObjectURL(url)
+      // }, 1000)
 
-      this.exportLoading = false
+      // this.exportLoading = false
 
-      this.options!.tippy.hide()
+      // this.options!.tippy.hide()
     },
     toggleShowChildren() {
       if (this.$props.saveRequest)

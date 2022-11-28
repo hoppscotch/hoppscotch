@@ -72,7 +72,7 @@
         <template #content="{ node, toggleChildren, isOpen }">
           <CollectionsMyCollection
             v-if="node.data.type === 'collections'"
-            :collection="node.data.data"
+            :collection="node.data.data.data"
             :collection-index="parseInt(node.id)"
             :save-request="saveRequest"
             :picked="picked"
@@ -85,6 +85,7 @@
             @remove-collection="removeCollection(node)"
             @edit-collection="editCollection(node.data.data, parseInt(node.id))"
             @toggle-children="toggleChildren"
+            @export-data="exportData(node)"
           />
 
           <div v-if="node.data.type === 'folders'" class="flex flex-1">
@@ -105,6 +106,7 @@
               @add-request="addRequest(node)"
               @remove-folder="removeFolder(node)"
               @toggle-children="toggleChildren"
+              @export-data="exportData(node)"
             />
           </div>
           <div v-if="node.data.type === 'requests'" class="flex flex-1">
@@ -181,14 +183,18 @@
             :save-request="saveRequest"
             :picked="picked"
             :collections-type="collectionsType"
+            :export-loading="exportLoading"
             @select-collection="emit('use-collection', node)"
             @unselect-collection="emit('remove-collection', node)"
             @select="emit('select', $event)"
             @add-request="addRequest(node)"
             @add-folder="addFolder(node)"
             @remove-collection="removeCollection(node)"
-            @edit-collection="editCollection(node.data.data, parseInt(node.id))"
+            @edit-collection="
+              editCollection(node.data.data.data, parseInt(node.id))
+            "
             @toggle-children="toggleChildren"
+            @export-data="exportData(node)"
           />
 
           <div v-if="node.data.type === 'folders'" class="flex flex-1">
@@ -201,6 +207,7 @@
               :folder-path="`${node.id}`"
               :picked="picked"
               :save-request="saveRequest"
+              :export-loading="exportLoading"
               @select-collection="emit('use-collection', node)"
               @unselect-collection="emit('remove-collection', node)"
               @select="emit('select', $event)"
@@ -209,6 +216,7 @@
               @add-request="addRequest(node)"
               @remove-folder="removeFolder(node)"
               @toggle-children="toggleChildren"
+              @export-data="exportData(node)"
             />
           </div>
           <div v-if="node.data.type === 'requests'" class="flex flex-1">
@@ -275,36 +283,6 @@
           </div>
         </template>
       </SmartTree>
-      <!-- <component
-        :is="
-          collectionsType.type == 'my-collections'
-            ? 'CollectionsMyCollection'
-            : 'CollectionsTeamsCollection'
-        "
-        v-for="(collection, index) in filteredCollections"
-        :key="`collection-${index}`"
-        :collection-index="parseInt(index)"
-        :collection="collection"
-        :is-filtered="filterTexts.length > 0"
-        :save-request="saveRequest"
-        :collections-type="collectionsType"
-        :picked="picked"
-        :loading-collection-i-ds="loadingCollectionIDs"
-        @edit-collection="editCollection(collection, index)"
-        @add-request="addRequest($event)"
-        @add-folder="addFolder($event)"
-        @edit-folder="editFolder($event)"
-        @edit-request="editRequest($event)"
-        @duplicate-request="duplicateRequest($event)"
-        @update-team-collections="updateTeamCollections"
-        @select-collection="$emit('use-collection', collection)"
-        @unselect-collection="$emit('remove-collection', collection)"
-        @select="$emit('select', $event)"
-        @expand-collection="expandCollection"
-        @remove-collection="removeCollection"
-        @remove-request="removeRequest"
-        @remove-folder="removeFolder"
-      /> -->
     </div>
     <div
       v-if="loadingCollectionIDs.includes('root')"
@@ -427,7 +405,7 @@ import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { cloneDeep } from "lodash-es"
-import { defineComponent, markRaw, onBeforeMount, Ref, watch } from "vue"
+import { markRaw, Ref, watch } from "vue"
 import {
   HoppCollection,
   HoppRESTRequest,
@@ -436,7 +414,6 @@ import {
 import { useColorMode } from "@composables/theming"
 import * as E from "fp-ts/Either"
 import CollectionsMyCollection from "./my/Collection.vue"
-import CollectionsTeamsCollection from "./teams/Collection.vue"
 import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
@@ -456,7 +433,7 @@ import {
   getRESTRequest,
   getRESTSaveContext,
 } from "~/newstore/RESTSession"
-import { useReadonlyStream, useStreamSubscriber } from "@composables/stream"
+import { useReadonlyStream } from "@composables/stream"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import {
   CreateChildCollectionDocument,
@@ -477,6 +454,10 @@ import {
   TreeNode,
 } from "~/helpers/tree/SmartTreeAdapter"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import {
+  getCompleteCollectionTree,
+  teamCollToHoppRESTColl,
+} from "~/helpers/backend/helpers"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -554,6 +535,8 @@ const showConfirmModal = ref(false)
 const confirmModalTitle = ref("")
 
 const modalLoadingState = ref(false)
+
+const exportLoading = ref(false)
 
 type CollectionType =
   | {
@@ -670,6 +653,40 @@ const updateCollectionType = (
 ) => {
   collectionsType.value.type = newCollectionType
   emit("update-coll-type", collectionsType)
+}
+
+const displayModalAdd = (show: boolean) => {
+  showModalAdd.value = show
+}
+
+const displayModalEdit = (show: boolean) => {
+  showModalEdit.value = show
+}
+
+const displayModalAddRequest = (show: boolean) => {
+  showModalAddRequest.value = show
+}
+
+const displayModalAddFolder = (show: boolean) => {
+  showModalAddFolder.value = show
+}
+
+const displayModalEditFolder = (show: boolean) => {
+  showModalEditFolder.value = show
+}
+
+const displayModalEditRequest = (show: boolean) => {
+  showModalEditRequest.value = show
+}
+
+const displayModalImportExport = (show: boolean) => {
+  showModalImportExport.value = show
+}
+
+const displayConfirmModal = (show: boolean) => {
+  showConfirmModal.value = show
+
+  if (!show) resetSelectedData()
 }
 
 // Intented to be called by the CollectionAdd modal submit event
@@ -832,14 +849,6 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
       })
     }
 
-    console.log(
-      "edit-team-req",
-      requestName,
-      editingRequest.value,
-      requestUpdated,
-      editingRequestIndex.value
-    )
-
     runMutation(UpdateRequestDocument, {
       data: {
         request: JSON.stringify(requestUpdated),
@@ -861,46 +870,15 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
   }
 }
 
-const displayModalAdd = (show: boolean) => {
-  showModalAdd.value = show
-}
-
-const displayModalEdit = (show: boolean) => {
-  showModalEdit.value = show
-}
-
-const displayModalAddRequest = (show: boolean) => {
-  showModalAddRequest.value = show
-}
-
-const displayModalAddFolder = (show: boolean) => {
-  showModalAddFolder.value = show
-}
-
-const displayModalEditFolder = (show: boolean) => {
-  showModalEditFolder.value = show
-}
-
-const displayModalEditRequest = (show: boolean) => {
-  showModalEditRequest.value = show
-}
-
-const displayModalImportExport = (show: boolean) => {
-  showModalImportExport.value = show
-}
-
-const displayConfirmModal = (show: boolean) => {
-  showConfirmModal.value = show
-
-  if (!show) resetSelectedData()
-}
-
 const editCollection = (
-  collection: HoppCollection<HoppRESTRequest> | TeamCollection,
+  collection: {
+    parentIndex: string
+    data: HoppCollection<HoppRESTRequest> | TeamCollection
+  },
   collectionIndex: number
 ) => {
-  console.log("coll-edit", collection, collectionIndex)
-  editingCollection.value = collection
+  console.log("coll-edit", collection.data, collectionIndex)
+  editingCollection.value = collection.data
   editingCollectionIndex.value = collectionIndex
   displayModalEdit(true)
 }
@@ -1329,6 +1307,71 @@ const duplicateRequest = (
   }
 }
 
+const exportData = async (
+  payload: TreeNode<{
+    type: "collections" | "folders"
+    data: {
+      parentIndex: string
+      data: HoppCollection<HoppRESTRequest> | TeamCollection
+    }
+  }>
+) => {
+  console.log("export", payload.data.data)
+  const collection = payload.data.data.data
+  if (collectionsType.value.type === "my-collections") {
+    const collectionJSON = JSON.stringify(collection)
+
+    const file = new Blob([collectionJSON], { type: "application/json" })
+    const a = document.createElement("a")
+    const url = URL.createObjectURL(file)
+    a.href = url
+
+    a.download = `${collection.name}.json`
+    document.body.appendChild(a)
+    a.click()
+    toast.success(t("state.download_started").toString())
+    setTimeout(() => {
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    }, 1000)
+  } else {
+    if (collection.id) {
+      exportLoading.value = true
+
+      const result = await getCompleteCollectionTree(collection.id)()
+
+      if (E.isLeft(result)) {
+        toast.error(t("error.something_went_wrong").toString())
+        console.log(result.left)
+        exportLoading.value = false
+
+        return
+      }
+
+      const hoppColl = teamCollToHoppRESTColl(result.right)
+
+      const collectionJSON = JSON.stringify(hoppColl)
+
+      const file = new Blob([collectionJSON], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+
+      a.download = `${hoppColl.name}.json`
+      document.body.appendChild(a)
+      a.click()
+      toast.success(t("state.download_started").toString())
+
+      setTimeout(() => {
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+      }, 1000)
+
+      exportLoading.value = false
+    }
+  }
+}
+
 const resolveConfirmModal = (title: string) => {
   if (title === `${t("confirm.remove_collection")}`) onRemoveCollection()
   else if (title === `${t("confirm.remove_request")}`) onRemoveRequest()
@@ -1392,7 +1435,10 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
           id: index.toString(),
           data: {
             type: "collections",
-            data: item,
+            data: {
+              parentIndex: null,
+              data: item,
+            },
           },
         }))
         return {

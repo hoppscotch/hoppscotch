@@ -113,11 +113,12 @@
                   ref="exportAction"
                   :icon="IconDownload"
                   :label="t('export.title')"
+                  :loading="exportLoading"
                   :shortcut="['X']"
                   @click="
                     () => {
                       exportFolder()
-                      hide()
+                      collectionsType.type === 'my-collections' ? hide() : null
                     }
                   "
                 />
@@ -256,6 +257,7 @@ export default defineComponent({
     picked: { type: Object, default: () => ({}) },
     isOpen: { type: Boolean, default: false },
     isLoading: { type: Boolean, default: false },
+    exportLoading: Boolean,
   },
   emits: [
     "toggle-children",
@@ -269,6 +271,7 @@ export default defineComponent({
     "select",
     "remove-request",
     "update-team-collections",
+    "export-data",
   ],
   setup() {
     const t = useI18n()
@@ -344,23 +347,16 @@ export default defineComponent({
       }
     },
   },
+  watch: {
+    exportLoading() {
+      if (!this.exportLoading) {
+        this.options!.tippy.hide()
+      }
+    },
+  },
   methods: {
     exportFolder() {
-      const folderJSON = JSON.stringify(this.folder)
-
-      const file = new Blob([folderJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-
-      a.download = `${this.folder.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.toast.success(this.t("state.download_started").toString())
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
+      this.$emit("export-data")
     },
     toggleShowChildren() {
       if (this.$props.saveRequest) {

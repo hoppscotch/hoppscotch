@@ -123,10 +123,11 @@
                   :icon="IconDownload"
                   :label="t('export.title')"
                   :shortcut="['X']"
+                  :loading="exportLoading"
                   @click="
                     () => {
                       exportCollection()
-                      hide()
+                      collectionsType.type === 'my-collections' ? hide() : null
                     }
                   "
                 />
@@ -241,6 +242,7 @@ export default defineComponent({
     collectionsType: { type: Object, default: () => ({}) },
     picked: { type: Object, default: () => ({}) },
     toggleChildren: { type: Function, default: () => ({}) },
+    exportLoading: Boolean,
   },
   emits: [
     "toggle-children",
@@ -258,6 +260,7 @@ export default defineComponent({
     "select-collection",
     "unselect-collection",
     "edit-collection",
+    "export-data",
   ],
   setup() {
     return {
@@ -324,23 +327,16 @@ export default defineComponent({
       }
     },
   },
+  watch: {
+    exportLoading() {
+      if (!this.exportLoading) {
+        this.options!.tippy.hide()
+      }
+    },
+  },
   methods: {
     exportCollection() {
-      const collectionJSON = JSON.stringify(this.collection)
-
-      const file = new Blob([collectionJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-
-      a.download = `${this.collection.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.toast.success(this.t("state.download_started").toString())
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
+      this.$emit("export-data")
     },
     toggleShowChildren() {
       if (this.$props.saveRequest) {
@@ -372,12 +368,6 @@ export default defineComponent({
       })
     },
     dropEvent({ dataTransfer }: any) {
-      console.log(
-        "dropEvent",
-        dataTransfer.getData("folderPath"),
-        dataTransfer.getData("requestIndex"),
-        this.collectionIndex
-      )
       this.dragging = !this.dragging
       const folderPath = dataTransfer.getData("folderPath")
       const requestIndex = dataTransfer.getData("requestIndex")

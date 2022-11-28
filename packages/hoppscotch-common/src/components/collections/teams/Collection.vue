@@ -238,10 +238,6 @@ import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
 import { defineComponent, ref } from "vue"
 import * as E from "fp-ts/Either"
-import {
-  getCompleteCollectionTree,
-  teamCollToHoppRESTColl,
-} from "~/helpers/backend/helpers"
 import { moveRESTTeamRequest } from "~/helpers/backend/mutations/TeamRequest"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
@@ -258,6 +254,7 @@ export default defineComponent({
     collectionsType: { type: Object, default: () => ({}) },
     picked: { type: Object, default: () => ({}) },
     loadingCollectionIDs: { type: Array, default: () => [] },
+    exportLoading: Boolean,
   },
   emits: [
     "edit-collection",
@@ -271,6 +268,7 @@ export default defineComponent({
     "duplicate-request",
     "expand-collection",
     "remove-collection",
+    "export-collection",
   ],
   setup() {
     const t = useI18n()
@@ -284,7 +282,7 @@ export default defineComponent({
       edit: ref<typeof SmartItem | null>(null),
       deleteAction: ref<typeof SmartItem | null>(null),
       exportAction: ref<typeof SmartItem | null>(null),
-      exportLoading: ref<boolean>(false),
+      // exportLoading: ref<boolean>(false),
       t,
       toast: useToast(),
       colorMode: useColorMode(),
@@ -325,42 +323,45 @@ export default defineComponent({
     },
   },
   methods: {
-    async exportCollection() {
-      this.exportLoading = true
+    exportCollection() {
+      console.log("exportCollection", this.collection)
+      this.$emit("export-collection")
+      //!this.exportLoading && this.options!.tippy.hide()
+      // this.exportLoading = true
 
-      const result = await getCompleteCollectionTree(this.collection.id)()
+      // const result = await getCompleteCollectionTree(this.collection.id)()
 
-      if (E.isLeft(result)) {
-        this.toast.error(this.t("error.something_went_wrong").toString())
-        console.log(result.left)
-        this.exportLoading = false
-        this.options!.tippy.hide()
+      // if (E.isLeft(result)) {
+      //   this.toast.error(this.t("error.something_went_wrong").toString())
+      //   console.log(result.left)
+      //   this.exportLoading = false
+      //   this.options!.tippy.hide()
 
-        return
-      }
+      //   return
+      // }
 
-      const hoppColl = teamCollToHoppRESTColl(result.right)
+      // const hoppColl = teamCollToHoppRESTColl(result.right)
 
-      const collectionJSON = JSON.stringify(hoppColl)
+      // const collectionJSON = JSON.stringify(hoppColl)
 
-      const file = new Blob([collectionJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
+      // const file = new Blob([collectionJSON], { type: "application/json" })
+      // const a = document.createElement("a")
+      // const url = URL.createObjectURL(file)
+      // a.href = url
 
-      a.download = `${hoppColl.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      this.toast.success(this.t("state.download_started").toString())
+      // a.download = `${hoppColl.name}.json`
+      // document.body.appendChild(a)
+      // a.click()
+      // this.toast.success(this.t("state.download_started").toString())
 
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
+      // setTimeout(() => {
+      //   document.body.removeChild(a)
+      //   URL.revokeObjectURL(url)
+      // }, 1000)
 
-      this.exportLoading = false
+      // this.exportLoading = false
 
-      this.options!.tippy.hide()
+      // this.options!.tippy.hide()
     },
     editRequest(event: any) {
       this.$emit("edit-request", event)

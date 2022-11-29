@@ -197,30 +197,93 @@
                 <ProfileShortcodes />
 
                 <section class="p-4">
-                  <h4 class="font-semibold text-secondaryDark text-red-500">
-                    {{ t("settings.delete_account") }}
-                  </h4>
-                  <div class="my-1 text-secondaryLight">
-                    {{ t("settings.delete_account_description") }}
-                  </div>
-                  <div class="py-4 space-y-4">
-                    <p>
-                      Your account is currently an owner in these teams: team_1,
-                      team_2
-                    </p>
-                    <p>
-                      You must remove yourself, transfer ownership, or delete
-                      these teams before you can delete your user.
-                    </p>
-
+                  <div class="p-4 border border-dividerDark rounded">
+                    <h4 class="font-semibold text-secondaryDark text-red-500">
+                      {{ t("settings.delete_account") }}
+                    </h4>
+                    <div class="my-1 text-secondaryLight mb-4">
+                      {{ t("settings.delete_account_description") }}
+                    </div>
+                    <div v-if="myTeams.length" class="space-y-4">
+                      <p>
+                        Your account is currently an owner in these teams:
+                        <span
+                          v-for="(team, i) in myTeams"
+                          :key="team.id"
+                          class="font-bold"
+                        >
+                          <span v-if="i > 0">
+                            {{ i === myTeams.length - 1 ? " and" : "," }}
+                          </span>
+                          {{ team.name }}
+                        </span>
+                      </p>
+                      <p>
+                        You must remove yourself, transfer ownership, or delete
+                        these teams before you can delete your user.
+                      </p>
+                    </div>
                     <ButtonSecondary
+                      v-tippy="{ theme: 'tooltip' }"
                       filled
                       outline
+                      :title="t('action.delete')"
                       :label="t('settings.delete_your_account')"
-                      class="min-w-16"
                       type="submit"
+                      class="text-red-500"
+                      :disabled="myTeams.length > 0"
+                      @click="showDeleteAccountModal = true"
                     />
                   </div>
+
+                  <SmartModal
+                    v-if="showDeleteAccountModal"
+                    dialog
+                    :title="t('settings.delete_account')"
+                    @close="showDeleteAccountModal = false"
+                  >
+                    <template #body>
+                      <p class="mb-4">
+                        Write
+                        <kbd class="mr-2 shortcut-key" data-v-38fdb034="">
+                          {{ displayName || "Unnamed User" }}
+                        </kbd>
+                        to confirm.
+                      </p>
+                      <div class="flex flex-col">
+                        <input
+                          id="deleteUserAccount"
+                          v-model="userVerificationInput"
+                          v-focus
+                          class="input floating-input"
+                          placeholder=" "
+                          type="text"
+                          autocomplete="off"
+                          @keyup.enter="deleteUserAccount"
+                        />
+                        <label for="deleteUserAccount">
+                          {{ t("Enter display name") }}
+                        </label>
+                      </div>
+                    </template>
+                    <template #footer>
+                      <span class="flex space-x-2">
+                        <ButtonSecondary
+                          :label="t('settings.delete_account')"
+                          :loading="false"
+                          outline
+                          :disabled="userVerificationInput !== displayName"
+                          @click="deleteUserAccount"
+                        />
+                        <ButtonSecondary
+                          :label="t('action.cancel')"
+                          outline
+                          filled
+                          @click="showDeleteAccountModal = false"
+                        />
+                      </span>
+                    </template>
+                  </SmartModal>
                 </section>
               </div>
             </SmartTab>
@@ -254,10 +317,10 @@ import { useColorMode } from "@composables/theming"
 import { usePageHead } from "@composables/head"
 
 import { toggleSetting } from "~/newstore/settings"
-import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
 
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -284,6 +347,23 @@ const loadingCurrentUser = computed(() => {
   else if (!currentUser.value) return true
   else return false
 })
+
+const showDeleteAccountModal = ref(false)
+const userVerificationInput = ref("")
+
+const adapter = new TeamListAdapter(true)
+const myAllTeams = useReadonlyStream(adapter.teamList$, null)
+
+const myTeams = computed(() => {
+  if (!myAllTeams.value) return []
+  return myAllTeams.value.filter((team) => {
+    return team.ownersCount === 1 && team.myRole === "OWNER"
+  })
+})
+
+const deleteUserAccount = async () => {
+  toast.success("Your account has been deleted")
+}
 
 const displayName = ref(currentUser.value?.displayName)
 const updatingDisplayName = ref(false)
@@ -337,14 +417,12 @@ const sendEmailVerification = () => {
     })
 }
 
-const adapter = new ShortcodeListAdapter(true)
-
 onLoggedIn(() => {
   adapter.initialize()
 })
 
 onAuthEvent((ev) => {
-  if (ev.event === "logout" && adapter.isInitialized()) {
+  if (ev.event === "logout") {
     adapter.dispose()
     return
   }

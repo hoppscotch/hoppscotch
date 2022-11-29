@@ -1,3 +1,3 @@
-mutation DeleteUser($uid: ID!) {
-  deleteUser(uid: $uid)
+mutation DeleteUser() {
+  deleteUser
 }

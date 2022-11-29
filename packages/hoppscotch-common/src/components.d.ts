@@ -99,6 +99,7 @@ declare module '@vue/runtime-core' {
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']
     IconLucideArrowLeft: typeof import('~icons/lucide/arrow-left')['default']
+    IconLucideBrush: typeof import('~icons/lucide/brush')['default']
     IconLucideCheckCircle: typeof import('~icons/lucide/check-circle')['default']
     IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
     IconLucideGlobe: typeof import('~icons/lucide/globe')['default']

@@ -29,7 +29,7 @@
         @click="selectRequest()"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ request.name ? request.name : request.title }}
+          {{ request.name }}
         </span>
         <span
           v-if="isActive"
@@ -177,7 +177,7 @@ import {
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
-import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { Team, UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 type Picked =
@@ -207,14 +207,21 @@ type Picked =
       collectionID: string
     }
 
+type CollectionType =
+  | {
+      type: "team-collections"
+      selectedTeam: Team
+    }
+  | { type: "my-collections"; selectedTeam: undefined }
+
 const props = defineProps<{
   request: HoppRESTRequest
   collectionIndex: number | string
+  collectionsType: CollectionType
   folderIndex: number
   folderName: string
-  requestIndex: string | number
+  requestIndex: number | string
   saveRequest: boolean
-  collectionsType: object
   folderPath: string
   picked?: Picked
 }>()
@@ -229,13 +236,7 @@ const emit = defineEmits<{
       | undefined
   ): void
 
-  (
-    e: "remove-request",
-    data: {
-      folderPath: string
-      requestIndex: number
-    }
-  ): void
+  (e: "remove-request"): void
 
   (
     e: "duplicate-request",
@@ -285,21 +286,39 @@ const deleteAction = ref<any | null>(null)
 
 const active = useReadonlyStream(restSaveContext$, null)
 
-const isSelected = computed(
-  () =>
-    props.picked &&
-    props.picked.pickedType === "my-request" &&
-    props.picked.folderPath === props.folderPath &&
-    props.picked.requestIndex === props.requestIndex
-)
+const isSelected = computed(() => {
+  if (props.collectionsType.type === "my-collections") {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-request" &&
+      props.picked.folderPath === props.folderPath &&
+      props.picked.requestIndex === props.requestIndex
+    )
+  } else {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-request" &&
+      props.picked.requestID === props.requestIndex
+    )
+  }
+})
 
-const isActive = computed(
-  () =>
-    active.value &&
-    active.value.originLocation === "user-collection" &&
-    active.value.folderPath === props.folderPath &&
-    active.value.requestIndex === props.requestIndex
-)
+const isActive = computed(() => {
+  if (props.collectionsType.type === "my-collections") {
+    return (
+      active.value &&
+      active.value.originLocation === "user-collection" &&
+      active.value.folderPath === props.folderPath &&
+      active.value.requestIndex === props.requestIndex
+    )
+  } else {
+    return (
+      active.value &&
+      active.value.originLocation === "team-collection" &&
+      active.value.requestID === props.requestIndex
+    )
+  }
+})
 
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
@@ -310,10 +329,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
 }
 
 const removeRequest = () => {
-  emit("remove-request", {
-    folderPath: props.folderPath,
-    requestIndex: props.requestIndex,
-  })
+  emit("remove-request")
 }
 
 const getRequestLabelColor = (method: string) =>
@@ -321,7 +337,24 @@ const getRequestLabelColor = (method: string) =>
     method.toLowerCase() as keyof typeof requestMethodLabels
   ] || requestMethodLabels.default
 
-const setRestReq = (request: any) => {
+const setRestReq = (request: HoppRESTRequest) => {
+  let newContext = null
+
+  if (props.collectionsType.type === "my-collections") {
+    newContext = {
+      originLocation: "user-collection",
+      folderPath: props.folderPath,
+      requestIndex: props.requestIndex,
+      req: cloneDeep(request),
+    }
+  } else {
+    newContext = {
+      originLocation: "team-collection",
+      requestID: props.requestIndex,
+      req: request,
+    }
+  }
+
   setRESTRequest(
     cloneDeep(
       safelyExtractRESTRequest(
@@ -329,12 +362,7 @@ const setRestReq = (request: any) => {
         getDefaultRESTRequest()
       )
     ),
-    {
-      originLocation: "user-collection",
-      folderPath: props.folderPath,
-      requestIndex: props.requestIndex,
-      req: cloneDeep(request),
-    }
+    newContext
   )
 }
 
@@ -342,15 +370,25 @@ const setRestReq = (request: any) => {
 const selectRequest = () => {
   // Check if this is a save as request popup, if so we don't need to prompt the confirm change popup.
   if (props.saveRequest) {
-    emit("select", {
-      picked: {
-        pickedType: "my-request",
-        collectionIndex: props.collectionIndex,
-        folderPath: props.folderPath,
-        folderName: props.folderName,
-        requestIndex: props.requestIndex,
-      },
-    })
+    console.log("click-select")
+    if (props.collectionsType.type === "my-collections") {
+      emit("select", {
+        picked: {
+          pickedType: "my-request",
+          collectionIndex: props.collectionIndex,
+          folderPath: props.folderPath,
+          folderName: props.folderName,
+          requestIndex: props.requestIndex,
+        },
+      })
+    } else {
+      emit("select", {
+        picked: {
+          pickedType: "teams-request",
+          requestID: props.requestIndex,
+        },
+      })
+    }
   } else if (isEqualHoppRESTRequest(props.request, getDefaultRESTRequest())) {
     confirmChange.value = false
     setRestReq(props.request)

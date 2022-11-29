@@ -93,7 +93,7 @@
               :folder="node.data.data.data"
               :is-open="isOpen"
               :folder-path="`${node.id}`"
-              :folder-index="pathToId(node.id)[pathToId(node.id).length - 1]"
+              :folder-index="lastPathID(node.id)"
               :collection-index="pathToId(node.id)[0]"
               :save-request="saveRequest"
               :collections-type="collectionsType"
@@ -142,6 +142,13 @@
               <span class="text-center">
                 {{ t("empty.collections") }}
               </span>
+              <ButtonSecondary
+                :label="t('add.new')"
+                filled
+                class="mb-4"
+                outline
+                @click="displayModalAdd(true)"
+              />
             </div>
           </div>
           <div
@@ -154,9 +161,16 @@
               class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
               :alt="`${t('empty.collection')}`"
             />
-            <span class="text-center">
+            <span class="pb-4 text-center">
               {{ t("empty.collections") }}
             </span>
+            <ButtonSecondary
+              :label="t('add.new')"
+              filled
+              class="mb-4"
+              outline
+              @click="displayModalAdd(true)"
+            />
           </div>
           <div
             v-else-if="node.data.type === 'folders'"
@@ -200,8 +214,6 @@
               :folder="node.data.data.data"
               :is-open="isOpen"
               :collections-type="collectionsType"
-              :collection-index="pathToId(node.id)[0]"
-              :folder-index="pathToId(node.id)[pathToId(node.id).length - 1]"
               :folder-path="`${node.id}`"
               :picked="picked"
               :save-request="saveRequest"
@@ -218,9 +230,8 @@
             />
           </div>
           <div v-if="node.data.type === 'requests'" class="flex flex-1">
-            <!-- {{ node.data.data.data }} -->
             <CollectionsMyRequest
-              :request="node.data.data.data"
+              :request="node.data.data.data.request"
               :request-index="node.id"
               :collection-index="pathToId(node.id)[0]"
               :folder-index="-1"
@@ -246,9 +257,30 @@
                 class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
                 :alt="`${t('empty.collection')}`"
               />
-              <span class="text-center">
+              <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
               </span>
+              <ButtonSecondary
+                v-if="
+                  collectionsType.type == 'team-collections' &&
+                  (collectionsType.selectedTeam == undefined ||
+                    collectionsType.selectedTeam.myRole == 'VIEWER')
+                "
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('team.no_access')"
+                :label="t('add.new')"
+                class="mb-4"
+                filled
+                outline
+              />
+              <ButtonSecondary
+                v-else
+                :label="t('add.new')"
+                filled
+                class="mb-4"
+                outline
+                @click="displayModalAdd(true)"
+              />
             </div>
           </div>
           <div
@@ -261,9 +293,30 @@
               class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
               :alt="`${t('empty.collection')}`"
             />
-            <span class="text-center">
+            <span class="pb-4 text-center">
               {{ t("empty.collections") }}
             </span>
+            <ButtonSecondary
+              v-if="
+                collectionsType.type == 'team-collections' &&
+                (collectionsType.selectedTeam == undefined ||
+                  collectionsType.selectedTeam.myRole == 'VIEWER')
+              "
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('team.no_access')"
+              :label="t('add.new')"
+              class="mb-4"
+              filled
+              outline
+            />
+            <ButtonSecondary
+              v-else
+              :label="t('add.new')"
+              filled
+              class="mb-4"
+              outline
+              @click="displayModalAdd(true)"
+            />
           </div>
           <div
             v-else-if="node.data.type === 'folders'"
@@ -282,15 +335,8 @@
         </template>
       </SmartTree>
     </div>
-    <div
-      v-if="loadingCollectionIDs.includes('root')"
-      class="flex flex-col items-center justify-center p-4"
-    >
-      <SmartSpinner class="my-4" />
-      <span class="text-secondaryLight">{{ t("state.loading") }}</span>
-    </div>
-    <div
-      v-else-if="filteredCollections.length === 0 && filterTexts.length === 0"
+    <!-- <div
+      v-if="filteredCollections.length === 0 && filterTexts.length === 0"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
@@ -332,7 +378,7 @@
       <span class="my-2 text-center">
         {{ t("state.nothing_found") }} "{{ filterTexts }}"
       </span>
-    </div>
+    </div> -->
     <CollectionsAdd
       :show="showModalAdd"
       :loading-state="modalLoadingState"
@@ -456,6 +502,7 @@ import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
+import { TeamRequest } from "~/helpers/teams/TeamRequest"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -554,13 +601,19 @@ const pathToId = computed(() => {
   }
 })
 
+const lastPathID = computed(() => {
+  return (path: string) => {
+    const pathArr = path.split("/")
+    return parseInt(pathArr[pathArr.length - 1])
+  }
+})
+
 const teamCollectionAdapter = new TeamCollectionAdapter(null)
 const teamCollectionList = useReadonlyStream(
   teamCollectionAdapter.collections$,
   []
 )
 const teamLoadingCollections = teamCollectionAdapter.loadingCollections$
-const loadingCollectionIDs = ref([])
 
 const filteredCollections = computed(() => {
   const collections =
@@ -833,7 +886,8 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
   ) {
     modalLoadingState.value = true
 
-    const requestName = requestUpdateData.name || editingRequest.value.name
+    const requestName =
+      requestUpdateData.name || editingRequest.value.request.name
 
     // Update REST Session with the updated state
     if (
@@ -956,16 +1010,21 @@ const editRequest = (
     type: "requests"
     data: {
       parentIndex: string
-      data: HoppRESTRequest
+      data: HoppRESTRequest | TeamRequest
     }
   }>
 ) => {
   const { parentIndex, data } = payload.data.data
+  console.log("data-req", data)
   editingCollectionIndex.value = pathToId.value(payload.id)[0]
   editingFolderIndex.value =
     pathToId.value(parentIndex)[pathToId.value(parentIndex).length - 1]
   // editingFolderName.value = folderName
-  editingRequest.value = data
+  if (collectionsType.value.type === "team-collections") {
+    editingRequest.value = data.request
+  } else {
+    editingRequest.value = data
+  }
   if (collectionsType.value.type === "my-collections") {
     editingRequestIndex.value = pathToId.value(payload.id)[
       pathToId.value(payload.id).length - 1
@@ -1076,6 +1135,7 @@ const removeFolder = (
 
   displayConfirmModal(true)
 }
+
 const onRemoveFolder = () => {
   const folder = editingFolder.value
   const folderPath = editingFolderPath.value
@@ -1129,7 +1189,7 @@ const removeRequest = (
     type: "requests"
     data: {
       parentIndex: string
-      data: HoppRESTRequest
+      data: HoppRESTRequest | TeamRequest
     }
   }>
 ) => {
@@ -1270,15 +1330,15 @@ const duplicateRequest = (
     type: "requests"
     data: {
       parentIndex: string
-      data: HoppRESTRequest
+      data: HoppRESTRequest | TeamRequest
     }
   }>
 ) => {
   const { parentIndex, data } = payload.data.data
   if (collectionsType.value.type === "team-collections") {
     const newReq = {
-      ...cloneDeep(data),
-      name: `${data.name} - ${t("action.duplicate")}`,
+      ...cloneDeep(data.request),
+      name: `${data.title} - ${t("action.duplicate")}`,
     }
 
     runMutation(CreateRequestInCollectionDocument, {
@@ -1286,7 +1346,7 @@ const duplicateRequest = (
       data: {
         request: JSON.stringify(newReq),
         teamID: collectionsType.value.selectedTeam.id,
-        title: `${data.name} - ${t("action.duplicate")}`,
+        title: `${data.title} - ${t("action.duplicate")}`,
       },
     })().then((result) => {
       modalLoadingState.value = false
@@ -1511,7 +1571,7 @@ type TeamRequests = {
   type: "requests"
   data: {
     parentIndex: string
-    data: HoppRESTRequest
+    data: TeamRequest
   }
 }
 
@@ -1523,17 +1583,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
   findCollInTree(
     tree: TeamCollection[],
     targetID: string
-  ): TeamCollections | null {
+  ): TeamCollection | null {
     for (const coll of tree) {
       // If the direct child matched, then return that
-      if (coll.id === targetID)
-        return {
-          type: "collections",
-          data: {
-            parentIndex: null,
-            data: coll,
-          },
-        }
+      if (coll.id === targetID) return coll
 
       // Else run it in the children
       if (coll.children) {
@@ -1579,11 +1632,12 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
           status: "loading",
         }
       } else {
-        const item = this.findCollInTree(this.data.value, id)
-        if (item) {
+        const items = this.findCollInTree(this.data.value, id)
+        console.log("expand-team-coll", id, items)
+        if (items) {
           const data = [
-            ...(item.data.data.children
-              ? item.data.data.children.map((item) => ({
+            ...(items.children
+              ? items.children.map((item) => ({
                   id: item.id,
                   data: {
                     type: "folders",
@@ -1594,14 +1648,14 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
                   },
                 }))
               : []),
-            ...(item.data.data.requests
-              ? item.data.data.requests.map((item) => ({
+            ...(items.requests
+              ? items.requests.map((item) => ({
                   id: item.id,
                   data: {
                     type: "requests",
                     data: {
                       parentIndex: id,
-                      data: item.request,
+                      data: item,
                     },
                   },
                 }))

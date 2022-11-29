@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-1">
-    <div v-if="rootNodes.status === 'loaded'">
+    <div v-if="rootNodes.status === 'loaded' && rootNodes.data.length > 0">
       <div v-for="rootNode in rootNodes.data" :key="rootNode.id">
         <SmartTreeBranch
           :node-item="rootNode"
@@ -21,7 +21,7 @@
       </div>
     </div>
     <div
-      v-if="rootNodes.status === 'loading'"
+      v-else-if="rootNodes.status === 'loading'"
       class="flex flex-1 flex-col items-center justify-center p-4"
     >
       <SmartSpinner class="my-4" />
@@ -29,7 +29,7 @@
     </div>
     <div
       v-if="rootNodes.status === 'loaded' && rootNodes.data.length === 0"
-      class="flex flex-1 flex-col"
+      class="flex flex-col flex-1"
     >
       <slot name="emptyNode" :node="null"></slot>
     </div>

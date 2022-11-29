@@ -34,14 +34,18 @@
         </template>
       </TreeBranch>
     </div>
+
     <div
-      v-else-if="childNodes.status === 'loading'"
+      v-if="childNodes.status === 'loading'"
       class="flex flex-1 flex-col items-center justify-center p-4"
     >
       <SmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
-    <div v-else class="flex flex-col flex-1">
+    <div
+      v-if="childNodes.status === 'loaded' && childNodes.data.length === 0"
+      class="flex flex-col flex-1"
+    >
       <slot name="emptyNode" :node="nodeItem"></slot>
     </div>
   </div>

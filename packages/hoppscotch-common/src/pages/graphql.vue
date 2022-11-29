@@ -15,7 +15,6 @@
           :key="'removable_tab_' + tab.id"
           :label="tab.request.name$.value"
           :is-removable="tabs.length > 1"
-          class="flex flex-col flex-1 overflow-y-auto"
         >
           <template #suffix>
             <span
@@ -23,7 +22,6 @@
               class="w-1 h-1 ml-auto rounded-full bg-accentLight mr-2"
             ></span>
           </template>
-
           <AppPaneLayout layout-id="gql-primary">
             <template #primary>
               <GraphqlRequest :conn="tab.connection" :request="tab.request" />
@@ -40,7 +38,6 @@
         </SmartWindow>
       </SmartWindows>
     </template>
-
     <template #sidebar>
       <GraphqlSidebar
         v-if="currentTab.connection"

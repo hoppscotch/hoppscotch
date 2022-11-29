@@ -9,7 +9,9 @@
       <div class="border rounded border-dividerLight">
         <div class="flex flex-col">
           <div class="flex items-center justify-between pl-4">
-            <label class="font-semibold text-secondaryLight"> cURL </label>
+            <label class="font-semibold truncate text-secondaryLight">
+              cURL
+            </label>
             <div class="flex items-center">
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"

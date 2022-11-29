@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="websocket">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary"
       >
         <div class="inline-flex flex-1 space-x-2">
           <input
@@ -39,7 +39,7 @@
       </div>
       <SmartTabs
         v-model="selectedTab"
-        styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+        styles="sticky overflow-x-auto bg-primary top-upperPrimaryStickyFold z-10"
         render-inactive-tabs
       >
         <SmartTab
@@ -54,9 +54,9 @@
         </SmartTab>
         <SmartTab :id="'protocols'" :label="`${t('websocket.protocols')}`">
           <div
-            class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+            class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
           >
-            <label class="font-semibold text-secondaryLight">
+            <label class="font-semibold truncate text-secondaryLight">
               {{ t("websocket.protocols") }}
             </label>
             <div class="flex">

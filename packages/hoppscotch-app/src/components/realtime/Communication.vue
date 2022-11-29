@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1">
     <div
       v-if="showEventField"
-      class="sticky z-10 flex items-center justify-center border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex items-center justify-center overflow-x-auto border-b bg-primary border-dividerLight"
       :class="eventFieldStyles"
     >
       <icon-lucide-rss class="mx-4 svg-icons text-accentLight" />
@@ -17,11 +17,11 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       :class="stickyHeaderStyles"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">
+        <label class="font-semibold truncate text-secondaryLight">
           {{ t("websocket.message") }}
         </label>
         <tippy

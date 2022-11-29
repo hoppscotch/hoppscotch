@@ -34,7 +34,7 @@ export default [
     section: "shortcut.request.title",
     shortcuts: [
       {
-        keys: [getPlatformSpecialKey(), "Enter"],
+        keys: [getPlatformSpecialKey(), "↩"],
         label: "shortcut.request.send_request",
       },
       {

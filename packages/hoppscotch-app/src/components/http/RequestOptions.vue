@@ -1,7 +1,7 @@
 <template>
   <SmartTabs
     v-model="selectedRealtimeTab"
-    styles="sticky bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
+    styles="sticky overflow-x-auto bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
     render-inactive-tabs
   >
     <SmartTab

@@ -9,9 +9,9 @@
     </div>
     <div v-else-if="responseString" class="flex flex-col flex-1">
       <div
-        class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       >
-        <label class="font-semibold text-secondaryLight">
+        <label class="font-semibold truncate text-secondaryLight">
           {{ t("response.title") }}
         </label>
         <div class="flex items-center">

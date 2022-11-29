@@ -1,7 +1,7 @@
 <template>
   <SmartTabs
     v-model="selectedNavigationTab"
-    styles="sticky bg-primary z-10 top-0"
+    styles="sticky overflow-x-auto bg-primary z-10 top-0"
     vertical
     render-inactive-tabs
   >
@@ -40,7 +40,7 @@
         </span>
       </div>
       <div v-else>
-        <div class="sticky top-0 z-10 flex bg-primary">
+        <div class="sticky top-0 z-10 flex overflow-x-auto bg-primary">
           <input
             v-model="graphqlFieldsFilterText"
             type="search"
@@ -60,7 +60,7 @@
         </div>
         <SmartTabs
           v-model="selectedGqlTab"
-          styles="border-t border-b border-dividerLight bg-primary sticky z-10 top-sidebarPrimaryStickyFold"
+          styles="border-t border-b border-dividerLight bg-primary sticky overflow-x-auto z-10 top-sidebarPrimaryStickyFold"
           render-inactive-tabs
         >
           <SmartTab
@@ -127,9 +127,9 @@
     <SmartTab :id="'schema'" :icon="IconBox" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
-        class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+        class="sticky top-0 z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       >
-        <label class="font-semibold text-secondaryLight">
+        <label class="font-semibold truncate text-secondaryLight">
           {{ t("graphql.schema") }}
         </label>
         <div class="flex">

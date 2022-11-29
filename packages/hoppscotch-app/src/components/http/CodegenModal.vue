@@ -28,7 +28,7 @@
           </span>
           <template #content="{ hide }">
             <div class="flex flex-col space-y-2">
-              <div class="sticky top-0">
+              <div class="sticky top-0 overflow-x-auto">
                 <input
                   v-model="searchQuery"
                   type="search"
@@ -85,7 +85,7 @@
           class="mt-4 border rounded border-dividerLight"
         >
           <div class="flex items-center justify-between pl-4">
-            <label class="font-semibold text-secondaryLight">
+            <label class="font-semibold truncate text-secondaryLight">
               {{ t("request.generated_code") }}
             </label>
             <div class="flex items-center">

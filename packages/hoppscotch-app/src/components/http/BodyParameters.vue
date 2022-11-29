@@ -1,9 +1,9 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileStickyFold sm:top-upperMobileTertiaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperMobileStickyFold sm:top-upperMobileTertiaryStickyFold"
     >
-      <label class="font-semibold text-secondaryLight">
+      <label class="font-semibold truncate text-secondaryLight">
         {{ t("request.body") }}
       </label>
       <div class="flex">
@@ -104,7 +104,7 @@
                 :name="`attachment${index}`"
                 type="file"
                 multiple
-                class="p-1 cursor-pointer transition file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
+                class="p-1 transition cursor-pointer file:transition file:cursor-pointer text-secondaryLight hover:text-secondaryDark file:mr-2 file:py-1 file:px-4 file:rounded file:border-0 file:text-tiny text-tiny file:text-secondary hover:file:text-secondaryDark file:bg-primaryLight hover:file:bg-primaryDark"
                 @change="setRequestAttachment(index, entry, $event)"
               />
             </label>

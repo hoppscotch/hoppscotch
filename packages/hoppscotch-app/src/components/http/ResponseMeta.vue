@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-10 flex items-start justify-center p-4 overflow-auto bg-primary whitespace-nowrap"
+    class="sticky top-0 z-10 flex items-start justify-center p-4 overflow-auto overflow-x-auto bg-primary whitespace-nowrap"
   >
     <AppShortcutsPrompt v-if="response == null" class="flex-1" />
     <div v-else class="flex flex-col flex-1">

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky z-10 flex justify-between flex-1 border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
+      class="sticky z-10 flex justify-between flex-1 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
     >
       <ButtonSecondary
         :icon="IconPlus"

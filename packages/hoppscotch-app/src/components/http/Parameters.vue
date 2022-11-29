@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
-      <label class="font-semibold text-secondaryLight">
+      <label class="font-semibold truncate text-secondaryLight">
         {{ t("request.parameter_list") }}
       </label>
       <div class="flex">

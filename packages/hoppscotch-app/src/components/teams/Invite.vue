@@ -58,6 +58,7 @@
           <div v-else>
             <div
               v-if="!pendingInvites.loading && E.isRight(pendingInvites.data)"
+              class="divide-y divide-dividerLight"
             >
               <div
                 v-for="(invitee, index) in pendingInvites.data.right.team

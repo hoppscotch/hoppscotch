@@ -9,9 +9,9 @@
       "
     >
       <div
-        class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
+        class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
       >
-        <label class="font-semibold text-secondaryLight">
+        <label class="font-semibold truncate text-secondaryLight">
           {{ t("test.report") }}
         </label>
         <ButtonSecondary
@@ -25,7 +25,7 @@
         <div v-if="haveEnvVariables" class="flex flex-col">
           <details class="flex flex-col divide-y divide-dividerLight" open>
             <summary
-              class="flex items-center justify-between flex-1 min-w-0 cursor-pointer transition focus:outline-none text-secondaryLight text-tiny group"
+              class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer focus:outline-none text-secondaryLight text-tiny group"
             >
               <span
                 class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary"
@@ -127,7 +127,7 @@
                 "
               />
               <div
-                class="flex items-center flex-shrink overflow-x-auto space-x-2"
+                class="flex items-center flex-shrink space-x-2 overflow-x-auto"
               >
                 <span
                   v-if="result.message"

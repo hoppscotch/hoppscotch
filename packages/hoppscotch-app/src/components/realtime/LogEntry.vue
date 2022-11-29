@@ -23,7 +23,7 @@
             </span>
           </div>
           <div
-            class="items-center flex-1 min-w-0 p-2 inline-grid"
+            class="inline-grid items-center flex-1 min-w-0 p-2"
             @click="toggleExpandPayload()"
           >
             <div class="truncate">
@@ -61,7 +61,7 @@
       <div
         class="z-10 flex items-center justify-between pl-4 border-b border-dividerLight top-lowerSecondaryStickyFold"
       >
-        <label class="font-semibold text-secondaryLight">
+        <label class="font-semibold truncate text-secondaryLight">
           {{ t("response.body") }}
         </label>
         <div class="flex">
@@ -89,7 +89,7 @@
       <div ref="editor"></div>
       <div
         v-if="outlinePath && selectedTab === 'json'"
-        class="sticky bottom-0 z-10 flex px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
+        class="sticky bottom-0 z-10 flex px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
       >
         <div
           v-for="(item, index) in outlinePath"

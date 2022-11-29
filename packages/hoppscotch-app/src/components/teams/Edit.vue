@@ -47,7 +47,7 @@
             E.isRight(teamDetails.data) &&
             teamDetails.data.right.team.teamMembers
           "
-          class="border rounded divide-y divide-dividerLight border-divider"
+          class="border rounded border-divider"
         >
           <div
             v-if="teamDetails.data.right.team.teamMembers === 0"
@@ -72,7 +72,7 @@
               "
             />
           </div>
-          <div v-else>
+          <div v-else class="divide-y divide-dividerLight">
             <div
               v-for="(member, index) in membersList"
               :key="`member-${index}`"

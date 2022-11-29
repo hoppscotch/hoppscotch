@@ -1,7 +1,7 @@
 <template>
   <SmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
     <template #content>
-      <div class="sticky top-0 z-10 flex flex-col bg-primary">
+      <div class="sticky top-0 z-10 flex flex-col overflow-x-auto bg-primary">
         <div class="flex flex-col px-6 py-4 border-b border-dividerLight">
           <input
             v-model="filterText"
@@ -20,7 +20,7 @@
           open
         >
           <summary
-            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold cursor-pointer transition focus:outline-none text-secondaryLight hover:text-secondaryDark"
+            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold transition cursor-pointer focus:outline-none text-secondaryLight hover:text-secondaryDark"
           >
             <icon-lucide-chevron-right class="mr-2 indicator" />
             <span
@@ -55,7 +55,7 @@
           open
         >
           <summary
-            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold cursor-pointer transition focus:outline-none text-secondaryLight hover:text-secondaryDark"
+            class="flex items-center flex-1 min-w-0 px-6 py-4 font-semibold transition cursor-pointer focus:outline-none text-secondaryLight hover:text-secondaryDark"
           >
             <icon-lucide-chevron-right class="mr-2 indicator" />
             <span

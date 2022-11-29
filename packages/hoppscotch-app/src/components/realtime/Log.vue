@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
     >
-      <label for="log" class="font-semibold text-secondaryLight">
+      <label for="log" class="font-semibold truncate text-secondaryLight">
         {{ title }}
       </label>
       <div class="flex">

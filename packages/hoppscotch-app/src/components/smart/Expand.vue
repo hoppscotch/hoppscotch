@@ -1,10 +1,12 @@
 <template>
   <div
-    class="relative flex flex-col overflow-hidden space-y-2"
+    class="relative flex flex-col space-y-2 overflow-hidden"
     :class="expand ? 'h-full' : 'max-h-32'"
   >
     <slot name="body"></slot>
-    <div class="sticky inset-x-0 bottom-0 flex items-center justify-center">
+    <div
+      class="sticky inset-x-0 bottom-0 flex items-center justify-center overflow-x-auto"
+    >
       <ButtonSecondary
         :icon="expand ? IconChevronUp : IconChevronDown"
         :label="expand ? t('action.less') : t('action.more')"

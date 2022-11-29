@@ -1,6 +1,8 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
-    <div class="relative sticky top-0 z-10 tabs bg-primaryLight">
+    <div
+      class="relative sticky top-0 z-10 overflow-x-auto tabs bg-primaryLight"
+    >
       <div class="flex flex-1 w-0 overflow-x-auto">
         <div class="flex justify-between divide-x divide-dividerLight">
           <div class="flex">
@@ -48,7 +50,9 @@
               </template>
             </draggable>
           </div>
-          <div class="sticky right-0 flex items-center justify-center z-8">
+          <div
+            class="sticky right-0 flex items-center justify-center overflow-x-auto z-8"
+          >
             <slot name="actions">
               <span
                 v-if="canAddNewTab"

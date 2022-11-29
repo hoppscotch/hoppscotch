@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
-      <label class="font-semibold text-secondaryLight">
+      <label class="font-semibold truncate text-secondaryLight">
         {{ t("response.body") }}
       </label>
       <div class="flex">
@@ -42,6 +42,11 @@
 <script setup lang="ts">
 import IconWrapText from "~icons/lucide/wrap-text"
 import { computed, ref, reactive } from "vue"
+import { flow, pipe } from "fp-ts/function"
+import * as S from "fp-ts/string"
+import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
+import * as A from "fp-ts/Array"
+import * as O from "fp-ts/Option"
 import { useCodemirror } from "@composables/codemirror"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useI18n } from "@composables/i18n"
@@ -52,23 +57,31 @@ import {
 } from "@composables/lens-actions"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { objFieldMatches } from "~/helpers/functional/object"
 
 const t = useI18n()
 
 const props = defineProps<{
-  response: HoppRESTResponse
+  response: HoppRESTResponse & { type: "success" | "fail" }
 }>()
 
 const { responseBodyText } = useResponseBody(props.response)
 
-const responseType = computed(() => {
-  return (
-    props.response.headers.find((h) => h.key.toLowerCase() === "content-type")
-      .value || ""
+const responseType = computed(() =>
+  pipe(
+    props.response,
+    O.fromPredicate(objFieldMatches("type", ["fail", "success"] as const)),
+    O.chain(
+      // Try getting content-type
+      flow(
+        (res) => res.headers,
+        A.findFirst((h) => h.key.toLowerCase() === "content-type"),
+        O.map(flow((h) => h.value, S.split(";"), RNEA.head, S.toLowerCase))
+      )
+    ),
+    O.getOrElse(() => "text/plain")
   )
-    .split(";")[0]
-    .toLowerCase()
-})
+)
 
 const { downloadIcon, downloadResponse } = useDownloadResponse(
   responseType.value,

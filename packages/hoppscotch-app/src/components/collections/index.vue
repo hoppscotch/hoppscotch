@@ -1,7 +1,7 @@
 <template>
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky z-10 flex flex-col border-b rounded-t bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-col overflow-x-auto border-b rounded-t bg-primary border-dividerLight"
       :style="
         saveRequest ? 'top: calc(-1.35 * var(--font-size-body))' : 'top: 0'
       "

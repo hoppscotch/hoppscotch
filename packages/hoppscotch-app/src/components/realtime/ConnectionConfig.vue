@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between py-2 pl-4 pr-2 border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+      class="sticky z-10 flex items-center justify-between py-2 pl-4 pr-2 overflow-x-auto border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">
+        <label class="font-semibold truncate text-secondaryLight">
           {{ t("mqtt.connection_config") }}
         </label>
       </span>
@@ -58,7 +58,7 @@
           class="flex items-center justify-between px-4 border-b border-dividerLight"
         >
           <div class="flex items-center">
-            <label class="font-semibold text-secondaryLight">
+            <label class="font-semibold truncate text-secondaryLight">
               {{ t("mqtt.lw_qos") }}
             </label>
             <tippy interactive trigger="click" theme="popover">

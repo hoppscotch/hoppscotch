@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="sticky top-0 z-10 flex flex-col rounded-t bg-primary">
+    <div
+      class="sticky top-0 z-10 flex flex-col overflow-x-auto rounded-t bg-primary"
+    >
       <tippy
         v-if="environmentType.type === 'my-environments'"
         interactive

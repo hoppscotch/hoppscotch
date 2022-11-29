@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div class="sticky top-0 z-10 flex border-b bg-primary border-dividerLight">
+    <div
+      class="sticky top-0 z-10 flex overflow-x-auto border-b bg-primary border-dividerLight"
+    >
       <input
         v-model="filterText"
         type="search"
@@ -64,7 +66,7 @@
         open
       >
         <summary
-          class="flex items-center justify-between flex-1 min-w-0 cursor-pointer transition focus:outline-none text-secondaryLight text-tiny group"
+          class="flex items-center justify-between flex-1 min-w-0 transition cursor-pointer focus:outline-none text-secondaryLight text-tiny group"
         >
           <span
             class="inline-flex items-center justify-center px-4 py-2 transition group-hover:text-secondary"

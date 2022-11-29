@@ -2,7 +2,7 @@
   <AppPaneLayout layout-id="socketio">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+        class="sticky top-0 z-10 flex flex-shrink-0 p-4 space-x-2 overflow-x-auto bg-primary"
       >
         <div class="inline-flex flex-1 space-x-2">
           <div class="flex flex-1">
@@ -95,7 +95,7 @@
       </div>
       <SmartTabs
         v-model="selectedTab"
-        styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+        styles="sticky overflow-x-auto bg-primary top-upperPrimaryStickyFold z-10"
         render-inactive-tabs
       >
         <SmartTab
@@ -113,10 +113,10 @@
         </SmartTab>
         <SmartTab :id="'protocols'" :label="`${t('request.authorization')}`">
           <div
-            class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+            class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
           >
             <span class="flex items-center">
-              <label class="font-semibold text-secondaryLight">
+              <label class="font-semibold truncate text-secondaryLight">
                 {{ t("authorization.type") }}
               </label>
               <tippy
@@ -220,7 +220,7 @@
               </div>
             </div>
             <div
-              class="sticky h-full p-4 overflow-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
+              class="sticky h-full p-4 overflow-auto overflow-x-auto bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9"
             >
               <div class="p-2">
                 <div class="pb-2 text-secondaryLight">

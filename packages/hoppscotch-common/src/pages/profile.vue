@@ -276,6 +276,33 @@
                     </div>
                   </div>
                 </section>
+
+                <section class="p-4">
+                  <h4 class="font-semibold text-secondaryDark text-red-500">
+                    {{ t("settings.delete_account") }}
+                  </h4>
+                  <div class="my-1 text-secondaryLight">
+                    {{ t("settings.delete_account_description") }}
+                  </div>
+                  <div class="py-4 space-y-4">
+                    <p>
+                      Your account is currently an owner in these teams: team_1,
+                      team_2
+                    </p>
+                    <p>
+                      You must remove yourself, transfer ownership, or delete
+                      these teams before you can delete your user.
+                    </p>
+
+                    <ButtonSecondary
+                      filled
+                      outline
+                      :label="t('settings.delete_your_account')"
+                      class="min-w-16"
+                      type="submit"
+                    />
+                  </div>
+                </section>
               </div>
             </SmartTab>
             <SmartTab :id="'teams'" :label="t('team.title')">

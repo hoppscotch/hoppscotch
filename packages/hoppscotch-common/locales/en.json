@@ -487,7 +487,10 @@
     "use_experimental_url_bar": "Use experimental URL bar with environment highlighting",
     "user": "User",
     "verified_email": "Verified email",
-    "verify_email": "Verify email"
+    "verify_email": "Verify email",
+    "delete_account": "Delete account",
+    "delete_your_account": "Delete your account",
+    "delete_account_description": "Once you delete your account, all your data will be permanently deleted. This action cannot be undone."
   },
   "shortcodes": {
     "actions": "Actions",

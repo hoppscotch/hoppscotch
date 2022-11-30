@@ -139,7 +139,7 @@
                 class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
                 :alt="`${t('empty.collection')}`"
               />
-              <span class="text-center">
+              <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
               </span>
               <ButtonSecondary
@@ -617,9 +617,7 @@ const teamLoadingCollections = teamCollectionAdapter.loadingCollections$
 
 const filteredCollections = computed(() => {
   const collections =
-    collectionsType.value.type === "my-collections"
-      ? myCollections.value
-      : teamCollectionList.value
+    collectionsType.value.type === "my-collections" ? myCollections.value : []
 
   if (!filterTexts.value) {
     return collections
@@ -639,9 +637,7 @@ const filteredCollections = computed(() => {
       if (request.name.toLowerCase().includes(filterText))
         filteredRequests.push(request)
     }
-    for (const folder of collectionsType.value.type === "team-collections"
-      ? collection.children
-      : collection.folders) {
+    for (const folder of collection.folders) {
       const filteredFolderRequests = []
       for (const request of folder.requests) {
         if (request.name.toLowerCase().includes(filterText))
@@ -1677,7 +1673,7 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
 }
 
 const myAdapter: SmartTreeAdapter<MyCollectionNode> = new MyCollectionsAdapter(
-  myCollections
+  filteredCollections
 )
 
 const teamAdapter: SmartTreeAdapter<TeamCollectionNode> =

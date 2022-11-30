@@ -527,15 +527,16 @@ const IconHelpCircles = markRaw(IconHelpCircle)
 const IconPluss = markRaw(IconPlus)
 const filterTexts = ref("")
 
-const editingCollection = ref()
-const editingCollectionIndex = ref()
-const editingCollectionID = ref()
-const editingFolder = ref()
-// const editingFolderName = ref()
-const editingFolderIndex = ref()
-const editingFolderPath = ref()
-const editingRequest = ref()
-const editingRequestIndex = ref()
+const editingCollection = ref<
+  HoppCollection<HoppRESTRequest> | TeamCollection
+>()
+const editingFolder = ref<HoppCollection<HoppRESTRequest> | TeamCollection>()
+const editingRequest = ref<HoppRESTRequest>()
+const editingCollectionIndex = ref<number>()
+const editingCollectionID = ref<string>()
+const editingFolderPath = ref<string>()
+const editingFolderIndex = ref<number>()
+const editingRequestIndex = ref<number | string>()
 
 const showModalAdd = ref(false)
 const showModalEdit = ref(false)
@@ -745,13 +746,17 @@ const updateEditingCollection = (newName: string) => {
     toast.error(t("collection.invalid_name"))
     return
   }
+  if (editingCollection.value === (null || undefined)) return
   if (collectionsType.value.type === "my-collections") {
     const collectionUpdated = {
       ...editingCollection.value,
       name: newName,
     }
 
-    editRESTCollection(editingCollectionIndex.value, collectionUpdated)
+    editRESTCollection(
+      editingCollectionIndex.value,
+      collectionUpdated as Collection["data"]["data"]
+    )
     displayModalEdit(false)
   } else if (
     collectionsType.value.type === "team-collections" &&
@@ -759,7 +764,7 @@ const updateEditingCollection = (newName: string) => {
   ) {
     modalLoadingState.value = true
     runMutation(RenameCollectionDocument, {
-      collectionID: editingCollection.value.id,
+      collectionID: editingCollection.value.id as string,
       newTitle: newName,
     })().then((result) => {
       modalLoadingState.value = false
@@ -777,9 +782,12 @@ const updateEditingCollection = (newName: string) => {
 
 // Intended to be called by CollectionEditFolder modal submit event
 const updateEditingFolder = (newName: string) => {
+  if (editingFolder.value === (null || undefined)) return
+  if (editingFolderPath.value === (null || undefined)) return
+
   if (collectionsType.value.type === "my-collections") {
     editRESTFolder(editingFolderPath.value, {
-      ...editingFolder.value,
+      ...(editingFolder.value as Folder["data"]["data"]),
       name: newName,
     })
     displayModalEditFolder(false)
@@ -789,7 +797,7 @@ const updateEditingFolder = (newName: string) => {
   ) {
     modalLoadingState.value = true
     runMutation(RenameCollectionDocument, {
-      collectionID: editingFolder.value.id,
+      collectionID: editingFolder.value.id as string,
       newTitle: newName,
     })().then((result) => {
       modalLoadingState.value = false
@@ -809,6 +817,9 @@ const updateEditingFolder = (newName: string) => {
 
 // Intented to by called by CollectionsEditRequest modal submit event
 const updateEditingRequest = (requestUpdateData: { name: string }) => {
+  if (editingRequest.value === (null || undefined)) return
+  if (editingFolderPath.value === (null || undefined)) return
+
   const saveCtx = getRESTSaveContext()
   const requestUpdated = {
     ...editingRequest.value,
@@ -831,7 +842,7 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
 
     editRESTRequest(
       editingFolderPath.value,
-      editingRequestIndex.value,
+      editingRequestIndex.value as number,
       requestUpdated
     )
     displayModalEditRequest(false)
@@ -848,7 +859,7 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
     if (
       saveCtx &&
       saveCtx.originLocation === "team-collection" &&
-      saveCtx.requestID === editingRequestIndex.value
+      saveCtx.requestID === (editingRequestIndex.value as string)
     ) {
       setRESTRequest({
         ...getRESTRequest(),
@@ -861,7 +872,7 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
         request: JSON.stringify(requestUpdated),
         title: requestName,
       },
-      requestID: editingRequestIndex.value,
+      requestID: editingRequestIndex.value as string,
     })().then((result) => {
       modalLoadingState.value = false
 
@@ -975,7 +986,7 @@ const editRequest = (
   if (collectionsType.value.type === "team-collections") {
     editingRequest.value = data.request
   } else {
-    editingRequest.value = data
+    editingRequest.value = data as HoppRESTRequest
   }
   if (collectionsType.value.type === "my-collections") {
     editingRequestIndex.value = pathToId.value(payload.id)[
@@ -1005,13 +1016,9 @@ const resetSelectedData = () => {
   editingFolderIndex.value = undefined
   editingRequest.value = undefined
   editingRequestIndex.value = undefined
-
   confirmModalTitle.value = ""
 }
 
-// const expandCollection = (collectionID) => {
-//   teamCollectionAdapter.expandCollection(collectionID)
-// }
 const removeCollection = (
   payload: TreeNode<HoppCollection<HoppRESTRequest>>
 ) => {
@@ -1037,7 +1044,7 @@ const onRemoveCollection = () => {
       emit("select", { picked: null })
     }
 
-    removeRESTCollection(collectionIndex)
+    removeRESTCollection(collectionIndex as number)
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1053,7 +1060,10 @@ const onRemoveCollection = () => {
       emit("select", { picked: null })
     }
 
-    if (collectionsType.value.selectedTeam.myRole !== "VIEWER") {
+    if (
+      collectionsType.value.selectedTeam.myRole !== "VIEWER" &&
+      collectionID
+    ) {
       runMutation(DeleteCollectionDocument, {
         collectionID,
       })().then((result) => {
@@ -1092,6 +1102,9 @@ const onRemoveFolder = () => {
   const folder = editingFolder.value
   const folderPath = editingFolderPath.value
 
+  if (folder === (null || undefined)) return
+  if (folderPath === (null || undefined)) return
+
   if (collectionsType.value.type === "my-collections") {
     // Cancel pick if picked folder was deleted
     if (
@@ -1119,7 +1132,7 @@ const onRemoveFolder = () => {
 
     if (collectionsType.value.selectedTeam.myRole !== "VIEWER") {
       runMutation(DeleteCollectionDocument, {
-        collectionID: folder.id,
+        collectionID: folder.id as string,
       })().then((result) => {
         modalLoadingState.value = false
 
@@ -1162,6 +1175,9 @@ const onRemoveRequest = () => {
   const requestIndex = editingRequestIndex.value
   const folderPath = editingFolderPath.value
 
+  if (folderPath === (null || undefined)) return
+  if (requestIndex === (null || undefined)) return
+
   if (collectionsType.value.type === "my-collections") {
     // Cancel pick if the picked item is being deleted
     if (
@@ -1172,7 +1188,7 @@ const onRemoveRequest = () => {
     ) {
       emit("select", { picked: null })
     }
-    removeRESTRequest(folderPath, requestIndex)
+    removeRESTRequest(folderPath, requestIndex as number)
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1188,7 +1204,7 @@ const onRemoveRequest = () => {
     }
 
     runMutation(DeleteRequestDocument, {
-      requestID: requestIndex,
+      requestID: requestIndex as string,
     })().then((result) => {
       modalLoadingState.value = false
       if (E.isLeft(result)) {

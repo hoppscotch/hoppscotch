@@ -34,14 +34,14 @@
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
-          @click="$emit('add-request', { path: folderPath })"
+          @click="$emit('add-request')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFolderPlus"
           :title="t('folder.new')"
           class="hidden group-hover:inline-flex"
-          @click="$emit('add-folder', { folder, path: folderPath })"
+          @click="$emit('add-folder')"
         />
         <span>
           <tippy
@@ -75,7 +75,7 @@
                   :shortcut="['R']"
                   @click="
                     () => {
-                      $emit('add-request', { path: folderPath })
+                      $emit('add-request')
                       hide()
                     }
                   "
@@ -87,7 +87,7 @@
                   :shortcut="['N']"
                   @click="
                     () => {
-                      $emit('add-folder', { folder, path: folderPath })
+                      $emit('add-folder')
                       hide()
                     }
                   "
@@ -99,12 +99,7 @@
                   :shortcut="['E']"
                   @click="
                     () => {
-                      $emit('edit-folder', {
-                        folder,
-                        folderIndex,
-                        collectionIndex,
-                        folderPath,
-                      })
+                      $emit('edit-folder')
                       hide()
                     }
                   "
@@ -328,10 +323,12 @@ const removeFolder = () => {
   emit("remove-folder")
 }
 
-const dropEvent = ({ dataTransfer }: any) => {
-  dragging.value = !dragging.value
-  const folderPath = dataTransfer.getData("folderPath")
-  const requestIndex = dataTransfer.getData("requestIndex")
-  moveRESTRequest(folderPath, requestIndex, props.folderPath)
+const dropEvent = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    dragging.value = !dragging.value
+    const folderPath = dataTransfer.getData("folderPath")
+    const requestIndex = dataTransfer.getData("requestIndex")
+    moveRESTRequest(folderPath, parseInt(requestIndex), props.folderPath)
+  }
 }
 </script>

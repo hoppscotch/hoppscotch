@@ -7,7 +7,7 @@
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
-      @contextmenu.prevent="options.tippy.show()"
+      @contextmenu.prevent="options!.tippy.show()"
     >
       <span
         class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
@@ -61,7 +61,7 @@
             interactive
             trigger="click"
             theme="popover"
-            :on-shown="() => tippyActions.focus()"
+            :on-shown="() => tippyActions!.focus()"
           >
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
@@ -165,6 +165,8 @@ import { editRESTRequest } from "~/newstore/collections"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { Team, UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
+import { TippyComponent } from "vue-tippy"
+import SmartItem from "@components/smart/Item.vue"
 
 type Picked =
   | {
@@ -267,11 +269,11 @@ const confirmChange = ref(false)
 const showSaveRequestModal = ref(false)
 
 // Template refs
-const tippyActions = ref<any | null>(null)
-const options = ref<any | null>(null)
-const edit = ref<any | null>(null)
-const duplicate = ref<any | null>(null)
-const deleteAction = ref<any | null>(null)
+const tippyActions = ref<TippyComponent | null>(null)
+const options = ref<TippyComponent | null>(null)
+const edit = ref<typeof SmartItem | null>(null)
+const duplicate = ref<typeof SmartItem | null>(null)
+const deleteAction = ref<typeof SmartItem | null>(null)
 
 const active = useReadonlyStream(restSaveContext$, null)
 

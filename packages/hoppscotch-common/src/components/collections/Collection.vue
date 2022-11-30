@@ -323,10 +323,16 @@ const removeCollection = () => {
   emit("remove-collection")
 }
 
-const dropEvent = ({ dataTransfer }: any) => {
-  dragging.value = !dragging.value
-  const folderPath = dataTransfer.getData("folderPath")
-  const requestIndex = dataTransfer.getData("requestIndex")
-  moveRESTRequest(folderPath, requestIndex, `${props.collectionIndex}`)
+const dropEvent = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    dragging.value = !dragging.value
+    const folderPath = dataTransfer.getData("folderPath")
+    const requestIndex = dataTransfer.getData("requestIndex")
+    moveRESTRequest(
+      folderPath,
+      parseInt(requestIndex),
+      `${props.collectionIndex}`
+    )
+  }
 }
 </script>

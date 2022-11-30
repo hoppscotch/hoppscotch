@@ -204,7 +204,7 @@
                     <div class="my-1 text-secondaryLight mb-4">
                       {{ t("settings.delete_account_description") }}
                     </div>
-                    <div v-if="myTeams.length" class="space-y-4">
+                    <div v-if="myTeams.length" class="space-y-4 mb-4">
                       <p>
                         Your account is currently an owner in these teams:
                         <span
@@ -212,7 +212,7 @@
                           :key="team.id"
                           class="font-bold"
                         >
-                          <span v-if="i > 0">
+                          <span v-if="i > 0" class="font-normal">
                             {{ i === myTeams.length - 1 ? " and" : "," }}
                           </span>
                           {{ team.name }}

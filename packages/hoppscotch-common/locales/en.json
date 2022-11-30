@@ -489,6 +489,7 @@
     "verified_email": "Verified email",
     "verify_email": "Verify email",
     "delete_account": "Delete account",
+    "account_deleted": "Your account has been deleted",
     "delete_your_account": "Delete your account",
     "delete_account_description": "Once you delete your account, all your data will be permanently deleted. This action cannot be undone."
   },

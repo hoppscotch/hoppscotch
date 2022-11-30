@@ -268,11 +268,15 @@
                     </template>
                     <template #footer>
                       <span class="flex space-x-2">
-                        <ButtonSecondary
+                        <ButtonPrimary
                           :label="t('settings.delete_account')"
-                          :loading="false"
+                          :loading="deletingUser"
+                          filled
                           outline
-                          :disabled="userVerificationInput !== displayName"
+                          :disabled="
+                            userVerificationInput !==
+                            (displayName || 'Unnamed User')
+                          "
                           @click="deleteUserAccount"
                         />
                         <ButtonSecondary
@@ -308,6 +312,9 @@ import {
   verifyEmailAddress,
 } from "~/helpers/fb/auth"
 
+import { pipe } from "fp-ts/lib/function"
+import * as TE from "fp-ts/TaskEither"
+
 import { onAuthEvent, onLoggedIn } from "@composables/auth"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
@@ -321,6 +328,8 @@ import { toggleSetting } from "~/newstore/settings"
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { GQLError } from "~/helpers/backend/GQLClient"
+import { deleteUser } from "~/helpers/backend/mutations/Profile"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -361,8 +370,39 @@ const myTeams = computed(() => {
   })
 })
 
+const deletingUser = ref(false)
+
 const deleteUserAccount = async () => {
-  toast.success("Your account has been deleted")
+  if (deletingUser.value) return
+  deletingUser.value = true
+
+  pipe(
+    deleteUser(),
+    TE.match(
+      (err: GQLError<string>) => {
+        deletingUser.value = false
+        toast.error(`${getErrorMessage(err)}`)
+      },
+      () => {
+        deletingUser.value = false
+        showDeleteAccountModal.value = false
+        toast.success(`${t("settings.account_deleted")}`)
+      }
+    )
+  )()
+}
+
+const getErrorMessage = (err: GQLError<string>) => {
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "shortcode/not_found":
+        return t("shortcodes.not_found")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
 }
 
 const displayName = ref(currentUser.value?.displayName)

@@ -70,13 +70,14 @@
         :adapter="myAdapter"
       >
         <template #content="{ node, toggleChildren, isOpen }">
-          <CollectionsMyCollection
+          <CollectionsCollection
             v-if="node.data.type === 'collections'"
             :collection="node.data.data.data"
             :collection-index="parseInt(node.id)"
             :save-request="saveRequest"
             :picked="picked"
             :collections-type="collectionsType"
+            :is-open="isOpen"
             @select-collection="emit('use-collection', node)"
             @unselect-collection="emit('remove-collection', node)"
             @select="emit('select', $event)"
@@ -89,7 +90,7 @@
           />
 
           <div v-if="node.data.type === 'folders'" class="flex flex-1">
-            <CollectionsMyFolder
+            <CollectionsFolder
               :folder="node.data.data.data"
               :is-open="isOpen"
               :folder-path="`${node.id}`"
@@ -110,7 +111,7 @@
             />
           </div>
           <div v-if="node.data.type === 'requests'" class="flex flex-1">
-            <CollectionsMyRequest
+            <CollectionsRequest
               :request="node.data.data.data"
               :request-index="
                 pathToId(node.id)[pathToId(node.id).length - 1].toString()
@@ -203,7 +204,7 @@
       </SmartTree>
       <SmartTree v-else :adapter="teamAdapter">
         <template #content="{ node, toggleChildren, isOpen }">
-          <CollectionsMyCollection
+          <CollectionsCollection
             v-if="node.data.type === 'collections'"
             :collection="node.data.data.data"
             :collection-index="node.id"
@@ -223,7 +224,7 @@
           />
 
           <div v-if="node.data.type === 'folders'" class="flex flex-1">
-            <CollectionsMyFolder
+            <CollectionsFolder
               :folder="node.data.data.data"
               :is-open="isOpen"
               :collections-type="collectionsType"
@@ -243,7 +244,7 @@
             />
           </div>
           <div v-if="node.data.type === 'requests'" class="flex flex-1">
-            <CollectionsMyRequest
+            <CollectionsRequest
               :request="node.data.data.data.request"
               :request-index="node.id"
               :collection-index="pathToId(node.id)[0]"
@@ -426,7 +427,6 @@ import {
 } from "@hoppscotch/data"
 import { useColorMode } from "@composables/theming"
 import * as E from "fp-ts/Either"
-import CollectionsMyCollection from "./my/Collection.vue"
 import { currentUser$ } from "~/helpers/fb/auth"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {

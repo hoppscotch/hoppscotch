@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="t('folder.new')"
-    @close="$emit('hide-modal')"
+    @close="emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col">
@@ -41,52 +41,55 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    folder: { type: Object, default: () => ({}) },
-    folderPath: { type: String, default: null },
-    collectionIndex: { type: Number, default: null },
-    loadingState: Boolean,
-  },
-  emits: ["hide-modal", "add-folder"],
-  setup() {
-    return {
-      toast: useToast(),
-      t: useI18n(),
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
+  folderPath: string | undefined
+  collectionIndex: number | undefined
+  loadingState: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "add-folder", payload: any): void
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.show,
+  (show) => {
+    if (!show) {
+      name.value = ""
     }
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  watch: {
-    show(isShowing: boolean) {
-      if (!isShowing) this.name = null
-    },
-  },
-  methods: {
-    addFolder() {
-      if (!this.name) {
-        this.toast.error(this.t("folder.invalid_name"))
-        return
-      }
-      this.$emit("add-folder", {
-        name: this.name,
-        folder: this.folder,
-        path: this.folderPath || `${this.collectionIndex}`,
-      })
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+  }
+)
+
+const addFolder = () => {
+  if (name.value === "") {
+    toast.error(t("folder.invalid_name"))
+    return
+  }
+
+  emit("add-folder", {
+    name: name.value,
+    folder: props.folder,
+    path: props.folderPath || `${props.collectionIndex}`,
+  })
+}
+
+const hideModal = () => {
+  name.value = ""
+  emit("hide-modal")
+}
 </script>

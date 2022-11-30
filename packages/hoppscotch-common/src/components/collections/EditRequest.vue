@@ -41,48 +41,47 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingRequestName: { type: String, default: null },
-    loadingState: Boolean,
-  },
-  emits: ["submit", "hide-modal"],
-  setup() {
-    return {
-      t: useI18n(),
-      toast: useToast(),
-    }
-  },
-  data() {
-    return {
-      requestUpdateData: {
-        name: null,
-      },
-    }
-  },
-  watch: {
-    editingRequestName(val) {
-      this.requestUpdateData.name = val
-    },
-  },
-  methods: {
-    saveRequest() {
-      if (!this.requestUpdateData.name) {
-        this.toast.error(this.t("request.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.requestUpdateData)
-    },
-    hideModal() {
-      this.requestUpdateData = { name: null }
-      this.$emit("hide-modal")
-    },
-  },
+const toast = useToast()
+const t = useI18n()
+
+const props = defineProps<{
+  show: boolean
+  loadingState: boolean
+  editingRequestName: string
+}>()
+
+const emit = defineEmits<{
+  (e: "submit", requestUpdateData: { name: string }): void
+  (e: "hide-modal"): void
+}>()
+
+const requestUpdateData = ref({
+  name: "",
 })
+
+watch(
+  () => props.editingRequestName,
+  (newName) => {
+    requestUpdateData.value.name = newName
+  }
+)
+
+const saveRequest = () => {
+  if (!requestUpdateData.value.name) {
+    toast.error(t("request.invalid_name"))
+    return
+  }
+
+  emit("submit", requestUpdateData.value)
+}
+
+const hideModal = () => {
+  requestUpdateData.value.name = ""
+  emit("hide-modal")
+}
 </script>

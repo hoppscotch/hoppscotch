@@ -372,6 +372,7 @@
       :show="showModalAddFolder"
       :folder="editingFolder"
       :folder-path="editingFolderPath"
+      :collection-index="editingCollectionIndex"
       :loading-state="modalLoadingState"
       @add-folder="onAddFolder($event)"
       @hide-modal="displayModalAddFolder(false)"
@@ -396,7 +397,6 @@
       :show="showModalImportExport"
       :collections-type="collectionsType"
       @hide-modal="displayModalImportExport(false)"
-      @update-team-collections="updateTeamCollections"
     />
     <SmartConfirmModal
       :show="showConfirmModal"
@@ -1223,13 +1223,16 @@ const onRemoveRequest = () => {
 const addRequest = (
   payload: TreeNode<{
     type: "folders" | "collections"
-    data: HoppCollection<HoppRESTRequest>
+    data: {
+      parentIndex: string
+      data: HoppCollection<HoppRESTRequest> | TeamCollection
+    }
   }>
 ) => {
   // TODO: check if the request being worked on
   // is being overwritten (selected or not)
   const { data, id } = payload
-  editingFolder.value = data.data
+  editingFolder.value = data.data.data
   editingFolderPath.value = id
   displayModalAddRequest(true)
 }
@@ -1240,16 +1243,15 @@ const onAddRequest = ({
   path,
 }: {
   name: string
-  folder: {
-    parentIndex: string
-    data: HoppCollection<HoppRESTRequest> | TeamCollection
-  }
-  path: string
+  folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
+  path: string | undefined
 }) => {
   const newRequest = {
     ...cloneDeep(getRESTRequest()),
     name,
   }
+
+  if (!folder || !path) return
 
   if (collectionsType.value.type === "my-collections") {
     const insertionIndex = saveRESTRequestAs(path, newRequest)
@@ -1264,10 +1266,10 @@ const onAddRequest = ({
     collectionsType.value.type === "team-collections" &&
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
-    if (folder.data.id) {
+    if (folder && folder.id) {
       modalLoadingState.value = true
       runMutation(CreateRequestInCollectionDocument, {
-        collectionID: folder.data.id,
+        collectionID: folder.id,
         data: {
           request: JSON.stringify(newRequest),
           teamID: collectionsType.value.selectedTeam.id,
@@ -1399,7 +1401,7 @@ const exportData = async (
   }
 }
 
-const resolveConfirmModal = (title: string) => {
+const resolveConfirmModal = (title: string | null) => {
   if (title === `${t("confirm.remove_collection")}`) onRemoveCollection()
   else if (title === `${t("confirm.remove_request")}`) onRemoveRequest()
   else if (title === `${t("confirm.remove_folder")}`) onRemoveFolder()

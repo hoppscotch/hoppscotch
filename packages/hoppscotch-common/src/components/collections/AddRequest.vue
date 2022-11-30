@@ -44,6 +44,8 @@ import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { getRESTRequest } from "~/newstore/RESTSession"
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
+import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
 const toast = useToast()
 const t = useI18n()
@@ -51,7 +53,7 @@ const t = useI18n()
 const props = defineProps<{
   show: boolean
   loadingState: boolean
-  folder?: object
+  folder?: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
   folderPath?: string
 }>()
 
@@ -61,7 +63,7 @@ const emit = defineEmits<{
     e: "add-request",
     v: {
       name: string
-      folder: object | undefined
+      folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
       path: string | undefined
     }
   ): void

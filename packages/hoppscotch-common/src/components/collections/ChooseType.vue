@@ -142,11 +142,11 @@ const onTeamSelectIntersect = () => {
   adapter.fetchList()
 }
 
-const updateCollectionsType = (tabID: string) => {
+const updateCollectionsType = (tabID: CollectionTabs) => {
   emit("update-collection-type", tabID)
 }
 
-const updateSelectedTeam = (team: TeamData | undefined) => {
+const updateSelectedTeam = (team: Team | undefined) => {
   REMEMBERED_TEAM_ID.value = team?.id
   emit("update-selected-team", team)
 }

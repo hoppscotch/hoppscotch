@@ -309,6 +309,7 @@ import {
   probableUser$,
   setDisplayName,
   setEmailAddress,
+  signOutUser,
   verifyEmailAddress,
 } from "~/helpers/fb/auth"
 
@@ -330,6 +331,7 @@ import IconSettings from "~icons/lucide/settings"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import { deleteUser } from "~/helpers/backend/mutations/Profile"
+import { useRouter } from "vue-router"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -338,6 +340,7 @@ const selectedProfileTab = ref<ProfileTabs>("sync")
 const t = useI18n()
 const toast = useToast()
 const colorMode = useColorMode()
+const router = useRouter()
 
 usePageHead({
   title: computed(() => t("navigation.profile")),
@@ -387,6 +390,8 @@ const deleteUserAccount = async () => {
         deletingUser.value = false
         showDeleteAccountModal.value = false
         toast.success(`${t("settings.account_deleted")}`)
+        signOutUser()
+        router.push(`/`)
       }
     )
   )()

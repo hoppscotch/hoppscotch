@@ -419,7 +419,7 @@ import IconArchive from "~icons/lucide/archive"
 import IconPlus from "~icons/lucide/plus"
 import IconHelpCircle from "~icons/lucide/help-circle"
 import { cloneDeep } from "lodash-es"
-import { markRaw, Ref, watch } from "vue"
+import { markRaw, PropType, Ref, watch } from "vue"
 import {
   HoppCollection,
   HoppRESTRequest,
@@ -504,10 +504,16 @@ type Picked =
       collectionID: string
     }
 
-const props = defineProps<{
-  saveRequest: boolean
-  picked: Picked | null
-}>()
+const props = defineProps({
+  saveRequest: {
+    type: Boolean,
+    required: true,
+  },
+  picked: {
+    type: Object as PropType<Picked>,
+    required: true,
+  },
+})
 
 const emit = defineEmits<{
   (e: "update-collection", payload: any): void
@@ -637,7 +643,6 @@ watch(
   () => collectionsType.value.type,
   () => {
     emit("update-collection", collectionsType.value.type)
-    console.log("new-coll-type", collectionsType.value)
   }
 )
 
@@ -659,7 +664,7 @@ watch(
   }
 )
 
-const updateSelectedTeam = (newSelectedTeam: Team) => {
+const updateSelectedTeam = (newSelectedTeam: Team | undefined) => {
   collectionsType.value.selectedTeam = newSelectedTeam
   emit("update-coll-type", collectionsType)
 }
@@ -759,7 +764,6 @@ const updateEditingCollection = (newName: string) => {
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
     modalLoadingState.value = true
-    console.log("team-coll-edit", newName, editingCollection.value)
     runMutation(RenameCollectionDocument, {
       collectionID: editingCollection.value.id,
       newTitle: newName,
@@ -790,7 +794,6 @@ const updateEditingFolder = (newName: string) => {
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
     modalLoadingState.value = true
-    console.log("team-folder-edit", newName, editingFolder.value)
     runMutation(RenameCollectionDocument, {
       collectionID: editingFolder.value.id,
       newTitle: newName,
@@ -813,13 +816,6 @@ const updateEditingFolder = (newName: string) => {
 // Intented to by called by CollectionsEditRequest modal submit event
 const updateEditingRequest = (requestUpdateData: { name: string }) => {
   const saveCtx = getRESTSaveContext()
-  console.log(
-    "update-edit",
-    requestUpdateData,
-    editingRequest.value,
-    editingRequestIndex.value,
-    editingFolderPath.value
-  )
   const requestUpdated = {
     ...editingRequest.value,
     name: requestUpdateData.name || editingRequest.value.name,
@@ -894,7 +890,6 @@ const editCollection = (
   },
   collectionIndex: number
 ) => {
-  console.log("coll-edit", collection.data, collectionIndex)
   editingCollection.value = collection.data
   editingCollectionIndex.value = collectionIndex
   displayModalEdit(true)
@@ -916,7 +911,6 @@ const onAddFolder = ({
     collectionsType.value.type === "team-collections" &&
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
-    console.log("team-folder-add", folder, name)
     if (folder.id) {
       modalLoadingState.value = true
       runMutation(CreateChildCollectionDocument, {
@@ -980,7 +974,6 @@ const editRequest = (
   }>
 ) => {
   const { parentIndex, data } = payload.data.data
-  console.log("data-req", data)
   editingCollectionIndex.value = pathToId.value(payload.id)[0]
   editingFolderIndex.value =
     pathToId.value(parentIndex)[pathToId.value(parentIndex).length - 1]
@@ -1190,7 +1183,6 @@ const onRemoveRequest = () => {
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
   } else if (collectionsType.value.type === "team-collections") {
-    console.log("remove-req-team", requestIndex)
     modalLoadingState.value = true
     // Cancel pick if the picked item is being deleted
     if (
@@ -1339,7 +1331,6 @@ const exportData = async (
     }
   }>
 ) => {
-  console.log("export", payload.data.data)
   const collection = payload.data.data.data
   if (collectionsType.value.type === "my-collections") {
     const collectionJSON = JSON.stringify(collection)
@@ -1471,7 +1462,6 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
       }
 
       const indexPath = id.split("/").map((x) => parseInt(x))
-      //console.log("id", id, indexPath[0])
 
       const item = this.navigateToFolderWithIndexPath(
         this.data.value,
@@ -1598,7 +1588,6 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
         }
       } else {
         const items = this.findCollInTree(this.data.value, id)
-        console.log("expand-team-coll", id, items)
         if (items) {
           const data = [
             ...(items.children

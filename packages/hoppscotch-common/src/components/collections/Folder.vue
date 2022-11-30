@@ -252,6 +252,7 @@ const emit = defineEmits<{
   (event: "edit-folder"): void
   (event: "remove-folder"): void
   (event: "export-data"): void
+  (event: "select", payload: any): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)

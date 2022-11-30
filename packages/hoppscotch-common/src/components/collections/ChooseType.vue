@@ -87,8 +87,6 @@ import { useI18n } from "@composables/i18n"
 import { useLocalState } from "~/newstore/localstate"
 import { invokeAction } from "~/helpers/actions"
 
-type TeamData = GetMyTeamsQuery["myTeams"][number]
-
 type CollectionTabs = "my-collections" | "team-collections"
 
 const t = useI18n()
@@ -105,8 +103,8 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: "update-collection-type", tabID: string): void
-  (e: "update-selected-team", team: TeamData | undefined): void
+  (e: "update-collection-type", tabID: CollectionTabs): void
+  (e: "update-selected-team", team: Team | undefined): void
 }>()
 
 const currentUser = useReadonlyStream(currentUserInfo$, null)

@@ -244,7 +244,7 @@ const props = defineProps({
 const emit = defineEmits<{
   (event: "select-collection"): void
   (event: "unselect-collection"): void
-  (event: "select"): void
+  (event: "select", payload: any): void
   (event: "add-request"): void
   (event: "add-folder"): void
   (event: "remove-collection"): void

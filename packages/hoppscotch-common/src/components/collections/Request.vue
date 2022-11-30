@@ -85,14 +85,7 @@
                   :shortcut="['E']"
                   @click="
                     () => {
-                      emit('edit-request', {
-                        collectionIndex,
-                        folderIndex,
-                        folderName,
-                        request,
-                        requestIndex,
-                        folderPath,
-                      })
+                      emit('edit-request')
                       hide()
                     }
                   "
@@ -104,14 +97,7 @@
                   :shortcut="['D']"
                   @click="
                     () => {
-                      emit('duplicate-request', {
-                        collectionIndex,
-                        folderIndex,
-                        folderName,
-                        request,
-                        requestIndex,
-                        folderPath,
-                      })
+                      emit('duplicate-request')
                       hide()
                     }
                   "
@@ -155,7 +141,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
-import { ref, computed } from "vue"
+import { ref, computed, PropType } from "vue"
 import {
   HoppRESTRequest,
   safelyExtractRESTRequest,
@@ -214,17 +200,40 @@ type CollectionType =
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
-const props = defineProps<{
-  request: HoppRESTRequest
-  collectionIndex: number | string
-  collectionsType: CollectionType
-  folderIndex: number
-  folderName: string
-  requestIndex: number | string
-  saveRequest: boolean
-  folderPath: string
-  picked?: Picked
-}>()
+const props = defineProps({
+  request: {
+    type: Object as PropType<HoppRESTRequest>,
+    required: true,
+  },
+  collectionIndex: {
+    type: Number as PropType<number | string>,
+    required: true,
+  },
+  collectionsType: {
+    type: Object as PropType<CollectionType>,
+    required: true,
+  },
+  folderIndex: {
+    type: Number,
+    required: true,
+  },
+  requestIndex: {
+    type: Number as PropType<number | string>,
+    required: true,
+  },
+  saveRequest: {
+    type: Boolean,
+    required: true,
+  },
+  folderPath: {
+    type: String,
+    required: true,
+  },
+  picked: {
+    type: Object as PropType<Picked>,
+    required: true,
+  },
+})
 
 const emit = defineEmits<{
   (
@@ -238,29 +247,9 @@ const emit = defineEmits<{
 
   (e: "remove-request"): void
 
-  (
-    e: "duplicate-request",
-    data: {
-      collectionIndex: number
-      folderIndex: number
-      folderName: string
-      request: HoppRESTRequest
-      folderPath: string
-      requestIndex: number
-    }
-  ): void
+  (e: "duplicate-request"): void
 
-  (
-    e: "edit-request",
-    data: {
-      collectionIndex: number
-      folderIndex: number
-      folderName: string
-      request: HoppRESTRequest
-      folderPath: string
-      requestIndex: number
-    }
-  ): void
+  (e: "edit-request"): void
 }>()
 
 const t = useI18n()
@@ -375,17 +364,15 @@ const selectRequest = () => {
       emit("select", {
         picked: {
           pickedType: "my-request",
-          collectionIndex: props.collectionIndex,
           folderPath: props.folderPath,
-          folderName: props.folderName,
-          requestIndex: props.requestIndex,
+          requestIndex: props.requestIndex as number,
         },
       })
     } else {
       emit("select", {
         picked: {
           pickedType: "teams-request",
-          requestID: props.requestIndex,
+          requestID: props.requestIndex as string,
         },
       })
     }
@@ -433,7 +420,7 @@ const discardRequestChange = () => {
     setRESTSaveContext({
       originLocation: "user-collection",
       folderPath: props.folderPath,
-      requestIndex: props.requestIndex,
+      requestIndex: props.requestIndex as number,
       req: cloneDeep(props.request),
     })
   }

@@ -64,7 +64,7 @@
                     v-if="currentUser.emailVerified"
                     v-tippy="{ theme: 'tooltip' }"
                     :title="t('settings.verified_email')"
-                    class="ml-2 text-green-500 svg-icons cursor-help"
+                    class="ml-2 text-green-500 svg-icons focus:outline-none cursor-help"
                   />
                   <ButtonSecondary
                     v-else
@@ -157,8 +157,22 @@
                       />
                     </form>
                   </div>
+                  <div class="py-4">
+                    <label>
+                      {{ t("settings.delete_account") }}
+                    </label>
+                    <div class="my-1 text-secondaryLight">
+                      {{ t("settings.delete_account_description") }}
+                    </div>
+                  </div>
+                  <ButtonSecondary
+                    filled
+                    outline
+                    :label="t('settings.delete_account')"
+                    type="submit"
+                    @click="showDeleteAccountModal = true"
+                  />
                 </section>
-
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
                     {{ t("settings.sync") }}
@@ -193,102 +207,7 @@
                     </div>
                   </div>
                 </section>
-
                 <ProfileShortcodes />
-
-                <section class="p-4">
-                  <div class="p-4 border border-dividerDark rounded">
-                    <h4 class="font-semibold text-secondaryDark text-red-500">
-                      {{ t("settings.delete_account") }}
-                    </h4>
-                    <div class="my-1 text-secondaryLight mb-4">
-                      {{ t("settings.delete_account_description") }}
-                    </div>
-                    <div v-if="myTeams.length" class="space-y-4 mb-4">
-                      <p>
-                        Your account is currently an owner in these teams:
-                        <span
-                          v-for="(team, i) in myTeams"
-                          :key="team.id"
-                          class="font-bold"
-                        >
-                          <span v-if="i > 0" class="font-normal">
-                            {{ i === myTeams.length - 1 ? " and" : "," }}
-                          </span>
-                          {{ team.name }}
-                        </span>
-                      </p>
-                      <p>
-                        You must remove yourself, transfer ownership, or delete
-                        these teams before you can delete your user.
-                      </p>
-                    </div>
-                    <ButtonSecondary
-                      v-tippy="{ theme: 'tooltip' }"
-                      filled
-                      outline
-                      :title="t('action.delete')"
-                      :label="t('settings.delete_your_account')"
-                      type="submit"
-                      class="text-red-500"
-                      :disabled="myTeams.length > 0"
-                      @click="showDeleteAccountModal = true"
-                    />
-                  </div>
-
-                  <SmartModal
-                    v-if="showDeleteAccountModal"
-                    dialog
-                    :title="t('settings.delete_account')"
-                    @close="showDeleteAccountModal = false"
-                  >
-                    <template #body>
-                      <p class="mb-4">
-                        Write
-                        <kbd class="mr-2 shortcut-key" data-v-38fdb034="">
-                          {{ displayName || "Unnamed User" }}
-                        </kbd>
-                        to confirm.
-                      </p>
-                      <div class="flex flex-col">
-                        <input
-                          id="deleteUserAccount"
-                          v-model="userVerificationInput"
-                          v-focus
-                          class="input floating-input"
-                          placeholder=" "
-                          type="text"
-                          autocomplete="off"
-                          @keyup.enter="deleteUserAccount"
-                        />
-                        <label for="deleteUserAccount">
-                          {{ t("Enter display name") }}
-                        </label>
-                      </div>
-                    </template>
-                    <template #footer>
-                      <span class="flex space-x-2">
-                        <ButtonPrimary
-                          :label="t('settings.delete_account')"
-                          :loading="deletingUser"
-                          filled
-                          outline
-                          :disabled="
-                            userVerificationInput !==
-                            (displayName || 'Unnamed User')
-                          "
-                          @click="deleteUserAccount"
-                        />
-                        <ButtonSecondary
-                          :label="t('action.cancel')"
-                          outline
-                          filled
-                          @click="showDeleteAccountModal = false"
-                        />
-                      </span>
-                    </template>
-                  </SmartModal>
-                </section>
               </div>
             </SmartTab>
             <SmartTab :id="'teams'" :label="t('team.title')">
@@ -297,6 +216,84 @@
           </SmartTabs>
         </div>
       </div>
+      <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
+      <SmartModal
+        v-if="showDeleteAccountModal"
+        dialog
+        :title="t('settings.delete_account')"
+        @close="showDeleteAccountModal = false"
+      >
+        <template #body>
+          <div
+            v-if="myTeams.length"
+            class="flex flex-col p-4 space-y-2 border border-red-500 border-dashed rounded-lg text-secondaryDark bg-error"
+          >
+            <h2 class="font-bold text-red-500">
+              {{ t("error.danger_zone") }}
+            </h2>
+            <div>
+              {{ t("error.delete_account") }}
+              <ul class="my-4 ml-8 space-y-2 list-disc">
+                <li v-for="team in myTeams" :key="team.id">
+                  {{ team.name }}
+                </li>
+              </ul>
+              <span class="font-semibold">
+                {{ t("error.delete_account_description") }}
+              </span>
+            </div>
+          </div>
+          <div v-else>
+            <div
+              class="flex flex-col p-4 mb-4 space-y-2 border border-red-500 border-dashed rounded-lg text-secondaryDark bg-error"
+            >
+              <h2 class="font-bold text-red-500">
+                {{ t("error.danger_zone") }}
+              </h2>
+              <div class="font-medium text-secondaryDark">
+                {{ t("settings.delete_account_description") }}
+              </div>
+            </div>
+            <div class="flex flex-col">
+              <input
+                id="deleteUserAccount"
+                v-model="userVerificationInput"
+                class="input floating-input"
+                placeholder=" "
+                type="text"
+                autocomplete="off"
+              />
+              <label for="deleteUserAccount">
+                Type
+                <span class="font-bold"> delete my account </span>
+                to confirm
+              </label>
+            </div>
+          </div>
+        </template>
+        <template #footer>
+          <span class="flex space-x-2">
+            <ButtonPrimary
+              :label="t('settings.delete_account')"
+              :loading="deletingUser"
+              filled
+              outline
+              :disabled="
+                myTeams.length > 0 ||
+                userVerificationInput !== 'delete my account'
+              "
+              class="!bg-red-500 !hover:bg-red-600 !border-red-500 !hover:border-red-600"
+              @click="deleteUserAccount"
+            />
+            <ButtonSecondary
+              :label="t('action.cancel')"
+              outline
+              filled
+              @click="showDeleteAccountModal = false"
+            />
+          </span>
+        </template>
+      </SmartModal>
     </div>
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
@@ -384,12 +381,12 @@ const deleteUserAccount = async () => {
     TE.match(
       (err: GQLError<string>) => {
         deletingUser.value = false
-        toast.error(`${getErrorMessage(err)}`)
+        toast.error(getErrorMessage(err))
       },
       () => {
         deletingUser.value = false
         showDeleteAccountModal.value = false
-        toast.success(`${t("settings.account_deleted")}`)
+        toast.success(t("settings.account_deleted"))
         signOutUser()
         router.push(`/`)
       }

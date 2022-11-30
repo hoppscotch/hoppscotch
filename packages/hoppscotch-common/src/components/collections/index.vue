@@ -742,6 +742,8 @@ const addNewRootCollection = (name: string) => {
 
 // Intented to be called by CollectionEdit modal submit event
 const updateEditingCollection = (newName: string) => {
+  if (editingCollectionIndex.value === (null || undefined)) return
+
   if (!newName) {
     toast.error(t("collection.invalid_name"))
     return
@@ -1329,6 +1331,7 @@ const duplicateRequest = (
       ...cloneDeep(data),
       name: `${data.name} - ${t("action.duplicate")}`,
     })
+    toast.success(t("request.duplicated"))
   }
 }
 

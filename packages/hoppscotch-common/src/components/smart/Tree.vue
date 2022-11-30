@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-col">
     <div v-if="rootNodes.status === 'loaded' && rootNodes.data.length > 0">
       <div v-for="rootNode in rootNodes.data" :key="rootNode.id">
         <SmartTreeBranch

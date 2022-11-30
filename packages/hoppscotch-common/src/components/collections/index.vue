@@ -89,45 +89,41 @@
             @export-data="exportData(node)"
           />
 
-          <div v-if="node.data.type === 'folders'" class="flex flex-1">
-            <CollectionsFolder
-              :folder="node.data.data.data"
-              :is-open="isOpen"
-              :folder-path="`${node.id}`"
-              :folder-index="lastPathID(node.id)"
-              :collection-index="pathToId(node.id)[0]"
-              :save-request="saveRequest"
-              :collections-type="collectionsType"
-              :picked="picked"
-              @select-collection="emit('use-collection', node)"
-              @unselect-collection="emit('remove-collection', node)"
-              @select="emit('select', $event)"
-              @add-folder="addFolder(node)"
-              @edit-folder="editFolder(node)"
-              @add-request="addRequest(node)"
-              @remove-folder="removeFolder(node)"
-              @toggle-children="toggleChildren"
-              @export-data="exportData(node)"
-            />
-          </div>
-          <div v-if="node.data.type === 'requests'" class="flex flex-1">
-            <CollectionsRequest
-              :request="node.data.data.data"
-              :request-index="
-                pathToId(node.id)[pathToId(node.id).length - 1].toString()
-              "
-              :collection-index="pathToId(node.id)[0]"
-              :folder-index="-1"
-              :collections-type="collectionsType"
-              :folder-path="node.data.data.parentIndex"
-              :save-request="saveRequest"
-              :picked="picked"
-              @remove-request="removeRequest(node)"
-              @duplicate-request="duplicateRequest(node)"
-              @edit-request="editRequest(node)"
-              @select="$emit('select', $event)"
-            />
-          </div>
+          <CollectionsFolder
+            v-if="node.data.type === 'folders'"
+            :folder="node.data.data.data"
+            :is-open="isOpen"
+            :folder-path="`${node.id}`"
+            :folder-index="lastPathID(node.id)"
+            :collection-index="pathToId(node.id)[0]"
+            :save-request="saveRequest"
+            :collections-type="collectionsType"
+            :picked="picked"
+            @select-collection="emit('use-collection', node)"
+            @unselect-collection="emit('remove-collection', node)"
+            @select="emit('select', $event)"
+            @add-folder="addFolder(node)"
+            @edit-folder="editFolder(node)"
+            @add-request="addRequest(node)"
+            @remove-folder="removeFolder(node)"
+            @toggle-children="toggleChildren"
+            @export-data="exportData(node)"
+          />
+          <CollectionsRequest
+            v-if="node.data.type === 'requests'"
+            :request="node.data.data.data"
+            :request-index="lastPathID(node.id).toString()"
+            :collection-index="pathToId(node.id)[0]"
+            :folder-index="-1"
+            :collections-type="collectionsType"
+            :folder-path="node.data.data.parentIndex"
+            :save-request="saveRequest"
+            :picked="picked"
+            @remove-request="removeRequest(node)"
+            @duplicate-request="duplicateRequest(node)"
+            @edit-request="editRequest(node)"
+            @select="$emit('select', $event)"
+          />
         </template>
         <template #emptyNode="{ node }">
           <div v-if="node === null">
@@ -223,42 +219,40 @@
             @export-data="exportData(node)"
           />
 
-          <div v-if="node.data.type === 'folders'" class="flex flex-1">
-            <CollectionsFolder
-              :folder="node.data.data.data"
-              :is-open="isOpen"
-              :collections-type="collectionsType"
-              :folder-path="`${node.id}`"
-              :picked="picked"
-              :save-request="saveRequest"
-              :export-loading="exportLoading"
-              @select-collection="emit('use-collection', node)"
-              @unselect-collection="emit('remove-collection', node)"
-              @select="emit('select', $event)"
-              @add-folder="addFolder(node)"
-              @edit-folder="editFolder(node)"
-              @add-request="addRequest(node)"
-              @remove-folder="removeFolder(node)"
-              @toggle-children="toggleChildren"
-              @export-data="exportData(node)"
-            />
-          </div>
-          <div v-if="node.data.type === 'requests'" class="flex flex-1">
-            <CollectionsRequest
-              :request="node.data.data.data.request"
-              :request-index="node.id"
-              :collection-index="pathToId(node.id)[0]"
-              :folder-index="-1"
-              :collections-type="collectionsType"
-              :folder-path="node.data.data.parentIndex"
-              :save-request="saveRequest"
-              :picked="picked"
-              @remove-request="removeRequest(node)"
-              @duplicate-request="duplicateRequest(node)"
-              @edit-request="editRequest(node)"
-              @select="$emit('select', $event)"
-            />
-          </div>
+          <CollectionsFolder
+            v-if="node.data.type === 'folders'"
+            :folder="node.data.data.data"
+            :is-open="isOpen"
+            :collections-type="collectionsType"
+            :folder-path="`${node.id}`"
+            :picked="picked"
+            :save-request="saveRequest"
+            :export-loading="exportLoading"
+            @select-collection="emit('use-collection', node)"
+            @unselect-collection="emit('remove-collection', node)"
+            @select="emit('select', $event)"
+            @add-folder="addFolder(node)"
+            @edit-folder="editFolder(node)"
+            @add-request="addRequest(node)"
+            @remove-folder="removeFolder(node)"
+            @toggle-children="toggleChildren"
+            @export-data="exportData(node)"
+          />
+          <CollectionsRequest
+            v-if="node.data.type === 'requests'"
+            :request="node.data.data.data.request"
+            :request-index="node.id"
+            :collection-index="pathToId(node.id)[0]"
+            :folder-index="-1"
+            :collections-type="collectionsType"
+            :folder-path="node.data.data.parentIndex"
+            :save-request="saveRequest"
+            :picked="picked"
+            @remove-request="removeRequest(node)"
+            @duplicate-request="duplicateRequest(node)"
+            @edit-request="editRequest(node)"
+            @select="$emit('select', $event)"
+          />
         </template>
         <template #emptyNode="{ node }">
           <div v-if="node === null">

@@ -5,14 +5,14 @@
     :is-open="isNodeOpen"
   ></slot>
 
-  <div v-if="showChildren" class="flex flex-1">
+  <div v-if="showChildren" class="flex">
     <div
       class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
       @click="toggleNodeChildren"
     ></div>
     <div
       v-if="childNodes.status === 'loaded' && childNodes.data.length > 0"
-      class="flex flex-col flex-1"
+      class="flex flex-col flex-1 truncate"
     >
       <TreeBranch
         v-for="childNode in childNodes.data"

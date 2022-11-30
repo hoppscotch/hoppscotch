@@ -70,11 +70,11 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.r="requestAction?.click()"
-                @keyup.n="folderAction?.click()"
-                @keyup.e="edit?.click()"
-                @keyup.delete="deleteAction?.click()"
-                @keyup.x="exportAction?.click()"
+                @keyup.r="requestAction.$el.click()"
+                @keyup.n="folderAction.$el.click()"
+                @keyup.e="edit.$el.click()"
+                @keyup.delete="deleteAction.$el.click()"
+                @keyup.x="exportAction.$el.click()"
                 @keyup.escape="hide()"
               >
                 <SmartItem

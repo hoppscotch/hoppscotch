@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1" :class="[{ 'bg-primaryLight': dragging }]">
+  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
       class="flex items-stretch group"
       draggable="true"

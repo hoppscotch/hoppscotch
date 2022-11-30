@@ -186,6 +186,19 @@
               {{ t("empty.folder") }}
             </span>
           </div>
+          <div
+            v-if="
+              filterTexts.length !== 0 &&
+              filteredCollections.length === 0 &&
+              node === null
+            "
+            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          >
+            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+            <span class="my-2 text-center">
+              {{ t("state.nothing_found") }} "{{ filterTexts }}"
+            </span>
+          </div>
         </template>
       </SmartTree>
       <SmartTree v-else :adapter="teamAdapter">
@@ -335,50 +348,6 @@
         </template>
       </SmartTree>
     </div>
-    <!-- <div
-      v-if="filteredCollections.length === 0 && filterTexts.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <img
-        :src="`/images/states/${colorMode.value}/pack.svg`"
-        loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-        :alt="t('empty.collections')"
-      />
-      <span class="pb-4 text-center">
-        {{ t("empty.collections") }}
-      </span>
-      <ButtonSecondary
-        v-if="
-          collectionsType.type == 'team-collections' &&
-          (collectionsType.selectedTeam == undefined ||
-            collectionsType.selectedTeam.myRole == 'VIEWER')
-        "
-        v-tippy="{ theme: 'tooltip' }"
-        :title="t('team.no_access')"
-        :label="t('add.new')"
-        class="mb-4"
-        filled
-        outline
-      />
-      <ButtonSecondary
-        v-else
-        :label="t('add.new')"
-        filled
-        class="mb-4"
-        outline
-        @click="displayModalAdd(true)"
-      />
-    </div>
-    <div
-      v-if="filterTexts.length !== 0 && filteredCollections.length === 0"
-      class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-    >
-      <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-      <span class="my-2 text-center">
-        {{ t("state.nothing_found") }} "{{ filterTexts }}"
-      </span>
-    </div> -->
     <CollectionsAdd
       :show="showModalAdd"
       :loading-state="modalLoadingState"

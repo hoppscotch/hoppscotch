@@ -34,23 +34,14 @@
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
-          @click="
-            $emit('add-request', {
-              path: `${collectionIndex}`,
-            })
-          "
+          @click="$emit('add-request')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFolderPlus"
           :title="t('folder.new')"
           class="hidden group-hover:inline-flex"
-          @click="
-            $emit('add-folder', {
-              folder: collection,
-              path: `${collectionIndex}`,
-            })
-          "
+          @click="$emit('add-folder')"
         />
         <span>
           <tippy

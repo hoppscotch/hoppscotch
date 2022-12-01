@@ -892,7 +892,7 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
 
 const editCollection = (
   collection: {
-    parentIndex: string
+    parentIndex: string | null
     data: HoppCollection<HoppRESTRequest> | TeamCollection
   },
   collectionIndex: number
@@ -939,11 +939,12 @@ const onAddFolder = ({
     }
   }
 }
+
 const addFolder = (
   payload: TreeNode<{
     type: "folders" | "collections"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppCollection<HoppRESTRequest> | TeamCollection
     }
   }>
@@ -958,7 +959,7 @@ const editFolder = (
   payload: TreeNode<{
     type: "folders"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppCollection<HoppRESTRequest> | TeamCollection
     }
   }>
@@ -966,7 +967,7 @@ const editFolder = (
   const { data, id } = payload
   editingCollectionIndex.value = pathToId.value(id)[0]
   editingFolder.value = data.data.data
-  editingFolderIndex.value = pathToId.value(id)[pathToId.value(id).length - 1]
+  editingFolderIndex.value = lastPathID.value(id)
   editingFolderPath.value = id
   collectionsType.value = collectionsType.value
   displayModalEditFolder(true)
@@ -975,12 +976,13 @@ const editRequest = (
   payload: TreeNode<{
     type: "requests"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppRESTRequest | TeamRequest
     }
   }>
 ) => {
   const { parentIndex, data } = payload.data.data
+  if (!parentIndex) return
   editingCollectionIndex.value = pathToId.value(payload.id)[0]
   editingFolderIndex.value =
     pathToId.value(parentIndex)[pathToId.value(parentIndex).length - 1]
@@ -991,15 +993,8 @@ const editRequest = (
     editingRequest.value = data as HoppRESTRequest
   }
   if (collectionsType.value.type === "my-collections") {
-    editingRequestIndex.value = pathToId.value(payload.id)[
-      pathToId.value(payload.id).length - 1
-    ]
-    emit(
-      "select-request",
-      pathToId
-        .value(payload.id)
-        [pathToId.value(payload.id).length - 1].toString()
-    )
+    editingRequestIndex.value = lastPathID.value(payload.id)
+    emit("select-request", lastPathID.value(payload.id).toString())
   } else {
     editingRequestIndex.value = payload.id
     emit("select-request", payload.id)
@@ -1022,7 +1017,13 @@ const resetSelectedData = () => {
 }
 
 const removeCollection = (
-  payload: TreeNode<HoppCollection<HoppRESTRequest>>
+  payload: TreeNode<{
+    type: "folders" | "collections"
+    data: {
+      parentIndex: string | null
+      data: HoppCollection<HoppRESTRequest> | TeamCollection
+    }
+  }>
 ) => {
   const { id } = payload
   editingCollectionIndex.value = parseInt(id)
@@ -1086,7 +1087,7 @@ const removeFolder = (
   payload: TreeNode<{
     type: "folders" | "collections"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppCollection<HoppRESTRequest> | TeamCollection
     }
   }>
@@ -1151,19 +1152,20 @@ const onRemoveFolder = () => {
     }
   }
 }
+
 const removeRequest = (
   payload: TreeNode<{
     type: "requests"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppRESTRequest | TeamRequest
     }
   }>
 ) => {
   const { id, data } = payload
+  if (!data.data.parentIndex) return
   if (collectionsType.value.type === "my-collections") {
-    editingRequestIndex.value =
-      pathToId.value(id)[pathToId.value(id).length - 1]
+    editingRequestIndex.value = lastPathID.value(id)
   } else {
     editingRequestIndex.value = id
   }
@@ -1224,7 +1226,7 @@ const addRequest = (
   payload: TreeNode<{
     type: "folders" | "collections"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppCollection<HoppRESTRequest> | TeamCollection
     }
   }>
@@ -1301,12 +1303,13 @@ const duplicateRequest = (
   payload: TreeNode<{
     type: "requests"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppRESTRequest | TeamRequest
     }
   }>
 ) => {
   const { parentIndex, data } = payload.data.data
+  if (!parentIndex) return
   if (collectionsType.value.type === "team-collections") {
     const newReq = {
       ...cloneDeep(data.request),
@@ -1342,7 +1345,7 @@ const exportData = async (
   payload: TreeNode<{
     type: "collections" | "folders"
     data: {
-      parentIndex: string
+      parentIndex: string | null
       data: HoppCollection<HoppRESTRequest> | TeamCollection
     }
   }>

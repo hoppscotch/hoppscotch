@@ -1266,7 +1266,7 @@ const onAddRequest = ({
     collectionsType.value.type === "team-collections" &&
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
-    if (folder && folder.id) {
+    if (folder.id) {
       // TODO: Add collectionID to the request
       modalLoadingState.value = true
       runMutation(CreateRequestInCollectionDocument, {

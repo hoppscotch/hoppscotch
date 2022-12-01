@@ -84,6 +84,7 @@
         @add-request="addRequest($event)"
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
+        @duplicate-folder="duplicateFolder($event)"
         @edit-request="editRequest($event)"
         @duplicate-request="duplicateRequest($event)"
         @update-team-collections="updateTeamCollections"
@@ -233,6 +234,7 @@ import {
   removeRESTCollection,
   removeRESTFolder,
   editRESTFolder,
+  duplicateRESTFolder,
   removeRESTRequest,
   editRESTRequest,
   saveRESTRequestAs,
@@ -655,6 +657,7 @@ export default defineComponent({
       this.displayModalAddFolder(true)
     },
     editFolder(payload) {
+      console.log("SDFSDF")
       const { collectionIndex, folder, folderIndex, folderPath } = payload
       this.$data.editingCollectionIndex = collectionIndex
       this.$data.editingFolder = folder
@@ -662,6 +665,11 @@ export default defineComponent({
       this.$data.editingFolderPath = folderPath
       this.$data.collectionsType = this.collectionsType
       this.displayModalEditFolder(true)
+    },
+    duplicateFolder({ folderPath }) {
+      if (this.collectionsType.type === "my-collections") {
+        duplicateRESTFolder(folderPath)
+      }
     },
     editRequest(payload) {
       const {

@@ -168,6 +168,7 @@
           @add-request="$emit('add-request', $event)"
           @add-folder="$emit('add-folder', $event)"
           @edit-folder="$emit('edit-folder', $event)"
+          @duplicate-folder="$emit('duplicate-folder', $event)"
           @edit-request="$emit('edit-request', $event)"
           @duplicate-request="$emit('duplicate-request', $event)"
           @select="$emit('select', $event)"
@@ -249,6 +250,7 @@ export default defineComponent({
     "add-folder",
     "add-request",
     "edit-folder",
+    "duplicate-folder",
     "edit-request",
     "duplicate-request",
     "remove-folder",

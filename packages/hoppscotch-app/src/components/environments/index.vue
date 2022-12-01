@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex flex-col overflow-x-auto rounded-t bg-primary"
+      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
     >
       <tippy
         v-if="environmentType.type === 'my-environments'"

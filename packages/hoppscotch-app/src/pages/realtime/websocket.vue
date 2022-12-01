@@ -39,7 +39,7 @@
       </div>
       <SmartTabs
         v-model="selectedTab"
-        styles="sticky overflow-x-auto bg-primary top-upperPrimaryStickyFold z-10"
+        styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
         render-inactive-tabs
       >
         <SmartTab
@@ -54,7 +54,7 @@
         </SmartTab>
         <SmartTab :id="'protocols'" :label="`${t('websocket.protocols')}`">
           <div
-            class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+            class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
           >
             <label class="font-semibold truncate text-secondaryLight">
               {{ t("websocket.protocols") }}

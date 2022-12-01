@@ -1,7 +1,7 @@
 <template>
   <SmartTabs
     v-model="selectedNavigationTab"
-    styles="sticky overflow-x-auto bg-primary z-10 top-0"
+    styles="sticky overflow-x-auto flex-shrink-0 bg-primary z-10 top-0"
     vertical
     render-inactive-tabs
   >

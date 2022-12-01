@@ -1,7 +1,7 @@
 <template>
   <SmartTabs
     v-model="currentTab"
-    styles="sticky overflow-x-auto bg-primary top-0 z-10"
+    styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
     content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
   >
     <SmartTab

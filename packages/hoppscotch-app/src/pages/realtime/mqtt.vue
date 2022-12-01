@@ -116,7 +116,7 @@
     </template>
     <template #sidebar>
       <div
-        class="sticky z-10 flex flex-col overflow-x-auto border-b divide-y rounded-t divide-dividerLight bg-primary border-dividerLight"
+        class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b divide-y rounded-t divide-dividerLight bg-primary border-dividerLight"
       >
         <div class="flex justify-between flex-1">
           <ButtonSecondary

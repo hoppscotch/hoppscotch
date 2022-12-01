@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 h-full">
     <SmartTabs
       v-model="selectedOptionTab"
-      styles="sticky overflow-x-auto bg-primary top-upperPrimaryStickyFold z-10"
+      styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
       render-inactive-tabs
     >
       <SmartTab
@@ -11,7 +11,7 @@
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
         <div
-          class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery"
+          class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery"
         >
           <label class="font-semibold truncate text-secondaryLight">
             {{ t("request.query") }}
@@ -79,7 +79,7 @@
         :indicator="variableString && variableString.length > 0 ? true : false"
       >
         <div
-          class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+          class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
         >
           <label class="font-semibold truncate text-secondaryLight">
             {{ t("request.variables") }}
@@ -129,7 +129,7 @@
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
         <div
-          class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+          class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
         >
           <label class="font-semibold truncate text-secondaryLight">
             {{ t("tab.headers") }}

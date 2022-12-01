@@ -4,7 +4,7 @@
     class="flex flex-col flex-1"
   >
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
       <label class="font-semibold truncate text-secondaryLight">
         {{ t("response.body") }}
@@ -48,7 +48,7 @@
     </div>
     <div
       v-if="toggleFilter"
-      class="sticky z-10 flex overflow-x-auto border-b bg-primary top-lowerTertiaryStickyFold border-dividerLight"
+      class="sticky z-10 flex flex-shrink-0 overflow-x-auto border-b bg-primary top-lowerTertiaryStickyFold border-dividerLight"
     >
       <div
         class="inline-flex items-center flex-1 bg-primaryLight border-divider text-secondaryDark"
@@ -89,7 +89,7 @@
     <div ref="jsonResponse" class="flex flex-col flex-1 h-auto h-full"></div>
     <div
       v-if="outlinePath"
-      class="sticky bottom-0 z-10 flex px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
+      class="sticky bottom-0 z-10 flex flex-shrink-0 px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
     >
       <div
         v-for="(item, index) in outlinePath"

@@ -1,7 +1,8 @@
 <template>
   <div class="flex flex-col flex-1 overflow-auto whitespace-nowrap">
     <div
-      class="sticky top-0 z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+      v-if="log.length !== 0"
+      class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
     >
       <label for="log" class="font-semibold truncate text-secondaryLight">
         {{ title }}
@@ -30,7 +31,9 @@
         <ButtonSecondary
           id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.autoscroll')"
+          :title="`${t('action.autoscroll')}: ${
+            autoScrollEnabled ? t('action.turn_off') : t('action.turn_on')
+          }`"
           :icon="IconChevronsDown"
           :class="toggleAutoscrollColor"
           @click="toggleAutoscroll()"
@@ -40,14 +43,16 @@
     <div
       v-if="log.length !== 0"
       ref="logs"
-      class="flex flex-col overflow-y-auto border-b border-dividerLight"
+      class="flex flex-col flex-1 overflow-y-auto"
     >
-      <div class="flex flex-col h-full divide-y divide-dividerLight">
-        <RealtimeLogEntry
-          v-for="(entry, index) in log"
-          :key="`entry-${index}`"
-          :entry="entry"
-        />
+      <div class="border-b border-dividerLight">
+        <div class="flex flex-col divide-y divide-dividerLight">
+          <RealtimeLogEntry
+            v-for="(entry, index) in log"
+            :key="`entry-${index}`"
+            :entry="entry"
+          />
+        </div>
       </div>
     </div>
     <AppShortcutsPrompt v-else class="p-4" />

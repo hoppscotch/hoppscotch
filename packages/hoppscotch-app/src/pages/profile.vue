@@ -89,7 +89,11 @@
               <FirebaseLogout outline />
             </div>
           </div>
-          <SmartTabs v-model="selectedProfileTab" render-inactive-tabs>
+          <SmartTabs
+            v-model="selectedProfileTab"
+            styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
+            render-inactive-tabs
+          >
             <SmartTab :id="'sync'" :label="t('settings.account')">
               <div class="grid grid-cols-1">
                 <section class="p-4">
@@ -195,7 +199,7 @@
                   <div class="my-1 text-secondaryLight">
                     {{ t("settings.short_codes_description") }}
                   </div>
-                  <div class="relative py-4 overflow-x-auto">
+                  <div class="relative flex-shrink-0 py-4 overflow-x-auto">
                     <div
                       v-if="loading"
                       class="flex flex-col items-center justify-center"

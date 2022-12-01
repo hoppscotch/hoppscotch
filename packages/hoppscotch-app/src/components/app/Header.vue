@@ -1,7 +1,7 @@
 <template>
   <div>
     <header
-      class="flex items-center justify-between flex-1 px-2 py-2 overflow-x-auto overflow-y-hidden space-x-2"
+      class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary

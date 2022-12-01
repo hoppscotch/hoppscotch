@@ -1,7 +1,7 @@
 <template>
   <div :class="{ 'rounded border border-divider': savingMode }">
     <div
-      class="sticky top-0 z-10 flex flex-col overflow-x-auto border-b divide-y divide-dividerLight border-dividerLight"
+      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b divide-y divide-dividerLight border-dividerLight"
       :class="{ 'bg-primary': !savingMode }"
     >
       <input

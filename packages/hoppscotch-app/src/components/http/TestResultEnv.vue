@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-between px-4 py-2">
-    <div class="flex items-center flex-shrink overflow-x-auto">
+    <div class="flex items-center flex-shrink flex-shrink-0 overflow-x-auto">
       <component
         :is="getIcon(status)"
         v-tippy="{ theme: 'tooltip' }"
@@ -8,7 +8,9 @@
         :class="getStyle(status)"
         :title="`${t(getTooltip(status))}`"
       />
-      <div class="flex items-center flex-shrink overflow-x-auto space-x-2">
+      <div
+        class="flex items-center flex-shrink flex-shrink-0 space-x-2 overflow-x-auto"
+      >
         <span class="inline-flex text-secondaryDark">
           {{ env.key }}
         </span>

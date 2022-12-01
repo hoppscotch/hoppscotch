@@ -9,7 +9,7 @@
       "
     >
       <div
-        class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
+        class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
       >
         <label class="font-semibold truncate text-secondaryLight">
           {{ t("test.report") }}
@@ -118,7 +118,9 @@
             :key="`result-${index}`"
             class="flex items-center px-4 py-2"
           >
-            <div class="flex items-center flex-shrink overflow-x-auto">
+            <div
+              class="flex items-center flex-shrink flex-shrink-0 overflow-x-auto"
+            >
               <component
                 :is="result.status === 'pass' ? IconCheck : IconClose"
                 class="mr-4 svg-icons"
@@ -127,7 +129,7 @@
                 "
               />
               <div
-                class="flex items-center flex-shrink space-x-2 overflow-x-auto"
+                class="flex items-center flex-shrink flex-shrink-0 space-x-2 overflow-x-auto"
               >
                 <span
                   v-if="result.message"

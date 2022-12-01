@@ -2,7 +2,7 @@
   <SmartTabs
     v-if="response"
     v-model="selectedLensTab"
-    styles="sticky overflow-x-auto z-10 bg-primary top-lowerPrimaryStickyFold"
+    styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-lowerPrimaryStickyFold"
   >
     <SmartTab
       v-for="(lens, index) in validLenses"

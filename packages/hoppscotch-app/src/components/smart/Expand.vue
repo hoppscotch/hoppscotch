@@ -5,7 +5,7 @@
   >
     <slot name="body"></slot>
     <div
-      class="sticky inset-x-0 bottom-0 flex items-center justify-center overflow-x-auto"
+      class="sticky inset-x-0 bottom-0 flex items-center justify-center flex-shrink-0 overflow-x-auto"
     >
       <ButtonSecondary
         :icon="expand ? IconChevronUp : IconChevronDown"

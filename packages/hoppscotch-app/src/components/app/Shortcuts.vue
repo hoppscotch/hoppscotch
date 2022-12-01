@@ -1,7 +1,9 @@
 <template>
   <SmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
     <template #content>
-      <div class="sticky top-0 z-10 flex flex-col overflow-x-auto bg-primary">
+      <div
+        class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
+      >
         <div class="flex flex-col px-6 py-4 border-b border-dividerLight">
           <input
             v-model="filterText"

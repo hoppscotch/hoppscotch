@@ -16,7 +16,9 @@
         :key="`result-${index}`"
         class="flex items-center px-4 py-2"
       >
-        <div class="flex items-center flex-shrink overflow-x-auto">
+        <div
+          class="flex items-center flex-shrink flex-shrink-0 overflow-x-auto"
+        >
           <component
             :is="result.status === 'pass' ? IconCheck : IconClose"
             class="mr-4 svg-icons"
@@ -24,7 +26,9 @@
               result.status === 'pass' ? 'text-green-500' : 'text-red-500'
             "
           />
-          <div class="flex items-center flex-shrink overflow-x-auto space-x-2">
+          <div
+            class="flex items-center flex-shrink flex-shrink-0 space-x-2 overflow-x-auto"
+          >
             <span v-if="result.message" class="inline-flex text-secondaryDark">
               {{ result.message }}
             </span>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
     >
       <input
         v-model="filterText"

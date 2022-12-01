@@ -89,7 +89,7 @@
       <div ref="editor"></div>
       <div
         v-if="outlinePath && selectedTab === 'json'"
-        class="sticky bottom-0 z-10 flex px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
+        class="sticky bottom-0 z-10 flex flex-shrink-0 px-2 overflow-auto overflow-x-auto border-t bg-primaryLight border-dividerLight flex-nowrap"
       >
         <div
           v-for="(item, index) in outlinePath"

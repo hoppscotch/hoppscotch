@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div
-      class="relative sticky top-0 z-10 overflow-x-auto tabs bg-primaryLight"
+      class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight"
     >
-      <div class="flex flex-1 w-0 overflow-x-auto">
+      <div class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto">
         <div class="flex justify-between divide-x divide-dividerLight">
           <div class="flex">
             <draggable
@@ -11,7 +11,7 @@
               :list="tabEntries"
               :style="tabsWidth"
               :item-key="'window-'"
-              class="flex overflow-x-auto transition divide-x divide-dividerLight"
+              class="flex flex-shrink-0 overflow-x-auto transition divide-x divide-dividerLight"
               @sort="sortTabs"
             >
               <template #item="{ element: [tabID, tabMeta] }">
@@ -51,7 +51,7 @@
             </draggable>
           </div>
           <div
-            class="sticky right-0 flex items-center justify-center overflow-x-auto z-8"
+            class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-8"
           >
             <slot name="actions">
               <span

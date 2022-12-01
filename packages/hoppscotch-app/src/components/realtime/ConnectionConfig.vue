@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between py-2 pl-4 pr-2 overflow-x-auto border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
+      class="sticky z-10 flex items-center justify-between flex-shrink-0 py-2 pl-4 pr-2 overflow-x-auto border-b bg-primary border-dividerLight top-upperPrimaryStickyFold"
     >
       <span class="flex items-center">
         <label class="font-semibold truncate text-secondaryLight">

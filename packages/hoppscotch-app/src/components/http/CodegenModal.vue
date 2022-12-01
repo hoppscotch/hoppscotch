@@ -28,7 +28,7 @@
           </span>
           <template #content="{ hide }">
             <div class="flex flex-col space-y-2">
-              <div class="sticky top-0 overflow-x-auto">
+              <div class="sticky top-0 flex-shrink-0 overflow-x-auto">
                 <input
                   v-model="searchQuery"
                   type="search"

@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1">
     <div
       v-if="showEventField"
-      class="sticky z-10 flex items-center justify-center overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex items-center justify-center flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
       :class="eventFieldStyles"
     >
       <icon-lucide-rss class="mx-4 svg-icons text-accentLight" />
@@ -17,7 +17,7 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       :class="stickyHeaderStyles"
     >
       <span class="flex items-center">

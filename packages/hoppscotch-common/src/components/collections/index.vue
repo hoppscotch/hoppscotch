@@ -854,8 +854,7 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
   ) {
     modalLoadingState.value = true
 
-    const requestName =
-      requestUpdateData.name || editingRequest.value.request.name
+    const requestName = requestUpdateData.name || editingRequest.value.name
 
     // Update REST Session with the updated state
     if (

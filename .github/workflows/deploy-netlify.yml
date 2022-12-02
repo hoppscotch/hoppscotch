@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Environment
-        run: mv packages/hoppscotch-web/.env.example packages/hoppscotch-web/.env
+        run: mv .env.example .env
 
       - name: Setup and run pnpm install
         uses: pnpm/action-setup@v2.2.2

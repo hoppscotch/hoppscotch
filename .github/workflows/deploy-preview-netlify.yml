@@ -42,7 +42,7 @@ jobs:
 
       # Deploy the preview site with netlify-cli
       - name: Deploy to Netlify (preview)
-        run: npx netlify-cli deploy --dir=packages/hoppscotch-app/dist --alias=preview
+        run: npx netlify-cli deploy --dir=packages/hoppscotch-web/dist --alias=preview
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

@@ -36,6 +36,8 @@ module.exports = {
     "vue/no-side-effects-in-computed-properties": "off",
     "import/no-named-as-default": "off",
     "import/no-named-as-default-member": "off",
+    "@typescript-eslint/no-unused-vars":
+      process.env.HOPP_LINT_FOR_PROD === "true" ? "error" : "warn",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "import/default": "off",

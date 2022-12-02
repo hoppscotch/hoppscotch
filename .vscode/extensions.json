@@ -6,6 +6,7 @@
     "dbaeumer.vscode-eslint",
     "editorconfig.editorconfig",
     "csstools.postcss",
+    "folke.vscode-monorepo-workspace"
   ],
   "unwantedRecommendations": [
     "octref.vetur"

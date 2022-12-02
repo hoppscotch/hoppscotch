@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Environment
-        run: mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+        run: mv packages/hoppscotch-web/.env.example packages/hoppscotch-web/.env
 
       - name: Setup and run pnpm install
         uses: pnpm/action-setup@v2.2.2
@@ -30,7 +30,7 @@ jobs:
 
       # Deploy the production site with netlify-cli
       - name: Deploy to Netlify (production)
-        run: npx netlify-cli deploy --dir=packages/hoppscotch-app/dist --prod
+        run: npx netlify-cli deploy --dir=packages/hoppscotch-web/dist --prod
         env:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_PRODUCTION_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}

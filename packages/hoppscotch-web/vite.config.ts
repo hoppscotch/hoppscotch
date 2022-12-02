@@ -1,6 +1,6 @@
 import { defineConfig, loadEnv } from "vite"
 import { APP_INFO, META_TAGS } from "./meta"
-import generateSitemap from "vite-plugin-pages-sitemap"
+// import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
 import VueI18n from "@intlify/vite-plugin-vue-i18n"
@@ -8,7 +8,6 @@ import Components from "unplugin-vue-components/vite"
 import Icons from "unplugin-icons/vite"
 import Inspect from "vite-plugin-inspect"
 import WindiCSS from "vite-plugin-windicss"
-import Checker from "vite-plugin-checker"
 import { VitePWA } from "vite-plugin-pwa"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
@@ -18,9 +17,10 @@ import * as path from "path"
 import { VitePluginFonts } from "vite-plugin-fonts"
 import legacy from "@vitejs/plugin-legacy"
 
-const ENV = loadEnv("development", process.cwd())
+const ENV = loadEnv("development", path.resolve(__dirname, "../../"))
 
 export default defineConfig({
+  envDir: path.resolve(__dirname, "../../"),
   // TODO: Migrate @hoppscotch/data to full ESM
   define: {
     // For 'util' polyfill required by dep of '@apidevtools/swagger-parser'
@@ -32,54 +32,59 @@ export default defineConfig({
   preview: {
     port: 3000,
   },
+  publicDir: path.resolve(__dirname, "../hoppscotch-common/public"),
   build: {
     sourcemap: true,
     emptyOutDir: true,
   },
   resolve: {
     alias: {
-      "~": path.resolve(__dirname, "./src"),
-      "@composables": path.resolve(__dirname, "./src/composables"),
-      "@modules": path.resolve(__dirname, "./src/modules"),
-      "@components": path.resolve(__dirname, "./src/components"),
-      "@helpers": path.resolve(__dirname, "./src/helpers"),
-      "@functional": path.resolve(__dirname, "./src/helpers/functional"),
-      "@workers": path.resolve(__dirname, "./src/workers"),
+      // TODO: Maybe leave ~ only for individual apps and not use on common
+      "~": path.resolve(__dirname, "../hoppscotch-common/src"),
+      "@hoppscotch/common": "@hoppscotch/common/src",
+      "@composables": path.resolve(
+        __dirname,
+        "../hoppscotch-common/src/composables"
+      ),
+      "@modules": path.resolve(__dirname, "../hoppscotch-common/src/modules"),
+      "@components": path.resolve(
+        __dirname,
+        "../hoppscotch-common/src/components"
+      ),
+      "@helpers": path.resolve(__dirname, "../hoppscotch-common/src/helpers"),
+      "@functional": path.resolve(
+        __dirname,
+        "../hoppscotch-common/src/helpers/functional"
+      ),
+      "@workers": path.resolve(__dirname, "../hoppscotch-common/src/workers"),
 
       stream: "stream-browserify",
       util: "util",
     },
+    dedupe: ["vue"],
   },
   plugins: [
     Inspect(), // go to url -> /__inspect
-    Checker({
-      eslint: {
-        lintCommand: "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
-      },
-      overlay: {
-        initialIsOpen: true,
-        position: "br",
-      },
-    }),
     HtmlConfig({
       metas: META_TAGS(ENV),
     }),
     Vue(),
     Pages({
       routeStyle: "nuxt",
-      dirs: "src/pages",
+      dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
-      onRoutesGenerated(routes) {
-        return generateSitemap({
-          routes,
-          nuxtStyle: true,
-          allowRobots: true,
-          hostname: ENV.VITE_BASE_URL,
-        })
+      onRoutesGenerated() {
+        // TODO: Figure this out ?
+        // return generateSitemap({
+        //   routes,
+        //   nuxtStyle: true,
+        //   allowRobots: true,
+        //   hostname: ENV.VITE_BASE_URL,
+        // })
       },
     }),
     Layouts({
-      layoutsDirs: "./src/layouts",
+      layoutsDirs: "../hoppscotch-common/src/layouts",
       defaultLayout: "default",
     }),
     VueI18n({
@@ -87,9 +92,12 @@ export default defineConfig({
       compositionOnly: true,
       include: [path.resolve(__dirname, "locales")],
     }),
-    WindiCSS(),
+    WindiCSS({
+      root: path.resolve(__dirname, "../hoppscotch-common"),
+    }),
     Components({
-      dts: "./src/components.d.ts",
+      dts: "../hoppscotch-common/src/components.d.ts",
+      dirs: ["../hoppscotch-common/src/components"],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({
@@ -107,9 +115,11 @@ export default defineConfig({
     Icons({
       compiler: "vue3",
       customCollections: {
-        hopp: FileSystemIconLoader("./assets/icons"),
-        auth: FileSystemIconLoader("./assets/icons/auth"),
-        brands: FileSystemIconLoader("./assets/icons/brands"),
+        hopp: FileSystemIconLoader("../hoppscotch-common/assets/icons"),
+        auth: FileSystemIconLoader("../hoppscotch-common/assets/icons/auth"),
+        brands: FileSystemIconLoader(
+          "../hoppscotch-common/assets/icons/brands"
+        ),
       },
     }),
     VitePWA({

@@ -16,7 +16,7 @@ jobs:
         run: mv .env.example .env
 
       - name: Setup and run pnpm install
-        uses: pnpm/action-setup@v2.2.2
+        uses: pnpm/action-setup@v2.2.4
         with:
           version: 7
           run_install: true

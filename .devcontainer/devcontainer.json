@@ -1,9 +1,9 @@
 {
-	"name": "Hoppscotch",
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:18",
+  "name": "Hoppscotch",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:18",
   "forwardPorts": [3000],
-	"features": {
-		"ghcr.io/NicoVIII/devcontainer-features/pnpm:1": {}
-	},
-	"postCreateCommand": "cp .env.example .env && pnpm i"
+  "features": {
+    "ghcr.io/NicoVIII/devcontainer-features/pnpm:1": {}
+  },
+  "postCreateCommand": "mv .env.example .env && pnpm i"
 }

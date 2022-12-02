@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
     "lint:ts": "vue-tsc --noEmit",

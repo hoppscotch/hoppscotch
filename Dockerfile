@@ -17,7 +17,7 @@ COPY . .
 
 RUN npm install -g pnpm
 
-RUN mv packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env
+RUN mv .env.example .env
 
 RUN pnpm i --unsafe-perm=true
 

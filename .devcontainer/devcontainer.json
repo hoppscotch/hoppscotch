@@ -5,5 +5,5 @@
 	"features": {
 		"ghcr.io/NicoVIII/devcontainer-features/pnpm:1": {}
 	},
-	"postCreateCommand": "cp packages/hoppscotch-app/.env.example packages/hoppscotch-app/.env && pnpm i"
+	"postCreateCommand": "cp .env.example .env && pnpm i"
 }

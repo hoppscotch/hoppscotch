@@ -78,26 +78,20 @@ const primaryNavigation = [
   @apply justify-center;
   @apply hover: (bg-primaryDark text-secondaryDark);
   @apply focus-visible: text-secondaryDark;
-
-  &::after {
-    @apply absolute;
-    @apply inset-x-0;
-    @apply md: inset-x-auto;
-    @apply md: inset-y-0;
-    @apply bottom-0;
-    @apply md: bottom-auto;
-    @apply md: left-0;
-    @apply z-2;
-    @apply h-0.5;
-    @apply md: h-full;
-    @apply w-full;
-    @apply md: w-0.5;
-    content: "";
-  }
-
-  &:focus::after {
-    @apply bg-divider;
-  }
+  @apply after:absolute;
+  @apply after:inset-x-0;
+  @apply after:md: inset-x-auto;
+  @apply after:md: inset-y-0;
+  @apply after:bottom-0;
+  @apply after:md: bottom-auto;
+  @apply after:md: left-0;
+  @apply after:z-2;
+  @apply after:h-0.5;
+  @apply after:md: h-full;
+  @apply after:w-full;
+  @apply after:md: w-0.5;
+  @apply after:content-DEFAULT;
+  @apply focus: after: bg-divider;
 
   .svg-icons {
     @apply opacity-75;
@@ -112,13 +106,10 @@ const primaryNavigation = [
     @apply text-secondaryDark;
     @apply bg-primaryLight;
     @apply hover: text-secondaryDark;
+    @apply after:bg-accent;
 
     .svg-icons {
       @apply opacity-100;
-    }
-
-    &::after {
-      @apply bg-accent;
     }
   }
 
@@ -126,13 +117,10 @@ const primaryNavigation = [
     @apply text-secondaryDark;
     @apply bg-primaryLight;
     @apply hover: text-secondaryDark;
+    @apply after:bg-accent;
 
     .svg-icons {
       @apply opacity-100;
-    }
-
-    &::after {
-      @apply bg-accent;
     }
   }
 }

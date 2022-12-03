@@ -9,6 +9,7 @@
       id="checkbox"
       type="checkbox"
       name="checkbox"
+      class="checkbox"
       :checked="on"
       @change="emit('change')"
     />
@@ -35,7 +36,7 @@ const emit = defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-input[type="checkbox"] {
+.checkbox[type="checkbox"] {
   @apply appearance-none;
   @apply hidden;
 
@@ -44,7 +45,7 @@ input[type="checkbox"] {
     @apply cursor-pointer;
 
     &::before {
-      @apply border-divider border-2;
+      @apply border-2 border-divider;
       @apply rounded;
       @apply group-hover: border-accentDark;
       @apply inline-flex;
@@ -54,9 +55,9 @@ input[type="checkbox"] {
       @apply h-4;
       @apply w-4;
       @apply font-icon;
-      @apply mr-3;
+      @apply mr-2;
       @apply transition;
-      content: "\e876";
+      @apply content-["\e876"];
     }
   }
 

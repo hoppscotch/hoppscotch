@@ -182,16 +182,6 @@ const selectTab = (id: string) => {
   @apply overflow-auto;
   @apply flex-shrink-0;
 
-  // &::after {
-  //   @apply absolute;
-  //   @apply inset-x-0;
-  //   @apply bottom-0;
-  //   @apply bg-dividerLight;
-  //   @apply z-1;
-  //   @apply h-0.5;
-  //   content: "";
-  // }
-
   .tab {
     @apply relative;
     @apply flex;
@@ -205,6 +195,15 @@ const selectTab = (id: string) => {
     @apply hover: text-secondaryDark;
     @apply focus: outline-none;
     @apply focus-visible: text-secondaryDark;
+    @apply after:absolute;
+    @apply after:left-4;
+    @apply after:right-4;
+    @apply after:bottom-0;
+    @apply after:bg-transparent;
+    @apply after:z-2;
+    @apply after:h-0.5;
+    @apply after:content-DEFAULT;
+    @apply focus: after: bg-divider;
 
     .tab-info {
       @apply inline-flex;
@@ -219,52 +218,28 @@ const selectTab = (id: string) => {
       @apply text-secondaryLight;
     }
 
-    &::after {
-      @apply absolute;
-      @apply left-4;
-      @apply right-4;
-      @apply bottom-0;
-      @apply bg-transparent;
-      @apply z-2;
-      @apply h-0.5;
-      content: "";
-    }
-
-    &:focus::after {
-      @apply bg-divider;
-    }
-
     &.active {
       @apply text-secondaryDark;
+      @apply after:bg-accent;
 
       .tab-info {
         @apply text-secondary;
         @apply border-dividerDark;
-      }
-
-      &::after {
-        @apply bg-accent;
       }
     }
 
     &.vertical {
       @apply p-2;
       @apply rounded;
-
-      &:focus::after {
-        @apply hidden;
-      }
+      @apply focus: after: hidden;
 
       &.active {
         @apply text-accent;
+        @apply after:hidden;
 
         .tab-info {
           @apply text-secondary;
           @apply border-dividerDark;
-        }
-
-        &::after {
-          @apply hidden;
         }
       }
     }

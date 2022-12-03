@@ -1,6 +1,6 @@
 <template>
   <button
-    class="flex items-center flex-1 px-6 py-3 font-medium cursor-pointer transition search-entry focus:outline-none"
+    class="flex items-center flex-1 px-6 py-3 font-medium transition cursor-pointer search-entry focus:outline-none"
     :class="{ active: active }"
     tabindex="-1"
     @click="emit('action', shortcut.action)"
@@ -8,7 +8,7 @@
   >
     <component
       :is="shortcut.icon"
-      class="mr-4 opacity-50 transition svg-icons"
+      class="mr-4 transition opacity-50 svg-icons"
       :class="{ 'opacity-100 text-secondaryDark': active }"
     />
     <span
@@ -51,24 +51,18 @@ const emit = defineEmits<{
 <style lang="scss" scoped>
 .search-entry {
   @apply relative;
-
-  &::after {
-    @apply absolute;
-    @apply top-0;
-    @apply left-0;
-    @apply bottom-0;
-    @apply bg-transparent;
-    @apply z-2;
-    @apply w-0.5;
-    content: "";
-  }
+  @apply after:absolute;
+  @apply after:top-0;
+  @apply after:left-0;
+  @apply after:bottom-0;
+  @apply after:bg-transparent;
+  @apply after:z-2;
+  @apply after:w-0.5;
+  @apply after:content-DEFAULT;
 
   &.active {
     @apply bg-primaryLight;
-
-    &::after {
-      @apply bg-accentLight;
-    }
+    @apply after:bg-accentLight;
   }
 }
 </style>

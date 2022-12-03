@@ -3,7 +3,7 @@
     <template #body>
       <div class="flex justify-between mb-4">
         <div
-          class="flex items-center border rounded divide-x border-divider divide-divider"
+          class="flex items-center border divide-x rounded border-divider divide-divider"
         >
           <label class="mx-4">
             {{ t("mqtt.qos") }}
@@ -61,7 +61,7 @@
             id="select-color"
             v-model="color"
             type="color"
-            class="w-8 h-8 p-1 rounded bg-primary"
+            class="w-8 h-8 p-1 rounded bg-primary color-picker"
           />
         </span>
       </div>

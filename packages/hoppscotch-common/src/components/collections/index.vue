@@ -455,17 +455,13 @@ import {
 import { useToast } from "@composables/toast"
 import { useI18n } from "~/composables/i18n"
 import { computed, ref } from "vue"
-import {
-  ChildrenResult,
-  SmartTreeAdapter,
-  TreeNode,
-} from "~/helpers/tree/SmartTreeAdapter"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import {
   getCompleteCollectionTree,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
 import { TeamRequest } from "~/helpers/teams/TeamRequest"
+import { ChildrenResult, SmartTreeAdapter, TreeNode } from "../smart/Tree.vue"
 
 const t = useI18n()
 const colorMode = useColorMode()

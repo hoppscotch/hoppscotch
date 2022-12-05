@@ -539,9 +539,9 @@ const editingFolderIndex = ref<number>()
 const editingRequestIndex = ref<number | string>()
 
 const showModalAdd = ref(false)
-const showModalEdit = ref(false)
 const showModalAddRequest = ref(false)
 const showModalAddFolder = ref(false)
+const showModalEdit = ref(false)
 const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
 const showModalImportExport = ref(false)
@@ -740,6 +740,135 @@ const addNewRootCollection = (name: string) => {
   }
 }
 
+const addFolder = (
+  payload: TreeNode<{
+    type: "folders" | "collections"
+    data: {
+      parentIndex: string | null
+      data: HoppCollection<HoppRESTRequest> | TeamCollection
+    }
+  }>
+) => {
+  const { data, id } = payload
+  editingFolder.value = data.data.data
+  editingFolderPath.value = id
+  displayModalAddFolder(true)
+}
+
+const onAddFolder = ({
+  name,
+  folder,
+  path,
+}: {
+  name: string
+  folder: HoppCollection<HoppRESTRequest> | TeamCollection
+  path: string
+}) => {
+  if (collectionsType.value.type === "my-collections") {
+    addRESTFolder(name, path)
+    displayModalAddFolder(false)
+  } else if (
+    collectionsType.value.type === "team-collections" &&
+    collectionsType.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    if (folder.id) {
+      modalLoadingState.value = true
+      runMutation(CreateChildCollectionDocument, {
+        childTitle: name,
+        collectionID: folder.id,
+      })().then((result) => {
+        modalLoadingState.value = false
+        if (E.isLeft(result)) {
+          if (result.left.error === "team_coll/short_title")
+            toast.error(t("folder.name_length_insufficient"))
+          else toast.error(t("error.something_went_wrong"))
+          console.error(result.left.error)
+        } else {
+          toast.success(t("folder.created"))
+          displayModalAddFolder(false)
+          emit("update-team-collections")
+        }
+      })
+    }
+  }
+}
+
+const addRequest = (
+  payload: TreeNode<{
+    type: "folders" | "collections"
+    data: {
+      parentIndex: string | null
+      data: HoppCollection<HoppRESTRequest> | TeamCollection
+    }
+  }>
+) => {
+  // TODO: check if the request being worked on
+  // is being overwritten (selected or not)
+  const { data, id } = payload
+  editingFolder.value = data.data.data
+  editingFolderPath.value = id
+  displayModalAddRequest(true)
+}
+
+const onAddRequest = ({
+  name,
+  folder,
+  path,
+}: {
+  name: string
+  folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
+  path: string | undefined
+}) => {
+  const newRequest = {
+    ...cloneDeep(getRESTRequest()),
+    name,
+  }
+
+  if (!folder || !path) return
+
+  if (collectionsType.value.type === "my-collections") {
+    const insertionIndex = saveRESTRequestAs(path, newRequest)
+    setRESTRequest(newRequest, {
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex: insertionIndex,
+    })
+
+    displayModalAddRequest(false)
+  } else if (
+    collectionsType.value.type === "team-collections" &&
+    collectionsType.value.selectedTeam.myRole !== "VIEWER"
+  ) {
+    if (folder.id) {
+      modalLoadingState.value = true
+      runMutation(CreateRequestInCollectionDocument, {
+        collectionID: folder.id,
+        data: {
+          request: JSON.stringify(newRequest),
+          teamID: collectionsType.value.selectedTeam.id,
+          title: name,
+        },
+      })().then((result) => {
+        modalLoadingState.value = false
+        if (E.isLeft(result)) {
+          toast.error(t("error.something_went_wrong"))
+          console.error(result.left.error)
+        } else {
+          const { createRequestInCollection } = result.right
+          // point to it
+          setRESTRequest(newRequest, {
+            originLocation: "team-collection",
+            requestID: createRequestInCollection.id,
+            collectionID: createRequestInCollection.collection.id,
+            teamID: createRequestInCollection.collection.team.id,
+          })
+          displayModalAddRequest(false)
+        }
+      })
+    }
+  }
+}
+
 // Intented to be called by CollectionEdit modal submit event
 const updateEditingCollection = (newName: string) => {
   if (editingCollectionIndex.value === (null || undefined)) return
@@ -901,59 +1030,6 @@ const editCollection = (
   displayModalEdit(true)
 }
 
-const onAddFolder = ({
-  name,
-  folder,
-  path,
-}: {
-  name: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
-  path: string
-}) => {
-  if (collectionsType.value.type === "my-collections") {
-    addRESTFolder(name, path)
-    displayModalAddFolder(false)
-  } else if (
-    collectionsType.value.type === "team-collections" &&
-    collectionsType.value.selectedTeam.myRole !== "VIEWER"
-  ) {
-    if (folder.id) {
-      modalLoadingState.value = true
-      runMutation(CreateChildCollectionDocument, {
-        childTitle: name,
-        collectionID: folder.id,
-      })().then((result) => {
-        modalLoadingState.value = false
-        if (E.isLeft(result)) {
-          if (result.left.error === "team_coll/short_title")
-            toast.error(t("folder.name_length_insufficient"))
-          else toast.error(t("error.something_went_wrong"))
-          console.error(result.left.error)
-        } else {
-          toast.success(t("folder.created"))
-          displayModalAddFolder(false)
-          emit("update-team-collections")
-        }
-      })
-    }
-  }
-}
-
-const addFolder = (
-  payload: TreeNode<{
-    type: "folders" | "collections"
-    data: {
-      parentIndex: string | null
-      data: HoppCollection<HoppRESTRequest> | TeamCollection
-    }
-  }>
-) => {
-  const { data, id } = payload
-  editingFolder.value = data.data.data
-  editingFolderPath.value = id
-  displayModalAddFolder(true)
-}
-
 const editFolder = (
   payload: TreeNode<{
     type: "folders"
@@ -1001,18 +1077,6 @@ const editRequest = (
   editingFolderPath.value = parentIndex
 
   displayModalEditRequest(true)
-}
-
-const resetSelectedData = () => {
-  editingCollection.value = undefined
-  editingCollectionIndex.value = undefined
-  editingCollectionID.value = undefined
-  editingFolder.value = undefined
-  editingFolderPath.value = undefined
-  editingFolderIndex.value = undefined
-  editingRequest.value = undefined
-  editingRequestIndex.value = undefined
-  confirmModalTitle.value = ""
 }
 
 const removeCollection = (
@@ -1221,83 +1285,6 @@ const onRemoveRequest = () => {
   }
 }
 
-const addRequest = (
-  payload: TreeNode<{
-    type: "folders" | "collections"
-    data: {
-      parentIndex: string | null
-      data: HoppCollection<HoppRESTRequest> | TeamCollection
-    }
-  }>
-) => {
-  // TODO: check if the request being worked on
-  // is being overwritten (selected or not)
-  const { data, id } = payload
-  editingFolder.value = data.data.data
-  editingFolderPath.value = id
-  displayModalAddRequest(true)
-}
-
-const onAddRequest = ({
-  name,
-  folder,
-  path,
-}: {
-  name: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
-  path: string | undefined
-}) => {
-  const newRequest = {
-    ...cloneDeep(getRESTRequest()),
-    name,
-  }
-
-  if (!folder || !path) return
-
-  if (collectionsType.value.type === "my-collections") {
-    const insertionIndex = saveRESTRequestAs(path, newRequest)
-    setRESTRequest(newRequest, {
-      originLocation: "user-collection",
-      folderPath: path,
-      requestIndex: insertionIndex,
-    })
-
-    displayModalAddRequest(false)
-  } else if (
-    collectionsType.value.type === "team-collections" &&
-    collectionsType.value.selectedTeam.myRole !== "VIEWER"
-  ) {
-    if (folder.id) {
-      // TODO: Add collectionID to the request
-      modalLoadingState.value = true
-      runMutation(CreateRequestInCollectionDocument, {
-        collectionID: folder.id,
-        data: {
-          request: JSON.stringify(newRequest),
-          teamID: collectionsType.value.selectedTeam.id,
-          title: name,
-        },
-      })().then((result) => {
-        modalLoadingState.value = false
-        if (E.isLeft(result)) {
-          toast.error(t("error.something_went_wrong"))
-          console.error(result.left.error)
-        } else {
-          const { createRequestInCollection } = result.right
-          // point to it
-          setRESTRequest(newRequest, {
-            originLocation: "team-collection",
-            requestID: createRequestInCollection.id,
-            collectionID: createRequestInCollection.collection.id,
-            teamID: createRequestInCollection.collection.team.id,
-          })
-          displayModalAddRequest(false)
-        }
-      })
-    }
-  }
-}
-
 const duplicateRequest = (
   payload: TreeNode<{
     type: "requests"
@@ -1415,6 +1402,18 @@ const resolveConfirmModal = (title: string | null) => {
     toast.error(t("error.something_went_wrong"))
     displayConfirmModal(false)
   }
+}
+
+const resetSelectedData = () => {
+  editingCollection.value = undefined
+  editingCollectionIndex.value = undefined
+  editingCollectionID.value = undefined
+  editingFolder.value = undefined
+  editingFolderPath.value = undefined
+  editingFolderIndex.value = undefined
+  editingRequest.value = undefined
+  editingRequestIndex.value = undefined
+  confirmModalTitle.value = ""
 }
 
 type Collection = {

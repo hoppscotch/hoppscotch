@@ -40,6 +40,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.x="exportAction!.$el.click()"
             @keyup.delete="deleteAction!.$el.click()"
             @keyup.escape="options!.tippy().hide()"
           >
@@ -63,6 +64,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="exportAction"
+              :icon="IconDownload"
+              :label="t('export.title')"
+              :shortcut="['X']"
+              @click="
+                () => {
+                  exportEnvironment()
                   hide()
                 }
               "
@@ -108,6 +121,7 @@ import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconMoreVertical from "~icons/lucide/more-vertical"
+import IconDownload from "~icons/lucide/download"
 import { TippyComponent } from "vue-tippy"
 import SmartItem from "@components/smart/Item.vue"
 
@@ -130,6 +144,7 @@ const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof SmartItem | null>(null)
 const duplicate = ref<typeof SmartItem | null>(null)
 const deleteAction = ref<typeof SmartItem | null>(null)
+const exportAction = ref<typeof SmartItem | null>(null)
 
 const removeEnvironment = () => {
   pipe(
@@ -172,5 +187,23 @@ const getErrorMessage = (err: GQLError<string>) => {
         return t("error.something_went_wrong")
     }
   }
+}
+
+const exportEnvironment = () => {
+  const environmentJSON = JSON.stringify(props.environment.environment)
+
+  const file = new Blob([environmentJSON], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  a.download = `${props.environment.environment.name}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
 }
 </script>

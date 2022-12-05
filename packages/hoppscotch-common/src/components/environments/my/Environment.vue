@@ -46,6 +46,7 @@
             role="menu"
             @keyup.e="edit!.$el.click()"
             @keyup.d="duplicate!.$el.click()"
+            @keyup.x="exportAction!.$el.click()"
             @keyup.delete="
               !(environmentIndex === 'Global')
                 ? deleteAction!.$el.click()
@@ -73,6 +74,18 @@
               @click="
                 () => {
                   duplicateEnvironments()
+                  hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="exportAction"
+              :icon="IconDownload"
+              :label="t('export.title')"
+              :shortcut="['X']"
+              @click="
+                () => {
+                  exportEnvironment()
                   hide()
                 }
               "
@@ -108,6 +121,7 @@ import IconMoreVertical from "~icons/lucide/more-vertical"
 import IconEdit from "~icons/lucide/edit"
 import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
+import IconDownload from "~icons/lucide/download"
 import { ref } from "vue"
 import { Environment } from "@hoppscotch/data"
 import { cloneDeep } from "lodash-es"
@@ -143,6 +157,7 @@ const options = ref<TippyComponent | null>(null)
 const edit = ref<typeof SmartItem | null>(null)
 const duplicate = ref<typeof SmartItem | null>(null)
 const deleteAction = ref<typeof SmartItem | null>(null)
+const exportAction = ref<typeof SmartItem | null>(null)
 
 const removeEnvironment = () => {
   if (props.environmentIndex === null) return
@@ -160,5 +175,23 @@ const duplicateEnvironments = () => {
       cloneDeep(getGlobalVariables())
     )
   } else duplicateEnvironment(props.environmentIndex)
+}
+
+const exportEnvironment = () => {
+  const environmentJSON = JSON.stringify(props.environment)
+
+  const file = new Blob([environmentJSON], { type: "application/json" })
+  const a = document.createElement("a")
+  const url = URL.createObjectURL(file)
+  a.href = url
+
+  a.download = `${props.environment.name}.json`
+  document.body.appendChild(a)
+  a.click()
+  toast.success(t("state.download_started").toString())
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 1000)
 }
 </script>

@@ -22,8 +22,13 @@
       @close="showDeleteAccountModal = false"
     >
       <template #body>
+        <div v-if="loading" class="flex flex-col items-center justify-center">
+          <SmartSpinner class="mb-4" />
+          <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+        </div>
+
         <div
-          v-if="myTeams.length"
+          v-else-if="myTeams.length"
           class="flex flex-col p-4 space-y-2 border border-red-500 border-dashed rounded-lg text-secondaryDark bg-error"
         >
           <h2 class="font-bold text-red-500">
@@ -96,12 +101,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, watch, onBeforeUnmount } from "vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
 
-import { useReadonlyStream } from "@composables/stream"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
@@ -109,6 +113,8 @@ import { signOutUser } from "~/helpers/fb/auth"
 import { useRouter } from "vue-router"
 import { deleteUser } from "~/helpers/backend/mutations/Profile"
 import { onAuthEvent, onLoggedIn } from "~/composables/auth"
+import { Subscription } from "rxjs"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 const toast = useToast()
@@ -117,14 +123,25 @@ const router = useRouter()
 const showDeleteAccountModal = ref(false)
 const userVerificationInput = ref("")
 
+let sub: Subscription | null = null
 const adapter = new TeamListAdapter(true)
-const myAllTeams = useReadonlyStream(adapter.teamList$, null)
+const loading = ref(true)
+const myTeams = ref<GetMyTeamsQuery["myTeams"]>([])
 
-const myTeams = computed(() => {
-  if (!myAllTeams.value) return []
-  return myAllTeams.value.filter((team) => {
-    return team.ownersCount === 1 && team.myRole === "OWNER"
-  })
+watch(showDeleteAccountModal, (newVal) => {
+  if (newVal && !myTeams.value.length) {
+    sub = adapter.teamList$.subscribe((teams) => {
+      if (teams) {
+        myTeams.value = teams.filter((team) => {
+          return team.ownersCount === 1 && team.myRole === "OWNER"
+        })
+      }
+
+      loading.value = false
+      sub?.unsubscribe()
+      sub = null
+    })
+  }
 })
 
 const deletingUser = ref(false)
@@ -173,5 +190,9 @@ onAuthEvent((ev) => {
     adapter.dispose()
     return
   }
+})
+
+onBeforeUnmount(() => {
+  sub?.unsubscribe()
 })
 </script>

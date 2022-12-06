@@ -9,6 +9,7 @@ import {
   watchEffect,
   WatchStopHandle,
   watchSyncEffect,
+  watch,
 } from "vue"
 import {
   client,
@@ -60,9 +61,6 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
 
   const source: Ref<Source<OperationResult> | undefined> = ref()
 
-  // A ref used to force re-execution of the query
-  const updateTicker: Ref<boolean> = ref(true)
-
   // Toggles between true and false to cause the polling operation to tick
   const pollerTick: Ref<boolean> = ref(true)
 
@@ -96,24 +94,23 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
     )
   )
 
+  const rerunQuery = () => {
+    source.value = !isPaused.value
+      ? client.value.executeQuery<DocType, DocVarType>(request.value, {
+          requestPolicy: "network-only",
+        })
+      : undefined
+  }
+
   stops.push(
-    watchEffect(
+    watch(
+      pollerTick,
       () => {
-        // Just listen to the polling ticks
-        // eslint-disable-next-line no-unused-expressions
-        pollerTick.value
-
-        // Just keep track of update ticking, but don't do anything
-        // eslint-disable-next-line no-unused-expressions
-        updateTicker.value
-
-        source.value = !isPaused.value
-          ? client.value.executeQuery<DocType, DocVarType>(request.value, {
-              requestPolicy: "network-only",
-            })
-          : undefined
+        rerunQuery()
       },
-      { flush: "pre" }
+      {
+        flush: "pre",
+      }
     )
   )
 
@@ -192,7 +189,7 @@ export const useGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
     }
 
     isPaused.value = false
-    updateTicker.value = !updateTicker.value
+    rerunQuery()
   }
 
   const pause = () => {

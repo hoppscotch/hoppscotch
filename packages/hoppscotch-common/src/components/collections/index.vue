@@ -112,7 +112,7 @@
           <CollectionsRequest
             v-if="node.data.type === 'requests'"
             :request="node.data.data.data"
-            :request-index="lastPathID(node.id).toString()"
+            :request-index="lastPathID(node.id)"
             :collection-index="pathToId(node.id)[0]"
             :folder-index="-1"
             :collections-type="collectionsType"
@@ -208,6 +208,7 @@
             :picked="picked"
             :collections-type="collectionsType"
             :export-loading="exportLoading"
+            :is-open="isOpen"
             @select-collection="emit('use-collection', node)"
             @unselect-collection="emit('remove-collection', node)"
             @select="emit('select', $event)"
@@ -497,11 +498,12 @@ type Picked =
 const props = defineProps({
   saveRequest: {
     type: Boolean,
-    required: true,
+    required: false,
   },
   picked: {
-    type: Object as PropType<Picked>,
-    required: true,
+    type: Object as PropType<Picked | undefined>,
+    required: false,
+    default: undefined,
   },
 })
 
@@ -526,13 +528,15 @@ const filterTexts = ref("")
 const editingCollection = ref<
   HoppCollection<HoppRESTRequest> | TeamCollection
 >()
-const editingFolder = ref<HoppCollection<HoppRESTRequest> | TeamCollection>()
-const editingRequest = ref<HoppRESTRequest>()
-const editingCollectionIndex = ref<number>()
-const editingCollectionID = ref<string>()
-const editingFolderPath = ref<string>()
-const editingFolderIndex = ref<number>()
-const editingRequestIndex = ref<number | string>()
+const editingFolder = ref<
+  HoppCollection<HoppRESTRequest> | TeamCollection | undefined
+>()
+const editingRequest = ref<HoppRESTRequest | undefined>()
+const editingCollectionIndex = ref<number | undefined>()
+const editingCollectionID = ref<string | undefined>()
+const editingFolderPath = ref<string | undefined>()
+const editingFolderIndex = ref<number | undefined>()
+const editingRequestIndex = ref<number | string | undefined>()
 
 const showModalAdd = ref(false)
 const showModalAddRequest = ref(false)

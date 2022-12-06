@@ -212,19 +212,16 @@ const props = defineProps({
   },
   saveRequest: {
     type: Boolean,
-    required: true,
-  },
-  isFiltered: {
-    type: Boolean,
-    required: true,
+    required: false,
   },
   collectionsType: {
     type: Object as PropType<CollectionType>,
     required: true,
   },
   picked: {
-    type: Object as PropType<Picked>,
-    required: true,
+    type: Object as PropType<Picked | undefined>,
+    required: false,
+    default: undefined,
   },
   isOpen: {
     type: Boolean,
@@ -232,11 +229,11 @@ const props = defineProps({
   },
   isLoading: {
     type: Boolean,
-    required: true,
+    required: false,
   },
   exportLoading: {
     type: Boolean,
-    required: true,
+    required: false,
   },
 })
 
@@ -278,8 +275,8 @@ const isSelected = computed(() => {
 
 const getCollectionIcon = computed(() => {
   if (isSelected.value) return IconCheckCircle
-  else if (!props.isOpen && !props.isFiltered) return IconFolder
-  else if (props.isOpen || props.isFiltered) return IconFolderOpen
+  else if (!props.isOpen) return IconFolder
+  else if (props.isOpen) return IconFolderOpen
   else return IconFolder
 })
 

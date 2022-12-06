@@ -225,15 +225,16 @@ const props = defineProps({
   },
   saveRequest: {
     type: Boolean,
-    required: true,
+    required: false,
   },
   folderPath: {
     type: String,
     required: true,
   },
   picked: {
-    type: Object as PropType<Picked>,
-    required: true,
+    type: Object as PropType<Picked | undefined>,
+    required: false,
+    default: undefined,
   },
 })
 

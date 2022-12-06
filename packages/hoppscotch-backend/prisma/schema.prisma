@@ -1,0 +1,85 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model Team {
+  id              String            @id @default(cuid())
+  name            String
+  members         TeamMember[]
+  TeamInvitation  TeamInvitation[]
+  TeamCollection  TeamCollection[]
+  TeamRequest     TeamRequest[]
+  TeamEnvironment TeamEnvironment[]
+}
+
+model TeamMember {
+  id      String         @id @default(uuid()) // Membership ID
+  role    TeamMemberRole
+  userUid String
+  teamID  String
+  team    Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+
+  @@unique([teamID, userUid])
+}
+
+model TeamInvitation {
+  id           String         @id @default(cuid())
+  teamID       String
+  team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  creatorUid   String
+  inviteeEmail String
+  inviteeRole  TeamMemberRole
+
+  @@unique([teamID, inviteeEmail])
+  @@index([teamID])
+}
+
+model TeamCollection {
+  id       String           @id @default(cuid())
+  parentID String?
+  parent   TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
+  children TeamCollection[] @relation("TeamCollectionChildParent")
+  requests TeamRequest[]
+  teamID   String
+  team     Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  title    String
+}
+
+model TeamRequest {
+  id           String         @id @default(cuid())
+  collectionID String
+  collection   TeamCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
+  teamID       String
+  team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  title        String
+  request      Json
+}
+
+model Shortcode {
+  id         String   @id
+  request    Json
+  creatorUid String?
+  createdOn  DateTime @default(now())
+
+  @@unique(fields: [id, creatorUid], name: "creator_uid_shortcode_unique")
+}
+
+model TeamEnvironment {
+  id        String @id @default(cuid())
+  teamID    String
+  team      Team   @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  name      String
+  variables Json
+}
+
+enum TeamMemberRole {
+  OWNER
+  VIEWER
+  EDITOR
+}

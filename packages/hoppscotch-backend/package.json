@@ -26,11 +26,13 @@
     "@nestjs/core": "^9.2.1",
     "@nestjs/graphql": "^10.1.6",
     "@nestjs/platform-express": "^9.2.1",
+    "@prisma/client": "^4.7.1",
     "apollo-server-express": "^3.11.1",
     "graphql": "^15.5.0",
     "graphql-redis-subscriptions": "^2.5.0",
     "graphql-subscriptions": "^2.0.0",
     "ioredis": "^5.2.4",
+    "prisma": "^4.7.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.6.0"

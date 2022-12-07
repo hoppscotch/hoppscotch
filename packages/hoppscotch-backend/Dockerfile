@@ -11,8 +11,8 @@ RUN npm i -g pnpm
 
 
 # Prisma bits
-#COPY prisma ./
-#RUN pnpx prisma generate
+COPY prisma ./
+RUN pnpx prisma generate
 
 
 COPY . .

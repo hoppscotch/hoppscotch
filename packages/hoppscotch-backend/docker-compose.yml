@@ -4,7 +4,7 @@ services:
     build: .
     environment:
       - PRODUCTION=false
-      - DATABASE_URL=postgresql://postgres:testpass@dev-db:5432/hoppscotch
+      - DATABASE_URL=postgresql://postgres:testpass@dev-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
 #    volumes:
 #      - .:/usr/src/app

@@ -2,12 +2,12 @@ FROM node:lts
 
 WORKDIR /usr/src/app
 
-# Install pnpm
+# # Install pnpm
 RUN npm i -g pnpm
 
-# NPM package install
-COPY package*.json ./
-RUN pnpm install
+# # NPM package install
+# COPY package*.json ./
+# RUN pnpm install
 
 
 # Prisma bits
@@ -16,8 +16,7 @@ RUN pnpm install
 
 
 COPY . .
-
-RUN pnpm run build
+RUN pnpm i
 
 EXPOSE 3170
 EXPOSE 9229
@@ -25,6 +24,7 @@ EXPOSE 9229
 ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
 ENV PRODUCTION=true
+
 #ENV FB_SERVICE_KEY_PATH="secrets/fb-service-key.json"
-CMD ["pnpm", "run", "start:dev"]
-#CMD ["./run.sh", "start:dev"]
+# CMD ["pnpm", "run", "start:dev"]
+CMD ["pnpm", "run", "start"]

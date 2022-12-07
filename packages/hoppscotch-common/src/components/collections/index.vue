@@ -215,7 +215,7 @@
             @add-request="addRequest(node)"
             @add-folder="addFolder(node)"
             @remove-collection="removeCollection(node)"
-            @edit-collection="editCollection(node.data.data, parseInt(node.id))"
+            @edit-collection="editCollection(node.data.data, node.id)"
             @toggle-children="toggleChildren"
             @export-data="exportData(node)"
           />
@@ -225,7 +225,7 @@
             :folder="node.data.data.data"
             :is-open="isOpen"
             :collections-type="collectionsType"
-            :folder-path="`${node.id}`"
+            :folder-path="lastPathID(node.id)"
             :picked="picked"
             :save-request="saveRequest"
             :export-loading="exportLoading"
@@ -242,7 +242,7 @@
           <CollectionsRequest
             v-if="node.data.type === 'requests'"
             :request="node.data.data.data.request"
-            :request-index="node.id"
+            :request-index="lastPathID(node.id)"
             :collection-index="pathToId(node.id)[0]"
             :folder-index="-1"
             :collections-type="collectionsType"
@@ -567,14 +567,14 @@ const collectionsType = ref<CollectionType>({
 
 const pathToId = computed(() => {
   return (path: string) => {
-    return path.split("/").map((x) => parseInt(x))
+    return path.split("/").map((x) => x)
   }
 })
 
 const lastPathID = computed(() => {
   return (path: string) => {
     const pathArr = path.split("/")
-    return parseInt(pathArr[pathArr.length - 1])
+    return pathArr[pathArr.length - 1]
   }
 })
 
@@ -750,8 +750,10 @@ const addFolder = (
   }>
 ) => {
   const { data, id } = payload
+  if (collectionsType.value.type === "my-collections") {
+    editingFolderPath.value = id
+  }
   editingFolder.value = data.data.data
-  editingFolderPath.value = id
   displayModalAddFolder(true)
 }
 
@@ -761,17 +763,18 @@ const onAddFolder = ({
   path,
 }: {
   name: string
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection
-  path: string
+  folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
+  path: string | undefined
 }) => {
   if (collectionsType.value.type === "my-collections") {
+    if (!path) return
     addRESTFolder(name, path)
     displayModalAddFolder(false)
   } else if (
     collectionsType.value.type === "team-collections" &&
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
-    if (folder.id) {
+    if (folder && folder.id) {
       modalLoadingState.value = true
       runMutation(CreateChildCollectionDocument, {
         childTitle: name,
@@ -805,8 +808,10 @@ const addRequest = (
   // TODO: check if the request being worked on
   // is being overwritten (selected or not)
   const { data, id } = payload
+  if (collectionsType.value.type === "my-collections") {
+    editingFolderPath.value = id
+  }
   editingFolder.value = data.data.data
-  editingFolderPath.value = id
   displayModalAddRequest(true)
 }
 
@@ -824,9 +829,8 @@ const onAddRequest = ({
     name,
   }
 
-  if (!folder || !path) return
-
   if (collectionsType.value.type === "my-collections") {
+    if (!path) return
     const insertionIndex = saveRESTRequestAs(path, newRequest)
     setRESTRequest(newRequest, {
       originLocation: "user-collection",
@@ -839,7 +843,8 @@ const onAddRequest = ({
     collectionsType.value.type === "team-collections" &&
     collectionsType.value.selectedTeam.myRole !== "VIEWER"
   ) {
-    if (folder.id) {
+    if (folder && folder.id) {
+      console.log("add-req-team", folder)
       modalLoadingState.value = true
       runMutation(CreateRequestInCollectionDocument, {
         collectionID: folder.id,
@@ -869,16 +874,29 @@ const onAddRequest = ({
   }
 }
 
+const editCollection = (
+  collection: {
+    parentIndex: string | null
+    data: HoppCollection<HoppRESTRequest> | TeamCollection
+  },
+  collectionIndex: number
+) => {
+  editingCollection.value = collection.data
+  editingCollectionIndex.value = collectionIndex
+  displayModalEdit(true)
+}
+
 // Intented to be called by CollectionEdit modal submit event
 const updateEditingCollection = (newName: string) => {
-  if (editingCollectionIndex.value === (null || undefined)) return
+  if (editingCollection.value === (null || undefined)) return
 
   if (!newName) {
     toast.error(t("collection.invalid_name"))
     return
   }
-  if (editingCollection.value === (null || undefined)) return
   if (collectionsType.value.type === "my-collections") {
+    if (editingCollectionIndex.value === (null || undefined)) return
+
     const collectionUpdated = {
       ...editingCollection.value,
       name: newName,
@@ -911,12 +929,28 @@ const updateEditingCollection = (newName: string) => {
   }
 }
 
+const editFolder = (
+  payload: TreeNode<{
+    type: "folders"
+    data: {
+      parentIndex: string | null
+      data: HoppCollection<HoppRESTRequest> | TeamCollection
+    }
+  }>
+) => {
+  const { data, id } = payload
+  editingFolder.value = data.data.data
+  editingFolderPath.value = id
+  displayModalEditFolder(true)
+}
+
 // Intended to be called by CollectionEditFolder modal submit event
 const updateEditingFolder = (newName: string) => {
   if (editingFolder.value === (null || undefined)) return
-  if (editingFolderPath.value === (null || undefined)) return
 
   if (collectionsType.value.type === "my-collections") {
+    if (editingFolderPath.value === (null || undefined)) return
+
     editRESTFolder(editingFolderPath.value, {
       ...(editingFolder.value as Folder["data"]["data"]),
       name: newName,
@@ -946,10 +980,34 @@ const updateEditingFolder = (newName: string) => {
   }
 }
 
+const editRequest = (
+  payload: TreeNode<{
+    type: "requests"
+    data: {
+      parentIndex: string | null
+      data: HoppRESTRequest | TeamRequest
+    }
+  }>
+) => {
+  const { parentIndex, data } = payload.data.data
+  if (collectionsType.value.type === "my-collections") {
+    if (!parentIndex) return
+
+    editingRequest.value = data as HoppRESTRequest
+    editingRequestIndex.value = parseInt(lastPathID.value(payload.id))
+    editingFolderPath.value = parentIndex
+    emit("select-request", lastPathID.value(payload.id).toString())
+  } else {
+    editingRequest.value = data.request
+    editingRequestIndex.value = lastPathID.value(payload.id)
+    emit("select-request", lastPathID.value(payload.id))
+  }
+  displayModalEditRequest(true)
+}
+
 // Intented to by called by CollectionsEditRequest modal submit event
 const updateEditingRequest = (requestUpdateData: { name: string }) => {
   if (editingRequest.value === (null || undefined)) return
-  if (editingFolderPath.value === (null || undefined)) return
 
   const saveCtx = getRESTSaveContext()
   const requestUpdated = {
@@ -958,6 +1016,7 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
   }
 
   if (collectionsType.value.type === "my-collections") {
+    if (editingFolderPath.value === (null || undefined)) return
     // Update REST Session with the updated state
     if (
       saveCtx &&
@@ -1016,67 +1075,6 @@ const updateEditingRequest = (requestUpdateData: { name: string }) => {
       }
     })
   }
-}
-
-const editCollection = (
-  collection: {
-    parentIndex: string | null
-    data: HoppCollection<HoppRESTRequest> | TeamCollection
-  },
-  collectionIndex: number
-) => {
-  editingCollection.value = collection.data
-  editingCollectionIndex.value = collectionIndex
-  displayModalEdit(true)
-}
-
-const editFolder = (
-  payload: TreeNode<{
-    type: "folders"
-    data: {
-      parentIndex: string | null
-      data: HoppCollection<HoppRESTRequest> | TeamCollection
-    }
-  }>
-) => {
-  const { data, id } = payload
-  editingCollectionIndex.value = pathToId.value(id)[0]
-  editingFolder.value = data.data.data
-  editingFolderIndex.value = lastPathID.value(id)
-  editingFolderPath.value = id
-  collectionsType.value = collectionsType.value
-  displayModalEditFolder(true)
-}
-const editRequest = (
-  payload: TreeNode<{
-    type: "requests"
-    data: {
-      parentIndex: string | null
-      data: HoppRESTRequest | TeamRequest
-    }
-  }>
-) => {
-  const { parentIndex, data } = payload.data.data
-  if (!parentIndex) return
-  editingCollectionIndex.value = pathToId.value(payload.id)[0]
-  editingFolderIndex.value =
-    pathToId.value(parentIndex)[pathToId.value(parentIndex).length - 1]
-  // editingFolderName.value = folderName
-  if (collectionsType.value.type === "team-collections") {
-    editingRequest.value = data.request
-  } else {
-    editingRequest.value = data as HoppRESTRequest
-  }
-  if (collectionsType.value.type === "my-collections") {
-    editingRequestIndex.value = lastPathID.value(payload.id)
-    emit("select-request", lastPathID.value(payload.id).toString())
-  } else {
-    editingRequestIndex.value = payload.id
-    emit("select-request", payload.id)
-  }
-  editingFolderPath.value = parentIndex
-
-  displayModalEditRequest(true)
 }
 
 const removeCollection = (
@@ -1156,7 +1154,6 @@ const removeFolder = (
   }>
 ) => {
   const { data, id } = payload
-  editingCollectionID.value = id
   editingFolder.value = data.data.data
   editingFolderPath.value = id
   confirmModalTitle.value = `${t("confirm.remove_folder")}`
@@ -1226,26 +1223,28 @@ const removeRequest = (
   }>
 ) => {
   const { id, data } = payload
-  if (!data.data.parentIndex) return
-  if (collectionsType.value.type === "my-collections") {
-    editingRequestIndex.value = lastPathID.value(id)
-  } else {
-    editingRequestIndex.value = id
-  }
-  editingFolderPath.value = data.data.parentIndex
-  confirmModalTitle.value = `${t("confirm.remove_request")}`
 
+  if (collectionsType.value.type === "my-collections") {
+    if (!data.data.parentIndex) return
+
+    editingRequestIndex.value = lastPathID.value(id)
+    editingFolderPath.value = data.data.parentIndex
+  } else {
+    editingRequestIndex.value = lastPathID.value(id)
+  }
+  confirmModalTitle.value = `${t("confirm.remove_request")}`
   displayConfirmModal(true)
 }
 
 const onRemoveRequest = () => {
   const requestIndex = editingRequestIndex.value
-  const folderPath = editingFolderPath.value
 
-  if (folderPath === (null || undefined)) return
   if (requestIndex === (null || undefined)) return
 
   if (collectionsType.value.type === "my-collections") {
+    const folderPath = editingFolderPath.value
+    if (folderPath === (null || undefined)) return
+
     // Cancel pick if the picked item is being deleted
     if (
       props.picked &&
@@ -1354,40 +1353,40 @@ const exportData = async (
       URL.revokeObjectURL(url)
     }, 1000)
   } else {
-    if (collection.id) {
-      exportLoading.value = true
+    if (!collection.id) return
 
-      const result = await getCompleteCollectionTree(collection.id)()
+    exportLoading.value = true
 
-      if (E.isLeft(result)) {
-        toast.error(t("error.something_went_wrong").toString())
-        console.log(result.left)
-        exportLoading.value = false
+    const result = await getCompleteCollectionTree(collection.id)()
 
-        return
-      }
-
-      const hoppColl = teamCollToHoppRESTColl(result.right)
-
-      const collectionJSON = JSON.stringify(hoppColl)
-
-      const file = new Blob([collectionJSON], { type: "application/json" })
-      const a = document.createElement("a")
-      const url = URL.createObjectURL(file)
-      a.href = url
-
-      a.download = `${hoppColl.name}.json`
-      document.body.appendChild(a)
-      a.click()
-      toast.success(t("state.download_started").toString())
-
-      setTimeout(() => {
-        document.body.removeChild(a)
-        URL.revokeObjectURL(url)
-      }, 1000)
-
+    if (E.isLeft(result)) {
+      toast.error(t("error.something_went_wrong").toString())
+      console.log(result.left)
       exportLoading.value = false
+
+      return
     }
+
+    const hoppColl = teamCollToHoppRESTColl(result.right)
+
+    const collectionJSON = JSON.stringify(hoppColl)
+
+    const file = new Blob([collectionJSON], { type: "application/json" })
+    const a = document.createElement("a")
+    const url = URL.createObjectURL(file)
+    a.href = url
+
+    a.download = `${hoppColl.name}.json`
+    document.body.appendChild(a)
+    a.click()
+    toast.success(t("state.download_started").toString())
+
+    setTimeout(() => {
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    }, 1000)
+
+    exportLoading.value = false
   }
 }
 
@@ -1597,23 +1596,25 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
         }
       }
 
-      teamCollectionAdapter.expandCollection(id)
+      const parsedID = lastPathID.value(id)
 
-      if (teamLoadingCollections.value.includes(id)) {
+      teamCollectionAdapter.expandCollection(parsedID)
+
+      if (teamLoadingCollections.value.includes(parsedID)) {
         return {
           status: "loading",
         }
       } else {
-        const items = this.findCollInTree(this.data.value, id)
+        const items = this.findCollInTree(this.data.value, parsedID)
         if (items) {
           const data = [
             ...(items.children
               ? items.children.map((item) => ({
-                  id: item.id,
+                  id: `${id}/${item.id}`,
                   data: {
                     type: "folders",
                     data: {
-                      parentIndex: id,
+                      parentIndex: parsedID,
                       data: item,
                     },
                   },
@@ -1621,11 +1622,11 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
               : []),
             ...(items.requests
               ? items.requests.map((item) => ({
-                  id: item.id,
+                  id: `${id}/${item.id}`,
                   data: {
                     type: "requests",
                     data: {
-                      parentIndex: id,
+                      parentIndex: parsedID,
                       data: item,
                     },
                   },

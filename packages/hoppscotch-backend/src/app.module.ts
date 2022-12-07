@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { AppResolver } from './app.resolver';
+import { UserModule } from './user/user.module';
+import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
 
 @Module({
   imports: [
@@ -44,8 +43,8 @@ import { AppResolver } from './app.resolver';
       },
       driver: ApolloDriver,
     }),
+    UserModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, AppResolver],
+  providers: [GQLComplexityPlugin],
 })
 export class AppModule {}

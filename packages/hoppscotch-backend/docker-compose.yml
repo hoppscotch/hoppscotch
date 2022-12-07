@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   local:
-    build: ./Dockerfile
+    build: .
     environment:
       - PRODUCTION=false
       - DATABASE_URL=postgresql://postgres:testpass@dev-db:5432/hoppscotch

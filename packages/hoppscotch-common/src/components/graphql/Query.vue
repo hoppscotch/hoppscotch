@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery"
+    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight gqlRunQuery"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("request.query") }}
@@ -96,6 +96,7 @@ import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import * as gql from "graphql"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
+import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
@@ -110,9 +111,10 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  conn: GQLConnection
   request: GQLRequest
 }>()
+
+const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
 const emit = defineEmits<{
   (e: "save-request"): void
@@ -120,10 +122,10 @@ const emit = defineEmits<{
 }>()
 
 const subscriptionState = useReadonlyStream(
-  props.conn.subscriptionState$,
+  conn.value.subscriptionState$,
   "UNSUBSCRIBED"
 )
-const schema = useReadonlyStream(props.conn.schema$, null, "noclone")
+const schema = useReadonlyStream(conn.value.schema$, null, "noclone")
 
 const copyQueryIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(
   IconCopy,
@@ -205,7 +207,7 @@ const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
 }
 const unsubscribe = () => {
-  props.conn.socketDisconnect()
+  conn.value.socketDisconnect()
 }
 const saveRequest = () => {
   emit("save-request")

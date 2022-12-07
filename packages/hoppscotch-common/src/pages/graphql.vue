@@ -1,6 +1,8 @@
 <template>
   <AppPaneLayout layout-id="graphql">
     <template #primary>
+      <GraphqlRequest :request="currentTab.request" />
+
       <SmartWindows
         v-if="currentTabId"
         :id="'communication_tab'"
@@ -24,12 +26,7 @@
           </template>
           <AppPaneLayout layout-id="gql-primary">
             <template #primary>
-              <GraphqlRequest :conn="tab.connection" :request="tab.request" />
-              <GraphqlRequestOptions
-                :tab-id="tab.id"
-                :conn="tab.connection"
-                :request="tab.request"
-              />
+              <GraphqlRequestOptions :tab-id="tab.id" :request="tab.request" />
             </template>
             <template #secondary>
               <GraphqlResponse :request="tab.request" />
@@ -39,11 +36,7 @@
       </SmartWindows>
     </template>
     <template #sidebar>
-      <GraphqlSidebar
-        v-if="currentTab.connection"
-        :conn="currentTab.connection"
-        :request="currentTab.request"
-      />
+      <GraphqlSidebar :request="currentTab.request" />
     </template>
   </AppPaneLayout>
 </template>
@@ -62,7 +55,10 @@ import {
   addNewGQLTab,
   gqlCurrentTab$,
   setResponseUnseen,
+  setGQLConnection,
+  GQLConnection$,
 } from "~/newstore/GQLSession"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
 const t = useI18n()
 
@@ -71,10 +67,9 @@ usePageHead({
 })
 
 const currentTab = useReadonlyStream(gqlCurrentTab$)
-const isLoading = useReadonlyStream(
-  currentTab.value.connection.isLoading$,
-  false
-)
+
+const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
+const isLoading = useReadonlyStream(conn.value.isLoading$, false)
 
 const currentTabId = useStream(GQLCurrentTabId$, "", setCurrentTabId)
 
@@ -106,8 +101,8 @@ watch(isLoading, () => {
 })
 
 onBeforeUnmount(() => {
-  if (currentTab.value.connection.connected$.value) {
-    currentTab.value.connection.disconnect()
+  if (conn.value.connected$.value) {
+    conn.value.disconnect()
   }
 })
 

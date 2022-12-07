@@ -9,23 +9,23 @@ import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 type GQLTab = {
   id: string
   request: GQLRequest
-  connection: GQLConnection
   unseen: boolean
 }
 
 export type GQLSession = {
+  connection: GQLConnection
   tabs: GQLTab[]
   currentTabId: string
 }
 
 const makeTab = (id: string): GQLTab => ({
   id,
-  connection: new GQLConnection(),
   request: new GQLRequest(),
   unseen: false,
 })
 
 export const defaultGQLSession: GQLSession = {
+  connection: new GQLConnection(),
   tabs: [makeTab("new")],
   currentTabId: "new",
 }
@@ -47,6 +47,11 @@ const dispatchers = defineDispatchers({
             }
           : tab
       ),
+    }
+  },
+  setConnection(_: GQLSession, { connection }: { connection: GQLConnection }) {
+    return {
+      connection,
     }
   },
   setTabs(_: GQLSession, { tabs }: { tabs: GQLTab[] }) {
@@ -116,6 +121,15 @@ export function setGQLSession(session: GQLSession) {
   })
 }
 
+export function setGQLConnection(connection: GQLConnection) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setConnection",
+    payload: {
+      connection,
+    },
+  })
+}
+
 export function setGQLTabs(tabs: GQLTab[]) {
   gqlSessionStore.dispatch({
     dispatcher: "setTabs",
@@ -156,6 +170,11 @@ export const gqlCurrentTab$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
     return tabs.find((tab) => tab.id === currentTabId) as GQLTab
   }),
+  distinctUntilChanged()
+)
+
+export const GQLConnection$ = gqlSessionStore.subject$.pipe(
+  pluck("connection"),
   distinctUntilChanged()
 )
 

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("request.variables") }}
@@ -82,16 +82,18 @@ import { useI18n } from "@composables/i18n"
 import { refAutoReset } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
+import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
 const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  conn: GQLConnection
   request: GQLRequest
 }>()
+
+const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
 const emit = defineEmits<{
   (e: "save-request"): void
@@ -99,7 +101,7 @@ const emit = defineEmits<{
 }>()
 
 const subscriptionState = useReadonlyStream(
-  props.conn.subscriptionState$,
+  conn.value.subscriptionState$,
   "UNSUBSCRIBED"
 )
 
@@ -163,6 +165,6 @@ const runQuery = (definition: gql.OperationDefinitionNode | null = null) => {
   emit("run-query", definition)
 }
 const unsubscribe = () => {
-  props.conn.socketDisconnect()
+  conn.value.socketDisconnect()
 }
 </script>

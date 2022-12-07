@@ -191,13 +191,14 @@ import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { copyToClipboard } from "@helpers/utils/clipboard"
-import { useReadonlyStream } from "@composables/stream"
+import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
+import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -262,32 +263,31 @@ function resolveRootType(type: GraphQLType) {
   return t
 }
 
-const props = defineProps<{
-  conn: GQLConnection
+defineProps<{
   request: GQLRequest
 }>()
 
-console.log(props.conn, props.request)
-
 const toast = useToast()
 
+const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
+
 const queryFields = useReadonlyStream(
-  props.conn.queryFields$.pipe(map((x) => x ?? [])),
+  conn.value.queryFields$.pipe(map((x) => x ?? [])),
   []
 )
 
 const mutationFields = useReadonlyStream(
-  props.conn.mutationFields$.pipe(map((x) => x ?? [])),
+  conn.value.mutationFields$.pipe(map((x) => x ?? [])),
   []
 )
 
 const subscriptionFields = useReadonlyStream(
-  props.conn.subscriptionFields$.pipe(map((x) => x ?? [])),
+  conn.value.subscriptionFields$.pipe(map((x) => x ?? [])),
   []
 )
 
 const graphqlTypes = useReadonlyStream(
-  props.conn.graphqlTypes$.pipe(map((x) => x ?? [])),
+  conn.value.graphqlTypes$.pipe(map((x) => x ?? [])),
   []
 )
 
@@ -378,7 +378,7 @@ const handleJumpToType = async (type: GraphQLType) => {
 }
 
 const schemaString = useReadonlyStream(
-  props.conn.schemaString$.pipe(map((x) => x ?? "")),
+  conn.value.schemaString$.pipe(map((x) => x ?? "")),
   ""
 )
 

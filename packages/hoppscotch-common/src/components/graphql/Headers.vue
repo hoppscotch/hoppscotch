@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+    class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight"
   >
     <label class="font-semibold text-secondaryLight">
       {{ t("tab.headers") }}

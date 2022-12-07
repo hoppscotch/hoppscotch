@@ -2,7 +2,7 @@
   <div class="flex flex-col flex-1 h-full">
     <HoppSmartTabs
       v-model="selectedOptionTab"
-      styles="sticky bg-primary top-upperPrimaryStickyFold z-10"
+      styles="sticky bg-primary z-10"
       :render-inactive-tabs="true"
     >
       <HoppSmartTab
@@ -11,7 +11,6 @@
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
       >
         <GraphqlQuery
-          :conn="props.conn"
           :request="request"
           @run-query="runQuery"
           @save-request="saveRequest"
@@ -23,7 +22,6 @@
         :indicator="variableString && variableString.length > 0 ? true : false"
       >
         <GraphqlVariable
-          :conn="conn"
           :request="request"
           @run-query="runQuery"
           @save-request="saveRequest"
@@ -62,20 +60,31 @@ import { clone } from "lodash-es"
 import { computed, onMounted, ref } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { GQLCurrentTabId$, setResponseUnseen } from "~/newstore/GQLSession"
+import {
+  GQLCurrentTabId$,
+  setResponseUnseen,
+  GQLConnection$,
+  setGQLConnection,
+} from "~/newstore/GQLSession"
+import { GQLConnection } from "~/helpers/graphql/GQLConnection"
+
 type OptionTabs = "query" | "headers" | "variables" | "authorization"
 const selectedOptionTab = ref<OptionTabs>("query")
+
 const t = useI18n()
+const toast = useToast()
+
 const props = defineProps<{
-  conn: GQLConnection
   request: GQLRequest
   tabId: string
 }>()
-const toast = useToast()
+
 const { subscribeToStream } = useStreamSubscriber()
+
+const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
+
 const url = useReadonlyStream(props.request.url$, "")
 const gqlQueryString = useStream(
   props.request.query$,
@@ -122,7 +131,7 @@ const runQuery = async (
     const runVariables = clone(variableString.value)
     const runAuth = clone(auth.value)
 
-    await props.conn.runQuery({
+    await conn.value.runQuery({
       name: props.request.getName(),
       url: runURL,
       headers: runHeaders,
@@ -153,7 +162,7 @@ const runQuery = async (
   })
 }
 onMounted(() => {
-  subscribeToStream(props.conn.event$, (event) => {
+  subscribeToStream(conn.value.event$, (event) => {
     if (event === "reset") {
       return (response.value = [])
     }

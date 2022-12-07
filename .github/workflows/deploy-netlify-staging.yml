@@ -1,9 +1,10 @@
-name: Deploy to Staging Netlify
+name: Deploy to Netlify (staging)
 
 on:
   push:
-    # TODO: Migrate to staging branch only
-    branches: [main]
+    branches: [staging]
+  pull_request:
+    branches: [staging]
 
 jobs:
   build:

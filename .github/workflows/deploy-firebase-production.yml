@@ -1,9 +1,8 @@
-name: Deploy to Live Channel
+name: Deploy to Firebase (production)
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy_live_website:

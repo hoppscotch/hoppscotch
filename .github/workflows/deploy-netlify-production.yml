@@ -1,4 +1,4 @@
-name: Deploy to Netlify
+name: Deploy to Netlify (production)
 
 on:
   push:

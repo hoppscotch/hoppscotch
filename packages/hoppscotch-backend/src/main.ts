@@ -24,13 +24,6 @@ async function bootstrap() {
   } else {
     console.log('Enabling CORS with production settings');
 
-    // HACK: Temporary fix for Liyas to work on production directly :P
-    /*
-    app.enableCors({
-      origin: /hoppscotch\.io$/
-    });
-    */
-
     app.enableCors({
       origin: true,
     });

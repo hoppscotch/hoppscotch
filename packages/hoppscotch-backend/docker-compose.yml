@@ -6,8 +6,9 @@ services:
       - PRODUCTION=false
       - DATABASE_URL=postgresql://postgres:testpass@dev-db:5432/hoppscotch?connect_timeout=300
       - PORT=3000
-#    volumes:
-#      - .:/usr/src/app
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules/
     depends_on:
       - dev-db
     ports:

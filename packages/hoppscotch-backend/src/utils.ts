@@ -6,8 +6,6 @@ import * as TE from 'fp-ts/TaskEither';
 import * as T from 'fp-ts/Task';
 import { User } from './user/user.model';
 import * as A from 'fp-ts/Array';
-// import { Reflector } from '@nestjs/core';
-// import { TeamMemberRole } from './team/team.model';
 
 /**
  * A workaround to throw an exception in an expression.

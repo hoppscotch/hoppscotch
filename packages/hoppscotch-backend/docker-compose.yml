@@ -1,0 +1,26 @@
+version: '3.0'
+services:
+  local:
+    build: .
+    environment:
+      - PRODUCTION=false
+      - DATABASE_URL=postgresql://postgres:testpass@dev-db:5432/hoppscotch?connect_timeout=300
+      - PORT=3000
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules/
+    depends_on:
+      - dev-db
+    ports:
+      - "3170:3000"
+      - "9229:9229"
+
+  dev-db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: hoppscotch
+
+

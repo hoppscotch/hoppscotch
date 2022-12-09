@@ -99,7 +99,7 @@
           :show-more="showMore"
           @toggle-star="toggleStar(entry.entry)"
           @delete-entry="deleteHistory(entry.entry)"
-          @use-entry="useHistory(entry.entry)"
+          @use-entry="useHistory(toRaw(entry.entry))"
         />
       </details>
     </div>

@@ -99,7 +99,7 @@
           :show-more="showMore"
           @toggle-star="toggleStar(entry.entry)"
           @delete-entry="deleteHistory(entry.entry)"
-          @use-entry="useHistory(entry.entry)"
+          @use-entry="useHistory(toRaw(entry.entry))"
         />
       </details>
     </div>
@@ -164,7 +164,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconTrash from "~icons/lucide/trash"
 import IconFilter from "~icons/lucide/filter"
-import { computed, ref, Ref } from "vue"
+import { computed, ref, Ref, toRaw } from "vue"
 import { useColorMode } from "@composables/theming"
 import {
   HoppGQLRequest,

@@ -284,8 +284,8 @@
           </SmartTabs>
         </div>
       </div>
-      <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     </div>
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 

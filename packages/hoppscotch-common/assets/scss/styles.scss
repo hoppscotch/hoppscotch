@@ -1,9 +1,9 @@
 * {
   @apply backface-hidden;
-  @apply before: backface-hidden;
-  @apply after: backface-hidden;
-  @apply selection: bg-accentDark;
-  @apply selection: text-accentContrast;
+  @apply before:backface-hidden;
+  @apply after:backface-hidden;
+  @apply selection:bg-accentDark;
+  @apply selection:text-accentContrast;
 }
 
 :root {
@@ -21,8 +21,8 @@
   @apply bg-divider bg-clip-content;
   @apply rounded-full;
   @apply border-solid border-transparent border-4;
-  @apply hover: bg-dividerDark;
-  @apply hover: bg-clip-content;
+  @apply hover:bg-dividerDark;
+  @apply hover:bg-clip-content;
 }
 
 ::-webkit-scrollbar {
@@ -115,7 +115,7 @@ a {
   @apply no-underline;
   @apply transition;
   @apply leading-body;
-  @apply focus: outline-none;
+  @apply focus:outline-none;
 
   &.link {
     @apply items-center;
@@ -123,10 +123,10 @@ a {
     @apply -my-0.5 -mx-1;
     @apply text-accent;
     @apply rounded;
-    @apply hover: text-accentDark;
-    @apply focus-visible: ring;
-    @apply focus-visible: ring-accent;
-    @apply focus-visible: text-accentDark;
+    @apply hover:text-accentDark;
+    @apply focus-visible:ring;
+    @apply focus-visible:ring-accent;
+    @apply focus-visible:text-accentDark;
   }
 }
 
@@ -163,7 +163,7 @@ a {
       @apply px-1;
       @apply my-0 ml-1;
       @apply truncate;
-      @apply sm: inline-flex;
+      @apply sm:inline-flex;
     }
 
     .env-icon {
@@ -198,7 +198,7 @@ a {
     @apply text-secondary text-body;
     @apply p-2;
     @apply leading-normal;
-    @apply focus: outline-none;
+    @apply focus:outline-none;
     scroll-behavior: smooth;
   }
 
@@ -243,7 +243,7 @@ hr {
   @apply rounded;
   @apply text-secondaryDark;
   @apply border border-divider;
-  @apply focus-visible: border-dividerDark;
+  @apply focus-visible:border-dividerDark;
 }
 
 input,
@@ -254,8 +254,8 @@ button {
   @apply transition;
   @apply text-body;
   @apply leading-body;
-  @apply focus: outline-none;
-  @apply disabled: cursor-not-allowed;
+  @apply focus:outline-none;
+  @apply disabled:cursor-not-allowed;
 }
 
 .input[type="file"],
@@ -316,16 +316,16 @@ pre.ace_editor {
 .select-wrapper {
   @apply flex flex-1;
   @apply relative;
-  @apply after: absolute;
-  @apply after: flex;
-  @apply after: inset-y-0;
-  @apply after: items-center;
-  @apply after: justify-center;
-  @apply after: pointer-events-none;
-  @apply after: font-icon;
-  @apply after: text-secondaryLight;
-  @apply after: right-3;
-  @apply after: content-["\e313"];
+  @apply after:absolute;
+  @apply after:flex;
+  @apply after:inset-y-0;
+  @apply after:items-center;
+  @apply after:justify-center;
+  @apply after:pointer-events-none;
+  @apply after:font-icon;
+  @apply after:text-secondaryLight;
+  @apply after:right-3;
+  @apply after:content-["\e313"];
 }
 
 .info-response {
@@ -366,8 +366,8 @@ pre.ace_editor {
       @apply font-semibold;
       @apply transition;
       @apply leading-body;
-      @apply sm: rounded;
-      @apply sm: border;
+      @apply sm:rounded;
+      @apply sm:border;
 
       .action {
         @apply relative;
@@ -381,16 +381,16 @@ pre.ace_editor {
         @apply leading-body;
         @apply tracking-normal;
         @apply rounded;
-        @apply last: ml-4;
-        @apply sm: ml-8;
-        @apply before: absolute;
-        @apply before: bg-current;
-        @apply before: opacity-10;
-        @apply before: inset-0;
-        @apply before: transition;
-        @apply before: content-DEFAULT;
-        @apply hover: no-underline;
-        @apply hover: before:opacity-20;
+        @apply last:ml-4;
+        @apply sm:ml-8;
+        @apply before:absolute;
+        @apply before:bg-current;
+        @apply before:opacity-10;
+        @apply before:inset-0;
+        @apply before:transition;
+        @apply before:content-DEFAULT;
+        @apply hover:no-underline;
+        @apply hover:before:opacity-20;
       }
     }
 
@@ -417,24 +417,24 @@ pre.ace_editor {
 .smart-splitter .splitpanes__splitter {
   @apply relative;
   @apply bg-primaryLight;
-  @apply before: absolute;
-  @apply before: inset-0;
-  @apply before: bg-accentLight;
-  @apply before: opacity-0;
-  @apply before: z-20;
-  @apply before: transition;
-  @apply before: content-DEFAULT;
-  @apply after: absolute;
-  @apply after: inset-0;
-  @apply after: z-20;
-  @apply after: transition;
-  @apply after: flex;
-  @apply after: items-center;
-  @apply after: justify-center;
-  @apply after: text-dividerDark;
-  @apply after: font-icon;
-  @apply hover: before:opacity-100;
-  @apply hover: after:text-accentDark;
+  @apply before:absolute;
+  @apply before:inset-0;
+  @apply before:bg-accentLight;
+  @apply before:opacity-0;
+  @apply before:z-20;
+  @apply before:transition;
+  @apply before:content-DEFAULT;
+  @apply after:absolute;
+  @apply after:inset-0;
+  @apply after:z-20;
+  @apply after:transition;
+  @apply after:flex;
+  @apply after:items-center;
+  @apply after:justify-center;
+  @apply after:text-dividerDark;
+  @apply after:font-icon;
+  @apply hover:before:opacity-100;
+  @apply hover:after:text-accentDark;
 }
 
 .no-splitter .splitpanes__splitter {
@@ -444,18 +444,18 @@ pre.ace_editor {
 
 .smart-splitter.splitpanes--vertical > .splitpanes__splitter {
   @apply w-1;
-  @apply before: -left-0.5;
-  @apply before: -right-0.5;
-  @apply before: h-full;
-  @apply after: content-["\e5d4"];
+  @apply before:-left-0.5;
+  @apply before:-right-0.5;
+  @apply before:h-full;
+  @apply after:content-["\e5d4"];
 }
 
 .smart-splitter.splitpanes--horizontal > .splitpanes__splitter {
   @apply h-1;
-  @apply before: -top-0.5;
-  @apply before: -bottom-0.5;
-  @apply before: w-full;
-  @apply after: content-["\e5d3"];
+  @apply before:-top-0.5;
+  @apply before:-bottom-0.5;
+  @apply before:w-full;
+  @apply after:content-["\e5d3"];
 }
 
 .no-splitter.splitpanes--vertical > .splitpanes__splitter {
@@ -507,7 +507,7 @@ pre.ace_editor {
 }
 
 .capitalize-first {
-  @apply first-letter: capitalize;
+  @apply first-letter:capitalize;
 }
 
 details {
@@ -543,12 +543,16 @@ details[open] summary .indicator {
   @apply bg-accent #{!important};
 }
 
-input[type="color"]::-webkit-color-swatch-wrapper {
-  @apply rounded;
-  padding: 0;
+.color-picker[type="color"] {
+  @apply appearance-none;
 }
 
-input[type="color"]::-webkit-color-swatch {
+.color-picker[type="color"]::-webkit-color-swatch-wrapper {
   @apply rounded;
-  border: none;
+  @apply p-0;
+}
+
+.color-picker[type="color"]::-webkit-color-swatch {
+  @apply rounded;
+  @apply border-0;
 }

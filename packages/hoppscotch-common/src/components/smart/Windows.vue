@@ -9,7 +9,7 @@
             <draggable
               v-bind="dragOptions"
               :list="tabEntries"
-              :style="tabsWidth"
+              :style="tabStyles"
               :item-key="'window-'"
               class="flex flex-shrink-0 overflow-x-auto transition divide-x divide-dividerLight"
               @sort="sortTabs"
@@ -43,7 +43,7 @@
                     }"
                     :title="t('action.close')"
                     :class="[{ active: modelValue === tabID }, 'close']"
-                    class="rounded mx-2 !py-0.5 !px-1"
+                    class="mx-2 !p-0.5"
                     @click.stop="emit('removeTab', tabID)"
                   />
                 </button>
@@ -127,11 +127,11 @@ const emit = defineEmits<{
   (e: "addTab"): void
 }>()
 const tabEntries = ref<Array<[string, TabMeta]>>([])
-const tabsWidth = computed(() => ({
+const tabStyles = computed(() => ({
   maxWidth: `${tabEntries.value.length * 184}px`,
   width: "100%",
   minWidth: "0px",
-  transition: "max-width 0.2s",
+  // transition: "max-width 0.2s",
 }))
 const dragOptions = {
   group: "tabs",
@@ -201,16 +201,13 @@ const addTab = () => {
   @apply whitespace-nowrap;
   @apply overflow-auto;
   @apply flex-shrink-0;
-
-  &::after {
-    @apply absolute;
-    @apply inset-x-0;
-    @apply bottom-0;
-    @apply bg-dividerLight;
-    @apply z-10;
-    @apply h-0.25;
-    content: "";
-  }
+  @apply after:absolute;
+  @apply after:inset-x-0;
+  @apply after:bottom-0;
+  @apply after:bg-dividerLight;
+  @apply after:z-10;
+  @apply after:h-0.25;
+  @apply after:content-DEFAULT;
 
   .tab {
     @apply relative;
@@ -226,44 +223,20 @@ const addTab = () => {
     @apply hover:bg-primaryDark;
     @apply hover:text-secondary;
     @apply focus-visible:text-secondaryDark;
-
-    &::before {
-      @apply absolute;
-      @apply left-0;
-      @apply right-0;
-      @apply top-0;
-      @apply bg-transparent;
-      @apply z-2;
-      @apply h-0.5;
-      content: "";
-    }
-
-    // &::after {
-    //   @apply absolute;
-    //   @apply left-0;
-    //   @apply right-0;
-    //   @apply bottom-0;
-    //   @apply bg-divider;
-    //   @apply z-2;
-    //   @apply h-0.25;
-    //   content: "";
-    // }
-
-    &:focus::before {
-      @apply bg-divider;
-    }
+    @apply before:absolute;
+    @apply before:left-0;
+    @apply before:right-0;
+    @apply before:top-0;
+    @apply before:bg-transparent;
+    @apply before:z-2;
+    @apply before:h-0.5;
+    @apply before:content-DEFAULT;
+    @apply focus: before: bg-divider;
 
     &.active {
       @apply text-secondaryDark;
       @apply bg-primary;
-
-      &::before {
-        @apply bg-accent;
-      }
-
-      // &::after {
-      //   @apply bg-transparent;
-      // }
+      @apply before:bg-accent;
     }
 
     .close {

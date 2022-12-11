@@ -149,9 +149,11 @@
           </template>
         </tippy>
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'app.shortcuts'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>K</kbd>`"
           :icon="IconZap"
-          :title="t('app.shortcuts')"
           @click="showShortcuts = true"
         />
         <ButtonSecondary
@@ -223,6 +225,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { TippyComponent } from "vue-tippy"
 import SmartItem from "@components/smart/Item.vue"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 const showShortcuts = ref(false)

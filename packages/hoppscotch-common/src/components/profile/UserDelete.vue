@@ -101,20 +101,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount } from "vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { GQLError } from "~/helpers/backend/GQLClient"
-
-import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { ref, watch } from "vue"
+import { GQLError, runGQLQuery } from "~/helpers/backend/GQLClient"
+import * as E from "fp-ts/Either"
+import { useRouter } from "vue-router"
 import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
-import { signOutUser } from "~/helpers/fb/auth"
-import { useRouter } from "vue-router"
+import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { deleteUser } from "~/helpers/backend/mutations/Profile"
-import { onAuthEvent, onLoggedIn } from "~/composables/auth"
-import { Subscription } from "rxjs"
-import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import { signOutUser } from "~/helpers/fb/auth"
 
 const t = useI18n()
 const toast = useToast()
@@ -123,26 +120,32 @@ const router = useRouter()
 const showDeleteAccountModal = ref(false)
 const userVerificationInput = ref("")
 
-let sub: Subscription | null = null
-const adapter = new TeamListAdapter(true)
 const loading = ref(true)
 const myTeams = ref<GetMyTeamsQuery["myTeams"]>([])
 
-watch(showDeleteAccountModal, (newVal) => {
-  if (newVal && !myTeams.value.length) {
-    sub = adapter.teamList$.subscribe((teams) => {
-      if (teams) {
-        myTeams.value = teams.filter((team) => {
-          return team.ownersCount === 1 && team.myRole === "OWNER"
-        })
-      }
-
-      loading.value = false
-      sub?.unsubscribe()
-      sub = null
-    })
+watch(showDeleteAccountModal, (isModalOpen) => {
+  if (isModalOpen) {
+    fetchMyTeams()
   }
 })
+
+const fetchMyTeams = async () => {
+  loading.value = true
+  const result = await runGQLQuery({
+    query: GetMyTeamsDocument,
+  })
+  loading.value = false
+
+  if (E.isLeft(result)) {
+    throw new Error(
+      `Failed fetching teams list: ${JSON.stringify(result.left)}`
+    )
+  }
+
+  myTeams.value = result.right.myTeams.filter((team) => {
+    return team.ownersCount === 1 && team.myRole === "OWNER"
+  })
+}
 
 const deletingUser = ref(false)
 
@@ -180,19 +183,4 @@ const getErrorMessage = (err: GQLError<string>) => {
     }
   }
 }
-
-onLoggedIn(() => {
-  adapter.initialize()
-})
-
-onAuthEvent((ev) => {
-  if (ev.event === "logout") {
-    adapter.dispose()
-    return
-  }
-})
-
-onBeforeUnmount(() => {
-  sub?.unsubscribe()
-})
 </script>

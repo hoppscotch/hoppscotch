@@ -82,6 +82,7 @@
             filled
             outline
             :disabled="
+              loading ||
               myTeams.length > 0 ||
               userVerificationInput !== 'delete my account'
             "

@@ -12,7 +12,6 @@
       <SmartTab
         :id="'team-environments'"
         :label="`${t('environment.team_environments')}`"
-        :disabled="!currentUser"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
@@ -76,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue"
+import { nextTick, ref, watch } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { onLoggedIn } from "@composables/auth"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
@@ -86,6 +85,7 @@ import { useLocalState } from "~/newstore/localstate"
 import { useI18n } from "@composables/i18n"
 import IconDone from "~icons/lucide/check"
 import IconUsers from "~icons/lucide/users"
+import { invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 
@@ -156,6 +156,9 @@ const updateSelectedTeam = (team: SelectedTeam) => {
 }
 
 watch(selectedEnvironmentTab, (newValue: EnvironmentTabs) => {
-  updateEnvironmentType(newValue)
+  if (newValue === "team-environments" && !currentUser.value) {
+    invokeAction("modals.login.toggle")
+    nextTick(() => (selectedEnvironmentTab.value = "my-environments"))
+  } else updateEnvironmentType(newValue)
 })
 </script>

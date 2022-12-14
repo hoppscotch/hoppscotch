@@ -24,7 +24,7 @@
           <ButtonPrimary
             :label="t('auth.login')"
             class="mb-4"
-            @click="showLogin = true"
+            @click="invokeAction('modals.login.toggle')"
           />
         </div>
         <div v-else class="space-y-8">
@@ -285,7 +285,6 @@
         </div>
       </div>
     </div>
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 
@@ -317,6 +316,7 @@ import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mut
 import IconVerified from "~icons/lucide/verified"
 import IconSettings from "~icons/lucide/settings"
 import IconHelpCircle from "~icons/lucide/help-circle"
+import { invokeAction } from "~/helpers/actions"
 
 type ProfileTabs = "sync" | "teams"
 
@@ -329,8 +329,6 @@ const colorMode = useColorMode()
 usePageHead({
   title: computed(() => t("navigation.profile")),
 })
-
-const showLogin = ref(false)
 
 const SYNC_COLLECTIONS = useSetting("syncCollections")
 const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")

@@ -5,23 +5,29 @@ on:
     branches: [main]
 
 jobs:
-  build:
-    name: Push build files to Netlify
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Environment
+      - name: Setup environment
         run: mv .env.example .env
 
-      - name: Setup and run pnpm install
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2.2.4
         with:
           version: 7
           run_install: true
 
-      - name: Build Site
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Build site
         env:
           VITE_SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           VITE_SENTRY_ENVIRONMENT: production
@@ -35,7 +41,7 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_PRODUCTION_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
-      - name: Create Sentry Release
+      - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

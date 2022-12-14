@@ -7,8 +7,8 @@ on:
     types: [published]
 
 jobs:
-  push_to_registry:
-    name: Push Docker image to Docker Hub
+  publish:
+    name: Publish
     runs-on: ubuntu-latest
     steps:
       - name: Maximize build space
@@ -20,7 +20,7 @@ jobs:
           remove-android: 'true'
           remove-haskell: 'true'
 
-      - name: Check out the repo
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Set up QEMU

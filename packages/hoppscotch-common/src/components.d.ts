@@ -55,6 +55,7 @@ declare module '@vue/runtime-core' {
     CollectionsTeamsCollection: typeof import('./components/collections/teams/Collection.vue')['default']
     CollectionsTeamsFolder: typeof import('./components/collections/teams/Folder.vue')['default']
     CollectionsTeamsRequest: typeof import('./components/collections/teams/Request.vue')['default']
+    ComponentA: typeof import('./../../hoppscotch-ui/src/components/ComponentA.vue')['default']
     Environments: typeof import('./components/environments/index.vue')['default']
     EnvironmentsChooseType: typeof import('./components/environments/ChooseType.vue')['default']
     EnvironmentsImportExport: typeof import('./components/environments/ImportExport.vue')['default']

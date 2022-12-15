@@ -1,21 +1,9 @@
 {
-  "name": "@hoppscotch/common",
+  "name": "@hoppscotch/ui",
   "private": true,
-  "version": "3.0.1",
+  "version": "0.0.1",
   "scripts": {
-    "dev": "pnpm exec npm-run-all -p -l dev:*",
-    "dev:vite": "vite",
-    "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml --watch dotenv_config_path=\"../../.env\"",
-    "lint": "eslint src --ext .ts,.js,.vue --ignore-path .gitignore .",
-    "lint:ts": "vue-tsc --noEmit",
-    "prod-lint": "cross-env HOPP_LINT_FOR_PROD=true pnpm run lint",
-    "lintfix": "eslint --fix src --ext .ts,.js,.vue --ignore-path .gitignore .",
-    "preview": "vite preview",
-    "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\"",
-    "postinstall": "pnpm run gql-codegen",
-    "do-lint": "pnpm run prod-lint",
-    "do-typecheck": "pnpm run lint",
-    "do-lintfix": "pnpm run lintfix"
+    "build": "rimraf dist && vue-tsc && vite build"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
@@ -31,7 +19,6 @@
     "@codemirror/state": "^6.1.0",
     "@codemirror/view": "^6.0.2",
     "@hoppscotch/codemirror-lang-graphql": "workspace:^0.2.0",
-    "@hoppscotch/ui": "workspace:^0.0.1",
     "@hoppscotch/data": "workspace:^0.4.4",
     "@hoppscotch/js-sandbox": "workspace:^2.1.0",
     "@hoppscotch/vue-toasted": "^0.1.0",
@@ -147,5 +134,17 @@
     "vite-plugin-windicss": "^1.8.8",
     "vue-tsc": "^0.38.2",
     "windicss": "^3.5.6"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "types": "./dist/types/index.d.ts",
+  "module": "./dist/my-lib.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/my-lib.es.js"
+    },
+    "./dist/style.css": "./dist/style.css"
   }
 }

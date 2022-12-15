@@ -9,9 +9,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       fileName: "hoppscotch-data",
-      formats: [
-        "es", "cjs"
-      ],
-    }
-  }
+      formats: ["es", "cjs"],
+    },
+  },
 })

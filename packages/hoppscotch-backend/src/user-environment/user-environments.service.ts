@@ -1,10 +1,18 @@
 import { Injectable } from '@nestjs/common';
-
 import { UserEnvironment } from './user-environments.model';
 import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
+import {
+  USER_ENVIRONMENT_ENV_DOESNT_EXISTS,
+  USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED,
+  USER_ENVIRONMENT_GLOBAL_ENV_DOESNT_EXISTS,
+  USER_ENVIRONMENT_GLOBAL_ENV_EXISTS,
+  USER_ENVIRONMENT_IS_NOT_GLOBAL,
+  USER_ENVIRONMENT_UPDATE_FAILED,
+} from '../errors';
 
+// Contains constants for the subscription types we send to pubsub service
 enum SubscriptionType {
   Created = 'created',
   Updated = 'updated',
@@ -19,9 +27,9 @@ export class UserEnvironmentsService {
   ) {}
 
   /**
-   * Fetch personal and global user environments based on `isGlobal` flag
+   * Fetch personal user environments
    * @param uid Users uid
-   * @returns array of users personal and global environments
+   * @returns array of users personal environments
    */
   async fetchUserEnvironments(uid: string) {
     const environments = await this.prisma.userEnvironment.findMany({
@@ -45,6 +53,32 @@ export class UserEnvironmentsService {
   }
 
   /**
+   * Fetch users global environment
+   * @param uid Users uid
+   * @returns an `UserEnvironment` object
+   */
+  async fetchUserGlobalEnvironment(uid: string) {
+    const globalEnvironment = await this.prisma.userEnvironment.findFirst({
+      where: {
+        userUid: uid,
+        isGlobal: true,
+      },
+    });
+
+    if (globalEnvironment != null) {
+      return E.right(<UserEnvironment>{
+        userUid: globalEnvironment.userUid,
+        id: globalEnvironment.id,
+        name: globalEnvironment.name,
+        variables: JSON.stringify(globalEnvironment.variables),
+        isGlobal: globalEnvironment.isGlobal,
+      });
+    }
+
+    return E.left(USER_ENVIRONMENT_ENV_DOESNT_EXISTS);
+  }
+
+  /**
    * Create a personal or global user environment
    * @param uid Users uid
    * @param name environments name
@@ -58,9 +92,11 @@ export class UserEnvironmentsService {
     variables: string,
     isGlobal: boolean,
   ) {
+    // Check for existing global env for a user if exists error out to avoid recreation
     if (isGlobal) {
       const globalEnvExists = await this.checkForExistingGlobalEnv(uid);
-      if (E.isRight(globalEnvExists)) return E.left('global env exits');
+      if (E.isRight(globalEnvExists))
+        return E.left(USER_ENVIRONMENT_GLOBAL_ENV_EXISTS);
     }
 
     const createdEnvironment = await this.prisma.userEnvironment.create({
@@ -80,7 +116,7 @@ export class UserEnvironmentsService {
       isGlobal: createdEnvironment.isGlobal,
     };
     // Publish subscription for environment creation
-    await this.publishUserEnvironmentCreatedSubscription(
+    await this.publishUserEnvironmentSubscription(
       userEnvironment,
       SubscriptionType.Created,
     );
@@ -112,24 +148,33 @@ export class UserEnvironmentsService {
         variables: JSON.stringify(updatedEnvironment.variables),
         isGlobal: updatedEnvironment.isGlobal,
       };
-      // Publish subscription for environment creation
-      await this.publishUserEnvironmentCreatedSubscription(
+      // Publish subscription for environment update
+      await this.publishUserEnvironmentSubscription(
         updatedUserEnvironment,
         SubscriptionType.Updated,
       );
       return E.right(updatedUserEnvironment);
     } catch (e) {
-      return E.left('user_env not found');
+      return E.left(USER_ENVIRONMENT_ENV_DOESNT_EXISTS);
     }
   }
 
   /**
    * Delete an existing personal user environment based on environment id
+   * @param uid users uid
    * @param id environment id
    * @returns an Either of deleted `UserEnvironment` or error
    */
-  async deleteUserEnvironment(id: string) {
+  async deleteUserEnvironment(uid: string, id: string) {
     try {
+      // check if id is of a global environment if it is, don't delete and error out
+      const globalEnvExists = await this.checkForExistingGlobalEnv(uid);
+      if (E.isRight(globalEnvExists)) {
+        const globalEnv = globalEnvExists.right;
+        if (globalEnv.id === id) {
+          return E.left(USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED);
+        }
+      }
       const deletedEnvironment = await this.prisma.userEnvironment.delete({
         where: {
           id: id,
@@ -144,20 +189,19 @@ export class UserEnvironmentsService {
         isGlobal: deletedEnvironment.isGlobal,
       };
       // Publish subscription for environment creation
-      await this.publishUserEnvironmentCreatedSubscription(
+      await this.publishUserEnvironmentSubscription(
         deletedUserEnvironment,
         SubscriptionType.Deleted,
       );
       return E.right(deletedUserEnvironment);
     } catch (e) {
-      return E.left('user_env not found');
+      return E.left(USER_ENVIRONMENT_ENV_DOESNT_EXISTS);
     }
   }
 
   /**
    * Deletes all existing personal user environments
-   * @param id environment id
-   * @param isGlobal flag to indicate type of environment to delete
+   * @param uid user uid
    * @returns a count of environments deleted
    */
   async deleteUserEnvironments(uid: string) {
@@ -170,9 +214,15 @@ export class UserEnvironmentsService {
     return deletedEnvironments.count;
   }
 
+  /**
+   * Deletes all existing variables in a users global environment
+   * @param uid users uid
+   * @param id environment id
+   * @returns an `` of environments deleted
+   */
   async deleteAllVariablesFromUsersGlobalEnvironment(uid: string, id: string) {
     const globalEnvExists = await this.checkForExistingGlobalEnv(uid);
-    if (E.isRight(globalEnvExists) && !E.isLeft(globalEnvExists)) {
+    if (E.isRight(globalEnvExists)) {
       const env = globalEnvExists.right;
       if (env.id === id) {
         try {
@@ -190,21 +240,21 @@ export class UserEnvironmentsService {
             isGlobal: updatedEnvironment.isGlobal,
           };
           // Publish subscription for environment creation
-          await this.publishUserEnvironmentCreatedSubscription(
+          await this.publishUserEnvironmentSubscription(
             updatedUserEnvironment,
             SubscriptionType.Updated,
           );
           return E.right(updatedUserEnvironment);
         } catch (e) {
-          return E.left('user_env not found');
+          return E.left(USER_ENVIRONMENT_UPDATE_FAILED);
         }
-      }
+      } else return E.left(USER_ENVIRONMENT_IS_NOT_GLOBAL);
     }
-    return E.left('mismatch');
+    return E.left(USER_ENVIRONMENT_ENV_DOESNT_EXISTS);
   }
 
   // Method to publish subscriptions based on the subscription type of the environment
-  async publishUserEnvironmentCreatedSubscription(
+  async publishUserEnvironmentSubscription(
     userEnv: UserEnvironment,
     subscriptionType: SubscriptionType,
   ) {
@@ -232,6 +282,7 @@ export class UserEnvironmentsService {
     }
   }
 
+  // Method to check for existing global environments for a given user uid
   private async checkForExistingGlobalEnv(uid: string) {
     const globalEnv = await this.prisma.userEnvironment.findFirst({
       where: {
@@ -239,26 +290,9 @@ export class UserEnvironmentsService {
         isGlobal: true,
       },
     });
-    if (globalEnv === null) return E.left('global env not exist');
+    if (globalEnv === null)
+      return E.left(USER_ENVIRONMENT_GLOBAL_ENV_DOESNT_EXISTS);
 
     return E.right(globalEnv);
-  }
-
-  async fetchUserGlobalEnvironments(uid: string) {
-    const globalEnvironment = await this.prisma.userEnvironment.findFirst({
-      where: {
-        userUid: uid,
-        isGlobal: true,
-      },
-      rejectOnNotFound: true,
-    });
-
-    return <UserEnvironment>{
-      userUid: globalEnvironment.userUid,
-      id: globalEnvironment.id,
-      name: globalEnvironment.name,
-      variables: JSON.stringify(globalEnvironment.variables),
-      isGlobal: globalEnvironment.isGlobal,
-    };
   }
 }

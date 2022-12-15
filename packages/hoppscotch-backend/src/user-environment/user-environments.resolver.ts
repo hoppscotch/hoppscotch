@@ -92,6 +92,7 @@ export class UserEnvironmentsResolver {
   })
   @UseGuards(GqlAuthGuard)
   async deleteUserEnvironment(
+    @GqlUser() user: User,
     @Args({
       name: 'id',
       description: 'ID of the user environment',
@@ -100,7 +101,7 @@ export class UserEnvironmentsResolver {
     id: string,
   ): Promise<UserEnvironment> {
     const userEnvironment =
-      await this.userEnvironmentsService.deleteUserEnvironment(id);
+      await this.userEnvironmentsService.deleteUserEnvironment(user.uid, id);
     if (E.isLeft(userEnvironment)) throwErr(userEnvironment.left);
     return userEnvironment.right;
   }
@@ -170,7 +171,7 @@ export class UserEnvironmentsResolver {
   }
 
   @Subscription(() => UserEnvironment, {
-    description: 'Listen for User Environment updates',
+    description: 'Listen for User Environment deletion',
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)

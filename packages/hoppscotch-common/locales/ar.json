@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "استخدم شريط URL التجريبي مع تمييز البيئة",
     "user": "المستخدم",
     "verified_email": "Verified email",
-    "verify_email": "تأكيد البريد الإلكتروني"
+    "verify_email": "تأكيد البريد الإلكتروني",
+    "general": "عام",
+    "response": "إجابة",
+    "request": "طلب",
+    "enable_js_in_html_preview": "قم بتمكين JavaScript في معاينة HTML"
   },
   "shortcodes": {
     "actions": "Actions",

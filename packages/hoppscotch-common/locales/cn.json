@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "使用实验性的带有环境高亮的 URL 栏",
     "user": "用户",
     "verified_email": "Verified email",
-    "verify_email": "验证电子邮箱"
+    "verify_email": "验证电子邮箱",
+    "general": "General",
+    "response": "Response",
+    "request": "Request",
+    "enable_js_in_html_preview": "Enable JavaScript in HTML preview"
   },
   "shortcodes": {
     "actions": "Actions",

@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Gunakan experimental URL bar dengan environment highlighting",
     "user": "Pengguna",
     "verified_email": "Surel terverifikasi",
-    "verify_email": "Verifikasi surel"
+    "verify_email": "Verifikasi surel",
+    "general": "Umum",
+    "response": "Tanggapan",
+    "request": "Meminta",
+    "enable_js_in_html_preview": "Aktifkan JavaScript di pratinjau HTML"
   },
   "shortcodes": {
     "actions": "Tindakan",

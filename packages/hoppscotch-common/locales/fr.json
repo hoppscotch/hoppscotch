@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Utiliser la barre d'URL expérimentale avec mise en évidence de l'environnement",
     "user": "Utilisateur",
     "verified_email": "Verified email",
-    "verify_email": "Vérifier l'email"
+    "verify_email": "Vérifier l'email",
+    "general": "Général",
+    "response": "Réponse",
+    "request": "Demande",
+    "enable_js_in_html_preview": "Activer JavaScript dans l'aperçu HTML"
   },
   "shortcodes": {
     "actions": "Actions",

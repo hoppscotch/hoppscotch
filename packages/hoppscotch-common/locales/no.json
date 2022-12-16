@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Bruk en eksperimentell URL-linje med utheving av miljøet",
     "user": "Bruker",
     "verified_email": "Verified email",
-    "verify_email": "Verify email"
+    "verify_email": "Verify email",
+    "general": "Generell",
+    "response": "Respons",
+    "request": "Be om",
+    "enable_js_in_html_preview": "Aktiver JavaScript i HTML-forhåndsvisning"
   },
   "shortcodes": {
     "actions": "Actions",

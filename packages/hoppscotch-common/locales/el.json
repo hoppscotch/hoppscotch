@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Χρήση πειραματικής γραμμής URL με ανάδειξη περιβάλλοντος",
     "user": "Χρήστης",
     "verified_email": "Επαληθευμένο email",
-    "verify_email": "Επαλήθευση email"
+    "verify_email": "Επαλήθευση email",
+    "general": "Γενικός",
+    "response": "Απάντηση",
+    "request": "Αίτηση",
+    "enable_js_in_html_preview": "Ενεργοποίηση JavaScript σε προεπισκόπηση HTML"
   },
   "shortcodes": {
     "actions": "Δράσεις",

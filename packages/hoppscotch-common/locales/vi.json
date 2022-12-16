@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Sử dụng thanh URL thử nghiệm với đánh dấu môi trường",
     "user": "Người sử dụng",
     "verified_email": "Verified email",
-    "verify_email": "Verify email"
+    "verify_email": "Verify email",
+    "general": "Chung",
+    "response": "Phản hồi",
+    "request": "Yêu cầu",
+    "enable_js_in_html_preview": "Bật JavaScript trong bản xem trước HTML"
   },
   "shortcodes": {
     "actions": "Actions",

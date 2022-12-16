@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "환경을 강조해주는 실험용 URL바 사용",
     "user": "사용자",
     "verified_email": "Verified email",
-    "verify_email": "이메일 확인"
+    "verify_email": "이메일 확인",
+    "general": "일반적인",
+    "response": "응답",
+    "request": "요구",
+    "enable_js_in_html_preview": "HTML 미리보기에서 JavaScript 활성화"
   },
   "shortcodes": {
     "actions": "Actions",

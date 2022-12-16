@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Käytä kokeellista URL -palkkia ympäristön korostamisen kanssa",
     "user": "Käyttäjä",
     "verified_email": "Verified email",
-    "verify_email": "Verify email"
+    "verify_email": "Verify email",
+    "general": "Kenraali",
+    "response": "Vastaus",
+    "request": "Pyyntö",
+    "enable_js_in_html_preview": "Ota JavaScript käyttöön HTML-esikatselussa"
   },
   "shortcodes": {
     "actions": "Actions",

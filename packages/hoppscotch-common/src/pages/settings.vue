@@ -100,6 +100,31 @@
       <div class="md:grid md:gap-4 md:grid-cols-3">
         <div class="p-8 md:col-span-1">
           <h3 class="heading">
+            {{ t("settings.general") }}
+          </h3>
+        </div>
+        <div class="p-8 space-y-8 md:col-span-2">
+          <section>
+            <h4 class="font-semibold text-secondaryDark">
+              {{ t("settings.request") + " / " + t("settings.response") }}
+            </h4>
+            <div class="py-4 space-y-4">
+              <div class="flex items-center">
+                <SmartToggle
+                  :on="ENABLE_JS_IN_HTML_PREVIEW"
+                  @change="toggleSetting('ENABLE_JS_IN_HTML_PREVIEW')"
+                >
+                  {{ t("settings.enable_js_in_html_preview") }}
+                </SmartToggle>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="md:grid md:gap-4 md:grid-cols-3">
+        <div class="p-8 md:col-span-1">
+          <h3 class="heading">
             {{ t("settings.interceptor") }}
           </h3>
           <p class="my-1 text-secondaryLight">
@@ -265,6 +290,7 @@ const TELEMETRY_ENABLED = useSetting("TELEMETRY_ENABLED")
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 const ZEN_MODE = useSetting("ZEN_MODE")
+const ENABLE_JS_IN_HTML_PREVIEW = useSetting("ENABLE_JS_IN_HTML_PREVIEW")
 
 const currentExtensionStatus = useReadonlyStream(extensionStatus$, null)
 

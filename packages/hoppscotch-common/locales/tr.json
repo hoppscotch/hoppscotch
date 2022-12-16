@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Ortam vurgulamalı deneysel URL çubuğunu kullanın",
     "user": "Kullanıcı",
     "verified_email": "Verified email",
-    "verify_email": "E-posta'yı doğrula"
+    "verify_email": "E-posta'yı doğrula",
+    "general": "Genel",
+    "response": "Tepki",
+    "request": "Rica etmek",
+    "enable_js_in_html_preview": "HTML önizlemesinde JavaScript'i etkinleştir"
   },
   "shortcodes": {
     "actions": "Actions",

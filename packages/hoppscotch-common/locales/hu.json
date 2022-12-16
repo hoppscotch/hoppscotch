@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Kísérleti URL-sáv használata a környezet kiemelésével",
     "user": "Felhasználó",
     "verified_email": "Verified email",
-    "verify_email": "E-mail-cím ellenőrzése"
+    "verify_email": "E-mail-cím ellenőrzése",
+    "general": "Tábornok",
+    "response": "Válasz",
+    "request": "Kérés",
+    "enable_js_in_html_preview": "Engedélyezze a JavaScriptet a HTML előnézetben"
   },
   "shortcodes": {
     "actions": "Actions",

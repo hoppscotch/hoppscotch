@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Utilizați bara URL experimentală cu evidențierea mediului",
     "user": "Utilizator",
     "verified_email": "Adresă de email verificată",
-    "verify_email": "Verificați adresa de email"
+    "verify_email": "Verificați adresa de email",
+    "general": "General",
+    "response": "Raspuns",
+    "request": "Cerere",
+    "enable_js_in_html_preview": "Activați JavaScript în previzualizarea HTML"
   },
   "shortcodes": {
     "actions": "Acțiuni",

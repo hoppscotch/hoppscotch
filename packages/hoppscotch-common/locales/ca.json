@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Utilitzeu la barra d'URL experimental amb ressaltat de l'entorn",
     "user": "Usuari",
     "verified_email": "Verified email",
-    "verify_email": "Verificar correu electronic"
+    "verify_email": "Verificar correu electronic",
+    "general": "General",
+    "response": "Resposta",
+    "request": "Sol·licitud",
+    "enable_js_in_html_preview": "Activa JavaScript a la previsualització HTML"
   },
   "shortcodes": {
     "actions": "Accions",

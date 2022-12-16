@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Использовать экспериментальную строку URL с выделением среды",
     "user": "Пользователь",
     "verified_email": "Verified email",
-    "verify_email": "Подтвердить почту"
+    "verify_email": "Подтвердить почту",
+    "general": "Общий",
+    "response": "Ответ",
+    "request": "Запрос",
+    "enable_js_in_html_preview": "Включить JavaScript в предварительном просмотре HTML"
   },
   "shortcodes": {
     "actions": "Actions",

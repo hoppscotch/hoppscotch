@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Використовуйте експериментальний рядок URL з виділенням середовища",
     "user": "Користувач",
     "verified_email": "Підтверджений email",
-    "verify_email": "Підтвердити електронну адресу"
+    "verify_email": "Підтвердити електронну адресу",
+    "general": "Загальний",
+    "response": "Відповідь",
+    "request": "запит",
+    "enable_js_in_html_preview": "Увімкніть JavaScript у попередньому перегляді HTML"
   },
   "shortcodes": {
     "actions": "Дії",

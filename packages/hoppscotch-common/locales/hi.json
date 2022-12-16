@@ -488,7 +488,11 @@
     "use_experimental_url_bar": "पर्यावरण हाइलाइटिंग के साथ प्रयोगात्मक URL बार का उपयोग करें",
     "user": "उपयोगकर्ता",
     "verified_email": "सत्यापित ईमेल",
-    "verify_email": "ईमेल सत्यापित करें"
+    "verify_email": "ईमेल सत्यापित करें",
+    "general": "सामान्य",
+    "response": "जवाब",
+    "request": "प्रार्थना",
+    "enable_js_in_html_preview": "HTML पूर्वावलोकन में JavaScript सक्षम करें"
   },
   "shortcodes": {
     "actions": "कार्रवाई",

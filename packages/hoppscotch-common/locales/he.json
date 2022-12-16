@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "השתמש בשורת כתובת URL ניסיונית עם הדגשת סביבה",
     "user": "מִשׁתַמֵשׁ",
     "verified_email": "Verified email",
-    "verify_email": "Verify email"
+    "verify_email": "Verify email",
+    "general": "כללי",
+    "response": "תְגוּבָה",
+    "request": "בַּקָשָׁה",
+    "enable_js_in_html_preview": "אפשר JavaScript בתצוגה מקדימה של HTML"
   },
   "shortcodes": {
     "actions": "Actions",

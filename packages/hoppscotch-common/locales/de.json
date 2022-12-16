@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Experimentelle URL-Leiste mit Hervorhebung der Umgebung verwenden",
     "user": "Nutzer",
     "verified_email": "Verified email",
-    "verify_email": "E-Mail-Adresse bestätigen"
+    "verify_email": "E-Mail-Adresse bestätigen",
+    "general": "Allgemein",
+    "response": "Antwort",
+    "request": "Anfrage",
+    "enable_js_in_html_preview": "Aktivieren Sie JavaScript in der HTML-Vorschau"
   },
   "shortcodes": {
     "actions": "Actions",

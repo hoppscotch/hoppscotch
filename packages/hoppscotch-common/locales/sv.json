@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "Använd experimentell URL -fält med miljömarkering",
     "user": "Användare",
     "verified_email": "Verified email",
-    "verify_email": "Verify email"
+    "verify_email": "Verify email",
+    "general": "Allmän",
+    "response": "Svar",
+    "request": "Begäran",
+    "enable_js_in_html_preview": "Aktivera JavaScript i HTML-förhandsvisning"
   },
   "shortcodes": {
     "actions": "Actions",

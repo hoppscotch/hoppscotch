@@ -487,7 +487,11 @@
     "use_experimental_url_bar": "使用帶有環境醒目標示的實驗性網址欄",
     "user": "使用者",
     "verified_email": "已確認電子郵件地址",
-    "verify_email": "確認電子郵件地址"
+    "verify_email": "確認電子郵件地址",
+    "general": "Daa daa",
+    "response": "Anoyie",
+    "request": "Abisadeɛ",
+    "enable_js_in_html_preview": "Ma JavaScript nyɛ adwuma wɔ HTML nhwɛso mu"
   },
   "shortcodes": {
     "actions": "操作",

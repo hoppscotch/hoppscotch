@@ -55,7 +55,7 @@
       class="covers-response"
       src="about:blank"
       loading="lazy"
-      sandbox=""
+      :sandbox="enableJsInHtmlPreview ? 'allow-scripts allow-popups' : ''"
     ></iframe>
   </div>
 </template>
@@ -76,6 +76,9 @@ import { useI18n } from "@composables/i18n"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { useSetting } from "@composables/settings"
+
+const enableJsInHtmlPreview = useSetting("ENABLE_JS_IN_HTML_PREVIEW")
 
 const t = useI18n()
 

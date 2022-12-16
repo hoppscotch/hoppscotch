@@ -51,6 +51,7 @@ export type SettingsType = {
   ZEN_MODE: boolean
   FONT_SIZE: HoppFontSize
   COLUMN_LAYOUT: boolean
+  ENABLE_JS_IN_HTML_PREVIEW: boolean
 }
 
 export const defaultSettings: SettingsType = {
@@ -77,6 +78,7 @@ export const defaultSettings: SettingsType = {
   ZEN_MODE: false,
   FONT_SIZE: "small",
   COLUMN_LAYOUT: true,
+  ENABLE_JS_IN_HTML_PREVIEW: false,
 }
 
 const validKeys = Object.keys(defaultSettings)

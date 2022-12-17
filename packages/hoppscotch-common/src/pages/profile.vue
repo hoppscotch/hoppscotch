@@ -205,7 +205,6 @@
           </SmartTabs>
         </div>
       </div>
-      <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     </div>
   </div>
 </template>
@@ -219,6 +218,7 @@ import {
   setEmailAddress,
   verifyEmailAddress,
 } from "~/helpers/fb/auth"
+import { invokeAction } from "~/helpers/actions"
 
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"

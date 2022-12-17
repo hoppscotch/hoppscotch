@@ -3,10 +3,9 @@
     <h4 class="font-semibold text-secondaryDark">
       {{ t("settings.delete_account") }}
     </h4>
-    <div class="my-1 text-secondaryLight mb-4">
+    <div class="my-1 mb-4 text-secondaryLight">
       {{ t("settings.delete_account_description") }}
     </div>
-
     <ButtonSecondary
       filled
       outline
@@ -14,7 +13,6 @@
       type="submit"
       @click="showDeleteAccountModal = true"
     />
-
     <SmartModal
       v-if="showDeleteAccountModal"
       dialog
@@ -26,10 +24,9 @@
           <SmartSpinner class="mb-4" />
           <span class="text-secondaryLight">{{ t("state.loading") }}</span>
         </div>
-
         <div
           v-else-if="myTeams.length"
-          class="flex flex-col p-4 space-y-2 border border-red-500 border-dashed rounded-lg text-secondaryDark bg-error"
+          class="flex flex-col p-4 space-y-2 border border-red-500 rounded-lg text-secondaryDark bg-error"
         >
           <h2 class="font-bold text-red-500">
             {{ t("error.danger_zone") }}
@@ -48,7 +45,7 @@
         </div>
         <div v-else>
           <div
-            class="flex flex-col p-4 mb-4 space-y-2 border border-red-500 border-dashed rounded-lg text-secondaryDark bg-error"
+            class="flex flex-col p-4 mb-4 space-y-2 border border-red-500 rounded-lg text-secondaryDark bg-error"
           >
             <h2 class="font-bold text-red-500">
               {{ t("error.danger_zone") }}

@@ -70,7 +70,7 @@
         v-if="!loading && adapterError"
         class="flex flex-col items-center py-4"
       >
-        <component :is="IconHelpCircle" class="mb-4 svg-icons" />
+        <icon-lucide-help-circle class="mb-4 svg-icons" />
         {{ getErrorMessage(adapterError) }}
       </div>
     </div>
@@ -93,8 +93,6 @@ import { usePageHead } from "@composables/head"
 
 import ShortcodeListAdapter from "~/helpers/shortcodes/ShortcodeListAdapter"
 import { deleteShortcode as backendDeleteShortcode } from "~/helpers/backend/mutations/Shortcode"
-
-import IconHelpCircle from "~icons/lucide/help-circle"
 
 const t = useI18n()
 const toast = useToast()

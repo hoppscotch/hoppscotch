@@ -47,6 +47,7 @@ export const baseTheme = EditorView.theme({
     fontFamily: "var(--font-mono)",
     color: "var(--secondary-dark-color)",
     backgroundColor: "transparent",
+    height: "100%",
   },
   ".cm-cursor": {
     borderColor: "var(--secondary-color)",

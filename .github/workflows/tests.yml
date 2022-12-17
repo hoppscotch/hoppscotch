@@ -7,7 +7,8 @@ on:
     branches: [main, staging]
 
 jobs:
-  build:
+  test:
+    name: Test
     runs-on: ubuntu-latest
 
     strategy:
@@ -15,22 +16,22 @@ jobs:
         node-version: ["lts/*"]
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup Environment
+      - name: Setup environment
         run: mv .env.example .env
 
-      - name: Setup and run pnpm install
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2.2.4
         with:
           version: 7
           run_install: true
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node }}
           cache: pnpm
 
       - name: Run tests

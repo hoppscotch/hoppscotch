@@ -76,10 +76,10 @@ type PaneEvent = {
   size: number
 }
 
-const PANE_SIDEBAR_SIZE = ref(25)
-const PANE_MAIN_SIZE = ref(75)
-const PANE_MAIN_TOP_SIZE = ref(45)
-const PANE_MAIN_BOTTOM_SIZE = ref(65)
+const PANE_MAIN_SIZE = ref(74)
+const PANE_SIDEBAR_SIZE = ref(26)
+const PANE_MAIN_TOP_SIZE = ref(42)
+const PANE_MAIN_BOTTOM_SIZE = ref(58)
 
 if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50

@@ -28,7 +28,15 @@
           @click.prevent="linewrapEnabled = !linewrapEnabled"
         />
         <ButtonSecondary
-          v-if="contentType && contentType.endsWith('json')"
+          v-if="
+            [
+              'application/json',
+              'application/ld+json',
+              'application/hal+json',
+              'application/vnd.api+json',
+              'application/xml',
+            ].includes(contentType)
+          "
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.prettify')"
           :icon="prettifyIcon"
@@ -39,7 +47,7 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t('import.title')"
             :icon="IconFilePlus"
-            @click="$refs.payload.click()"
+            @click="payload?.click()"
           />
         </label>
         <input
@@ -47,7 +55,7 @@
           class="input"
           name="payload"
           type="file"
-          @change="uploadPayload"
+          @change="uploadPayload($event)"
         />
       </div>
     </div>
@@ -85,6 +93,8 @@ type PossibleContentTypes = Exclude<
 >
 
 const t = useI18n()
+
+const payload = ref<HTMLInputElement | null>(null)
 
 const props = defineProps<{
   contentType: PossibleContentTypes
@@ -145,7 +155,7 @@ const clearContent = () => {
   rawParamsBody.value = ""
 }
 
-const uploadPayload = async (e: InputEvent) => {
+const uploadPayload = async (e: Event) => {
   await pipe(
     (e.target as HTMLInputElement).files?.[0],
     TO.of,
@@ -161,15 +171,46 @@ const uploadPayload = async (e: InputEvent) => {
     )
   )()
 }
+
 const prettifyRequestBody = () => {
+  let prettifyBody = ""
   try {
-    const jsonObj = JSON.parse(rawParamsBody.value)
-    rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
+    if (props.contentType.endsWith("json")) {
+      const jsonObj = JSON.parse(rawParamsBody.value as string)
+      prettifyBody = JSON.stringify(jsonObj, null, 2)
+    } else if (props.contentType == "application/xml") {
+      prettifyBody = prettifyXML(rawParamsBody.value as string)
+    }
+    rawParamsBody.value = prettifyBody
     prettifyIcon.value = IconCheck
   } catch (e) {
     console.error(e)
     prettifyIcon.value = IconInfo
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
+}
+
+const prettifyXML = (xml: string) => {
+  const PADDING = " ".repeat(2) // set desired indent size here
+  const reg = /(>)(<)(\/*)/g
+  let pad = 0
+  xml = xml.replace(reg, "$1\r\n$2$3")
+  return xml
+    .split("\r\n")
+    .map((node) => {
+      let indent = 0
+      if (node.match(/.+<\/\w[^>]*>$/)) {
+        indent = 0
+      } else if (node.match(/^<\/\w/) && pad > 0) {
+        pad -= 1
+      } else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+        indent = 1
+      } else {
+        indent = 0
+      }
+      pad += indent
+      return PADDING.repeat(pad - indent) + node
+    })
+    .join("\r\n")
 }
 </script>

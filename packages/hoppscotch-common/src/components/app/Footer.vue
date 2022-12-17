@@ -194,6 +194,7 @@
       :show="showDeveloperOptions"
       @hide-modal="showDeveloperOptions = false"
     />
+    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 
@@ -231,6 +232,7 @@ const t = useI18n()
 const showShortcuts = ref(false)
 const showShare = ref(false)
 const showDeveloperOptions = ref(false)
+const showLogin = ref(false)
 
 defineActionHandler("flyouts.keybinds.toggle", () => {
   showShortcuts.value = !showShortcuts.value
@@ -238,6 +240,10 @@ defineActionHandler("flyouts.keybinds.toggle", () => {
 
 defineActionHandler("modals.share.toggle", () => {
   showShare.value = !showShare.value
+})
+
+defineActionHandler("modals.login.toggle", () => {
+  showLogin.value = !showLogin.value
 })
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")

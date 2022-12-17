@@ -26,11 +26,11 @@ export function createHoppApp(el: string | Element) {
   app.mount(el)
 
   console.info(
-    "%cWe ❤︎ open source!",
-    "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
+    "%cWE ♥️ OPEN SOURCE",
+    "margin:8px 0;font-family:Inter;font-weight:600;font-size:60px;color:violet;"
   )
   console.info(
     "%cContribute: https://github.com/hoppscotch/hoppscotch",
-    "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
+    "margin:8px 0;font-family:Inter;font-weight:500;font-size:24px;color:violet;"
   )
 }

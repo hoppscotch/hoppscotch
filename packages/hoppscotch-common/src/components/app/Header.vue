@@ -42,12 +42,12 @@
           :label="t('header.save_workspace')"
           filled
           class="hidden md:flex"
-          @click="showLogin = true"
+          @click="invokeAction('modals.login.toggle')"
         />
         <ButtonPrimary
           v-if="currentUser === null"
           :label="t('header.login')"
-          @click="showLogin = true"
+          @click="invokeAction('modals.login.toggle')"
         />
         <div v-else class="inline-flex items-center space-x-2">
           <ButtonPrimary
@@ -150,7 +150,6 @@
       </div>
     </header>
     <AppAnnouncement v-if="!network.isOnline" />
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -181,7 +180,6 @@ const t = useI18n()
 
 const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
 
-const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
 const breakpoints = useBreakpoints(breakpointsTailwind)

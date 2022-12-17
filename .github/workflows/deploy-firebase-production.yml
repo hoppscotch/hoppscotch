@@ -5,10 +5,11 @@ on:
     branches: [main]
 
 jobs:
-  deploy_live_website:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Deploy to Firebase (production)

@@ -118,7 +118,6 @@ declare module '@vue/runtime-core' {
     ProfilePicture: typeof import('./components/profile/Picture.vue')['default']
     ProfileShortcode: typeof import('./components/profile/Shortcode.vue')['default']
     ProfileShortcodes: typeof import('./components/profile/Shortcodes.vue')['default']
-    ProfileUserDelete: typeof import('./components/profile/UserDelete.vue')['default']
     RealtimeCommunication: typeof import('./components/realtime/Communication.vue')['default']
     RealtimeConnectionConfig: typeof import('./components/realtime/ConnectionConfig.vue')['default']
     RealtimeLog: typeof import('./components/realtime/Log.vue')['default']

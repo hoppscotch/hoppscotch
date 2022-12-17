@@ -24,7 +24,7 @@
           <ButtonPrimary
             :label="t('auth.login')"
             class="mb-4"
-            @click="showLogin = true"
+            @click="invokeAction('modals.login.toggle')"
           />
         </div>
         <div v-else class="space-y-8">
@@ -207,7 +207,6 @@
       </div>
       <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     </div>
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 
@@ -244,8 +243,6 @@ const colorMode = useColorMode()
 usePageHead({
   title: computed(() => t("navigation.profile")),
 })
-
-const showLogin = ref(false)
 
 const SYNC_COLLECTIONS = useSetting("syncCollections")
 const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")

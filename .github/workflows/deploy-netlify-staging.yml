@@ -7,14 +7,14 @@ on:
     branches: [staging]
 
 jobs:
-  build:
-    name: Push build files to Netlify
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Setup and run pnpm install
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2.2.4
         env:
           VITE_BACKEND_GQL_URL: ${{ secrets.STAGING_BACKEND_GQL_URL }}
@@ -22,7 +22,13 @@ jobs:
           version: 7
           run_install: true
 
-      - name: Build Site
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+
+      - name: Build site
         env:
           VITE_GA_ID: ${{ secrets.STAGING_GA_ID }}
           VITE_GTM_ID: ${{ secrets.STAGING_GTM_ID }}
@@ -48,7 +54,7 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_STAGING_SITE_ID }}
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
 
-      - name: Create Sentry Release
+      - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

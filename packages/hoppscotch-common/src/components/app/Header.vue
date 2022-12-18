@@ -16,8 +16,12 @@
           to="/"
         />
         <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
-
-        <ComponentA />
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip' }"
+          :title="t('header.install_pwa')"
+          :icon="IconDownload"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+        />
       </div>
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary

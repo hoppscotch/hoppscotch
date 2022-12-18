@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "build": "rimraf dist && vue-tsc && vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",

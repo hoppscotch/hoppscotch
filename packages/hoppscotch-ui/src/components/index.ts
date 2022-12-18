@@ -1,3 +1,4 @@
-import Test from "./Test.vue"
+import Primary from "./button/Primary.vue"
+import Secondary from "./button/Secondary.vue"
 
-export { Test }
+export default { Primary, Secondary }

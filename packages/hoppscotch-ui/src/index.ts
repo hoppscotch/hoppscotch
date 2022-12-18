@@ -10,7 +10,7 @@ if (typeof window !== "undefined") {
 
 console.log("HoppUI", HoppUI)
 
-import "./assets/main.scss"
+import "./assets/scss/styles.scss"
 
 const plugin: Plugin = {
   install(app, options = {}) {

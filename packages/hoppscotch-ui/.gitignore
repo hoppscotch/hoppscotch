@@ -1,6 +1,35 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 node_modules
-.DS_Store
 dist
 dist-ssr
 *.local
-types
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment Variables
+.env
+
+# Backend Code generation
+src/helpers/backend/graphql.ts
+src/helpers/backend/backend-schema.json
+
+# vite-plugin-pages-sitemap generates its files in the public directory
+public/robots.txt
+public/sitemap.xml

@@ -227,3 +227,9 @@ export const USER_SETTINGS_UPDATE_FAILED = 'user_settings/update_failed' as cons
  * (UserSettingsService)
  */
 export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
+
+/**
+ * User settings invalid properties
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_INVALID_PROPERTIES = 'user_settings/invalid_properties' as const;

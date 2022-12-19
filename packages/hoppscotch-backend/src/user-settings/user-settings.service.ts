@@ -6,6 +6,7 @@ import * as E from 'fp-ts/Either';
 import { stringToJson } from 'src/utils';
 import { UserSettings } from './user-settings.model';
 import {
+  USER_SETTINGS_INVALID_PROPERTIES,
   USER_SETTINGS_NOT_FOUND,
   USER_SETTINGS_UPDATE_FAILED,
 } from 'src/errors';
@@ -38,6 +39,8 @@ export class UserSettingsService {
   }
 
   async createUserSettings(user: User, properties: string) {
+    if (!properties) return E.left(USER_SETTINGS_INVALID_PROPERTIES);
+
     const jsonProperties = stringToJson(properties);
     if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
 
@@ -59,6 +62,8 @@ export class UserSettingsService {
   }
 
   async updateUserSettings(user: User, properties: string) {
+    if (!properties) return E.left(USER_SETTINGS_INVALID_PROPERTIES);
+
     const jsonProperties = stringToJson(properties);
     if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
 

@@ -35,5 +35,24 @@ export class UserSettingsResolver {
     return userSettings.right;
   }
 
+  @Mutation(() => UserSettings, {
+    description: 'Update user settings for given user',
+  })
+  @UseGuards(GqlAuthGuard)
+  async updateUserSettings(
+    @GqlUser() user: User,
+    @Args({
+      name: 'properties',
+      description: 'JSON string of properties object',
+    })
+    properties: string,
+  ) {
+    const updatedUserSettings =
+      await this.userSettingsService.updateUserSettings(user, properties);
+
+    if (E.isLeft(updatedUserSettings)) throwErr(updatedUserSettings.left);
+    return updatedUserSettings.right;
+  }
+
   /* Subscriptions */
 }

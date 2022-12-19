@@ -215,3 +215,9 @@ export const BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES =
  */
 export const BUG_TEAM_ENV_GUARD_NO_ENV_ID =
   'bug/team_env/guard_no_env_id' as const;
+
+/**
+ * User settings update failed
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_UPDATE_FAILED = 'user_settings/update_failed' as const;

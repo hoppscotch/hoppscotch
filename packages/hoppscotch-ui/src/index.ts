@@ -5,11 +5,10 @@ const HoppUI = { ...components }
 
 // Hopp UI will be available globally when in a browser environment
 if (typeof window !== "undefined") {
-  // window["HoppUI"] = HoppUI
+  ;(window as any)["HoppUI"] = HoppUI
 }
 
-console.log("HoppUI", HoppUI)
-
+import "virtual:windi.css"
 import "./assets/scss/styles.scss"
 
 const plugin: Plugin = {

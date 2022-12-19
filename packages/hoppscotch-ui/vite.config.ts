@@ -3,13 +3,17 @@ const { defineConfig } = require("vite")
 import vue from "@vitejs/plugin-vue"
 import Components from "unplugin-vue-components/vite"
 import IconResolver from "unplugin-icons/resolver"
+import WindiCSS from "vite-plugin-windicss"
 
 module.exports = defineConfig({
   plugins: [
     vue(),
+    WindiCSS({
+      root: path.resolve(__dirname, "../hoppscotch-common"),
+    }),
     Components({
-      dts: "../hoppscotch-common/src/components.d.ts",
-      dirs: ["../hoppscotch-common/src/components"],
+      dts: "./src/components.d.ts",
+      dirs: ["./src/components"],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({

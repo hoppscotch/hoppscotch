@@ -417,53 +417,23 @@ importers:
 
   packages/hoppscotch-ui:
     specifiers:
-      '@apidevtools/swagger-parser': ^10.1.0
-      '@codemirror/autocomplete': ^6.0.3
-      '@codemirror/commands': ^6.0.1
-      '@codemirror/lang-javascript': ^6.0.1
-      '@codemirror/lang-json': ^6.0.0
-      '@codemirror/lang-xml': ^6.0.0
-      '@codemirror/language': ^6.2.0
-      '@codemirror/legacy-modes': ^6.1.0
-      '@codemirror/lint': ^6.0.0
-      '@codemirror/search': ^6.0.0
-      '@codemirror/state': ^6.1.0
-      '@codemirror/view': ^6.0.2
       '@esbuild-plugins/node-globals-polyfill': ^0.1.1
       '@esbuild-plugins/node-modules-polyfill': ^0.1.4
-      '@graphql-codegen/add': ^3.2.0
-      '@graphql-codegen/cli': ^2.8.0
-      '@graphql-codegen/typed-document-node': ^2.3.1
-      '@graphql-codegen/typescript': ^2.7.1
-      '@graphql-codegen/typescript-operations': ^2.5.1
-      '@graphql-codegen/typescript-urql-graphcache': ^2.3.1
-      '@graphql-codegen/urql-introspection': ^2.2.0
       '@graphql-typed-document-node/core': ^3.1.1
-      '@hoppscotch/codemirror-lang-graphql': workspace:^0.2.0
-      '@hoppscotch/data': workspace:^0.4.4
-      '@hoppscotch/js-sandbox': workspace:^2.1.0
       '@hoppscotch/vue-toasted': ^0.1.0
       '@iconify-json/lucide': ^1.1.40
       '@intlify/vite-plugin-vue-i18n': ^6.0.1
       '@lezer/highlight': ^1.0.0
       '@rushstack/eslint-patch': ^1.1.4
-      '@sentry/tracing': ^7.13.0
-      '@sentry/vue': ^7.13.0
       '@types/js-yaml': ^4.0.5
       '@types/lodash-es': ^4.17.6
       '@types/lossless-json': ^1.0.1
       '@types/nprogress': ^0.2.0
-      '@types/paho-mqtt': ^1.0.6
-      '@types/postman-collection': ^3.5.7
       '@types/splitpanes': ^2.2.1
       '@types/uuid': ^8.3.4
       '@types/yargs-parser': ^21.0.0
       '@typescript-eslint/eslint-plugin': ^5.19.0
       '@typescript-eslint/parser': ^5.19.0
-      '@urql/core': ^2.5.0
-      '@urql/devtools': ^2.0.3
-      '@urql/exchange-auth': ^0.1.7
-      '@urql/exchange-graphcache': ^4.4.3
       '@vitejs/plugin-legacy': ^2.3.0
       '@vitejs/plugin-vue': ^3.1.0
       '@vue/compiler-sfc': ^3.2.39
@@ -484,9 +454,6 @@ importers:
       fp-ts: ^2.12.1
       fuse.js: ^6.6.2
       globalthis: ^1.0.3
-      graphql: ^15.5.0
-      graphql-language-service-interface: ^2.9.1
-      graphql-tag: ^2.12.6
       httpsnippet: ^2.0.0
       insomnia-importers: ^3.3.0
       io-ts: ^2.2.16
@@ -497,21 +464,13 @@ importers:
       npm-run-all: ^4.1.5
       nprogress: ^0.2.0
       openapi-types: ^12.0.0
-      paho-mqtt: ^1.1.0
       path: ^0.12.7
-      postman-collection: ^4.1.4
       process: ^0.11.10
       qs: ^6.10.3
       rollup-plugin-polyfill-node: ^0.10.1
       rxjs: ^7.5.5
       sass: ^1.53.0
-      socket.io-client-v2: npm:socket.io-client@^2.4.0
-      socket.io-client-v3: npm:socket.io-client@^3.1.3
-      socket.io-client-v4: npm:socket.io-client@^4.4.1
-      socketio-wildcard: ^2.0.0
       splitpanes: ^3.1.1
-      stream-browserify: ^3.0.0
-      subscriptions-transport-ws: ^0.11.0
       tern: ^0.24.3
       timers: ^0.1.1
       tippy.js: ^6.3.7
@@ -544,29 +503,8 @@ importers:
       workbox-window: ^6.5.4
       yargs-parser: ^21.1.1
     dependencies:
-      '@apidevtools/swagger-parser': 10.1.0_openapi-types@12.0.0
-      '@codemirror/autocomplete': 6.0.3_2tvhcfwni47fhspxv36jamkaqi
-      '@codemirror/commands': 6.0.1
-      '@codemirror/lang-javascript': 6.0.1
-      '@codemirror/lang-json': 6.0.0
-      '@codemirror/lang-xml': 6.0.0_@codemirror+view@6.0.2
-      '@codemirror/language': 6.2.0
-      '@codemirror/legacy-modes': 6.1.0
-      '@codemirror/lint': 6.0.0
-      '@codemirror/search': 6.0.0
-      '@codemirror/state': 6.1.0
-      '@codemirror/view': 6.0.2
-      '@hoppscotch/codemirror-lang-graphql': link:../codemirror-lang-graphql
-      '@hoppscotch/data': link:../hoppscotch-data
-      '@hoppscotch/js-sandbox': link:../hoppscotch-js-sandbox
       '@hoppscotch/vue-toasted': 0.1.0_vue@3.2.45
       '@lezer/highlight': 1.0.0
-      '@sentry/tracing': 7.13.0
-      '@sentry/vue': 7.13.0_vue@3.2.45
-      '@urql/core': 2.5.0_graphql@15.8.0
-      '@urql/devtools': 2.0.3_orwd6brffn6tmxxcil5zw6uzri
-      '@urql/exchange-auth': 0.1.7_graphql@15.8.0
-      '@urql/exchange-graphcache': 4.4.3_graphql@15.8.0
       '@vitejs/plugin-legacy': 2.3.0_vite@3.2.4
       '@vueuse/core': 8.7.5_vue@3.2.45
       '@vueuse/head': 0.7.9_vue@3.2.45
@@ -579,9 +517,6 @@ importers:
       fp-ts: 2.12.1
       fuse.js: 6.6.2
       globalthis: 1.0.3
-      graphql: 15.8.0
-      graphql-language-service-interface: 2.10.2_h5eoywvcjsa4emif44kddonyyu
-      graphql-tag: 2.12.6_graphql@15.8.0
       httpsnippet: 2.0.0
       insomnia-importers: 3.3.0_openapi-types@12.0.0
       io-ts: 2.2.16_fp-ts@2.12.1
@@ -590,19 +525,11 @@ importers:
       lodash-es: 4.17.21
       lossless-json: 1.0.5
       nprogress: 0.2.0
-      paho-mqtt: 1.1.0
       path: 0.12.7
-      postman-collection: 4.1.4
       process: 0.11.10
       qs: 6.11.0
       rxjs: 7.5.5
-      socket.io-client-v2: /socket.io-client/2.5.0
-      socket.io-client-v3: /socket.io-client/3.1.3
-      socket.io-client-v4: /socket.io-client/4.5.1
-      socketio-wildcard: 2.0.0
       splitpanes: 3.1.1
-      stream-browserify: 3.0.0
-      subscriptions-transport-ws: 0.11.0_graphql@15.8.0
       tern: 0.24.3
       timers: 0.1.1
       tippy.js: 6.3.7
@@ -622,14 +549,7 @@ importers:
     devDependencies:
       '@esbuild-plugins/node-globals-polyfill': 0.1.1
       '@esbuild-plugins/node-modules-polyfill': 0.1.4
-      '@graphql-codegen/add': 3.2.0_graphql@15.8.0
-      '@graphql-codegen/cli': 2.8.0_h5eoywvcjsa4emif44kddonyyu
-      '@graphql-codegen/typed-document-node': 2.3.1_graphql@15.8.0
-      '@graphql-codegen/typescript': 2.7.1_graphql@15.8.0
-      '@graphql-codegen/typescript-operations': 2.5.1_graphql@15.8.0
-      '@graphql-codegen/typescript-urql-graphcache': 2.3.1_52tgh2q4afbldbawprm4p57eiu
-      '@graphql-codegen/urql-introspection': 2.2.0_graphql@15.8.0
-      '@graphql-typed-document-node/core': 3.1.1_graphql@15.8.0
+      '@graphql-typed-document-node/core': 3.1.1
       '@iconify-json/lucide': 1.1.40
       '@intlify/vite-plugin-vue-i18n': 6.0.1_vite@3.2.4+vue-i18n@9.2.2
       '@rushstack/eslint-patch': 1.1.4
@@ -637,8 +557,6 @@ importers:
       '@types/lodash-es': 4.17.6
       '@types/lossless-json': 1.0.1
       '@types/nprogress': 0.2.0
-      '@types/paho-mqtt': 1.0.6
-      '@types/postman-collection': 3.5.7
       '@types/splitpanes': 2.2.1
       '@types/uuid': 8.3.4
       '@types/yargs-parser': 21.0.0
@@ -3371,6 +3289,12 @@ packages:
       tslib: 2.4.0
       value-or-promise: 1.0.11
 
+  /@graphql-typed-document-node/core/3.1.1:
+    resolution: {integrity: sha512-NQ17ii0rK1b34VZonlmT2QMJFI70m0TRwbknO/ihlbatXyaktDhN/98vBiUU6kNBPljqGqyIrl2T4nY2RpFANg==}
+    peerDependencies:
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
+    dev: true
+
   /@graphql-typed-document-node/core/3.1.1_graphql@15.8.0:
     resolution: {integrity: sha512-NQ17ii0rK1b34VZonlmT2QMJFI70m0TRwbknO/ihlbatXyaktDhN/98vBiUU6kNBPljqGqyIrl2T4nY2RpFANg==}
     peerDependencies:
@@ -4228,20 +4152,6 @@ packages:
       '@sentry/utils': 7.13.0
       tslib: 1.14.1
       vue: 3.2.37
-    dev: false
-
-  /@sentry/vue/7.13.0_vue@3.2.45:
-    resolution: {integrity: sha512-+OP0h4hE8Gz8xwN3rcHrbQpqhNQGQJoM8f7cOPw7TU7TCXj4apMsR4o5xPVlvSZl3TG0J9SBUPrZdd0Va9gptw==}
-    engines: {node: '>=8'}
-    peerDependencies:
-      vue: 2.x || 3.x
-    dependencies:
-      '@sentry/browser': 7.13.0
-      '@sentry/core': 7.13.0
-      '@sentry/types': 7.13.0
-      '@sentry/utils': 7.13.0
-      tslib: 1.14.1
-      vue: 3.2.45
     dev: false
 
   /@sinclair/typebox/0.23.5:

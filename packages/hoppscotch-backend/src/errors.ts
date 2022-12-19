@@ -221,3 +221,9 @@ export const BUG_TEAM_ENV_GUARD_NO_ENV_ID =
  * (UserSettingsService)
  */
 export const USER_SETTINGS_UPDATE_FAILED = 'user_settings/update_failed' as const;
+
+/**
+ * User settings not found
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;

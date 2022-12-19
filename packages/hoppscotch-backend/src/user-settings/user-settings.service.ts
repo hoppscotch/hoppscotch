@@ -5,7 +5,10 @@ import { User } from 'src/user/user.model';
 import * as E from 'fp-ts/Either';
 import { stringToJson } from 'src/utils';
 import { UserSettings } from './user-settings.model';
-import { USER_SETTINGS_UPDATE_FAILED } from 'src/errors';
+import {
+  USER_SETTINGS_NOT_FOUND,
+  USER_SETTINGS_UPDATE_FAILED,
+} from 'src/errors';
 
 @Injectable()
 export class UserSettingsService {
@@ -13,6 +16,26 @@ export class UserSettingsService {
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
   ) {}
+
+  async fetchUserSettings(user: User) {
+    try {
+      const dbUserSettings = await this.prisma.userSettings.findUnique({
+        where: { userUid: user.uid },
+        rejectOnNotFound: true,
+      });
+
+      const userSettings: UserSettings = {
+        id: dbUserSettings.id,
+        userUid: dbUserSettings.userUid,
+        properties: JSON.stringify(dbUserSettings.properties),
+        updatedOn: dbUserSettings.updatedOn,
+      };
+
+      return E.right(userSettings);
+    } catch (e) {
+      return E.left(USER_SETTINGS_NOT_FOUND);
+    }
+  }
 
   async createUserSettings(user: User, properties: string) {
     const jsonProperties = stringToJson(properties);

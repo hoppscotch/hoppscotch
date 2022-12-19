@@ -3,6 +3,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
 import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
+import { UserSettingsModule } from './user-settings/user-settings.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
       driver: ApolloDriver,
     }),
     UserModule,
+    UserSettingsModule
   ],
   providers: [GQLComplexityPlugin],
 })

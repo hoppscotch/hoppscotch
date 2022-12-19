@@ -9,6 +9,12 @@ export const EMAIL_FAILED = 'email/failed' as const;
 export const AUTH_FAIL = 'auth/fail';
 
 /**
+ * Invalid JSON
+ * (Utils)
+ */
+export const JSON_INVALID = 'json_invalid';
+
+/**
  * Tried to delete an user data document from fb firestore but failed.
  * (FirebaseService)
  */

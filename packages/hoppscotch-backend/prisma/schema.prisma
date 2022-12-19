@@ -83,6 +83,15 @@ model User {
   displayName      String?
   email            String?
   photoURL         String?
+  settings         UserSettings?
+}
+
+model UserSettings {
+  id         String   @id @default(uuid())
+  userUid    String   @unique
+  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  properties Json
+  updatedOn  DateTime @updatedAt
 }
 
 enum TeamMemberRole {

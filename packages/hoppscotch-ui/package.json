@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "build:storybook": "build-storybook",
+    "storybook": "start-storybook -p 6006 -s ./src/stories/assets"
   },
   "dependencies": {
     "@hoppscotch/vue-toasted": "^0.1.0",
@@ -57,6 +59,7 @@
     "@iconify-json/lucide": "^1.1.40",
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",
     "@rushstack/eslint-patch": "^1.1.4",
+    "@storybook/cli": "^6.5.14",
     "@types/js-yaml": "^4.0.5",
     "@types/lodash-es": "^4.17.6",
     "@types/lossless-json": "^1.0.1",

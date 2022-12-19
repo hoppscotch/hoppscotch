@@ -1,5 +1,5 @@
 import { UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { User } from 'src/user/user.model';
@@ -7,10 +7,14 @@ import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
 import { UserSettings } from './user-settings.model';
 import { UserSettingsService } from './user-settings.service';
+import { PubSubService } from 'src/pubsub/pubsub.service';
 
 @Resolver()
 export class UserSettingsResolver {
-  constructor(private readonly userSettingsService: UserSettingsService) {}
+  constructor(
+    private readonly userSettingsService: UserSettingsService,
+    private readonly pubsub: PubSubService,
+  ) {}
 
   /* Mutations */
 
@@ -55,4 +59,13 @@ export class UserSettingsResolver {
   }
 
   /* Subscriptions */
+
+  @Subscription(() => UserSettings, {
+    description: 'Listen for user setting updating',
+    resolve: (value) => value,
+  })
+  @UseGuards(GqlAuthGuard)
+  userSettingsUpdated(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_settings/${user.uid}/updated`);
+  }
 }

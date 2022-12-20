@@ -30,25 +30,40 @@
       </Splitpanes>
     </Pane>
     <Pane
-      v-if="SIDEBAR && hasSidebar"
+      v-if="mdAndLarger && SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
       min-size="20"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
     </Pane>
+
+    <!-- Mobile Collections Layout -->
+    <SmartSlideOver
+      v-if="!mdAndLarger && SIDEBAR && hasSidebar"
+      :show="show"
+      :title="t('tab.collections')"
+      @close="SIDEBAR = !SIDEBAR"
+    >
+      <template #content>
+        <div class="!overflow-auto">
+          <slot name="sidebar" />
+        </div>
+      </template>
+    </SmartSlideOver>
   </Splitpanes>
 </template>
 
 <script setup lang="ts">
 import { Splitpanes, Pane } from "splitpanes"
-
 import "splitpanes/dist/splitpanes.css"
-
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { computed, useSlots, ref } from "vue"
 import { useSetting } from "@composables/settings"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
+import { useI18n } from "@composables/i18n"
+
+const t = useI18n()
 
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
@@ -69,6 +84,8 @@ const props = defineProps({
     default: null,
   },
 })
+
+const show = computed(() => !!(SIDEBAR && hasSidebar.value))
 
 type PaneEvent = {
   max: number

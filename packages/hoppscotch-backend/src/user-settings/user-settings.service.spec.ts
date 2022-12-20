@@ -2,7 +2,6 @@ import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserSettingsService } from './user-settings.service';
-import '@relmify/jest-fp-ts';
 import {
   JSON_INVALID,
   USER_NOT_FOUND,

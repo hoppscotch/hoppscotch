@@ -574,7 +574,6 @@ const addRequest = (payload: {
   path: string
   folder: HoppCollection<HoppRESTRequest> | TeamCollection
 }) => {
-  console.log("add-new-req", payload)
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
@@ -644,7 +643,6 @@ const addFolder = (payload: {
   const { path, folder } = payload
   editingFolder.value = folder
   editingFolderPath.value = path
-  console.log("add-folder", payload)
   displayModalAddFolder(true)
 }
 
@@ -698,7 +696,6 @@ const editCollection = (payload: {
   }
 
   displayModalEditCollection(true)
-  console.log("payload", payload)
 }
 
 const updateEditingCollection = (newName: string) => {
@@ -749,7 +746,6 @@ const editFolder = (payload: {
   folder: HoppCollection<HoppRESTRequest> | TeamCollection
 }) => {
   const { folderPath, folder } = payload
-  console.log("payload", folderPath, folder)
   editingFolder.value = folder
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
@@ -804,7 +800,6 @@ const editRequest = (payload: {
   request: HoppRESTRequest
 }) => {
   const { folderPath, requestIndex, request } = payload
-  console.log("edit-req", folderPath, requestIndex, request)
   editingRequest.value = request
   if (collectionsType.value.type === "my-collections" && folderPath) {
     editingFolderPath.value = folderPath
@@ -893,7 +888,6 @@ const duplicateRequest = (payload: {
   request: HoppRESTRequest
 }) => {
   const { folderPath, request } = payload
-  console.log("duplicate-req", folderPath, request)
   if (!folderPath) return
 
   const newRequest = {
@@ -1001,7 +995,6 @@ const onRemoveCollection = () => {
 }
 
 const removeFolder = (id: string) => {
-  console.log("remove folder", id)
   if (collectionsType.value.type === "my-collections")
     editingFolderPath.value = id
   else editingCollectionID.value = id
@@ -1056,7 +1049,6 @@ const removeRequest = (payload: {
   } else {
     editingRequestID.value = requestIndex
   }
-  console.log("remove-request", folderPath, requestIndex)
   confirmModalTitle.value = `${t("confirm.remove_request")}`
   displayConfirmModal(true)
 }
@@ -1065,8 +1057,6 @@ const onRemoveRequest = () => {
   if (collectionsType.value.type === "my-collections") {
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
-
-    console.log("onRemoveRequest", folderPath, requestIndex)
 
     if (folderPath === null || requestIndex === null) return
 
@@ -1121,7 +1111,6 @@ const selectPicked = (payload: Picked | null) => {
 }
 
 // select request change modal functions
-
 const noChangeSetRESTRequest = () => {
   const folderPath = clickedRequest.folderPath
   const requestIndex = clickedRequest.requestIndex
@@ -1156,6 +1145,10 @@ const noChangeSetRESTRequest = () => {
   )
 }
 
+/**
+ * This function is called when the user clicks on a request
+ * @param selectedRequest The request that the user clicked on emited from the collection tree
+ */
 const selectRequest = (selectedRequest: {
   request: HoppRESTRequest
   folderPath: string | undefined
@@ -1163,14 +1156,6 @@ const selectRequest = (selectedRequest: {
   isActive: boolean
 }) => {
   const { request, folderPath, requestIndex, isActive } = selectedRequest
-  console.log(
-    "select-request",
-    request.endpoint,
-    folderPath,
-    requestIndex,
-    isActive
-  )
-
   // If the request is already active, then we reset the save context
   if (isActive) {
     setRESTSaveContext(null)
@@ -1208,7 +1193,6 @@ const selectRequest = (selectedRequest: {
         currentReqWithNoChange &&
         isEqualHoppRESTRequest(currentReqWithNoChange, currentRESTRequest)
       ) {
-        // ie there is no change in the request
         noChangeSetRESTRequest()
       } else {
         // there is change in the request
@@ -1219,25 +1203,22 @@ const selectRequest = (selectedRequest: {
   }
 }
 
+/**
+ * This function is called when the user clicks on the save button in the confirm change modal
+ * There are two cases
+ * 1. There is no active context
+ * 2. There is active context
+ * In the first case, we can show the save request as modal and user can select the location to save the request
+ * In the second case, we can save the request in the same location and update the request
+ */
 const saveRequestChange = () => {
-  // now the user has clicked on the save button in the confirm change modal
-  // there are two cases
-  // ther is no active context
-  // there is active context
-
   const currentRESTSaveContext = getRESTSaveContext()
 
   if (!currentRESTSaveContext) {
-    // there is no active context
-    // and the user can select the location to save the request
-    // in the save request-as modal
     showSaveRequestModal.value = true
     confirmChangeToRequest.value = false
     return
   }
-
-  // there is active context
-  // so we can save the request in the same location and update the request
 
   const currentRESTRequest = getRESTRequest()
 
@@ -1288,9 +1269,13 @@ const saveRequestChange = () => {
   }
 }
 
+/**
+ * This function is called when the user clicks on the
+ * don't save button in the confirm change modal
+ * This function will change the request to the clicked request
+ * without saving the changes
+ */
 const discardRequestChange = () => {
-  // change the request to the clicked request
-  // without saving the changes
   noChangeSetRESTRequest()
   confirmChangeToRequest.value = false
 }
@@ -1438,8 +1423,6 @@ const createCollectionGist = async () => {
 }
 
 const importToTeams = async (collection: HoppCollection<HoppRESTRequest>[]) => {
-  // Error-in-BE: Sometimes when importing my collection to team produce some error in stage
-  // and sometimes the collection shows in the UI initially but after refresh it disappears
   if (!hasTeamWriteAccess.value) {
     toast.error(t("team.no_access").toString())
     return

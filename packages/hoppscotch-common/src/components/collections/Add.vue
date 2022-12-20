@@ -49,10 +49,16 @@ import { useI18n } from "@composables/i18n"
 const toast = useToast()
 const t = useI18n()
 
-const props = defineProps<{
-  show: boolean
-  loadingState: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+  }
+)
 
 const emit = defineEmits<{
   (e: "submit", name: string): void

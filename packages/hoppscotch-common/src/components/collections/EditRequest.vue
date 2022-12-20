@@ -9,13 +9,13 @@
       <div class="flex flex-col">
         <input
           id="selectLabelEditReq"
-          v-model="requestUpdateData.name"
+          v-model="name"
           v-focus
           class="input floating-input"
           placeholder=" "
           type="text"
           autocomplete="off"
-          @keyup.enter="saveRequest"
+          @keyup.enter="editRequest"
         />
         <label for="selectLabelEditReq">
           {{ t("action.label") }}
@@ -28,7 +28,7 @@
           :label="t('action.save')"
           :loading="loadingState"
           outline
-          @click="saveRequest"
+          @click="editRequest"
         />
         <ButtonSecondary
           :label="t('action.cancel')"
@@ -49,39 +49,44 @@ import { useToast } from "@composables/toast"
 const toast = useToast()
 const t = useI18n()
 
-const props = defineProps<{
-  show: boolean
-  loadingState: boolean
-  editingRequestName: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+    editingRequestName: string
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+    editingRequestName: "",
+  }
+)
 
 const emit = defineEmits<{
-  (e: "submit", requestUpdateData: { name: string }): void
+  (e: "submit", name: string): void
   (e: "hide-modal"): void
 }>()
 
-const requestUpdateData = ref({
-  name: "",
-})
+const name = ref("")
 
 watch(
   () => props.editingRequestName,
   (newName) => {
-    requestUpdateData.value.name = newName
+    name.value = newName
   }
 )
 
-const saveRequest = () => {
-  if (!requestUpdateData.value.name) {
+const editRequest = () => {
+  if (name.value.trim() === "") {
     toast.error(t("request.invalid_name"))
     return
   }
 
-  emit("submit", requestUpdateData.value)
+  emit("submit", name.value)
 }
 
 const hideModal = () => {
-  requestUpdateData.value.name = ""
+  name.value = ""
   emit("hide-modal")
 }
 </script>

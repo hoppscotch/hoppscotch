@@ -45,23 +45,24 @@
 import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import { TeamCollection } from "~/helpers/teams/TeamCollection"
 
 const toast = useToast()
 const t = useI18n()
 
-const props = defineProps<{
-  show: boolean
-  folder: HoppCollection<HoppRESTRequest> | TeamCollection | undefined
-  folderPath: string | undefined
-  collectionIndex: number | undefined
-  loadingState: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+  }
+)
 
 const emit = defineEmits<{
-  (e: "add-folder", payload: any): void
   (e: "hide-modal"): void
+  (e: "add-folder", name: string): void
 }>()
 
 const name = ref("")
@@ -76,16 +77,11 @@ watch(
 )
 
 const addFolder = () => {
-  if (name.value === "") {
+  if (name.value.trim() === "") {
     toast.error(t("folder.invalid_name"))
     return
   }
-
-  emit("add-folder", {
-    name: name.value,
-    folder: props.folder,
-    path: props.folderPath || `${props.collectionIndex}`,
-  })
+  emit("add-folder", name.value)
 }
 
 const hideModal = () => {

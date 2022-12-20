@@ -12,36 +12,36 @@
     >
       <span
         class="flex items-center justify-center px-4 cursor-pointer"
-        @click="toggleShowChildren()"
+        @click="emit('toggle-children')"
       >
         <component
-          :is="getCollectionIcon"
+          :is="collectionIcon"
           class="svg-icons"
           :class="{ 'text-accent': isSelected }"
         />
       </span>
       <span
         class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-        @click="toggleShowChildren()"
+        @click="emit('toggle-children')"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ getCollectionName }}
+          {{ collectionName }}
         </span>
       </span>
-      <div class="flex">
+      <div v-if="!hasNoTeamAccess" class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
-          @click="$emit('add-request')"
+          @click="emit('add-request')"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFolderPlus"
           :title="t('folder.new')"
           class="hidden group-hover:inline-flex"
-          @click="$emit('add-folder')"
+          @click="emit('add-folder')"
         />
         <span>
           <tippy
@@ -61,11 +61,11 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.r="requestAction.$el.click()"
-                @keyup.n="folderAction.$el.click()"
-                @keyup.e="edit.$el.click()"
-                @keyup.delete="deleteAction.$el.click()"
-                @keyup.x="exportAction.$el.click()"
+                @keyup.r="requestAction?.click()"
+                @keyup.n="folderAction?.click()"
+                @keyup.e="edit?.click()"
+                @keyup.delete="deleteAction?.click()"
+                @keyup.x="exportAction?.click()"
                 @keyup.escape="hide()"
               >
                 <SmartItem
@@ -75,7 +75,7 @@
                   :shortcut="['R']"
                   @click="
                     () => {
-                      $emit('add-request')
+                      emit('add-request')
                       hide()
                     }
                   "
@@ -87,7 +87,7 @@
                   :shortcut="['N']"
                   @click="
                     () => {
-                      $emit('add-folder')
+                      emit('add-folder')
                       hide()
                     }
                   "
@@ -99,7 +99,7 @@
                   :shortcut="['E']"
                   @click="
                     () => {
-                      $emit('edit-collection')
+                      emit('edit-collection')
                       hide()
                     }
                   "
@@ -112,8 +112,8 @@
                   :loading="exportLoading"
                   @click="
                     () => {
-                      exportCollection()
-                      collectionsType.type === 'my-collections' ? hide() : null
+                      emit('export-data'),
+                        collectionsType === 'my-collections' ? hide() : null
                     }
                   "
                 />
@@ -124,7 +124,7 @@
                   :shortcut="['⌫']"
                   @click="
                     () => {
-                      removeCollection()
+                      emit('remove-collection')
                       hide()
                     }
                   "
@@ -148,134 +148,90 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconEdit from "~icons/lucide/edit"
 import IconFolder from "~icons/lucide/folder"
 import IconFolderOpen from "~icons/lucide/folder-open"
-import { useI18n } from "@composables/i18n"
-import { ref, computed, watch, PropType } from "vue"
-import { moveRESTRequest } from "~/newstore/collections"
+import { PropType, ref, computed, watch } from "vue"
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
-import SmartItem from "@components/smart/Item.vue"
+import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
-import { Team } from "~/helpers/backend/graphql"
 
-type CollectionType =
-  | {
-      type: "team-collections"
-      selectedTeam: Team
-    }
-  | { type: "my-collections"; selectedTeam: undefined }
-
-type Picked =
-  | {
-      pickedType: "my-request"
-      folderPath: string
-      requestIndex: number
-    }
-  | {
-      pickedType: "my-folder"
-      folderPath: string
-    }
-  | {
-      pickedType: "my-collection"
-      collectionIndex: number
-    }
-  | {
-      pickedType: "teams-request"
-      requestID: string
-    }
-  | {
-      pickedType: "teams-folder"
-      folderID: string
-    }
-  | {
-      pickedType: "teams-collection"
-      collectionID: string
-    }
+type CollectionType = "my-collections" | "team-collections"
+type FolderType = "collection" | "folder"
 
 const t = useI18n()
 
 const props = defineProps({
-  collection: {
+  data: {
     type: Object as PropType<HoppCollection<HoppRESTRequest> | TeamCollection>,
+    default: () => ({}),
     required: true,
-  },
-  collectionIndex: {
-    type: Number as PropType<number | string>,
-    required: true,
-  },
-  saveRequest: {
-    type: Boolean,
-    required: false,
   },
   collectionsType: {
-    type: Object as PropType<CollectionType>,
+    type: String as PropType<CollectionType>,
+    default: "my-collections",
     required: true,
   },
-  picked: {
-    type: Object as PropType<Picked | undefined>,
-    required: false,
-    default: undefined,
+  /**
+   * Collection component can be used for both collections and folders.
+   * folderType is used to determine which one it is.
+   */
+  folderType: {
+    type: String as PropType<FolderType>,
+    default: "collection",
+    required: true,
   },
   isOpen: {
     type: Boolean,
+    default: false,
     required: true,
+  },
+  isSelected: {
+    type: Boolean,
+    default: false,
+    required: false,
   },
   exportLoading: {
     type: Boolean,
+    default: false,
+    required: false,
+  },
+  hasNoTeamAccess: {
+    type: Boolean,
+    default: false,
     required: false,
   },
 })
 
 const emit = defineEmits<{
-  (event: "select-collection"): void
-  (event: "unselect-collection"): void
-  (event: "select", payload: any): void
+  (event: "toggle-children"): void
   (event: "add-request"): void
   (event: "add-folder"): void
-  (event: "remove-collection"): void
   (event: "edit-collection"): void
-  (event: "toggle-children"): void
   (event: "export-data"): void
+  (event: "remove-collection"): void
+  (event: "drop-event", payload: DataTransfer): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
-const requestAction = ref<typeof SmartItem | null>(null)
-const folderAction = ref<typeof SmartItem | null>(null)
-const edit = ref<typeof SmartItem | null>(null)
-const deleteAction = ref<typeof SmartItem | null>(null)
-const exportAction = ref<typeof SmartItem | null>(null)
+const requestAction = ref<HTMLButtonElement | null>(null)
+const folderAction = ref<HTMLButtonElement | null>(null)
+const edit = ref<HTMLButtonElement | null>(null)
+const deleteAction = ref<HTMLButtonElement | null>(null)
+const exportAction = ref<HTMLButtonElement | null>(null)
 const options = ref<TippyComponent | null>(null)
 
 const dragging = ref(false)
 
-const isSelected = computed(() => {
-  if (props.collectionsType.type === "my-collections") {
-    return (
-      props.picked &&
-      props.picked.pickedType === "my-collection" &&
-      props.picked.collectionIndex === props.collectionIndex
-    )
-  } else {
-    return (
-      props.picked &&
-      props.picked.pickedType === "teams-collection" &&
-      props.picked.collectionID === props.collection.id
-    )
-  }
-})
-
-const getCollectionIcon = computed(() => {
-  if (isSelected.value) return IconCheckCircle
+const collectionIcon = computed(() => {
+  if (props.isSelected) return IconCheckCircle
   else if (!props.isOpen) return IconFolder
   else if (props.isOpen) return IconFolderOpen
   else return IconFolder
 })
 
-const getCollectionName = computed(() => {
-  if (props.collection.name) {
-    return props.collection.name
-  } else {
-    return props.collection.title
-  }
+const collectionName = computed(() => {
+  if ((props.data as HoppCollection<HoppRESTRequest>).name)
+    return (props.data as HoppCollection<HoppRESTRequest>).name
+  else return (props.data as TeamCollection).title
 })
 
 watch(
@@ -287,45 +243,10 @@ watch(
   }
 )
 
-const exportCollection = () => {
-  emit("export-data")
-}
-
-const toggleShowChildren = () => {
-  if (props.saveRequest) {
-    if (props.collectionsType.type === "my-collections") {
-      emit("select", {
-        picked: {
-          pickedType: "my-collection",
-          collectionIndex: props.collectionIndex,
-        },
-      })
-    } else {
-      emit("select", {
-        picked: {
-          pickedType: "teams-collection",
-          collectionID: props.collection.id,
-        },
-      })
-    }
-  }
-  emit("toggle-children")
-}
-
-const removeCollection = () => {
-  emit("remove-collection")
-}
-
 const dropEvent = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     dragging.value = !dragging.value
-    const folderPath = dataTransfer.getData("folderPath")
-    const requestIndex = dataTransfer.getData("requestIndex")
-    moveRESTRequest(
-      folderPath,
-      parseInt(requestIndex),
-      `${props.collectionIndex}`
-    )
+    emit("drop-event", dataTransfer)
   }
 }
 </script>

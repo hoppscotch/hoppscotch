@@ -49,11 +49,18 @@ import { useToast } from "@composables/toast"
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  show: boolean
-  loadingState: boolean
-  editingFolderName: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+    editingFolderName: string
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+    editingFolderName: "",
+  }
+)
 
 const emit = defineEmits<{
   (e: "submit", name: string): void
@@ -70,7 +77,7 @@ watch(
 )
 
 const editFolder = () => {
-  if (!name.value) {
+  if (name.value.trim() === "") {
     toast.error(t("folder.invalid_name"))
     return
   }

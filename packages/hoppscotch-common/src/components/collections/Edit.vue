@@ -49,11 +49,18 @@ import { useI18n } from "@composables/i18n"
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  show: boolean
-  loadingState: boolean
-  editingCollectionName: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+    editingCollectionName: string
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+    editingCollectionName: "",
+  }
+)
 
 const emit = defineEmits<{
   (e: "submit", name: string): void
@@ -70,7 +77,7 @@ watch(
 )
 
 const saveCollection = () => {
-  if (!name.value) {
+  if (name.value.trim() === "") {
     toast.error(t("collection.invalid_name"))
     return
   }

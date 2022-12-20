@@ -54,7 +54,7 @@
 <script setup lang="ts" generic="T extends any">
 import { computed, ref } from "vue"
 import { useI18n } from "~/composables/i18n"
-import { SmartTreeAdapter, TreeNode } from "./Tree.vue"
+import { SmartTreeAdapter, TreeNode } from "~/helpers/treeAdapter"
 
 const props = defineProps<{
   /**

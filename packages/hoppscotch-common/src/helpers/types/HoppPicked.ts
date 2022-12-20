@@ -3,7 +3,8 @@
  * the select item in the save request dialog
  * The save request dialog can be used
  * to save a request, folder or a collection
- * seperately for my and teams.
+ * seperately for my and teams for REST.
+ * also for graphQL collections
  */
 export type Picked =
   | {

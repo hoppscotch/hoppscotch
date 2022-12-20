@@ -6,6 +6,7 @@ import * as E from 'fp-ts/Either';
 import { stringToJson } from 'src/utils';
 import { UserSettings } from './user-settings.model';
 import {
+  USER_NOT_FOUND,
   USER_SETTINGS_INVALID_PROPERTIES,
   USER_SETTINGS_NOT_FOUND,
   USER_SETTINGS_UPDATE_FAILED,
@@ -44,21 +45,25 @@ export class UserSettingsService {
     const jsonProperties = stringToJson(properties);
     if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
 
-    const dbUserSettings = await this.prisma.userSettings.create({
-      data: {
-        properties: jsonProperties.right,
-        userUid: user.uid,
-      },
-    });
+    try {
+      const dbUserSettings = await this.prisma.userSettings.create({
+        data: {
+          properties: jsonProperties.right,
+          userUid: user.uid,
+        },
+      });
 
-    const userSettings: UserSettings = {
-      id: dbUserSettings.id,
-      userUid: dbUserSettings.userUid,
-      properties,
-      updatedOn: dbUserSettings.updatedOn,
-    };
+      const userSettings: UserSettings = {
+        id: dbUserSettings.id,
+        userUid: dbUserSettings.userUid,
+        properties,
+        updatedOn: dbUserSettings.updatedOn,
+      };
 
-    return E.right(userSettings);
+      return E.right(userSettings);
+    } catch (e) {
+      return E.left(USER_NOT_FOUND);
+    }
   }
 
   async updateUserSettings(user: User, properties: string) {

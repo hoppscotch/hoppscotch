@@ -1,6 +1,6 @@
 <template>
   <div
-    class="sticky top-0 z-20 flex-none p-4 md:flex md:flex-shrink-0 md:space-x-2 bg-primary"
+    class="sticky top-0 z-20 flex-none p-4 sm:flex sm:flex-shrink-0 sm:space-x-2 bg-primary"
   >
     <div
       class="flex flex-1 border rounded min-w-52 border-divider whitespace-nowrap"
@@ -57,7 +57,7 @@
         />
       </div>
     </div>
-    <div class="md:flex mt-2 md:mt-0">
+    <div class="sm:flex mt-2 sm:mt-0">
       <span class="flex">
         <span class="flex flex-grow">
           <ButtonPrimary

@@ -78,7 +78,7 @@ import {
   createRequestInCollection,
   updateTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
-import { Picked } from "~/helpers/types/HoppRESTPicked"
+import { Picked } from "~/helpers/types/HoppPicked.js"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
 import {
   getRESTRequest,

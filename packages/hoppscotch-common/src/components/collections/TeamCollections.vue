@@ -286,7 +286,7 @@ import { useReadonlyStream } from "~/composables/stream"
 import { restSaveContext$ } from "~/newstore/RESTSession"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
-import { Picked } from "~/helpers/types/HoppRESTPicked"
+import { Picked } from "~/helpers/types/HoppPicked.js"
 
 const t = useI18n()
 const colorMode = useColorMode()

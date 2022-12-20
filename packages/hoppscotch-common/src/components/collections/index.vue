@@ -160,7 +160,7 @@
 import { computed, PropType, reactive, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
-import { Picked } from "~/helpers/types/HoppRESTPicked"
+import { Picked } from "~/helpers/types/HoppPicked"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "~/composables/stream"
 import { useLocalState } from "~/newstore/localstate"

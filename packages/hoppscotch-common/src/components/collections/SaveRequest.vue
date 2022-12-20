@@ -64,7 +64,11 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { HoppRESTRequest, isHoppRESTRequest } from "@hoppscotch/data"
+import {
+  HoppGQLRequest,
+  HoppRESTRequest,
+  isHoppRESTRequest,
+} from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { cloneDeep } from "lodash-es"
@@ -81,7 +85,12 @@ import {
   setRESTSaveContext,
   useRESTRequestName,
 } from "~/newstore/RESTSession"
-import { editRESTRequest, saveRESTRequestAs } from "~/newstore/collections"
+import {
+  editGraphqlRequest,
+  editRESTRequest,
+  saveGraphqlRequestAs,
+  saveRESTRequestAs,
+} from "~/newstore/collections"
 import { GQLError } from "~/helpers/backend/GQLClient"
 
 const t = useI18n()
@@ -176,17 +185,15 @@ const saveRequestAs = async () => {
     return
   }
 
-  console.log("picked", picked.value)
-
   const requestUpdated =
     props.mode === "rest"
       ? cloneDeep(getRESTRequest())
       : cloneDeep(getGQLSession().request)
 
-  if (!isHoppRESTRequest(requestUpdated))
-    throw new Error("requestUpdated is not a REST Request")
-
   if (picked.value.pickedType === "my-collection") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
     const insertionIndex = saveRESTRequestAs(
       `${picked.value.collectionIndex}`,
       requestUpdated
@@ -201,6 +208,9 @@ const saveRequestAs = async () => {
 
     requestSaved()
   } else if (picked.value.pickedType === "my-folder") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
     const insertionIndex = saveRESTRequestAs(
       picked.value.folderPath,
       requestUpdated
@@ -215,6 +225,9 @@ const saveRequestAs = async () => {
 
     requestSaved()
   } else if (picked.value.pickedType === "my-request") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
     editRESTRequest(
       picked.value.folderPath,
       picked.value.requestIndex,
@@ -230,10 +243,19 @@ const saveRequestAs = async () => {
 
     requestSaved()
   } else if (picked.value.pickedType === "teams-collection") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
     updateTeamCollectionOrFolder(picked.value.collectionID, requestUpdated)
   } else if (picked.value.pickedType === "teams-folder") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
     updateTeamCollectionOrFolder(picked.value.folderID, requestUpdated)
   } else if (picked.value.pickedType === "teams-request") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
     if (
       collectionsType.value.type !== "team-collections" ||
       !collectionsType.value.selectedTeam
@@ -260,8 +282,32 @@ const saveRequestAs = async () => {
         }
       )
     )()
+  } else if (picked.value.pickedType === "gql-my-request") {
+    // TODO: Check for GQL request ?
+    editGraphqlRequest(
+      picked.value.folderPath,
+      picked.value.requestIndex,
+      requestUpdated as HoppGQLRequest
+    )
+
+    requestSaved()
+  } else if (picked.value.pickedType === "gql-my-folder") {
+    // TODO: Check for GQL request ?
+    saveGraphqlRequestAs(
+      picked.value.folderPath,
+      requestUpdated as HoppGQLRequest
+    )
+
+    requestSaved()
+  } else if (picked.value.pickedType === "gql-my-collection") {
+    // TODO: Check for GQL request ?
+    saveGraphqlRequestAs(
+      `${picked.value.collectionIndex}`,
+      requestUpdated as HoppGQLRequest
+    )
+
+    requestSaved()
   }
-  // TODO: Add graphQL support
 }
 
 /**

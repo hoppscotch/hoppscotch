@@ -31,3 +31,16 @@ export type Picked =
       pickedType: "teams-collection"
       collectionID: string
     }
+  | {
+      pickedType: "gql-my-request"
+      folderPath: string
+      requestIndex: number
+    }
+  | {
+      pickedType: "gql-my-folder"
+      folderPath: string
+    }
+  | {
+      pickedType: "gql-my-collection"
+      collectionIndex: number
+    }

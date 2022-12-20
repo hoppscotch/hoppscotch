@@ -1287,7 +1287,6 @@ const dropRequest = (payload: {
   collectionIndex: string
 }) => {
   const { folderPath, requestIndex, collectionIndex } = payload
-  console.log("drop-request", folderPath, requestIndex, collectionIndex)
   moveRESTRequest(folderPath, parseInt(requestIndex), collectionIndex)
 }
 

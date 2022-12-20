@@ -248,7 +248,6 @@ const enableImportButton = computed(
 
 watch(mySelectedCollectionID, (newValue) => {
   if (newValue === undefined) return
-  console.log("my-coll=id", newValue)
   stepResults.value = []
   stepResults.value.push(newValue)
 })

@@ -3,6 +3,10 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { ReqType, UserHistory } from './user-history.model';
 import * as E from 'fp-ts/Either';
+import {
+  USER_HISTORY_INVALID_REQ_TYPE,
+  USER_HISTORY_NOT_FOUND,
+} from '../errors';
 
 // Contains constants for the subscription types we send to pubsub service
 enum SubscriptionType {
@@ -19,7 +23,7 @@ export class UserHistoryService {
   ) {}
 
   /**
-   * Fetch users REST or GraphQL history based on ReqType argument.
+   * Fetch users REST or GraphQL history based on ReqType param.
    * @param uid Users uid
    * @param reqType request Type to fetch i.e. GraphQL or REST
    * @returns an array of user history
@@ -41,6 +45,7 @@ export class UserHistoryService {
         request: JSON.stringify(history.request),
         responseMetadata: JSON.stringify(history.responseMetadata),
         isStarred: history.isStarred,
+        executedOn: history.executedOn,
       });
     });
 
@@ -53,7 +58,7 @@ export class UserHistoryService {
    * @param reqData the request data
    * @param resMetadata the response metadata
    * @param reqType request Type to fetch i.e. GraphQL or REST
-   * @returns an array of user history
+   * @returns a `UserHistory` object
    */
   async addRequestToHistory(
     uid: string,
@@ -62,12 +67,14 @@ export class UserHistoryService {
     reqType: string,
   ) {
     const requestType = this.validateReqType(reqType);
+    if (E.isLeft(requestType)) return E.left(requestType.left);
+
     const history = await this.prisma.userHistory.create({
       data: {
         userUid: uid,
         request: JSON.parse(reqData),
         responseMetadata: JSON.parse(resMetadata),
-        type: requestType,
+        type: requestType.right,
         isStarred: false,
       },
     });
@@ -87,7 +94,7 @@ export class UserHistoryService {
       SubscriptionType.Created,
     );
 
-    return userHistory;
+    return E.right(userHistory);
   }
 
   /**
@@ -104,7 +111,7 @@ export class UserHistoryService {
     });
 
     if (userHistory == null) {
-      return E.left('history doesnt exist');
+      return E.left(USER_HISTORY_NOT_FOUND);
     }
     try {
       const updatedHistory = await this.prisma.userHistory.update({
@@ -130,10 +137,9 @@ export class UserHistoryService {
         updatedUserHistory,
         SubscriptionType.Updated,
       );
-
       return E.right(updatedUserHistory);
     } catch (e) {
-      E.left('error updating');
+      E.left(USER_HISTORY_NOT_FOUND);
     }
   }
 
@@ -167,7 +173,7 @@ export class UserHistoryService {
       );
       return E.right(deletedUserHistory);
     } catch (e) {
-      return E.left('error deleting history not found');
+      return E.left(USER_HISTORY_NOT_FOUND);
     }
   }
 
@@ -179,20 +185,22 @@ export class UserHistoryService {
    */
   async deleteAllUserHistory(uid: string, reqType: string) {
     const requestType = this.validateReqType(reqType);
-    return await this.prisma.userHistory.deleteMany({
+    if (E.isLeft(requestType)) return E.left(requestType.left);
+
+    const deletedCount = await this.prisma.userHistory.deleteMany({
       where: {
         userUid: uid,
-        type: requestType,
+        type: requestType.right,
       },
     });
+    return E.right(deletedCount.count);
   }
 
   // Method that takes a request type argument as string and validates against `ReqType`
   validateReqType(reqType: string) {
-    let requestType: ReqType;
-    return reqType == ReqType.REST
-      ? (requestType = ReqType.REST)
-      : (requestType = ReqType.GQL);
+    if (reqType == ReqType.REST) return E.right(ReqType.REST);
+    else if (reqType == ReqType.GQL) return E.right(ReqType.GQL);
+    return E.left(USER_HISTORY_INVALID_REQ_TYPE);
   }
 
   // Method to publish subscriptions based on the subscription type of the history
@@ -203,19 +211,19 @@ export class UserHistoryService {
     switch (subscriptionType) {
       case SubscriptionType.Created:
         await this.pubsub.publish(
-          `user_history/${userHistory.id}/created`,
+          `user_history/${userHistory.userUid}/created`,
           userHistory,
         );
         break;
       case SubscriptionType.Updated:
         await this.pubsub.publish(
-          `user_history/${userHistory.id}/updated`,
+          `user_history/${userHistory.userUid}/updated`,
           userHistory,
         );
         break;
       case SubscriptionType.Deleted:
         await this.pubsub.publish(
-          `user_history/${userHistory.id}/deleted`,
+          `user_history/${userHistory.userUid}/deleted`,
           userHistory,
         );
         break;

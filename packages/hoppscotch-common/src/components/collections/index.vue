@@ -506,30 +506,44 @@ const showConfirmModal = ref(false)
 
 const displayModalAdd = (show: boolean) => {
   showModalAdd.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayModalAddRequest = (show: boolean) => {
   showModalAddRequest.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayModalAddFolder = (show: boolean) => {
   showModalAddFolder.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayModalEditCollection = (show: boolean) => {
   showModalEditCollection.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayModalEditFolder = (show: boolean) => {
   showModalEditFolder.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayModalEditRequest = (show: boolean) => {
   showModalEditRequest.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayModalImportExport = (show: boolean) => {
   showModalImportExport.value = show
+
+  if (!show) resetSelectedData()
 }
 
 const displayConfirmModal = (show: boolean) => {

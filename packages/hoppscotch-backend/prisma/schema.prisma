@@ -79,10 +79,27 @@ model TeamEnvironment {
 }
 
 model User {
-  uid              String            @id @default(cuid())
-  displayName      String?
-  email            String?
-  photoURL         String?
+  uid         String        @id @default(cuid())
+  displayName String?
+  email       String?
+  photoURL    String?
+  UserHistory UserHistory[]
+}
+
+model UserHistory {
+  id               String   @id @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  type             ReqType
+  request          Json
+  responseMetadata Json
+  isStarred        Boolean
+  executedOn       DateTime  @default(now())
+}
+
+enum ReqType {
+  REST
+  GQL
 }
 
 enum TeamMemberRole {

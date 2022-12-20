@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@nestjs/apollo": "^10.1.6",
@@ -29,11 +30,13 @@
     "@prisma/client": "^4.7.1",
     "apollo-server-express": "^3.11.1",
     "apollo-server-plugin-base": "^3.7.1",
+    "express": "^4.17.1",
     "fp-ts": "^2.13.1",
     "graphql": "^15.5.0",
     "graphql-query-complexity": "^0.12.0",
     "graphql-redis-subscriptions": "^2.5.0",
     "graphql-subscriptions": "^2.0.0",
+    "io-ts": "^2.2.16",
     "ioredis": "^5.2.4",
     "prisma": "^4.7.1",
     "reflect-metadata": "^0.1.13",
@@ -44,8 +47,9 @@
     "@nestjs/cli": "^9.1.5",
     "@nestjs/schematics": "^9.0.3",
     "@nestjs/testing": "^9.2.1",
+    "@relmify/jest-fp-ts": "^2.0.2",
     "@types/express": "^4.17.14",
-    "@types/jest": "29.2.3",
+    "@types/jest": "^27.5.2",
     "@types/node": "^18.11.10",
     "@types/supertest": "^2.0.12",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
@@ -53,7 +57,8 @@
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "jest": "29.3.1",
+    "jest": "^29.3.1",
+    "jest-mock-extended": "^3.0.1",
     "prettier": "^2.8.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.2",
@@ -69,6 +74,9 @@
       "json",
       "ts"
     ],
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    },
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {

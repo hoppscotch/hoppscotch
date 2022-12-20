@@ -17,11 +17,14 @@
       />
     </div>
     <div
-      class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky z-10 flex justify-between flex-shrink-0 sm:pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
       :class="stickyHeaderStyles"
     >
       <span class="flex items-center">
-        <label class="font-semibold truncate text-secondaryLight">
+        <label
+          v-if="mdAndLarger"
+          class="font-semibold truncate text-secondaryLight"
+        >
           {{ t("websocket.message") }}
         </label>
         <tippy
@@ -33,7 +36,7 @@
           <span class="select-wrapper">
             <ButtonSecondary
               :label="contentType || t('state.none').toLowerCase()"
-              class="pr-8 ml-2 rounded-none"
+              class="pr-8 sm:ml-2 rounded-none"
             />
           </span>
           <template #content="{ hide }">
@@ -83,48 +86,124 @@
         >
           {{ t("mqtt.clear_input") }}
         </SmartCheckbox>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/realtime"
-          blank
-          :title="t('app.wiki')"
-          :icon="IconHelpCircle"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.clear')"
-          :icon="IconTrash2"
-          @click="clearContent"
-        />
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('state.linewrap')"
-          :class="{ '!text-accent': linewrapEnabled }"
-          :icon="IconWrapText"
-          @click.prevent="linewrapEnabled = !linewrapEnabled"
-        />
-        <ButtonSecondary
-          v-if="contentType && contentType == 'JSON'"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.prettify')"
-          :icon="prettifyIcon"
-          @click="prettifyRequestBody"
-        />
-        <label for="payload">
+
+        <!-- Mobile Options Tippy -->
+        <span v-if="!mdAndLarger" class="flex items-center">
+          <tippy
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => tippyActions.focus()"
+          >
+            <span class="select-wrapper">
+              <ButtonSecondary
+                :label="t('app.options')"
+                class="pr-7 rounded-none"
+              />
+            </span>
+            <template #content="{ hide }">
+              <div
+                ref="tippyActions"
+                class="flex flex-col focus:outline-none items-start"
+                tabindex="0"
+                @keyup.escape="hide()"
+              >
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  to="https://docs.hoppscotch.io/realtime"
+                  blank
+                  :title="t('app.wiki')"
+                  :label="`${t('app.wiki')}`"
+                  :icon="IconHelpCircle"
+                />
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.clear')"
+                  :icon="IconTrash2"
+                  :label="`${t('action.clear')}`"
+                  @click="clearContent"
+                />
+                <ButtonSecondary
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('state.linewrap')"
+                  :class="{ '!text-accent': linewrapEnabled }"
+                  :label="`${t('state.linewrap')}`"
+                  :icon="IconWrapText"
+                  @click.prevent="linewrapEnabled = !linewrapEnabled"
+                />
+                <ButtonSecondary
+                  v-if="contentType && contentType == 'JSON'"
+                  v-tippy="{ theme: 'tooltip' }"
+                  :title="t('action.prettify')"
+                  :label="`${t('action.prettify')}`"
+                  :icon="prettifyIcon"
+                  @click="prettifyRequestBody"
+                />
+                <label for="payload">
+                  <ButtonSecondary
+                    v-tippy="{ theme: 'tooltip' }"
+                    :title="t('import.title')"
+                    :label="`${t('import.title')}`"
+                    :icon="IconFilePlus"
+                    @click="payload!.click()"
+                  />
+                </label>
+                <input
+                  ref="payload"
+                  class="input"
+                  name="payload"
+                  type="file"
+                  @change="uploadPayload"
+                />
+              </div>
+            </template>
+          </tippy>
+        </span>
+
+        <span v-if="mdAndLarger">
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('import.title')"
-            :icon="IconFilePlus"
-            @click="payload!.click()"
+            to="https://docs.hoppscotch.io/realtime"
+            blank
+            :title="t('app.wiki')"
+            :icon="IconHelpCircle"
           />
-        </label>
-        <input
-          ref="payload"
-          class="input"
-          name="payload"
-          type="file"
-          @change="uploadPayload"
-        />
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.clear')"
+            :icon="IconTrash2"
+            @click="clearContent"
+          />
+          <ButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('state.linewrap')"
+            :class="{ '!text-accent': linewrapEnabled }"
+            :icon="IconWrapText"
+            @click.prevent="linewrapEnabled = !linewrapEnabled"
+          />
+          <ButtonSecondary
+            v-if="contentType && contentType == 'JSON'"
+            v-tippy="{ theme: 'tooltip' }"
+            :title="t('action.prettify')"
+            :icon="prettifyIcon"
+            @click="prettifyRequestBody"
+          />
+          <label for="payload">
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('import.title')"
+              :icon="IconFilePlus"
+              @click="payload!.click()"
+            />
+          </label>
+          <input
+            ref="payload"
+            class="input"
+            name="payload"
+            type="file"
+            @change="uploadPayload"
+          />
+        </span>
       </div>
     </div>
     <div ref="wsCommunicationBody" class="flex flex-col flex-1"></div>
@@ -144,7 +223,7 @@ import IconFilePlus from "~icons/lucide/file-plus"
 import { pipe } from "fp-ts/function"
 import * as TO from "fp-ts/TaskOption"
 import * as O from "fp-ts/Option"
-import { refAutoReset } from "@vueuse/core"
+import { breakpointsTailwind, useBreakpoints, refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import jsonLinter from "@helpers/editor/linting/json"
 import { readFileAsText } from "@functional/files"
@@ -194,6 +273,9 @@ const payload = ref<HTMLInputElement>()
 
 const prettifyIcon = refAutoReset<Component>(IconWand2, 1000)
 const clearInputOnSend = ref(false)
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const knownContentTypes = {
   JSON: "application/ld+json",

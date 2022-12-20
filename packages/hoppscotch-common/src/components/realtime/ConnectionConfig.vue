@@ -31,7 +31,7 @@
             :placeholder="t('authorization.password')"
           />
         </div>
-        <div class="flex items-center border-b border-dividerLight">
+        <div class="flex items-center md:border-b md:border-dividerLight">
           <label class="ml-4 text-secondaryLight">
             {{ t("mqtt.keep_alive") }}
           </label>
@@ -55,7 +55,7 @@
           />
         </div>
         <div
-          class="flex items-center justify-between px-4 border-b border-dividerLight"
+          class="flex items-center justify-between px-4 md:border-b md:border-dividerLight"
         >
           <div class="flex items-center">
             <label class="font-semibold truncate text-secondaryLight">
@@ -88,8 +88,17 @@
             </tippy>
           </div>
           <SmartCheckbox
+            v-if="mdAndLarger"
             :on="config.lwRetain"
             class="py-2"
+            @change="config.lwRetain = !config.lwRetain"
+            >{{ t("mqtt.lw_retain") }}
+          </SmartCheckbox>
+        </div>
+        <div v-if="!mdAndLarger" class="flex flex-1">
+          <SmartCheckbox
+            :on="config.lwRetain"
+            class="ml-4 py-2"
             @change="config.lwRetain = !config.lwRetain"
             >{{ t("mqtt.lw_retain") }}
           </SmartCheckbox>
@@ -103,6 +112,7 @@
 import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import { ref, watch } from "vue"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { useI18n } from "@composables/i18n"
 import {
   MQTTConnectionConfig,
@@ -110,6 +120,9 @@ import {
 } from "~/helpers/realtime/MQTTConnection"
 
 const t = useI18n()
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const emit = defineEmits<{
   (e: "change", body: MQTTConnectionConfig): void

@@ -2,45 +2,50 @@
   <AppPaneLayout layout-id="sse">
     <template #primary>
       <div
-        class="sticky top-0 z-10 flex flex-shrink-0 p-4 overflow-x-auto space-x-2 bg-primary"
+        class="sticky top-0 z-10 md:flex md:flex-shrink-0 p-4 sm:overflow-x-auto space-x-2 bg-primary hide-scrollbar"
       >
-        <div class="inline-flex flex-1 space-x-2">
-          <div class="flex flex-1">
+        <div
+          class="md:inline-flex md:flex-1 md:space-x-2 space-y-3 md:space-y-0"
+        >
+          <div class="md:flex md:flex-1">
             <input
               id="server"
               v-model="server"
               type="url"
               autocomplete="off"
               :class="{ error: !isUrlValid }"
-              class="flex flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
+              class="md:flex md:flex-1 w-full px-4 py-2 border rounded-l bg-primaryLight border-divider text-secondaryDark"
               :placeholder="t('sse.url')"
               :disabled="
                 connectionState === 'STARTED' || connectionState === 'STARTING'
               "
               @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
             />
-            <label
-              for="event-type"
-              class="px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
-            >
-              {{ t("sse.event_type") }}
-            </label>
-            <input
-              id="event-type"
-              v-model="eventType"
-              class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
-              spellcheck="false"
-              :disabled="
-                connectionState === 'STARTED' || connectionState === 'STARTING'
-              "
-              @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
-            />
+            <div class="flex mt-2 md:mt-0">
+              <label
+                for="event-type"
+                class="inline-flex flex-1 px-4 py-2 font-semibold truncate border-t border-b bg-primaryLight border-divider text-secondaryLight"
+              >
+                {{ t("sse.event_type") }}
+              </label>
+              <input
+                id="event-type"
+                v-model="eventType"
+                class="flex flex-1 w-full px-4 py-2 border rounded-r bg-primaryLight border-divider text-secondaryDark"
+                spellcheck="false"
+                :disabled="
+                  connectionState === 'STARTED' ||
+                  connectionState === 'STARTING'
+                "
+                @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
+              />
+            </div>
           </div>
           <ButtonPrimary
             id="start"
             :disabled="!isUrlValid"
             name="start"
-            class="w-32"
+            class="w-full md:w-32"
             :label="
               connectionState === 'STARTING'
                 ? t('action.starting')

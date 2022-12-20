@@ -221,7 +221,6 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { TippyComponent } from "vue-tippy"
-import SmartItem from "@components/smart/Item.vue"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
 
@@ -271,7 +270,7 @@ const showDeveloperOptionModal = () => {
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
-const documentation = ref<typeof SmartItem | null>(null)
-const shortcuts = ref<typeof SmartItem | null>(null)
-const chat = ref<typeof SmartItem | null>(null)
+const documentation = ref<any | null>(null) // any is a hack here. SmartItem type will be here
+const shortcuts = ref<any | null>(null) // any is a hack here. SmartItem type will be here
+const chat = ref<any | null>(null) // any is a hack here. SmartItem type will be here
 </script>

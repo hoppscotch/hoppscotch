@@ -13,6 +13,7 @@ type GQLTab = {
 }
 
 export type GQLSession = {
+  url: string
   connection: GQLConnection
   tabs: GQLTab[]
   currentTabId: string
@@ -25,6 +26,7 @@ const makeTab = (id: string): GQLTab => ({
 })
 
 export const defaultGQLSession: GQLSession = {
+  url: "http://localhost:4000",
   connection: new GQLConnection(),
   tabs: [makeTab("new")],
   currentTabId: "new",
@@ -47,6 +49,11 @@ const dispatchers = defineDispatchers({
             }
           : tab
       ),
+    }
+  },
+  setURL(_: GQLSession, { url }: { url: string }) {
+    return {
+      url,
     }
   },
   setConnection(_: GQLSession, { connection }: { connection: GQLConnection }) {
@@ -121,6 +128,15 @@ export function setGQLSession(session: GQLSession) {
   })
 }
 
+export function setGQLUrl(url: string) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setURL",
+    payload: {
+      url,
+    },
+  })
+}
+
 export function setGQLConnection(connection: GQLConnection) {
   gqlSessionStore.dispatch({
     dispatcher: "setConnection",
@@ -170,6 +186,11 @@ export const gqlCurrentTab$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
     return tabs.find((tab) => tab.id === currentTabId) as GQLTab
   }),
+  distinctUntilChanged()
+)
+
+export const GQLConnectionURL$ = gqlSessionStore.subject$.pipe(
+  pluck("url"),
   distinctUntilChanged()
 )
 

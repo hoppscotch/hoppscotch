@@ -33,7 +33,12 @@ import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { GQLRequest } from "~/helpers/graphql/GQLRequest"
-import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
+import {
+  GQLConnection$,
+  setGQLConnection,
+  GQLConnectionURL$,
+  setGQLUrl,
+} from "~/newstore/GQLSession"
 
 const t = useI18n()
 
@@ -45,11 +50,7 @@ const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 const connected = useReadonlyStream(conn.value.connected$, false)
 const headers = useReadonlyStream(props.request.headers$, [])
 
-const url = useStream(
-  props.request.url$,
-  "",
-  props.request.setGQLURL.bind(props.request)
-)
+const url = useStream(GQLConnectionURL$, "", setGQLUrl)
 
 const onConnectClick = () => {
   if (!connected.value) {

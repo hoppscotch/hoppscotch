@@ -275,13 +275,6 @@ describe('UserHistoryService', () => {
         await userHistoryService.starUnstarRequestInHistory('abc', '1'),
       ).toEqualLeft(USER_HISTORY_NOT_FOUND);
     });
-    test('Should resolve left and error out due to invalid request ID', async () => {
-      mockPrisma.userHistory.findFirst.mockResolvedValueOnce(null);
-
-      return expect(
-        await userHistoryService.starUnstarRequestInHistory('abc', '1'),
-      ).toEqualLeft(USER_HISTORY_NOT_FOUND);
-    });
   });
   describe('removeRequestFromHistory', () => {
     test('Should resolve right and delete request from users history, publish a subscription', async () => {

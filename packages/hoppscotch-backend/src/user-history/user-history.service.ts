@@ -139,7 +139,7 @@ export class UserHistoryService {
       );
       return E.right(updatedUserHistory);
     } catch (e) {
-      E.left(USER_HISTORY_NOT_FOUND);
+      return E.left(USER_HISTORY_NOT_FOUND);
     }
   }
 

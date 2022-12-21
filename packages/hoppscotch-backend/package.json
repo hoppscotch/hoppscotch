@@ -74,6 +74,7 @@
       "json",
       "ts"
     ],
+    "setupFilesAfterEnv": ["@relmify/jest-fp-ts"],
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
     },

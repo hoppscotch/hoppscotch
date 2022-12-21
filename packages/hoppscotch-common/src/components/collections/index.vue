@@ -57,7 +57,6 @@
       <SmartTab
         :id="'team-collections'"
         :label="`${t('collection.team_collections')}`"
-        :disabled="!currentUser"
       >
         <div
           class="sticky z-10 flex flex-1 bg-primary"
@@ -173,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, reactive, ref, watch } from "vue"
+import { computed, PropType, reactive, ref, watch, nextTick } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -238,6 +237,7 @@ import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import * as E from "fp-ts/Either"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { createCollectionGists } from "~/helpers/gist"
+import { invokeAction } from "~/helpers/actions"
 
 const t = useI18n()
 const toast = useToast()
@@ -282,8 +282,13 @@ const collectionsType = ref<CollectionType>({
 watch(
   () => selectedCollectionTab.value,
   (tab) => {
-    collectionsType.value.type = tab
-    emit("update-collection-type", tab)
+    if (tab === "team-collections" && !currentUser.value) {
+      invokeAction("modals.login.toggle")
+      nextTick(() => (selectedCollectionTab.value = "my-collections"))
+    } else {
+      collectionsType.value.type = tab
+      emit("update-collection-type", tab)
+    }
   }
 )
 

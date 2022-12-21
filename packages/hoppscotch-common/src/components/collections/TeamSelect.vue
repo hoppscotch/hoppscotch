@@ -1,6 +1,9 @@
 <template>
-  <div>
-    <SmartIntersection @intersecting="onTeamSelectIntersect">
+  <div class="flex flex-1">
+    <SmartIntersection
+      class="flex flex-1 flex-col"
+      @intersecting="onTeamSelectIntersect"
+    >
       <tippy
         interactive
         trigger="click"

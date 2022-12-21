@@ -18,12 +18,14 @@
     <SmartTabs
       v-model="selectedCollectionTab"
       render-inactive-tabs
-      :styles="[
-        'sticky overflow-x-auto border-y bg-primary border-dividerLight flex-shrink-0 z-10',
-        saveRequest
-          ? 'top-sidebarSecondaryStickyFold'
-          : 'top-sidebarPrimaryStickyFold',
-      ]"
+      :styles="`
+        sticky overflow-x-auto border-y bg-primary border-dividerLight flex-shrink-0 z-10
+        ${
+          saveRequest
+            ? 'top-sidebarSecondaryStickyFold'
+            : 'top-sidebarPrimaryStickyFold'
+        }
+      `"
     >
       <SmartTab
         :id="'my-collections'"
@@ -57,12 +59,21 @@
         :label="`${t('collection.team_collections')}`"
         :disabled="!currentUser"
       >
-        <CollectionsTeamSelect
-          :collections-type="collectionsType"
-          :my-teams="myTeams"
-          @update-selected-team="updateSelectedTeam"
-          @team-select-intersect="onTeamSelectIntersect"
-        />
+        <div
+          class="sticky z-10 flex flex-1 bg-primary"
+          :style="
+            saveRequest
+              ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
+              : 'top: var(--upper-primary-sticky-fold)'
+          "
+        >
+          <CollectionsTeamSelect
+            :collections-type="collectionsType"
+            :my-teams="myTeams"
+            @update-selected-team="updateSelectedTeam"
+            @team-select-intersect="onTeamSelectIntersect"
+          />
+        </div>
         <CollectionsTeamCollections
           :collections-type="collectionsType"
           :team-collection-list="teamCollectionList"

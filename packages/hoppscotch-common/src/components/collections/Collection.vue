@@ -21,7 +21,7 @@
         />
       </span>
       <span
-        class="flex flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
+        class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
         @click="emit('toggle-children')"
       >
         <span class="truncate" :class="{ 'text-accent': isSelected }">
@@ -61,11 +61,11 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.r="requestAction?.click()"
-                @keyup.n="folderAction?.click()"
-                @keyup.e="edit?.click()"
-                @keyup.delete="deleteAction?.click()"
-                @keyup.x="exportAction?.click()"
+                @keyup.r="requestAction?.$el.click()"
+                @keyup.n="folderAction?.$el.click()"
+                @keyup.e="edit?.$el.click()"
+                @keyup.delete="deleteAction?.$el.click()"
+                @keyup.x="exportAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <SmartItem

@@ -73,9 +73,9 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.e="edit?.click()"
-                @keyup.d="duplicate?.click()"
-                @keyup.delete="deleteAction?.click()"
+                @keyup.e="edit?.$el.click()"
+                @keyup.d="duplicate?.$el.click()"
+                @keyup.delete="deleteAction?.$el.click()"
                 @keyup.escape="hide()"
               >
                 <SmartItem

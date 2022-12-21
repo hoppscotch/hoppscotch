@@ -67,6 +67,7 @@ import {
   setResponseUnseen,
   GQLConnection$,
   setGQLConnection,
+  GQLConnectionURL$,
 } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
@@ -85,7 +86,7 @@ const { subscribeToStream } = useStreamSubscriber()
 
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
-const url = useReadonlyStream(props.request.url$, "")
+const url = useReadonlyStream(GQLConnectionURL$, "")
 const gqlQueryString = useStream(
   props.request.query$,
   "",

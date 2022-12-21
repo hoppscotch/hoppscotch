@@ -1,89 +1,94 @@
 <template>
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky z-12 flex flex-col flex-shrink-0 overflow-x-auto border-b rounded-t bg-primary border-dividerLight"
+      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
       :style="
-        saveRequest ? 'top: calc(-1.35 * var(--font-size-body))' : 'top: 0'
+        saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "
     >
-      <div class="flex flex-col border-b border-dividerLight">
-        <input
-          v-model="filterTexts"
-          type="search"
-          autocomplete="off"
-          :placeholder="t('action.search')"
-          class="py-2 pl-4 pr-2 bg-transparent"
-          :disabled="collectionsType.type === 'team-collections'"
+      <input
+        v-model="filterTexts"
+        type="search"
+        autocomplete="off"
+        :placeholder="t('action.search')"
+        class="py-2 pl-4 pr-2 bg-transparent"
+        :disabled="collectionsType.type === 'team-collections'"
+      />
+    </div>
+    <SmartTabs
+      v-model="selectedCollectionTab"
+      render-inactive-tabs
+      :styles="[
+        'sticky overflow-x-auto border-y bg-primary border-dividerLight flex-shrink-0 z-10',
+        saveRequest
+          ? 'top-sidebarSecondaryStickyFold'
+          : 'top-sidebarPrimaryStickyFold',
+      ]"
+    >
+      <SmartTab
+        :id="'my-collections'"
+        :label="`${t('collection.my_collections')}`"
+      >
+        <CollectionsMyCollections
+          :collections-type="collectionsType"
+          :filtered-collections="filteredCollections"
+          :filter-text="filterTexts"
+          :save-request="saveRequest"
+          :picked="picked"
+          @add-folder="addFolder"
+          @add-request="addRequest"
+          @edit-collection="editCollection"
+          @edit-folder="editFolder"
+          @export-data="exportData"
+          @remove-collection="removeCollection"
+          @remove-folder="removeFolder"
+          @edit-request="editRequest"
+          @duplicate-request="duplicateRequest"
+          @remove-request="removeRequest"
+          @select-request="selectRequest"
+          @select="selectPicked"
+          @drop-request="dropRequest"
+          @display-modal-add="displayModalAdd(true)"
+          @display-modal-import-export="displayModalImportExport(true)"
         />
-      </div>
-    </div>
-    <div class="relative flex flex-col overflow-hidden">
-      <SmartTabs v-model="selectedCollectionTab" render-inactive-tabs>
-        <SmartTab
-          :id="'my-collections'"
-          :label="`${t('collection.my_collections')}`"
-        >
-          <CollectionsMyCollections
-            :collections-type="collectionsType"
-            :filtered-collections="filteredCollections"
-            :filter-text="filterTexts"
-            :save-request="saveRequest"
-            :picked="picked"
-            @add-folder="addFolder"
-            @add-request="addRequest"
-            @edit-collection="editCollection"
-            @edit-folder="editFolder"
-            @export-data="exportData"
-            @remove-collection="removeCollection"
-            @remove-folder="removeFolder"
-            @edit-request="editRequest"
-            @duplicate-request="duplicateRequest"
-            @remove-request="removeRequest"
-            @select-request="selectRequest"
-            @select="selectPicked"
-            @drop-request="dropRequest"
-            @display-modal-add="displayModalAdd(true)"
-            @display-modal-import-export="displayModalImportExport(true)"
-          />
-        </SmartTab>
-        <SmartTab
-          :id="'team-collections'"
-          :label="`${t('collection.team_collections')}`"
-          :disabled="!currentUser"
-        >
-          <CollectionsTeamSelect
-            :collections-type="collectionsType"
-            :my-teams="myTeams"
-            @update-selected-team="updateSelectedTeam"
-            @team-select-intersect="onTeamSelectIntersect"
-          />
-          <CollectionsTeamCollections
-            :collections-type="collectionsType"
-            :team-collection-list="teamCollectionList"
-            :team-loading-collections="teamLoadingCollections"
-            :export-loading="exportLoading"
-            :duplicate-loading="duplicateLoading"
-            :save-request="saveRequest"
-            :picked="picked"
-            @add-request="addRequest"
-            @add-folder="addFolder"
-            @edit-collection="editCollection"
-            @edit-folder="editFolder"
-            @export-data="exportData"
-            @remove-collection="removeCollection"
-            @remove-folder="removeFolder"
-            @edit-request="editRequest"
-            @duplicate-request="duplicateRequest"
-            @remove-request="removeRequest"
-            @select-request="selectRequest"
-            @select="selectPicked"
-            @expand-team-collection="expandTeamCollection"
-            @display-modal-add="displayModalAdd(true)"
-            @display-modal-import-export="displayModalImportExport(true)"
-          />
-        </SmartTab>
-      </SmartTabs>
-    </div>
+      </SmartTab>
+      <SmartTab
+        :id="'team-collections'"
+        :label="`${t('collection.team_collections')}`"
+        :disabled="!currentUser"
+      >
+        <CollectionsTeamSelect
+          :collections-type="collectionsType"
+          :my-teams="myTeams"
+          @update-selected-team="updateSelectedTeam"
+          @team-select-intersect="onTeamSelectIntersect"
+        />
+        <CollectionsTeamCollections
+          :collections-type="collectionsType"
+          :team-collection-list="teamCollectionList"
+          :team-loading-collections="teamLoadingCollections"
+          :export-loading="exportLoading"
+          :duplicate-loading="duplicateLoading"
+          :save-request="saveRequest"
+          :picked="picked"
+          @add-request="addRequest"
+          @add-folder="addFolder"
+          @edit-collection="editCollection"
+          @edit-folder="editFolder"
+          @export-data="exportData"
+          @remove-collection="removeCollection"
+          @remove-folder="removeFolder"
+          @edit-request="editRequest"
+          @duplicate-request="duplicateRequest"
+          @remove-request="removeRequest"
+          @select-request="selectRequest"
+          @select="selectPicked"
+          @expand-team-collection="expandTeamCollection"
+          @display-modal-add="displayModalAdd(true)"
+          @display-modal-import-export="displayModalImportExport(true)"
+        />
+      </SmartTab>
+    </SmartTabs>
     <CollectionsAdd
       :show="showModalAdd"
       :loading-state="modalLoadingState"

@@ -1,7 +1,12 @@
 <template>
   <div class="flex flex-col flex-1">
     <div
-      class="sticky top-0 z-10 flex justify-between flex-1 border-b border-dividerLight"
+      class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
+      :style="
+        saveRequest
+          ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
+          : 'top: var(--upper-primary-sticky-fold)'
+      "
     >
       <ButtonSecondary
         :icon="IconPlus"

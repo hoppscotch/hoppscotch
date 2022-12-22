@@ -21,10 +21,7 @@ export class UserService {
       });
 
       // Publish subscription for user updates
-      await this.pubsub.publish(
-        `user_settings/${user.uid}/updated`,
-        updatedUser,
-      );
+      await this.pubsub.publish(`user/${user.uid}/updated`, updatedUser);
 
       return E.right(updatedUser);
     } catch (e) {

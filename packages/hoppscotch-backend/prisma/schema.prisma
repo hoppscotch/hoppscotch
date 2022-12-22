@@ -79,10 +79,12 @@ model TeamEnvironment {
 }
 
 model User {
-  uid              String            @id @default(cuid())
-  displayName      String?
-  email            String?
-  photoURL         String?
+  uid                String  @id @default(cuid())
+  displayName        String?
+  email              String?
+  photoURL           String?
+  currentRESTSession String?
+  currentGQLSession  String?
 }
 
 enum TeamMemberRole {

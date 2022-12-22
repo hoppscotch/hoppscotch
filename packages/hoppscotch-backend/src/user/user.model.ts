@@ -24,4 +24,16 @@ export class User {
     description: 'URL to the profile photo of the user (if given)',
   })
   photoURL?: string;
+
+  @Field({
+    nullable: true,
+    description: 'JSON string of current REST session for logged-in User',
+  })
+  currentRESTSession?: string;
+
+  @Field({
+    nullable: true,
+    description: 'JSON string of current GraphQL session for logged-in User',
+  })
+  currentGQLSession?: string;
 }

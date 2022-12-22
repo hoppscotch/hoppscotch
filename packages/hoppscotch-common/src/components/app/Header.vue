@@ -3,7 +3,13 @@
     <header
       class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
-      <div class="inline-flex items-center space-x-2">
+      <div
+        class="inline-flex items-center space-x-2"
+        :style="{
+          paddingTop: platform.ui?.appHeader?.paddingTop?.value,
+          paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
+        }"
+      >
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
           :label="t('app.name')"
@@ -169,6 +175,7 @@ import { probableUser$ } from "@helpers/fb/auth"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
+import { platform } from "~/index"
 
 const t = useI18n()
 

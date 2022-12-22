@@ -13,6 +13,12 @@ export class UserService {
     private readonly pubsub: PubSubService,
   ) {}
 
+  /**
+   * Update a user's information
+   * @param user User object
+   * @param updateUserDto Properties to update
+   * @returns a Either of User or error
+   */
   async updateUser(user: User, updateUserDto: UpdateUserInput) {
     try {
       const updatedUser = await this.prisma.user.update({

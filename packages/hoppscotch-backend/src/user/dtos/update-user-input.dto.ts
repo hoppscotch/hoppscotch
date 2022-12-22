@@ -4,6 +4,20 @@ import { Field, InputType } from '@nestjs/graphql';
 export class UpdateUserInput {
   @Field({
     nullable: true,
+    name: 'displayName',
+    description: 'Displayed name of the user (if given)',
+  })
+  displayName?: string;
+
+  @Field({
+    nullable: true,
+    name: 'photoURL',
+    description: 'URL to the profile photo of the user (if given)',
+  })
+  photoURL?: string;
+
+  @Field({
+    nullable: true,
     name: 'currentRESTSession',
     description: 'JSON string of the session',
   })

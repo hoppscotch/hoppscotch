@@ -6,8 +6,10 @@ import {
   JSON_INVALID,
   USER_NOT_FOUND,
   USER_SETTINGS_INVALID_PROPERTIES,
-  USER_SETTINGS_UPDATE_FAILED,
+  USER_SETTINGS_NOT_FOUND,
 } from 'src/errors';
+import { UserSettings } from './user-settings.model';
+import { User } from 'src/user/user.model';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -19,16 +21,16 @@ const userSettingsService = new UserSettingsService(
   mockPubSub as any,
 );
 
-const user = {
+const user: User = {
   uid: 'user-uid',
   displayName: 'user-display-name',
   email: 'user-email',
   photoURL: 'user-photo-url',
 };
-const userSettings = {
+const userSettings: UserSettings = {
   id: '1',
   userUid: user.uid,
-  properties: { key: 'k', value: 'v' },
+  properties: JSON.stringify({ key: 'k', value: 'v' }),
   updatedOn: new Date('2022-12-19T12:43:18.635Z'),
 };
 
@@ -39,7 +41,7 @@ beforeEach(() => {
 
 describe('UserSettingsService', () => {
   describe('createUserSettings', () => {
-    test('should create a user settings with valid user and properties', async () => {
+    test('should create a user setting with valid user and properties', async () => {
       mockPrisma.userSettings.create.mockResolvedValue(userSettings);
 
       const result = await userSettingsService.createUserSettings(
@@ -76,7 +78,7 @@ describe('UserSettingsService', () => {
     });
   });
   describe('updateUserSettings', () => {
-    test('should update a user settings for valid user and properties', async () => {
+    test('should update a user setting for valid user and properties', async () => {
       mockPrisma.userSettings.update.mockResolvedValue(userSettings);
 
       const result = await userSettingsService.updateUserSettings(
@@ -94,9 +96,9 @@ describe('UserSettingsService', () => {
         null as any,
         JSON.stringify(userSettings.properties),
       );
-      expect(result).toEqualLeft(USER_SETTINGS_UPDATE_FAILED);
+      expect(result).toEqualLeft(USER_SETTINGS_NOT_FOUND);
     });
-    test('should reject for invalid properties', async () => {
+    test('should reject for invalid stringified JSON properties', async () => {
       const result = await userSettingsService.updateUserSettings(
         user,
         'invalid-properties',
@@ -110,7 +112,7 @@ describe('UserSettingsService', () => {
       );
       expect(result).toEqualLeft(USER_SETTINGS_INVALID_PROPERTIES);
     });
-    test('should publish message on pubnub after update successfully', async () => {
+    test('should publish message over pubsub on successful update', async () => {
       mockPrisma.userSettings.update.mockResolvedValue(userSettings);
 
       await userSettingsService.updateUserSettings(

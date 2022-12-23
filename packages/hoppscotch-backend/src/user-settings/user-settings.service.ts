@@ -9,7 +9,6 @@ import {
   USER_NOT_FOUND,
   USER_SETTINGS_INVALID_PROPERTIES,
   USER_SETTINGS_NOT_FOUND,
-  USER_SETTINGS_UPDATE_FAILED,
 } from 'src/errors';
 
 @Injectable()
@@ -19,83 +18,90 @@ export class UserSettingsService {
     private readonly pubsub: PubSubService,
   ) {}
 
+  /**
+   * Fetch user setting for a given user
+   * @param user User object
+   * @returns an Either of `UserSettings` or error
+   */
   async fetchUserSettings(user: User) {
     try {
-      const dbUserSettings = await this.prisma.userSettings.findUnique({
+      const userSettings = await this.prisma.userSettings.findUniqueOrThrow({
         where: { userUid: user.uid },
-        rejectOnNotFound: true,
       });
 
-      const userSettings: UserSettings = {
-        id: dbUserSettings.id,
-        userUid: dbUserSettings.userUid,
-        properties: JSON.stringify(dbUserSettings.properties),
-        updatedOn: dbUserSettings.updatedOn,
+      const settings: UserSettings = {
+        ...userSettings,
+        properties: JSON.stringify(userSettings.properties),
       };
 
-      return E.right(userSettings);
+      return E.right(settings);
     } catch (e) {
       return E.left(USER_SETTINGS_NOT_FOUND);
     }
   }
 
+  /**
+   * Create user setting for a given user
+   * @param user User object
+   * @param properties User setting properties
+   * @returns an Either of `UserSettings` or error
+   */
   async createUserSettings(user: User, properties: string) {
     if (!properties) return E.left(USER_SETTINGS_INVALID_PROPERTIES);
 
-    const jsonProperties = stringToJson(properties);
-    if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
+    const settingsObject = stringToJson(properties);
+    if (E.isLeft(settingsObject)) return E.left(settingsObject.left);
 
     try {
-      const dbUserSettings = await this.prisma.userSettings.create({
+      const userSettings = await this.prisma.userSettings.create({
         data: {
-          properties: jsonProperties.right,
+          properties: settingsObject.right,
           userUid: user.uid,
         },
       });
 
-      const userSettings: UserSettings = {
-        id: dbUserSettings.id,
-        userUid: dbUserSettings.userUid,
-        properties,
-        updatedOn: dbUserSettings.updatedOn,
+      const settings: UserSettings = {
+        ...userSettings,
+        properties: JSON.stringify(userSettings.properties),
       };
 
-      return E.right(userSettings);
+      return E.right(settings);
     } catch (e) {
       return E.left(USER_NOT_FOUND);
     }
   }
 
+  /**
+   * Update user setting for a given user
+   * @param user User object
+   * @param properties
+   * @returns
+   */
   async updateUserSettings(user: User, properties: string) {
     if (!properties) return E.left(USER_SETTINGS_INVALID_PROPERTIES);
 
-    const jsonProperties = stringToJson(properties);
-    if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
+    const settingsObject = stringToJson(properties);
+    if (E.isLeft(settingsObject)) return E.left(settingsObject.left);
 
     try {
-      const dbUpdatedUserSettings = await this.prisma.userSettings.update({
+      const updatedUserSettings = await this.prisma.userSettings.update({
         where: { userUid: user.uid },
         data: {
-          properties: jsonProperties.right,
+          properties: settingsObject.right,
         },
       });
 
-      const updatedUserSettings: UserSettings = {
-        id: dbUpdatedUserSettings.id,
-        userUid: dbUpdatedUserSettings.userUid,
-        properties,
-        updatedOn: dbUpdatedUserSettings.updatedOn,
+      const settings: UserSettings = {
+        ...updatedUserSettings,
+        properties: JSON.stringify(updatedUserSettings.properties),
       };
 
       // Publish subscription for environment creation
-      await this.pubsub.publish(
-        `user_settings/${user.uid}/updated`,
-        updatedUserSettings,
-      );
+      await this.pubsub.publish(`user_settings/${user.uid}/updated`, settings);
 
-      return E.right(updatedUserSettings);
+      return E.right(settings);
     } catch (e) {
-      return E.left(USER_SETTINGS_UPDATE_FAILED);
+      return E.left(USER_SETTINGS_NOT_FOUND);
     }
   }
 }

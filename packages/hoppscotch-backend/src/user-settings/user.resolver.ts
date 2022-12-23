@@ -12,7 +12,7 @@ export class UserSettingsUserResolver {
   @ResolveField(() => UserSettings, {
     description: 'Returns user settings',
   })
-  async settings(@Parent() user: User): Promise<UserSettings | string> {
+  async settings(@Parent() user: User) {
     const userSettings = await this.userSettingsService.fetchUserSettings(user);
 
     if (E.isLeft(userSettings)) throwErr(userSettings.left);

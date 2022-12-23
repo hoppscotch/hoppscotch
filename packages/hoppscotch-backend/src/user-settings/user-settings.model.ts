@@ -3,22 +3,22 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class UserSettings {
   @Field(() => ID, {
-    description: 'ID of the User Settings',
+    description: 'ID of the User Setting',
   })
   id: string;
 
   @Field(() => ID, {
-    description: 'ID of the user this settings belongs to',
+    description: 'ID of the user this setting belongs to',
   })
   userUid: string;
 
   @Field({
-    description: 'All properties present in the settings',
+    description: 'Stringified JSON settings object',
   })
   properties: string; // JSON string of the properties object (format:[{ key: "background", value: "system" }, ...] ) which will be received from the client
 
   @Field({
-    description: 'Last updated date-time of the settings',
+    description: 'Last updated on',
   })
   updatedOn: Date;
 }

@@ -161,6 +161,19 @@ export const TEAM_ENVIRONMMENT_NOT_FOUND =
 export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
   'team_environment/not_team_member' as const;
 
+/**
+ * User setting not found for a user
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
+
+/**
+ * User setting invalid (null) properties
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_INVALID_PROPERTIES = 'user_settings/invalid_properties' as const;
+
+
 /*
 
  |------------------------------------|
@@ -215,21 +228,3 @@ export const BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES =
  */
 export const BUG_TEAM_ENV_GUARD_NO_ENV_ID =
   'bug/team_env/guard_no_env_id' as const;
-
-/**
- * User settings update failed
- * (UserSettingsService)
- */
-export const USER_SETTINGS_UPDATE_FAILED = 'user_settings/update_failed' as const;
-
-/**
- * User settings not found
- * (UserSettingsService)
- */
-export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
-
-/**
- * User settings invalid properties
- * (UserSettingsService)
- */
-export const USER_SETTINGS_INVALID_PROPERTIES = 'user_settings/invalid_properties' as const;

@@ -19,14 +19,14 @@ export class UserSettingsResolver {
   /* Mutations */
 
   @Mutation(() => UserSettings, {
-    description: 'Creates a new user settings for given user',
+    description: 'Creates a new user setting for a given user',
   })
   @UseGuards(GqlAuthGuard)
   async createUserSettings(
     @GqlUser() user: User,
     @Args({
       name: 'properties',
-      description: 'JSON string of properties object',
+      description: 'Stringified JSON settings object',
     })
     properties: string,
   ) {
@@ -40,14 +40,14 @@ export class UserSettingsResolver {
   }
 
   @Mutation(() => UserSettings, {
-    description: 'Update user settings for given user',
+    description: 'Update user setting for a given user',
   })
   @UseGuards(GqlAuthGuard)
   async updateUserSettings(
     @GqlUser() user: User,
     @Args({
       name: 'properties',
-      description: 'JSON string of properties object',
+      description: 'Stringified JSON settings object',
     })
     properties: string,
   ) {
@@ -61,7 +61,7 @@ export class UserSettingsResolver {
   /* Subscriptions */
 
   @Subscription(() => UserSettings, {
-    description: 'Listen for user setting updating',
+    description: 'Listen for user setting updates',
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)

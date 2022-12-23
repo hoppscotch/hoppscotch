@@ -79,19 +79,19 @@ model TeamEnvironment {
 }
 
 model User {
-  uid              String            @id @default(cuid())
-  displayName      String?
-  email            String?
-  photoURL         String?
-  settings         UserSettings?
+  uid         String        @id @default(cuid())
+  displayName String?
+  email       String?
+  photoURL    String?
+  settings    UserSettings?
 }
 
 model UserSettings {
-  id         String   @id @default(uuid())
-  userUid    String   @unique
-  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  properties Json
-  updatedOn  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userUid   String   @unique
+  user      User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  settings  Json
+  updatedOn DateTime @updatedAt @db.Timestamptz(3)
 }
 
 enum TeamMemberRole {

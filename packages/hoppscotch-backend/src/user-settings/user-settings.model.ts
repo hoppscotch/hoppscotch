@@ -15,7 +15,7 @@ export class UserSettings {
   @Field({
     description: 'Stringified JSON settings object',
   })
-  properties: string; // JSON string of the properties object (format:[{ key: "background", value: "system" }, ...] ) which will be received from the client
+  userSettings: string; // JSON string of the userSettings object (format:[{ key: "background", value: "system" }, ...] ) which will be received from the client
 
   @Field({
     description: 'Last updated on',

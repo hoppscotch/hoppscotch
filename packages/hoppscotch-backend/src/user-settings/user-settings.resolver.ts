@@ -25,18 +25,16 @@ export class UserSettingsResolver {
   async createUserSettings(
     @GqlUser() user: User,
     @Args({
-      name: 'properties',
+      name: 'userSettings',
       description: 'Stringified JSON settings object',
     })
-    properties: string,
+    userSettings: string,
   ) {
-    const userSettings = await this.userSettingsService.createUserSettings(
-      user,
-      properties,
-    );
+    const createdUserSettings =
+      await this.userSettingsService.createUserSettings(user, userSettings);
 
-    if (E.isLeft(userSettings)) throwErr(userSettings.left);
-    return userSettings.right;
+    if (E.isLeft(createdUserSettings)) throwErr(createdUserSettings.left);
+    return createdUserSettings.right;
   }
 
   @Mutation(() => UserSettings, {
@@ -46,13 +44,13 @@ export class UserSettingsResolver {
   async updateUserSettings(
     @GqlUser() user: User,
     @Args({
-      name: 'properties',
+      name: 'userSettings',
       description: 'Stringified JSON settings object',
     })
-    properties: string,
+    userSettings: string,
   ) {
     const updatedUserSettings =
-      await this.userSettingsService.updateUserSettings(user, properties);
+      await this.userSettingsService.updateUserSettings(user, userSettings);
 
     if (E.isLeft(updatedUserSettings)) throwErr(updatedUserSettings.left);
     return updatedUserSettings.right;

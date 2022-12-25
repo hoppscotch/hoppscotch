@@ -71,7 +71,7 @@
                 :shortcut="['S']"
                 @click="
                   () => {
-                    showShortcuts = true
+                    invokeAction('flyouts.keybinds.toggle')
                     hide()
                   }
                 "
@@ -122,7 +122,7 @@
                 :label="`${t('app.invite')}`"
                 @click="
                   () => {
-                    showShare = true
+                    invokeAction('modals.share.toggle')
                     hide()
                   }
                 "
@@ -154,7 +154,7 @@
             'app.shortcuts'
           )} <kbd>${getSpecialKey()}</kbd><kbd>K</kbd>`"
           :icon="IconZap"
-          @click="showShortcuts = true"
+          @click="invokeAction('flyouts.keybinds.toggle')"
         />
         <ButtonSecondary
           v-if="navigatorShare"
@@ -188,13 +188,10 @@
         </span>
       </div>
     </div>
-    <AppShortcuts :show="showShortcuts" @close="showShortcuts = false" />
-    <AppShare :show="showShare" @hide-modal="showShare = false" />
     <AppDeveloperOptions
       :show="showDeveloperOptions"
       @hide-modal="showDeveloperOptions = false"
     />
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 
@@ -218,7 +215,6 @@ import IconGithub from "~icons/lucide/github"
 import IconTwitter from "~icons/lucide/twitter"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLock from "~icons/lucide/lock"
-import { defineActionHandler } from "~/helpers/actions"
 import { showChat } from "@modules/crisp"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
@@ -227,24 +223,10 @@ import { currentUser$ } from "~/helpers/fb/auth"
 import { TippyComponent } from "vue-tippy"
 import SmartItem from "@components/smart/Item.vue"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import { invokeAction } from "@helpers/actions"
 
 const t = useI18n()
-const showShortcuts = ref(false)
-const showShare = ref(false)
 const showDeveloperOptions = ref(false)
-const showLogin = ref(false)
-
-defineActionHandler("flyouts.keybinds.toggle", () => {
-  showShortcuts.value = !showShortcuts.value
-})
-
-defineActionHandler("modals.share.toggle", () => {
-  showShare.value = !showShare.value
-})
-
-defineActionHandler("modals.login.toggle", () => {
-  showLogin.value = !showLogin.value
-})
 
 const EXPAND_NAVIGATION = useSetting("EXPAND_NAVIGATION")
 const SIDEBAR = useSetting("SIDEBAR")

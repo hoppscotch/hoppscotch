@@ -7,7 +7,6 @@ import ChangeLanguage from "./smart/ChangeLanguage.vue"
 import Checkbox from "./smart/Checkbox.vue"
 import ColorModePicker from "./smart/ColorModePicker.vue"
 import ConfirmModal from "./smart/ConfirmModal.vue"
-import EnvInput from "./smart/EnvInput.vue"
 import Expand from "./smart/Expand.vue"
 import FileChip from "./smart/FileChip.vue"
 import FontSizePicker from "./smart/FontSizePicker.vue"
@@ -36,7 +35,6 @@ export default {
   Checkbox,
   ColorModePicker,
   ConfirmModal,
-  EnvInput,
   Expand,
   FileChip,
   FontSizePicker,

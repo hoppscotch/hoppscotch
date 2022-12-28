@@ -5,7 +5,14 @@
     :is-open="isNodeOpen"
   ></slot>
 
-  <div v-if="showChildren" class="flex">
+  <!-- This is a performance optimization trick -->
+  <!-- Once expanded, Vue will traverse through the children and expand the tree up
+       but when we collapse, the tree and the components are disposed. This is wasteful
+       and comes with performance issues if the children list is expensive to render.
+       Hence, here we render children only when first expanded, and after that, even if collapsed,
+       we just hide the children.
+  -->
+  <div v-if="childrenRendered" v-show="showChildren" class="flex">
     <div
       class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
       @click="toggleNodeChildren"
@@ -71,6 +78,12 @@ const props = defineProps<{
 const CHILD_SLOT_NAME = "default"
 const t = useI18n()
 
+/**
+ * Marks whether the children on this branch were ever rendered
+ * See the usage inside '<template>' for more info
+ */
+const childrenRendered = ref(false)
+
 const showChildren = ref(false)
 const isNodeOpen = ref(false)
 
@@ -82,6 +95,8 @@ const childNodes = computed(
 )
 
 const toggleNodeChildren = () => {
+  if (!childrenRendered.value) childrenRendered.value = true
+
   showChildren.value = !showChildren.value
   isNodeOpen.value = !isNodeOpen.value
 }

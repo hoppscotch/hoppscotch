@@ -501,6 +501,10 @@ pre.ace_editor {
   @apply rounded;
   @apply ml-2;
   @apply px-1;
+  @apply min-w-5;
+  @apply min-h-5;
+  @apply items-center;
+  @apply justify-center;
   @apply border border-dividerDark;
   @apply shadow-sm;
   @apply <sm:hidden;

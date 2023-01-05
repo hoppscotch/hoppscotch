@@ -172,13 +172,13 @@ export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
  * User setting not found for a user
  * (UserSettingsService)
  */
-export const USER_SETTINGS_EXIST = 'user_settings/exist' as const;
+export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_present' as const;
 
 /**
- * User setting invalid (null) properties
+ * User setting invalid (null) settings
  * (UserSettingsService)
  */
-export const USER_SETTINGS_INVALID_PROPERTIES = 'user_settings/invalid_properties' as const;
+export const USER_SETTINGS_NULL_SETTINGS = 'user_settings/null_settings' as const;
 
 
 /*

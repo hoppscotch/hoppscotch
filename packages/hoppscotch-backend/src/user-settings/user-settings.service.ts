@@ -6,8 +6,8 @@ import * as E from 'fp-ts/Either';
 import { stringToJson } from 'src/utils';
 import { UserSettings } from './user-settings.model';
 import {
-  USER_SETTINGS_EXIST,
-  USER_SETTINGS_INVALID_PROPERTIES,
+  USER_SETTINGS_ALREADY_EXISTS,
+  USER_SETTINGS_NULL_SETTINGS,
   USER_SETTINGS_NOT_FOUND,
 } from 'src/errors';
 
@@ -33,6 +33,7 @@ export class UserSettingsService {
         ...userSettings,
         userSettings: JSON.stringify(userSettings.settings),
       };
+      delete (settings as any).settings;
 
       return E.right(settings);
     } catch (e) {
@@ -47,7 +48,7 @@ export class UserSettingsService {
    * @returns an Either of `UserSettings` or error
    */
   async createUserSettings(user: User, settingsString: string) {
-    if (!settingsString) return E.left(USER_SETTINGS_INVALID_PROPERTIES);
+    if (!settingsString) return E.left(USER_SETTINGS_NULL_SETTINGS);
 
     const settingsObject = stringToJson(settingsString);
     if (E.isLeft(settingsObject)) return E.left(settingsObject.left);
@@ -64,10 +65,11 @@ export class UserSettingsService {
         ...userSettings,
         userSettings: JSON.stringify(userSettings.settings),
       };
+      delete (settings as any).settings;
 
       return E.right(settings);
     } catch (e) {
-      return E.left(USER_SETTINGS_EXIST);
+      return E.left(USER_SETTINGS_ALREADY_EXISTS);
     }
   }
 
@@ -78,7 +80,7 @@ export class UserSettingsService {
    * @returns
    */
   async updateUserSettings(user: User, settingsString: string) {
-    if (!settingsString) return E.left(USER_SETTINGS_INVALID_PROPERTIES);
+    if (!settingsString) return E.left(USER_SETTINGS_NULL_SETTINGS);
 
     const settingsObject = stringToJson(settingsString);
     if (E.isLeft(settingsObject)) return E.left(settingsObject.left);
@@ -95,6 +97,7 @@ export class UserSettingsService {
         ...updatedUserSettings,
         userSettings: JSON.stringify(updatedUserSettings.settings),
       };
+      delete (settings as any).settings;
 
       // Publish subscription for environment creation
       await this.pubsub.publish(`user_settings/${user.uid}/updated`, settings);

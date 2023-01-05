@@ -5,7 +5,7 @@ import { UserSettingsService } from './user-settings.service';
 import {
   JSON_INVALID,
   USER_NOT_FOUND,
-  USER_SETTINGS_INVALID_PROPERTIES,
+  USER_SETTINGS_NULL_SETTINGS,
   USER_SETTINGS_NOT_FOUND,
 } from 'src/errors';
 import { UserSettings } from './user-settings.model';
@@ -22,15 +22,15 @@ const userSettingsService = new UserSettingsService(
 );
 
 const user: User = {
-  uid: 'user-uid',
+  uid: 'aabb22ccdd',
   displayName: 'user-display-name',
   email: 'user-email',
   photoURL: 'user-photo-url',
 };
-const userSettings: UserSettings = {
+const settings: UserSettings = {
   id: '1',
   userUid: user.uid,
-  properties: JSON.stringify({ key: 'k', value: 'v' }),
+  userSettings: JSON.stringify({ key: 'k', value: 'v' }),
   updatedOn: new Date('2022-12-19T12:43:18.635Z'),
 };
 
@@ -42,90 +42,75 @@ beforeEach(() => {
 describe('UserSettingsService', () => {
   describe('createUserSettings', () => {
     test('should create a user setting with valid user and properties', async () => {
-      mockPrisma.userSettings.create.mockResolvedValue(userSettings);
+      mockPrisma.userSettings.create.mockResolvedValue({
+        ...settings,
+        settings: JSON.parse(settings.userSettings),
+      });
 
       const result = await userSettingsService.createUserSettings(
         user,
-        JSON.stringify(userSettings.properties),
+        settings.userSettings,
       );
 
-      expect(result).toEqualRight({
-        ...userSettings,
-        properties: JSON.stringify(userSettings.properties),
-      });
-    });
-    test('should reject for invalid user', async () => {
-      const result = await userSettingsService.createUserSettings(
-        null as any,
-        JSON.stringify(userSettings.properties),
-      );
-
-      expect(result).toEqualLeft(USER_NOT_FOUND);
+      expect(result).toEqualRight(settings);
     });
     test('should reject for invalid properties', async () => {
       const result = await userSettingsService.createUserSettings(
         user,
-        'invalid-properties',
+        'invalid-settings',
       );
+
       expect(result).toEqualLeft(JSON_INVALID);
     });
-    test('should reject for null properties', async () => {
+    test('should reject for null settings', async () => {
       const result = await userSettingsService.createUserSettings(
         user,
         null as any,
       );
-      expect(result).toEqualLeft(USER_SETTINGS_INVALID_PROPERTIES);
+
+      expect(result).toEqualLeft(USER_SETTINGS_NULL_SETTINGS);
     });
   });
   describe('updateUserSettings', () => {
-    test('should update a user setting for valid user and properties', async () => {
-      mockPrisma.userSettings.update.mockResolvedValue(userSettings);
-
-      const result = await userSettingsService.updateUserSettings(
-        user,
-        JSON.stringify(userSettings.properties),
-      );
-
-      expect(result).toEqualRight({
-        ...userSettings,
-        properties: JSON.stringify(userSettings.properties),
+    test('should update a user setting for valid user and settings', async () => {
+      mockPrisma.userSettings.update.mockResolvedValue({
+        ...settings,
+        settings: JSON.parse(settings.userSettings),
       });
-    });
-    test('should reject for invalid user', async () => {
-      const result = await userSettingsService.updateUserSettings(
-        null as any,
-        JSON.stringify(userSettings.properties),
-      );
-      expect(result).toEqualLeft(USER_SETTINGS_NOT_FOUND);
-    });
-    test('should reject for invalid stringified JSON properties', async () => {
+
       const result = await userSettingsService.updateUserSettings(
         user,
-        'invalid-properties',
+        settings.userSettings,
       );
+
+      expect(result).toEqualRight(settings);
+    });
+    test('should reject for invalid stringified JSON settings', async () => {
+      const result = await userSettingsService.updateUserSettings(
+        user,
+        'invalid-settings',
+      );
+
       expect(result).toEqualLeft(JSON_INVALID);
     });
-    test('should reject for null properties', async () => {
+    test('should reject for null settings', async () => {
       const result = await userSettingsService.updateUserSettings(
         user,
         null as any,
       );
-      expect(result).toEqualLeft(USER_SETTINGS_INVALID_PROPERTIES);
+      expect(result).toEqualLeft(USER_SETTINGS_NULL_SETTINGS);
     });
     test('should publish message over pubsub on successful update', async () => {
-      mockPrisma.userSettings.update.mockResolvedValue(userSettings);
+      mockPrisma.userSettings.update.mockResolvedValue({
+        ...settings,
+        settings: JSON.parse(settings.userSettings),
+      });
 
-      await userSettingsService.updateUserSettings(
-        user,
-        JSON.stringify(userSettings.properties),
-      );
+      await userSettingsService.updateUserSettings(user, settings.userSettings);
 
       expect(mockPubSub.publish).toBeCalledWith(
         `user_settings/${user.uid}/updated`,
-        {
-          ...userSettings,
-          properties: JSON.stringify(userSettings.properties),
-        },
+        settings,
       );
     });
   });

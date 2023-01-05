@@ -6,7 +6,7 @@ import {
   JSON_INVALID,
   USER_NOT_FOUND,
   USER_SETTINGS_NULL_SETTINGS,
-  USER_SETTINGS_NOT_FOUND,
+  USER_SETTINGS_DATA_NOT_FOUND,
 } from 'src/errors';
 import { UserSettings } from './user-settings.model';
 import { User } from 'src/user/user.model';

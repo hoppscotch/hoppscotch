@@ -165,7 +165,7 @@ export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
  * User setting not found for a user
  * (UserSettingsService)
  */
-export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
+export const USER_SETTINGS_DATA_NOT_FOUND = 'user_settings/data_not_found' as const;
 
 
 /**

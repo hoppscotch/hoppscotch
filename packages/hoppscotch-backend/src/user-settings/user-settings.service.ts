@@ -8,7 +8,7 @@ import { UserSettings } from './user-settings.model';
 import {
   USER_SETTINGS_ALREADY_EXISTS,
   USER_SETTINGS_NULL_SETTINGS,
-  USER_SETTINGS_NOT_FOUND,
+  USER_SETTINGS_DATA_NOT_FOUND,
 } from 'src/errors';
 
 @Injectable()
@@ -37,7 +37,7 @@ export class UserSettingsService {
 
       return E.right(settings);
     } catch (e) {
-      return E.left(USER_SETTINGS_NOT_FOUND);
+      return E.left(USER_SETTINGS_DATA_NOT_FOUND);
     }
   }
 
@@ -104,7 +104,7 @@ export class UserSettingsService {
 
       return E.right(settings);
     } catch (e) {
-      return E.left(USER_SETTINGS_NOT_FOUND);
+      return E.left(USER_SETTINGS_DATA_NOT_FOUND);
     }
   }
 }

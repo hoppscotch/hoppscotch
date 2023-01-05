@@ -19,14 +19,14 @@ export class UpdateUserInput {
   @Field({
     nullable: true,
     name: 'currentRESTSession',
-    description: 'JSON string of the session',
+    description: 'JSON string of the saved REST session',
   })
   currentRESTSession?: string;
 
   @Field({
     nullable: true,
     name: 'currentGQLSession',
-    description: 'JSON string of the session',
+    description: 'JSON string of the saved GQL session',
   })
   currentGQLSession?: string;
 }

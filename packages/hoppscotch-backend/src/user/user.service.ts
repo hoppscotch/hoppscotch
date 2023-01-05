@@ -16,14 +16,14 @@ export class UserService {
   /**
    * Update a user's information
    * @param user User object
-   * @param updateUserDto Properties to update
+   * @param updateUserData Properties to update
    * @returns a Either of User or error
    */
-  async updateUser(user: User, updateUserDto: UpdateUserInput) {
+  async updateUser(user: User, updateUserData: UpdateUserInput) {
     try {
       const updatedUser = await this.prisma.user.update({
         where: { uid: user.uid },
-        data: updateUserDto,
+        data: updateUserData,
       });
 
       // Publish subscription for user updates

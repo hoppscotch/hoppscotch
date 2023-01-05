@@ -2,8 +2,8 @@ import { PrismaClient, User, UserSettings } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const createUsers = async () => {
-  console.log(`users creating`);
-  let users: User[] = [
+  console.log(`Creating new users`);
+  const users: User[] = [
     {
       uid: 'aabb22ccdd',
       displayName: 'exampleUser',
@@ -19,8 +19,8 @@ const createUsers = async () => {
 };
 
 const createUserSettings = async () => {
-  console.log(`user setting creating`);
-  let userSettings: any[] = [
+  console.log(`Creating user settings property`);
+  const userSettings: any[] = [
     {
       userUid: 'aabb22ccdd',
       settings: { key: 'background', value: 'system' },

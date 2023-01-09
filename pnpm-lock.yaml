@@ -52,22 +52,32 @@ importers:
       '@nestjs/platform-express': ^9.2.1
       '@nestjs/schematics': ^9.0.3
       '@nestjs/testing': ^9.2.1
+      '@prisma/client': ^4.7.1
+      '@relmify/jest-fp-ts': ^2.0.2
       '@types/express': ^4.17.14
-      '@types/jest': 29.2.3
+      '@types/jest': ^27.5.2
       '@types/node': ^18.11.10
       '@types/supertest': ^2.0.12
       '@typescript-eslint/eslint-plugin': ^5.45.0
       '@typescript-eslint/parser': ^5.45.0
       apollo-server-express: ^3.11.1
+      apollo-server-plugin-base: ^3.7.1
       eslint: ^8.29.0
       eslint-config-prettier: ^8.5.0
       eslint-plugin-prettier: ^4.2.1
+      express: ^4.17.1
+      fp-ts: ^2.13.1
       graphql: ^15.5.0
+      graphql-query-complexity: ^0.12.0
       graphql-redis-subscriptions: ^2.5.0
       graphql-subscriptions: ^2.0.0
+      io-ts: ^2.2.16
       ioredis: ^5.2.4
-      jest: 29.3.1
+      jest: ^29.3.1
+      jest-mock-extended: ^3.0.1
+      postmark: ^3.0.15
       prettier: ^2.8.0
+      prisma: ^4.7.1
       reflect-metadata: ^0.1.13
       rimraf: ^3.0.2
       rxjs: ^7.6.0
@@ -84,11 +94,19 @@ importers:
       '@nestjs/core': 9.2.1_ajc4cvdydchgvxyi4xnoij5t4i
       '@nestjs/graphql': 10.1.6_2khsk5ahlt4vlkrgib4soffmwu
       '@nestjs/platform-express': 9.2.1_hjcqpoaebdr7gdo5hgc22hthbe
-      apollo-server-express: 3.11.1_graphql@15.8.0
+      '@prisma/client': 4.8.1_prisma@4.8.1
+      apollo-server-express: 3.11.1_4mq2c443wwzwcb6dpxnwkfvrzm
+      apollo-server-plugin-base: 3.7.1_graphql@15.8.0
+      express: 4.18.2
+      fp-ts: 2.13.1
       graphql: 15.8.0
+      graphql-query-complexity: 0.12.0_graphql@15.8.0
       graphql-redis-subscriptions: 2.5.0_nsv4zbviaf54hk5nfhl4slig7i
       graphql-subscriptions: 2.0.0_graphql@15.8.0
+      io-ts: 2.2.16_fp-ts@2.13.1
       ioredis: 5.2.4
+      postmark: 3.0.15
+      prisma: 4.8.1
       reflect-metadata: 0.1.13
       rimraf: 3.0.2
       rxjs: 7.6.0
@@ -96,8 +114,9 @@ importers:
       '@nestjs/cli': 9.1.5
       '@nestjs/schematics': 9.0.3_typescript@4.9.3
       '@nestjs/testing': 9.2.1_wdbvfsxfdwzlwdfiyh2gynjl4m
+      '@relmify/jest-fp-ts': 2.0.2_fp-ts@2.13.1+io-ts@2.2.16
       '@types/express': 4.17.14
-      '@types/jest': 29.2.3
+      '@types/jest': 27.5.2
       '@types/node': 18.11.10
       '@types/supertest': 2.0.12
       '@typescript-eslint/eslint-plugin': 5.45.0_yjegg5cyoezm3fzsmuszzhetym
@@ -106,6 +125,7 @@ importers:
       eslint-config-prettier: 8.5.0_eslint@8.29.0
       eslint-plugin-prettier: 4.2.1_nrhoyyjffvfyk4vtlt5destxgm
       jest: 29.3.1_j5wyyouvf5aixckc7ltaxrydha
+      jest-mock-extended: 3.0.1_4f6uxrzmuwipl5rr3bcogf6k74
       prettier: 2.8.0
       source-map-support: 0.5.21
       supertest: 6.3.2
@@ -4174,7 +4194,7 @@ packages:
       '@jest/schemas': 28.0.2
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 17.0.45
+      '@types/node': 18.11.10
       '@types/yargs': 17.0.10
       chalk: 4.1.2
     dev: true
@@ -4341,7 +4361,7 @@ packages:
       '@nestjs/common': 9.2.1_whg6pvy6vwu66ypq7idiq2suxq
       '@nestjs/core': 9.2.1_ajc4cvdydchgvxyi4xnoij5t4i
       '@nestjs/graphql': 10.1.6_2khsk5ahlt4vlkrgib4soffmwu
-      apollo-server-express: 3.11.1_graphql@15.8.0
+      apollo-server-express: 3.11.1_4mq2c443wwzwcb6dpxnwkfvrzm
       graphql: 15.8.0
       iterall: 1.3.0
       lodash.omit: 4.5.0
@@ -4596,6 +4616,29 @@ packages:
     resolution: {integrity: sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==}
     dev: false
 
+  /@prisma/client/4.8.1_prisma@4.8.1:
+    resolution: {integrity: sha512-d4xhZhETmeXK/yZ7K0KcVOzEfI5YKGGEr4F5SBV04/MU4ncN/HcE28sy3e4Yt8UFW0ZuImKFQJE+9rWt9WbGSQ==}
+    engines: {node: '>=14.17'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 4.8.0-61.d6e67a83f971b175a593ccc12e15c4a757f93ffe
+      prisma: 4.8.1
+    dev: false
+
+  /@prisma/engines-version/4.8.0-61.d6e67a83f971b175a593ccc12e15c4a757f93ffe:
+    resolution: {integrity: sha512-MHSOSexomRMom8QN4t7bu87wPPD+pa+hW9+71JnVcF3DqyyO/ycCLhRL1we3EojRpZxKvuyGho2REQsMCvxcJw==}
+    dev: false
+
+  /@prisma/engines/4.8.1:
+    resolution: {integrity: sha512-93tctjNXcIS+i/e552IO6tqw17sX8liivv8WX9lDMCpEEe3ci+nT9F+1oHtAafqruXLepKF80i/D20Mm+ESlOw==}
+    requiresBuild: true
+    dev: false
+
   /@protobufjs/aspromise/1.1.2:
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
     dev: false
@@ -4649,6 +4692,20 @@ packages:
       expect: 28.1.1
       fp-ts: 2.12.1
       io-ts: 2.2.16_fp-ts@2.12.1
+      jest-get-type: 28.0.2
+      jest-matcher-utils: 28.1.1
+    dev: true
+
+  /@relmify/jest-fp-ts/2.0.2_fp-ts@2.13.1+io-ts@2.2.16:
+    resolution: {integrity: sha512-qhQOfn9q5YsylD9qNCiizrA8w/i3A015hDk3P46fYPe48yLSB6BJaBImSvECUY9nCjeiEp4YP2sPopNyqDYwjw==}
+    peerDependencies:
+      fp-ts: 2.x
+      io-ts: 2.x
+    dependencies:
+      '@jest/expect-utils': 28.1.1
+      expect: 28.1.1
+      fp-ts: 2.13.1
+      io-ts: 2.2.16_fp-ts@2.13.1
       jest-get-type: 28.0.2
       jest-matcher-utils: 28.1.1
     dev: true
@@ -5159,13 +5216,6 @@ packages:
     dependencies:
       jest-matcher-utils: 27.5.1
       pretty-format: 27.5.1
-    dev: true
-
-  /@types/jest/29.2.3:
-    resolution: {integrity: sha512-6XwoEbmatfyoCjWRX7z0fKMmgYKe9+/HrviJ5k0X/tjJWHGAezZOfYaxqQKuzG/TvQyr+ktjm4jgbk0s4/oF2w==}
-    dependencies:
-      expect: 29.3.1
-      pretty-format: 29.3.1
     dev: true
 
   /@types/js-yaml/4.0.5:
@@ -6704,7 +6754,7 @@ packages:
       graphql: 15.8.0
     dev: false
 
-  /apollo-server-express/3.11.1_graphql@15.8.0:
+  /apollo-server-express/3.11.1_4mq2c443wwzwcb6dpxnwkfvrzm:
     resolution: {integrity: sha512-x9ngcpXbBlt4naCXTwNtBFb/mOd9OU0wtFXvJkObHF26NsRazu3DxDfEuekA6V1NFOocD+A9jmVMQeQWug5MgA==}
     engines: {node: '>=12.0'}
     deprecated: The `apollo-server-express` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
@@ -6722,6 +6772,7 @@ packages:
       apollo-server-types: 3.7.1_graphql@15.8.0
       body-parser: 1.20.1
       cors: 2.8.5
+      express: 4.18.2
       graphql: 15.8.0
       parseurl: 1.3.3
     transitivePeerDependencies:
@@ -6839,6 +6890,14 @@ packages:
       follow-redirects: 1.15.1
     transitivePeerDependencies:
       - debug
+
+  /axios/0.25.0:
+    resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
+    dependencies:
+      follow-redirects: 1.15.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /babel-jest/27.5.1_@babel+core@7.18.6:
     resolution: {integrity: sha512-cdQ5dXjGRd0IBRATiQ4mZGlGlRE8kJpjPOixdNRdT+m3UcNqmYWN6rK6nvtXYfY3D76cb8s/O1Ss8ea24PIwcg==}
@@ -9792,6 +9851,9 @@ packages:
   /fp-ts/2.12.1:
     resolution: {integrity: sha512-oxvgqUYR6O9VkKXrxkJ0NOyU0FrE705MeqgBUMEPWyTu6Pwn768cJbHChw2XOBlgFLKfIHxjr2OOBFpv2mUGZw==}
 
+  /fp-ts/2.13.1:
+    resolution: {integrity: sha512-0eu5ULPS2c/jsa1lGFneEFFEdTbembJv8e4QKXeVJ3lm/5hyve06dlKZrpxmMwJt6rYen7sxmHHK2CLaXvWuWQ==}
+
   /fresh/0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
@@ -10102,6 +10164,15 @@ packages:
       - encoding
       - typescript
       - utf-8-validate
+    dev: false
+
+  /graphql-query-complexity/0.12.0_graphql@15.8.0:
+    resolution: {integrity: sha512-fWEyuSL6g/+nSiIRgIipfI6UXTI7bAxrpPlCY1c0+V3pAEUo1ybaKmSBgNr1ed2r+agm1plJww8Loig9y6s2dw==}
+    peerDependencies:
+      graphql: ^14.6.0 || ^15.0.0 || ^16.0.0
+    dependencies:
+      graphql: 15.8.0
+      lodash.get: 4.4.2
     dev: false
 
   /graphql-redis-subscriptions/2.5.0_nsv4zbviaf54hk5nfhl4slig7i:
@@ -10575,6 +10646,13 @@ packages:
       fp-ts: ^2.5.0
     dependencies:
       fp-ts: 2.12.1
+
+  /io-ts/2.2.16_fp-ts@2.13.1:
+    resolution: {integrity: sha512-y5TTSa6VP6le0hhmIyN0dqEXkrZeJLeC5KApJq6VLci3UEKF80lZ+KuoUs02RhBxNWlrqSNxzfI7otLX1Euv8Q==}
+    peerDependencies:
+      fp-ts: ^2.5.0
+    dependencies:
+      fp-ts: 2.13.1
 
   /ioredis/5.2.4:
     resolution: {integrity: sha512-qIpuAEt32lZJQ0XyrloCRdlEdUUNGG9i0UOk6zgzK6igyudNWqEBxfH6OlbnOOoBBvr1WB02mm8fR55CnikRng==}
@@ -11430,6 +11508,17 @@ packages:
       stack-utils: 2.0.5
     dev: true
 
+  /jest-mock-extended/3.0.1_4f6uxrzmuwipl5rr3bcogf6k74:
+    resolution: {integrity: sha512-RF4Ow8pXvbRuEcCTj56oYHmig5311BSFvbEGxPNYL51wGKGu93MvVQgx0UpFmjqyBXIcElkZo2Rke88kR1iSKQ==}
+    peerDependencies:
+      jest: ^24.0.0 || ^25.0.0 || ^26.0.0 || ^27.0.0 || ^28.0.0 || ^29.0.0
+      typescript: ^3.0.0 || ^4.0.0
+    dependencies:
+      jest: 29.3.1_j5wyyouvf5aixckc7ltaxrydha
+      ts-essentials: 7.0.3_typescript@4.9.3
+      typescript: 4.9.3
+    dev: true
+
   /jest-mock/27.5.1:
     resolution: {integrity: sha512-K4jKbY1d4ENhbrG2zuPWaQBvDly+iZ2yAW+T1fATN78hc0sInwn7wZB8XtlNnvHug5RMwV897Xm4LqmPM4e2Og==}
     engines: {node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0}
@@ -11741,7 +11830,7 @@ packages:
     engines: {node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0}
     dependencies:
       '@jest/types': 28.1.1
-      '@types/node': 17.0.45
+      '@types/node': 18.11.10
       chalk: 4.1.2
       ci-info: 3.3.2
       graceful-fs: 4.2.10
@@ -13241,6 +13330,14 @@ packages:
       punycode: 2.1.1
     dev: false
 
+  /postmark/3.0.15:
+    resolution: {integrity: sha512-s5m1qMb0ECEHW+Kv+By+2CAzfNXjUiGkTSU1avWPeh/QitdLzWwK8Q0aBB249KqYN2mS2JGJsxxfeaYIqnhhHA==}
+    dependencies:
+      axios: 0.25.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /prelude-ls/1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}
     engines: {node: '>= 0.8.0'}
@@ -13307,6 +13404,15 @@ packages:
       ansi-styles: 5.2.0
       react-is: 18.2.0
     dev: true
+
+  /prisma/4.8.1:
+    resolution: {integrity: sha512-ZMLnSjwulIeYfaU1O6/LF6PEJzxN5par5weykxMykS9Z6ara/j76JH3Yo2AH3bgJbPN4Z6NeCK9s5fDkzf33cg==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@prisma/engines': 4.8.1
+    dev: false
 
   /process-nextick-args/2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
@@ -14803,6 +14909,14 @@ packages:
     dependencies:
       compatfactory: 0.0.13_typescript@4.7.4
       typescript: 4.7.4
+    dev: true
+
+  /ts-essentials/7.0.3_typescript@4.9.3:
+    resolution: {integrity: sha512-8+gr5+lqO3G84KdiTSMRLtuyJ+nTBVRKuCrK4lidMPdVeEp0uqC875uE5NMcaA7YYMN7XsNiFQuMvasF8HT/xQ==}
+    peerDependencies:
+      typescript: '>=3.7.0'
+    dependencies:
+      typescript: 4.9.3
     dev: true
 
   /ts-interface-checker/0.1.13:

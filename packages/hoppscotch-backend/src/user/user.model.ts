@@ -26,14 +26,12 @@ export class User {
   image?: string;
 
   @Field({
-    nullable: true,
     description: 'Flag to determine if user is an Admin or not',
   })
-  isAdmin?: string;
+  isAdmin: boolean;
 
   @Field({
-    nullable: true,
     description: 'Date when the user account was created',
   })
-  createdOn?: string;
+  createdOn: Date;
 }

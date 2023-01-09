@@ -27,6 +27,8 @@ export class GqlAuthGuard implements CanActivate {
           name: 'exampleUser',
           image: 'http://example.com/avatar',
           email: 'me@example.com',
+          isAdmin: false,
+          createdOn: new Date(),
         };
 
         ctx.user = authUser;

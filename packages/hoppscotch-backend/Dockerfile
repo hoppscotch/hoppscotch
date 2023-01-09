@@ -20,4 +20,4 @@ ENV APP_PORT=${PORT}
 ENV DB_URL=${DATABASE_URL}
 ENV PRODUCTION=true
 
-CMD ["pnpm", "run", "start:dev"]
+CMD ["pnpm", "run", "start"]

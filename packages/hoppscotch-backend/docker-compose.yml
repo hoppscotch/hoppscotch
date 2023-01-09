@@ -2,7 +2,7 @@ version: '3.0'
 services:
   local:
     build: .
-    command: ["pnpm", "run", "start:dev"]
+    command: [ "pnpm", "run", "start:dev" ]
     environment:
       - PRODUCTION=false
       - DATABASE_URL=postgresql://postgres:testpass@dev-db:5432/hoppscotch?connect_timeout=300
@@ -23,5 +23,3 @@ services:
     environment:
       POSTGRES_PASSWORD: testpass
       POSTGRES_DB: hoppscotch
-
-

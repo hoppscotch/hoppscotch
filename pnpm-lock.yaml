@@ -56,6 +56,7 @@ importers:
       '@nestjs/testing': ^9.2.1
       '@prisma/client': ^4.7.1
       '@relmify/jest-fp-ts': ^2.0.2
+      '@types/bcrypt': ^5.0.0
       '@types/express': ^4.17.14
       '@types/jest': ^27.5.2
       '@types/node': ^18.11.10
@@ -105,6 +106,7 @@ importers:
       '@nestjs/passport': 9.0.0_6o47igfla2pj7yzh7agpvpttka
       '@nestjs/platform-express': 9.2.1_hjcqpoaebdr7gdo5hgc22hthbe
       '@prisma/client': 4.8.1_prisma@4.8.1
+      '@types/bcrypt': 5.0.0
       apollo-server-express: 3.11.1_4mq2c443wwzwcb6dpxnwkfvrzm
       apollo-server-plugin-base: 3.7.1_graphql@15.8.0
       argon2: 0.30.3
@@ -5167,6 +5169,12 @@ packages:
     dependencies:
       '@babel/types': 7.18.7
     dev: true
+
+  /@types/bcrypt/5.0.0:
+    resolution: {integrity: sha512-agtcFKaruL8TmcvqbndlqHPSJgsolhf/qPWchFlgnW1gECTN/nKbFcoFnvKAQRFfKbh+BO6A3SWdJu9t+xF3Lw==}
+    dependencies:
+      '@types/node': 18.11.10
+    dev: false
 
   /@types/body-parser/1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}

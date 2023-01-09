@@ -108,3 +108,14 @@ export const taskEitherValidateArraySeq = <A, B>(
       TE.getApplicativeTaskValidation(T.ApplicativeSeq, A.getMonoid<A>()),
     ),
   );
+
+/**
+ * Checks to see if the email is valid or not
+ * @param email The email
+ * @returns A Boolean depending on the format of the email
+ */
+export const validateEmail = (email: string) => {
+  return new RegExp(
+    "([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|\"([]!#-[^-~ \t]|(\\[\t -~]))+\")@([!#-'*+/-9=?A-Z^-~-]+(.[!#-'*+/-9=?A-Z^-~-]+)*|[[\t -Z^-~]*])",
+  ).test(email);
+};

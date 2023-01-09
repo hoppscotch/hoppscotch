@@ -23,9 +23,9 @@ export class GqlAuthGuard implements CanActivate {
         const idToken = ctx.reqHeaders.authorization.split(' ')[1];
 
         const authUser: User = {
-          uid: 'aabb22ccdd',
-          displayName: 'exampleUser',
-          photoURL: 'http://example.com/avatar',
+          id: 'aabb22ccdd',
+          name: 'exampleUser',
+          image: 'http://example.com/avatar',
           email: 'me@example.com',
         };
 

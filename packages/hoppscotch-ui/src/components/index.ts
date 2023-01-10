@@ -1,9 +1,7 @@
 import Primary from "./button/Primary.vue"
 import Secondary from "./button/Secondary.vue"
-import AccentModePicker from "./smart/AccentModePicker.vue"
 import Anchor from "./smart/Anchor.vue"
 import AutoComplete from "./smart/AutoComplete.vue"
-import ChangeLanguage from "./smart/ChangeLanguage.vue"
 import Checkbox from "./smart/Checkbox.vue"
 import ColorModePicker from "./smart/ColorModePicker.vue"
 import ConfirmModal from "./smart/ConfirmModal.vue"
@@ -28,10 +26,8 @@ import Windows from "./smart/Windows.vue"
 export default {
   Primary,
   Secondary,
-  AccentModePicker,
   Anchor,
   AutoComplete,
-  ChangeLanguage,
   Checkbox,
   ColorModePicker,
   ConfirmModal,

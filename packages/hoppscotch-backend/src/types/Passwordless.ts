@@ -7,3 +7,7 @@ export interface PasswordlessToken {
   user?: User;
   expiresOn: Date;
 }
+
+export interface DeviceIdentifierToken {
+  deviceIdentifier: string;
+}

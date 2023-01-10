@@ -10,18 +10,18 @@ import * as bcrypt from 'bcrypt';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import * as TE from 'fp-ts/TaskEither';
-import { PasswordlessToken } from 'src/types/Passwordless';
-import { EmailCodec } from 'src/types/Email';
+import {
+  DeviceIdentifierToken,
+  PasswordlessToken,
+} from 'src/types/Passwordless';
 import {
   INVALID_EMAIL,
   INVALID_MAGIC_LINK_DATA,
   PASSWORDLESS_DATA_NOT_FOUND,
   MAGIC_LINK_EXPIRED,
-  TOKEN_EXPIRED,
   USER_NOT_FOUND,
 } from 'src/errors';
-import { pipe } from 'fp-ts/lib/function';
-import { throwErr, validateEmail } from 'src/utils';
+import { validateEmail } from 'src/utils';
 import {
   AccessTokenPayload,
   AuthTokens,
@@ -29,7 +29,7 @@ import {
 } from 'src/types/AuthTokens';
 import { ProviderAccount } from 'src/types/ProviderAccount';
 import { JwtService } from '@nestjs/jwt';
-import { pass } from 'fp-ts/lib/Writer';
+import { AuthErrorHandler } from 'src/types/AuthErrorHandler';
 
 @Injectable()
 export class AuthService {
@@ -109,9 +109,12 @@ export class AuthService {
       userUid,
     );
     if (E.isLeft(updatedUser))
-      throw new HttpException(updatedUser.left, HttpStatus.NOT_FOUND);
+      return E.left(<AuthErrorHandler>{
+        message: updatedUser.left,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
 
-    return refreshToken;
+    return E.right(refreshToken);
   }
 
   async generateAuthTokens(userUid: string) {
@@ -122,13 +125,18 @@ export class AuthService {
     };
 
     const refreshToken = await this.generateRefreshToken(userUid);
+    if (E.isLeft(refreshToken))
+      return E.left(<AuthErrorHandler>{
+        message: refreshToken.left.message,
+        statusCode: refreshToken.left.statusCode,
+      });
 
-    return <AuthTokens>{
+    return E.right(<AuthTokens>{
       access_token: await this.jwtService.sign(accessTokenPayload, {
         expiresIn: process.env.ACCESS_TOKEN_VALIDITY, //1 Day
       }),
-      refresh_token: refreshToken,
-    };
+      refresh_token: refreshToken.right,
+    });
   }
 
   private async deletePasswordlessVerificationToken(
@@ -166,9 +174,14 @@ export class AuthService {
     return O.some(provider);
   }
 
-  async signIn(email: string) {
+  async signIn(
+    email: string,
+  ): Promise<E.Left<AuthErrorHandler> | E.Right<DeviceIdentifierToken>> {
     if (!validateEmail(email))
-      throw new HttpException(INVALID_EMAIL, HttpStatus.BAD_REQUEST);
+      return E.left({
+        message: INVALID_EMAIL,
+        statusCode: HttpStatus.BAD_REQUEST,
+      });
 
     let user: User;
     const queriedUser = await this.usersService.findUserByEmail(email);
@@ -189,31 +202,46 @@ export class AuthService {
       },
     });
 
-    return { deviceIdentifier: generatedTokens.deviceIdentifier };
+    return E.right(<DeviceIdentifierToken>{
+      deviceIdentifier: generatedTokens.deviceIdentifier,
+    });
   }
 
-  async verify(data: verifyMagicDto) {
+  async verify(
+    data: verifyMagicDto,
+  ): Promise<E.Right<AuthTokens> | E.Left<AuthErrorHandler>> {
     const passwordlessTokens = await this.validatePasswordlessTokens(data);
     if (O.isNone(passwordlessTokens))
-      throw new HttpException(INVALID_MAGIC_LINK_DATA, HttpStatus.NOT_FOUND);
+      return E.left({
+        message: INVALID_MAGIC_LINK_DATA,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
 
     const currentTime = DateTime.now().toISOTime();
 
-    if (currentTime > passwordlessTokens.value.expiresOn.toISOString()) {
-      throw new HttpException(MAGIC_LINK_EXPIRED, HttpStatus.UNAUTHORIZED);
-    }
+    if (currentTime > passwordlessTokens.value.expiresOn.toISOString())
+      return E.left({
+        message: MAGIC_LINK_EXPIRED,
+        statusCode: HttpStatus.UNAUTHORIZED,
+      });
+
     const tokens = await this.generateAuthTokens(
       passwordlessTokens.value.userUid,
     );
+    if (E.isLeft(tokens))
+      return E.left({
+        message: tokens.left.message,
+        statusCode: tokens.left.statusCode,
+      });
 
     const deletedPasswordlessToken =
       await this.deletePasswordlessVerificationToken(passwordlessTokens.value);
     if (E.isLeft(deletedPasswordlessToken))
-      throw new HttpException(
-        deletedPasswordlessToken.left,
-        HttpStatus.NOT_FOUND,
-      );
+      return E.left({
+        message: deletedPasswordlessToken.left,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
 
-    return tokens;
+    return E.right(tokens.right);
   }
 }

@@ -1,4 +1,4 @@
-import { ExecutionContext } from '@nestjs/common';
+import { ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
@@ -6,6 +6,10 @@ import * as TE from 'fp-ts/TaskEither';
 import * as T from 'fp-ts/Task';
 import { User } from './user/user.model';
 import * as A from 'fp-ts/Array';
+import * as E from 'fp-ts/Either';
+import { AuthErrorHandler } from './types/AuthErrorHandler';
+import { AuthTokens } from './types/AuthTokens';
+import { Response } from 'express';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -15,6 +19,15 @@ import * as A from 'fp-ts/Array';
  */
 export function throwErr(errMessage: string): never {
   throw new Error(errMessage);
+}
+
+/**
+ * This function allows throw to be used as an expression
+ * @param errMessage Message present in the error message
+ */
+export function throwHTTPErr(errorData: AuthErrorHandler): never {
+  const { message, statusCode } = errorData;
+  throw new HttpException(message, statusCode);
 }
 
 /**
@@ -112,10 +125,38 @@ export const taskEitherValidateArraySeq = <A, B>(
 /**
  * Checks to see if the email is valid or not
  * @param email The email
+ * @see https://emailregex.com/ for information on email regex
  * @returns A Boolean depending on the format of the email
  */
 export const validateEmail = (email: string) => {
   return new RegExp(
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
   ).test(email);
+};
+
+//TODO: set expiresOn to cookies
+/**
+ * Sets and returns the cookies in the response object on successful authentication
+ * @param res Express Response Object
+ * @param authTokens Object containing the access and refresh tokens
+ * @param redirect if true will redirect to provided URL else just send a 200 status code
+ */
+export const authCookieHandler = (
+  res: Response,
+  authTokens: AuthTokens,
+  redirect: boolean,
+) => {
+  res.cookie('access_token', authTokens.access_token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+  });
+  res.cookie('refresh_token', authTokens.refresh_token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'lax',
+  });
+  if (redirect) {
+    res.status(HttpStatus.OK).redirect('/');
+  } else res.status(HttpStatus.OK).send();
 };

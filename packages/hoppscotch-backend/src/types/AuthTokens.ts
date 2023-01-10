@@ -1,4 +1,6 @@
-// refer to https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims#registered-claims
+/**
+ * @see https://auth0.com/docs/secure/tokens/json-web-tokens/json-web-token-claims#registered-claims
+ **/
 export interface AccessTokenPayload {
   iss: string; // iss:issuer
   sub: string; // sub:subject

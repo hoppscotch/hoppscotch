@@ -209,3 +209,28 @@ export const BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES =
  */
 export const BUG_TEAM_ENV_GUARD_NO_ENV_ID =
   'bug/team_env/guard_no_env_id' as const;
+
+/**
+ * The data sent to the verify route are invalid
+ * (AuthService)
+ */
+export const INVALID_MAGIC_LINK_DATA = 'auth/magic_link_invalid_data' as const;
+
+/**
+ * Could not find PasswordlessVerification entry in the db
+ * (AuthService)
+ */
+export const PASSWORDLESS_DATA_NOT_FOUND =
+  'auth/passwordless_token_data_not_found' as const;
+
+/**
+ * Auth Tokens expired
+ * (AuthService)
+ */
+export const TOKEN_EXPIRED = 'auth/token_expired' as const;
+
+/**
+ * PasswordlessVerification Tokens expired i.e. magic-link expired
+ * (AuthService)
+ */
+export const MAGIC_LINK_EXPIRED = 'auth/magic_link_expired' as const;

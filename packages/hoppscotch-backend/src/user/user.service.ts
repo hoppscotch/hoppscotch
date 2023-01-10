@@ -20,8 +20,21 @@ export class UserService {
     }
   }
 
-  async createUser(email: string) {
-    const createdUser = await this.prisma.user.create({
+  async findUserById(userUid: string) {
+    try {
+      const user: User = await this.prisma.user.findUniqueOrThrow({
+        where: {
+          id: userUid,
+        },
+      });
+      return O.some(user);
+    } catch (error) {
+      return O.none;
+    }
+  }
+
+  async createUserMagic(email: string) {
+    const createdUser: User = await this.prisma.user.create({
       data: {
         email: email,
         accounts: {

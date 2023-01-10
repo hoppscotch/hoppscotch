@@ -37,4 +37,20 @@ export class MailerService implements OnModuleInit {
       () => EMAIL_FAILED,
     );
   }
+
+  async sendAuthEmail(to: string, mailDesc: UserMagicLinkMailDescription) {
+    try {
+      const res = await this.client.sendEmailWithTemplate({
+        To: to,
+        From:
+          process.env.POSTMARK_SENDER_EMAIL ||
+          throwErr('No Postmark Sender Email defined'),
+        TemplateAlias: mailDesc.template,
+        TemplateModel: mailDesc.variables,
+      });
+      return res;
+    } catch (error) {
+      return throwErr(EMAIL_FAILED);
+    }
+  }
 }

@@ -1,4 +1,4 @@
 export class verifyMagicDto {
-  identifier: string;
+  deviceIdentifier: string;
   token: string;
 }

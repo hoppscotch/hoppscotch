@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);
@@ -28,6 +29,7 @@ async function bootstrap() {
       origin: true,
     });
   }
+  app.use(cookieParser());
   await app.listen(process.env.PORT || 3170);
 }
 bootstrap();

@@ -1,5 +1,12 @@
 import { AuthEvent, HoppUser, PlatformDef } from "@hoppscotch/common/platform"
-import { Subscription, BehaviorSubject, Subject, filter, map } from "rxjs"
+import {
+  Subscription,
+  BehaviorSubject,
+  Subject,
+  filter,
+  map,
+  combineLatest,
+} from "rxjs"
 import {
   setDoc,
   onSnapshot,
@@ -180,8 +187,15 @@ export const def: PlatformDef["auth"] = {
     const auth = getAuth()
     const firestore = getFirestore()
 
-    currentUserFB$
-      .pipe(map((user) => (user !== null ? fbUserToHoppUser(user) : null)))
+    combineLatest([currentUserFB$, authIdToken$])
+      .pipe(
+        map(([user, token]) => {
+          // If there is no auth token, we will just consider as the auth as not complete
+          if (token === null) return null
+          if (user !== null) return fbUserToHoppUser(user)
+          return null
+        })
+      )
       .subscribe((x) => {
         currentUser$.next(x)
       })
@@ -227,7 +241,7 @@ export const def: PlatformDef["auth"] = {
           (doc) => {
             const data = doc.data()
 
-            const userUpdate: HoppUser = user
+            const userUpdate: HoppUser = fbUserToHoppUser(user)
 
             if (data) {
               // Write extra provider data
@@ -240,7 +254,8 @@ export const def: PlatformDef["auth"] = {
         )
       }
 
-      currentUser$.next(user)
+      currentUserFB$.next(user)
+      currentUser$.next(user === null ? null : fbUserToHoppUser(user))
 
       // User wasn't found before, but now is there (login happened)
       if (!wasLoggedIn && user) {

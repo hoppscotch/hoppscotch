@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@hoppscotch/vue-toasted": "^0.1.0",
@@ -32,18 +34,29 @@
     "url": "^0.11.0",
     "util": "^0.12.4",
     "uuid": "^8.3.2",
+    "vite-plugin-eslint": "^1.8.1",
     "vue": "^3.2.25",
     "vue-github-button": "^3.0.3",
     "vue-tippy": "6.0.0-alpha.58",
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.20.12",
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
     "@esbuild-plugins/node-modules-polyfill": "^0.1.4",
     "@graphql-typed-document-node/core": "^3.1.1",
     "@iconify-json/lucide": "^1.1.40",
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",
     "@rushstack/eslint-patch": "^1.1.4",
+    "@storybook/addon-actions": "^6.5.15",
+    "@storybook/addon-essentials": "^6.5.15",
+    "@storybook/addon-interactions": "^6.5.15",
+    "@storybook/addon-links": "^6.5.15",
+    "@storybook/builder-vite": "^0.2.7",
+    "@storybook/testing-library": "^0.0.13",
+    "@storybook/vue3": "^6.5.15",
+    "@storybook/preview-web": "^6.5.15",
+    "@storybook/client-api": "^6.5.15",
     "@types/lodash-es": "^4.17.6",
     "@types/splitpanes": "^2.2.1",
     "@types/uuid": "^8.3.4",
@@ -54,6 +67,7 @@
     "@vue/compiler-sfc": "^3.2.39",
     "@vue/eslint-config-typescript": "^11.0.1",
     "@vue/runtime-core": "^3.2.39",
+    "babel-loader": "^8.3.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.24.0",
     "eslint-plugin-prettier": "^4.2.0",
@@ -76,6 +90,7 @@
     "vite-plugin-pwa": "^0.13.1",
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",
+    "vue-loader": "^16.8.3",
     "vue-tsc": "^0.38.2",
     "windicss": "^3.5.6"
   },

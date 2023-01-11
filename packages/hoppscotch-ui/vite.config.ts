@@ -3,15 +3,10 @@ import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
 import Components from "unplugin-vue-components/vite"
 import IconResolver from "unplugin-icons/resolver"
-import WindiCSS from "vite-plugin-windicss"
-import eslintPlugin from "vite-plugin-eslint"
 
 module.exports = defineConfig({
   plugins: [
     vue(),
-    WindiCSS({
-      root: path.resolve(__dirname, "../hoppscotch-common"),
-    }),
     Components({
       dts: "./src/components.d.ts",
       dirs: ["./src/components"],
@@ -22,9 +17,6 @@ module.exports = defineConfig({
           customCollections: ["hopp", "auth", "brands"],
         }),
       ],
-    }),
-    eslintPlugin({
-      exclude: [/virtual:/, /node_modules/],
     }),
   ], // to process SFC
   build: {

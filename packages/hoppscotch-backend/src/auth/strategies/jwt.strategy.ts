@@ -10,6 +10,11 @@ import { UserService } from 'src/user/user.service';
 import { AuthService } from '../auth.service';
 import { Request } from 'express';
 import * as O from 'fp-ts/Option';
+import {
+  COOKIES_NOT_FOUND,
+  INVALID_ACCESS_TOKEN,
+  USER_NOT_FOUND,
+} from 'src/errors';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -22,7 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         (request: Request) => {
           const ATCookie = request.cookies['access_token'];
           if (!ATCookie) {
-            throw new ForbiddenException('No cookies present');
+            throw new ForbiddenException(COOKIES_NOT_FOUND);
           }
           return ATCookie;
         },
@@ -32,12 +37,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(payload: AccessTokenPayload) {
-    if (!payload) throw new ForbiddenException('Access token malformed');
+    if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
 
     const user = await this.usersService.findUserById(payload.sub);
 
     if (O.isNone(user)) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException(USER_NOT_FOUND);
     }
 
     const profile = {

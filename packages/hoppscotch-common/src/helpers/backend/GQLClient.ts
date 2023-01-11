@@ -97,7 +97,10 @@ const createHoppClient = () => {
         return platform.auth.willBackendHaveAuthError()
       },
       getAuth: async () => {
-        await platform.auth.waitProbableLoginToConfirm()
+        const probableUser = platform.auth.getProbableUser()
+
+        if (probableUser !== null)
+          await platform.auth.waitProbableLoginToConfirm()
 
         return {}
       },

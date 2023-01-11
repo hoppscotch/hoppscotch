@@ -428,7 +428,9 @@ importers:
       eslint: ^8.28.0
       eslint-plugin-prettier: ^4.2.1
       eslint-plugin-vue: ^9.5.1
+      firebase: ^9.8.4
       process: ^0.11.10
+      rxjs: ^7.5.5
       stream-browserify: ^3.0.0
       typescript: ^4.6.4
       unplugin-icons: ^0.14.9
@@ -451,7 +453,9 @@ importers:
     dependencies:
       '@hoppscotch/common': link:../hoppscotch-common
       buffer: 6.0.3
+      firebase: 9.8.4
       process: 0.11.10
+      rxjs: 7.5.5
       stream-browserify: 3.0.0
       util: 0.12.4
       vue: 3.2.45
@@ -3233,8 +3237,8 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/message-compiler': 9.3.0-beta.10
-      '@intlify/shared': 9.3.0-beta.10
+      '@intlify/message-compiler': 9.3.0-beta.14
+      '@intlify/shared': 9.3.0-beta.14
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       yaml-eslint-parser: 0.3.2
@@ -3290,12 +3294,25 @@ packages:
       source-map: 0.6.1
     dev: true
 
+  /@intlify/message-compiler/9.3.0-beta.14:
+    resolution: {integrity: sha512-PlZ3pl+YYuql54Nq+26wv6ohIa8Ig6ALrvQI+f2zZKUtkupb49M4wyVN3bDQbFlgYVE7/u3n19BJSY8lEuX5Eg==}
+    engines: {node: '>= 14'}
+    dependencies:
+      '@intlify/shared': 9.3.0-beta.14
+      source-map: 0.6.1
+    dev: true
+
   /@intlify/shared/9.2.2:
     resolution: {integrity: sha512-wRwTpsslgZS5HNyM7uDQYZtxnbI12aGiBZURX3BTR9RFIKKRWpllTsgzHWvj3HKm3Y2Sh5LPC1r0PDCKEhVn9Q==}
     engines: {node: '>= 14'}
 
   /@intlify/shared/9.3.0-beta.10:
     resolution: {integrity: sha512-h93uAanbAt/XgjDHclrVB7xix6r7Uz11wx0iGNOCdHP7aA2LCJjUT3uNbekJjjbo+Fl5jzTSJZdm2SexzoqhRA==}
+    engines: {node: '>= 14'}
+    dev: true
+
+  /@intlify/shared/9.3.0-beta.14:
+    resolution: {integrity: sha512-mJ/rFan+4uVsBAQSCAJnpQaPvSjQ49mJMNmGelTUbTDAmgf0oexYxwqtKOlFFyY3hmQ8lUDYaGQKuYrFgRuHnA==}
     engines: {node: '>= 14'}
     dev: true
 
@@ -3342,7 +3359,7 @@ packages:
         optional: true
     dependencies:
       '@intlify/bundle-utils': 3.4.0
-      '@intlify/shared': 9.3.0-beta.10
+      '@intlify/shared': 9.3.0-beta.14
       '@rollup/pluginutils': 4.2.1
       debug: 4.3.4
       fast-glob: 3.2.11

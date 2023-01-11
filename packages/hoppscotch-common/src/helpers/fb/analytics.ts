@@ -6,7 +6,7 @@ import {
   setUserId,
   setUserProperties,
 } from "firebase/analytics"
-import { authEvents$ } from "./auth"
+import { platform } from "~/platform"
 import {
   HoppAccentColor,
   HoppBgColor,
@@ -42,13 +42,15 @@ export function initAnalytics() {
 }
 
 function initLoginListeners() {
+  const authEvents$ = platform.auth.getAuthEventsStream()
+
   authEvents$.subscribe((ev) => {
     if (ev.event === "login") {
       if (settingsStore.value.TELEMETRY_ENABLED && analytics) {
         setUserId(analytics, ev.user.uid)
 
         logEvent(analytics, "login", {
-          method: ev.user.providerData[0]?.providerId, // Assume the first provider is the login provider
+          method: ev.user.provider, // Assume the first provider is the login provider
         })
       }
     } else if (ev.event === "logout") {

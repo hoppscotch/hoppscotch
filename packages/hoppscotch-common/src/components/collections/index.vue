@@ -223,7 +223,7 @@ import { useColorMode } from "@composables/theming"
 import * as E from "fp-ts/Either"
 import CollectionsMyCollection from "./my/Collection.vue"
 import CollectionsTeamsCollection from "./teams/Collection.vue"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
   restCollections$,
@@ -281,7 +281,10 @@ export default defineComponent({
       subscribeTo: subscribeToStream,
 
       collections: useReadonlyStream(restCollections$, [], "deep"),
-      currentUser: useReadonlyStream(currentUser$, null),
+      currentUser: useReadonlyStream(
+        platform.auth.getCurrentUserStream(),
+        platform.auth.getCurrentUser()
+      ),
       colorMode: useColorMode(),
       toast: useToast(),
       t: useI18n(),

@@ -175,7 +175,7 @@ import axios from "axios"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 import { StepReturnValue } from "~/helpers/import-export/steps"
@@ -205,7 +205,10 @@ const emit = defineEmits<{
 const toast = useToast()
 const t = useI18n()
 const myCollections = useReadonlyStream(restCollections$, [])
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 // Template refs
 const mode = ref("import_export")

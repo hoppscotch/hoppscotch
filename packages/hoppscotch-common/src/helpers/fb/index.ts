@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
+import { platform } from "~/platform"
 import { initAnalytics } from "./analytics"
-import { initAuth } from "./auth"
 import { initCollections } from "./collections"
 import { initEnvironments } from "./environments"
 import { initHistory } from "./history"
@@ -24,7 +24,7 @@ export function initializeFirebase() {
     try {
       initializeApp(firebaseConfig)
 
-      initAuth()
+      platform.auth.performAuthInit()
       initSettings()
       initCollections()
       initHistory()

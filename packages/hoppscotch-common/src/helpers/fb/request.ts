@@ -10,7 +10,7 @@ import {
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore"
 import { cloneDeep } from "lodash-es"
 import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
-import { currentUser$, HoppUser } from "./auth"
+import { platform, HoppUser } from "~/platform"
 import { restRequest$ } from "~/newstore/RESTSession"
 
 /**
@@ -44,7 +44,7 @@ function writeCurrentRequest(user: HoppUser, request: HoppRESTRequest) {
  * @returns Fetched request object if exists else null
  */
 export async function loadRequestFromSync(): Promise<HoppRESTRequest | null> {
-  const currentUser = currentUser$.value
+  const currentUser = platform.auth.getCurrentUser()
 
   if (!currentUser)
     throw new Error("Cannot load request from sync without login")
@@ -66,6 +66,8 @@ export async function loadRequestFromSync(): Promise<HoppRESTRequest | null> {
  * Unsubscribe to stop syncing.
  */
 export function startRequestSync(): Subscription {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
   const sub = combineLatest([
     currentUser$,
     restRequest$.pipe(distinctUntilChanged()),

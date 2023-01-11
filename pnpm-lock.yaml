@@ -345,7 +345,7 @@ importers:
       vite-plugin-inspect: 0.7.4_vite@3.1.4
       vite-plugin-pages: 0.26.0_vnheu5mvzzbfbuhqo4shkhdhei
       vite-plugin-pages-sitemap: 1.4.0
-      vite-plugin-pwa: 0.13.1_bg4cnt4dy3xq3a47wkujd6ryzq
+      vite-plugin-pwa: 0.13.1_vite@3.1.4
       vite-plugin-vue-layouts: 0.7.0_oewzdqozxqnqgsrjzmwikx34vi
       vite-plugin-windicss: 1.8.8_vite@3.1.4
       vue-tsc: 0.38.2_typescript@4.7.4
@@ -561,7 +561,9 @@ importers:
       eslint: ^8.28.0
       eslint-plugin-prettier: ^4.2.1
       eslint-plugin-vue: ^9.5.1
+      firebase: ^9.8.4
       process: ^0.11.10
+      rxjs: ^7.5.5
       stream-browserify: ^3.0.0
       typescript: ^4.6.4
       unplugin-icons: ^0.14.9
@@ -584,7 +586,9 @@ importers:
     dependencies:
       '@hoppscotch/common': link:../hoppscotch-common
       buffer: 6.0.3
+      firebase: 9.8.4
       process: 0.11.10
+      rxjs: 7.5.5
       stream-browserify: 3.0.0
       util: 0.12.4
       vue: 3.2.45
@@ -610,7 +614,7 @@ importers:
       vite-plugin-inspect: 0.7.4_vite@3.2.4
       vite-plugin-pages: 0.26.0_vite@3.2.4
       vite-plugin-pages-sitemap: 1.4.0
-      vite-plugin-pwa: 0.13.1_3kw35epztoiwny7qtfesjexvtu
+      vite-plugin-pwa: 0.13.1_vite@3.2.4
       vite-plugin-static-copy: 0.12.0_vite@3.2.4
       vite-plugin-vue-layouts: 0.7.0_vite@3.2.4+vue@3.2.45
       vite-plugin-windicss: 1.8.8_vite@3.2.4
@@ -5566,7 +5570,7 @@ packages:
     dev: true
 
   /after/0.8.2:
-    resolution: {integrity: sha1-/ts5T58OAqqXaOcCvaI7UF+ufh8=}
+    resolution: {integrity: sha512-QbJ0NTQ/I9DI3uSJA4cbexiwQeRAfjPScqIbSjUDd9TOrcg6pTkdgziesOqxBMBzit8vFCTwrP27t13vFOORRA==}
     dev: false
 
   /agent-base/6.0.2:
@@ -5923,7 +5927,7 @@ packages:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
   /base64-arraybuffer/0.1.4:
-    resolution: {integrity: sha1-mBjHngWbE1X5fgQooBfIOOkLqBI=}
+    resolution: {integrity: sha512-a1eIFi4R9ySrbiMuyTGx5e92uRH5tQY6kArNcFaKBUleIoLjdjBg7Zxm3Mqm3Kmkf27HLR/1fnxX9q8GQ7Iavg==}
     engines: {node: '>= 0.6.0'}
     dev: false
 
@@ -6369,7 +6373,7 @@ packages:
     dev: true
 
   /component-bind/1.0.0:
-    resolution: {integrity: sha1-AMYIq33Nk4l8AAllGx06jh5zu9E=}
+    resolution: {integrity: sha512-WZveuKPeKAG9qY+FkYDeADzdHyTYdIboXS59ixDeRJL5ZhxpqUnxSOwop4FQjMsiYm3/Or8cegVbpAHNA7pHxw==}
     dev: false
 
   /component-emitter/1.3.0:
@@ -6377,7 +6381,7 @@ packages:
     dev: false
 
   /component-inherit/0.0.3:
-    resolution: {integrity: sha1-ZF/ErfWLcrZJ1crmUTVhnbJv8UM=}
+    resolution: {integrity: sha512-w+LhYREhatpVqTESyGFg3NlP6Iu0kEKUHETY9GoZP/pQyW4mHFZuFWRUCIqVPZ36ueVLtoOEZaAqbCF2RDndaA==}
     dev: false
 
   /concat-map/0.0.1:
@@ -8761,7 +8765,7 @@ packages:
     dev: false
 
   /has-cors/1.1.0:
-    resolution: {integrity: sha1-XkdHk/fqmEPRu5nCPu9J/xJv/zk=}
+    resolution: {integrity: sha512-g5VNKdkFuUuVCP9gYfDJHjK2nqdQJ7aDLTnycnc2+RvsOQbuLdF5pm7vuE5J76SEBIQjs4kQY/BWq74JUmjbXA==}
     dev: false
 
   /has-flag/3.0.0:
@@ -9060,7 +9064,7 @@ packages:
     engines: {node: '>=8'}
 
   /indexof/0.0.1:
-    resolution: {integrity: sha1-gtwzbSMrkGIXnQWrMpOmYFn9Q10=}
+    resolution: {integrity: sha512-i0G7hLJ1z0DE8dsqJa2rycj9dBmNKgXBvotXtZYXakU9oivfB9Uj2ZBC27qqef2U58/ZLwalxa1X/RDCdkHtVg==}
     dev: false
 
   /inflight/1.0.6:
@@ -12712,7 +12716,7 @@ packages:
     dev: true
 
   /to-array/0.1.4:
-    resolution: {integrity: sha1-F+bBH3PdTz10zaek/zI46a2b+JA=}
+    resolution: {integrity: sha512-LhVdShQD/4Mk4zXNroIQZJC+Ap3zgLcDuwEdcmLv9CCO73NWockQDwyUnW/m8VX/EElfL6FcYx7EeutN4HJA6A==}
     dev: false
 
   /to-fast-properties/2.0.0:
@@ -13742,29 +13746,10 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-pwa/0.13.1_3kw35epztoiwny7qtfesjexvtu:
+  /vite-plugin-pwa/0.13.1_vite@3.1.4:
     resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
     peerDependencies:
       vite: ^3.1.0
-      workbox-window: ^6.5.4
-    dependencies:
-      debug: 4.3.4
-      fast-glob: 3.2.11
-      pretty-bytes: 6.0.0
-      rollup: 2.79.1
-      vite: 3.2.4
-      workbox-build: 6.5.4
-      workbox-window: 6.5.4
-    transitivePeerDependencies:
-      - '@types/babel__core'
-      - supports-color
-    dev: true
-
-  /vite-plugin-pwa/0.13.1_bg4cnt4dy3xq3a47wkujd6ryzq:
-    resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
-    peerDependencies:
-      vite: ^3.1.0
-      workbox-window: ^6.5.4
     dependencies:
       debug: 4.3.4
       fast-glob: 3.2.11
@@ -13782,7 +13767,6 @@ packages:
     resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
     peerDependencies:
       vite: ^3.1.0
-      workbox-window: ^6.5.4
     dependencies:
       debug: 4.3.4
       fast-glob: 3.2.11
@@ -13790,6 +13774,7 @@ packages:
       rollup: 2.79.1
       vite: 3.2.4_sass@1.53.0
       workbox-build: 6.5.4
+      workbox-window: 6.5.4
     transitivePeerDependencies:
       - '@types/babel__core'
       - supports-color
@@ -14826,7 +14811,7 @@ packages:
     dev: false
 
   /yeast/0.1.2:
-    resolution: {integrity: sha1-AI4G2AlDIMNy28L47XagymyKxBk=}
+    resolution: {integrity: sha512-8HFIh676uyGYP6wP13R/j6OJ/1HwJ46snpvzE7aHAN3Ryqh2yX6Xox2B4CUmTwwOIzlG3Bs7ocsP5dZH/R1Qbg==}
     dev: false
 
   /yn/3.1.1:

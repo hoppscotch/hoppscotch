@@ -20,6 +20,7 @@ import {
   PASSWORDLESS_DATA_NOT_FOUND,
   MAGIC_LINK_EXPIRED,
   USER_NOT_FOUND,
+  INVALID_REFRESH_TOKEN,
 } from 'src/errors';
 import { validateEmail } from 'src/utils';
 import {
@@ -30,6 +31,8 @@ import {
 import { ProviderAccount } from 'src/types/ProviderAccount';
 import { JwtService } from '@nestjs/jwt';
 import { AuthErrorHandler } from 'src/types/AuthErrorHandler';
+import { AuthUser } from 'src/types/AuthUser';
+import { isLeafType } from 'graphql';
 
 @Injectable()
 export class AuthService {
@@ -207,7 +210,7 @@ export class AuthService {
     });
   }
 
-  async verify(
+  async verifyPasswordlessTokens(
     data: verifyMagicDto,
   ): Promise<E.Right<AuthTokens> | E.Left<AuthErrorHandler>> {
     const passwordlessTokens = await this.validatePasswordlessTokens(data);
@@ -218,7 +221,7 @@ export class AuthService {
       });
 
     const currentTime = DateTime.now().toISOTime();
-
+    //TODO: new to check this datetime checking logic
     if (currentTime > passwordlessTokens.value.expiresOn.toISOString())
       return E.left({
         message: MAGIC_LINK_EXPIRED,
@@ -243,5 +246,32 @@ export class AuthService {
       });
 
     return E.right(tokens.right);
+  }
+
+  async refreshAuthTokens(
+    refresh_token: string,
+    user: AuthUser,
+  ): Promise<E.Left<AuthErrorHandler> | E.Right<AuthTokens>> {
+    if (!user)
+      return E.left({
+        message: USER_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+
+    const isMatched = await argon2.verify(user.refreshToken, refresh_token);
+    if (!isMatched)
+      return E.left({
+        message: INVALID_REFRESH_TOKEN,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+
+    const generatedAuthTokens = await this.generateAuthTokens(user.id);
+    if (E.isLeft(generatedAuthTokens))
+      return E.left({
+        message: generatedAuthTokens.left.message,
+        statusCode: generatedAuthTokens.left.statusCode,
+      });
+
+    return E.right(generatedAuthTokens.right);
   }
 }

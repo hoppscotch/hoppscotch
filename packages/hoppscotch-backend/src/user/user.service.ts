@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as O from 'fp-ts/Option';
 import { User } from './user.model';
+import { ProviderAccount } from '../types/ProviderAccount';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Injectable()
 export class UserService {
@@ -9,7 +11,7 @@ export class UserService {
 
   async findUserByEmail(email: string) {
     try {
-      const user: User = await this.prisma.user.findUniqueOrThrow({
+      const user: AuthUser = await this.prisma.user.findUniqueOrThrow({
         where: {
           email: email,
         },
@@ -22,7 +24,7 @@ export class UserService {
 
   async findUserById(userUid: string) {
     try {
-      const user: User = await this.prisma.user.findUniqueOrThrow({
+      const user: AuthUser = await this.prisma.user.findUniqueOrThrow({
         where: {
           id: userUid,
         },
@@ -34,7 +36,7 @@ export class UserService {
   }
 
   async createUserMagic(email: string) {
-    const createdUser: User = await this.prisma.user.create({
+    const createdUser: AuthUser = await this.prisma.user.create({
       data: {
         email: email,
         accounts: {
@@ -50,7 +52,7 @@ export class UserService {
   }
 
   async createUserSSO(accessToken, refreshToken, profile) {
-    const createdUser = await this.prisma.user.create({
+    const createdUser: AuthUser = await this.prisma.user.create({
       data: {
         name: profile.displayName,
         email: profile.emails[0].value,
@@ -70,7 +72,7 @@ export class UserService {
   }
 
   async createProviderAccount(user, accessToken, refreshToken, profile) {
-    const createdProvider = await this.prisma.account.create({
+    const createdProvider: ProviderAccount = await this.prisma.account.create({
       data: {
         userId: user.id,
         provider: profile.provider,

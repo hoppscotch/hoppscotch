@@ -246,3 +246,9 @@ export const COOKIES_NOT_FOUND = 'auth/cookies_not_found' as const;
  * (AuthService)
  */
 export const INVALID_ACCESS_TOKEN = 'auth/invalid_access_token' as const;
+
+/**
+ * Refresh Token is malformed or invalid
+ * (AuthService)
+ */
+export const INVALID_REFRESH_TOKEN = 'auth/invalid_refresh_token' as const;

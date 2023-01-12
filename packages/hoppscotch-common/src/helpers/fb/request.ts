@@ -10,7 +10,8 @@ import {
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore"
 import { cloneDeep } from "lodash-es"
 import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
-import { platform, HoppUser } from "~/platform"
+import { platform } from "~/platform"
+import { HoppUser } from "~/platform/auth"
 import { restRequest$ } from "~/newstore/RESTSession"
 
 /**

@@ -1,4 +1,5 @@
-import { AuthEvent, HoppUser, platform } from "~/platform"
+import { platform } from "~/platform"
+import { AuthEvent, HoppUser } from "~/platform/auth"
 import { Subscription } from "rxjs"
 import { onBeforeUnmount, onMounted, watch, WatchStopHandle } from "vue"
 import { useReadonlyStream } from "./stream"

@@ -3,10 +3,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
-  constructor(private usersService: UserService) {
+  constructor(
+    private usersService: UserService,
+    private authService: AuthService,
+  ) {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -29,6 +33,18 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       );
       return createdUser;
     }
+
+    // Check to see if entry for google is present in the Account table for this user
+    const providerAccountExists =
+      await this.authService.checkIfProviderAccountExists(user.value, profile);
+
+    if (O.isNone(providerAccountExists))
+      await this.usersService.createProviderAccount(
+        user.value,
+        accessToken,
+        refreshToken,
+        profile,
+      );
 
     return user.value;
   }

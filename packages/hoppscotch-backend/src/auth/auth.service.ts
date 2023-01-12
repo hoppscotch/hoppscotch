@@ -215,8 +215,35 @@ export class AuthService {
         statusCode: HttpStatus.NOT_FOUND,
       });
 
-    const currentTime = DateTime.now().toISOTime();
-    //TODO: new to check this datetime checking logic
+    const user = await this.usersService.findUserById(
+      passwordlessTokens.value.userUid,
+    );
+    if (O.isNone(user))
+      return E.left({
+        message: USER_NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+
+    // Check to see if entry for magic-link is present in the Account table for this user
+    const profile = {
+      provider: 'email',
+      id: user.value.email,
+    };
+    const providerAccountExists = await this.checkIfProviderAccountExists(
+      user.value,
+      profile,
+    );
+
+    if (O.isNone(providerAccountExists)) {
+      await this.usersService.createProviderAccount(
+        user.value,
+        null,
+        null,
+        profile,
+      );
+    }
+
+    const currentTime = DateTime.now().toISO();
     if (currentTime > passwordlessTokens.value.expiresOn.toISOString())
       return E.left({
         message: MAGIC_LINK_EXPIRED,

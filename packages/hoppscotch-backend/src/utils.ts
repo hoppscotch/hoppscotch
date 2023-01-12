@@ -157,6 +157,6 @@ export const authCookieHandler = (
     sameSite: 'lax',
   });
   if (redirect) {
-    res.status(HttpStatus.OK).redirect('http://localhost:3000/');
+    res.status(HttpStatus.OK).redirect('http://localhost:3170/graphql');
   } else res.status(HttpStatus.OK).send();
 };

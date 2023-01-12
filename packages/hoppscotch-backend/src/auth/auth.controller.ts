@@ -65,4 +65,16 @@ export class AuthController {
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, true);
   }
+
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  async githubAuth(@Request() req) {}
+
+  @Get('github/callback')
+  @UseGuards(AuthGuard('github'))
+  async githubAuthRedirect(@Request() req, @Res() res) {
+    const authTokens = await this.authService.generateAuthTokens(req.user.id);
+    if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
+    authCookieHandler(res, authTokens.right, true);
+  }
 }

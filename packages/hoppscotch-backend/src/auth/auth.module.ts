@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt/dist';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { GithubStrategy } from './strategies/github.strategy';
 
 @Module({
   imports: [
@@ -20,7 +21,13 @@ import { GoogleStrategy } from './strategies/google.strategy';
       secret: process.env.JWT_SECRET,
     }),
   ],
-  providers: [AuthService, JwtStrategy, RTJwtStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    RTJwtStrategy,
+    GoogleStrategy,
+    GithubStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

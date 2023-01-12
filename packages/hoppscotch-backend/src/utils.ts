@@ -157,6 +157,6 @@ export const authCookieHandler = (
     sameSite: 'lax',
   });
   if (redirect) {
-    res.status(HttpStatus.OK).redirect('/');
+    res.status(HttpStatus.OK).redirect('http://localhost:3000/');
   } else res.status(HttpStatus.OK).send();
 };

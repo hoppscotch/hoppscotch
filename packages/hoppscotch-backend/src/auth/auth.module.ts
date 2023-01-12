@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt/dist';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
       secret: process.env.JWT_SECRET,
     }),
   ],
-  providers: [AuthService, JwtStrategy, RTJwtStrategy],
+  providers: [AuthService, JwtStrategy, RTJwtStrategy, GoogleStrategy],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -1,4 +1,8 @@
-import { AuthEvent, HoppUser, PlatformDef } from "@hoppscotch/common/platform"
+import {
+  AuthEvent,
+  AuthPlatformDef,
+  HoppUser,
+} from "@hoppscotch/common/platform/auth"
 import {
   Subscription,
   BehaviorSubject,
@@ -158,7 +162,7 @@ async function linkWithFBCredentialFromAuthError(error: unknown) {
   return await linkWithCredential(user!, credentials)
 }
 
-export const def: PlatformDef["auth"] = {
+export const def: AuthPlatformDef = {
   getCurrentUserStream: () => currentUser$,
   getAuthEventsStream: () => authEvents$,
   getProbableUserStream: () => probableUser$,

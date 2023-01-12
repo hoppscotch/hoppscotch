@@ -1,0 +1,172 @@
+Script started on 2023-01-12 21:07:39+05:30 [TERM="xterm-256color" TTY="/dev/pts/3" COLUMNS="120" LINES="30"]
+[oh-my-zsh] Insecure completion-dependent directories detected:
+drwxrwxrwx  12 balubabu balubabu  4096 Jan  2 12:38 /home/balubabu/.oh-my-zsh
+drwxrwxrwx   3 balubabu balubabu  4096 Jan  2 12:38 /home/balubabu/.oh-my-zsh/cache
+drwxrwxrwx   2 balubabu balubabu  4096 Jan  2 12:38 /home/balubabu/.oh-my-zsh/cache/completions
+drwxrwxrwx 316 balubabu balubabu 12288 Jan  2 12:38 /home/balubabu/.oh-my-zsh/plugins
+drwxrwxrwx   2 balubabu balubabu  4096 Jan  2 12:38 /home/balubabu/.oh-my-zsh/plugins/git
+
+[oh-my-zsh] For safety, we will not load completions from these directories until
+[oh-my-zsh] you fix their permissions and ownership and restart zsh.
+[oh-my-zsh] See the above list for directories with group or other writability.
+
+[oh-my-zsh] To fix your permissions you can do so by disabling
+[oh-my-zsh] the write permission of "group" and "others" and making sure that the
+[oh-my-zsh] owner of these directories is either root or your current user.
+[oh-my-zsh] The following command may help:
+[oh-my-zsh]     compaudit | xargs chmod g-w,o-w
+
+[oh-my-zsh] If the above didn't help or you want to skip the verification of
+[oh-my-zsh] insecure directories you can set the variable ZSH_DISABLE_COMPFIX to
+[oh-my-zsh] "true" before oh-my-zsh is sourced in your zshrc file.
+
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hccls[?1l>[?2004l
+]2;clear]1;cls[H[2J[3J[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hmmigrate cd[?1l>[?2004l
+]2;migrate cd]1;migratezsh: command not found: migrate
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;31m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hbbash migrate[?1l>[?2004l
+]2;bash migrate]1;bashbash: migrate: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;31m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hbash migrate.sh[?1l>[?2004l
+]2;bash migrate.sh]1;bashbash: migrate.sh: No such file or directory
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;31m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hccls[?1l>[?2004l
+]2;clear]1;cls[H[2J[3J[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hccd ~[?1l>[?2004l
+]2;cd ~]1;cd[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~]1;~[0m[27m[24m[J[01;32m➜  [36m~[00m [K[?1h=[?2004h[7mchmod +x site-check.sh[27m[22D[27mc[27mh[27mm[27mo[27md[27m [27m+[27mx[27m [27ms[27mi[27mt[27me[27m-[27mc[27mh[27me[27mc[27mk[27m.[27ms[27mh.sh .sh .sh .sh .sh .sh .sh .sh .sh .sh m.shi.shg.shr.sha.sht.she.sh[?1l>[?2004l
+]2;chmod +x migrate.sh]1;chmod[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~]1;~[0m[27m[24m[J[01;32m➜  [36m~[00m [K[?1h=[?2004hmmirM[2C
+[J[0mMiracastInputMgr.dll     [JMiracastReceiver.dll     [JMiracastReceiverExt.dll  [JMirrorDrvCompat.dll    [J[A[0m[27m[24m[5CMir[Kir r  mmigrate gdfchs[?1l>[?2004l
+[J]2;migrate gdfchs]1;migratezsh: command not found: migrate
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~]1;~[0m[27m[24m[J[01;31m➜  [36m~[00m [K[?1h=[?2004h[7msudo cp site-check.sh /usr/bin/site-check[27m[41D[27ms[27mu[27md[27mo[27m [27mc[27mp[27m [27ms[27mi[27mt[27me[27m-[27mc[27mh[27me[27mc[27mk[27m.[27ms[27mh[27m [27m/[27mu[27ms[27mr[27m/[27mb[27mi[27mn[27m/[27ms[27mi[27mt[27me[27m-[27mc[27mh[27me[27mc[27mk          migrate[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21D[P[20C [21Dm.sh /usr/bin/migrate[20Di.sh /usr/bin/migrate[20Dg.sh /usr/bin/migrate[20Dr.sh /usr/bin/migrate[20Da.sh /usr/bin/migrate[20Dt.sh /usr/bin/migrate[20De.sh /usr/bin/migrate[20D[?1l>[?2004l
+]2;sudo cp migrate.sh /usr/bin/migrate]1;cp[sudo] password for balubabu: 
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~]1;~[0m[27m[24m[J[01;32m➜  [36m~[00m [K[?1h=[?2004hmmir grate[?1l>[?2004l
+]2;migrate]1;migrate"docker exec" requires at least 2 arguments.
+See 'docker exec --help'.
+
+Usage:  docker exec [OPTIONS] CONTAINER COMMAND [ARG...]
+
+Run a command in a running container
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~]1;~[0m[27m[24m[J[01;31m➜  [36m~[00m [K[?1h=[?2004hccls[?1l>[?2004l
+]2;clear]1;cls[H[2J[3J[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~]1;~[0m[27m[24m[J[01;32m➜  [36m~[00m [K[?1h=[?2004hccd work[1m/[0m[0m/self-hosted[1m/[0m[0m/h packages[1m/[0m[0m/hoppscotch-backend[1m/[0m[0m [?1l>[?2004l
+]2;cd work/self-hosted/packages/hoppscotch-backend]1;cd[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hcc;s[?1l>[?2004l
+]2;c; s]1;c;szsh: command not found: c
+zsh: command not found: s
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;31m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hccls[?1l>[?2004l
+]2;clear]1;cls[H[2J[3J[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hddocker ps[?1l>[?2004l
+]2;docker ps]1;dockerCONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                                      NAMES
+f48d44a76ccc   hoppscotch-backend-local   "docker-entrypoint.s…"   50 minutes ago   Up 50 minutes   3170/tcp, 0.0.0.0:9229->9229/tcp, 0.0.0.0:3170->3000/tcp   hoppscotch-backend-local-1
+ca1f2c39cdb5   postgres                   "docker-entrypoint.s…"   50 minutes ago   Up 50 minutes   0.0.0.0:5432->5432/tcp                                     hoppscotch-backend-dev-db-1
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hmmigrater  [7mf48d44a76ccc[27m[12D[27mf[27m4[27m8[27md[27m4[27m4[27ma[27m7[27m6[27mc[27mc[27mc\[?1l>[?2004l
+[0m[27m[24m[J> [K[?1h=[?2004h[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;31m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hmigrate f48d44a76ccc\ [?1l>[?2004l
+]2;migrate f48d44a76ccc]1;migrate[?2004hroot@f48d44a76ccc:/usr/src/app# cd prisma/
+[?2004l[?2004hroot@f48d44a76ccc:/usr/src/app/prisma# pnpx prisma migrate dev
+[?2004l.pnpm-store/v3/tmp/dlx-2319              | Progress: resolved [96m1[39m, reused [96m0[39m, downloaded [96m0[39m, added [96m0[39m
+[1A.pnpm-store/v3/tmp/dlx-2319              |   [32m+2[39m [32m+[39m[0K
+.pnpm-store/v3/tmp/dlx-2319              | Progress: resolved [96m1[39m, reused [96m0[39m, downloaded [96m0[39m, added [96m0[39m
+[1A.pnpm-store/v3/tmp/dlx-2319              | Progress: resolved [96m2[39m, reused [96m2[39m, downloaded [96m0[39m, added [96m2[39m, done
+[2mEnvironment variables loaded from ../.env[22m
+[2mPrisma schema loaded from schema.prisma[22m
+[2mDatasource "db": PostgreSQL database "hoppscotch", schema "public" at "dev-db:5432"[22m
+
+Applying migration `20230112140525_auth`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20230112140525_[36m[1mauth[22m[39m/
+    └─ migration.sql
+
+[32mYour database is now in sync with your schema.[39m
+
+[?25lRunning generate... [2m(Use --skip-generate to skip the generators)[22m
+[?25l[2K[1A[2K[GRunning generate... - Prisma Client
+[?25l[2K[1A[2K[G✔ Generated [1mPrisma Client[22m (4.8.1 | library)[2m to ./../node_modules/.pnpm/@prisma+client@4.8.1_prisma@4.8.1/node_modules/@p[22m
+[2mrisma/client[22m in 121ms
+
+
+[?25h[?2004hroot@f48d44a76ccc:/usr/src/app/prisma# exit
+[?2004lexit
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hccls[?1l>[?2004l
+]2;clear]1;cls[H[2J[3J[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004h[7mnpm install passport-google-oauth20[27m[35D[27mn[27mp[27mm[27m [27mi[27mn[27ms[27mt[27ma[27ml[27ml[27m [27mp[27ma[27ms[27ms[27mp[27mo[27mr[27mt[27m-[27mg[27mo[27mo[27mg[27ml[27me[27m-[27mo[27ma[27mu[27mt[27mh[27m2[27m0pnpm install passport-google-oauth20[35D[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C-passport-google-oauth20[23D-passport-google-oauth20[23Dspassport-google-oauth20[23Dapassport-google-oauth20[23Dvpassport-google-oauth20[23Depassport-google-oauth20[23D passport-google-oauth20[23D[?1l>[?2004l
+]2;pnpm install --save passport-google-oauth20]1;pnpm../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[33m[39m[0K
+[33m   ╭──────────────────────────────────────────────────────────────────╮[39m
+   [33m│[39m                                                                  [33m│[39m
+   [33m│[39m                Update available! [31m7.21.0[39m → [32m7.24.3[39m.                [33m│[39m
+   [33m│[39m   [35mChangelog:[39m https://github.com/pnpm/pnpm/releases/tag/v7.24.3   [33m│[39m
+   [33m│[39m                Run "[35mpnpm add -g pnpm[39m" to update.                 [33m│[39m
+   [33m│[39m                                                                  [33m│[39m
+   [33m│[39m      Follow [35m@pnpmjs[39m for updates: https://twitter.com/pnpmjs      [33m│[39m
+   [33m│[39m                                                                  [33m│[39m
+[33m   ╰──────────────────────────────────────────────────────────────────╯[39m
+[33m[39m
+../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-plugin-base@3.7.1: The `apollo-server-plugin-base` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-express@3.11.1: The `apollo-server-express` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m54[39m, reused [96m54[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m55[39m, reused [96m55[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m56[39m, reused [96m55[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m80[39m, reused [96m79[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m146[39m, reused [96m143[39m, downloaded [96m1[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m subscriptions-transport-ws@0.11.0: The `subscriptions-transport-ws` package is no longer maintained. We recommend you use `graphql-ws` instead. For help migrating Apollo software to `graphql-ws`, see https://www.apollographql.com/docs/apollo-server/data/subscriptions/#switching-from-subscriptions-transport-ws    For general help using `graphql-ws`, see https://github.com/enisdenjo/graphql-ws/blob/master/README.md
+../..                                    | Progress: resolved [96m146[39m, reused [96m143[39m, downloaded [96m1[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-types@3.7.1: The `apollo-server-types` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m146[39m, reused [96m143[39m, downloaded [96m1[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m238[39m, reused [96m233[39m, downloaded [96m3[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-core@3.11.1: The `apollo-server-core` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m238[39m, reused [96m233[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m274[39m, reused [96m269[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m378[39m, reused [96m374[39m, downloaded [96m3[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-datasource@3.3.2: The `apollo-datasource` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m378[39m, reused [96m374[39m, downloaded [96m3[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-reporting-protobuf@3.3.3: The `apollo-reporting-protobuf` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/usage-reporting-protobuf` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m378[39m, reused [96m374[39m, downloaded [96m3[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-env@4.2.1: The `apollo-server-env` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/utils.fetcher` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m378[39m, reused [96m374[39m, downloaded [96m3[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-errors@3.3.1: The `apollo-server-errors` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m378[39m, reused [96m374[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m459[39m, reused [96m455[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m540[39m, reused [96m536[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m676[39m, reused [96m672[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m792[39m, reused [96m786[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    |   [32m+5[39m [32m+[39m[0K
+../..                                    | Progress: resolved [96m792[39m, reused [96m786[39m, downloaded [96m3[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m792[39m, reused [96m786[39m, downloaded [96m5[39m, added [96m5[39m, done
+
+[96mdependencies:[39m
+[32m+[39m passport-google-oauth20 [90m2.0.0[39m
+
+[43m[30m WARN [39m[49m Issues with peer dependencies found
+[37mpackages/hoppscotch-backend[39m
+└─┬ ts-loader [90m9.4.2[39m
+  └── [31m✕ missing peer[39m webpack@^5.0.0
+Peer dependencies that should be installed:
+  webpack@^5.0.0  
+
+Done in 9s
+[1m[7m%[27m[1m[0m                                                                                                                        ]2;balubabu@LAPTOP-ME2SCHA9:~/work/self-hosted/packages/hoppscotch-backend]1;..cotch-backend[0m[27m[24m[J[01;32m➜  [36mhoppscotch-backend[00m [01;34mgit:([31mfeat/user-authentication[34m) [33m✗[00m [K[?1h=[?2004hpnpm install --save passport-google-oauth20[P[24C [25D[P[24C [25D[P[24C [25D[P[24C [25D[P[24C [25DD passport-google-oauth20[24D[1C@passport-google-oauth20[23Dtpassport-google-oauth20[23Dypassport-google-oauth20[23D[1Cpassport-google-oauth20[23Depassport-google-oauth20[23Dspassport-google-oauth20[23D/passport-google-oauth20[23D[?1l>[?2004l
+]2;pnpm install -D @types/passport-google-oauth20]1;pnpm../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-express@3.11.1: The `apollo-server-express` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-plugin-base@3.7.1: The `apollo-server-plugin-base` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m0[39m, reused [96m1[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m55[39m, reused [96m55[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m56[39m, reused [96m56[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m57[39m, reused [96m56[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m74[39m, reused [96m73[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m144[39m, reused [96m141[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m subscriptions-transport-ws@0.11.0: The `subscriptions-transport-ws` package is no longer maintained. We recommend you use `graphql-ws` instead. For help migrating Apollo software to `graphql-ws`, see https://www.apollographql.com/docs/apollo-server/data/subscriptions/#switching-from-subscriptions-transport-ws    For general help using `graphql-ws`, see https://github.com/enisdenjo/graphql-ws/blob/master/README.md
+../..                                    | Progress: resolved [96m144[39m, reused [96m141[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-core@3.11.1: The `apollo-server-core` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m144[39m, reused [96m141[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-types@3.7.1: The `apollo-server-types` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/server` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m144[39m, reused [96m141[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m240[39m, reused [96m237[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m314[39m, reused [96m311[39m, downloaded [96m0[39m, added [96m0[39m
+[1A../..                                    | Progress: resolved [96m410[39m, reused [96m408[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-datasource@3.3.2: The `apollo-datasource` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m410[39m, reused [96m408[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-reporting-protobuf@3.3.3: The `apollo-reporting-protobuf` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/usage-reporting-protobuf` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m410[39m, reused [96m408[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-env@4.2.1: The `apollo-server-env` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo/utils.fetcher` package. See https://www.apollographql.com/docs/apollo-server/previous-versions/ for more details.
+../..                                    | Progress: resolved [96m410[39m, reused [96m408[39m, downloaded [96m0[39m, added [96m0[39m
+[1A[43m[30m WARN [39m[49m [31mdeprecated[39m apollo-server-errors@3.3.1: The `apollo-server-errors` package is part of Apollo Server v2 and v3, which are now deprecated (end-of-life October 22nd 2023). This package's functionality is now found in the `@apollo

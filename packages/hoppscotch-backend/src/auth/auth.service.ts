@@ -10,10 +10,7 @@ import * as bcrypt from 'bcrypt';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import * as TE from 'fp-ts/TaskEither';
-import {
-  DeviceIdentifierToken,
-  PasswordlessToken,
-} from 'src/types/Passwordless';
+import { DeviceIdentifierToken } from 'src/types/Passwordless';
 import {
   INVALID_EMAIL,
   INVALID_MAGIC_LINK_DATA,
@@ -28,11 +25,11 @@ import {
   AuthTokens,
   RefreshTokenPayload,
 } from 'src/types/AuthTokens';
-import { ProviderAccount } from 'src/types/ProviderAccount';
 import { JwtService } from '@nestjs/jwt';
 import { AuthErrorHandler } from 'src/types/AuthErrorHandler';
 import { AuthUser } from 'src/types/AuthUser';
 import { isLeafType } from 'graphql';
+import { PasswordlessVerification } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -44,25 +41,24 @@ export class AuthService {
   ) {}
 
   // generate Id and token for email magiclink
-  private async generatePasswordlessTokens(user: User) {
+  private async generatePasswordlessTokens(user: AuthUser) {
     const salt = await bcrypt.genSalt(10);
     const expiresOn = DateTime.now().plus({ hours: 3 }).toISO().toString();
 
-    const idToken: PasswordlessToken =
-      await this.prismaService.passwordlessVerification.create({
-        data: {
-          deviceIdentifier: salt,
-          userUid: user.id,
-          expiresOn: expiresOn,
-        },
-      });
+    const idToken = await this.prismaService.passwordlessVerification.create({
+      data: {
+        deviceIdentifier: salt,
+        userUid: user.id,
+        expiresOn: expiresOn,
+      },
+    });
 
     return idToken;
   }
 
   private async validatePasswordlessTokens(data: verifyMagicDto) {
     try {
-      const tokens: PasswordlessToken =
+      const tokens =
         await this.prismaService.passwordlessVerification.findUniqueOrThrow({
           where: {
             passwordless_deviceIdentifier_tokens: {
@@ -79,7 +75,7 @@ export class AuthService {
 
   private async UpdateUserRefreshToken(tokenHash: string, userUid: string) {
     try {
-      const user: User = await this.prismaService.user.update({
+      const user = await this.prismaService.user.update({
         where: {
           id: userUid,
         },
@@ -143,7 +139,7 @@ export class AuthService {
   }
 
   private async deletePasswordlessVerificationToken(
-    passwordlessTokens: PasswordlessToken,
+    passwordlessTokens: PasswordlessVerification,
   ) {
     try {
       const deletedPasswordlessToken =
@@ -162,15 +158,14 @@ export class AuthService {
   }
 
   async checkIfProviderAccountExists(user: User, profile) {
-    const provider: ProviderAccount =
-      await this.prismaService.account.findUnique({
-        where: {
-          verifyProviderAccount: {
-            provider: profile.provider,
-            providerAccountId: profile.id,
-          },
+    const provider = await this.prismaService.account.findUnique({
+      where: {
+        verifyProviderAccount: {
+          provider: profile.provider,
+          providerAccountId: profile.id,
         },
-      });
+      },
+    });
 
     if (!provider) return O.none;
 
@@ -186,7 +181,7 @@ export class AuthService {
         statusCode: HttpStatus.BAD_REQUEST,
       });
 
-    let user: User;
+    let user: AuthUser;
     const queriedUser = await this.usersService.findUserByEmail(email);
 
     if (O.isNone(queriedUser)) {

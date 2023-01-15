@@ -1,17 +1,15 @@
-import ButtonPrimary from "../components/button/Primary.vue"
+import ButtonSecondary from "../components/button/Secondary.vue"
 
 // More on default export: https://storybook.js.org/docs/vue/writing-stories/introduction#default-export
 export default {
-  title: "Example/ButtonPrimary",
-  component: ButtonPrimary,
+  title: "Example/ButtonSecondary",
+  component: ButtonSecondary,
   // More on argTypes: https://storybook.js.org/docs/vue/api/argtypes
   argTypes: {
     to: { control: { type: "text" } },
     exact: { control: { type: "boolean" } },
     blank: { control: { type: "boolean" } },
     label: { control: { type: "text" } },
-    icon: { control: { type: "object" } },
-    svg: { control: { type: "object" } },
     color: { control: { type: "text" } },
     disabled: { control: { type: "boolean" } },
     loading: { control: { type: "boolean" } },
@@ -21,29 +19,27 @@ export default {
     rounded: { control: { type: "boolean" } },
     gradient: { control: { type: "boolean" } },
     outline: { control: { type: "boolean" } },
-    shortcut: { control: { type: "array" } },
   },
 }
 
 // More on component templates: https://storybook.js.org/docs/vue/writing-stories/introduction#using-args
 const Template = (args) => ({
   // Components used in your story `template` are defined in the `components` object
-  components: { ButtonPrimary },
+  components: { ButtonSecondary },
   // The story's `args` need to be mapped into the template through the `setup()` method
   setup() {
     return { args }
   },
   // And then the `args` are bound to your component with `v-bind="args"`
   template: `
-  <ButtonPrimary :label="Button" color="primary"/>
+  <ButtonSecondary :label="Button"/>
   `,
 })
 
-export const Primary = Template.bind({})
+export const Secondary = Template.bind({})
 // More on args: https://storybook.js.org/docs/vue/writing-stories/args
-Primary.args = {
+Secondary.args = {
   label: "Button",
-  color: "primary",
 }
 
 // export const Secondary = Template.bind({})

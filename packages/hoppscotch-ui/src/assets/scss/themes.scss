@@ -205,6 +205,11 @@
   @include dark-editor-theme;
 }
 
+:root {
+  @include dark-theme;
+  @include blue-theme;
+}
+
 :root.black {
   @include black-theme;
   @include black-editor-theme;
@@ -304,4 +309,8 @@
 
 :root[data-font-size="large"] {
   @include font-large;
+}
+
+.generic {
+  @apply text-primary text-primaryLight bg-primary;
 }

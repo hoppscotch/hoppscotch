@@ -3,7 +3,6 @@ import Secondary from "./button/Secondary.vue"
 import Anchor from "./smart/Anchor.vue"
 import AutoComplete from "./smart/AutoComplete.vue"
 import Checkbox from "./smart/Checkbox.vue"
-import ColorModePicker from "./smart/ColorModePicker.vue"
 import ConfirmModal from "./smart/ConfirmModal.vue"
 import Expand from "./smart/Expand.vue"
 import FileChip from "./smart/FileChip.vue"
@@ -29,7 +28,6 @@ export default {
   Anchor,
   AutoComplete,
   Checkbox,
-  ColorModePicker,
   ConfirmModal,
   Expand,
   FileChip,

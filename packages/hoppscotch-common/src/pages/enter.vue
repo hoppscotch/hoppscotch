@@ -10,7 +10,9 @@
 import { defineComponent } from "vue"
 import { useI18n } from "@composables/i18n"
 import { initializeFirebase } from "~/helpers/fb"
-import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
+
+import { platform } from "~/platform"
+
 import { getLocalConfig, removeLocalConfig } from "~/newstore/localpersistence"
 
 export default defineComponent({
@@ -29,7 +31,7 @@ export default defineComponent({
     initializeFirebase()
   },
   async mounted() {
-    if (isSignInWithEmailLink(window.location.href)) {
+    if (platform.auth.isSignInWithEmailLink(window.location.href)) {
       this.signingInWithEmail = true
 
       let email = getLocalConfig("emailForSignIn")
@@ -40,7 +42,8 @@ export default defineComponent({
         ) as string
       }
 
-      await signInWithEmailLink(email, window.location.href)
+      await platform.auth
+        .signInWithEmailLink(email, window.location.href)
         .then(() => {
           removeLocalConfig("emailForSignIn")
           this.$router.push({ path: "/" })

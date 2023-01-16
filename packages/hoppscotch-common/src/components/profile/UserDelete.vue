@@ -109,7 +109,7 @@ import { useI18n } from "~/composables/i18n"
 import { useToast } from "~/composables/toast"
 import { GetMyTeamsDocument, GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { deleteUser } from "~/helpers/backend/mutations/Profile"
-import { signOutUser } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 
 const t = useI18n()
 const toast = useToast()
@@ -162,7 +162,7 @@ const deleteUserAccount = async () => {
         deletingUser.value = false
         showDeleteAccountModal.value = false
         toast.success(t("settings.account_deleted"))
-        signOutUser()
+        platform.auth.signOutUser()
         router.push(`/`)
       }
     )

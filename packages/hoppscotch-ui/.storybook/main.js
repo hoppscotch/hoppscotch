@@ -22,10 +22,11 @@ module.exports = {
         config: path.join(__dirname, "..", "windi.config.ts"),
       })
     )
-    // config.resolve.alias = {
-    //   ...config.resolve.alias,
-    //   "~icons": path.resolve(__dirname, "../../hoppscotch-common/assets/icons"),
-    // }
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "~": path.resolve(__dirname, "../src/"),
+      "@composables": path.resolve(__dirname, "../src/composables"),
+    }
     return config
   },
 }

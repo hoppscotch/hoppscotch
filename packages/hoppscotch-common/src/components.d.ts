@@ -99,6 +99,13 @@ declare module '@vue/runtime-core' {
     HttpTestResultReport: typeof import('./components/http/TestResultReport.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']
+    IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
+    IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
+    IconLucideInfo: typeof import('~icons/lucide/info')['default']
+    IconLucideLoader: typeof import('~icons/lucide/loader')['default']
+    IconLucideSearch: typeof import('~icons/lucide/search')['default']
+    IconLucideUser: typeof import('~icons/lucide/user')['default']
+    IconLucideUsers: typeof import('~icons/lucide/users')['default']
     LensesHeadersRenderer: typeof import('./components/lenses/HeadersRenderer.vue')['default']
     LensesHeadersRendererEntry: typeof import('./components/lenses/HeadersRendererEntry.vue')['default']
     LensesRenderersHTMLLensRenderer: typeof import('./components/lenses/renderers/HTMLLensRenderer.vue')['default']
@@ -122,7 +129,7 @@ declare module '@vue/runtime-core' {
     SmartAutoComplete: typeof import('./../../hoppscotch-ui/src/components/smart/AutoComplete.vue')['default']
     SmartChangeLanguage: typeof import('./components/smart/ChangeLanguage.vue')['default']
     SmartCheckbox: typeof import('./../../hoppscotch-ui/src/components/smart/Checkbox.vue')['default']
-    SmartColorModePicker: typeof import('./../../hoppscotch-ui/src/components/smart/ColorModePicker.vue')['default']
+    SmartColorModePicker: typeof import('./components/smart/ColorModePicker.vue')['default']
     SmartConfirmModal: typeof import('./../../hoppscotch-ui/src/components/smart/ConfirmModal.vue')['default']
     SmartEnvInput: typeof import('./components/smart/EnvInput.vue')['default']
     SmartExpand: typeof import('./../../hoppscotch-ui/src/components/smart/Expand.vue')['default']
@@ -152,5 +159,4 @@ declare module '@vue/runtime-core' {
     TeamsTeam: typeof import('./components/teams/Team.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']
   }
-
 }

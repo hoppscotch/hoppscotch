@@ -1,23 +1,28 @@
-import SmartSpinner from "../../components/smart/Spinner.vue"
+import ButtonPrimary from "../../components/button/Primary.vue"
 
 // More on default export: https://storybook.js.org/docs/vue/writing-stories/introduction#default-export
 export default {
-  title: "Example/SmartSpinner",
-  component: SmartSpinner,
+  title: "Example/ButtonPrimary",
+  component: ButtonPrimary,
 }
 
 // More on component templates: https://storybook.js.org/docs/vue/writing-stories/introduction#using-args
 const Template = (args) => ({
   // Components used in your story `template` are defined in the `components` object
-  components: { SmartSpinner },
+  components: { ButtonPrimary },
   // The story's `args` need to be mapped into the template through the `setup()` method
   setup() {
     return { args }
   },
   // And then the `args` are bound to your component with `v-bind="args"`
   template: `
-  <SmartSpinner />
+  <ButtonPrimary :label="Button"/>
   `,
 })
 
-export const Default = Template.bind({})
+export const Default = Template.bind({
+  label: "Button",
+})
+Default.args = {
+  label: "Button",
+}

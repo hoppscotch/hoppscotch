@@ -58,6 +58,7 @@ function fbUserToHoppUser(user: FBUser): HoppUser {
     displayName: user.displayName,
     email: user.email,
     photoURL: user.photoURL,
+    emailVerified: user.emailVerified,
   }
 }
 

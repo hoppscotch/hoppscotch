@@ -27,6 +27,7 @@ import {
   getAuth,
   ActionCodeSettings,
   isSignInWithEmailLink as isSignInWithEmailLinkFB,
+  signInWithEmailLink as signInWithEmailLinkFB,
   sendEmailVerification,
   signInWithPopup,
   GoogleAuthProvider,
@@ -358,6 +359,10 @@ export const def: AuthPlatformDef = {
   },
   async signInUserWithMicrosoft() {
     const cred = await signInUserWithMicrosoftFB()
+    return fbUserToHoppUser(cred.user)
+  },
+  async signInWithEmailLink(email: string, url: string) {
+    const cred = await signInWithEmailLinkFB(getAuth(), email, url)
     return fbUserToHoppUser(cred.user)
   },
   async getSignInMethodsForEmail(email: string) {

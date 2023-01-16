@@ -148,6 +148,16 @@ export type AuthPlatformDef = {
    * @returns Whether this is valid or not (NOTE: This is just a structural check not whether this is accepted (hence, not async))
    */
   isSignInWithEmailLink: (url: string) => boolean
+
+  /**
+   * Function that validates the magic link redirect and signs in the user
+   *
+   * @param email - Email to log in to
+   * @param url - The action URL which is used to validate login
+   * @returns A promise that resolves with the user info when auth is completed
+   */
+  signInWithEmailLink: (email: string, url: string) => Promise<HoppUser>
+
   /**
    * Sends email verification email (the checkmark besides the email)
    * @returns When the check has succeed and completed

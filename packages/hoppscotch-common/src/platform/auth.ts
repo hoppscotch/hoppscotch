@@ -25,6 +25,7 @@ export type HoppUser = {
   provider?: string
   /** Access Token for the auth of the user against the given `provider`. */
   accessToken?: string
+  emailVerified: boolean
 }
 
 export type AuthEvent =

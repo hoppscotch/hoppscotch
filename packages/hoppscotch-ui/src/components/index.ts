@@ -6,7 +6,6 @@ import Checkbox from "./smart/Checkbox.vue"
 import ConfirmModal from "./smart/ConfirmModal.vue"
 import Expand from "./smart/Expand.vue"
 import FileChip from "./smart/FileChip.vue"
-import FontSizePicker from "./smart/FontSizePicker.vue"
 import Intersection from "./smart/Intersection.vue"
 import Item from "./smart/Item.vue"
 import Link from "./smart/Link.vue"
@@ -31,7 +30,6 @@ export default {
   ConfirmModal,
   Expand,
   FileChip,
-  FontSizePicker,
   Intersection,
   Item,
   Link,

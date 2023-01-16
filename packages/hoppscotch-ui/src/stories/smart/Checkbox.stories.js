@@ -2,7 +2,7 @@ import SmartCheckbox from "../../components/smart/Checkbox.vue"
 
 // More on default export: https://storybook.js.org/docs/vue/writing-stories/introduction#default-export
 export default {
-  title: "Example/SmartCheckbox",
+  title: "Example/Checkbox",
   component: SmartCheckbox,
 }
 

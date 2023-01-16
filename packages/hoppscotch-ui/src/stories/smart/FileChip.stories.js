@@ -2,7 +2,7 @@ import SmartFileChip from "../../components/smart/FileChip.vue"
 
 // More on default export: https://storybook.js.org/docs/vue/writing-stories/introduction#default-export
 export default {
-  title: "Example/SmartFileChip",
+  title: "Example/FileChip",
   component: SmartFileChip,
 }
 

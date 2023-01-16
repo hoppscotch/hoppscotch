@@ -2,7 +2,7 @@ import SmartLink from "../../components/smart/Link.vue"
 
 // More on default export: https://storybook.js.org/docs/vue/writing-stories/introduction#default-export
 export default {
-  title: "Example/SmartLink",
+  title: "Example/Link",
   component: SmartLink,
 }
 

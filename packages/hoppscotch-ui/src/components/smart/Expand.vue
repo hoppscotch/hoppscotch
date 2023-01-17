@@ -9,7 +9,7 @@
     >
       <ButtonSecondary
         :icon="expand ? IconChevronUp : IconChevronDown"
-        :label="expand ? t('action.less') : t('action.more')"
+        :label="expand ? less : more"
         filled
         rounded
         @click="expand = !expand"
@@ -22,9 +22,17 @@
 import IconChevronUp from "~icons/lucide/chevron-up"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import { ref } from "vue"
-import { useI18n } from "@composables/i18n"
-
-const t = useI18n()
 
 const expand = ref(false)
+
+withDefaults(
+  defineProps<{
+    less?: string
+    more?: string
+  }>(),
+  {
+    less: "Less",
+    more: "More",
+  }
+)
 </script>

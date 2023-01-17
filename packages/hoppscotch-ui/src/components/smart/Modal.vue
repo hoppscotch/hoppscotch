@@ -48,7 +48,7 @@
                 <ButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-                  :title="t('action.close')"
+                  :title="closeText ?? 'Close'"
                   :icon="IconX"
                   @click="close"
                 />
@@ -94,10 +94,6 @@ const stack = (() => {
 <script setup lang="ts">
 import IconX from "~icons/lucide/x"
 import { ref, computed, useSlots, onMounted, onBeforeUnmount } from "vue"
-import { useKeybindingDisabler } from "~/helpers/keybindings"
-import { useI18n } from "@composables/i18n"
-
-const t = useI18n()
 
 defineProps({
   dialog: {
@@ -124,17 +120,22 @@ defineProps({
     type: String,
     default: "sm:max-w-lg",
   },
+  closeText: {
+    type: String,
+    default: "'Close'",
+  },
 })
 
 const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
+// TEMP: Disable keybindings when modal is open
+// const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
 
-onBeforeUnmount(() => {
-  enableKeybindings()
-})
+// onBeforeUnmount(() => {
+//   enableKeybindings()
+// })
 
 const stackId = ref(stackIDTicker++)
 const shouldCleanupDomOnUnmount = ref(true)
@@ -153,7 +154,7 @@ onMounted(() => {
   stack.push(stackId.value)
   document.addEventListener("keydown", onKeyDown)
 
-  disableKeybindings()
+  // disableKeybindings()
 })
 
 onBeforeUnmount(() => {

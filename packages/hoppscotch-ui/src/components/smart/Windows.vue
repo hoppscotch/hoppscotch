@@ -41,7 +41,7 @@
                     :style="{
                       visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
                     }"
-                    :title="t('action.close')"
+                    :title="closeText ?? 'Close'"
                     :class="[{ active: modelValue === tabID }, 'close']"
                     class="mx-2 !p-0.5"
                     @click.stop="emit('removeTab', tabID)"
@@ -60,7 +60,7 @@
               >
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
-                  :title="t('action.new')"
+                  :title="newText ?? 'New'"
                   :icon="IconPlus"
                   class="rounded !p-1"
                   filled
@@ -89,7 +89,6 @@ import { ref, ComputedRef, computed, provide } from "vue"
 import type { Slot } from "vue"
 import draggable from "vuedraggable"
 import { throwError } from "~/helpers/functional/error"
-import { useI18n } from "~/composables/i18n"
 
 export type TabMeta = {
   label: string | null
@@ -104,8 +103,6 @@ export type TabProvider = {
   removeTabEntry: (tabID: string) => void
 }
 
-const t = useI18n()
-
 const props = defineProps({
   styles: {
     type: String,
@@ -118,6 +115,14 @@ const props = defineProps({
   canAddNewTab: {
     type: Boolean,
     default: true,
+  },
+  newText: {
+    type: String,
+    default: null,
+  },
+  closeText: {
+    type: String,
+    default: null,
   },
 })
 const emit = defineEmits<{

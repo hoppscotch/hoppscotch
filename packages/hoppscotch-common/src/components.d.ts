@@ -134,7 +134,7 @@ declare module '@vue/runtime-core' {
     SmartEnvInput: typeof import('./components/smart/EnvInput.vue')['default']
     SmartExpand: typeof import('./../../hoppscotch-ui/src/components/smart/Expand.vue')['default']
     SmartFileChip: typeof import('./../../hoppscotch-ui/src/components/smart/FileChip.vue')['default']
-    SmartFontSizePicker: typeof import('./../../hoppscotch-ui/src/components/smart/FontSizePicker.vue')['default']
+    SmartFontSizePicker: typeof import('./components/smart/FontSizePicker.vue')['default']
     SmartIntersection: typeof import('./../../hoppscotch-ui/src/components/smart/Intersection.vue')['default']
     SmartItem: typeof import('./../../hoppscotch-ui/src/components/smart/Item.vue')['default']
     SmartLink: typeof import('./../../hoppscotch-ui/src/components/smart/Link.vue')['default']

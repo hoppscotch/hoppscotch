@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "vite build",
-    "storybook": "start-storybook -p 6006 --no-open",
+    "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006 --no-open",
     "build-storybook": "build-storybook"
   },
   "dependencies": {

@@ -6,8 +6,6 @@ import { GqlUser } from '../decorators/gql-user.decorator';
 
 @Resolver(() => User)
 export class UserResolver {
-  // TODO: remove the eslint-disable line below once dependencies are added to user.service file
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor() {}
 
   @Query(() => User, {

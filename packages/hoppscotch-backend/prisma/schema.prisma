@@ -86,7 +86,7 @@ model User {
   isAdmin                  Boolean                    @default(false)
   refreshToken             String?
   accounts                 Account[]
-  createdOn                DateTime                   @default(now()) @db.Timestamptz(3)
+  createdOn                DateTime                   @default(now()) @db.Timestamp(3)
   PasswordlessVerification PasswordlessVerification[]
 }
 
@@ -98,7 +98,7 @@ model Account {
   providerRefreshToken String?
   providerAccessToken  String?
   providerScope        String?
-  loggedIn             DateTime @default(now()) @db.Timestamptz(3)
+  loggedIn             DateTime @default(now()) @db.Timestamp(3)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -110,7 +110,7 @@ model PasswordlessVerification {
   token      String   @unique @default(cuid())
   userUid    String
   user       User     @relation(fields: [userUid], references: [id], onDelete: Cascade)
-  expiresOn  DateTime @db.Timestamptz(3)
+  expiresOn  DateTime @db.Timestamp(3)
 
   @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
 }

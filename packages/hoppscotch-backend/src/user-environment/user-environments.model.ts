@@ -16,7 +16,7 @@ export class UserEnvironment {
     nullable: true,
     description: 'Name of the environment',
   })
-  name: string | null | undefined;
+  name: string | null | undefined; // types have a union to avoid TS warnings and field is nullable when it is global env
 
   @Field({
     description: 'All variables present in the environment',
@@ -24,7 +24,7 @@ export class UserEnvironment {
   variables: string; // JSON string of the variables object (format:[{ key: "bla", value: "bla_val" }, ...] ) which will be received from the client
 
   @Field({
-    description: 'isGlobal flag to indicate the environment is global or not',
+    description: 'Flag to indicate the environment is global or not',
   })
   isGlobal: boolean;
 }

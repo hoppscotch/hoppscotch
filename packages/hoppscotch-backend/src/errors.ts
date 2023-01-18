@@ -159,7 +159,7 @@ export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
  * Global environment doesnt exists for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_GLOBAL_ENV_DOESNT_EXISTS =
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
   'user_environment/global_env_doesnt_exists' as const;
 /*
 
@@ -175,7 +175,7 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
  * User environment doesn't exist for the user
  * (UserEnvironmentsService)
  */
-export const USER_ENVIRONMENT_ENV_DOESNT_EXISTS =
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
   'user_environment/user_env_doesnt_exists' as const;
 /*
 
@@ -201,6 +201,14 @@ export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
  */
 export const USER_ENVIRONMENT_UPDATE_FAILED =
   'user_environment/user_env_update_failed' as const;
+/*
+
+/**
+ * User environment invalid environment name
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME =
+  'user_environment/user_env_invalid_env_name' as const;
 /*
 
  |------------------------------------|

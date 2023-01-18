@@ -205,11 +205,6 @@
   @include dark-editor-theme;
 }
 
-:root {
-  @include dark-theme;
-  @include blue-theme;
-}
-
 :root.black {
   @include black-theme;
   @include black-editor-theme;

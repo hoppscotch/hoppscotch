@@ -1,12 +1,18 @@
-import path from "path"
-import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
-import Components from "unplugin-vue-components/vite"
+import path from "path"
+import { FileSystemIconLoader } from "unplugin-icons/loaders"
 import IconResolver from "unplugin-icons/resolver"
+import Icons from "unplugin-icons/vite"
+import Components from "unplugin-vue-components/vite"
+import { defineConfig } from "vite"
+import WindiCSS from "vite-plugin-windicss"
 
 module.exports = defineConfig({
   plugins: [
     vue(),
+    WindiCSS({
+      root: path.resolve(__dirname),
+    }),
     Components({
       dts: "./src/components.d.ts",
       dirs: ["./src/components"],
@@ -17,6 +23,16 @@ module.exports = defineConfig({
           customCollections: ["hopp", "auth", "brands"],
         }),
       ],
+    }),
+    Icons({
+      compiler: "vue3",
+      customCollections: {
+        hopp: FileSystemIconLoader("../hoppscotch-common/assets/icons"),
+        auth: FileSystemIconLoader("../hoppscotch-common/assets/icons/auth"),
+        brands: FileSystemIconLoader(
+          "../hoppscotch-common/assets/icons/brands"
+        ),
+      },
     }),
   ], // to process SFC
   build: {

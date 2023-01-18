@@ -20,7 +20,6 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(accessToken, refreshToken, profile, done) {
-    console.dir(profile);
     const user = await this.usersService.findUserByEmail(
       profile.emails[0].value,
     );
@@ -34,7 +33,10 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       return createdUser;
     }
 
-    // Check to see if entry for github is present in the Account table for this user
+    /**
+     * * Check to see if entry for Github is present in the Account table for user
+     * * If user was created with another provider findUserByEmail may return true
+     */
     const providerAccountExists =
       await this.authService.checkIfProviderAccountExists(user.value, profile);
 

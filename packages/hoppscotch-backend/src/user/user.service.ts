@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as O from 'fp-ts/Option';
-import { AuthUser, SSOProviderProfile } from 'src/types/AuthUser';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Injectable()
 export class UserService {
@@ -69,7 +69,12 @@ export class UserService {
     return createdUser;
   }
 
-  async createProviderAccount(user, accessToken, refreshToken, profile) {
+  async createProviderAccount(
+    user: AuthUser,
+    accessToken: string,
+    refreshToken: string,
+    profile,
+  ) {
     const createdProvider = await this.prisma.account.create({
       data: {
         provider: profile.provider,

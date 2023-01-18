@@ -40,26 +40,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
 
     const user = await this.usersService.findUserById(payload.sub);
-
     if (O.isNone(user)) {
       throw new UnauthorizedException(USER_NOT_FOUND);
     }
-
-    const profile = {
-      provider: 'email',
-      id: user.value.email,
-    };
-
-    const providerAccountExists =
-      await this.authService.checkIfProviderAccountExists(user.value, profile);
-
-    if (!providerAccountExists)
-      await this.usersService.createProviderAccount(
-        user.value,
-        null,
-        null,
-        profile,
-      );
 
     return user.value;
   }

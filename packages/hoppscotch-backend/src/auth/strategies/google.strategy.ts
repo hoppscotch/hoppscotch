@@ -33,7 +33,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       return createdUser;
     }
 
-    // Check to see if entry for google is present in the Account table for this user
+    /**
+     * * Check to see if entry for Google is present in the Account table for user
+     * * If user was created with another provider findUserByEmail may return true
+     */
     const providerAccountExists =
       await this.authService.checkIfProviderAccountExists(user.value, profile);
 

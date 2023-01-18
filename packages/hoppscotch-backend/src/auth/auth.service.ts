@@ -224,7 +224,10 @@ export class AuthService {
         statusCode: HttpStatus.NOT_FOUND,
       });
 
-    // Check to see if entry for magic-link is present in the Account table for this user
+    /**
+     * * Check to see if entry for Magic-Link is present in the Account table for user
+     * * If user was created with another provider findUserByEmail may return true
+     */
     const profile = {
       provider: 'email',
       id: user.value.email,

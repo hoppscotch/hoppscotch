@@ -79,10 +79,10 @@ model TeamEnvironment {
 }
 
 model User {
-  id                       String                     @id @default(cuid())
-  name                     String?
+  uid                       String                     @id @default(cuid()) @map("id")
+  displayName                     String?
   email                    String?                    @unique
-  image                    String?
+  photoURL                    String?
   isAdmin                  Boolean                    @default(false)
   refreshToken             String?
   accounts                 Account[]
@@ -100,7 +100,7 @@ model Account {
   providerScope        String?
   loggedIn             DateTime @default(now()) @db.Timestamp(3)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [uid], onDelete: Cascade)
 
   @@unique(fields: [provider, providerAccountId], name: "verifyProviderAccount")
 }
@@ -109,7 +109,7 @@ model PasswordlessVerification {
   deviceIdentifier String
   token      String   @unique @default(cuid())
   userUid    String
-  user       User     @relation(fields: [userUid], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   expiresOn  DateTime @db.Timestamp(3)
 
   @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")

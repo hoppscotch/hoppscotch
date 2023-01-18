@@ -5,13 +5,13 @@ export class User {
   @Field(() => ID, {
     description: 'ID of the user',
   })
-  id: string;
+  uid: string;
 
   @Field({
     nullable: true,
     description: 'Name of the user (if fetched)',
   })
-  name?: string;
+  displayName?: string;
 
   @Field({
     nullable: true,
@@ -23,7 +23,7 @@ export class User {
     nullable: true,
     description: 'URL to the profile photo of the user (if fetched)',
   })
-  image?: string;
+  photoURL?: string;
 
   @Field({
     description: 'Flag to determine if user is an Admin or not',

@@ -15,11 +15,11 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
       clientID: process.env.MICROSOFT_CLIENT_ID,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
       callbackURL: process.env.MICROSOFT_CALLBACK_URL,
-      scope: process.env.MICROSOFT_SCOPE,
+      scope: [process.env.MICROSOFT_SCOPE],
     });
   }
 
-  async validate(accessToken, refreshToken, profile, done) {
+  async validate(accessToken: string, refreshToken: string, profile, done) {
     const user = await this.usersService.findUserByEmail(
       profile.emails[0].value,
     );

@@ -160,3 +160,8 @@ export const authCookieHandler = (
     res.status(HttpStatus.OK).redirect('http://localhost:3170/graphql');
   } else res.status(HttpStatus.OK).send();
 };
+
+export const checkNullability = (data: string | undefined | null) => {
+  if (!data) return null;
+  return data;
+};

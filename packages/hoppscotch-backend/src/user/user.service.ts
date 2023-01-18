@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as O from 'fp-ts/Option';
 import { AuthUser, SSOProviderProfile } from 'src/types/AuthUser';
+import { checkNullability } from 'src/utils';
 
 @Injectable()
 export class UserService {
@@ -49,12 +50,12 @@ export class UserService {
     return createdUser;
   }
 
-  async createUserSSO(accessToken, refreshToken, profile) {
+  async createUserSSO(accessToken: string, refreshToken: string, profile) {
     const createdUser = await this.prisma.user.create({
       data: {
-        name: profile.displayName,
+        name: !profile.displayName ? null : profile.displayName,
         email: profile.emails[0].value,
-        image: profile.photos[0].value,
+        image: !profile.photos ? null : profile.photos[0].value,
         accounts: {
           create: {
             provider: profile.provider,

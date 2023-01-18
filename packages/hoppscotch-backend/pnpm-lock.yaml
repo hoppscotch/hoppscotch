@@ -23,6 +23,7 @@ specifiers:
   '@types/passport-github2': ^1.2.5
   '@types/passport-google-oauth20': ^2.0.11
   '@types/passport-jwt': ^3.0.8
+  '@types/passport-microsoft': ^0.0.0
   '@types/supertest': ^2.0.12
   '@typescript-eslint/eslint-plugin': ^5.45.0
   '@typescript-eslint/parser': ^5.45.0
@@ -51,6 +52,7 @@ specifiers:
   passport-google-oauth20: ^2.0.0
   passport-jwt: ^4.0.1
   passport-local: ^1.0.0
+  passport-microsoft: ^1.0.0
   postmark: ^3.0.15
   prettier: ^2.8.0
   prisma: ^4.7.1
@@ -93,6 +95,7 @@ dependencies:
   passport-google-oauth20: 2.0.0
   passport-jwt: 4.0.1
   passport-local: 1.0.0
+  passport-microsoft: 1.0.0
   postmark: 3.0.15
   prisma: 4.8.1
   reflect-metadata: 0.1.13
@@ -114,6 +117,7 @@ devDependencies:
   '@types/passport-github2': 1.2.5
   '@types/passport-google-oauth20': 2.0.11
   '@types/passport-jwt': 3.0.8
+  '@types/passport-microsoft': 0.0.0
   '@types/supertest': 2.0.12
   '@typescript-eslint/eslint-plugin': 5.48.1_3jon24igvnqaqexgwtxk6nkpse
   '@typescript-eslint/parser': 5.48.1_iukboom6ndih5an6iafl45j2fe
@@ -1802,6 +1806,12 @@ packages:
       '@types/express': 4.17.15
       '@types/jsonwebtoken': 9.0.0
       '@types/passport-strategy': 0.2.35
+    dev: true
+
+  /@types/passport-microsoft/0.0.0:
+    resolution: {integrity: sha512-jfkltRosn+P/+RoFMTl+mCyBTgPTFhjDEF832j7fmlYpuf+5yuzPLz7Rm5XMKN/Gqpro6myCyGPTuCc4yBQ2jQ==}
+    dependencies:
+      '@types/passport-oauth2': 1.4.11
     dev: true
 
   /@types/passport-oauth2/1.4.11:
@@ -5114,6 +5124,14 @@ packages:
       passport-strategy: 1.0.0
     dev: false
 
+  /passport-microsoft/1.0.0:
+    resolution: {integrity: sha512-L1JHeCbSObSZZXiG7jU2KoKie6nzZLwGt38HXz1GasKrsCQdOnf5kH8ltV4BWNUfBL2Pt1csWn1iuBSerprrcg==}
+    engines: {node: '>= 0.4.0'}
+    dependencies:
+      passport-oauth2: 1.6.1
+      pkginfo: 0.4.1
+    dev: false
+
   /passport-oauth2/1.6.1:
     resolution: {integrity: sha512-ZbV43Hq9d/SBSYQ22GOiglFsjsD1YY/qdiptA+8ej+9C1dL1TVB+mBE5kDH/D4AJo50+2i8f4bx0vg4/yDDZCQ==}
     engines: {node: '>= 0.4.0'}
@@ -5191,6 +5209,11 @@ packages:
     dependencies:
       find-up: 4.1.0
     dev: true
+
+  /pkginfo/0.4.1:
+    resolution: {integrity: sha512-8xCNE/aT/EXKenuMDZ+xTVwkT8gsoHN2z/Q29l80u0ppGEXVvsKRzNMbtKhg8LS8k1tJLAHHylf6p4VFmP6XUQ==}
+    engines: {node: '>= 0.4.0'}
+    dev: false
 
   /pluralize/8.0.0:
     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}

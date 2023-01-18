@@ -77,4 +77,23 @@ export class AuthController {
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, true);
   }
+
+  @Get('microsoft')
+  @UseGuards(AuthGuard('microsoft'))
+  async microsoftAuth(@Request() req) {}
+
+  @Get('microsoft/callback')
+  @UseGuards(AuthGuard('microsoft'))
+  async microsoftAuthRedirect(@Request() req, @Res() res) {
+    const authTokens = await this.authService.generateAuthTokens(req.user.id);
+    if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
+    authCookieHandler(res, authTokens.right, true);
+  }
+
+  @Get('logout')
+  async logout(@Res() res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return res.redirect(process.env.REDIRECT_URL);
+  }
 }

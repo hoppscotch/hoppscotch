@@ -1,4 +1,4 @@
-import { Strategy } from 'passport-github2';
+import { Strategy } from 'passport-microsoft';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
@@ -6,21 +6,20 @@ import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
 
 @Injectable()
-export class GithubStrategy extends PassportStrategy(Strategy) {
+export class MicrosoftStrategy extends PassportStrategy(Strategy) {
   constructor(
     private authService: AuthService,
     private usersService: UserService,
   ) {
     super({
-      clientID: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: process.env.GITHUB_CALLBACK_URL,
-      scope: [process.env.GITHUB_SCOPE],
+      clientID: process.env.MICROSOFT_CLIENT_ID,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+      callbackURL: process.env.MICROSOFT_CALLBACK_URL,
+      scope: process.env.MICROSOFT_SCOPE,
     });
   }
 
   async validate(accessToken, refreshToken, profile, done) {
-    console.dir(profile);
     const user = await this.usersService.findUserByEmail(
       profile.emails[0].value,
     );
@@ -34,7 +33,7 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
       return createdUser;
     }
 
-    // Check to see if entry for github is present in the Account table for this user
+    // Check to see if entry for microsoft is present in the Account table for this user
     const providerAccountExists =
       await this.authService.checkIfProviderAccountExists(user.value, profile);
 

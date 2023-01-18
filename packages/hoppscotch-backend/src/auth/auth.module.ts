@@ -10,6 +10,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { GithubStrategy } from './strategies/github.strategy';
+import { MicrosoftStrategy } from './strategies/microsoft.strategy';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { GithubStrategy } from './strategies/github.strategy';
     RTJwtStrategy,
     GoogleStrategy,
     GithubStrategy,
+    MicrosoftStrategy,
   ],
   controllers: [AuthController],
 })

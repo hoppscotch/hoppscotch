@@ -112,7 +112,7 @@ const emit = defineEmits<{
   (e: "submit", body: MQTTTopic): void
 }>()
 
-const QoS = ref<typeof QOS_VALUES[number]>(2)
+const QoS = ref<(typeof QOS_VALUES)[number]>(2)
 const name = ref("")
 const color = ref("#f58290")
 

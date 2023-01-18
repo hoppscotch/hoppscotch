@@ -185,7 +185,7 @@ export const CodegenDefinitions = [
 /**
  * A type which defines all the valid code generators
  */
-export type CodegenName = typeof CodegenDefinitions[number]["name"]
+export type CodegenName = (typeof CodegenDefinitions)[number]["name"]
 
 /**
  * Generates Source Code for the given codgen

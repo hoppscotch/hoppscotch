@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as O from 'fp-ts/Option';
 import { AuthUser, SSOProviderProfile } from 'src/types/AuthUser';
-import { checkNullability } from 'src/utils';
 
 @Injectable()
 export class UserService {

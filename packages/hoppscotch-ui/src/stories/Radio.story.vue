@@ -1,5 +1,5 @@
 <template>
-  <Story title="Button">
+  <Story title="Radio">
     <Variant title="Single">
       <SmartRadio />
     </Variant>

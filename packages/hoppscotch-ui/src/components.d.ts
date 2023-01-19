@@ -33,4 +33,5 @@ declare module '@vue/runtime-core' {
     SmartWindow: typeof import('./components/smart/Window.vue')['default']
     SmartWindows: typeof import('./components/smart/Windows.vue')['default']
   }
+
 }

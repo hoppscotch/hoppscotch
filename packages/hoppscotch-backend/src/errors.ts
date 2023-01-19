@@ -9,6 +9,12 @@ export const EMAIL_FAILED = 'email/failed' as const;
 export const AUTH_FAIL = 'auth/fail';
 
 /**
+ * Invalid JSON
+ * (Utils)
+ */
+export const JSON_INVALID = 'json_invalid';
+
+/**
  * Tried to delete an user data document from fb firestore but failed.
  * (FirebaseService)
  */
@@ -160,7 +166,7 @@ export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
  * (UserEnvironmentsService)
  */
 export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
-  'user_environment/global_env_doesnt_exists' as const;
+  'user_environment/global_env_does_not_exists' as const;
 /*
 
 /**
@@ -176,7 +182,7 @@ export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
  * (UserEnvironmentsService)
  */
 export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
-  'user_environment/user_env_doesnt_exists' as const;
+  'user_environment/user_env_does_not_exists' as const;
 /*
 
 /**

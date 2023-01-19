@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PubSubService } from './pubsub/pubsub.service';
 import { PrimitiveTypes } from './types/primitive-types';
-import { ModuleTypes } from './types/module-types';
+import { CustomModuleTypes } from './types/custom-module-types';
+import { SubscriptionType } from './types/subscription-types';
 
 // Custom generic type to indicate the type of module
-type ModuleType = PrimitiveTypes | ModuleTypes;
-
-// Contains constants for the subscription types we use in Subscription Handler
-enum SubscriptionType {
-  Created = 'created',
-  Updated = 'updated',
-  Deleted = 'deleted',
-  DeleteMany = 'delete_many',
-}
+type ModuleType = PrimitiveTypes | CustomModuleTypes;
 
 @Injectable()
 export class SubscriptionHandler {
@@ -20,8 +13,8 @@ export class SubscriptionHandler {
 
   /**
    * Publishes a subscription using the pubsub module
-   * @param topic a string containing the module name, an uid and the type of subscription
-   * @param subscriptionType type of subscription being called
+   * @param topic a string containing the "module_name/identifier"
+   * @param subscriptionType type of subscription being published
    * @param moduleType type of the module model being called
    * @returns a promise of type void
    */

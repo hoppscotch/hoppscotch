@@ -6,7 +6,7 @@ import { ModuleTypes } from './types/module-types';
 // Custom generic type to indicate the type of module
 type ModuleType = PrimitiveTypes | ModuleTypes;
 
-// Contains constants for the subscription types we send to pubsub service
+// Contains constants for the subscription types we use in Subscription Handler
 enum SubscriptionType {
   Created = 'created',
   Updated = 'updated',
@@ -20,7 +20,8 @@ export class SubscriptionHandler {
 
   /**
    * Publishes a subscription using the pubsub module
-   * @param topic a string containing the module name, a uid and the type of subscription
+   * @param topic a string containing the module name, an uid and the type of subscription
+   * @param subscriptionType type of subscription being called
    * @param moduleType type of the module model being called
    * @returns a promise of type void
    */

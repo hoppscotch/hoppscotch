@@ -146,30 +146,15 @@ export const authCookieHandler = (
   authTokens: AuthTokens,
   redirect: boolean,
 ) => {
-  const currentTime = DateTime.now();
-  const accessTokenValidity = currentTime.plus({
-    millisecond: parseInt(process.env.ACCESS_TOKEN_VALIDITY),
-  });
-  const refreshTokenValidity = currentTime.plus({
-    millisecond: parseInt(process.env.REFRESH_TOKEN_VALIDITY),
-  });
-  console.log(process.env.ACCESS_TOKEN_VALIDITY, accessTokenValidity);
-  console.log(process.env.REFRESH_TOKEN_VALIDITY, refreshTokenValidity);
-  console.log(process.env.REDIRECT_URL);
-
   res.cookie('access_token', authTokens.access_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
-    maxAge: accessTokenValidity.toMillis(),
-    expires: accessTokenValidity.toJSDate(),
   });
   res.cookie('refresh_token', authTokens.refresh_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
-    maxAge: refreshTokenValidity.toMillis(),
-    expires: refreshTokenValidity.toJSDate(),
   });
   if (redirect) {
     res.status(HttpStatus.OK).redirect('http://localhost:3170/graphql');

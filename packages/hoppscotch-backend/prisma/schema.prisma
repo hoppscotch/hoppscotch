@@ -79,10 +79,10 @@ model TeamEnvironment {
 }
 
 model User {
-  uid                       String                     @id @default(cuid()) @map("id")
-  displayName                     String?
+  uid                      String                     @id @default(cuid())
+  displayName              String?
   email                    String?                    @unique
-  photoURL                    String?
+  photoURL                 String?
   isAdmin                  Boolean                    @default(false)
   refreshToken             String?
   accounts                 Account[]
@@ -107,10 +107,10 @@ model Account {
 
 model PasswordlessVerification {
   deviceIdentifier String
-  token      String   @unique @default(cuid())
-  userUid    String
-  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  expiresOn  DateTime @db.Timestamp(3)
+  token            String   @unique @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  expiresOn        DateTime @db.Timestamp(3)
 
   @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
 }

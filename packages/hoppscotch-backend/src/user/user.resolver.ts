@@ -13,7 +13,7 @@ export class UserResolver {
       "Gives details of the user executing this query (pass Authorization 'Bearer' header)",
   })
   @UseGuards(GqlAuthGuard)
-  me(@GqlUser() user: User): User {
+  me(@GqlUser() user) {
     return user;
   }
 }

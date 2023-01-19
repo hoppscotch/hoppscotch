@@ -61,7 +61,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Request() req, @Res() res) {
-    const authTokens = await this.authService.generateAuthTokens(req.user.id);
+    const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, true);
   }
@@ -73,7 +73,7 @@ export class AuthController {
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
   async githubAuthRedirect(@Request() req, @Res() res) {
-    const authTokens = await this.authService.generateAuthTokens(req.user.id);
+    const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, true);
   }
@@ -85,7 +85,7 @@ export class AuthController {
   @Get('microsoft/callback')
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@Request() req, @Res() res) {
-    const authTokens = await this.authService.generateAuthTokens(req.user.id);
+    const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, true);
   }
@@ -94,6 +94,6 @@ export class AuthController {
   async logout(@Res() res: Response) {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
-    return res.redirect(process.env.REDIRECT_URL);
+    return res.status(200).send();
   }
 }

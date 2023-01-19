@@ -48,7 +48,7 @@ export class AuthService {
     const idToken = await this.prismaService.passwordlessVerification.create({
       data: {
         deviceIdentifier: salt,
-        userUid: user.id,
+        userUid: user.uid,
         expiresOn: expiresOn,
       },
     });
@@ -77,7 +77,7 @@ export class AuthService {
     try {
       const user = await this.prismaService.user.update({
         where: {
-          id: userUid,
+          uid: userUid,
         },
         data: {
           refreshToken: tokenHash,
@@ -290,7 +290,7 @@ export class AuthService {
         statusCode: HttpStatus.NOT_FOUND,
       });
 
-    const generatedAuthTokens = await this.generateAuthTokens(user.id);
+    const generatedAuthTokens = await this.generateAuthTokens(user.uid);
     if (E.isLeft(generatedAuthTokens))
       return E.left({
         message: generatedAuthTokens.left.message,

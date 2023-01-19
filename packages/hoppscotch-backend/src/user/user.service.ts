@@ -24,7 +24,7 @@ export class UserService {
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
         where: {
-          id: userUid,
+          uid: userUid,
         },
       });
       return O.some(user);
@@ -52,9 +52,9 @@ export class UserService {
   async createUserSSO(accessToken: string, refreshToken: string, profile) {
     const createdUser = await this.prisma.user.create({
       data: {
-        name: !profile.displayName ? null : profile.displayName,
+        displayName: !profile.displayName ? null : profile.displayName,
         email: profile.emails[0].value,
-        image: !profile.photos ? null : profile.photos[0].value,
+        photoURL: !profile.photos ? null : profile.photos[0].value,
         accounts: {
           create: {
             provider: profile.provider,
@@ -83,7 +83,7 @@ export class UserService {
         providerAccessToken: accessToken ? accessToken : null,
         user: {
           connect: {
-            id: user.id,
+            uid: user.uid,
           },
         },
       },

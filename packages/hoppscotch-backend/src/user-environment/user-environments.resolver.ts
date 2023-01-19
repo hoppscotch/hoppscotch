@@ -194,7 +194,7 @@ export class UserEnvironmentsResolver {
     return this.pubsub.asyncIterator(`user_environment/${id}/deleted`);
   }
 
-  @Subscription(() => UserEnvironment, {
+  @Subscription(() => Number, {
     description: 'Listen for User Environment DeleteMany',
     resolve: (value) => value,
   })

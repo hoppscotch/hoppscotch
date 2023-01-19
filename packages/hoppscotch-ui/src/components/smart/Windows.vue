@@ -88,7 +88,6 @@ import * as O from "fp-ts/Option"
 import { ref, ComputedRef, computed, provide } from "vue"
 import type { Slot } from "vue"
 import draggable from "vuedraggable"
-import { throwError } from "~/helpers/functional/error"
 
 export type TabMeta = {
   label: string | null
@@ -131,6 +130,11 @@ const emit = defineEmits<{
   (e: "removeTab", tabID: string): void
   (e: "addTab"): void
 }>()
+
+const throwError = (message: string): never => {
+  throw new Error(message)
+}
+
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 const tabStyles = computed(() => ({
   maxWidth: `${tabEntries.value.length * 184}px`,

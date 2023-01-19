@@ -5,7 +5,7 @@ import { UserModule } from 'src/user/user.module';
 import { MailerModule } from 'src/mailer/mailer.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { PassportModule } from '@nestjs/passport';
-import { JwtModule } from '@nestjs/jwt/dist';
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RTJwtStrategy } from './strategies/rt-jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';

@@ -16,8 +16,7 @@ export class UserEnvsUserResolver {
   }
 
   @ResolveField(() => UserEnvironment, {
-    description:
-      'Returns a list of user variables inside a global environments',
+    description: 'Returns the users global environments',
   })
   async globalEnvironments(
     @Parent() user: User,

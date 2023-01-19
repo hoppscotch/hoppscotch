@@ -19,8 +19,7 @@ export class UserEnvironmentsResolver {
   /* Mutations */
 
   @Mutation(() => UserEnvironment, {
-    description:
-      'Create a new personal or global user environment for given user uid',
+    description: 'Create a new personal user environment for given user uid',
   })
   @UseGuards(GqlAuthGuard)
   async createUserEnvironment(
@@ -36,12 +35,8 @@ export class UserEnvironmentsResolver {
       description: 'JSON string of the variables object',
     })
     variables: string,
-    @Args({
-      name: 'isGlobal',
-      description: 'isGlobal flag to indicate personal or global environment',
-    })
-    isGlobal: boolean,
   ): Promise<UserEnvironment> {
+    const isGlobal = false;
     const userEnvironment =
       await this.userEnvironmentsService.createUserEnvironment(
         user.uid,
@@ -54,8 +49,32 @@ export class UserEnvironmentsResolver {
   }
 
   @Mutation(() => UserEnvironment, {
-    description:
-      'Update a users personal or global environment based on environment id',
+    description: 'Create a new global user environment for given user uid',
+  })
+  @UseGuards(GqlAuthGuard)
+  async createUserGlobalEnvironment(
+    @GqlUser() user: User,
+    @Args({
+      name: 'variables',
+      description: 'JSON string of the variables object',
+    })
+    variables: string,
+  ): Promise<UserEnvironment> {
+    const isGlobal = true;
+    const globalEnvName: string = null;
+    const userEnvironment =
+      await this.userEnvironmentsService.createUserEnvironment(
+        user.uid,
+        globalEnvName,
+        variables,
+        isGlobal,
+      );
+    if (E.isLeft(userEnvironment)) throwErr(userEnvironment.left);
+    return userEnvironment.right;
+  }
+
+  @Mutation(() => UserEnvironment, {
+    description: 'Updates a users personal or global environment',
   })
   @UseGuards(GqlAuthGuard)
   async updateUserEnvironment(
@@ -88,7 +107,7 @@ export class UserEnvironmentsResolver {
   }
 
   @Mutation(() => UserEnvironment, {
-    description: 'Deletes a users personal environment based on environment id',
+    description: 'Deletes a users personal environment',
   })
   @UseGuards(GqlAuthGuard)
   async deleteUserEnvironment(
@@ -99,7 +118,7 @@ export class UserEnvironmentsResolver {
       type: () => ID,
     })
     id: string,
-  ): Promise<UserEnvironment> {
+  ): Promise<boolean> {
     const userEnvironment =
       await this.userEnvironmentsService.deleteUserEnvironment(user.uid, id);
     if (E.isLeft(userEnvironment)) throwErr(userEnvironment.left);
@@ -110,7 +129,7 @@ export class UserEnvironmentsResolver {
     description: 'Deletes users all personal environments',
   })
   @UseGuards(GqlAuthGuard)
-  async deleteUserEnvironments(@GqlUser() user: User): Promise<number> {
+  async deleteUserEnvironments(@GqlUser() user: User): Promise<void> {
     return await this.userEnvironmentsService.deleteUserEnvironments(user.uid);
   }
 
@@ -118,7 +137,7 @@ export class UserEnvironmentsResolver {
     description: 'Deletes all variables inside a users global environment',
   })
   @UseGuards(GqlAuthGuard)
-  async deleteAllVariablesFromUsersGlobalEnvironment(
+  async clearGlobalEnvironments(
     @GqlUser() user: User,
     @Args({
       name: 'id',
@@ -128,10 +147,7 @@ export class UserEnvironmentsResolver {
     id: string,
   ): Promise<UserEnvironment> {
     const userEnvironment =
-      await this.userEnvironmentsService.deleteAllVariablesFromUsersGlobalEnvironment(
-        user.uid,
-        id,
-      );
+      await this.userEnvironmentsService.clearGlobalEnvironments(user.uid, id);
     if (E.isLeft(userEnvironment)) throwErr(userEnvironment.left);
     return userEnvironment.right;
   }
@@ -146,7 +162,7 @@ export class UserEnvironmentsResolver {
   userEnvironmentCreated(
     @Args({
       name: 'userUid',
-      description: 'users uid',
+      description: 'Users uid',
       type: () => ID,
     })
     userUid: string,
@@ -162,7 +178,7 @@ export class UserEnvironmentsResolver {
   userEnvironmentUpdated(
     @Args({
       name: 'id',
-      description: 'environment id',
+      description: 'Environment id',
       type: () => ID,
     })
     id: string,
@@ -178,7 +194,7 @@ export class UserEnvironmentsResolver {
   userEnvironmentDeleted(
     @Args({
       name: 'id',
-      description: 'environment id',
+      description: 'Environment id',
       type: () => ID,
     })
     id: string,

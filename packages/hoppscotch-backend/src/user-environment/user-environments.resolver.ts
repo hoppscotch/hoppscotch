@@ -105,7 +105,7 @@ export class UserEnvironmentsResolver {
     return userEnvironment.right;
   }
 
-  @Mutation(() => UserEnvironment, {
+  @Mutation(() => Boolean, {
     description: 'Deletes a users personal environment',
   })
   @UseGuards(GqlAuthGuard)

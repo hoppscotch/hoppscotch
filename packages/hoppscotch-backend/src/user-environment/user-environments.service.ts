@@ -225,6 +225,8 @@ export class UserEnvironmentsService {
       SubscriptionType.DeleteMany,
       deletedEnvironments.count,
     );
+
+    return deletedEnvironments.count;
   }
 
   /**

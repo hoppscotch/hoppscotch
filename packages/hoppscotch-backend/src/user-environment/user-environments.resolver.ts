@@ -128,7 +128,7 @@ export class UserEnvironmentsResolver {
     description: 'Deletes all of users personal environments',
   })
   @UseGuards(GqlAuthGuard)
-  async deleteUserEnvironments(@GqlUser() user: User): Promise<void> {
+  async deleteUserEnvironments(@GqlUser() user: User): Promise<number> {
     return await this.userEnvironmentsService.deleteUserEnvironments(user.uid);
   }
 

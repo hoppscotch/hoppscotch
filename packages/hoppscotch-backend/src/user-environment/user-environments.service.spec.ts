@@ -10,6 +10,7 @@ import {
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { SubscriptionHandler } from '../subscription-handler';
+import { SubscriptionType } from '../types/subscription-types';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -22,13 +23,6 @@ const userEnvironmentsService = new UserEnvironmentsService(
   mockPubSub as any,
   mockSubscriptionHandler,
 );
-
-enum SubscriptionType {
-  Created = 'created',
-  Updated = 'updated',
-  Deleted = 'deleted',
-  DeleteMany = 'delete_many',
-}
 
 const userPersonalEnvironments = [
   {
@@ -344,7 +338,9 @@ describe('UserEnvironmentsService', () => {
     });
 
     test('Should resolve left and not update a users environment if env doesnt exist ', async () => {
-      mockPrisma.userEnvironment.update.mockRejectedValueOnce({});
+      mockPrisma.userEnvironment.update.mockRejectedValueOnce(
+        'RejectOnNotFound',
+      );
 
       return expect(
         await userEnvironmentsService.updateUserEnvironment(
@@ -355,7 +351,7 @@ describe('UserEnvironmentsService', () => {
       ).toEqualLeft(USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS);
     });
 
-    test('Should resolve right, update a users personal environment and publish an updated subscription ', async () => {
+    test('Should update a users personal environment and publish an updated subscription ', async () => {
       mockPrisma.userEnvironment.update.mockResolvedValueOnce({
         userUid: 'abc123',
         id: '123',
@@ -385,7 +381,7 @@ describe('UserEnvironmentsService', () => {
       );
     });
 
-    test('Should resolve right, update a users global environment and publish an updated subscription ', async () => {
+    test('Should update a users global environment and publish an updated subscription ', async () => {
       mockPrisma.userEnvironment.update.mockResolvedValueOnce({
         userUid: 'abc123',
         id: '123',

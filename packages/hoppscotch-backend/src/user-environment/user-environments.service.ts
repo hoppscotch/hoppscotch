@@ -14,14 +14,8 @@ import {
   USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME,
 } from '../errors';
 import { SubscriptionHandler } from '../subscription-handler';
-
-// Contains constants for the subscription types we send to subscription handler
-enum SubscriptionType {
-  Created = 'created',
-  Updated = 'updated',
-  Deleted = 'deleted',
-  DeleteMany = 'delete_many',
-}
+import { SubscriptionType } from '../types/subscription-types';
+import { stringToJson } from '../utils';
 
 @Injectable()
 export class UserEnvironmentsService {
@@ -106,11 +100,13 @@ export class UserEnvironmentsService {
     if (name === null && !isGlobal)
       return E.left(USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME);
 
+    const envVariables = stringToJson(variables);
+    if (E.isLeft(envVariables)) return E.left(envVariables.left);
     const createdEnvironment = await this.prisma.userEnvironment.create({
       data: {
         userUid: uid,
         name: name,
-        variables: JSON.parse(variables),
+        variables: envVariables.right,
         isGlobal: isGlobal,
       },
     });
@@ -139,12 +135,14 @@ export class UserEnvironmentsService {
    * @returns an Either of `UserEnvironment` or error
    */
   async updateUserEnvironment(id: string, name: string, variables: string) {
+    const envVariables = stringToJson(variables);
+    if (E.isLeft(envVariables)) return E.left(envVariables.left);
     try {
       const updatedEnvironment = await this.prisma.userEnvironment.update({
         where: { id: id },
         data: {
           name: name,
-          variables: JSON.parse(variables),
+          variables: envVariables.right,
         },
       });
 

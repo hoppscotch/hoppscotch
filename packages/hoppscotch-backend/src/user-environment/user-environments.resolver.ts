@@ -61,11 +61,10 @@ export class UserEnvironmentsResolver {
     variables: string,
   ): Promise<UserEnvironment> {
     const isGlobal = true;
-    const globalEnvName: string = null;
     const userEnvironment =
       await this.userEnvironmentsService.createUserEnvironment(
         user.uid,
-        globalEnvName,
+        null,
         variables,
         isGlobal,
       );
@@ -126,7 +125,7 @@ export class UserEnvironmentsResolver {
   }
 
   @Mutation(() => Number, {
-    description: 'Deletes users all personal environments',
+    description: 'Deletes all of users personal environments',
   })
   @UseGuards(GqlAuthGuard)
   async deleteUserEnvironments(@GqlUser() user: User): Promise<void> {
@@ -159,15 +158,8 @@ export class UserEnvironmentsResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userEnvironmentCreated(
-    @Args({
-      name: 'userUid',
-      description: 'Users uid',
-      type: () => ID,
-    })
-    userUid: string,
-  ) {
-    return this.pubsub.asyncIterator(`user_environment/${userUid}/created`);
+  userEnvironmentCreated(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_environment/${user.uid}/created`);
   }
 
   @Subscription(() => UserEnvironment, {
@@ -200,5 +192,16 @@ export class UserEnvironmentsResolver {
     id: string,
   ) {
     return this.pubsub.asyncIterator(`user_environment/${id}/deleted`);
+  }
+
+  @Subscription(() => UserEnvironment, {
+    description: 'Listen for User Environment DeleteMany',
+    resolve: (value) => value,
+  })
+  @UseGuards(GqlAuthGuard)
+  userEnvironmentDeleteMany(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(
+      `user_environment/${user.uid}/delete_many`,
+    );
   }
 }

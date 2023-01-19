@@ -91,7 +91,7 @@ model UserSettings {
   userUid   String   @unique
   user      User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   settings  Json
-  updatedOn DateTime @updatedAt @db.Timestamptz(3)
+  updatedOn DateTime @updatedAt @db.Timestamp(3)
 }
 
 enum TeamMemberRole {

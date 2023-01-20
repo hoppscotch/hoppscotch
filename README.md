@@ -58,15 +58,15 @@
 - [Lightweight](#lightweight)
 - [Fast](#fast)
 - [Support](#support)
-- [Built with ❤️ by](#built-with-love)
-- [Help us to translate Hoppscotch](#translate)
-- [Add-ons](#addons)
-  - [Proxy](#proxy)
+- [Built with ❤️ by](#Authors)
+- [Help us to translate Hoppscotch](#i18n:)
+- [Add-ons](#Add-ons:)
+  - [Proxy](#Proxy:)
   - [Auth + Sync](#auth-sync)
 - [Developing](#developing)
   - [Docker](#docker)
   - [Local](#local)
-  - [Production (Releasing)](#production)
+  - [Production](#production)
 
 
 #### **Support**
@@ -301,12 +301,12 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 _Sample keys only work with the [production build](https://hoppscotch.io)._
 
-### Browser-based development environment
+### Browser-based development environment{#Browser}
 
 - [GitHub codespace](https://docs.github.com/en/codespaces/developing-in-codespaces/creating-a-codespace)
 - [Gitpod](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
 
-### Local development environment
+### Local development environment {#Local}
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install pnpm using npm by running `npm install -g pnpm`.
@@ -314,7 +314,7 @@ _Sample keys only work with the [production build](https://hoppscotch.io)._
 4. Start the development server with `pnpm run dev`.
 5. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
-### Docker compose
+### Docker compose  {#Docker}
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Run `docker-compose up` within the directory that you cloned (probably `hoppscotch`).
@@ -328,7 +328,7 @@ _Sample keys only work with the [production build](https://hoppscotch.io)._
 docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
-## **Releasing**
+## **Releasing** {#Releasing}
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install pnpm using npm by running `npm install -g pnpm`.

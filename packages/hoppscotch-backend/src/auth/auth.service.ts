@@ -226,7 +226,7 @@ export class AuthService {
 
     /**
      * * Check to see if entry for Magic-Link is present in the Account table for user
-     * * If user was created with another provider findUserByEmail may return true
+     * * If user was created with another provider findUserById may return true
      */
     const profile = {
       provider: 'magic',

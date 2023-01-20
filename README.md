@@ -54,20 +54,28 @@
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
-- [HTTP Methods](#http-methods)
-- [Lightweight](#lightweight)
-- [Fast](#fast)
 - [Support](#support)
 - [Built with ❤️ by](#Authors)
 - [Help us to translate Hoppscotch](#i18n-)
 - [Add-ons](#Add-ons-)
   - [Proxy](#Proxy-)
-  - [Auth + Sync](#auth-sync)
+  - [Auth + Sync](#auth--sync)
 - [Developing](#developing)
   - [Docker](#docker)
   - [Local](#local)
   - [Production](#production)
 
+## Introduction
+
+Welcome to Hoppscotch, an open-source API development ecosystem that helps you create requests faster, saving precious time on development. 
+
+Hoppscotch is crafted with minimalistic UI design, making it lightweight and easy to use. It allows you to send requests and get/copy responses in real-time. With Hoppscotch, you can work with various HTTP methods such as GET, POST, PUT, PATCH, DELETE, and more. Additionally, it also allows you to use custom request methods.
+
+Customize the look and feel of Hoppscotch to make it your own with customizable combinations for background, foreground, and accent colors.
+
+We have a dedicated team of contributors who work to make Hoppscotch better with every update. If you would like to contribute, please check out our [code of conduct](CODE_OF_CONDUCT.md) and [contributing guidelines](CONTRIBUTING.md).
+
+Explore Hoppscotch and see how it can improve your API development experience. Thanks for choosing Hoppscotch!
 
 #### **Support**
 

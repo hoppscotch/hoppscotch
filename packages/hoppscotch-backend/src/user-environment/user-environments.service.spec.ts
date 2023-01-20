@@ -9,19 +9,15 @@ import {
   USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
-import { SubscriptionHandler } from '../subscription-handler';
-import { SubscriptionType } from '../types/subscription-types';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
-const mockSubscriptionHandler = mockDeep<SubscriptionHandler>();
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const userEnvironmentsService = new UserEnvironmentsService(
   mockPrisma,
   mockPubSub as any,
-  mockSubscriptionHandler,
 );
 
 const userPersonalEnvironments = [
@@ -245,9 +241,8 @@ describe('UserEnvironmentsService', () => {
         false,
       );
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/${result.userUid}`,
-        SubscriptionType.Created,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${result.userUid}/created`,
         result,
       );
     });
@@ -276,9 +271,8 @@ describe('UserEnvironmentsService', () => {
         true,
       );
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/${result.userUid}`,
-        SubscriptionType.Created,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${result.userUid}/created`,
         result,
       );
     });
@@ -374,9 +368,8 @@ describe('UserEnvironmentsService', () => {
         '[{}]',
       );
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}`,
-        SubscriptionType.Updated,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${result.id}/updated`,
         result,
       );
     });
@@ -404,9 +397,8 @@ describe('UserEnvironmentsService', () => {
         '[{}]',
       );
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}`,
-        SubscriptionType.Updated,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${result.id}/updated`,
         result,
       );
     });
@@ -470,9 +462,8 @@ describe('UserEnvironmentsService', () => {
 
       await userEnvironmentsService.deleteUserEnvironment('abc123', 'env1');
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}`,
-        SubscriptionType.Deleted,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${result.id}/deleted`,
         result,
       );
     });
@@ -486,9 +477,8 @@ describe('UserEnvironmentsService', () => {
 
       await userEnvironmentsService.deleteUserEnvironments('abc123');
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/abc123`,
-        SubscriptionType.DeleteMany,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${'abc123'}/deleted_many`,
         1,
       );
     });
@@ -566,9 +556,8 @@ describe('UserEnvironmentsService', () => {
 
       await userEnvironmentsService.clearGlobalEnvironments('abc123', 'env1');
 
-      return expect(mockSubscriptionHandler.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}`,
-        SubscriptionType.Updated,
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_environment/${result.id}/updated`,
         result,
       );
     });

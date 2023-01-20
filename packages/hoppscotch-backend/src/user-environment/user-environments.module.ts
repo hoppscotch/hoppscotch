@@ -5,7 +5,6 @@ import { UserModule } from '../user/user.module';
 import { UserEnvsUserResolver } from './user.resolver';
 import { UserEnvironmentsResolver } from './user-environments.resolver';
 import { UserEnvironmentsService } from './user-environments.service';
-import { SubscriptionHandler } from '../subscription-handler';
 
 @Module({
   imports: [PrismaModule, PubSubModule, UserModule],
@@ -13,7 +12,6 @@ import { SubscriptionHandler } from '../subscription-handler';
     UserEnvironmentsResolver,
     UserEnvironmentsService,
     UserEnvsUserResolver,
-    SubscriptionHandler,
   ],
   exports: [UserEnvironmentsService],
 })

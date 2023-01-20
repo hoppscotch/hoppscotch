@@ -50,38 +50,29 @@
     </a>
   </p>
 </div>
-<div>
-  <h2>Table of Contents</h2>
-  <ul>
-    <li><a href="#intro">Introduction</a></li>
-    <li><a href="#features">Features</a></li>
-    <li><a href="#http-methods">HTTP Methods</a></li>
-    <li><a href="#lightweight">Lightweight</a></li>
-    <li><a href="#fast">Fast</a></li>
-    <li><a href="#support">Support</a></li>
-    <li><a href="#built-with-love">Built with ❤️ by</a></li>
-    <li><a href="#translate">Help us to translate Hoppscotch</a></li>
-    <li><a href="#addons">Add-ons</a>
-      <ul>
-        <li><a href="#proxy">Proxy</a></li>
-        <li><a href="#auth-sync">Auth + Sync</a></li>
-      </ul>
-    </li>
-    <li><a href="#developing">Developing</a>
-      <ul>
-        <li><a href="#docker">Docker</a></li>
-        <li><a href="#local">Local</a></li>
-        <li><a href="#production">Production (Releasing)</a></li>
-      </ul>
-    </li>
-  </ul>
-</div>
+## Table of Contents
+- [Introduction](#introduction)
+- [Features](#features)
+- [HTTP Methods](#http-methods)
+- [Lightweight](#lightweight)
+- [Fast](#fast)
+- [Support](#support)
+- [Built with ❤️ by](#built-with-love)
+- [Help us to translate Hoppscotch](#translate)
+- [Add-ons](#addons)
+  - [Proxy](#proxy)
+  - [Auth + Sync](#auth-sync)
+- [Developing](#developing)
+  - [Docker](#docker)
+  - [Local](#local)
+  - [Production (Releasing)](#production)
+
 
 #### **Support**
 
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=telegram)](https://hoppscotch.io/telegram) [![Discuss on GitHub](https://img.shields.io/badge/discussions-GitHub-333333?logo=github)](https://github.com/hoppscotch/hoppscotch/discussions)
 
-<h2 id="translate" >### **Features** </h2 >
+### **Features** 
 
 ❤️ **Lightweight:** Crafted with minimalistic UI design.
 

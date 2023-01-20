@@ -59,9 +59,9 @@
 - [Fast](#fast)
 - [Support](#support)
 - [Built with ❤️ by](#Authors)
-- [Help us to translate Hoppscotch](#i18n:)
-- [Add-ons](#Add-ons:)
-  - [Proxy](#Proxy:)
+- [Help us to translate Hoppscotch](#i18n)
+- [Add-ons](#Add-ons)
+  - [Proxy](#Proxy)
   - [Auth + Sync](#auth-sync)
 - [Developing](#developing)
   - [Docker](#docker)
@@ -172,7 +172,7 @@ _Customized themes are synced with cloud / local session_
 
 _Collections are synced with cloud / local session storage_
 
-🌐 **Proxy:** Enable Proxy Mode from Settings to access blocked APIs.
+🌐 # **Proxy:** Enable Proxy Mode from Settings to access blocked APIs.
 
 - Hide your IP address
 - Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross-Origin Resource Sharing) issues
@@ -198,11 +198,11 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 > **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
 
-🌎 **i18n:** Experience the app in your language.
+🌎 # **i18n:** Experience the app in your language.
 
 Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-📦 **Add-ons:** Official add-ons for hoppscotch.
+📦 # **Add-ons:** Official add-ons for hoppscotch.
 
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch
 - **[CLI β](https://github.com/hoppscotch/hopp-cli)** - A CLI solution for Hoppscotch
@@ -301,12 +301,12 @@ _Add-ons are developed and maintained under **[Hoppscotch Organization](https://
 
 _Sample keys only work with the [production build](https://hoppscotch.io)._
 
-### Browser-based development environment{#Browser}
+### Browser based development environment
 
 - [GitHub codespace](https://docs.github.com/en/codespaces/developing-in-codespaces/creating-a-codespace)
 - [Gitpod](https://gitpod.io/#https://github.com/hoppscotch/hoppscotch)
 
-### Local development environment {#Local}
+### Local development environment
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install pnpm using npm by running `npm install -g pnpm`.
@@ -314,7 +314,7 @@ _Sample keys only work with the [production build](https://hoppscotch.io)._
 4. Start the development server with `pnpm run dev`.
 5. Open the development site by going to [`http://localhost:3000`](http://localhost:3000) in your browser.
 
-### Docker compose  {#Docker}
+### Docker compose
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Run `docker-compose up` within the directory that you cloned (probably `hoppscotch`).
@@ -328,7 +328,7 @@ _Sample keys only work with the [production build](https://hoppscotch.io)._
 docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 ```
 
-## **Releasing** {#Releasing}
+## **Releasing**
 
 1. [Clone this repo](https://help.github.com/en/articles/cloning-a-repository) with git.
 2. Install pnpm using npm by running `npm install -g pnpm`.

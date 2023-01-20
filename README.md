@@ -172,7 +172,8 @@ _Customized themes are synced with cloud / local session_
 
 _Collections are synced with cloud / local session storage_
 
-🌐 # **Proxy:** Enable Proxy Mode from Settings to access blocked APIs.
+### **Proxy:** 🌐 
+**Enable Proxy Mode from Settings to access blocked APIs.**
 
 - Hide your IP address
 - Fixes [`CORS`](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross-Origin Resource Sharing) issues
@@ -198,11 +199,12 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 > **[Read our documentation on Keyboard Shortcuts](https://docs.hoppscotch.io/features/shortcuts)**
 
-🌎 # **i18n:** Experience the app in your language.
+ ### **i18n** 🌎
+**Experience the app in your language.**
 
 Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-📦 # **Add-ons:** Official add-ons for hoppscotch.
+📦 ## **Add-ons** Official add-ons for hoppscotch.
 
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch
 - **[CLI β](https://github.com/hoppscotch/hopp-cli)** - A CLI solution for Hoppscotch

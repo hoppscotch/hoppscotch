@@ -8,6 +8,10 @@ import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      cors: process.env.PRODUCTION !== 'true' && {
+        origin: ['http://localhost:3170', 'http://localhost:3000'],
+        credentials: true,
+      },
       playground: process.env.PRODUCTION !== 'true',
       debug: process.env.PRODUCTION !== 'true',
       autoSchemaFile: true,

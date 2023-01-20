@@ -19,8 +19,10 @@ async function bootstrap() {
 
   if (process.env.PRODUCTION === 'false') {
     console.log('Enabling CORS with development settings');
+
     app.enableCors({
-      origin: true,
+      origin: process.env.WHITELISTED_ORIGINS.split(','),
+      credentials: true,
     });
   } else {
     console.log('Enabling CORS with production settings');

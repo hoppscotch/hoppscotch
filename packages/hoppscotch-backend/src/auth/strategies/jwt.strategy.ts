@@ -22,8 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          console.log('here1', request.cookies);
-
           const ATCookie = request.cookies['access_token'];
           if (!ATCookie) {
             throw new ForbiddenException(COOKIES_NOT_FOUND);
@@ -37,7 +35,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
   async validate(payload: AccessTokenPayload) {
     if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
-    console.log('here', payload);
 
     const user = await this.usersService.findUserById(payload.sub);
     if (O.isNone(user)) {

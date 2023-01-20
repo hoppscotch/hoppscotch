@@ -229,7 +229,7 @@ export class AuthService {
      * * If user was created with another provider findUserByEmail may return true
      */
     const profile = {
-      provider: 'email',
+      provider: 'magic',
       id: user.value.email,
     };
     const providerAccountExists = await this.checkIfProviderAccountExists(

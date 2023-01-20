@@ -51,6 +51,18 @@
   </p>
 </div>
 
+## Introduction
+
+Welcome to Hoppscotch, an open-source API development ecosystem that helps you create requests faster, saving precious time on development. 
+
+Hoppscotch is crafted with minimalistic UI design, making it lightweight and easy to use. It allows you to send requests and get/copy responses in real-time. With Hoppscotch, you can work with various HTTP methods such as GET, POST, PUT, PATCH, DELETE, and more. Additionally, it also allows you to use custom request methods.
+
+Customize the look and feel of Hoppscotch to make it your own with customizable combinations for background, foreground, and accent colors.
+
+We have a dedicated team of contributors who work to make Hoppscotch better with every update. If you would like to contribute, please check out our [code of conduct](CODE_OF_CONDUCT.md) and [contributing guidelines](CONTRIBUTING.md).
+
+Explore Hoppscotch and see how it can improve your API development experience. Thanks for choosing Hoppscotch!
+
 #### **Support**
 
 [![Chat on Discord](https://img.shields.io/badge/chat-Discord-7289DA?logo=discord)](https://hoppscotch.io/discord) [![Chat on Telegram](https://img.shields.io/badge/chat-Telegram-2CA5E0?logo=telegram)](https://hoppscotch.io/telegram) [![Discuss on GitHub](https://img.shields.io/badge/discussions-GitHub-333333?logo=github)](https://github.com/hoppscotch/hoppscotch/discussions)

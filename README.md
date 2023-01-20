@@ -53,17 +53,18 @@
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [Features](#features)
 - [Support](#support)
-- [Built with ❤️ by](#Authors)
+- [Features](#features)
 - [Help us to translate Hoppscotch](#i18n-)
 - [Add-ons](#Add-ons-)
   - [Proxy](#Proxy-)
   - [Auth + Sync](#auth--sync)
 - [Developing](#developing)
+  - [Browser](#browser-based-development-environment)
   - [Docker](#docker)
-  - [Local](#local)
-  - [Production](#production)
+  - [Local](#local-development-environment)
+  - [Production](#releasing)
+- [Built with ❤️ by](#Authors)
 
 ## Introduction
 
@@ -212,7 +213,8 @@ _Official proxy server is hosted by Hoppscotch - **[GitHub](https://github.com/h
 
 Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-📦 ## **Add-ons** Official add-ons for hoppscotch.
+## **Add-ons** 📦 
+**Official add-ons for hoppscotch.**
 
 - **[Proxy](https://github.com/hoppscotch/proxyscotch)** - A simple proxy server created for Hoppscotch
 - **[CLI β](https://github.com/hoppscotch/hopp-cli)** - A CLI solution for Hoppscotch

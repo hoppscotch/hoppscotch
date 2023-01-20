@@ -59,9 +59,9 @@
 - [Fast](#fast)
 - [Support](#support)
 - [Built with ❤️ by](#Authors)
-- [Help us to translate Hoppscotch](#i18n)
-- [Add-ons](#Add-ons)
-  - [Proxy](#Proxy)
+- [Help us to translate Hoppscotch](#i18n-)
+- [Add-ons](#Add-ons-)
+  - [Proxy](#Proxy-)
   - [Auth + Sync](#auth-sync)
 - [Developing](#developing)
   - [Docker](#docker)
@@ -218,8 +218,8 @@ Help us to translate Hoppscotch. Please read [`TRANSLATIONS`](TRANSLATIONS.md) f
 
 _Add-ons are developed and maintained under **[Hoppscotch Organization](https://github.com/hoppscotch)**._
 
-☁️ **Auth + Sync:** Sign in and sync your data in real-time.
-
+# **Auth + Sync:** 
+**Sign in and sync your data in real-time.**
 **Sign in with**
 
 - GitHub

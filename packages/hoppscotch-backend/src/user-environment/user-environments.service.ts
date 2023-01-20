@@ -214,11 +214,7 @@ export class UserEnvironmentsService {
       },
     });
 
-    // await this.subscriptionHandler.publish(
-    //   `user_environment/${uid}`,
-    //   SubscriptionType.DeleteMany,
-    //   deletedEnvironments.count,
-    // );
+    // Publish subscription for multiple environment deletions
     await this.pubsub.publish(
       `user_environment/${uid}/deleted_many`,
       deletedEnvironments.count,

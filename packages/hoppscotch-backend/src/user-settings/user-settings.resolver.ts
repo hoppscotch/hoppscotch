@@ -19,7 +19,7 @@ export class UserSettingsResolver {
   /* Mutations */
 
   @Mutation(() => UserSettings, {
-    description: 'Creates a new user setting for a given user',
+    description: 'Creates a new user setting',
   })
   @UseGuards(GqlAuthGuard)
   async createUserSettings(

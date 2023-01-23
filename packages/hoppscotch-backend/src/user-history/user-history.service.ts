@@ -8,13 +8,6 @@ import {
   USER_HISTORY_NOT_FOUND,
 } from '../errors';
 
-// Contains constants for the subscription types we send to pubsub service
-enum SubscriptionType {
-  Created = 'created',
-  Updated = 'updated',
-  Deleted = 'deleted',
-}
-
 @Injectable()
 export class UserHistoryService {
   constructor(
@@ -36,18 +29,18 @@ export class UserHistoryService {
       },
     });
 
-    const userHistoryColl: UserHistory[] = [];
-    userHistory.forEach((history) => {
-      userHistoryColl.push(<UserHistory>{
-        id: history.id,
-        userUid: history.userUid,
-        reqType: history.type,
-        request: JSON.stringify(history.request),
-        responseMetadata: JSON.stringify(history.responseMetadata),
-        isStarred: history.isStarred,
-        executedOn: history.executedOn,
-      });
-    });
+    const userHistoryColl: UserHistory[] = userHistory.map(
+      (history) =>
+        <UserHistory>{
+          id: history.id,
+          userUid: history.userUid,
+          reqType: history.type,
+          request: JSON.stringify(history.request),
+          responseMetadata: JSON.stringify(history.responseMetadata),
+          isStarred: history.isStarred,
+          executedOn: history.executedOn,
+        },
+    );
 
     return userHistoryColl;
   }
@@ -89,9 +82,10 @@ export class UserHistoryService {
       reqType: history.type,
     };
 
-    await this.publishUserHistorySubscription(
+    // Publish created user history subscription
+    await this.pubsub.publish(
+      `user_history/${userHistory.userUid}/created`,
       userHistory,
-      SubscriptionType.Created,
     );
 
     return E.right(userHistory);
@@ -103,7 +97,7 @@ export class UserHistoryService {
    * @param id id of the request in the history
    * @returns an Either of updated `UserHistory` or Error
    */
-  async starUnstarRequestInHistory(uid: string, id: string) {
+  async toggleHistoryStarStatus(uid: string, id: string) {
     const userHistory = await this.prisma.userHistory.findFirst({
       where: {
         id: id,
@@ -133,9 +127,10 @@ export class UserHistoryService {
         reqType: updatedHistory.type,
       };
 
-      await this.publishUserHistorySubscription(
+      // Publish updated user history subscription
+      await this.pubsub.publish(
+        `user_history/${updatedUserHistory.userUid}/updated`,
         updatedUserHistory,
-        SubscriptionType.Updated,
       );
       return E.right(updatedUserHistory);
     } catch (e) {
@@ -167,9 +162,10 @@ export class UserHistoryService {
         reqType: delUserHistory.type,
       };
 
-      await this.publishUserHistorySubscription(
+      // Publish deleted user history subscription
+      await this.pubsub.publish(
+        `user_history/${deletedUserHistory.userUid}/deleted`,
         deletedUserHistory,
-        SubscriptionType.Deleted,
       );
       return E.right(deletedUserHistory);
     } catch (e) {
@@ -193,42 +189,23 @@ export class UserHistoryService {
         type: requestType.right,
       },
     });
+
+    // Publish multiple user history deleted subscription
+    await this.pubsub.publish(
+      `user_history/${uid}/deleted_many`,
+      deletedCount.count,
+    );
     return E.right(deletedCount.count);
   }
 
-  // Method that takes a request type argument as string and validates against `ReqType`
+  /**
+   * Takes a request type argument as string and validates against `ReqType`
+   * @param reqType request type to be validated i.e. REST or GraphQL
+   * @returns an either of `ReqType` or error
+   */
   validateReqType(reqType: string) {
     if (reqType == ReqType.REST) return E.right(ReqType.REST);
     else if (reqType == ReqType.GQL) return E.right(ReqType.GQL);
     return E.left(USER_HISTORY_INVALID_REQ_TYPE);
-  }
-
-  // Method to publish subscriptions based on the subscription type of the history
-  async publishUserHistorySubscription(
-    userHistory: UserHistory,
-    subscriptionType: SubscriptionType,
-  ) {
-    switch (subscriptionType) {
-      case SubscriptionType.Created:
-        await this.pubsub.publish(
-          `user_history/${userHistory.userUid}/created`,
-          userHistory,
-        );
-        break;
-      case SubscriptionType.Updated:
-        await this.pubsub.publish(
-          `user_history/${userHistory.userUid}/updated`,
-          userHistory,
-        );
-        break;
-      case SubscriptionType.Deleted:
-        await this.pubsub.publish(
-          `user_history/${userHistory.userUid}/deleted`,
-          userHistory,
-        );
-        break;
-      default:
-        break;
-    }
   }
 }

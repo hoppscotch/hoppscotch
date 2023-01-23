@@ -4,8 +4,10 @@ import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import * as T from 'fp-ts/Task';
+import * as E from 'fp-ts/Either';
 import { User } from './user/user.model';
 import * as A from 'fp-ts/Array';
+import { JSON_INVALID } from './errors';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -108,3 +110,18 @@ export const taskEitherValidateArraySeq = <A, B>(
       TE.getApplicativeTaskValidation(T.ApplicativeSeq, A.getMonoid<A>()),
     ),
   );
+
+/**
+ * String to JSON parser
+ * @param {str} str The string to parse
+ * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON
+ */
+export function stringToJson<T>(
+  str: string,
+): E.Right<T | any> | E.Left<string> {
+  try {
+    return E.right(JSON.parse(str));
+  } catch (err) {
+    return E.left(JSON_INVALID);
+  }
+}

@@ -9,6 +9,12 @@ export const EMAIL_FAILED = 'email/failed' as const;
 export const AUTH_FAIL = 'auth/fail';
 
 /**
+ * Invalid JSON
+ * (Utils)
+ */
+export const JSON_INVALID = 'json_invalid';
+
+/**
  * Tried to delete an user data document from fb firestore but failed.
  * (FirebaseService)
  */
@@ -155,6 +161,60 @@ export const TEAM_ENVIRONMMENT_NOT_FOUND =
 export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
   'team_environment/not_team_member' as const;
 
+/**
+ * Global environment doesnt exists for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
+  'user_environment/global_env_does_not_exists' as const;
+/*
+
+/**
+ * Global environment already exists for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
+  'user_environment/global_env_already_exists' as const;
+/*
+
+/**
+ * User environment doesn't exist for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
+  'user_environment/user_env_does_not_exists' as const;
+/*
+
+/**
+ * Cannot delete the global user environment
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED =
+  'user_environment/user_env_global_env_deletion_failed' as const;
+/*
+
+/**
+ * User environment is not a global environment
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
+  'user_environment/user_env_is_not_global' as const;
+/*
+
+/**
+ * User environment update failed
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_UPDATE_FAILED =
+  'user_environment/user_env_update_failed' as const;
+/*
+
+/**
+ * User environment invalid environment name
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME =
+  'user_environment/user_env_invalid_env_name' as const;
 /*
 
 /**

@@ -21,7 +21,7 @@ export class UserSettingsService {
   /**
    * Fetch user setting for a given user
    * @param user User object
-   * @returns an Either of `UserSettings` or error
+   * @returns Promise of an Either of `UserSettings` or error
    */
   async fetchUserSettings(user: User) {
     try {
@@ -31,9 +31,8 @@ export class UserSettingsService {
 
       const settings: UserSettings = {
         ...userSettings,
-        userSettings: JSON.stringify(userSettings.settings),
+        properties: JSON.stringify(userSettings.properties),
       };
-      delete (settings as any).settings;
 
       return E.right(settings);
     } catch (e) {
@@ -44,28 +43,30 @@ export class UserSettingsService {
   /**
    * Create user setting for a given user
    * @param user User object
-   * @param properties User setting properties
+   * @param properties stringified user settings properties
    * @returns an Either of `UserSettings` or error
    */
-  async createUserSettings(user: User, settingsString: string) {
-    if (!settingsString) return E.left(USER_SETTINGS_NULL_SETTINGS);
+  async createUserSettings(user: User, properties: string) {
+    if (!properties) return E.left(USER_SETTINGS_NULL_SETTINGS);
 
-    const settingsObject = stringToJson(settingsString);
-    if (E.isLeft(settingsObject)) return E.left(settingsObject.left);
+    const jsonProperties = stringToJson(properties);
+    if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
 
     try {
       const userSettings = await this.prisma.userSettings.create({
         data: {
-          settings: settingsObject.right,
+          properties: jsonProperties.right,
           userUid: user.uid,
         },
       });
 
       const settings: UserSettings = {
         ...userSettings,
-        userSettings: JSON.stringify(userSettings.settings),
+        properties: JSON.stringify(userSettings.properties),
       };
-      delete (settings as any).settings;
+
+      // Publish subscription for environment creation
+      await this.pubsub.publish(`user_settings/${user.uid}/created`, settings);
 
       return E.right(settings);
     } catch (e) {
@@ -76,28 +77,27 @@ export class UserSettingsService {
   /**
    * Update user setting for a given user
    * @param user User object
-   * @param properties
-   * @returns
+   * @param properties stringified user settings
+   * @returns Promise of an Either of `UserSettings` or error
    */
-  async updateUserSettings(user: User, settingsString: string) {
-    if (!settingsString) return E.left(USER_SETTINGS_NULL_SETTINGS);
+  async updateUserSettings(user: User, properties: string) {
+    if (!properties) return E.left(USER_SETTINGS_NULL_SETTINGS);
 
-    const settingsObject = stringToJson(settingsString);
-    if (E.isLeft(settingsObject)) return E.left(settingsObject.left);
+    const jsonProperties = stringToJson(properties);
+    if (E.isLeft(jsonProperties)) return E.left(jsonProperties.left);
 
     try {
       const updatedUserSettings = await this.prisma.userSettings.update({
         where: { userUid: user.uid },
         data: {
-          settings: settingsObject.right,
+          properties: jsonProperties.right,
         },
       });
 
       const settings: UserSettings = {
         ...updatedUserSettings,
-        userSettings: JSON.stringify(updatedUserSettings.settings),
+        properties: JSON.stringify(updatedUserSettings.properties),
       };
-      delete (settings as any).settings;
 
       // Publish subscription for environment creation
       await this.pubsub.publish(`user_settings/${user.uid}/updated`, settings);

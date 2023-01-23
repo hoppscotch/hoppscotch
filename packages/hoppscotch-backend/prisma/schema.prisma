@@ -88,11 +88,11 @@ model User {
 }
 
 model UserSettings {
-  id        String   @id @default(cuid())
-  userUid   String   @unique
-  user      User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  settings  Json
-  updatedOn DateTime @updatedAt @db.Timestamp(3)
+  id         String   @id @default(cuid())
+  userUid    String   @unique
+  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  properties Json
+  updatedOn  DateTime @updatedAt @db.Timestamp(3)
 }
 
 model UserEnvironment {

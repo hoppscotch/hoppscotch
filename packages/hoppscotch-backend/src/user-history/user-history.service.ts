@@ -46,14 +46,14 @@ export class UserHistoryService {
   }
 
   /**
-   * Adds a request to users history.
+   * Creates a user history.
    * @param uid Users uid
    * @param reqData the request data
    * @param resMetadata the response metadata
    * @param reqType request Type to fetch i.e. GraphQL or REST
    * @returns a `UserHistory` object
    */
-  async addRequestToHistory(
+  async createUserHistory(
     uid: string,
     reqData: string,
     resMetadata: string,
@@ -92,7 +92,7 @@ export class UserHistoryService {
   }
 
   /**
-   * Stars or unstars a request in the history
+   * Toggles star status of a user history
    * @param uid Users uid
    * @param id id of the request in the history
    * @returns an Either of updated `UserHistory` or Error

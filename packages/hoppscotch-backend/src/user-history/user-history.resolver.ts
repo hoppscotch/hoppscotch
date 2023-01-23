@@ -22,7 +22,7 @@ export class UserHistoryResolver {
     description: 'Adds a new REST/GQL request to user history',
   })
   @UseGuards(GqlAuthGuard)
-  async addRequestToHistory(
+  async createUserHistory(
     @GqlUser() user: User,
     @Args({
       name: 'reqData',
@@ -40,7 +40,7 @@ export class UserHistoryResolver {
     })
     reqType: string,
   ): Promise<UserHistory> {
-    const createdHistory = await this.userHistoryService.addRequestToHistory(
+    const createdHistory = await this.userHistoryService.createUserHistory(
       user.uid,
       reqData,
       resMetadata,

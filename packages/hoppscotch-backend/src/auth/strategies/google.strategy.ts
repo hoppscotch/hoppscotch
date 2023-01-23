@@ -1,9 +1,10 @@
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
 import { AuthService } from '../auth.service';
+import * as E from 'fp-ts/Either';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -31,6 +32,16 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
         profile,
       );
       return createdUser;
+    }
+
+    if (!user.value.displayName || !user.value.photoURL) {
+      const updatedUser = await this.usersService.updateUserDetails(
+        user.value,
+        profile,
+      );
+      if (E.isLeft(updatedUser)) {
+        throw new UnauthorizedException(updatedUser.left);
+      }
     }
 
     /**

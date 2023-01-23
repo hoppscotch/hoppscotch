@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as O from 'fp-ts/Option';
+import * as E from 'fp-ts/Either';
 import { AuthUser } from 'src/types/AuthUser';
+import { USER_NOT_FOUND } from 'src/errors';
 
 @Injectable()
 export class UserService {
@@ -90,5 +92,22 @@ export class UserService {
     });
 
     return createdProvider;
+  }
+
+  async updateUserDetails(user: AuthUser, profile) {
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          uid: user.uid,
+        },
+        data: {
+          displayName: !profile.displayName ? null : profile.displayName,
+          photoURL: !profile.photos ? null : profile.photos[0].value,
+        },
+      });
+      return E.right(updatedUser);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
   }
 }

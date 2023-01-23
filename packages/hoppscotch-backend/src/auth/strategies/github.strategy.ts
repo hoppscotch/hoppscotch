@@ -4,6 +4,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UserService } from 'src/user/user.service';
 import * as O from 'fp-ts/Option';
+import * as E from 'fp-ts/Either';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy) {
@@ -31,6 +32,16 @@ export class GithubStrategy extends PassportStrategy(Strategy) {
         profile,
       );
       return createdUser;
+    }
+
+    if (!user.value.displayName || !user.value.photoURL) {
+      const updatedUser = await this.usersService.updateUserDetails(
+        user.value,
+        profile,
+      );
+      if (E.isLeft(updatedUser)) {
+        throw new UnauthorizedException(updatedUser.left);
+      }
     }
 
     /**

@@ -101,11 +101,6 @@ model UserHistory {
 enum ReqType {
   REST
   GQL
-  uid              String            @id @default(cuid())
-  displayName      String?
-  email            String?
-  photoURL         String?
-  UserEnvironments UserEnvironment[]
 }
 
 model UserEnvironment {

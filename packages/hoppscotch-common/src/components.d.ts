@@ -99,13 +99,6 @@ declare module '@vue/runtime-core' {
     HttpTestResultReport: typeof import('./components/http/TestResultReport.vue')['default']
     HttpTests: typeof import('./components/http/Tests.vue')['default']
     HttpURLEncodedParams: typeof import('./components/http/URLEncodedParams.vue')['default']
-    IconLucideChevronRight: typeof import('~icons/lucide/chevron-right')['default']
-    IconLucideInbox: typeof import('~icons/lucide/inbox')['default']
-    IconLucideInfo: typeof import('~icons/lucide/info')['default']
-    IconLucideLoader: typeof import('~icons/lucide/loader')['default']
-    IconLucideSearch: typeof import('~icons/lucide/search')['default']
-    IconLucideUser: typeof import('~icons/lucide/user')['default']
-    IconLucideUsers: typeof import('~icons/lucide/users')['default']
     LensesHeadersRenderer: typeof import('./components/lenses/HeadersRenderer.vue')['default']
     LensesHeadersRendererEntry: typeof import('./components/lenses/HeadersRendererEntry.vue')['default']
     LensesRenderersHTMLLensRenderer: typeof import('./components/lenses/renderers/HTMLLensRenderer.vue')['default']
@@ -159,4 +152,5 @@ declare module '@vue/runtime-core' {
     TeamsTeam: typeof import('./components/teams/Team.vue')['default']
     Tippy: typeof import('vue-tippy')['Tippy']
   }
+
 }

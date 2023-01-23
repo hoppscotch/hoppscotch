@@ -25,11 +25,3 @@ dist-ssr
 
 # Environment Variables
 .env
-
-# Backend Code generation
-src/helpers/backend/graphql.ts
-src/helpers/backend/backend-schema.json
-
-# vite-plugin-pages-sitemap generates its files in the public directory
-public/robots.txt
-public/sitemap.xml

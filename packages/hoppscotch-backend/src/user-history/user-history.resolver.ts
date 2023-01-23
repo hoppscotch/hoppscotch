@@ -1,4 +1,4 @@
-import { Args, ID, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { UserHistoryService } from './user-history.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { UserHistory } from './user-history.model';
@@ -63,7 +63,7 @@ export class UserHistoryResolver {
     id: string,
   ): Promise<UserHistory> {
     const updatedHistory =
-      await this.userHistoryService.starUnstarRequestInHistory(user.uid, id);
+      await this.userHistoryService.toggleHistoryStarStatus(user.uid, id);
     if (E.isLeft(updatedHistory)) throwErr(updatedHistory.left);
     return updatedHistory.right;
   }
@@ -114,15 +114,8 @@ export class UserHistoryResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userHistoryCreated(
-    @Args({
-      name: 'userUid',
-      description: 'user uid',
-      type: () => ID,
-    })
-    userUid: string,
-  ) {
-    return this.pubsub.asyncIterator(`user_history/${userUid}/created`);
+  userHistoryCreated(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_history/${user.uid}/created`);
   }
 
   @Subscription(() => UserHistory, {
@@ -130,15 +123,8 @@ export class UserHistoryResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userHistoryUpdated(
-    @Args({
-      name: 'userUid',
-      description: 'user uid',
-      type: () => ID,
-    })
-    userUid: string,
-  ) {
-    return this.pubsub.asyncIterator(`user_history/${userUid}/updated`);
+  userHistoryUpdated(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_history/${user.uid}/updated`);
   }
 
   @Subscription(() => UserHistory, {
@@ -146,14 +132,16 @@ export class UserHistoryResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userHistoryDeleted(
-    @Args({
-      name: 'userUid',
-      description: 'user uid',
-      type: () => ID,
-    })
-    userUid: string,
-  ) {
-    return this.pubsub.asyncIterator(`user_history/${userUid}/deleted`);
+  userHistoryDeleted(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_history/${user.uid}/deleted`);
+  }
+
+  @Subscription(() => Number, {
+    description: 'Listen for User History deleted many',
+    resolve: (value) => value,
+  })
+  @UseGuards(GqlAuthGuard)
+  userHistoryDeletedMany(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_history/${user.uid}/deleted_many`);
   }
 }

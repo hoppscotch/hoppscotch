@@ -19,7 +19,7 @@ export class UserSettingsService {
   ) {}
 
   /**
-   * Fetch user setting for a given user
+   * Fetch user settings for a given user
    * @param user User object
    * @returns Promise of an Either of `UserSettings` or error
    */

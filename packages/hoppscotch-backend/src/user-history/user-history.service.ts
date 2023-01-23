@@ -32,13 +32,10 @@ export class UserHistoryService {
     const userHistoryColl: UserHistory[] = userHistory.map(
       (history) =>
         <UserHistory>{
-          id: history.id,
-          userUid: history.userUid,
+          ...history,
           reqType: history.type,
           request: JSON.stringify(history.request),
           responseMetadata: JSON.stringify(history.responseMetadata),
-          isStarred: history.isStarred,
-          executedOn: history.executedOn,
         },
     );
 
@@ -73,13 +70,10 @@ export class UserHistoryService {
     });
 
     const userHistory = <UserHistory>{
-      id: history.id,
-      userUid: history.userUid,
+      ...history,
+      reqType: history.type,
       request: JSON.stringify(history.request),
       responseMetadata: JSON.stringify(history.responseMetadata),
-      executedOn: history.executedOn,
-      isStarred: history.isStarred,
-      reqType: history.type,
     };
 
     // Publish created user history subscription
@@ -118,13 +112,10 @@ export class UserHistoryService {
       });
 
       const updatedUserHistory = <UserHistory>{
-        id: updatedHistory.id,
-        userUid: updatedHistory.userUid,
+        ...updatedHistory,
+        reqType: updatedHistory.type,
         request: JSON.stringify(updatedHistory.request),
         responseMetadata: JSON.stringify(updatedHistory.responseMetadata),
-        executedOn: updatedHistory.executedOn,
-        isStarred: updatedHistory.isStarred,
-        reqType: updatedHistory.type,
       };
 
       // Publish updated user history subscription
@@ -153,13 +144,10 @@ export class UserHistoryService {
       });
 
       const deletedUserHistory = <UserHistory>{
-        id: delUserHistory.id,
-        userUid: delUserHistory.userUid,
+        ...delUserHistory,
+        reqType: delUserHistory.type,
         request: JSON.stringify(delUserHistory.request),
         responseMetadata: JSON.stringify(delUserHistory.responseMetadata),
-        executedOn: delUserHistory.executedOn,
-        isStarred: delUserHistory.isStarred,
-        reqType: delUserHistory.type,
       };
 
       // Publish deleted user history subscription

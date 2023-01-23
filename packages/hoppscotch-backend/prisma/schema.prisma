@@ -94,7 +94,7 @@ model UserHistory {
   request          Json
   responseMetadata Json
   isStarred        Boolean
-  executedOn       DateTime  @default(now())
+  executedOn       DateTime  @default(now()) @db.Timestamp(3)
 }
 
 enum ReqType {

@@ -4,6 +4,7 @@ import { default as Redis, RedisOptions } from 'ioredis';
 
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { PubSub as LocalPubSub } from 'graphql-subscriptions';
+import { TopicDef } from './topicsDefs';
 
 /**
  * RedisPubSub uses JSON parsing for back and forth conversion, which loses Date objects, hence this reviver brings them back
@@ -70,7 +71,7 @@ export class PubSubService implements OnModuleInit {
     return this.pubsub.asyncIterator(topic, options);
   }
 
-  async publish(topic: string, payload: any) {
+  async publish<T extends keyof TopicDef>(topic: T, payload: TopicDef[T]) {
     await this.pubsub.publish(topic, payload);
   }
 }

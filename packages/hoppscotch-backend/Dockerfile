@@ -6,10 +6,10 @@ WORKDIR /usr/src/app
 RUN npm i -g pnpm
 
 # Prisma bits
-COPY prisma ./
+COPY prisma ./prisma/
 RUN pnpx prisma generate
 
-# # NPM package install
+# # PNPM package install
 COPY . .
 RUN pnpm i
 

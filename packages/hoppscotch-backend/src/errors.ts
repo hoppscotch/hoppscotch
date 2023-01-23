@@ -167,7 +167,6 @@ export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
  */
 export const USER_SETTINGS_DATA_NOT_FOUND = 'user_settings/data_not_found' as const;
 
-
 /**
  * User setting not found for a user
  * (UserSettingsService)
@@ -180,7 +179,59 @@ export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_pres
  */
 export const USER_SETTINGS_NULL_SETTINGS = 'user_settings/null_settings' as const;
 
+/*
+ * Global environment doesnt exists for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
+  'user_environment/global_env_does_not_exists' as const;
 
+/**
+ * Global environment already exists for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
+  'user_environment/global_env_already_exists' as const;
+/*
+
+/**
+ * User environment doesn't exist for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
+  'user_environment/user_env_does_not_exists' as const;
+/*
+
+/**
+ * Cannot delete the global user environment
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED =
+  'user_environment/user_env_global_env_deletion_failed' as const;
+/*
+
+/**
+ * User environment is not a global environment
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
+  'user_environment/user_env_is_not_global' as const;
+/*
+
+/**
+ * User environment update failed
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_UPDATE_FAILED =
+  'user_environment/user_env_update_failed' as const;
+/*
+
+/**
+ * User environment invalid environment name
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME =
+  'user_environment/user_env_invalid_env_name' as const;
 /*
 
  |------------------------------------|

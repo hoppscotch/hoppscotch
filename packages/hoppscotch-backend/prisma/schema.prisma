@@ -79,11 +79,12 @@ model TeamEnvironment {
 }
 
 model User {
-  uid         String        @id @default(cuid())
-  displayName String?
-  email       String?
-  photoURL    String?
-  settings    UserSettings?
+  uid              String            @id @default(cuid())
+  displayName      String?
+  email            String?
+  photoURL         String?
+  settings         UserSettings?
+  UserEnvironments UserEnvironment[]
 }
 
 model UserSettings {
@@ -92,6 +93,15 @@ model UserSettings {
   user      User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   settings  Json
   updatedOn DateTime @updatedAt @db.Timestamp(3)
+}
+
+model UserEnvironment {
+  id        String  @id @default(cuid())
+  userUid   String
+  user      User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  name      String?
+  variables Json
+  isGlobal  Boolean
 }
 
 enum TeamMemberRole {

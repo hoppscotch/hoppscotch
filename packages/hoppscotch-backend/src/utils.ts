@@ -31,19 +31,6 @@ export const trace = <T>(val: T) => {
 };
 
 /**
- * String to JSON parser
- * @param {str} str The string to parse
- * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON
- */
-export function stringToJson<T>(str: string): E.Right<T | any> | E.Left<string> {
-  try {
-      return E.right(JSON.parse(str));
-  } catch (err) {
-      return E.left(JSON_INVALID);
-  }
-}
-
-/**
  * Similar to `trace` but allows for labels and also an
  * optional transform function.
  * @param name The label to given to the trace log (log outputs like this "<name>: <value>")
@@ -123,3 +110,18 @@ export const taskEitherValidateArraySeq = <A, B>(
       TE.getApplicativeTaskValidation(T.ApplicativeSeq, A.getMonoid<A>()),
     ),
   );
+
+/**
+ * String to JSON parser
+ * @param {str} str The string to parse
+ * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON
+ */
+export function stringToJson<T>(
+  str: string,
+): E.Right<T | any> | E.Left<string> {
+  try {
+    return E.right(JSON.parse(str));
+  } catch (err) {
+    return E.left(JSON_INVALID);
+  }
+}

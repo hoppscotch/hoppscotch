@@ -18,12 +18,6 @@ const userHistoryService = new UserHistoryService(
   mockPubSub as any,
 );
 
-enum SubscriptionType {
-  Created = 'created',
-  Updated = 'updated',
-  Deleted = 'deleted',
-}
-
 beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
@@ -143,7 +137,7 @@ describe('UserHistoryService', () => {
     });
   });
   describe('addRequestToHistory', () => {
-    test('Should resolve right and add a REST request to users history, publish a subscription and return a `UserHistory` object', async () => {
+    test('Should resolve right and add a REST request to users history and return a `UserHistory` object', async () => {
       userHistoryService.validateReqType('REST');
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
@@ -165,11 +159,6 @@ describe('UserHistoryService', () => {
         isStarred: false,
       };
 
-      await userHistoryService.publishUserHistorySubscription(
-        userHistory,
-        SubscriptionType.Created,
-      );
-
       return expect(
         await userHistoryService.addRequestToHistory(
           'abc',
@@ -179,7 +168,7 @@ describe('UserHistoryService', () => {
         ),
       ).toEqualRight(userHistory);
     });
-    test('Should resolve right and add a GQL request to users history, publish a subscription and return a `UserHistory` object', async () => {
+    test('Should resolve right and add a GQL request to users history and return a `UserHistory` object', async () => {
       userHistoryService.validateReqType('GQL');
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
@@ -201,11 +190,6 @@ describe('UserHistoryService', () => {
         isStarred: false,
       };
 
-      await userHistoryService.publishUserHistorySubscription(
-        userHistory,
-        SubscriptionType.Created,
-      );
-
       return expect(
         await userHistoryService.addRequestToHistory(
           'abc',
@@ -226,8 +210,76 @@ describe('UserHistoryService', () => {
         ),
       ).toEqualLeft(USER_HISTORY_INVALID_REQ_TYPE);
     });
+    test('Should add a GQL request to users history and publish a created subscription', async () => {
+      userHistoryService.validateReqType('GQL');
+      mockPrisma.userHistory.create.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        type: ReqType.GQL,
+        executedOn: new Date(),
+        isStarred: false,
+      });
+
+      const userHistory: UserHistory = <UserHistory>{
+        userUid: 'abc',
+        id: '1',
+        request: JSON.stringify([{}]),
+        responseMetadata: JSON.stringify([{}]),
+        reqType: ReqType.GQL,
+        executedOn: new Date(),
+        isStarred: false,
+      };
+
+      await userHistoryService.addRequestToHistory(
+        'abc',
+        JSON.stringify([{}]),
+        JSON.stringify([{}]),
+        'GQL',
+      );
+
+      return expect(await mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/${userHistory.userUid}/created`,
+        userHistory,
+      );
+    });
+    test('Should add a REST request to users history and publish a created subscription', async () => {
+      userHistoryService.validateReqType('REST');
+      mockPrisma.userHistory.create.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        type: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: false,
+      });
+
+      const userHistory: UserHistory = <UserHistory>{
+        userUid: 'abc',
+        id: '1',
+        request: JSON.stringify([{}]),
+        responseMetadata: JSON.stringify([{}]),
+        reqType: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: false,
+      };
+
+      await userHistoryService.addRequestToHistory(
+        'abc',
+        JSON.stringify([{}]),
+        JSON.stringify([{}]),
+        'REST',
+      );
+
+      return expect(await mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/${userHistory.userUid}/created`,
+        userHistory,
+      );
+    });
   });
-  describe('starUnstarRequestInHistory', () => {
+  describe('toggleHistoryStarStatus', () => {
     test('Should resolve right and star/unstar a request in the history', async () => {
       mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
         userUid: 'abc',
@@ -259,25 +311,57 @@ describe('UserHistoryService', () => {
         isStarred: true,
       };
 
-      await userHistoryService.publishUserHistorySubscription(
-        userHistory,
-        SubscriptionType.Updated,
-      );
-
       return expect(
-        await userHistoryService.starUnstarRequestInHistory('abc', '1'),
+        await userHistoryService.toggleHistoryStarStatus('abc', '1'),
       ).toEqualRight(userHistory);
     });
-    test('Should resolve left and error out due to invalid request ID', async () => {
+    test('Should resolve left and error out due to invalid user history request ID', async () => {
       mockPrisma.userHistory.findFirst.mockResolvedValueOnce(null);
 
       return expect(
-        await userHistoryService.starUnstarRequestInHistory('abc', '1'),
+        await userHistoryService.toggleHistoryStarStatus('abc', '1'),
       ).toEqualLeft(USER_HISTORY_NOT_FOUND);
+    });
+    test('Should star/unstar a request in the history and publish a updated subscription', async () => {
+      mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        type: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: false,
+      });
+
+      mockPrisma.userHistory.update.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        type: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: true,
+      });
+
+      const userHistory: UserHistory = <UserHistory>{
+        userUid: 'abc',
+        id: '1',
+        request: JSON.stringify([{}]),
+        responseMetadata: JSON.stringify([{}]),
+        reqType: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: true,
+      };
+
+      await userHistoryService.toggleHistoryStarStatus('abc', '1');
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/${userHistory.userUid}/updated`,
+        userHistory,
+      );
     });
   });
   describe('removeRequestFromHistory', () => {
-    test('Should resolve right and delete request from users history, publish a subscription', async () => {
+    test('Should resolve right and delete request from users history', async () => {
       mockPrisma.userHistory.delete.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
@@ -298,11 +382,6 @@ describe('UserHistoryService', () => {
         isStarred: false,
       };
 
-      await userHistoryService.publishUserHistorySubscription(
-        userHistory,
-        SubscriptionType.Deleted,
-      );
-
       return expect(
         await userHistoryService.removeRequestFromHistory('abc', '1'),
       ).toEqualRight(userHistory);
@@ -313,6 +392,34 @@ describe('UserHistoryService', () => {
       return expect(
         await userHistoryService.removeRequestFromHistory('abc', '1'),
       ).toEqualLeft(USER_HISTORY_NOT_FOUND);
+    });
+    test('Should delete request from users history and publish deleted subscription', async () => {
+      mockPrisma.userHistory.delete.mockResolvedValueOnce({
+        userUid: 'abc',
+        id: '1',
+        request: [{}],
+        responseMetadata: [{}],
+        type: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: false,
+      });
+
+      const userHistory: UserHistory = <UserHistory>{
+        userUid: 'abc',
+        id: '1',
+        request: JSON.stringify([{}]),
+        responseMetadata: JSON.stringify([{}]),
+        reqType: ReqType.REST,
+        executedOn: new Date(),
+        isStarred: false,
+      };
+
+      await userHistoryService.removeRequestFromHistory('abc', '1');
+
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/${userHistory.userUid}/deleted`,
+        userHistory,
+      );
     });
   });
   describe('deleteAllUserHistory', () => {
@@ -343,6 +450,30 @@ describe('UserHistoryService', () => {
         await userHistoryService.deleteAllUserHistory('abc', 'INVALID'),
       ).toEqualLeft(USER_HISTORY_INVALID_REQ_TYPE);
     });
+    test('Should delete all user REST history for a request type and publish deleted many subscription', async () => {
+      userHistoryService.validateReqType('REST');
+      mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
+        count: 2,
+      });
+
+      await userHistoryService.deleteAllUserHistory('abc', 'REST');
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/abc/deleted_many`,
+        2,
+      );
+    });
+    test('Should delete all user GQL history for a request type and publish deleted many subscription', async () => {
+      userHistoryService.validateReqType('GQL');
+      mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
+        count: 2,
+      });
+
+      await userHistoryService.deleteAllUserHistory('abc', 'GQL');
+      return expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user_history/abc/deleted_many`,
+        2,
+      );
+    });
   });
   describe('validateReqType', () => {
     test('Should resolve right when a valid REST ReqType is provided', async () => {
@@ -359,77 +490,6 @@ describe('UserHistoryService', () => {
       return expect(userHistoryService.validateReqType('INVALID')).toEqualLeft(
         USER_HISTORY_INVALID_REQ_TYPE,
       );
-    });
-  });
-  describe('publishUserHistorySubscription', () => {
-    test('Should publish a created subscription', async () => {
-      const result: UserHistory = {
-        userUid: 'abc',
-        id: '1',
-        request: JSON.stringify([{}]),
-        responseMetadata: JSON.stringify([{}]),
-        reqType: ReqType.REST,
-        executedOn: new Date(),
-        isStarred: false,
-      };
-
-      await mockPubSub.publish(
-        `user_history/${result.userUid}/created`,
-        result,
-      );
-
-      return expect(
-        await userHistoryService.publishUserHistorySubscription(
-          result,
-          SubscriptionType.Created,
-        ),
-      ).toBeUndefined();
-    });
-    test('Should publish a updated subscription', async () => {
-      const result: UserHistory = {
-        userUid: 'abc',
-        id: '1',
-        request: JSON.stringify([{}]),
-        responseMetadata: JSON.stringify([{}]),
-        reqType: ReqType.REST,
-        executedOn: new Date(),
-        isStarred: false,
-      };
-
-      await mockPubSub.publish(
-        `user_history/${result.userUid}/updated`,
-        result,
-      );
-
-      return expect(
-        await userHistoryService.publishUserHistorySubscription(
-          result,
-          SubscriptionType.Updated,
-        ),
-      ).toBeUndefined();
-    });
-    test('Should publish a deleted subscription', async () => {
-      const result: UserHistory = {
-        userUid: 'abc',
-        id: '1',
-        request: JSON.stringify([{}]),
-        responseMetadata: JSON.stringify([{}]),
-        reqType: ReqType.REST,
-        executedOn: new Date(),
-        isStarred: false,
-      };
-
-      await mockPubSub.publish(
-        `user_history/${result.userUid}/deleted`,
-        result,
-      );
-
-      return expect(
-        await userHistoryService.publishUserHistorySubscription(
-          result,
-          SubscriptionType.Deleted,
-        ),
-      ).toBeUndefined();
     });
   });
 });

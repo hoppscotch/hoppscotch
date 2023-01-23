@@ -38,6 +38,12 @@ export class MailerService implements OnModuleInit {
     );
   }
 
+  /**
+   *
+   * @param {string} to Receiver's email id
+   * @param {UserMagicLinkMailDescription} mailDesc Details of email to be sent for Magic-Link auth
+   * @returns {Promise<postmark.Models.MessageSendingResponse>} Response if email was send successfully or not
+   */
   async sendAuthEmail(to: string, mailDesc: UserMagicLinkMailDescription) {
     try {
       const res = await this.client.sendEmailWithTemplate({

@@ -34,6 +34,9 @@ export class MicrosoftStrategy extends PassportStrategy(Strategy) {
       return createdUser;
     }
 
+    /**
+     * * displayName and photoURL maybe null if user logged-in via magic-link before SSO
+     */
     if (!user.value.displayName || !user.value.photoURL) {
       const updatedUser = await this.usersService.updateUserDetails(
         user.value,

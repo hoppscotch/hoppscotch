@@ -36,7 +36,7 @@ export class UserHistoryResolver {
     resMetadata: string,
     @Args({
       name: 'reqType',
-      description: 'string that denotes type of request REST or GQL',
+      description: 'Request type, REST or GQL',
     })
     reqType: string,
   ): Promise<UserHistory> {
@@ -54,11 +54,11 @@ export class UserHistoryResolver {
     description: 'Stars/Unstars a REST/GQL request in user history',
   })
   @UseGuards(GqlAuthGuard)
-  async starUnstarRequestInHistory(
+  async toggleHistoryStarStatus(
     @GqlUser() user: User,
     @Args({
       name: 'id',
-      description: 'request id in history',
+      description: 'ID of User History',
     })
     id: string,
   ): Promise<UserHistory> {
@@ -76,7 +76,7 @@ export class UserHistoryResolver {
     @GqlUser() user: User,
     @Args({
       name: 'id',
-      description: 'request id in history',
+      description: 'ID of User History',
     })
     id: string,
   ): Promise<UserHistory> {
@@ -95,7 +95,7 @@ export class UserHistoryResolver {
     @GqlUser() user: User,
     @Args({
       name: 'reqType',
-      description: 'string that denotes type of request REST or GQL',
+      description: 'Request type, REST or GQL',
     })
     reqType: string,
   ): Promise<number> {

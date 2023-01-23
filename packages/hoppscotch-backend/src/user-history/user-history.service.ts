@@ -25,7 +25,7 @@ export class UserHistoryService {
     const userHistory = await this.prisma.userHistory.findMany({
       where: {
         userUid: uid,
-        type: reqType,
+        reqType: reqType,
       },
     });
 
@@ -33,7 +33,6 @@ export class UserHistoryService {
       (history) =>
         <UserHistory>{
           ...history,
-          reqType: history.type,
           request: JSON.stringify(history.request),
           responseMetadata: JSON.stringify(history.responseMetadata),
         },
@@ -64,14 +63,13 @@ export class UserHistoryService {
         userUid: uid,
         request: JSON.parse(reqData),
         responseMetadata: JSON.parse(resMetadata),
-        type: requestType.right,
+        reqType: requestType.right,
         isStarred: false,
       },
     });
 
     const userHistory = <UserHistory>{
       ...history,
-      reqType: history.type,
       request: JSON.stringify(history.request),
       responseMetadata: JSON.stringify(history.responseMetadata),
     };
@@ -113,7 +111,6 @@ export class UserHistoryService {
 
       const updatedUserHistory = <UserHistory>{
         ...updatedHistory,
-        reqType: updatedHistory.type,
         request: JSON.stringify(updatedHistory.request),
         responseMetadata: JSON.stringify(updatedHistory.responseMetadata),
       };
@@ -145,7 +142,6 @@ export class UserHistoryService {
 
       const deletedUserHistory = <UserHistory>{
         ...delUserHistory,
-        reqType: delUserHistory.type,
         request: JSON.stringify(delUserHistory.request),
         responseMetadata: JSON.stringify(delUserHistory.responseMetadata),
       };
@@ -174,7 +170,7 @@ export class UserHistoryService {
     const deletedCount = await this.prisma.userHistory.deleteMany({
       where: {
         userUid: uid,
-        type: requestType.right,
+        reqType: requestType.right,
       },
     });
 

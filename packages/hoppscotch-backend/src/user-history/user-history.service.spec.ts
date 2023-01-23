@@ -7,6 +7,7 @@ import {
   USER_HISTORY_INVALID_REQ_TYPE,
   USER_HISTORY_NOT_FOUND,
 } from '../errors';
+import { ReqType as DBReqType } from '@prisma/client';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -33,7 +34,7 @@ describe('UserHistoryService', () => {
           id: '1',
           request: [{}],
           responseMetadata: [{}],
-          type: ReqType.REST,
+          reqType: ReqType.REST,
           executedOn: executedOn,
           isStarred: false,
         },
@@ -42,7 +43,7 @@ describe('UserHistoryService', () => {
           id: '2',
           request: [{}],
           responseMetadata: [{}],
-          type: ReqType.REST,
+          reqType: ReqType.REST,
           executedOn: executedOn,
           isStarred: true,
         },
@@ -68,6 +69,7 @@ describe('UserHistoryService', () => {
           isStarred: true,
         },
       ];
+
       return expect(
         await userHistoryService.fetchUserHistory('abc', ReqType.REST),
       ).toEqual(userHistory);
@@ -80,7 +82,7 @@ describe('UserHistoryService', () => {
           id: '1',
           request: [{}],
           responseMetadata: [{}],
-          type: ReqType.GQL,
+          reqType: ReqType.GQL,
           executedOn: executedOn,
           isStarred: false,
         },
@@ -89,7 +91,7 @@ describe('UserHistoryService', () => {
           id: '2',
           request: [{}],
           responseMetadata: [{}],
-          type: ReqType.GQL,
+          reqType: ReqType.GQL,
           executedOn: executedOn,
           isStarred: true,
         },
@@ -138,13 +140,12 @@ describe('UserHistoryService', () => {
   });
   describe('createUserHistory', () => {
     test('Should resolve right and create a REST request to users history and return a `UserHistory` object', async () => {
-      userHistoryService.validateReqType('REST');
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -169,13 +170,12 @@ describe('UserHistoryService', () => {
       ).toEqualRight(userHistory);
     });
     test('Should resolve right and create a GQL request to users history and return a `UserHistory` object', async () => {
-      userHistoryService.validateReqType('GQL');
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.GQL,
+        reqType: ReqType.GQL,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -200,7 +200,6 @@ describe('UserHistoryService', () => {
       ).toEqualRight(userHistory);
     });
     test('Should resolve left when invalid ReqType is passed', async () => {
-      userHistoryService.validateReqType('INVALID');
       return expect(
         await userHistoryService.createUserHistory(
           'abc',
@@ -211,13 +210,12 @@ describe('UserHistoryService', () => {
       ).toEqualLeft(USER_HISTORY_INVALID_REQ_TYPE);
     });
     test('Should create a GQL request to users history and publish a created subscription', async () => {
-      userHistoryService.validateReqType('GQL');
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.GQL,
+        reqType: ReqType.GQL,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -245,13 +243,12 @@ describe('UserHistoryService', () => {
       );
     });
     test('Should create a REST request to users history and publish a created subscription', async () => {
-      userHistoryService.validateReqType('REST');
       mockPrisma.userHistory.create.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -286,7 +283,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -296,7 +293,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: true,
       });
@@ -328,7 +325,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -338,7 +335,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: true,
       });
@@ -367,7 +364,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -399,7 +396,7 @@ describe('UserHistoryService', () => {
         id: '1',
         request: [{}],
         responseMetadata: [{}],
-        type: ReqType.REST,
+        reqType: ReqType.REST,
         executedOn: new Date(),
         isStarred: false,
       });
@@ -424,7 +421,6 @@ describe('UserHistoryService', () => {
   });
   describe('deleteAllUserHistory', () => {
     test('Should resolve right and delete all user REST history for a request type', async () => {
-      userHistoryService.validateReqType('REST');
       mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
         count: 2,
       });
@@ -434,7 +430,6 @@ describe('UserHistoryService', () => {
       ).toEqualRight(2);
     });
     test('Should resolve right and delete all user GQL history for a request type', async () => {
-      userHistoryService.validateReqType('GQL');
       mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
         count: 2,
       });
@@ -444,14 +439,11 @@ describe('UserHistoryService', () => {
       ).toEqualRight(2);
     });
     test('Should resolve left and error when ReqType is invalid', async () => {
-      userHistoryService.validateReqType('INVALID');
-
       return expect(
         await userHistoryService.deleteAllUserHistory('abc', 'INVALID'),
       ).toEqualLeft(USER_HISTORY_INVALID_REQ_TYPE);
     });
     test('Should delete all user REST history for a request type and publish deleted many subscription', async () => {
-      userHistoryService.validateReqType('REST');
       mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
         count: 2,
       });
@@ -463,7 +455,6 @@ describe('UserHistoryService', () => {
       );
     });
     test('Should delete all user GQL history for a request type and publish deleted many subscription', async () => {
-      userHistoryService.validateReqType('GQL');
       mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
         count: 2,
       });

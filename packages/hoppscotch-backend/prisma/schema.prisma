@@ -91,7 +91,7 @@ model UserHistory {
   id               String   @id @default(cuid())
   userUid          String
   user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  type             ReqType
+  reqType          ReqType
   request          Json
   responseMetadata Json
   isStarred        Boolean

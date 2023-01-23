@@ -13,8 +13,6 @@ import {
   USER_ENVIRONMENT_UPDATE_FAILED,
   USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME,
 } from '../errors';
-import { SubscriptionHandler } from '../subscription-handler';
-import { SubscriptionType } from '../types/subscription-types';
 import { stringToJson } from '../utils';
 
 @Injectable()
@@ -22,7 +20,6 @@ export class UserEnvironmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly pubsub: PubSubService,
-    private readonly subscriptionHandler: SubscriptionHandler,
   ) {}
 
   /**
@@ -119,9 +116,8 @@ export class UserEnvironmentsService {
       isGlobal: createdEnvironment.isGlobal,
     };
     // Publish subscription for environment creation
-    await this.subscriptionHandler.publish(
-      `user_environment/${userEnvironment.userUid}`,
-      SubscriptionType.Created,
+    await this.pubsub.publish(
+      `user_environment/${userEnvironment.userUid}/created`,
       userEnvironment,
     );
     return E.right(userEnvironment);
@@ -154,9 +150,8 @@ export class UserEnvironmentsService {
         isGlobal: updatedEnvironment.isGlobal,
       };
       // Publish subscription for environment update
-      await this.subscriptionHandler.publish(
-        `user_environment/${updatedUserEnvironment.id}`,
-        SubscriptionType.Updated,
+      await this.pubsub.publish(
+        `user_environment/${updatedUserEnvironment.id}/updated`,
         updatedUserEnvironment,
       );
       return E.right(updatedUserEnvironment);
@@ -196,9 +191,8 @@ export class UserEnvironmentsService {
       };
 
       // Publish subscription for environment deletion
-      await this.subscriptionHandler.publish(
-        `user_environment/${deletedUserEnvironment.id}`,
-        SubscriptionType.Deleted,
+      await this.pubsub.publish(
+        `user_environment/${deletedUserEnvironment.id}/deleted`,
         deletedUserEnvironment,
       );
       return E.right(true);
@@ -220,9 +214,9 @@ export class UserEnvironmentsService {
       },
     });
 
-    await this.subscriptionHandler.publish(
-      `user_environment/${uid}`,
-      SubscriptionType.DeleteMany,
+    // Publish subscription for multiple environment deletions
+    await this.pubsub.publish(
+      `user_environment/${uid}/deleted_many`,
       deletedEnvironments.count,
     );
 
@@ -258,9 +252,8 @@ export class UserEnvironmentsService {
         };
 
         // Publish subscription for environment update
-        await this.subscriptionHandler.publish(
-          `user_environment/${updatedUserEnvironment.id}`,
-          SubscriptionType.Updated,
+        await this.pubsub.publish(
+          `user_environment/${updatedUserEnvironment.id}/updated`,
           updatedUserEnvironment,
         );
         return E.right(updatedUserEnvironment);

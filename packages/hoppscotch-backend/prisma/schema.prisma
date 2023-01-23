@@ -79,12 +79,22 @@ model TeamEnvironment {
 }
 
 model User {
-  uid                String  @id @default(cuid())
+  uid                String            @id @default(cuid())
   displayName        String?
   email              String?
   photoURL           String?
   currentRESTSession String?
   currentGQLSession  String?
+  UserEnvironments   UserEnvironment[]
+}
+
+model UserEnvironment {
+  id        String  @id @default(cuid())
+  userUid   String
+  user      User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  name      String?
+  variables Json
+  isGlobal  Boolean
 }
 
 enum TeamMemberRole {

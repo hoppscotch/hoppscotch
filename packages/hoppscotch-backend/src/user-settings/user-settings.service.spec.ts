@@ -65,6 +65,19 @@ describe('UserSettingsService', () => {
 
       expect(result).toEqualLeft(USER_SETTINGS_NULL_SETTINGS);
     });
+    test('Should publish message over pubsub on successful user settings create', async () => {
+      mockPrisma.userSettings.create.mockResolvedValue({
+        ...settings,
+        properties: JSON.parse(settings.properties),
+      });
+
+      await userSettingsService.createUserSettings(user, settings.properties);
+
+      expect(mockPubSub.publish).toBeCalledWith(
+        `user_settings/${user.uid}/created`,
+        settings,
+      );
+    });
   });
   describe('updateUserSettings', () => {
     test('Should update a user setting for valid user and settings', async () => {
@@ -95,7 +108,7 @@ describe('UserSettingsService', () => {
       );
       expect(result).toEqualLeft(USER_SETTINGS_NULL_SETTINGS);
     });
-    test('should publish message over pubsub on successful update', async () => {
+    test('Should publish message over pubsub on successful user settings update', async () => {
       mockPrisma.userSettings.update.mockResolvedValue({
         ...settings,
         properties: JSON.parse(settings.properties),

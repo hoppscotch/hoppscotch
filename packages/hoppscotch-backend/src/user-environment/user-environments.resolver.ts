@@ -201,7 +201,7 @@ export class UserEnvironmentsResolver {
   @UseGuards(GqlAuthGuard)
   userEnvironmentDeleteMany(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(
-      `user_environment/${user.uid}/delete_many`,
+      `user_environment/${user.uid}/deleted_many`,
     );
   }
 }

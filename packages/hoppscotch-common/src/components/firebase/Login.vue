@@ -197,6 +197,11 @@ export default defineComponent({
 
       const result = await platform.auth.signInUserWithGithub()
 
+      if (!result) {
+        this.signingInWithGitHub = false
+        return
+      }
+
       if (result.type === "success") {
         this.showLoginSuccess()
       } else if (result.type === "account-exists-with-different-cred") {

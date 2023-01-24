@@ -325,8 +325,7 @@ export const def: AuthPlatformDef = {
     }
   },
   async signInUserWithGoogle() {
-    const cred = await signInUserWithGoogleFB()
-    return fbUserToHoppUser(cred.user)
+    await signInUserWithGoogleFB()
   },
   async signInUserWithGithub() {
     try {
@@ -358,12 +357,10 @@ export const def: AuthPlatformDef = {
     }
   },
   async signInUserWithMicrosoft() {
-    const cred = await signInUserWithMicrosoftFB()
-    return fbUserToHoppUser(cred.user)
+    await signInUserWithMicrosoftFB()
   },
   async signInWithEmailLink(email: string, url: string) {
-    const cred = await signInWithEmailLinkFB(getAuth(), email, url)
-    return fbUserToHoppUser(cred.user)
+    await signInWithEmailLinkFB(getAuth(), email, url)
   },
   async getSignInMethodsForEmail(email: string) {
     return await fetchSignInMethodsForEmail(getAuth(), email)

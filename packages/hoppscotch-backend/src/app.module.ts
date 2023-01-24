@@ -4,6 +4,9 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
 import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
 import { AuthModule } from './auth/auth.module';
+import { UserSettingsModule } from './user-settings/user-settings.module';
+import { UserEnvironmentsModule } from './user-environment/user-environments.module';
+import { UserHistoryModule } from './user-history/user-history.module';
 
 @Module({
   imports: [
@@ -50,6 +53,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    UserSettingsModule,
+    UserEnvironmentsModule,
+    UserHistoryModule,
   ],
   providers: [GQLComplexityPlugin],
 })

@@ -9,6 +9,12 @@ export const EMAIL_FAILED = 'email/failed' as const;
 export const AUTH_FAIL = 'auth/fail';
 
 /**
+ * Invalid JSON
+ * (Utils)
+ */
+export const JSON_INVALID = 'json_invalid';
+
+/**
  * Tried to delete an user data document from fb firestore but failed.
  * (FirebaseService)
  */
@@ -19,6 +25,12 @@ export const USER_FB_DOCUMENT_DELETION_FAILED =
  * Tried to do an action on a user where user is not found
  */
 export const USER_NOT_FOUND = 'user/not_found' as const;
+
+/**
+ * User update failure
+ * (UserService)
+ */
+export const USER_UPDATE_FAILED = 'user/update_failed' as const;
 
 /**
  * User deletion failure
@@ -154,6 +166,94 @@ export const TEAM_ENVIRONMMENT_NOT_FOUND =
  */
 export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
   'team_environment/not_team_member' as const;
+
+/**
+ * User setting not found for a user
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
+
+/**
+ * User setting already exists for a user
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_exists' as const;
+
+/**
+ * User setting invalid (null) settings
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_NULL_SETTINGS = 'user_settings/null_settings' as const;
+
+/*
+ * Global environment doesnt exists for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
+  'user_environment/global_env_does_not_exists' as const;
+
+/**
+ * Global environment already exists for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_EXISTS =
+  'user_environment/global_env_already_exists' as const;
+/*
+
+/**
+ * User environment doesn't exist for the user
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_ENV_DOES_NOT_EXISTS =
+  'user_environment/user_env_does_not_exists' as const;
+/*
+
+/**
+ * Cannot delete the global user environment
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_GLOBAL_ENV_DELETION_FAILED =
+  'user_environment/user_env_global_env_deletion_failed' as const;
+/*
+
+/**
+ * User environment is not a global environment
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_IS_NOT_GLOBAL =
+  'user_environment/user_env_is_not_global' as const;
+/*
+
+/**
+ * User environment update failed
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_UPDATE_FAILED =
+  'user_environment/user_env_update_failed' as const;
+/*
+
+/**
+ * User environment invalid environment name
+ * (UserEnvironmentsService)
+ */
+export const USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME =
+  'user_environment/user_env_invalid_env_name' as const;
+/*
+
+/**
+ * User history not found
+ * (UserHistoryService)
+ */
+export const USER_HISTORY_NOT_FOUND = 'user_history/history_not_found' as const;
+
+/*
+
+/**
+ * Invalid Request Type in History
+ * (UserHistoryService)
+ */
+export const USER_HISTORY_INVALID_REQ_TYPE =
+  'user_history/req_type_invalid' as const;
 
 /*
 

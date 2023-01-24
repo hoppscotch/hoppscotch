@@ -86,8 +86,13 @@ model User {
   isAdmin                  Boolean                    @default(false)
   refreshToken             String?
   accounts                 Account[]
-  createdOn                DateTime                   @default(now()) @db.Timestamp(3)
   PasswordlessVerification PasswordlessVerification[]
+  settings                 UserSettings?
+  UserHistory              UserHistory[]
+  UserEnvironments         UserEnvironment[]
+  currentRESTSession       Json?
+  currentGQLSession        Json?
+  createdOn                DateTime                   @default(now()) @db.Timestamp(3)
 }
 
 model Account {
@@ -113,6 +118,39 @@ model PasswordlessVerification {
   expiresOn        DateTime @db.Timestamp(3)
 
   @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
+}
+
+model UserSettings {
+  id         String   @id @default(cuid())
+  userUid    String   @unique
+  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  properties Json
+  updatedOn  DateTime @updatedAt @db.Timestamp(3)
+}
+
+model UserHistory {
+  id               String   @id @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  reqType          ReqType
+  request          Json
+  responseMetadata Json
+  isStarred        Boolean
+  executedOn       DateTime @default(now()) @db.Timestamp(3)
+}
+
+enum ReqType {
+  REST
+  GQL
+}
+
+model UserEnvironment {
+  id        String  @id @default(cuid())
+  userUid   String
+  user      User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  name      String?
+  variables Json
+  isGlobal  Boolean
 }
 
 enum TeamMemberRole {

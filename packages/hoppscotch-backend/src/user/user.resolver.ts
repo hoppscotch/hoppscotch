@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql';
-import { UpdateUserInput, User } from './user.model';
+import { SessionType, User } from './user.model';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlUser } from '../decorators/gql-user.decorator';
@@ -38,14 +38,27 @@ export class UserResolver {
   /* Mutations */
 
   @Mutation(() => User, {
-    description: 'Update user information',
+    description: 'Update user sessions',
   })
   @UseGuards(GqlAuthGuard)
-  async updateUser(
+  async updateUserSessions(
     @GqlUser() user: User,
-    @Args('args') args: UpdateUserInput,
+    @Args({
+      name: 'currentSession',
+      description: 'JSON string of the saved REST/GQL session',
+    })
+    currentSession: string,
+    @Args({
+      name: 'sessionType',
+      description: 'Type of the session',
+    })
+    sessionType: SessionType,
   ): Promise<User> {
-    const updatedUser = await this.userService.updateUser(user, args);
+    const updatedUser = await this.userService.updateUserSessions(
+      user,
+      currentSession,
+      sessionType,
+    );
     if (E.isLeft(updatedUser)) throwErr(updatedUser.left);
     return updatedUser.right;
   }

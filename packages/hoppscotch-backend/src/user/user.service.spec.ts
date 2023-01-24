@@ -25,77 +25,78 @@ beforeEach(() => {
 });
 
 describe('UserService', () => {
-  describe('updateUser', () => {
-    test('Should resolve and update user both GQL and REST session', async () => {
+  describe('updateUserSessions', () => {
+    test('Should resolve right and update users GQL session', async () => {
+      const sessionData = user.currentGQLSession;
       mockPrisma.user.update.mockResolvedValue({
         ...user,
-        currentGQLSession: JSON.parse(user.currentGQLSession),
-        currentRESTSession: JSON.parse(user.currentRESTSession),
+        currentGQLSession: JSON.parse(sessionData),
+        currentRESTSession: null,
       });
 
-      const result = await userService.updateUser(user, {
-        currentGQLSession: user.currentGQLSession,
-        currentRESTSession: user.currentRESTSession,
-      });
-
-      expect(result).toEqualRight(user);
-    });
-    test('Should resolve and update user only with GQL session', async () => {
-      mockPrisma.user.update.mockResolvedValue({
-        ...user,
-        currentGQLSession: JSON.parse(user.currentGQLSession),
-        currentRESTSession: undefined,
-      });
-
-      const result = await userService.updateUser(user, {
-        currentGQLSession: user.currentGQLSession,
-      });
-
-      expect(result).toEqualRight({ ...user, currentRESTSession: null });
-    });
-    test('Should reject update user for invalid GQL session', async () => {
-      const newGqlSession = null;
-      mockPrisma.user.update.mockResolvedValue({
-        ...user,
-        currentGQLSession: newGqlSession,
-        currentRESTSession: undefined,
-      });
-
-      const result = await userService.updateUser(user, {
-        currentGQLSession: newGqlSession,
-      });
+      const result = await userService.updateUserSessions(
+        user,
+        sessionData,
+        'GQL',
+      );
 
       expect(result).toEqualRight({
         ...user,
-        currentGQLSession: newGqlSession,
+        currentGQLSession: sessionData,
         currentRESTSession: null,
       });
     });
-    test('Should reject update user for invalid GQL session', async () => {
-      const newGqlSession = 'invalid json';
+    test('Should resolve right and update users REST session', async () => {
+      const sessionData = user.currentGQLSession;
       mockPrisma.user.update.mockResolvedValue({
         ...user,
-        currentGQLSession: newGqlSession,
-        currentRESTSession: undefined,
+        currentGQLSession: null,
+        currentRESTSession: JSON.parse(sessionData),
       });
 
-      const result = await userService.updateUser(user, {
-        currentGQLSession: newGqlSession,
+      const result = await userService.updateUserSessions(
+        user,
+        sessionData,
+        'REST',
+      );
+
+      expect(result).toEqualRight({
+        ...user,
+        currentGQLSession: null,
+        currentRESTSession: sessionData,
       });
+    });
+    test('Should reject left and update user for invalid GQL session', async () => {
+      const sessionData = 'invalid json';
+
+      const result = await userService.updateUserSessions(
+        user,
+        sessionData,
+        'GQL',
+      );
 
       expect(result).toEqualLeft(JSON_INVALID);
     });
-    test('Should publish pubsub message on user update', async () => {
+    test('Should reject left and update user for invalid REST session', async () => {
+      const sessionData = 'invalid json';
+
+      const result = await userService.updateUserSessions(
+        user,
+        sessionData,
+        'REST',
+      );
+
+      expect(result).toEqualLeft(JSON_INVALID);
+    });
+
+    test('Should publish pubsub message on user update sessions', async () => {
       mockPrisma.user.update.mockResolvedValue({
         ...user,
         currentGQLSession: JSON.parse(user.currentGQLSession),
         currentRESTSession: JSON.parse(user.currentRESTSession),
       });
 
-      await userService.updateUser(user, {
-        currentGQLSession: user.currentGQLSession,
-        currentRESTSession: user.currentRESTSession,
-      });
+      await userService.updateUserSessions(user, user.currentGQLSession, 'GQL');
 
       expect(mockPubSub.publish).toHaveBeenCalledTimes(1);
       expect(mockPubSub.publish).toHaveBeenCalledWith(

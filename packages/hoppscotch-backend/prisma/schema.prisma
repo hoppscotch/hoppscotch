@@ -79,12 +79,22 @@ model TeamEnvironment {
 }
 
 model User {
-  uid         String        @id @default(cuid())
-  displayName String?
-  email       String?
-  photoURL    String?
+  uid              String            @id @default(cuid())
+  displayName      String?
+  email            String?
+  photoURL         String?
+  settings         UserSettings?
+
   UserHistory UserHistory[]
   UserEnvironments UserEnvironment[]
+}
+
+model UserSettings {
+  id         String   @id @default(cuid())
+  userUid    String   @unique
+  user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  properties Json
+  updatedOn  DateTime @updatedAt @db.Timestamp(3)
 }
 
 model UserHistory {

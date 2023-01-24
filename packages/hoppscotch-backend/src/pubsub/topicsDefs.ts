@@ -1,3 +1,4 @@
+import { UserSettings } from 'src/user-settings/user-settings.model';
 import { UserEnvironment } from '../user-environment/user-environments.model';
 import { UserHistory } from '../user-history/user-history.model';
 
@@ -7,6 +8,7 @@ export type TopicDef = {
   [
     topic: `user_environment/${string}/${'created' | 'updated' | 'deleted'}`
   ]: UserEnvironment;
+  [topic: `user_settings/${string}/${'created' | 'updated'}`]: UserSettings;
   [topic: `user_environment/${string}/deleted_many`]: number;
   [
     topic: `user_history/${string}/${'created' | 'updated' | 'deleted'}`

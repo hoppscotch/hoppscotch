@@ -84,6 +84,8 @@ model User {
   email            String?
   photoURL         String?
   settings         UserSettings?
+
+  UserHistory UserHistory[]
   UserEnvironments UserEnvironment[]
 }
 
@@ -93,6 +95,22 @@ model UserSettings {
   user       User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
   properties Json
   updatedOn  DateTime @updatedAt @db.Timestamp(3)
+}
+
+model UserHistory {
+  id               String   @id @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  reqType          ReqType
+  request          Json
+  responseMetadata Json
+  isStarred        Boolean
+  executedOn       DateTime  @default(now()) @db.Timestamp(3)
+}
+
+enum ReqType {
+  REST
+  GQL
 }
 
 model UserEnvironment {

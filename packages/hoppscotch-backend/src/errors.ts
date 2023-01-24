@@ -234,6 +234,23 @@ export const USER_ENVIRONMENT_INVALID_ENVIRONMENT_NAME =
   'user_environment/user_env_invalid_env_name' as const;
 /*
 
+/**
+ * User history not found
+ * (UserHistoryService)
+ */
+export const USER_HISTORY_NOT_FOUND = 'user_history/history_not_found' as const;
+
+/*
+
+/**
+ * Invalid Request Type in History
+ * (UserHistoryService)
+ */
+export const USER_HISTORY_INVALID_REQ_TYPE =
+  'user_history/req_type_invalid' as const;
+
+/*
+
  |------------------------------------|
  |Server errors that are actually bugs|
  |------------------------------------|

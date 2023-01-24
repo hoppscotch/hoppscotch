@@ -10,8 +10,6 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 
 @Resolver(() => User)
 export class UserResolver {
-  // TODO: remove the eslint-disable line below once dependencies are added to user.service file
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(
     private readonly userService: UserService,
     private readonly pubsub: PubSubService,

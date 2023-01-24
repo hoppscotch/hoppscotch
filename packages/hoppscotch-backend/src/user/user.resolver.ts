@@ -1,12 +1,11 @@
 import { Resolver, Query, Mutation, Args, Subscription } from '@nestjs/graphql';
-import { User } from './user.model';
+import { UpdateUserInput, User } from './user.model';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlUser } from '../decorators/gql-user.decorator';
 import { UserService } from './user.service';
 import { throwErr } from 'src/utils';
 import * as E from 'fp-ts/lib/Either';
-import { UpdateUserInput } from './dtos/update-user-input.dto';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 
 @Resolver(() => User)
@@ -58,7 +57,7 @@ export class UserResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userSettingsUpdated(@GqlUser() user: User) {
+  userUpdated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user/${user.uid}/updated`);
   }
 }

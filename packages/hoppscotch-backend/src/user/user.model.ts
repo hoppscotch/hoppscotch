@@ -1,4 +1,4 @@
-import { ObjectType, ID, Field } from '@nestjs/graphql';
+import { ObjectType, ID, Field, InputType } from '@nestjs/graphql';
 
 @ObjectType()
 export class User {
@@ -34,6 +34,37 @@ export class User {
   @Field({
     nullable: true,
     description: 'Stringified current GraphQL session for logged-in User',
+  })
+  currentGQLSession?: string;
+}
+
+@InputType()
+export class UpdateUserInput {
+  @Field({
+    nullable: true,
+    name: 'displayName',
+    description: 'Displayed name of the user (if given)',
+  })
+  displayName?: string;
+
+  @Field({
+    nullable: true,
+    name: 'photoURL',
+    description: 'URL to the profile photo of the user (if given)',
+  })
+  photoURL?: string;
+
+  @Field({
+    nullable: true,
+    name: 'currentRESTSession',
+    description: 'JSON string of the saved REST session',
+  })
+  currentRESTSession?: string;
+
+  @Field({
+    nullable: true,
+    name: 'currentGQLSession',
+    description: 'JSON string of the saved GQL session',
   })
   currentGQLSession?: string;
 }

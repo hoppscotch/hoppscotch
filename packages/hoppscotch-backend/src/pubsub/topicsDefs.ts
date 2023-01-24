@@ -7,8 +7,6 @@ export type TopicDef = {
   [
     topic: `user_environment/${string}/${'created' | 'updated' | 'deleted'}`
   ]: UserEnvironment;
-  [
-    topic: `user/${string}/${'created' | 'updated' | 'deleted'}`
-  ]: User;
+  [topic: `user/${string}/${'updated'}`]: User;
   [topic: `user_environment/${string}/deleted_many`]: number;
 };

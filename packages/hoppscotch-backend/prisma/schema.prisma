@@ -83,8 +83,8 @@ model User {
   displayName        String?
   email              String?
   photoURL           String?
-  currentRESTSession String?
-  currentGQLSession  String?
+  currentRESTSession Json?
+  currentGQLSession  Json?
   UserEnvironments   UserEnvironment[]
 }
 

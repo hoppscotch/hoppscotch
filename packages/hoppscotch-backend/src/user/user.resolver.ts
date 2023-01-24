@@ -43,9 +43,9 @@ export class UserResolver {
   @UseGuards(GqlAuthGuard)
   async updateUser(
     @GqlUser() user: User,
-    @Args('args') userInput: UpdateUserInput,
+    @Args('args') args: UpdateUserInput,
   ): Promise<User> {
-    const updatedUser = await this.userService.updateUser(user, userInput);
+    const updatedUser = await this.userService.updateUser(user, args);
     if (E.isLeft(updatedUser)) throwErr(updatedUser.left);
     return updatedUser.right;
   }

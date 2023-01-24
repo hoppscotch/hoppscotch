@@ -156,7 +156,7 @@ export type AuthPlatformDef = {
    * @param url - The action URL which is used to validate login
    * @returns A promise that resolves with the user info when auth is completed
    */
-  signInWithEmailLink: (email: string, url: string) => Promise<HoppUser>
+  signInWithEmailLink: (email: string, url: string) => Promise<void>
 
   /**
    * Sends email verification email (the checkmark besides the email)
@@ -168,17 +168,17 @@ export type AuthPlatformDef = {
    * Signs user in with Google.
    * @returns A promise that resolves with the user info when auth is completed
    */
-  signInUserWithGoogle: () => Promise<HoppUser>
+  signInUserWithGoogle: () => Promise<void>
   /**
    * Signs user in with Github.
    * @returns A promise that resolves with the auth status, giving an opportunity to link if or handle failures
    */
-  signInUserWithGithub: () => Promise<GithubSignInResult>
+  signInUserWithGithub: () => Promise<GithubSignInResult> | Promise<undefined>
   /**
    * Signs user in with Microsoft.
    * @returns A promise that resolves with the user info when auth is completed
    */
-  signInUserWithMicrosoft: () => Promise<HoppUser>
+  signInUserWithMicrosoft: () => Promise<void>
 
   /**
    * Returns what sign in methods are available for a given email

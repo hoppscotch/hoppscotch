@@ -1,4 +1,5 @@
-import { DeepMockProxy, mockDeep, mockReset } from 'jest-mock-extended';
+import { mockDeep, mockReset } from 'jest-mock-extended';
+import { JSON_INVALID } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserService } from './user.service';
@@ -25,8 +26,12 @@ beforeEach(() => {
 
 describe('UserService', () => {
   describe('updateUser', () => {
-    test('should update user', async () => {
-      mockPrisma.user.update.mockResolvedValue(user);
+    test('Should resolve and update user both GQL and REST session', async () => {
+      mockPrisma.user.update.mockResolvedValue({
+        ...user,
+        currentGQLSession: JSON.parse(user.currentGQLSession),
+        currentRESTSession: JSON.parse(user.currentRESTSession),
+      });
 
       const result = await userService.updateUser(user, {
         currentGQLSession: user.currentGQLSession,
@@ -35,8 +40,57 @@ describe('UserService', () => {
 
       expect(result).toEqualRight(user);
     });
-    test('should publish user update subscription', async () => {
-      mockPrisma.user.update.mockResolvedValue(user);
+    test('Should resolve and update user only with GQL session', async () => {
+      mockPrisma.user.update.mockResolvedValue({
+        ...user,
+        currentGQLSession: JSON.parse(user.currentGQLSession),
+        currentRESTSession: undefined,
+      });
+
+      const result = await userService.updateUser(user, {
+        currentGQLSession: user.currentGQLSession,
+      });
+
+      expect(result).toEqualRight({ ...user, currentRESTSession: null });
+    });
+    test('Should reject update user for invalid GQL session', async () => {
+      const newGqlSession = null;
+      mockPrisma.user.update.mockResolvedValue({
+        ...user,
+        currentGQLSession: newGqlSession,
+        currentRESTSession: undefined,
+      });
+
+      const result = await userService.updateUser(user, {
+        currentGQLSession: newGqlSession,
+      });
+
+      expect(result).toEqualRight({
+        ...user,
+        currentGQLSession: newGqlSession,
+        currentRESTSession: null,
+      });
+    });
+    test('Should reject update user for invalid GQL session', async () => {
+      const newGqlSession = 'invalid json';
+      mockPrisma.user.update.mockResolvedValue({
+        ...user,
+        currentGQLSession: newGqlSession,
+        currentRESTSession: undefined,
+      });
+
+      const result = await userService.updateUser(user, {
+        currentGQLSession: newGqlSession,
+      });
+
+      expect(result).toEqualLeft(JSON_INVALID);
+    });
+    test('Should publish pubsub message on user update', async () => {
+      mockPrisma.user.update.mockResolvedValue({
+        ...user,
+        currentGQLSession: JSON.parse(user.currentGQLSession),
+        currentRESTSession: JSON.parse(user.currentRESTSession),
+      });
 
       await userService.updateUser(user, {
         currentGQLSession: user.currentGQLSession,

@@ -27,6 +27,12 @@ export const USER_FB_DOCUMENT_DELETION_FAILED =
 export const USER_NOT_FOUND = 'user/not_found' as const;
 
 /**
+ * User update failure
+ * (UserService)
+ */
+export const USER_UPDATE_FAILED = 'user/update_failed' as const;
+
+/**
  * User deletion failure
  * (UserService)
  */

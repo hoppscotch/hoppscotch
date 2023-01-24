@@ -79,14 +79,15 @@ model TeamEnvironment {
 }
 
 model User {
-  uid              String            @id @default(cuid())
-  displayName      String?
-  email            String?
-  photoURL         String?
-  settings         UserSettings?
-
-  UserHistory UserHistory[]
-  UserEnvironments UserEnvironment[]
+  uid                String            @id @default(cuid())
+  displayName        String?
+  email              String?
+  photoURL           String?
+  currentRESTSession Json?
+  currentGQLSession  Json?
+  settings           UserSettings?
+  UserHistory        UserHistory[]
+  UserEnvironments   UserEnvironment[]
 }
 
 model UserSettings {
@@ -105,7 +106,7 @@ model UserHistory {
   request          Json
   responseMetadata Json
   isStarred        Boolean
-  executedOn       DateTime  @default(now()) @db.Timestamp(3)
+  executedOn       DateTime @default(now()) @db.Timestamp(3)
 }
 
 enum ReqType {

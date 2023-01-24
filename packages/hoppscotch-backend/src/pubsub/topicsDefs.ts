@@ -1,3 +1,4 @@
+import { UserSettings } from 'src/user-settings/user-settings.model';
 import { UserEnvironment } from '../user-environment/user-environments.model';
 
 // A custom message type that defines the topic and the corresponding payload.
@@ -6,5 +7,6 @@ export type TopicDef = {
   [
     topic: `user_environment/${string}/${'created' | 'updated' | 'deleted'}`
   ]: UserEnvironment;
+  [topic: `user_settings/${string}/${'created' | 'updated'}`]: UserSettings;
   [topic: `user_environment/${string}/deleted_many`]: number;
 };

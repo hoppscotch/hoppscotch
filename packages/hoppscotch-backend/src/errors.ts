@@ -162,12 +162,29 @@ export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
   'team_environment/not_team_member' as const;
 
 /**
+ * User setting not found for a user
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
+
+/**
+ * User setting already exists for a user
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_exists' as const;
+
+/**
+ * User setting invalid (null) settings
+ * (UserSettingsService)
+ */
+export const USER_SETTINGS_NULL_SETTINGS = 'user_settings/null_settings' as const;
+
+/*
  * Global environment doesnt exists for the user
  * (UserEnvironmentsService)
  */
 export const USER_ENVIRONMENT_GLOBAL_ENV_DOES_NOT_EXISTS =
   'user_environment/global_env_does_not_exists' as const;
-/*
 
 /**
  * Global environment already exists for the user

@@ -168,10 +168,10 @@ export const TEAM_ENVIRONMENT_NOT_TEAM_MEMBER =
 export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
 
 /**
- * User setting not found for a user
+ * User setting already exists for a user
  * (UserSettingsService)
  */
-export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_present' as const;
+export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_exists' as const;
 
 /**
  * User setting invalid (null) settings

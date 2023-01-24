@@ -59,6 +59,15 @@ export class UserSettingsResolver {
   /* Subscriptions */
 
   @Subscription(() => UserSettings, {
+    description: 'Listen for user setting creates',
+    resolve: (value) => value,
+  })
+  @UseGuards(GqlAuthGuard)
+  userSettingsCreated(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_settings/${user.uid}/created`);
+  }
+
+  @Subscription(() => UserSettings, {
     description: 'Listen for user setting updates',
     resolve: (value) => value,
   })

@@ -147,7 +147,7 @@ async function linkWithFBCredentialFromAuthError(error: unknown) {
   const credentials = OAuthProvider.credentialFromError(error as AuthError)!
 
   const otherLinkedProviders = (
-    await def.getSignInMethodsForEmail((error as AuthError).customData.email!)
+    await getSignInMethodsForEmail((error as AuthError).customData.email!)
   ).filter((providerId) => credentials.providerId !== providerId)
 
   let user: FBUser | null = null
@@ -162,6 +162,27 @@ async function linkWithFBCredentialFromAuthError(error: unknown) {
 
   // user is not null since going through each provider will return a user
   return await linkWithCredential(user!, credentials)
+}
+
+async function setProviderInfo(id: string, token: string) {
+  if (!currentUser$.value) throw new Error("No user has logged in")
+
+  const us = {
+    updatedOn: new Date(),
+    provider: id,
+    accessToken: token,
+  }
+
+  try {
+    await updateDoc(doc(getFirestore(), "users", currentUser$.value.uid), us)
+  } catch (e) {
+    console.error("error updating provider info", e)
+    throw e
+  }
+}
+
+async function getSignInMethodsForEmail(email: string) {
+  return await fetchSignInMethodsForEmail(getAuth(), email)
 }
 
 export const def: AuthPlatformDef = {
@@ -332,7 +353,7 @@ export const def: AuthPlatformDef = {
       const cred = await signInUserWithGithubFB()
       const oAuthCred = GithubAuthProvider.credentialFromResult(cred)!
       const token = oAuthCred.accessToken
-      await this.setProviderInfo(cred.providerId!, token!)
+      await setProviderInfo(cred.providerId!, token!)
 
       return {
         type: "success",
@@ -362,9 +383,6 @@ export const def: AuthPlatformDef = {
   async signInWithEmailLink(email: string, url: string) {
     await signInWithEmailLinkFB(getAuth(), email, url)
   },
-  async getSignInMethodsForEmail(email: string) {
-    return await fetchSignInMethodsForEmail(getAuth(), email)
-  },
   async setEmailAddress(email: string) {
     if (!currentUserFB$.value) throw new Error("No user has logged in")
 
@@ -387,22 +405,6 @@ export const def: AuthPlatformDef = {
       await updateProfile(currentUserFB$.value, us)
     } catch (e) {
       console.error("error updating display name", e)
-      throw e
-    }
-  },
-  async setProviderInfo(id: string, token: string) {
-    if (!currentUser$.value) throw new Error("No user has logged in")
-
-    const us = {
-      updatedOn: new Date(),
-      provider: id,
-      accessToken: token,
-    }
-
-    try {
-      await updateDoc(doc(getFirestore(), "users", currentUser$.value.uid), us)
-    } catch (e) {
-      console.error("error updating provider info", e)
       throw e
     }
   },

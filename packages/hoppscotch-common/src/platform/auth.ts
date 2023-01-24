@@ -181,13 +181,6 @@ export type AuthPlatformDef = {
   signInUserWithMicrosoft: () => Promise<void>
 
   /**
-   * Returns what sign in methods are available for a given email
-   * @param email The email to check against
-   * @returns Returns an array of provider IDs that correspond to the given signin methods
-   */
-  getSignInMethodsForEmail: (email: string) => Promise<string[]>
-
-  /**
    * Signs out the user from auth
    * @returns An empty promise that is resolved when the operation is complete
    */
@@ -206,11 +199,4 @@ export type AuthPlatformDef = {
    * @returns An empty promise that is resolved when the operation is complete
    */
   setDisplayName: (name: string) => Promise<void>
-
-  /**
-   * Updates the provider info of the user
-   * @param name The new name to set this to.
-   * @returns An empty promise that is resolved when the operation is complete
-   */
-  setProviderInfo: (id: string, token: string) => Promise<void>
 }

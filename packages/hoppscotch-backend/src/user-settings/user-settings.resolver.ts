@@ -59,7 +59,7 @@ export class UserSettingsResolver {
   /* Subscriptions */
 
   @Subscription(() => UserSettings, {
-    description: 'Listen for user setting creates',
+    description: 'Listen for user setting creation',
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)

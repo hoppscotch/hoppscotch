@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { ReqType, UserHistory } from './user-history.model';
 import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import {
   USER_HISTORY_INVALID_REQ_TYPE,
   USER_HISTORY_NOT_FOUND,
@@ -70,6 +71,7 @@ export class UserHistoryService {
 
     const userHistory = <UserHistory>{
       ...history,
+      reqType: history.reqType,
       request: JSON.stringify(history.request),
       responseMetadata: JSON.stringify(history.responseMetadata),
     };
@@ -90,22 +92,18 @@ export class UserHistoryService {
    * @returns an Either of updated `UserHistory` or Error
    */
   async toggleHistoryStarStatus(uid: string, id: string) {
-    const userHistory = await this.prisma.userHistory.findFirst({
-      where: {
-        id: id,
-      },
-    });
-
-    if (userHistory == null) {
+    const userHistory = await this.fetchUserHistoryByID(id);
+    if (O.isNone(userHistory)) {
       return E.left(USER_HISTORY_NOT_FOUND);
     }
+
     try {
       const updatedHistory = await this.prisma.userHistory.update({
         where: {
           id: id,
         },
         data: {
-          isStarred: !userHistory.isStarred,
+          isStarred: !userHistory.value.isStarred,
         },
       });
 
@@ -180,6 +178,22 @@ export class UserHistoryService {
       deletedCount.count,
     );
     return E.right(deletedCount.count);
+  }
+
+  /**
+   * Fetch a user history based on history ID.
+   * @param id User History ID
+   * @returns an `UserHistory` object
+   */
+  async fetchUserHistoryByID(id: string) {
+    const userHistory = await this.prisma.userHistory.findFirst({
+      where: {
+        id: id,
+      },
+    });
+    if (userHistory == null) return O.none;
+
+    return O.some(userHistory);
   }
 
   /**

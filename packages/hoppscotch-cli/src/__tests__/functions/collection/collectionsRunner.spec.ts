@@ -50,7 +50,7 @@ describe("collectionsRunner", () => {
 
   test("Empty HoppCollection.", () => {
     return expect(
-      collectionsRunner({ collections: [], envs: SAMPLE_ENVS })()
+      collectionsRunner({ collections: [], envs: SAMPLE_ENVS })
     ).resolves.toStrictEqual([]);
   });
 
@@ -66,7 +66,7 @@ describe("collectionsRunner", () => {
           },
         ],
         envs: SAMPLE_ENVS,
-      })()
+      })
     ).resolves.toMatchObject([]);
   });
 
@@ -84,7 +84,7 @@ describe("collectionsRunner", () => {
           },
         ],
         envs: SAMPLE_ENVS,
-      })()
+      })
     ).resolves.toMatchObject([
       {
         path: "collection/request",
@@ -116,7 +116,7 @@ describe("collectionsRunner", () => {
           },
         ],
         envs: SAMPLE_ENVS,
-      })()
+      })
     ).resolves.toMatchObject([
       {
         path: "collection/folder/request",

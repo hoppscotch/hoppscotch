@@ -8,14 +8,21 @@ if (typeof window !== "undefined") {
   ;(window as any)["HoppUI"] = HoppUI
 }
 
-import "virtual:windi.css"
 import "./assets/scss/styles.scss"
+import "virtual:windi.css"
+
+export type HoppUIPluginOptions = {
+  t?: (key: string) => string
+  onModalOpen?: () => void
+  onModalClose?: () => void
+}
 
 const plugin: Plugin = {
-  install(app, options = {}) {
+  install(app, options: HoppUIPluginOptions = {}) {
     for (const key in components) {
       // @ts-expect-error
       app.component(key, components[key])
+      app.provide("HOPP_UI_OPTIONS", options)
     }
   },
 }

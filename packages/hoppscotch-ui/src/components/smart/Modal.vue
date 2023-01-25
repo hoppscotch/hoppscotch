@@ -48,7 +48,7 @@
                 <ButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-                  :title="closeText ?? 'Close'"
+                  :title="closeText ?? (t ? t('action.close') : 'Close')"
                   :icon="IconX"
                   @click="close"
                 />
@@ -93,7 +93,18 @@ const stack = (() => {
 
 <script setup lang="ts">
 import IconX from "~icons/lucide/x"
-import { ref, computed, useSlots, onMounted, onBeforeUnmount } from "vue"
+import {
+  ref,
+  computed,
+  useSlots,
+  onMounted,
+  onBeforeUnmount,
+  inject,
+} from "vue"
+import { HoppUIPluginOptions } from "~/index"
+
+const { t, onModalOpen, onModalClose } =
+  inject<HoppUIPluginOptions>("HOPP_UI_OPTIONS") ?? {}
 
 defineProps({
   dialog: {
@@ -122,7 +133,7 @@ defineProps({
   },
   closeText: {
     type: String,
-    default: "'Close'",
+    default: null,
   },
 })
 
@@ -130,12 +141,9 @@ const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-// TEMP: Disable keybindings when modal is open
-// const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
-
-// onBeforeUnmount(() => {
-//   enableKeybindings()
-// })
+onBeforeUnmount(() => {
+  onModalClose && onModalClose()
+})
 
 const stackId = ref(stackIDTicker++)
 const shouldCleanupDomOnUnmount = ref(true)
@@ -154,7 +162,7 @@ onMounted(() => {
   stack.push(stackId.value)
   document.addEventListener("keydown", onKeyDown)
 
-  // disableKeybindings()
+  onModalOpen && onModalOpen()
 })
 
 onBeforeUnmount(() => {

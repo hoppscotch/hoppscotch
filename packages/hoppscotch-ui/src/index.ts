@@ -19,11 +19,7 @@ export type HoppUIPluginOptions = {
 
 const plugin: Plugin = {
   install(app, options: HoppUIPluginOptions = {}) {
-    for (const key in components) {
-      // @ts-expect-error
-      app.component(key, components[key])
-      app.provide("HOPP_UI_OPTIONS", options)
-    }
+    app.provide("HOPP_UI_OPTIONS", options)
   },
 }
 

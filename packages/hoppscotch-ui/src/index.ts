@@ -1,12 +1,4 @@
 import { Plugin } from "vue"
-import * as components from "./components/"
-
-const HoppUI = { ...components }
-
-// Hopp UI will be available globally when in a browser environment
-if (typeof window !== "undefined") {
-  ;(window as any)["HoppUI"] = HoppUI
-}
 
 import "./assets/scss/styles.scss"
 import "virtual:windi.css"
@@ -24,5 +16,3 @@ const plugin: Plugin = {
 }
 
 export default plugin
-
-export * from "./components/"

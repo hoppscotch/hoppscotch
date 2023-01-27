@@ -50,9 +50,9 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.d="documentation.$el.click()"
-              @keyup.s="shortcuts.$el.click()"
-              @keyup.c="chat.$el.click()"
+              @keyup.d="documentation!.$el.click()"
+              @keyup.s="shortcuts!.$el.click()"
+              @keyup.c="chat!.$el.click()"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -223,6 +223,7 @@ import { currentUser$ } from "~/helpers/fb/auth"
 import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
+import SmartItem from "@hoppscotch/ui/src/components/Item.vue"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)
@@ -270,7 +271,7 @@ const showDeveloperOptionModal = () => {
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
-const documentation = ref<any | null>(null) // any is a hack here. SmartItem type will be here
-const shortcuts = ref<any | null>(null) // any is a hack here. SmartItem type will be here
-const chat = ref<any | null>(null) // any is a hack here. SmartItem type will be here
+const documentation = ref<typeof SmartItem>()
+const shortcuts = ref<typeof SmartItem>()
+const chat = ref<typeof SmartItem>()
 </script>

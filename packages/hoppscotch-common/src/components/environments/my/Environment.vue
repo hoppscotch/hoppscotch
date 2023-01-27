@@ -122,7 +122,7 @@ import {
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
-import SmartItem from "@hoppscotch/ui/src/components/Item.vue"
+import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
 
 const t = useI18n()
 const toast = useToast()

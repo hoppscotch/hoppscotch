@@ -108,7 +108,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import { TippyComponent } from "vue-tippy"
-import SmartItem from "@hoppscotch/ui/src/components/Item.vue"
+import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
 
 const t = useI18n()
 const toast = useToast()

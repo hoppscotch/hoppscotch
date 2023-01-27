@@ -223,7 +223,7 @@ import { currentUser$ } from "~/helpers/fb/auth"
 import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
-import SmartItem from "@hoppscotch/ui/src/components/Item.vue"
+import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)

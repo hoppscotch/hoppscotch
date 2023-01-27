@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "ReqType" AS ENUM ('REST', 'GQL');
+
+-- CreateEnum
 CREATE TYPE "TeamMemberRole" AS ENUM ('OWNER', 'VIEWER', 'EDITOR');
 
 -- CreateTable
@@ -79,6 +82,8 @@ CREATE TABLE "User" (
     "photoURL" TEXT,
     "isAdmin" BOOLEAN NOT NULL DEFAULT false,
     "refreshToken" TEXT,
+    "currentRESTSession" JSONB,
+    "currentGQLSession" JSONB,
     "createdOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("uid")
@@ -106,6 +111,40 @@ CREATE TABLE "PasswordlessVerification" (
     "expiresOn" TIMESTAMP(3) NOT NULL
 );
 
+-- CreateTable
+CREATE TABLE "UserSettings" (
+    "id" TEXT NOT NULL,
+    "userUid" TEXT NOT NULL,
+    "properties" JSONB NOT NULL,
+    "updatedOn" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserSettings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UserHistory" (
+    "id" TEXT NOT NULL,
+    "userUid" TEXT NOT NULL,
+    "reqType" "ReqType" NOT NULL,
+    "request" JSONB NOT NULL,
+    "responseMetadata" JSONB NOT NULL,
+    "isStarred" BOOLEAN NOT NULL,
+    "executedOn" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UserHistory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UserEnvironment" (
+    "id" TEXT NOT NULL,
+    "userUid" TEXT NOT NULL,
+    "name" TEXT,
+    "variables" JSONB NOT NULL,
+    "isGlobal" BOOLEAN NOT NULL,
+
+    CONSTRAINT "UserEnvironment_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "TeamMember_teamID_userUid_key" ON "TeamMember"("teamID", "userUid");
 
@@ -129,6 +168,9 @@ CREATE UNIQUE INDEX "PasswordlessVerification_token_key" ON "PasswordlessVerific
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PasswordlessVerification_deviceIdentifier_token_key" ON "PasswordlessVerification"("deviceIdentifier", "token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "UserSettings_userUid_key" ON "UserSettings"("userUid");
 
 -- AddForeignKey
 ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_teamID_fkey" FOREIGN KEY ("teamID") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -156,3 +198,12 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "PasswordlessVerification" ADD CONSTRAINT "PasswordlessVerification_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserSettings" ADD CONSTRAINT "UserSettings_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserHistory" ADD CONSTRAINT "UserHistory_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserEnvironment" ADD CONSTRAINT "UserEnvironment_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;

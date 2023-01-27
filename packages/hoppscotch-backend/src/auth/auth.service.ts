@@ -201,7 +201,7 @@ export class AuthService {
    * @param profile Provider Account type (Magic,Google,Github,Microsoft)
    * @returns {Promise<O.None | O.Some<Account>>} Either of existing user provider Account
    */
-  async checkIfProviderAccountExists(user: User, profile) {
+  async checkIfProviderAccountExists(user: AuthUser, profile) {
     const provider = await this.prismaService.account.findUnique({
       where: {
         verifyProviderAccount: {

@@ -78,13 +78,5 @@
   "files": [
     "src",
     "dist"
-  ],
-  "types": "./dist/types/index.d.ts",
-  "module": "./dist/hopp-ui.es.js",
-  "exports": {
-    ".": {
-      "import": "./dist/hopp-ui.es.js"
-    },
-    "./dist/style.css": "./dist/style.css"
-  }
+  ]
 }

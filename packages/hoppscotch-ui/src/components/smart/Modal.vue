@@ -48,7 +48,7 @@
                 <ButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-                  :title="closeText ?? (t ? t('action.close') : 'Close')"
+                  :title="closeText ?? t?.('action.close') ?? 'Close'"
                   :icon="IconX"
                   @click="close"
                 />
@@ -101,10 +101,10 @@ import {
   onBeforeUnmount,
   inject,
 } from "vue"
-import { HoppUIPluginOptions } from "~/index"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "~/index"
 
 const { t, onModalOpen, onModalClose } =
-  inject<HoppUIPluginOptions>("HOPP_UI_OPTIONS") ?? {}
+  inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
 defineProps({
   dialog: {
@@ -142,7 +142,7 @@ const emit = defineEmits<{
 }>()
 
 onBeforeUnmount(() => {
-  onModalClose && onModalClose()
+  onModalClose?.()
 })
 
 const stackId = ref(stackIDTicker++)
@@ -162,7 +162,7 @@ onMounted(() => {
   stack.push(stackId.value)
   document.addEventListener("keydown", onKeyDown)
 
-  onModalOpen && onModalOpen()
+  onModalOpen?.()
 })
 
 onBeforeUnmount(() => {

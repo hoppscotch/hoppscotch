@@ -36,11 +36,7 @@ We've included Histoire in this library which is similar to Storybook, to make i
 
 `pnpm run story:dev`
 
-You can also use Histoire to create stories for your components and test them in different scenarios.
-
-## Examples
-
-For examples of how to use the components in `hoppscotch-ui`, please refer to the documentation on the [hoppscotch-ui website](https://hoppscotch.io/)
+You can also use [Histoire](https://histoire.dev/) to create stories for your components and test them in different scenarios.
 
 ## Versioning
 
@@ -48,7 +44,7 @@ This project follows [Semantic Versioning](https://semver.org/) but as the proje
 
 ## License
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see [`LICENSE`](https://github.com/hoppscotch/hopp-js-sandbox/blob/main/LICENSE) for more details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) - see [`LICENSE`](https://github.com/hoppscotch/hoppscotch/blob/main/LICENSE) for more details.
 
 <div  align="center">
 
@@ -56,6 +52,6 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 <br />
 
-###### built with ❤︎ by the [Hoppscotch Team](https://github.com/hoppscotch) and [contributors](https://github.com/AndrewBastin/hopp-js-sandbox/graphs/contributors).
+###### built with ❤︎ by the [Hoppscotch Team](https://github.com/hoppscotch) and [contributors](https://github.com/hoppscotch/hoppscotch/graphs/contributors).
 
 </div>

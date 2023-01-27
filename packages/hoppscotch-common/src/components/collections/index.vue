@@ -69,6 +69,7 @@
           <CollectionsTeamSelect
             :collections-type="collectionsType"
             :my-teams="myTeams"
+            :team-list-loading="teamListLoading"
             @update-selected-team="updateSelectedTeam"
             @team-select-intersect="onTeamSelectIntersect"
           />
@@ -333,6 +334,7 @@ const clickedRequest = reactive({
 // TeamList-Adapter
 const teamListAdapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const teamListLoading = useReadonlyStream(teamListAdapter.loading$, false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 const teamListFetched = ref(false)
 

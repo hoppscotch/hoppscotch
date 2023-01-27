@@ -35,24 +35,33 @@
             tabindex="0"
             @keyup.escape="hide()"
           >
-            <SmartItem
-              v-for="(team, index) in myTeams"
-              :key="`team-${index}`"
-              :label="team.name"
-              :info-icon="
-                team.id === collectionsType.selectedTeam?.id
-                  ? IconDone
-                  : undefined
-              "
-              :active-info-icon="team.id === collectionsType.selectedTeam?.id"
-              :icon="IconUsers"
-              @click="
-                () => {
-                  updateSelectedTeam(team)
-                  hide()
-                }
-              "
-            />
+            <div
+              v-if="teamListLoading && myTeams.length === 0"
+              class="flex flex-col flex-1 items-center justify-center p-2"
+            >
+              <SmartSpinner class="my-2" />
+              <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+            </div>
+            <div v-else class="flex flex-col">
+              <SmartItem
+                v-for="(team, index) in myTeams"
+                :key="`team-${index}`"
+                :label="team.name"
+                :info-icon="
+                  team.id === collectionsType.selectedTeam?.id
+                    ? IconDone
+                    : undefined
+                "
+                :active-info-icon="team.id === collectionsType.selectedTeam?.id"
+                :icon="IconUsers"
+                @click="
+                  () => {
+                    updateSelectedTeam(team)
+                    hide()
+                  }
+                "
+              />
+            </div>
           </div>
         </template>
       </tippy>
@@ -88,6 +97,11 @@ defineProps({
   myTeams: {
     type: Array as PropType<GetMyTeamsQuery["myTeams"]>,
     default: () => [],
+    required: true,
+  },
+  teamListLoading: {
+    type: Boolean,
+    default: false,
     required: true,
   },
 })

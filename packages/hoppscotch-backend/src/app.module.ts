@@ -12,7 +12,7 @@ import { UserHistoryModule } from './user-history/user-history.module';
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
       cors: process.env.PRODUCTION !== 'true' && {
-        origin: ['http://localhost:3170', 'http://localhost:3000'],
+        origin: process.env.WHITELISTED_ORIGINS.split(','),
         credentials: true,
       },
       playground: process.env.PRODUCTION !== 'true',

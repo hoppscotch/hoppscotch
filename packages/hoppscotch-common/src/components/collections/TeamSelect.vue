@@ -36,7 +36,7 @@
             @keyup.escape="hide()"
           >
             <div
-              v-if="teamListLoading && myTeams.length === 0"
+              v-if="isTeamListLoading && myTeams.length === 0"
               class="flex flex-col flex-1 items-center justify-center p-2"
             >
               <SmartSpinner class="my-2" />
@@ -99,7 +99,7 @@ defineProps({
     default: () => [],
     required: true,
   },
-  teamListLoading: {
+  isTeamListLoading: {
     type: Boolean,
     default: false,
     required: true,

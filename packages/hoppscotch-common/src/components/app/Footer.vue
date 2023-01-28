@@ -50,9 +50,9 @@
               ref="tippyActions"
               class="flex flex-col focus:outline-none"
               tabindex="0"
-              @keyup.d="documentation.$el.click()"
-              @keyup.s="shortcuts.$el.click()"
-              @keyup.c="chat.$el.click()"
+              @keyup.d="documentation!.$el.click()"
+              @keyup.s="shortcuts!.$el.click()"
+              @keyup.c="chat!.$el.click()"
               @keyup.escape="hide()"
             >
               <SmartItem
@@ -221,9 +221,9 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { TippyComponent } from "vue-tippy"
-import SmartItem from "@components/smart/Item.vue"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
+import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)
@@ -271,7 +271,7 @@ const showDeveloperOptionModal = () => {
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
-const documentation = ref<typeof SmartItem | null>(null)
-const shortcuts = ref<typeof SmartItem | null>(null)
-const chat = ref<typeof SmartItem | null>(null)
+const documentation = ref<typeof SmartItem>()
+const shortcuts = ref<typeof SmartItem>()
+const chat = ref<typeof SmartItem>()
 </script>

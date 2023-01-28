@@ -107,7 +107,10 @@ export default defineConfig({
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",
-      dirs: ["../hoppscotch-common/src/components"],
+      dirs: [
+        "../hoppscotch-common/src/components",
+        "../hoppscotch-ui/src/components",
+      ],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({

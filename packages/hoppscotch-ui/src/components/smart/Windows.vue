@@ -41,7 +41,7 @@
                     :style="{
                       visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
                     }"
-                    :title="t('action.close')"
+                    :title="closeText ?? t?.('action.close') ?? 'Close'"
                     :class="[{ active: modelValue === tabID }, 'close']"
                     class="mx-2 !p-0.5"
                     @click.stop="emit('removeTab', tabID)"
@@ -60,7 +60,7 @@
               >
                 <ButtonSecondary
                   v-tippy="{ theme: 'tooltip' }"
-                  :title="t('action.new')"
+                  :title="newText ?? t?.('action.new') ?? 'New'"
                   :icon="IconPlus"
                   class="rounded !p-1"
                   filled
@@ -85,11 +85,10 @@ import { pipe } from "fp-ts/function"
 import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import { ref, ComputedRef, computed, provide } from "vue"
+import { ref, ComputedRef, computed, provide, inject } from "vue"
 import type { Slot } from "vue"
 import draggable from "vuedraggable"
-import { throwError } from "~/helpers/functional/error"
-import { useI18n } from "~/composables/i18n"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 
 export type TabMeta = {
   label: string | null
@@ -104,7 +103,7 @@ export type TabProvider = {
   removeTabEntry: (tabID: string) => void
 }
 
-const t = useI18n()
+const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
 const props = defineProps({
   styles: {
@@ -119,6 +118,14 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  newText: {
+    type: String,
+    default: null,
+  },
+  closeText: {
+    type: String,
+    default: null,
+  },
 })
 const emit = defineEmits<{
   (e: "update:modelValue", newTabID: string): void
@@ -126,6 +133,11 @@ const emit = defineEmits<{
   (e: "removeTab", tabID: string): void
   (e: "addTab"): void
 }>()
+
+const throwError = (message: string): never => {
+  throw new Error(message)
+}
+
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 const tabStyles = computed(() => ({
   maxWidth: `${tabEntries.value.length * 184}px`,

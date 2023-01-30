@@ -53,6 +53,10 @@ export const probableUser$ = new BehaviorSubject<HoppUser | null>(null)
 
 const authIdToken$ = new BehaviorSubject<string | null>(null)
 
+async function signInWithEmailLink(email: string, url: string) {
+  return await signInWithEmailLinkFB(getAuth(), email, url)
+}
+
 function fbUserToHoppUser(user: FBUser): HoppUser {
   return {
     uid: user.uid,
@@ -412,5 +416,21 @@ export const def: AuthPlatformDef = {
     if (!currentUser$.value) throw new Error("No user has logged in")
 
     await signOut(getAuth())
+  },
+  async processMagicLink() {
+    if (this.isSignInWithEmailLink(window.location.href)) {
+      let email = getLocalConfig("emailForSignIn")
+
+      if (!email) {
+        email = window.prompt(
+          "Please provide your email for confirmation"
+        ) as string
+      }
+
+      await signInWithEmailLink(email, window.location.href)
+
+      removeLocalConfig("emailForSignIn")
+      window.location.href = "/"
+    }
   },
 }

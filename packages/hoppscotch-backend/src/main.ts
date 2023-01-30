@@ -31,7 +31,7 @@ async function bootstrap() {
       origin: true,
     });
   }
-  app.use(cookieParser());
+  app.use(cookieParser(process.env.SIGNED_COOKIE_SECRET));
   await app.listen(process.env.PORT || 3170);
 }
 bootstrap();

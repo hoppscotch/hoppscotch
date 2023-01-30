@@ -7,7 +7,7 @@ import * as TE from "fp-ts/TaskEither"
  * @param accessToken - GitHub access token
  * @returns Either of the response of the GitHub Gist API or the error
  */
-export const createCollectionGists = async (
+export const createCollectionGists = (
   collectionJSON: string,
   accessToken: string
 ) => {

@@ -1439,10 +1439,7 @@ const createCollectionGist = async () => {
   await getJSONCollection()
 
   pipe(
-    await createCollectionGists(
-      collectionJSON.value,
-      currentUser.value.accessToken
-    ),
+    createCollectionGists(collectionJSON.value, currentUser.value.accessToken),
     TE.match(
       (err) => {
         toast.error(t("error.something_went_wrong").toString())

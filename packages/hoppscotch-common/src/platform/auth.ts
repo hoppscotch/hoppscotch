@@ -166,8 +166,7 @@ export type AuthPlatformDef = {
   signInWithEmailLink: (email: string, url: string) => Promise<void>
 
   /**
-   * TODO: add comments
-   *
+   * function that validates the magic link & signs the user in
    */
   processMagicLink: () => Promise<void>
 

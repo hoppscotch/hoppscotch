@@ -74,11 +74,11 @@ describe('findUserById', () => {
   });
 });
 
-describe('createUserMagic', () => {
+describe('createUserViaMagicLink', () => {
   test('should successfully create user and account for magic-link given valid inputs', async () => {
     mockPrisma.user.create.mockResolvedValueOnce(user);
 
-    const result = await userService.createUserMagic(
+    const result = await userService.createUserViaMagicLink(
       'dwight@dundermifflin.com',
     );
     expect(result).toEqual(user);

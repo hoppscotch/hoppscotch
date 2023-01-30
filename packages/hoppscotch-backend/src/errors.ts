@@ -130,6 +130,12 @@ export const TEAM_REQ_INVALID_TARGET_COLL_ID =
   'team_req/invalid_target_id' as const;
 
 /**
+ * No Postmark Sender Email defined
+ * (AuthService)
+ */
+export const SENDER_EMAIL_INVALID = 'mailer/sender_email_invalid' as const;
+
+/**
  * Tried to perform action on a request when the user is not even member of the team
  * (GqlRequestTeamMemberGuard, GqlCollectionTeamMemberGuard)
  */
@@ -177,13 +183,15 @@ export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
  * User setting already exists for a user
  * (UserSettingsService)
  */
-export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_exists' as const;
+export const USER_SETTINGS_ALREADY_EXISTS =
+  'user_settings/settings_already_exists' as const;
 
 /**
  * User setting invalid (null) settings
  * (UserSettingsService)
  */
-export const USER_SETTINGS_NULL_SETTINGS = 'user_settings/null_settings' as const;
+export const USER_SETTINGS_NULL_SETTINGS =
+  'user_settings/null_settings' as const;
 
 /*
  * Global environment doesnt exists for the user

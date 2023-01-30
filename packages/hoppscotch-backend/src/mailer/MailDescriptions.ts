@@ -8,7 +8,7 @@ export type MailDescription = {
 };
 
 export type UserMagicLinkMailDescription = {
-  template: 'code-your-own'; //Alias of template in Postmark, change this to env variable
+  template: 'code-your-own';
   variables: {
     inviteeEmail: string;
     magicLink: string;

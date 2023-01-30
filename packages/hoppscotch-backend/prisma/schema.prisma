@@ -85,7 +85,7 @@ model User {
   photoURL                 String?
   isAdmin                  Boolean                    @default(false)
   refreshToken             String?
-  accounts                 Account[]
+  providerAccounts         Account[]
   PasswordlessVerification PasswordlessVerification[]
   settings                 UserSettings?
   UserHistory              UserHistory[]
@@ -109,7 +109,7 @@ model Account {
   @@unique(fields: [provider, providerAccountId], name: "verifyProviderAccount")
 }
 
-model PasswordlessVerification {
+model VerificationToken {
   deviceIdentifier String
   token            String   @unique @default(cuid())
   userUid          String

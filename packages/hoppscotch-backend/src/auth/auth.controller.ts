@@ -25,20 +25,32 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  /**
+   ** Route to initiate magic-link auth for a users email
+   */
   @Post('signin')
-  async signIn(@Body() authData: signInMagicDto) {
-    const data = await this.authService.signIn(authData.email);
-    if (E.isLeft(data)) throwHTTPErr(data.left);
-    return data.right;
+  async signInMagicLink(@Body() authData: signInMagicDto) {
+    const deviceIdToken = await this.authService.signInMagicLink(
+      authData.email,
+    );
+    if (E.isLeft(deviceIdToken)) throwHTTPErr(deviceIdToken.left);
+    return deviceIdToken.right;
   }
 
+  /**
+   ** Route to verify and sign in a valid user via magic-link
+   */
   @Post('verify')
   async verify(@Body() data: verifyMagicDto, @Res() res: Response) {
-    const authTokens = await this.authService.verifyPasswordlessTokens(data);
+    const authTokens = await this.authService.verifyMagicLinkTokens(data);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, false);
   }
 
+  /**
+   ** Route to refresh auth tokens with Refresh Token Rotation
+   * @see https://auth0.com/docs/secure/tokens/refresh-tokens/refresh-token-rotation
+   */
   @Get('refresh')
   @UseGuards(RTJwtAuthGuard)
   async refresh(
@@ -54,10 +66,17 @@ export class AuthController {
     authCookieHandler(res, newTokenPair.right, false);
   }
 
+  /**
+   ** Route to initiate SSO auth via Google
+   */
   @Get('google')
   @UseGuards(AuthGuard('google'))
   async googleAuth(@Request() req) {}
 
+  /**
+   ** Callback URL for Google SSO
+   * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
+   */
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Request() req, @Res() res) {
@@ -66,10 +85,17 @@ export class AuthController {
     authCookieHandler(res, authTokens.right, true);
   }
 
+  /**
+   ** Route to initiate SSO auth via Github
+   */
   @Get('github')
   @UseGuards(AuthGuard('github'))
   async githubAuth(@Request() req) {}
 
+  /**
+   ** Callback URL for Github SSO
+   * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
+   */
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
   async githubAuthRedirect(@Request() req, @Res() res) {
@@ -78,10 +104,17 @@ export class AuthController {
     authCookieHandler(res, authTokens.right, true);
   }
 
+  /**
+   ** Route to initiate SSO auth via Microsoft
+   */
   @Get('microsoft')
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuth(@Request() req) {}
 
+  /**
+   ** Callback URL for Microsoft SSO
+   * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
+   */
   @Get('microsoft/callback')
   @UseGuards(AuthGuard('microsoft'))
   async microsoftAuthRedirect(@Request() req, @Res() res) {
@@ -90,6 +123,9 @@ export class AuthController {
     authCookieHandler(res, authTokens.right, true);
   }
 
+  /**
+   ** Log user out by clearing cookies containing auth tokens
+   */
   @Get('logout')
   async logout(@Res() res: Response) {
     res.clearCookie('access_token');

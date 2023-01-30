@@ -7,7 +7,7 @@ import {
 import * as postmark from 'postmark';
 import { throwErr } from 'src/utils';
 import * as TE from 'fp-ts/TaskEither';
-import { EMAIL_FAILED } from 'src/errors';
+import { EMAIL_FAILED, SENDER_EMAIL_INVALID } from 'src/errors';
 
 @Injectable()
 export class MailerService implements OnModuleInit {
@@ -15,8 +15,7 @@ export class MailerService implements OnModuleInit {
 
   onModuleInit() {
     this.client = new postmark.ServerClient(
-      process.env.POSTMARK_SERVER_TOKEN ||
-        throwErr('No Postmark Server Token defined'),
+      process.env.POSTMARK_SERVER_TOKEN || throwErr(SENDER_EMAIL_INVALID),
     );
   }
 
@@ -29,8 +28,7 @@ export class MailerService implements OnModuleInit {
         this.client.sendEmailWithTemplate({
           To: to,
           From:
-            process.env.POSTMARK_SENDER_EMAIL ||
-            throwErr('No Postmark Sender Email defined'),
+            process.env.POSTMARK_SENDER_EMAIL || throwErr(SENDER_EMAIL_INVALID),
           TemplateAlias: mailDesc.template,
           TemplateModel: mailDesc.variables,
         }),
@@ -40,9 +38,9 @@ export class MailerService implements OnModuleInit {
 
   /**
    *
-   * @param {string} to Receiver's email id
-   * @param {UserMagicLinkMailDescription} mailDesc Details of email to be sent for Magic-Link auth
-   * @returns {Promise<postmark.Models.MessageSendingResponse>} Response if email was send successfully or not
+   * @param to Receiver's email id
+   * @param mailDesc Details of email to be sent for Magic-Link auth
+   * @returns Response if email was send successfully or not
    */
   async sendAuthEmail(to: string, mailDesc: UserMagicLinkMailDescription) {
     try {

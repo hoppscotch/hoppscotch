@@ -15,7 +15,7 @@ export interface RefreshTokenPayload {
   iat?: number;
 }
 
-export interface AuthTokens {
+export type AuthTokens = {
   access_token: string;
   refresh_token: string;
-}
+};

@@ -1,3 +1,3 @@
-export interface DeviceIdentifierToken {
+export type DeviceIdentifierToken = {
   deviceIdentifier: string;
-}
+};

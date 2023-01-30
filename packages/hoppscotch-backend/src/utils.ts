@@ -7,7 +7,7 @@ import * as T from 'fp-ts/Task';
 import * as E from 'fp-ts/Either';
 import { User } from './user/user.model';
 import * as A from 'fp-ts/Array';
-import { AuthErrorHandler } from './types/AuthErrorHandler';
+import { AuthError } from './types/AuthError';
 import { AuthTokens } from './types/AuthTokens';
 import { Response } from 'express';
 import { DateTime } from 'luxon';
@@ -27,7 +27,7 @@ export function throwErr(errMessage: string): never {
  * This function allows throw to be used as an expression
  * @param errMessage Message present in the error message
  */
-export function throwHTTPErr(errorData: AuthErrorHandler): never {
+export function throwHTTPErr(errorData: AuthError): never {
   const { message, statusCode } = errorData;
   throw new HttpException(message, statusCode);
 }

@@ -9,7 +9,6 @@ import * as argon2 from 'argon2';
 import * as bcrypt from 'bcrypt';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
-import * as TE from 'fp-ts/TaskEither';
 import { DeviceIdentifierToken } from 'src/types/Passwordless';
 import {
   INVALID_EMAIL,
@@ -26,9 +25,8 @@ import {
   RefreshTokenPayload,
 } from 'src/types/AuthTokens';
 import { JwtService } from '@nestjs/jwt';
-import { AuthErrorHandler } from 'src/types/AuthErrorHandler';
+import { AuthError } from 'src/types/AuthError';
 import { AuthUser } from 'src/types/AuthUser';
-import { isLeafType } from 'graphql';
 import { PasswordlessVerification } from '@prisma/client';
 
 @Injectable()
@@ -40,16 +38,20 @@ export class AuthService {
     private readonly mailerService: MailerService,
   ) {}
 
-  //
   /**
    * Generate Id and token for email Magic-Link auth
    *
-   * @param {AuthUser} user User Object
-   * @returns {Promise<PasswordlessVerification>} Created PasswordlessVerification token
+   * @param user User Object
+   * @returns Created PasswordlessVerification token
    */
-  private async generatePasswordlessTokens(user: AuthUser) {
-    const salt = await bcrypt.genSalt(10);
-    const expiresOn = DateTime.now().plus({ hours: 3 }).toISO().toString();
+  private async generateMagicLinkTokens(user: AuthUser) {
+    const salt = await bcrypt.genSalt(
+      parseInt(process.env.TOKEN_SALT_COMPLEXITY),
+    );
+    const expiresOn = DateTime.now()
+      .plus({ hours: parseInt(process.env.MAGIC_LINK_TOKEN_VALIDITY) })
+      .toISO()
+      .toString();
 
     const idToken = await this.prismaService.passwordlessVerification.create({
       data: {
@@ -63,19 +65,19 @@ export class AuthService {
   }
 
   /**
-   * Find and check passwordlessVerification exists or not
+   * Check if passwordlessVerification exist or not
    *
-   * @param {verifyMagicDto} data Object containing deviceIdentifier and token
-   * @returns {Promise<O.None | O.Some<PasswordlessVerification>>} Option of PasswordlessVerification token
+   * @param magicLinkTokens Object containing deviceIdentifier and token
+   * @returns Option of PasswordlessVerification token
    */
-  private async validatePasswordlessTokens(data: verifyMagicDto) {
+  private async validatePasswordlessTokens(magicLinkTokens: verifyMagicDto) {
     try {
       const tokens =
         await this.prismaService.passwordlessVerification.findUniqueOrThrow({
           where: {
             passwordless_deviceIdentifier_tokens: {
-              deviceIdentifier: data.deviceIdentifier,
-              token: data.token,
+              deviceIdentifier: magicLinkTokens.deviceIdentifier,
+              token: magicLinkTokens.token,
             },
           },
         });
@@ -86,34 +88,10 @@ export class AuthService {
   }
 
   /**
-   * Update User with new generated hashed refresh token
-   *
-   * @param {string} tokenHash Hash of newly generated refresh token
-   * @param {string} userUid User uid
-   * @returns {Promise<E.Right<User> | E.Left<"user/not_found">>} Either of User with updated refreshToken
-   */
-  private async UpdateUserRefreshToken(tokenHash: string, userUid: string) {
-    try {
-      const user = await this.prismaService.user.update({
-        where: {
-          uid: userUid,
-        },
-        data: {
-          refreshToken: tokenHash,
-        },
-      });
-
-      return E.right(user);
-    } catch (error) {
-      return E.left(USER_NOT_FOUND);
-    }
-  }
-
-  /**
    * Generate new refresh token for user
    *
-   * @param {string} userUid User Id
-   * @returns {Promise<E.Left<AuthErrorHandler> | E.Right<string>>} Generated refreshToken
+   * @param userUid User Id
+   * @returns Generated refreshToken
    */
   private async generateRefreshToken(userUid: string) {
     const refreshTokenPayload: RefreshTokenPayload = {
@@ -128,12 +106,12 @@ export class AuthService {
 
     const refreshTokenHash = await argon2.hash(refreshToken);
 
-    const updatedUser = await this.UpdateUserRefreshToken(
+    const updatedUser = await this.usersService.UpdateUserRefreshToken(
       refreshTokenHash,
       userUid,
     );
     if (E.isLeft(updatedUser))
-      return E.left(<AuthErrorHandler>{
+      return E.left(<AuthError>{
         message: updatedUser.left,
         statusCode: HttpStatus.NOT_FOUND,
       });
@@ -144,8 +122,8 @@ export class AuthService {
   /**
    * Generate access and refresh token pair
    *
-   * @param {string} userUid User ID
-   * @returns {Promise<E.Left<AuthErrorHandler> | E.Right<AuthTokens>>} Either of generated AuthTokens
+   * @param userUid User ID
+   * @returns Either of generated AuthTokens
    */
   async generateAuthTokens(userUid: string) {
     const accessTokenPayload: AccessTokenPayload = {
@@ -155,11 +133,7 @@ export class AuthService {
     };
 
     const refreshToken = await this.generateRefreshToken(userUid);
-    if (E.isLeft(refreshToken))
-      return E.left(<AuthErrorHandler>{
-        message: refreshToken.left.message,
-        statusCode: refreshToken.left.statusCode,
-      });
+    if (E.isLeft(refreshToken)) return E.left(refreshToken.left);
 
     return E.right(<AuthTokens>{
       access_token: await this.jwtService.sign(accessTokenPayload, {
@@ -172,10 +146,10 @@ export class AuthService {
   /**
    * Deleted used PasswordlessVerification tokens
    *
-   * @param {PasswordlessVerification} passwordlessTokens
-   * @returns {Promise<E.Right<PasswordlessVerification> | E.Left<"auth/passwordless_token_data_not_found">>} Either of deleted PasswordlessVerification token
+   * @param passwordlessTokens PasswordlessVerification entry to delete from DB
+   * @returns Either of deleted PasswordlessVerification token
    */
-  private async deletePasswordlessVerificationToken(
+  private async deleteMagicLinkVerificationTokens(
     passwordlessTokens: PasswordlessVerification,
   ) {
     try {
@@ -197,16 +171,16 @@ export class AuthService {
   /**
    * Verify if Provider account exists for User
    *
-   * @param {User} user User Object
-   * @param profile Provider Account type (Magic,Google,Github,Microsoft)
-   * @returns {Promise<O.None | O.Some<Account>>} Either of existing user provider Account
+   * @param user User Object
+   * @param SSOUserData User data from SSO providers (Magic,Google,Github,Microsoft)
+   * @returns Either of existing user provider Account
    */
-  async checkIfProviderAccountExists(user: AuthUser, profile) {
+  async checkIfProviderAccountExists(user: AuthUser, SSOUserData) {
     const provider = await this.prismaService.account.findUnique({
       where: {
         verifyProviderAccount: {
-          provider: profile.provider,
-          providerAccountId: profile.id,
+          provider: SSOUserData.provider,
+          providerAccountId: SSOUserData.id,
         },
       },
     });
@@ -217,12 +191,12 @@ export class AuthService {
   }
 
   /**
-   * Send Magic-Link to provider User email
+   * Create User (if not already present) and send email to initiate Magic-Link auth
    *
-   * @param {string} email User's email
-   * @returns {Promise<E.Left<AuthErrorHandler> | E.Right<DeviceIdentifierToken>>} Either containing DeviceIdentifierToken
+   * @param email User's email
+   * @returns Either containing DeviceIdentifierToken
    */
-  async signIn(email: string) {
+  async signInMagicLink(email: string) {
     if (!validateEmail(email))
       return E.left({
         message: INVALID_EMAIL,
@@ -233,12 +207,12 @@ export class AuthService {
     const queriedUser = await this.usersService.findUserByEmail(email);
 
     if (O.isNone(queriedUser)) {
-      user = await this.usersService.createUserMagic(email);
+      user = await this.usersService.createUserViaMagicLink(email);
     } else {
       user = queriedUser.value;
     }
 
-    const generatedTokens = await this.generatePasswordlessTokens(user);
+    const generatedTokens = await this.generateMagicLinkTokens(user);
 
     await this.mailerService.sendAuthEmail(email, {
       template: 'code-your-own',
@@ -256,13 +230,15 @@ export class AuthService {
   /**
    * Verify and authenticate user from received data for Magic-Link
    *
-   * @param {verifyMagicDto} data
-   * @returns {Promise<E.Right<AuthTokens> | E.Left<AuthErrorHandler>>} Either of generated AuthTokens
+   * @param magicLinkIDTokens magic-link verification tokens from client
+   * @returns Either of generated AuthTokens
    */
-  async verifyPasswordlessTokens(
-    data: verifyMagicDto,
-  ): Promise<E.Right<AuthTokens> | E.Left<AuthErrorHandler>> {
-    const passwordlessTokens = await this.validatePasswordlessTokens(data);
+  async verifyMagicLinkTokens(
+    magicLinkIDTokens: verifyMagicDto,
+  ): Promise<E.Right<AuthTokens> | E.Left<AuthError>> {
+    const passwordlessTokens = await this.validatePasswordlessTokens(
+      magicLinkIDTokens,
+    );
     if (O.isNone(passwordlessTokens))
       return E.left({
         message: INVALID_MAGIC_LINK_DATA,
@@ -317,7 +293,7 @@ export class AuthService {
       });
 
     const deletedPasswordlessToken =
-      await this.deletePasswordlessVerificationToken(passwordlessTokens.value);
+      await this.deleteMagicLinkVerificationTokens(passwordlessTokens.value);
     if (E.isLeft(deletedPasswordlessToken))
       return E.left({
         message: deletedPasswordlessToken.left,
@@ -330,24 +306,30 @@ export class AuthService {
   /**
    * Refresh refresh and auth tokens
    *
-   * @param {string} refresh_token Hashed refresh token received from client
-   * @param {AuthUser} user User Object
-   * @returns {Promise<E.Left<AuthErrorHandler> | E.Right<AuthTokens>>} Either of generated AuthTokens
+   * @param hashedRefreshToken Hashed refresh token received from client
+   * @param user User Object
+   * @returns Either of generated AuthTokens
    */
-  async refreshAuthTokens(refresh_token: string, user: AuthUser) {
+  async refreshAuthTokens(hashedRefreshToken: string, user: AuthUser) {
+    // Check to see user is valid
     if (!user)
       return E.left({
         message: USER_NOT_FOUND,
         statusCode: HttpStatus.NOT_FOUND,
       });
 
-    const isMatched = await argon2.verify(user.refreshToken, refresh_token);
-    if (!isMatched)
+    // Check to see if the hashed refresh_token received from the client is the same as the refresh_token saved in the DB
+    const isTokenMatched = await argon2.verify(
+      user.refreshToken,
+      hashedRefreshToken,
+    );
+    if (!isTokenMatched)
       return E.left({
         message: INVALID_REFRESH_TOKEN,
         statusCode: HttpStatus.NOT_FOUND,
       });
 
+    // if tokens match, generate new pair of auth tokens
     const generatedAuthTokens = await this.generateAuthTokens(user.uid);
     if (E.isLeft(generatedAuthTokens))
       return E.left({

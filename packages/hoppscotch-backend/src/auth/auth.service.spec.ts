@@ -71,9 +71,9 @@ nowPlus30 = new Date(nowPlus30);
 const encodedRefreshToken =
   '$argon2id$v=19$m=65536,t=3,p=4$JTP8yZ8YXMHdafb5pB9Rfg$tdZrILUxMb9dQbu0uuyeReLgKxsgYnyUNbc5ZxQmy5I';
 
-describe('signIn', () => {
+describe('signInMagicLink', () => {
   test('should throw error if email is not in valid format', async () => {
-    const result = await authService.signIn('bbbgmail.com');
+    const result = await authService.signInMagicLink('bbbgmail.com');
     expect(result).toEqualLeft({
       message: INVALID_EMAIL,
       statusCode: HttpStatus.BAD_REQUEST,
@@ -81,16 +81,18 @@ describe('signIn', () => {
   });
 
   test('should successfully create a new user account and return the passwordless details', async () => {
-    // check to see if user exists, return error
+    // check to see if user exists, return none
     mockUser.findUserByEmail.mockResolvedValue(O.none);
     // create new user
-    mockUser.createUserMagic.mockResolvedValue(user);
+    mockUser.createUserViaMagicLink.mockResolvedValue(user);
     // create new entry in passwordlessVerification table
     mockPrisma.passwordlessVerification.create.mockResolvedValueOnce(
       passwordlessData,
     );
 
-    const result = await authService.signIn('dwight@dundermifflin.com');
+    const result = await authService.signInMagicLink(
+      'dwight@dundermifflin.com',
+    );
     expect(result).toEqualRight({
       deviceIdentifier: passwordlessData.deviceIdentifier,
     });
@@ -104,20 +106,22 @@ describe('signIn', () => {
       passwordlessData,
     );
 
-    const result = await authService.signIn('dwight@dundermifflin.com');
+    const result = await authService.signInMagicLink(
+      'dwight@dundermifflin.com',
+    );
     expect(result).toEqualRight({
       deviceIdentifier: passwordlessData.deviceIdentifier,
     });
   });
 });
 
-describe('verifyPasswordlessTokens', () => {
+describe('verifyMagicLinkTokens', () => {
   test('should throw INVALID_MAGIC_LINK_DATA if data is invalid', async () => {
     mockPrisma.passwordlessVerification.findUniqueOrThrow.mockRejectedValueOnce(
       'NotFoundError',
     );
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualLeft({
       message: INVALID_MAGIC_LINK_DATA,
       statusCode: HttpStatus.NOT_FOUND,
@@ -132,7 +136,7 @@ describe('verifyPasswordlessTokens', () => {
     // findUserById
     mockUser.findUserById.mockResolvedValue(O.none);
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualLeft({
       message: USER_NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,
@@ -160,7 +164,7 @@ describe('verifyPasswordlessTokens', () => {
       passwordlessData,
     );
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualRight({
       access_token: user.refreshToken,
       refresh_token: user.refreshToken,
@@ -188,7 +192,7 @@ describe('verifyPasswordlessTokens', () => {
       passwordlessData,
     );
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualRight({
       access_token: user.refreshToken,
       refresh_token: user.refreshToken,
@@ -205,7 +209,7 @@ describe('verifyPasswordlessTokens', () => {
     // checkIfProviderAccountExists
     mockPrisma.account.findUnique.mockResolvedValueOnce(accountDetails);
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualLeft({
       message: MAGIC_LINK_EXPIRED,
       statusCode: HttpStatus.UNAUTHORIZED,
@@ -229,7 +233,7 @@ describe('verifyPasswordlessTokens', () => {
     mockJWT.sign.mockReturnValue(user.refreshToken);
     mockPrisma.user.update.mockRejectedValueOnce('RecordNotFound');
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualLeft({
       message: USER_NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,
@@ -257,7 +261,7 @@ describe('verifyPasswordlessTokens', () => {
       'RecordNotFound',
     );
 
-    const result = await authService.verifyPasswordlessTokens(magicLinkVerify);
+    const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualLeft({
       message: PASSWORDLESS_DATA_NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,

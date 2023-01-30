@@ -130,6 +130,9 @@ const createHoppClient = () => {
   return createClient({
     url: BACKEND_GQL_URL,
     exchanges,
+    ...(platform.auth.getGQLClientOptions
+      ? platform.auth.getGQLClientOptions()
+      : {}),
   })
 }
 

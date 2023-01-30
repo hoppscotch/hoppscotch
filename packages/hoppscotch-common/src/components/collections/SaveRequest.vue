@@ -367,28 +367,22 @@ const hideModal = () => {
 }
 
 const getErrorMessage = (err: GQLError<string>) => {
+  console.error(err)
   if (err.type === "network_error") {
-    console.error(err)
     return t("error.network_error")
   } else {
     switch (err.error) {
       case "team_coll/short_title":
-        console.error(err)
         return t("collection.name_length_insufficient")
       case "team/invalid_coll_id":
-        console.error(err)
         return t("team.invalid_id")
       case "team/not_required_role":
-        console.error(err)
         return t("profile.no_permission")
       case "team_req/not_required_role":
-        console.error(err)
         return t("profile.no_permission")
       case "Forbidden resource":
-        console.error(err)
         return t("profile.no_permission")
       default:
-        console.error(err)
         return t("error.something_went_wrong")
     }
   }

@@ -135,7 +135,7 @@ a {
     @apply shadow-none;
     @apply fixed;
     @apply inline-flex;
-    @apply -mt-6;
+    @apply -mt-8;
   }
 }
 
@@ -501,6 +501,10 @@ pre.ace_editor {
   @apply rounded;
   @apply ml-2;
   @apply px-1;
+  @apply min-w-5;
+  @apply min-h-5;
+  @apply items-center;
+  @apply justify-center;
   @apply border border-dividerDark;
   @apply shadow-sm;
   @apply <sm:hidden;
@@ -534,8 +538,16 @@ details[open] summary .indicator {
 }
 
 .env-highlight {
-  * {
-    @apply text-accentContrast;
+  @apply text-accentContrast;
+
+  &.env-found {
+    @apply bg-accentDark;
+    @apply hover:bg-accent;
+  }
+
+  &.env-not-found {
+    @apply bg-red-500;
+    @apply hover:bg-red-600;
   }
 }
 

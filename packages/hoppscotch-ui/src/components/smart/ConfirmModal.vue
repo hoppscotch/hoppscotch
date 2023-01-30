@@ -2,7 +2,7 @@
   <SmartModal
     v-if="show"
     dialog
-    :title="t('modal.confirm')"
+    :title="confirm ?? t?.('modal.confirm') ?? 'Confirm'"
     role="dialog"
     aria-modal="true"
     @close="hideModal"
@@ -16,13 +16,13 @@
       <span class="flex space-x-2">
         <ButtonPrimary
           v-focus
-          :label="yes ?? t('action.yes')"
+          :label="yes ?? t?.('action.yes') ?? 'Yes'"
           :loading="!!loadingState"
           outline
           @click="resolve"
         />
         <ButtonSecondary
-          :label="no ?? t('action.no')"
+          :label="no ?? t?.('action.no') ?? 'No'"
           filled
           outline
           @click="hideModal"
@@ -33,20 +33,23 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
+import { inject } from "vue"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 
-const t = useI18n()
+const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
 const props = withDefaults(
   defineProps<{
     show: boolean
     title?: string | null
+    confirm?: string | null
     yes?: string | null
     no?: string | null
     loadingState?: boolean | null
   }>(),
   {
     title: null,
+    confirm: null,
     yes: null,
     no: null,
     loadingState: null,

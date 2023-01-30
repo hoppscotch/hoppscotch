@@ -36,14 +36,14 @@
   <p>
     <a href="https://hoppscotch.io/#gh-light-mode-only" target="_blank">
       <img
-        src="./packages/hoppscotch-app/public/images/banner-light.png"
+        src="./packages/hoppscotch-common/public/images/banner-light.png"
         alt="Hoppscotch"
         width="100%"
       />
     </a>
     <a href="https://hoppscotch.io/#gh-dark-mode-only" target="_blank">
       <img
-        src="./packages/hoppscotch-app/public/images/banner-dark.png"
+        src="./packages/hoppscotch-common/public/images/banner-dark.png"
         alt="Hoppscotch"
         width="100%"
       />
@@ -317,7 +317,7 @@ docker run --rm --name hoppscotch -p 3000:3000 hoppscotch/hoppscotch:latest
 3. Install dependencies by running `pnpm install` within the directory that you cloned (probably `hoppscotch`).
 4. Update [`.env.example`](https://github.com/hoppscotch/hoppscotch/blob/main/.env.example) file found in the root of repository with your own keys and rename it to `.env`.
 5. Build the release files with `pnpm run generate`.
-6. Find the built project in `packages/hoppscotch-app/dist`. Host these files on any [static hosting servers](https://www.pluralsight.com/blog/software-development/where-to-host-your-jamstack-site).
+6. Find the built project in `packages/hoppscotch-web/dist`. Host these files on any [static hosting servers](https://www.pluralsight.com/blog/software-development/where-to-host-your-jamstack-site).
 
 ## **Contributing**
 

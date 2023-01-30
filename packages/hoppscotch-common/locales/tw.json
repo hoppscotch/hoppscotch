@@ -19,7 +19,7 @@
     "edit": "編輯",
     "filter": "篩選回應",
     "go_back": "返回",
-    "group_by": "Group by",
+    "group_by": "分組方式",
     "label": "標籤",
     "learn_more": "瞭解更多",
     "less": "更少",
@@ -175,7 +175,7 @@
     "protocols": "協定為空",
     "schema": "連線至 GraphQL 端點",
     "shortcodes": "Shortcodes 為空",
-    "subscription": "Subscriptions are empty",
+    "subscription": "訂閱為空",
     "team_name": "團隊名稱為空",
     "teams": "團隊為空",
     "tests": "沒有針對該請求的測試"
@@ -203,6 +203,9 @@
     "browser_support_sse": "此瀏覽器似乎不支援 SSE。",
     "check_console_details": "檢查控制台日誌以獲悉詳情",
     "curl_invalid_format": "cURL 格式不正確",
+    "danger_zone": "Danger zone",
+    "delete_account": "您的帳號目前為這些團隊的擁有者：",
+    "delete_account_description": "您在刪除帳號前必須先將您自己從團隊中移除、轉移擁有權，或是刪除團隊。",
     "empty_req_name": "空請求名稱",
     "f12_details": "（按下 F12 以獲悉詳情）",
     "gql_prettify_invalid_query": "無法美化無效的查詢，處理查詢語法錯誤並重試",
@@ -229,9 +232,9 @@
     "title": "匯出"
   },
   "filter": {
-    "all": "All",
-    "none": "None",
-    "starred": "Starred"
+    "all": "全部",
+    "none": "無",
+    "starred": "已加星號"
   },
   "folder": {
     "created": "已建立資料夾",
@@ -247,8 +250,8 @@
     "subscriptions": "訂閱"
   },
   "group": {
-    "time": "Time",
-    "url": "URL"
+    "time": "時間",
+    "url": "網址"
   },
   "header": {
     "install_pwa": "安裝應用程式",
@@ -313,16 +316,16 @@
     "import_export": "匯入／匯出"
   },
   "mqtt": {
-    "already_subscribed": "You are already subscribed to this topic.",
-    "clean_session": "Clean Session",
-    "clear_input": "Clear input",
-    "clear_input_on_send": "Clear input on send",
-    "client_id": "Client ID",
-    "color": "Pick a color",
+    "already_subscribed": "您已經訂閱了此主題。",
+    "clean_session": "清理工作階段",
+    "clear_input": "清除輸入",
+    "clear_input_on_send": "傳送後清除輸入",
+    "client_id": "客戶端 ID",
+    "color": "選擇顏色",
     "communication": "通訊",
-    "connection_config": "Connection Config",
-    "connection_not_authorized": "This MQTT connection does not use any authentication.",
-    "invalid_topic": "Please provide a topic for the subscription",
+    "connection_config": "連線設定",
+    "connection_not_authorized": "此 MQTT 連線未使用任何驗證。",
+    "invalid_topic": "請提供該訂閱的主題",
     "keep_alive": "Keep Alive",
     "log": "日誌",
     "lw_message": "Last-Will Message",
@@ -330,8 +333,8 @@
     "lw_retain": "Last-Will Retain",
     "lw_topic": "Last-Will Topic",
     "message": "訊息",
-    "new": "New Subscription",
-    "not_connected": "Please start a MQTT connection first.",
+    "new": "新訂閱",
+    "not_connected": "請先啟動 MQTT 連線。",
     "publish": "發佈",
     "qos": "QoS",
     "ssl": "SSL",
@@ -437,6 +440,7 @@
   "settings": {
     "accent_color": "強調色",
     "account": "帳號",
+    "account_deleted": "已刪除您的帳號",
     "account_description": "自定義您的帳號設定。",
     "account_email_description": "您的主要電子郵件地址。",
     "account_name_description": "這是您的顯示名稱。",
@@ -445,6 +449,8 @@
     "change_font_size": "更改字型大小",
     "choose_language": "選擇語言",
     "dark_mode": "暗色",
+    "delete_account": "刪除帳號",
+    "delete_account_description": "一旦您刪除了您的帳號，您的所有資料將被永久刪除。此操作無法復原。",
     "expand_navigation": "展開導航欄",
     "experiments": "實驗功能",
     "experiments_notice": "下面是我們正在開發中的一些實驗功能，這些功能可能會很有用，可能很有趣，又或者二者都是或都不是。這些功能並非最終版本且可能不穩定，所以如果發生了一些過於奇怪的事情，不要驚慌，關掉它們就好了。玩笑歸玩笑，",

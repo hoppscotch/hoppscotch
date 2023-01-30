@@ -45,7 +45,6 @@ export default {
 
 <script setup lang="ts">
 import { computed, useAttrs } from "vue"
-import { RouterLink } from "vue-router"
 import { omit } from "lodash-es"
 
 const props = defineProps({

@@ -1,0 +1,311 @@
+@mixin base-theme {
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "Roboto Mono", monospace;
+  --font-icon: "Material Icons";
+  --font-size-tiny: calc(var(--font-size-body) - 0.062rem);
+}
+
+@mixin dark-theme {
+  --primary-color: theme("colors.neutral.900");
+  --primary-light-color: theme("colors.dark.600");
+  --primary-dark-color: theme("colors.neutral.800");
+  --primary-contrast-color: #161616;
+  --secondary-color: theme("colors.neutral.400");
+  --secondary-light-color: theme("colors.neutral.500");
+  --secondary-dark-color: theme("colors.neutral.100");
+  --divider-color: theme("colors.neutral.800");
+  --divider-light-color: theme("colors.dark.500");
+  --divider-dark-color: theme("colors.dark.300");
+  --error-color: theme("colors.stone.800");
+  --tooltip-color: theme("colors.neutral.100");
+  --popover-color: theme("colors.dark.700");
+  --editor-theme: "merbivore_soft";
+}
+
+@mixin light-theme {
+  --primary-color: theme("colors.white");
+  --primary-light-color: theme("colors.neutral.50");
+  --primary-dark-color: theme("colors.neutral.100");
+  --primary-contrast-color: #fefefe;
+  --secondary-color: theme("colors.neutral.500");
+  --secondary-light-color: theme("colors.neutral.400");
+  --secondary-dark-color: theme("colors.neutral.900");
+  --divider-color: theme("colors.gray.100");
+  --divider-light-color: theme("colors.neutral.100");
+  --divider-dark-color: theme("colors.neutral.300");
+  --error-color: theme("colors.yellow.100");
+  --tooltip-color: theme("colors.neutral.800");
+  --popover-color: theme("colors.white");
+  --editor-theme: "textmate";
+}
+
+@mixin black-theme {
+  --primary-color: theme("colors.dark.900");
+  --primary-light-color: theme("colors.neutral.900");
+  --primary-dark-color: theme("colors.dark.800");
+  --primary-contrast-color: #0e0e0e;
+  --secondary-color: theme("colors.neutral.400");
+  --secondary-light-color: theme("colors.neutral.500");
+  --secondary-dark-color: theme("colors.neutral.100");
+  --divider-color: theme("colors.neutral.800");
+  --divider-light-color: theme("colors.dark.800");
+  --divider-dark-color: theme("colors.dark.300");
+  --error-color: theme("colors.stone.900");
+  --tooltip-color: theme("colors.neutral.100");
+  --popover-color: theme("colors.dark.600");
+  --editor-theme: "twilight";
+}
+
+@mixin dark-editor-theme {
+  --editor-type-color: theme("colors.purple.400");
+  --editor-name-color: theme("colors.blue.400");
+  --editor-operator-color: theme("colors.indigo.400");
+  --editor-invalid-color: theme("colors.red.400");
+  --editor-separator-color: theme("colors.gray.400");
+  --editor-meta-color: theme("colors.gray.400");
+  --editor-variable-color: theme("colors.green.400");
+  --editor-link-color: theme("colors.cyan.400");
+  --editor-process-color: theme("colors.fuchsia.400");
+  --editor-constant-color: theme("colors.violet.400");
+  --editor-keyword-color: theme("colors.pink.400");
+}
+
+@mixin light-editor-theme {
+  --editor-type-color: theme("colors.purple.600");
+  --editor-name-color: theme("colors.red.600");
+  --editor-operator-color: theme("colors.indigo.600");
+  --editor-invalid-color: theme("colors.red.600");
+  --editor-separator-color: theme("colors.gray.600");
+  --editor-meta-color: theme("colors.gray.600");
+  --editor-variable-color: theme("colors.green.600");
+  --editor-link-color: theme("colors.cyan.600");
+  --editor-process-color: theme("colors.blue.600");
+  --editor-constant-color: theme("colors.fuchsia.600");
+  --editor-keyword-color: theme("colors.pink.600");
+}
+
+@mixin black-editor-theme {
+  --editor-type-color: theme("colors.purple.400");
+  --editor-name-color: theme("colors.fuchsia.400");
+  --editor-operator-color: theme("colors.indigo.400");
+  --editor-invalid-color: theme("colors.red.400");
+  --editor-separator-color: theme("colors.gray.400");
+  --editor-meta-color: theme("colors.gray.400");
+  --editor-variable-color: theme("colors.green.400");
+  --editor-link-color: theme("colors.cyan.400");
+  --editor-process-color: theme("colors.violet.400");
+  --editor-constant-color: theme("colors.blue.400");
+  --editor-keyword-color: theme("colors.pink.400");
+}
+
+@mixin green-theme {
+  --accent-color: theme("colors.green.500");
+  --accent-light-color: theme("colors.green.400");
+  --accent-dark-color: theme("colors.green.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.green.200");
+  --gradient-via-color: theme("colors.green.400");
+  --gradient-to-color: theme("colors.green.600");
+}
+
+@mixin teal-theme {
+  --accent-color: theme("colors.teal.500");
+  --accent-light-color: theme("colors.teal.400");
+  --accent-dark-color: theme("colors.teal.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.teal.200");
+  --gradient-via-color: theme("colors.teal.400");
+  --gradient-to-color: theme("colors.teal.600");
+}
+
+@mixin blue-theme {
+  --accent-color: theme("colors.blue.500");
+  --accent-light-color: theme("colors.blue.400");
+  --accent-dark-color: theme("colors.blue.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.blue.200");
+  --gradient-via-color: theme("colors.blue.400");
+  --gradient-to-color: theme("colors.blue.600");
+}
+
+@mixin indigo-theme {
+  --accent-color: theme("colors.indigo.500");
+  --accent-light-color: theme("colors.indigo.400");
+  --accent-dark-color: theme("colors.indigo.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.indigo.200");
+  --gradient-via-color: theme("colors.indigo.400");
+  --gradient-to-color: theme("colors.indigo.600");
+}
+
+@mixin purple-theme {
+  --accent-color: theme("colors.purple.500");
+  --accent-light-color: theme("colors.purple.400");
+  --accent-dark-color: theme("colors.purple.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.purple.200");
+  --gradient-via-color: theme("colors.purple.400");
+  --gradient-to-color: theme("colors.purple.600");
+}
+
+@mixin yellow-theme {
+  --accent-color: theme("colors.yellow.500");
+  --accent-light-color: theme("colors.yellow.400");
+  --accent-dark-color: theme("colors.yellow.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.yellow.200");
+  --gradient-via-color: theme("colors.yellow.400");
+  --gradient-to-color: theme("colors.yellow.600");
+}
+
+@mixin orange-theme {
+  --accent-color: theme("colors.orange.500");
+  --accent-light-color: theme("colors.orange.400");
+  --accent-dark-color: theme("colors.orange.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.orange.200");
+  --gradient-via-color: theme("colors.orange.400");
+  --gradient-to-color: theme("colors.orange.600");
+}
+
+@mixin red-theme {
+  --accent-color: theme("colors.red.500");
+  --accent-light-color: theme("colors.red.400");
+  --accent-dark-color: theme("colors.red.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.red.200");
+  --gradient-via-color: theme("colors.red.400");
+  --gradient-to-color: theme("colors.red.600");
+}
+
+@mixin pink-theme {
+  --accent-color: theme("colors.pink.500");
+  --accent-light-color: theme("colors.pink.400");
+  --accent-dark-color: theme("colors.pink.600");
+  --accent-contrast-color: theme("colors.white");
+  --gradient-from-color: theme("colors.pink.200");
+  --gradient-via-color: theme("colors.pink.400");
+  --gradient-to-color: theme("colors.pink.600");
+}
+
+:root {
+  @include base-theme;
+  @include dark-theme;
+  @include green-theme;
+  @include dark-editor-theme;
+}
+
+:root.light {
+  @include light-theme;
+  @include light-editor-theme;
+}
+
+:root.dark {
+  @include dark-theme;
+  @include dark-editor-theme;
+}
+
+:root.black {
+  @include black-theme;
+  @include black-editor-theme;
+}
+
+:root[data-accent="blue"] {
+  @include blue-theme;
+}
+
+:root[data-accent="green"] {
+  @include green-theme;
+}
+
+:root[data-accent="teal"] {
+  @include teal-theme;
+}
+
+:root[data-accent="indigo"] {
+  @include indigo-theme;
+}
+
+:root[data-accent="purple"] {
+  @include purple-theme;
+}
+
+:root[data-accent="orange"] {
+  @include orange-theme;
+}
+
+:root[data-accent="pink"] {
+  @include pink-theme;
+}
+
+:root[data-accent="red"] {
+  @include red-theme;
+}
+
+:root[data-accent="yellow"] {
+  @include yellow-theme;
+}
+
+@mixin font-small {
+  --font-size-body: 0.75rem;
+  --line-height-body: 1rem;
+  --upper-primary-sticky-fold: 4.125rem;
+  --upper-secondary-sticky-fold: 6.188rem;
+  --upper-tertiary-sticky-fold: 8.25rem;
+  --upper-mobile-primary-sticky-fold: 6.625rem;
+  --upper-mobile-secondary-sticky-fold: 8.688rem;
+  --upper-mobile-sticky-fold: 10.75rem;
+  --upper-mobile-tertiary-sticky-fold: 8.25rem;
+  --lower-primary-sticky-fold: 3rem;
+  --lower-secondary-sticky-fold: 5.063rem;
+  --lower-tertiary-sticky-fold: 7.125rem;
+  --sidebar-primary-sticky-fold: 2rem;
+}
+
+@mixin font-medium {
+  --font-size-body: 0.875rem;
+  --line-height-body: 1.25rem;
+  --upper-primary-sticky-fold: 4.375rem;
+  --upper-secondary-sticky-fold: 6.688rem;
+  --upper-tertiary-sticky-fold: 9rem;
+  --upper-mobile-primary-sticky-fold: 7.125rem;
+  --upper-mobile-secondary-sticky-fold: 9.438rem;
+  --upper-mobile-sticky-fold: 11.75rem;
+  --upper-mobile-tertiary-sticky-fold: 9rem;
+  --lower-primary-sticky-fold: 3.25rem;
+  --lower-secondary-sticky-fold: 5.563rem;
+  --lower-tertiary-sticky-fold: 7.875rem;
+  --sidebar-primary-sticky-fold: 2.25rem;
+}
+
+@mixin font-large {
+  --font-size-body: 1rem;
+  --line-height-body: 1.5rem;
+  --upper-primary-sticky-fold: 4.625rem;
+  --upper-secondary-sticky-fold: 7.188rem;
+  --upper-tertiary-sticky-fold: 9.75rem;
+  --upper-mobile-primary-sticky-fold: 7.625rem;
+  --upper-mobile-secondary-sticky-fold: 10.188rem;
+  --upper-mobile-sticky-fold: 12.75rem;
+  --upper-mobile-tertiary-sticky-fold: 9.75rem;
+  --lower-primary-sticky-fold: 3.5rem;
+  --lower-secondary-sticky-fold: 6.063rem;
+  --lower-tertiary-sticky-fold: 8.625rem;
+  --sidebar-primary-sticky-fold: 2.5rem;
+}
+
+:root[data-font-size="small"] {
+  @include font-small;
+}
+
+:root[data-font-size="medium"] {
+  @include font-medium;
+}
+
+:root[data-font-size="large"] {
+  @include font-large;
+}
+
+.generic {
+  @apply text-primary text-primaryLight bg-primary;
+}

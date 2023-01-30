@@ -9,7 +9,11 @@
     >
       <ButtonSecondary
         :icon="expand ? IconChevronUp : IconChevronDown"
-        :label="expand ? t('action.less') : t('action.more')"
+        :label="
+          expand
+            ? less ?? t?.('action.less') ?? 'Less'
+            : more ?? t?.('action.more') ?? 'More'
+        "
         filled
         rounded
         @click="expand = !expand"
@@ -21,10 +25,21 @@
 <script setup lang="ts">
 import IconChevronUp from "~icons/lucide/chevron-up"
 import IconChevronDown from "~icons/lucide/chevron-down"
-import { ref } from "vue"
-import { useI18n } from "@composables/i18n"
+import { inject, ref } from "vue"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 
-const t = useI18n()
+const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
 const expand = ref(false)
+
+withDefaults(
+  defineProps<{
+    less?: string
+    more?: string
+  }>(),
+  {
+    less: "Less",
+    more: "More",
+  }
+)
 </script>

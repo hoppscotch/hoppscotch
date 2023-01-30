@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Sitemap Generation Artifacts (see vite.config.ts)
+.sitemap-gen

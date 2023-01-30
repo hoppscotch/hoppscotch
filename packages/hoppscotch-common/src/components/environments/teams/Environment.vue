@@ -24,7 +24,6 @@
         interactive
         trigger="click"
         theme="popover"
-        arrow
         :on-shown="() => tippyActions!.focus()"
       >
         <ButtonSecondary
@@ -109,7 +108,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconTrash2 from "~icons/lucide/trash-2"
 import IconMoreVertical from "~icons/lucide/more-vertical"
 import { TippyComponent } from "vue-tippy"
-import SmartItem from "@components/smart/Item.vue"
+import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
 
 const t = useI18n()
 const toast = useToast()
@@ -127,9 +126,9 @@ const confirmRemove = ref(false)
 
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
-const edit = ref<typeof SmartItem | null>(null)
-const duplicate = ref<typeof SmartItem | null>(null)
-const deleteAction = ref<typeof SmartItem | null>(null)
+const edit = ref<typeof SmartItem>()
+const duplicate = ref<typeof SmartItem>()
+const deleteAction = ref<typeof SmartItem>()
 
 const removeEnvironment = () => {
   pipe(

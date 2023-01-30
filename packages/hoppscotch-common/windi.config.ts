@@ -1,6 +1,9 @@
 import { defineConfig } from "windicss/helpers"
 
 export default defineConfig({
+  extract: {
+    include: ["src/**/*.{vue,html}", "../hoppscotch-ui/src/**/*.{vue,html}"],
+  },
   theme: {
     container: {
       center: true,

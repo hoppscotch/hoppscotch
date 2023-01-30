@@ -3,7 +3,13 @@
     <header
       class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
-      <div class="inline-flex items-center space-x-2">
+      <div
+        class="inline-flex items-center space-x-2"
+        :style="{
+          paddingTop: platform.ui?.appHeader?.paddingTop?.value,
+          paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
+        }"
+      >
         <ButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
           :label="t('app.name')"
@@ -42,12 +48,12 @@
           :label="t('header.save_workspace')"
           filled
           class="hidden md:flex"
-          @click="showLogin = true"
+          @click="invokeAction('modals.login.toggle')"
         />
         <ButtonPrimary
           v-if="currentUser === null"
           :label="t('header.login')"
-          @click="showLogin = true"
+          @click="invokeAction('modals.login.toggle')"
         />
         <div v-else class="inline-flex items-center space-x-2">
           <ButtonPrimary
@@ -150,7 +156,6 @@
       </div>
     </header>
     <AppAnnouncement v-if="!network.isOnline" />
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
   </div>
 </template>
@@ -170,6 +175,7 @@ import { probableUser$ } from "@helpers/fb/auth"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
+import { platform } from "~/index"
 
 const t = useI18n()
 
@@ -181,7 +187,6 @@ const t = useI18n()
 
 const showInstallButton = computed(() => !!pwaDefferedPrompt.value)
 
-const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
 const breakpoints = useBreakpoints(breakpointsTailwind)

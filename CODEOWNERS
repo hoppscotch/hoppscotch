@@ -1,0 +1,27 @@
+# CODEOWNERS is prioritized from bottom to top
+
+# If none of the below matched
+*                                                       @AndrewBastin @liyasthomas
+
+# Packages
+/packages/codemirror-lang-graphql/                      @AndrewBastin
+/packages/hoppscotch-cli/                               @aitchnyu
+/packages/hoppscotch-common/                            @amk-dev @AndrewBastin
+/packages/hoppscotch-data/                              @AndrewBastin
+/packages/hoppscotch-js-sandbox/                        @aitchnyu
+/packages/hoppscotch-ui/                                @anwarulislam
+/packages/hoppscotch-web/                               @amk-dev @AndrewBastin
+
+# Sections within Hoppscotch Common
+/packages/hoppscotch-common/src/components              @anwarulislam
+/packages/hoppscotch-common/src/components/collections  @nivedin @amk-dev
+/packages/hoppscotch-common/src/components/environments @nivedin @amk-dev
+/packages/hoppscotch-common/src/composables             @amk-dev
+/packages/hoppscotch-common/src/modules                 @AndrewBastin @amk-dev
+/packages/hoppscotch-common/src/pages                   @AndrewBastin @amk-dev
+/packages/hoppscotch-common/src/newstore                @AndrewBastin @amk-dev
+
+README.md                                               @liyasthomas
+
+# The lockfile has no owner
+pnpm-lock.yaml

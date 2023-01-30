@@ -12,7 +12,6 @@
       <SmartTab
         :id="'team-collections'"
         :label="`${t('collection.team_collections')}`"
-        :disabled="!currentUser"
       >
         <SmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
@@ -78,7 +77,7 @@
 <script setup lang="ts">
 import IconUsers from "~icons/lucide/users"
 import IconDone from "~icons/lucide/check"
-import { ref, watch } from "vue"
+import { nextTick, ref, watch } from "vue"
 import { GetMyTeamsQuery, Team } from "~/helpers/backend/graphql"
 import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
@@ -86,6 +85,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { onLoggedIn } from "@composables/auth"
 import { useI18n } from "@composables/i18n"
 import { useLocalState } from "~/newstore/localstate"
+import { invokeAction } from "~/helpers/actions"
 
 type TeamData = GetMyTeamsQuery["myTeams"][number]
 
@@ -153,7 +153,10 @@ const updateSelectedTeam = (team: TeamData | undefined) => {
   emit("update-selected-team", team)
 }
 
-watch(selectedCollectionTab, (newValue: string) => {
-  updateCollectionsType(newValue)
+watch(selectedCollectionTab, (newValue: CollectionTabs) => {
+  if (newValue === "team-collections" && !currentUser.value) {
+    invokeAction("modals.login.toggle")
+    nextTick(() => (selectedCollectionTab.value = "my-collections"))
+  } else updateCollectionsType(newValue)
 })
 </script>

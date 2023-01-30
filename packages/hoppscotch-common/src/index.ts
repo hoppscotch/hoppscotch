@@ -1,4 +1,4 @@
-import { createApp } from "vue"
+import { createApp, Ref } from "vue"
 import { setupLocalPersistence } from "./newstore/localpersistence"
 import { performMigrations } from "./helpers/migrations"
 import { initializeFirebase } from "./helpers/fb"
@@ -12,7 +12,26 @@ import "nprogress/nprogress.css"
 
 import App from "./App.vue"
 
-export function createHoppApp(el: string | Element) {
+export type PlatformDef = {
+  ui?: {
+    appHeader?: {
+      paddingTop?: Ref<string>
+      paddingLeft?: Ref<string>
+    }
+  }
+}
+
+/**
+ * Defines the fields, functions and properties that will be
+ * filled in by the individual platforms.
+ *
+ * This value is populated upon calling `createHoppApp`
+ */
+export let platform: PlatformDef
+
+export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
+  platform = platformDef
+
   const app = createApp(App)
 
   // Some basic work that needs to be done before module inits even
@@ -26,11 +45,11 @@ export function createHoppApp(el: string | Element) {
   app.mount(el)
 
   console.info(
-    "%cWe ❤︎ open source!",
-    "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
+    "%cWE ♥️ OPEN SOURCE",
+    "margin:8px 0;font-family:sans-serif;font-weight:600;font-size:60px;color:violet;"
   )
   console.info(
     "%cContribute: https://github.com/hoppscotch/hoppscotch",
-    "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
+    "margin:8px 0;font-family:sans-serif;font-weight:500;font-size:24px;color:violet;"
   )
 }

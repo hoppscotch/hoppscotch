@@ -8,7 +8,6 @@
         interactive
         trigger="click"
         theme="popover"
-        arrow
         :on-shown="() => tippyActions!.focus()"
       >
         <span
@@ -69,7 +68,7 @@
           </div>
         </template>
       </tippy>
-      <tippy v-else interactive trigger="click" theme="popover" arrow>
+      <tippy v-else interactive trigger="click" theme="popover">
         <span
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('environment.select')}`"

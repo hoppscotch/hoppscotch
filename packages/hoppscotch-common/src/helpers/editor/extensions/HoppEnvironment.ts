@@ -22,10 +22,8 @@ const HOPP_ENVIRONMENT_REGEX = /(<<[a-zA-Z0-9-_]+>>)/g
 
 const HOPP_ENV_HIGHLIGHT =
   "cursor-help transition rounded px-1 focus:outline-none mx-0.5 env-highlight"
-const HOPP_ENV_HIGHLIGHT_FOUND =
-  "bg-accentDark text-accentContrast hover:bg-accent"
-const HOPP_ENV_HIGHLIGHT_NOT_FOUND =
-  "bg-red-500 text-accentContrast hover:bg-red-600"
+const HOPP_ENV_HIGHLIGHT_FOUND = "env-found"
+const HOPP_ENV_HIGHLIGHT_NOT_FOUND = "env-not-found"
 
 const cursorTooltipField = (aggregateEnvs: AggregateEnvironment[]) =>
   hoverTooltip(

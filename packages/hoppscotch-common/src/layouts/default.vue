@@ -46,6 +46,7 @@
         <AppSidenav />
       </Pane>
     </Splitpanes>
+    <AppActionHandler />
     <AppPowerSearch :show="showSearch" @hide-modal="showSearch = false" />
     <AppSupport
       v-if="mdAndLarger"

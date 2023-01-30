@@ -3,14 +3,14 @@
     <div class="text-secondaryLight text-tiny">
       By signing in, you are agreeing to our
       <SmartAnchor
-        class="link text-red-800"
+        class="text-red-800 link"
         to="https://docs.hoppscotch.io/terms"
         blank
         label="Terms of Service"
       />
       and
       <SmartAnchor
-        class="link text-red-600"
+        class="text-red-600 link"
         to="https://docs.hoppscotch.io/privacy"
         blank
         label="Privacy Policy"

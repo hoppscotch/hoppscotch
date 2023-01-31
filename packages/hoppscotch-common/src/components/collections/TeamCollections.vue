@@ -238,23 +238,6 @@
             <span class="pb-4 text-center">
               {{ t("empty.collections") }}
             </span>
-            <ButtonSecondary
-              v-if="hasNoTeamAccess"
-              v-tippy="{ theme: 'tooltip' }"
-              disabled
-              filled
-              outline
-              :title="t('team.no_access')"
-              :label="t('action.new')"
-            />
-            <ButtonSecondary
-              v-else
-              :icon="IconPlus"
-              :label="t('action.new')"
-              filled
-              outline
-              @click="emit('display-modal-add')"
-            />
           </div>
           <div
             v-else-if="node.data.type === 'folders'"

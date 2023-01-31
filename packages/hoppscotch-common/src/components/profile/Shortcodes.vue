@@ -124,7 +124,9 @@ const loading = computed(
 )
 
 onLoggedIn(() => {
-  adapter.initialize()
+  try {
+    adapter.initialize()
+  } catch (e) {}
 })
 
 onAuthEvent((ev) => {

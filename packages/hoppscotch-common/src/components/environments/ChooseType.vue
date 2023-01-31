@@ -141,7 +141,9 @@ watch(
 )
 
 onLoggedIn(() => {
-  adapter.initialize()
+  try {
+    adapter.initialize()
+  } catch (e) {}
 })
 
 const onTeamSelectIntersect = () => {

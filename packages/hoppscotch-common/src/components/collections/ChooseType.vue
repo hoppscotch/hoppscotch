@@ -130,7 +130,9 @@ watch(myTeams, (teams) => {
 })
 
 onLoggedIn(() => {
-  adapter.initialize()
+  try {
+    adapter.initialize()
+  } catch (e) {}
 })
 
 watch(

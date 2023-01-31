@@ -437,6 +437,7 @@ const filteredCollections = computed(() => {
       if (isMatch(request.name)) filteredRequests.push(request)
     }
     for (const folder of collection.folders) {
+      if (isMatch(folder.name)) filteredFolders.push(folder)
       const filteredFolderRequests = []
       for (const request of folder.requests) {
         if (isMatch(request.name)) filteredFolderRequests.push(request)

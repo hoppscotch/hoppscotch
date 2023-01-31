@@ -188,7 +188,16 @@
           />
         </template>
         <template #emptyNode="{ node }">
-          <div v-if="node === null">
+          <div
+            v-if="filterText.length !== 0 && filteredCollections.length === 0"
+            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+          >
+            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
+            <span class="my-2 text-center">
+              {{ t("state.nothing_found") }} "{{ filterText }}"
+            </span>
+          </div>
+          <div v-else-if="node === null">
             <div
               class="flex flex-col items-center justify-center p-4 text-secondaryLight"
             >
@@ -249,19 +258,6 @@
             />
             <span class="text-center">
               {{ t("empty.folder") }}
-            </span>
-          </div>
-          <div
-            v-if="
-              filterText.length !== 0 &&
-              filteredCollections.length === 0 &&
-              node === null
-            "
-            class="flex flex-col items-center justify-center p-4 text-secondaryLight"
-          >
-            <icon-lucide-search class="pb-2 opacity-75 svg-icons" />
-            <span class="my-2 text-center">
-              {{ t("state.nothing_found") }} "{{ filterText }}"
             </span>
           </div>
         </template>

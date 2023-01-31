@@ -236,7 +236,7 @@
               :alt="`${t('empty.collection')}`"
             />
             <span class="pb-4 text-center">
-              {{ t("empty.collections") }}
+              {{ t("empty.collection") }}
             </span>
             <ButtonSecondary
               v-if="hasNoTeamAccess"

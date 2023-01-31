@@ -42,7 +42,7 @@
               <SmartSpinner class="my-2" />
               <span class="text-secondaryLight">{{ t("state.loading") }}</span>
             </div>
-            <div v-else class="flex flex-col">
+            <div v-else-if="myTeams.length > 0" class="flex flex-col">
               <SmartItem
                 v-for="(team, index) in myTeams"
                 :key="`team-${index}`"
@@ -62,6 +62,20 @@
                 "
               />
             </div>
+            <div
+              v-else
+              class="flex flex-col items-center justify-center text-secondaryLight p-2"
+            >
+              <img
+                :src="`/images/states/${colorMode.value}/pack.svg`"
+                loading="lazy"
+                class="inline-flex flex-col object-contain object-center w-12 h-12 mb-2"
+                :alt="`${t('empty.collection')}`"
+              />
+              <span class="text-center">
+                {{ t("empty.teams") }}
+              </span>
+            </div>
           </div>
         </template>
       </tippy>
@@ -76,8 +90,10 @@ import { PropType, ref } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "@composables/i18n"
+import { useColorMode } from "@composables/theming"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 

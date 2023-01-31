@@ -61,6 +61,17 @@
                   }
                 "
               />
+              <hr />
+              <SmartItem
+                :icon="IconPlus"
+                :label="t('team.create_new')"
+                @click="
+                  () => {
+                    displayTeamModalAdd(true)
+                    hide()
+                  }
+                "
+              />
             </div>
             <div
               v-else
@@ -76,8 +87,7 @@
                 {{ t("empty.teams") }}
               </span>
               <ButtonSecondary
-                :icon="IconPlus"
-                :label="t('action.new')"
+                :label="t('team.create_new')"
                 filled
                 outline
                 @click="

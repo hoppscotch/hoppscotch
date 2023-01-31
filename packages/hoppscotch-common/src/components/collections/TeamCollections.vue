@@ -213,12 +213,11 @@
                 filled
                 outline
                 :title="t('team.no_access')"
-                :label="t('action.new')"
+                :label="t('add.new')"
               />
               <ButtonSecondary
                 v-else
-                :icon="IconPlus"
-                :label="t('action.new')"
+                :label="t('add.new')"
                 filled
                 outline
                 @click="emit('display-modal-add')"

@@ -67,14 +67,26 @@
               class="flex flex-col items-center justify-center text-secondaryLight p-2"
             >
               <img
-                :src="`/images/states/${colorMode.value}/pack.svg`"
+                :src="`/images/states/${colorMode.value}/add_group.svg`"
                 loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-12 h-12 mb-2"
-                :alt="`${t('empty.collection')}`"
+                class="inline-flex flex-col object-contain object-center w-14 h-14 mb-4"
+                :alt="`${t('empty.teams')}`"
               />
-              <span class="text-center">
+              <span class="text-center pb-4">
                 {{ t("empty.teams") }}
               </span>
+              <ButtonSecondary
+                :icon="IconPlus"
+                :label="t('action.new')"
+                filled
+                outline
+                @click="
+                  () => {
+                    displayTeamModalAdd(true)
+                    hide()
+                  }
+                "
+              />
             </div>
           </div>
         </template>
@@ -91,6 +103,7 @@ import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { TippyComponent } from "vue-tippy"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
+import IconPlus from "~icons/lucide/plus"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -127,6 +140,7 @@ const tippyActions = ref<TippyComponent | null>(null)
 const emit = defineEmits<{
   (e: "update-selected-team", payload: SelectedTeam): void
   (e: "team-select-intersect", payload: boolean): void
+  (e: "display-team-modal-add", payload: boolean): void
 }>()
 
 const updateSelectedTeam = (team: SelectedTeam) => {
@@ -135,5 +149,9 @@ const updateSelectedTeam = (team: SelectedTeam) => {
 
 const onTeamSelectIntersect = () => {
   emit("team-select-intersect", true)
+}
+
+const displayTeamModalAdd = (display: boolean) => {
+  emit("display-team-modal-add", display)
 }
 </script>

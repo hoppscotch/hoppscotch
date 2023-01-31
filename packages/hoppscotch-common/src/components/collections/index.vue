@@ -72,6 +72,7 @@
             :is-team-list-loading="isTeamListLoading"
             @update-selected-team="updateSelectedTeam"
             @team-select-intersect="onTeamSelectIntersect"
+            @display-team-modal-add="displayTeamModalAdd(true)"
           />
         </div>
         <CollectionsTeamCollections
@@ -168,6 +169,10 @@
       mode="rest"
       :show="showSaveRequestModal"
       @hide-modal="showSaveRequestModal = false"
+    />
+    <TeamsAdd
+      :show="showTeamModalAdd"
+      @hide-modal="displayTeamModalAdd(false)"
     />
   </div>
 </template>
@@ -526,6 +531,7 @@ const showModalEditFolder = ref(false)
 const showModalEditRequest = ref(false)
 const showModalImportExport = ref(false)
 const showConfirmModal = ref(false)
+const showTeamModalAdd = ref(false)
 
 const displayModalAdd = (show: boolean) => {
   showModalAdd.value = show
@@ -573,6 +579,12 @@ const displayConfirmModal = (show: boolean) => {
   showConfirmModal.value = show
 
   if (!show) resetSelectedData()
+}
+
+const displayTeamModalAdd = (show: boolean) => {
+  showTeamModalAdd.value = show
+
+  teamListAdapter.fetchList()
 }
 
 const addNewRootCollection = (name: string) => {

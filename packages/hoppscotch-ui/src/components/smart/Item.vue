@@ -63,8 +63,10 @@
   </SmartLink>
 </template>
 
-<script setup lang="ts">
-defineProps({
+<script lang="ts">
+import { defineComponent } from "vue"
+
+export default defineComponent({
   to: {
     type: String,
     default: "",

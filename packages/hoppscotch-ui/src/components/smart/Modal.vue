@@ -106,36 +106,25 @@ import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 const { t, onModalOpen, onModalClose } =
   inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
-defineProps({
-  dialog: {
-    type: Boolean,
-    default: false,
-  },
-  title: {
-    type: String,
-    default: "",
-  },
-  dimissible: {
-    type: Boolean,
-    default: true,
-  },
-  placement: {
-    type: String,
-    default: "top",
-  },
-  fullWidth: {
-    type: Boolean,
-    default: false,
-  },
-  styles: {
-    type: String,
-    default: "sm:max-w-lg",
-  },
-  closeText: {
-    type: String,
-    default: null,
-  },
-})
+withDefaults(
+  defineProps<{
+    dialog: boolean,
+    title: string,
+    dimissible: boolean,
+    placement: string,
+    fullWidth: boolean,
+    styles: string,
+    closeText: string | null,
+  }>(), {
+    dialog: false,
+    title: "",
+    dimissible: true,
+    placement: "top",
+    fullWidth: false,
+    styles: "sm:max-w-lg",
+    closeText: null
+  }
+)
 
 const emit = defineEmits<{
   (e: "close"): void

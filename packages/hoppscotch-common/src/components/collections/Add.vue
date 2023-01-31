@@ -41,47 +41,52 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { watch, ref } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    loadingState: Boolean,
-  },
-  emits: ["submit", "hide-modal"],
-  setup() {
-    return {
-      toast: useToast(),
-      t: useI18n(),
+const toast = useToast()
+const t = useI18n()
+
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+  }
+)
+
+const emit = defineEmits<{
+  (e: "submit", name: string): void
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.show,
+  (show) => {
+    if (!show) {
+      name.value = ""
     }
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  watch: {
-    show(isShowing: boolean) {
-      if (!isShowing) {
-        this.name = null
-      }
-    },
-  },
-  methods: {
-    addNewCollection() {
-      if (!this.name) {
-        this.toast.error(this.t("collection.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.name)
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+  }
+)
+
+const addNewCollection = () => {
+  if (!name.value) {
+    toast.error(t("collection.invalid_name"))
+    return
+  }
+
+  emit("submit", name.value)
+}
+
+const hideModal = () => {
+  name.value = ""
+  emit("hide-modal")
+}
 </script>

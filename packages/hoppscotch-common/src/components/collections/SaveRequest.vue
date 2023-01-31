@@ -37,8 +37,8 @@
           :picked="picked"
           :save-request="true"
           @select="onSelect"
-          @update-collection="updateColl"
-          @update-coll-type="onUpdateCollType"
+          @update-team="updateTeam"
+          @update-collection-type="updateCollectionType"
         />
       </div>
     </template>
@@ -46,6 +46,7 @@
       <span class="flex space-x-2">
         <ButtonPrimary
           :label="`${t('action.save')}`"
+          :loading="modalLoadingState"
           outline
           @click="saveRequestAs"
         />
@@ -61,99 +62,75 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue"
-import * as E from "fp-ts/Either"
-import { HoppGQLRequest, isHoppRESTRequest } from "@hoppscotch/data"
-import { cloneDeep } from "lodash-es"
+import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import {
-  editGraphqlRequest,
-  editRESTRequest,
-  saveGraphqlRequestAs,
-  saveRESTRequestAs,
-} from "~/newstore/collections"
+  HoppGQLRequest,
+  HoppRESTRequest,
+  isHoppRESTRequest,
+} from "@hoppscotch/data"
+import { pipe } from "fp-ts/function"
+import * as TE from "fp-ts/TaskEither"
+import { cloneDeep } from "lodash-es"
+import { reactive, ref, watch } from "vue"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
+import {
+  createRequestInCollection,
+  updateTeamRequest,
+} from "~/helpers/backend/mutations/TeamRequest"
+import { Picked } from "~/helpers/types/HoppPicked"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
 import {
   getRESTRequest,
   setRESTSaveContext,
   useRESTRequestName,
 } from "~/newstore/RESTSession"
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
-import { runMutation } from "~/helpers/backend/GQLClient"
 import {
-  CreateRequestInCollectionDocument,
-  UpdateRequestDocument,
-} from "~/helpers/backend/graphql"
+  editGraphqlRequest,
+  editRESTRequest,
+  saveGraphqlRequestAs,
+  saveRESTRequestAs,
+} from "~/newstore/collections"
+import { GQLError } from "~/helpers/backend/GQLClient"
 
 const t = useI18n()
+const toast = useToast()
+
+type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 type CollectionType =
   | {
-      type: "my-collections"
-    }
-  | {
       type: "team-collections"
-      // TODO: Figure this type out
-      selectedTeam: {
-        id: string
-      }
+      selectedTeam: SelectedTeam
     }
+  | { type: "my-collections"; selectedTeam: undefined }
 
-type Picked =
-  | {
-      pickedType: "my-request"
-      folderPath: string
-      requestIndex: number
-    }
-  | {
-      pickedType: "my-folder"
-      folderPath: string
-    }
-  | {
-      pickedType: "my-collection"
-      collectionIndex: number
-    }
-  | {
-      pickedType: "teams-request"
-      requestID: string
-    }
-  | {
-      pickedType: "teams-folder"
-      folderID: string
-    }
-  | {
-      pickedType: "teams-collection"
-      collectionID: string
-    }
-  | {
-      pickedType: "gql-my-request"
-      folderPath: string
-      requestIndex: number
-    }
-  | {
-      pickedType: "gql-my-folder"
-      folderPath: string
-    }
-  | {
-      pickedType: "gql-my-collection"
-      collectionIndex: number
-    }
-
-const props = defineProps<{
-  mode: "rest" | "graphql"
-  show: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    mode: "rest" | "graphql"
+  }>(),
+  {
+    show: false,
+    mode: "rest",
+  }
+)
 
 const emit = defineEmits<{
+  (
+    event: "edit-request",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      request: HoppRESTRequest
+    }
+  ): void
   (e: "hide-modal"): void
 }>()
 
-const toast = useToast()
-
-// TODO: Use a better implementation with computed ?
-// This implementation can't work across updates to mode prop (which won't happen tho)
-const requestName =
+const requestName = ref(
   props.mode === "rest" ? useRESTRequestName() : useGQLRequestName()
+)
 
 const requestData = reactive({
   name: requestName,
@@ -164,10 +141,12 @@ const requestData = reactive({
 
 const collectionsType = ref<CollectionType>({
   type: "my-collections",
+  selectedTeam: undefined,
 })
 
-// TODO: Figure this type out
 const picked = ref<Picked | null>(null)
+
+const modalLoadingState = ref(false)
 
 // Resets
 watch(
@@ -184,18 +163,16 @@ watch(
   }
 )
 
-// All the methods
-const onUpdateCollType = (newCollType: CollectionType) => {
-  collectionsType.value = newCollType
+const updateTeam = (newTeam: SelectedTeam) => {
+  collectionsType.value.selectedTeam = newTeam
 }
 
-const onSelect = ({ picked: pickedVal }: { picked: Picked | null }) => {
+const updateCollectionType = (type: CollectionType["type"]) => {
+  collectionsType.value.type = type
+}
+
+const onSelect = (pickedVal: Picked | null) => {
   picked.value = pickedVal
-}
-
-const hideModal = () => {
-  picked.value = null
-  emit("hide-modal")
 }
 
 const saveRequestAs = async () => {
@@ -208,35 +185,25 @@ const saveRequestAs = async () => {
     return
   }
 
-  // Clone Deep because objects are shared by reference so updating
-  // just one bit will update other referenced shared instances
   const requestUpdated =
     props.mode === "rest"
       ? cloneDeep(getRESTRequest())
       : cloneDeep(getGQLSession().request)
 
-  // // Filter out all REST file inputs
-  // if (this.mode === "rest" && requestUpdated.bodyParams) {
-  //   requestUpdated.bodyParams = requestUpdated.bodyParams.map((param) =>
-  //     param?.value?.[0] instanceof File ? { ...param, value: "" } : param
-  //   )
-  // }
-
-  if (picked.value.pickedType === "my-request") {
+  if (picked.value.pickedType === "my-collection") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
-    editRESTRequest(
-      picked.value.folderPath,
-      picked.value.requestIndex,
+    const insertionIndex = saveRESTRequestAs(
+      `${picked.value.collectionIndex}`,
       requestUpdated
     )
 
     setRESTSaveContext({
       originLocation: "user-collection",
-      folderPath: picked.value.folderPath,
-      requestIndex: picked.value.requestIndex,
-      req: cloneDeep(requestUpdated),
+      folderPath: `${picked.value.collectionIndex}`,
+      requestIndex: insertionIndex,
+      req: requestUpdated,
     })
 
     requestSaved()
@@ -253,114 +220,68 @@ const saveRequestAs = async () => {
       originLocation: "user-collection",
       folderPath: picked.value.folderPath,
       requestIndex: insertionIndex,
-      req: cloneDeep(requestUpdated),
+      req: requestUpdated,
     })
 
     requestSaved()
-  } else if (picked.value.pickedType === "my-collection") {
+  } else if (picked.value.pickedType === "my-request") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
-    const insertionIndex = saveRESTRequestAs(
-      `${picked.value.collectionIndex}`,
+    editRESTRequest(
+      picked.value.folderPath,
+      picked.value.requestIndex,
       requestUpdated
     )
 
     setRESTSaveContext({
       originLocation: "user-collection",
-      folderPath: `${picked.value.collectionIndex}`,
-      requestIndex: insertionIndex,
-      req: cloneDeep(requestUpdated),
+      folderPath: picked.value.folderPath,
+      requestIndex: picked.value.requestIndex,
+      req: requestUpdated,
     })
 
     requestSaved()
-  } else if (picked.value.pickedType === "teams-request") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
-    if (collectionsType.value.type !== "team-collections")
-      throw new Error("Collections Type mismatch")
-
-    runMutation(UpdateRequestDocument, {
-      requestID: picked.value.requestID,
-      data: {
-        request: JSON.stringify(requestUpdated),
-        title: requestUpdated.name,
-      },
-    })().then((result) => {
-      if (E.isLeft(result)) {
-        toast.error(`${t("profile.no_permission")}`)
-        throw new Error(`${result.left}`)
-      } else {
-        requestSaved()
-      }
-    })
-
-    setRESTSaveContext({
-      originLocation: "team-collection",
-      requestID: picked.value.requestID,
-      req: cloneDeep(requestUpdated),
-    })
-  } else if (picked.value.pickedType === "teams-folder") {
-    if (!isHoppRESTRequest(requestUpdated))
-      throw new Error("requestUpdated is not a REST Request")
-
-    if (collectionsType.value.type !== "team-collections")
-      throw new Error("Collections Type mismatch")
-
-    const result = await runMutation(CreateRequestInCollectionDocument, {
-      collectionID: picked.value.folderID,
-      data: {
-        request: JSON.stringify(requestUpdated),
-        teamID: collectionsType.value.selectedTeam.id,
-        title: requestUpdated.name,
-      },
-    })()
-
-    if (E.isLeft(result)) {
-      toast.error(`${t("profile.no_permission")}`)
-      console.error(result.left)
-    } else {
-      setRESTSaveContext({
-        originLocation: "team-collection",
-        requestID: result.right.createRequestInCollection.id,
-        teamID: collectionsType.value.selectedTeam.id,
-        collectionID: picked.value.folderID,
-        req: cloneDeep(requestUpdated),
-      })
-
-      requestSaved()
-    }
   } else if (picked.value.pickedType === "teams-collection") {
     if (!isHoppRESTRequest(requestUpdated))
       throw new Error("requestUpdated is not a REST Request")
 
-    if (collectionsType.value.type !== "team-collections")
+    updateTeamCollectionOrFolder(picked.value.collectionID, requestUpdated)
+  } else if (picked.value.pickedType === "teams-folder") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    updateTeamCollectionOrFolder(picked.value.folderID, requestUpdated)
+  } else if (picked.value.pickedType === "teams-request") {
+    if (!isHoppRESTRequest(requestUpdated))
+      throw new Error("requestUpdated is not a REST Request")
+
+    if (
+      collectionsType.value.type !== "team-collections" ||
+      !collectionsType.value.selectedTeam
+    )
       throw new Error("Collections Type mismatch")
 
-    const result = await runMutation(CreateRequestInCollectionDocument, {
-      collectionID: picked.value.collectionID,
-      data: {
-        title: requestUpdated.name,
-        request: JSON.stringify(requestUpdated),
-        teamID: collectionsType.value.selectedTeam.id,
-      },
-    })()
+    modalLoadingState.value = true
 
-    if (E.isLeft(result)) {
-      toast.error(`${t("profile.no_permission")}`)
-      console.error(result.left)
-    } else {
-      setRESTSaveContext({
-        originLocation: "team-collection",
-        requestID: result.right.createRequestInCollection.id,
-        teamID: collectionsType.value.selectedTeam.id,
-        collectionID: picked.value.collectionID,
-        req: cloneDeep(requestUpdated),
-      })
-
-      requestSaved()
+    const data = {
+      request: JSON.stringify(requestUpdated),
+      title: requestUpdated.name,
     }
+
+    pipe(
+      updateTeamRequest(picked.value.requestID, data),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          modalLoadingState.value = false
+        },
+        () => {
+          modalLoadingState.value = false
+          requestSaved()
+        }
+      )
+    )()
   } else if (picked.value.pickedType === "gql-my-request") {
     // TODO: Check for GQL request ?
     editGraphqlRequest(
@@ -389,12 +310,81 @@ const saveRequestAs = async () => {
   }
 }
 
+/**
+ * Updates a team collection or folder and sets the save context to the updated request
+ * @param collectionID - ID of the collection or folder
+ * @param requestUpdated - Updated request
+ */
+const updateTeamCollectionOrFolder = (
+  collectionID: string,
+  requestUpdated: HoppRESTRequest
+) => {
+  if (
+    collectionsType.value.type !== "team-collections" ||
+    !collectionsType.value.selectedTeam
+  )
+    throw new Error("Collections Type mismatch")
+
+  modalLoadingState.value = true
+
+  const data = {
+    title: requestUpdated.name,
+    request: JSON.stringify(requestUpdated),
+    teamID: collectionsType.value.selectedTeam.id,
+  }
+  pipe(
+    createRequestInCollection(collectionID, data),
+    TE.match(
+      (err: GQLError<string>) => {
+        toast.error(`${getErrorMessage(err)}`)
+        modalLoadingState.value = false
+      },
+      (result) => {
+        const { createRequestInCollection } = result
+
+        setRESTSaveContext({
+          originLocation: "team-collection",
+          requestID: createRequestInCollection.id,
+          collectionID: createRequestInCollection.collection.id,
+          teamID: createRequestInCollection.collection.team.id,
+          req: requestUpdated,
+        })
+        modalLoadingState.value = false
+        requestSaved()
+      }
+    )
+  )()
+}
+
 const requestSaved = () => {
   toast.success(`${t("request.added")}`)
   hideModal()
 }
 
-const updateColl = (ev: CollectionType["type"]) => {
-  collectionsType.value.type = ev
+const hideModal = () => {
+  picked.value = null
+  emit("hide-modal")
+}
+
+const getErrorMessage = (err: GQLError<string>) => {
+  console.error(err)
+  if (err.type === "network_error") {
+    return t("error.network_error")
+  } else {
+    switch (err.error) {
+      case "team_coll/short_title":
+        return t("collection.name_length_insufficient")
+      case "team/invalid_coll_id":
+        return t("team.invalid_id")
+      case "team/not_required_role":
+        return t("profile.no_permission")
+      case "team_req/not_required_role":
+        return t("profile.no_permission")
+      case "Forbidden resource":
+        return t("profile.no_permission")
+      default:
+        return t("error.something_went_wrong")
+    }
+  }
 }
 </script>

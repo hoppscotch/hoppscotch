@@ -3,7 +3,7 @@
     v-if="show"
     dialog
     :title="t('folder.edit')"
-    @close="$emit('hide-modal')"
+    @close="emit('hide-modal')"
   >
     <template #body>
       <div class="flex flex-col">
@@ -41,46 +41,52 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingFolderName: { type: String, default: null },
-    loadingState: Boolean,
-  },
-  emits: ["submit", "hide-modal"],
-  setup() {
-    return {
-      t: useI18n(),
-      toast: useToast(),
-    }
-  },
-  data() {
-    return {
-      name: null,
-    }
-  },
-  watch: {
-    editingFolderName(val) {
-      this.name = val
-    },
-  },
-  methods: {
-    editFolder() {
-      if (!this.name) {
-        this.toast.error(this.t("folder.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.name)
-    },
-    hideModal() {
-      this.name = null
-      this.$emit("hide-modal")
-    },
-  },
-})
+const t = useI18n()
+const toast = useToast()
+
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+    editingFolderName: string
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+    editingFolderName: "",
+  }
+)
+
+const emit = defineEmits<{
+  (e: "submit", name: string): void
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.editingFolderName,
+  (newName) => {
+    name.value = newName
+  }
+)
+
+const editFolder = () => {
+  if (name.value.trim() === "") {
+    toast.error(t("folder.invalid_name"))
+    return
+  }
+
+  emit("submit", name.value)
+}
+
+const hideModal = () => {
+  name.value = ""
+  emit("hide-modal")
+}
 </script>

@@ -9,13 +9,13 @@
       <div class="flex flex-col">
         <input
           id="selectLabelEditReq"
-          v-model="requestUpdateData.name"
+          v-model="name"
           v-focus
           class="input floating-input"
           placeholder=" "
           type="text"
           autocomplete="off"
-          @keyup.enter="saveRequest"
+          @keyup.enter="editRequest"
         />
         <label for="selectLabelEditReq">
           {{ t("action.label") }}
@@ -28,7 +28,7 @@
           :label="t('action.save')"
           :loading="loadingState"
           outline
-          @click="saveRequest"
+          @click="editRequest"
         />
         <ButtonSecondary
           :label="t('action.cancel')"
@@ -41,48 +41,52 @@
   </SmartModal>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref, watch } from "vue"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 
-export default defineComponent({
-  props: {
-    show: Boolean,
-    editingRequestName: { type: String, default: null },
-    loadingState: Boolean,
-  },
-  emits: ["submit", "hide-modal"],
-  setup() {
-    return {
-      t: useI18n(),
-      toast: useToast(),
-    }
-  },
-  data() {
-    return {
-      requestUpdateData: {
-        name: null,
-      },
-    }
-  },
-  watch: {
-    editingRequestName(val) {
-      this.requestUpdateData.name = val
-    },
-  },
-  methods: {
-    saveRequest() {
-      if (!this.requestUpdateData.name) {
-        this.toast.error(this.t("request.invalid_name"))
-        return
-      }
-      this.$emit("submit", this.requestUpdateData)
-    },
-    hideModal() {
-      this.requestUpdateData = { name: null }
-      this.$emit("hide-modal")
-    },
-  },
-})
+const toast = useToast()
+const t = useI18n()
+
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+    editingRequestName: string
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+    editingRequestName: "",
+  }
+)
+
+const emit = defineEmits<{
+  (e: "submit", name: string): void
+  (e: "hide-modal"): void
+}>()
+
+const name = ref("")
+
+watch(
+  () => props.editingRequestName,
+  (newName) => {
+    name.value = newName
+  }
+)
+
+const editRequest = () => {
+  if (name.value.trim() === "") {
+    toast.error(t("request.invalid_name"))
+    return
+  }
+
+  emit("submit", name.value)
+}
+
+const hideModal = () => {
+  name.value = ""
+  emit("hide-modal")
+}
 </script>

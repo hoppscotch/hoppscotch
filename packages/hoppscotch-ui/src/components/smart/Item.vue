@@ -63,78 +63,82 @@
   </SmartLink>
 </template>
 
-<script setup lang="ts">
-defineProps({
-  to: {
-    type: String,
-    default: "",
-  },
-  exact: {
-    type: Boolean,
-    default: true,
-  },
-  blank: {
-    type: Boolean,
-    default: false,
-  },
-  label: {
-    type: String,
-    default: "",
-  },
-  description: {
-    type: String,
-    default: "",
-  },
-  /**
-   * This will be a component!
-   */
-  icon: {
-    type: Object,
-    default: null,
-  },
-  /**
-   * This will be a component!
-   */
-  svg: {
-    type: Object,
-    default: null,
-  },
-  disabled: {
-    type: Boolean,
-    default: false,
-  },
-  loading: {
-    type: Boolean,
-    default: false,
-  },
-  reverse: {
-    type: Boolean,
-    default: false,
-  },
-  outline: {
-    type: Boolean,
-    default: false,
-  },
-  shortcut: {
-    type: Array,
-    default: () => [],
-  },
-  active: {
-    type: Boolean,
-    default: false,
-  },
+<script lang="ts">
+import { defineComponent } from "vue"
 
-  activeInfoIcon: {
-    type: Boolean,
-    default: false,
-  },
+export default defineComponent({
+  props: {
+    to: {
+      type: String,
+      default: "",
+    },
+    exact: {
+      type: Boolean,
+      default: true,
+    },
+    blank: {
+      type: Boolean,
+      default: false,
+    },
+    label: {
+      type: String,
+      default: "",
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    /**
+     * This will be a component!
+     */
+    icon: {
+      type: Object,
+      default: null,
+    },
+    /**
+     * This will be a component!
+     */
+    svg: {
+      type: Object,
+      default: null,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    reverse: {
+      type: Boolean,
+      default: false,
+    },
+    outline: {
+      type: Boolean,
+      default: false,
+    },
+    shortcut: {
+      type: Array,
+      default: () => [],
+    },
+    active: {
+      type: Boolean,
+      default: false,
+    },
 
-  /**
-   * This will be a component!
-   */
-  infoIcon: {
-    type: Object,
-    default: null,
+    activeInfoIcon: {
+      type: Boolean,
+      default: false,
+    },
+
+    /**
+     * This will be a component!
+     */
+    infoIcon: {
+      type: Object,
+      default: null,
+    },
   },
 })
 </script>

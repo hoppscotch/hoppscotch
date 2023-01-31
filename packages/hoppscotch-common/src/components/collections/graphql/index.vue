@@ -1,18 +1,21 @@
 <template>
-  <div :class="{ 'rounded border border-divider': savingMode }">
+  <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b divide-y divide-dividerLight border-dividerLight"
-      :class="{ 'bg-primary': !savingMode }"
+      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
+      :style="
+        saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
+      "
     >
       <input
-        v-if="showCollActions"
         v-model="filterText"
         type="search"
         autocomplete="off"
         :placeholder="t('action.search')"
-        class="flex px-4 py-2 bg-transparent"
+        class="py-2 pl-4 pr-2 bg-transparent"
       />
-      <div class="flex justify-between flex-1">
+      <div
+        class="flex justify-between flex-1 flex-shrink-0 border-y bg-primary border-dividerLight"
+      >
         <ButtonSecondary
           :icon="IconPlus"
           :label="t('action.new')"
@@ -28,7 +31,7 @@
             :icon="IconHelpCircle"
           />
           <ButtonSecondary
-            v-if="showCollActions"
+            v-if="!saveRequest"
             v-tippy="{ theme: 'tooltip' }"
             :title="t('modal.import_export')"
             :icon="IconArchive"
@@ -37,7 +40,7 @@
         </div>
       </div>
     </div>
-    <div class="flex-col">
+    <div class="flex flex-col">
       <CollectionsGraphqlCollection
         v-for="(collection, index) in filteredCollections"
         :key="`collection-${index}`"
@@ -46,7 +49,7 @@
         :collection-index="index"
         :collection="collection"
         :is-filtered="filterText.length > 0"
-        :saving-mode="savingMode"
+        :save-request="saveRequest"
         @edit-collection="editCollection(collection, index)"
         @add-request="addRequest($event)"
         @add-folder="addFolder($event)"
@@ -154,10 +157,8 @@ import { useColorMode } from "@composables/theming"
 export default defineComponent({
   props: {
     // Whether to activate the ability to pick items (activates 'select' events)
-    savingMode: { type: Boolean, default: false },
+    saveRequest: { type: Boolean, default: false },
     picked: { type: Object, default: null },
-    // Whether to show the 'New' and 'Import/Export' actions
-    showCollActions: { type: Boolean, default: true },
   },
   emits: ["select", "use-collection"],
   setup() {

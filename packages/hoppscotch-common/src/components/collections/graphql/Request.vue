@@ -29,7 +29,7 @@
       </span>
       <div class="flex">
         <ButtonSecondary
-          v-if="!savingMode"
+          v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconRotateCCW"
           :title="t('action.restore')"
@@ -148,7 +148,7 @@ const props = defineProps({
   // Whether the object is selected (show the tick mark)
   picked: { type: Object, default: null },
   // Whether the request is being saved (activate 'select' event)
-  savingMode: { type: Boolean, default: false },
+  saveRequest: { type: Boolean, default: false },
   request: { type: Object as PropType<HoppGQLRequest>, default: () => ({}) },
   folderPath: { type: String, default: null },
   requestIndex: { type: Number, default: null },
@@ -178,7 +178,7 @@ const pick = () => {
 }
 
 const selectRequest = () => {
-  if (props.savingMode) {
+  if (props.saveRequest) {
     pick()
   } else {
     setGQLSession({

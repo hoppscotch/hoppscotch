@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-1">
     <SmartIntersection
-      class="flex flex-1 flex-col"
+      class="flex flex-col flex-1"
       @intersecting="onTeamSelectIntersect"
     >
       <tippy
@@ -37,7 +37,7 @@
           >
             <div
               v-if="isTeamListLoading && myTeams.length === 0"
-              class="flex flex-col flex-1 items-center justify-center p-2"
+              class="flex flex-col items-center justify-center flex-1 p-2"
             >
               <SmartSpinner class="my-2" />
               <span class="text-secondaryLight">{{ t("state.loading") }}</span>
@@ -75,15 +75,15 @@
             </div>
             <div
               v-else
-              class="flex flex-col items-center justify-center text-secondaryLight p-2"
+              class="flex flex-col items-center justify-center p-2 text-secondaryLight"
             >
               <img
                 :src="`/images/states/${colorMode.value}/add_group.svg`"
                 loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-14 h-14 mb-4"
+                class="inline-flex flex-col object-contain object-center mb-4 w-14 h-14"
                 :alt="`${t('empty.teams')}`"
               />
-              <span class="text-center pb-4">
+              <span class="pb-4 text-center">
                 {{ t("empty.teams") }}
               </span>
               <ButtonSecondary

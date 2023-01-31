@@ -201,7 +201,7 @@
                 :src="`/images/states/${colorMode.value}/pack.svg`"
                 loading="lazy"
                 class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-                :alt="`${t('empty.collection')}`"
+                :alt="`${t('empty.collections')}`"
               />
               <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
@@ -244,12 +244,11 @@
               filled
               outline
               :title="t('team.no_access')"
-              :label="t('action.new')"
+              :label="t('add.new')"
             />
             <ButtonSecondary
               v-else
-              :icon="IconPlus"
-              :label="t('action.new')"
+              :label="t('add.new')"
               filled
               outline
               @click="

@@ -205,7 +205,7 @@
                 :src="`/images/states/${colorMode.value}/pack.svg`"
                 loading="lazy"
                 class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-                :alt="`${t('empty.collection')}`"
+                :alt="`${t('empty.collections')}`"
               />
               <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
@@ -213,7 +213,6 @@
               <ButtonSecondary
                 :label="t('add.new')"
                 filled
-                class="mb-4"
                 outline
                 @click="emit('display-modal-add')"
               />
@@ -235,7 +234,6 @@
             <ButtonSecondary
               :label="t('add.new')"
               filled
-              class="mb-4"
               outline
               @click="
                 node.data.type === 'collections' &&

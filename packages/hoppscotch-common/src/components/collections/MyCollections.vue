@@ -223,6 +223,19 @@
             <span class="pb-4 text-center">
               {{ t("empty.collections") }}
             </span>
+            <ButtonSecondary
+              :label="t('add.new')"
+              filled
+              class="mb-4"
+              outline
+              @click="
+                node.data.type === 'collections' &&
+                  emit('add-folder', {
+                    path: node.id,
+                    folder: node.data.data.data,
+                  })
+              "
+            />
           </div>
           <div
             v-else-if="node.data.type === 'folders'"

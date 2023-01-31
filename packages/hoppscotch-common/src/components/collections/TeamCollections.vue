@@ -238,6 +238,29 @@
             <span class="pb-4 text-center">
               {{ t("empty.collections") }}
             </span>
+            <ButtonSecondary
+              v-if="hasNoTeamAccess"
+              v-tippy="{ theme: 'tooltip' }"
+              disabled
+              filled
+              outline
+              :title="t('team.no_access')"
+              :label="t('action.new')"
+            />
+            <ButtonSecondary
+              v-else
+              :icon="IconPlus"
+              :label="t('action.new')"
+              filled
+              outline
+              @click="
+                node.data.type === 'collections' &&
+                  emit('add-folder', {
+                    path: node.id,
+                    folder: node.data.data.data,
+                  })
+              "
+            />
           </div>
           <div
             v-else-if="node.data.type === 'folders'"

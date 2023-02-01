@@ -169,11 +169,9 @@ const isSelected = computed(
 
 const pick = () => {
   emit("select", {
-    picked: {
-      pickedType: "gql-my-request",
-      folderPath: props.folderPath,
-      requestIndex: props.requestIndex,
-    },
+    pickedType: "gql-my-request",
+    folderPath: props.folderPath,
+    requestIndex: props.requestIndex,
   })
 }
 
@@ -213,7 +211,7 @@ const removeRequest = () => {
     props.picked.folderPath === props.folderPath &&
     props.picked.requestIndex === props.requestIndex
   ) {
-    emit("select", { picked: null })
+    emit("select", null)
   }
 
   removeGraphqlRequest(props.folderPath, props.requestIndex)

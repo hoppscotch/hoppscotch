@@ -225,6 +225,7 @@ import {
   removeGraphqlCollection,
   moveGraphqlRequest,
 } from "~/newstore/collections"
+import { Picked } from "~/helpers/types/HoppPicked"
 
 const props = defineProps({
   picked: { type: Object, default: null },
@@ -241,7 +242,7 @@ const t = useI18n()
 
 // TODO: improve types plz
 const emit = defineEmits<{
-  (e: "select", i: { picked: any }): void
+  (e: "select", i: Picked | null): void
   (e: "edit-request", i: any): void
   (e: "duplicate-request", i: any): void
   (e: "add-request", i: any): void
@@ -277,10 +278,8 @@ const collectionIcon = computed(() => {
 
 const pick = () => {
   emit("select", {
-    picked: {
-      pickedType: "gql-my-collection",
-      collectionIndex: props.collectionIndex,
-    },
+    pickedType: "gql-my-collection",
+    collectionIndex: props.collectionIndex,
   })
 }
 
@@ -298,7 +297,7 @@ const removeCollection = () => {
     props.picked?.pickedType === "gql-my-collection" &&
     props.picked?.collectionIndex === props.collectionIndex
   ) {
-    emit("select", { picked: null })
+    emit("select", null)
   }
   removeGraphqlCollection(props.collectionIndex)
   toast.success(`${t("state.deleted")}`)

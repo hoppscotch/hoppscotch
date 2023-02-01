@@ -1,5 +1,14 @@
 <template>
-  <div :class="{ 'rounded border border-divider': saveRequest }">
+  <div
+    :class="{
+      'rounded border border-divider': saveRequest,
+      'bg-primaryDark': draggingToRoot,
+    }"
+    class="flex-1"
+    @drop.prevent="dropToRoot"
+    @dragover.prevent="draggingToRoot = true"
+    @dragend="draggingToRoot = false"
+  >
     <div
       class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
       :style="
@@ -44,6 +53,7 @@
           @export-data="exportData"
           @remove-collection="removeCollection"
           @remove-folder="removeFolder"
+          @drop-collection="dropCollection"
           @edit-request="editRequest"
           @duplicate-request="duplicateRequest"
           @remove-request="removeRequest"
@@ -83,6 +93,8 @@
           :duplicate-loading="duplicateLoading"
           :save-request="saveRequest"
           :picked="picked"
+          :collection-move-loading="collectionMoveLoading"
+          :request-move-loading="requestMoveLoading"
           @add-request="addRequest"
           @add-folder="addFolder"
           @edit-collection="editCollection"
@@ -95,12 +107,22 @@
           @remove-request="removeRequest"
           @select-request="selectRequest"
           @select="selectPicked"
+          @drop-request="dropRequest"
+          @drop-collection="dropCollection"
+          @update-request-order="updateRequestOrder"
+          @update-collection-order="updateCollectionOrder"
           @expand-team-collection="expandTeamCollection"
           @display-modal-add="displayModalAdd(true)"
           @display-modal-import-export="displayModalImportExport(true)"
         />
       </HoppSmartTab>
     </HoppSmartTabs>
+    <div
+      class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
+      :class="{ '!flex': draggingToRoot }"
+    >
+      <component :is="IconListEnd" class="svg-icons !w-8 !h-8" />
+    </div>
     <CollectionsAdd
       :show="showModalAdd"
       :loading-state="modalLoadingState"
@@ -195,6 +217,7 @@ import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
+  moveRESTFolder,
   moveRESTRequest,
   removeRESTCollection,
   removeRESTFolder,
@@ -226,11 +249,15 @@ import {
   renameCollection,
   deleteCollection,
   importJSONToTeam,
+  moveRESTTeamCollection,
+  updateOrderRESTTeamCollection,
 } from "~/helpers/backend/mutations/TeamCollection"
 import {
   updateTeamRequest,
   createRequestInCollection,
   deleteTeamRequest,
+  moveRESTTeamRequest,
+  updateOrderRESTTeamRequest,
 } from "~/helpers/backend/mutations/TeamRequest"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { Collection as NodeCollection } from "./MyCollections.vue"
@@ -244,6 +271,7 @@ import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
 import { invokeAction } from "~/helpers/actions"
+import IconListEnd from "~icons/lucide/list-end"
 
 const t = useI18n()
 const toast = useToast()
@@ -323,6 +351,11 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
+
+// Draging
+const draggingToRoot = ref(false)
+const collectionMoveLoading = ref<string[]>([])
+const requestMoveLoading = ref<string[]>([])
 
 // Export - Import refs
 const collectionJSON = ref("")
@@ -1335,14 +1368,252 @@ const discardRequestChange = () => {
 
 // Drag and drop functions
 const dropRequest = (payload: {
-  folderPath: string
+  folderPath?: string | undefined
   requestIndex: string
-  collectionIndex: string
+  destinationCollectionIndex: string
 }) => {
-  const { folderPath, requestIndex, collectionIndex } = payload
-  moveRESTRequest(folderPath, parseInt(requestIndex), collectionIndex)
+  const { folderPath, requestIndex, destinationCollectionIndex } = payload
+  if (
+    collectionsType.value.type === "my-collections" &&
+    folderPath &&
+    requestIndex &&
+    destinationCollectionIndex
+  ) {
+    moveRESTRequest(
+      folderPath,
+      parseInt(requestIndex),
+      destinationCollectionIndex
+    )
+    toast.success(`${t("request.moved")}`)
+  } else if (hasTeamWriteAccess.value) {
+    // add the request index to the loading array
+    requestMoveLoading.value.push(requestIndex)
+
+    pipe(
+      moveRESTTeamRequest(destinationCollectionIndex, requestIndex),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(requestIndex),
+            1
+          )
+        },
+        () => {
+          // remove the request index from the loading array
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(requestIndex),
+            1
+          )
+          toast.success(`${t("request.moved")}`)
+        }
+      )
+    )()
+  }
 }
 
+/**
+ * This function is called when the user moves the collection
+ * to a different collection or folder
+ * @param payload - object containing the collection index dragged and the destination collection index
+ */
+const dropCollection = (payload: {
+  collectionIndexDragged: string
+  destinationCollectionIndex: string
+}) => {
+  const { collectionIndexDragged, destinationCollectionIndex } = payload
+  if (collectionIndexDragged === destinationCollectionIndex) return
+  if (collectionsType.value.type === "my-collections") {
+    // TODO: move collection
+    console.log(
+      "move collection",
+      collectionIndexDragged,
+      destinationCollectionIndex
+    )
+    moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
+  } else if (
+    hasTeamWriteAccess.value &&
+    collectionIndexDragged &&
+    destinationCollectionIndex
+  ) {
+    // add the collection index to the loading array
+    collectionMoveLoading.value.push(collectionIndexDragged)
+    pipe(
+      moveRESTTeamCollection(
+        collectionIndexDragged,
+        destinationCollectionIndex
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(collectionIndexDragged),
+            1
+          )
+        },
+        () => {
+          toast.success(`${t("collection.moved")}`)
+          // remove the collection index from the loading array
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(collectionIndexDragged),
+            1
+          )
+        }
+      )
+    )()
+  }
+}
+
+/**
+ * This function is called when the user drops the collection
+ * to the root
+ * @param payload - object containing the collection index dragged
+ */
+const dropToRoot = ({ dataTransfer }: DragEvent) => {
+  if (dataTransfer) {
+    const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+    if (collectionsType.value.type === "my-collections") {
+      // TODO: move collection
+      console.log("move collection root", collectionIndexDragged, null)
+      moveRESTFolder(collectionIndexDragged, null)
+    } else if (hasTeamWriteAccess.value && collectionIndexDragged) {
+      // add the collection index to the loading array
+      collectionMoveLoading.value.push(collectionIndexDragged)
+
+      // destination collection index is null since we are moving to root
+      pipe(
+        moveRESTTeamCollection(collectionIndexDragged, null),
+        TE.match(
+          (err: GQLError<string>) => {
+            collectionMoveLoading.value.splice(
+              collectionMoveLoading.value.indexOf(collectionIndexDragged),
+              1
+            )
+            toast.error(`${getErrorMessage(err)}`)
+          },
+          () => {
+            // remove the collection index from the loading array
+            collectionMoveLoading.value.splice(
+              collectionMoveLoading.value.indexOf(collectionIndexDragged),
+              1
+            )
+            toast.success(`${t("collection.moved")}`)
+          }
+        )
+      )()
+    }
+  }
+}
+
+/**
+ * This function is called when the user updates the request order in a collection
+ * @param payload - object containing the request index dragged and the destination request index
+ *  with the destination collection index
+ */
+const updateRequestOrder = (payload: {
+  dragedRequestIndex: string
+  destinationRequestIndex: string
+  destinationCollectionIndex: string
+}) => {
+  const {
+    dragedRequestIndex,
+    destinationRequestIndex,
+    destinationCollectionIndex,
+  } = payload
+  if (collectionsType.value.type === "my-collections") {
+    // TODO: change req order
+  } else if (
+    hasTeamWriteAccess.value &&
+    dragedRequestIndex &&
+    destinationRequestIndex &&
+    destinationCollectionIndex
+  ) {
+    if (dragedRequestIndex === destinationRequestIndex) return
+
+    // add the request index to the loading array
+    requestMoveLoading.value.push(dragedRequestIndex)
+
+    pipe(
+      updateOrderRESTTeamRequest(
+        dragedRequestIndex,
+        destinationRequestIndex,
+        destinationCollectionIndex
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(dragedRequestIndex),
+            1
+          )
+        },
+        () => {
+          // update the request order in the adapter
+          teamCollectionAdapter.updateRequestOrder(
+            dragedRequestIndex,
+            destinationRequestIndex,
+            destinationCollectionIndex
+          )
+          toast.success(`${t("request.order_changed")}`)
+
+          // remove the request index from the loading array
+          requestMoveLoading.value.splice(
+            requestMoveLoading.value.indexOf(dragedRequestIndex),
+            1
+          )
+        }
+      )
+    )()
+  }
+}
+
+/**
+ * This function is called when the user updates the collection or folder order
+ * @param payload - object containing the collection index dragged and the destination collection index
+ */
+const updateCollectionOrder = (payload: {
+  dragedCollectionIndex: string
+  destinationCollectionIndex: string
+}) => {
+  const { dragedCollectionIndex, destinationCollectionIndex } = payload
+  if (collectionsType.value.type === "my-collections") {
+    // TODO: change req order
+  } else if (
+    hasTeamWriteAccess.value &&
+    dragedCollectionIndex &&
+    destinationCollectionIndex
+  ) {
+    if (dragedCollectionIndex === destinationCollectionIndex) return
+    collectionMoveLoading.value.push(dragedCollectionIndex)
+    pipe(
+      updateOrderRESTTeamCollection(
+        dragedCollectionIndex,
+        destinationCollectionIndex
+      ),
+      TE.match(
+        (err: GQLError<string>) => {
+          toast.error(`${getErrorMessage(err)}`)
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(dragedCollectionIndex),
+            1
+          )
+        },
+        () => {
+          // update the collection order in the adapter
+          teamCollectionAdapter.updateCollectionOrder(
+            dragedCollectionIndex,
+            destinationCollectionIndex
+          )
+          toast.success(`${t("collection.order_changed")}`)
+          collectionMoveLoading.value.splice(
+            collectionMoveLoading.value.indexOf(dragedCollectionIndex),
+            1
+          )
+        }
+      )
+    )()
+  }
+}
 // Import - Export Collection functions
 /**
  * Export the whole my collection or specific team collection to JSON
@@ -1525,28 +1796,38 @@ const resetSelectedData = () => {
 }
 
 const getErrorMessage = (err: GQLError<string>) => {
+  console.error(err)
   if (err.type === "network_error") {
-    console.error(err)
     return t("error.network_error")
   } else {
     switch (err.error) {
       case "team_coll/short_title":
-        console.error(err)
         return t("collection.name_length_insufficient")
       case "team/invalid_coll_id":
-        console.error(err)
-        return t("team.invalid_id")
+      case "bug/team_coll/no_coll_id":
+      case "team_req/invalid_target_id":
+        return t("team.invalid_coll_id")
       case "team/not_required_role":
-        console.error(err)
         return t("profile.no_permission")
       case "team_req/not_required_role":
-        console.error(err)
         return t("profile.no_permission")
       case "Forbidden resource":
-        console.error(err)
         return t("profile.no_permission")
+      case "team_req/not_found":
+        return t("team.no_request_found")
+      case "bug/team_req/no_req_id":
+        return t("team.no_request_found")
+      case "team/collection_is_parent_coll":
+        return t("team.parent_coll_move")
+      case "team/target_and_destination_collection_are_same":
+        return t("team.same_target_destination")
+      case "team/target_collection_is_already_root_collection":
+        return t("collection.invalid_root_move")
+      case "team_req/requests_not_from_same_collection":
+        return t("request.different_collection")
+      case "team/team_collections_have_different_parents":
+        return t("collection.different_parent")
       default:
-        console.error(err)
         return t("error.something_went_wrong")
     }
   }

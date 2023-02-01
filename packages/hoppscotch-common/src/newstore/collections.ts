@@ -186,6 +186,74 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  moveFolder(
+    { state }: RESTCollectionStoreType,
+    { path, destinationPath }: { path: string; destinationPath: string | null }
+  ) {
+    const newState = state
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    //move to the root
+    if (destinationPath === null) {
+      console.log("Moving folder to root")
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+      if (containingFolder === null) {
+        console.error(
+          `Could not resolve path '${path}'. Skipping moveFolder dispatch.`
+        )
+        return {}
+      }
+      const folderIndex = indexPaths.pop() as number
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+      newState.push(theFolder[0] as HoppCollection<HoppRESTRequest>)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const destinationIndexPaths = destinationPath
+      .split("/")
+      .map((x) => parseInt(x))
+    console.log(indexPaths, destinationIndexPaths, path)
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.error(
+        `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+    if (target === null) {
+      console.error(
+        `Could not resolve destination path '${destinationPath}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    if (containingFolder === null) {
+      console.error(
+        `Could not resolve path '${path}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const theFolder = containingFolder.folders.splice(folderIndex, 1)
+
+    target.folders.push(theFolder[0])
+
+    return { state: newState }
+  },
+
   editRequest(
     { state }: RESTCollectionStoreType,
     {
@@ -687,6 +755,16 @@ export function removeRESTFolder(path: string) {
     dispatcher: "removeFolder",
     payload: {
       path,
+    },
+  })
+}
+
+export function moveRESTFolder(path: string, destinationPath: string | null) {
+  restCollectionStore.dispatch({
+    dispatcher: "moveFolder",
+    payload: {
+      path,
+      destinationPath,
     },
   })
 }

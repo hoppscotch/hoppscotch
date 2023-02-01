@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInMagicDto } from './dto/signin-magic.dto';
-import { VerifyMagicDto } from './dto/verify-magic.dto';
+import { verifyMagicDto } from './dto/verify-magic.dto';
 import { Response } from 'express';
 import * as E from 'fp-ts/Either';
 import { authCookieHandler, throwHTTPErr } from 'src/utils';
@@ -21,7 +21,7 @@ import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('auth')
+@Controller('/v1/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -41,7 +41,7 @@ export class AuthController {
    ** Route to verify and sign in a valid user via magic-link
    */
   @Post('verify')
-  async verify(@Body() data: VerifyMagicDto, @Res() res: Response) {
+  async verify(@Body() data: verifyMagicDto, @Res() res: Response) {
     const authTokens = await this.authService.verifyMagicLinkTokens(data);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, false);

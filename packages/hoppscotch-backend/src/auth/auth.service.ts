@@ -13,7 +13,7 @@ import { DeviceIdentifierToken } from 'src/types/Passwordless';
 import {
   INVALID_EMAIL,
   INVALID_MAGIC_LINK_DATA,
-  PASSWORDLESS_DATA_NOT_FOUND,
+  VERIFICATION_TOKEN_DATA_NOT_FOUND,
   MAGIC_LINK_EXPIRED,
   USER_NOT_FOUND,
   INVALID_REFRESH_TOKEN,
@@ -27,7 +27,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { AuthError } from 'src/types/AuthError';
 import { AuthUser } from 'src/types/AuthUser';
-import { PasswordlessVerification } from '@prisma/client';
+import { VerificationToken } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +42,7 @@ export class AuthService {
    * Generate Id and token for email Magic-Link auth
    *
    * @param user User Object
-   * @returns Created PasswordlessVerification token
+   * @returns Created VerificationToken token
    */
   private async generateMagicLinkTokens(user: AuthUser) {
     const salt = await bcrypt.genSalt(
@@ -53,7 +53,7 @@ export class AuthService {
       .toISO()
       .toString();
 
-    const idToken = await this.prismaService.passwordlessVerification.create({
+    const idToken = await this.prismaService.verificationToken.create({
       data: {
         deviceIdentifier: salt,
         userUid: user.uid,
@@ -65,15 +65,15 @@ export class AuthService {
   }
 
   /**
-   * Check if passwordlessVerification exist or not
+   * Check if VerificationToken exist or not
    *
    * @param magicLinkTokens Object containing deviceIdentifier and token
-   * @returns Option of PasswordlessVerification token
+   * @returns Option of VerificationToken token
    */
   private async validatePasswordlessTokens(magicLinkTokens: verifyMagicDto) {
     try {
       const tokens =
-        await this.prismaService.passwordlessVerification.findUniqueOrThrow({
+        await this.prismaService.verificationToken.findUniqueOrThrow({
           where: {
             passwordless_deviceIdentifier_tokens: {
               deviceIdentifier: magicLinkTokens.deviceIdentifier,
@@ -144,17 +144,17 @@ export class AuthService {
   }
 
   /**
-   * Deleted used PasswordlessVerification tokens
+   * Deleted used VerificationToken tokens
    *
-   * @param passwordlessTokens PasswordlessVerification entry to delete from DB
-   * @returns Either of deleted PasswordlessVerification token
+   * @param passwordlessTokens VerificationToken entry to delete from DB
+   * @returns Either of deleted VerificationToken token
    */
   private async deleteMagicLinkVerificationTokens(
-    passwordlessTokens: PasswordlessVerification,
+    passwordlessTokens: VerificationToken,
   ) {
     try {
       const deletedPasswordlessToken =
-        await this.prismaService.passwordlessVerification.delete({
+        await this.prismaService.verificationToken.delete({
           where: {
             passwordless_deviceIdentifier_tokens: {
               deviceIdentifier: passwordlessTokens.deviceIdentifier,
@@ -164,7 +164,7 @@ export class AuthService {
         });
       return E.right(deletedPasswordlessToken);
     } catch (error) {
-      return E.left(PASSWORDLESS_DATA_NOT_FOUND);
+      return E.left(VERIFICATION_TOKEN_DATA_NOT_FOUND);
     }
   }
 

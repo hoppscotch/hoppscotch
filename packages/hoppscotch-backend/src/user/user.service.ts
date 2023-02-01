@@ -88,7 +88,7 @@ export class UserService {
     const createdUser = await this.prisma.user.create({
       data: {
         email: email,
-        accounts: {
+        providerAccounts: {
           create: {
             provider: 'magic',
             providerAccountId: email,
@@ -121,7 +121,7 @@ export class UserService {
         displayName: userDisplayName,
         email: profile.emails[0].value,
         photoURL: userPhotoURL,
-        accounts: {
+        providerAccounts: {
           create: {
             provider: profile.provider,
             providerAccountId: profile.id,

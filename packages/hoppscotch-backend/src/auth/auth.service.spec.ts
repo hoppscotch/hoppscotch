@@ -1,13 +1,13 @@
 import { HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Account, PasswordlessVerification } from '@prisma/client';
+import { Account, VerificationToken } from '@prisma/client';
 import { mockDeep, mockFn } from 'jest-mock-extended';
 import {
   INVALID_EMAIL,
   INVALID_MAGIC_LINK_DATA,
   INVALID_REFRESH_TOKEN,
   MAGIC_LINK_EXPIRED,
-  PASSWORDLESS_DATA_NOT_FOUND,
+  VERIFICATION_TOKEN_DATA_NOT_FOUND,
   USER_NOT_FOUND,
 } from 'src/errors';
 import { MailerService } from 'src/mailer/mailer.service';
@@ -39,9 +39,11 @@ const user: AuthUser = {
   isAdmin: false,
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
   createdOn: currentTime,
+  currentGQLSession: {},
+  currentRESTSession: {},
 };
 
-const passwordlessData: PasswordlessVerification = {
+const passwordlessData: VerificationToken = {
   deviceIdentifier: 'k23hb7u7gdcujhb',
   token: 'jhhj24sdjvl',
   userUid: user.uid,
@@ -85,10 +87,8 @@ describe('signInMagicLink', () => {
     mockUser.findUserByEmail.mockResolvedValue(O.none);
     // create new user
     mockUser.createUserViaMagicLink.mockResolvedValue(user);
-    // create new entry in passwordlessVerification table
-    mockPrisma.passwordlessVerification.create.mockResolvedValueOnce(
-      passwordlessData,
-    );
+    // create new entry in VerificationToken table
+    mockPrisma.verificationToken.create.mockResolvedValueOnce(passwordlessData);
 
     const result = await authService.signInMagicLink(
       'dwight@dundermifflin.com',
@@ -101,10 +101,8 @@ describe('signInMagicLink', () => {
   test('should successfully return the passwordless details for a pre-existing user account', async () => {
     // check to see if user exists, return error
     mockUser.findUserByEmail.mockResolvedValueOnce(O.some(user));
-    // create new entry in passwordlessVerification table
-    mockPrisma.passwordlessVerification.create.mockResolvedValueOnce(
-      passwordlessData,
-    );
+    // create new entry in VerificationToken table
+    mockPrisma.verificationToken.create.mockResolvedValueOnce(passwordlessData);
 
     const result = await authService.signInMagicLink(
       'dwight@dundermifflin.com',
@@ -117,7 +115,7 @@ describe('signInMagicLink', () => {
 
 describe('verifyMagicLinkTokens', () => {
   test('should throw INVALID_MAGIC_LINK_DATA if data is invalid', async () => {
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockRejectedValueOnce(
+    mockPrisma.verificationToken.findUniqueOrThrow.mockRejectedValueOnce(
       'NotFoundError',
     );
 
@@ -130,7 +128,7 @@ describe('verifyMagicLinkTokens', () => {
 
   test('should throw USER_NOT_FOUND if user is invalid', async () => {
     // validatePasswordlessTokens
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockResolvedValueOnce(
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce(
       passwordlessData,
     );
     // findUserById
@@ -145,12 +143,10 @@ describe('verifyMagicLinkTokens', () => {
 
   test('should successfully return auth token pair with provider account existing', async () => {
     // validatePasswordlessTokens
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockResolvedValueOnce(
-      {
-        ...passwordlessData,
-        expiresOn: nowPlus30,
-      },
-    );
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
+      ...passwordlessData,
+      expiresOn: nowPlus30,
+    });
     // findUserById
     mockUser.findUserById.mockResolvedValue(O.some(user));
     // checkIfProviderAccountExists
@@ -160,9 +156,7 @@ describe('verifyMagicLinkTokens', () => {
     mockJWT.sign.mockReturnValue(user.refreshToken);
     mockPrisma.user.update.mockResolvedValueOnce(user);
     // deletePasswordlessVerificationToken
-    mockPrisma.passwordlessVerification.delete.mockResolvedValueOnce(
-      passwordlessData,
-    );
+    mockPrisma.verificationToken.delete.mockResolvedValueOnce(passwordlessData);
 
     const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualRight({
@@ -173,12 +167,10 @@ describe('verifyMagicLinkTokens', () => {
 
   test('should successfully return auth token pair with provider account not existing', async () => {
     // validatePasswordlessTokens
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockResolvedValueOnce(
-      {
-        ...passwordlessData,
-        expiresOn: nowPlus30,
-      },
-    );
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
+      ...passwordlessData,
+      expiresOn: nowPlus30,
+    });
     // findUserById
     mockUser.findUserById.mockResolvedValue(O.some(user));
     // checkIfProviderAccountExists
@@ -188,9 +180,7 @@ describe('verifyMagicLinkTokens', () => {
     mockJWT.sign.mockReturnValue(user.refreshToken);
     mockPrisma.user.update.mockResolvedValueOnce(user);
     // deletePasswordlessVerificationToken
-    mockPrisma.passwordlessVerification.delete.mockResolvedValueOnce(
-      passwordlessData,
-    );
+    mockPrisma.verificationToken.delete.mockResolvedValueOnce(passwordlessData);
 
     const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualRight({
@@ -201,7 +191,7 @@ describe('verifyMagicLinkTokens', () => {
 
   test('should throw MAGIC_LINK_EXPIRED if passwordless token is expired', async () => {
     // validatePasswordlessTokens
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockResolvedValueOnce(
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce(
       passwordlessData,
     );
     // findUserById
@@ -218,12 +208,10 @@ describe('verifyMagicLinkTokens', () => {
 
   test('should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
     // validatePasswordlessTokens
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockResolvedValueOnce(
-      {
-        ...passwordlessData,
-        expiresOn: nowPlus30,
-      },
-    );
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
+      ...passwordlessData,
+      expiresOn: nowPlus30,
+    });
     // findUserById
     mockUser.findUserById.mockResolvedValue(O.some(user));
     // checkIfProviderAccountExists
@@ -242,12 +230,10 @@ describe('verifyMagicLinkTokens', () => {
 
   test('should throw PASSWORDLESS_DATA_NOT_FOUND when deleting passwordlessVerification entry from DB', async () => {
     // validatePasswordlessTokens
-    mockPrisma.passwordlessVerification.findUniqueOrThrow.mockResolvedValueOnce(
-      {
-        ...passwordlessData,
-        expiresOn: nowPlus30,
-      },
-    );
+    mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
+      ...passwordlessData,
+      expiresOn: nowPlus30,
+    });
     // findUserById
     mockUser.findUserById.mockResolvedValue(O.some(user));
     // checkIfProviderAccountExists
@@ -257,13 +243,11 @@ describe('verifyMagicLinkTokens', () => {
     mockJWT.sign.mockReturnValue(user.refreshToken);
     mockPrisma.user.update.mockResolvedValueOnce(user);
     // deletePasswordlessVerificationToken
-    mockPrisma.passwordlessVerification.delete.mockRejectedValueOnce(
-      'RecordNotFound',
-    );
+    mockPrisma.verificationToken.delete.mockRejectedValueOnce('RecordNotFound');
 
     const result = await authService.verifyMagicLinkTokens(magicLinkVerify);
     expect(result).toEqualLeft({
-      message: PASSWORDLESS_DATA_NOT_FOUND,
+      message: VERIFICATION_TOKEN_DATA_NOT_FOUND,
       statusCode: HttpStatus.NOT_FOUND,
     });
   });

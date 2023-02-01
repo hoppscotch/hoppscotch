@@ -79,20 +79,20 @@ model TeamEnvironment {
 }
 
 model User {
-  uid                      String                     @id @default(cuid())
-  displayName              String?
-  email                    String?                    @unique
-  photoURL                 String?
-  isAdmin                  Boolean                    @default(false)
-  refreshToken             String?
-  providerAccounts         Account[]
-  PasswordlessVerification PasswordlessVerification[]
-  settings                 UserSettings?
-  UserHistory              UserHistory[]
-  UserEnvironments         UserEnvironment[]
-  currentRESTSession       Json?
-  currentGQLSession        Json?
-  createdOn                DateTime                   @default(now()) @db.Timestamp(3)
+  uid                String              @id @default(cuid())
+  displayName        String?
+  email              String?             @unique
+  photoURL           String?
+  isAdmin            Boolean             @default(false)
+  refreshToken       String?
+  providerAccounts   Account[]
+  VerificationToken  VerificationToken[]
+  settings           UserSettings?
+  UserHistory        UserHistory[]
+  UserEnvironments   UserEnvironment[]
+  currentRESTSession Json?
+  currentGQLSession  Json?
+  createdOn          DateTime            @default(now()) @db.Timestamp(3)
 }
 
 model Account {

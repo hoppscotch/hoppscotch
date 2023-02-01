@@ -104,7 +104,7 @@ CREATE TABLE "Account" (
 );
 
 -- CreateTable
-CREATE TABLE "PasswordlessVerification" (
+CREATE TABLE "VerificationToken" (
     "deviceIdentifier" TEXT NOT NULL,
     "token" TEXT NOT NULL,
     "userUid" TEXT NOT NULL,
@@ -164,10 +164,10 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Account_provider_providerAccountId_key" ON "Account"("provider", "providerAccountId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PasswordlessVerification_token_key" ON "PasswordlessVerification"("token");
+CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PasswordlessVerification_deviceIdentifier_token_key" ON "PasswordlessVerification"("deviceIdentifier", "token");
+CREATE UNIQUE INDEX "VerificationToken_deviceIdentifier_token_key" ON "VerificationToken"("deviceIdentifier", "token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "UserSettings_userUid_key" ON "UserSettings"("userUid");
@@ -197,7 +197,7 @@ ALTER TABLE "TeamEnvironment" ADD CONSTRAINT "TeamEnvironment_teamID_fkey" FOREI
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PasswordlessVerification" ADD CONSTRAINT "PasswordlessVerification_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "VerificationToken" ADD CONSTRAINT "VerificationToken_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserSettings" ADD CONSTRAINT "UserSettings_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;

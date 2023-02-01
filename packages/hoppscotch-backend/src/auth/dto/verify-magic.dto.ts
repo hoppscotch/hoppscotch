@@ -1,5 +1,5 @@
 // Inputs to verify and sign a user in via magic-link
-export class verifyMagicDto {
+export class VerifyMagicDto {
   deviceIdentifier: string;
   token: string;
 }

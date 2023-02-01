@@ -1,4 +1,4 @@
 // Inputs to initiate Magic-Link auth flow
-export class signInMagicDto {
+export class SignInMagicDto {
   email: string;
 }

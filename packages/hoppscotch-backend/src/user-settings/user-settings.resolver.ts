@@ -8,6 +8,7 @@ import { throwErr } from 'src/utils';
 import { UserSettings } from './user-settings.model';
 import { UserSettingsService } from './user-settings.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Resolver()
 export class UserSettingsResolver {
@@ -23,7 +24,7 @@ export class UserSettingsResolver {
   })
   @UseGuards(GqlAuthGuard)
   async createUserSettings(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'properties',
       description: 'Stringified JSON settings object',
@@ -42,7 +43,7 @@ export class UserSettingsResolver {
   })
   @UseGuards(GqlAuthGuard)
   async updateUserSettings(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'properties',
       description: 'Stringified JSON settings object',

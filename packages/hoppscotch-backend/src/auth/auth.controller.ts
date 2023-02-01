@@ -21,7 +21,7 @@ import { RTCookie } from 'src/decorators/rt-cookie.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { authCookieHandler, throwHTTPErr } from './helper';
 
-@Controller('/v1/auth')
+@Controller({ path: 'auth', version: '1' })
 export class AuthController {
   constructor(private authService: AuthService) {}
 

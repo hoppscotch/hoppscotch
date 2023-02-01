@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { json } from 'express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);
@@ -31,6 +32,9 @@ async function bootstrap() {
       origin: true,
     });
   }
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
   app.use(cookieParser(process.env.SIGNED_COOKIE_SECRET));
   await app.listen(process.env.PORT || 3170);
 }

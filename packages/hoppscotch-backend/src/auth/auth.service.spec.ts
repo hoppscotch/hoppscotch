@@ -75,7 +75,7 @@ const encodedRefreshToken =
   '$argon2id$v=19$m=65536,t=3,p=4$JTP8yZ8YXMHdafb5pB9Rfg$tdZrILUxMb9dQbu0uuyeReLgKxsgYnyUNbc5ZxQmy5I';
 
 describe('signInMagicLink', () => {
-  test('should throw error if email is not in valid format', async () => {
+  test('Should throw error if email is not in valid format', async () => {
     const result = await authService.signInMagicLink('bbbgmail.com');
     expect(result).toEqualLeft({
       message: INVALID_EMAIL,
@@ -83,7 +83,7 @@ describe('signInMagicLink', () => {
     });
   });
 
-  test('should successfully create a new user account and return the passwordless details', async () => {
+  test('Should successfully create a new user account and return the passwordless details', async () => {
     // check to see if user exists, return none
     mockUser.findUserByEmail.mockResolvedValue(O.none);
     // create new user
@@ -99,7 +99,7 @@ describe('signInMagicLink', () => {
     });
   });
 
-  test('should successfully return the passwordless details for a pre-existing user account', async () => {
+  test('Should successfully return the passwordless details for a pre-existing user account', async () => {
     // check to see if user exists, return error
     mockUser.findUserByEmail.mockResolvedValueOnce(O.some(user));
     // create new entry in VerificationToken table
@@ -115,7 +115,7 @@ describe('signInMagicLink', () => {
 });
 
 describe('verifyMagicLinkTokens', () => {
-  test('should throw INVALID_MAGIC_LINK_DATA if data is invalid', async () => {
+  test('Should throw INVALID_MAGIC_LINK_DATA if data is invalid', async () => {
     mockPrisma.verificationToken.findUniqueOrThrow.mockRejectedValueOnce(
       'NotFoundError',
     );
@@ -127,7 +127,7 @@ describe('verifyMagicLinkTokens', () => {
     });
   });
 
-  test('should throw USER_NOT_FOUND if user is invalid', async () => {
+  test('Should throw USER_NOT_FOUND if user is invalid', async () => {
     // validatePasswordlessTokens
     mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce(
       passwordlessData,
@@ -142,7 +142,7 @@ describe('verifyMagicLinkTokens', () => {
     });
   });
 
-  test('should successfully return auth token pair with provider account existing', async () => {
+  test('Should successfully return auth token pair with provider account existing', async () => {
     // validatePasswordlessTokens
     mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
       ...passwordlessData,
@@ -167,7 +167,7 @@ describe('verifyMagicLinkTokens', () => {
     });
   });
 
-  test('should successfully return auth token pair with provider account not existing', async () => {
+  test('Should successfully return auth token pair with provider account not existing', async () => {
     // validatePasswordlessTokens
     mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
       ...passwordlessData,
@@ -192,7 +192,7 @@ describe('verifyMagicLinkTokens', () => {
     });
   });
 
-  test('should throw MAGIC_LINK_EXPIRED if passwordless token is expired', async () => {
+  test('Should throw MAGIC_LINK_EXPIRED if passwordless token is expired', async () => {
     // validatePasswordlessTokens
     mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce(
       passwordlessData,
@@ -209,7 +209,7 @@ describe('verifyMagicLinkTokens', () => {
     });
   });
 
-  test('should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
+  test('Should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
     // validatePasswordlessTokens
     mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
       ...passwordlessData,
@@ -234,7 +234,7 @@ describe('verifyMagicLinkTokens', () => {
     });
   });
 
-  test('should throw PASSWORDLESS_DATA_NOT_FOUND when deleting passwordlessVerification entry from DB', async () => {
+  test('Should throw PASSWORDLESS_DATA_NOT_FOUND when deleting passwordlessVerification entry from DB', async () => {
     // validatePasswordlessTokens
     mockPrisma.verificationToken.findUniqueOrThrow.mockResolvedValueOnce({
       ...passwordlessData,
@@ -261,7 +261,7 @@ describe('verifyMagicLinkTokens', () => {
 });
 
 describe('generateAuthTokens', () => {
-  test('should successfully generate tokens with valid inputs', async () => {
+  test('Should successfully generate tokens with valid inputs', async () => {
     mockJWT.sign.mockReturnValue(user.refreshToken);
     // UpdateUserRefreshToken
     mockUser.UpdateUserRefreshToken.mockResolvedValueOnce(E.right(user));
@@ -273,7 +273,7 @@ describe('generateAuthTokens', () => {
     });
   });
 
-  test('should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
+  test('Should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
     mockJWT.sign.mockReturnValue(user.refreshToken);
     // UpdateUserRefreshToken
     mockUser.UpdateUserRefreshToken.mockResolvedValueOnce(
@@ -299,7 +299,7 @@ jest.mock('argon2', () => {
 });
 
 describe('refreshAuthTokens', () => {
-  test('should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
+  test('Should throw USER_NOT_FOUND when updating refresh tokens fails', async () => {
     // generateAuthTokens
     mockJWT.sign.mockReturnValue(user.refreshToken);
     // UpdateUserRefreshToken
@@ -317,7 +317,7 @@ describe('refreshAuthTokens', () => {
     });
   });
 
-  test('should throw USER_NOT_FOUND when user is invalid', async () => {
+  test('Should throw USER_NOT_FOUND when user is invalid', async () => {
     const result = await authService.refreshAuthTokens(
       'jshdcbjsdhcbshdbc',
       null,
@@ -328,7 +328,7 @@ describe('refreshAuthTokens', () => {
     });
   });
 
-  test('should successfully refresh the tokens and generate a new auth token pair', async () => {
+  test('Should successfully refresh the tokens and generate a new auth token pair', async () => {
     // generateAuthTokens
     mockJWT.sign.mockReturnValue('sdhjcbjsdhcbshjdcb');
     // UpdateUserRefreshToken
@@ -349,7 +349,7 @@ describe('refreshAuthTokens', () => {
     });
   });
 
-  test('should throw INVALID_REFRESH_TOKEN when the refresh token is invalid', async () => {
+  test('Should throw INVALID_REFRESH_TOKEN when the refresh token is invalid', async () => {
     // generateAuthTokens
     mockJWT.sign.mockReturnValue('sdhjcbjsdhcbshjdcb');
     mockPrisma.user.update.mockResolvedValueOnce({

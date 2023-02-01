@@ -6,14 +6,18 @@ import {
   onSnapshot,
   setDoc,
 } from "firebase/firestore"
-import { platform } from "~/platform"
+import { def as platformAuth } from "./firebase/auth"
 import {
   environments$,
   globalEnv$,
   replaceEnvironments,
   setGlobalEnvVariables,
-} from "~/newstore/environments"
-import { getSettingSubject, settingsStore } from "~/newstore/settings"
+} from "@hoppscotch/common/newstore/environments"
+import {
+  getSettingSubject,
+  settingsStore,
+} from "@hoppscotch/common/newstore/settings"
+import { EnvironmentsPlatformDef } from "@hoppscotch/common/platform/environments"
 
 /**
  * Used locally to prevent infinite loop when environment sync update
@@ -32,7 +36,7 @@ let loadedEnvironments = false
 let loadedGlobals = true
 
 async function writeEnvironments(environment: Environment[]) {
-  const currentUser = platform.auth.getCurrentUser()
+  const currentUser = platformAuth.getCurrentUser()
 
   if (currentUser === null)
     throw new Error("Cannot write environments when signed out")
@@ -57,7 +61,7 @@ async function writeEnvironments(environment: Environment[]) {
 }
 
 async function writeGlobalEnvironment(variables: Environment["variables"]) {
-  const currentUser = platform.auth.getCurrentUser()
+  const currentUser = platformAuth.getCurrentUser()
 
   if (currentUser === null)
     throw new Error("Cannot write global environment when signed out")
@@ -82,8 +86,8 @@ async function writeGlobalEnvironment(variables: Environment["variables"]) {
 }
 
 export function initEnvironments() {
-  const currentUser$ = platform.auth.getCurrentUserStream()
-  const currentUser = platform.auth.getCurrentUser()
+  const currentUser$ = platformAuth.getCurrentUserStream()
+  const currentUser = platformAuth.getCurrentUser()
 
   const envListenSub = environments$.subscribe((envs) => {
     if (
@@ -172,4 +176,8 @@ export function initEnvironments() {
       }
     }
   )
+}
+
+export const def: EnvironmentsPlatformDef = {
+  initEnvironments,
 }

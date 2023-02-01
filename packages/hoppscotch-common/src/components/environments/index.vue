@@ -183,7 +183,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { isEqual } from "lodash-es"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { Team } from "~/helpers/backend/graphql"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
@@ -222,7 +222,10 @@ const globalEnvironment = computed(() => ({
   variables: globalEnv.value,
 }))
 
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
   environmentType.value.selectedTeam = newSelectedTeam

@@ -241,7 +241,7 @@ import {
 } from "~/helpers/backend/helpers"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import * as E from "fp-ts/Either"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
 import { invokeAction } from "~/helpers/actions"
 
@@ -318,7 +318,10 @@ const confirmModalTitle = ref<string | null>(null)
 
 const filterTexts = ref("")
 
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 const myCollections = useReadonlyStream(restCollections$, [], "deep")
 
 // Export - Import refs

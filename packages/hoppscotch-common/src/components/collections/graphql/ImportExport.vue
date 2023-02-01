@@ -99,7 +99,7 @@ import IconFolderPlus from "~icons/lucide/folder-plus"
 import IconDownload from "~icons/lucide/download"
 import IconGithub from "~icons/lucide/github"
 import { computed, ref } from "vue"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
@@ -120,7 +120,10 @@ const emit = defineEmits<{
 const toast = useToast()
 const t = useI18n()
 const collections = useReadonlyStream(graphqlCollections$, [])
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 // Template refs
 const tippyActions = ref<any | null>(null)

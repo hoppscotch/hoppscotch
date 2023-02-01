@@ -1,8 +1,9 @@
-import { createApp, Ref } from "vue"
+import { createApp } from "vue"
+import { PlatformDef, setPlatformDef } from "./platform"
 import { setupLocalPersistence } from "./newstore/localpersistence"
 import { performMigrations } from "./helpers/migrations"
 import { initializeFirebase } from "./helpers/fb"
-import { initUserInfo } from "./helpers/teams/BackendUserInfo"
+import { initBackendGQLClient } from "./helpers/backend/GQLClient"
 import { HOPP_MODULES } from "@modules/."
 
 import "virtual:windi.css"
@@ -12,33 +13,16 @@ import "nprogress/nprogress.css"
 
 import App from "./App.vue"
 
-export type PlatformDef = {
-  ui?: {
-    appHeader?: {
-      paddingTop?: Ref<string>
-      paddingLeft?: Ref<string>
-    }
-  }
-}
-
-/**
- * Defines the fields, functions and properties that will be
- * filled in by the individual platforms.
- *
- * This value is populated upon calling `createHoppApp`
- */
-export let platform: PlatformDef
-
 export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
-  platform = platformDef
+  setPlatformDef(platformDef)
 
   const app = createApp(App)
 
   // Some basic work that needs to be done before module inits even
   initializeFirebase()
+  initBackendGQLClient()
   setupLocalPersistence()
   performMigrations()
-  initUserInfo()
 
   HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app))
 

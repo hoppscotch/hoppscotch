@@ -78,7 +78,7 @@
 import { nextTick, ref, watch } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { onLoggedIn } from "@composables/auth"
-import { currentUserInfo$ } from "~/helpers/teams/BackendUserInfo"
+import { platform } from "~/platform"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { useReadonlyStream } from "@composables/stream"
 import { useLocalState } from "~/newstore/localstate"
@@ -111,7 +111,10 @@ const emit = defineEmits<{
   (e: "update-selected-team", team: SelectedTeam): void
 }>()
 
-const currentUser = useReadonlyStream(currentUserInfo$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const adapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(adapter.teamList$, null)
@@ -138,7 +141,9 @@ watch(
 )
 
 onLoggedIn(() => {
-  adapter.initialize()
+  try {
+    adapter.initialize()
+  } catch (e) {}
 })
 
 const onTeamSelectIntersect = () => {

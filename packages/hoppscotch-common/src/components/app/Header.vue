@@ -171,11 +171,10 @@ import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUserPlus from "~icons/lucide/user-plus"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
-import { probableUser$ } from "@helpers/fb/auth"
+import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
-import { platform } from "~/index"
 
 const t = useI18n()
 
@@ -194,7 +193,10 @@ const mdAndLarger = breakpoints.greater("md")
 
 const network = reactive(useNetwork())
 
-const currentUser = useReadonlyStream(probableUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getProbableUserStream(),
+  platform.auth.getProbableUser()
+)
 
 // Template refs
 const tippyActions = ref<any | null>(null)

@@ -7,7 +7,7 @@ import { settingsStore } from "~/newstore/settings"
 import { App } from "vue"
 import { APP_IS_IN_DEV_MODE } from "~/helpers/dev"
 import { gqlClientError$ } from "~/helpers/backend/GQLClient"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 
 /**
  * The tag names we allow giving to Sentry
@@ -164,6 +164,8 @@ function subscribeToAppEventsForReporting() {
  * additional data tags for the error reporting
  */
 function subscribeForAppDataTags() {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
   currentUser$.subscribe((user) => {
     if (sentryActive) {
       Sentry.setTag("user_logged_in", !!user)

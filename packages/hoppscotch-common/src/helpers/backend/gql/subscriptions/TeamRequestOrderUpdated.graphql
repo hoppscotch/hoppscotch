@@ -1,0 +1,3 @@
+subscription TeamRequestOrderUpdated($teamID: ID!) {
+  requestOrderUpdated(teamID: $teamID)
+}

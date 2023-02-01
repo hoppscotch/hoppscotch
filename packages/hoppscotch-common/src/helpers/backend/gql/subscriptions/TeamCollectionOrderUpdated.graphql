@@ -1,0 +1,3 @@
+subscription TeamCollectionOrderUpdated($teamID: ID!) {
+  collectionOrderUpdated(teamID: $teamID)
+}

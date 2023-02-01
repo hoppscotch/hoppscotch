@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { throwErr } from 'src/utils';
 import * as E from 'fp-ts/lib/Either';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -31,7 +32,7 @@ export class UserResolver {
   })
   @UseGuards(GqlAuthGuard)
   async updateUserSessions(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'currentSession',
       description: 'JSON string of the saved REST/GQL session',

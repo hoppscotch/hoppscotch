@@ -10,6 +10,7 @@ import {
   USER_SETTINGS_NULL_SETTINGS,
   USER_SETTINGS_NOT_FOUND,
 } from 'src/errors';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Injectable()
 export class UserSettingsService {
@@ -46,7 +47,7 @@ export class UserSettingsService {
    * @param properties stringified user settings properties
    * @returns an Either of `UserSettings` or error
    */
-  async createUserSettings(user: User, properties: string) {
+  async createUserSettings(user: AuthUser, properties: string) {
     if (!properties) return E.left(USER_SETTINGS_NULL_SETTINGS);
 
     const jsonProperties = stringToJson(properties);
@@ -80,7 +81,7 @@ export class UserSettingsService {
    * @param properties stringified user settings
    * @returns Promise of an Either of `UserSettings` or error
    */
-  async updateUserSettings(user: User, properties: string) {
+  async updateUserSettings(user: AuthUser, properties: string) {
     if (!properties) return E.left(USER_SETTINGS_NULL_SETTINGS);
 
     const jsonProperties = stringToJson(properties);

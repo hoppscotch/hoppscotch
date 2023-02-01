@@ -21,8 +21,8 @@ const user: AuthUser = {
   displayName: 'Dwight Schrute',
   photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
   isAdmin: false,
-  currentRESTSession: JSON.stringify({}),
-  currentGQLSession: JSON.stringify({}),
+  currentRESTSession: {},
+  currentGQLSession: {},
   refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
   createdOn: currentTime,
 };
@@ -227,21 +227,22 @@ describe('createProviderAccount', () => {
 describe('updateUserSessions', () => {
   test('Should resolve right and update users GQL session', async () => {
     const sessionData = user.currentGQLSession;
+
     mockPrisma.user.update.mockResolvedValue({
       ...user,
-      currentGQLSession: JSON.parse(sessionData),
+      currentGQLSession: sessionData,
       currentRESTSession: null,
     });
 
     const result = await userService.updateUserSessions(
       user,
-      sessionData,
+      JSON.stringify(sessionData),
       'GQL',
     );
 
     expect(result).toEqualRight({
       ...user,
-      currentGQLSession: sessionData,
+      currentGQLSession: JSON.stringify(sessionData),
       currentRESTSession: null,
     });
   });
@@ -250,19 +251,19 @@ describe('updateUserSessions', () => {
     mockPrisma.user.update.mockResolvedValue({
       ...user,
       currentGQLSession: null,
-      currentRESTSession: JSON.parse(sessionData),
+      currentRESTSession: sessionData,
     });
 
     const result = await userService.updateUserSessions(
       user,
-      sessionData,
+      JSON.stringify(sessionData),
       'REST',
     );
 
     expect(result).toEqualRight({
       ...user,
       currentGQLSession: null,
-      currentRESTSession: sessionData,
+      currentRESTSession: JSON.stringify(sessionData),
     });
   });
   test('Should reject left and update user for invalid GQL session', async () => {
@@ -291,16 +292,22 @@ describe('updateUserSessions', () => {
   test('Should publish pubsub message on user update sessions', async () => {
     mockPrisma.user.update.mockResolvedValue({
       ...user,
-      currentGQLSession: JSON.parse(user.currentGQLSession),
-      currentRESTSession: JSON.parse(user.currentRESTSession),
     });
 
-    await userService.updateUserSessions(user, user.currentGQLSession, 'GQL');
+    await userService.updateUserSessions(
+      user,
+      JSON.stringify(user.currentGQLSession),
+      'GQL',
+    );
 
     expect(mockPubSub.publish).toHaveBeenCalledTimes(1);
     expect(mockPubSub.publish).toHaveBeenCalledWith(
       `user/${user.uid}/updated`,
-      user,
+      {
+        ...user,
+        currentGQLSession: JSON.stringify(user.currentGQLSession),
+        currentRESTSession: JSON.stringify(user.currentRESTSession),
+      },
     );
   });
 });

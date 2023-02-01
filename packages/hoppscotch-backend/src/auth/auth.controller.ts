@@ -10,8 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { signInMagicDto } from './dto/signin-magic.dto';
-import { verifyMagicDto } from './dto/verify-magic.dto';
+import { SignInMagicDto } from './dto/signin-magic.dto';
+import { VerifyMagicDto } from './dto/verify-magic.dto';
 import { Response } from 'express';
 import * as E from 'fp-ts/Either';
 import { authCookieHandler, throwHTTPErr } from 'src/utils';
@@ -29,7 +29,7 @@ export class AuthController {
    ** Route to initiate magic-link auth for a users email
    */
   @Post('signin')
-  async signInMagicLink(@Body() authData: signInMagicDto) {
+  async signInMagicLink(@Body() authData: SignInMagicDto) {
     const deviceIdToken = await this.authService.signInMagicLink(
       authData.email,
     );
@@ -41,7 +41,7 @@ export class AuthController {
    ** Route to verify and sign in a valid user via magic-link
    */
   @Post('verify')
-  async verify(@Body() data: verifyMagicDto, @Res() res: Response) {
+  async verify(@Body() data: VerifyMagicDto, @Res() res: Response) {
     const authTokens = await this.authService.verifyMagicLinkTokens(data);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
     authCookieHandler(res, authTokens.right, false);

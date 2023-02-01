@@ -5,6 +5,7 @@ import { UserSettingsService } from './user-settings.service';
 import { JSON_INVALID, USER_SETTINGS_NULL_SETTINGS } from 'src/errors';
 import { UserSettings } from './user-settings.model';
 import { User } from 'src/user/user.model';
+import { AuthUser } from 'src/types/AuthUser';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
@@ -16,12 +17,20 @@ const userSettingsService = new UserSettingsService(
   mockPubSub as any,
 );
 
-const user: User = {
+const currentTime = new Date();
+
+const user: AuthUser = {
   uid: 'aabb22ccdd',
   displayName: 'user-display-name',
   email: 'user-email',
   photoURL: 'user-photo-url',
+  isAdmin: false,
+  refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+  currentGQLSession: {},
+  currentRESTSession: {},
+  createdOn: currentTime,
 };
+
 const settings: UserSettings = {
   id: '1',
   userUid: user.uid,

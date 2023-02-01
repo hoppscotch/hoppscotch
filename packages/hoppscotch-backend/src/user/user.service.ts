@@ -199,7 +199,7 @@ export class UserService {
    * @returns a Either of User or error
    */
   async updateUserSessions(
-    user: User,
+    user: AuthUser,
     currentSession: string,
     sessionType: string,
   ): Promise<E.Right<User> | E.Left<string>> {

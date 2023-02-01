@@ -1,0 +1,5 @@
+mutation MoveRESTTeamRequest($collectionID: ID!, $requestID: ID!) {
+  moveRequest(destCollID: $collectionID, requestID: $requestID) {
+    id
+  }
+}

@@ -3,13 +3,17 @@
     <HttpResponseMeta :response="response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
-      :response="response"
+      :response="response!"
+      :saved-selected-lens-tab="savedSelectedLensTab"
+      @changeSelectedLensTabPersistedOption="
+        (tab) => (savedSelectedLensTab = tab)
+      "
     />
   </div>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, watch } from "vue"
+import { computed, defineComponent, watch, ref } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import { useReadonlyStream } from "@composables/stream"
 import { restResponse$ } from "~/newstore/RESTSession"
@@ -17,6 +21,8 @@ import { restResponse$ } from "~/newstore/RESTSession"
 export default defineComponent({
   setup() {
     const response = useReadonlyStream(restResponse$, null)
+
+    const savedSelectedLensTab = ref<string | undefined>()
 
     const hasResponse = computed(
       () =>
@@ -34,8 +40,9 @@ export default defineComponent({
 
     return {
       hasResponse,
-      response,
       loading,
+      response,
+      savedSelectedLensTab,
     }
   },
 })

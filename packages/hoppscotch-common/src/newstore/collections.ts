@@ -224,11 +224,6 @@ const restCollectionDispatchers = defineDispatchers({
 
     const indexPaths = path.split("/").map((x) => parseInt(x))
 
-    if (indexPaths.length === 0) {
-      console.log("Given path too short. Skipping request.")
-      return {}
-    }
-
     const destinationIndexPaths = destinationPath
       .split("/")
       .map((x) => parseInt(x))
@@ -266,6 +261,56 @@ const restCollectionDispatchers = defineDispatchers({
     }
 
     return { state: newState }
+  },
+
+  updateCollectionOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionIndex,
+      destinationCollectionIndex,
+    }: {
+      collectionIndex: string
+      destinationCollectionIndex: string
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
+
+    const destinationIndexPaths = destinationCollectionIndex
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const destinationFolderIndex = destinationIndexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+
+    if (containingFolder === null) {
+      const [removed] = newState.splice(folderIndex, 1)
+
+      newState.splice(destinationFolderIndex, 0, removed)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const [removed] = containingFolder.folders.splice(folderIndex, 1)
+
+    containingFolder.folders.splice(destinationFolderIndex, 0, removed)
+
+    return {
+      state: newState,
+    }
   },
 
   editRequest(
@@ -368,6 +413,11 @@ const restCollectionDispatchers = defineDispatchers({
 
     const indexPaths = path.split("/").map((x) => parseInt(x))
 
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
     const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
 
     if (targetLocation === null) {
@@ -415,6 +465,11 @@ const restCollectionDispatchers = defineDispatchers({
     const indexPaths = destinationCollectionPath
       .split("/")
       .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
 
     const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
 
@@ -896,6 +951,19 @@ export function updateRESTRequestOrder(
       requestIndex,
       destinationRequestIndex,
       destinationCollectionPath,
+    },
+  })
+}
+
+export function updateRESTCollectionOrder(
+  collectionIndex: string,
+  destinationCollectionIndex: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateCollectionOrder",
+    payload: {
+      collectionIndex,
+      destinationCollectionIndex,
     },
   })
 }

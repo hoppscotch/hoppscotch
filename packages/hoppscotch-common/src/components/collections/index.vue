@@ -55,6 +55,7 @@
           @remove-folder="removeFolder"
           @drop-collection="dropCollection"
           @update-request-order="updateRequestOrder"
+          @update-collection-order="updateCollectionOrder"
           @edit-request="editRequest"
           @duplicate-request="duplicateRequest"
           @remove-request="removeRequest"
@@ -226,6 +227,7 @@ import {
   restCollections$,
   saveRESTRequestAs,
   updateRESTRequestOrder,
+  updateRESTCollectionOrder,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
@@ -1637,14 +1639,22 @@ const updateCollectionOrder = (payload: {
   destinationCollectionIndex: string
 }) => {
   const { dragedCollectionIndex, destinationCollectionIndex } = payload
+  if (!dragedCollectionIndex || !destinationCollectionIndex) return
+  if (dragedCollectionIndex === destinationCollectionIndex) return
+
   if (collectionsType.value.type === "my-collections") {
-    // TODO: change req order
-  } else if (
-    hasTeamWriteAccess.value &&
-    dragedCollectionIndex &&
-    destinationCollectionIndex
-  ) {
-    if (dragedCollectionIndex === destinationCollectionIndex) return
+    if (
+      !isSameSameParent.value(dragedCollectionIndex, destinationCollectionIndex)
+    ) {
+      toast.error(`${t("collection.different_parent")}`)
+    } else {
+      updateRESTCollectionOrder(
+        dragedCollectionIndex,
+        destinationCollectionIndex
+      )
+      toast.success(`${t("collection.order_changed")}`)
+    }
+  } else if (hasTeamWriteAccess.value) {
     collectionMoveLoading.value.push(dragedCollectionIndex)
     pipe(
       updateOrderRESTTeamCollection(

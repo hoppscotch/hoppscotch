@@ -76,6 +76,7 @@
             @remove-collection="emit('remove-collection', node.id)"
             @drop-event="dropEvent($event, node.id)"
             @drag-event="dragEvent($event, node.id)"
+            @update-collection-order="updateCollectionOrder($event, node.id)"
             @dragging="
               (isDraging) => highlightChildren(isDraging ? node.id : '')
             "
@@ -130,6 +131,7 @@
             @remove-collection="emit('remove-folder', node.id)"
             @drop-event="dropEvent($event, node.id)"
             @drag-event="dragEvent($event, node.id)"
+            @update-collection-order="updateCollectionOrder($event, node.id)"
             @dragging="
               (isDraging) => highlightChildren(isDraging ? node.id : '')
             "
@@ -449,6 +451,13 @@ const emit = defineEmits<{
       destinationCollectionIndex: string
     }
   ): void
+  (
+    event: "update-collection-order",
+    payload: {
+      dragedCollectionIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
   (event: "select", payload: Picked | null): void
   (event: "display-modal-import-export"): void
 }>()
@@ -588,6 +597,18 @@ const updateRequestOrder = (
   emit("update-request-order", {
     dragedRequestIndex,
     destinationRequestIndex,
+    destinationCollectionIndex,
+  })
+}
+
+const updateCollectionOrder = (
+  dataTransfer: DataTransfer,
+  destinationCollectionIndex: string
+) => {
+  const dragedCollectionIndex = dataTransfer.getData("collectionIndex")
+
+  emit("update-collection-order", {
+    dragedCollectionIndex,
     destinationCollectionIndex,
   })
 }

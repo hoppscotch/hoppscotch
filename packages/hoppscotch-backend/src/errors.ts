@@ -130,6 +130,12 @@ export const TEAM_REQ_INVALID_TARGET_COLL_ID =
   'team_req/invalid_target_id' as const;
 
 /**
+ * No Postmark Sender Email defined
+ * (AuthService)
+ */
+export const SENDER_EMAIL_INVALID = 'mailer/sender_email_invalid' as const;
+
+/**
  * Tried to perform action on a request when the user is not even member of the team
  * (GqlRequestTeamMemberGuard, GqlCollectionTeamMemberGuard)
  */
@@ -177,13 +183,15 @@ export const USER_SETTINGS_NOT_FOUND = 'user_settings/not_found' as const;
  * User setting already exists for a user
  * (UserSettingsService)
  */
-export const USER_SETTINGS_ALREADY_EXISTS = 'user_settings/settings_already_exists' as const;
+export const USER_SETTINGS_ALREADY_EXISTS =
+  'user_settings/settings_already_exists' as const;
 
 /**
  * User setting invalid (null) settings
  * (UserSettingsService)
  */
-export const USER_SETTINGS_NULL_SETTINGS = 'user_settings/null_settings' as const;
+export const USER_SETTINGS_NULL_SETTINGS =
+  'user_settings/null_settings' as const;
 
 /*
  * Global environment doesnt exists for the user
@@ -309,3 +317,46 @@ export const BUG_TEAM_ENV_GUARD_NO_REQUIRE_ROLES =
  */
 export const BUG_TEAM_ENV_GUARD_NO_ENV_ID =
   'bug/team_env/guard_no_env_id' as const;
+
+/**
+ * The data sent to the verify route are invalid
+ * (AuthService)
+ */
+export const INVALID_MAGIC_LINK_DATA = 'auth/magic_link_invalid_data' as const;
+
+/**
+ * Could not find VerificationToken entry in the db
+ * (AuthService)
+ */
+export const VERIFICATION_TOKEN_DATA_NOT_FOUND =
+  'auth/verification_token_data_not_found' as const;
+
+/**
+ * Auth Tokens expired
+ * (AuthService)
+ */
+export const TOKEN_EXPIRED = 'auth/token_expired' as const;
+
+/**
+ * VerificationToken Tokens expired i.e. magic-link expired
+ * (AuthService)
+ */
+export const MAGIC_LINK_EXPIRED = 'auth/magic_link_expired' as const;
+
+/**
+ * No cookies were found in the auth request
+ * (AuthService)
+ */
+export const COOKIES_NOT_FOUND = 'auth/cookies_not_found' as const;
+
+/**
+ * Access Token is malformed or invalid
+ * (AuthService)
+ */
+export const INVALID_ACCESS_TOKEN = 'auth/invalid_access_token' as const;
+
+/**
+ * Refresh Token is malformed or invalid
+ * (AuthService)
+ */
+export const INVALID_REFRESH_TOKEN = 'auth/invalid_refresh_token' as const;

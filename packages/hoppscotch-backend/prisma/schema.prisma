@@ -79,15 +79,44 @@ model TeamEnvironment {
 }
 
 model User {
-  uid                String            @id @default(cuid())
+  uid                String              @id @default(cuid())
   displayName        String?
-  email              String?
+  email              String?             @unique
   photoURL           String?
-  currentRESTSession Json?
-  currentGQLSession  Json?
+  isAdmin            Boolean             @default(false)
+  refreshToken       String?
+  providerAccounts   Account[]
+  VerificationToken  VerificationToken[]
   settings           UserSettings?
   UserHistory        UserHistory[]
   UserEnvironments   UserEnvironment[]
+  currentRESTSession Json?
+  currentGQLSession  Json?
+  createdOn          DateTime            @default(now()) @db.Timestamp(3)
+}
+
+model Account {
+  id                   String   @id @default(cuid())
+  userId               String
+  user                 User     @relation(fields: [userId], references: [uid], onDelete: Cascade)
+  provider             String
+  providerAccountId    String
+  providerRefreshToken String?
+  providerAccessToken  String?
+  providerScope        String?
+  loggedIn             DateTime @default(now()) @db.Timestamp(3)
+
+  @@unique(fields: [provider, providerAccountId], name: "verifyProviderAccount")
+}
+
+model VerificationToken {
+  deviceIdentifier String
+  token            String   @unique @default(cuid())
+  userUid          String
+  user             User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  expiresOn        DateTime @db.Timestamp(3)
+
+  @@unique(fields: [deviceIdentifier, token], name: "passwordless_deviceIdentifier_tokens")
 }
 
 model UserSettings {

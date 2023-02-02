@@ -15,7 +15,7 @@ export class User {
 
   @Field({
     nullable: true,
-    description: 'Displayed name of the user',
+    description: 'Name of the user (if fetched)',
   })
   displayName?: string;
 
@@ -27,9 +27,19 @@ export class User {
 
   @Field({
     nullable: true,
-    description: 'URL to the profile photo of the user',
+    description: 'URL to the profile photo of the user (if fetched)',
   })
   photoURL?: string;
+
+  @Field({
+    description: 'Flag to determine if user is an Admin or not',
+  })
+  isAdmin: boolean;
+
+  @Field({
+    description: 'Date when the user account was created',
+  })
+  createdOn: Date;
 
   @Field({
     nullable: true,

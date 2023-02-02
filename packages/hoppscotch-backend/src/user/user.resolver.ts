@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { throwErr } from 'src/utils';
 import * as E from 'fp-ts/lib/Either';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { AuthUser } from 'src/types/AuthUser';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -20,16 +21,7 @@ export class UserResolver {
       "Gives details of the user executing this query (pass Authorization 'Bearer' header)",
   })
   @UseGuards(GqlAuthGuard)
-  me(@GqlUser() user: User): User {
-    return user;
-  }
-
-  @Query(() => User, {
-    description:
-      "Gives details of the user executing this query (pass Authorization 'Bearer' header)",
-  })
-  @UseGuards(GqlAuthGuard)
-  me2(@GqlUser() user: User): User {
+  me(@GqlUser() user) {
     return user;
   }
 
@@ -40,7 +32,7 @@ export class UserResolver {
   })
   @UseGuards(GqlAuthGuard)
   async updateUserSessions(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'currentSession',
       description: 'JSON string of the saved REST/GQL session',

@@ -3,6 +3,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
 import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
+import { AuthModule } from './auth/auth.module';
 import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
 import { UserHistoryModule } from './user-history/user-history.module';
@@ -10,6 +11,10 @@ import { UserHistoryModule } from './user-history/user-history.module';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      cors: process.env.PRODUCTION !== 'true' && {
+        origin: process.env.WHITELISTED_ORIGINS.split(','),
+        credentials: true,
+      },
       playground: process.env.PRODUCTION !== 'true',
       debug: process.env.PRODUCTION !== 'true',
       autoSchemaFile: true,
@@ -47,6 +52,7 @@ import { UserHistoryModule } from './user-history/user-history.module';
       driver: ApolloDriver,
     }),
     UserModule,
+    AuthModule,
     UserSettingsModule,
     UserEnvironmentsModule,
     UserHistoryModule,

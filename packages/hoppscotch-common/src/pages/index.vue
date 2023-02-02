@@ -13,16 +13,8 @@
   </AppPaneLayout>
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  Ref,
-  ref,
-  watch,
-} from "vue"
+<script lang="ts" setup>
+import { onBeforeMount, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
 import type { Subscription } from "rxjs"
 import {
   HoppRESTRequest,
@@ -46,6 +38,13 @@ import { onLoggedIn } from "@composables/auth"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { oauthRedirect } from "~/helpers/oauth"
 import { useRoute } from "vue-router"
+
+const toast = useToast()
+const t = useI18n()
+
+const requestForSync = ref<HoppRESTRequest | null>(null)
+
+const confirmSync = ref(false)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -120,54 +119,34 @@ function setupRequestSync(
   })
 }
 
-export default defineComponent({
-  setup() {
-    const requestForSync = ref<HoppRESTRequest | null>(null)
-
-    const confirmSync = ref(false)
-
-    const toast = useToast()
-    const t = useI18n()
-
-    watch(confirmSync, (newValue) => {
-      if (newValue) {
-        toast.show(`${t("confirm.sync")}`, {
-          duration: 0,
-          action: [
-            {
-              text: `${t("action.yes")}`,
-              onClick: (_, toastObject) => {
-                syncRequest()
-                toastObject.goAway(0)
-              },
-            },
-            {
-              text: `${t("action.no")}`,
-              onClick: (_, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          ],
-        })
-      }
+watch(confirmSync, (newValue) => {
+  if (newValue) {
+    toast.show(`${t("confirm.sync")}`, {
+      duration: 0,
+      action: [
+        {
+          text: `${t("action.yes")}`,
+          onClick: (_, toastObject) => {
+            syncRequest()
+            toastObject.goAway(0)
+          },
+        },
+        {
+          text: `${t("action.no")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+      ],
     })
-
-    const syncRequest = () => {
-      setRESTRequest(
-        safelyExtractRESTRequest(requestForSync.value!, getDefaultRESTRequest())
-      )
-    }
-
-    setupRequestSync(confirmSync, requestForSync)
-    bindRequestToURLParams()
-    oAuthURL()
-
-    return {
-      confirmSync,
-      syncRequest,
-      oAuthURL,
-      requestForSync,
-    }
-  },
+  }
 })
+const syncRequest = () => {
+  setRESTRequest(
+    safelyExtractRESTRequest(requestForSync.value!, getDefaultRESTRequest())
+  )
+}
+setupRequestSync(confirmSync, requestForSync)
+bindRequestToURLParams()
+oAuthURL()
 </script>

@@ -182,6 +182,11 @@ type FolderType = "collection" | "folder"
 const t = useI18n()
 
 const props = defineProps({
+  id: {
+    type: String,
+    default: "",
+    required: true,
+  },
   data: {
     type: Object as PropType<HoppCollection<HoppRESTRequest> | TeamCollection>,
     default: () => ({}),
@@ -299,23 +304,23 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
 const dropEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
+    emit("drop-event", e.dataTransfer)
     dragging.value = !dragging.value
     dropItemID.value = ""
-    emit("drop-event", e.dataTransfer)
   }
 }
 
 const orderUpdateCollectionEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
+    emit("update-collection-order", e.dataTransfer)
     ordering.value = !ordering.value
     dropItemID.value = ""
-    emit("update-collection-order", e.dataTransfer)
   }
 }
 
 const notSameDestination = computed(() => {
-  return dropItemID.value !== props.data.id
+  return dropItemID.value !== props.id
 })
 
 const isCollLoading = computed(() => {

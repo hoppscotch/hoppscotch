@@ -44,18 +44,22 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { getSuitableLenses, getLensRenderers } from "~/helpers/lenses/lenses"
+import {
+  getSuitableLenses,
+  getLensRenderers,
+  Lens,
+} from "~/helpers/lenses/lenses"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { restTestResults$ } from "~/newstore/RESTSession"
 
 export default defineComponent({
   components: {
-    // Lens Renderers
     ...getLensRenderers(),
   },
   props: {
     response: { type: Object, default: () => ({}) },
+    savedSelectedLensTab: { type: String },
   },
   setup() {
     const testResults = useReadonlyStream(restTestResults$, null)
@@ -84,11 +88,28 @@ export default defineComponent({
   },
   watch: {
     validLenses: {
-      handler(newValue) {
+      handler(newValue: Lens[]) {
         if (newValue.length === 0) return
-        this.selectedLensTab = newValue[0].renderer
+        const allRenderers = [
+          ...newValue.map((x) => x.renderer),
+          "headers",
+          "results",
+        ]
+        if (
+          this.savedSelectedLensTab &&
+          allRenderers.includes(this.savedSelectedLensTab)
+        ) {
+          this.selectedLensTab = this.savedSelectedLensTab
+        } else {
+          this.selectedLensTab = newValue[0].renderer
+        }
       },
       immediate: true,
+    },
+    selectedLensTab: {
+      handler(newValue) {
+        this.$emit("changeSelectedLensTabPersistedOption", newValue)
+      },
     },
   },
 })

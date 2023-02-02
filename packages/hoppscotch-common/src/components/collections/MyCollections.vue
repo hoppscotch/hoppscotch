@@ -38,6 +38,7 @@
         >
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
+            :id="node.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -91,6 +92,7 @@
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
+            :id="node.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -192,7 +194,13 @@
             @drag-request="
               dragRequest($event, {
                 folderPath: node.data.data.parentIndex,
-                requestIndex: pathToIndex(node.id),
+                requestIndex: node.id,
+              })
+            "
+            @update-request-order="
+              updateRequestOrder($event, {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: node.id,
               })
             "
           />
@@ -433,6 +441,14 @@ const emit = defineEmits<{
       destinationCollectionIndex: string
     }
   ): void
+  (
+    event: "update-request-order",
+    payload: {
+      dragedRequestIndex: string
+      destinationRequestIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
   (event: "select", payload: Picked | null): void
   (event: "display-modal-import-export"): void
 }>()
@@ -555,6 +571,25 @@ const dropEvent = (
       destinationCollectionIndex,
     })
   }
+}
+
+const updateRequestOrder = (
+  dataTransfer: DataTransfer,
+  {
+    folderPath,
+    requestIndex,
+  }: { folderPath: string | null; requestIndex: string }
+) => {
+  if (!folderPath) return
+  const dragedRequestIndex = dataTransfer.getData("requestIndex")
+  const destinationRequestIndex = requestIndex
+  const destinationCollectionIndex = folderPath
+
+  emit("update-request-order", {
+    dragedRequestIndex,
+    destinationRequestIndex,
+    destinationCollectionIndex,
+  })
 }
 
 type MyCollectionNode = Collection | Folder | Requests

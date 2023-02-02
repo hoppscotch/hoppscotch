@@ -397,6 +397,42 @@ const restCollectionDispatchers = defineDispatchers({
       state: newState,
     }
   },
+
+  updateRequestOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      requestIndex,
+      destinationRequestIndex,
+      destinationCollectionPath,
+    }: {
+      requestIndex: number
+      destinationRequestIndex: number
+      destinationCollectionPath: string
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = destinationCollectionPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
+
+    if (targetLocation === null) {
+      console.log(
+        `Could not resolve path '${destinationCollectionPath}'. Ignoring reorderRequest dispatch.`
+      )
+      return {}
+    }
+
+    const [removed] = targetLocation.requests.splice(requestIndex, 1)
+
+    targetLocation.requests.splice(destinationRequestIndex, 0, removed)
+
+    return {
+      state: newState,
+    }
+  },
 })
 
 const gqlCollectionDispatchers = defineDispatchers({
@@ -845,6 +881,21 @@ export function moveRESTRequest(
       path,
       requestIndex,
       destinationPath,
+    },
+  })
+}
+
+export function updateRESTRequestOrder(
+  requestIndex: number,
+  destinationRequestIndex: number,
+  destinationCollectionPath: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateRequestOrder",
+    payload: {
+      requestIndex,
+      destinationRequestIndex,
+      destinationCollectionPath,
     },
   })
 }

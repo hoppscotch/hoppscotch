@@ -54,6 +54,7 @@
           @remove-collection="removeCollection"
           @remove-folder="removeFolder"
           @drop-collection="dropCollection"
+          @update-request-order="updateRequestOrder"
           @edit-request="editRequest"
           @duplicate-request="duplicateRequest"
           @remove-request="removeRequest"
@@ -224,6 +225,7 @@ import {
   removeRESTRequest,
   restCollections$,
   saveRESTRequestAs,
+  updateRESTRequestOrder,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
@@ -1366,7 +1368,21 @@ const discardRequestChange = () => {
   confirmChangeToRequest.value = false
 }
 
-// Drag and drop functions
+/**
+ * Used to get the index of the request from the path
+ * @param path The path of the request
+ */
+const pathToIndex = computed(() => {
+  return (path: string) => {
+    const pathArr = path.split("/")
+    return parseInt(pathArr[pathArr.length - 1])
+  }
+})
+
+/**
+ * This function is called when the user drops the request inside a collection
+ * @param payload Object that contains the folder path, request index and the destination collection index
+ */
 const dropRequest = (payload: {
   folderPath?: string | undefined
   requestIndex: string
@@ -1381,10 +1397,11 @@ const dropRequest = (payload: {
   ) {
     moveRESTRequest(
       folderPath,
-      parseInt(requestIndex),
+      pathToIndex.value(requestIndex),
       destinationCollectionIndex
     )
     toast.success(`${t("request.moved")}`)
+    draggingToRoot.value = false
   } else if (hasTeamWriteAccess.value) {
     // add the request index to the loading array
     requestMoveLoading.value.push(requestIndex)
@@ -1422,6 +1439,7 @@ const dropCollection = (payload: {
   destinationCollectionIndex: string
 }) => {
   const { collectionIndexDragged, destinationCollectionIndex } = payload
+  if (!collectionIndexDragged || !destinationCollectionIndex) return
   if (collectionIndexDragged === destinationCollectionIndex) return
   if (collectionsType.value.type === "my-collections") {
     // TODO: move collection
@@ -1431,11 +1449,9 @@ const dropCollection = (payload: {
       destinationCollectionIndex
     )
     moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
-  } else if (
-    hasTeamWriteAccess.value &&
-    collectionIndexDragged &&
-    destinationCollectionIndex
-  ) {
+    draggingToRoot.value = false
+    toast.success(`${t("collection.moved")}`)
+  } else if (hasTeamWriteAccess.value) {
     // add the collection index to the loading array
     collectionMoveLoading.value.push(collectionIndexDragged)
     pipe(
@@ -1465,6 +1481,17 @@ const dropCollection = (payload: {
 }
 
 /**
+ * Checks if the collection is already in the root
+ * @param id - path of the collection
+ */
+const isAlreadyInRoot = computed(() => {
+  return (id: string) => {
+    const indexPath = id.split("/").map((i) => parseInt(i))
+    return indexPath.length === 1
+  }
+})
+
+/**
  * This function is called when the user drops the collection
  * to the root
  * @param payload - object containing the collection index dragged
@@ -1472,10 +1499,17 @@ const dropCollection = (payload: {
 const dropToRoot = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+    if (!collectionIndexDragged) return
     if (collectionsType.value.type === "my-collections") {
-      // TODO: move collection
-      console.log("move collection root", collectionIndexDragged, null)
-      moveRESTFolder(collectionIndexDragged, null)
+      // check if the collection is already in the root
+      if (isAlreadyInRoot.value(collectionIndexDragged)) {
+        toast.error(`${t("collection.invalid_root_move")}`)
+      } else {
+        moveRESTFolder(collectionIndexDragged, null)
+        toast.success(`${t("collection.moved")}`)
+      }
+
+      draggingToRoot.value = false
     } else if (hasTeamWriteAccess.value && collectionIndexDragged) {
       // add the collection index to the loading array
       collectionMoveLoading.value.push(collectionIndexDragged)
@@ -1506,6 +1540,31 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
 }
 
 /**
+ * Used to check if the request is being moved to the same parent
+ * @param draggedReq - path index of the dragged request
+ * @param destinationReq - path index of the destination request
+ */
+const isSameSameParent = computed(
+  () => (draggedReq: string, destinationReq: string) => {
+    const draggedReqIndex = draggedReq.split("/").map((i) => parseInt(i))
+    const destinationReqIndex = destinationReq
+      .split("/")
+      .map((i) => parseInt(i))
+
+    if (draggedReqIndex.length === 1 && destinationReqIndex.length === 1) {
+      return true
+    } else if (
+      draggedReqIndex[draggedReqIndex.length - 2] ===
+      destinationReqIndex[destinationReqIndex.length - 2]
+    ) {
+      return true
+    } else {
+      return false
+    }
+  }
+)
+
+/**
  * This function is called when the user updates the request order in a collection
  * @param payload - object containing the request index dragged and the destination request index
  *  with the destination collection index
@@ -1521,7 +1580,25 @@ const updateRequestOrder = (payload: {
     destinationCollectionIndex,
   } = payload
   if (collectionsType.value.type === "my-collections") {
-    // TODO: change req order
+    if (
+      !dragedRequestIndex ||
+      !destinationRequestIndex ||
+      !destinationCollectionIndex
+    )
+      return
+
+    if (dragedRequestIndex === destinationRequestIndex) return
+
+    if (!isSameSameParent.value(dragedRequestIndex, destinationRequestIndex)) {
+      toast.error(`${t("collection.different_parent")}`)
+    } else {
+      updateRESTRequestOrder(
+        pathToIndex.value(dragedRequestIndex),
+        pathToIndex.value(destinationRequestIndex),
+        destinationCollectionIndex
+      )
+      toast.success(`${t("request.order_changed")}`)
+    }
   } else if (
     hasTeamWriteAccess.value &&
     dragedRequestIndex &&

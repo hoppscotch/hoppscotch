@@ -64,8 +64,8 @@
     "@types/bcrypt": "^5.0.0",
     "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.14",
-    "@types/jest": "^27.5.2",
     "@types/luxon": "^3.2.0",
+    "@types/jest": "^29.4.0",
     "@types/node": "^18.11.10",
     "@types/passport-github2": "^1.2.5",
     "@types/passport-google-oauth20": "^2.0.11",
@@ -77,13 +77,13 @@
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "jest": "^29.3.1",
+    "jest": "^29.4.1",
     "jest-mock-extended": "^3.0.1",
     "jwt": "link:@types/nestjs/jwt",
     "prettier": "^2.8.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.2",
-    "ts-jest": "29.0.3",
+    "ts-jest": "29.0.5",
     "ts-loader": "^9.4.2",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "4.1.1",
@@ -98,18 +98,15 @@
     "setupFilesAfterEnv": [
       "@relmify/jest-fp-ts"
     ],
+    "preset": "ts-jest",
+    "clearMocks": true,
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageProvider": "v8",
+    "rootDir": "src",
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
     },
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "setupFilesAfterEnv": ["../jest.setup.js"]
   }
 }

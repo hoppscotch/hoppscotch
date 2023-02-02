@@ -1,0 +1,3 @@
+mutation DeleteUser {
+  deleteUser
+}

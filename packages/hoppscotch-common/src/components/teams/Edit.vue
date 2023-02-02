@@ -34,12 +34,10 @@
             />
           </div>
         </div>
-        <div
-          v-if="teamDetails.loading"
-          class="flex flex-col items-center justify-center"
-        >
-          <SmartSpinner class="mb-4" />
-          <span class="text-secondaryLight">{{ t("state.loading") }}</span>
+        <div v-if="teamDetails.loading" class="border rounded border-divider">
+          <div class="flex items-center justify-center p-4">
+            <SmartSpinner />
+          </div>
         </div>
         <div
           v-if="

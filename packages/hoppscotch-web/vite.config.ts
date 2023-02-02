@@ -1,6 +1,7 @@
-import { defineConfig, loadEnv } from "vite"
+import { defineConfig, loadEnv, normalizePath } from "vite"
 import { APP_INFO, META_TAGS } from "./meta"
-// import generateSitemap from "vite-plugin-pages-sitemap"
+import { viteStaticCopy as StaticCopy } from "vite-plugin-static-copy"
+import generateSitemap from "vite-plugin-pages-sitemap"
 import HtmlConfig from "vite-plugin-html-config"
 import Vue from "@vitejs/plugin-vue"
 import VueI18n from "@intlify/vite-plugin-vue-i18n"
@@ -73,15 +74,24 @@ export default defineConfig({
       routeStyle: "nuxt",
       dirs: "../hoppscotch-common/src/pages",
       importMode: "async",
-      onRoutesGenerated() {
-        // TODO: Figure this out ?
-        // return generateSitemap({
-        //   routes,
-        //   nuxtStyle: true,
-        //   allowRobots: true,
-        //   hostname: ENV.VITE_BASE_URL,
-        // })
+      onRoutesGenerated(routes) {
+        // HACK: See: https://github.com/jbaubree/vite-plugin-pages-sitemap/issues/173
+        return ((generateSitemap as any).default as typeof generateSitemap)({
+          routes,
+          nuxtStyle: true,
+          allowRobots: true,
+          dest: ".sitemap-gen",
+          hostname: ENV.VITE_BASE_URL,
+        })
       },
+    }),
+    StaticCopy({
+      targets: [
+        {
+          src: normalizePath(path.resolve(__dirname, "./.sitemap-gen/*")),
+          dest: normalizePath(path.resolve(__dirname, "./dist")),
+        },
+      ],
     }),
     Layouts({
       layoutsDirs: "../hoppscotch-common/src/layouts",
@@ -97,7 +107,10 @@ export default defineConfig({
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",
-      dirs: ["../hoppscotch-common/src/components"],
+      dirs: [
+        "../hoppscotch-common/src/components",
+        "../hoppscotch-ui/src/components",
+      ],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({

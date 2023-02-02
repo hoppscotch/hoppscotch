@@ -27,7 +27,7 @@
       <ButtonPrimary
         :label="t('auth.login_to_hoppscotch')"
         class="mt-8"
-        @click="showLogin = true"
+        @click="invokeAction('modals.login.toggle')"
       />
     </div>
     <div v-else class="flex flex-col items-center justify-center flex-1 p-4">
@@ -138,7 +138,6 @@
         to="/"
       />
     </div>
-    <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
   </div>
 </template>
 
@@ -163,6 +162,7 @@ import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { useI18n } from "~/composables/i18n"
 import IconHome from "~icons/lucide/home"
+import { invokeAction } from "~/helpers/actions"
 
 type GetInviteDetailsError =
   | "team_invite/not_valid_viewer"
@@ -214,12 +214,12 @@ export default defineComponent({
       toast: useToast(),
       t: useI18n(),
       IconHome,
+      invokeAction,
     }
   },
   data() {
     return {
       invalidLink: false,
-      showLogin: false,
       loading: false,
       revokedLink: false,
       inviteID: "",

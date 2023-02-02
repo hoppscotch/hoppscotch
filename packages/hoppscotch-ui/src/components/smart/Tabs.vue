@@ -78,7 +78,6 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import type { Component } from "vue"
 import { ref, ComputedRef, computed, provide } from "vue"
-import { throwError } from "~/helpers/functional/error"
 
 export type TabMeta = {
   label: string | null
@@ -123,6 +122,10 @@ const props = defineProps({
 const emit = defineEmits<{
   (e: "update:modelValue", newTabID: string): void
 }>()
+
+const throwError = (message: string): never => {
+  throw new Error(message)
+}
 
 const tabEntries = ref<Array<[string, TabMeta]>>([])
 

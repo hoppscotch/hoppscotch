@@ -192,22 +192,28 @@ const restCollectionDispatchers = defineDispatchers({
   ) {
     const newState = state
 
-    const indexPaths = path.split("/").map((x) => parseInt(x))
-
-    //move to the root
+    // Move the folder to the root
     if (destinationPath === null) {
-      console.log("Moving folder to root")
+      const indexPaths = path.split("/").map((x) => parseInt(x))
+
+      if (indexPaths.length === 0) {
+        console.log("Given path too short. Skipping request.")
+        return {}
+      }
+
+      const folderIndex = indexPaths.pop() as number
+
       const containingFolder = navigateToFolderWithIndexPath(
         newState,
         indexPaths
       )
       if (containingFolder === null) {
         console.error(
-          `Could not resolve path '${path}'. Skipping moveFolder dispatch.`
+          `The folder to move is already in the root. Skipping request to move folder.`
         )
         return {}
       }
-      const folderIndex = indexPaths.pop() as number
+
       const theFolder = containingFolder.folders.splice(folderIndex, 1)
       newState.push(theFolder[0] as HoppCollection<HoppRESTRequest>)
 
@@ -216,10 +222,17 @@ const restCollectionDispatchers = defineDispatchers({
       }
     }
 
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
     const destinationIndexPaths = destinationPath
       .split("/")
       .map((x) => parseInt(x))
-    console.log(indexPaths, destinationIndexPaths, path)
+
     if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
       console.error(
         `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
@@ -238,18 +251,19 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
-    if (containingFolder === null) {
-      console.error(
-        `Could not resolve path '${path}'. Skipping moveFolder dispatch.`
-      )
-      return {}
-    }
-
     const folderIndex = indexPaths.pop() as number
-    const theFolder = containingFolder.folders.splice(folderIndex, 1)
 
-    target.folders.push(theFolder[0])
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    // We are moving a folder from the root
+    if (containingFolder === null) {
+      const theFolder = newState.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    } else {
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    }
 
     return { state: newState }
   },

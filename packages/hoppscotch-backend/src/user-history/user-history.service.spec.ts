@@ -278,13 +278,14 @@ describe('UserHistoryService', () => {
   });
   describe('toggleHistoryStarStatus', () => {
     test('Should resolve right and star/unstar a request in the history', async () => {
+      const createdOnDate = new Date()
       mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: createdOnDate,
         isStarred: false,
       });
 
@@ -294,7 +295,7 @@ describe('UserHistoryService', () => {
         request: [{}],
         responseMetadata: [{}],
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: createdOnDate,
         isStarred: true,
       });
 
@@ -304,7 +305,7 @@ describe('UserHistoryService', () => {
         request: JSON.stringify([{}]),
         responseMetadata: JSON.stringify([{}]),
         reqType: ReqType.REST,
-        executedOn: new Date(),
+        executedOn: createdOnDate,
         isStarred: true,
       };
 

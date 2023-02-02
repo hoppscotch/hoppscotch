@@ -52,6 +52,7 @@
         >
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
+            :id="node.data.data.data.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -112,6 +113,7 @@
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
+            :id="node.data.data.data.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"

@@ -1807,7 +1807,7 @@ const createCollectionGist = async () => {
       (result) => {
         toast.success(t("export.gist_created").toString())
         creatingGistCollection.value = false
-        window.open(result.data.html_url)
+        window.open(result.data.url)
       }
     )
   )()

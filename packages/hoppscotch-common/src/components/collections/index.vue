@@ -1389,12 +1389,8 @@ const dropRequest = (payload: {
   destinationCollectionIndex: string
 }) => {
   const { folderPath, requestIndex, destinationCollectionIndex } = payload
-  if (
-    collectionsType.value.type === "my-collections" &&
-    folderPath &&
-    requestIndex &&
-    destinationCollectionIndex
-  ) {
+  if (!requestIndex || !destinationCollectionIndex) return
+  if (collectionsType.value.type === "my-collections" && folderPath) {
     moveRESTRequest(
       folderPath,
       pathToIndex.value(requestIndex),
@@ -1442,12 +1438,6 @@ const dropCollection = (payload: {
   if (!collectionIndexDragged || !destinationCollectionIndex) return
   if (collectionIndexDragged === destinationCollectionIndex) return
   if (collectionsType.value.type === "my-collections") {
-    // TODO: move collection
-    console.log(
-      "move collection",
-      collectionIndexDragged,
-      destinationCollectionIndex
-    )
     moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
     draggingToRoot.value = false
     toast.success(`${t("collection.moved")}`)
@@ -1510,7 +1500,7 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
       }
 
       draggingToRoot.value = false
-    } else if (hasTeamWriteAccess.value && collectionIndexDragged) {
+    } else if (hasTeamWriteAccess.value) {
       // add the collection index to the loading array
       collectionMoveLoading.value.push(collectionIndexDragged)
 
@@ -1579,16 +1569,17 @@ const updateRequestOrder = (payload: {
     destinationRequestIndex,
     destinationCollectionIndex,
   } = payload
+
+  if (
+    !dragedRequestIndex ||
+    !destinationRequestIndex ||
+    !destinationCollectionIndex
+  )
+    return
+
+  if (dragedRequestIndex === destinationRequestIndex) return
+
   if (collectionsType.value.type === "my-collections") {
-    if (
-      !dragedRequestIndex ||
-      !destinationRequestIndex ||
-      !destinationCollectionIndex
-    )
-      return
-
-    if (dragedRequestIndex === destinationRequestIndex) return
-
     if (!isSameSameParent.value(dragedRequestIndex, destinationRequestIndex)) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
@@ -1599,14 +1590,7 @@ const updateRequestOrder = (payload: {
       )
       toast.success(`${t("request.order_changed")}`)
     }
-  } else if (
-    hasTeamWriteAccess.value &&
-    dragedRequestIndex &&
-    destinationRequestIndex &&
-    destinationCollectionIndex
-  ) {
-    if (dragedRequestIndex === destinationRequestIndex) return
-
+  } else if (hasTeamWriteAccess.value) {
     // add the request index to the loading array
     requestMoveLoading.value.push(dragedRequestIndex)
 

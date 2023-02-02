@@ -26,7 +26,7 @@ const makeTab = (id: string): GQLTab => ({
 })
 
 export const defaultGQLSession: GQLSession = {
-  url: "http://localhost:4000",
+  url: "https://echo.hoppscotch.io/graphql",
   connection: new GQLConnection(),
   tabs: [makeTab("new")],
   currentTabId: "new",

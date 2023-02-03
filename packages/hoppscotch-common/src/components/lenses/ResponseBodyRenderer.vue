@@ -52,15 +52,11 @@ import {
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { restTestResults$ } from "~/newstore/RESTSession"
+import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
 
 const props = defineProps({
   response: { type: Object, default: () => ({}) },
-  savedSelectedLensTab: { type: String },
 })
-
-const emit = defineEmits<{
-  (e: "changeSelectedLensTabPersistedOption", val: string): void
-}>()
 
 const allLensRenderers = getLensRenderers()
 
@@ -93,11 +89,10 @@ watch(
       "headers",
       "results",
     ]
-    if (
-      props.savedSelectedLensTab &&
-      allRenderers.includes(props.savedSelectedLensTab)
-    ) {
-      selectedLensTab.value = props.savedSelectedLensTab
+    const savedLensTabPreference =
+      getLocalConfig("response_selected_lens_tab") ?? ""
+    if (allRenderers.includes(savedLensTabPreference)) {
+      selectedLensTab.value = savedLensTabPreference
     } else {
       selectedLensTab.value = newValue[0].renderer
     }
@@ -106,6 +101,6 @@ watch(
 )
 
 watch(selectedLensTab, (newValue) => {
-  emit("changeSelectedLensTabPersistedOption", newValue)
+  setLocalConfig("response_selected_lens_tab", newValue)
 })
 </script>

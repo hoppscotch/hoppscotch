@@ -11,7 +11,7 @@
       :label="t(lens.lensName)"
       class="flex flex-col flex-1 w-full h-full"
     >
-      <component :is="lens.renderer" :response="response" />
+      <component :is="lensRendererFor(lens.renderer)" :response="response" />
     </SmartTab>
     <SmartTab
       v-if="headerLength"
@@ -42,8 +42,8 @@
   </SmartTabs>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { computed, ref, watch } from "vue"
 import {
   getSuitableLenses,
   getLensRenderers,
@@ -53,64 +53,59 @@ import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { restTestResults$ } from "~/newstore/RESTSession"
 
-export default defineComponent({
-  components: {
-    ...getLensRenderers(),
-  },
-  props: {
-    response: { type: Object, default: () => ({}) },
-    savedSelectedLensTab: { type: String },
-  },
-  setup() {
-    const testResults = useReadonlyStream(restTestResults$, null)
+const props = defineProps({
+  response: { type: Object, default: () => ({}) },
+  savedSelectedLensTab: { type: String },
+})
 
-    return {
-      testResults,
-      t: useI18n(),
+const emit = defineEmits<{
+  (e: "changeSelectedLensTabPersistedOption", val: string): void
+}>()
+
+const allLensRenderers = getLensRenderers()
+
+function lensRendererFor(name: string) {
+  return allLensRenderers[name]
+}
+
+const testResults = useReadonlyStream(restTestResults$, null)
+
+const t = useI18n()
+
+const selectedLensTab = ref("")
+
+const headerLength = computed(() => {
+  if (!props.response || !props.response.headers) return 0
+  return Object.keys(props.response.headers).length
+})
+
+const validLenses = computed(() => {
+  if (!props.response) return []
+  return getSuitableLenses(props.response)
+})
+
+watch(
+  validLenses,
+  (newValue: Lens[]) => {
+    if (newValue.length === 0) return
+    const allRenderers = [
+      ...newValue.map((x) => x.renderer),
+      "headers",
+      "results",
+    ]
+    if (
+      props.savedSelectedLensTab &&
+      allRenderers.includes(props.savedSelectedLensTab)
+    ) {
+      selectedLensTab.value = props.savedSelectedLensTab
+    } else {
+      selectedLensTab.value = newValue[0].renderer
     }
   },
-  data() {
-    return {
-      selectedLensTab: "",
-    }
-  },
-  computed: {
-    headerLength() {
-      if (!this.response || !this.response.headers) return 0
+  { immediate: true }
+)
 
-      return Object.keys(this.response.headers).length
-    },
-    validLenses() {
-      if (!this.response) return []
-
-      return getSuitableLenses(this.response)
-    },
-  },
-  watch: {
-    validLenses: {
-      handler(newValue: Lens[]) {
-        if (newValue.length === 0) return
-        const allRenderers = [
-          ...newValue.map((x) => x.renderer),
-          "headers",
-          "results",
-        ]
-        if (
-          this.savedSelectedLensTab &&
-          allRenderers.includes(this.savedSelectedLensTab)
-        ) {
-          this.selectedLensTab = this.savedSelectedLensTab
-        } else {
-          this.selectedLensTab = newValue[0].renderer
-        }
-      },
-      immediate: true,
-    },
-    selectedLensTab: {
-      handler(newValue) {
-        this.$emit("changeSelectedLensTabPersistedOption", newValue)
-      },
-    },
-  },
+watch(selectedLensTab, (newValue) => {
+  emit("changeSelectedLensTabPersistedOption", newValue)
 })
 </script>

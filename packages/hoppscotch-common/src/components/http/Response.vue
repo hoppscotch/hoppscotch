@@ -12,38 +12,26 @@
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, watch, ref } from "vue"
+<script setup lang="ts">
+import { computed, watch, ref } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import { useReadonlyStream } from "@composables/stream"
 import { restResponse$ } from "~/newstore/RESTSession"
 
-export default defineComponent({
-  setup() {
-    const response = useReadonlyStream(restResponse$, null)
+const response = useReadonlyStream(restResponse$, null)
 
-    const savedSelectedLensTab = ref<string | undefined>()
+const savedSelectedLensTab = ref<string | undefined>()
 
-    const hasResponse = computed(
-      () =>
-        response.value?.type === "success" || response.value?.type === "fail"
-    )
+const hasResponse = computed(
+  () => response.value?.type === "success" || response.value?.type === "fail"
+)
 
-    const loading = computed(
-      () => response.value === null || response.value.type === "loading"
-    )
+const loading = computed(
+  () => response.value === null || response.value.type === "loading"
+)
 
-    watch(response, () => {
-      if (response.value?.type === "loading") startPageProgress()
-      else completePageProgress()
-    })
-
-    return {
-      hasResponse,
-      loading,
-      response,
-      savedSelectedLensTab,
-    }
-  },
+watch(response, () => {
+  if (response.value?.type === "loading") startPageProgress()
+  else completePageProgress()
 })
 </script>

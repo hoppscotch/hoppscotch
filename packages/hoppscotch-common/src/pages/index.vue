@@ -1,8 +1,25 @@
 <template>
   <AppPaneLayout layout-id="http">
     <template #primary>
-      <HttpRequest />
-      <HttpRequestOptions />
+      <SmartWindows
+        v-if="currentTabId"
+        :id="'rest_windows'"
+        v-model="currentTabId"
+        @remove-tab="removeTab"
+        @add-tab="addNewTab"
+        @sort="sortTabs"
+      >
+        <SmartWindow
+          v-for="tab in tabs"
+          :id="tab.id"
+          :key="'removable_tab_' + tab.id"
+          :label="tab.name"
+          :is-removable="tabs.length > 1"
+        >
+          <HttpRequest />
+          <HttpRequestOptions />
+        </SmartWindow>
+      </SmartWindows>
     </template>
     <template #secondary>
       <HttpResponse />
@@ -45,6 +62,21 @@ const t = useI18n()
 const requestForSync = ref<HoppRESTRequest | null>(null)
 
 const confirmSync = ref(false)
+
+type Tab = {
+  id: string
+  name: string
+  removable: boolean
+}
+
+const currentTabId = ref("tab_1")
+const tabs = ref<Tab[]>([
+  {
+    id: "tab_1",
+    name: "Tab 1",
+    removable: false,
+  },
+])
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -146,6 +178,26 @@ const syncRequest = () => {
     safelyExtractRESTRequest(requestForSync.value!, getDefaultRESTRequest())
   )
 }
+
+const addNewTab = () => {
+  tabs.value.push({
+    id: `tab_${tabs.value.length + 1}`,
+    name: `Tab ${tabs.value.length + 1}`,
+    removable: true,
+  })
+  currentTabId.value = tabs.value[tabs.value.length - 1].id
+}
+
+const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
+  const newTabs = [...tabs.value]
+  newTabs.splice(e.newIndex, 0, newTabs.splice(e.oldIndex, 1)[0])
+  tabs.value = newTabs
+}
+
+const removeTab = (tabID: string) => {
+  tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
+}
+
 setupRequestSync(confirmSync, requestForSync)
 bindRequestToURLParams()
 oAuthURL()

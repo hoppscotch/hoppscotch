@@ -14,13 +14,13 @@
       <component :is="lensRendererFor(lens.renderer)" :response="response" />
     </SmartTab>
     <SmartTab
-      v-if="headerLength"
+      v-if="maybeHeaders"
       id="headers"
       :label="t('response.headers')"
-      :info="`${headerLength}`"
+      :info="`${maybeHeaders.length}`"
       class="flex flex-col flex-1"
     >
-      <LensesHeadersRenderer :headers="response.headers" />
+      <LensesHeadersRenderer :headers="maybeHeaders" />
     </SmartTab>
     <SmartTab
       id="results"
@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, PropType, ref, watch } from "vue"
 import {
   getSuitableLenses,
   getLensRenderers,
@@ -51,11 +51,12 @@ import {
 } from "~/helpers/lenses/lenses"
 import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
+import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { restTestResults$ } from "~/newstore/RESTSession"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
 
 const props = defineProps({
-  response: { type: Object, default: () => ({}) },
+  response: { type: Object as PropType<HoppRESTResponse> | null },
 })
 
 const allLensRenderers = getLensRenderers()
@@ -70,9 +71,14 @@ const t = useI18n()
 
 const selectedLensTab = ref("")
 
-const headerLength = computed(() => {
-  if (!props.response || !props.response.headers) return 0
-  return Object.keys(props.response.headers).length
+// This is `HoppRESTResponseHeaderKV[] | null`, so tsc can correctly infer a `maybeHeaders` in `v-if="maybeHeaders"` block is not null array of headers
+const maybeHeaders = computed(() => {
+  if (
+    !props.response ||
+    !(props.response.type === "success" || props.response.type === "fail")
+  )
+    return null
+  return props.response.headers
 })
 
 const validLenses = computed(() => {

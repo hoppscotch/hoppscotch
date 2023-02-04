@@ -345,10 +345,14 @@ const newSendRequest = async () => {
 
   ensureMethodInEndpoint()
 
+  console.log("Sending request", newEndpoint.value)
+
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
   const streamResult = await runRESTRequest$()()
+
+  console.log("Stream result", streamResult)
 
   if (isRight(streamResult)) {
     subscribeToStream(

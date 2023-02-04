@@ -64,6 +64,8 @@ export type TabMeta = {
   isRemovable: boolean
 }
 export type TabProvider = {
+  // Whether inactive tabs should remain rendered
+  renderInactive: ComputedRef<boolean>
   activeTabID: ComputedRef<string>
   addTabEntry: (tabID: string, meta: TabMeta) => void
   updateTabEntry: (tabID: string, newMeta: TabMeta) => void
@@ -80,6 +82,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     required: true,
+  },
+  renderInactiveTabs: {
+    type: Boolean,
+    default: false,
   },
   canAddNewTab: {
     type: Boolean,
@@ -161,6 +167,7 @@ const sortTabs = (e: {
   })
 }
 provide<TabProvider>("tabs-system", {
+  renderInactive: computed(() => props.renderInactiveTabs),
   activeTabID: computed(() => props.modelValue),
   addTabEntry,
   updateTabEntry,

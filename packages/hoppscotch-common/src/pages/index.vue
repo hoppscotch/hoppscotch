@@ -16,13 +16,17 @@
           :label="tab.name"
           :is-removable="tabs.length > 1"
         >
-          <HttpRequest :request="tab.request" />
-          <HttpRequestOptions :request="tab.request" />
+          <AppPaneLayout layout-id="rest-primary">
+            <template #primary>
+              <HttpRequest :request="tab.request" />
+              <HttpRequestOptions :request="tab.request" />
+            </template>
+            <template #secondary>
+              <HttpResponse :request="tab.request" />
+            </template>
+          </AppPaneLayout>
         </SmartWindow>
       </SmartWindows>
-    </template>
-    <template #secondary>
-      <HttpResponse />
     </template>
     <template #sidebar>
       <HttpSidebar />
@@ -65,6 +69,12 @@ const confirmSync = ref(false)
 
 const currentTabId = useStream(RESTCurrentTabId$, "", setCurrentTabId)
 const tabs = useStream(RESTTabs$, [], setRESTTabs)
+
+watch(currentTabId, (newValue) => {
+  if (newValue) {
+    console.log("currentTabId", newValue)
+  }
+})
 
 function bindRequestToURLParams() {
   const route = useRoute()

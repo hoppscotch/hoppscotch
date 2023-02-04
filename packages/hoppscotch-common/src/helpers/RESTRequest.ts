@@ -10,26 +10,29 @@ import {
 } from "@hoppscotch/data"
 import { BehaviorSubject, map } from "rxjs"
 import { applyBodyTransition } from "~/helpers/rules/BodyTransition"
+import { HoppRESTResponse } from "./types/HoppRESTResponse"
 
 export class RESTRequest {
   public v$ = new BehaviorSubject<typeof RESTReqSchemaVersion>(
     RESTReqSchemaVersion
   )
-  public name$ = new BehaviorSubject<string>("Untitled")
-  public endpoint$ = new BehaviorSubject<string>("https://echo.hoppscotch.io/")
+  public name$ = new BehaviorSubject("Untitled")
+  public endpoint$ = new BehaviorSubject("https://echo.hoppscotch.io/")
   public params$ = new BehaviorSubject<HoppRESTParam[]>([])
   public headers$ = new BehaviorSubject<HoppRESTHeader[]>([])
-  public method$ = new BehaviorSubject<string>("GET")
+  public method$ = new BehaviorSubject("GET")
   public auth$ = new BehaviorSubject<HoppRESTAuth>({
     authType: "none",
     authActive: true,
   })
-  public preRequestScript$ = new BehaviorSubject<string>("")
-  public testScript$ = new BehaviorSubject<string>("")
+  public preRequestScript$ = new BehaviorSubject("")
+  public testScript$ = new BehaviorSubject("")
   public body$ = new BehaviorSubject<HoppRESTReqBody>({
     contentType: null,
     body: null,
   })
+
+  public response$ = new BehaviorSubject<HoppRESTResponse | null>(null)
 
   get contentType$() {
     return this.body$.pipe(map((body) => body.contentType))
@@ -108,6 +111,57 @@ export class RESTRequest {
     this.body$.next({ ...body })
   }
 
+  addFormDataEntry(entry: FormDataKeyValue) {
+    if (this.body$.value.contentType !== "multipart/form-data") return {}
+    const body: HoppRESTReqBody = {
+      contentType: "multipart/form-data",
+      body: [...this.body$.value.body, entry],
+    }
+    this.body$.next(body)
+  }
+
+  deleteFormDataEntry(index: number) {
+    // Only perform update if the current content-type is formdata
+    if (this.body$.value.contentType !== "multipart/form-data") return {}
+
+    const body: HoppRESTReqBody = {
+      contentType: "multipart/form-data",
+      body: [...this.body$.value.body.filter((_, i) => i !== index)],
+    }
+
+    this.body$.next(body)
+  }
+
+  updateFormDataEntry(index: number, entry: FormDataKeyValue) {
+    // Only perform update if the current content-type is formdata
+    if (this.body$.value.contentType !== "multipart/form-data") return {}
+
+    const body: HoppRESTReqBody = {
+      contentType: "multipart/form-data",
+      body: [
+        ...this.body$.value.body.map((oldEntry, i) =>
+          i === index ? entry : oldEntry
+        ),
+      ],
+    }
+    this.body$.next(body)
+  }
+
+  deleteAllFormDataEntries() {
+    // Only perform update if the current content-type is formdata
+    if (this.body$.value.contentType !== "multipart/form-data") return {}
+
+    const body: HoppRESTReqBody = {
+      contentType: "multipart/form-data",
+      body: [],
+    }
+    this.body$.next(body)
+  }
+
+  setRequestBody(newBody: HoppRESTReqBody) {
+    this.body$.next(newBody)
+  }
+
   setAuth(newAuth: HoppRESTAuth) {
     this.auth$.next(newAuth)
   }
@@ -118,6 +172,10 @@ export class RESTRequest {
 
   setTestScript(newScript: string) {
     this.testScript$.next(newScript)
+  }
+
+  updateResponse(response: HoppRESTResponse | null) {
+    this.response$.next(response)
   }
 
   setRequest(request: HoppRESTRequest) {
@@ -146,5 +204,24 @@ export class RESTRequest {
       testScript: this.testScript$.value,
       body: this.body$.value,
     }
+  }
+
+  resetRequest() {
+    this.v$.next(RESTReqSchemaVersion)
+    this.name$.next("")
+    this.endpoint$.next("")
+    this.params$.next([])
+    this.headers$.next([])
+    this.method$.next("GET")
+    this.auth$.next({
+      authType: "none",
+      authActive: false,
+    })
+    this.preRequestScript$.next("")
+    this.testScript$.next("")
+    this.body$.next({
+      contentType: null,
+      body: null,
+    })
   }
 }

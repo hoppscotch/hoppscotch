@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-1">
-    <HttpResponseMeta :response="response" />
+    <HttpResponseMeta :response="response!" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       v-model:selected-tab-preference="selectedTabPreference"
@@ -10,14 +10,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue"
+import { computed, watch } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import { useReadonlyStream } from "@composables/stream"
-import { restResponse$ } from "~/newstore/RESTSession"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
-const selectedTabPreference = ref<string | null>(null)
+const props = defineProps<{
+  request: RESTRequest
+}>()
 
-const response = useReadonlyStream(restResponse$, null)
+const response = useReadonlyStream(props.request.response$, null)
 
 const hasResponse = computed(
   () => response.value?.type === "success" || response.value?.type === "fail"

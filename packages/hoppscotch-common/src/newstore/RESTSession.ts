@@ -1,6 +1,5 @@
 import { useStream } from "@composables/stream"
 import {
-  FormDataKeyValue,
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
@@ -59,7 +58,6 @@ export const defaultRESTSession: RESTSession = {
   url: "https://echo.hoppscotch.io/graphql",
   tabs: [makeTab("new")],
   currentTabId: "new",
-
   request: getDefaultRESTRequest(),
   response: null,
   testResults: null,
@@ -80,111 +78,6 @@ const dispatchers = defineDispatchers({
   setCurrentTabId(_: RESTSession, { tabId }: { tabId: string }) {
     return {
       currentTabId: tabId,
-    }
-  },
-  setRequest(_: RESTSession, { req }: { req: HoppRESTRequest }) {
-    return {
-      request: req,
-    }
-  },
-  setRequestName(curr: RESTSession, { newName }: { newName: string }) {
-    return {
-      request: {
-        ...curr.request,
-        name: newName,
-      },
-    }
-  },
-
-  setPreRequestScript(curr: RESTSession, { newScript }: { newScript: string }) {
-    return {
-      request: {
-        ...curr.request,
-        preRequestScript: newScript,
-      },
-    }
-  },
-  setTestScript(curr: RESTSession, { newScript }: { newScript: string }) {
-    return {
-      request: {
-        ...curr.request,
-        testScript: newScript,
-      },
-    }
-  },
-  addFormDataEntry(curr: RESTSession, { entry }: { entry: FormDataKeyValue }) {
-    // Only perform update if the current content-type is formdata
-    if (curr.request.body.contentType !== "multipart/form-data") return {}
-
-    return {
-      request: {
-        ...curr.request,
-        body: <HoppRESTReqBody>{
-          contentType: "multipart/form-data",
-          body: [...curr.request.body.body, entry],
-        },
-      },
-    }
-  },
-  deleteFormDataEntry(curr: RESTSession, { index }: { index: number }) {
-    // Only perform update if the current content-type is formdata
-    if (curr.request.body.contentType !== "multipart/form-data") return {}
-
-    return {
-      request: {
-        ...curr.request,
-        body: <HoppRESTReqBody>{
-          contentType: "multipart/form-data",
-          body: curr.request.body.body.filter((_, i) => i !== index),
-        },
-      },
-    }
-  },
-  updateFormDataEntry(
-    curr: RESTSession,
-    { index, entry }: { index: number; entry: FormDataKeyValue }
-  ) {
-    // Only perform update if the current content-type is formdata
-    if (curr.request.body.contentType !== "multipart/form-data") return {}
-
-    return {
-      request: {
-        ...curr.request,
-        body: <HoppRESTReqBody>{
-          contentType: "multipart/form-data",
-          body: curr.request.body.body.map((x, i) => (i !== index ? x : entry)),
-        },
-      },
-    }
-  },
-  deleteAllFormDataEntries(curr: RESTSession, {}) {
-    // Only perform update if the current content-type is formdata
-    if (curr.request.body.contentType !== "multipart/form-data") return {}
-
-    return {
-      request: {
-        ...curr.request,
-        body: <HoppRESTReqBody>{
-          contentType: "multipart/form-data",
-          body: [],
-        },
-      },
-    }
-  },
-  setRequestBody(curr: RESTSession, { newBody }: { newBody: HoppRESTReqBody }) {
-    return {
-      request: {
-        ...curr.request,
-        body: newBody,
-      },
-    }
-  },
-  updateResponse(
-    _curr: RESTSession,
-    { updatedRes }: { updatedRes: HoppRESTResponse | null }
-  ) {
-    return {
-      response: updatedRes,
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -249,6 +142,12 @@ export function setCurrentTabId(tabId: string) {
   })
 }
 
+export const getCurrentTab = () => {
+  return restSessionStore.value.tabs.find(
+    (tab) => tab.id === restSessionStore.value.currentTabId
+  )!
+}
+
 export const restCurrentTab$ = restSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
     return tabs.find((tab) => tab.id === currentTabId) as RESTTab
@@ -267,19 +166,15 @@ export const RESTCurrentTabId$ = restSessionStore.subject$.pipe(
 )
 
 export function getRESTRequest() {
-  return restSessionStore.subject$.value.request
+  // current tab > request > getRequest
+  return getCurrentTab().request.getRequest()
 }
 
 export function setRESTRequest(
   req: HoppRESTRequest,
   saveContext?: HoppRequestSaveContext | null
 ) {
-  restSessionStore.dispatch({
-    dispatcher: "setRequest",
-    payload: {
-      req,
-    },
-  })
+  // TODO: set request to request class
 
   if (saveContext) setRESTSaveContext(saveContext)
 }
@@ -298,52 +193,11 @@ export function getRESTSaveContext() {
 }
 
 export function resetRESTRequest() {
-  setRESTRequest(getDefaultRESTRequest())
-}
-
-export function setRESTRequestName(newName: string) {
-  restSessionStore.dispatch({
-    dispatcher: "setRequestName",
-    payload: {
-      newName,
-    },
-  })
-}
-
-export function setRESTPreRequestScript(newScript: string) {
-  restSessionStore.dispatch({
-    dispatcher: "setPreRequestScript",
-    payload: {
-      newScript,
-    },
-  })
-}
-
-export function setRESTTestScript(newScript: string) {
-  restSessionStore.dispatch({
-    dispatcher: "setTestScript",
-    payload: {
-      newScript,
-    },
-  })
-}
-
-export function setRESTReqBody(newBody: HoppRESTReqBody) {
-  restSessionStore.dispatch({
-    dispatcher: "setRequestBody",
-    payload: {
-      newBody,
-    },
-  })
+  getCurrentTab().request.resetRequest()
 }
 
 export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
-  restSessionStore.dispatch({
-    dispatcher: "updateResponse",
-    payload: {
-      updatedRes,
-    },
-  })
+  getCurrentTab().request.updateResponse(updatedRes)
 }
 
 export function clearRESTResponse() {
@@ -359,41 +213,6 @@ export function setRESTTestResults(newResults: HoppTestResult | null) {
     payload: {
       newResults,
     },
-  })
-}
-
-export function addFormDataEntry(entry: FormDataKeyValue) {
-  restSessionStore.dispatch({
-    dispatcher: "addFormDataEntry",
-    payload: {
-      entry,
-    },
-  })
-}
-
-export function deleteFormDataEntry(index: number) {
-  restSessionStore.dispatch({
-    dispatcher: "deleteFormDataEntry",
-    payload: {
-      index,
-    },
-  })
-}
-
-export function updateFormDataEntry(index: number, entry: FormDataKeyValue) {
-  restSessionStore.dispatch({
-    dispatcher: "updateFormDataEntry",
-    payload: {
-      index,
-      entry,
-    },
-  })
-}
-
-export function deleteAllFormDataEntries() {
-  restSessionStore.dispatch({
-    dispatcher: "deleteAllFormDataEntries",
-    payload: {},
   })
 }
 
@@ -417,24 +236,24 @@ export const restParams$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const restActiveParamsCount$ = restParams$.pipe(
-  map(
-    (params) =>
-      params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
-  )
-)
+// export const restActiveParamsCount$ = restParams$.pipe(
+//   map(
+//     (params) =>
+//       params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
+//   )
+// )
 
 export const restHeaders$ = restSessionStore.subject$.pipe(
   pluck("request", "headers"),
   distinctUntilChanged()
 )
 
-export const restActiveHeadersCount$ = restHeaders$.pipe(
-  map(
-    (params) =>
-      params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
-  )
-)
+// export const restActiveHeadersCount$ = restHeaders$.pipe(
+//   map(
+//     (params) =>
+//       params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
+//   )
+// )
 
 export const restPreRequestScript$ = restSessionStore.subject$.pipe(
   pluck("request", "preRequestScript"),
@@ -471,18 +290,22 @@ export const restTestResults$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
+// TODO: use stream to get request body and name
+
 export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
-  return useStream(
-    restReqBody$,
-    restSessionStore.value.request.body,
-    setRESTReqBody
-  )
+  return useStream(restReqBody$, restSessionStore.value.request.body, () => {
+    console.log("update request body")
+    // TODO: update request body
+  })
 }
 
 export function useRESTRequestName(): Ref<string> {
   return useStream(
     restRequestName$,
     restSessionStore.value.request.name,
-    setRESTRequestName
+    () => {
+      console.log("update request name")
+      // TODO: update request name
+    }
   )
 }

@@ -1,33 +1,45 @@
-import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
-import { Ref } from "vue"
+import { useStream } from "@composables/stream"
 import {
   FormDataKeyValue,
-  HoppRESTHeader,
-  HoppRESTParam,
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
-  HoppRESTAuth,
-  ValidContentTypes,
 } from "@hoppscotch/data"
-import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
-import { useStream } from "@composables/stream"
-import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import { uniqueId } from "lodash-es"
+import { distinctUntilChanged, filter, map, pluck } from "rxjs/operators"
+import { Ref } from "vue"
+import { RESTRequest } from "~/helpers/RESTRequest"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
-import { applyBodyTransition } from "~/helpers/rules/BodyTransition"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { HoppTestResult } from "~/helpers/types/HoppTestResult"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
-type RESTSession = {
+type RESTTab = {
+  id: string
+  name: string
+  request: RESTRequest
+}
+
+export type RESTSession = {
+  url: string
+  tabs: RESTTab[]
+  currentTabId: string
   request: HoppRESTRequest
   response: HoppRESTResponse | null
   testResults: HoppTestResult | null
   saveContext: HoppRequestSaveContext | null
 }
 
+const makeTab = (id: string): RESTTab => ({
+  id,
+  name: "Untitled",
+  request: new RESTRequest(),
+})
+
 export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   v: RESTReqSchemaVersion,
   endpoint: "https://echo.hoppscotch.io",
-  name: "Untitled request",
+  name: "Untitled",
   params: [],
   headers: [],
   method: "GET",
@@ -43,7 +55,11 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
   },
 })
 
-const defaultRESTSession: RESTSession = {
+export const defaultRESTSession: RESTSession = {
+  url: "https://echo.hoppscotch.io/graphql",
+  tabs: [makeTab("new")],
+  currentTabId: "new",
+
   request: getDefaultRESTRequest(),
   response: null,
   testResults: null,
@@ -51,6 +67,21 @@ const defaultRESTSession: RESTSession = {
 }
 
 const dispatchers = defineDispatchers({
+  setTabs(_: RESTSession, { tabs }: { tabs: RESTTab[] }) {
+    return {
+      tabs,
+    }
+  },
+  addTab(curr: RESTSession, { tab }: { tab: RESTTab }) {
+    return {
+      tabs: [...curr.tabs, tab],
+    }
+  },
+  setCurrentTabId(_: RESTSession, { tabId }: { tabId: string }) {
+    return {
+      currentTabId: tabId,
+    }
+  },
   setRequest(_: RESTSession, { req }: { req: HoppRESTRequest }) {
     return {
       request: req,
@@ -64,126 +95,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  setEndpoint(curr: RESTSession, { newEndpoint }: { newEndpoint: string }) {
-    return {
-      request: {
-        ...curr.request,
-        endpoint: newEndpoint,
-      },
-    }
-  },
-  setParams(curr: RESTSession, { entries }: { entries: HoppRESTParam[] }) {
-    return {
-      request: {
-        ...curr.request,
-        params: entries,
-      },
-    }
-  },
-  addParam(curr: RESTSession, { newParam }: { newParam: HoppRESTParam }) {
-    return {
-      request: {
-        ...curr.request,
-        params: [...curr.request.params, newParam],
-      },
-    }
-  },
-  updateParam(
-    curr: RESTSession,
-    { index, updatedParam }: { index: number; updatedParam: HoppRESTParam }
-  ) {
-    const newParams = curr.request.params.map((param, i) => {
-      if (i === index) return updatedParam
-      else return param
-    })
 
-    return {
-      request: {
-        ...curr.request,
-        params: newParams,
-      },
-    }
-  },
-  deleteParam(curr: RESTSession, { index }: { index: number }) {
-    const newParams = curr.request.params.filter((_x, i) => i !== index)
-
-    return {
-      request: {
-        ...curr.request,
-        params: newParams,
-      },
-    }
-  },
-  deleteAllParams(curr: RESTSession, {}) {
-    return {
-      request: {
-        ...curr.request,
-        params: [],
-      },
-    }
-  },
-  updateMethod(curr: RESTSession, { newMethod }: { newMethod: string }) {
-    return {
-      request: {
-        ...curr.request,
-        method: newMethod,
-      },
-    }
-  },
-  setHeaders(curr: RESTSession, { entries }: { entries: HoppRESTHeader[] }) {
-    return {
-      request: {
-        ...curr.request,
-        headers: entries,
-      },
-    }
-  },
-  addHeader(curr: RESTSession, { entry }: { entry: HoppRESTHeader }) {
-    return {
-      request: {
-        ...curr.request,
-        headers: [...curr.request.headers, entry],
-      },
-    }
-  },
-  updateHeader(
-    curr: RESTSession,
-    { index, updatedEntry }: { index: number; updatedEntry: HoppRESTHeader }
-  ) {
-    return {
-      request: {
-        ...curr.request,
-        headers: curr.request.headers.map((header, i) => {
-          if (i === index) return updatedEntry
-          else return header
-        }),
-      },
-    }
-  },
-  deleteHeader(curr: RESTSession, { index }: { index: number }) {
-    return {
-      request: {
-        ...curr.request,
-        headers: curr.request.headers.filter((_, i) => i !== index),
-      },
-    }
-  },
-  deleteAllHeaders(curr: RESTSession, {}) {
-    return {
-      request: {
-        ...curr.request,
-        headers: [],
-      },
-    }
-  },
-  setAuth(curr: RESTSession, { newAuth }: { newAuth: HoppRESTAuth }) {
-    return {
-      request: {
-        ...curr.request,
-        auth: newAuth,
-      },
-    }
-  },
   setPreRequestScript(curr: RESTSession, { newScript }: { newScript: string }) {
     return {
       request: {
@@ -197,18 +109,6 @@ const dispatchers = defineDispatchers({
       request: {
         ...curr.request,
         testScript: newScript,
-      },
-    }
-  },
-  setContentType(
-    curr: RESTSession,
-    { newContentType }: { newContentType: ValidContentTypes | null }
-  ) {
-    // TODO: persist body evenafter switching content typees
-    return {
-      request: {
-        ...curr.request,
-        body: applyBodyTransition(curr.request.body, newContentType),
       },
     }
   },
@@ -313,6 +213,59 @@ const dispatchers = defineDispatchers({
 
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
 
+export function setRESTTabs(tabs: RESTTab[]) {
+  restSessionStore.dispatch({
+    dispatcher: "setTabs",
+    payload: {
+      tabs,
+    },
+  })
+}
+
+export function addRESTTab(tab: RESTTab) {
+  restSessionStore.dispatch({
+    dispatcher: "addTab",
+    payload: {
+      tab,
+    },
+  })
+}
+
+export function addNewRESTTab() {
+  restSessionStore.dispatch({
+    dispatcher: "addTab",
+    payload: {
+      tab: { ...makeTab(uniqueId("new_")) },
+    },
+  })
+}
+
+export function setCurrentTabId(tabId: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setCurrentTabId",
+    payload: {
+      tabId,
+    },
+  })
+}
+
+export const restCurrentTab$ = restSessionStore.subject$.pipe(
+  map(({ tabs, currentTabId }) => {
+    return tabs.find((tab) => tab.id === currentTabId) as RESTTab
+  }),
+  distinctUntilChanged()
+)
+
+export const RESTTabs$ = restSessionStore.subject$.pipe(
+  pluck("tabs"),
+  distinctUntilChanged()
+)
+
+export const RESTCurrentTabId$ = restSessionStore.subject$.pipe(
+  pluck("currentTabId"),
+  distinctUntilChanged()
+)
+
 export function getRESTRequest() {
   return restSessionStore.subject$.value.request
 }
@@ -348,126 +301,11 @@ export function resetRESTRequest() {
   setRESTRequest(getDefaultRESTRequest())
 }
 
-export function setRESTEndpoint(newEndpoint: string) {
-  restSessionStore.dispatch({
-    dispatcher: "setEndpoint",
-    payload: {
-      newEndpoint,
-    },
-  })
-}
-
 export function setRESTRequestName(newName: string) {
   restSessionStore.dispatch({
     dispatcher: "setRequestName",
     payload: {
       newName,
-    },
-  })
-}
-
-export function setRESTParams(entries: HoppRESTParam[]) {
-  restSessionStore.dispatch({
-    dispatcher: "setParams",
-    payload: {
-      entries,
-    },
-  })
-}
-
-export function addRESTParam(newParam: HoppRESTParam) {
-  restSessionStore.dispatch({
-    dispatcher: "addParam",
-    payload: {
-      newParam,
-    },
-  })
-}
-
-export function updateRESTParam(index: number, updatedParam: HoppRESTParam) {
-  restSessionStore.dispatch({
-    dispatcher: "updateParam",
-    payload: {
-      updatedParam,
-      index,
-    },
-  })
-}
-
-export function deleteRESTParam(index: number) {
-  restSessionStore.dispatch({
-    dispatcher: "deleteParam",
-    payload: {
-      index,
-    },
-  })
-}
-
-export function deleteAllRESTParams() {
-  restSessionStore.dispatch({
-    dispatcher: "deleteAllParams",
-    payload: {},
-  })
-}
-
-export function updateRESTMethod(newMethod: string) {
-  restSessionStore.dispatch({
-    dispatcher: "updateMethod",
-    payload: {
-      newMethod,
-    },
-  })
-}
-
-export function setRESTHeaders(entries: HoppRESTHeader[]) {
-  restSessionStore.dispatch({
-    dispatcher: "setHeaders",
-    payload: {
-      entries,
-    },
-  })
-}
-
-export function addRESTHeader(entry: HoppRESTHeader) {
-  restSessionStore.dispatch({
-    dispatcher: "addHeader",
-    payload: {
-      entry,
-    },
-  })
-}
-
-export function updateRESTHeader(index: number, updatedEntry: HoppRESTHeader) {
-  restSessionStore.dispatch({
-    dispatcher: "updateHeader",
-    payload: {
-      index,
-      updatedEntry,
-    },
-  })
-}
-
-export function deleteRESTHeader(index: number) {
-  restSessionStore.dispatch({
-    dispatcher: "deleteHeader",
-    payload: {
-      index,
-    },
-  })
-}
-
-export function deleteAllRESTHeaders() {
-  restSessionStore.dispatch({
-    dispatcher: "deleteAllHeaders",
-    payload: {},
-  })
-}
-
-export function setRESTAuth(newAuth: HoppRESTAuth) {
-  restSessionStore.dispatch({
-    dispatcher: "setAuth",
-    payload: {
-      newAuth,
     },
   })
 }
@@ -552,15 +390,6 @@ export function updateFormDataEntry(index: number, entry: FormDataKeyValue) {
   })
 }
 
-export function setRESTContentType(newContentType: ValidContentTypes | null) {
-  restSessionStore.dispatch({
-    dispatcher: "setContentType",
-    payload: {
-      newContentType,
-    },
-  })
-}
-
 export function deleteAllFormDataEntries() {
   restSessionStore.dispatch({
     dispatcher: "deleteAllFormDataEntries",
@@ -583,11 +412,6 @@ export const restRequestName$ = restRequest$.pipe(
   distinctUntilChanged()
 )
 
-export const restEndpoint$ = restSessionStore.subject$.pipe(
-  pluck("request", "endpoint"),
-  distinctUntilChanged()
-)
-
 export const restParams$ = restSessionStore.subject$.pipe(
   pluck("request", "params"),
   distinctUntilChanged()
@@ -598,11 +422,6 @@ export const restActiveParamsCount$ = restParams$.pipe(
     (params) =>
       params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
   )
-)
-
-export const restMethod$ = restSessionStore.subject$.pipe(
-  pluck("request", "method"),
-  distinctUntilChanged()
 )
 
 export const restHeaders$ = restSessionStore.subject$.pipe(
@@ -617,15 +436,8 @@ export const restActiveHeadersCount$ = restHeaders$.pipe(
   )
 )
 
-export const restAuth$ = restRequest$.pipe(pluck("auth"))
-
 export const restPreRequestScript$ = restSessionStore.subject$.pipe(
   pluck("request", "preRequestScript"),
-  distinctUntilChanged()
-)
-
-export const restContentType$ = restRequest$.pipe(
-  pluck("body", "contentType"),
   distinctUntilChanged()
 )
 
@@ -658,40 +470,6 @@ export const restTestResults$ = restSessionStore.subject$.pipe(
   pluck("testResults"),
   distinctUntilChanged()
 )
-
-/**
- * A Vue 3 composable function that gives access to a ref
- * which is updated to the preRequestScript value in the store.
- * The ref value is kept in sync with the store and all writes
- * to the ref are dispatched to the store as `setPreRequestScript`
- * dispatches.
- */
-export function usePreRequestScript(): Ref<string> {
-  return useStream(
-    restPreRequestScript$,
-    restSessionStore.value.request.preRequestScript,
-    (value) => {
-      setRESTPreRequestScript(value)
-    }
-  )
-}
-
-/**
- * A Vue 3 composable function that gives access to a ref
- * which is updated to the testScript value in the store.
- * The ref value is kept in sync with the store and all writes
- * to the ref are dispatched to the store as `setTestScript`
- * dispatches.
- */
-export function useTestScript(): Ref<string> {
-  return useStream(
-    restTestScript$,
-    restSessionStore.value.request.testScript,
-    (value) => {
-      setRESTTestScript(value)
-    }
-  )
-}
 
 export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
   return useStream(

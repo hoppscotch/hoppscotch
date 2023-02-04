@@ -46,14 +46,13 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import { map } from "rxjs/operators"
-import { useReadonlyStream } from "@composables/stream"
+import { useReadonlyStream, useStream } from "@composables/stream"
 import {
   restActiveHeadersCount$,
   restActiveParamsCount$,
-  usePreRequestScript,
-  useTestScript,
 } from "~/newstore/RESTSession"
 import { useI18n } from "@composables/i18n"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
 export type RequestOptionTabs =
   | "params"
@@ -62,6 +61,10 @@ export type RequestOptionTabs =
   | "authorization"
 
 const t = useI18n()
+
+const props = defineProps<{
+  request: RESTRequest
+}>()
 
 const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 
@@ -89,7 +92,15 @@ const newActiveHeadersCount$ = useReadonlyStream(
   null
 )
 
-const preRequestScript = usePreRequestScript()
+const preRequestScript = useStream(
+  props.request.preRequestScript$,
+  "",
+  props.request.setPreRequestScript.bind(props.request)
+)
 
-const testScript = useTestScript()
+const testScript = useStream(
+  props.request.testScript$,
+  "",
+  props.request.setTestScript.bind(props.request)
+)
 </script>

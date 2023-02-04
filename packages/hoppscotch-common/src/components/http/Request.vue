@@ -20,7 +20,7 @@
                 :value="newMethod"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
-                @input="onSelectMethod($event.target.value)"
+                @input="onSelectMethod($event.target?.value)"
               />
             </span>
             <template #content="{ hide }">
@@ -244,10 +244,6 @@ import { cloneDeep } from "lodash-es"
 import { refAutoReset } from "@vueuse/core"
 import {
   updateRESTResponse,
-  restEndpoint$,
-  setRESTEndpoint,
-  restMethod$,
-  updateRESTMethod,
   resetRESTRequest,
   useRESTRequestName,
   getRESTSaveContext,
@@ -276,6 +272,7 @@ import {
   cancelRunningExtensionRequest,
   hasExtensionInstalled,
 } from "~/helpers/strategies/ExtensionStrategy"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
 const t = useI18n()
 
@@ -296,9 +293,22 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
+const props = defineProps<{
+  request: RESTRequest
+}>()
+
+const newEndpoint = useStream(
+  props.request.endpoint$,
+  "",
+  props.request.setEndpoint.bind(props.request)
+)
+const newMethod = useStream(
+  props.request.method$,
+  "GET",
+  props.request.setMethod.bind(props.request)
+)
+
 const curlText = ref("")
-const newMethod = useStream(restMethod$, "", updateRESTMethod)
 
 const loading = ref(false)
 
@@ -380,9 +390,9 @@ const ensureMethodInEndpoint = () => {
   ) {
     const domain = newEndpoint.value.split(/[/:#?]+/)[0]
     if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {
-      setRESTEndpoint("http://" + newEndpoint.value)
+      props.request.setEndpoint("http://" + newEndpoint.value)
     } else {
-      setRESTEndpoint("https://" + newEndpoint.value)
+      props.request.setEndpoint("https://" + newEndpoint.value)
     }
   }
 }
@@ -412,7 +422,7 @@ const cancelRequest = () => {
 }
 
 const updateMethod = (method: string) => {
-  updateRESTMethod(method)
+  props.request.setMethod(method)
 }
 
 const onSelectMethod = (method: string) => {

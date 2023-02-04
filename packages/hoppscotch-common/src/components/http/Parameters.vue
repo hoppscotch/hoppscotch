@@ -199,14 +199,18 @@ import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useStream } from "@composables/stream"
-import { restParams$, setRESTParams } from "~/newstore/RESTSession"
 import { throwError } from "@functional/error"
 import { objRemoveKey } from "@functional/object"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
 const colorMode = useColorMode()
 
 const t = useI18n()
 const toast = useToast()
+
+const props = defineProps<{
+  request: RESTRequest
+}>()
 
 const idTicker = ref(0)
 
@@ -233,7 +237,11 @@ useCodemirror(
 )
 
 // The functional parameters list (the parameters actually applied to the session)
-const params = useStream(restParams$, [], setRESTParams) as Ref<HoppRESTParam[]>
+const params = useStream(
+  props.request.params$,
+  [],
+  props.request.setParams.bind(props.request)
+) as Ref<HoppRESTParam[]>
 
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<Array<HoppRESTParam & { id: number }>>([

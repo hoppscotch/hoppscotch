@@ -14,7 +14,7 @@
                     <span v-if="tabMeta.icon" class="flex items-center justify-center mx-4 cursor-pointer">
                       <component :is="tabMeta.icon" class="w-4 h-4 svg-icons" />
                     </span>
-                    <span class="truncate">
+                    <span class="truncate pl-4">
                       {{ tabMeta.label }}
                     </span>
                   </div>

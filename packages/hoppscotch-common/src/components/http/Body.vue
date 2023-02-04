@@ -123,38 +123,44 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "@composables/i18n"
+import { useStream } from "@composables/stream"
+import { useColorMode } from "@composables/theming"
+import * as A from "fp-ts/Array"
+import { pipe } from "fp-ts/function"
+import * as O from "fp-ts/Option"
+import { computed, ref } from "vue"
+import { RESTRequest } from "~/helpers/RESTRequest"
+import { segmentedContentTypes } from "~/helpers/utils/contenttypes"
 import IconDone from "~icons/lucide/check"
+import IconExternalLink from "~icons/lucide/external-link"
 import IconInfo from "~icons/lucide/info"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
-import IconExternalLink from "~icons/lucide/external-link"
-import { computed, ref } from "vue"
-import { pipe } from "fp-ts/function"
-import * as A from "fp-ts/Array"
-import * as O from "fp-ts/Option"
 import { RequestOptionTabs } from "./RequestOptions.vue"
-import { useStream } from "@composables/stream"
-import { useI18n } from "@composables/i18n"
-import { useColorMode } from "@composables/theming"
-import { segmentedContentTypes } from "~/helpers/utils/contenttypes"
-import {
-  restContentType$,
-  restHeaders$,
-  setRESTContentType,
-  setRESTHeaders,
-  addRESTHeader,
-} from "~/newstore/RESTSession"
 
 const colorMode = useColorMode()
 const t = useI18n()
+
+const props = defineProps<{
+  request: RESTRequest
+}>()
 
 const emit = defineEmits<{
   (e: "change-tab", value: string): void
 }>()
 
-const contentType = useStream(restContentType$, null, setRESTContentType)
+const contentType = useStream(
+  props.request.contentType$,
+  null,
+  props.request.setContentType.bind(props.request)
+)
 
 // The functional headers list (the headers actually in the system)
-const headers = useStream(restHeaders$, [], setRESTHeaders)
+const headers = useStream(
+  props.request.headers$,
+  [],
+  props.request.setHeaders.bind(props.request)
+)
 
 const overridenContentType = computed(() =>
   pipe(
@@ -168,7 +174,7 @@ const overridenContentType = computed(() =>
 const contentTypeOverride = (tab: RequestOptionTabs) => {
   emit("change-tab", tab)
   if (!isContentTypeAlreadyExist()) {
-    addRESTHeader({
+    props.request.addHeader({
       key: "Content-Type",
       value: "",
       active: true,

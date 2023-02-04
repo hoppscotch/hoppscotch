@@ -159,7 +159,7 @@
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput v-model="oauth2Token" placeholder="Token" />
           </div>
-          <HttpOAuth2Authorization />
+          <HttpOAuth2Authorization :request="request" />
         </div>
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">
@@ -259,16 +259,20 @@ import { pluckRef } from "@composables/ref"
 import { useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
+const props = defineProps<{
+  request: RESTRequest
+}>()
+
 const auth = useStream(
-  restAuth$,
+  props.request.auth$,
   { authType: "none", authActive: true },
-  setRESTAuth
+  props.request.setAuth.bind(props.request)
 )
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {

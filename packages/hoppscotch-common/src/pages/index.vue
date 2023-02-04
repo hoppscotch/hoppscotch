@@ -16,8 +16,8 @@
           :label="tab.name"
           :is-removable="tabs.length > 1"
         >
-          <HttpRequest />
-          <HttpRequestOptions />
+          <HttpRequest :request="tab.request" />
+          <HttpRequestOptions :request="tab.request" />
         </SmartWindow>
       </SmartWindows>
     </template>
@@ -31,29 +31,29 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeMount, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
+import { onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
 import type { Subscription } from "rxjs"
 import {
   HoppRESTRequest,
-  HoppRESTAuthOAuth2,
   safelyExtractRESTRequest,
   isEqualHoppRESTRequest,
 } from "@hoppscotch/data"
 import {
   getRESTRequest,
   setRESTRequest,
-  setRESTAuth,
-  restAuth$,
   getDefaultRESTRequest,
+  RESTTabs$,
+  setRESTTabs,
+  RESTCurrentTabId$,
+  setCurrentTabId,
+  addNewRESTTab,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
-import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { onLoggedIn } from "@composables/auth"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
-import { oauthRedirect } from "~/helpers/oauth"
 import { useRoute } from "vue-router"
 
 const toast = useToast()
@@ -63,20 +63,8 @@ const requestForSync = ref<HoppRESTRequest | null>(null)
 
 const confirmSync = ref(false)
 
-type Tab = {
-  id: string
-  name: string
-  removable: boolean
-}
-
-const currentTabId = ref("tab_1")
-const tabs = ref<Tab[]>([
-  {
-    id: "tab_1",
-    name: "Tab 1",
-    removable: false,
-  },
-])
+const currentTabId = useStream(RESTCurrentTabId$, "", setCurrentTabId)
+const tabs = useStream(RESTTabs$, [], setRESTTabs)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -95,28 +83,29 @@ function bindRequestToURLParams() {
   })
 }
 
-function oAuthURL() {
-  const auth = useStream(
-    restAuth$,
-    { authType: "none", authActive: true },
-    setRESTAuth
-  )
+// TODO: make this oAuthURL() work
 
-  const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
+// function oAuthURL() {
+//   const auth = useReadonlyStream(props.request.auth$, {
+//     authType: "none",
+//     authActive: true,
+//   })
 
-  onBeforeMount(async () => {
-    try {
-      const tokenInfo = await oauthRedirect()
-      if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
-        if (typeof tokenInfo === "object") {
-          oauth2Token.value = tokenInfo.access_token
-        }
-      }
+//   const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
 
-      // eslint-disable-next-line no-empty
-    } catch (_) {}
-  })
-}
+//   onBeforeMount(async () => {
+//     try {
+//       const tokenInfo = await oauthRedirect()
+//       if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
+//         if (typeof tokenInfo === "object") {
+//           oauth2Token.value = tokenInfo.access_token
+//         }
+//       }
+
+//       // eslint-disable-next-line no-empty
+//     } catch (_) {}
+//   })
+// }
 
 function setupRequestSync(
   confirmSync: Ref<boolean>,
@@ -180,25 +169,19 @@ const syncRequest = () => {
 }
 
 const addNewTab = () => {
-  tabs.value.push({
-    id: `tab_${tabs.value.length + 1}`,
-    name: `Tab ${tabs.value.length + 1}`,
-    removable: true,
-  })
+  addNewRESTTab()
   currentTabId.value = tabs.value[tabs.value.length - 1].id
 }
-
 const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   const newTabs = [...tabs.value]
   newTabs.splice(e.newIndex, 0, newTabs.splice(e.oldIndex, 1)[0])
   tabs.value = newTabs
 }
-
 const removeTab = (tabID: string) => {
   tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
 }
 
 setupRequestSync(confirmSync, requestForSync)
 bindRequestToURLParams()
-oAuthURL()
+// oAuthURL()
 </script>

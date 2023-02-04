@@ -256,12 +256,7 @@ import * as A from "fp-ts/Array"
 import draggable from "vuedraggable-es"
 import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "@composables/codemirror"
-import {
-  getRESTRequest,
-  restHeaders$,
-  restRequest$,
-  setRESTHeaders,
-} from "~/newstore/RESTSession"
+import { getRESTRequest, restRequest$ } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
@@ -274,6 +269,7 @@ import {
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
 import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
 const t = useI18n()
 const toast = useToast()
@@ -287,6 +283,10 @@ const bulkEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
+
+const props = defineProps<{
+  request: RESTRequest
+}>()
 
 const emit = defineEmits<{
   (e: "change-tab", value: RequestOptionTabs): void
@@ -308,9 +308,11 @@ useCodemirror(
 )
 
 // The functional headers list (the headers actually in the system)
-const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<
-  HoppRESTHeader[]
->
+const headers = useStream(
+  props.request.headers$,
+  [],
+  props.request.setHeaders.bind(props.request)
+) as Ref<HoppRESTHeader[]>
 
 // The UI representation of the headers list (has the empty end headers)
 const workingHeaders = ref<Array<HoppRESTHeader & { id: number }>>([

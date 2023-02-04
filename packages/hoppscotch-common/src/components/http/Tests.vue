@@ -66,16 +66,25 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconTrash2 from "~icons/lucide/trash-2"
 import { reactive, ref } from "vue"
-import { useTestScript } from "~/newstore/RESTSession"
 import testSnippets from "~/helpers/testSnippets"
 import { useCodemirror } from "@composables/codemirror"
 import linter from "~/helpers/editor/linting/testScript"
 import completer from "~/helpers/editor/completion/testScript"
 import { useI18n } from "@composables/i18n"
+import { RESTRequest } from "~/helpers/RESTRequest"
+import { useStream } from "~/composables/stream"
 
 const t = useI18n()
 
-const testScript = useTestScript()
+const props = defineProps<{
+  request: RESTRequest
+}>()
+
+const testScript = useStream(
+  props.request.testScript$,
+  "",
+  props.request.setTestScript.bind(props.request)
+)
 
 const testScriptEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)

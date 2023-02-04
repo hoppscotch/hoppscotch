@@ -1,0 +1,150 @@
+import {
+  FormDataKeyValue,
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTParam,
+  HoppRESTReqBody,
+  HoppRESTRequest,
+  RESTReqSchemaVersion,
+  ValidContentTypes,
+} from "@hoppscotch/data"
+import { BehaviorSubject, map } from "rxjs"
+import { applyBodyTransition } from "~/helpers/rules/BodyTransition"
+
+export class RESTRequest {
+  public v$ = new BehaviorSubject<typeof RESTReqSchemaVersion>(
+    RESTReqSchemaVersion
+  )
+  public name$ = new BehaviorSubject<string>("Untitled")
+  public endpoint$ = new BehaviorSubject<string>("https://echo.hoppscotch.io/")
+  public params$ = new BehaviorSubject<HoppRESTParam[]>([])
+  public headers$ = new BehaviorSubject<HoppRESTHeader[]>([])
+  public method$ = new BehaviorSubject<string>("GET")
+  public auth$ = new BehaviorSubject<HoppRESTAuth>({
+    authType: "none",
+    authActive: true,
+  })
+  public preRequestScript$ = new BehaviorSubject<string>("")
+  public testScript$ = new BehaviorSubject<string>("")
+  public body$ = new BehaviorSubject<HoppRESTReqBody>({
+    contentType: null,
+    body: null,
+  })
+
+  get contentType$() {
+    return this.body$.pipe(map((body) => body.contentType))
+  }
+
+  get bodyContent$() {
+    return this.body$.pipe(map((body) => body.body))
+  }
+
+  setEndpoint(newURL: string) {
+    this.endpoint$.next(newURL)
+  }
+
+  setMethod(newMethod: string) {
+    this.method$.next(newMethod)
+  }
+
+  setParams(entries: HoppRESTParam[]) {
+    this.params$.next(entries)
+  }
+
+  addParam(newParam: HoppRESTParam) {
+    const newParams = this.params$.value.concat(newParam)
+    this.params$.next(newParams)
+  }
+
+  updateParam(index: number, updatedParam: HoppRESTParam) {
+    const newParams = this.params$.value.map((param, i) =>
+      i === index ? updatedParam : param
+    )
+    this.params$.next(newParams)
+  }
+
+  deleteParam(index: number) {
+    const newParams = this.params$.value.filter((_, i) => i !== index)
+    this.params$.next(newParams)
+  }
+
+  deleteAllParams() {
+    this.params$.next([])
+  }
+
+  setHeaders(entries: HoppRESTHeader[]) {
+    this.headers$.next(entries)
+  }
+
+  addHeader(newHeader: HoppRESTHeader) {
+    const newHeaders = this.headers$.value.concat(newHeader)
+    this.headers$.next(newHeaders)
+  }
+
+  updateHeader(index: number, updatedHeader: HoppRESTHeader) {
+    const newHeaders = this.headers$.value.map((header, i) =>
+      i === index ? updatedHeader : header
+    )
+    this.headers$.next(newHeaders)
+  }
+
+  deleteHeader(index: number) {
+    const newHeaders = this.headers$.value.filter((_, i) => i !== index)
+    this.headers$.next(newHeaders)
+  }
+
+  deleteAllHeaders() {
+    this.headers$.next([])
+  }
+
+  setContentType(newContentType: ValidContentTypes | null) {
+    // TODO: persist body evenafter switching content typees
+    this.body$.next(applyBodyTransition(this.body$.value, newContentType))
+  }
+
+  setBody(newBody: string | FormDataKeyValue[] | null) {
+    const body = { ...this.body$.value }
+    body.body = newBody
+    this.body$.next({ ...body })
+  }
+
+  setAuth(newAuth: HoppRESTAuth) {
+    this.auth$.next(newAuth)
+  }
+
+  setPreRequestScript(newScript: string) {
+    this.preRequestScript$.next(newScript)
+  }
+
+  setTestScript(newScript: string) {
+    this.testScript$.next(newScript)
+  }
+
+  setRequest(request: HoppRESTRequest) {
+    this.v$.next(RESTReqSchemaVersion)
+    this.name$.next(request.name)
+    this.endpoint$.next(request.endpoint)
+    this.params$.next(request.params)
+    this.headers$.next(request.headers)
+    this.method$.next(request.method)
+    this.auth$.next(request.auth)
+    this.preRequestScript$.next(request.preRequestScript)
+    this.testScript$.next(request.testScript)
+    this.body$.next(request.body)
+  }
+
+  getRequest() {
+    return {
+      v: this.v$.value,
+      name: this.name$.value,
+      endpoint: this.endpoint$.value,
+      params: this.params$.value,
+      headers: this.headers$.value,
+      method: this.method$.value,
+      auth: this.auth$.value,
+      preRequestScript: this.preRequestScript$.value,
+      testScript: this.testScript$.value,
+      body: this.body$.value,
+    }
+  }
+}

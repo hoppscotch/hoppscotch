@@ -61,8 +61,8 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
+import { customRef, reactive, ref, watch } from "vue"
+import { cloneDeep } from "lodash-es"
 import {
   HoppGQLRequest,
   HoppRESTRequest,
@@ -70,8 +70,6 @@ import {
 } from "@hoppscotch/data"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { cloneDeep } from "lodash-es"
-import { reactive, ref, watch } from "vue"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import {
   createRequestInCollection,
@@ -79,11 +77,9 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
-import {
-  getRESTRequest,
-  setRESTSaveContext,
-  useRESTRequestName,
-} from "~/newstore/RESTSession"
+import { getRESTRequest, setRESTSaveContext } from "~/newstore/RESTSession"
+import { useI18n } from "@composables/i18n"
+import { useToast } from "@composables/toast"
 import {
   editGraphqlRequest,
   editRESTRequest,
@@ -127,9 +123,16 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const requestName = ref(
-  props.mode === "rest" ? useRESTRequestName() : useGQLRequestName()
-)
+// TODO: Use a better implementation with computed ?
+// This implementation can't work across updates to mode prop (which won't happen tho)
+// TODO: Figure out for REST Request name
+const requestName =
+  props.mode === "rest"
+    ? customRef<string>(() => ({
+        get: () => "Untitled",
+        set: () => {},
+      }))
+    : useGQLRequestName()
 
 const requestData = reactive({
   name: requestName,

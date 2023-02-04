@@ -5,6 +5,7 @@ import {
   RESTReqSchemaVersion,
 } from "@hoppscotch/data"
 import { uniqueId } from "lodash-es"
+import { combineLatest } from "rxjs"
 import { distinctUntilChanged, filter, map, pluck } from "rxjs/operators"
 import { Ref } from "vue"
 import { RESTRequest } from "~/helpers/RESTRequest"
@@ -13,7 +14,7 @@ import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
-type RESTTab = {
+export type RESTTab = {
   id: string
   name: string
   request: RESTRequest
@@ -23,7 +24,6 @@ export type RESTSession = {
   url: string
   tabs: RESTTab[]
   currentTabId: string
-  request: HoppRESTRequest
   response: HoppRESTResponse | null
   testResults: HoppTestResult | null
   saveContext: HoppRequestSaveContext | null
@@ -58,7 +58,6 @@ export const defaultRESTSession: RESTSession = {
   url: "https://echo.hoppscotch.io/graphql",
   tabs: [makeTab("new")],
   currentTabId: "new",
-  request: getDefaultRESTRequest(),
   response: null,
   testResults: null,
   saveContext: null,
@@ -150,7 +149,7 @@ export const getCurrentTab = () => {
 
 export const restCurrentTab$ = restSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {
-    return tabs.find((tab) => tab.id === currentTabId) as RESTTab
+    return tabs.find((tab) => tab.id === currentTabId)!
   }),
   distinctUntilChanged()
 )
@@ -221,13 +220,18 @@ export const restSaveContext$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const restRequest$ = restSessionStore.subject$.pipe(
-  pluck("request"),
+export const restSession$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-export const restRequestName$ = restRequest$.pipe(
-  pluck("name"),
+export const restRequest$ = restSessionStore.subject$.pipe(
+  pluck("tabs"),
+  map((tabs) => {
+    const currentTab = tabs.find(
+      (tab) => tab.id === restSessionStore.value.currentTabId
+    )!
+    return currentTab.request
+  }),
   distinctUntilChanged()
 )
 
@@ -255,17 +259,7 @@ export const restHeaders$ = restSessionStore.subject$.pipe(
 //   )
 // )
 
-export const restPreRequestScript$ = restSessionStore.subject$.pipe(
-  pluck("request", "preRequestScript"),
-  distinctUntilChanged()
-)
-
-export const restTestScript$ = restSessionStore.subject$.pipe(
-  pluck("request", "testScript"),
-  distinctUntilChanged()
-)
-
-export const restReqBody$ = restSessionStore.subject$.pipe(
+export const requestBody$ = restSessionStore.subject$.pipe(
   pluck("request", "body"),
   distinctUntilChanged()
 )
@@ -293,19 +287,18 @@ export const restTestResults$ = restSessionStore.subject$.pipe(
 // TODO: use stream to get request body and name
 
 export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
-  return useStream(restReqBody$, restSessionStore.value.request.body, () => {
-    console.log("update request body")
-    // TODO: update request body
-  })
-}
+  // const request$ = combineLatest([restCurrentTab$]).pipe(
+  //   map(([tab]) => tab.request.body$)
+  // )
 
-export function useRESTRequestName(): Ref<string> {
+  // const request$ = restCurrentTab$.pipe(
+  //   map((tab) => tab.request.body$),
+  //   distinctUntilChanged()
+  // )
+
   return useStream(
-    restRequestName$,
-    restSessionStore.value.request.name,
-    () => {
-      console.log("update request name")
-      // TODO: update request name
-    }
+    getCurrentTab().request.body$,
+    getCurrentTab().request.body$.value,
+    getCurrentTab().request.setRequestBody.bind(getCurrentTab().request)
   )
 }

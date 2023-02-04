@@ -43,7 +43,8 @@ import {
 } from "./environments"
 import {
   getDefaultRESTRequest,
-  restRequest$,
+  restSession$,
+  RESTTab,
   setRESTRequest,
 } from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WebSocketSession"
@@ -307,7 +308,7 @@ function setupGlobalEnvsPersistence() {
 
 function setupRequestPersistence() {
   const localRequest = JSON.parse(
-    window.localStorage.getItem("restRequest") || "null"
+    window.localStorage.getItem("restSession") || "null"
   )
 
   if (localRequest) {
@@ -317,10 +318,20 @@ function setupRequestPersistence() {
     )
   }
 
-  restRequest$.subscribe((req) => {
-    const reqClone = cloneDeep(req)
-    if (reqClone.body.contentType === "multipart/form-data") {
-      reqClone.body.body = reqClone.body.body.map((x) => {
+  restSession$.subscribe((req) => {
+    const restSession = cloneDeep(req)
+    const session = getSessionForPersistence(restSession.tabs)
+    window.localStorage.setItem("restSession", JSON.stringify(session))
+  })
+}
+
+export function getSessionForPersistence(allTabs: RESTTab[]) {
+  const tabs = cloneDeep(allTabs)
+  return tabs.map((tab) => {
+    const req = tab.request.getRequest()
+
+    if (req.body.contentType === "multipart/form-data") {
+      req.body.body = req.body.body.map((x) => {
         if (x.isFile)
           return {
             ...x,
@@ -330,7 +341,10 @@ function setupRequestPersistence() {
         else return x
       })
     }
-    window.localStorage.setItem("restRequest", JSON.stringify(reqClone))
+    return {
+      ...tab,
+      request: req,
+    }
   })
 }
 

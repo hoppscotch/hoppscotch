@@ -74,9 +74,15 @@ export function startRequestSync(): Subscription {
     restRequest$.pipe(distinctUntilChanged()),
   ])
     .pipe(
-      map(([user, request]) =>
-        user ? from(writeCurrentRequest(user, request)) : EMPTY
-      ),
+      map(([user, request]) => {
+        // TODO: need to check if it is working properly
+
+        console.log("Syncing request", request)
+
+        return user
+          ? from(writeCurrentRequest(user, request.getRequest()))
+          : EMPTY
+      }),
       audit((x) => x)
     )
     .subscribe(() => {

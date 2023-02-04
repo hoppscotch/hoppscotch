@@ -245,10 +245,8 @@ import { refAutoReset } from "@vueuse/core"
 import {
   updateRESTResponse,
   resetRESTRequest,
-  useRESTRequestName,
   getRESTSaveContext,
   getRESTRequest,
-  restRequest$,
   setRESTSaveContext,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
@@ -454,7 +452,10 @@ const shareButtonText = computed(() => {
   }
 })
 
-const request = useReadonlyStream(restRequest$, getRESTRequest())
+const request = useReadonlyStream(
+  props.request.request$,
+  props.request.getRequest()
+)
 
 watch(request, () => {
   shareLink.value = null
@@ -604,7 +605,11 @@ const isCustomMethod = computed(() => {
   return newMethod.value === "CUSTOM" || !methods.includes(newMethod.value)
 })
 
-const requestName = useRESTRequestName()
+const requestName = useStream(
+  props.request.name$,
+  "Untitled",
+  props.request.setName.bind(props.request)
+)
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 </script>

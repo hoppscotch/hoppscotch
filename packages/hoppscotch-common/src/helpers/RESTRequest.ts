@@ -8,7 +8,7 @@ import {
   RESTReqSchemaVersion,
   ValidContentTypes,
 } from "@hoppscotch/data"
-import { BehaviorSubject, map } from "rxjs"
+import { BehaviorSubject, combineLatest, map } from "rxjs"
 import { applyBodyTransition } from "~/helpers/rules/BodyTransition"
 import { HoppRESTResponse } from "./types/HoppRESTResponse"
 
@@ -34,12 +34,58 @@ export class RESTRequest {
 
   public response$ = new BehaviorSubject<HoppRESTResponse | null>(null)
 
+  get request$() {
+    // any of above changes construct requests
+    return combineLatest([
+      this.v$,
+      this.name$,
+      this.endpoint$,
+      this.params$,
+      this.headers$,
+      this.method$,
+      this.auth$,
+      this.preRequestScript$,
+      this.testScript$,
+      this.body$,
+    ]).pipe(
+      map(
+        ([
+          v,
+          name,
+          endpoint,
+          params,
+          headers,
+          method,
+          auth,
+          preRequestScript,
+          testScript,
+          body,
+        ]) => ({
+          v,
+          name,
+          endpoint,
+          params,
+          headers,
+          method,
+          auth,
+          preRequestScript,
+          testScript,
+          body,
+        })
+      )
+    )
+  }
+
   get contentType$() {
     return this.body$.pipe(map((body) => body.contentType))
   }
 
   get bodyContent$() {
     return this.body$.pipe(map((body) => body.body))
+  }
+
+  setName(name: string) {
+    this.name$.next(name)
   }
 
   setEndpoint(newURL: string) {

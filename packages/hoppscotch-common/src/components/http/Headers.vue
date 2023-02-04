@@ -256,7 +256,6 @@ import * as A from "fp-ts/Array"
 import draggable from "vuedraggable-es"
 import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "@composables/codemirror"
-import { getRESTRequest, restRequest$ } from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
@@ -483,7 +482,10 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const restRequest = useReadonlyStream(restRequest$, getRESTRequest())
+const restRequest = useReadonlyStream(
+  props.request.request$,
+  props.request.getRequest()
+)
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
 const computedHeaders = computed(() =>

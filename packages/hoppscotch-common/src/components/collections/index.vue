@@ -1615,12 +1615,6 @@ const updateRequestOrder = (payload: {
           )
         },
         () => {
-          // update the request order in the adapter
-          teamCollectionAdapter.updateRequestOrder(
-            dragedRequestIndex,
-            destinationRequestIndex,
-            destinationCollectionIndex
-          )
           toast.success(`${t("request.order_changed")}`)
 
           // remove the request index from the loading array

@@ -1373,6 +1373,7 @@ const discardRequestChange = () => {
 /**
  * Used to get the index of the request from the path
  * @param path The path of the request
+ * @returns The index of the request
  */
 const pathToIndex = computed(() => {
   return (path: string) => {
@@ -1475,6 +1476,7 @@ const dropCollection = (payload: {
 /**
  * Checks if the collection is already in the root
  * @param id - path of the collection
+ * @returns boolean - true if the collection is already in the root
  */
 const isAlreadyInRoot = computed(() => {
   return (id: string) => {
@@ -1532,9 +1534,10 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
 }
 
 /**
- * Used to check if the request is being moved to the same parent
+ * Used to check if the request/collection is being moved to the same parent since reorder is only allowed within the same parent
  * @param draggedReq - path index of the dragged request
  * @param destinationReq - path index of the destination request
+ * @returns boolean - true if the request is being moved to the same parent
  */
 const isSameSameParent = computed(
   () => (draggedReq: string, destinationReq: string) => {
@@ -1543,6 +1546,7 @@ const isSameSameParent = computed(
       .split("/")
       .map((i) => parseInt(i))
 
+    // length of 1 means the request is in the root
     if (draggedReqIndex.length === 1 && destinationReqIndex.length === 1) {
       return true
     } else if (

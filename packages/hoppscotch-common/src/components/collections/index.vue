@@ -1668,11 +1668,6 @@ const updateCollectionOrder = (payload: {
           )
         },
         () => {
-          // update the collection order in the adapter
-          teamCollectionAdapter.updateCollectionOrder(
-            dragedCollectionIndex,
-            destinationCollectionIndex
-          )
           toast.success(`${t("collection.order_changed")}`)
           collectionMoveLoading.value.splice(
             collectionMoveLoading.value.indexOf(dragedCollectionIndex),

@@ -856,8 +856,13 @@ export default class NewTeamCollectionAdapter {
             `Team Collection Order Update Error ${JSON.stringify(result.left)}`
           )
 
-        // TODO: Update the collection order when BE give dragedCollectionIndex,destinationCollectionIndex
-        //this.updateCollectionOrder(result.right.requestOrderUpdated)
+        const { collectionOrderUpdated } = result.right
+        const { collection } = collectionOrderUpdated
+        const { nextCollection } = collectionOrderUpdated
+
+        if (!nextCollection) return
+
+        this.updateCollectionOrder(collection.id, nextCollection.id)
       }
     )
   }

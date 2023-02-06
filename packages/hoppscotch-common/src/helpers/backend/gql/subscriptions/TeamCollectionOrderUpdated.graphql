@@ -1,3 +1,18 @@
 subscription TeamCollectionOrderUpdated($teamID: ID!) {
-  collectionOrderUpdated(teamID: $teamID)
+  collectionOrderUpdated(teamID: $teamID) {
+    collection {
+      id
+      title
+      parent {
+        id
+      }
+    }
+    nextCollection {
+      id
+      title
+      parent {
+        id
+      }
+    }
+  }
 }

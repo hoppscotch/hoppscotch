@@ -391,6 +391,7 @@
     "copy_link": "Copy link",
     "duration": "Duration",
     "enter_curl": "Enter cURL command",
+    "duplicated": "Request duplicated",
     "generate_code": "Generate code",
     "generated_code": "Generated code",
     "header_list": "Header List",

@@ -48,7 +48,7 @@
                 <ButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
-                  :title="t('action.close')"
+                  :title="closeText ?? t?.('action.close') ?? 'Close'"
                   :icon="IconX"
                   @click="close"
                 />
@@ -93,47 +93,45 @@ const stack = (() => {
 
 <script setup lang="ts">
 import IconX from "~icons/lucide/x"
-import { ref, computed, useSlots, onMounted, onBeforeUnmount } from "vue"
-import { useKeybindingDisabler } from "~/helpers/keybindings"
-import { useI18n } from "@composables/i18n"
+import {
+  ref,
+  computed,
+  useSlots,
+  onMounted,
+  onBeforeUnmount,
+  inject,
+} from "vue"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 
-const t = useI18n()
+const { t, onModalOpen, onModalClose } =
+  inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 
-defineProps({
-  dialog: {
-    type: Boolean,
-    default: false,
-  },
-  title: {
-    type: String,
-    default: "",
-  },
-  dimissible: {
-    type: Boolean,
-    default: true,
-  },
-  placement: {
-    type: String,
-    default: "top",
-  },
-  fullWidth: {
-    type: Boolean,
-    default: false,
-  },
-  styles: {
-    type: String,
-    default: "sm:max-w-lg",
-  },
-})
+withDefaults(
+  defineProps<{
+    dialog: boolean,
+    title: string,
+    dimissible: boolean,
+    placement: string,
+    fullWidth: boolean,
+    styles: string,
+    closeText: string | null,
+  }>(), {
+    dialog: false,
+    title: "",
+    dimissible: true,
+    placement: "top",
+    fullWidth: false,
+    styles: "sm:max-w-lg",
+    closeText: null
+  }
+)
 
 const emit = defineEmits<{
   (e: "close"): void
 }>()
 
-const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()
-
 onBeforeUnmount(() => {
-  enableKeybindings()
+  onModalClose?.()
 })
 
 const stackId = ref(stackIDTicker++)
@@ -153,7 +151,7 @@ onMounted(() => {
   stack.push(stackId.value)
   document.addEventListener("keydown", onKeyDown)
 
-  disableKeybindings()
+  onModalOpen?.()
 })
 
 onBeforeUnmount(() => {

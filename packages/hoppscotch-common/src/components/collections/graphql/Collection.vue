@@ -143,7 +143,7 @@
           v-for="(folder, index) in collection.folders"
           :key="`folder-${String(index)}`"
           :picked="picked"
-          :saving-mode="savingMode"
+          :save-request="saveRequest"
           :folder="folder"
           :folder-index="index"
           :folder-path="`${collectionIndex}/${String(index)}`"
@@ -160,7 +160,7 @@
           v-for="(request, index) in collection.requests"
           :key="`request-${String(index)}`"
           :picked="picked"
-          :saving-mode="savingMode"
+          :save-request="saveRequest"
           :request="request"
           :collection-index="collectionIndex"
           :folder-index="-1"
@@ -183,9 +183,19 @@
             class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
             :alt="`${t('empty.collection')}`"
           />
-          <span class="text-center">
+          <span class="pb-4 text-center">
             {{ t("empty.collection") }}
           </span>
+          <ButtonSecondary
+            :label="t('add.new')"
+            filled
+            outline
+            @click="
+              emit('add-folder', {
+                path: `${collectionIndex}`,
+              })
+            "
+          />
         </div>
       </div>
     </div>
@@ -215,11 +225,12 @@ import {
   removeGraphqlCollection,
   moveGraphqlRequest,
 } from "~/newstore/collections"
+import { Picked } from "~/helpers/types/HoppPicked"
 
 const props = defineProps({
   picked: { type: Object, default: null },
   // Whether the viewing context is related to picking (activates 'select' events)
-  savingMode: { type: Boolean, default: false },
+  saveRequest: { type: Boolean, default: false },
   collectionIndex: { type: Number, default: null },
   collection: { type: Object, default: () => ({}) },
   isFiltered: Boolean,
@@ -231,7 +242,7 @@ const t = useI18n()
 
 // TODO: improve types plz
 const emit = defineEmits<{
-  (e: "select", i: { picked: any }): void
+  (e: "select", i: Picked | null): void
   (e: "edit-request", i: any): void
   (e: "duplicate-request", i: any): void
   (e: "add-request", i: any): void
@@ -267,15 +278,13 @@ const collectionIcon = computed(() => {
 
 const pick = () => {
   emit("select", {
-    picked: {
-      pickedType: "gql-my-collection",
-      collectionIndex: props.collectionIndex,
-    },
+    pickedType: "gql-my-collection",
+    collectionIndex: props.collectionIndex,
   })
 }
 
 const toggleShowChildren = () => {
-  if (props.savingMode) {
+  if (props.saveRequest) {
     pick()
   }
 
@@ -288,7 +297,7 @@ const removeCollection = () => {
     props.picked?.pickedType === "gql-my-collection" &&
     props.picked?.collectionIndex === props.collectionIndex
   ) {
-    emit("select", { picked: null })
+    emit("select", null)
   }
   removeGraphqlCollection(props.collectionIndex)
   toast.success(`${t("state.deleted")}`)

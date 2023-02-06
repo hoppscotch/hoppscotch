@@ -132,7 +132,7 @@
           v-for="(subFolder, subFolderIndex) in folder.folders"
           :key="`subFolder-${String(subFolderIndex)}`"
           :picked="picked"
-          :saving-mode="savingMode"
+          :save-request="saveRequest"
           :folder="subFolder"
           :folder-index="subFolderIndex"
           :folder-path="`${folderPath}/${String(subFolderIndex)}`"
@@ -149,7 +149,7 @@
           v-for="(request, index) in folder.requests"
           :key="`request-${String(index)}`"
           :picked="picked"
-          :saving-mode="savingMode"
+          :save-request="saveRequest"
           :request="request"
           :collection-index="collectionIndex"
           :folder-index="folderIndex"
@@ -212,7 +212,7 @@ const colorMode = useColorMode()
 const props = defineProps({
   picked: { type: Object, default: null },
   // Whether the request is in a selectable mode (activates 'select' event)
-  savingMode: { type: Boolean, default: false },
+  saveRequest: { type: Boolean, default: false },
   folder: { type: Object, default: () => ({}) },
   folderIndex: { type: Number, default: null },
   collectionIndex: { type: Number, default: null },
@@ -263,7 +263,7 @@ const pick = () => {
 }
 
 const toggleShowChildren = () => {
-  if (props.savingMode) {
+  if (props.saveRequest) {
     pick()
   }
 

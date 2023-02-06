@@ -2,7 +2,7 @@
   <SmartModal
     v-if="show"
     dialog
-    :title="`${t('modal.collections')}`"
+    :title="t('modal.collections')"
     styles="sm:max-w-md"
     @close="hideModal"
   >
@@ -81,7 +81,6 @@
               <div class="select-wrapper">
                 <select
                   v-model="mySelectedCollectionID"
-                  type="text"
                   autocomplete="off"
                   class="select"
                   autofocus
@@ -93,6 +92,7 @@
                     v-for="(collection, collectionIndex) in myCollections"
                     :key="`collection-${collectionIndex}`"
                     :value="collectionIndex"
+                    class="bg-primary"
                   >
                     {{ collection.name }}
                   </option>
@@ -126,8 +126,9 @@
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.download_file')"
             :icon="IconDownload"
+            :loading="exportingTeamCollections"
             :label="t('export.as_json')"
-            @click="exportJSON"
+            @click="emit('export-json-collection')"
           />
           <span
             v-tippy="{ theme: 'tooltip' }"
@@ -149,12 +150,9 @@
                   : false
               "
               :icon="IconGithub"
+              :loading="creatingGistCollection"
               :label="t('export.create_secret_gist')"
-              @click="
-                () => {
-                  createCollectionGist()
-                }
-              "
+              @click="emit('create-collection-gist')"
             />
           </span>
         </div>
@@ -167,11 +165,10 @@
 import IconArrowLeft from "~icons/lucide/arrow-left"
 import IconDownload from "~icons/lucide/download"
 import IconGithub from "~icons/lucide/github"
-import { computed, ref, watch } from "vue"
+import { computed, PropType, ref, watch } from "vue"
 import { pipe } from "fp-ts/function"
 import * as E from "fp-ts/Either"
 import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
-import axios from "axios"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
@@ -179,117 +176,75 @@ import { currentUser$ } from "~/helpers/fb/auth"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 import { StepReturnValue } from "~/helpers/import-export/steps"
-import { runGQLQuery, runMutation } from "~/helpers/backend/GQLClient"
-import {
-  ExportAsJsonDocument,
-  ImportFromJsonDocument,
-} from "~/helpers/backend/graphql"
 
-const props = defineProps<{
-  show: boolean
-  collectionsType:
-    | {
-        type: "team-collections"
-        selectedTeam: {
-          id: string
-        }
-      }
-    | { type: "my-collections" }
-}>()
+const toast = useToast()
+const t = useI18n()
+
+type CollectionType = "team-collections" | "my-collections"
+
+const props = defineProps({
+  show: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+  collectionsType: {
+    type: String as PropType<CollectionType>,
+    default: "my-collections",
+    required: true,
+  },
+  exportingTeamCollections: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+  creatingGistCollection: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+  importingMyCollections: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+})
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
   (e: "update-team-collections"): void
+  (e: "export-json-collection"): void
+  (e: "create-collection-gist"): void
+  (e: "import-to-teams", payload: HoppCollection<HoppRESTRequest>[]): void
 }>()
 
-const toast = useToast()
-const t = useI18n()
-const myCollections = useReadonlyStream(restCollections$, [])
-const currentUser = useReadonlyStream(currentUser$, null)
+const hasFile = ref(false)
+const hasGist = ref(false)
 
-// Template refs
-const mode = ref("import_export")
-const mySelectedCollectionID = ref<undefined | number>(undefined)
-const collectionJson = ref("")
-const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
-const inputChooseGistToImportFrom = ref<string>("")
-
-const getJSONCollection = async () => {
-  if (props.collectionsType.type === "my-collections") {
-    collectionJson.value = JSON.stringify(myCollections.value, null, 2)
-  } else {
-    collectionJson.value = pipe(
-      await runGQLQuery({
-        query: ExportAsJsonDocument,
-        variables: {
-          teamID: props.collectionsType.selectedTeam.id,
-        },
-      }),
-      E.matchW(
-        // TODO: Handle error case gracefully ?
-        () => {
-          throw new Error("Error exporting collection to JSON")
-        },
-        (x) => x.exportCollectionsToJSON
-      )
-    )
-  }
-
-  return collectionJson.value
-}
-
-const createCollectionGist = async () => {
-  if (!currentUser.value) {
-    toast.error(t("profile.no_permission").toString())
-
-    return
-  }
-
-  await getJSONCollection()
-
-  try {
-    const res = await axios.post(
-      "https://api.github.com/gists",
-      {
-        files: {
-          "hoppscotch-collections.json": {
-            content: collectionJson.value,
-          },
-        },
-      },
-      {
-        headers: {
-          Authorization: `token ${currentUser.value.accessToken}`,
-          Accept: "application/vnd.github.v3+json",
-        },
-      }
-    )
-
-    toast.success(t("export.gist_created").toString())
-    window.open(res.html_url)
-  } catch (e) {
-    toast.error(t("error.something_went_wrong").toString())
-    console.error(e)
-  }
-}
-
-const fileImported = () => {
-  toast.success(t("state.file_imported").toString())
-  hideModal()
-}
-
-const failedImport = () => {
-  toast.error(t("import.failed").toString())
-}
-
-const hideModal = () => {
-  mode.value = "import_export"
-  mySelectedCollectionID.value = undefined
-  resetImport()
-  emit("hide-modal")
-}
+const importerType = ref<number | null>(null)
 
 const stepResults = ref<StepReturnValue[]>([])
+
+const inputChooseFileToImportFrom = ref<HTMLInputElement | any>()
+const mySelectedCollectionID = ref<number | undefined>(undefined)
+const inputChooseGistToImportFrom = ref<string>("")
+
+const importerModules = computed(() =>
+  RESTCollectionImporters.filter(
+    (i) => i.applicableTo?.includes(props.collectionsType) ?? true
+  )
+)
+
+const importerModule = computed(() => {
+  if (importerType.value === null) return null
+  return importerModules.value[importerType.value]
+})
+
+const importerSteps = computed(() => importerModule.value?.steps ?? null)
+
+const enableImportButton = computed(
+  () => !(stepResults.value.length === importerSteps.value?.length)
+)
 
 watch(mySelectedCollectionID, (newValue) => {
   if (newValue === undefined) return
@@ -297,87 +252,9 @@ watch(mySelectedCollectionID, (newValue) => {
   stepResults.value.push(newValue)
 })
 
-const importingMyCollections = ref(false)
-
-const importToTeams = async (content: HoppCollection<HoppRESTRequest>) => {
-  importingMyCollections.value = true
-  if (props.collectionsType.type !== "team-collections") return
-
-  const result = await runMutation(ImportFromJsonDocument, {
-    jsonString: JSON.stringify(content),
-    teamID: props.collectionsType.selectedTeam.id,
-  })()
-
-  if (E.isLeft(result)) {
-    console.error(result.left)
-  } else {
-    emit("update-team-collections")
-  }
-
-  importingMyCollections.value = false
-}
-
-const exportJSON = async () => {
-  await getJSONCollection()
-
-  const dataToWrite = collectionJson.value
-  const file = new Blob([dataToWrite], { type: "application/json" })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-
-  // TODO: get uri from meta
-  a.download = `${url.split("/").pop()!.split("#")[0].split("?")[0]}.json`
-  document.body.appendChild(a)
-  a.click()
-  toast.success(t("state.download_started").toString())
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-  }, 1000)
-}
-
-const importerModules = computed(() =>
-  RESTCollectionImporters.filter(
-    (i) => i.applicableTo?.includes(props.collectionsType.type) ?? true
-  )
-)
-
-const importerType = ref<number | null>(null)
-
-const importerModule = computed(() =>
-  importerType.value !== null ? importerModules.value[importerType.value] : null
-)
-
-const importerSteps = computed(() => importerModule.value?.steps ?? null)
-
-const finishImport = async () => {
-  await importerAction(stepResults.value)
-}
-
-const importerAction = async (stepResults: any[]) => {
-  if (!importerModule.value) return
-  const result = await importerModule.value?.importer(stepResults as any)()
-  if (E.isLeft(result)) {
-    failedImport()
-    console.error("error", result.left)
-  } else if (E.isRight(result)) {
-    if (props.collectionsType.type === "team-collections") {
-      importToTeams(result.right)
-      fileImported()
-    } else {
-      appendRESTCollections(result.right)
-      fileImported()
-    }
-  }
-}
-
-const hasFile = ref(false)
-const hasGist = ref(false)
-
-watch(inputChooseGistToImportFrom, (v) => {
+watch(inputChooseGistToImportFrom, (url) => {
   stepResults.value = []
-  if (v === "") {
+  if (url === "") {
     hasGist.value = false
   } else {
     hasGist.value = true
@@ -385,17 +262,46 @@ watch(inputChooseGistToImportFrom, (v) => {
   }
 })
 
+const myCollections = useReadonlyStream(restCollections$, [])
+const currentUser = useReadonlyStream(currentUser$, null)
+
+const importerAction = async (stepResults: StepReturnValue[]) => {
+  if (!importerModule.value) return
+
+  pipe(
+    await importerModule.value.importer(stepResults as any)(),
+    E.match(
+      (err) => {
+        failedImport()
+        console.error("error", err)
+      },
+      (result) => {
+        if (props.collectionsType === "team-collections") {
+          emit("import-to-teams", result)
+        } else {
+          appendRESTCollections(result)
+          fileImported()
+        }
+      }
+    )
+  )
+}
+
+const finishImport = async () => {
+  await importerAction(stepResults.value)
+}
+
 const onFileChange = () => {
   stepResults.value = []
-  if (!inputChooseFileToImportFrom.value[0]) {
+
+  const inputFileToImport = inputChooseFileToImportFrom.value[0]
+
+  if (!inputFileToImport) {
     hasFile.value = false
     return
   }
 
-  if (
-    !inputChooseFileToImportFrom.value[0].files ||
-    inputChooseFileToImportFrom.value[0].files.length === 0
-  ) {
+  if (!inputFileToImport.files || inputFileToImport.files.length === 0) {
     inputChooseFileToImportFrom.value[0].value = ""
     hasFile.value = false
     toast.show(t("action.choose_file").toString())
@@ -403,6 +309,7 @@ const onFileChange = () => {
   }
 
   const reader = new FileReader()
+
   reader.onload = ({ target }) => {
     const content = target!.result as string | null
     if (!content) {
@@ -414,20 +321,29 @@ const onFileChange = () => {
     stepResults.value.push(content)
     hasFile.value = !!content?.length
   }
-  reader.readAsText(inputChooseFileToImportFrom.value[0].files[0])
+
+  reader.readAsText(inputFileToImport.files[0])
 }
 
-const enableImportButton = computed(
-  () => !(stepResults.value.length === importerSteps.value?.length)
-)
+const fileImported = () => {
+  toast.success(t("state.file_imported").toString())
+  hideModal()
+}
+const failedImport = () => {
+  toast.error(t("import.failed").toString())
+}
+const hideModal = () => {
+  resetImport()
+  emit("hide-modal")
+}
 
 const resetImport = () => {
   importerType.value = null
+  hasFile.value = false
+  hasGist.value = false
   stepResults.value = []
   inputChooseFileToImportFrom.value = ""
-  hasFile.value = false
   inputChooseGistToImportFrom.value = ""
-  hasGist.value = false
   mySelectedCollectionID.value = undefined
 }
 </script>

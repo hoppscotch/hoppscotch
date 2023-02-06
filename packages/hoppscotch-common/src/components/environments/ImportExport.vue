@@ -190,7 +190,7 @@ const createEnvironmentGist = async () => {
     )
 
     toast.success(t("export.gist_created").toString())
-    window.open(res.html_url)
+    window.open(res.data.html_url)
   } catch (e) {
     toast.error(t("error.something_went_wrong").toString())
     console.error(e)

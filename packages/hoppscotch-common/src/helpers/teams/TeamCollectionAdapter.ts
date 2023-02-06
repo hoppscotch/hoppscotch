@@ -18,8 +18,6 @@ import {
   GetCollectionRequestsDocument,
   TeamRequestMovedDocument,
   TeamCollectionMovedDocument,
-  GetSingleRequestDocument,
-  GetSingleCollectionDocument,
   TeamRequestOrderUpdatedDocument,
   TeamCollectionOrderUpdatedDocument,
 } from "~/helpers/backend/graphql"
@@ -489,29 +487,17 @@ export default class NewTeamCollectionAdapter {
   /**
    * Moves a request from one collection to another
    *
-   * @param {string} requestID - ID of the request to move
+   * @param {string} request - The request to move
    */
-  private async moveRequest(requestID: string) {
+  private async moveRequest(request: TeamRequest) {
     const tree = this.collections$.value
 
-    // Fetch the request from backend to get the new collection ID - temporarly once BE give the new collectionID from the subscription
-    const data = await runGQLQuery({
-      query: GetSingleRequestDocument,
-      variables: {
-        requestID,
-      },
-    })
-
-    if (E.isLeft(data)) {
-      throw new Error(`Request Fetch Error for ${requestID}: ${data.left}`)
-    }
-
     // Remove the request from the current collection
-    this.removeRequest(requestID)
+    this.removeRequest(request.id)
 
-    const request = data.right.request
+    const currentRequest = request.request
 
-    if (request === null || request === undefined) return
+    if (currentRequest === null || currentRequest === undefined) return
 
     // Find request in tree, don't attempt if no collection or no requests is found
     const collection = findCollInTree(tree, request.collectionID)
@@ -523,7 +509,7 @@ export default class NewTeamCollectionAdapter {
     this.addRequest({
       id: request.id,
       collectionID: request.collectionID,
-      request: translateToNewRequest(JSON.parse(request.request)),
+      request: translateToNewRequest(request.request),
       title: request.title,
     })
   }
@@ -778,8 +764,16 @@ export default class NewTeamCollectionAdapter {
           `Team Request Move Error ${JSON.stringify(result.left)}`
         )
 
-      console.log("teamRequestMoved", result.right.requestMoved)
-      this.moveRequest(result.right.requestMoved)
+      const { requestMoved } = result.right
+
+      const request = {
+        id: requestMoved.id,
+        collectionID: requestMoved.collectionID,
+        title: requestMoved.title,
+        request: JSON.parse(requestMoved.request),
+      }
+
+      this.moveRequest(request)
     })
 
     const [teamCollectionMoved$, teamCollectionMoved] = runGQLSubscription({

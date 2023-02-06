@@ -90,14 +90,16 @@ watch(
   validLenses,
   (newValue: Lens[]) => {
     if (newValue.length === 0) return
-    const allRenderers = [
+    const validRenderers = [
       ...newValue.map((x) => x.renderer),
       "headers",
       "results",
     ]
-    const savedLensTabPreference =
-      getLocalConfig("response_selected_lens_tab") ?? ""
-    if (allRenderers.includes(savedLensTabPreference)) {
+    const savedLensTabPreference = getLocalConfig("response_selected_lens_tab")
+    if (
+      savedLensTabPreference &&
+      validRenderers.includes(savedLensTabPreference)
+    ) {
       selectedLensTab.value = savedLensTabPreference
     } else {
       selectedLensTab.value = newValue[0].renderer

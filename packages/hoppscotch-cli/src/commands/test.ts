@@ -12,15 +12,9 @@ import { HoppEnvs } from "../types/request";
 import { isHoppCLIError } from "../utils/checks";
 
 export const test = (path: string, options: TestCmdOptions) => async () => {
-  let delay: number = 0
   try {
-    if(options.delay) {
-      delay = parseDelayOption(options.delay)
-    }
-    let envs = <HoppEnvs>{ global: [], selected: [] }
-    if(options.env) {
-      envs = await parseEnvsData(options.env)
-    }
+    const delay = options.delay ? parseDelayOption(options.delay) : 0
+    const envs = options.env ? await parseEnvsData(options.env) : <HoppEnvs>{ global: [], selected: [] }  
     const collections = await parseCollectionData(path)
 
     const report = await collectionsRunner({collections, envs, delay})

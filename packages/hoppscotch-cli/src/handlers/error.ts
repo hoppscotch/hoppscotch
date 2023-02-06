@@ -1,4 +1,3 @@
-import { error as consoleError } from "console";
 import * as S from "fp-ts/string";
 import { HoppError, HoppErrorCode } from "../types/errors";
 import { hasProperty, isSafeCommanderError } from "../utils/checks";
@@ -81,6 +80,6 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
   }
 
   if (!S.isEmpty(ERROR_MSG)) {
-    consoleError(ERROR_CODE, ERROR_MSG);
+    console.error(ERROR_CODE, ERROR_MSG);
   }
 };

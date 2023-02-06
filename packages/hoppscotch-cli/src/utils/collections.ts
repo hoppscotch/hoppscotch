@@ -212,7 +212,7 @@ export const collectionsRunnerResult = (
  * Else, exit with code 1.
  * @param result Boolean defining the collections-runner result.
  */
-export const collectionsRunnerExit = (result: boolean) => {
+export const collectionsRunnerExit = (result: boolean): never => {
   if (!result) {
     const EXIT_MSG = FAIL(`\nExited with code 1`);
     process.stderr.write(EXIT_MSG);

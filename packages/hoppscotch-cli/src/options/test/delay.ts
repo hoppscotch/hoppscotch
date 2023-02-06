@@ -2,7 +2,7 @@ import { error } from "../../types/errors";
 
 export function parseDelayOption(delay: string): number {
   const maybeInt = Number.parseInt(delay)
-  if(maybeInt) {
+  if(!Number.isNaN(maybeInt)) {
     return maybeInt
   } else {
     throw error({

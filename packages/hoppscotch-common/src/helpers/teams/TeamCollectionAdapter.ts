@@ -533,40 +533,28 @@ export default class NewTeamCollectionAdapter {
    *
    * @param {string} collectionID - The ID of the collection to move
    */
-  private async moveCollection(collectionID: string) {
-    // Fetch the collection from backend to get the new collection properties - temporarly once BE give the new collection from the subscription
-    const data = await runGQLQuery({
-      query: GetSingleCollectionDocument,
-      variables: {
-        collectionID,
-      },
-    })
-
-    if (E.isLeft(data)) {
-      throw new Error(
-        `Collection Fetch Error for ${collectionID}: ${data.left}`
-      )
-    }
-
+  private async moveCollection(
+    collectionID: string,
+    parentID: string | null,
+    title: string
+  ) {
     // Remove the collection from the current position
     this.removeCollection(collectionID)
 
-    const collection = data.right.collection
-
-    if (collection === null || collection === undefined) return
+    if (collectionID === null || parentID === undefined) return
 
     // Expand the parent collection if it is not expanded
     // so that the old children is also visible when expanding
-    if (collection.parent?.id) this.expandCollection(collection.parent?.id)
+    if (parentID) this.expandCollection(parentID)
 
     this.addCollection(
       {
-        id: collection.id,
+        id: collectionID,
         children: null,
         requests: null,
-        title: collection.title,
+        title: title,
       },
-      collection.parent?.id ?? null
+      parentID ?? null
     )
   }
 
@@ -790,6 +778,7 @@ export default class NewTeamCollectionAdapter {
           `Team Request Move Error ${JSON.stringify(result.left)}`
         )
 
+      console.log("teamRequestMoved", result.right.requestMoved)
       this.moveRequest(result.right.requestMoved)
     })
 
@@ -807,7 +796,12 @@ export default class NewTeamCollectionAdapter {
           `Team Collection Move Error ${JSON.stringify(result.left)}`
         )
 
-      this.moveCollection(result.right.teamCollectionMoved)
+      const { teamCollectionMoved } = result.right
+      const { id, parent, title } = teamCollectionMoved
+
+      const parentID = parent?.id ?? null
+
+      this.moveCollection(id, parentID, title)
     })
 
     const [teamRequestOrderUpdated$, teamRequestOrderUpdated] =

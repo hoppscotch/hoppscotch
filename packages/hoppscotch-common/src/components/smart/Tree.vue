@@ -21,7 +21,7 @@
               :node="node as TreeNode<T>"
               :toggle-children="toggleChildren as () => void"
               :is-open="isOpen as boolean"
-              :highlight-children="(id:string) => highlightChildren(id)"
+              :highlight-children="(id:string|null) => highlightChildren(id)"
             ></slot>
           </template>
           <template #emptyNode="{ node }">

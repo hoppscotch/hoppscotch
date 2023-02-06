@@ -78,7 +78,7 @@
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="updateCollectionOrder($event, node.id)"
             @dragging="
-              (isDraging) => highlightChildren(isDraging ? node.id : '')
+              (isDraging) => highlightChildren(isDraging ? node.id : null)
             "
             @toggle-children="
               () => {
@@ -133,7 +133,7 @@
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="updateCollectionOrder($event, node.id)"
             @dragging="
-              (isDraging) => highlightChildren(isDraging ? node.id : '')
+              (isDraging) => highlightChildren(isDraging ? node.id : null)
             "
             @toggle-children="
               () => {

@@ -8,6 +8,7 @@ import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { stringToJson } from 'src/utils';
+import { UserDataHandler } from './user.data.handler';
 
 @Injectable()
 export class UserService {
@@ -16,13 +17,19 @@ export class UserService {
     private readonly pubsub: PubSubService,
   ) {}
 
+  private userDataHandlers: UserDataHandler[] = [];
+
+  registerUserDataHandler(handler: UserDataHandler) {
+    this.userDataHandlers.push(handler);
+  }
+
   /**
    * Find User with given email id
    *
    * @param email User's email
    * @returns Option of found User
    */
-  async findUserByEmail(email: string) {
+  async findUserByEmail(email: string): Promise<O.None | O.Some<AuthUser>> {
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
         where: {
@@ -41,7 +48,7 @@ export class UserService {
    * @param userUid User ID
    * @returns Option of found User
    */
-  async findUserById(userUid: string) {
+  async findUserById(userUid: string): Promise<O.None | O.Some<AuthUser>> {
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
         where: {

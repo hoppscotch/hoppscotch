@@ -1,4 +1,3 @@
-import isArray from "lodash/isArray";
 import { error } from "../../types/errors";
 import { HoppEnvs, HoppEnvPair } from "../../types/request";
 import { readJsonFile } from "../../utils/mutators";
@@ -11,7 +10,7 @@ import { readJsonFile } from "../../utils/mutators";
 export async function parseEnvsData(path: string) {
   const contents = await readJsonFile(path)
 
-  if(!(contents && typeof contents === "object" && !isArray(contents))) {
+  if(!(contents && typeof contents === "object" && !Array.isArray(contents))) {
     throw error({ code: "MALFORMED_ENV_FILE", path, data: null })
   }
 

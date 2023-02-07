@@ -5,7 +5,7 @@ import {
   onSnapshot,
   setDoc,
 } from "firebase/firestore"
-import { currentUser$ } from "./auth"
+import { platform } from "~/platform"
 import { applySetting, settingsStore, SettingsType } from "~/newstore/settings"
 
 /**
@@ -20,21 +20,23 @@ let loadedSettings = false
  * Write Transform
  */
 async function writeSettings(setting: string, value: any) {
-  if (currentUser$.value === null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("Cannot write setting, user not signed in")
 
   const st = {
     updatedOn: new Date(),
-    author: currentUser$.value.uid,
-    author_name: currentUser$.value.displayName,
-    author_image: currentUser$.value.photoURL,
+    author: currentUser.uid,
+    author_name: currentUser.displayName,
+    author_image: currentUser.photoURL,
     name: setting,
     value,
   }
 
   try {
     await setDoc(
-      doc(getFirestore(), "users", currentUser$.value.uid, "settings", setting),
+      doc(getFirestore(), "users", currentUser.uid, "settings", setting),
       st
     )
   } catch (e) {
@@ -44,8 +46,12 @@ async function writeSettings(setting: string, value: any) {
 }
 
 export function initSettings() {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
   settingsStore.dispatches$.subscribe((dispatch) => {
-    if (currentUser$.value && loadedSettings) {
+    const currentUser = platform.auth.getCurrentUser()
+
+    if (currentUser && loadedSettings) {
       if (dispatch.dispatcher === "bulkApplySettings") {
         Object.keys(dispatch.payload).forEach((key) => {
           writeSettings(key, dispatch.payload[key])

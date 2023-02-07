@@ -9,7 +9,7 @@ import {
   translateToNewRESTCollection,
   translateToNewGQLCollection,
 } from "@hoppscotch/data"
-import { currentUser$ } from "./auth"
+import { platform } from "~/platform"
 import {
   restCollections$,
   graphqlCollections$,
@@ -44,20 +44,22 @@ export async function writeCollections(
   collection: any[],
   flag: CollectionFlags
 ) {
-  if (currentUser$.value === null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("User not logged in to write collections")
 
   const cl = {
     updatedOn: new Date(),
-    author: currentUser$.value.uid,
-    author_name: currentUser$.value.displayName,
-    author_image: currentUser$.value.photoURL,
+    author: currentUser.uid,
+    author_name: currentUser.displayName,
+    author_image: currentUser.photoURL,
     collection,
   }
 
   try {
     await setDoc(
-      doc(getFirestore(), "users", currentUser$.value.uid, flag, "sync"),
+      doc(getFirestore(), "users", currentUser.uid, flag, "sync"),
       cl
     )
   } catch (e) {
@@ -67,10 +69,14 @@ export async function writeCollections(
 }
 
 export function initCollections() {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
   const restCollSub = restCollections$.subscribe((collections) => {
+    const currentUser = platform.auth.getCurrentUser()
+
     if (
       loadedRESTCollections &&
-      currentUser$.value &&
+      currentUser &&
       settingsStore.value.syncCollections
     ) {
       writeCollections(collections, "collections")
@@ -80,7 +86,7 @@ export function initCollections() {
   const gqlCollSub = graphqlCollections$.subscribe((collections) => {
     if (
       loadedGraphqlCollections &&
-      currentUser$.value &&
+      currentUser &&
       settingsStore.value.syncCollections
     ) {
       writeCollections(collections, "collectionsGraphql")

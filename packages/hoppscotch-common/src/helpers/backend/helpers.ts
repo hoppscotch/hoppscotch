@@ -12,6 +12,7 @@ import { TeamCollection } from "../teams/TeamCollection"
 import { TeamRequest } from "../teams/TeamRequest"
 import { GQLError, runGQLQuery } from "./GQLClient"
 import {
+  ExportAsJsonDocument,
   GetCollectionChildrenIDsDocument,
   GetCollectionRequestsDocument,
   GetCollectionTitleDocument,
@@ -125,3 +126,23 @@ export const teamCollToHoppRESTColl = (
     folders: coll.children?.map(teamCollToHoppRESTColl) ?? [],
     requests: coll.requests?.map((x) => x.request) ?? [],
   })
+
+/**
+ * Get the JSON string of all the collection of the specified team
+ * @param teamID - ID of the team
+ * @returns Either of the JSON string of the collection or the error
+ */
+export const getTeamCollectionJSON = async (teamID: string) => {
+  const data = await runGQLQuery({
+    query: ExportAsJsonDocument,
+    variables: {
+      teamID,
+    },
+  })
+
+  if (E.isLeft(data)) {
+    return E.left(data.left)
+  }
+
+  return E.right(data.right)
+}

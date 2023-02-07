@@ -48,23 +48,20 @@ import { getRESTRequest } from "~/newstore/RESTSession"
 const toast = useToast()
 const t = useI18n()
 
-const props = defineProps<{
-  show: boolean
-  loadingState: boolean
-  folder?: object
-  folderPath?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    show: boolean
+    loadingState: boolean
+  }>(),
+  {
+    show: false,
+    loadingState: false,
+  }
+)
 
 const emit = defineEmits<{
-  (e: "hide-modal"): void
-  (
-    e: "add-request",
-    v: {
-      name: string
-      folder: object | undefined
-      path: string | undefined
-    }
-  ): void
+  (event: "hide-modal"): void
+  (event: "add-request", name: string): void
 }>()
 
 const name = ref("")
@@ -79,15 +76,11 @@ watch(
 )
 
 const addRequest = () => {
-  if (!name.value) {
+  if (name.value.trim() === "") {
     toast.error(`${t("error.empty_req_name")}`)
     return
   }
-  emit("add-request", {
-    name: name.value,
-    folder: props.folder,
-    path: props.folderPath,
-  })
+  emit("add-request", name.value)
 }
 
 const hideModal = () => {

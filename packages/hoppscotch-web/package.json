@@ -21,7 +21,9 @@
   "dependencies": {
     "@hoppscotch/common": "workspace:^",
     "buffer": "^6.0.3",
+    "firebase": "^9.8.4",
     "process": "^0.11.10",
+    "rxjs": "^7.5.5",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.4",
     "vue": "^3.2.41",

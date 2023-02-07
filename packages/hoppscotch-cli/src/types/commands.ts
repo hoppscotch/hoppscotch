@@ -1,6 +1,6 @@
 export type TestCmdOptions = {
-  env: string;
-  delay: number;
+  env: string | undefined;
+  delay: string | undefined;
 };
 
-export type HoppEnvFileExt = "json";
+export type HOPP_ENV_FILE_EXT = "json";

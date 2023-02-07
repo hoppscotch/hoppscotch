@@ -16,14 +16,15 @@
         <ButtonPrimary
           v-focus
           :label="t('action.save')"
+          :loading="loading"
           outline
-          @click="saveApiChange"
+          @click="saveChange"
         />
         <ButtonSecondary
           :label="t('action.dont_save')"
           outline
           filled
-          @click="discardApiChange"
+          @click="discardChange"
         />
       </span>
       <ButtonSecondary
@@ -43,6 +44,7 @@ const t = useI18n()
 
 defineProps<{
   show: boolean
+  loading?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -51,11 +53,11 @@ const emit = defineEmits<{
   (e: "hide-modal"): void
 }>()
 
-const saveApiChange = () => {
+const saveChange = () => {
   emit("save-change")
 }
 
-const discardApiChange = () => {
+const discardChange = () => {
   emit("discard-change")
 }
 

@@ -107,7 +107,7 @@ import IconDownload from "~icons/lucide/download"
 import IconGithub from "~icons/lucide/github"
 import { computed, ref } from "vue"
 import { Environment } from "@hoppscotch/data"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import axios from "axios"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
@@ -141,7 +141,10 @@ const t = useI18n()
 const loading = ref(false)
 
 const myEnvironments = useReadonlyStream(environments$, [])
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
@@ -187,7 +190,7 @@ const createEnvironmentGist = async () => {
     )
 
     toast.success(t("export.gist_created").toString())
-    window.open(res.html_url)
+    window.open(res.data.html_url)
   } catch (e) {
     toast.error(t("error.something_went_wrong").toString())
     console.error(e)

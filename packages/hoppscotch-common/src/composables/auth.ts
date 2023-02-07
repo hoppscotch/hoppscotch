@@ -1,18 +1,8 @@
-import {
-  currentUser$,
-  HoppUser,
-  AuthEvent,
-  authEvents$,
-  authIdToken$,
-} from "@helpers/fb/auth"
-import {
-  map,
-  distinctUntilChanged,
-  filter,
-  Subscription,
-  combineLatestWith,
-} from "rxjs"
-import { onBeforeUnmount, onMounted } from "vue"
+import { platform } from "~/platform"
+import { AuthEvent, HoppUser } from "~/platform/auth"
+import { Subscription } from "rxjs"
+import { onBeforeUnmount, onMounted, watch, WatchStopHandle } from "vue"
+import { useReadonlyStream } from "./stream"
 
 /**
  * A Vue composable function that is called when the auth status
@@ -21,26 +11,25 @@ import { onBeforeUnmount, onMounted } from "vue"
  * was already resolved before mount.
  */
 export function onLoggedIn(exec: (user: HoppUser) => void) {
-  let sub: Subscription | null = null
+  const currentUser = useReadonlyStream(
+    platform.auth.getCurrentUserStream(),
+    platform.auth.getCurrentUser()
+  )
+
+  let watchStop: WatchStopHandle | null = null
 
   onMounted(() => {
-    sub = currentUser$
-      .pipe(
-        // We don't consider the state as logged in unless we also have an id token
-        combineLatestWith(authIdToken$),
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        filter(([_, token]) => !!token),
-        map((user) => !!user), // Get a logged in status (true or false)
-        distinctUntilChanged(), // Don't propagate unless the status updates
-        filter((x) => x) // Don't propagate unless it is logged in
-      )
-      .subscribe(() => {
-        exec(currentUser$.value!)
-      })
+    if (currentUser.value) exec(currentUser.value)
+
+    watchStop = watch(currentUser, (newVal, prev) => {
+      if (prev === null && newVal !== null) {
+        exec(newVal)
+      }
+    })
   })
 
   onBeforeUnmount(() => {
-    sub?.unsubscribe()
+    watchStop?.()
   })
 }
 
@@ -57,6 +46,8 @@ export function onLoggedIn(exec: (user: HoppUser) => void) {
  * @param func A function which accepts an event
  */
 export function onAuthEvent(func: (ev: AuthEvent) => void) {
+  const authEvents$ = platform.auth.getAuthEventsStream()
+
   let sub: Subscription | null = null
 
   onMounted(() => {

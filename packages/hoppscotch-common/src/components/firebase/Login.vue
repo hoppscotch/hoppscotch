@@ -122,16 +122,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import {
-  signInUserWithGoogle,
-  signInUserWithGithub,
-  signInUserWithMicrosoft,
-  setProviderInfo,
-  currentUser$,
-  signInWithEmail,
-  linkWithFBCredentialFromAuthError,
-  getGithubCredentialFromResult,
-} from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import IconGithub from "~icons/auth/github"
 import IconGoogle from "~icons/auth/google"
 import IconEmail from "~icons/auth/email"
@@ -174,6 +165,8 @@ export default defineComponent({
     }
   },
   mounted() {
+    const currentUser$ = platform.auth.getCurrentUserStream()
+
     this.subscribeToStream(currentUser$, (user) => {
       if (user) this.hideModal()
     })
@@ -186,8 +179,7 @@ export default defineComponent({
       this.signingInWithGoogle = true
 
       try {
-        await signInUserWithGoogle()
-        this.showLoginSuccess()
+        await platform.auth.signInUserWithGoogle()
       } catch (e) {
         console.error(e)
         /*
@@ -202,35 +194,32 @@ export default defineComponent({
     async signInWithGithub() {
       this.signingInWithGitHub = true
 
-      try {
-        const result = await signInUserWithGithub()
-        const credential = getGithubCredentialFromResult(result)!
-        const token = credential.accessToken
-        setProviderInfo(result.providerId!, token!)
+      const result = await platform.auth.signInUserWithGithub()
 
-        this.showLoginSuccess()
-      } catch (e) {
-        console.error(e)
-        // This user's email is already present in Firebase but with other providers, namely Google or Microsoft
-        if (
-          (e as any).code === "auth/account-exists-with-different-credential"
-        ) {
-          this.toast.info(`${this.t("auth.account_exists")}`, {
-            duration: 0,
-            closeOnSwipe: false,
-            action: {
-              text: `${this.t("action.yes")}`,
-              onClick: async (_, toastObject) => {
-                await linkWithFBCredentialFromAuthError(e)
-                this.showLoginSuccess()
+      if (!result) {
+        this.signingInWithGitHub = false
+        return
+      }
 
-                toastObject.goAway(0)
-              },
+      if (result.type === "success") {
+        // this.showLoginSuccess()
+      } else if (result.type === "account-exists-with-different-cred") {
+        this.toast.info(`${this.t("auth.account_exists")}`, {
+          duration: 0,
+          closeOnSwipe: false,
+          action: {
+            text: `${this.t("action.yes")}`,
+            onClick: async (_, toastObject) => {
+              await result.link()
+              this.showLoginSuccess()
+
+              toastObject.goAway(0)
             },
-          })
-        } else {
-          this.toast.error(`${this.t("error.something_went_wrong")}`)
-        }
+          },
+        })
+      } else {
+        console.log("error logging into github", result.err)
+        this.toast.error(`${this.t("error.something_went_wrong")}`)
       }
 
       this.signingInWithGitHub = false
@@ -239,8 +228,8 @@ export default defineComponent({
       this.signingInWithMicrosoft = true
 
       try {
-        await signInUserWithMicrosoft()
-        this.showLoginSuccess()
+        await platform.auth.signInUserWithMicrosoft()
+        // this.showLoginSuccess()
       } catch (e) {
         console.error(e)
         /*
@@ -259,11 +248,8 @@ export default defineComponent({
     async signInWithEmail() {
       this.signingInWithEmail = true
 
-      const actionCodeSettings = {
-        url: `${import.meta.env.VITE_BASE_URL}/enter`,
-        handleCodeInApp: true,
-      }
-      await signInWithEmail(this.form.email, actionCodeSettings)
+      await platform.auth
+        .signInWithEmail(this.form.email)
         .then(() => {
           this.mode = "email-sent"
           setLocalConfig("emailForSignIn", this.form.email)

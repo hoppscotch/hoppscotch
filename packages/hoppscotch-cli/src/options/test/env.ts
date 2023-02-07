@@ -10,14 +10,18 @@ import { readJsonFile } from "../../utils/mutators";
  */
 export async function parseEnvsData(path: string) {
   const contents = await readJsonFile(path)
+
   if(!(contents && typeof contents === "object" && !isArray(contents))) {
     throw error({ code: "MALFORMED_ENV_FILE", path, data: null })
   }
+
   const envPairs: Array<HoppEnvPair> = []
+
   for( const [key,value] of Object.entries(contents)) {
     if(typeof value !== "string") {
       throw error({ code: "MALFORMED_ENV_FILE", path, data: {value: value} })
     }
+
     envPairs.push({key, value})
   }
   return <HoppEnvs>{ global: [], selected: envPairs }

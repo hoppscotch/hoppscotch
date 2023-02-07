@@ -38,14 +38,14 @@ export async function readJsonFile(path: string): Promise<unknown> {
   if(!path.endsWith('.json')) {
     throw error({ code: "INVALID_FILE_TYPE", data: path })
   }
-  
+
   try {
     await fs.access(path)
   } catch (e) {
     throw error({ code: "FILE_NOT_FOUND", path: path })
   }
 
-  try { 
+  try {
     return JSON.parse((await fs.readFile(path)).toString())
   } catch(e) {
     throw error({ code: "UNKNOWN_ERROR", data: e })
@@ -62,13 +62,16 @@ export async function parseCollectionData(
   path: string
 ): Promise<HoppCollection<HoppRESTRequest>[]> {
   let contents = await readJsonFile(path)
-  const maybeArrayOfCollections: unknown[] =  Array.isArray(contents) ? contents : [contents]
-  if(maybeArrayOfCollections.some(x=> !isRESTCollection(x))) {
+
+  const maybeArrayOfCollections: unknown[] = Array.isArray(contents) ? contents : [contents]
+
+  if(maybeArrayOfCollections.some((x) => !isRESTCollection(x))) {
     throw error({
       code: "MALFORMED_COLLECTION",
       path,
       data: "Please check the collection data.",
     })
   }
+
   return maybeArrayOfCollections as HoppCollection<HoppRESTRequest>[]
 };

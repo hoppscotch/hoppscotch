@@ -41,11 +41,11 @@
     <!-- Mobile Collections Layout -->
     <SmartSlideOver
       v-if="!mdAndLarger && SIDEBAR && hasSidebar"
-      :show="show"
+      :show="showSlideOver"
       :title="t('tab.collections')"
       @close="SIDEBAR = !SIDEBAR"
     >
-      <template #content>
+      <template #slideovercontent>
         <div class="!overflow-auto">
           <slot name="sidebar" />
         </div>
@@ -85,7 +85,7 @@ const props = defineProps({
   },
 })
 
-const show = computed(() => !!(SIDEBAR && hasSidebar.value))
+const showSlideOver = computed(() => !!(SIDEBAR && hasSidebar.value))
 
 type PaneEvent = {
   max: number

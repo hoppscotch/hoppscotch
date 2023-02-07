@@ -27,7 +27,7 @@
             <ButtonSecondary :icon="IconX" @click="close()" />
           </span>
         </div>
-        <slot name="content"></slot>
+        <slot name="slideovercontent"></slot>
       </aside>
     </Transition>
   </div>

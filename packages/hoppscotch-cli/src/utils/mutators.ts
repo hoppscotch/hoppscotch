@@ -1,12 +1,7 @@
 import fs from "fs/promises";
-import * as E from "fp-ts/Either";
-import * as TE from "fp-ts/TaskEither";
-import * as A from "fp-ts/Array";
-import * as J from "fp-ts/Json";
-import { pipe } from "fp-ts/function";
 import { FormDataEntry } from "../types/request";
-import { error, HoppCLIError } from "../types/errors";
-import { isRESTCollection, isHoppErrnoException, checkFile } from "./checks";
+import { error } from "../types/errors";
+import { isRESTCollection, isHoppErrnoException } from "./checks";
 import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data";
 
 /**
@@ -39,49 +34,44 @@ export const parseErrorMessage = (e: unknown) => {
   return msg.replace(/\n+$|\s{2,}/g, "").trim();
 };
 
+export async function readJsonFile(path: string): Promise<unknown> {
+  if(!path.endsWith('.json')) {
+    throw error({ code: "INVALID_FILE_TYPE", data: path })
+  }
+
+  try {
+    await fs.access(path)
+  } catch (e) {
+    throw error({ code: "FILE_NOT_FOUND", path: path })
+  }
+
+  try {
+    return JSON.parse((await fs.readFile(path)).toString())
+  } catch(e) {
+    throw error({ code: "UNKNOWN_ERROR", data: e })
+  }
+}
+
 /**
  * Parses collection json file for given path:context.path, and validates
  * the parsed collectiona array.
  * @param path Collection json file path.
  * @returns For successful parsing we get array of HoppCollection<HoppRESTRequest>,
  */
-export const parseCollectionData = (
+export async function parseCollectionData(
   path: string
-): TE.TaskEither<HoppCLIError, HoppCollection<HoppRESTRequest>[]> =>
-  pipe(
-    TE.of(path),
+): Promise<HoppCollection<HoppRESTRequest>[]> {
+  let contents = await readJsonFile(path)
 
-    // Checking if given file path exists or not.
-    TE.chain(checkFile),
+  const maybeArrayOfCollections: unknown[] = Array.isArray(contents) ? contents : [contents]
 
-    // Trying to read give collection json path.
-    TE.chainW((checkedPath) =>
-      TE.tryCatch(
-        () => fs.readFile(checkedPath),
-        (reason) => error({ code: "UNKNOWN_ERROR", data: E.toError(reason) })
-      )
-    ),
+  if(maybeArrayOfCollections.some((x) => !isRESTCollection(x))) {
+    throw error({
+      code: "MALFORMED_COLLECTION",
+      path,
+      data: "Please check the collection data.",
+    })
+  }
 
-    // Checking if parsed file data is array.
-    TE.chainEitherKW((data) =>
-      pipe(
-        data.toString(),
-        J.parse,
-        E.map((jsonData) => (Array.isArray(jsonData) ? jsonData : [jsonData])),
-        E.mapLeft((e) =>
-          error({ code: "MALFORMED_COLLECTION", path, data: E.toError(e) })
-        )
-      )
-    ),
-
-    // Validating collections to be HoppRESTCollection.
-    TE.chainW(
-      TE.fromPredicate(A.every(isRESTCollection), () =>
-        error({
-          code: "MALFORMED_COLLECTION",
-          path,
-          data: "Please check the collection data.",
-        })
-      )
-    )
-  );
+  return maybeArrayOfCollections as HoppCollection<HoppRESTRequest>[]
+};

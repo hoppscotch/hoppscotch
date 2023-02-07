@@ -1,4 +1,3 @@
-import * as T from "fp-ts/Task";
 import * as A from "fp-ts/Array";
 import { pipe } from "fp-ts/function";
 import { bold } from "chalk";
@@ -43,8 +42,8 @@ const { WARN, FAIL } = exceptionColors;
  * @returns List of report for each processed request.
  */
 export const collectionsRunner =
-  (param: CollectionRunnerParam): T.Task<RequestReport[]> =>
-  async () => {
+  async (param: CollectionRunnerParam): Promise<RequestReport[]> =>
+   {
     const envs: HoppEnvs = param.envs;
     const delay = param.delay ?? 0;
     const requestsReport: RequestReport[] = [];
@@ -213,10 +212,10 @@ export const collectionsRunnerResult = (
  * Else, exit with code 1.
  * @param result Boolean defining the collections-runner result.
  */
-export const collectionsRunnerExit = (result: boolean) => {
+export const collectionsRunnerExit = (result: boolean): never => {
   if (!result) {
     const EXIT_MSG = FAIL(`\nExited with code 1`);
-    process.stdout.write(EXIT_MSG);
+    process.stderr.write(EXIT_MSG);
     process.exit(1);
   }
   process.exit(0);

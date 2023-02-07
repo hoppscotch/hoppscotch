@@ -1,4 +1,3 @@
-import { log } from "console";
 import * as S from "fp-ts/string";
 import { HoppError, HoppErrorCode } from "../types/errors";
 import { hasProperty, isSafeCommanderError } from "../utils/checks";
@@ -7,7 +6,7 @@ import { exceptionColors } from "../utils/getters";
 const { BG_FAIL } = exceptionColors;
 
 /**
- * Parses unknown error data and narrows it to get information realted to
+ * Parses unknown error data and narrows it to get information related to
  * error in string format.
  * @param e Error data to parse.
  * @returns Information in string format appropriately parsed, based on error type.
@@ -81,6 +80,6 @@ export const handleError = <T extends HoppErrorCode>(error: HoppError<T>) => {
   }
 
   if (!S.isEmpty(ERROR_MSG)) {
-    log(ERROR_CODE, ERROR_MSG);
+    console.error(ERROR_CODE, ERROR_MSG);
   }
 };

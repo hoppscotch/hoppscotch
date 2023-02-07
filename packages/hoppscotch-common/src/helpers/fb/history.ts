@@ -12,7 +12,7 @@ import {
   updateDoc,
 } from "firebase/firestore"
 import { FormDataKeyValue } from "@hoppscotch/data"
-import { currentUser$ } from "./auth"
+import { platform } from "~/platform"
 import { getSettingSubject, settingsStore } from "~/newstore/settings"
 import {
   GQLHistoryEntry,
@@ -76,7 +76,9 @@ async function writeHistory(
       ? purgeFormDataFromRequest(entry as RESTHistoryEntry)
       : entry
 
-  if (currentUser$.value == null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("User not logged in to sync history")
 
   const hs = {
@@ -85,10 +87,7 @@ async function writeHistory(
   }
 
   try {
-    await addDoc(
-      collection(getFirestore(), "users", currentUser$.value.uid, col),
-      hs
-    )
+    await addDoc(collection(getFirestore(), "users", currentUser.uid, col), hs)
   } catch (e) {
     console.error("error writing to history", hs, e)
     throw e
@@ -99,12 +98,14 @@ async function deleteHistory(
   entry: (RESTHistoryEntry | GQLHistoryEntry) & { id: string },
   col: HistoryFBCollections
 ) {
-  if (currentUser$.value == null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("User not logged in to delete history")
 
   try {
     await deleteDoc(
-      doc(getFirestore(), "users", currentUser$.value.uid, col, entry.id)
+      doc(getFirestore(), "users", currentUser.uid, col, entry.id)
     )
   } catch (e) {
     console.error("error deleting history", entry, e)
@@ -113,11 +114,13 @@ async function deleteHistory(
 }
 
 async function clearHistory(col: HistoryFBCollections) {
-  if (currentUser$.value == null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("User not logged in to clear history")
 
   const { docs } = await getDocs(
-    collection(getFirestore(), "users", currentUser$.value.uid, col)
+    collection(getFirestore(), "users", currentUser.uid, col)
   )
 
   await Promise.all(docs.map((e) => deleteHistory(e as any, col)))
@@ -127,12 +130,13 @@ async function toggleStar(
   entry: (RESTHistoryEntry | GQLHistoryEntry) & { id: string },
   col: HistoryFBCollections
 ) {
-  if (currentUser$.value == null)
-    throw new Error("User not logged in to toggle star")
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null) throw new Error("User not logged in to toggle star")
 
   try {
     await updateDoc(
-      doc(getFirestore(), "users", currentUser$.value.uid, col, entry.id),
+      doc(getFirestore(), "users", currentUser.uid, col, entry.id),
       { star: !entry.star }
     )
   } catch (e) {
@@ -142,12 +146,12 @@ async function toggleStar(
 }
 
 export function initHistory() {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
   const restHistorySub = restHistoryStore.dispatches$.subscribe((dispatch) => {
-    if (
-      loadedRESTHistory &&
-      currentUser$.value &&
-      settingsStore.value.syncHistory
-    ) {
+    const currentUser = platform.auth.getCurrentUser()
+
+    if (loadedRESTHistory && currentUser && settingsStore.value.syncHistory) {
       if (dispatch.dispatcher === "addEntry") {
         writeHistory(dispatch.payload.entry, "history")
       } else if (dispatch.dispatcher === "deleteEntry") {
@@ -162,9 +166,11 @@ export function initHistory() {
 
   const gqlHistorySub = graphqlHistoryStore.dispatches$.subscribe(
     (dispatch) => {
+      const currentUser = platform.auth.getCurrentUser()
+
       if (
         loadedGraphqlHistory &&
-        currentUser$.value &&
+        currentUser &&
         settingsStore.value.syncHistory
       ) {
         if (dispatch.dispatcher === "addEntry") {

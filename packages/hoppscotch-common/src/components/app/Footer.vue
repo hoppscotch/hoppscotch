@@ -219,7 +219,7 @@ import { showChat } from "@modules/crisp"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
@@ -236,7 +236,10 @@ const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
 const navigatorShare = !!navigator.share
 
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 watch(
   () => ZEN_MODE.value,

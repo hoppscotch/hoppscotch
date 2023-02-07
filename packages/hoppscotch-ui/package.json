@@ -6,7 +6,8 @@
     "build": "vite build",
     "story:dev": "histoire dev",
     "story:build": "histoire build",
-    "story:preview": "histoire preview"
+    "story:preview": "histoire preview",
+    "do-build-ui": "pnpm run story:build"
   },
   "dependencies": {
     "@hoppscotch/vue-toasted": "^0.1.0",

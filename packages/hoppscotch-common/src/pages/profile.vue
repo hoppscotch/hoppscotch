@@ -211,13 +211,9 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, computed } from "vue"
-import {
-  currentUser$,
-  probableUser$,
-  setDisplayName,
-  setEmailAddress,
-  verifyEmailAddress,
-} from "~/helpers/fb/auth"
+
+import { platform } from "~/platform"
+
 import { invokeAction } from "~/helpers/actions"
 
 import { useReadonlyStream } from "@composables/stream"
@@ -247,8 +243,14 @@ usePageHead({
 const SYNC_COLLECTIONS = useSetting("syncCollections")
 const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
 const SYNC_HISTORY = useSetting("syncHistory")
-const currentUser = useReadonlyStream(currentUser$, null)
-const probableUser = useReadonlyStream(probableUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
+const probableUser = useReadonlyStream(
+  platform.auth.getProbableUserStream(),
+  platform.auth.getProbableUser()
+)
 
 const loadingCurrentUser = computed(() => {
   if (!probableUser.value) return false
@@ -262,7 +264,8 @@ watchEffect(() => (displayName.value = currentUser.value?.displayName))
 
 const updateDisplayName = () => {
   updatingDisplayName.value = true
-  setDisplayName(displayName.value as string)
+  platform.auth
+    .setDisplayName(displayName.value as string)
     .then(() => {
       toast.success(`${t("profile.updated")}`)
     })
@@ -280,7 +283,8 @@ watchEffect(() => (emailAddress.value = currentUser.value?.email))
 
 const updateEmailAddress = () => {
   updatingEmailAddress.value = true
-  setEmailAddress(emailAddress.value as string)
+  platform.auth
+    .setEmailAddress(emailAddress.value as string)
     .then(() => {
       toast.success(`${t("profile.updated")}`)
     })
@@ -296,7 +300,8 @@ const verifyingEmailAddress = ref(false)
 
 const sendEmailVerification = () => {
   verifyingEmailAddress.value = true
-  verifyEmailAddress()
+  platform.auth
+    .verifyEmailAddress()
     .then(() => {
       toast.success(`${t("profile.email_verification_mail")}`)
     })

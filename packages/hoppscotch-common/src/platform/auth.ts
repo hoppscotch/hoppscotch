@@ -119,10 +119,11 @@ export type AuthPlatformDef = {
   onBackendGQLClientShouldReconnect: (func: () => void) => void
 
   /**
-   * provide the client options for GqlClient
+   * Called by the platform to provide additional/different config options when
+   * setting up the URQL based GQLCLient instance
    * @returns
    */
-  getGQLClientOptions?: () => ClientOptions
+  getGQLClientOptions?: () => Partial<ClientOptions>
 
   /**
    * Returns the string content that should be returned when the user selects to

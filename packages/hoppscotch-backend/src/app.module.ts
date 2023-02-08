@@ -10,6 +10,7 @@ import { UserHistoryModule } from './user-history/user-history.module';
 import { subscriptionContextCookieParser } from './auth/helper';
 import { TeamModule } from './team/team.module';
 import { TeamEnvironmentsModule } from './team-environments/team-environments.module';
+import { TeamCollectionModule } from './team-collection/team-collection.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { TeamEnvironmentsModule } from './team-environments/team-environments.mo
     UserHistoryModule,
     TeamModule,
     TeamEnvironmentsModule,
+    TeamCollectionModule,
   ],
   providers: [GQLComplexityPlugin],
 })

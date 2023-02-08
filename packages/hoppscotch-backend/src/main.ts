@@ -35,7 +35,7 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
   });
-  app.use(cookieParser(process.env.SIGNED_COOKIE_SECRET));
+  app.use(cookieParser());
   await app.listen(process.env.PORT || 3170);
 }
 bootstrap();

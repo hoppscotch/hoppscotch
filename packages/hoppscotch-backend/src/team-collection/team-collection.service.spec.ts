@@ -23,9 +23,10 @@ const mockPubSub = {
   publish: jest.fn().mockResolvedValue(null),
 };
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 const teamCollectionService = new TeamCollectionService(
   mockPrisma,
-  mockFB as any,
   mockPubSub as any,
 );
 

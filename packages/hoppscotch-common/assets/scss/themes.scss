@@ -6,16 +6,19 @@
 }
 
 @mixin dark-theme {
-  --primary-color: theme("colors.neutral.900");
+  --primary-color: theme("colors.dark.800");
   --primary-light-color: theme("colors.dark.600");
   --primary-dark-color: theme("colors.neutral.800");
-  --primary-contrast-color: #161616;
+  --primary-contrast-color: theme("colors.neutral.900");
+
   --secondary-color: theme("colors.neutral.400");
   --secondary-light-color: theme("colors.neutral.500");
-  --secondary-dark-color: theme("colors.neutral.100");
+  --secondary-dark-color: theme("colors.neutral.50");
+
   --divider-color: theme("colors.neutral.800");
   --divider-light-color: theme("colors.dark.500");
   --divider-dark-color: theme("colors.dark.300");
+
   --error-color: theme("colors.stone.800");
   --tooltip-color: theme("colors.neutral.100");
   --popover-color: theme("colors.dark.700");
@@ -24,15 +27,18 @@
 
 @mixin light-theme {
   --primary-color: theme("colors.white");
-  --primary-light-color: theme("colors.neutral.50");
-  --primary-dark-color: theme("colors.neutral.100");
-  --primary-contrast-color: #fefefe;
-  --secondary-color: theme("colors.neutral.500");
-  --secondary-light-color: theme("colors.neutral.400");
-  --secondary-dark-color: theme("colors.neutral.900");
+  --primary-light-color: theme("colors.gray.50");
+  --primary-dark-color: theme("colors.gray.100");
+  --primary-contrast-color: theme("colors.light.50");
+
+  --secondary-color: theme("colors.gray.500");
+  --secondary-light-color: theme("colors.gray.400");
+  --secondary-dark-color: theme("colors.gray.900");
+
   --divider-color: theme("colors.gray.100");
-  --divider-light-color: theme("colors.neutral.100");
-  --divider-dark-color: theme("colors.neutral.300");
+  --divider-light-color: theme("colors.gray.100");
+  --divider-dark-color: theme("colors.gray.300");
+
   --error-color: theme("colors.yellow.100");
   --tooltip-color: theme("colors.neutral.800");
   --popover-color: theme("colors.white");
@@ -43,16 +49,19 @@
   --primary-color: theme("colors.dark.900");
   --primary-light-color: theme("colors.neutral.900");
   --primary-dark-color: theme("colors.dark.800");
-  --primary-contrast-color: #0e0e0e;
+  --primary-contrast-color: theme("colors.dark.900");
+
   --secondary-color: theme("colors.neutral.400");
   --secondary-light-color: theme("colors.neutral.500");
   --secondary-dark-color: theme("colors.neutral.100");
-  --divider-color: theme("colors.neutral.800");
+
+  --divider-color: theme("colors.dark.600");
   --divider-light-color: theme("colors.dark.800");
-  --divider-dark-color: theme("colors.dark.300");
+  --divider-dark-color: theme("colors.dark.200");
+
   --error-color: theme("colors.stone.900");
   --tooltip-color: theme("colors.neutral.100");
-  --popover-color: theme("colors.dark.600");
+  --popover-color: theme("colors.dark.900");
   --editor-theme: "twilight";
 }
 

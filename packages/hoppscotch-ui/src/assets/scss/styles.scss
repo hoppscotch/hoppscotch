@@ -34,7 +34,7 @@ input::placeholder,
 textarea::placeholder,
 .cm-placeholder {
   @apply text-secondary;
-  @apply opacity-35;
+  @apply opacity-50;
 }
 
 input,
@@ -135,7 +135,7 @@ a {
     @apply shadow-none;
     @apply fixed;
     @apply inline-flex;
-    @apply -mt-6;
+    @apply -mt-8;
   }
 }
 
@@ -416,7 +416,6 @@ pre.ace_editor {
 
 .smart-splitter .splitpanes__splitter {
   @apply relative;
-  @apply bg-primaryLight;
   @apply before:absolute;
   @apply before:inset-0;
   @apply before:bg-accentLight;
@@ -424,48 +423,39 @@ pre.ace_editor {
   @apply before:z-20;
   @apply before:transition;
   @apply before:content-DEFAULT;
-  @apply after:absolute;
-  @apply after:inset-0;
-  @apply after:z-20;
-  @apply after:transition;
-  @apply after:flex;
-  @apply after:items-center;
-  @apply after:justify-center;
-  @apply after:text-dividerDark;
-  @apply after:font-icon;
   @apply hover:before:opacity-100;
-  @apply hover:after:text-accentDark;
 }
 
 .no-splitter .splitpanes__splitter {
   @apply relative;
-  @apply bg-primaryLight;
 }
 
 .smart-splitter.splitpanes--vertical > .splitpanes__splitter {
-  @apply w-1;
+  @apply w-0;
   @apply before:-left-0.5;
   @apply before:-right-0.5;
   @apply before:h-full;
-  @apply after:content-["\e5d4"];
+  @apply bg-divider;
 }
 
 .smart-splitter.splitpanes--horizontal > .splitpanes__splitter {
-  @apply h-1;
+  @apply h-0;
   @apply before:-top-0.5;
   @apply before:-bottom-0.5;
   @apply before:w-full;
-  @apply after:content-["\e5d3"];
+  @apply bg-divider;
 }
 
 .no-splitter.splitpanes--vertical > .splitpanes__splitter {
-  @apply w-0.5;
+  @apply w-0;
   @apply pointer-events-none;
+  @apply bg-dividerLight;
 }
 
 .no-splitter.splitpanes--horizontal > .splitpanes__splitter {
-  @apply h-0.5;
+  @apply h-0;
   @apply pointer-events-none;
+  @apply bg-dividerLight;
 }
 
 .cm-focused {
@@ -538,8 +528,16 @@ details[open] summary .indicator {
 }
 
 .env-highlight {
-  * {
-    @apply text-accentContrast;
+  @apply text-accentContrast;
+
+  &.env-found {
+    @apply bg-accentDark;
+    @apply hover:bg-accent;
+  }
+
+  &.env-not-found {
+    @apply bg-red-500;
+    @apply hover:bg-red-600;
   }
 }
 

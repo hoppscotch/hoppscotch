@@ -130,9 +130,7 @@
           </template>
         </tippy>
       </span>
-      <span
-        class="flex ml-2 transition border rounded border-dividerLight hover:border-dividerDark"
-      >
+      <span class="flex ml-2 transition border rounded border-divider">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t(

@@ -1,12 +1,14 @@
 import { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import * as T from 'fp-ts/Task';
 import * as E from 'fp-ts/Either';
-import { User } from './user/user.model';
 import * as A from 'fp-ts/Array';
+import { TeamMemberRole } from './team/team.model';
+import { User } from './user/user.model';
 import { JSON_INVALID } from './errors';
 
 /**
@@ -51,14 +53,14 @@ export const namedTrace =
  * @param context NestJS Execution Context
  * @returns An Option which contains the defined roles
  */
-// export const getAnnotatedRequiredRoles = (
-//   reflector: Reflector,
-//   context: ExecutionContext,
-// ) =>
-//   pipe(
-//     reflector.get<TeamMemberRole[]>('requiresTeamRole', context.getHandler()),
-//     O.fromNullable,
-//   );
+export const getAnnotatedRequiredRoles = (
+  reflector: Reflector,
+  context: ExecutionContext,
+) =>
+  pipe(
+    reflector.get<TeamMemberRole[]>('requiresTeamRole', context.getHandler()),
+    O.fromNullable,
+  );
 
 /**
  * Gets the user from the NestJS GQL Execution Context.
@@ -70,7 +72,7 @@ export const getUserFromGQLContext = (ctx: ExecutionContext) =>
   pipe(
     ctx,
     GqlExecutionContext.create,
-    (ctx) => ctx.getContext<{ user?: User }>(),
+    (ctx) => ctx.getContext().req,
     ({ user }) => user,
     O.fromNullable,
   );

@@ -66,7 +66,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     role: TeamMemberRole,
   ): Promise<E.Left<string> | E.Right<TeamMember>> {
     const user = await this.userService.findUserByEmail(email);
-    if(O.isNone(user)) return E.left(USER_NOT_FOUND);
+    if (O.isNone(user)) return E.left(USER_NOT_FOUND);
 
     const teamMember = await this.addMemberToTeam(teamID, user.value.uid, role);
     return E.right(teamMember);

@@ -16,7 +16,7 @@ export class Team {
 @ObjectType()
 export class TeamMember {
   @Field(() => ID, {
-    description: 'Membership ID of the Team Member'
+    description: 'Membership ID of the Team Member',
   })
   membershipID: string;
 

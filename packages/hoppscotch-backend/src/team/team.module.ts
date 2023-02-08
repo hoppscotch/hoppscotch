@@ -8,7 +8,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { PubSubModule } from '../pubsub/pubsub.module';
 
 @Module({
-  imports: [UserModule ,PubSubModule , PrismaModule ],
+  imports: [UserModule, PubSubModule, PrismaModule],
   providers: [
     TeamService,
     TeamResolver,

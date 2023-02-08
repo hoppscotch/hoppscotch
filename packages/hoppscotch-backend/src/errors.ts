@@ -163,7 +163,7 @@ export const SHORTCODE_INVALID_JSON = 'shortcode/invalid_json' as const;
  * Invalid or non-existent TEAM ENVIRONMMENT ID
  * (TeamEnvironmentsService)
  */
-export const TEAM_ENVIRONMMENT_NOT_FOUND =
+export const TEAM_ENVIRONMENT_NOT_FOUND =
   'team_environment/not_found' as const;
 
 /**

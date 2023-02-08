@@ -118,7 +118,6 @@ const props = defineProps<{
  */
 const readableResponseSize = computed(() => {
   if (
-    // This is called only in case response is not null, null checking done for tsc
     props.response === null ||
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
@@ -137,7 +136,6 @@ const readableResponseSize = computed(() => {
 
 const statusCategory = computed(() => {
   if (
-    // This is called only in case response is not null, null checking done for tsc
     props.response === null ||
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||

@@ -11,6 +11,7 @@ import { subscriptionContextCookieParser } from './auth/helper';
 import { TeamModule } from './team/team.module';
 import { TeamEnvironmentsModule } from './team-environments/team-environments.module';
 import { TeamCollectionModule } from './team-collection/team-collection.module';
+import { TeamRequestModule } from './team-request/team-request.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { TeamCollectionModule } from './team-collection/team-collection.module';
     TeamModule,
     TeamEnvironmentsModule,
     TeamCollectionModule,
+    TeamRequestModule,
   ],
   providers: [GQLComplexityPlugin],
 })

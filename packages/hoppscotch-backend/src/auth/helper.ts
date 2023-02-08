@@ -41,16 +41,28 @@ export const authCookieHandler = (
     secure: true,
     sameSite: 'lax',
     maxAge: accessTokenValidity,
-    signed: true,
   });
   res.cookie('refresh_token', authTokens.refresh_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
     maxAge: refreshTokenValidity,
-    signed: true,
   });
   if (redirect) {
     res.status(HttpStatus.OK).redirect(process.env.REDIRECT_URL);
   } else res.status(HttpStatus.OK).send();
+};
+
+/**
+ * Decode the cookie header from incoming websocket connects and returns a auth token pair
+ * @param rawCookies cookies from the websocket connection
+ * @returns AuthTokens for JWT strategy to use
+ */
+export const subscriptionContextCookieParser = (rawCookies: string) => {
+  const access_token = rawCookies.split(';')[0].split('=')[1];
+  const refresh_token = rawCookies.split(';')[1].split('=')[1];
+  return <AuthTokens>{
+    access_token,
+    refresh_token,
+  };
 };

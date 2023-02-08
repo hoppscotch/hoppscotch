@@ -14,5 +14,5 @@
 <script setup lang="ts">
 import { ref } from "vue"
 
-const link = ref("/graphql")
+const link = ref("/")
 </script>

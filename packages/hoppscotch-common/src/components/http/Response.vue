@@ -3,16 +3,19 @@
     <HttpResponseMeta :response="response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
-      :response="response!"
+      v-model:selected-tab-preference="selectedTabPreference"
+      :response="response"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue"
+import { ref, computed, watch } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import { useReadonlyStream } from "@composables/stream"
 import { restResponse$ } from "~/newstore/RESTSession"
+
+const selectedTabPreference = ref<string | null>(null)
 
 const response = useReadonlyStream(restResponse$, null)
 

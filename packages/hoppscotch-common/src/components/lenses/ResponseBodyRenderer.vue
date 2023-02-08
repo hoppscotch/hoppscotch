@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import {
   getSuitableLenses,
   getLensRenderers,
@@ -53,11 +53,15 @@ import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { restTestResults$ } from "~/newstore/RESTSession"
-import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
 
-const props = defineProps({
-  response: { type: Object as PropType<HoppRESTResponse> | null },
-})
+const props = defineProps<{
+  response: HoppRESTResponse | null
+  selectedTabPreference: string | null
+}>()
+
+const emit = defineEmits<{
+  (e: "update:selectedTabPreference", newTab: string): void
+}>()
 
 const allLensRenderers = getLensRenderers()
 
@@ -71,7 +75,6 @@ const t = useI18n()
 
 const selectedLensTab = ref("")
 
-// This is `HoppRESTResponseHeaderKV[] | null`, so tsc can correctly infer a `maybeHeaders` in `v-if="maybeHeaders"` block is not null array of headers
 const maybeHeaders = computed(() => {
   if (
     !props.response ||
@@ -88,27 +91,28 @@ const validLenses = computed(() => {
 
 watch(
   validLenses,
-  (newValue: Lens[]) => {
-    if (newValue.length === 0) return
+  (newLenses: Lens[]) => {
+    if (newLenses.length === 0) return
+
     const validRenderers = [
-      ...newValue.map((x) => x.renderer),
+      ...newLenses.map((x) => x.renderer),
       "headers",
       "results",
     ]
-    const savedLensTabPreference = getLocalConfig("response_selected_lens_tab")
+
     if (
-      savedLensTabPreference &&
-      validRenderers.includes(savedLensTabPreference)
+      props.selectedTabPreference &&
+      validRenderers.includes(props.selectedTabPreference)
     ) {
-      selectedLensTab.value = savedLensTabPreference
+      selectedLensTab.value = props.selectedTabPreference
     } else {
-      selectedLensTab.value = newValue[0].renderer
+      selectedLensTab.value = newLenses[0].renderer
     }
   },
   { immediate: true }
 )
 
-watch(selectedLensTab, (newValue) => {
-  setLocalConfig("response_selected_lens_tab", newValue)
+watch(selectedLensTab, (newLensID) => {
+  emit("update:selectedTabPreference", newLensID)
 })
 </script>

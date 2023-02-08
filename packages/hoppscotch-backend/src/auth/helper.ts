@@ -41,14 +41,12 @@ export const authCookieHandler = (
     secure: true,
     sameSite: 'lax',
     maxAge: accessTokenValidity,
-    signed: true,
   });
   res.cookie('refresh_token', authTokens.refresh_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
     maxAge: refreshTokenValidity,
-    signed: true,
   });
   if (redirect) {
     res.status(HttpStatus.OK).redirect(process.env.REDIRECT_URL);

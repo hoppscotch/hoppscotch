@@ -123,7 +123,7 @@
     </div>
     <div v-if="showChildren || isFiltered" class="flex">
       <div
-        class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-1 hover:bg-dividerDark hover:scale-x-125"
+        class="bg-dividerLight cursor-nsResize flex ml-5.5 transform transition w-0.5 hover:bg-dividerDark hover:scale-x-125"
         @click="toggleShowChildren()"
       ></div>
       <div class="flex flex-col flex-1 truncate">

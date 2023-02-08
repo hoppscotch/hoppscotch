@@ -107,7 +107,7 @@ const t = useI18n()
 const colorMode = useColorMode()
 
 const props = defineProps<{
-  response: HoppRESTResponse
+  response: HoppRESTResponse | null
 }>()
 
 /**
@@ -118,6 +118,7 @@ const props = defineProps<{
  */
 const readableResponseSize = computed(() => {
   if (
+    props.response === null ||
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
     props.response.type === "script_fail" ||
@@ -135,6 +136,7 @@ const readableResponseSize = computed(() => {
 
 const statusCategory = computed(() => {
   if (
+    props.response === null ||
     props.response.type === "loading" ||
     props.response.type === "network_fail" ||
     props.response.type === "script_fail" ||

@@ -69,7 +69,7 @@ const interceptors = computed(() => [
   },
 ])
 
-type InterceptorMode = typeof interceptors["value"][number]["value"]
+type InterceptorMode = (typeof interceptors)["value"][number]["value"]
 
 const interceptorSelection = computed<InterceptorMode>({
   get() {

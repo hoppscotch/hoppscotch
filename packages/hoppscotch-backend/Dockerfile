@@ -5,13 +5,16 @@ WORKDIR /usr/src/app
 # # Install pnpm
 RUN npm i -g pnpm
 
-# Prisma bits
-COPY prisma ./prisma/
-RUN pnpx prisma generate
+COPY pnpm-lock.yaml .
+RUN pnpm fetch
 
 # # PNPM package install
-COPY . .
-RUN pnpm i
+COPY ./packages/hoppscotch-backend .
+RUN pnpm i --filter hoppscotch-backend
+
+# Prisma bits
+RUN pnpm exec prisma generate
+
 
 EXPOSE 3170
 EXPOSE 9229

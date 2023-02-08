@@ -1,12 +1,12 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 
-export type HoppRESTResponseHeaderKV = { key: string; value: string }
+export type HoppRESTResponseHeader = { key: string; value: string }
 
 export type HoppRESTResponse =
   | { type: "loading"; req: HoppRESTRequest }
   | {
       type: "fail"
-      headers: HoppRESTResponseHeaderKV[]
+      headers: HoppRESTResponseHeader[]
       body: ArrayBuffer
       statusCode: number
 
@@ -29,7 +29,7 @@ export type HoppRESTResponse =
     }
   | {
       type: "success"
-      headers: HoppRESTResponseHeaderKV[]
+      headers: HoppRESTResponseHeader[]
       body: ArrayBuffer
       statusCode: number
       meta: {

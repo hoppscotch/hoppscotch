@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (request: Request) => {
-          const ATCookie = request.signedCookies['access_token'];
+          const ATCookie = request.cookies['access_token'];
           if (!ATCookie) {
             throw new ForbiddenException(COOKIES_NOT_FOUND);
           }
@@ -37,6 +37,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
 
     const user = await this.usersService.findUserById(payload.sub);
+    console.log('user', user);
+
     if (O.isNone(user)) {
       throw new UnauthorizedException(USER_NOT_FOUND);
     }

@@ -6,6 +6,7 @@ import { TeamMember } from 'src/team/team.model';
 import { TeamEnvironment } from 'src/team-environments/team-environments.model';
 import { TeamCollection } from 'src/team-collection/team-collection.model';
 import { TeamRequest } from 'src/team-request/team-request.model';
+import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
@@ -33,4 +34,6 @@ export type TopicDef = {
   [topic: `user_history/${string}/deleted_many`]: number;
   [topic: `team_req/${string}/${'req_created' | 'req_updated'}`]: TeamRequest;
   [topic: `team_req/${string}/req_deleted`]: string;
+  [topic: `team/${string}/invite_added`]: TeamInvitation;
+  [topic: `team/${string}/invite_removed`]: string;
 };

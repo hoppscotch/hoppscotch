@@ -34,21 +34,11 @@ import { UserHistoryModule } from './user-history/user-history.module';
           },
         },
       },
-      context: async ({ req, connection }) => {
-        if (req) {
-          return { reqHeaders: req.headers };
-        } else {
-          return {
-            // Lowercase the keys
-            reqHeaders: Object.fromEntries(
-              Object.entries(connection.context).map(([k, v]) => [
-                k.toLowerCase(),
-                v,
-              ]),
-            ),
-          };
-        }
-      },
+      context: ({ req, res, connection }) => ({
+        req,
+        res,
+        connection,
+      }),
       driver: ApolloDriver,
     }),
     UserModule,

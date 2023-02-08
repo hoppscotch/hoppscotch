@@ -37,8 +37,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (!payload) throw new ForbiddenException(INVALID_ACCESS_TOKEN);
 
     const user = await this.usersService.findUserById(payload.sub);
-    console.log('user', user);
-
     if (O.isNone(user)) {
       throw new UnauthorizedException(USER_NOT_FOUND);
     }

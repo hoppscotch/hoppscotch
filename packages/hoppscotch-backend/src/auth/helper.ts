@@ -52,3 +52,17 @@ export const authCookieHandler = (
     res.status(HttpStatus.OK).redirect(process.env.REDIRECT_URL);
   } else res.status(HttpStatus.OK).send();
 };
+
+/**
+ * Sets and returns the cookies in the response object on successful authentication
+ * @param rawCookies cookies from the websocket connection
+ * @returns AuthTokens for JWT strategy to use
+ */
+export const subscriptionContextCookieParser = (rawCookies: string) => {
+  const access_tokenString = rawCookies.split(';')[0].split('=')[1];
+  const refresh_tokenString = rawCookies.split(';')[1].split('=')[1];
+  return <AuthTokens>{
+    access_token: access_tokenString,
+    refresh_token: refresh_tokenString,
+  };
+};

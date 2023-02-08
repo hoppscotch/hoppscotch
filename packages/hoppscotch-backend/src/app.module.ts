@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
 import { UserHistoryModule } from './user-history/user-history.module';
+import { subscriptionContextCookieParser } from './auth/helper';
 
 @Module({
   imports: [
@@ -22,14 +23,12 @@ import { UserHistoryModule } from './user-history/user-history.module';
       subscriptions: {
         'subscriptions-transport-ws': {
           path: '/graphql',
-          onConnect: (connectionParams: any) => {
+          onConnect: (_, websocket) => {
+            const cookies = subscriptionContextCookieParser(
+              websocket.upgradeReq.headers.cookie,
+            );
             return {
-              reqHeaders: Object.fromEntries(
-                Object.entries(connectionParams).map(([k, v]) => [
-                  k.toLowerCase(),
-                  v,
-                ]),
-              ),
+              headers: { ...websocket?.upgradeReq?.headers, cookies },
             };
           },
         },

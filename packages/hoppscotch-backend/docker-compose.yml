@@ -2,6 +2,8 @@ version: '3.0'
 services:
   local:
     build: .
+    env_file:
+      - .env
     command: [ "pnpm", "run", "start:dev" ]
     environment:
       - PRODUCTION=false

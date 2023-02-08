@@ -54,7 +54,7 @@ export const authCookieHandler = (
 };
 
 /**
- * Sets and returns the cookies in the response object on successful authentication
+ * Decode the cookie header from incoming websocket connects and returns a auth token pair
  * @param rawCookies cookies from the websocket connection
  * @returns AuthTokens for JWT strategy to use
  */

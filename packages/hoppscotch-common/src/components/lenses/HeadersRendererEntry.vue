@@ -30,7 +30,7 @@
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import { refAutoReset } from "@vueuse/core"
-import type { HoppRESTHeader } from "@hoppscotch/data"
+import type { HoppRESTResponseHeader } from "~/helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -40,7 +40,7 @@ const t = useI18n()
 const toast = useToast()
 
 defineProps<{
-  header: HoppRESTHeader
+  header: HoppRESTResponseHeader
 }>()
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

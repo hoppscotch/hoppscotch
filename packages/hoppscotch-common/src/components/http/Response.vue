@@ -3,40 +3,32 @@
     <HttpResponseMeta :response="response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
+      v-model:selected-tab-preference="selectedTabPreference"
       :response="response"
     />
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, watch } from "vue"
+<script setup lang="ts">
+import { ref, computed, watch } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import { useReadonlyStream } from "@composables/stream"
 import { restResponse$ } from "~/newstore/RESTSession"
 
-export default defineComponent({
-  setup() {
-    const response = useReadonlyStream(restResponse$, null)
+const selectedTabPreference = ref<string | null>(null)
 
-    const hasResponse = computed(
-      () =>
-        response.value?.type === "success" || response.value?.type === "fail"
-    )
+const response = useReadonlyStream(restResponse$, null)
 
-    const loading = computed(
-      () => response.value === null || response.value.type === "loading"
-    )
+const hasResponse = computed(
+  () => response.value?.type === "success" || response.value?.type === "fail"
+)
 
-    watch(response, () => {
-      if (response.value?.type === "loading") startPageProgress()
-      else completePageProgress()
-    })
+const loading = computed(
+  () => response.value === null || response.value.type === "loading"
+)
 
-    return {
-      hasResponse,
-      response,
-      loading,
-    }
-  },
+watch(response, () => {
+  if (response.value?.type === "loading") startPageProgress()
+  else completePageProgress()
 })
 </script>

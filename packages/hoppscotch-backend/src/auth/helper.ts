@@ -59,10 +59,10 @@ export const authCookieHandler = (
  * @returns AuthTokens for JWT strategy to use
  */
 export const subscriptionContextCookieParser = (rawCookies: string) => {
-  const access_tokenString = rawCookies.split(';')[0].split('=')[1];
-  const refresh_tokenString = rawCookies.split(';')[1].split('=')[1];
+  const access_token = rawCookies.split(';')[0].split('=')[1];
+  const refresh_token = rawCookies.split(';')[1].split('=')[1];
   return <AuthTokens>{
-    access_token: access_tokenString,
-    refresh_token: refresh_tokenString,
+    access_token,
+    refresh_token,
   };
 };

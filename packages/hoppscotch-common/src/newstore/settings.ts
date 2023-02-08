@@ -7,7 +7,7 @@ import type { KeysMatching } from "~/types/ts-utils"
 
 export const HoppBgColors = ["system", "light", "dark", "black"] as const
 
-export type HoppBgColor = typeof HoppBgColors[number]
+export type HoppBgColor = (typeof HoppBgColors)[number]
 
 export const HoppAccentColors = [
   "green",
@@ -21,11 +21,11 @@ export const HoppAccentColors = [
   "pink",
 ] as const
 
-export type HoppAccentColor = typeof HoppAccentColors[number]
+export type HoppAccentColor = (typeof HoppAccentColors)[number]
 
 export const HoppFontSizes = ["small", "medium", "large"] as const
 
-export type HoppFontSize = typeof HoppFontSizes[number]
+export type HoppFontSize = (typeof HoppFontSizes)[number]
 
 export type SettingsType = {
   syncCollections: boolean

@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream, useStream } from "@composables/stream"
+import { map } from "rxjs"
 import { ref } from "vue"
 import { RESTRequest } from "~/helpers/RESTRequest"
 
@@ -69,9 +70,25 @@ const changeTab = (e: RequestOptionTabs) => {
 
 // TODO: Resolve count issue
 
-const newActiveParamsCount$ = useReadonlyStream(props.request.headers$, null)
+const newActiveParamsCount$ = useReadonlyStream(
+  props.request.paramsCount$.pipe(
+    map((e) => {
+      if (e === 0) return null
+      return `${e}`
+    })
+  ),
+  null
+)
 
-const newActiveHeadersCount$ = useReadonlyStream(props.request.params$, null)
+const newActiveHeadersCount$ = useReadonlyStream(
+  props.request.headersCount$.pipe(
+    map((e) => {
+      if (e === 0) return null
+      return `${e}`
+    })
+  ),
+  null
+)
 
 const preRequestScript = useStream(
   props.request.preRequestScript$,

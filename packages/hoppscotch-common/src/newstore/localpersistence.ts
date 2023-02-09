@@ -1,11 +1,10 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
-import { clone, cloneDeep, assign, isEmpty } from "lodash-es"
+import { clone, cloneDeep, assign, isEmpty, uniqueId } from "lodash-es"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import {
   safelyExtractRESTRequest,
-  translateToNewRequest,
   translateToNewRESTCollection,
   translateToNewGQLCollection,
   Environment,
@@ -42,10 +41,11 @@ import {
   selectedEnvironmentIndex$,
 } from "./environments"
 import {
-  getDefaultRESTRequest,
   restSession$,
   RESTTab,
+  setCurrentTabId,
   setRESTRequest,
+  setRESTTabs,
 } from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WebSocketSession"
 import { SIORequest$, setSIORequest } from "./SocketIOSession"
@@ -53,6 +53,7 @@ import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
 import { bulkApplyLocalState, localStateStore } from "./localstate"
 import { StorageLike } from "@vueuse/core"
+import { RESTRequest } from "~/helpers/RESTRequest"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -312,10 +313,9 @@ function setupRequestPersistence() {
   )
 
   if (localRequest) {
-    const parsedLocal = translateToNewRequest(localRequest)
-    setRESTRequest(
-      safelyExtractRESTRequest(parsedLocal, getDefaultRESTRequest())
-    )
+    const tabs = getTabsForRestoration(localRequest)
+    setCurrentTabId(tabs[0].id)
+    setRESTTabs(tabs)
   }
 
   restSession$.subscribe((req) => {
@@ -323,6 +323,35 @@ function setupRequestPersistence() {
     const session = getSessionForPersistence(restSession.tabs)
     window.localStorage.setItem("restSession", JSON.stringify(session))
   })
+}
+
+export function getTabsForRestoration(tabs: unknown[]) {
+  if (!Array.isArray(tabs) || tabs.length === 0) {
+    return []
+  }
+
+  // TODO: Refactor and add proper validation
+
+  const restoredTabs = tabs.map((x) => {
+    const tab: RESTTab = {
+      id: uniqueId("new"),
+      name: "Untitled",
+      request: new RESTRequest(),
+    }
+    tab.request.setRequest(
+      safelyExtractRESTRequest(x.request, tab.request.getRequest())
+    )
+    return tab
+  })
+
+  !restoredTabs.length &&
+    restoredTabs.push({
+      id: uniqueId("new"),
+      name: "Untitled",
+      request: new RESTRequest(),
+    })
+
+  return restoredTabs
 }
 
 export function getSessionForPersistence(allTabs: RESTTab[]) {

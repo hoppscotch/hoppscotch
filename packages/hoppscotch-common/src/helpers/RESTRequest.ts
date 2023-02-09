@@ -84,6 +84,26 @@ export class RESTRequest {
     return this.body$.pipe(map((body) => body.body))
   }
 
+  get headersCount$() {
+    return this.headers$.pipe(
+      map(
+        (params) =>
+          params.filter((x) => x.active && (x.key !== "" || x.value !== ""))
+            .length
+      )
+    )
+  }
+
+  get paramsCount$() {
+    return this.params$.pipe(
+      map(
+        (params) =>
+          params.filter((x) => x.active && (x.key !== "" || x.value !== ""))
+            .length
+      )
+    )
+  }
+
   setName(name: string) {
     this.name$.next(name)
   }

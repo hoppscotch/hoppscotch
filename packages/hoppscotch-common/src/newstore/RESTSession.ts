@@ -5,7 +5,6 @@ import {
   RESTReqSchemaVersion,
 } from "@hoppscotch/data"
 import { uniqueId } from "lodash-es"
-import { combineLatest } from "rxjs"
 import { distinctUntilChanged, filter, map, pluck } from "rxjs/operators"
 import { Ref } from "vue"
 import { RESTRequest } from "~/helpers/RESTRequest"
@@ -106,6 +105,7 @@ const dispatchers = defineDispatchers({
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
 
 export function setRESTTabs(tabs: RESTTab[]) {
+  console.log("setRESTTabs", tabs)
   restSessionStore.dispatch({
     dispatcher: "setTabs",
     payload: {
@@ -166,7 +166,7 @@ export const RESTCurrentTabId$ = restSessionStore.subject$.pipe(
 
 export function getRESTRequest() {
   // current tab > request > getRequest
-  return getCurrentTab().request.getRequest()
+  return getCurrentTab()?.request.getRequest()
 }
 
 export function setRESTRequest(

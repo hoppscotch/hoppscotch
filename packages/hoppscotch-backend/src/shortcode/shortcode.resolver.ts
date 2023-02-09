@@ -23,6 +23,7 @@ import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { User } from 'src/user/user.model';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { AuthUser } from '../types/AuthUser';
 
 @Resolver(() => Shortcode)
 export class ShortcodeResolver {
@@ -57,7 +58,7 @@ export class ShortcodeResolver {
   })
   @UseGuards(GqlAuthGuard)
   myShortcodes(
-    @GqlUser() user: User,
+    @GqlUser() user: AuthUser,
     @Args({
       name: 'cursor',
       type: () => ID,
@@ -168,7 +169,7 @@ export class ShortcodeResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  myShortcodesCreated(@GqlUser() user: User) {
+  myShortcodesCreated(@GqlUser() user: AuthUser) {
     return this.pubsub.asyncIterator(`shortcode/${user.uid}/created`);
   }
 
@@ -177,7 +178,7 @@ export class ShortcodeResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  myShortcodesRevoked(@GqlUser() user: User): AsyncIterator<Shortcode> {
+  myShortcodesRevoked(@GqlUser() user: AuthUser): AsyncIterator<Shortcode> {
     return this.pubsub.asyncIterator(`shortcode/${user.uid}/revoked`);
   }
 }

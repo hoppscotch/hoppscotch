@@ -80,7 +80,7 @@
     "jest": "^29.4.1",
     "jest-mock-extended": "^3.0.1",
     "jwt": "link:@types/nestjs/jwt",
-    "prettier": "^2.8.0",
+    "prettier": "^2.8.4",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.2",
     "ts-jest": "29.0.5",

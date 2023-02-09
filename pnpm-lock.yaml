@@ -97,7 +97,7 @@ importers:
       passport-local: ^1.0.0
       passport-microsoft: ^1.0.0
       postmark: ^3.0.15
-      prettier: ^2.8.0
+      prettier: ^2.8.4
       prisma: ^4.7.1
       reflect-metadata: ^0.1.13
       rimraf: ^3.0.2
@@ -164,11 +164,11 @@ importers:
       '@typescript-eslint/parser': 5.45.0_s5ps7njkmjlaqajutnox5ntcla
       eslint: 8.29.0
       eslint-config-prettier: 8.5.0_eslint@8.29.0
-      eslint-plugin-prettier: 4.2.1_nrhoyyjffvfyk4vtlt5destxgm
+      eslint-plugin-prettier: 4.2.1_eabs6augosioka4cd2cz5tdama
       jest: 29.4.1_j5wyyouvf5aixckc7ltaxrydha
       jest-mock-extended: 3.0.1_rnja4qcakvykemesq3rilwl7p4
       jwt: link:@types/nestjs/jwt
-      prettier: 2.8.0
+      prettier: 2.8.4
       source-map-support: 0.5.21
       supertest: 6.3.2
       ts-jest: 29.0.5_rnja4qcakvykemesq3rilwl7p4
@@ -9881,6 +9881,23 @@ packages:
       eslint: 8.19.0
     dev: true
 
+  /eslint-plugin-prettier/4.2.1_eabs6augosioka4cd2cz5tdama:
+    resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      eslint: '>=7.28.0'
+      eslint-config-prettier: '*'
+      prettier: '>=2.0.0'
+    peerDependenciesMeta:
+      eslint-config-prettier:
+        optional: true
+    dependencies:
+      eslint: 8.29.0
+      eslint-config-prettier: 8.5.0_eslint@8.29.0
+      prettier: 2.8.4
+      prettier-linter-helpers: 1.0.0
+    dev: true
+
   /eslint-plugin-prettier/4.2.1_eslint@8.24.0:
     resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
     engines: {node: '>=12.0.0'}
@@ -9923,23 +9940,6 @@ packages:
         optional: true
     dependencies:
       eslint: 8.29.0
-      prettier-linter-helpers: 1.0.0
-    dev: true
-
-  /eslint-plugin-prettier/4.2.1_nrhoyyjffvfyk4vtlt5destxgm:
-    resolution: {integrity: sha512-f/0rXLXUt0oFYs8ra4w49wYZBG5GKZpAYsJSm6rnYL5uVDjd+zowwMwVZHnAjf4edNrKpCDYfXDgmRE/Ak7QyQ==}
-    engines: {node: '>=12.0.0'}
-    peerDependencies:
-      eslint: '>=7.28.0'
-      eslint-config-prettier: '*'
-      prettier: '>=2.0.0'
-    peerDependenciesMeta:
-      eslint-config-prettier:
-        optional: true
-    dependencies:
-      eslint: 8.29.0
-      eslint-config-prettier: 8.5.0_eslint@8.29.0
-      prettier: 2.8.0
       prettier-linter-helpers: 1.0.0
     dev: true
 
@@ -14746,12 +14746,6 @@ packages:
     engines: {node: '>=6.0.0'}
     dependencies:
       fast-diff: 1.2.0
-    dev: true
-
-  /prettier/2.8.0:
-    resolution: {integrity: sha512-9Lmg8hTFZKG0Asr/kW9Bp8tJjRVluO8EJQVfY2T7FMw9T5jy4I/Uvx0Rca/XWf50QQ1/SS48+6IJWnrb+2yemA==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
     dev: true
 
   /prettier/2.8.4:

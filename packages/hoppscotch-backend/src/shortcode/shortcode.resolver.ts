@@ -164,21 +164,22 @@ export class ShortcodeResolver {
 
   /* Subscriptions */
 
-  @Subscription(() => Shortcode, {
-    description: 'Listen for shortcode creation',
-    resolve: (value) => value,
-  })
-  @UseGuards(GqlAuthGuard)
-  myShortcodesCreated(@GqlUser() user: AuthUser) {
-    return this.pubsub.asyncIterator(`shortcode/${user.uid}/created`);
-  }
-
-  @Subscription(() => Shortcode, {
-    description: 'Listen for shortcode deletion',
-    resolve: (value) => value,
-  })
-  @UseGuards(GqlAuthGuard)
-  myShortcodesRevoked(@GqlUser() user: AuthUser): AsyncIterator<Shortcode> {
-    return this.pubsub.asyncIterator(`shortcode/${user.uid}/revoked`);
-  }
+  // TODO: update subscription after fixing service methods
+  // @Subscription(() => Shortcode, {
+  //   description: 'Listen for shortcode creation',
+  //   resolve: (value) => value,
+  // })
+  // @UseGuards(GqlAuthGuard)
+  // myShortcodesCreated(@GqlUser() user: AuthUser) {
+  //   return this.pubsub.asyncIterator(`shortcode/${user.uid}/created`);
+  // }
+  //
+  // @Subscription(() => Shortcode, {
+  //   description: 'Listen for shortcode deletion',
+  //   resolve: (value) => value,
+  // })
+  // @UseGuards(GqlAuthGuard)
+  // myShortcodesRevoked(@GqlUser() user: AuthUser): AsyncIterator<Shortcode> {
+  //   return this.pubsub.asyncIterator(`shortcode/${user.uid}/revoked`);
+  // }
 }

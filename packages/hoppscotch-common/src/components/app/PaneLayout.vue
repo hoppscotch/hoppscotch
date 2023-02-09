@@ -42,7 +42,7 @@
     <SmartSlideOver
       v-if="!mdAndLarger && SIDEBAR && hasSidebar"
       :show="showSlideOver"
-      :title="t('tab.collections')"
+      :title="slideoverTitle ?? `${t('tab.collections')}`"
       @close="SIDEBAR = !SIDEBAR"
     >
       <template #slideovercontent>
@@ -80,6 +80,10 @@ const hasSidebar = computed(() => !!slots.sidebar)
 
 const props = defineProps({
   layoutId: {
+    type: String,
+    default: null,
+  },
+  slideoverTitle: {
     type: String,
     default: null,
   },

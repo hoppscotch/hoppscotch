@@ -4,6 +4,11 @@ import { AuthError } from 'src/types/AuthError';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
 
+enum AuthTokenType {
+  ACCESS_TOKEN = 'access_token',
+  REFRESH_TOKEN = 'refresh_token',
+}
+
 /**
  * This function allows throw to be used as an expression
  * @param errMessage Message present in the error message
@@ -36,13 +41,13 @@ export const authCookieHandler = (
     })
     .toMillis();
 
-  res.cookie('access_token', authTokens.access_token, {
+  res.cookie(AuthTokenType.ACCESS_TOKEN, authTokens.access_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
     maxAge: accessTokenValidity,
   });
-  res.cookie('refresh_token', authTokens.refresh_token, {
+  res.cookie(AuthTokenType.REFRESH_TOKEN, authTokens.refresh_token, {
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
@@ -59,10 +64,14 @@ export const authCookieHandler = (
  * @returns AuthTokens for JWT strategy to use
  */
 export const subscriptionContextCookieParser = (rawCookies: string) => {
-  const access_token = rawCookies.split(';')[0].split('=')[1];
-  const refresh_token = rawCookies.split(';')[1].split('=')[1];
+  const cookieMap = new Map<string, string>();
+  rawCookies.split(';').forEach((cookie) => {
+    const [key, value] = cookie.split('=');
+    cookieMap.set(key, value);
+  });
+
   return <AuthTokens>{
-    access_token,
-    refresh_token,
+    access_token: cookieMap.get(AuthTokenType.ACCESS_TOKEN),
+    refresh_token: cookieMap.get(AuthTokenType.REFRESH_TOKEN),
   };
 };

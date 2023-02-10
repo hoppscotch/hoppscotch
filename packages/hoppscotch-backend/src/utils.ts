@@ -8,7 +8,6 @@ import * as T from 'fp-ts/Task';
 import * as E from 'fp-ts/Either';
 import * as A from 'fp-ts/Array';
 import { TeamMemberRole } from './team/team.model';
-import { User } from './user/user.model';
 import { JSON_INVALID } from './errors';
 
 /**

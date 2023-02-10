@@ -69,6 +69,41 @@
               interactive
               trigger="click"
               theme="popover"
+              :on-shown="() => accountActions.focus()"
+            >
+              <ButtonPrimary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('workspace.change')"
+                :label="
+                  mdAndLarger
+                    ? `${
+                        workspace.type === 'personal'
+                          ? t('workspace.personal')
+                          : workspace.teamName
+                      } \xA0 ▾`
+                    : `▾`
+                "
+                :icon="workspace.type === 'personal' ? IconUser : IconUsers"
+                class="!bg-primaryDark !select-wrapper !font-medium !text-secondaryDark"
+              />
+              <template #content="{ hide }">
+                <div
+                  ref="accountActions"
+                  class="flex flex-col focus:outline-none"
+                  tabindex="0"
+                  @keyup.escape="hide()"
+                  @click="hide()"
+                >
+                  <TeamsWorkspaceSelector />
+                </div>
+              </template>
+            </tippy>
+          </span>
+          <span class="px-2">
+            <tippy
+              interactive
+              trigger="click"
+              theme="popover"
               :on-shown="() => tippyActions.focus()"
             >
               <ProfilePicture
@@ -163,6 +198,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue"
 import IconUser from "~icons/lucide/user"
+import IconUsers from "~icons/lucide/users"
 import IconSettings from "~icons/lucide/settings"
 import IconDownload from "~icons/lucide/download"
 import IconSearch from "~icons/lucide/search"
@@ -175,6 +211,7 @@ import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
+import { workspaceStatus$ } from "~/newstore/workspace"
 
 const t = useI18n()
 
@@ -198,9 +235,12 @@ const currentUser = useReadonlyStream(
   platform.auth.getProbableUser()
 )
 
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
 // Template refs
 const tippyActions = ref<any | null>(null)
 const profile = ref<any | null>(null)
 const settings = ref<any | null>(null)
 const logout = ref<any | null>(null)
+const accountActions = ref<any | null>(null)
 </script>

@@ -725,5 +725,10 @@
     "message": "Message",
     "protocols": "Protocols",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My workspace",
+    "team": "Team workspace"
   }
 }

@@ -156,11 +156,6 @@
         class="border-b border-dividerLight"
         @edit-environment="editEnvironment('Global')"
       />
-      <EnvironmentsChooseType
-        :environment-type="environmentType"
-        @update-environment-type="updateEnvironmentType"
-        @update-selected-team="updateSelectedTeam"
-      />
     </div>
     <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
@@ -198,6 +193,10 @@ import { GQLError } from "~/helpers/backend/GQLClient"
 import IconCheck from "~icons/lucide/check"
 import { TippyComponent } from "vue-tippy"
 import { defineActionHandler } from "~/helpers/actions"
+import { workspaceStatus$ } from "~/newstore/workspace"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { useLocalState } from "~/newstore/localstate"
+import { onLoggedIn } from "~/composables/auth"
 
 const t = useI18n()
 
@@ -227,12 +226,30 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
+watch(
+  () => environmentType.value.selectedTeam,
+  (newTeam) => {
+    if (newTeam) {
+      adapter.changeTeamID(newTeam.id)
+    }
+  }
+)
+
 const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
-  environmentType.value.selectedTeam = newSelectedTeam
+  if (newSelectedTeam) {
+    environmentType.value.selectedTeam = newSelectedTeam
+    REMEMBERED_TEAM_ID.value = newSelectedTeam.id
+    updateEnvironmentType("team-environments")
+  }
 }
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
 }
+
+// TeamList-Adapter
+const teamListAdapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 
 const adapter = new TeamEnvironmentAdapter(undefined)
 const adapterLoading = useReadonlyStream(adapter.loading$, false)
@@ -255,6 +272,29 @@ watch(
   (newValue) => {
     if (!newValue) {
       updateEnvironmentType("my-environments")
+    }
+  }
+)
+
+onLoggedIn(() => {
+  teamListAdapter.initialize()
+})
+
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+watch(
+  () => workspace.value,
+  (newWorkspace) => {
+    if (newWorkspace.type === "personal") {
+      updateEnvironmentType("my-environments")
+      updateSelectedTeam(undefined)
+      adapter.changeTeamID(undefined)
+    } else if (newWorkspace.type === "team") {
+      const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
+      console.log("env-changed-team", myTeams.value)
+      if (team) {
+        updateSelectedTeam(team)
+      }
     }
   }
 )

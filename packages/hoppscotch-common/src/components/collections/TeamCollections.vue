@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col flex-1 bg-primary">
     <div
-      class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
+      class="z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
       :style="
         saveRequest
-          ? 'top: calc(var(--upper-secondary-sticky-fold) - var(--line-height-body))'
-          : 'top: var(--upper-secondary-sticky-fold)'
+          ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
+          : 'top: var(--upper-primary-sticky-fold)'
       "
     >
       <HoppButtonSecondary

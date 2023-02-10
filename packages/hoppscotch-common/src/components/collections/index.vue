@@ -24,22 +24,8 @@
         :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
-    <HoppSmartTabs
-      v-model="selectedCollectionTab"
-      render-inactive-tabs
-      :styles="`
-        sticky overflow-x-auto border-y bg-primary border-dividerLight flex-shrink-0 z-10
-        ${
-          saveRequest
-            ? 'top-sidebarSecondaryStickyFold'
-            : 'top-sidebarPrimaryStickyFold'
-        }
-      `"
-    >
-      <HoppSmartTab
-        :id="'my-collections'"
-        :label="`${t('collection.my_collections')}`"
-      >
+    <div>
+      <div v-if="workspace.type === 'personal'">
         <CollectionsMyCollections
           :collections-type="collectionsType"
           :filtered-collections="filteredCollections"
@@ -65,28 +51,8 @@
           @display-modal-add="displayModalAdd(true)"
           @display-modal-import-export="displayModalImportExport(true)"
         />
-      </HoppSmartTab>
-      <HoppSmartTab
-        :id="'team-collections'"
-        :label="`${t('collection.team_collections')}`"
-      >
-        <div
-          class="sticky z-10 flex flex-1 bg-primary"
-          :style="
-            saveRequest
-              ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
-              : 'top: var(--upper-primary-sticky-fold)'
-          "
-        >
-          <CollectionsTeamSelect
-            :collections-type="collectionsType"
-            :my-teams="myTeams"
-            :is-team-list-loading="isTeamListLoading"
-            @update-selected-team="updateSelectedTeam"
-            @team-select-intersect="onTeamSelectIntersect"
-            @display-team-modal-add="displayTeamModalAdd(true)"
-          />
-        </div>
+      </div>
+      <div v-else>
         <CollectionsTeamCollections
           :collections-type="collectionsType"
           :team-collection-list="teamCollectionList"
@@ -117,8 +83,9 @@
           @display-modal-add="displayModalAdd(true)"
           @display-modal-import-export="displayModalImportExport(true)"
         />
-      </HoppSmartTab>
-    </HoppSmartTabs>
+      </div>
+    </div>
+
     <div
       class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
       :class="{ '!flex': draggingToRoot }"
@@ -275,6 +242,7 @@ import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
 import { invokeAction } from "~/helpers/actions"
+import { workspaceStatus$ } from "~/newstore/workspace"
 import IconListEnd from "~icons/lucide/list-end"
 
 const t = useI18n()
@@ -379,9 +347,7 @@ const clickedRequest = reactive({
 // TeamList-Adapter
 const teamListAdapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
-const isTeamListLoading = useReadonlyStream(teamListAdapter.loading$, false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
-const teamListFetched = ref(false)
 
 // Team Collection Adapter
 const teamCollectionAdapter = new TeamCollectionAdapter(null)
@@ -407,20 +373,11 @@ const expandTeamCollection = (collectionID: string) => {
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
-watch(myTeams, (teams) => {
-  if (teams && !teamListFetched.value) {
-    teamListFetched.value = true
-    if (REMEMBERED_TEAM_ID.value && currentUser.value) {
-      const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-      if (team) updateSelectedTeam(team)
-    }
-  }
-})
-
 const updateSelectedTeam = (team: SelectedTeam) => {
   if (team) {
     collectionsType.value.selectedTeam = team
     REMEMBERED_TEAM_ID.value = team.id
+    selectedCollectionTab.value = "team-collections"
     emit("update-team", team)
   }
 }
@@ -429,10 +386,21 @@ onLoggedIn(() => {
   teamListAdapter.initialize()
 })
 
-const onTeamSelectIntersect = () => {
-  // Load team data as soon as intersection
-  teamListAdapter.fetchList()
-}
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+watch(
+  () => workspace.value,
+  (newWorkspace) => {
+    if (newWorkspace.type === "personal") {
+      selectedCollectionTab.value = "my-collections"
+      collectionsType.value.selectedTeam = undefined
+      teamCollectionAdapter.changeTeamID(null)
+    } else if (newWorkspace.type === "team") {
+      const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
+      if (team) updateSelectedTeam(team)
+    }
+  }
+)
 
 // Switch to my-collections and reset the team collection when user logout
 watch(

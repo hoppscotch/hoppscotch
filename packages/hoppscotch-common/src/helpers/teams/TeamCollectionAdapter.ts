@@ -307,6 +307,9 @@ export default class NewTeamCollectionAdapter {
     collection: TeamCollection,
     parentCollectionID: string | null
   ) {
+    // Check if we have it already in the entity tree, if so, we don't need it again
+    if (this.entityIDs.has(`collection-${collection.id}`)) return
+
     const tree = this.collections$.value
 
     if (!parentCollectionID) {

@@ -394,9 +394,9 @@
     },
     "copy_link": "Copy link",
     "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Duration",
     "enter_curl": "Enter cURL command",
-    "duplicated": "Request duplicated",
     "generate_code": "Generate code",
     "generated_code": "Generated code",
     "header_list": "Header List",
@@ -728,7 +728,8 @@
   },
   "workspace": {
     "change": "Change workspace",
-    "personal": "My workspace",
-    "team": "Team workspace"
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

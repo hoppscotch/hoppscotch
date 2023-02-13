@@ -7,17 +7,17 @@
           :icon="IconUser"
           :info-icon="workspace.type === 'personal' ? IconDone : undefined"
           :active-info-icon="workspace.type === 'personal'"
-          @click="changePersonalWorkspace"
+          @click="switchToPersonalWorkspace"
         />
         <hr />
       </div>
-      <div v-if="loading" class="flex flex-col items-center justify-center">
+      <div v-if="loading" class="flex flex-col items-center justify-center p-4">
         <SmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <div
         v-if="!loading && myTeams.length === 0"
-        class="flex flex-col items-center justify-center p-4 text-secondaryLight flex-1"
+        class="flex flex-col items-center justify-center flex-1 p-4 text-secondaryLight"
       >
         <img
           :src="`/images/states/${colorMode.value}/add_group.svg`"
@@ -31,33 +31,34 @@
       </div>
       <div v-else-if="!loading" class="flex flex-col">
         <div
-          class="sticky -top-2 flex justify-between items-center bg-popover rounded py-2"
+          class="sticky top-0 z-10 flex items-center justify-between py-2 pl-2 mb-2 -top-2 bg-popover"
         >
-          <div class="flex items-center text-secondaryLight px-4">
-            <span>
-              <component :is="IconUsers" class="mr-4 h-4 w-4" />
-            </span>
-            <span class="text-[12px]">Teams</span>
+          <div class="flex items-center px-2 font-semibold text-secondaryLight">
+            {{ t("team.title") }}
           </div>
-          <SmartItem
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlus"
             :title="`${t('team.create_new')}`"
+            outline
+            filled
+            class="!p-0.75 rounded ml-8"
             @click="displayModalAdd(true)"
           />
         </div>
         <SmartItem
           v-for="(team, index) in myTeams"
           :key="`team-${String(index)}`"
+          :icon="IconUsers"
           :label="team.name"
           :info-icon="isActiveWorkspace(team.id) ? IconDone : undefined"
           :active-info-icon="isActiveWorkspace(team.id)"
-          @click="changeTeamWorkspace(team)"
+          @click="switchToTeamWorkspace(team)"
         />
       </div>
       <div
         v-if="!loading && teamListAdapterError"
-        class="flex flex-col items-center"
+        class="flex flex-col items-center py-4"
       >
         <i class="mb-4 material-icons">help_outline</i>
         {{ t("error.something_went_wrong") }}
@@ -104,7 +105,7 @@ watch(myTeams, (teams) => {
     teamListFetched.value = true
     if (REMEMBERED_TEAM_ID.value && currentUser.value) {
       const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-      if (team) changeTeamWorkspace(team)
+      if (team) switchToTeamWorkspace(team)
     }
   }
 })
@@ -120,7 +121,7 @@ const isActiveWorkspace = computed(() => (id: string) => {
   return workspace.value.teamID === id
 })
 
-const changeTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
+const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
   REMEMBERED_TEAM_ID.value = team.id
   changeWorkspace({
     teamID: team.id,
@@ -128,7 +129,7 @@ const changeTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
     type: "team",
   })
 }
-const changePersonalWorkspace = () => {
+const switchToPersonalWorkspace = () => {
   REMEMBERED_TEAM_ID.value = undefined
   changeWorkspace({
     type: "personal",

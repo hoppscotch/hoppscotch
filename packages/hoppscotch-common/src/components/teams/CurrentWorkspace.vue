@@ -1,6 +1,6 @@
 <template>
-  <div class="flex items-center py-3 justify-between">
-    <div class="flex space-x-2 px-4 items-center">
+  <div class="flex items-center justify-between py-3">
+    <div class="flex items-center px-4 space-x-2">
       <span>
         <component :is="IconLibrary" class="svg-icons text-secondaryLight" />
       </span>

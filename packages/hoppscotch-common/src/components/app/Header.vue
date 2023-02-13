@@ -61,44 +61,40 @@
             :title="t('team.invite_tooltip')"
             :label="t('team.invite')"
             :icon="IconUserPlus"
-            class="!bg-green-500 !bg-opacity-15 !text-green-500 !hover:bg-opacity-10 !hover:bg-green-400 !hover:text-green-600"
+            class="bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
             @click="showTeamsModal = true"
           />
-          <span class="px-2">
-            <tippy
-              interactive
-              trigger="click"
-              theme="popover"
-              :on-shown="() => accountActions.focus()"
-            >
-              <ButtonPrimary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('workspace.change')"
-                :label="
-                  mdAndLarger
-                    ? `${
-                        workspace.type === 'personal'
-                          ? t('workspace.personal')
-                          : workspace.teamName
-                      } \xA0 ▾`
-                    : `▾`
-                "
-                :icon="workspace.type === 'personal' ? IconUser : IconUsers"
-                class="!bg-blue-500 !bg-opacity-15 !text-blue-500 !hover:bg-opacity-10 !hover:bg-blue-400 !hover:text-blue-600"
-              />
-              <template #content="{ hide }">
-                <div
-                  ref="accountActions"
-                  class="flex flex-col focus:outline-none"
-                  tabindex="0"
-                  @keyup.escape="hide()"
-                  @click="hide()"
-                >
-                  <TeamsWorkspaceSelector />
-                </div>
-              </template>
-            </tippy>
-          </span>
+          <tippy
+            interactive
+            trigger="click"
+            theme="popover"
+            :on-shown="() => accountActions.focus()"
+          >
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('workspace.change')"
+              :label="
+                mdAndLarger
+                  ? workspace.type === 'personal'
+                    ? t('workspace.personal')
+                    : workspace.teamName
+                  : ``
+              "
+              :icon="workspace.type === 'personal' ? IconUser : IconUsers"
+              class="pr-8 select-wrapper rounded bg-blue-500/15 py-1.75 border border-blue-600/25 !text-blue-500 hover:bg-blue-400/10 hover:border-blue-800/50 !hover:text-blue-600"
+            />
+            <template #content="{ hide }">
+              <div
+                ref="accountActions"
+                class="flex flex-col focus:outline-none"
+                tabindex="0"
+                @keyup.escape="hide()"
+                @click="hide()"
+              >
+                <TeamsWorkspaceSelector />
+              </div>
+            </template>
+          </tippy>
           <span class="px-2">
             <tippy
               interactive

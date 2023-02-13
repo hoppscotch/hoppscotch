@@ -160,6 +160,7 @@ declare module "@vue/runtime-core" {
     TabSecondary: typeof import("./components/tab/Secondary.vue")["default"]
     Teams: typeof import("./components/teams/index.vue")["default"]
     TeamsAdd: typeof import("./components/teams/Add.vue")["default"]
+    TeamsCurrentWorkspace: typeof import("./components/teams/CurrentWorkspace.vue")["default"]
     TeamsEdit: typeof import("./components/teams/Edit.vue")["default"]
     TeamsInvite: typeof import("./components/teams/Invite.vue")["default"]
     TeamsModal: typeof import("./components/teams/Modal.vue")["default"]

@@ -148,6 +148,14 @@
             </div>
           </template>
         </tippy>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${
+            mdAndLarger ? t('support.title') : t('app.options')
+          } <kbd>?</kbd>`"
+          :icon="IconLifeBuoy"
+          @click="invokeAction('modals.support.toggle')"
+        />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
@@ -215,6 +223,7 @@ import IconGithub from "~icons/lucide/github"
 import IconTwitter from "~icons/lucide/twitter"
 import IconUserPlus from "~icons/lucide/user-plus"
 import IconLock from "~icons/lucide/lock"
+import IconLifeBuoy from "~icons/lucide/life-buoy"
 import { showChat } from "@modules/crisp"
 import { useSetting } from "@composables/settings"
 import { useI18n } from "@composables/i18n"
@@ -224,6 +233,7 @@ import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
 import { HoppSmartItem } from "@hoppscotch/ui"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)
@@ -235,6 +245,9 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
 const navigatorShare = !!navigator.share
+
+const breakpoints = useBreakpoints(breakpointsTailwind)
+const mdAndLarger = breakpoints.greater("md")
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),

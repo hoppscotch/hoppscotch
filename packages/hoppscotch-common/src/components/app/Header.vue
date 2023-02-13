@@ -4,7 +4,7 @@
       class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
       <div
-        class="inline-flex items-center space-x-2"
+        class="inline-flex items-center flex-1 space-x-2"
         :style="{
           paddingTop: platform.ui?.appHeader?.paddingTop?.value,
           paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
@@ -15,10 +15,23 @@
           :label="t('app.name')"
           to="/"
         />
-        <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
+        <!-- <AppGitHubStarButton class="mt-1.5 transition" /> -->
       </div>
-      <div class="inline-flex items-center space-x-2">
-        <HoppButtonSecondary
+      <div class="inline-flex items-center justify-center flex-1 space-x-2">
+        <AppNavigation />
+        <div
+          class="bg-primaryDark text-secondaryLight justify-between cursor-text rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary transition flex flex-1 items-center px-2 py-1.25"
+          @click="invokeAction('modals.search.toggle')"
+        >
+          <span class="inline-flex">
+            <icon-lucide-search class="mr-2 svg-icons" />
+            {{ t("app.search") }}
+          </span>
+          <kbd class="shortcut-key">/</kbd>
+        </div>
+      </div>
+      <div class="inline-flex items-center justify-end flex-1 space-x-2">
+        <ButtonSecondary
           v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('header.install_pwa')"
@@ -26,28 +39,11 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="installPWA()"
         />
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('app.search')} <kbd>/</kbd>`"
-          :icon="IconSearch"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click="invokeAction('modals.search.toggle')"
-        />
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${
-            mdAndLarger ? t('support.title') : t('app.options')
-          } <kbd>?</kbd>`"
-          :icon="IconLifeBuoy"
-          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click="invokeAction('modals.support.toggle')"
-        />
-        <HoppButtonSecondary
+        <ButtonSecondary
           v-if="currentUser === null"
           :icon="IconUploadCloud"
           :label="t('header.save_workspace')"
-          filled
-          class="hidden md:flex"
+          class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
           @click="invokeAction('modals.login.toggle')"
         />
         <HoppButtonPrimary
@@ -197,8 +193,6 @@ import IconUser from "~icons/lucide/user"
 import IconUsers from "~icons/lucide/users"
 import IconSettings from "~icons/lucide/settings"
 import IconDownload from "~icons/lucide/download"
-import IconSearch from "~icons/lucide/search"
-import IconLifeBuoy from "~icons/lucide/life-buoy"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUserPlus from "~icons/lucide/user-plus"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"

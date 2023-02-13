@@ -274,6 +274,10 @@ import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
+import {
+  cancelRunningExtensionRequest,
+  hasExtensionInstalled,
+} from "~/helpers/strategies/ExtensionStrategy"
 
 const t = useI18n()
 
@@ -403,6 +407,9 @@ function isCURL(curl: string) {
 
 const cancelRequest = () => {
   loading.value = false
+  if (hasExtensionInstalled()) {
+    cancelRunningExtensionRequest()
+  }
   updateRESTResponse(null)
 }
 

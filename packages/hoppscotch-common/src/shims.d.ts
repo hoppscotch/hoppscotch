@@ -8,7 +8,7 @@ interface PWExtensionHook {
   sendRequest: (
     req: AxiosRequestConfig & { wantsBinary: boolean }
   ) => Promise<NetworkResponse>
-  cancelRunningRequest: () => void
+  cancelRequest: () => void
 }
 
 type HoppExtensionStatusHook = {
@@ -18,7 +18,7 @@ type HoppExtensionStatusHook = {
   }
   subscribe(prop: "status", func: (...args: any[]) => any): void
 }
-declare global {
+export declare global {
   interface Window {
     __POSTWOMAN_EXTENSION_HOOK__: PWExtensionHook | undefined
     __HOPP_EXTENSION_STATUS_PROXY__: HoppExtensionStatusHook | undefined

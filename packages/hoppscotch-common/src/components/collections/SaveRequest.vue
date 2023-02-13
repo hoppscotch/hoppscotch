@@ -35,9 +35,9 @@
           v-else
           :picked="picked"
           :save-request="true"
-          @select="onSelect"
           @update-team="updateTeam"
           @update-collection-type="updateCollectionType"
+          @select="onSelect"
         />
       </div>
     </template>

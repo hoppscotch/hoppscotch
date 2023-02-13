@@ -164,6 +164,7 @@ declare module "@vue/runtime-core" {
     TeamsInvite: typeof import("./components/teams/Invite.vue")["default"]
     TeamsModal: typeof import("./components/teams/Modal.vue")["default"]
     TeamsTeam: typeof import("./components/teams/Team.vue")["default"]
+    TeamsWorkspaceSelector: typeof import("./components/teams/WorkspaceSelector.vue")["default"]
     Tippy: typeof import("vue-tippy")["Tippy"]
   }
 }

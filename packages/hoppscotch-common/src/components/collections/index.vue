@@ -23,6 +23,7 @@
         class="py-2 pl-4 pr-2 bg-transparent"
         :disabled="collectionsType.type === 'team-collections'"
       />
+      <TeamsCurrentWorkspace />
     </div>
     <div>
       <div v-if="workspace.type === 'personal'">
@@ -169,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, reactive, ref, watch, nextTick } from "vue"
+import { computed, PropType, reactive, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -241,7 +242,6 @@ import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
-import { invokeAction } from "~/helpers/actions"
 import { workspaceStatus$ } from "~/newstore/workspace"
 import IconListEnd from "~icons/lucide/list-end"
 
@@ -267,8 +267,6 @@ const emit = defineEmits<{
   (event: "update-collection-type", type: CollectionType["type"]): void
 }>()
 
-type CollectionTabs = "my-collections" | "team-collections"
-
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 type CollectionType =
@@ -278,25 +276,10 @@ type CollectionType =
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
-const selectedCollectionTab = ref<CollectionTabs>("my-collections")
-
 const collectionsType = ref<CollectionType>({
   type: "my-collections",
   selectedTeam: undefined,
 })
-
-watch(
-  () => selectedCollectionTab.value,
-  (tab) => {
-    if (tab === "team-collections" && !currentUser.value) {
-      invokeAction("modals.login.toggle")
-      nextTick(() => (selectedCollectionTab.value = "my-collections"))
-    } else {
-      collectionsType.value.type = tab
-      emit("update-collection-type", tab)
-    }
-  }
-)
 
 // Collection Data
 const editingCollection = ref<
@@ -348,6 +331,7 @@ const clickedRequest = reactive({
 const teamListAdapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+const teamListFetched = ref(false)
 
 // Team Collection Adapter
 const teamCollectionAdapter = new TeamCollectionAdapter(null)
@@ -361,6 +345,19 @@ const teamLoadingCollections = useReadonlyStream(
 )
 
 watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value && currentUser.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) updateSelectedTeam(team)
+      }
+    }
+  }
+)
+
+watch(
   () => collectionsType.value.selectedTeam,
   (newTeam) => {
     if (newTeam) {
@@ -369,16 +366,22 @@ watch(
   }
 )
 
+const changeToMyCollections = () => {
+  collectionsType.value.selectedTeam = undefined
+  teamCollectionAdapter.changeTeamID(null)
+}
+
 const expandTeamCollection = (collectionID: string) => {
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
 const updateSelectedTeam = (team: SelectedTeam) => {
   if (team) {
+    collectionsType.value.type = "team-collections"
     collectionsType.value.selectedTeam = team
     REMEMBERED_TEAM_ID.value = team.id
-    selectedCollectionTab.value = "team-collections"
     emit("update-team", team)
+    emit("update-collection-type", "team-collections")
   }
 }
 
@@ -388,13 +391,12 @@ onLoggedIn(() => {
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
+// Used to switch collection type and team when user switch workspace in the global workspace switcher
 watch(
   () => workspace.value,
   (newWorkspace) => {
     if (newWorkspace.type === "personal") {
-      selectedCollectionTab.value = "my-collections"
-      collectionsType.value.selectedTeam = undefined
-      teamCollectionAdapter.changeTeamID(null)
+      changeToMyCollections()
     } else if (newWorkspace.type === "team") {
       const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
       if (team) updateSelectedTeam(team)
@@ -407,7 +409,6 @@ watch(
   () => currentUser.value,
   (user) => {
     if (!user) {
-      selectedCollectionTab.value = "my-collections"
       collectionsType.value.selectedTeam = undefined
       teamCollectionAdapter.changeTeamID(null)
     }

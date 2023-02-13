@@ -156,6 +156,7 @@
         class="border-b border-dividerLight"
         @edit-environment="editEnvironment('Global')"
       />
+      <TeamsCurrentWorkspace />
     </div>
     <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams
@@ -179,7 +180,7 @@
 import { computed, ref, watch } from "vue"
 import { isEqual } from "lodash-es"
 import { platform } from "~/platform"
-import { Team } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "~/composables/i18n"
 import {
@@ -202,7 +203,7 @@ const t = useI18n()
 
 type EnvironmentType = "my-environments" | "team-environments"
 
-type SelectedTeam = Team | undefined
+type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 type EnvironmentsChooseType = {
   type: EnvironmentType
@@ -226,6 +227,34 @@ const currentUser = useReadonlyStream(
   platform.auth.getCurrentUser()
 )
 
+// TeamList-Adapter
+const teamListAdapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+const teamListFetched = ref(false)
+const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
+
+const adapter = new TeamEnvironmentAdapter(undefined)
+const adapterLoading = useReadonlyStream(adapter.loading$, false)
+const adapterError = useReadonlyStream(adapter.error$, null)
+const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
+
+const loading = computed(
+  () => adapterLoading.value && teamEnvironmentList.value.length === 0
+)
+
+watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value && currentUser.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) updateSelectedTeam(team)
+      }
+    }
+  }
+)
+
 watch(
   () => environmentType.value.selectedTeam,
   (newTeam) => {
@@ -234,6 +263,12 @@ watch(
     }
   }
 )
+
+const changeToMyEnvironments = () => {
+  environmentType.value.selectedTeam = undefined
+  updateEnvironmentType("my-environments")
+  adapter.changeTeamID(undefined)
+}
 
 const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
   if (newSelectedTeam) {
@@ -245,20 +280,6 @@ const updateSelectedTeam = (newSelectedTeam: SelectedTeam) => {
 const updateEnvironmentType = (newEnvironmentType: EnvironmentType) => {
   environmentType.value.type = newEnvironmentType
 }
-
-// TeamList-Adapter
-const teamListAdapter = new TeamListAdapter(true)
-const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
-const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
-
-const adapter = new TeamEnvironmentAdapter(undefined)
-const adapterLoading = useReadonlyStream(adapter.loading$, false)
-const adapterError = useReadonlyStream(adapter.error$, null)
-const teamEnvironmentList = useReadonlyStream(adapter.teamEnvironmentList$, [])
-
-const loading = computed(
-  () => adapterLoading.value && teamEnvironmentList.value.length === 0
-)
 
 watch(
   () => environmentType.value.selectedTeam?.id,
@@ -282,16 +303,16 @@ onLoggedIn(() => {
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
+// Used to switch environment type and team when user switch workspace in the global workspace switcher
 watch(
   () => workspace.value,
   (newWorkspace) => {
     if (newWorkspace.type === "personal") {
-      updateEnvironmentType("my-environments")
-      updateSelectedTeam(undefined)
+      changeToMyEnvironments()
       adapter.changeTeamID(undefined)
     } else if (newWorkspace.type === "team") {
       const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
-      console.log("env-changed-team", myTeams.value)
+
       if (team) {
         updateSelectedTeam(team)
       }

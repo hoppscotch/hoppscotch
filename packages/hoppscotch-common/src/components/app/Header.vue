@@ -84,7 +84,7 @@
                     : `▾`
                 "
                 :icon="workspace.type === 'personal' ? IconUser : IconUsers"
-                class="!bg-primaryDark !select-wrapper !font-medium !text-secondaryDark"
+                class="!bg-blue-500 !bg-opacity-15 !text-blue-500 !hover:bg-opacity-10 !hover:bg-blue-400 !hover:text-blue-600"
               />
               <template #content="{ hide }">
                 <div

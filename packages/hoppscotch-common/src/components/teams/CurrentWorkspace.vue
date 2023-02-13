@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center border-b border-dividerLight text-tiny text-secondaryLight py-2 px-4"
+    class="flex items-center whitespace-nowrap overflow-x-auto border-b border-dividerLight text-tiny text-secondaryLight py-2 px-4"
   >
     {{
       `${

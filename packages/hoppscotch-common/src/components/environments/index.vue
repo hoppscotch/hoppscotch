@@ -1,8 +1,9 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
+      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
     >
+      <TeamsCurrentWorkspace :section="t('tab.environments')" />
       <tippy
         v-if="environmentType.type === 'my-environments'"
         interactive
@@ -156,7 +157,6 @@
         class="border-b border-dividerLight"
         @edit-environment="editEnvironment('Global')"
       />
-      <TeamsCurrentWorkspace />
     </div>
     <EnvironmentsMy v-if="environmentType.type === 'my-environments'" />
     <EnvironmentsTeams

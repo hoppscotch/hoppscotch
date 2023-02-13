@@ -1,16 +1,14 @@
 <template>
-  <div class="flex items-center justify-between py-3">
-    <div class="flex items-center px-4 space-x-2">
-      <span>
-        <component :is="IconLibrary" class="svg-icons text-secondaryLight" />
-      </span>
-      <span v-if="workspace.type === 'personal'" class="text-tiny">
-        {{ t("workspace.personal") }}
-      </span>
-      <span v-else class="text-tiny">
-        {{ teamWorkspaceName }}
-      </span>
-    </div>
+  <div
+    class="flex items-center border-b border-dividerLight text-tiny text-secondaryLight py-2 px-4"
+  >
+    {{
+      `${
+        workspace.type === "personal"
+          ? t("workspace.personal")
+          : teamWorkspaceName
+      } \xA0 › \xA0 ${section}`
+    }}
   </div>
 </template>
 
@@ -18,8 +16,11 @@
 import { computed } from "vue"
 import { useReadonlyStream } from "~/composables/stream"
 import { workspaceStatus$ } from "~/newstore/workspace"
-import IconLibrary from "~icons/lucide/library"
 import { useI18n } from "~/composables/i18n"
+
+defineProps<{
+  section?: string
+}>()
 
 const t = useI18n()
 

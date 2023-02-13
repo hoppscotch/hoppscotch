@@ -26,8 +26,12 @@
         {{ description }}
       </p>
     </div>
-    <component :is="infoIcon" v-if="infoIcon" class="items-center self-center ml-4 svg-icons"
-      :class="{ 'text-accent': activeInfoIcon }" />
+    <component
+      :is="infoIcon"
+      v-if="infoIcon"
+      class="items-center self-center ml-6 -mr-2 svg-icons"
+      :class="{ 'text-accent': activeInfoIcon }"
+    />
     <div v-if="shortcut.length" class="ml-4 <sm:hidden font-medium">
       <kbd v-for="(key, index) in shortcut" :key="`key-${index}`" class="-mr-2 shortcut-key">
         {{ key }}

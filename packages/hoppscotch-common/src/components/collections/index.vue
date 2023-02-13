@@ -1,20 +1,12 @@
 <template>
-  <div
-    :class="{
-      'rounded border border-divider': saveRequest,
-      'bg-primaryDark': draggingToRoot,
-    }"
-    class="flex-1"
-    @drop.prevent="dropToRoot"
-    @dragover.prevent="draggingToRoot = true"
-    @dragend="draggingToRoot = false"
-  >
+  <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
-      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
+      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "
     >
+      <TeamsCurrentWorkspace :section="t('tab.collections')" />
       <input
         v-model="filterTexts"
         type="search"
@@ -23,7 +15,6 @@
         class="py-2 pl-4 pr-2 bg-transparent"
         :disabled="collectionsType.type === 'team-collections'"
       />
-      <TeamsCurrentWorkspace />
     </div>
     <div>
       <div v-if="workspace.type === 'personal'">
@@ -86,7 +77,6 @@
         />
       </div>
     </div>
-
     <div
       class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
       :class="{ '!flex': draggingToRoot }"

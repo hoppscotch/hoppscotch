@@ -636,6 +636,7 @@
     "body": "Body",
     "collections": "Collections",
     "documentation": "Documentation",
+    "environments": "Environments",
     "headers": "Headers",
     "history": "History",
     "mqtt": "MQTT",

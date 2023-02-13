@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div class="flex flex-col">
       <div class="flex flex-col">
         <SmartItem
           label="My Workspace"
@@ -31,9 +31,9 @@
       </div>
       <div v-else-if="!loading" class="flex flex-col">
         <div
-          class="sticky -top-2 flex justify-between items-center bg-primary rounded py-2"
+          class="sticky -top-2 flex justify-between items-center bg-popover rounded py-2"
         >
-          <div class="flex items-center text-secondaryLight px-4 py-2">
+          <div class="flex items-center text-secondaryLight px-4">
             <span>
               <component :is="IconUsers" class="mr-4 h-4 w-4" />
             </span>

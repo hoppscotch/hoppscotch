@@ -3,7 +3,7 @@
     <div
       class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
     >
-      <TeamsCurrentWorkspace :section="t('tab.history')" />
+      <WorkspaceCurrent :section="t('tab.history')" />
       <div class="flex">
         <input
           v-model="filterText"

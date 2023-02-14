@@ -6,7 +6,7 @@
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "
     >
-      <TeamsCurrentWorkspace :section="t('tab.collections')" />
+      <WorkspaceCurrent :section="t('tab.collections')" />
       <input
         v-model="filterTexts"
         type="search"

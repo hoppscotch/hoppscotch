@@ -3,7 +3,7 @@
     <div
       class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
     >
-      <TeamsCurrentWorkspace :section="t('tab.environments')" />
+      <WorkspaceCurrent :section="t('tab.environments')" />
       <tippy
         v-if="environmentType.type === 'my-environments'"
         interactive

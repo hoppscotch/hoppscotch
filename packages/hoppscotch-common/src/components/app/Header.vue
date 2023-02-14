@@ -141,7 +141,7 @@
                 @keyup.escape="hide()"
                 @click="hide()"
               >
-                <TeamsWorkspaceSelector />
+                <WorkspaceSelector />
               </div>
             </template>
           </tippy>

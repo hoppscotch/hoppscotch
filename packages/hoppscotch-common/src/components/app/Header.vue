@@ -112,7 +112,7 @@
             :label="t('team.invite')"
             :icon="IconUserPlus"
             class="bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
-            @click="showTeamsModal = true"
+            @click="handleInvite()"
           />
           <tippy
             interactive
@@ -238,6 +238,12 @@
     </header>
     <AppAnnouncement v-if="!network.isOnline" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
+    <TeamsInvite
+      v-if="workspace.type === 'team' && workspace.teamID"
+      :show="showModalInvite"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalInvite(false)"
+    />
   </div>
 </template>
 
@@ -281,6 +287,23 @@ const currentUser = useReadonlyStream(
 )
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+const showModalInvite = ref(false)
+
+const editingTeamID = ref("")
+
+const displayModalInvite = (show: boolean) => {
+  showModalInvite.value = show
+}
+
+const handleInvite = () => {
+  if (workspace.value.type === "team" && workspace.value.teamID) {
+    editingTeamID.value = workspace.value.teamID
+    displayModalInvite(true)
+  } else {
+    showTeamsModal.value = true
+  }
+}
 
 // Template refs
 const tippyActions = ref<any | null>(null)

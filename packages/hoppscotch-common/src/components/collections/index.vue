@@ -352,7 +352,7 @@ watch(
   }
 )
 
-const changeToMyCollections = () => {
+const switchToMyCollections = () => {
   collectionsType.value.type = "my-collections"
   collectionsType.value.selectedTeam = undefined
   teamCollectionAdapter.changeTeamID(null)
@@ -383,7 +383,7 @@ watch(
   () => workspace.value,
   (newWorkspace) => {
     if (newWorkspace.type === "personal") {
-      changeToMyCollections()
+      switchToMyCollections()
     } else if (newWorkspace.type === "team") {
       const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
       if (team) updateSelectedTeam(team)
@@ -396,7 +396,7 @@ watch(
   () => currentUser.value,
   (user) => {
     if (!user) {
-      changeToMyCollections()
+      switchToMyCollections()
     }
   }
 )

@@ -264,7 +264,7 @@ watch(
   }
 )
 
-const changeToMyEnvironments = () => {
+const switchToMyEnvironments = () => {
   environmentType.value.selectedTeam = undefined
   updateEnvironmentType("my-environments")
   adapter.changeTeamID(undefined)
@@ -292,7 +292,7 @@ watch(
   () => currentUser.value,
   (newValue) => {
     if (!newValue) {
-      changeToMyEnvironments()
+      switchToMyEnvironments()
     }
   }
 )
@@ -308,7 +308,7 @@ watch(
   () => workspace.value,
   (newWorkspace) => {
     if (newWorkspace.type === "personal") {
-      changeToMyEnvironments()
+      switchToMyEnvironments()
       adapter.changeTeamID(undefined)
     } else if (newWorkspace.type === "team") {
       const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)

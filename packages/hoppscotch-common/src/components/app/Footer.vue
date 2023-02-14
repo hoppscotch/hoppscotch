@@ -40,8 +40,8 @@
           theme="popover"
           :on-shown="() => tippyActions!.focus()"
         >
-          <HoppButtonSecondary
-            :icon="IconHelpCircle"
+          <ButtonSecondary
+            :icon="IconLifeBuoy"
             class="!rounded-none"
             :label="`${t('app.help')}`"
           />
@@ -148,14 +148,6 @@
             </div>
           </template>
         </tippy>
-        <ButtonSecondary
-          v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${
-            mdAndLarger ? t('support.title') : t('app.options')
-          } <kbd>?</kbd>`"
-          :icon="IconLifeBuoy"
-          @click="invokeAction('modals.support.toggle')"
-        />
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
@@ -214,7 +206,6 @@ import IconShare2 from "~icons/lucide/share-2"
 import IconColumns from "~icons/lucide/columns"
 import IconSidebarOpen from "~icons/lucide/sidebar-open"
 import IconShieldCheck from "~icons/lucide/shield-check"
-import IconHelpCircle from "~icons/lucide/help-circle"
 import IconBook from "~icons/lucide/book"
 import IconMessageCircle from "~icons/lucide/message-circle"
 import IconGift from "~icons/lucide/gift"
@@ -245,9 +236,6 @@ const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 const SIDEBAR_ON_LEFT = useSetting("SIDEBAR_ON_LEFT")
 
 const navigatorShare = !!navigator.share
-
-const breakpoints = useBreakpoints(breakpointsTailwind)
-const mdAndLarger = breakpoints.greater("md")
 
 const currentUser = useReadonlyStream(
   platform.auth.getCurrentUserStream(),

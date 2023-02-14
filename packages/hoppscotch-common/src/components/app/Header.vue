@@ -20,7 +20,7 @@
       <div class="inline-flex items-center justify-center flex-1 space-x-2">
         <AppNavigation />
         <div
-          class="bg-primaryDark text-secondaryLight justify-between cursor-text rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary transition flex flex-1 items-center px-2 py-1.25"
+          class="bg-primaryDark text-secondaryLight justify-between cursor-pointer rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary transition flex flex-1 items-center px-2 py-1.25"
           @click="invokeAction('modals.search.toggle')"
         >
           <span class="inline-flex">
@@ -29,6 +29,14 @@
           </span>
           <kbd class="shortcut-key">/</kbd>
         </div>
+        <ButtonSecondary
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${
+            mdAndLarger ? t('support.title') : t('app.options')
+          } <kbd>?</kbd>`"
+          :icon="IconHelpCircle"
+          @click="invokeAction('modals.support.toggle')"
+        />
       </div>
       <div class="inline-flex items-center justify-end flex-1 space-x-2">
         <ButtonSecondary
@@ -195,6 +203,7 @@ import IconSettings from "~icons/lucide/settings"
 import IconDownload from "~icons/lucide/download"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUserPlus from "~icons/lucide/user-plus"
+import IconHelpCircle from "~icons/lucide/help-circle"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
 import { platform } from "~/platform"

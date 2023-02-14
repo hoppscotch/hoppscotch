@@ -16,6 +16,7 @@ declare module "@vue/runtime-core" {
     AppHeader: typeof import("./components/app/Header.vue")["default"]
     AppInterceptor: typeof import("./components/app/Interceptor.vue")["default"]
     AppLogo: typeof import("./components/app/Logo.vue")["default"]
+    AppNavigation: typeof import("./components/app/Navigation.vue")["default"]
     AppOptions: typeof import("./components/app/Options.vue")["default"]
     AppPaneLayout: typeof import("./components/app/PaneLayout.vue")["default"]
     AppPowerSearch: typeof import("./components/app/PowerSearch.vue")["default"]

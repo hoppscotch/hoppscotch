@@ -292,7 +292,7 @@ watch(
   () => currentUser.value,
   (newValue) => {
     if (!newValue) {
-      updateEnvironmentType("my-environments")
+      changeToMyEnvironments()
     }
   }
 )

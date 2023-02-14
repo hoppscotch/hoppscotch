@@ -140,6 +140,15 @@ onLoggedIn(() => {
   teamListadapter.initialize()
 })
 
+watch(
+  () => currentUser.value,
+  (user) => {
+    if (!user) {
+      switchToPersonalWorkspace()
+    }
+  }
+)
+
 const displayModalAdd = (shouldDisplay: boolean) => {
   showModalAdd.value = shouldDisplay
   teamListadapter.fetchList()

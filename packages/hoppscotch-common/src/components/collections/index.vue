@@ -396,8 +396,7 @@ watch(
   () => currentUser.value,
   (user) => {
     if (!user) {
-      collectionsType.value.selectedTeam = undefined
-      teamCollectionAdapter.changeTeamID(null)
+      changeToMyCollections()
     }
   }
 )

@@ -114,7 +114,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  deleteAllParams(curr: RESTSession) {
+  deleteAllParams(curr: RESTSession, {}) {
     return {
       request: {
         ...curr.request,
@@ -168,7 +168,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  deleteAllHeaders(curr: RESTSession) {
+  deleteAllHeaders(curr: RESTSession, {}) {
     return {
       request: {
         ...curr.request,
@@ -257,7 +257,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  deleteAllFormDataEntries(curr: RESTSession) {
+  deleteAllFormDataEntries(curr: RESTSession, {}) {
     // Only perform update if the current content-type is formdata
     if (curr.request.body.contentType !== "multipart/form-data") return {}
 
@@ -288,7 +288,7 @@ const dispatchers = defineDispatchers({
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  clearResponse(_curr: RESTSession) {
+  clearResponse(_curr: RESTSession, {}) {
     return {
       response: null,
     }
@@ -490,7 +490,7 @@ export function setRESTTestScript(newScript: string) {
   })
 }
 
-export function setRESTReqBody(newBody: HoppRESTReqBody | null) {
+export function setRESTReqBody(newBody: HoppRESTReqBody) {
   restSessionStore.dispatch({
     dispatcher: "setRequestBody",
     payload: {

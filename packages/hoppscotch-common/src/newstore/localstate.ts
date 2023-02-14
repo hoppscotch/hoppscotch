@@ -11,14 +11,18 @@ const defaultLocalState: LocalState = {
   REMEMBERED_TEAM_ID: undefined,
 }
 
+type ApplyLocalState = {
+  [K in keyof LocalState]: {
+    key: K
+    value: LocalState[K]
+  }
+}[keyof LocalState]
+
 const dispatchers = defineDispatchers({
   bulkApplyState(_currentState: LocalState, payload: Partial<LocalState>) {
     return payload
   },
-  applyState<K extends keyof LocalState>(
-    _currentState: LocalState,
-    { key, value }: { key: K; value: LocalState[K] }
-  ) {
+  applyState(_currentState: LocalState, { key, value }: ApplyLocalState) {
     const result: Partial<LocalState> = {
       [key]: value,
     }

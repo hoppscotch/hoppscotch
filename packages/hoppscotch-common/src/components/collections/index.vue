@@ -353,6 +353,7 @@ watch(
 )
 
 const changeToMyCollections = () => {
+  collectionsType.value.type = "my-collections"
   collectionsType.value.selectedTeam = undefined
   teamCollectionAdapter.changeTeamID(null)
 }

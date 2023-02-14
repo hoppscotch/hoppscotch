@@ -1,14 +1,14 @@
 <template>
   <div
-    class="flex items-center whitespace-nowrap overflow-x-auto border-b border-dividerLight text-tiny text-secondaryLight py-2 px-4"
+    class="flex items-center px-4 py-2 overflow-x-auto border-b whitespace-nowrap border-dividerLight text-tiny text-secondaryLight"
   >
     {{
-      `${
-        workspace.type === "personal"
-          ? t("workspace.personal")
-          : teamWorkspaceName
-      } \xA0 › \xA0 ${section}`
+      workspace.type === "personal"
+        ? t("workspace.personal")
+        : teamWorkspaceName
     }}
+    <icon-lucide-chevron-right v-if="section" class="mx-2" />
+    {{ section }}
   </div>
 </template>
 

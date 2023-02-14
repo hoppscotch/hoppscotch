@@ -4,7 +4,7 @@
       class="flex items-center justify-between flex-1 flex-shrink-0 px-2 py-2 space-x-2 overflow-x-auto overflow-y-hidden"
     >
       <div
-        class="inline-flex items-center flex-1 space-x-2"
+        class="inline-flex items-center justify-start flex-1 space-x-2"
         :style="{
           paddingTop: platform.ui?.appHeader?.paddingTop?.value,
           paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
@@ -20,7 +20,8 @@
       <div class="inline-flex items-center justify-center flex-1 space-x-2">
         <AppNavigation />
         <div
-          class="bg-primaryDark text-secondaryLight justify-between cursor-pointer rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary transition flex flex-1 items-center px-2 py-1.25"
+          class="bg-primaryDark max-w-128 text-secondaryLight justify-between cursor-pointer rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary focus:outline-none transition flex flex-1 items-center px-2 py-1.25"
+          tabindex="0"
           @click="invokeAction('modals.search.toggle')"
         >
           <span class="inline-flex">
@@ -35,10 +36,9 @@
             mdAndLarger ? t('support.title') : t('app.options')
           } <kbd>?</kbd>`"
           :icon="IconHelpCircle"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"
         />
-      </div>
-      <div class="inline-flex items-center justify-end flex-1 space-x-2">
         <ButtonSecondary
           v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
@@ -47,20 +47,66 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="installPWA()"
         />
-        <ButtonSecondary
+      </div>
+      <div class="inline-flex items-center justify-end flex-1 space-x-2">
+        <div
           v-if="currentUser === null"
-          :icon="IconUploadCloud"
-          :label="t('header.save_workspace')"
-          class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
-          @click="invokeAction('modals.login.toggle')"
-        />
-        <HoppButtonPrimary
-          v-if="currentUser === null"
-          :label="t('header.login')"
-          @click="invokeAction('modals.login.toggle')"
-        />
+          class="inline-flex items-center space-x-2"
+        >
+          <ButtonSecondary
+            :icon="IconUploadCloud"
+            :label="t('header.save_workspace')"
+            class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
+            @click="invokeAction('modals.login.toggle')"
+          />
+          <ButtonPrimary
+            :label="t('header.login')"
+            @click="invokeAction('modals.login.toggle')"
+          />
+        </div>
         <div v-else class="inline-flex items-center space-x-2">
-          <HoppButtonPrimary
+          <div
+            v-if="workspace.type === 'team'"
+            class="flex items-center mx-2 -space-x-1"
+          >
+            <ProfilePicture
+              v-tippy="{ theme: 'tooltip' }"
+              class="ring-2 ring-primary"
+              url="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              alt="Random user"
+              title="Random user"
+            />
+            <ProfilePicture
+              v-tippy="{ theme: 'tooltip' }"
+              class="ring-2 ring-primary"
+              url="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              alt="Random user"
+              title="Random user"
+            />
+            <ProfilePicture
+              v-tippy="{ theme: 'tooltip' }"
+              class="ring-2 ring-primary"
+              url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80"
+              alt="Random user"
+              title="Random user"
+            />
+            <ProfilePicture
+              v-tippy="{ theme: 'tooltip' }"
+              class="ring-2 ring-primary"
+              url="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              alt="Random user"
+              title="Random user"
+            />
+            <span
+              v-tippy="{ theme: 'tooltip' }"
+              class="z-10 flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark font- text-8px text-secondaryDark bg-dividerDark ring-2 ring-primary"
+              tabindex="0"
+              title="+5 more"
+            >
+              +5
+            </span>
+          </div>
+          <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
             :label="t('team.invite')"

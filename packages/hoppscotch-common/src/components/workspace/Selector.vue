@@ -129,6 +129,7 @@ const switchToTeamWorkspace = (team: GetMyTeamsQuery["myTeams"][number]) => {
     type: "team",
   })
 }
+
 const switchToPersonalWorkspace = () => {
   REMEMBERED_TEAM_ID.value = undefined
   changeWorkspace({

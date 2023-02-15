@@ -65,47 +65,16 @@
           />
         </div>
         <div v-else class="inline-flex items-center space-x-2">
-          <div
-            v-if="workspace.type === 'team'"
-            class="flex items-center mx-2 -space-x-1"
-          >
-            <ProfilePicture
-              v-tippy="{ theme: 'tooltip' }"
-              class="ring-2 ring-primary"
-              url="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt="Random user"
-              title="Random user"
-            />
-            <ProfilePicture
-              v-tippy="{ theme: 'tooltip' }"
-              class="ring-2 ring-primary"
-              url="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt="Random user"
-              title="Random user"
-            />
-            <ProfilePicture
-              v-tippy="{ theme: 'tooltip' }"
-              class="ring-2 ring-primary"
-              url="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.25&w=256&h=256&q=80"
-              alt="Random user"
-              title="Random user"
-            />
-            <ProfilePicture
-              v-tippy="{ theme: 'tooltip' }"
-              class="ring-2 ring-primary"
-              url="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt="Random user"
-              title="Random user"
-            />
-            <span
-              v-tippy="{ theme: 'tooltip' }"
-              class="z-10 flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark font- text-8px text-secondaryDark bg-dividerDark ring-2 ring-primary"
-              tabindex="0"
-              title="+5 more"
-            >
-              +5
-            </span>
-          </div>
+          <TeamsMemberStack
+            v-if="
+              workspace.type === 'team' &&
+              selectedTeam &&
+              selectedTeam.teamMembers.length > 1
+            "
+            :team-members="selectedTeam.teamMembers"
+            :compact="true"
+            class="mx-2"
+          />
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
@@ -248,7 +217,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import IconUser from "~icons/lucide/user"
 import IconUsers from "~icons/lucide/users"
 import IconSettings from "~icons/lucide/settings"
@@ -263,6 +232,9 @@ import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
 import { workspaceStatus$ } from "~/newstore/workspace"
+import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
+import { onLoggedIn } from "~/composables/auth"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 
 const t = useI18n()
 
@@ -286,7 +258,41 @@ const currentUser = useReadonlyStream(
   platform.auth.getProbableUser()
 )
 
+const selectedTeam = ref<GetMyTeamsQuery["myTeams"][number] | undefined>()
+
+// TeamList-Adapter
+const teamListAdapter = new TeamListAdapter(true)
+const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
+
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+onLoggedIn(() => {
+  teamListAdapter.initialize()
+})
+
+watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && workspace.value.type === "team" && workspace.value.teamID) {
+      const team = newTeams.find((team) => team.id === workspace.value.teamID)
+      if (team) {
+        selectedTeam.value = team
+      }
+    }
+  }
+)
+
+watch(
+  () => workspace.value,
+  (newWorkspace) => {
+    if (newWorkspace.type === "team") {
+      const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
+      if (team) {
+        selectedTeam.value = team
+      }
+    }
+  }
+)
 
 const showModalInvite = ref(false)
 
@@ -296,8 +302,13 @@ const displayModalInvite = (show: boolean) => {
   showModalInvite.value = show
 }
 
+// Show the workspace selected team invite modal if the user is an owner of the team else show the default invite modal
 const handleInvite = () => {
-  if (workspace.value.type === "team" && workspace.value.teamID) {
+  if (
+    workspace.value.type === "team" &&
+    workspace.value.teamID &&
+    selectedTeam.value?.myRole === "OWNER"
+  ) {
     editingTeamID.value = workspace.value.teamID
     displayModalInvite(true)
   } else {

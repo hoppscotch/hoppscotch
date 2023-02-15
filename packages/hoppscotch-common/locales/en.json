@@ -686,6 +686,7 @@
     "member_removed": "User removed",
     "member_role_updated": "User roles updated",
     "members": "Members",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Team name should be at least 6 characters long",
     "name_updated": "Team name updated",
     "new": "New Team",

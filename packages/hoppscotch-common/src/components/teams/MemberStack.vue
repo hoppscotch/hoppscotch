@@ -22,13 +22,17 @@
       />
     </div>
     <span
-      v-if="props.showCount && props.teamMembers.length > maxMembers"
+      v-if="props.showCount && props.teamMembers.length > maxMembersSoftLimit"
       v-tippy="{ theme: 'tooltip', allowHTML: true }"
       :title="remainingSlicedMembers"
       class="z-10 inline-flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark font- text-8px text-secondaryDark bg-dividerDark ring-2 ring-primary"
       tabindex="0"
     >
-      {{ teamMembers.length > 0 ? `+${teamMembers.length - maxMembers}` : "" }}
+      {{
+        teamMembers.length > 0
+          ? `+${teamMembers.length - maxMembersSoftLimit}`
+          : ""
+      }}
     </span>
   </div>
 </template>
@@ -45,25 +49,35 @@ const props = defineProps<{
   showCount?: boolean
 }>()
 
-const maxMembers = 4
-
-const slicedTeamMembers = computed(() => {
-  if (props.showCount && props.teamMembers.length > maxMembers) {
-    return props.teamMembers.slice(0, maxMembers)
-  } else {
-    return props.teamMembers
-  }
-})
-
 const getUserName = (member: TeamMember): string =>
   member.user.displayName ||
   member.user.email ||
   t("profile.default_hopp_displayName")
 
-const remainingSlicedMembers = computed(() =>
-  props.teamMembers
-    .slice(maxMembers)
-    .map((member) => getUserName(member))
-    .join(",<br>")
+const maxMembersSoftLimit = 4
+const maxMembersHardLimit = 6
+
+const slicedTeamMembers = computed(() => {
+  if (props.showCount && props.teamMembers.length > maxMembersSoftLimit) {
+    return props.teamMembers.slice(0, maxMembersSoftLimit)
+  } else {
+    return props.teamMembers
+  }
+})
+
+const remainingSlicedMembers = computed(
+  () =>
+    props.teamMembers
+      .slice(maxMembersSoftLimit)
+      .slice(0, maxMembersHardLimit)
+      .map((member) => getUserName(member))
+      .join(`,<br>`) +
+    (props.teamMembers.length - (maxMembersSoftLimit + maxMembersHardLimit) > 0
+      ? `,<br>${t("team.more_members", {
+          count:
+            props.teamMembers.length -
+            (maxMembersSoftLimit + maxMembersHardLimit),
+        })}`
+      : ``)
 )
 </script>

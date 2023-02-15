@@ -72,7 +72,7 @@
               selectedTeam.teamMembers.length > 1
             "
             :team-members="selectedTeam.teamMembers"
-            :compact="true"
+            show-count
             class="mx-2"
             @click="handleTeamEdit()"
           />

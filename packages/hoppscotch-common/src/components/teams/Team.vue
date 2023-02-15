@@ -27,7 +27,7 @@
         >
           {{ team.name || t("state.nothing_found") }}
         </label>
-        <TeamsMemberStack :team-members="team.teamMembers" class="mt-2" />
+        <TeamsMemberStack :team-members="team.teamMembers" class="mt-4" />
       </div>
     </div>
     <div v-if="!compact" class="flex items-end justify-between flex-shrink-0">

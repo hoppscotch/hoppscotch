@@ -1,5 +1,5 @@
 <template>
-  <div class="flex overflow-hidden -space-x-1 items-center">
+  <div class="flex -space-x-1 items-center">
     <div
       v-for="(member, index) in slicedTeamMembers"
       :key="`member-${index}`"
@@ -7,14 +7,14 @@
       :title="
         member.user.displayName ||
         member.user.email ||
-        t('default_hopp_displayName')
+        t('profile.default_hopp_displayName')
       "
       class="inline-flex"
     >
       <ProfilePicture
         v-if="member.user.photoURL"
         :url="member.user.photoURL"
-        :alt="member.user.displayName || t('default_hopp_displayName')"
+        :alt="member.user.displayName || t('profile.default_hopp_displayName')"
         class="ring-primary ring-2"
       />
       <ProfilePicture
@@ -24,7 +24,7 @@
       />
     </div>
     <div
-      v-if="props.compact && props.teamMembers.length > maxMembers"
+      v-if="props.showCount && props.teamMembers.length > maxMembers"
       v-tippy="{ theme: 'tooltip' }"
       :title="
         t('team.more_members', { count: props.teamMembers.length - maxMembers })
@@ -52,13 +52,13 @@ const t = useI18n()
 
 const props = defineProps<{
   teamMembers: GetMyTeamsQuery["myTeams"][number]["teamMembers"]
-  compact?: boolean
+  showCount?: boolean
 }>()
 
-const maxMembers = 5
+const maxMembers = 4
 
 const slicedTeamMembers = computed(() => {
-  if (props.compact && props.teamMembers.length > maxMembers) {
+  if (props.showCount && props.teamMembers.length > maxMembers) {
     return props.teamMembers.slice(0, maxMembers)
   } else {
     return props.teamMembers

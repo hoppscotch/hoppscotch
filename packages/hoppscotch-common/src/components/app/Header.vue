@@ -74,6 +74,7 @@
             :team-members="selectedTeam.teamMembers"
             :compact="true"
             class="mx-2"
+            @click="handleTeamEdit()"
           />
           <ButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -213,6 +214,14 @@
       :editing-team-i-d="editingTeamID"
       @hide-modal="displayModalInvite(false)"
     />
+    <TeamsEdit
+      :show="showModalEdit"
+      :editing-team="editingTeamName"
+      :editing-team-i-d="editingTeamID"
+      @hide-modal="displayModalEdit(false)"
+      @invite-team="inviteTeam(editingTeamName, editingTeamID)"
+      @refetch-teams="refetchTeams"
+    />
   </div>
 </template>
 
@@ -266,6 +275,10 @@ const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
+const refetchTeams = () => {
+  teamListAdapter.fetchList()
+}
+
 onLoggedIn(() => {
   teamListAdapter.initialize()
 })
@@ -295,11 +308,23 @@ watch(
 )
 
 const showModalInvite = ref(false)
+const showModalEdit = ref(false)
 
+const editingTeamName = ref<{ name: string }>({ name: "" })
 const editingTeamID = ref("")
 
 const displayModalInvite = (show: boolean) => {
   showModalInvite.value = show
+}
+
+const displayModalEdit = (show: boolean) => {
+  showModalEdit.value = show
+}
+
+const inviteTeam = (team: { name: string }, teamID: string) => {
+  editingTeamName.value = team
+  editingTeamID.value = teamID
+  displayModalInvite(true)
 }
 
 // Show the workspace selected team invite modal if the user is an owner of the team else show the default invite modal
@@ -313,6 +338,19 @@ const handleInvite = () => {
     displayModalInvite(true)
   } else {
     showTeamsModal.value = true
+  }
+}
+
+// Show the workspace selected team edit modal if the user is an owner of the team
+const handleTeamEdit = () => {
+  if (
+    workspace.value.type === "team" &&
+    workspace.value.teamID &&
+    selectedTeam.value?.myRole === "OWNER"
+  ) {
+    editingTeamID.value = workspace.value.teamID
+    editingTeamName.value = { name: selectedTeam.value.name }
+    displayModalEdit(true)
   }
 }
 

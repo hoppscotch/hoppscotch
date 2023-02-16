@@ -1,7 +1,7 @@
 <template>
   <button
     tabindex="0"
-    class="relative flex overflow-visible items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
+    class="relative flex items-center justify-center overflow-visible cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
     :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
   >
     <img

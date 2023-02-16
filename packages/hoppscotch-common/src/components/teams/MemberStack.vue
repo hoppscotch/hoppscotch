@@ -1,5 +1,5 @@
 <template>
-  <div class="flex -space-x-1 items-center">
+  <div class="flex items-center -space-x-1">
     <div
       v-for="(member, index) in slicedTeamMembers"
       :key="`member-${index}`"

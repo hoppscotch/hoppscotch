@@ -56,7 +56,7 @@
           <ButtonSecondary
             :icon="IconUploadCloud"
             :label="t('header.save_workspace')"
-            class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
+            class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 focus-visible:bg-green-400/10 focus-visible:border-green-800/50 !focus-visible:text-green-600 hover:border-green-800/50 !hover:text-green-600"
             @click="invokeAction('modals.login.toggle')"
           />
           <ButtonPrimary
@@ -77,14 +77,14 @@
             @handle-click="handleTeamEdit()"
           />
           <div
-            class="flex bg-green-500/15 rounded divide-x divide-green-600/25 border border-green-600/25 hover:bg-green-400/10 hover:border-green-800/50 hover:divide-green-800/50"
+            class="flex border divide-x rounded bg-green-500/15 divide-green-600/25 border-green-600/25 focus-within:bg-green-400/10 focus-within:border-green-800/50 focus-within:divide-green-800/50 hover:bg-green-400/10 hover:border-green-800/50 hover:divide-green-800/50"
           >
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.invite_tooltip')"
               :label="mdAndLarger ? t('team.invite') : ``"
               :icon="IconUserPlus"
-              class="py-1.75 !text-green-500 !hover:text-green-600"
+              class="py-1.75 !text-green-500 !focus-visible:text-green-600 !hover:text-green-600"
               @click="handleInvite()"
             />
             <ButtonSecondary
@@ -96,7 +96,7 @@
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.edit')"
               :icon="IconSettings"
-              class="py-1.75 !text-green-500 !hover:text-green-600"
+              class="py-1.75 !text-green-500 !focus-visible:text-green-600 !hover:text-green-600"
               @click="handleTeamEdit()"
             />
           </div>
@@ -111,7 +111,7 @@
               :title="t('workspace.change')"
               :label="mdAndLarger ? workspaceName : ``"
               :icon="workspace.type === 'personal' ? IconUser : IconUsers"
-              class="pr-8 select-wrapper rounded bg-blue-500/15 py-1.75 border border-blue-600/25 !text-blue-500 hover:bg-blue-400/10 hover:border-blue-800/50 !hover:text-blue-600"
+              class="pr-8 select-wrapper rounded bg-blue-500/15 py-1.75 border border-blue-600/25 !text-blue-500 focus-visible:bg-blue-400/10 focus-visible:border-blue-800/50 !focus-visible:text-blue-600 hover:bg-blue-400/10 hover:border-blue-800/50 !hover:text-blue-600"
             />
             <template #content="{ hide }">
               <div

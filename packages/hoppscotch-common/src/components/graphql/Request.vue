@@ -32,29 +32,28 @@ import { GQLConnection } from "~/helpers/GQLConnection"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import {
   GQLConnection$,
   setGQLConnection,
   GQLConnectionURL$,
   setGQLUrl,
 } from "~/newstore/GQLSession"
+import { HoppGQLRequest } from "@hoppscotch/data"
 
 const t = useI18n()
 
 const props = defineProps<{
-  request: GQLRequest
+  request: HoppGQLRequest
 }>()
 
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 const connected = useReadonlyStream(conn.value.connected$, false)
-const headers = useReadonlyStream(props.request.headers$, [])
 
 const url = useStream(GQLConnectionURL$, "", setGQLUrl)
 
 const onConnectClick = () => {
   if (!connected.value) {
-    conn.value.connect(url.value, headers.value as any)
+    conn.value.connect(url.value, props.request.headers)
 
     platform.analytics?.logEvent({
       type: "HOPP_REQUEST_RUN",

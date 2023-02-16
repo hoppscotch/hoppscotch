@@ -257,8 +257,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref } from "vue"
+import { computed, ref, Ref, watch } from "vue"
 import {
+  HoppGQLAuth,
   HoppGQLAuthAPIKey,
   HoppGQLAuthBasic,
   HoppGQLAuthBearer,
@@ -266,7 +267,6 @@ import {
 } from "@hoppscotch/data"
 
 import { pluckRef } from "@composables/ref"
-import { useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
 
@@ -275,20 +275,27 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const t = useI18n()
 const colorMode = useColorMode()
 
 const props = defineProps<{
-  request: GQLRequest
+  modelValue: HoppGQLAuth
 }>()
 
-const auth = useStream(
-  props.request.auth$,
-  { authType: "none", authActive: true },
-  props.request.setGQLAuth.bind(props.request)
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppGQLAuth): void
+}>()
+
+const auth = ref(props.modelValue)
+
+watch(
+  () => auth.value,
+  (val) => {
+    emit("update:modelValue", val)
+  }
 )
+
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {
   if (authType.value === "basic") return "Basic Auth"

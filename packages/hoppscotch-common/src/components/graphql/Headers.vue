@@ -193,25 +193,37 @@ import {
   rawKeyValueEntriesToString,
   parseRawKeyValueEntriesE,
   RawKeyValueEntry,
+  HoppGQLRequest,
 } from "@hoppscotch/data"
 import draggable from "vuedraggable"
 import { clone, cloneDeep, isEqual } from "lodash-es"
-import { useStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { commonHeaders } from "~/helpers/headers"
 import { useCodemirror } from "@composables/codemirror"
 import { objRemoveKey } from "~/helpers/functional/object"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 
 const colorMode = useColorMode()
 const t = useI18n()
 const toast = useToast()
 
-const props = defineProps<{
-  request: GQLRequest
+// v-model integration with props and emit
+const props = defineProps<{ modelValue: HoppGQLRequest }>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppGQLRequest): void
 }>()
+
+const request = ref(props.modelValue)
+
+watch(
+  () => request.value,
+  (newVal) => {
+    emit("update:modelValue", newVal)
+  },
+  { deep: true }
+)
 
 const idTicker = ref(0)
 
@@ -231,13 +243,6 @@ useCodemirror(bulkEditor, bulkHeaders, {
   completer: null,
   environmentHighlights: false,
 })
-
-// The functional headers list (the headers actually in the system)
-const headers = useStream(
-  props.request.headers$,
-  [],
-  props.request.setGQLHeaders.bind(props.request)
-)
 
 // The UI representation of the headers list (has the empty end header)
 const workingHeaders = ref<Array<GQLHeader & { id: number }>>([
@@ -266,7 +271,7 @@ watch(workingHeaders, (headersList) => {
 
 // Sync logic between headers and working headers
 watch(
-  headers,
+  props.modelValue.headers,
   (newHeadersList) => {
     // Sync should overwrite working headers
     const filteredWorkingHeaders = pipe(
@@ -315,8 +320,8 @@ watch(workingHeaders, (newWorkingHeaders) => {
     )
   )
 
-  if (!isEqual(headers.value, fixedHeaders)) {
-    headers.value = cloneDeep(fixedHeaders)
+  if (!isEqual(request.value.headers, fixedHeaders)) {
+    request.value.headers = cloneDeep(fixedHeaders)
   }
 })
 
@@ -333,8 +338,8 @@ watch(bulkHeaders, (newBulkHeaders) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(headers.value, filteredBulkHeaders)) {
-    headers.value = filteredBulkHeaders
+  if (!isEqual(request.value.headers, filteredBulkHeaders)) {
+    request.value.headers = filteredBulkHeaders
   }
 })
 

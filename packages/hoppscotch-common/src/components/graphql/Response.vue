@@ -51,22 +51,20 @@ import { reactive, ref, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { useReadonlyStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { defineActionHandler } from "~/helpers/actions"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
+import { GQLEvent } from "~/helpers/graphql/GQLConnection"
 
 const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  request: GQLRequest
+  response: GQLEvent[]
 }>()
 
 const responseString = ref("")
-const response = useReadonlyStream(props.request.response$, [])
 
 const schemaEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
@@ -86,19 +84,15 @@ useCodemirror(
   })
 )
 
-watch(
-  response,
-  (responses) => {
-    if (responses.length === 1) {
-      responseString.value = JSON.stringify(
-        JSON.parse(responses[0].data),
-        null,
-        2
-      )
-    }
-  },
-  { immediate: true }
-)
+watch(props.response, (responses) => {
+  if (responses.length === 1) {
+    responseString.value = JSON.stringify(
+      JSON.parse(responses[0].data),
+      null,
+      2
+    )
+  }
+})
 
 const downloadResponseIcon = refAutoReset<
   typeof IconDownload | typeof IconCheck

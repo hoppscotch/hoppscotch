@@ -85,7 +85,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
@@ -98,7 +98,6 @@ import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
 import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import { selectedGQLOpHighlight } from "~/helpers/editor/gql/operation"
 import { debounce } from "lodash-es"
 import { ViewUpdate } from "@codemirror/view"
@@ -111,13 +110,14 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  request: GQLRequest
+  modelValue: string
 }>()
 
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
 const emit = defineEmits<{
   (e: "save-request"): void
+  (e: "update:modelValue", val: string): void
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
 }>()
 
@@ -137,10 +137,13 @@ const prettifyQueryIcon = refAutoReset<
 
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
-const gqlQueryString = useStream(
-  props.request.query$,
-  "q",
-  props.request.setGQLQuery.bind(props.request)
+const gqlQueryString = ref(props.modelValue)
+watch(
+  gqlQueryString,
+  (val) => {
+    emit("update:modelValue", val)
+  },
+  { immediate: true }
 )
 
 const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {

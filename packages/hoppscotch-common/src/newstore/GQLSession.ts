@@ -1,14 +1,37 @@
-import { HoppGQLRequest } from "@hoppscotch/data"
+import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { uniqueId } from "lodash-es"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
 import { useStream } from "~/composables/stream"
-import { GQLConnection } from "~/helpers/graphql/GQLConnection"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
+import { GQLConnection, GQLEvent } from "~/helpers/graphql/GQLConnection"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
-type GQLTab = {
+export const getDefaultGQLRequest = (): HoppGQLRequest =>
+  makeGQLRequest({
+    name: "Untitled",
+    url: "https://echo.hoppscotch.io/graphql",
+    headers: [],
+    variables: `{
+"id": "1"
+}`,
+    query: `query Request {
+method
+url
+headers {
+  key
+  value
+}
+}
+`,
+    auth: {
+      authType: "none",
+      authActive: true,
+    },
+  })
+
+export type GQLTab = {
   id: string
-  request: GQLRequest
+  request: HoppGQLRequest
+  response: GQLEvent[]
   unseen: boolean
 }
 
@@ -21,7 +44,8 @@ export type GQLSession = {
 
 const makeTab = (id: string): GQLTab => ({
   id,
-  request: new GQLRequest(),
+  request: getDefaultGQLRequest(),
+  response: [],
   unseen: false,
 })
 
@@ -76,6 +100,25 @@ const dispatchers = defineDispatchers({
       currentTabId: tabId,
     }
   },
+  setActiveRequestName(
+    req: GQLSession,
+    { tabId, name }: { tabId: string; name: string }
+  ) {
+    return {
+      tabs: req.tabs.map((tab) => {
+        if (tab.id === tabId) {
+          return {
+            ...tab,
+            request: {
+              ...tab.request,
+              name,
+            },
+          }
+        }
+        return tab
+      }),
+    }
+  },
 })
 
 export const gqlSessionStore = new DispatchingStore(
@@ -100,23 +143,30 @@ export function getGQLSession() {
 export function getGQLRequest() {
   const { tabs, currentTabId } = gqlSessionStore.value
   const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
-  return tab.request.getRequest()
+  return tab.request
 }
 
 export function setGQLRequest(request: HoppGQLRequest) {
   const { tabs, currentTabId } = gqlSessionStore.value
-  const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
-  return tab.request.setRequest(request)
+  gqlSessionStore.dispatch({
+    dispatcher: "setTabs",
+    payload: {
+      tabs: tabs.map((tab) =>
+        tab.id === currentTabId
+          ? {
+              ...tab,
+              request,
+            }
+          : tab
+      ),
+    },
+  })
 }
 
 export function useGQLRequestName() {
-  const { tabs, currentTabId } = gqlSessionStore.value
-  const tab = tabs.find((tab) => tab.id === currentTabId) as GQLTab
-  return useStream(
-    tab.request.name$,
-    tab.request.name$.value,
-    tab.request.setGQLName.bind(tab.request)
-  )
+  const name$ = gqlCurrentTab$.pipe(map((tab) => tab?.request?.name))
+  console.log("useRESTRequestBody", name$)
+  return useStream(name$, "Untitled", setActiveRequestName)
 }
 
 export function setGQLSession(session: GQLSession) {
@@ -178,6 +228,16 @@ export function setCurrentTabId(tabId: string) {
     dispatcher: "setCurrentTabId",
     payload: {
       tabId,
+    },
+  })
+}
+
+export function setActiveRequestName(name: string) {
+  gqlSessionStore.dispatch({
+    dispatcher: "setActiveRequestName",
+    payload: {
+      tabId: gqlSessionStore.value.currentTabId,
+      name,
     },
   })
 }

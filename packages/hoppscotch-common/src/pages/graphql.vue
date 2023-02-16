@@ -1,7 +1,7 @@
 <template>
   <AppPaneLayout layout-id="graphql">
     <template #primary>
-      <GraphqlRequest :request="currentTab.request" />
+      <GraphqlRequest :request="currentTab?.request" />
 
       <SmartWindows
         v-if="currentTabId"
@@ -15,7 +15,7 @@
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
-          :label="tab.request.name$.value"
+          :label="tab.request.name"
           :is-removable="tabs.length > 1"
         >
           <template #suffix>
@@ -24,14 +24,11 @@
               class="w-1 h-1 ml-auto rounded-full bg-accentLight mr-2"
             ></span>
           </template>
-          <AppPaneLayout layout-id="gql-primary">
-            <template #primary>
-              <GraphqlRequestOptions :tab-id="tab.id" :request="tab.request" />
-            </template>
-            <template #secondary>
-              <GraphqlResponse :request="tab.request" />
-            </template>
-          </AppPaneLayout>
+
+          <GraphqlRequestTab
+            :model-value="tab"
+            @update:model-value="onTabUpdate"
+          />
         </SmartWindow>
       </SmartWindows>
     </template>
@@ -57,6 +54,7 @@ import {
   setResponseUnseen,
   setGQLConnection,
   GQLConnection$,
+  GQLTab,
 } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
@@ -93,6 +91,18 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 }
 const removeTab = (tabID: string) => {
   tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
+}
+
+const onTabUpdate = (tab: GQLTab) => {
+  tabs.value = tabs.value.map((t) => {
+    if (t.id === tab.id) {
+      return tab
+    } else {
+      return t
+    }
+  })
+
+  console.log("ON_TAB_UPDATE", tabs.value)
 }
 
 watch(isLoading, () => {

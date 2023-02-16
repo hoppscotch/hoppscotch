@@ -72,7 +72,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { computed, reactive, ref } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useReadonlyStream, useStream } from "@composables/stream"
@@ -82,7 +82,6 @@ import { useI18n } from "@composables/i18n"
 import { refAutoReset } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
@@ -90,13 +89,14 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  request: GQLRequest
+  modelValue: string
 }>()
 
 const conn = useStream(GQLConnection$, new GQLConnection(), setGQLConnection)
 
 const emit = defineEmits<{
   (e: "save-request"): void
+  (e: "update:modelValue", val: string): void
   (e: "run-query", definition: gql.OperationDefinitionNode | null): void
 }>()
 
@@ -108,11 +108,15 @@ const subscriptionState = useReadonlyStream(
 // Watch operations on graphql query string
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
-const variableString = useStream(
-  props.request.variables$,
-  "",
-  props.request.setGQLVariables.bind(props.request)
+const variableString = ref(props.modelValue)
+watch(
+  variableString,
+  (val) => {
+    emit("update:modelValue", val)
+  },
+  { immediate: true }
 )
+
 const variableEditor = ref<any | null>(null)
 
 const copyVariablesIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

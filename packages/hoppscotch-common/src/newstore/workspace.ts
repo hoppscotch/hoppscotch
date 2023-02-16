@@ -21,6 +21,23 @@ const dispatchers = defineDispatchers({
       workspace,
     }
   },
+  updateWorkspaceTeamName(
+    _,
+    { workspace, newTeamName }: { workspace: Workspace; newTeamName: string }
+  ) {
+    console.log("updateWorkspaceTeamName", newTeamName)
+    if (workspace.type === "team") {
+      return {
+        workspace: {
+          ...workspace,
+          teamName: newTeamName,
+        },
+      }
+    }
+    return {
+      workspace,
+    }
+  },
 })
 
 export const hoppWorkspaceStore = new DispatchingStore(
@@ -37,5 +54,15 @@ export function changeWorkspace(workspace: Workspace) {
   hoppWorkspaceStore.dispatch({
     dispatcher: "changeWorkspace",
     payload: { workspace },
+  })
+}
+
+export function updateWorkspaceTeamName(
+  workspace: Workspace,
+  newTeamName: string
+) {
+  hoppWorkspaceStore.dispatch({
+    dispatcher: "updateWorkspaceTeamName",
+    payload: { workspace, newTeamName },
   })
 }

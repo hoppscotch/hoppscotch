@@ -304,15 +304,16 @@ onLoggedIn(() => {
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
 // Used to switch environment type and team when user switch workspace in the global workspace switcher
+// Check if there is a teamID in the workspace, if yes, switch to team environment and select the team
+// If there is no teamID, switch to my environment
 watch(
-  () => workspace.value,
-  (newWorkspace) => {
-    if (newWorkspace.type === "personal") {
+  () => workspace.value.teamID,
+  (teamID) => {
+    if (!teamID) {
       switchToMyEnvironments()
       adapter.changeTeamID(undefined)
-    } else if (newWorkspace.type === "team") {
-      const team = myTeams.value?.find((t) => t.id === newWorkspace.teamID)
-
+    } else if (teamID) {
+      const team = myTeams.value?.find((t) => t.id === teamID)
       if (team) {
         updateSelectedTeam(team)
       }

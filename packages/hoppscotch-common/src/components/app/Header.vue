@@ -109,13 +109,7 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('workspace.change')"
-              :label="
-                mdAndLarger
-                  ? workspace.type === 'personal'
-                    ? t('workspace.personal')
-                    : workspace.teamName
-                  : ``
-              "
+              :label="mdAndLarger ? workspaceName : ``"
               :icon="workspace.type === 'personal' ? IconUser : IconUsers"
               class="pr-8 select-wrapper rounded bg-blue-500/15 py-1.75 border border-blue-600/25 !text-blue-500 hover:bg-blue-400/10 hover:border-blue-800/50 !hover:text-blue-600"
             />
@@ -256,7 +250,7 @@ import { platform } from "~/platform"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { invokeAction } from "@helpers/actions"
-import { workspaceStatus$ } from "~/newstore/workspace"
+import { workspaceStatus$, updateWorkspaceTeamName } from "~/newstore/workspace"
 import TeamListAdapter from "~/helpers/teams/TeamListAdapter"
 import { onLoggedIn } from "~/composables/auth"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
@@ -291,6 +285,12 @@ const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
 
+const workspaceName = computed(() =>
+  workspace.value.type === "personal"
+    ? t("workspace.personal")
+    : workspace.value.teamName
+)
+
 const refetchTeams = () => {
   teamListAdapter.fetchList()
 }
@@ -306,6 +306,10 @@ watch(
       const team = newTeams.find((team) => team.id === workspace.value.teamID)
       if (team) {
         selectedTeam.value = team
+        // Update the workspace name if it's not the same as the updated team name
+        if (team.name !== workspace.value.teamName) {
+          updateWorkspaceTeamName(workspace.value, team.name)
+        }
       }
     }
   }
@@ -335,6 +339,7 @@ const displayModalInvite = (show: boolean) => {
 
 const displayModalEdit = (show: boolean) => {
   showModalEdit.value = show
+  teamListAdapter.fetchList()
 }
 
 const inviteTeam = (team: { name: string }, teamID: string) => {

@@ -25,7 +25,6 @@ const dispatchers = defineDispatchers({
     _,
     { workspace, newTeamName }: { workspace: Workspace; newTeamName: string }
   ) {
-    console.log("updateWorkspaceTeamName", newTeamName)
     if (workspace.type === "team") {
       return {
         workspace: {

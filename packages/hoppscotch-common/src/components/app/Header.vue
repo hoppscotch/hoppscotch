@@ -296,7 +296,7 @@ const refetchTeams = () => {
 }
 
 onLoggedIn(() => {
-  teamListAdapter.initialize()
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
 })
 
 watch(

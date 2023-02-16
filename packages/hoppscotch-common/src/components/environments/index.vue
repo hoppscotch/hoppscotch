@@ -298,7 +298,7 @@ watch(
 )
 
 onLoggedIn(() => {
-  teamListAdapter.initialize()
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
 })
 
 const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })

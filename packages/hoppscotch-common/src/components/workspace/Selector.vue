@@ -28,6 +28,13 @@
         <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
+        <ButtonSecondary
+          :label="t('team.create_new')"
+          filled
+          outline
+          :icon="IconPlus"
+          @click="displayModalAdd(true)"
+        />
       </div>
       <div v-else-if="!loading" class="flex flex-col">
         <div

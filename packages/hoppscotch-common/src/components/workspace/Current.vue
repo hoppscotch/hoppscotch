@@ -2,11 +2,13 @@
   <div
     class="flex items-center px-4 py-2 overflow-x-auto border-b whitespace-nowrap border-dividerLight text-tiny text-secondaryLight"
   >
-    {{
-      workspace.type === "personal"
-        ? t("workspace.personal")
-        : teamWorkspaceName
-    }}
+    <span class="truncate">
+      {{
+        workspace.type === "personal"
+          ? t("workspace.personal")
+          : teamWorkspaceName
+      }}
+    </span>
     <icon-lucide-chevron-right v-if="section" class="mx-2" />
     {{ section }}
   </div>

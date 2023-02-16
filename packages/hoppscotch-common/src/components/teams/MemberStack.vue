@@ -12,6 +12,7 @@
         :title="getUserName(member)"
         :alt="getUserName(member)"
         class="ring-primary ring-2"
+        @click="handleClick()"
       />
       <ProfilePicture
         v-else
@@ -19,21 +20,23 @@
         :title="getUserName(member)"
         :initial="getUserName(member)"
         class="ring-primary ring-2"
+        @click="handleClick()"
       />
     </div>
-    <span
+    <button
       v-if="props.showCount && props.teamMembers.length > maxMembersSoftLimit"
       v-tippy="{ theme: 'tooltip', allowHTML: true }"
       :title="remainingSlicedMembers"
       class="z-10 inline-flex items-center justify-center w-5 h-5 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark font- text-8px text-secondaryDark bg-dividerDark ring-2 ring-primary"
       tabindex="0"
+      @click="handleClick()"
     >
       {{
         teamMembers.length > 0
           ? `+${teamMembers.length - maxMembersSoftLimit}`
           : ""
       }}
-    </span>
+    </button>
   </div>
 </template>
 
@@ -47,6 +50,10 @@ const t = useI18n()
 const props = defineProps<{
   teamMembers: GetMyTeamsQuery["myTeams"][number]["teamMembers"]
   showCount?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: "handle-click"): void
 }>()
 
 const getUserName = (member: TeamMember): string =>
@@ -80,4 +87,8 @@ const remainingSlicedMembers = computed(
         })}`
       : ``)
 )
+
+const handleClick = () => {
+  emit("handle-click")
+}
 </script>

@@ -2,6 +2,7 @@
   <div :class="{ 'rounded border border-divider': saveRequest }">
     <div
       class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      :class="{ 'rounded-t': saveRequest }"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "

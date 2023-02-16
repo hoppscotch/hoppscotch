@@ -74,16 +74,32 @@
             :team-members="selectedTeam.teamMembers"
             show-count
             class="mx-2"
-            @click="handleTeamEdit()"
+            @handle-click="handleTeamEdit()"
           />
-          <ButtonSecondary
-            v-tippy="{ theme: 'tooltip' }"
-            :title="t('team.invite_tooltip')"
-            :label="t('team.invite')"
-            :icon="IconUserPlus"
-            class="bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 hover:border-green-800/50 !hover:text-green-600"
-            @click="handleInvite()"
-          />
+          <div
+            class="flex bg-green-500/15 rounded divide-x divide-green-600/25 border border-green-600/25 hover:bg-green-400/10 hover:border-green-800/50 hover:divide-green-800/50"
+          >
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('team.invite_tooltip')"
+              :label="mdAndLarger ? t('team.invite') : ``"
+              :icon="IconUserPlus"
+              class="py-1.75 !text-green-500 !hover:text-green-600"
+              @click="handleInvite()"
+            />
+            <ButtonSecondary
+              v-if="
+                workspace.type === 'team' &&
+                selectedTeam &&
+                selectedTeam?.myRole === 'OWNER'
+              "
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('team.edit')"
+              :icon="IconSettings"
+              class="py-1.75 !text-green-500 !hover:text-green-600"
+              @click="handleTeamEdit()"
+            />
+          </div>
           <tippy
             interactive
             trigger="click"

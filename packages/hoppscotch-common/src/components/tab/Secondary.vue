@@ -25,7 +25,7 @@
       class="svg-icons"
       :class="label ? 'mr-4 opacity-75' : ''"
     />
-    <div class="truncate max-w-32">
+    <div class="truncate max-w-64">
       {{ label }}
     </div>
   </HoppSmartLink>

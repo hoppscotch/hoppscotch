@@ -10,13 +10,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue"
+import { computed, ref, watch } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 const props = defineProps<{
   response: HoppRESTResponse | null
 }>()
+
+const selectedTabPreference = ref<string | null>(null)
 
 const hasResponse = computed(
   () => props.response?.type === "success" || props.response?.type === "fail"

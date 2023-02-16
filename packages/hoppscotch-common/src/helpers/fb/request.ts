@@ -79,9 +79,7 @@ export function startRequestSync(): Subscription {
 
         console.log("Syncing request", request)
 
-        return user
-          ? from(writeCurrentRequest(user, request.getRequest()))
-          : EMPTY
+        return user ? from(writeCurrentRequest(user, request)) : EMPTY
       }),
       audit((x) => x)
     )

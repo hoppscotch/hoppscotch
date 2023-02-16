@@ -159,7 +159,7 @@
           <div class="flex flex-1 border-b border-dividerLight">
             <SmartEnvInput v-model="oauth2Token" placeholder="Token" />
           </div>
-          <HttpOAuth2Authorization :request="request" />
+          <HttpOAuth2Authorization v-model="auth" />
         </div>
         <div v-if="authType === 'api-key'">
           <div class="flex flex-1 border-b border-dividerLight">
@@ -248,32 +248,39 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
-import { computed, ref, Ref } from "vue"
+import { computed, ref, Ref, watch } from "vue"
 import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
   HoppRESTAuthOAuth2,
   HoppRESTAuthAPIKey,
+  HoppRESTAuth,
 } from "@hoppscotch/data"
 import { pluckRef } from "@composables/ref"
-import { useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { RESTRequest } from "~/helpers/RESTRequest"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
 const props = defineProps<{
-  request: RESTRequest
+  modelValue: HoppRESTAuth
 }>()
 
-const auth = useStream(
-  props.request.auth$,
-  { authType: "none", authActive: true },
-  props.request.setAuth.bind(props.request)
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTAuth): void
+}>()
+
+const auth = ref(props.modelValue)
+
+watch(
+  () => auth.value,
+  (val) => {
+    emit("update:modelValue", val)
+  }
 )
+
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {
   if (authType.value === "basic") return "Basic Auth"

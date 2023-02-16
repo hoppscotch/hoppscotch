@@ -179,7 +179,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, Ref, ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -198,10 +198,8 @@ import { useCodemirror } from "@composables/codemirror"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { useStream } from "@composables/stream"
 import { throwError } from "@functional/error"
 import { objRemoveKey } from "@functional/object"
-import { RESTRequest } from "~/helpers/RESTRequest"
 
 const colorMode = useColorMode()
 
@@ -209,7 +207,11 @@ const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  request: RESTRequest
+  modelValue: HoppRESTParam[]
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTParam[]): void
 }>()
 
 const idTicker = ref(0)
@@ -237,11 +239,6 @@ useCodemirror(
 )
 
 // The functional parameters list (the parameters actually applied to the session)
-const params = useStream(
-  props.request.params$,
-  [],
-  props.request.setParams.bind(props.request)
-) as Ref<HoppRESTParam[]>
 
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<Array<HoppRESTParam & { id: number }>>([
@@ -267,7 +264,7 @@ watch(workingParams, (paramsList) => {
 
 // Sync logic between params and working/bulk params
 watch(
-  params,
+  props.modelValue,
   (newParamsList) => {
     // Sync should overwrite working params
     const filteredWorkingParams: HoppRESTParam[] = pipe(
@@ -316,8 +313,10 @@ watch(workingParams, (newWorkingParams) => {
     )
   )
 
-  if (!isEqual(params.value, fixedParams)) {
-    params.value = cloneDeep(fixedParams)
+  if (!isEqual(props.modelValue, fixedParams)) {
+    // TODO: check if this is the right way to emit
+    emit("update:modelValue", fixedParams)
+    // params.value = cloneDeep(fixedParams)
   }
 })
 
@@ -333,8 +332,10 @@ watch(bulkParams, (newBulkParams) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(params.value, filteredBulkParams)) {
-    params.value = filteredBulkParams
+  if (!isEqual(props.modelValue, filteredBulkParams)) {
+    // TODO: check if this is the right way to emit
+    emit("update:modelValue", filteredBulkParams)
+    // params.value = filteredBulkParams
   }
 })
 

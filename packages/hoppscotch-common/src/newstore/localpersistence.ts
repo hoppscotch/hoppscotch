@@ -41,10 +41,10 @@ import {
   selectedEnvironmentIndex$,
 } from "./environments"
 import {
+  getDefaultRESTRequest,
   restSession$,
   RESTTab,
   setCurrentTabId,
-  setRESTRequest,
   setRESTTabs,
 } from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WebSocketSession"
@@ -53,7 +53,7 @@ import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
 import { bulkApplyLocalState, localStateStore } from "./localstate"
 import { StorageLike } from "@vueuse/core"
-import { RESTRequest } from "~/helpers/RESTRequest"
+import { v4 } from "uuid"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -334,21 +334,19 @@ export function getTabsForRestoration(tabs: unknown[]) {
 
   const restoredTabs = tabs.map((x) => {
     const tab: RESTTab = {
-      id: uniqueId("new"),
-      name: "Untitled",
-      request: new RESTRequest(),
+      id: x.id || v4(),
+      request: safelyExtractRESTRequest(x.request, getDefaultRESTRequest()),
+      response: null,
     }
-    tab.request.setRequest(
-      safelyExtractRESTRequest(x.request, tab.request.getRequest())
-    )
+
     return tab
   })
 
   !restoredTabs.length &&
     restoredTabs.push({
-      id: uniqueId("new"),
-      name: "Untitled",
-      request: new RESTRequest(),
+      id: v4(),
+      request: getDefaultRESTRequest(),
+      response: null,
     })
 
   return restoredTabs
@@ -357,7 +355,7 @@ export function getTabsForRestoration(tabs: unknown[]) {
 export function getSessionForPersistence(allTabs: RESTTab[]) {
   const tabs = cloneDeep(allTabs)
   return tabs.map((tab) => {
-    const req = tab.request.getRequest()
+    const req = tab.request
 
     if (req.body.contentType === "multipart/form-data") {
       req.body.body = req.body.body.map((x) => {

@@ -65,26 +65,23 @@
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconTrash2 from "~icons/lucide/trash-2"
-import { reactive, ref } from "vue"
+import { computed, reactive, ref } from "vue"
 import snippets from "@helpers/preRequestScriptSnippets"
 import { useCodemirror } from "@composables/codemirror"
 import linter from "~/helpers/editor/linting/preRequest"
 import completer from "~/helpers/editor/completion/preRequest"
 import { useI18n } from "@composables/i18n"
-import { RESTRequest } from "~/helpers/RESTRequest"
-import { useStream } from "~/composables/stream"
 
 const t = useI18n()
 
 const props = defineProps<{
-  request: RESTRequest
+  modelValue: string
 }>()
-
-const preRequestScript = useStream(
-  props.request.preRequestScript$,
-  "",
-  props.request.setPreRequestScript.bind(props.request)
-)
+const emit = defineEmits(["update:modelValue"])
+const preRequestScript = computed({
+  get: () => props.modelValue,
+  set: (value: string) => emit("update:modelValue", value),
+})
 
 const preRequestEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)

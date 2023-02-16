@@ -102,6 +102,7 @@ declare module '@vue/runtime-core' {
     HttpReqChangeConfirmModal: typeof import('./components/http/ReqChangeConfirmModal.vue')['default']
     HttpRequest: typeof import('./components/http/Request.vue')['default']
     HttpRequestOptions: typeof import('./components/http/RequestOptions.vue')['default']
+    HttpRequestTab: typeof import('./components/http/RequestTab.vue')['default']
     HttpResponse: typeof import('./components/http/Response.vue')['default']
     HttpResponseMeta: typeof import('./components/http/ResponseMeta.vue')['default']
     HttpSidebar: typeof import('./components/http/Sidebar.vue')['default']

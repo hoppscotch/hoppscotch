@@ -17,10 +17,10 @@
               <input
                 id="method"
                 class="flex px-4 py-2 font-semibold transition rounded-l cursor-pointer text-secondaryDark w-26 bg-primaryLight"
-                :value="newMethod"
+                :value="modelValue.method"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
-                @input="onSelectMethod($event.target?.value)"
+                @input="onSelectMethod($event)"
               />
             </span>
             <template #content="{ hide }">
@@ -36,7 +36,7 @@
                   :label="method"
                   @click="
                     () => {
-                      onSelectMethod(method)
+                      updateMethod(method)
                       hide()
                     }
                   "
@@ -50,7 +50,7 @@
         class="flex flex-1 overflow-auto transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
       >
         <SmartEnvInput
-          v-model="newEndpoint"
+          v-model="request.endpoint"
           :placeholder="`${t('request.url')}`"
           @enter="newSendRequest()"
           @paste="onPasteUrl($event)"
@@ -166,7 +166,7 @@
               >
                 <input
                   id="request-name"
-                  v-model="requestName"
+                  v-model="request.name"
                   :placeholder="`${t('request.name')}`"
                   name="request-name"
                   type="text"
@@ -227,50 +227,46 @@
 </template>
 
 <script setup lang="ts">
-import IconShare2 from "~icons/lucide/share-2"
-import IconCopy from "~icons/lucide/copy"
-import IconCheck from "~icons/lucide/check"
-import IconFileCode from "~icons/lucide/file-code"
-import IconCode2 from "~icons/lucide/code-2"
-import IconRotateCCW from "~icons/lucide/rotate-ccw"
-import IconSave from "~icons/lucide/save"
-import IconChevronDown from "~icons/lucide/chevron-down"
-import IconLink2 from "~icons/lucide/link-2"
-import IconFolderPlus from "~icons/lucide/folder-plus"
-import { computed, ref, watch } from "vue"
-import { isLeft, isRight } from "fp-ts/lib/Either"
-import * as E from "fp-ts/Either"
-import { cloneDeep } from "lodash-es"
-import { refAutoReset } from "@vueuse/core"
-import {
-  updateRESTResponse,
-  resetRESTRequest,
-  getRESTSaveContext,
-  getRESTRequest,
-  setRESTSaveContext,
-} from "~/newstore/RESTSession"
-import { editRESTRequest } from "~/newstore/collections"
-import { runRESTRequest$ } from "~/helpers/RequestRunner"
-import {
-  useStream,
-  useStreamSubscriber,
-  useReadonlyStream,
-} from "@composables/stream"
 import { useI18n } from "@composables/i18n"
-import { useToast } from "@composables/toast"
 import { useSetting } from "@composables/settings"
-import { startPageProgress, completePageProgress } from "@modules/loadingbar"
+import { useStreamSubscriber } from "@composables/stream"
+import { useToast } from "@composables/toast"
+import { HoppRESTRequest } from "@hoppscotch/data"
+import { completePageProgress, startPageProgress } from "@modules/loadingbar"
+import { refAutoReset } from "@vueuse/core"
+import * as E from "fp-ts/Either"
+import { isLeft, isRight } from "fp-ts/lib/Either"
+import { cloneDeep } from "lodash-es"
+import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
-import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { runMutation } from "~/helpers/backend/GQLClient"
 import { UpdateRequestDocument } from "~/helpers/backend/graphql"
+import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import {
   cancelRunningExtensionRequest,
   hasExtensionInstalled,
 } from "~/helpers/strategies/ExtensionStrategy"
-import { RESTRequest } from "~/helpers/RESTRequest"
+import { runRESTRequest$ } from "~/helpers/RequestRunner"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { copyToClipboard } from "~/helpers/utils/clipboard"
+import { editRESTRequest } from "~/newstore/collections"
+import {
+  getRESTRequest,
+  getRESTSaveContext,
+  resetRESTRequest,
+  setRESTSaveContext,
+} from "~/newstore/RESTSession"
+import IconCheck from "~icons/lucide/check"
+import IconChevronDown from "~icons/lucide/chevron-down"
+import IconCode2 from "~icons/lucide/code-2"
+import IconCopy from "~icons/lucide/copy"
+import IconFileCode from "~icons/lucide/file-code"
+import IconFolderPlus from "~icons/lucide/folder-plus"
+import IconLink2 from "~icons/lucide/link-2"
+import IconRotateCCW from "~icons/lucide/rotate-ccw"
+import IconSave from "~icons/lucide/save"
+import IconShare2 from "~icons/lucide/share-2"
 
 const t = useI18n()
 
@@ -291,20 +287,27 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const props = defineProps<{
-  request: RESTRequest
-}>()
+const props = defineProps<{ modelValue: HoppRESTRequest }>()
+const emit = defineEmits(["update:modelValue", "update:response"])
 
-const newEndpoint = useStream(
-  props.request.endpoint$,
-  "",
-  props.request.setEndpoint.bind(props.request)
+const request = ref(props.modelValue)
+
+watch(
+  () => request.value,
+  (newVal) => {
+    shareLink.value = null
+    emit("update:modelValue", newVal)
+  },
+  { deep: true }
 )
-const newMethod = useStream(
-  props.request.method$,
-  "GET",
-  props.request.setMethod.bind(props.request)
-)
+
+const newEndpoint = computed(() => {
+  console.log(request.value.endpoint)
+  return request.value.endpoint
+})
+const newMethod = computed(() => {
+  return props.modelValue.method
+})
 
 const curlText = ref("")
 
@@ -334,6 +337,30 @@ watch(loading, () => {
     completePageProgress()
   }
 })
+
+// TODO: make this oAuthURL() work
+
+// function oAuthURL() {
+//   const auth = useReadonlyStream(props.request.auth$, {
+//     authType: "none",
+//     authActive: true,
+//   })
+
+//   const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
+
+//   onBeforeMount(async () => {
+//     try {
+//       const tokenInfo = await oauthRedirect()
+//       if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
+//         if (typeof tokenInfo === "object") {
+//           oauth2Token.value = tokenInfo.access_token
+//         }
+//       }
+
+//       // eslint-disable-next-line no-empty
+//     } catch (_) {}
+//   })
+// }
 
 const newSendRequest = async () => {
   if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
@@ -392,9 +419,9 @@ const ensureMethodInEndpoint = () => {
   ) {
     const domain = newEndpoint.value.split(/[/:#?]+/)[0]
     if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {
-      props.request.setEndpoint("http://" + newEndpoint.value)
+      request.value.endpoint = "http://" + request.value.endpoint
     } else {
-      props.request.setEndpoint("https://" + newEndpoint.value)
+      request.value.endpoint = "https://" + request.value.endpoint
     }
   }
 }
@@ -407,7 +434,7 @@ const onPasteUrl = (e: { pastedValue: string; prevValue: string }) => {
   if (isCURL(pastedData)) {
     showCurlImportModal.value = true
     curlText.value = pastedData
-    newEndpoint.value = e.prevValue
+    request.value.endpoint = e.prevValue
   }
 }
 
@@ -424,15 +451,21 @@ const cancelRequest = () => {
 }
 
 const updateMethod = (method: string) => {
-  props.request.setMethod(method)
+  request.value.method = method
 }
 
-const onSelectMethod = (method: string) => {
-  updateMethod(method)
+const onSelectMethod = (e: Event | any) => {
+  // type any because of value property not being recognized by TS in the event.target object. It is a valid property though.
+  updateMethod(e.value)
 }
 
 const clearContent = () => {
   resetRESTRequest()
+}
+
+const updateRESTResponse = (response: HoppRESTResponse | null) => {
+  emit("update:response", response)
+  console.log("Updating response", response)
 }
 
 const copyLinkIcon = refAutoReset<
@@ -452,23 +485,13 @@ const shareButtonText = computed(() => {
   }
 })
 
-const request = useReadonlyStream(
-  props.request.request$,
-  props.request.getRequest()
-)
-
-watch(request, () => {
-  shareLink.value = null
-})
-
 const copyRequest = async () => {
   if (shareLink.value) {
     copyShareLink(shareLink.value)
   } else {
     shareLink.value = ""
     fetchingShareLink.value = true
-    const request = getRESTRequest()
-    const shortcodeResult = await createShortcode(request)()
+    const shortcodeResult = await createShortcode(request.value)()
     if (E.isLeft(shortcodeResult)) {
       toast.error(`${shortcodeResult.left.error}`)
       shareLink.value = `${t("error.something_went_wrong")}`
@@ -602,14 +625,8 @@ defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
 defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
 const isCustomMethod = computed(() => {
-  return newMethod.value === "CUSTOM" || !methods.includes(newMethod.value)
+  return request.value.method === "CUSTOM" || !methods.includes(newMethod.value)
 })
-
-const requestName = useStream(
-  props.request.name$,
-  "Untitled",
-  props.request.setName.bind(props.request)
-)
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 </script>

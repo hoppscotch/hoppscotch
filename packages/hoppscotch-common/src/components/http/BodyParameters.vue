@@ -355,7 +355,7 @@ const clearContent = () => {
 const setRequestAttachment = (
   index: number,
   entry: FormDataKeyValue,
-  event: InputEvent
+  event: InputEvent | Event
 ) => {
   // check if file exists or not
   if ((event.target as HTMLInputElement).files?.length === 0) {

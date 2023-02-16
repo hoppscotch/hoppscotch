@@ -13,18 +13,13 @@
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
-          :label="tab.name"
+          :label="tab.request.name"
           :is-removable="tabs.length > 1"
         >
-          <AppPaneLayout layout-id="rest-primary">
-            <template #primary>
-              <HttpRequest :request="tab.request" />
-              <HttpRequestOptions :request="tab.request" />
-            </template>
-            <template #secondary>
-              <HttpResponse :request="tab.request" />
-            </template>
-          </AppPaneLayout>
+          <HttpRequestTab
+            :model-value="tab"
+            @update:model-value="onTabUpdate"
+          />
         </SmartWindow>
       </SmartWindows>
     </template>
@@ -51,6 +46,7 @@ import {
   RESTCurrentTabId$,
   setCurrentTabId,
   addNewRESTTab,
+  RESTTab,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useI18n } from "@composables/i18n"
@@ -93,29 +89,17 @@ function bindRequestToURLParams() {
   })
 }
 
-// TODO: make this oAuthURL() work
+const onTabUpdate = (tab: RESTTab) => {
+  tabs.value = tabs.value.map((t) => {
+    if (t.id === tab.id) {
+      return tab
+    } else {
+      return t
+    }
+  })
 
-// function oAuthURL() {
-//   const auth = useReadonlyStream(props.request.auth$, {
-//     authType: "none",
-//     authActive: true,
-//   })
-
-//   const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
-
-//   onBeforeMount(async () => {
-//     try {
-//       const tokenInfo = await oauthRedirect()
-//       if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
-//         if (typeof tokenInfo === "object") {
-//           oauth2Token.value = tokenInfo.access_token
-//         }
-//       }
-
-//       // eslint-disable-next-line no-empty
-//     } catch (_) {}
-//   })
-// }
+  console.log("ON_TAB_UPDATE", tabs.value)
+}
 
 function setupRequestSync(
   confirmSync: Ref<boolean>,

@@ -32,46 +32,46 @@
 </template>
 
 <script setup lang="ts">
-import { Ref } from "vue"
+import { ref, watch } from "vue"
 import { HoppRESTAuthOAuth2, parseTemplateString } from "@hoppscotch/data"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
-import { useStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { tokenRequest } from "~/helpers/oauth"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
-import { RESTRequest } from "~/helpers/RESTRequest"
 
 const t = useI18n()
 const toast = useToast()
 
 const props = defineProps<{
-  request: RESTRequest
+  modelValue: HoppRESTAuthOAuth2
 }>()
 
-const auth = useStream(
-  props.request.auth$,
-  { authType: "none", authActive: true },
-  props.request.setAuth.bind(props.request)
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTAuthOAuth2): void
+}>()
+
+const auth = ref(props.modelValue)
+
+watch(
+  () => auth.value,
+  (val) => {
+    emit("update:modelValue", val)
+  }
 )
 
-const oidcDiscoveryURL = pluckRef(
-  auth as Ref<HoppRESTAuthOAuth2>,
-  "oidcDiscoveryURL"
-)
+const oidcDiscoveryURL = pluckRef(auth, "oidcDiscoveryURL")
 
-const authURL = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "authURL")
+const authURL = pluckRef(auth, "authURL")
 
-const accessTokenURL = pluckRef(
-  auth as Ref<HoppRESTAuthOAuth2>,
-  "accessTokenURL"
-)
+const accessTokenURL = pluckRef(auth, "accessTokenURL")
 
-const clientID = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "clientID")
+const clientID = pluckRef(auth, "clientID")
 
-const clientSecret = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "clientSecret")
+// TODO: Fix this type error. currently there is no type for clientSecret
+const clientSecret = pluckRef(auth, "clientSecret" as any)
 
-const scope = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "scope")
+const scope = pluckRef(auth, "scope")
 
 const handleAccessTokenRequest = async () => {
   if (

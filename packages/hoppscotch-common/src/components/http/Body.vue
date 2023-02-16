@@ -28,11 +28,11 @@
             >
               <HoppSmartItem
                 :label="t('state.none')"
-                :info-icon="contentType === null ? IconDone : null"
+                :info-icon="(contentType === null ? IconDone : null) as any"
                 :active-info-icon="contentType === null"
                 @click="
                   () => {
-                    contentType = null
+                    emit('update:contentType', null)
                     hide()
                   }
                 "
@@ -57,12 +57,12 @@
                     :key="`contentTypeItem-${contentTypeIndex}`"
                     :label="contentTypeItem"
                     :info-icon="
-                      contentTypeItem === contentType ? IconDone : null
+                      (contentTypeItem === contentType ? IconDone : null) as any
                     "
                     :active-info-icon="contentTypeItem === contentType"
                     @click="
                       () => {
-                        contentType = contentTypeItem
+                        emit('update:contentType', contentTypeItem)
                         hide()
                       }
                     "
@@ -124,13 +124,12 @@
 
 <script setup lang="ts">
 import { useI18n } from "@composables/i18n"
-import { useStream } from "@composables/stream"
 import { useColorMode } from "@composables/theming"
+import { HoppRESTHeader, HoppRESTReqBody } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { computed, ref } from "vue"
-import { RESTRequest } from "~/helpers/RESTRequest"
 import { segmentedContentTypes } from "~/helpers/utils/contenttypes"
 import IconDone from "~icons/lucide/check"
 import IconExternalLink from "~icons/lucide/external-link"
@@ -142,29 +141,19 @@ const colorMode = useColorMode()
 const t = useI18n()
 
 const props = defineProps<{
-  request: RESTRequest
+  contentType: HoppRESTReqBody["contentType"]
+  headers: HoppRESTHeader[]
 }>()
 
 const emit = defineEmits<{
-  (e: "change-tab", value: string): void
+  (e: "change-tab", value: RequestOptionTabs): void
+  (e: "update:headers", value: HoppRESTHeader[]): void
+  (e: "update:contentType", value: HoppRESTReqBody["contentType"]): void
 }>()
-
-const contentType = useStream(
-  props.request.contentType$,
-  null,
-  props.request.setContentType.bind(props.request)
-)
-
-// The functional headers list (the headers actually in the system)
-const headers = useStream(
-  props.request.headers$,
-  [],
-  props.request.setHeaders.bind(props.request)
-)
 
 const overridenContentType = computed(() =>
   pipe(
-    headers.value,
+    props.headers,
     A.findLast((h) => h.key.toLowerCase() === "content-type" && h.active),
     O.map((h) => h.value),
     O.getOrElse(() => "")
@@ -174,17 +163,22 @@ const overridenContentType = computed(() =>
 const contentTypeOverride = (tab: RequestOptionTabs) => {
   emit("change-tab", tab)
   if (!isContentTypeAlreadyExist()) {
-    props.request.addHeader({
-      key: "Content-Type",
-      value: "",
-      active: true,
-    })
+    // TODO: Fix this
+
+    emit(
+      "update:headers",
+      props.headers.concat({
+        key: "Content-Type",
+        value: "",
+        active: true,
+      })
+    )
   }
 }
 
 const isContentTypeAlreadyExist = () => {
   return pipe(
-    headers.value,
+    props.headers,
     A.some((e) => e.key.toLowerCase() === "content-type")
   )
 }

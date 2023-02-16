@@ -12,25 +12,22 @@
 <script setup lang="ts">
 import { computed, watch } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
-import { useReadonlyStream } from "@composables/stream"
-import { RESTRequest } from "~/helpers/RESTRequest"
+import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 const props = defineProps<{
-  request: RESTRequest
+  response: HoppRESTResponse | null
 }>()
 
-const response = useReadonlyStream(props.request.response$, null)
-
 const hasResponse = computed(
-  () => response.value?.type === "success" || response.value?.type === "fail"
+  () => props.response?.type === "success" || props.response?.type === "fail"
 )
 
 const loading = computed(
-  () => response.value === null || response.value.type === "loading"
+  () => props.response === null || props.response.type === "loading"
 )
 
-watch(response, () => {
-  if (response.value?.type === "loading") startPageProgress()
+watch(props, () => {
+  if (props.response?.type === "loading") startPageProgress()
   else completePageProgress()
 })
 </script>

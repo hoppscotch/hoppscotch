@@ -1,13 +1,13 @@
-import { useStream } from "@composables/stream"
 import {
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
 } from "@hoppscotch/data"
-import { uniqueId } from "lodash-es"
+import { combineLatest } from "rxjs"
 import { distinctUntilChanged, filter, map, pluck } from "rxjs/operators"
+import { v4 } from "uuid"
 import { Ref } from "vue"
-import { RESTRequest } from "~/helpers/RESTRequest"
+import { useStream } from "~/composables/stream"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
@@ -15,8 +15,8 @@ import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 export type RESTTab = {
   id: string
-  name: string
-  request: RESTRequest
+  request: HoppRESTRequest
+  response: HoppRESTResponse | null
 }
 
 export type RESTSession = {
@@ -28,10 +28,10 @@ export type RESTSession = {
   saveContext: HoppRequestSaveContext | null
 }
 
-const makeTab = (id: string): RESTTab => ({
-  id,
-  name: "Untitled",
-  request: new RESTRequest(),
+const makeTab = (id?: string): RESTTab => ({
+  id: id ?? v4(),
+  request: getDefaultRESTRequest(),
+  response: null,
 })
 
 export const getDefaultRESTRequest = (): HoppRESTRequest => ({
@@ -55,7 +55,7 @@ export const getDefaultRESTRequest = (): HoppRESTRequest => ({
 
 export const defaultRESTSession: RESTSession = {
   url: "https://echo.hoppscotch.io/graphql",
-  tabs: [makeTab("new")],
+  tabs: [makeTab()],
   currentTabId: "new",
   response: null,
   testResults: null,
@@ -76,6 +76,25 @@ const dispatchers = defineDispatchers({
   setCurrentTabId(_: RESTSession, { tabId }: { tabId: string }) {
     return {
       currentTabId: tabId,
+    }
+  },
+  setActiveRequestBody(
+    req: RESTSession,
+    { tabId, body }: { tabId: string; body: HoppRESTReqBody }
+  ) {
+    return {
+      tabs: req.tabs.map((tab) => {
+        if (tab.id === tabId) {
+          return {
+            ...tab,
+            request: {
+              ...tab.request,
+              body,
+            },
+          }
+        }
+        return tab
+      }),
     }
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -127,7 +146,7 @@ export function addNewRESTTab() {
   restSessionStore.dispatch({
     dispatcher: "addTab",
     payload: {
-      tab: { ...makeTab(uniqueId("new_")) },
+      tab: { ...makeTab(v4()) },
     },
   })
 }
@@ -137,6 +156,16 @@ export function setCurrentTabId(tabId: string) {
     dispatcher: "setCurrentTabId",
     payload: {
       tabId,
+    },
+  })
+}
+
+export function setActiveRequestBody(body: HoppRESTReqBody) {
+  restSessionStore.dispatch({
+    dispatcher: "setActiveRequestBody",
+    payload: {
+      tabId: restSessionStore.value.currentTabId,
+      body,
     },
   })
 }
@@ -163,12 +192,10 @@ export const RESTCurrentTabId$ = restSessionStore.subject$.pipe(
   pluck("currentTabId"),
   distinctUntilChanged()
 )
-
 export function getRESTRequest() {
   // current tab > request > getRequest
-  return getCurrentTab()?.request.getRequest()
+  return getCurrentTab().request
 }
-
 export function setRESTRequest(
   req: HoppRESTRequest,
   saveContext?: HoppRequestSaveContext | null
@@ -191,14 +218,14 @@ export function getRESTSaveContext() {
   return restSessionStore.value.saveContext
 }
 
+// TODO: look for better way to do this
 export function resetRESTRequest() {
-  getCurrentTab().request.resetRequest()
+  getCurrentTab().request
 }
-
+// TODO: look for better way to do this
 export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
-  getCurrentTab().request.updateResponse(updatedRes)
+  getCurrentTab().request
 }
-
 export function clearRESTResponse() {
   restSessionStore.dispatch({
     dispatcher: "clearResponse",
@@ -240,24 +267,10 @@ export const restParams$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-// export const restActiveParamsCount$ = restParams$.pipe(
-//   map(
-//     (params) =>
-//       params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
-//   )
-// )
-
 export const restHeaders$ = restSessionStore.subject$.pipe(
   pluck("request", "headers"),
   distinctUntilChanged()
 )
-
-// export const restActiveHeadersCount$ = restHeaders$.pipe(
-//   map(
-//     (params) =>
-//       params.filter((x) => x.active && (x.key !== "" || x.value !== "")).length
-//   )
-// )
 
 export const requestBody$ = restSessionStore.subject$.pipe(
   pluck("request", "body"),
@@ -287,18 +300,18 @@ export const restTestResults$ = restSessionStore.subject$.pipe(
 // TODO: use stream to get request body and name
 
 export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
-  // const request$ = combineLatest([restCurrentTab$]).pipe(
-  //   map(([tab]) => tab.request.body$)
-  // )
+  const body$ = combineLatest([restCurrentTab$]).pipe(
+    map(([tab]) => tab.request.body)
+  )
 
-  // const request$ = restCurrentTab$.pipe(
-  //   map((tab) => tab.request.body$),
-  //   distinctUntilChanged()
-  // )
+  console.log("useRESTRequestBody", body$)
 
   return useStream(
-    getCurrentTab().request.body$,
-    getCurrentTab().request.body$.value,
-    getCurrentTab().request.setRequestBody.bind(getCurrentTab().request)
+    body$,
+    {
+      contentType: null,
+      body: null,
+    },
+    setActiveRequestBody
   )
 }

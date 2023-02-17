@@ -11,7 +11,7 @@ export const getDefaultGQLRequest = (): HoppGQLRequest =>
     url: "https://echo.hoppscotch.io/graphql",
     headers: [],
     variables: `{
-"id": "1"
+  "id": "1"
 }`,
     query: `query Request {
 method
@@ -19,7 +19,7 @@ url
 headers {
   key
   value
-}
+  }
 }
 `,
     auth: {
@@ -241,6 +241,8 @@ export function setActiveRequestName(name: string) {
     },
   })
 }
+
+export const gqlSession$ = gqlSessionStore.subject$.pipe(distinctUntilChanged())
 
 export const gqlCurrentTab$ = gqlSessionStore.subject$.pipe(
   map(({ tabs, currentTabId }) => {

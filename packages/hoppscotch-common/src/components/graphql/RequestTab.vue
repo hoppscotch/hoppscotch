@@ -2,9 +2,9 @@
   <AppPaneLayout layout-id="gql-primary">
     <template #primary>
       <GraphqlRequestOptions
-        :tab-id="tab.id"
         v-model="tab.request"
         v-model:response="tab.response"
+        :tab-id="tab.id"
       />
     </template>
     <template #secondary>

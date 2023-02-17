@@ -37,7 +37,7 @@
           label ? (reverse ? 'ml-2' : 'mr-2') : '',
         ]"
       />
-      <div class="truncate max-w-64">
+      <div class="truncate max-w-54">
         {{ label }}
       </div>
       <div v-if="shortcut.length" class="<sm:hidden">

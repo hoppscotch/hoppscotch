@@ -311,7 +311,6 @@ watch(
   (teamID) => {
     if (!teamID) {
       switchToMyEnvironments()
-      adapter.changeTeamID(undefined)
     } else if (teamID) {
       const team = myTeams.value?.find((t) => t.id === teamID)
       if (team) {

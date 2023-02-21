@@ -65,12 +65,13 @@
 import IconHelpCircle from "~icons/lucide/help-circle"
 import IconWrapText from "~icons/lucide/wrap-text"
 import IconTrash2 from "~icons/lucide/trash-2"
-import { computed, reactive, ref } from "vue"
+import { reactive, ref } from "vue"
 import testSnippets from "~/helpers/testSnippets"
 import { useCodemirror } from "@composables/codemirror"
 import linter from "~/helpers/editor/linting/testScript"
 import completer from "~/helpers/editor/completion/testScript"
 import { useI18n } from "@composables/i18n"
+import { useVModel } from "@vueuse/core"
 
 const t = useI18n()
 
@@ -78,11 +79,7 @@ const props = defineProps<{
   modelValue: string
 }>()
 const emit = defineEmits(["update:modelValue"])
-const testScript = computed({
-  get: () => props.modelValue,
-  set: (value: string) => emit("update:modelValue", value),
-})
-
+const testScript = useVModel(props, "modelValue", emit)
 const testScriptEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
 

@@ -269,6 +269,7 @@ import {
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
 import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
+import { useVModel } from "@vueuse/core"
 
 const t = useI18n()
 const toast = useToast()
@@ -291,15 +292,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTRequest): void
 }>()
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 useCodemirror(
   bulkEditor,

@@ -248,7 +248,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
-import { computed, ref, Ref, watch } from "vue"
+import { computed, ref, Ref } from "vue"
 import {
   HoppRESTAuthBasic,
   HoppRESTAuthBearer,
@@ -259,6 +259,7 @@ import {
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
+import { useVModel } from "@vueuse/core"
 
 const t = useI18n()
 
@@ -272,14 +273,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: HoppRESTAuth): void
 }>()
 
-const auth = ref(props.modelValue)
-
-watch(
-  () => auth.value,
-  (val) => {
-    emit("update:modelValue", val)
-  }
-)
+const auth = useVModel(props, "modelValue", emit)
 
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {

@@ -97,6 +97,25 @@ const dispatchers = defineDispatchers({
       }),
     }
   },
+  setActiveRequestName(
+    req: RESTSession,
+    { tabId, name }: { tabId: string; name: string }
+  ) {
+    return {
+      tabs: req.tabs.map((tab) => {
+        if (tab.id === tabId) {
+          return {
+            ...tab,
+            request: {
+              ...tab.request,
+              name,
+            },
+          }
+        }
+        return tab
+      }),
+    }
+  },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   clearResponse(_curr: RESTSession, {}) {
     return {
@@ -156,6 +175,16 @@ export function setCurrentTabId(tabId: string) {
     dispatcher: "setCurrentTabId",
     payload: {
       tabId,
+    },
+  })
+}
+
+export function setActiveRequestName(name: string) {
+  restSessionStore.dispatch({
+    dispatcher: "setActiveRequestName",
+    payload: {
+      tabId: restSessionStore.value.currentTabId,
+      name,
     },
   })
 }
@@ -222,10 +251,7 @@ export function getRESTSaveContext() {
 export function resetRESTRequest() {
   getCurrentTab().request
 }
-// TODO: look for better way to do this
-export function updateRESTResponse(updatedRes: HoppRESTResponse | null) {
-  getCurrentTab().request
-}
+
 export function clearRESTResponse() {
   restSessionStore.dispatch({
     dispatcher: "clearResponse",
@@ -297,15 +323,18 @@ export const restTestResults$ = restSessionStore.subject$.pipe(
   distinctUntilChanged()
 )
 
-// TODO: use stream to get request body and name
+export function useRESTRequestName(): Ref<string> {
+  const name$ = combineLatest([restCurrentTab$]).pipe(
+    map(([tab]) => tab.request.name)
+  )
+
+  return useStream(name$, "Untitled", setActiveRequestName)
+}
 
 export function useRESTRequestBody(): Ref<HoppRESTReqBody> {
   const body$ = combineLatest([restCurrentTab$]).pipe(
     map(([tab]) => tab.request.body)
   )
-
-  console.log("useRESTRequestBody", body$)
-
   return useStream(
     body$,
     {

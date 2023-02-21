@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { customRef, reactive, ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import { cloneDeep } from "lodash-es"
 import {
   HoppGQLRequest,
@@ -77,7 +77,11 @@ import {
 } from "~/helpers/backend/mutations/TeamRequest"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { getGQLSession, useGQLRequestName } from "~/newstore/GQLSession"
-import { getRESTRequest, setRESTSaveContext } from "~/newstore/RESTSession"
+import {
+  getRESTRequest,
+  setRESTSaveContext,
+  useRESTRequestName,
+} from "~/newstore/RESTSession"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import {
@@ -127,12 +131,7 @@ const emit = defineEmits<{
 // This implementation can't work across updates to mode prop (which won't happen tho)
 // TODO: Figure out for REST Request name
 const requestName =
-  props.mode === "rest"
-    ? customRef<string>(() => ({
-        get: () => "Untitled",
-        set: () => {},
-      }))
-    : useGQLRequestName()
+  props.mode === "rest" ? useRESTRequestName() : useGQLRequestName()
 
 const requestData = reactive({
   name: requestName,

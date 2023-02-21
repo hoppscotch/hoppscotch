@@ -233,7 +233,7 @@ import { useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { completePageProgress, startPageProgress } from "@modules/loadingbar"
-import { refAutoReset } from "@vueuse/core"
+import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import { cloneDeep } from "lodash-es"
@@ -290,16 +290,7 @@ const { subscribeToStream } = useStreamSubscriber()
 const props = defineProps<{ modelValue: HoppRESTRequest }>()
 const emit = defineEmits(["update:modelValue", "update:response"])
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    shareLink.value = null
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 const newEndpoint = computed(() => {
   console.log(request.value.endpoint)

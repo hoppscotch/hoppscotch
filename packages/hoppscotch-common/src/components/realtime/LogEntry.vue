@@ -34,14 +34,14 @@
             </div>
           </div>
         </div>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.copy')"
           :icon="copyQueryIcon"
           class="hidden group-hover:inline-flex"
           @click="copyQuery(entry.payload)"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :icon="IconChevronDown"
           class="transform"
           :class="{ 'rotate-180': !minimized }"
@@ -50,14 +50,14 @@
       </div>
     </div>
     <div v-if="!minimized" class="overflow-hidden bg-primaryContrast">
-      <SmartTabs
+      <HoppSmartTabs
         v-model="selectedTab"
         styles="bg-primaryLight"
         render-inactive-tabs
       >
-        <SmartTab v-if="isJSON(entry.payload)" id="json" label="JSON" />
-        <SmartTab id="raw" label="Raw" />
-      </SmartTabs>
+        <HoppSmartTab v-if="isJSON(entry.payload)" id="json" label="JSON" />
+        <HoppSmartTab id="raw" label="Raw" />
+      </HoppSmartTabs>
       <div
         class="z-10 flex items-center justify-between pl-4 border-b border-dividerLight top-lowerSecondaryStickyFold"
       >
@@ -65,20 +65,20 @@
           {{ t("response.body") }}
         </label>
         <div class="flex">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
             :class="{ '!text-accent': linewrapEnabled }"
             :icon="IconWrapText"
             @click.prevent="linewrapEnabled = !linewrapEnabled"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.download_file')"
             :icon="downloadIcon"
             @click="downloadResponse"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.copy')"
             :icon="copyIcon"
@@ -123,7 +123,7 @@
                   tabindex="0"
                   @keyup.escape="hide()"
                 >
-                  <SmartItem
+                  <HoppSmartItem
                     v-for="(arrayMember, astIndex) in item.astParent.values"
                     :key="`ast-${astIndex}`"
                     :label="`${astIndex}`"
@@ -142,7 +142,7 @@
                   tabindex="0"
                   @keyup.escape="hide()"
                 >
-                  <SmartItem
+                  <HoppSmartItem
                     v-for="(objectMember, astIndex) in item.astParent.members"
                     :key="`ast-${astIndex}`"
                     :label="objectMember.key.value"
@@ -160,7 +160,7 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
               >
-                <SmartItem
+                <HoppSmartItem
                   label="{}"
                   @click="
                     () => {
@@ -175,7 +175,7 @@
                 ref="tippyActions"
                 class="flex flex-col focus:outline-none"
               >
-                <SmartItem
+                <HoppSmartItem
                   label="[]"
                   @click="
                     () => {

@@ -47,7 +47,7 @@
         </span>
       </span>
       <div v-if="!hasNoTeamAccess" class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconRotateCCW"
@@ -63,7 +63,7 @@
             theme="popover"
             :on-shown="() => tippyActions!.focus()"
           >
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.more')"
               :icon="IconMoreVertical"
@@ -78,7 +78,7 @@
                 @keyup.delete="deleteAction?.$el.click()"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   ref="edit"
                   :icon="IconEdit"
                   :label="t('action.edit')"
@@ -90,7 +90,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="duplicate"
                   :icon="IconCopy"
                   :label="t('action.duplicate')"
@@ -103,7 +103,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="t('action.delete')"

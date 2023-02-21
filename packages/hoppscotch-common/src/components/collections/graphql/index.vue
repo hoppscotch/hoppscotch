@@ -16,21 +16,21 @@
       <div
         class="flex justify-between flex-1 flex-shrink-0 border-y bg-primary border-dividerLight"
       >
-        <ButtonSecondary
+        <HoppButtonSecondary
           :icon="IconPlus"
           :label="t('action.new')"
           class="!rounded-none"
           @click="displayModalAdd(true)"
         />
         <div class="flex">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             to="https://docs.hoppscotch.io/features/collections"
             blank
             :title="t('app.wiki')"
             :icon="IconHelpCircle"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-if="!saveRequest"
             v-tippy="{ theme: 'tooltip' }"
             :title="t('modal.import_export')"
@@ -73,7 +73,7 @@
       <span class="pb-4 text-center">
         {{ t("empty.collections") }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="t('add.new')"
         filled
         outline

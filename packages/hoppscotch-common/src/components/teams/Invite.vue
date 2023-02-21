@@ -1,5 +1,10 @@
 <template>
-  <SmartModal v-if="show" dialog :title="t('team.invite')" @close="hideModal">
+  <HoppSmartModal
+    v-if="show"
+    dialog
+    :title="t('team.invite')"
+    @close="hideModal"
+  >
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
         <div class="flex flex-col items-center justify-center max-w-md">
@@ -40,7 +45,7 @@
         v-else-if="sendingInvites"
         class="flex items-center justify-center p-4"
       >
-        <SmartSpinner />
+        <HoppSmartSpinner />
       </div>
       <div v-else class="flex flex-col">
         <div class="flex items-center justify-between flex-1">
@@ -53,7 +58,7 @@
             v-if="pendingInvites.loading"
             class="flex items-center justify-center p-4"
           >
-            <SmartSpinner />
+            <HoppSmartSpinner />
           </div>
           <div v-else>
             <div
@@ -82,7 +87,7 @@
                   readonly
                 />
                 <div class="flex">
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="t('action.remove')"
                     :icon="IconTrash"
@@ -118,7 +123,7 @@
             {{ t("team.invite_tooltip") }}
           </label>
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               :icon="IconPlus"
               :label="t('add.new')"
               filled
@@ -162,7 +167,7 @@
                     tabindex="0"
                     @keyup.escape="hide()"
                   >
-                    <SmartItem
+                    <HoppSmartItem
                       label="OWNER"
                       :icon="
                         invitee.value === 'OWNER' ? IconCircleDot : IconCircle
@@ -175,7 +180,7 @@
                         }
                       "
                     />
-                    <SmartItem
+                    <HoppSmartItem
                       label="EDITOR"
                       :icon="
                         invitee.value === 'EDITOR' ? IconCircleDot : IconCircle
@@ -188,7 +193,7 @@
                         }
                       "
                     />
-                    <SmartItem
+                    <HoppSmartItem
                       label="VIEWER"
                       :icon="
                         invitee.value === 'VIEWER' ? IconCircleDot : IconCircle
@@ -206,7 +211,7 @@
               </tippy>
             </span>
             <div class="flex">
-              <ButtonSecondary
+              <HoppButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.remove')"
@@ -229,7 +234,7 @@
             <span class="pb-4 text-center">
               {{ t("empty.invites") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               :label="t('add.new')"
               filled
               @click="addNewInvitee"
@@ -294,7 +299,7 @@
         v-if="sendInvitesResult.length"
         class="flex justify-between flex-1 text-secondaryLight"
       >
-        <ButtonSecondary
+        <HoppButtonSecondary
           class="link !p-0"
           :label="t('team.invite_more')"
           :icon="IconArrowLeft"
@@ -310,15 +315,19 @@
             }
           "
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           class="link !p-0"
           :label="`${t('action.dismiss')}`"
           @click="hideModal"
         />
       </p>
       <span v-else class="flex space-x-2">
-        <ButtonPrimary :label="t('team.invite')" outline @click="sendInvites" />
-        <ButtonSecondary
+        <HoppButtonPrimary
+          :label="t('team.invite')"
+          outline
+          @click="sendInvites"
+        />
+        <HoppButtonSecondary
           :label="t('action.cancel')"
           outline
           filled
@@ -326,7 +335,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

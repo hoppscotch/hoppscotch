@@ -3,7 +3,7 @@
     <div
       class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperSecondaryStickyFold border-dividerLight bg-primary"
     >
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
         disabled
@@ -12,7 +12,7 @@
         :title="t('team.no_access')"
         :label="t('action.new')"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-else
         :icon="IconPlus"
         :label="`${t('action.new')}`"
@@ -20,21 +20,21 @@
         @click="displayModalAdd(true)"
       />
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/environments"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="team !== undefined && team.myRole === 'VIEWER'"
           v-tippy="{ theme: 'tooltip' }"
           disabled
           :icon="IconArchive"
           :title="t('modal.import_export')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-else
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconArchive"
@@ -56,7 +56,7 @@
       <span class="pb-4 text-center">
         {{ t("empty.environments") }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="team === undefined || team.myRole === 'VIEWER'"
         v-tippy="{ theme: 'tooltip' }"
         disabled
@@ -66,7 +66,7 @@
         :title="t('team.no_access')"
         :label="t('action.new')"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-else
         :label="`${t('add.new')}`"
         filled
@@ -87,7 +87,7 @@
       />
     </div>
     <div v-if="loading" class="flex flex-col items-center justify-center p-4">
-      <SmartSpinner class="my-4" />
+      <HoppSmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div

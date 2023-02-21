@@ -36,7 +36,7 @@
               @keyup.enter="isUrlValid ? toggleSSEConnection() : null"
             />
           </div>
-          <ButtonPrimary
+          <HoppButtonPrimary
             id="start"
             :disabled="!isUrlValid"
             name="start"

@@ -101,7 +101,7 @@ import {
   onBeforeUnmount,
   inject,
 } from "vue"
-import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../plugin"
 
 const { t, onModalOpen, onModalClose } =
   inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}

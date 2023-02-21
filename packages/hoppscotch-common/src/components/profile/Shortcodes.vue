@@ -8,7 +8,7 @@
     </div>
     <div class="relative py-4 overflow-x-auto">
       <div v-if="loading" class="flex flex-col items-center justify-center">
-        <SmartSpinner class="mb-4" />
+        <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <div
@@ -56,14 +56,14 @@
             :shortcode="shortcode"
             @delete-shortcode="deleteShortcode"
           />
-          <SmartIntersection
+          <HoppSmartIntersection
             v-if="hasMoreShortcodes && myShortcodes.length > 0"
             @intersecting="loadMoreShortcodes()"
           >
             <div v-if="adapterLoading" class="flex flex-col items-center py-3">
-              <SmartSpinner />
+              <HoppSmartSpinner />
             </div>
-          </SmartIntersection>
+          </HoppSmartIntersection>
         </div>
       </div>
       <div

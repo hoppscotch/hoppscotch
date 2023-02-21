@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
+  <HoppSmartModal v-if="show" dialog :title="t('team.new')" @close="hideModal">
     <template #body>
       <div class="flex flex-col">
         <input
@@ -19,13 +19,13 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
+        <HoppButtonPrimary
           :label="t('action.save')"
           :loading="isLoading"
           outline
           @click="addNewTeam"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('action.cancel')"
           outline
           filled
@@ -33,7 +33,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

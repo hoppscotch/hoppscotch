@@ -1,12 +1,10 @@
-import { Plugin } from "vue"
-
+import type { Plugin } from "vue"
 
 import "./assets/scss/styles.scss"
 import "virtual:windi.css"
 
 /**
 @constant HOPP_UI_OPTIONS
-@type {string}
 A constant representing the key for storing HoppUI plugin options in the global context.
 */
 
@@ -14,9 +12,9 @@ export const HOPP_UI_OPTIONS = "HOPP_UI_OPTIONS"
 
 /**
 @typedef {Object} HoppUIPluginOptions
-@property {Function} [t] - A function for handling translations for the plugin.
-@property {Function} [onModalOpen] - A callback function that is called when a modal is opened.
-@property {Function} [onModalClose] - A callback function that is called when a modal is closed.
+@property [t] - A function for handling translations for the plugin.
+@property [onModalOpen] - A callback function that is called when a modal is opened.
+@property [onModalClose] - A callback function that is called when a modal is closed.
 */
 
 export type HoppUIPluginOptions = {
@@ -32,5 +30,3 @@ const plugin: Plugin = {
 }
 
 export default plugin
-
-export * from "./components"

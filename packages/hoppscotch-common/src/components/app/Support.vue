@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="t('support.title')"
@@ -8,7 +8,7 @@
   >
     <template #body>
       <div class="flex flex-col space-y-2">
-        <SmartItem
+        <HoppSmartItem
           :icon="IconBook"
           :label="t('app.documentation')"
           to="https://docs.hoppscotch.io"
@@ -18,7 +18,7 @@
           blank
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconZap"
           :label="t('app.keyboard_shortcuts')"
           :description="t('support.shortcuts')"
@@ -26,7 +26,7 @@
           active
           @click="showShortcuts()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconGift"
           :label="t('app.whats_new')"
           to="https://docs.hoppscotch.io/changelog"
@@ -36,7 +36,7 @@
           blank
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconMessageCircle"
           :label="t('app.chat_with_us')"
           :description="t('support.chat')"
@@ -44,7 +44,7 @@
           active
           @click="chatWithUs()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconGitHub"
           :label="t('app.github')"
           to="https://hoppscotch.io/github"
@@ -54,7 +54,7 @@
           active
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconDiscord"
           :label="t('app.join_discord_community')"
           to="https://hoppscotch.io/discord"
@@ -64,7 +64,7 @@
           active
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconTwitter"
           :label="t('app.twitter')"
           to="https://hoppscotch.io/twitter"
@@ -76,7 +76,7 @@
         />
       </div>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

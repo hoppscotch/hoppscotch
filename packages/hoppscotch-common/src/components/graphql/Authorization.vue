@@ -14,7 +14,10 @@
           :on-shown="() => tippyActions.focus()"
         >
           <span class="select-wrapper">
-            <ButtonSecondary class="pr-8 ml-2 rounded-none" :label="authName" />
+            <HoppButtonSecondary
+              class="pr-8 ml-2 rounded-none"
+              :label="authName"
+            />
           </span>
           <template #content="{ hide }">
             <div
@@ -23,7 +26,7 @@
               tabindex="0"
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 label="None"
                 :icon="authName === 'None' ? IconCircleDot : IconCircle"
                 :active="authName === 'None'"
@@ -34,7 +37,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 label="Basic Auth"
                 :icon="authName === 'Basic Auth' ? IconCircleDot : IconCircle"
                 :active="authName === 'Basic Auth'"
@@ -45,7 +48,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 label="Bearer Token"
                 :icon="authName === 'Bearer' ? IconCircleDot : IconCircle"
                 :active="authName === 'Bearer'"
@@ -56,7 +59,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 label="OAuth 2.0"
                 :icon="authName === 'OAuth 2.0' ? IconCircleDot : IconCircle"
                 :active="authName === 'OAuth 2.0'"
@@ -67,7 +70,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 label="API key"
                 :icon="authName === 'API key' ? IconCircleDot : IconCircle"
                 :active="authName === 'API key'"
@@ -83,27 +86,27 @@
         </tippy>
       </span>
       <div class="flex">
-        <!-- <SmartCheckbox
+        <!-- <HoppSmartCheckbox
           :on="!URLExcludes.auth"
           @change="setExclude('auth', !$event)"
         >
           {{ t("authorization.include_in_url") }}
-        </SmartCheckbox> -->
-        <SmartCheckbox
+        </HoppSmartCheckbox> -->
+        <HoppSmartCheckbox
           :on="authActive"
           class="px-2"
           @change="authActive = !authActive"
         >
           {{ t("state.enabled") }}
-        </SmartCheckbox>
-        <ButtonSecondary
+        </HoppSmartCheckbox>
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/authorization"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear')"
           :icon="IconTrash2"
@@ -124,7 +127,7 @@
       <span class="pb-4 text-center">
         {{ t("empty.authorization") }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         outline
         :label="t('app.documentation')"
         to="https://docs.hoppscotch.io/features/authorization"
@@ -180,7 +183,7 @@
                 :on-shown="() => authTippyActions.focus()"
               >
                 <span class="select-wrapper">
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     :label="addTo || t('state.none')"
                     class="pr-8 ml-2 rounded-none"
                   />
@@ -192,7 +195,7 @@
                     tabindex="0"
                     @keyup.escape="hide()"
                   >
-                    <SmartItem
+                    <HoppSmartItem
                       :icon="addTo === 'Headers' ? IconCircleDot : IconCircle"
                       :active="addTo === 'Headers'"
                       :label="'Headers'"
@@ -203,7 +206,7 @@
                         }
                       "
                     />
-                    <SmartItem
+                    <HoppSmartItem
                       :icon="
                         addTo === 'Query params' ? IconCircleDot : IconCircle
                       "
@@ -229,7 +232,7 @@
         <div class="pb-2 text-secondaryLight">
           {{ t("helpers.authorization") }}
         </div>
-        <SmartAnchor
+        <HoppSmartAnchor
           class="link"
           :label="t('authorization.learn')"
           :icon="IconExternalLink"

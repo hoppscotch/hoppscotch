@@ -1,6 +1,6 @@
 <template>
   <div class="flex">
-    <ButtonSecondary
+    <HoppButtonSecondary
       v-for="(color, index) of colors"
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"

@@ -20,7 +20,7 @@
 import { inject } from "vue"
 import { HoppButtonPrimary, HoppButtonSecondary } from "../button"
 import { HoppSmartModal } from "."
-import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../plugin"
 
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 

@@ -17,7 +17,7 @@
         { 'text-accent': active },
       ]" />
     </span>
-    <SmartSpinner v-else class="mr-4 text-secondaryDark" />
+    <HoppSmartSpinner v-else class="mr-4 text-secondaryDark" />
     <div class="inline-flex items-start flex-1 truncate" :class="{ 'flex-col': description }">
       <div class="font-semibold truncate">
         {{ label }}
@@ -37,10 +37,15 @@
 </template>
 
 <script lang="ts">
-import { HoppSmartLink } from ".";
+import HoppSmartLink from "./Link.vue"
+import HoppSmartSpinner from "./Spinner.vue"
 import { defineComponent } from "vue"
 
 export default defineComponent({
+  components: {
+    HoppSmartLink,
+    HoppSmartSpinner
+  },
   props: {
     to: {
       type: String,

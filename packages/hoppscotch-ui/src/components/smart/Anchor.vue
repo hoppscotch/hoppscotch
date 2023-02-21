@@ -13,10 +13,13 @@
 </template>
 
 <script lang="ts">
-import { HoppSmartLink } from ".";
+import HoppSmartLink from "./Link.vue";
 import { Component, defineComponent, PropType } from "vue"
 
 export default defineComponent({
+  components: {
+    HoppSmartLink
+  },
   props: {
     to: {
       type: String,

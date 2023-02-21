@@ -22,7 +22,7 @@
       <SmartEnvInput v-model="scope" placeholder="Scope" />
     </div>
     <div class="p-2">
-      <ButtonSecondary
+      <HoppButtonSecondary
         filled
         :label="`${t('authorization.generate_token')}`"
         @click="handleAccessTokenRequest()"

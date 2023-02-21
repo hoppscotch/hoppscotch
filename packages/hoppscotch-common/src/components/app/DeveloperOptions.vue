@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="t('app.developer_option')"
@@ -10,7 +10,7 @@
         {{ t("app.developer_option_description") }}
       </p>
       <div class="flex flex-1">
-        <ButtonSecondary
+        <HoppButtonSecondary
           outline
           filled
           :icon="copyIcon"
@@ -19,7 +19,7 @@
         />
       </div>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

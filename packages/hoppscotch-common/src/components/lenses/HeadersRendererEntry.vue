@@ -15,7 +15,7 @@
       <span class="truncate rounded-sm select-all">
         {{ header.value }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.copy')"
         :icon="copyIcon"

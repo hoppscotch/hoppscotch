@@ -16,7 +16,7 @@ import { HoppButtonSecondary } from "../button"
 import IconChevronUp from "~icons/lucide/chevron-up"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import { inject, ref } from "vue"
-import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../plugin"
 
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 

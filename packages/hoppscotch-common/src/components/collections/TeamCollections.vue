@@ -8,7 +8,7 @@
           : 'top: var(--upper-secondary-sticky-fold)'
       "
     >
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="hasNoTeamAccess"
         v-tippy="{ theme: 'tooltip' }"
         disabled
@@ -17,7 +17,7 @@
         :title="t('team.no_access')"
         :label="t('action.new')"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-else
         :icon="IconPlus"
         :label="t('action.new')"
@@ -25,14 +25,14 @@
         @click="emit('display-modal-add')"
       />
       <span class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/collections"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :disabled="
@@ -206,7 +206,7 @@
               <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
               </span>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-if="hasNoTeamAccess"
                 v-tippy="{ theme: 'tooltip' }"
                 disabled
@@ -215,7 +215,7 @@
                 :title="t('team.no_access')"
                 :label="t('add.new')"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-else
                 :label="t('add.new')"
                 filled
@@ -237,7 +237,7 @@
             <span class="pb-4 text-center">
               {{ t("empty.collection") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-if="hasNoTeamAccess"
               v-tippy="{ theme: 'tooltip' }"
               disabled
@@ -246,7 +246,7 @@
               :title="t('team.no_access')"
               :label="t('add.new')"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-else
               :label="t('add.new')"
               filled

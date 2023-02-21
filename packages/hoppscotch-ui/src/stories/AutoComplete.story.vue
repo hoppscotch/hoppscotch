@@ -1,28 +1,21 @@
 <template>
   <Story title="Auto Complete">
     <div class="h-[50vh]">
-      <SmartAutoComplete
-        placeholder="Select a header"
-        :source="commonHeaders"
-        :spellcheck="false"
-        :value="header[0].key"
-        autofocus
-        styles="
-                bg-transparent
-                flex
-                flex-1
-                py-1
-                px-4
-                truncate
-              "
-        class="flex-1 !flex"
-        @input="updateHeader()"
-      />
+      <HoppSmartAutoComplete placeholder="Select a header" :source="commonHeaders" :spellcheck="false"
+        :value="header[0].key" autofocus styles="
+                      bg-transparent
+                      flex
+                      flex-1
+                      py-1
+                      px-4
+                      truncate
+                    " class="flex-1 !flex" @input="updateHeader()" />
     </div>
   </Story>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartAutoComplete } from "../components/smart"
 import { ref } from "vue"
 
 type GQLHeader = {

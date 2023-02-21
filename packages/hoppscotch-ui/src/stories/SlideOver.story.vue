@@ -1,14 +1,15 @@
 <template>
   <Story title="Slider Over">
-    <SmartSlideOver :show="show" :title="'Title'" @close="show = false">
+    <HoppSmartSlideOver :show="show" :title="'Title'" @close="show = false">
       <template #content>
         <h1>Content</h1>
       </template>
-    </SmartSlideOver>
+    </HoppSmartSlideOver>
   </Story>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
+import { HoppSmartSlideOver } from "../components/smart"
 import { ref } from "vue"
 
 const show = ref(true)

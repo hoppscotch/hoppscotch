@@ -1,16 +1,13 @@
 <template>
   <Story title="Confirm Modal">
-    <SmartConfirmModal
-      :show="show"
-      :title="'Confirm Modal'"
-      @hide-modal="show = false"
-      @resolve="resolveConfirmModal"
-    />
+    <HoppSmartConfirmModal :show="show" :title="'Confirm Modal'" @hide-modal="show = false"
+      @resolve="resolveConfirmModal" />
   </Story>
 </template>
 
 <script lang="ts" setup>
 import { ref } from "vue"
+import { HoppSmartConfirmModal } from "../components/smart"
 
 const show = ref(true)
 

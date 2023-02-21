@@ -1,5 +1,6 @@
 import { Plugin } from "vue"
 
+
 import "./assets/scss/styles.scss"
 import "virtual:windi.css"
 
@@ -31,3 +32,5 @@ const plugin: Plugin = {
 }
 
 export default plugin
+
+export * from "./components"

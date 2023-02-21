@@ -1,8 +1,5 @@
 <template>
-  <SmartLink
-    :to="to"
-    :exact="exact"
-    :blank="blank"
+  <HoppSmartLink :to="to" :exact="exact" :blank="blank"
     class="inline-flex items-center justify-center py-2 font-semibold transition whitespace-nowrap focus:outline-none"
     :class="[
       color
@@ -22,41 +19,26 @@
         'bg-primaryLight hover:bg-primaryDark focus-visible:bg-primaryDark':
           filled,
       },
-    ]"
-    :disabled="disabled"
-    :tabindex="loading ? '-1' : '0'"
-    role="button"
-  >
-    <span
-      v-if="!loading"
-      class="inline-flex items-center justify-center whitespace-nowrap"
-      :class="{ 'flex-row-reverse': reverse }"
-    >
-      <component
-        :is="icon"
-        v-if="icon"
-        class="svg-icons"
-        :class="[
-          { '!text-2xl': large },
-          label ? (reverse ? 'ml-2' : 'mr-2') : '',
-        ]"
-      />
+    ]" :disabled="disabled" :tabindex="loading ? '-1' : '0'" role="button">
+    <span v-if="!loading" class="inline-flex items-center justify-center whitespace-nowrap"
+      :class="{ 'flex-row-reverse': reverse }">
+      <component :is="icon" v-if="icon" class="svg-icons" :class="[
+        { '!text-2xl': large },
+        label ? (reverse ? 'ml-2' : 'mr-2') : '',
+      ]" />
       {{ label }}
       <div v-if="shortcut.length" class="<sm:hidden">
-        <kbd
-          v-for="(key, index) in shortcut"
-          :key="`key-${index}`"
-          class="shortcut-key !bg-inherit"
-        >
+        <kbd v-for="(key, index) in shortcut" :key="`key-${index}`" class="shortcut-key !bg-inherit">
           {{ key }}
         </kbd>
       </div>
     </span>
-    <SmartSpinner v-else />
-  </SmartLink>
+    <HoppSmartSpinner v-else />
+  </HoppSmartLink>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartLink, HoppSmartSpinner } from "../smart";
 import type { Component } from "vue"
 
 interface Props {

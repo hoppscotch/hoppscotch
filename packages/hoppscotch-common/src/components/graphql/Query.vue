@@ -85,12 +85,12 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { ref, watch } from "vue"
+import { ref } from "vue"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
-import { refAutoReset } from "@vueuse/core"
+import { refAutoReset, useVModel } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import * as gql from "graphql"
@@ -137,14 +137,7 @@ const prettifyQueryIcon = refAutoReset<
 
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
-const gqlQueryString = ref(props.modelValue)
-watch(
-  gqlQueryString,
-  (val) => {
-    emit("update:modelValue", val)
-  },
-  { immediate: true }
-)
+const gqlQueryString = useVModel(props, "modelValue", emit)
 
 const debouncedOnUpdateQueryState = debounce((update: ViewUpdate) => {
   if (!update.selectionSet) return

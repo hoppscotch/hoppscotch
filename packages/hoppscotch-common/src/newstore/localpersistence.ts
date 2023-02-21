@@ -335,25 +335,61 @@ export function setupRESTTabsPersistence() {
   )
 }
 
-// temporary persistence for GQL session
-export function setupGQLPersistence() {
-  try {
-    const state = window.localStorage.getItem("gqlState")
-    if (state) {
-      const data = JSON.parse(state)
-      data["schema"] = ""
-      data["response"] = ""
-      setGQLSession(data)
-    }
-  } catch (e) {
-    console.error(
-      `Failed parsing persisted GraphQL state, state:`,
-      window.localStorage.getItem("gqlState")
-    )
+function setupGQLRequestPersistence() {
+  const localRequest = JSON.parse(
+    window.localStorage.getItem("gqlSession") || "null"
+  )
+
+  if (localRequest) {
+    const tabs = getTabsForRestoration(localRequest)
+    setGQLCurrentTabId(tabs[0].id)
+    setGQLTabs(tabs)
   }
 
-  gqlSessionStore.subject$.pipe(debounceTime(500)).subscribe((state) => {
-    window.localStorage.setItem("gqlState", JSON.stringify(state))
+  gqlSession$.subscribe((req) => {
+    const restSession = cloneDeep(req)
+    const session = getGQLSessionForPersistence(restSession.tabs)
+    window.localStorage.setItem("gqlSession", JSON.stringify(session))
+  })
+}
+
+export function getTabsForRestoration(tabs: unknown[]) {
+  if (!Array.isArray(tabs) || tabs.length === 0) {
+    return []
+  }
+
+  // TODO: Refactor and add proper validation
+
+  const restoredTabs = tabs.map((x) => {
+    const tab: GQLTab = {
+      id: x.id || v4(),
+      request: safelyExtractGQLRequest(x.request, getDefaultGQLRequest()),
+      response: x.response || [],
+      unseen: x.unseen || false,
+    }
+
+    return tab
+  })
+
+  !restoredTabs.length &&
+    restoredTabs.push({
+      id: v4(),
+      request: getDefaultGQLRequest(),
+      response: [],
+      unseen: false,
+    })
+
+  return restoredTabs
+}
+
+export function getGQLSessionForPersistence(allTabs: GQLTab[]) {
+  const tabs = cloneDeep(allTabs)
+  return tabs.map((tab) => {
+    const req = tab.request
+    return {
+      ...tab,
+      request: req,
+    }
   })
 }
 

@@ -72,14 +72,14 @@ import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
 import IconInfo from "~icons/lucide/info"
 import IconWand from "~icons/lucide/wand"
-import { computed, reactive, ref, watch } from "vue"
+import { computed, reactive, ref } from "vue"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { useReadonlyStream, useStream } from "@composables/stream"
 import { useCodemirror } from "@composables/codemirror"
 import * as gql from "graphql"
 import { useI18n } from "@composables/i18n"
-import { refAutoReset } from "@vueuse/core"
+import { refAutoReset, useVModel } from "@vueuse/core"
 import { useToast } from "~/composables/toast"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
@@ -108,14 +108,7 @@ const subscriptionState = useReadonlyStream(
 // Watch operations on graphql query string
 const selectedOperation = ref<gql.OperationDefinitionNode | null>(null)
 
-const variableString = ref(props.modelValue)
-watch(
-  variableString,
-  (val) => {
-    emit("update:modelValue", val)
-  },
-  { immediate: true }
-)
+const variableString = useVModel(props, "modelValue", emit)
 
 const variableEditor = ref<any | null>(null)
 

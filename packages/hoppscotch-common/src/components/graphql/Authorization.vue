@@ -257,7 +257,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, Ref, watch } from "vue"
+import { computed, ref, Ref } from "vue"
 import {
   HoppGQLAuth,
   HoppGQLAuthAPIKey,
@@ -275,6 +275,7 @@ import IconHelpCircle from "~icons/lucide/help-circle"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
+import { useVModel } from "@vueuse/core"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -287,14 +288,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLAuth): void
 }>()
 
-const auth = ref(props.modelValue)
-
-watch(
-  () => auth.value,
-  (val) => {
-    emit("update:modelValue", val)
-  }
-)
+const auth = useVModel(props, "modelValue", emit)
 
 const authType = pluckRef(auth, "authType")
 const authName = computed(() => {

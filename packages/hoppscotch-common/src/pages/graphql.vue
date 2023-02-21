@@ -102,7 +102,7 @@ const onTabUpdate = (tab: GQLTab) => {
     }
   })
 
-  console.log("ON_TAB_UPDATE", tabs.value)
+  console.log("ON_TAB_UPDATE", tab)
 }
 
 watch(isLoading, () => {

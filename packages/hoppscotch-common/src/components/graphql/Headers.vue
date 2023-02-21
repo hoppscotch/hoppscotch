@@ -203,6 +203,7 @@ import { useToast } from "@composables/toast"
 import { commonHeaders } from "~/helpers/headers"
 import { useCodemirror } from "@composables/codemirror"
 import { objRemoveKey } from "~/helpers/functional/object"
+import { useVModel } from "@vueuse/core"
 
 const colorMode = useColorMode()
 const t = useI18n()
@@ -215,15 +216,7 @@ const emit = defineEmits<{
   (e: "update:modelValue", value: HoppGQLRequest): void
 }>()
 
-const request = ref(props.modelValue)
-
-watch(
-  () => request.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const request = useVModel(props, "modelValue", emit)
 
 const idTicker = ref(0)
 

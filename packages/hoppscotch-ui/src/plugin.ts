@@ -1,4 +1,4 @@
-import type { Plugin } from "vue"
+import type { Plugin, App } from "vue"
 
 import "./assets/scss/styles.scss"
 import "virtual:windi.css"
@@ -23,10 +23,8 @@ export type HoppUIPluginOptions = {
   onModalClose?: () => void
 }
 
-const plugin: Plugin = {
-  install(app, options: HoppUIPluginOptions = {}) {
+export const plugin: Plugin = {
+  install(app: App, options: HoppUIPluginOptions = {}) {
     app.provide(HOPP_UI_OPTIONS, options)
   },
 }
-
-export default plugin

@@ -86,19 +86,11 @@
   "files": [
     "dist"
   ],
-  "module": "./dist/hopp-ui.es.js",
+  "module": "./dist/index.es.js",
+  "main": "./dist/index.es.js",
   "exports": {
-    "./plugin": {
-      "types": "./dist/plugin.d.ts",
-      "import": "./dist/plugin.es.js"
-    },
-    "./components": {
-      "types": "./dist/components.d.ts",
-      "import": "./dist/components.es.js"
-    },
-    "./style.css": {
-      "import": "./dist/style.css"
-    }
+    ".": "./dist/index.es.js",
+    "./style.css": "./dist/style.css"
   },
   "types": "./dist/index.d.ts"
 }

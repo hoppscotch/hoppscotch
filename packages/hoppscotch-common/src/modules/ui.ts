@@ -1,6 +1,5 @@
 import { HoppModule } from "."
-import HoppUI from "@hoppscotch/ui/plugin"
-import { HoppUIPluginOptions } from "@hoppscotch/ui/plugin"
+import { plugin as HoppUI, HoppUIPluginOptions } from "@hoppscotch/ui"
 import { useKeybindingDisabler } from "~/helpers/keybindings"
 import { useI18n } from "vue-i18n"
 const { disableKeybindings, enableKeybindings } = useKeybindingDisabler()

@@ -345,7 +345,7 @@ importers:
       vite-plugin-inspect: 0.7.4_vite@3.1.4
       vite-plugin-pages: 0.26.0_vnheu5mvzzbfbuhqo4shkhdhei
       vite-plugin-pages-sitemap: 1.4.0
-      vite-plugin-pwa: 0.13.1_vite@3.1.4
+      vite-plugin-pwa: 0.13.1_bg4cnt4dy3xq3a47wkujd6ryzq
       vite-plugin-vue-layouts: 0.7.0_oewzdqozxqnqgsrjzmwikx34vi
       vite-plugin-windicss: 1.8.8_vite@3.1.4
       vue-tsc: 0.38.2_typescript@4.7.4
@@ -549,6 +549,7 @@ importers:
   packages/hoppscotch-web:
     specifiers:
       '@hoppscotch/common': workspace:^
+      '@hoppscotch/ui': workspace:^
       '@intlify/vite-plugin-vue-i18n': ^6.0.1
       '@rushstack/eslint-patch': ^1.1.4
       '@typescript-eslint/eslint-plugin': ^5.19.0
@@ -585,6 +586,7 @@ importers:
       workbox-window: ^6.5.4
     dependencies:
       '@hoppscotch/common': link:../hoppscotch-common
+      '@hoppscotch/ui': link:../hoppscotch-ui
       buffer: 6.0.3
       firebase: 9.8.4
       process: 0.11.10
@@ -614,7 +616,7 @@ importers:
       vite-plugin-inspect: 0.7.4_vite@3.2.4
       vite-plugin-pages: 0.26.0_vite@3.2.4
       vite-plugin-pages-sitemap: 1.4.0
-      vite-plugin-pwa: 0.13.1_vite@3.2.4
+      vite-plugin-pwa: 0.13.1_3kw35epztoiwny7qtfesjexvtu
       vite-plugin-static-copy: 0.12.0_vite@3.2.4
       vite-plugin-vue-layouts: 0.7.0_vite@3.2.4+vue@3.2.45
       vite-plugin-windicss: 1.8.8_vite@3.2.4
@@ -14386,27 +14388,11 @@ packages:
       - supports-color
     dev: true
 
-  /vite-plugin-pwa/0.13.1_vite@3.1.4:
+  /vite-plugin-pwa/0.13.1_3kw35epztoiwny7qtfesjexvtu:
     resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
     peerDependencies:
       vite: ^3.1.0
-    dependencies:
-      debug: 4.3.4
-      fast-glob: 3.2.11
-      pretty-bytes: 6.0.0
-      rollup: 2.79.1
-      vite: 3.1.4_sass@1.53.0
-      workbox-build: 6.5.4
-      workbox-window: 6.5.4
-    transitivePeerDependencies:
-      - '@types/babel__core'
-      - supports-color
-    dev: true
-
-  /vite-plugin-pwa/0.13.1_vite@3.2.4:
-    resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
-    peerDependencies:
-      vite: ^3.1.0
+      workbox-window: ^6.5.4
     dependencies:
       debug: 4.3.4
       fast-glob: 3.2.11
@@ -14420,10 +14406,29 @@ packages:
       - supports-color
     dev: true
 
+  /vite-plugin-pwa/0.13.1_bg4cnt4dy3xq3a47wkujd6ryzq:
+    resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
+    peerDependencies:
+      vite: ^3.1.0
+      workbox-window: ^6.5.4
+    dependencies:
+      debug: 4.3.4
+      fast-glob: 3.2.11
+      pretty-bytes: 6.0.0
+      rollup: 2.79.1
+      vite: 3.1.4_sass@1.53.0
+      workbox-build: 6.5.4
+      workbox-window: 6.5.4
+    transitivePeerDependencies:
+      - '@types/babel__core'
+      - supports-color
+    dev: true
+
   /vite-plugin-pwa/0.13.1_vite@4.1.3:
     resolution: {integrity: sha512-NR3dIa+o2hzlzo4lF4Gu0cYvoMjSw2DdRc6Epw1yjmCqWaGuN86WK9JqZie4arNlE1ZuWT3CLiMdiX5wcmmUmg==}
     peerDependencies:
       vite: ^3.1.0
+      workbox-window: ^6.5.4
     dependencies:
       debug: 4.3.4
       fast-glob: 3.2.11

@@ -223,7 +223,7 @@ import { platform } from "~/platform"
 import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
-import { HoppSmartItem } from "@hoppscotch/ui/components"
+import { HoppSmartItem } from "@hoppscotch/ui"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)

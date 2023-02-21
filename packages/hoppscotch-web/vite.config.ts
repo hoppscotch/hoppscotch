@@ -114,9 +114,10 @@ export default defineConfig({
           prefix: "icon",
           customCollections: ["hopp", "auth", "brands"],
         }),
-        (compName) => {
+        (compName: string) => {
           if (compName.startsWith("Hopp"))
-            return { name: compName, from: "@hoppscotch/ui/components" }
+            return { name: compName, from: "@hoppscotch/ui" }
+          else return undefined
         },
       ],
       types: [

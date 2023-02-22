@@ -155,16 +155,29 @@ export const TEAM_INVITE_EMAIL_DO_NOT_MATCH =
 export const TEAM_INVITE_NOT_VALID_VIEWER =
   'team_invite/not_valid_viewer' as const;
 
+/**
+ * ShortCode not found in DB
+ * (ShortcodeService)
+ */
 export const SHORTCODE_NOT_FOUND = 'shortcode/not_found' as const;
 
+/**
+ * Invalid ShortCode format
+ * (ShortcodeService)
+ */
 export const SHORTCODE_INVALID_JSON = 'shortcode/invalid_json' as const;
+
+/**
+ * ShortCode already exists in DB
+ * (ShortcodeService)
+ */
+export const SHORTCODE_ALREADY_EXISTS = 'shortcode/already_exists' as const;
 
 /**
  * Invalid or non-existent TEAM ENVIRONMMENT ID
  * (TeamEnvironmentsService)
  */
-export const TEAM_ENVIRONMENT_NOT_FOUND =
-  'team_environment/not_found' as const;
+export const TEAM_ENVIRONMENT_NOT_FOUND = 'team_environment/not_found' as const;
 
 /**
  * The user is not a member of the team of the given environment

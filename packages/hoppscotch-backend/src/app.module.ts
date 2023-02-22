@@ -13,6 +13,7 @@ import { TeamEnvironmentsModule } from './team-environments/team-environments.mo
 import { TeamCollectionModule } from './team-collection/team-collection.module';
 import { TeamRequestModule } from './team-request/team-request.module';
 import { TeamInvitationModule } from './team-invitation/team-invitation.module';
+import { ShortcodeModule } from './shortcode/shortcode.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { TeamInvitationModule } from './team-invitation/team-invitation.module';
     TeamCollectionModule,
     TeamRequestModule,
     TeamInvitationModule,
+    ShortcodeModule,
   ],
   providers: [GQLComplexityPlugin],
 })

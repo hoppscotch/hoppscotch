@@ -7,6 +7,7 @@ import { TeamEnvironment } from 'src/team-environments/team-environments.model';
 import { TeamCollection } from 'src/team-collection/team-collection.model';
 import { TeamRequest } from 'src/team-request/team-request.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
+import { Shortcode } from 'src/shortcode/shortcode.model';
 
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
@@ -36,4 +37,5 @@ export type TopicDef = {
   [topic: `team_req/${string}/req_deleted`]: string;
   [topic: `team/${string}/invite_added`]: TeamInvitation;
   [topic: `team/${string}/invite_removed`]: string;
+  [topic: `shortcode/${string}/${'created' | 'revoked'}`]: Shortcode;
 };

@@ -4,6 +4,7 @@
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary z-10 top-0"
     vertical
     render-inactive-tabs
+    collapsible
   >
     <HoppSmartTab
       :id="'history'"

@@ -6,6 +6,7 @@
     <div
       class="relative tabs border-dividerLight"
       :class="[vertical ? 'border-r' : 'border-b', styles]"
+      ref="tabsColumn"
     >
       <div class="flex flex-1">
         <div
@@ -23,15 +24,15 @@
               }"
               class="tab"
               :class="[
-                { active: modelValue === tabID },
+                { active: showActive && modelValue === tabID },
                 { vertical: vertical },
                 { 'opacity-75 !cursor-not-allowed': tabMeta.disabled },
               ]"
               :aria-label="tabMeta.label || ''"
               :disabled="tabMeta.disabled"
               role="button"
-              @keyup.enter="selectTab(tabID)"
-              @click="selectTab(tabID)"
+              @keyup.enter="handleTabClick(tabID)"
+              @click="handleTabClick(tabID)"
             >
               <component
                 :is="tabMeta.icon"
@@ -58,6 +59,7 @@
       </div>
     </div>
     <div
+      ref="tabsContentColumn"
       class="w-full h-full contents"
       :class="[
         {
@@ -77,7 +79,8 @@ import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import type { Component } from "vue"
-import { ref, ComputedRef, computed, provide } from "vue"
+import { ref, ComputedRef, computed, provide, watch, VNodeRef } from "vue"
+import { useSetting } from "@composables/settings"
 
 export type TabMeta = {
   label: string | null
@@ -116,6 +119,10 @@ const props = defineProps({
   contentStyles: {
     type: String,
     default: "",
+  },
+  collapsible: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -175,6 +182,65 @@ provide<TabProvider>("tabs-system", {
 
 const selectTab = (id: string) => {
   emit("update:modelValue", id)
+}
+
+const tabsColumn = ref<VNodeRef | undefined>(undefined)
+const tabsContentColumn = ref<VNodeRef | undefined>(undefined)
+
+const SIDEBAR_COLLAPSED = useSetting("SIDEBAR_COLLAPSED")
+
+const collapsed = ref(false)
+
+const showActive = computed(() => {
+  if (props.collapsible) {
+    if (SIDEBAR_COLLAPSED.value.isCollapsed) {
+      return false
+    } else {
+      return !collapsed.value
+    }
+  } else {
+    return true
+  }
+})
+
+watch(
+  () => SIDEBAR_COLLAPSED.value,
+  (newVal) => {
+    if (newVal.isCollapsed) {
+      collapsed.value = true
+    } else {
+      collapsed.value = false
+    }
+  }
+)
+
+const handleTabClick = (id: string) => {
+  const tabsColWidth = tabsColumn.value.offsetWidth
+  const tabsColContentWidth = tabsContentColumn.value.offsetWidth
+  const totalWidth = tabsColWidth + tabsColContentWidth
+  const tabsColWidthPercentage = (tabsColWidth / totalWidth) * 100
+  const tabsColContentWidthPercentage = (tabsColContentWidth / totalWidth) * 100
+  if (
+    id === props.modelValue &&
+    props.collapsible &&
+    !SIDEBAR_COLLAPSED.value.isCollapsed
+  ) {
+    collapsed.value = !collapsed.value
+
+    selectTab(id)
+
+    SIDEBAR_COLLAPSED.value = {
+      isCollapsed: !SIDEBAR_COLLAPSED.value.isCollapsed,
+      collapsedWidth: tabsColWidthPercentage,
+    }
+  } else {
+    collapsed.value = false
+    selectTab(id)
+    SIDEBAR_COLLAPSED.value = {
+      isCollapsed: false,
+      collapsedWidth: tabsColWidthPercentage,
+    }
+  }
 }
 </script>
 

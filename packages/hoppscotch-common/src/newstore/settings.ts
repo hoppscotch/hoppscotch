@@ -48,6 +48,10 @@ export type SettingsDef = {
   EXPAND_NAVIGATION: boolean
   SIDEBAR: boolean
   SIDEBAR_ON_LEFT: boolean
+  SIDEBAR_COLLAPSED: {
+    isCollapsed: boolean
+    collapsedWidth: number
+  }
   ZEN_MODE: boolean
   FONT_SIZE: HoppFontSize
   COLUMN_LAYOUT: boolean
@@ -74,6 +78,10 @@ export const defaultSettings: SettingsDef = {
   EXPAND_NAVIGATION: true,
   SIDEBAR: true,
   SIDEBAR_ON_LEFT: true,
+  SIDEBAR_COLLAPSED: {
+    isCollapsed: false,
+    collapsedWidth: 0,
+  },
   ZEN_MODE: false,
   FONT_SIZE: "small",
   COLUMN_LAYOUT: true,

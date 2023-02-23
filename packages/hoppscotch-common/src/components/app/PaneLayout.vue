@@ -32,7 +32,7 @@
     <Pane
       v-if="SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
-      min-size="20"
+      :min-size="minSidebarWidth"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
@@ -46,7 +46,7 @@ import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
 
 import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
-import { computed, useSlots, ref } from "vue"
+import { computed, useSlots, ref, watch } from "vue"
 import { useSetting } from "@composables/settings"
 import { setLocalConfig, getLocalConfig } from "~/newstore/localpersistence"
 
@@ -58,6 +58,30 @@ const mdAndLarger = breakpoints.greater("md")
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")
 
 const SIDEBAR = useSetting("SIDEBAR")
+
+const SIDEBAR_COLLAPSED = useSetting("SIDEBAR_COLLAPSED")
+
+console.log(
+  "sidebar-collapsed",
+  SIDEBAR_COLLAPSED.value.collapsedWidth,
+  SIDEBAR_COLLAPSED.value.isCollapsed
+)
+
+watch(
+  () => SIDEBAR_COLLAPSED.value.isCollapsed,
+  (value) => {
+    if (value) {
+      PANE_SIDEBAR_SIZE.value =
+        (SIDEBAR_COLLAPSED.value.collapsedWidth / 100) * PANE_SIDEBAR_SIZE.value
+
+      minSidebarWidth.value = PANE_SIDEBAR_SIZE.value
+    } else {
+      PANE_SIDEBAR_SIZE.value = 20
+    }
+  }
+)
+
+const minSidebarWidth = ref(20)
 
 const slots = useSlots()
 
@@ -81,6 +105,14 @@ const PANE_SIDEBAR_SIZE = ref(26)
 const PANE_MAIN_TOP_SIZE = ref(42)
 const PANE_MAIN_BOTTOM_SIZE = ref(58)
 
+watch(
+  () => PANE_SIDEBAR_SIZE.value,
+  (value) => {
+    console.log("sidebar-size", value)
+    PANE_MAIN_SIZE.value = 100 - value
+  }
+)
+
 if (!COLUMN_LAYOUT.value) {
   PANE_MAIN_TOP_SIZE.value = 50
   PANE_MAIN_BOTTOM_SIZE.value = 50
@@ -90,6 +122,18 @@ function setPaneEvent(event: PaneEvent[], type: "vertical" | "horizontal") {
   if (!props.layoutId) return
   const storageKey = `${props.layoutId}-pane-config-${type}`
   setLocalConfig(storageKey, JSON.stringify(event))
+  // un-collapse sidebar if it is collapsed and the width is greater than 20
+  // if (event[1].size < 21) {
+  //   SIDEBAR_COLLAPSED.value = {
+  //     collapsedWidth: SIDEBAR_COLLAPSED.value.collapsedWidth,
+  //     isCollapsed: true,
+  //   }
+  // } else {
+  //   SIDEBAR_COLLAPSED.value = {
+  //     collapsedWidth: SIDEBAR_COLLAPSED.value.collapsedWidth,
+  //     isCollapsed: false,
+  //   }
+  // }
 }
 
 function populatePaneEvent() {

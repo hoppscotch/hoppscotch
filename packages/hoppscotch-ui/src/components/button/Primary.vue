@@ -2,7 +2,9 @@
   <HoppSmartLink :to="to" :blank="blank"
     class="relative inline-flex items-center justify-center py-2 font-bold transition focus:outline-none focus-visible:bg-accentDark"
     :class="[
-      'text-accentContrast bg-accent hover:bg-accentDark focus-visible:bg-accentDark',
+      color
+        ? `text-${color}-800 bg-${color}-200 hover:(text-${color}-900 bg-${color}-300) focus-visible:(text-${color}-900 bg-${color}-300)`
+        : `text-accentContrast bg-accent hover:bg-accentDark focus-visible:bg-accentDark`,
       label ? 'px-4' : 'px-2',
       rounded ? 'rounded-full' : 'rounded',
       { 'opacity-75 cursor-not-allowed': disabled },

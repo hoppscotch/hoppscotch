@@ -40,7 +40,7 @@
     "vue-github-button": "^3.0.3",
     "vue-router": "^4.0.16",
     "vue-tippy": "6.0.0-alpha.58",
-    "vuedraggable": "^4.1.0"
+    "vuedraggable-es": "^4.1.1"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",

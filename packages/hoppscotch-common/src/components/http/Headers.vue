@@ -253,7 +253,7 @@ import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "@composables/codemirror"
 import {

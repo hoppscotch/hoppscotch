@@ -192,7 +192,7 @@ import {
   RawKeyValueEntry,
 } from "@hoppscotch/data"
 import { isEqual, cloneDeep } from "lodash-es"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { useCodemirror } from "@composables/codemirror"
 import { useColorMode } from "@composables/theming"

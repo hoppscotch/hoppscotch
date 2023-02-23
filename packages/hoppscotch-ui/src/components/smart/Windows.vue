@@ -53,7 +53,7 @@ import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import { ref, ComputedRef, computed, provide, inject, Slot } from "vue"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 
 export type TabMeta = {

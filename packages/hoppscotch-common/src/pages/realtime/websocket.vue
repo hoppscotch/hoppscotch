@@ -194,7 +194,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconTrash from "~icons/lucide/trash"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import {
   setWSEndpoint,
   WSEndpoint$,

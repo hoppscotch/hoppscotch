@@ -354,7 +354,7 @@ import {
   parseRawKeyValueEntriesE,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { clone, cloneDeep, isEqual } from "lodash-es"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"

@@ -1,9 +1,7 @@
 <template>
   <HoppSmartLink :to="to" :exact="exact" :blank="blank" class="inline-flex items-center justify-center focus:outline-none"
     :class="[
-      color
-        ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
-        : 'hover:text-secondaryDark focus-visible:text-secondaryDark',
+      'hover:text-secondaryDark focus-visible:text-secondaryDark',
       { 'opacity-75 cursor-not-allowed': disabled },
       { 'flex-row-reverse': reverse },
     ]" :disabled="disabled" tabindex="0">

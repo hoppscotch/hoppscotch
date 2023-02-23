@@ -2,9 +2,7 @@
   <HoppSmartLink :to="to" :exact="exact" :blank="blank"
     class="inline-flex items-center justify-center py-2 font-semibold transition whitespace-nowrap focus:outline-none"
     :class="[
-      color
-        ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
-        : 'text-secondary hover:text-secondaryDark focus-visible:text-secondaryDark',
+      'text-secondary hover:text-secondaryDark focus-visible:text-secondaryDark',
       { 'pointer-events-none': loading },
       label ? 'rounded px-4' : 'px-2',
       { 'rounded-full': rounded },

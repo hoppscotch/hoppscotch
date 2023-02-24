@@ -118,6 +118,19 @@
                   "
                 />
                 <SmartItem
+                  ref="exportPostmanCollectionAction"
+                  :icon="IconDownload"
+                  label="export as postman"
+                  :shortcut="['P']"
+                  :loading="exportLoading"
+                  @click="
+                    () => {
+                      emit('export-postman-collection'),
+                        collectionsType === 'my-collections' ? hide() : null
+                    }
+                  "
+                />
+                <SmartItem
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="t('action.delete')"
@@ -158,6 +171,8 @@ type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
 
 const t = useI18n()
+
+// this file
 
 const props = defineProps({
   data: {
@@ -207,6 +222,7 @@ const emit = defineEmits<{
   (event: "add-folder"): void
   (event: "edit-collection"): void
   (event: "export-data"): void
+  (event: "export-postman-collection"): void
   (event: "remove-collection"): void
   (event: "drop-event", payload: DataTransfer): void
 }>()

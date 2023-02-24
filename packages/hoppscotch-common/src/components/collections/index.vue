@@ -42,6 +42,7 @@
           @edit-collection="editCollection"
           @edit-folder="editFolder"
           @export-data="exportData"
+          @export-postman-collection="exportPostmanCollection"
           @remove-collection="removeCollection"
           @remove-folder="removeFolder"
           @edit-request="editRequest"
@@ -244,6 +245,7 @@ import * as E from "fp-ts/Either"
 import { currentUser$ } from "~/helpers/fb/auth"
 import { createCollectionGists } from "~/helpers/gist"
 import { invokeAction } from "~/helpers/actions"
+import { exportMyCollectionToPostmanCollection } from "~/helpers/import-export/export/p2"
 
 const t = useI18n()
 const toast = useToast()
@@ -1436,9 +1438,21 @@ const exportData = async (
   }
 }
 
+const exportPostmanCollection = async (
+  collection: HoppCollection<HoppRESTRequest> | TeamCollection
+) => {
+  if (collectionsType.value.type === "my-collections") {
+    const myCollection = collection as HoppCollection<HoppRESTRequest>
+    const contents = exportMyCollectionToPostmanCollection(myCollection)
+    const downloadFilename = myCollection.name + ".postman-collection-export"
+    initializeDownloadCollection(contents, downloadFilename)
+  } else {
+    // TODO all the logic for team collection
+  }
+}
+
 const exportJSONCollection = async () => {
   await getJSONCollection()
-
   initializeDownloadCollection(collectionJSON.value, null)
 }
 

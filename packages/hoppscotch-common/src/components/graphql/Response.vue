@@ -47,7 +47,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconDownload from "~icons/lucide/download"
 import IconCheck from "~icons/lucide/check"
 import IconCopy from "~icons/lucide/copy"
-import { reactive, ref, watch } from "vue"
+import { computed, reactive, ref } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -64,7 +64,12 @@ const props = defineProps<{
   response: GQLEvent[]
 }>()
 
-const responseString = ref("")
+const responseString = computed(() => {
+  if (props.response.length === 1) {
+    return JSON.stringify(JSON.parse(props.response[0].data), null, 2)
+  }
+  return ""
+})
 
 const schemaEditor = ref<any | null>(null)
 const linewrapEnabled = ref(true)
@@ -83,16 +88,6 @@ useCodemirror(
     environmentHighlights: false,
   })
 )
-
-watch(props.response, (responses) => {
-  if (responses.length === 1) {
-    responseString.value = JSON.stringify(
-      JSON.parse(responses[0].data),
-      null,
-      2
-    )
-  }
-})
 
 const downloadResponseIcon = refAutoReset<
   typeof IconDownload | typeof IconCheck

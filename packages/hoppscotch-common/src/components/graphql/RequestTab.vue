@@ -14,11 +14,20 @@
 </template>
 
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core"
+import { cloneDeep } from "lodash-es"
+import { ref, watch } from "vue"
 import { GQLTab } from "~/newstore/GQLSession"
 
 const props = defineProps<{ modelValue: GQLTab }>()
 const emit = defineEmits(["update:modelValue"])
 
-const tab = useVModel(props, "modelValue", emit)
+const tab = ref(cloneDeep(props.modelValue))
+
+watch(
+  () => tab.value,
+  (newVal) => {
+    emit("update:modelValue", newVal)
+  },
+  { deep: true }
+)
 </script>

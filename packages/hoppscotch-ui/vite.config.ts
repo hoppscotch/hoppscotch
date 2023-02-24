@@ -4,6 +4,7 @@ import path from "path"
 import Icons from "unplugin-icons/vite"
 import { defineConfig } from "vite"
 import WindiCSS from "vite-plugin-windicss"
+import { VitePluginFonts } from "vite-plugin-fonts"
 
 export default defineConfig({
   plugins: [
@@ -18,6 +19,15 @@ export default defineConfig({
     }),
     Icons({
       compiler: "vue3"
+    }),
+    VitePluginFonts({
+      google: {
+        families: [
+          "Inter:wght@400;500;600;700;800",
+          "Roboto+Mono:wght@400;500",
+          "Material+Icons",
+        ],
+      },
     }),
   ], // to process SFC
   build: {

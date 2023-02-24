@@ -3,6 +3,7 @@
     :node="nodeItem"
     :toggle-children="toggleNodeChildren"
     :is-open="isNodeOpen"
+    :highlight-children="(id:string|null) => highlightNodeChildren(id)"
   ></slot>
 
   <!-- This is a performance optimization trick -->
@@ -20,6 +21,9 @@
     <div
       v-if="childNodes.status === 'loaded' && childNodes.data.length > 0"
       class="flex flex-col flex-1 truncate"
+      :class="{
+        'bg-divider': highlightNode,
+      }"
     >
       <TreeBranch
         v-for="childNode in childNodes.data"
@@ -28,12 +32,20 @@
         :adapter="adapter"
       >
         <!-- The child slot is given a dynamic name in order to not break Volar -->
-        <template #[CHILD_SLOT_NAME]="{ node, toggleChildren, isOpen }">
+        <template
+          #[CHILD_SLOT_NAME]="{
+            node,
+            toggleChildren,
+            isOpen,
+            highlightChildren,
+          }"
+        >
           <!-- Casting to help with type checking -->
           <slot
             :node="node as TreeNode<T>"
             :toggle-children="toggleChildren as () => void"
             :is-open="isOpen as boolean"
+            :highlight-children="(id:string|null) => highlightChildren(id) as void"
           ></slot>
         </template>
         <template #emptyNode="{ node }">
@@ -87,6 +99,8 @@ const childrenRendered = ref(false)
 const showChildren = ref(false)
 const isNodeOpen = ref(false)
 
+const highlightNode = ref(false)
+
 /**
  * Fetch the child nodes from the adapter by passing the node id of the current node
  */
@@ -99,5 +113,13 @@ const toggleNodeChildren = () => {
 
   showChildren.value = !showChildren.value
   isNodeOpen.value = !isNodeOpen.value
+}
+
+const highlightNodeChildren = (id: string | null) => {
+  if (id) {
+    highlightNode.value = true
+  } else {
+    highlightNode.value = false
+  }
 }
 </script>

@@ -16,6 +16,10 @@ import {
   TeamRequestDeletedDocument,
   GetCollectionChildrenDocument,
   GetCollectionRequestsDocument,
+  TeamRequestMovedDocument,
+  TeamCollectionMovedDocument,
+  TeamRequestOrderUpdatedDocument,
+  TeamCollectionOrderUpdatedDocument,
 } from "~/helpers/backend/graphql"
 
 const TEAMS_BACKEND_PAGE_SIZE = 10
@@ -201,6 +205,10 @@ export default class NewTeamCollectionAdapter {
   private teamRequestAdded$: Subscription | null
   private teamRequestUpdated$: Subscription | null
   private teamRequestDeleted$: Subscription | null
+  private teamRequestMoved$: Subscription | null
+  private teamCollectionMoved$: Subscription | null
+  private teamRequestOrderUpdated$: Subscription | null
+  private teamCollectionOrderUpdated$: Subscription | null
 
   private teamCollectionAddedSub: WSubscription | null
   private teamCollectionUpdatedSub: WSubscription | null
@@ -208,6 +216,10 @@ export default class NewTeamCollectionAdapter {
   private teamRequestAddedSub: WSubscription | null
   private teamRequestUpdatedSub: WSubscription | null
   private teamRequestDeletedSub: WSubscription | null
+  private teamRequestMovedSub: WSubscription | null
+  private teamCollectionMovedSub: WSubscription | null
+  private teamRequestOrderUpdatedSub: WSubscription | null
+  private teamCollectionOrderUpdatedSub: WSubscription | null
 
   constructor(private teamID: string | null) {
     this.collections$ = new BehaviorSubject<TeamCollection[]>([])
@@ -221,6 +233,10 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAdded$ = null
     this.teamRequestDeleted$ = null
     this.teamRequestUpdated$ = null
+    this.teamRequestMoved$ = null
+    this.teamCollectionMoved$ = null
+    this.teamRequestOrderUpdated$ = null
+    this.teamCollectionOrderUpdated$ = null
 
     this.teamCollectionAddedSub = null
     this.teamCollectionUpdatedSub = null
@@ -228,6 +244,10 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAddedSub = null
     this.teamRequestDeletedSub = null
     this.teamRequestUpdatedSub = null
+    this.teamRequestMovedSub = null
+    this.teamCollectionMovedSub = null
+    this.teamRequestOrderUpdatedSub = null
+    this.teamCollectionOrderUpdatedSub = null
 
     if (this.teamID) this.initialize()
   }
@@ -255,6 +275,10 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAdded$?.unsubscribe()
     this.teamRequestDeleted$?.unsubscribe()
     this.teamRequestUpdated$?.unsubscribe()
+    this.teamRequestMoved$?.unsubscribe()
+    this.teamCollectionMoved$?.unsubscribe()
+    this.teamRequestOrderUpdated$?.unsubscribe()
+    this.teamCollectionOrderUpdated$?.unsubscribe()
 
     this.teamCollectionAddedSub?.unsubscribe()
     this.teamCollectionUpdatedSub?.unsubscribe()
@@ -262,6 +286,10 @@ export default class NewTeamCollectionAdapter {
     this.teamRequestAddedSub?.unsubscribe()
     this.teamRequestDeletedSub?.unsubscribe()
     this.teamRequestUpdatedSub?.unsubscribe()
+    this.teamRequestMovedSub?.unsubscribe()
+    this.teamCollectionMovedSub?.unsubscribe()
+    this.teamRequestOrderUpdatedSub?.unsubscribe()
+    this.teamCollectionOrderUpdatedSub?.unsubscribe()
   }
 
   private async initialize() {
@@ -328,7 +356,7 @@ export default class NewTeamCollectionAdapter {
           this.loadingCollections$.getValue().filter((x) => x !== "root")
         )
 
-        throw new Error(`Error fetching root collections: ${result}`)
+        throw new Error(`Error fetching root collections: ${result.left.error}`)
       }
 
       totalCollections.push(
@@ -456,6 +484,143 @@ export default class NewTeamCollectionAdapter {
     this.collections$.next(tree)
   }
 
+  /**
+   * Moves a request from one collection to another
+   *
+   * @param {string} request - The request to move
+   */
+  private async moveRequest(request: TeamRequest) {
+    const tree = this.collections$.value
+
+    // Remove the request from the current collection
+    this.removeRequest(request.id)
+
+    const currentRequest = request.request
+
+    if (currentRequest === null || currentRequest === undefined) return
+
+    // Find request in tree, don't attempt if no collection or no requests is found
+    const collection = findCollInTree(tree, request.collectionID)
+    if (!collection) return // Ignore add request
+
+    // Collection is not expanded
+    if (!collection.requests) return
+
+    this.addRequest({
+      id: request.id,
+      collectionID: request.collectionID,
+      request: translateToNewRequest(request.request),
+      title: request.title,
+    })
+  }
+
+  /**
+   * Moves a collection from one collection to another or to root
+   *
+   * @param {string} collectionID - The ID of the collection to move
+   */
+  private async moveCollection(
+    collectionID: string,
+    parentID: string | null,
+    title: string
+  ) {
+    // Remove the collection from the current position
+    this.removeCollection(collectionID)
+
+    if (collectionID === null || parentID === undefined) return
+
+    // Expand the parent collection if it is not expanded
+    // so that the old children is also visible when expanding
+    if (parentID) this.expandCollection(parentID)
+
+    this.addCollection(
+      {
+        id: collectionID,
+        children: null,
+        requests: null,
+        title: title,
+      },
+      parentID ?? null
+    )
+  }
+
+  public updateRequestOrder(
+    dragedRequestID: string,
+    destinationRequestID: string,
+    destinationCollectionID: string
+  ) {
+    const tree = this.collections$.value
+
+    // Find collection in tree, don't attempt if no collection is found
+    const collection = findCollInTree(tree, destinationCollectionID)
+    if (!collection) return // Ignore order update
+
+    // Collection is not expanded
+    if (!collection.requests) return
+
+    const requestIndex = collection.requests.findIndex(
+      (req) => req.id === dragedRequestID
+    )
+    const destinationIndex = collection.requests.findIndex(
+      (req) => req.id === destinationRequestID
+    )
+
+    if (requestIndex === -1) return
+
+    const request = collection.requests[requestIndex]
+
+    collection.requests.splice(requestIndex, 1)
+    collection.requests.splice(destinationIndex, 0, request)
+
+    this.collections$.next(tree)
+  }
+
+  public updateCollectionOrder = (
+    collectionID: string,
+    destinationCollectionID: string
+  ) => {
+    const tree = this.collections$.value
+
+    // Find collection in tree
+    const coll = findParentOfColl(tree, destinationCollectionID)
+
+    // If the collection has a parent collection and check if it has children
+    if (coll && coll.children) {
+      const collectionIndex = coll.children.findIndex(
+        (coll) => coll.id === collectionID
+      )
+
+      const destinationIndex = coll.children.findIndex(
+        (coll) => coll.id === destinationCollectionID
+      )
+
+      // If the collection index is not found, don't update
+      if (collectionIndex === -1) return
+
+      const collection = coll.children[collectionIndex]
+
+      coll.children.splice(collectionIndex, 1)
+      coll.children.splice(destinationIndex, 0, collection)
+    } else {
+      // If the collection has no parent collection, it is a root collection
+      const collectionIndex = tree.findIndex((coll) => coll.id === collectionID)
+
+      const destinationIndex = tree.findIndex(
+        (coll) => coll.id === destinationCollectionID
+      )
+
+      // If the collection index is not found, don't update
+      if (collectionIndex === -1) return
+
+      const collection = tree[collectionIndex]
+
+      tree.splice(collectionIndex, 1)
+      tree.splice(destinationIndex, 0, collection)
+    }
+
+    this.collections$.next(tree)
+  }
+
   private registerSubscriptions() {
     if (!this.teamID) return
 
@@ -575,7 +740,7 @@ export default class NewTeamCollectionAdapter {
       },
     })
 
-    this.teamRequestUpdatedSub = teamReqDeleted
+    this.teamRequestDeletedSub = teamReqDeleted
     this.teamRequestDeleted$ = teamReqDeleted$.subscribe((result) => {
       if (E.isLeft(result))
         throw new Error(
@@ -584,6 +749,110 @@ export default class NewTeamCollectionAdapter {
 
       this.removeRequest(result.right.teamRequestDeleted)
     })
+
+    const [teamRequestMoved$, teamRequestMoved] = runGQLSubscription({
+      query: TeamRequestMovedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    })
+
+    this.teamRequestMovedSub = teamRequestMoved
+    this.teamRequestMoved$ = teamRequestMoved$.subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(
+          `Team Request Move Error ${JSON.stringify(result.left)}`
+        )
+
+      const { requestMoved } = result.right
+
+      const request = {
+        id: requestMoved.id,
+        collectionID: requestMoved.collectionID,
+        title: requestMoved.title,
+        request: JSON.parse(requestMoved.request),
+      }
+
+      this.moveRequest(request)
+    })
+
+    const [teamCollectionMoved$, teamCollectionMoved] = runGQLSubscription({
+      query: TeamCollectionMovedDocument,
+      variables: {
+        teamID: this.teamID,
+      },
+    })
+
+    this.teamCollectionMovedSub = teamCollectionMoved
+    this.teamCollectionMoved$ = teamCollectionMoved$.subscribe((result) => {
+      if (E.isLeft(result))
+        throw new Error(
+          `Team Collection Move Error ${JSON.stringify(result.left)}`
+        )
+
+      const { teamCollectionMoved } = result.right
+      const { id, parent, title } = teamCollectionMoved
+
+      const parentID = parent?.id ?? null
+
+      this.moveCollection(id, parentID, title)
+    })
+
+    const [teamRequestOrderUpdated$, teamRequestOrderUpdated] =
+      runGQLSubscription({
+        query: TeamRequestOrderUpdatedDocument,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+
+    this.teamRequestOrderUpdatedSub = teamRequestOrderUpdated
+    this.teamRequestOrderUpdated$ = teamRequestOrderUpdated$.subscribe(
+      (result) => {
+        if (E.isLeft(result))
+          throw new Error(
+            `Team Request Order Update Error ${JSON.stringify(result.left)}`
+          )
+
+        const { requestOrderUpdated } = result.right
+        const { request } = requestOrderUpdated
+        const { nextRequest } = requestOrderUpdated
+
+        if (!nextRequest) return
+
+        this.updateRequestOrder(
+          request.id,
+          nextRequest.id,
+          nextRequest.collectionID
+        )
+      }
+    )
+
+    const [teamCollectionOrderUpdated$, teamCollectionOrderUpdated] =
+      runGQLSubscription({
+        query: TeamCollectionOrderUpdatedDocument,
+        variables: {
+          teamID: this.teamID,
+        },
+      })
+
+    this.teamCollectionOrderUpdatedSub = teamCollectionOrderUpdated
+    this.teamCollectionOrderUpdated$ = teamCollectionOrderUpdated$.subscribe(
+      (result) => {
+        if (E.isLeft(result))
+          throw new Error(
+            `Team Collection Order Update Error ${JSON.stringify(result.left)}`
+          )
+
+        const { collectionOrderUpdated } = result.right
+        const { collection } = collectionOrderUpdated
+        const { nextCollection } = collectionOrderUpdated
+
+        if (!nextCollection) return
+
+        this.updateCollectionOrder(collection.id, nextCollection.id)
+      }
+    )
   }
 
   /**

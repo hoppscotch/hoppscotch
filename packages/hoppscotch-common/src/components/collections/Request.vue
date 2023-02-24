@@ -1,10 +1,22 @@
 <template>
-  <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
+  <div class="flex flex-col">
+    <div
+      class="h-1"
+      :class="[
+        {
+          'bg-accentDark': ordering,
+        },
+      ]"
+      @drop="dropEvent"
+      @dragover.prevent="ordering = true"
+      @dragleave="ordering = false"
+      @dragend="ordering = false"
+    ></div>
     <div
       class="flex items-stretch group"
-      draggable="true"
+      :draggable="!hasNoTeamAccess"
       @dragstart="dragStart"
-      @dragover.stop
+      @dragover.prevent="dragging = true"
       @dragleave="dragging = false"
       @dragend="dragging = false"
       @contextmenu.prevent="options?.tippy.show()"
@@ -20,6 +32,7 @@
           class="svg-icons"
           :class="{ 'text-accent': isSelected }"
         />
+        <HoppSmartSpinner v-else-if="isRequestLoading" />
         <span v-else class="font-semibold truncate text-tiny">
           {{ request.method }}
         </span>
@@ -149,6 +162,11 @@ const props = defineProps({
     default: () => ({}),
     required: true,
   },
+  requestID: {
+    type: String,
+    default: "",
+    required: false,
+  },
   collectionsType: {
     type: String as PropType<CollectionType>,
     default: "my-collections",
@@ -175,8 +193,13 @@ const props = defineProps({
     required: false,
   },
   isSelected: {
-    type: Boolean,
+    type: Boolean as PropType<boolean | null>,
     default: false,
+    required: false,
+  },
+  requestMoveLoading: {
+    type: Array as PropType<string[]>,
+    default: () => [],
     required: false,
   },
 })
@@ -187,6 +210,7 @@ const emit = defineEmits<{
   (event: "remove-request"): void
   (event: "select-request"): void
   (event: "drag-request", payload: DataTransfer): void
+  (event: "update-request-order", payload: DataTransfer): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -196,6 +220,7 @@ const options = ref<TippyComponent | null>(null)
 const duplicate = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
+const ordering = ref(false)
 
 const requestMethodLabels = {
   get: "text-green-500",
@@ -228,8 +253,24 @@ const selectRequest = () => {
 
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
-    dragging.value = !dragging.value
     emit("drag-request", dataTransfer)
+    dragging.value = !dragging.value
   }
 }
+
+const dropEvent = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    ordering.value = !ordering.value
+    emit("update-request-order", e.dataTransfer)
+  }
+}
+
+const isRequestLoading = computed(() => {
+  if (props.requestMoveLoading.length > 0 && props.requestID) {
+    return props.requestMoveLoading.includes(props.requestID)
+  } else {
+    return false
+  }
+})
 </script>

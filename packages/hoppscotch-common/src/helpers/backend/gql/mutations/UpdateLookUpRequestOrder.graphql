@@ -1,0 +1,11 @@
+mutation UpdateLookUpRequestOrder(
+  $requestID: ID!
+  $nextRequestID: ID
+  $collectionID: ID!
+) {
+  updateLookUpRequestOrder(
+    requestID: $requestID
+    nextRequestID: $nextRequestID
+    collectionID: $collectionID
+  )
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-col flex-1 bg-primary">
     <div
       class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
       :style="
@@ -47,14 +47,18 @@
     </div>
     <div class="flex flex-col overflow-hidden">
       <SmartTree :adapter="teamAdapter">
-        <template #content="{ node, toggleChildren, isOpen }">
+        <template
+          #content="{ node, toggleChildren, isOpen, highlightChildren }"
+        >
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
+            :id="node.data.data.data.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess"
+            :collection-move-loading="collectionMoveLoading"
             :is-selected="
               isSelected({
                 collectionID: node.id,
@@ -87,6 +91,15 @@
                 emit('export-data', node.data.data.data)
             "
             @remove-collection="emit('remove-collection', node.id)"
+            @drop-event="dropEvent($event, node.id)"
+            @drag-event="dragEvent($event, node.id)"
+            @update-collection-order="
+              updateCollectionOrder($event, node.data.data.data.id)
+            "
+            @dragging="
+              (isDraging) =>
+                highlightChildren(isDraging ? node.data.data.data.id : null)
+            "
             @toggle-children="
               () => {
                 toggleChildren(),
@@ -100,11 +113,13 @@
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
+            :id="node.data.data.data.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess"
+            :collection-move-loading="collectionMoveLoading"
             :is-selected="
               isSelected({
                 folderID: node.data.data.data.id,
@@ -139,6 +154,15 @@
               node.data.type === 'folders' &&
                 emit('remove-folder', node.data.data.data.id)
             "
+            @drop-event="dropEvent($event, node.data.data.data.id)"
+            @drag-event="dragEvent($event, node.data.data.data.id)"
+            @update-collection-order="
+              updateCollectionOrder($event, node.data.data.data.id)
+            "
+            @dragging="
+              (isDraging) =>
+                highlightChildren(isDraging ? node.data.data.data.id : null)
+            "
             @toggle-children="
               () => {
                 toggleChildren(),
@@ -153,10 +177,12 @@
           <CollectionsRequest
             v-if="node.data.type === 'requests'"
             :request="node.data.data.data.request"
+            :request-i-d="node.data.data.data.id"
             :collections-type="collectionsType.type"
             :duplicate-loading="duplicateLoading"
             :is-active="isActiveRequest(node.data.data.data.id)"
             :has-no-team-access="hasNoTeamAccess"
+            :request-move-loading="requestMoveLoading"
             :is-selected="
               isSelected({
                 requestID: node.data.data.data.id,
@@ -190,18 +216,31 @@
                   requestIndex: node.data.data.data.id,
                 })
             "
+            @drag-request="
+              dragRequest($event, {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: node.data.data.data.id,
+              })
+            "
+            @update-request-order="
+              updateRequestOrder($event, {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: node.data.data.data.id,
+              })
+            "
           />
         </template>
         <template #emptyNode="{ node }">
           <div v-if="node === null">
             <div
               class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+              @drop="(e) => e.stopPropagation()"
             >
               <img
                 :src="`/images/states/${colorMode.value}/pack.svg`"
                 loading="lazy"
                 class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
-                :alt="`${t('empty.collections')}`"
+                :alt="`${t('empty.collection')}`"
               />
               <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
@@ -213,11 +252,12 @@
                 filled
                 outline
                 :title="t('team.no_access')"
-                :label="t('add.new')"
+                :label="t('action.new')"
               />
               <HoppButtonSecondary
                 v-else
-                :label="t('add.new')"
+                :icon="IconPlus"
+                :label="t('action.new')"
                 filled
                 outline
                 @click="emit('display-modal-add')"
@@ -227,6 +267,7 @@
           <div
             v-else-if="node.data.type === 'collections'"
             class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            @drop="(e) => e.stopPropagation()"
           >
             <img
               :src="`/images/states/${colorMode.value}/pack.svg`"
@@ -235,34 +276,13 @@
               :alt="`${t('empty.collection')}`"
             />
             <span class="pb-4 text-center">
-              {{ t("empty.collection") }}
+              {{ t("empty.collections") }}
             </span>
-            <HoppButtonSecondary
-              v-if="hasNoTeamAccess"
-              v-tippy="{ theme: 'tooltip' }"
-              disabled
-              filled
-              outline
-              :title="t('team.no_access')"
-              :label="t('add.new')"
-            />
-            <HoppButtonSecondary
-              v-else
-              :label="t('add.new')"
-              filled
-              outline
-              @click="
-                node.data.type === 'collections' &&
-                  emit('add-folder', {
-                    path: node.id,
-                    folder: node.data.data.data,
-                  })
-              "
-            />
           </div>
           <div
             v-else-if="node.data.type === 'folders'"
             class="flex flex-col items-center justify-center p-4 text-secondaryLight"
+            @drop="(e) => e.stopPropagation()"
           >
             <img
               :src="`/images/states/${colorMode.value}/pack.svg`"
@@ -347,6 +367,16 @@ const props = defineProps({
     default: null,
     required: false,
   },
+  collectionMoveLoading: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+    required: false,
+  },
+  requestMoveLoading: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+    required: false,
+  },
 })
 
 const emit = defineEmits<{
@@ -408,6 +438,36 @@ const emit = defineEmits<{
       requestIndex: string
       isActive: boolean
       folderPath?: string | undefined
+    }
+  ): void
+  (
+    event: "drop-request",
+    payload: {
+      folderPath: string
+      requestIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "drop-collection",
+    payload: {
+      collectionIndexDragged: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "update-request-order",
+    payload: {
+      dragedRequestIndex: string
+      destinationRequestIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "update-collection-order",
+    payload: {
+      dragedCollectionIndex: string
+      destinationCollectionIndex: string
     }
   ): void
   (event: "select", payload: Picked | null): void
@@ -491,6 +551,74 @@ const selectRequest = (data: {
       isActive: isActiveRequest.value(requestIndex),
     })
   }
+}
+
+const dragRequest = (
+  dataTransfer: DataTransfer,
+  {
+    folderPath,
+    requestIndex,
+  }: { folderPath: string | null; requestIndex: string }
+) => {
+  if (!folderPath) return
+  dataTransfer.setData("folderPath", folderPath)
+  dataTransfer.setData("requestIndex", requestIndex)
+}
+
+const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {
+  dataTransfer.setData("collectionIndex", collectionIndex)
+}
+
+const dropEvent = (
+  dataTransfer: DataTransfer,
+  destinationCollectionIndex: string
+) => {
+  const folderPath = dataTransfer.getData("folderPath")
+  const requestIndex = dataTransfer.getData("requestIndex")
+  const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+  if (folderPath && requestIndex) {
+    emit("drop-request", {
+      folderPath,
+      requestIndex,
+      destinationCollectionIndex,
+    })
+  } else {
+    emit("drop-collection", {
+      collectionIndexDragged,
+      destinationCollectionIndex,
+    })
+  }
+}
+
+const updateRequestOrder = (
+  dataTransfer: DataTransfer,
+  {
+    folderPath,
+    requestIndex,
+  }: { folderPath: string | null; requestIndex: string }
+) => {
+  if (!folderPath) return
+  const dragedRequestIndex = dataTransfer.getData("requestIndex")
+  const destinationRequestIndex = requestIndex
+  const destinationCollectionIndex = folderPath
+
+  emit("update-request-order", {
+    dragedRequestIndex,
+    destinationRequestIndex,
+    destinationCollectionIndex,
+  })
+}
+
+const updateCollectionOrder = (
+  dataTransfer: DataTransfer,
+  destinationCollectionIndex: string
+) => {
+  const dragedCollectionIndex = dataTransfer.getData("collectionIndex")
+
+  emit("update-collection-order", {
+    dragedCollectionIndex,
+    destinationCollectionIndex,
+  })
 }
 
 type TeamCollections = {

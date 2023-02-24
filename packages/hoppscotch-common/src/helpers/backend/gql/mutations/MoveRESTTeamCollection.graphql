@@ -1,0 +1,8 @@
+mutation MoveRESTTeamCollection($collectionID: ID!, $parentCollectionID: ID) {
+  moveCollection(
+    collectionID: $collectionID
+    parentCollectionID: $parentCollectionID
+  ) {
+    id
+  }
+}

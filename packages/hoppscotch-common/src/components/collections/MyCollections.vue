@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col flex-1">
+  <div class="flex flex-col flex-1 bg-primary">
     <div
       class="sticky z-10 flex justify-between flex-1 border-b bg-primary border-dividerLight"
       :style="
@@ -33,9 +33,12 @@
     </div>
     <div class="flex flex-col flex-1">
       <SmartTree :adapter="myAdapter">
-        <template #content="{ node, toggleChildren, isOpen }">
+        <template
+          #content="{ node, toggleChildren, isOpen, highlightChildren }"
+        >
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
+            :id="node.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -72,6 +75,11 @@
             "
             @remove-collection="emit('remove-collection', node.id)"
             @drop-event="dropEvent($event, node.id)"
+            @drag-event="dragEvent($event, node.id)"
+            @update-collection-order="updateCollectionOrder($event, node.id)"
+            @dragging="
+              (isDraging) => highlightChildren(isDraging ? node.id : null)
+            "
             @toggle-children="
               () => {
                 toggleChildren(),
@@ -85,6 +93,7 @@
           />
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
+            :id="node.id"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -121,6 +130,11 @@
             "
             @remove-collection="emit('remove-folder', node.id)"
             @drop-event="dropEvent($event, node.id)"
+            @drag-event="dragEvent($event, node.id)"
+            @update-collection-order="updateCollectionOrder($event, node.id)"
+            @dragging="
+              (isDraging) => highlightChildren(isDraging ? node.id : null)
+            "
             @toggle-children="
               () => {
                 toggleChildren(),
@@ -182,7 +196,13 @@
             @drag-request="
               dragRequest($event, {
                 folderPath: node.data.data.parentIndex,
-                requestIndex: pathToIndex(node.id),
+                requestIndex: node.id,
+              })
+            "
+            @update-request-order="
+              updateRequestOrder($event, {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: node.id,
               })
             "
           />
@@ -413,7 +433,29 @@ const emit = defineEmits<{
     payload: {
       folderPath: string
       requestIndex: string
-      collectionIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "drop-collection",
+    payload: {
+      collectionIndexDragged: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "update-request-order",
+    payload: {
+      dragedRequestIndex: string
+      destinationRequestIndex: string
+      destinationCollectionIndex: string
+    }
+  ): void
+  (
+    event: "update-collection-order",
+    payload: {
+      dragedCollectionIndex: string
+      destinationCollectionIndex: string
     }
   ): void
   (event: "select", payload: Picked | null): void
@@ -502,6 +544,10 @@ const selectRequest = (data: {
   }
 }
 
+const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {
+  dataTransfer.setData("collectionIndex", collectionIndex)
+}
+
 const dragRequest = (
   dataTransfer: DataTransfer,
   {
@@ -514,13 +560,56 @@ const dragRequest = (
   dataTransfer.setData("requestIndex", requestIndex)
 }
 
-const dropEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {
+const dropEvent = (
+  dataTransfer: DataTransfer,
+  destinationCollectionIndex: string
+) => {
   const folderPath = dataTransfer.getData("folderPath")
   const requestIndex = dataTransfer.getData("requestIndex")
-  emit("drop-request", {
+  const collectionIndexDragged = dataTransfer.getData("collectionIndex")
+
+  if (folderPath && requestIndex) {
+    emit("drop-request", {
+      folderPath,
+      requestIndex,
+      destinationCollectionIndex,
+    })
+  } else {
+    emit("drop-collection", {
+      collectionIndexDragged,
+      destinationCollectionIndex,
+    })
+  }
+}
+
+const updateRequestOrder = (
+  dataTransfer: DataTransfer,
+  {
     folderPath,
     requestIndex,
-    collectionIndex,
+  }: { folderPath: string | null; requestIndex: string }
+) => {
+  if (!folderPath) return
+  const dragedRequestIndex = dataTransfer.getData("requestIndex")
+  const destinationRequestIndex = requestIndex
+  const destinationCollectionIndex = folderPath
+
+  emit("update-request-order", {
+    dragedRequestIndex,
+    destinationRequestIndex,
+    destinationCollectionIndex,
+  })
+}
+
+const updateCollectionOrder = (
+  dataTransfer: DataTransfer,
+  destinationCollectionIndex: string
+) => {
+  const dragedCollectionIndex = dataTransfer.getData("collectionIndex")
+
+  emit("update-collection-order", {
+    dragedCollectionIndex,
+    destinationCollectionIndex,
   })
 }
 

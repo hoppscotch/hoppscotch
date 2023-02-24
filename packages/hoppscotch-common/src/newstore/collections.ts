@@ -186,6 +186,133 @@ const restCollectionDispatchers = defineDispatchers({
     }
   },
 
+  moveFolder(
+    { state }: RESTCollectionStoreType,
+    { path, destinationPath }: { path: string; destinationPath: string | null }
+  ) {
+    const newState = state
+
+    // Move the folder to the root
+    if (destinationPath === null) {
+      const indexPaths = path.split("/").map((x) => parseInt(x))
+
+      if (indexPaths.length === 0) {
+        console.log("Given path too short. Skipping request.")
+        return {}
+      }
+
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+      if (containingFolder === null) {
+        console.error(
+          `The folder to move is already in the root. Skipping request to move folder.`
+        )
+        return {}
+      }
+
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+      newState.push(theFolder[0] as HoppCollection<HoppRESTRequest>)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const indexPaths = path.split("/").map((x) => parseInt(x))
+
+    const destinationIndexPaths = destinationPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.error(
+        `Given path is too short. Skipping request to move folder '${path}' to destination '${destinationPath}'.`
+      )
+      return {}
+    }
+
+    const target = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+    if (target === null) {
+      console.error(
+        `Could not resolve destination path '${destinationPath}'. Skipping moveFolder dispatch.`
+      )
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(newState, indexPaths)
+    // We are moving a folder from the root
+    if (containingFolder === null) {
+      const theFolder = newState.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    } else {
+      const theFolder = containingFolder.folders.splice(folderIndex, 1)
+
+      target.folders.push(theFolder[0])
+    }
+
+    return { state: newState }
+  },
+
+  updateCollectionOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      collectionIndex,
+      destinationCollectionIndex,
+    }: {
+      collectionIndex: string
+      destinationCollectionIndex: string
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
+
+    const destinationIndexPaths = destinationCollectionIndex
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const folderIndex = indexPaths.pop() as number
+    const destinationFolderIndex = destinationIndexPaths.pop() as number
+
+    const containingFolder = navigateToFolderWithIndexPath(
+      newState,
+      destinationIndexPaths
+    )
+
+    if (containingFolder === null) {
+      const [removed] = newState.splice(folderIndex, 1)
+
+      newState.splice(destinationFolderIndex, 0, removed)
+
+      return {
+        state: newState,
+      }
+    }
+
+    const [removed] = containingFolder.folders.splice(folderIndex, 1)
+
+    containingFolder.folders.splice(destinationFolderIndex, 0, removed)
+
+    return {
+      state: newState,
+    }
+  },
+
   editRequest(
     { state }: RESTCollectionStoreType,
     {
@@ -286,6 +413,11 @@ const restCollectionDispatchers = defineDispatchers({
 
     const indexPaths = path.split("/").map((x) => parseInt(x))
 
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
     const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
 
     if (targetLocation === null) {
@@ -310,6 +442,47 @@ const restCollectionDispatchers = defineDispatchers({
 
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
+
+    return {
+      state: newState,
+    }
+  },
+
+  updateRequestOrder(
+    { state }: RESTCollectionStoreType,
+    {
+      requestIndex,
+      destinationRequestIndex,
+      destinationCollectionPath,
+    }: {
+      requestIndex: number
+      destinationRequestIndex: number
+      destinationCollectionPath: string
+    }
+  ) {
+    const newState = state
+
+    const indexPaths = destinationCollectionPath
+      .split("/")
+      .map((x) => parseInt(x))
+
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    const targetLocation = navigateToFolderWithIndexPath(newState, indexPaths)
+
+    if (targetLocation === null) {
+      console.log(
+        `Could not resolve path '${destinationCollectionPath}'. Ignoring reorderRequest dispatch.`
+      )
+      return {}
+    }
+
+    const [removed] = targetLocation.requests.splice(requestIndex, 1)
+
+    targetLocation.requests.splice(destinationRequestIndex, 0, removed)
 
     return {
       state: newState,
@@ -691,6 +864,16 @@ export function removeRESTFolder(path: string) {
   })
 }
 
+export function moveRESTFolder(path: string, destinationPath: string | null) {
+  restCollectionStore.dispatch({
+    dispatcher: "moveFolder",
+    payload: {
+      path,
+      destinationPath,
+    },
+  })
+}
+
 export function editRESTRequest(
   path: string,
   requestIndex: number,
@@ -753,6 +936,34 @@ export function moveRESTRequest(
       path,
       requestIndex,
       destinationPath,
+    },
+  })
+}
+
+export function updateRESTRequestOrder(
+  requestIndex: number,
+  destinationRequestIndex: number,
+  destinationCollectionPath: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateRequestOrder",
+    payload: {
+      requestIndex,
+      destinationRequestIndex,
+      destinationCollectionPath,
+    },
+  })
+}
+
+export function updateRESTCollectionOrder(
+  collectionIndex: string,
+  destinationCollectionIndex: string
+) {
+  restCollectionStore.dispatch({
+    dispatcher: "updateCollectionOrder",
+    payload: {
+      collectionIndex,
+      destinationCollectionIndex,
     },
   })
 }

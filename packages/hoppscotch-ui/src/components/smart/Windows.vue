@@ -30,7 +30,7 @@
           <div class="sticky right-0 flex items-center justify-center flex-shrink-0 overflow-x-auto z-8">
             <slot name="actions">
               <span v-if="canAddNewTab" class="flex items-center justify-center px-2 py-1.5 bg-primaryLight z-8">
-                <ButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="newText ?? t?.('action.new') ?? 'New'"
+                <HoppButtonSecondary v-tippy="{ theme: 'tooltip' }" :title="newText ?? t?.('action.new') ?? 'New'"
                   :icon="IconPlus" class="rounded !p-1" filled @click="addTab" />
               </span>
             </slot>
@@ -52,7 +52,8 @@ import { pipe } from "fp-ts/function"
 import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
-import { ref, ComputedRef, computed, provide, inject, Slot } from "vue"
+import { ref, ComputedRef, computed, provide, inject } from "vue"
+import type { Slot } from "vue"
 import draggable from "vuedraggable-es"
 import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 

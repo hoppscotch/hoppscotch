@@ -45,7 +45,7 @@
               <span class="flex items-center">
                 <slot name="actions"></slot>
                 <kbd class="mr-2 shortcut-key">ESC</kbd>
-                <ButtonSecondary
+                <HoppButtonSecondary
                   v-if="dimissible"
                   v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
                   :title="closeText ?? t?.('action.close') ?? 'Close'"
@@ -92,6 +92,7 @@ const stack = (() => {
 </script>
 
 <script setup lang="ts">
+import { HoppButtonSecondary } from "../button"
 import IconX from "~icons/lucide/x"
 import {
   ref,

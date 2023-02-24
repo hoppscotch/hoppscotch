@@ -68,7 +68,7 @@
     "typescript": "^4.5.4",
     "unplugin-icons": "^0.15.3",
     "unplugin-vue-components": "^0.21.0",
-    "vite": "^4.1.3",
+    "vite": "^3.2.3",
     "vite-plugin-checker": "^0.5.1",
     "vite-plugin-dts": "2.0.0-beta.3",
     "vite-plugin-fonts": "^0.6.0",
@@ -79,7 +79,9 @@
     "vite-plugin-pwa": "^0.13.1",
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",
+    "vue": "^3.2.25",
     "vue-loader": "^16.8.3",
+    "vue-router": "^4.0.16",
     "vue-tsc": "^0.38.2",
     "windicss": "^3.5.6"
   },

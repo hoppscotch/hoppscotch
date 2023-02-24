@@ -32,7 +32,7 @@
           class="svg-icons"
           :class="{ 'text-accent': isSelected }"
         />
-        <SmartSpinner v-else-if="isRequestLoading" />
+        <HoppSmartSpinner v-else-if="isRequestLoading" />
         <span v-else class="font-semibold truncate text-tiny">
           {{ request.method }}
         </span>

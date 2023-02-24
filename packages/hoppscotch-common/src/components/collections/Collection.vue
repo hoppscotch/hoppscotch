@@ -33,7 +33,7 @@
           class="flex items-center justify-center px-4 cursor-pointer"
           @click="emit('toggle-children')"
         >
-          <SmartSpinner v-if="isCollLoading" />
+          <HoppSmartSpinner v-if="isCollLoading" />
           <component
             :is="collectionIcon"
             v-else

@@ -7,20 +7,20 @@
         {{ t("request.body") }}
       </label>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/body"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear_all')"
           :icon="IconTrash2"
           @click="clearContent()"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="bulkMode"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
@@ -28,14 +28,14 @@
           :icon="IconWrapText"
           @click.prevent="linewrapEnabled = !linewrapEnabled"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.bulk_mode')"
           :icon="IconEdit"
           :class="{ '!text-accent': bulkMode }"
           @click="bulkMode = !bulkMode"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           :icon="IconPlus"
@@ -61,7 +61,7 @@
             class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
           >
             <span>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{
                   theme: 'tooltip',
                   delay: [500, 20],
@@ -104,7 +104,7 @@
               "
             />
             <span>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="
                   param.hasOwnProperty('active')
@@ -132,7 +132,7 @@
               />
             </span>
             <span>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.remove')"
                 :icon="IconTrash"
@@ -156,7 +156,7 @@
         <span class="pb-4 text-center">
           {{ t("empty.body") }}
         </span>
-        <ButtonSecondary
+        <HoppButtonSecondary
           filled
           :label="`${t('add.new')}`"
           :icon="IconPlus"
@@ -191,7 +191,7 @@ import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as E from "fp-ts/Either"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { useCodemirror } from "@composables/codemirror"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { useRESTRequestBody } from "~/newstore/RESTSession"

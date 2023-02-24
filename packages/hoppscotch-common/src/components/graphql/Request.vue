@@ -14,7 +14,7 @@
         :disabled="connected"
         @keyup.enter="onConnectClick"
       />
-      <ButtonPrimary
+      <HoppButtonPrimary
         id="get"
         name="get"
         :label="!connected ? t('action.connect') : t('action.disconnect')"

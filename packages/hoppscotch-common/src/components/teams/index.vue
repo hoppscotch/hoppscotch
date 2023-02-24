@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="space-y-4">
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="`${t('team.create_new')}`"
         outline
         @click="displayModalAdd(true)"
       />
       <div v-if="loading" class="flex flex-col items-center justify-center">
-        <SmartSpinner class="mb-4" />
+        <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <div
@@ -23,7 +23,7 @@
         <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="`${t('team.create_new')}`"
           filled
           @click="displayModalAdd(true)"

@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="`${t('auth.login_to_hoppscotch')}`"
@@ -8,25 +8,25 @@
   >
     <template #body>
       <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
-        <SmartItem
+        <HoppSmartItem
           :loading="signingInWithGitHub"
           :icon="IconGithub"
           :label="`${t('auth.continue_with_github')}`"
           @click="signInWithGithub"
         />
-        <SmartItem
+        <HoppSmartItem
           :loading="signingInWithGoogle"
           :icon="IconGoogle"
           :label="`${t('auth.continue_with_google')}`"
           @click="signInWithGoogle"
         />
-        <SmartItem
+        <HoppSmartItem
           :loading="signingInWithMicrosoft"
           :icon="IconMicrosoft"
           :label="`${t('auth.continue_with_microsoft')}`"
           @click="signInWithMicrosoft"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconEmail"
           :label="`${t('auth.continue_with_email')}`"
           @click="mode = 'email'"
@@ -55,7 +55,7 @@
             {{ t("auth.email") }}
           </label>
         </div>
-        <ButtonPrimary
+        <HoppButtonPrimary
           :loading="signingInWithEmail"
           type="submit"
           :label="`${t('auth.send_magic_link')}`"
@@ -78,14 +78,14 @@
     <template #footer>
       <div v-if="mode === 'sign-in'" class="text-secondaryLight text-tiny">
         By signing in, you are agreeing to our
-        <SmartAnchor
+        <HoppSmartAnchor
           class="link"
           to="https://docs.hoppscotch.io/terms"
           blank
           label="Terms of Service"
         />
         and
-        <SmartAnchor
+        <HoppSmartAnchor
           class="link"
           to="https://docs.hoppscotch.io/privacy"
           blank
@@ -93,7 +93,7 @@
         />
       </div>
       <div v-if="mode === 'email'">
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('auth.all_sign_in_options')"
           :icon="IconArrowLeft"
           class="!p-0"
@@ -104,20 +104,20 @@
         v-if="mode === 'email-sent'"
         class="flex justify-between flex-1 text-secondaryLight"
       >
-        <SmartAnchor
+        <HoppSmartAnchor
           class="link"
           :label="t('auth.re_enter_email')"
           :icon="IconArrowLeft"
           @click="mode = 'email'"
         />
-        <SmartAnchor
+        <HoppSmartAnchor
           class="link"
           :label="`${t('action.dismiss')}`"
           @click="hideModal"
         />
       </div>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script lang="ts">

@@ -4,7 +4,7 @@
       v-if="isLoadingInitialRoute"
       class="flex flex-col items-center justify-center min-h-screen"
     >
-      <SmartSpinner />
+      <HoppSmartSpinner />
     </div>
     <ErrorPage v-if="errorInfo !== null" :error="errorInfo" />
     <RouterView v-else />

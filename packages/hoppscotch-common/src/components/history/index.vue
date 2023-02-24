@@ -11,7 +11,7 @@
         :placeholder="`${t('action.search')}`"
       />
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/history"
           blank
@@ -19,7 +19,7 @@
           :icon="IconHelpCircle"
         />
         <tippy interactive trigger="click" theme="popover">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.filter')"
             :icon="IconFilter"
@@ -29,7 +29,7 @@
               <div class="pb-2 pl-4 text-tiny text-secondaryLight">
                 {{ t("action.filter") }}
               </div>
-              <SmartRadioGroup
+              <HoppSmartRadioGroup
                 v-model="filterSelection"
                 :radios="filters"
                 @update:model-value="hide()"
@@ -38,7 +38,7 @@
               <div class="pb-2 pl-4 text-tiny text-secondaryLight">
                 {{ t("action.group_by") }}
               </div>
-              <SmartRadioGroup
+              <HoppSmartRadioGroup
                 v-model="groupSelection"
                 :radios="groups"
                 @update:model-value="hide()"
@@ -46,7 +46,7 @@
             </div>
           </template>
         </tippy>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           data-testid="clear_history"
           :disabled="history.length === 0"
@@ -81,7 +81,7 @@
               {{ filteredHistoryGroupIndex }}
             </span>
           </span>
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconTrash"
             color="red"
@@ -128,7 +128,7 @@
       <span class="mt-2 mb-4 text-center">
         {{ t("state.nothing_found") }} "{{ filterText || filterSelection }}"
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="t('action.clear')"
         outline
         @click="
@@ -139,7 +139,7 @@
         "
       />
     </div>
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="`${t('confirm.remove_history')}`"
       @hide-modal="confirmRemove = false"

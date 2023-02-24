@@ -14,7 +14,7 @@
         <label class="font-semibold truncate text-secondaryLight">
           {{ t("test.report") }}
         </label>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear')"
           :icon="IconTrash2"
@@ -48,13 +48,13 @@
                     {{ t("environment.no_environment_description") }}
                   </p>
                   <p class="flex mt-3 space-x-2">
-                    <ButtonSecondary
+                    <HoppButtonSecondary
                       :label="t('environment.add_to_global')"
                       class="text-tiny !bg-primary"
                       filled
                       @click="addEnvToGlobal()"
                     />
-                    <ButtonSecondary
+                    <HoppButtonSecondary
                       :label="t('environment.create_new')"
                       class="text-tiny !bg-primary"
                       filled
@@ -186,7 +186,7 @@
       <span class="pb-4 text-center">
         {{ t("helpers.tests") }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         outline
         :label="`${t('action.learn_more')}`"
         to="https://docs.hoppscotch.io/features/tests"

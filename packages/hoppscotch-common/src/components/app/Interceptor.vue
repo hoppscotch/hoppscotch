@@ -8,12 +8,15 @@
         {{ t("settings.interceptor_description") }}
       </p>
     </div>
-    <SmartRadioGroup v-model="interceptorSelection" :radios="interceptors" />
+    <HoppSmartRadioGroup
+      v-model="interceptorSelection"
+      :radios="interceptors"
+    />
     <div
       v-if="interceptorSelection == 'EXTENSIONS_ENABLED' && !extensionVersion"
       class="flex space-x-2"
     >
-      <ButtonSecondary
+      <HoppButtonSecondary
         to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
         blank
         :icon="IconChrome"
@@ -21,7 +24,7 @@
         outline
         class="!flex-1"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
         blank
         :icon="IconFirefox"

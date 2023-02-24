@@ -1,30 +1,30 @@
 <template>
-  <SmartTabs
+  <HoppSmartTabs
     v-model="selectedRealtimeTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperMobilePrimaryStickyFold sm:top-upperPrimaryStickyFold z-10"
     render-inactive-tabs
   >
-    <SmartTab
+    <HoppSmartTab
       :id="'params'"
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
     >
       <HttpParameters />
-    </SmartTab>
-    <SmartTab :id="'bodyParams'" :label="`${t('tab.body')}`">
+    </HoppSmartTab>
+    <HoppSmartTab :id="'bodyParams'" :label="`${t('tab.body')}`">
       <HttpBody @change-tab="changeTab" />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       :id="'headers'"
       :label="`${t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
       <HttpHeaders @change-tab="changeTab" />
-    </SmartTab>
-    <SmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
+    </HoppSmartTab>
+    <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
       <HttpAuthorization />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
@@ -32,15 +32,15 @@
       "
     >
       <HttpPreRequestScript />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       :id="'tests'"
       :label="`${t('tab.tests')}`"
       :indicator="testScript && testScript.length > 0 ? true : false"
     >
       <HttpTests />
-    </SmartTab>
-  </SmartTabs>
+    </HoppSmartTab>
+  </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">

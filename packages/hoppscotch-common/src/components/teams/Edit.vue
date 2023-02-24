@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" dialog :title="t('team.edit')" @close="hideModal">
+  <HoppSmartModal v-if="show" dialog :title="t('team.edit')" @close="hideModal">
     <template #body>
       <div class="flex flex-col">
         <div class="relative flex">
@@ -22,7 +22,7 @@
             {{ t("team.members") }}
           </label>
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               :icon="IconUserPlus"
               :label="t('team.invite')"
               filled
@@ -36,7 +36,7 @@
         </div>
         <div v-if="teamDetails.loading" class="border rounded border-divider">
           <div class="flex items-center justify-center p-4">
-            <SmartSpinner />
+            <HoppSmartSpinner />
           </div>
         </div>
         <div
@@ -60,7 +60,7 @@
             <span class="pb-4 text-center">
               {{ t("empty.members") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               :icon="IconUserPlus"
               :label="t('team.invite')"
               @click="
@@ -106,7 +106,7 @@
                       tabindex="0"
                       @keyup.escape="hide()"
                     >
-                      <SmartItem
+                      <HoppSmartItem
                         label="OWNER"
                         :icon="
                           member.role === 'OWNER' ? IconCircleDot : IconCircle
@@ -119,7 +119,7 @@
                           }
                         "
                       />
-                      <SmartItem
+                      <HoppSmartItem
                         label="EDITOR"
                         :icon="
                           member.role === 'EDITOR' ? IconCircleDot : IconCircle
@@ -132,7 +132,7 @@
                           }
                         "
                       />
-                      <SmartItem
+                      <HoppSmartItem
                         label="VIEWER"
                         :icon="
                           member.role === 'VIEWER' ? IconCircleDot : IconCircle
@@ -150,7 +150,7 @@
                 </tippy>
               </span>
               <div class="flex">
-                <ButtonSecondary
+                <HoppButtonSecondary
                   id="member"
                   v-tippy="{ theme: 'tooltip' }"
                   :title="t('action.remove')"
@@ -174,13 +174,13 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
+        <HoppButtonPrimary
           :label="t('action.save')"
           :loading="isLoading"
           outline
           @click="saveTeam"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('action.cancel')"
           outline
           filled
@@ -188,7 +188,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

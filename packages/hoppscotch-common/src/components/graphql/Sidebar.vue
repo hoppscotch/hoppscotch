@@ -1,21 +1,25 @@
 <template>
-  <SmartTabs
+  <HoppSmartTabs
     v-model="selectedNavigationTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary z-10 top-0"
     vertical
     render-inactive-tabs
   >
-    <SmartTab :id="'history'" :icon="IconClock" :label="`${t('tab.history')}`">
+    <HoppSmartTab
+      :id="'history'"
+      :icon="IconClock"
+      :label="`${t('tab.history')}`"
+    >
       <History :page="'graphql'" @use-history="handleUseHistory" />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       :id="'collections'"
       :icon="IconFolder"
       :label="`${t('tab.collections')}`"
     >
       <CollectionsGraphql />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       :id="'docs'"
       :icon="IconBookOpen"
       :label="`${t('tab.documentation')}`"
@@ -51,7 +55,7 @@
             class="flex flex-1 p-4 py-2 bg-transparent"
           />
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/quickstart/graphql"
               blank
@@ -60,12 +64,12 @@
             />
           </div>
         </div>
-        <SmartTabs
+        <HoppSmartTabs
           v-model="selectedGqlTab"
           styles="border-t border-b border-dividerLight bg-primary sticky overflow-x-auto flex-shrink-0 z-10 top-sidebarPrimaryStickyFold"
           render-inactive-tabs
         >
-          <SmartTab
+          <HoppSmartTab
             v-if="queryFields.length > 0"
             :id="'queries'"
             :label="`${t('tab.queries')}`"
@@ -78,8 +82,8 @@
               :jump-type-callback="handleJumpToType"
               class="p-4"
             />
-          </SmartTab>
-          <SmartTab
+          </HoppSmartTab>
+          <HoppSmartTab
             v-if="mutationFields.length > 0"
             :id="'mutations'"
             :label="`${t('graphql.mutations')}`"
@@ -92,8 +96,8 @@
               :jump-type-callback="handleJumpToType"
               class="p-4"
             />
-          </SmartTab>
-          <SmartTab
+          </HoppSmartTab>
+          <HoppSmartTab
             v-if="subscriptionFields.length > 0"
             :id="'subscriptions'"
             :label="`${t('graphql.subscriptions')}`"
@@ -106,8 +110,8 @@
               :jump-type-callback="handleJumpToType"
               class="p-4"
             />
-          </SmartTab>
-          <SmartTab
+          </HoppSmartTab>
+          <HoppSmartTab
             v-if="graphqlTypes.length > 0"
             :id="'types'"
             :label="`${t('tab.types')}`"
@@ -122,11 +126,11 @@
               :highlighted-fields="getGqlTypeHighlightedFields(type)"
               :jump-type-callback="handleJumpToType"
             />
-          </SmartTab>
-        </SmartTabs>
+          </HoppSmartTab>
+        </HoppSmartTabs>
       </div>
-    </SmartTab>
-    <SmartTab :id="'schema'" :icon="IconBox" :label="`${t('tab.schema')}`">
+    </HoppSmartTab>
+    <HoppSmartTab :id="'schema'" :icon="IconBox" :label="`${t('tab.schema')}`">
       <div
         v-if="schemaString"
         class="sticky top-0 z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight"
@@ -135,27 +139,27 @@
           {{ t("graphql.schema") }}
         </label>
         <div class="flex">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             to="https://docs.hoppscotch.io/quickstart/graphql"
             blank
             :title="t('app.wiki')"
             :icon="IconHelpCircle"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
             :class="{ '!text-accent': linewrapEnabled }"
             :icon="IconWrapText"
             @click.prevent="linewrapEnabled = !linewrapEnabled"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.download_file')"
             :icon="downloadSchemaIcon"
             @click="downloadSchema"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.copy')"
             :icon="copySchemaIcon"
@@ -182,8 +186,8 @@
           {{ t("empty.schema") }}
         </span>
       </div>
-    </SmartTab>
-  </SmartTabs>
+    </HoppSmartTab>
+  </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">

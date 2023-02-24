@@ -8,21 +8,21 @@
           : 'top: var(--upper-primary-sticky-fold)'
       "
     >
-      <ButtonSecondary
+      <HoppButtonSecondary
         :icon="IconPlus"
         :label="t('action.new')"
         class="!rounded-none"
         @click="emit('display-modal-add')"
       />
       <span class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/collections"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="!saveRequest"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconArchive"
@@ -210,7 +210,7 @@
               <span class="pb-4 text-center">
                 {{ t("empty.collections") }}
               </span>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 :label="t('add.new')"
                 filled
                 outline
@@ -231,7 +231,7 @@
             <span class="pb-4 text-center">
               {{ t("empty.collection") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               :label="t('add.new')"
               filled
               outline

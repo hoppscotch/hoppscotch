@@ -15,14 +15,14 @@
           :title="`${t('environment.select')}`"
           class="bg-transparent border-b border-dividerLight select-wrapper"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-if="
               selectedEnv.type === 'MY_ENV' && selectedEnv.index !== undefined
             "
             :label="myEnvironments[selectedEnv.index].name"
             class="flex-1 !justify-start pr-8 rounded-none"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-else
             :label="`${t('environment.select')}`"
             class="flex-1 !justify-start pr-8 rounded-none"
@@ -36,7 +36,7 @@
             tabindex="0"
             @keyup.escape="hide()"
           >
-            <SmartItem
+            <HoppSmartItem
               :label="`${t('environment.no_environment')}`"
               :info-icon="
                 selectedEnvironmentIndex.type !== 'MY_ENV'
@@ -52,7 +52,7 @@
               "
             />
             <hr v-if="myEnvironments.length > 0" />
-            <SmartItem
+            <HoppSmartItem
               v-for="(gen, index) in myEnvironments"
               :key="`gen-${index}`"
               :label="gen.name"
@@ -74,12 +74,12 @@
           :title="`${t('environment.select')}`"
           class="bg-transparent border-b border-dividerLight select-wrapper"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-if="selectedEnv.name"
             :label="selectedEnv.name"
             class="flex-1 !justify-start pr-8 rounded-none"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-else
             :label="`${t('environment.select')}`"
             class="flex-1 !justify-start pr-8 rounded-none"
@@ -92,7 +92,7 @@
             tabindex="0"
             @keyup.escape="hide()"
           >
-            <SmartItem
+            <HoppSmartItem
               :label="`${t('environment.no_environment')}`"
               :info-icon="
                 selectedEnvironmentIndex.type !== 'TEAM_ENV'
@@ -111,7 +111,7 @@
               v-if="loading"
               class="flex flex-col items-center justify-center p-4"
             >
-              <SmartSpinner class="my-4" />
+              <HoppSmartSpinner class="my-4" />
               <span class="text-secondaryLight">{{ t("state.loading") }}</span>
             </div>
             <hr v-if="teamEnvironmentList.length > 0" />
@@ -119,7 +119,7 @@
               v-if="environmentType.selectedTeam !== undefined"
               class="flex flex-col"
             >
-              <SmartItem
+              <HoppSmartItem
                 v-for="(gen, index) in teamEnvironmentList"
                 :key="`gen-team-${index}`"
                 :label="gen.environment.name"

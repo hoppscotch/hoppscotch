@@ -30,7 +30,7 @@
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   v-for="(method, index) in methods"
                   :key="`method-${index}`"
                   :label="method"
@@ -58,7 +58,7 @@
       </div>
     </div>
     <div class="flex mt-2 sm:mt-0">
-      <ButtonPrimary
+      <HoppButtonPrimary
         id="send"
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
         :title="`${t('action.send')} <kbd>${getSpecialKey()}</kbd><kbd>↩</kbd>`"
@@ -73,7 +73,7 @@
           theme="popover"
           :on-shown="() => sendTippyActions.focus()"
         >
-          <ButtonPrimary
+          <HoppButtonPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('app.options')"
             :icon="IconChevronDown"
@@ -90,7 +90,7 @@
               @keyup.delete="clearAll.$el.click()"
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 ref="curl"
                 :label="`${t('import.curl')}`"
                 :icon="IconFileCode"
@@ -102,7 +102,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 ref="show"
                 :label="`${t('show.code')}`"
                 :icon="IconCode2"
@@ -114,7 +114,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 ref="clearAll"
                 :label="`${t('action.clear_all')}`"
                 :icon="IconRotateCCW"
@@ -131,7 +131,7 @@
         </tippy>
       </span>
       <span class="flex ml-2 transition border rounded border-divider">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t(
             'request.save'
@@ -149,7 +149,7 @@
             theme="popover"
             :on-shown="() => saveTippyActions.focus()"
           >
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('app.options')"
               :icon="IconChevronDown"
@@ -175,7 +175,7 @@
                   class="mb-2 input !bg-primaryContrast"
                   @keyup.enter="hide()"
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="copyRequestAction"
                   :label="shareButtonText"
                   :icon="copyLinkIcon"
@@ -187,13 +187,13 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   :icon="IconLink2"
                   :label="`${t('request.view_my_links')}`"
                   to="/profile"
                 />
                 <hr />
-                <SmartItem
+                <HoppSmartItem
                   ref="saveRequestAction"
                   :label="`${t('request.save_as')}`"
                   :icon="IconFolderPlus"

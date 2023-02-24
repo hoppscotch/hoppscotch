@@ -10,7 +10,7 @@
         {{ t("response.body") }}
       </label>
       <div class="flex items-center">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
@@ -18,7 +18,7 @@
           :icon="IconWrapText"
           @click.prevent="linewrapEnabled = !linewrapEnabled"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.filter')"
@@ -26,7 +26,7 @@
           :class="{ '!text-accent': toggleFilter }"
           @click.prevent="toggleFilterState"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
@@ -35,7 +35,7 @@
           :icon="downloadIcon"
           @click="downloadResponse"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
@@ -76,7 +76,7 @@
           <icon-lucide-info class="svg-icons mr-1.5" />
           <span>{{ filterResponseError.error }}</span>
         </div>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="response.body"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('app.wiki')"
@@ -121,7 +121,7 @@
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   v-for="(arrayMember, astIndex) in item.astParent.values"
                   :key="`ast-${astIndex}`"
                   :label="`${astIndex}`"
@@ -140,7 +140,7 @@
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   v-for="(objectMember, astIndex) in item.astParent.members"
                   :key="`ast-${astIndex}`"
                   :label="objectMember.key.value"
@@ -158,7 +158,7 @@
               ref="tippyActions"
               class="flex flex-col"
             >
-              <SmartItem
+              <HoppSmartItem
                 label="{}"
                 @click="
                   () => {
@@ -173,7 +173,7 @@
               ref="tippyActions"
               class="flex flex-col"
             >
-              <SmartItem
+              <HoppSmartItem
                 label="[]"
                 @click="
                   () => {

@@ -10,7 +10,7 @@
           paddingLeft: platform.ui?.appHeader?.paddingLeft?.value,
         }"
       >
-        <ButtonSecondary
+        <HoppButtonSecondary
           class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
           :label="t('app.name')"
           to="/"
@@ -18,7 +18,7 @@
         <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
       </div>
       <div class="inline-flex items-center space-x-2">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('header.install_pwa')"
@@ -26,14 +26,14 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="installPWA()"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t('app.search')} <kbd>/</kbd>`"
           :icon="IconSearch"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.search.toggle')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${
             mdAndLarger ? t('support.title') : t('app.options')
@@ -42,7 +42,7 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="currentUser === null"
           :icon="IconUploadCloud"
           :label="t('header.save_workspace')"
@@ -50,13 +50,13 @@
           class="hidden md:flex"
           @click="invokeAction('modals.login.toggle')"
         />
-        <ButtonPrimary
+        <HoppButtonPrimary
           v-if="currentUser === null"
           :label="t('header.login')"
           @click="invokeAction('modals.login.toggle')"
         />
         <div v-else class="inline-flex items-center space-x-2">
-          <ButtonPrimary
+          <HoppButtonPrimary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('team.invite_tooltip')"
             :label="t('team.invite')"
@@ -127,7 +127,7 @@
                     </span>
                   </div>
                   <hr />
-                  <SmartItem
+                  <HoppSmartItem
                     ref="profile"
                     to="/profile"
                     :icon="IconUser"
@@ -135,7 +135,7 @@
                     :shortcut="['P']"
                     @click="hide()"
                   />
-                  <SmartItem
+                  <HoppSmartItem
                     ref="settings"
                     to="/settings"
                     :icon="IconSettings"

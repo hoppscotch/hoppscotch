@@ -9,12 +9,12 @@
         </label>
       </span>
       <div class="flex">
-        <SmartCheckbox
+        <HoppSmartCheckbox
           :on="config.cleanSession"
           class="px-2"
           @change="config.cleanSession = !config.cleanSession"
           >{{ t("mqtt.clean_session") }}
-        </SmartCheckbox>
+        </HoppSmartCheckbox>
       </div>
     </div>
     <div class="flex flex-1 h-full border-dividerLight">
@@ -63,14 +63,14 @@
             </label>
             <tippy interactive trigger="click" theme="popover">
               <span class="select-wrapper">
-                <ButtonSecondary
+                <HoppButtonSecondary
                   class="pr-8 ml-2 rounded-none"
                   :label="`${config.lwQos}`"
                 />
               </span>
               <template #content="{ hide }">
                 <div class="flex flex-col" role="menu">
-                  <SmartItem
+                  <HoppSmartItem
                     v-for="item in QOS_VALUES"
                     :key="`qos-${item}`"
                     :label="`${item}`"
@@ -87,12 +87,12 @@
               </template>
             </tippy>
           </div>
-          <SmartCheckbox
+          <HoppSmartCheckbox
             :on="config.lwRetain"
             class="py-2"
             @change="config.lwRetain = !config.lwRetain"
             >{{ t("mqtt.lw_retain") }}
-          </SmartCheckbox>
+          </HoppSmartCheckbox>
         </div>
       </div>
     </div>

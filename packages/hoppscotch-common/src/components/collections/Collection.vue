@@ -29,14 +29,14 @@
         </span>
       </span>
       <div v-if="!hasNoTeamAccess" class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
           @click="emit('add-request')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFolderPlus"
           :title="t('folder.new')"
@@ -51,7 +51,7 @@
             theme="popover"
             :on-shown="() => tippyActions!.focus()"
           >
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.more')"
               :icon="IconMoreVertical"
@@ -68,7 +68,7 @@
                 @keyup.x="exportAction?.$el.click()"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   ref="requestAction"
                   :icon="IconFilePlus"
                   :label="t('request.new')"
@@ -80,7 +80,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="folderAction"
                   :icon="IconFolderPlus"
                   :label="t('folder.new')"
@@ -92,7 +92,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="edit"
                   :icon="IconEdit"
                   :label="t('action.edit')"
@@ -104,7 +104,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="exportAction"
                   :icon="IconDownload"
                   :label="t('export.title')"
@@ -117,7 +117,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="t('action.delete')"

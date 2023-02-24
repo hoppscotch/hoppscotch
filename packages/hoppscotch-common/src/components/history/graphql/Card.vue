@@ -15,7 +15,7 @@
           {{ entry.request.url }}
         </span>
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :icon="IconTrash"
         color="red"
@@ -24,14 +24,14 @@
         data-testid="delete_history_entry"
         @click="emit('delete-entry')"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="expand ? t('hide.more') : t('show.more')"
         :icon="expand ? IconMinimize2 : IconMaximize2"
         class="hidden group-hover:inline-flex"
         @click="expand = !expand"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="!entry.star ? t('add.star') : t('remove.star')"
         :icon="entry.star ? IconStarOff : IconStar"

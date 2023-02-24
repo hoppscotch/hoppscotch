@@ -6,14 +6,14 @@
     <div class="my-1 mb-4 text-secondaryLight">
       {{ t("settings.delete_account_description") }}
     </div>
-    <ButtonSecondary
+    <HoppButtonSecondary
       filled
       outline
       :label="t('settings.delete_account')"
       type="submit"
       @click="showDeleteAccountModal = true"
     />
-    <SmartModal
+    <HoppSmartModal
       v-if="showDeleteAccountModal"
       dialog
       :title="t('settings.delete_account')"
@@ -21,7 +21,7 @@
     >
       <template #body>
         <div v-if="loading" class="flex flex-col items-center justify-center">
-          <SmartSpinner class="mb-4" />
+          <HoppSmartSpinner class="mb-4" />
           <span class="text-secondaryLight">{{ t("state.loading") }}</span>
         </div>
         <div
@@ -73,7 +73,7 @@
       </template>
       <template #footer>
         <span class="flex space-x-2">
-          <ButtonPrimary
+          <HoppButtonPrimary
             :label="t('settings.delete_account')"
             :loading="deletingUser"
             filled
@@ -86,7 +86,7 @@
             class="!bg-red-500 !hover:bg-red-600 !border-red-500 !hover:border-red-600"
             @click="deleteUserAccount"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             :label="t('action.cancel')"
             outline
             filled
@@ -94,7 +94,7 @@
           />
         </span>
       </template>
-    </SmartModal>
+    </HoppSmartModal>
   </section>
 </template>
 

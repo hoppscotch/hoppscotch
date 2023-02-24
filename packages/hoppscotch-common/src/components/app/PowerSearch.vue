@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     styles="sm:max-w-lg"
     full-width
@@ -68,7 +68,7 @@
         </div>
       </div>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

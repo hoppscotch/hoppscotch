@@ -20,7 +20,7 @@
             "
             @keyup.enter="isUrlValid ? toggleConnection() : null"
           />
-          <ButtonPrimary
+          <HoppButtonPrimary
             id="connect"
             :disabled="!isUrlValid"
             class="w-32"
@@ -37,12 +37,12 @@
           />
         </div>
       </div>
-      <SmartTabs
+      <HoppSmartTabs
         v-model="selectedTab"
         styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
         render-inactive-tabs
       >
-        <SmartTab
+        <HoppSmartTab
           :id="'communication'"
           :label="`${t('websocket.communication')}`"
         >
@@ -51,8 +51,8 @@
             sticky-header-styles="top-upperSecondaryStickyFold"
             @send-message="sendMessage($event)"
           />
-        </SmartTab>
-        <SmartTab :id="'protocols'" :label="`${t('websocket.protocols')}`">
+        </HoppSmartTab>
+        <HoppSmartTab :id="'protocols'" :label="`${t('websocket.protocols')}`">
           <div
             class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
           >
@@ -60,13 +60,13 @@
               {{ t("websocket.protocols") }}
             </label>
             <div class="flex">
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.clear_all')"
                 :icon="IconTrash2"
                 @click="clearContent"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('add.new')"
                 :icon="IconPlus"
@@ -89,7 +89,7 @@
                 class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
               >
                 <span>
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{
                       theme: 'tooltip',
                       delay: [500, 20],
@@ -122,7 +122,7 @@
                   "
                 />
                 <span>
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="
                       protocol.hasOwnProperty('active')
@@ -148,7 +148,7 @@
                   />
                 </span>
                 <span>
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="t('action.remove')"
                     :icon="IconTrash"
@@ -173,8 +173,8 @@
               {{ t("empty.protocols") }}
             </span>
           </div>
-        </SmartTab>
-      </SmartTabs>
+        </HoppSmartTab>
+      </HoppSmartTabs>
     </template>
     <template #secondary>
       <RealtimeLog
@@ -194,7 +194,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconGripVertical from "~icons/lucide/grip-vertical"
 import IconTrash from "~icons/lucide/trash"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import {
   setWSEndpoint,
   WSEndpoint$,

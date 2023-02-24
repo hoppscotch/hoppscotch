@@ -19,7 +19,7 @@ Welcome to hoppscotch-ui, a collection of presentational components for our web 
 
 To use the components in project, simply name the component with `directory` name as alias:
 
-For example `Primary Button` component is in `button` directory and the file name is `Primary.vue`. So, use that you have to write `<ButtonPrimary />`
+For example `Primary Button` component is in `button` directory and the file name is `Primary.vue`. So, use that you have to write `<HoppButtonPrimary />`
 
 ## Histoire
 

@@ -29,14 +29,14 @@
         </span>
       </span>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFilePlus"
           :title="t('request.new')"
           class="hidden group-hover:inline-flex"
           @click="emit('add-request', { path: folderPath })"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconFolderPlus"
           :title="t('folder.new')"
@@ -51,7 +51,7 @@
             theme="popover"
             :on-shown="() => tippyActions.focus()"
           >
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.more')"
               :icon="IconMoreVertical"
@@ -67,7 +67,7 @@
                 @keyup.delete="deleteAction.$el.click()"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   ref="requestAction"
                   :icon="IconFilePlus"
                   :label="`${t('request.new')}`"
@@ -79,7 +79,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="folderAction"
                   :icon="IconFolderPlus"
                   :label="`${t('folder.new')}`"
@@ -91,7 +91,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="edit"
                   :icon="IconEdit"
                   :label="`${t('action.edit')}`"
@@ -103,7 +103,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="`${t('action.delete')}`"
@@ -181,7 +181,7 @@
         </div>
       </div>
     </div>
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="`${t('confirm.remove_folder')}`"
       @hide-modal="confirmRemove = false"

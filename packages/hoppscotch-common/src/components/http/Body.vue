@@ -14,7 +14,7 @@
           :on-shown="() => tippyActions.focus()"
         >
           <span class="select-wrapper">
-            <ButtonSecondary
+            <HoppButtonSecondary
               :label="contentType || t('state.none')"
               class="pr-8 ml-2 rounded-none"
             />
@@ -26,7 +26,7 @@
               tabindex="0"
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 :label="t('state.none')"
                 :info-icon="contentType === null ? IconDone : null"
                 :active-info-icon="contentType === null"
@@ -50,7 +50,7 @@
                   </span>
                 </div>
                 <div class="flex flex-col">
-                  <SmartItem
+                  <HoppSmartItem
                     v-for="(
                       contentTypeItem, contentTypeIndex
                     ) in contentTypeItems.contentTypes"
@@ -72,7 +72,7 @@
             </div>
           </template>
         </tippy>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="t('request.override_help')"
           :label="
@@ -109,7 +109,7 @@
         :alt="`${t('empty.body')}`"
       />
       <span class="pb-4 text-center">{{ t("empty.body") }}</span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         outline
         :label="`${t('app.documentation')}`"
         to="https://docs.hoppscotch.io/features/body"

@@ -31,7 +31,7 @@
       v-else-if="rootNodes.status === 'loading'"
       class="flex flex-col items-center justify-center flex-1 p-4"
     >
-      <SmartSpinner class="my-4" />
+      <HoppSmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div

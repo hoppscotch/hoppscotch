@@ -17,7 +17,7 @@
         v-if="shortcodeDetails.loading"
         class="flex flex-col items-center justify-center flex-1 p-4"
       >
-        <SmartSpinner />
+        <HoppSmartSpinner />
       </div>
       <div v-else>
         <div
@@ -32,13 +32,13 @@
             {{ t("error.invalid_link_description") }}
           </p>
           <p class="mt-4">
-            <ButtonSecondary
+            <HoppButtonSecondary
               to="/"
               :icon="IconHome"
               filled
               :label="t('app.home')"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               :icon="IconRefreshCW"
               :label="t('app.reload')"
               filled

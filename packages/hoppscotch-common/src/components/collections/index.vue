@@ -18,7 +18,7 @@
       />
     </div>
     <CollectionsMyCollections
-      v-if="workspace.type === 'personal'"
+      v-if="collectionsType.type === 'my-collections'"
       :collections-type="collectionsType"
       :filtered-collections="filteredCollections"
       :filter-text="filterTexts"

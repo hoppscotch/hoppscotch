@@ -30,7 +30,7 @@
           </span>
           <kbd class="shortcut-key">/</kbd>
         </div>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${
             mdAndLarger ? t('support.title') : t('app.options')
@@ -39,7 +39,7 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="showInstallButton"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('header.install_pwa')"
@@ -53,13 +53,13 @@
           v-if="currentUser === null"
           class="inline-flex items-center space-x-2"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             :icon="IconUploadCloud"
             :label="t('header.save_workspace')"
             class="hidden md:flex bg-green-500/15 py-1.75 border border-green-600/25 !text-green-500 hover:bg-green-400/10 focus-visible:bg-green-400/10 focus-visible:border-green-800/50 !focus-visible:text-green-600 hover:border-green-800/50 !hover:text-green-600"
             @click="invokeAction('modals.login.toggle')"
           />
-          <ButtonPrimary
+          <HoppButtonPrimary
             :label="t('header.login')"
             @click="invokeAction('modals.login.toggle')"
           />
@@ -79,7 +79,7 @@
           <div
             class="flex border divide-x rounded bg-green-500/15 divide-green-600/25 border-green-600/25 focus-within:bg-green-400/10 focus-within:border-green-800/50 focus-within:divide-green-800/50 hover:bg-green-400/10 hover:border-green-800/50 hover:divide-green-800/50"
           >
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.invite_tooltip')"
               :label="mdAndLarger ? t('team.invite') : ``"
@@ -87,7 +87,7 @@
               class="py-1.75 !text-green-500 !focus-visible:text-green-600 !hover:text-green-600"
               @click="handleInvite()"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-if="
                 workspace.type === 'team' &&
                 selectedTeam &&
@@ -106,7 +106,7 @@
             theme="popover"
             :on-shown="() => accountActions.focus()"
           >
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('workspace.change')"
               :label="mdAndLarger ? workspaceName : ``"

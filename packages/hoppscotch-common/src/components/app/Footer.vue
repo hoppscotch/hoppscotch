@@ -40,7 +40,7 @@
           theme="popover"
           :on-shown="() => tippyActions!.focus()"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             :icon="IconLifeBuoy"
             class="!rounded-none"
             :label="`${t('app.help')}`"
@@ -224,7 +224,6 @@ import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
 import { HoppSmartItem } from "@hoppscotch/ui"
-import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)

@@ -19,7 +19,7 @@
     </span>
     <HoppSmartSpinner v-else class="mr-4 text-secondaryDark" />
     <div class="inline-flex items-start flex-1 truncate" :class="{ 'flex-col': description }">
-      <div class="font-semibold truncate">
+      <div class="font-semibold truncate max-w-54">
         {{ label }}
       </div>
       <p v-if="description" class="my-2 text-left text-secondaryLight">

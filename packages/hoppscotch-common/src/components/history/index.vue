@@ -287,7 +287,7 @@ const filters = computed(() => [
   { value: "STARRED" as const, label: t("filter.starred") },
 ])
 
-type FilterMode = typeof filters["value"][number]["value"]
+type FilterMode = (typeof filters)["value"][number]["value"]
 
 const filterSelection = ref<FilterMode>("ALL")
 
@@ -296,7 +296,7 @@ const groups = computed(() => [
   { value: "URL" as const, label: t("group.url") },
 ])
 
-type GroupMode = typeof groups["value"][number]["value"]
+type GroupMode = (typeof groups)["value"][number]["value"]
 
 const groupSelection = ref<GroupMode>("TIME")
 

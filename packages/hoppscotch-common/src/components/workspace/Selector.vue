@@ -2,7 +2,7 @@
   <div>
     <div class="flex flex-col">
       <div class="flex flex-col">
-        <SmartItem
+        <HoppSmartItem
           label="My Workspace"
           :icon="IconUser"
           :info-icon="workspace.type === 'personal' ? IconDone : undefined"
@@ -12,7 +12,7 @@
         <hr />
       </div>
       <div v-if="loading" class="flex flex-col items-center justify-center p-4">
-        <SmartSpinner class="mb-4" />
+        <HoppSmartSpinner class="mb-4" />
         <span class="text-secondaryLight">{{ t("state.loading") }}</span>
       </div>
       <div
@@ -28,7 +28,7 @@
         <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('team.create_new')"
           filled
           outline
@@ -43,7 +43,7 @@
           <div class="flex items-center px-2 font-semibold text-secondaryLight">
             {{ t("team.title") }}
           </div>
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :icon="IconPlus"
             :title="`${t('team.create_new')}`"
@@ -53,7 +53,7 @@
             @click="displayModalAdd(true)"
           />
         </div>
-        <SmartItem
+        <HoppSmartItem
           v-for="(team, index) in myTeams"
           :key="`team-${String(index)}`"
           :icon="IconUsers"

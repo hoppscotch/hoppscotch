@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center justify-between">
-    <ButtonSecondary
+    <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
       :title="`${t(
         'action.go_back'
@@ -9,7 +9,7 @@
       class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
       @click="router.go(-1)"
     />
-    <ButtonSecondary
+    <HoppButtonSecondary
       v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
       :title="`${t(
         'action.go_forward'

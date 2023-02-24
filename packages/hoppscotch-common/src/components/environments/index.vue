@@ -144,7 +144,7 @@
               v-if="!loading && adapterError"
               class="flex flex-col items-center py-4"
             >
-              <i class="mb-4 material-icons">help_outline</i>
+              <icon-lucide-help-circle class="mb-4 svg-icons" />
               {{ getErrorMessage(adapterError) }}
             </div>
           </div>

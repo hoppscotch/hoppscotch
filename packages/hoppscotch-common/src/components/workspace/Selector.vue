@@ -19,6 +19,12 @@
         v-if="!loading && myTeams.length === 0"
         class="flex flex-col items-center justify-center flex-1 p-4 text-secondaryLight"
       >
+        <img
+          :src="`/images/states/${colorMode.value}/add_group.svg`"
+          loading="lazy"
+          class="inline-flex flex-col object-contain object-center w-16 h-16 mb-8"
+          :alt="`${t('empty.teams')}`"
+        />
         <span class="mb-4 text-center">
           {{ t("empty.teams") }}
         </span>
@@ -78,12 +84,14 @@ import { useI18n } from "@composables/i18n"
 import IconUser from "~icons/lucide/user"
 import IconUsers from "~icons/lucide/users"
 import IconPlus from "~icons/lucide/plus"
+import { useColorMode } from "@composables/theming"
 import { changeWorkspace, workspaceStatus$ } from "~/newstore/workspace"
 import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import IconDone from "~icons/lucide/check"
 import { useLocalState } from "~/newstore/localstate"
 
 const t = useI18n()
+const colorMode = useColorMode()
 
 const showModalAdd = ref(false)
 

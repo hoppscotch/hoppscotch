@@ -20,6 +20,7 @@ export default defineConfig({
         lowerSecondaryStickyFold: "var(--lower-secondary-sticky-fold)",
         lowerTertiaryStickyFold: "var(--lower-tertiary-sticky-fold)",
         sidebarPrimaryStickyFold: "var(--sidebar-primary-sticky-fold)",
+        sidebarSecondaryStickyFold: "var(--line-height-body)",
       },
       colors: {
         primary: "var(--primary-color)",

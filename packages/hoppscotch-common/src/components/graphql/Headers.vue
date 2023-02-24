@@ -6,27 +6,27 @@
       {{ t("tab.headers") }}
     </label>
     <div class="flex">
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/graphql"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.clear_all')"
         :icon="IconTrash2"
         @click="clearContent()"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('state.bulk_mode')"
         :icon="IconEdit"
         :class="{ '!text-accent': bulkMode }"
         @click="bulkMode = !bulkMode"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('add.new')"
         :icon="IconPlus"
@@ -52,7 +52,7 @@
           class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
         >
           <span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{
                 theme: 'tooltip',
                 delay: [500, 20],
@@ -70,7 +70,7 @@
               tabindex="-1"
             />
           </span>
-          <SmartAutoComplete
+          <HoppSmartAutoComplete
             :placeholder="`${t('count.header', { count: index + 1 })}`"
             :source="commonHeaders"
             :spellcheck="false"
@@ -110,7 +110,7 @@
             "
           />
           <span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="
                 header.hasOwnProperty('active')
@@ -138,7 +138,7 @@
             />
           </span>
           <span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.remove')"
               :icon="IconTrash"
@@ -162,7 +162,7 @@
       <span class="pb-4 text-center">
         {{ t("empty.headers") }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="`${t('add.new')}`"
         filled
         :icon="IconPlus"
@@ -195,7 +195,7 @@ import {
   RawKeyValueEntry,
   HoppGQLRequest,
 } from "@hoppscotch/data"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { clone, cloneDeep, isEqual } from "lodash-es"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"

@@ -6,20 +6,6 @@
     render-inactive-tabs
   >
     <HoppSmartTab
-      :id="'history'"
-      :icon="IconClock"
-      :label="`${t('tab.history')}`"
-    >
-      <History :page="'graphql'" @use-history="handleUseHistory" />
-    </HoppSmartTab>
-    <HoppSmartTab
-      :id="'collections'"
-      :icon="IconFolder"
-      :label="`${t('tab.collections')}`"
-    >
-      <CollectionsGraphql />
-    </HoppSmartTab>
-    <HoppSmartTab
       :id="'docs'"
       :icon="IconBookOpen"
       :label="`${t('tab.documentation')}`"
@@ -173,6 +159,21 @@
       >
       </HoppSmartPlaceholder>
     </HoppSmartTab>
+
+    <HoppSmartTab
+      :id="'collections'"
+      :icon="IconFolder"
+      :label="`${t('tab.collections')}`"
+    >
+      <CollectionsGraphql />
+    </HoppSmartTab>
+    <HoppSmartTab
+      :id="'history'"
+      :icon="IconClock"
+      :label="`${t('tab.history')}`"
+    >
+      <History :page="'graphql'" />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
@@ -196,7 +197,6 @@ import { useReadonlyStream, useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
-import { GQLRequest } from "~/helpers/graphql/GQLRequest"
 import { GQLConnection$, setGQLConnection } from "~/newstore/GQLSession"
 import { GQLConnection } from "~/helpers/graphql/GQLConnection"
 
@@ -262,10 +262,6 @@ function resolveRootType(type: GraphQLType) {
   while (t.ofType) t = t.ofType
   return t
 }
-
-defineProps<{
-  request: GQLRequest
-}>()
 
 const toast = useToast()
 

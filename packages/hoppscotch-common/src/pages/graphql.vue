@@ -3,7 +3,7 @@
     <template #primary>
       <GraphqlRequest :request="currentTab?.request" />
 
-      <SmartWindows
+      <HoppSmartWindows
         v-if="currentTabId"
         :id="'communication_tab'"
         v-model="currentTabId"
@@ -11,7 +11,7 @@
         @add-tab="addNewTab"
         @sort="sortTabs"
       >
-        <SmartWindow
+        <HoppSmartWindow
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
@@ -29,8 +29,8 @@
             :model-value="tab"
             @update:model-value="onTabUpdate"
           />
-        </SmartWindow>
-      </SmartWindows>
+        </HoppSmartWindow>
+      </HoppSmartWindows>
     </template>
     <template #sidebar>
       <GraphqlSidebar :request="currentTab.request" />

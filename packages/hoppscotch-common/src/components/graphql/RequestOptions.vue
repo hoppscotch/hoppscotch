@@ -15,8 +15,8 @@
           @run-query="runQuery"
           @save-request="saveRequest"
         />
-      </SmartTab>
-      <SmartTab
+      </HoppSmartTab>
+      <HoppSmartTab
         :id="'variables'"
         :label="`${t('tab.variables')}`"
         :indicator="
@@ -28,18 +28,18 @@
           @run-query="runQuery"
           @save-request="saveRequest"
         />
-      </SmartTab>
-      <SmartTab
+      </HoppSmartTab>
+      <HoppSmartTab
         :id="'headers'"
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
       >
         <GraphqlHeaders v-model="request" />
-      </SmartTab>
-      <SmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
+      </HoppSmartTab>
+      <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
         <GraphqlAuthorization v-model="request.auth" />
-      </SmartTab>
-    </SmartTabs>
+      </HoppSmartTab>
+    </HoppSmartTabs>
     <CollectionsSaveRequest
       mode="graphql"
       :show="showSaveRequestModal"

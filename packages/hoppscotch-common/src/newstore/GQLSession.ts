@@ -1,6 +1,6 @@
 import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
-import { uniqueId } from "lodash-es"
 import { distinctUntilChanged, map, pluck } from "rxjs/operators"
+import { v4 } from "uuid"
 import { useStream } from "~/composables/stream"
 import { GQLConnection, GQLEvent } from "~/helpers/graphql/GQLConnection"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
@@ -218,7 +218,7 @@ export function addNewGQLTab() {
   gqlSessionStore.dispatch({
     dispatcher: "addTab",
     payload: {
-      tab: { ...makeTab(uniqueId("new_")) },
+      tab: { ...makeTab(v4()) },
     },
   })
 }

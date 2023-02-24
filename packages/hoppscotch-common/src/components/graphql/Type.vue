@@ -56,8 +56,6 @@
 </template>
 
 <script setup lang="ts">
-// TODO: TypeScript + Setup Script this at some point :)
-
 import {
   GraphQLEnumType,
   GraphQLInputObjectType,

@@ -6,7 +6,7 @@
       {{ t("request.query") }}
     </label>
     <div class="flex">
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="subscriptionState === 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
@@ -20,7 +20,7 @@
         @click="unsubscribe()"
       />
 
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="selectedOperation && subscriptionState !== 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
@@ -35,7 +35,7 @@
         @click="runQuery(selectedOperation)"
       />
 
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
         :title="`${t(
           'request.save'
@@ -45,26 +45,26 @@
         class="rounded-none"
         @click="saveRequest"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/graphql"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.clear_all')"
         :icon="IconTrash2"
         @click="clearGQLQuery()"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.prettify')"
         :icon="prettifyQueryIcon"
         @click="prettifyQuery"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.copy')"
         :icon="copyQueryIcon"

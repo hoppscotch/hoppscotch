@@ -6,7 +6,7 @@
       {{ t("request.variables") }}
     </label>
     <div class="flex">
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="subscriptionState === 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
@@ -19,7 +19,7 @@
         class="rounded-none !text-accent !hover:text-accentDark"
         @click="unsubscribe()"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-if="selectedOperation && subscriptionState !== 'SUBSCRIBED'"
         v-tippy="{
           theme: 'tooltip',
@@ -33,26 +33,26 @@
         class="rounded-none !text-accent !hover:text-accentDark"
         @click="runQuery(selectedOperation)"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         to="https://docs.hoppscotch.io/graphql"
         blank
         :title="t('app.wiki')"
         :icon="IconHelpCircle"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.clear_all')"
         :icon="IconTrash2"
         @click="clearGQLVariables()"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.prettify')"
         :icon="prettifyVariablesIcon"
         @click="prettifyVariableString"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.copy')"
         :icon="copyVariablesIcon"

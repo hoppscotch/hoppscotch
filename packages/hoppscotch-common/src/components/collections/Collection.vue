@@ -212,7 +212,7 @@ const props = defineProps({
     required: true,
   },
   isSelected: {
-    type: Boolean,
+    type: Boolean as PropType<boolean | null>,
     default: false,
     required: false,
   },

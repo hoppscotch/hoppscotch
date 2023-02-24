@@ -55,11 +55,11 @@
     "@typescript-eslint/eslint-plugin": "^5.19.0",
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "io-ts": "^2.2.16",
     "jest": "^27.5.1",
-    "prettier": "^2.6.2",
+    "prettier": "^2.8.4",
     "ts-jest": "^27.1.4",
     "typescript": "^4.6.3"
   }

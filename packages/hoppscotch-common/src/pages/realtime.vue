@@ -44,7 +44,7 @@ const REALTIME_NAVIGATION = [
   },
 ] as const
 
-type RealtimeNavTab = typeof REALTIME_NAVIGATION[number]["target"]
+type RealtimeNavTab = (typeof REALTIME_NAVIGATION)[number]["target"]
 
 const currentTab = ref<RealtimeNavTab>("websocket")
 

@@ -74,7 +74,7 @@ const dispatchers = defineDispatchers({
       },
     }
   },
-  deleteAllProtocols(curr: HoppWSSession) {
+  deleteAllProtocols(curr: HoppWSSession, {}) {
     return {
       request: {
         endpoint: curr.request.endpoint,

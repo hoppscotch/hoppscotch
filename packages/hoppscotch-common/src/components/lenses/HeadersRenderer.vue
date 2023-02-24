@@ -27,18 +27,18 @@
 <script setup lang="ts">
 import IconCopy from "~icons/lucide/copy"
 import IconCheck from "~icons/lucide/check"
-import { HoppRESTHeader } from "@hoppscotch/data"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
+import type { HoppRESTResponseHeader } from "~/helpers/types/HoppRESTResponse"
 
 const t = useI18n()
 
 const toast = useToast()
 
 const props = defineProps<{
-  headers: Array<HoppRESTHeader>
+  headers: HoppRESTResponseHeader[]
 }>()
 
 const copyIcon = refAutoReset<typeof IconCopy | typeof IconCheck>(

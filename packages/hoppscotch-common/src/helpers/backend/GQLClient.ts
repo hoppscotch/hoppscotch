@@ -12,6 +12,7 @@ import {
   CombinedError,
   Operation,
   OperationResult,
+  Client,
 } from "@urql/core"
 import { authExchange } from "@urql/exchange-auth"
 import { devtoolsExchange } from "@urql/devtools"
@@ -21,12 +22,7 @@ import * as TE from "fp-ts/TaskEither"
 import { pipe, constVoid, flow } from "fp-ts/function"
 import { subscribe, pipe as wonkaPipe } from "wonka"
 import { filter, map, Subject } from "rxjs"
-import {
-  authIdToken$,
-  getAuthIDToken,
-  probableUser$,
-  waitProbableLoginToConfirm,
-} from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 
 // TODO: Implement caching
 
@@ -57,11 +53,7 @@ export const gqlClientError$ = new Subject<GQLClientErrorEvent>()
 const createSubscriptionClient = () => {
   return new SubscriptionClient(BACKEND_WS_URL, {
     reconnect: true,
-    connectionParams: () => {
-      return {
-        authorization: `Bearer ${authIdToken$.value}`,
-      }
-    },
+    connectionParams: () => platform.auth.getBackendHeaders(),
     connectionCallback(error) {
       if (error?.length > 0) {
         gqlClientError$.next({
@@ -79,7 +71,7 @@ const createHoppClient = () => {
     dedupExchange,
     authExchange({
       addAuthToOperation({ authState, operation }) {
-        if (!authState || !authState.authToken) {
+        if (!authState) {
           return operation
         }
 
@@ -88,28 +80,29 @@ const createHoppClient = () => {
             ? operation.context.fetchOptions()
             : operation.context.fetchOptions || {}
 
+        const authHeaders = platform.auth.getBackendHeaders()
+
         return makeOperation(operation.kind, operation, {
           ...operation.context,
           fetchOptions: {
             ...fetchOptions,
             headers: {
               ...fetchOptions.headers,
-              Authorization: `Bearer ${authState.authToken}`,
+              ...authHeaders,
             },
           },
         })
       },
-      willAuthError({ authState }) {
-        return !authState || !authState.authToken
+      willAuthError() {
+        return platform.auth.willBackendHaveAuthError()
       },
       getAuth: async () => {
-        if (!probableUser$.value) return { authToken: null }
+        const probableUser = platform.auth.getProbableUser()
 
-        await waitProbableLoginToConfirm()
+        if (probableUser !== null)
+          await platform.auth.waitProbableLoginToConfirm()
 
-        return {
-          authToken: getAuthIDToken(),
-        }
+        return {}
       },
     }),
     fetchExchange,
@@ -137,31 +130,40 @@ const createHoppClient = () => {
   return createClient({
     url: BACKEND_GQL_URL,
     exchanges,
+    ...(platform.auth.getGQLClientOptions
+      ? platform.auth.getGQLClientOptions()
+      : {}),
   })
 }
 
 let subscriptionClient: SubscriptionClient | null
-export const client = ref(createHoppClient())
+export const client = ref<Client>()
 
-authIdToken$.subscribe((idToken) => {
-  // triggering reconnect by closing the websocket client
-  if (idToken && subscriptionClient) {
-    subscriptionClient?.client?.close()
-  }
-
-  // creating new subscription
-  if (idToken && !subscriptionClient) {
-    subscriptionClient = createSubscriptionClient()
-  }
-
-  // closing existing subscription client.
-  if (!idToken && subscriptionClient) {
-    subscriptionClient.close()
-    subscriptionClient = null
-  }
-
+export function initBackendGQLClient() {
   client.value = createHoppClient()
-})
+
+  platform.auth.onBackendGQLClientShouldReconnect(() => {
+    const currentUser = platform.auth.getCurrentUser()
+
+    // triggering reconnect by closing the websocket client
+    if (currentUser && subscriptionClient) {
+      subscriptionClient?.client?.close()
+    }
+
+    // creating new subscription
+    if (currentUser && !subscriptionClient) {
+      subscriptionClient = createSubscriptionClient()
+    }
+
+    // closing existing subscription client.
+    if (!currentUser && subscriptionClient) {
+      subscriptionClient.close()
+      subscriptionClient = null
+    }
+
+    client.value = createHoppClient()
+  })
+}
 
 type RunQueryOptions<T = any, V = object> = {
   query: TypedDocumentNode<T, V>
@@ -185,7 +187,7 @@ export const runGQLQuery = <DocType, DocVarType, DocErrorType extends string>(
   args: RunQueryOptions<DocType, DocVarType>
 ): Promise<E.Either<GQLError<DocErrorType>, DocType>> => {
   const request = createRequest<DocType, DocVarType>(args.query, args.variables)
-  const source = client.value.executeQuery(request, {
+  const source = client.value!.executeQuery(request, {
     requestPolicy: "network-only",
   })
 
@@ -250,7 +252,7 @@ export const runGQLSubscription = <
 ) => {
   const result$ = new Subject<E.Either<GQLError<DocErrorType>, DocType>>()
 
-  const source = client.value.executeSubscription(
+  const source = client.value!.executeSubscription(
     createRequest(args.query, args.variables)
   )
 
@@ -342,8 +344,8 @@ export const runMutation = <
   pipe(
     TE.tryCatch(
       () =>
-        client.value
-          .mutation(mutation, variables, {
+        client
+          .value!.mutation(mutation, variables, {
             requestPolicy: "cache-and-network",
             ...additionalConfig,
           })

@@ -1,5 +1,3 @@
-import * as TE from "fp-ts/TaskEither";
-import { pipe, flow } from "fp-ts/function";
 import {
   collectionsRunner,
   collectionsRunnerExit,
@@ -10,18 +8,23 @@ import { parseCollectionData } from "../utils/mutators";
 import { parseEnvsData } from "../options/test/env";
 import { TestCmdOptions } from "../types/commands";
 import { parseDelayOption } from "../options/test/delay";
+import { HoppEnvs } from "../types/request";
+import { isHoppCLIError } from "../utils/checks";
 
 export const test = (path: string, options: TestCmdOptions) => async () => {
-  await pipe(
-    TE.Do,
-    TE.bind("envs", () => parseEnvsData(options.env)),
-    TE.bind("collections", () => parseCollectionData(path)),
-    TE.bind("delay", () => parseDelayOption(options.delay)),
-    TE.chainTaskK(collectionsRunner),
-    TE.chainW(flow(collectionsRunnerResult, collectionsRunnerExit, TE.of)),
-    TE.mapLeft((e) => {
-      handleError(e);
+  try {
+    const delay = options.delay ? parseDelayOption(options.delay) : 0
+    const envs = options.env ? await parseEnvsData(options.env) : <HoppEnvs>{ global: [], selected: [] }
+    const collections = await parseCollectionData(path)
+
+    const report = await collectionsRunner({collections, envs, delay})
+    const hasSucceeded = collectionsRunnerResult(report)
+    collectionsRunnerExit(hasSucceeded)
+  } catch(e) {
+    if(isHoppCLIError(e)) {
+      handleError(e)
       process.exit(1);
-    })
-  )();
+    }
+    else throw e
+  }
 };

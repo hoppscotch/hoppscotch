@@ -109,7 +109,7 @@ export function setSIOEndpoint(newEndpoint: string) {
   })
 }
 
-export function setSIOVersion(newVersion: string) {
+export function setSIOVersion(newVersion: SIOClientVersion) {
   SIOSessionStore.dispatch({
     dispatcher: "setVersion",
     payload: {

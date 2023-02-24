@@ -10,8 +10,7 @@
 import { defineComponent } from "vue"
 import { useI18n } from "@composables/i18n"
 import { initializeFirebase } from "~/helpers/fb"
-import { isSignInWithEmailLink, signInWithEmailLink } from "~/helpers/fb/auth"
-import { getLocalConfig, removeLocalConfig } from "~/newstore/localpersistence"
+import { platform } from "~/platform"
 
 export default defineComponent({
   setup() {
@@ -29,29 +28,14 @@ export default defineComponent({
     initializeFirebase()
   },
   async mounted() {
-    if (isSignInWithEmailLink(window.location.href)) {
-      this.signingInWithEmail = true
+    this.signingInWithEmail = true
 
-      let email = getLocalConfig("emailForSignIn")
-
-      if (!email) {
-        email = window.prompt(
-          "Please provide your email for confirmation"
-        ) as string
-      }
-
-      await signInWithEmailLink(email, window.location.href)
-        .then(() => {
-          removeLocalConfig("emailForSignIn")
-          this.$router.push({ path: "/" })
-        })
-        .catch((e) => {
-          this.signingInWithEmail = false
-          this.error = e.message
-        })
-        .finally(() => {
-          this.signingInWithEmail = false
-        })
+    try {
+      await platform.auth.processMagicLink()
+    } catch (e) {
+      this.error = e.message
+    } finally {
+      this.signingInWithEmail = false
     }
   },
 })

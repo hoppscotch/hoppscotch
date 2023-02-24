@@ -236,7 +236,8 @@ const dispatchers = defineDispatchers({
       globals: entries,
     }
   },
-  clearGlobalVariables() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  clearGlobalVariables(_store, {}) {
     return {
       globals: [],
     }

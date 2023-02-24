@@ -172,7 +172,7 @@ import { HoppRESTRequest, HoppCollection } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { appendRESTCollections, restCollections$ } from "~/newstore/collections"
 import { RESTCollectionImporters } from "~/helpers/import-export/import/importers"
 import { StepReturnValue } from "~/helpers/import-export/steps"
@@ -263,7 +263,10 @@ watch(inputChooseGistToImportFrom, (url) => {
 })
 
 const myCollections = useReadonlyStream(restCollections$, [])
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const importerAction = async (stepResults: StepReturnValue[]) => {
   if (!importerModule.value) return

@@ -82,7 +82,7 @@ import { ref, watchEffect, computed } from "vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
 import { GQLError } from "~/helpers/backend/GQLClient"
-import { currentUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 
 import { onAuthEvent, onLoggedIn } from "@composables/auth"
 import { useReadonlyStream } from "@composables/stream"
@@ -102,7 +102,10 @@ usePageHead({
   title: computed(() => t("navigation.profile")),
 })
 
-const currentUser = useReadonlyStream(currentUser$, null)
+const currentUser = useReadonlyStream(
+  platform.auth.getCurrentUserStream(),
+  platform.auth.getCurrentUser()
+)
 
 const displayName = ref(currentUser.value?.displayName)
 watchEffect(() => (displayName.value = currentUser.value?.displayName))
@@ -121,7 +124,9 @@ const loading = computed(
 )
 
 onLoggedIn(() => {
-  adapter.initialize()
+  try {
+    adapter.initialize()
+  } catch (e) {}
 })
 
 onAuthEvent((ev) => {

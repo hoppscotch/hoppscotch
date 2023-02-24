@@ -6,7 +6,7 @@ import {
   onSnapshot,
   setDoc,
 } from "firebase/firestore"
-import { currentUser$ } from "./auth"
+import { platform } from "~/platform"
 import {
   environments$,
   globalEnv$,
@@ -32,26 +32,22 @@ let loadedEnvironments = false
 let loadedGlobals = true
 
 async function writeEnvironments(environment: Environment[]) {
-  if (currentUser$.value == null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("Cannot write environments when signed out")
 
   const ev = {
     updatedOn: new Date(),
-    author: currentUser$.value.uid,
-    author_name: currentUser$.value.displayName,
-    author_image: currentUser$.value.photoURL,
+    author: currentUser.uid,
+    author_name: currentUser.displayName,
+    author_image: currentUser.photoURL,
     environment,
   }
 
   try {
     await setDoc(
-      doc(
-        getFirestore(),
-        "users",
-        currentUser$.value.uid,
-        "environments",
-        "sync"
-      ),
+      doc(getFirestore(), "users", currentUser.uid, "environments", "sync"),
       ev
     )
   } catch (e) {
@@ -61,20 +57,22 @@ async function writeEnvironments(environment: Environment[]) {
 }
 
 async function writeGlobalEnvironment(variables: Environment["variables"]) {
-  if (currentUser$.value == null)
+  const currentUser = platform.auth.getCurrentUser()
+
+  if (currentUser === null)
     throw new Error("Cannot write global environment when signed out")
 
   const ev = {
     updatedOn: new Date(),
-    author: currentUser$.value.uid,
-    author_name: currentUser$.value.displayName,
-    author_image: currentUser$.value.photoURL,
+    author: currentUser.uid,
+    author_name: currentUser.displayName,
+    author_image: currentUser.photoURL,
     variables,
   }
 
   try {
     await setDoc(
-      doc(getFirestore(), "users", currentUser$.value.uid, "globalEnv", "sync"),
+      doc(getFirestore(), "users", currentUser.uid, "globalEnv", "sync"),
       ev
     )
   } catch (e) {
@@ -84,9 +82,13 @@ async function writeGlobalEnvironment(variables: Environment["variables"]) {
 }
 
 export function initEnvironments() {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+
   const envListenSub = environments$.subscribe((envs) => {
+    const currentUser = platform.auth.getCurrentUser()
+
     if (
-      currentUser$.value &&
+      currentUser &&
       settingsStore.value.syncEnvironments &&
       loadedEnvironments
     ) {
@@ -95,11 +97,9 @@ export function initEnvironments() {
   })
 
   const globalListenSub = globalEnv$.subscribe((vars) => {
-    if (
-      currentUser$.value &&
-      settingsStore.value.syncEnvironments &&
-      loadedGlobals
-    ) {
+    const currentUser = platform.auth.getCurrentUser()
+
+    if (currentUser && settingsStore.value.syncEnvironments && loadedGlobals) {
       writeGlobalEnvironment(vars)
     }
   })

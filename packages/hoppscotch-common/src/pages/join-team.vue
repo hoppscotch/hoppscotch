@@ -156,7 +156,7 @@ import {
 } from "~/helpers/backend/graphql"
 import { acceptTeamInvitation } from "~/helpers/backend/mutations/TeamInvitation"
 import { initializeFirebase } from "~/helpers/fb"
-import { currentUser$, probableUser$ } from "~/helpers/fb/auth"
+import { platform } from "~/platform"
 import { onLoggedIn } from "@composables/auth"
 import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
@@ -197,8 +197,15 @@ export default defineComponent({
       }
     })
 
-    const probableUser = useReadonlyStream(probableUser$, null)
-    const currentUser = useReadonlyStream(currentUser$, null)
+    const probableUser = useReadonlyStream(
+      platform.auth.getProbableUserStream(),
+      platform.auth.getProbableUser()
+    )
+
+    const currentUser = useReadonlyStream(
+      platform.auth.getCurrentUserStream(),
+      platform.auth.getCurrentUser()
+    )
 
     const loadingCurrentUser = computed(() => {
       if (!probableUser.value) return false

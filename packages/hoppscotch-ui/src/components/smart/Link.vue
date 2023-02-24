@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { RouterLink } from "vue-router"
+// Do not import RouterLink, for some reason that breaks things ¯\_(ツ)_/¯
 /**
  * for preventing the automatic binding of $attrs.
  * we are manually binding $attrs or updatedAttrs.

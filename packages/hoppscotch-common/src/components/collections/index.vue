@@ -1,5 +1,14 @@
 <template>
-  <div :class="{ 'rounded border border-divider': saveRequest }">
+  <div
+    :class="{
+      'rounded border border-divider': saveRequest,
+      'bg-primaryDark': draggingToRoot,
+    }"
+    class="flex-1"
+    @drop.prevent="dropToRoot"
+    @dragover.prevent="draggingToRoot = true"
+    @dragend="draggingToRoot = false"
+  >
     <div
       class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
       :class="{ 'rounded-t': saveRequest }"

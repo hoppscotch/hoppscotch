@@ -22,7 +22,7 @@
     <HoppSmartTab
       :id="'env'"
       :icon="IconLayers"
-      :label="`${t('environment.title')}`"
+      :label="`${t('tab.environments')}`"
     >
       <Environments />
     </HoppSmartTab>

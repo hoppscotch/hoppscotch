@@ -1,7 +1,7 @@
 <template>
-  <div
+  <button
     tabindex="0"
-    class="relative flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring focus-visible:ring-primaryDark"
+    class="relative flex items-center justify-center overflow-visible cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primaryDark"
     :class="[`rounded-${rounded}`, `w-${size} h-${size}`]"
   >
     <img
@@ -30,7 +30,7 @@
       :class="[`rounded-${rounded}`, indicatorStyles]"
     ></span>
     <!-- w-5 h-5 rounded-lg -->
-  </div>
+  </button>
 </template>
 
 <script lang="ts">

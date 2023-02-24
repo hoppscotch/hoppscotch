@@ -1,59 +1,62 @@
 <template>
   <div>
     <div
-      class="sticky top-0 z-10 flex flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
     >
-      <input
-        v-model="filterText"
-        type="search"
-        autocomplete="off"
-        class="flex flex-1 p-4 py-2 bg-transparent"
-        :placeholder="`${t('action.search')}`"
-      />
+      <WorkspaceCurrent :section="t('tab.history')" />
       <div class="flex">
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          to="https://docs.hoppscotch.io/features/history"
-          blank
-          :title="t('app.wiki')"
-          :icon="IconHelpCircle"
+        <input
+          v-model="filterText"
+          type="search"
+          autocomplete="off"
+          class="flex flex-1 p-4 py-2 bg-transparent"
+          :placeholder="`${t('action.search')}`"
         />
-        <tippy interactive trigger="click" theme="popover">
+        <div class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
-            :title="t('action.filter')"
-            :icon="IconFilter"
+            to="https://docs.hoppscotch.io/features/history"
+            blank
+            :title="t('app.wiki')"
+            :icon="IconHelpCircle"
           />
-          <template #content="{ hide }">
-            <div ref="tippyActions" class="flex flex-col focus:outline-none">
-              <div class="pb-2 pl-4 text-tiny text-secondaryLight">
-                {{ t("action.filter") }}
+          <tippy interactive trigger="click" theme="popover">
+            <HoppButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.filter')"
+              :icon="IconFilter"
+            />
+            <template #content="{ hide }">
+              <div ref="tippyActions" class="flex flex-col focus:outline-none">
+                <div class="pb-2 pl-4 text-tiny text-secondaryLight">
+                  {{ t("action.filter") }}
+                </div>
+                <HoppSmartRadioGroup
+                  v-model="filterSelection"
+                  :radios="filters"
+                  @update:model-value="hide()"
+                />
+                <hr />
+                <div class="pb-2 pl-4 text-tiny text-secondaryLight">
+                  {{ t("action.group_by") }}
+                </div>
+                <HoppSmartRadioGroup
+                  v-model="groupSelection"
+                  :radios="groups"
+                  @update:model-value="hide()"
+                />
               </div>
-              <HoppSmartRadioGroup
-                v-model="filterSelection"
-                :radios="filters"
-                @update:model-value="hide()"
-              />
-              <hr />
-              <div class="pb-2 pl-4 text-tiny text-secondaryLight">
-                {{ t("action.group_by") }}
-              </div>
-              <HoppSmartRadioGroup
-                v-model="groupSelection"
-                :radios="groups"
-                @update:model-value="hide()"
-              />
-            </div>
-          </template>
-        </tippy>
-        <HoppButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          data-testid="clear_history"
-          :disabled="history.length === 0"
-          :icon="IconTrash2"
-          :title="t('action.clear_all')"
-          @click="confirmRemove = true"
-        />
+            </template>
+          </tippy>
+          <HoppButtonSecondary
+            v-tippy="{ theme: 'tooltip' }"
+            data-testid="clear_history"
+            :disabled="history.length === 0"
+            :icon="IconTrash2"
+            :title="t('action.clear_all')"
+            @click="confirmRemove = true"
+          />
+        </div>
       </div>
     </div>
     <div class="flex flex-col">

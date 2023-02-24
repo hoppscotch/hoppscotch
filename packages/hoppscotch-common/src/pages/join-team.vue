@@ -4,7 +4,7 @@
       v-if="invalidLink"
       class="flex flex-col items-center justify-center flex-1"
     >
-      <i class="pb-2 opacity-75 material-icons">error_outline</i>
+      <icon-lucide-alert-triangle class="mb-2 opacity-75 svg-icons" />
       <h1 class="text-center heading">
         {{ t("team.invalid_invite_link") }}
       </h1>
@@ -42,7 +42,7 @@
           v-if="!inviteDetails.loading && E.isLeft(inviteDetails.data)"
           class="flex flex-col items-center p-4"
         >
-          <i class="mb-4 material-icons">error_outline</i>
+          <icon-lucide-alert-triangle class="mb-4 svg-icons" />
           <p>
             {{ getErrorMessage(inviteDetails.data.left) }}
           </p>

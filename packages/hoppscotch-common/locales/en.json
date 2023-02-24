@@ -19,6 +19,7 @@
     "edit": "Edit",
     "filter": "Filter",
     "go_back": "Go back",
+    "go_forward": "Go forward",
     "group_by": "Group by",
     "label": "Label",
     "learn_more": "Learn more",
@@ -394,9 +395,9 @@
     },
     "copy_link": "Copy link",
     "different_collection": "Cannot reorder requests from different collections",
+    "duplicated": "Request duplicated",
     "duration": "Duration",
     "enter_curl": "Enter cURL command",
-    "duplicated": "Request duplicated",
     "generate_code": "Generate code",
     "generated_code": "Generated code",
     "header_list": "Header List",
@@ -636,6 +637,7 @@
     "body": "Body",
     "collections": "Collections",
     "documentation": "Documentation",
+    "environments": "Environments",
     "headers": "Headers",
     "history": "History",
     "mqtt": "MQTT",
@@ -684,6 +686,7 @@
     "member_removed": "User removed",
     "member_role_updated": "User roles updated",
     "members": "Members",
+    "more_members": "+{count} more",
     "name_length_insufficient": "Team name should be at least 6 characters long",
     "name_updated": "Team name updated",
     "new": "New Team",
@@ -725,5 +728,11 @@
     "message": "Message",
     "protocols": "Protocols",
     "url": "URL"
+  },
+  "workspace": {
+    "change": "Change workspace",
+    "personal": "My Workspace",
+    "team": "Team Workspace",
+    "title": "Workspaces"
   }
 }

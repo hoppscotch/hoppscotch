@@ -10,11 +10,13 @@
     @dragend="draggingToRoot = false"
   >
     <div
-      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto rounded-t bg-primary"
+      class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b bg-primary border-dividerLight"
+      :class="{ 'rounded-t': saveRequest }"
       :style="
         saveRequest ? 'top: calc(-1 * var(--line-height-body))' : 'top: 0'
       "
     >
+      <WorkspaceCurrent :section="t('tab.collections')" />
       <input
         v-model="filterTexts"
         type="search"
@@ -24,101 +26,63 @@
         :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
-    <HoppSmartTabs
-      v-model="selectedCollectionTab"
-      render-inactive-tabs
-      :styles="`
-        sticky overflow-x-auto border-y bg-primary border-dividerLight flex-shrink-0 z-10
-        ${
-          saveRequest
-            ? 'top-sidebarSecondaryStickyFold'
-            : 'top-sidebarPrimaryStickyFold'
-        }
-      `"
-    >
-      <HoppSmartTab
-        :id="'my-collections'"
-        :label="`${t('collection.my_collections')}`"
-      >
-        <CollectionsMyCollections
-          :collections-type="collectionsType"
-          :filtered-collections="filteredCollections"
-          :filter-text="filterTexts"
-          :save-request="saveRequest"
-          :picked="picked"
-          @add-folder="addFolder"
-          @add-request="addRequest"
-          @edit-collection="editCollection"
-          @edit-folder="editFolder"
-          @export-data="exportData"
-          @remove-collection="removeCollection"
-          @remove-folder="removeFolder"
-          @drop-collection="dropCollection"
-          @update-request-order="updateRequestOrder"
-          @update-collection-order="updateCollectionOrder"
-          @edit-request="editRequest"
-          @duplicate-request="duplicateRequest"
-          @remove-request="removeRequest"
-          @select-request="selectRequest"
-          @select="selectPicked"
-          @drop-request="dropRequest"
-          @display-modal-add="displayModalAdd(true)"
-          @display-modal-import-export="displayModalImportExport(true)"
-        />
-      </HoppSmartTab>
-      <HoppSmartTab
-        :id="'team-collections'"
-        :label="`${t('collection.team_collections')}`"
-      >
-        <div
-          class="sticky z-10 flex flex-1 bg-primary"
-          :style="
-            saveRequest
-              ? 'top: calc(var(--upper-primary-sticky-fold) - var(--line-height-body))'
-              : 'top: var(--upper-primary-sticky-fold)'
-          "
-        >
-          <CollectionsTeamSelect
-            :collections-type="collectionsType"
-            :my-teams="myTeams"
-            :is-team-list-loading="isTeamListLoading"
-            @update-selected-team="updateSelectedTeam"
-            @team-select-intersect="onTeamSelectIntersect"
-            @display-team-modal-add="displayTeamModalAdd(true)"
-          />
-        </div>
-        <CollectionsTeamCollections
-          :collections-type="collectionsType"
-          :team-collection-list="teamCollectionList"
-          :team-loading-collections="teamLoadingCollections"
-          :export-loading="exportLoading"
-          :duplicate-loading="duplicateLoading"
-          :save-request="saveRequest"
-          :picked="picked"
-          :collection-move-loading="collectionMoveLoading"
-          :request-move-loading="requestMoveLoading"
-          @add-request="addRequest"
-          @add-folder="addFolder"
-          @edit-collection="editCollection"
-          @edit-folder="editFolder"
-          @export-data="exportData"
-          @remove-collection="removeCollection"
-          @remove-folder="removeFolder"
-          @edit-request="editRequest"
-          @duplicate-request="duplicateRequest"
-          @remove-request="removeRequest"
-          @select-request="selectRequest"
-          @select="selectPicked"
-          @drop-request="dropRequest"
-          @drop-collection="dropCollection"
-          @update-request-order="updateRequestOrder"
-          @update-collection-order="updateCollectionOrder"
-          @expand-team-collection="expandTeamCollection"
-          @display-modal-add="displayModalAdd(true)"
-          @display-modal-import-export="displayModalImportExport(true)"
-        />
-      </HoppSmartTab>
-    </HoppSmartTabs>
+    <CollectionsMyCollections
+      v-if="collectionsType.type === 'my-collections'"
+      :collections-type="collectionsType"
+      :filtered-collections="filteredCollections"
+      :filter-text="filterTexts"
+      :save-request="saveRequest"
+      :picked="picked"
+      @add-folder="addFolder"
+      @add-request="addRequest"
+      @edit-collection="editCollection"
+      @edit-folder="editFolder"
+      @export-data="exportData"
+      @remove-collection="removeCollection"
+      @remove-folder="removeFolder"
+      @drop-collection="dropCollection"
+      @update-request-order="updateRequestOrder"
+      @update-collection-order="updateCollectionOrder"
+      @edit-request="editRequest"
+      @duplicate-request="duplicateRequest"
+      @remove-request="removeRequest"
+      @select-request="selectRequest"
+      @select="selectPicked"
+      @drop-request="dropRequest"
+      @display-modal-add="displayModalAdd(true)"
+      @display-modal-import-export="displayModalImportExport(true)"
+    />
+    <CollectionsTeamCollections
+      v-else
+      :collections-type="collectionsType"
+      :team-collection-list="teamCollectionList"
+      :team-loading-collections="teamLoadingCollections"
+      :export-loading="exportLoading"
+      :duplicate-loading="duplicateLoading"
+      :save-request="saveRequest"
+      :picked="picked"
+      :collection-move-loading="collectionMoveLoading"
+      :request-move-loading="requestMoveLoading"
+      @add-request="addRequest"
+      @add-folder="addFolder"
+      @edit-collection="editCollection"
+      @edit-folder="editFolder"
+      @export-data="exportData"
+      @remove-collection="removeCollection"
+      @remove-folder="removeFolder"
+      @edit-request="editRequest"
+      @duplicate-request="duplicateRequest"
+      @remove-request="removeRequest"
+      @select-request="selectRequest"
+      @select="selectPicked"
+      @drop-request="dropRequest"
+      @drop-collection="dropCollection"
+      @update-request-order="updateRequestOrder"
+      @update-collection-order="updateCollectionOrder"
+      @expand-team-collection="expandTeamCollection"
+      @display-modal-add="displayModalAdd(true)"
+      @display-modal-import-export="displayModalImportExport(true)"
+    />
     <div
       class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
       :class="{ '!flex': draggingToRoot }"
@@ -202,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, reactive, ref, watch, nextTick } from "vue"
+import { computed, PropType, reactive, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -274,7 +238,7 @@ import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
-import { invokeAction } from "~/helpers/actions"
+import { workspaceStatus$ } from "~/newstore/workspace"
 import IconListEnd from "~icons/lucide/list-end"
 
 const t = useI18n()
@@ -299,8 +263,6 @@ const emit = defineEmits<{
   (event: "update-collection-type", type: CollectionType["type"]): void
 }>()
 
-type CollectionTabs = "my-collections" | "team-collections"
-
 type SelectedTeam = GetMyTeamsQuery["myTeams"][number] | undefined
 
 type CollectionType =
@@ -310,25 +272,10 @@ type CollectionType =
     }
   | { type: "my-collections"; selectedTeam: undefined }
 
-const selectedCollectionTab = ref<CollectionTabs>("my-collections")
-
 const collectionsType = ref<CollectionType>({
   type: "my-collections",
   selectedTeam: undefined,
 })
-
-watch(
-  () => selectedCollectionTab.value,
-  (tab) => {
-    if (tab === "team-collections" && !currentUser.value) {
-      invokeAction("modals.login.toggle")
-      nextTick(() => (selectedCollectionTab.value = "my-collections"))
-    } else {
-      collectionsType.value.type = tab
-      emit("update-collection-type", tab)
-    }
-  }
-)
 
 // Collection Data
 const editingCollection = ref<
@@ -379,7 +326,6 @@ const clickedRequest = reactive({
 // TeamList-Adapter
 const teamListAdapter = new TeamListAdapter(true)
 const myTeams = useReadonlyStream(teamListAdapter.teamList$, null)
-const isTeamListLoading = useReadonlyStream(teamListAdapter.loading$, false)
 const REMEMBERED_TEAM_ID = useLocalState("REMEMBERED_TEAM_ID")
 const teamListFetched = ref(false)
 
@@ -395,6 +341,19 @@ const teamLoadingCollections = useReadonlyStream(
 )
 
 watch(
+  () => myTeams.value,
+  (newTeams) => {
+    if (newTeams && !teamListFetched.value) {
+      teamListFetched.value = true
+      if (REMEMBERED_TEAM_ID.value && currentUser.value) {
+        const team = newTeams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
+        if (team) updateSelectedTeam(team)
+      }
+    }
+  }
+)
+
+watch(
   () => collectionsType.value.selectedTeam,
   (newTeam) => {
     if (newTeam) {
@@ -403,45 +362,53 @@ watch(
   }
 )
 
+const switchToMyCollections = () => {
+  collectionsType.value.type = "my-collections"
+  collectionsType.value.selectedTeam = undefined
+  teamCollectionAdapter.changeTeamID(null)
+}
+
 const expandTeamCollection = (collectionID: string) => {
   teamCollectionAdapter.expandCollection(collectionID)
 }
 
-watch(myTeams, (teams) => {
-  if (teams && !teamListFetched.value) {
-    teamListFetched.value = true
-    if (REMEMBERED_TEAM_ID.value && currentUser.value) {
-      const team = teams.find((t) => t.id === REMEMBERED_TEAM_ID.value)
-      if (team) updateSelectedTeam(team)
-    }
-  }
-})
-
 const updateSelectedTeam = (team: SelectedTeam) => {
   if (team) {
+    collectionsType.value.type = "team-collections"
     collectionsType.value.selectedTeam = team
     REMEMBERED_TEAM_ID.value = team.id
     emit("update-team", team)
+    emit("update-collection-type", "team-collections")
   }
 }
 
 onLoggedIn(() => {
-  teamListAdapter.initialize()
+  !teamListAdapter.isInitialized && teamListAdapter.initialize()
 })
 
-const onTeamSelectIntersect = () => {
-  // Load team data as soon as intersection
-  teamListAdapter.fetchList()
-}
+const workspace = useReadonlyStream(workspaceStatus$, { type: "personal" })
+
+// Used to switch collection type and team when user switch workspace in the global workspace switcher
+// Check if there is a teamID in the workspace, if yes, switch to team collection and select the team
+// If there is no teamID, switch to my environment
+watch(
+  () => workspace.value.teamID,
+  (teamID) => {
+    if (!teamID) {
+      switchToMyCollections()
+    } else if (teamID) {
+      const team = myTeams.value?.find((t) => t.id === teamID)
+      if (team) updateSelectedTeam(team)
+    }
+  }
+)
 
 // Switch to my-collections and reset the team collection when user logout
 watch(
   () => currentUser.value,
   (user) => {
     if (!user) {
-      selectedCollectionTab.value = "my-collections"
-      collectionsType.value.selectedTeam = undefined
-      teamCollectionAdapter.changeTeamID(null)
+      switchToMyCollections()
     }
   }
 )

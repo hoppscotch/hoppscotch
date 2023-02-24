@@ -1,7 +1,7 @@
 <template>
   <span class="chip">
     <component :is="IconFile" class="opacity-75 svg-icons" />
-    <span class="px-2 truncate max-w-32"><slot></slot></span>
+    <span class="px-2 truncate max-w-54"><slot></slot></span>
   </span>
 </template>
 

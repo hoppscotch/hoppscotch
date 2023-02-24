@@ -15,6 +15,8 @@ export default class TeamListAdapter {
   private timeoutHandle: ReturnType<typeof setTimeout> | null
   private isDispose: boolean
 
+  public isInitialized: boolean
+
   constructor(deferInit = false) {
     this.error$ = new BehaviorSubject<GQLError<string> | null>(null)
     this.loading$ = new BehaviorSubject<boolean>(false)
@@ -22,12 +24,16 @@ export default class TeamListAdapter {
     this.timeoutHandle = null
     this.isDispose = false
 
+    this.isInitialized = false
+
     if (!deferInit) this.initialize()
   }
 
   initialize() {
     if (this.timeoutHandle) throw new Error(`Adapter already initialized`)
     if (this.isDispose) throw new Error(`Adapter has been disposed`)
+
+    this.isInitialized = true
 
     const func = async () => {
       await this.fetchList()
@@ -44,6 +50,7 @@ export default class TeamListAdapter {
     this.isDispose = true
     clearTimeout(this.timeoutHandle as any)
     this.timeoutHandle = null
+    this.isInitialized = false
   }
 
   async fetchList() {

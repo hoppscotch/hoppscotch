@@ -323,9 +323,10 @@ pre.ace_editor {
   @apply after:justify-center;
   @apply after:pointer-events-none;
   @apply after:font-icon;
-  @apply after:text-secondaryLight;
+  @apply after:text-current;
   @apply after:right-3;
   @apply after:content-["\e313"];
+  @apply after:text-lg;
 }
 
 .info-response {

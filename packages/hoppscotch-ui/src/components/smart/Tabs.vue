@@ -220,26 +220,24 @@ const handleTabClick = (id: string) => {
   const totalWidth = tabsColWidth + tabsColContentWidth
   const tabsColWidthPercentage = (tabsColWidth / totalWidth) * 100
   const tabsColContentWidthPercentage = (tabsColContentWidth / totalWidth) * 100
-  if (
-    id === props.modelValue &&
-    props.collapsible &&
-    !SIDEBAR_COLLAPSED.value.isCollapsed
-  ) {
-    collapsed.value = !collapsed.value
 
-    selectTab(id)
-
-    SIDEBAR_COLLAPSED.value = {
-      isCollapsed: !SIDEBAR_COLLAPSED.value.isCollapsed,
-      collapsedWidth: tabsColWidthPercentage,
+  if (props.collapsible) {
+    if (id === props.modelValue && !SIDEBAR_COLLAPSED.value.isCollapsed) {
+      selectTab(id)
+      SIDEBAR_COLLAPSED.value = {
+        isCollapsed: !SIDEBAR_COLLAPSED.value.isCollapsed,
+        collapsedWidth: tabsColWidthPercentage,
+      }
+    } else {
+      collapsed.value = false
+      selectTab(id)
+      SIDEBAR_COLLAPSED.value = {
+        isCollapsed: false,
+        collapsedWidth: tabsColWidthPercentage,
+      }
     }
   } else {
-    collapsed.value = false
     selectTab(id)
-    SIDEBAR_COLLAPSED.value = {
-      isCollapsed: false,
-      collapsedWidth: tabsColWidthPercentage,
-    }
   }
 }
 </script>

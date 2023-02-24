@@ -32,7 +32,7 @@
     <Pane
       v-if="SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
-      :min-size="minSidebarWidth"
+      :min-size="20"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />
@@ -71,6 +71,7 @@ watch(
   () => SIDEBAR_COLLAPSED.value.isCollapsed,
   (value) => {
     if (value) {
+      console.log("sidebar-collapsed", SIDEBAR_COLLAPSED.value.collapsedWidth)
       PANE_SIDEBAR_SIZE.value =
         (SIDEBAR_COLLAPSED.value.collapsedWidth / 100) * PANE_SIDEBAR_SIZE.value
 
@@ -123,17 +124,12 @@ function setPaneEvent(event: PaneEvent[], type: "vertical" | "horizontal") {
   const storageKey = `${props.layoutId}-pane-config-${type}`
   setLocalConfig(storageKey, JSON.stringify(event))
   // un-collapse sidebar if it is collapsed and the width is greater than 20
-  // if (event[1].size < 21) {
-  //   SIDEBAR_COLLAPSED.value = {
-  //     collapsedWidth: SIDEBAR_COLLAPSED.value.collapsedWidth,
-  //     isCollapsed: true,
-  //   }
-  // } else {
-  //   SIDEBAR_COLLAPSED.value = {
-  //     collapsedWidth: SIDEBAR_COLLAPSED.value.collapsedWidth,
-  //     isCollapsed: false,
-  //   }
-  // }
+  if (SIDEBAR_COLLAPSED.value.isCollapsed && event[1].size > 10) {
+    SIDEBAR_COLLAPSED.value = {
+      collapsedWidth: event[1].size,
+      isCollapsed: false,
+    }
+  }
 }
 
 function populatePaneEvent() {

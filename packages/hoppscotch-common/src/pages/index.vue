@@ -1,7 +1,7 @@
 <template>
   <AppPaneLayout layout-id="http">
     <template #primary>
-      <SmartWindows
+      <HoppSmartWindows
         v-if="currentTabId"
         :id="'rest_windows'"
         v-model="currentTabId"
@@ -9,7 +9,7 @@
         @add-tab="addNewTab"
         @sort="sortTabs"
       >
-        <SmartWindow
+        <HoppSmartWindow
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
@@ -20,8 +20,8 @@
             :model-value="tab"
             @update:model-value="onTabUpdate"
           />
-        </SmartWindow>
-      </SmartWindows>
+        </HoppSmartWindow>
+      </HoppSmartWindows>
     </template>
     <template #sidebar>
       <HttpSidebar />
@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
+import { nextTick, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
 import type { Subscription } from "rxjs"
 import {
   HoppRESTRequest,
@@ -172,7 +172,14 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
   tabs.value = newTabs
 }
 const removeTab = (tabID: string) => {
-  tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
+  if (currentTabId.value === tabID) {
+    currentTabId.value =
+      tabs.value[tabs.value.findIndex((tab) => tab.id === tabID) - 1]?.id ??
+      tabs.value[0]?.id
+  }
+  nextTick(() => {
+    tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
+  })
 }
 
 setupRequestSync(confirmSync, requestForSync)

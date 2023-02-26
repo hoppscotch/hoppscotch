@@ -89,6 +89,8 @@ declare module '@vue/runtime-core' {
     HoppSmartSpinner: typeof import('@hoppscotch/ui')['HoppSmartSpinner']
     HoppSmartTab: typeof import('@hoppscotch/ui')['HoppSmartTab']
     HoppSmartTabs: typeof import('@hoppscotch/ui')['HoppSmartTabs']
+    HoppSmartWindow: typeof import('@hoppscotch/ui')['HoppSmartWindow']
+    HoppSmartWindows: typeof import('@hoppscotch/ui')['HoppSmartWindows']
     HttpAuthorization: typeof import('./components/http/Authorization.vue')['default']
     HttpBody: typeof import('./components/http/Body.vue')['default']
     HttpBodyParameters: typeof import('./components/http/BodyParameters.vue')['default']

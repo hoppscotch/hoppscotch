@@ -59,6 +59,7 @@
       </div>
     </div>
     <div
+      v-show="!collapsed"
       ref="tabsContentColumn"
       class="w-full h-full contents"
       :class="[
@@ -134,7 +135,11 @@ const throwError = (message: string): never => {
   throw new Error(message)
 }
 
+const SIDEBAR_COLLAPSED = useSetting("SIDEBAR_COLLAPSED")
+
 const tabEntries = ref<Array<[string, TabMeta]>>([])
+
+const collapsed = ref(false)
 
 const addTabEntry = (tabID: string, meta: TabMeta) => {
   tabEntries.value = pipe(
@@ -187,10 +192,6 @@ const selectTab = (id: string) => {
 const tabsColumn = ref<VNodeRef | undefined>(undefined)
 const tabsContentColumn = ref<VNodeRef | undefined>(undefined)
 
-const SIDEBAR_COLLAPSED = useSetting("SIDEBAR_COLLAPSED")
-
-const collapsed = ref(false)
-
 const showActive = computed(() => {
   if (props.collapsible) {
     if (SIDEBAR_COLLAPSED.value.isCollapsed) {
@@ -204,9 +205,9 @@ const showActive = computed(() => {
 })
 
 watch(
-  () => SIDEBAR_COLLAPSED.value,
-  (newVal) => {
-    if (newVal.isCollapsed) {
+  () => SIDEBAR_COLLAPSED.value.isCollapsed,
+  (isCollapsed) => {
+    if (isCollapsed.isCollapsed) {
       collapsed.value = true
     } else {
       collapsed.value = false
@@ -214,32 +215,31 @@ watch(
   }
 )
 
+
 const handleTabClick = (id: string) => {
   const tabsColWidth = tabsColumn.value.offsetWidth
   const tabsColContentWidth = tabsContentColumn.value.offsetWidth
   const totalWidth = tabsColWidth + tabsColContentWidth
   const tabsColWidthPercentage = (tabsColWidth / totalWidth) * 100
-  const tabsColContentWidthPercentage = (tabsColContentWidth / totalWidth) * 100
 
   if (props.collapsible) {
     if (id === props.modelValue && !SIDEBAR_COLLAPSED.value.isCollapsed) {
-      selectTab(id)
       SIDEBAR_COLLAPSED.value = {
         isCollapsed: !SIDEBAR_COLLAPSED.value.isCollapsed,
         collapsedWidth: tabsColWidthPercentage,
       }
     } else {
       collapsed.value = false
-      selectTab(id)
       SIDEBAR_COLLAPSED.value = {
         isCollapsed: false,
         collapsedWidth: tabsColWidthPercentage,
       }
     }
-  } else {
-    selectTab(id)
   }
+  selectTab(id)
 }
+
+
 </script>
 
 <style lang="scss" scoped>

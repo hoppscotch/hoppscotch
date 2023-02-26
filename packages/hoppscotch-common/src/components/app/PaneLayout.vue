@@ -32,7 +32,7 @@
     <Pane
       v-if="SIDEBAR && hasSidebar"
       :size="PANE_SIDEBAR_SIZE"
-      :min-size="20"
+      min-size="20"
       class="flex flex-col !overflow-auto bg-primaryContrast"
     >
       <slot name="sidebar" />

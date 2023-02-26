@@ -24,7 +24,7 @@
               }"
               class="tab"
               :class="[
-                { active: showActive && modelValue === tabID },
+                { active:showActive && modelValue === tabID },
                 { vertical: vertical },
                 { 'opacity-75 !cursor-not-allowed': tabMeta.disabled },
               ]"
@@ -59,7 +59,7 @@
       </div>
     </div>
     <div
-      v-show="!collapsed"
+      v-show="showActive"
       ref="tabsContentColumn"
       class="w-full h-full contents"
       :class="[
@@ -80,8 +80,7 @@ import { not } from "fp-ts/Predicate"
 import * as A from "fp-ts/Array"
 import * as O from "fp-ts/Option"
 import type { Component } from "vue"
-import { ref, ComputedRef, computed, provide, watch, VNodeRef } from "vue"
-import { useSetting } from "@composables/settings"
+import { ref, ComputedRef, computed, provide, VNodeRef } from "vue"
 
 export type TabMeta = {
   label: string | null
@@ -124,22 +123,34 @@ const props = defineProps({
   collapsible: {
     type: Boolean,
     default: false,
+    required: false
   },
+  isCollapsed: {
+    type: Boolean,
+    default: false,
+    required: false
+  },
+  isActive:{
+    type: Boolean,
+    default: false,
+    required: false
+  }
 })
 
 const emit = defineEmits<{
   (e: "update:modelValue", newTabID: string): void
+  (e: "tab-click", payload :{
+    isHidden: boolean
+    width : number
+  }): void
 }>()
 
 const throwError = (message: string): never => {
   throw new Error(message)
 }
 
-const SIDEBAR_COLLAPSED = useSetting("SIDEBAR_COLLAPSED")
 
 const tabEntries = ref<Array<[string, TabMeta]>>([])
-
-const collapsed = ref(false)
 
 const addTabEntry = (tabID: string, meta: TabMeta) => {
   tabEntries.value = pipe(
@@ -194,46 +205,28 @@ const tabsContentColumn = ref<VNodeRef | undefined>(undefined)
 
 const showActive = computed(() => {
   if (props.collapsible) {
-    if (SIDEBAR_COLLAPSED.value.isCollapsed) {
-      return false
-    } else {
-      return !collapsed.value
-    }
+    return props.isActive
   } else {
     return true
   }
 })
 
-watch(
-  () => SIDEBAR_COLLAPSED.value.isCollapsed,
-  (isCollapsed) => {
-    if (isCollapsed.isCollapsed) {
-      collapsed.value = true
-    } else {
-      collapsed.value = false
-    }
-  }
-)
-
-
 const handleTabClick = (id: string) => {
+  if (props.collapsible) {
   const tabsColWidth = tabsColumn.value.offsetWidth
   const tabsColContentWidth = tabsContentColumn.value.offsetWidth
   const totalWidth = tabsColWidth + tabsColContentWidth
   const tabsColWidthPercentage = (tabsColWidth / totalWidth) * 100
-
-  if (props.collapsible) {
-    if (id === props.modelValue && !SIDEBAR_COLLAPSED.value.isCollapsed) {
-      SIDEBAR_COLLAPSED.value = {
-        isCollapsed: !SIDEBAR_COLLAPSED.value.isCollapsed,
-        collapsedWidth: tabsColWidthPercentage,
-      }
+    if (id === props.modelValue) {
+      emit("tab-click", {
+        isHidden:true,
+        width:tabsColWidthPercentage
+      })
     } else {
-      collapsed.value = false
-      SIDEBAR_COLLAPSED.value = {
-        isCollapsed: false,
-        collapsedWidth: tabsColWidthPercentage,
-      }
+      emit("tab-click", {
+        isHidden: false,
+        width: tabsColWidthPercentage,
+      })
     }
   }
   selectTab(id)

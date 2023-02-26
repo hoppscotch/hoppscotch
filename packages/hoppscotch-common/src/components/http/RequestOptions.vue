@@ -9,20 +9,24 @@
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
     >
-      <HttpParameters />
+      <HttpParameters v-model="request.params" />
     </HoppSmartTab>
     <HoppSmartTab :id="'bodyParams'" :label="`${t('tab.body')}`">
-      <HttpBody @change-tab="changeTab" />
+      <HttpBody
+        v-model:content-type="request.body.contentType"
+        v-model:headers="request.headers"
+        @change-tab="changeTab"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'headers'"
       :label="`${t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders @change-tab="changeTab" />
+      <HttpHeaders v-model="request" @change-tab="changeTab" />
     </HoppSmartTab>
     <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-      <HttpAuthorization />
+      <HttpAuthorization v-model="request.auth" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'preRequestScript'"
@@ -33,7 +37,7 @@
           : false
       "
     >
-      <HttpPreRequestScript />
+      <HttpPreRequestScript v-model="request.preRequestScript" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'tests'"
@@ -42,7 +46,7 @@
         request.testScript && request.testScript.length > 0 ? true : false
       "
     >
-      <HttpTests />
+      <HttpTests v-model="request.testScript" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>

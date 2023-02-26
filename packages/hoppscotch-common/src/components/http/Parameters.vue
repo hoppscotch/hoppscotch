@@ -179,7 +179,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, Ref, ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -232,7 +232,7 @@ useCodemirror(
 )
 
 const props = defineProps<{
-  modelValue: Ref<Array<HoppRESTParam>>
+  modelValue: HoppRESTParam[]
 }>()
 
 const emit = defineEmits<{

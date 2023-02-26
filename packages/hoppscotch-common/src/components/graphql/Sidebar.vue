@@ -4,6 +4,10 @@
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary z-10 top-0"
     vertical
     render-inactive-tabs
+    collapsible
+    :is-collapsed="collapsed"
+    :is-active="isActive"
+    @tab-click="tabClick"
   >
     <HoppSmartTab
       :id="'history'"
@@ -200,7 +204,7 @@ import IconCheck from "~icons/lucide/check"
 import IconClock from "~icons/lucide/clock"
 import IconCopy from "~icons/lucide/copy"
 import IconBox from "~icons/lucide/box"
-import { computed, nextTick, reactive, ref } from "vue"
+import { computed, nextTick, reactive, ref, watch } from "vue"
 import { GraphQLField, GraphQLType } from "graphql"
 import { map } from "rxjs/operators"
 import { GQLHeader } from "@hoppscotch/data"
@@ -220,6 +224,7 @@ import {
   setGQLURL,
   setGQLVariables,
 } from "~/newstore/GQLSession"
+import { useSetting } from "@composables/settings"
 
 type NavigationTabs = "history" | "collection" | "docs" | "schema"
 type GqlTabs = "queries" | "mutations" | "subscriptions" | "types"
@@ -468,5 +473,41 @@ const handleUseHistory = (entry: GQLHistoryEntry) => {
     authActive: true,
   })
   props.conn.reset()
+}
+
+const SIDEBAR_COLLAPSED = useSetting("SIDEBAR_COLLAPSED")
+const collapsed = ref(false)
+
+watch(
+  () => SIDEBAR_COLLAPSED.value.isCollapsed,
+  (isCollapsed) => {
+    if (isCollapsed) {
+      collapsed.value = true
+    } else {
+      collapsed.value = false
+    }
+  }
+)
+
+const isActive = computed(() => {
+  if (SIDEBAR_COLLAPSED.value.isCollapsed) {
+    return false
+  } else {
+    return !collapsed.value
+  }
+})
+
+const tabClick = (payload: { isHidden: boolean; width: number }) => {
+  if (!SIDEBAR_COLLAPSED.value.isCollapsed && payload.isHidden) {
+    SIDEBAR_COLLAPSED.value = {
+      isCollapsed: !SIDEBAR_COLLAPSED.value.isCollapsed,
+      collapsedWidth: payload.width,
+    }
+  } else {
+    SIDEBAR_COLLAPSED.value = {
+      isCollapsed: false,
+      collapsedWidth: payload.width,
+    }
+  }
 }
 </script>

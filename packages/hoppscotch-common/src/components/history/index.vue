@@ -196,10 +196,10 @@ import {
   GQLHistoryEntry,
 } from "~/newstore/history"
 import {
+  addRequestWithNewTab,
   getDefaultRESTRequest,
   getRESTRequest,
   getRESTSaveContext,
-  setRESTRequest,
   setRESTSaveContext,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
@@ -287,7 +287,7 @@ const filters = computed(() => [
   { value: "STARRED" as const, label: t("filter.starred") },
 ])
 
-type FilterMode = (typeof filters)["value"][number]["value"]
+type FilterMode = typeof filters["value"][number]["value"]
 
 const filterSelection = ref<FilterMode>("ALL")
 
@@ -296,7 +296,7 @@ const groups = computed(() => [
   { value: "URL" as const, label: t("group.url") },
 ])
 
-type GroupMode = (typeof groups)["value"][number]["value"]
+type GroupMode = typeof groups["value"][number]["value"]
 
 const groupSelection = ref<GroupMode>("TIME")
 
@@ -327,7 +327,9 @@ const clearHistory = () => {
 }
 
 const setRestReq = (request: HoppRESTRequest | null | undefined) => {
-  setRESTRequest(safelyExtractRESTRequest(request, getDefaultRESTRequest()))
+  addRequestWithNewTab(
+    safelyExtractRESTRequest(request, getDefaultRESTRequest())
+  )
 }
 
 // NOTE: For GQL, the HistoryGraphqlCard component already implements useEntry
@@ -348,8 +350,12 @@ const useHistory = (entry: RESTHistoryEntry) => {
   // Initial state trigers a popup
   else if (!clickedHistory.value) {
     clickedHistory.value = entry
-    confirmChange.value = true
-    return
+
+    // TODO: we probably don't need this anymore?
+    // confirmChange.value = true
+    // return
+
+    setRestReq(entry.request)
   }
   // Checks if there are any change done in current request and the history request
   else if (

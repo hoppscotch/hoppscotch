@@ -151,7 +151,7 @@ export class UserEnvironmentsService {
       };
       // Publish subscription for environment update
       await this.pubsub.publish(
-        `user_environment/${updatedUserEnvironment.id}/updated`,
+        `user_environment/${updatedUserEnvironment.userUid}/updated`,
         updatedUserEnvironment,
       );
       return E.right(updatedUserEnvironment);
@@ -192,7 +192,7 @@ export class UserEnvironmentsService {
 
       // Publish subscription for environment deletion
       await this.pubsub.publish(
-        `user_environment/${deletedUserEnvironment.id}/deleted`,
+        `user_environment/${deletedUserEnvironment.userUid}/deleted`,
         deletedUserEnvironment,
       );
       return E.right(true);
@@ -253,7 +253,7 @@ export class UserEnvironmentsService {
 
         // Publish subscription for environment update
         await this.pubsub.publish(
-          `user_environment/${updatedUserEnvironment.id}/updated`,
+          `user_environment/${updatedUserEnvironment.userUid}/updated`,
           updatedUserEnvironment,
         );
         return E.right(updatedUserEnvironment);

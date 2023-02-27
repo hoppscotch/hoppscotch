@@ -167,15 +167,8 @@ export class UserEnvironmentsResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userEnvironmentUpdated(
-    @Args({
-      name: 'id',
-      description: 'Environment id',
-      type: () => ID,
-    })
-    id: string,
-  ) {
-    return this.pubsub.asyncIterator(`user_environment/${id}/updated`);
+  userEnvironmentUpdated(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_environment/${user.uid}/updated`);
   }
 
   @Subscription(() => UserEnvironment, {
@@ -183,15 +176,8 @@ export class UserEnvironmentsResolver {
     resolve: (value) => value,
   })
   @UseGuards(GqlAuthGuard)
-  userEnvironmentDeleted(
-    @Args({
-      name: 'id',
-      description: 'Environment id',
-      type: () => ID,
-    })
-    id: string,
-  ) {
-    return this.pubsub.asyncIterator(`user_environment/${id}/deleted`);
+  userEnvironmentDeleted(@GqlUser() user: User) {
+    return this.pubsub.asyncIterator(`user_environment/${user.uid}/deleted`);
   }
 
   @Subscription(() => Number, {

@@ -369,7 +369,7 @@ describe('UserEnvironmentsService', () => {
       );
 
       return expect(mockPubSub.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}/updated`,
+        `user_environment/${result.userUid}/updated`,
         result,
       );
     });
@@ -398,7 +398,7 @@ describe('UserEnvironmentsService', () => {
       );
 
       return expect(mockPubSub.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}/updated`,
+        `user_environment/${result.userUid}/updated`,
         result,
       );
     });
@@ -463,7 +463,7 @@ describe('UserEnvironmentsService', () => {
       await userEnvironmentsService.deleteUserEnvironment('abc123', 'env1');
 
       return expect(mockPubSub.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}/deleted`,
+        `user_environment/${result.userUid}/deleted`,
         result,
       );
     });
@@ -557,7 +557,7 @@ describe('UserEnvironmentsService', () => {
       await userEnvironmentsService.clearGlobalEnvironments('abc123', 'env1');
 
       return expect(mockPubSub.publish).toHaveBeenCalledWith(
-        `user_environment/${result.id}/updated`,
+        `user_environment/${result.userUid}/updated`,
         result,
       );
     });

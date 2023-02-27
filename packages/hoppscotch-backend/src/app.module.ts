@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { ForbiddenException, HttpException, Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UserModule } from './user/user.module';
@@ -14,6 +14,7 @@ import { TeamCollectionModule } from './team-collection/team-collection.module';
 import { TeamRequestModule } from './team-request/team-request.module';
 import { TeamInvitationModule } from './team-invitation/team-invitation.module';
 import { ShortcodeModule } from './shortcode/shortcode.module';
+import { COOKIES_NOT_FOUND } from './errors';
 
 @Module({
   imports: [
@@ -30,12 +31,19 @@ import { ShortcodeModule } from './shortcode/shortcode.module';
         'subscriptions-transport-ws': {
           path: '/graphql',
           onConnect: (_, websocket) => {
-            const cookies = subscriptionContextCookieParser(
-              websocket.upgradeReq.headers.cookie,
-            );
-            return {
-              headers: { ...websocket?.upgradeReq?.headers, cookies },
-            };
+            try {
+              const cookies = subscriptionContextCookieParser(
+                websocket.upgradeReq.headers.cookie,
+              );
+
+              return {
+                headers: { ...websocket?.upgradeReq?.headers, cookies },
+              };
+            } catch (error) {
+              throw new HttpException(COOKIES_NOT_FOUND, 400, {
+                cause: new Error(COOKIES_NOT_FOUND),
+              });
+            }
           },
         },
       },

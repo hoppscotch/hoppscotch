@@ -1,8 +1,10 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { ForbiddenException, HttpException, HttpStatus } from '@nestjs/common';
 import { DateTime } from 'luxon';
 import { AuthError } from 'src/types/AuthError';
 import { AuthTokens } from 'src/types/AuthTokens';
 import { Response } from 'express';
+import * as cookie from 'cookie';
+import { COOKIES_NOT_FOUND } from 'src/errors';
 
 enum AuthTokenType {
   ACCESS_TOKEN = 'access_token',
@@ -64,14 +66,19 @@ export const authCookieHandler = (
  * @returns AuthTokens for JWT strategy to use
  */
 export const subscriptionContextCookieParser = (rawCookies: string) => {
-  const cookieMap = new Map<string, string>();
-  rawCookies.split(';').forEach((cookie) => {
-    const [key, value] = cookie.split('=');
-    cookieMap.set(key, value);
-  });
+  const cookies = cookie.parse(rawCookies);
+
+  if (
+    !cookies[AuthTokenType.ACCESS_TOKEN] &&
+    !cookies[AuthTokenType.REFRESH_TOKEN]
+  ) {
+    throw new HttpException(COOKIES_NOT_FOUND, 400, {
+      cause: new Error(COOKIES_NOT_FOUND),
+    });
+  }
 
   return <AuthTokens>{
-    access_token: cookieMap.get(AuthTokenType.ACCESS_TOKEN),
-    refresh_token: cookieMap.get(AuthTokenType.REFRESH_TOKEN),
+    access_token: cookies[AuthTokenType.ACCESS_TOKEN],
+    refresh_token: cookies[AuthTokenType.REFRESH_TOKEN],
   };
 };

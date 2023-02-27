@@ -19,3 +19,8 @@ export type AuthTokens = {
   access_token: string;
   refresh_token: string;
 };
+
+export enum AuthTokenType {
+  ACCESS_TOKEN = 'access_token',
+  REFRESH_TOKEN = 'refresh_token',
+}

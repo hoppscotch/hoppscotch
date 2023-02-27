@@ -89,12 +89,10 @@ if (!COLUMN_LAYOUT.value) {
 }
 
 const setSidePaneSize = () => {
-  if (SIDEBAR_COLLAPSED.value.isCollapsed) {
-    populatePaneEvent()
-    PANE_SIDEBAR_SIZE.value =
-      (SIDEBAR_COLLAPSED.value.collapsedWidth / 100) * PANE_SIDEBAR_SIZE.value
-    PANE_MAIN_SIZE.value = 100 - PANE_SIDEBAR_SIZE.value
-  }
+  populatePaneEvent()
+  PANE_SIDEBAR_SIZE.value =
+    (SIDEBAR_COLLAPSED.value.collapsedWidth / 100) * PANE_SIDEBAR_SIZE.value
+  PANE_MAIN_SIZE.value = 100 - PANE_SIDEBAR_SIZE.value
 }
 
 onMounted(() => {
@@ -118,6 +116,12 @@ function setPaneEvent(event: PaneEvent[], type: "vertical" | "horizontal") {
   if (!props.layoutId) return
   const storageKey = `${props.layoutId}-pane-config-${type}`
   setLocalConfig(storageKey, JSON.stringify(event))
+  if (type === "vertical") {
+    SIDEBAR_COLLAPSED.value = {
+      collapsedWidth: event[1].size,
+      isCollapsed: false,
+    }
+  }
 }
 
 function populatePaneEvent() {

@@ -90,6 +90,7 @@ if (!COLUMN_LAYOUT.value) {
 
 const setSidePaneSize = () => {
   if (SIDEBAR_COLLAPSED.value.isCollapsed) {
+    populatePaneEvent()
     PANE_SIDEBAR_SIZE.value =
       (SIDEBAR_COLLAPSED.value.collapsedWidth / 100) * PANE_SIDEBAR_SIZE.value
     PANE_MAIN_SIZE.value = 100 - PANE_SIDEBAR_SIZE.value
@@ -108,8 +109,7 @@ watch(
     if (isCollapsed) {
       setSidePaneSize()
     } else {
-      PANE_SIDEBAR_SIZE.value = 20
-      PANE_MAIN_SIZE.value = 100 - PANE_SIDEBAR_SIZE.value
+      populatePaneEvent()
     }
   }
 )
@@ -118,14 +118,6 @@ function setPaneEvent(event: PaneEvent[], type: "vertical" | "horizontal") {
   if (!props.layoutId) return
   const storageKey = `${props.layoutId}-pane-config-${type}`
   setLocalConfig(storageKey, JSON.stringify(event))
-  PANE_SIDEBAR_SIZE.value = event[1].size
-  // un-collapse sidebar if it is collapsed and the width is greater than 10%
-  if (SIDEBAR_COLLAPSED.value.isCollapsed && event[1].size > 10) {
-    SIDEBAR_COLLAPSED.value = {
-      collapsedWidth: event[1].size,
-      isCollapsed: false,
-    }
-  }
 }
 
 function populatePaneEvent() {

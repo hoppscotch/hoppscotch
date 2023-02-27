@@ -172,8 +172,6 @@ type FolderType = "collection" | "folder"
 
 const t = useI18n()
 
-// this file
-
 const props = defineProps({
   data: {
     type: Object as PropType<HoppCollection<HoppRESTRequest> | TeamCollection>,

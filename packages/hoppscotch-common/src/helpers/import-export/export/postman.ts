@@ -1,4 +1,5 @@
 import {
+  HoppRESTReqBody,
   HoppCollection,
   HoppRESTRequest,
   parseRawKeyValueEntriesE,
@@ -10,13 +11,7 @@ import {
   RequestAuthDefinition,
   RequestBodyDefinition,
 } from "postman-collection"
-import {
-  HoppRESTReqBody,
-  HoppRESTRequest,
-  HoppCollection,
-} from "@hoppscotch/data"
 
-// import { TeamCollection } from "~/helpers/teams/TeamCollection"
 import { isLeft } from "fp-ts/lib/Either"
 
 const hoppToPostmanTemplating = (input: string): string =>
@@ -128,6 +123,7 @@ const getHeaders = (
     request.body.contentType !== null &&
     request.body.contentType !== "multipart/form-data"
   ) {
+    // Postman took the first value, hence removing
     out = out.filter((header) => header.key.toLowerCase() !== "content-type")
     out.push({ key: "Content-Type", value: request.body.contentType })
   }
@@ -135,45 +131,47 @@ const getHeaders = (
   return out
 }
 
-const parseStuff = (
+function parseMyCollection(
   hoppCollection: HoppCollection<HoppRESTRequest>
-): ItemGroup<Item> => {
+): ItemGroup<Item> {
   const postmanItemGoup = new ItemGroup<Item>()
   postmanItemGoup.name = hoppCollection.name
   for (const folder of hoppCollection.folders) {
-    console.log("adding folder", JSON.parse(JSON.stringify(folder)))
-    postmanItemGoup.items.add(parseStuff(folder))
+    postmanItemGoup.items.add(parseMyCollection(folder))
   }
   for (const request of hoppCollection.requests) {
-    const url = new URL(request.endpoint)
-    const postmanRequest = new Item({
-      request: {
-        url: {
-          hash: url.hash,
-          host: url.host,
-          path: hoppToPostmanTemplating(url.pathname),
-          // Postman tends to parse a "" value as host:/path instead of host/path
-          port: url.port === "" ? undefined : url.port,
-          // Todo we are not caring about the active status
-          query: request.params.map((param) => ({
-            key: hoppToPostmanTemplating(param.key),
-            value: hoppToPostmanTemplating(param.value),
-          })),
-          protocol: url.protocol.replace(":", ""), // Got a value like https:
-        },
-        method: request.method,
-        // Todo we are not caring about the active status of header
-        header: getHeaders(request),
-        body: getBody(request.body),
-        auth: getAuth(request),
-      },
-    })
-    postmanRequest.name = request.name
-
-    postmanItemGoup.items.add(postmanRequest)
+    postmanItemGoup.items.add(hoppRequestToPostmanRequest(request))
   }
 
   return postmanItemGoup
+}
+
+function hoppRequestToPostmanRequest(request: HoppRESTRequest): Item {
+  const url = new URL(request.endpoint)
+  const postmanRequest = new Item({
+    request: {
+      url: {
+        hash: url.hash,
+        host: url.host,
+        path: hoppToPostmanTemplating(url.pathname),
+        // Postman should not get a "" value as it will create url of host:/path instead of host/path
+        port: url.port === "" ? undefined : url.port,
+        // Todo we are not caring about the active status
+        query: request.params.map((param) => ({
+          key: hoppToPostmanTemplating(param.key),
+          value: hoppToPostmanTemplating(param.value),
+        })),
+        protocol: url.protocol.replace(":", ""), // Got a value like https:
+      },
+      method: request.method,
+      // Todo we are not caring about the active status of header
+      header: getHeaders(request),
+      body: getBody(request.body),
+      auth: getAuth(request),
+    },
+  })
+  postmanRequest.name = request.name
+  return postmanRequest
 }
 
 export const exportMyCollectionToPostmanCollection = (
@@ -181,22 +179,6 @@ export const exportMyCollectionToPostmanCollection = (
 ): string => {
   const out = new Collection()
   out.name = collection.name
-  parseStuff(collection).items.each((stuff) => out.items.add(stuff))
+  parseMyCollection(collection).items.each((stuff) => out.items.add(stuff))
   return JSON.stringify(out.toJSON())
 }
-
-// This is a work in progress since both classes have different shapes
-
-// export const exportTeamCollectionToPostmanCollection = (
-//   collection: TeamCollection
-// ): string => {
-//   // debugger
-//   const out = new Collection()
-//   out.name = collection.title
-//   // for(const stuff of parseStuff(collection).items.each) {
-//   //     out.items.add(stuff)
-//   // }
-//   parseStuff(collection).items.each((stuff) => out.items.add(stuff))
-//   // const out = parseStuff(collection)
-//   return JSON.stringify(out.toJSON())
-// }

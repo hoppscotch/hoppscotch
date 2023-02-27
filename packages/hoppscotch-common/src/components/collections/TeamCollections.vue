@@ -86,6 +86,10 @@
               node.data.type === 'collections' &&
                 emit('export-data', node.data.data.data)
             "
+            @export-postman-collection="
+              node.data.type === 'collections' &&
+                emit('export-postman-collection', node.data.data.data)
+            "
             @remove-collection="emit('remove-collection', node.id)"
             @toggle-children="
               () => {
@@ -391,7 +395,9 @@ const emit = defineEmits<{
       request: HoppRESTRequest
     }
   ): void
+  // here
   (event: "export-data", payload: TeamCollection): void
+  (event: "export-postman-collection", payload: TeamCollection): void
   (event: "remove-collection", payload: string): void
   (event: "remove-folder", payload: string): void
   (

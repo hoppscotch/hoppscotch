@@ -143,7 +143,6 @@ const dispatchers = defineDispatchers({
 const restSessionStore = new DispatchingStore(defaultRESTSession, dispatchers)
 
 export function setRESTTabs(tabs: RESTTab[]) {
-  console.log("setRESTTabs", tabs)
   restSessionStore.dispatch({
     dispatcher: "setTabs",
     payload: {
@@ -166,6 +165,27 @@ export function addNewRESTTab() {
     dispatcher: "addTab",
     payload: {
       tab: { ...makeTab(v4()) },
+    },
+  })
+}
+
+export function addRequestWithNewTab(request: HoppRESTRequest) {
+  const tab = {
+    ...makeTab(v4()),
+    request,
+  }
+
+  restSessionStore.dispatch({
+    dispatcher: "addTab",
+    payload: {
+      tab,
+    },
+  })
+
+  restSessionStore.dispatch({
+    dispatcher: "setCurrentTabId",
+    payload: {
+      tabId: tab.id,
     },
   })
 }

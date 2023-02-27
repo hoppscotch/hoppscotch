@@ -532,20 +532,13 @@ const selectRequest = (data: {
   requestIndex: string
 }) => {
   const { request, folderPath, requestIndex } = data
-  if (props.saveRequest) {
-    emit("select", {
-      pickedType: "my-request",
-      folderPath: folderPath,
-      requestIndex: parseInt(requestIndex),
-    })
-  } else {
-    emit("select-request", {
-      request,
-      folderPath,
-      requestIndex,
-      isActive: isActiveRequest.value(folderPath, parseInt(requestIndex)),
-    })
-  }
+
+  emit("select-request", {
+    request,
+    folderPath,
+    requestIndex,
+    isActive: isActiveRequest.value(folderPath, parseInt(requestIndex)),
+  })
 }
 
 const dragEvent = (dataTransfer: DataTransfer, collectionIndex: string) => {

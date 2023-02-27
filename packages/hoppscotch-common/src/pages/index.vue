@@ -30,7 +30,7 @@
 </template>
 
 <script lang="ts" setup>
-import { nextTick, onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
+import { onBeforeUnmount, onMounted, Ref, ref, watch } from "vue"
 import type { Subscription } from "rxjs"
 import {
   HoppRESTRequest,
@@ -66,12 +66,6 @@ const confirmSync = ref(false)
 const currentTabId = useStream(RESTCurrentTabId$, "", setCurrentTabId)
 const tabs = useStream(RESTTabs$, [], setRESTTabs)
 
-watch(currentTabId, (newValue) => {
-  if (newValue) {
-    console.log("currentTabId", newValue)
-  }
-})
-
 function bindRequestToURLParams() {
   const route = useRoute()
   // Get URL parameters and set that as the request
@@ -97,8 +91,6 @@ const onTabUpdate = (tab: RESTTab) => {
       return t
     }
   })
-
-  console.log("ON_TAB_UPDATE", tabs.value)
 }
 
 function setupRequestSync(
@@ -177,9 +169,8 @@ const removeTab = (tabID: string) => {
       tabs.value[tabs.value.findIndex((tab) => tab.id === tabID) - 1]?.id ??
       tabs.value[0]?.id
   }
-  nextTick(() => {
-    tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
-  })
+
+  tabs.value = tabs.value.filter((tab) => tab.id !== tabID)
 }
 
 setupRequestSync(confirmSync, requestForSync)

@@ -203,6 +203,7 @@ import {
   translateToNewRequest,
 } from "@hoppscotch/data"
 import {
+  addRequestWithNewTab,
   getDefaultRESTRequest,
   getRESTRequest,
   getRESTSaveContext,
@@ -1234,8 +1235,9 @@ const selectRequest = (selectedRequest: {
       // can show the save change modal here since there is change in the request
       // and the user is clicking on the different request
       // and currently we dont have any active context
+      // confirmChangeToRequest.value = true
 
-      confirmChangeToRequest.value = true
+      addRequestWithNewTab(request)
     }
   } else {
     if (isEqualHoppRESTRequest(currentRESTRequest, request)) {
@@ -1252,7 +1254,8 @@ const selectRequest = (selectedRequest: {
       } else {
         // there is change in the request
         // so we can show the save change modal here
-        confirmChangeToRequest.value = true
+        // confirmChangeToRequest.value = true
+        addRequestWithNewTab(request)
       }
     }
   }

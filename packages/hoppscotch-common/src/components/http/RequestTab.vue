@@ -15,7 +15,6 @@ import { cloneDeep } from "lodash-es"
 import { ref, watch } from "vue"
 import { RESTTab } from "~/newstore/RESTSession"
 
-// v-model integration with props and emit
 const props = defineProps<{ modelValue: RESTTab }>()
 const emit = defineEmits(["update:modelValue"])
 
@@ -28,7 +27,6 @@ const onUpdateResponse = (response: any) => {
 watch(
   () => tab.value,
   (newVal) => {
-    console.log("tab changed", newVal)
     emit("update:modelValue", newVal)
   },
   { deep: true }

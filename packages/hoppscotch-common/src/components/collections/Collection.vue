@@ -117,10 +117,10 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="exportPostmanCollectionAction"
                   :icon="IconDownload"
-                  label="export as postman"
+                  :label="t('export.as_postman')"
                   :shortcut="['P']"
                   :loading="exportLoading"
                   @click="
@@ -130,7 +130,7 @@
                     }
                   "
                 />
-                <SmartItem
+                <HoppSmartItem
                   ref="deleteAction"
                   :icon="IconTrash2"
                   :label="t('action.delete')"

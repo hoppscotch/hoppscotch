@@ -12,7 +12,7 @@ import {
   RequestBodyDefinition,
 } from "postman-collection"
 
-import { isLeft } from "fp-ts/lib/Either"
+import * as E from "fp-ts/Either"
 
 const hoppToPostmanTemplating = (input: string): string =>
   input.replace(/<<\s*/g, "{{").replace(/>>\s*/g, "}}")
@@ -96,7 +96,7 @@ const getBody = (
     }
   } else if (hoppBody.contentType === "application/x-www-form-urlencoded") {
     const maybeBody = parseRawKeyValueEntriesE(hoppBody.body)
-    if (isLeft(maybeBody)) {
+    if (E.isLeft(maybeBody)) {
       return undefined
     }
     return {
@@ -114,16 +114,16 @@ const getBody = (
 const getHeaders = (
   request: HoppRESTRequest
 ): { key: string; value: string }[] => {
-  let out = []
-  for (const header of request.headers) {
-    out.push({ key: header.key, value: hoppToPostmanTemplating(header.value) })
-  }
+  let out = request.headers.map((header) => ({
+    key: header.key,
+    value: hoppToPostmanTemplating(header.value),
+  }))
 
   if (
     request.body.contentType !== null &&
     request.body.contentType !== "multipart/form-data"
   ) {
-    // Postman took the first value, hence removing
+    // Postman takes the first value, hence removing
     out = out.filter((header) => header.key.toLowerCase() !== "content-type")
     out.push({ key: "Content-Type", value: request.body.contentType })
   }
@@ -136,9 +136,11 @@ function parseMyCollection(
 ): ItemGroup<Item> {
   const postmanItemGoup = new ItemGroup<Item>()
   postmanItemGoup.name = hoppCollection.name
+
   for (const folder of hoppCollection.folders) {
     postmanItemGoup.items.add(parseMyCollection(folder))
   }
+
   for (const request of hoppCollection.requests) {
     postmanItemGoup.items.add(hoppRequestToPostmanRequest(request))
   }
@@ -148,15 +150,18 @@ function parseMyCollection(
 
 function hoppRequestToPostmanRequest(request: HoppRESTRequest): Item {
   const url = new URL(request.endpoint)
+
   const postmanRequest = new Item({
     request: {
       url: {
         hash: url.hash,
         host: url.host,
         path: hoppToPostmanTemplating(url.pathname),
+
         // Postman should not get a "" value as it will create url of host:/path instead of host/path
         port: url.port === "" ? undefined : url.port,
-        // Todo we are not caring about the active status
+
+        // TODO: we are not caring about the active status
         query: request.params.map((param) => ({
           key: hoppToPostmanTemplating(param.key),
           value: hoppToPostmanTemplating(param.value),
@@ -164,7 +169,7 @@ function hoppRequestToPostmanRequest(request: HoppRESTRequest): Item {
         protocol: url.protocol.replace(":", ""), // Got a value like https:
       },
       method: request.method,
-      // Todo we are not caring about the active status of header
+      // TODO: we are not caring about the active status of header
       header: getHeaders(request),
       body: getBody(request.body),
       auth: getAuth(request),
@@ -177,8 +182,7 @@ function hoppRequestToPostmanRequest(request: HoppRESTRequest): Item {
 export const exportMyCollectionToPostmanCollection = (
   collection: HoppCollection<HoppRESTRequest>
 ): string => {
-  const out = new Collection()
-  out.name = collection.name
+  const out = new Collection({ name: collection.name })
   parseMyCollection(collection).items.each((stuff) => out.items.add(stuff))
   return JSON.stringify(out.toJSON())
 }

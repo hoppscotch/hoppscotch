@@ -1458,13 +1458,13 @@ const exportPostmanCollection = async (
     } else {
       finalCollection = teamCollToHoppRESTColl(foo.right)
     }
-
-    const contents = exportMyCollectionToPostmanCollection(finalCollection)
-    initializeDownloadCollection(
-      contents,
-      finalCollection.name + ".postman-collection-export"
-    )
   }
+
+  const contents = exportMyCollectionToPostmanCollection(finalCollection)
+  initializeDownloadCollection(
+    contents,
+    finalCollection.name + ".postman-collection-export"
+  )
 }
 
 const exportJSONCollection = async () => {

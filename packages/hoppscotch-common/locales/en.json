@@ -226,6 +226,7 @@
   },
   "export": {
     "as_json": "Export as JSON",
+    "as_postman": "Export as Postman collection",
     "create_secret_gist": "Create secret Gist",
     "gist_created": "Gist created",
     "require_github": "Login with GitHub to create secret gist",

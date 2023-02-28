@@ -227,41 +227,6 @@ export class TeamResolver {
   }
 
   @Mutation(() => TeamMember, {
-    description: 'Adds a team member to the team via email',
-    deprecationReason:
-      'This is only present for backwards compatibility and will be removed soon use team invitations instead',
-  })
-  @RequiresTeamRole(TeamMemberRole.OWNER)
-  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  async addTeamMemberByEmail(
-    @Args({
-      name: 'teamID',
-      description: 'ID of the team to add to',
-      type: () => ID,
-    })
-    teamID: string,
-    @Args({
-      name: 'userEmail',
-      description: 'Email of the user to add to team',
-    })
-    userEmail: string,
-    @Args({
-      name: 'userRole',
-      description: 'The role of the user to add in the team',
-      type: () => TeamMemberRole,
-    })
-    role: TeamMemberRole,
-  ): Promise<TeamMember> {
-    const teamMember = await this.teamService.addMemberToTeamWithEmail(
-      teamID,
-      userEmail,
-      role,
-    );
-    if (E.isLeft(teamMember)) throwErr(teamMember.left);
-    return teamMember.right;
-  }
-
-  @Mutation(() => TeamMember, {
     description: 'Update role of a team member the executing user owns',
   })
   @RequiresTeamRole(TeamMemberRole.OWNER)

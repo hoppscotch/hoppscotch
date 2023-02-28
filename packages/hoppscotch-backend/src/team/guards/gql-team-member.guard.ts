@@ -27,8 +27,9 @@ export class GqlTeamMemberGuard implements CanActivate {
     if (!requireRoles) throw new Error(BUG_TEAM_NO_REQUIRE_TEAM_ROLE);
 
     const gqlExecCtx = GqlExecutionContext.create(context);
+    const { req, headers } = gqlExecCtx.getContext();
+    const user = headers ? headers.user : req.user;
 
-    const { user } = gqlExecCtx.getContext().req;
     if (user == undefined) throw new Error(BUG_AUTH_NO_USER_CTX);
 
     const { teamID } = gqlExecCtx.getArgs<{ teamID: string }>();

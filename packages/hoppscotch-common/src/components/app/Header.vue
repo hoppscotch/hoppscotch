@@ -18,7 +18,7 @@
         <!-- <AppGitHubStarButton class="mt-1.5 transition" /> -->
       </div>
       <div class="inline-flex items-center justify-center flex-1 space-x-2">
-        <AppNavigation />
+        <AppNavigation v-if="mdAndLarger" />
         <div
           class="bg-primaryDark max-w-128 text-secondaryLight justify-between cursor-pointer rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary focus:outline-none transition flex flex-1 items-center px-2 py-1.25"
           tabindex="0"
@@ -82,7 +82,6 @@
             <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('team.invite_tooltip')"
-              :label="mdAndLarger ? t('team.invite') : ``"
               :icon="IconUserPlus"
               class="py-1.75 !text-green-500 !focus-visible:text-green-600 !hover:text-green-600"
               @click="handleInvite()"

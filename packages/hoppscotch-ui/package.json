@@ -2,12 +2,19 @@
   "name": "@hoppscotch/ui",
   "private": true,
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "build": "vite build",
     "story:dev": "histoire dev",
     "story:build": "histoire build",
     "story:preview": "histoire preview",
+    "do-build-prod": "pnpm run build",
+    "postinstall": "pnpm run build",
     "do-build-ui": "pnpm run story:build"
+  },
+  "peerDependencies": {
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.16"
   },
   "dependencies": {
     "@hoppscotch/vue-toasted": "^0.1.0",
@@ -30,11 +37,10 @@
     "url": "^0.11.0",
     "util": "^0.12.4",
     "vite-plugin-eslint": "^1.8.1",
-    "vue": "^3.2.25",
     "vue-github-button": "^3.0.3",
     "vue-router": "^4.0.16",
     "vue-tippy": "6.0.0-alpha.58",
-    "vuedraggable": "^4.1.0"
+    "vuedraggable-es": "^4.1.1"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.1.1",
@@ -60,10 +66,11 @@
     "rollup-plugin-polyfill-node": "^0.10.1",
     "sass": "^1.53.0",
     "typescript": "^4.5.4",
-    "unplugin-icons": "^0.14.9",
+    "unplugin-icons": "^0.15.3",
     "unplugin-vue-components": "^0.21.0",
     "vite": "^3.2.3",
     "vite-plugin-checker": "^0.5.1",
+    "vite-plugin-dts": "2.0.0-beta.3",
     "vite-plugin-fonts": "^0.6.0",
     "vite-plugin-html-config": "^1.0.10",
     "vite-plugin-inspect": "^0.7.4",
@@ -72,12 +79,20 @@
     "vite-plugin-pwa": "^0.13.1",
     "vite-plugin-vue-layouts": "^0.7.0",
     "vite-plugin-windicss": "^1.8.8",
+    "vue": "^3.2.25",
     "vue-loader": "^16.8.3",
+    "vue-router": "^4.0.16",
     "vue-tsc": "^0.38.2",
     "windicss": "^3.5.6"
   },
   "files": [
-    "src",
     "dist"
-  ]
+  ],
+  "module": "./dist/index.es.js",
+  "main": "./dist/index.es.js",
+  "exports": {
+    ".": "./dist/index.es.js",
+    "./style.css": "./dist/style.css"
+  },
+  "types": "./dist/index.d.ts"
 }

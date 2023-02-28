@@ -31,7 +31,7 @@
           :on-shown="() => tippyActions.focus()"
         >
           <span class="select-wrapper">
-            <ButtonSecondary
+            <HoppButtonSecondary
               :label="contentType || t('state.none').toLowerCase()"
               class="pr-8 ml-2 rounded-none"
             />
@@ -43,7 +43,7 @@
               tabindex="0"
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 v-for="(contentTypeItem, index) in validContentTypes"
                 :key="`contentTypeItem-${index}`"
                 :label="contentTypeItem"
@@ -63,7 +63,7 @@
         </tippy>
       </span>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
           :title="`${t(
             'request.run'
@@ -74,7 +74,7 @@
           class="rounded-none !text-accent !hover:text-accentDark"
           @click="sendMessage()"
         />
-        <SmartCheckbox
+        <HoppSmartCheckbox
           v-tippy="{ theme: 'tooltip' }"
           :on="clearInputOnSend"
           class="px-2"
@@ -82,28 +82,28 @@
           @change="clearInputOnSend = !clearInputOnSend"
         >
           {{ t("mqtt.clear_input") }}
-        </SmartCheckbox>
-        <ButtonSecondary
+        </HoppSmartCheckbox>
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/realtime"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear')"
           :icon="IconTrash2"
           @click="clearContent"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
           :icon="IconWrapText"
           @click.prevent="linewrapEnabled = !linewrapEnabled"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="contentType && contentType == 'JSON'"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.prettify')"
@@ -111,7 +111,7 @@
           @click="prettifyRequestBody"
         />
         <label for="payload">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('import.title')"
             :icon="IconFilePlus"

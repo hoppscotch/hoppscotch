@@ -4,7 +4,7 @@
       v-if="invalidLink"
       class="flex flex-col items-center justify-center flex-1"
     >
-      <i class="pb-2 opacity-75 material-icons">error_outline</i>
+      <icon-lucide-alert-triangle class="mb-2 opacity-75 svg-icons" />
       <h1 class="text-center heading">
         {{ t("error.invalid_link") }}
       </h1>
@@ -17,14 +17,14 @@
         v-if="shortcodeDetails.loading"
         class="flex flex-col items-center justify-center flex-1 p-4"
       >
-        <SmartSpinner />
+        <HoppSmartSpinner />
       </div>
       <div v-else>
         <div
           v-if="!shortcodeDetails.loading && E.isLeft(shortcodeDetails.data)"
           class="flex flex-col items-center p-4"
         >
-          <i class="pb-2 opacity-75 material-icons">error_outline</i>
+          <icon-lucide-alert-triangle class="mb-2 opacity-75 svg-icons" />
           <h1 class="text-center heading">
             {{ t("error.invalid_link") }}
           </h1>
@@ -32,13 +32,13 @@
             {{ t("error.invalid_link_description") }}
           </p>
           <p class="mt-4">
-            <ButtonSecondary
+            <HoppButtonSecondary
               to="/"
               :icon="IconHome"
               filled
               :label="t('app.home')"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               :icon="IconRefreshCW"
               :label="t('app.reload')"
               filled

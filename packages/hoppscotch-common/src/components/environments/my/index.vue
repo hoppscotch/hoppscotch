@@ -3,21 +3,21 @@
     <div
       class="sticky z-10 flex justify-between flex-1 flex-shrink-0 overflow-x-auto border-b top-upperPrimaryStickyFold border-dividerLight bg-primary"
     >
-      <ButtonSecondary
+      <HoppButtonSecondary
         :icon="IconPlus"
         :label="`${t('action.new')}`"
         class="!rounded-none"
         @click="displayModalAdd(true)"
       />
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/environments"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconArchive"
           :title="t('modal.import_export')"
@@ -45,7 +45,7 @@
       <span class="pb-4 text-center">
         {{ t("empty.environments") }}
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="`${t('add.new')}`"
         filled
         outline

@@ -4,7 +4,7 @@
       v-if="responseString === 'loading'"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
-      <SmartSpinner class="my-4" />
+      <HoppSmartSpinner class="my-4" />
       <span class="text-secondaryLight">{{ t("state.loading") }}</span>
     </div>
     <div v-else-if="responseString" class="flex flex-col flex-1">
@@ -15,14 +15,14 @@
           {{ t("response.title") }}
         </label>
         <div class="flex items-center">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('state.linewrap')"
             :class="{ '!text-accent': linewrapEnabled }"
             :icon="IconWrapText"
             @click.prevent="linewrapEnabled = !linewrapEnabled"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             :title="`${t(
               'action.download_file'
@@ -30,7 +30,7 @@
             :icon="downloadResponseIcon"
             @click="downloadResponse"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip', allowHTML: true }"
             :title="`${t(
               'action.copy'

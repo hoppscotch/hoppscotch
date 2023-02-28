@@ -56,7 +56,7 @@
     </div>
     <div v-if="!compact" class="flex items-end justify-between flex-shrink-0">
       <span>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="team.myRole === 'OWNER'"
           :icon="IconEdit"
           class="rounded-none"
@@ -67,7 +67,7 @@
             }
           "
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="team.myRole === 'OWNER'"
           :icon="IconUserPlus"
           class="rounded-none"
@@ -87,7 +87,7 @@
           theme="popover"
           :on-shown="() => tippyActions.focus()"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.more')"
             :icon="IconMoreVertical"
@@ -108,7 +108,7 @@
               "
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 v-if="team.myRole === 'OWNER'"
                 ref="edit"
                 :icon="IconEdit"
@@ -121,7 +121,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 v-if="!(team.myRole === 'OWNER' && team.ownersCount == 1)"
                 ref="exit"
                 :icon="IconUserX"
@@ -134,7 +134,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 v-if="team.myRole === 'OWNER'"
                 ref="deleteAction"
                 :icon="IconTrash2"
@@ -152,13 +152,13 @@
         </tippy>
       </span>
     </div>
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="t('confirm.remove_team')"
       @hide-modal="confirmRemove = false"
       @resolve="deleteTeam()"
     />
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmExit"
       :title="t('confirm.exit_team')"
       @hide-modal="confirmExit = false"

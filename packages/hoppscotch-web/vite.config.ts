@@ -107,16 +107,18 @@ export default defineConfig({
     }),
     Components({
       dts: "../hoppscotch-common/src/components.d.ts",
-      dirs: [
-        "../hoppscotch-common/src/components",
-        "../hoppscotch-ui/src/components",
-      ],
+      dirs: ["../hoppscotch-common/src/components"],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({
           prefix: "icon",
           customCollections: ["hopp", "auth", "brands"],
         }),
+        (compName: string) => {
+          if (compName.startsWith("Hopp"))
+            return { name: compName, from: "@hoppscotch/ui" }
+          else return undefined
+        },
       ],
       types: [
         {

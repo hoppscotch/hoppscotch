@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center px-4 py-2">
-    <SmartProgressRing
+    <HoppSmartProgressRing
       class="mr-2 text-red-500"
       :radius="8"
       :stroke="1.5"

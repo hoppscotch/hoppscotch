@@ -1,12 +1,6 @@
 <template>
-  <SmartModal
-    v-if="show"
-    dialog
-    :title="confirm ?? t?.('modal.confirm') ?? 'Confirm'"
-    role="dialog"
-    aria-modal="true"
-    @close="hideModal"
-  >
+  <HoppSmartModal v-if="show" dialog :title="confirm ?? t?.('modal.confirm') ?? 'Confirm'" role="dialog" aria-modal="true"
+    @close="hideModal">
     <template #body>
       <div class="flex flex-col items-center justify-center">
         {{ title }}
@@ -14,27 +8,19 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
-          v-focus
-          :label="yes ?? t?.('action.yes') ?? 'Yes'"
-          :loading="!!loadingState"
-          outline
-          @click="resolve"
-        />
-        <ButtonSecondary
-          :label="no ?? t?.('action.no') ?? 'No'"
-          filled
-          outline
-          @click="hideModal"
-        />
+        <HoppButtonPrimary v-focus :label="yes ?? t?.('action.yes') ?? 'Yes'" :loading="!!loadingState" outline
+          @click="resolve" />
+        <HoppButtonSecondary :label="no ?? t?.('action.no') ?? 'No'" filled outline @click="hideModal" />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">
 import { inject } from "vue"
-import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
+import { HoppButtonPrimary, HoppButtonSecondary } from "../button"
+import { HoppSmartModal } from "."
+import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../plugin"
 
 const { t } = inject<HoppUIPluginOptions>(HOPP_UI_OPTIONS) ?? {}
 

@@ -1,5 +1,5 @@
 <template>
-  <SmartModal v-if="show" dialog :title="t('mqtt.new')" @close="hideModal">
+  <HoppSmartModal v-if="show" dialog :title="t('mqtt.new')" @close="hideModal">
     <template #body>
       <div class="flex justify-between mb-4">
         <div
@@ -10,11 +10,11 @@
           </label>
           <tippy interactive trigger="click" theme="popover">
             <span class="select-wrapper">
-              <ButtonSecondary class="pr-8" :label="`${QoS}`" />
+              <HoppButtonSecondary class="pr-8" :label="`${QoS}`" />
             </span>
             <template #content="{ hide }">
               <div class="flex flex-col" role="menu">
-                <SmartItem
+                <HoppSmartItem
                   v-for="item in QOS_VALUES"
                   :key="`qos-${item}`"
                   :label="`${item}`"
@@ -68,13 +68,13 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
+        <HoppButtonPrimary
           :label="t('mqtt.subscribe')"
           :loading="loadingState"
           outline
           @click="addNewSubscription"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('action.cancel')"
           outline
           filled
@@ -82,7 +82,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script lang="ts" setup>

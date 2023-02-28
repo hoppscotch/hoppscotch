@@ -14,4 +14,7 @@ export default defineConfig({
   },
   setupFile: "histoire.setup.ts",
   plugins: [HstVue()],
+  viteIgnorePlugins: [
+    'vite:dts'
+  ]
 })

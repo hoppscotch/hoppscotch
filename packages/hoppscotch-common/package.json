@@ -90,7 +90,7 @@
     "vue-pdf-embed": "^1.1.4",
     "vue-router": "^4.0.16",
     "vue-tippy": "6.0.0-alpha.58",
-    "vuedraggable": "^4.1.0",
+    "vuedraggable-es": "^4.1.1",
     "wonka": "^4.0.15",
     "workbox-window": "^6.5.4",
     "yargs-parser": "^21.1.1"

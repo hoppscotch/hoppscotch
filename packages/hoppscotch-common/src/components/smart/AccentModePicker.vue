@@ -9,7 +9,7 @@
     <!-- text-orange-500 -->
     <!-- text-red-500 -->
     <!-- text-pink-500 -->
-    <ButtonSecondary
+    <HoppButtonSecondary
       v-for="(color, index) of accentColors"
       :key="`color-${index}`"
       v-tippy="{ theme: 'tooltip' }"

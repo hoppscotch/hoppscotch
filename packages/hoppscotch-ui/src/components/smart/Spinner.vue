@@ -1,9 +1,7 @@
 <template>
-  <icon-lucide-loader class="animate-spin svg-icons" />
+  <IconLucideLoader class="animate-spin svg-icons" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
-
-export default defineComponent({})
+<script setup lang="ts">
+import IconLucideLoader from "~icons/lucide/loader"
 </script>

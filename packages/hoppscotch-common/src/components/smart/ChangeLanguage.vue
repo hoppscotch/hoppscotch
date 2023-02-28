@@ -7,7 +7,7 @@
       :on-shown="() => tippyActions.focus()"
     >
       <span class="select-wrapper">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('settings.choose_language')"
           class="pr-8"
@@ -33,7 +33,7 @@
             tabindex="0"
             @keyup.escape="hide()"
           >
-            <SmartLink
+            <HoppSmartLink
               v-for="locale in filteredAppLanguages"
               :key="`locale-${locale.code}`"
               class="flex flex-1"
@@ -44,14 +44,14 @@
                 }
               "
             >
-              <SmartItem
+              <HoppSmartItem
                 :label="locale.name"
                 :active-info-icon="currentLocale.code === locale.code"
                 :info-icon="
                   currentLocale.code === locale.code ? IconDone : null
                 "
               />
-            </SmartLink>
+            </HoppSmartLink>
             <div
               v-if="
                 !(

@@ -1,18 +1,18 @@
 <template>
-  <SmartTabs
+  <HoppSmartTabs
     v-model="currentTab"
     styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
     content-styles="h-[calc(100%-var(--sidebar-primary-sticky-fold)-1px)] !flex"
   >
-    <SmartTab
+    <HoppSmartTab
       v-for="{ target, title } in REALTIME_NAVIGATION"
       :id="target"
       :key="target"
       :label="title"
     >
       <RouterView />
-    </SmartTab>
-  </SmartTabs>
+    </HoppSmartTab>
+  </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">

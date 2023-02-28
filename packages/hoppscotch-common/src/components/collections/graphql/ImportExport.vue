@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="`${t('modal.collections')}`"
@@ -9,7 +9,7 @@
     <template #actions>
       <span>
         <tippy interactive trigger="click" theme="popover">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('action.more')"
             :icon="IconMoreVertical"
@@ -22,7 +22,7 @@
               tabindex="0"
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconGithub"
                 :label="t('import.from_gist')"
                 @click="
@@ -42,7 +42,7 @@
                     : undefined
                 "
               >
-                <SmartItem
+                <HoppSmartItem
                   :disabled="
                     !currentUser
                       ? true
@@ -67,7 +67,7 @@
     </template>
     <template #body>
       <div class="flex flex-col space-y-2">
-        <SmartItem
+        <HoppSmartItem
           :icon="IconFolderPlus"
           :label="t('import.from_json')"
           @click="openDialogChooseFileToImportFrom"
@@ -80,7 +80,7 @@
           @change="importFromJSON"
         />
         <hr />
-        <SmartItem
+        <HoppSmartItem
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.download_file')"
           :icon="IconDownload"
@@ -89,7 +89,7 @@
         />
       </div>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

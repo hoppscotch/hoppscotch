@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="t('request.new')"
@@ -24,8 +24,12 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary :label="t('action.save')" outline @click="addRequest" />
-        <ButtonSecondary
+        <HoppButtonPrimary
+          :label="t('action.save')"
+          outline
+          @click="addRequest"
+        />
+        <HoppButtonSecondary
           :label="t('action.cancel')"
           outline
           filled
@@ -33,7 +37,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

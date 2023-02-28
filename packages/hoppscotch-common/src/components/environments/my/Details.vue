@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="t(`environment.${action}`)"
@@ -28,13 +28,13 @@
             {{ t("environment.variable_list") }}
           </label>
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.clear_all')"
               :icon="clearIcon"
               @click="clearContent()"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :icon="IconPlus"
               :title="t('add.new')"
@@ -69,7 +69,7 @@
               :name="'value' + index"
             />
             <div class="flex">
-              <ButtonSecondary
+              <HoppButtonSecondary
                 id="variable"
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.remove')"
@@ -92,7 +92,7 @@
             <span class="pb-4 text-center">
               {{ t("empty.environments") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               :label="`${t('add.new')}`"
               filled
               class="mb-4"
@@ -104,12 +104,12 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
+        <HoppButtonPrimary
           :label="`${t('action.save')}`"
           outline
           @click="saveEnvironment"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="`${t('action.cancel')}`"
           outline
           filled
@@ -117,7 +117,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

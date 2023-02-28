@@ -1,19 +1,19 @@
 <template>
   <div>
-    <SmartTabs
+    <HoppSmartTabs
       :id="'environments_tab'"
       v-model="selectedEnvironmentTab"
       render-inactive-tabs
     >
-      <SmartTab
+      <HoppSmartTab
         :id="'my-environments'"
         :label="`${t('environment.my_environments')}`"
       />
-      <SmartTab
+      <HoppSmartTab
         :id="'team-environments'"
         :label="`${t('environment.team_environments')}`"
       >
-        <SmartIntersection @intersecting="onTeamSelectIntersect">
+        <HoppSmartIntersection @intersecting="onTeamSelectIntersect">
           <tippy
             interactive
             trigger="click"
@@ -26,13 +26,13 @@
               :title="`${t('collection.select_team')}`"
               class="bg-transparent border-b border-dividerLight select-wrapper"
             >
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-if="environmentType.selectedTeam"
                 :icon="IconUsers"
                 :label="environmentType.selectedTeam.name"
                 class="flex-1 !justify-start pr-8 rounded-none"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-else
                 :label="`${t('collection.select_team')}`"
                 class="flex-1 !justify-start pr-8 rounded-none"
@@ -45,7 +45,7 @@
                 tabindex="0"
                 @keyup.escape="hide()"
               >
-                <SmartItem
+                <HoppSmartItem
                   v-for="(team, index) in myTeams"
                   :key="`team-${index}`"
                   :label="team.name"
@@ -68,9 +68,9 @@
               </div>
             </template>
           </tippy>
-        </SmartIntersection>
-      </SmartTab>
-    </SmartTabs>
+        </HoppSmartIntersection>
+      </HoppSmartTab>
+    </HoppSmartTabs>
   </div>
 </template>
 

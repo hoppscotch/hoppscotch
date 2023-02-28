@@ -15,7 +15,7 @@
       {{ dateStamp }}
     </div>
     <div class="justify-center table-box">
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.open_workspace')"
         :to="`${shortcodeBaseURL}/r/${shortcode.id}`"
@@ -23,7 +23,7 @@
         :icon="IconExternalLink"
         class="px-3 text-accent hover:text-accent"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.copy')"
         color="green"
@@ -31,7 +31,7 @@
         class="px-3"
         @click="copyShortcode(shortcode.id)"
       />
-      <ButtonSecondary
+      <HoppButtonSecondary
         v-tippy="{ theme: 'tooltip' }"
         :title="t('action.delete')"
         :icon="IconTrash"

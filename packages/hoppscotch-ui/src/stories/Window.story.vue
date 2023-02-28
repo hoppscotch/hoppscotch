@@ -1,27 +1,18 @@
 <template>
   <Story title="Window">
     <Variant title="Single">
-      <SmartWindows
-        :id="'my-window'"
-        v-model="selectedWindow"
-        @add-tab="openNewTab"
-        @remove-tab="removeTab"
-        @sort="sortTabs"
-      >
-        <SmartWindow
-          v-for="window in tabs"
-          :id="window.id"
-          :key="'tab_' + window.id"
-          :label="window.name"
-          :is-removable="window.removable"
-        >
-        </SmartWindow>
-      </SmartWindows>
+      <HoppSmartWindows :id="'my-window'" v-model="selectedWindow" @add-tab="openNewTab" @remove-tab="removeTab"
+        @sort="sortTabs">
+        <HoppSmartWindow v-for="window in tabs" :id="window.id" :key="'tab_' + window.id" :label="window.name"
+          :is-removable="window.removable">
+        </HoppSmartWindow>
+      </HoppSmartWindows>
     </Variant>
   </Story>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartWindows, HoppSmartWindow } from "../components/smart"
 import { ref } from "vue"
 
 const selectedWindow = ref("window1")

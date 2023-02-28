@@ -7,27 +7,27 @@
         {{ t("request.raw_body") }}
       </label>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/body"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear')"
           :icon="IconTrash2"
           @click="clearContent"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
           :icon="IconWrapText"
           @click.prevent="linewrapEnabled = !linewrapEnabled"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="
             [
               'application/json',
@@ -43,7 +43,7 @@
           @click="prettifyRequestBody"
         />
         <label for="payload">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('import.title')"
             :icon="IconFilePlus"

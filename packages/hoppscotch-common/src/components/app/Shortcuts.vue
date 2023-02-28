@@ -1,5 +1,5 @@
 <template>
-  <SmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
+  <HoppSmartSlideOver :show="show" :title="t('app.shortcuts')" @close="close()">
     <template #content>
       <div
         class="sticky top-0 z-10 flex flex-col flex-shrink-0 overflow-x-auto bg-primary"
@@ -76,7 +76,7 @@
         </details>
       </div>
     </template>
-  </SmartSlideOver>
+  </HoppSmartSlideOver>
 </template>
 
 <script setup lang="ts">

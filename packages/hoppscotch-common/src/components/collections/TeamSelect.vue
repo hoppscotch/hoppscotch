@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-1">
-    <SmartIntersection
+    <HoppSmartIntersection
       class="flex flex-col flex-1"
       @intersecting="onTeamSelectIntersect"
     >
@@ -16,13 +16,13 @@
           :title="`${t('collection.select_team')}`"
           class="bg-transparent border-b border-dividerLight select-wrapper"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-if="collectionsType.selectedTeam"
             :icon="IconUsers"
             :label="collectionsType.selectedTeam.name"
             class="flex-1 !justify-start pr-8 rounded-none"
           />
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-else
             :label="`${t('collection.select_team')}`"
             class="flex-1 !justify-start pr-8 rounded-none"
@@ -39,11 +39,11 @@
               v-if="isTeamListLoading && myTeams.length === 0"
               class="flex flex-col items-center justify-center flex-1 p-2"
             >
-              <SmartSpinner class="my-2" />
+              <HoppSmartSpinner class="my-2" />
               <span class="text-secondaryLight">{{ t("state.loading") }}</span>
             </div>
             <div v-else-if="myTeams.length > 0" class="flex flex-col">
-              <SmartItem
+              <HoppSmartItem
                 v-for="(team, index) in myTeams"
                 :key="`team-${index}`"
                 :label="team.name"
@@ -62,7 +62,7 @@
                 "
               />
               <hr />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconPlus"
                 :label="t('team.create_new')"
                 @click="
@@ -86,7 +86,7 @@
               <span class="pb-4 text-center">
                 {{ t("empty.teams") }}
               </span>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 :label="t('team.create_new')"
                 filled
                 outline
@@ -101,7 +101,7 @@
           </div>
         </template>
       </tippy>
-    </SmartIntersection>
+    </HoppSmartIntersection>
   </div>
 </template>
 

@@ -33,7 +33,7 @@
         theme="popover"
         :on-shown="() => tippyActions!.focus()"
       >
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.more')"
           :icon="IconMoreVertical"
@@ -53,7 +53,7 @@
             "
             @keyup.escape="hide()"
           >
-            <SmartItem
+            <HoppSmartItem
               ref="edit"
               :icon="IconEdit"
               :label="`${t('action.edit')}`"
@@ -65,7 +65,7 @@
                 }
               "
             />
-            <SmartItem
+            <HoppSmartItem
               ref="duplicate"
               :icon="IconCopy"
               :label="`${t('action.duplicate')}`"
@@ -77,7 +77,7 @@
                 }
               "
             />
-            <SmartItem
+            <HoppSmartItem
               v-if="environmentIndex !== 'Global'"
               ref="deleteAction"
               :icon="IconTrash2"
@@ -94,7 +94,7 @@
         </template>
       </tippy>
     </span>
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="`${t('confirm.remove_environment')}`"
       @hide-modal="confirmRemove = false"
@@ -122,7 +122,7 @@ import {
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { TippyComponent } from "vue-tippy"
-import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
+import { HoppSmartItem } from "@hoppscotch/ui"
 
 const t = useI18n()
 const toast = useToast()
@@ -140,9 +140,9 @@ const confirmRemove = ref(false)
 
 const tippyActions = ref<TippyComponent | null>(null)
 const options = ref<TippyComponent | null>(null)
-const edit = ref<typeof SmartItem>()
-const duplicate = ref<typeof SmartItem>()
-const deleteAction = ref<typeof SmartItem>()
+const edit = ref<typeof HoppSmartItem>()
+const duplicate = ref<typeof HoppSmartItem>()
+const deleteAction = ref<typeof HoppSmartItem>()
 
 const removeEnvironment = () => {
   if (props.environmentIndex === null) return

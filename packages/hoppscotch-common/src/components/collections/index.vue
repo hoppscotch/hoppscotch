@@ -15,7 +15,7 @@
         :disabled="collectionsType.type === 'team-collections'"
       />
     </div>
-    <SmartTabs
+    <HoppSmartTabs
       v-model="selectedCollectionTab"
       render-inactive-tabs
       :styles="`
@@ -27,7 +27,7 @@
         }
       `"
     >
-      <SmartTab
+      <HoppSmartTab
         :id="'my-collections'"
         :label="`${t('collection.my_collections')}`"
       >
@@ -53,8 +53,8 @@
           @display-modal-add="displayModalAdd(true)"
           @display-modal-import-export="displayModalImportExport(true)"
         />
-      </SmartTab>
-      <SmartTab
+      </HoppSmartTab>
+      <HoppSmartTab
         :id="'team-collections'"
         :label="`${t('collection.team_collections')}`"
       >
@@ -99,8 +99,8 @@
           @display-modal-add="displayModalAdd(true)"
           @display-modal-import-export="displayModalImportExport(true)"
         />
-      </SmartTab>
-    </SmartTabs>
+      </HoppSmartTab>
+    </HoppSmartTabs>
     <CollectionsAdd
       :show="showModalAdd"
       :loading-state="modalLoadingState"
@@ -140,7 +140,7 @@
       @submit="updateEditingRequest"
       @hide-modal="displayModalEditRequest(false)"
     />
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="showConfirmModal"
       :title="confirmModalTitle"
       :loading-state="modalLoadingState"

@@ -7,7 +7,7 @@
         {{ t("request.header_list") }}
       </label>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="headers"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.copy')"

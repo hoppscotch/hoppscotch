@@ -1,18 +1,20 @@
 <template>
   <Story title="Link">
     <Variant title="Text Link">
-      <SmartLink :to="link" :blank="true"> Click here </SmartLink>
+      <HoppSmartLink :to="link" :blank="true"> Click here </HoppSmartLink>
     </Variant>
     <Variant title="Button Link">
-      <SmartLink :to="link" :blank="true">
-        <ButtonPrimary label="Click here" />
-      </SmartLink>
+      <HoppSmartLink :to="link" :blank="true">
+        <HoppButtonPrimary label="Click here" />
+      </HoppSmartLink>
     </Variant>
   </Story>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartLink } from "../components/smart"
+import { HoppButtonPrimary } from "../components/button"
 import { ref } from "vue"
 
-const link = ref("/graphql")
+const link = ref("/")
 </script>

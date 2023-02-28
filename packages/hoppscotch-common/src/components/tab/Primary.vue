@@ -1,5 +1,5 @@
 <template>
-  <SmartLink
+  <HoppSmartLink
     :to="to"
     :exact="exact"
     :blank="blank"
@@ -20,7 +20,7 @@
       :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     />
     {{ label }}
-  </SmartLink>
+  </HoppSmartLink>
 </template>
 
 <script>

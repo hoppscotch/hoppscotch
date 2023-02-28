@@ -7,7 +7,7 @@
       :on-shown="() => tippyActions.focus()"
     >
       <span class="select-wrapper">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('settings.change_font_size')"
           class="pr-8"
@@ -25,7 +25,7 @@
           tabindex="0"
           @keyup.escape="hide()"
         >
-          <SmartItem
+          <HoppSmartItem
             v-for="(size, index) in fontSizes"
             :key="`size-${index}`"
             :label="`${getFontSizeName(size)}`"

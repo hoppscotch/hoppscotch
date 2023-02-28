@@ -2,9 +2,9 @@ import { Subject, BehaviorSubject } from "rxjs"
 import { map } from "rxjs/operators"
 import { assign, clone } from "lodash-es"
 
-type dispatcherFunc<StoreType> = (
+type DispatcherFunc<StoreType, PayloadType> = (
   currentVal: StoreType,
-  payload: any
+  payload: PayloadType
 ) => Partial<StoreType>
 
 /**
@@ -13,22 +13,27 @@ type dispatcherFunc<StoreType> = (
  * This function exists to provide better typing for dispatch function.
  * As you can see, its pretty much an identity function.
  */
-export const defineDispatchers = <StoreType, T>(
+export const defineDispatchers = <
+  StoreType,
+  T extends { [x: string]: DispatcherFunc<StoreType, any> }
+>(
   // eslint-disable-next-line no-unused-vars
-  dispatchers: { [_ in keyof T]: dispatcherFunc<StoreType> }
+  dispatchers: T
 ) => dispatchers
 
 type Dispatch<
   StoreType,
-  DispatchersType extends Record<string, dispatcherFunc<StoreType>>
+  DispatchersType extends { [x: string]: DispatcherFunc<StoreType, any> }
 > = {
-  dispatcher: keyof DispatchersType
-  payload: any
-}
+  [Dispatcher in keyof DispatchersType]: {
+    dispatcher: Dispatcher
+    payload: Parameters<DispatchersType[Dispatcher]>[1]
+  }
+}[keyof DispatchersType]
 
 export default class DispatchingStore<
   StoreType,
-  DispatchersType extends Record<string, dispatcherFunc<StoreType>>
+  DispatchersType extends { [x: string]: DispatcherFunc<StoreType, any> }
 > {
   #state$: BehaviorSubject<StoreType>
   #dispatchers: DispatchersType
@@ -66,7 +71,7 @@ export default class DispatchingStore<
 
   dispatch({ dispatcher, payload }: Dispatch<StoreType, DispatchersType>) {
     if (!this.#dispatchers[dispatcher])
-      throw new Error(`Undefined dispatch type '${dispatcher}'`)
+      throw new Error(`Undefined dispatch type '${String(dispatcher)}'`)
 
     this.#dispatches$.next({ dispatcher, payload })
   }

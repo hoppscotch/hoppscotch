@@ -6,7 +6,7 @@ import {
   setDoc,
 } from "firebase/firestore"
 import { platform } from "~/platform"
-import { applySetting, settingsStore, SettingsType } from "~/newstore/settings"
+import { applySetting, settingsStore, SettingsDef } from "~/newstore/settings"
 
 /**
  * Used locally to prevent infinite loop when settings sync update
@@ -59,7 +59,7 @@ export function initSettings() {
       } else {
         writeSettings(
           dispatch.payload.settingKey,
-          settingsStore.value[dispatch.payload.settingKey as keyof SettingsType]
+          settingsStore.value[dispatch.payload.settingKey as keyof SettingsDef]
         )
       }
     }

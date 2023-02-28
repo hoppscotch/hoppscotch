@@ -141,7 +141,8 @@ const RESTHistoryDispatchers = defineDispatchers({
       state: currentVal.state.filter((e) => !isEqual(e, entry)),
     }
   },
-  clearHistory() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  clearHistory(_, {}) {
     return {
       state: [],
     }
@@ -189,7 +190,8 @@ const GQLHistoryDispatchers = defineDispatchers({
       state: currentVal.state.filter((e) => !isEqual(e, entry)),
     }
   },
-  clearHistory() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  clearHistory(_, {}) {
     return {
       state: [],
     }

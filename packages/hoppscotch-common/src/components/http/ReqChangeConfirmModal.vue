@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="t('modal.confirm')"
@@ -13,28 +13,28 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
+        <HoppButtonPrimary
           v-focus
           :label="t('action.save')"
           :loading="loading"
           outline
           @click="saveChange"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('action.dont_save')"
           outline
           filled
           @click="discardChange"
         />
       </span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="t('action.cancel')"
         outline
         filled
         @click="hideModal"
       />
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

@@ -1,17 +1,13 @@
 <template>
   <div class="flex flex-col">
-    <SmartRadio
-      v-for="(radio, index) in radios"
-      :key="`radio-${index}`"
-      :value="radio.value"
-      :label="radio.label"
-      :selected="modelValue === radio.value"
-      @change="emit('update:modelValue', radio.value)"
-    />
+    <HoppSmartRadio v-for="(radio, index) in radios" :key="`radio-${index}`" :value="radio.value" :label="radio.label"
+      :selected="modelValue === radio.value" @change="emit('update:modelValue', radio.value)" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartRadio } from '.';
+
 const emit = defineEmits<{
   (e: "update:modelValue", value: string): void
 }>()

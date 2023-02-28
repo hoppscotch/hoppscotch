@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="`${t('import.curl')}`"
@@ -13,26 +13,26 @@
               cURL
             </label>
             <div class="flex items-center">
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.clear_all')"
                 :icon="IconTrash2"
                 @click="clearContent()"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('state.linewrap')"
                 :class="{ '!text-accent': linewrapEnabled }"
                 :icon="IconWrapText"
                 @click.prevent="linewrapEnabled = !linewrapEnabled"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
                 :title="t('action.download_file')"
                 :icon="downloadIcon"
                 @click="downloadResponse"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip', allowHTML: true }"
                 :title="t('action.copy')"
                 :icon="copyIcon"
@@ -51,13 +51,13 @@
     </template>
     <template #footer>
       <span class="flex space-x-2">
-        <ButtonPrimary
+        <HoppButtonPrimary
           ref="importButton"
           :label="`${t('import.title')}`"
           outline
           @click="handleImport"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="`${t('action.cancel')}`"
           outline
           filled
@@ -65,7 +65,7 @@
         />
       </span>
       <span class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           :icon="pasteIcon"
           :label="`${t('action.paste')}`"
           filled
@@ -74,7 +74,7 @@
         />
       </span>
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

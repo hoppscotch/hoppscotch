@@ -9,9 +9,12 @@ export default defineConfig({
       light: "/logo.png",
       dark: "/logo.png",
     },
-    // logoHref: "https://ui.hoppscotch.io",
+    logoHref: "https://ui.hoppscotch.io",
     favicon: 'favicon.ico',
   },
   setupFile: "histoire.setup.ts",
   plugins: [HstVue()],
+  viteIgnorePlugins: [
+    'vite:dts'
+  ]
 })

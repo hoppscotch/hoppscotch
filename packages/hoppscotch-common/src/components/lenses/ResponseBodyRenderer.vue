@@ -1,10 +1,10 @@
 <template>
-  <SmartTabs
+  <HoppSmartTabs
     v-if="response"
     v-model="selectedLensTab"
     styles="sticky overflow-x-auto flex-shrink-0 z-10 bg-primary top-lowerPrimaryStickyFold"
   >
-    <SmartTab
+    <HoppSmartTab
       v-for="(lens, index) in validLenses"
       :id="lens.renderer"
       :key="`lens-${index}`"
@@ -12,8 +12,8 @@
       class="flex flex-col flex-1 w-full h-full"
     >
       <component :is="lensRendererFor(lens.renderer)" :response="response" />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       v-if="maybeHeaders"
       id="headers"
       :label="t('response.headers')"
@@ -21,8 +21,8 @@
       class="flex flex-col flex-1"
     >
       <LensesHeadersRenderer :headers="maybeHeaders" />
-    </SmartTab>
-    <SmartTab
+    </HoppSmartTab>
+    <HoppSmartTab
       id="results"
       :label="t('test.results')"
       :indicator="
@@ -38,8 +38,8 @@
       class="flex flex-col flex-1"
     >
       <HttpTestResult />
-    </SmartTab>
-  </SmartTabs>
+    </HoppSmartTab>
+  </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">

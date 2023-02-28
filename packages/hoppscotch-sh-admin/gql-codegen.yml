@@ -1,0 +1,13 @@
+overwrite: true
+schema: ${VITE_BACKEND_GQL_URL}
+generates:
+  src/helpers/backend/graphql.ts:
+    documents: 'src/**/*.graphql'
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typed-document-node'
+      - 'urql-introspection'
+  src/helpers/backend/graphql.schema.json:
+    plugins:
+      - 'introspection'

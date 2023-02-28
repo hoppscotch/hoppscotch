@@ -1,4 +1,17 @@
-# Hoppscotch CLI <sup>ALPHA</sup>
+<div align="center">
+  <a href="https://hoppscotch.io">
+    <img
+      src="https://avatars.githubusercontent.com/u/56705483"
+      alt="Hoppscotch Logo"
+      height="64"
+    />
+  </a>
+</div>
+<div align="center">
+
+# Hoppscotch CLI <font size=2><sup>ALPHA</sup></font>
+
+</div>
 
 A CLI to run Hoppscotch test scripts in CI environments.
 
@@ -33,7 +46,7 @@ hopp [options or commands] arguments
 
     #### Options:
     ##### `-e <file_path>` / `--env <file_path>`
-    - Accepts path to env.json with contents in below format:   
+    - Accepts path to env.json with contents in below format:
         ```json
         {
             "ENV1":"value1",
@@ -41,7 +54,7 @@ hopp [options or commands] arguments
         }
         ```
     - You can now access those variables using `pw.env.get('<var_name>')`
-			
+
 			Taking the above example, `pw.env.get("ENV1")` will return `"value1"`
 
 ## Install

@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col flex-1 h-full">
-    <SmartTabs
+    <HoppSmartTabs
       v-model="selectedOptionTab"
       styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
       render-inactive-tabs
     >
-      <SmartTab
+      <HoppSmartTab
         :id="'query'"
         :label="`${t('tab.query')}`"
         :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
@@ -17,7 +17,7 @@
             {{ t("request.query") }}
           </label>
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.run'
@@ -27,7 +27,7 @@
               class="rounded-none !text-accent !hover:text-accentDark"
               @click="runQuery()"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip', delay: [500, 20], allowHTML: true }"
               :title="`${t(
                 'request.save'
@@ -37,33 +37,33 @@
               class="rounded-none"
               @click="saveRequest"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/graphql"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.clear_all')"
               :icon="IconTrash2"
               @click="clearGQLQuery()"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('state.linewrap')"
               :class="{ '!text-accent': linewrapEnabledQuery }"
               :icon="IconWrapText"
               @click.prevent="linewrapEnabledQuery = !linewrapEnabledQuery"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.prettify')"
               :icon="prettifyQueryIcon"
               @click="prettifyQuery"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyQueryIcon"
@@ -72,8 +72,8 @@
           </div>
         </div>
         <div ref="queryEditor" class="flex flex-col flex-1"></div>
-      </SmartTab>
-      <SmartTab
+      </HoppSmartTab>
+      <HoppSmartTab
         :id="'variables'"
         :label="`${t('tab.variables')}`"
         :indicator="variableString && variableString.length > 0 ? true : false"
@@ -85,20 +85,20 @@
             {{ t("request.variables") }}
           </label>
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/graphql"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.clear_all')"
               :icon="IconTrash2"
               @click="clearGQLVariables()"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('state.linewrap')"
               :class="{ '!text-accent': linewrapEnabledVariable }"
@@ -107,13 +107,13 @@
                 linewrapEnabledVariable = !linewrapEnabledVariable
               "
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.prettify')"
               :icon="prettifyVariablesIcon"
               @click="prettifyVariableString"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.copy')"
               :icon="copyVariablesIcon"
@@ -122,8 +122,8 @@
           </div>
         </div>
         <div ref="variableEditor" class="flex flex-col flex-1"></div>
-      </SmartTab>
-      <SmartTab
+      </HoppSmartTab>
+      <HoppSmartTab
         :id="'headers'"
         :label="`${t('tab.headers')}`"
         :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
@@ -135,34 +135,34 @@
             {{ t("tab.headers") }}
           </label>
           <div class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/graphql"
               blank
               :title="t('app.wiki')"
               :icon="IconHelpCircle"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.clear_all')"
               :icon="IconTrash2"
               @click="clearContent()"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('state.linewrap')"
               :class="{ '!text-accent': linewrapEnabled }"
               :icon="IconWrapText"
               @click.prevent="linewrapEnabled = !linewrapEnabled"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('state.bulk_mode')"
               :icon="IconEdit"
               :class="{ '!text-accent': bulkMode }"
               @click="bulkMode = !bulkMode"
             />
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('add.new')"
               :icon="IconPlus"
@@ -192,7 +192,7 @@
                 class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
               >
                 <span>
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{
                       theme: 'tooltip',
                       delay: [500, 20],
@@ -210,7 +210,7 @@
                     tabindex="-1"
                   />
                 </span>
-                <SmartAutoComplete
+                <HoppSmartAutoComplete
                   :placeholder="`${t('count.header', { count: index + 1 })}`"
                   :source="commonHeaders"
                   :spellcheck="false"
@@ -250,7 +250,7 @@
                   "
                 />
                 <span>
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="
                       header.hasOwnProperty('active')
@@ -278,7 +278,7 @@
                   />
                 </span>
                 <span>
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :title="t('action.remove')"
                     :icon="IconTrash"
@@ -302,7 +302,7 @@
             <span class="pb-4 text-center">
               {{ t("empty.headers") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               :label="`${t('add.new')}`"
               filled
               :icon="IconPlus"
@@ -311,11 +311,11 @@
             />
           </div>
         </div>
-      </SmartTab>
-      <SmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
+      </HoppSmartTab>
+      <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
         <GraphqlAuthorization />
-      </SmartTab>
-    </SmartTabs>
+      </HoppSmartTab>
+    </HoppSmartTabs>
     <CollectionsSaveRequest
       mode="graphql"
       :show="showSaveRequestModal"
@@ -354,7 +354,7 @@ import {
   parseRawKeyValueEntriesE,
   RawKeyValueEntry,
 } from "@hoppscotch/data"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { clone, cloneDeep, isEqual } from "lodash-es"
 import { refAutoReset } from "@vueuse/core"
 import { copyToClipboard } from "~/helpers/utils/clipboard"

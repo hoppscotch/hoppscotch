@@ -1,0 +1,30 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pnpm-lock.yaml
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# GQL generated files
+src/helpers/backend/graphql.ts
+src/helpers/backend/graphql.schema.json
+
+# Vite Generated Files
+vite.config.ts.timestamp-*.js

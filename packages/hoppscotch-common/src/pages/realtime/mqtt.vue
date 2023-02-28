@@ -38,7 +38,7 @@
               @keyup.enter="isUrlValid ? toggleConnection() : null"
             />
           </div>
-          <ButtonPrimary
+          <HoppButtonPrimary
             id="connect"
             :disabled="!isUrlValid"
             class="w-32"
@@ -84,14 +84,14 @@
       />
     </template>
     <template #secondary>
-      <SmartWindows
+      <HoppSmartWindows
         :id="'communication_tab'"
         v-model="currentTabId"
         :can-add-new-tab="false"
         @remove-tab="removeTab"
         @sort="sortTabs"
       >
-        <SmartWindow
+        <HoppSmartWindow
           v-for="tab in tabs"
           :id="tab.id"
           :key="'removable_tab_' + tab.id"
@@ -111,22 +111,22 @@
             :log="((tab.id === 'all' ? logs : tab.logs) as LogEntryData[])"
             @delete="clearLogEntries()"
           />
-        </SmartWindow>
-      </SmartWindows>
+        </HoppSmartWindow>
+      </HoppSmartWindows>
     </template>
     <template #sidebar>
       <div
         class="sticky z-10 flex flex-col flex-shrink-0 overflow-x-auto border-b divide-y rounded-t divide-dividerLight bg-primary border-dividerLight"
       >
         <div class="flex justify-between flex-1">
-          <ButtonSecondary
+          <HoppButtonSecondary
             :icon="IconPlus"
             :label="t('mqtt.new')"
             class="!rounded-none"
             @click="showSubscriptionModal(true)"
           />
           <span class="flex">
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               to="https://docs.hoppscotch.io/features/mqtt"
               blank
@@ -150,7 +150,7 @@
         <span class="pb-4 text-center">
           {{ t("empty.subscription") }}
         </span>
-        <ButtonSecondary
+        <HoppButtonSecondary
           :label="t('mqtt.new')"
           filled
           outline
@@ -181,7 +181,7 @@
                 {{ topic.name }}
               </span>
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :icon="IconTrash"
               color="red"

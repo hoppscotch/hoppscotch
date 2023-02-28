@@ -1,7 +1,5 @@
 <template>
-  <SmartLink
-    :to="to"
-    :blank="blank"
+  <HoppSmartLink :to="to" :blank="blank"
     class="relative inline-flex items-center justify-center py-2 font-bold transition focus:outline-none focus-visible:bg-accentDark"
     :class="[
       color
@@ -21,45 +19,29 @@
         'border border-accent hover:border-accentDark focus-visible:border-accentDark':
           outline,
       },
-    ]"
-    :disabled="disabled"
-    :tabindex="loading ? '-1' : '0'"
-    role="button"
-  >
-    <span
-      class="inline-flex items-center justify-center whitespace-nowrap"
-      :class="[{ 'flex-row-reverse': reverse }, { 'opacity-50': loading }]"
-    >
-      <component
-        :is="icon"
-        v-if="icon"
-        class="svg-icons"
-        :class="[
-          { '!text-2xl': large },
-          label ? (reverse ? 'ml-2' : 'mr-2') : '',
-        ]"
-      />
+    ]" :disabled="disabled" :tabindex="loading ? '-1' : '0'" role="button">
+    <span class="inline-flex items-center justify-center whitespace-nowrap"
+      :class="[{ 'flex-row-reverse': reverse }, { 'opacity-50': loading }]">
+      <component :is="icon" v-if="icon" class="svg-icons" :class="[
+        { '!text-2xl': large },
+        label ? (reverse ? 'ml-2' : 'mr-2') : '',
+      ]" />
       {{ label }}
       <div v-if="shortcut.length" class="<sm:hidden">
-        <kbd
-          v-for="(key, index) in shortcut"
-          :key="`key-${index}`"
-          class="shortcut-key !bg-accentDark !border-accentLight"
-        >
+        <kbd v-for="(key, index) in shortcut" :key="`key-${index}`"
+          class="shortcut-key !bg-accentDark !border-accentLight">
           {{ key }}
         </kbd>
       </div>
     </span>
-    <span
-      v-if="loading"
-      class="absolute inset-0 flex items-center justify-center"
-    >
-      <SmartSpinner />
+    <span v-if="loading" class="absolute inset-0 flex items-center justify-center">
+      <HoppSmartSpinner />
     </span>
-  </SmartLink>
+  </HoppSmartLink>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartLink, HoppSmartSpinner } from "../smart"
 import type { Component } from "vue"
 
 interface Props {
@@ -80,6 +62,7 @@ interface Props {
   outline?: boolean
   shortcut?: string[]
 }
+
 withDefaults(defineProps<Props>(), {
   to: "",
   exact: true,

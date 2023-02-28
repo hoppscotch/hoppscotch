@@ -6,7 +6,7 @@
           v-if="loadingCurrentUser"
           class="flex flex-col items-center justify-center flex-1 p-4"
         >
-          <SmartSpinner class="mb-4" />
+          <HoppSmartSpinner class="mb-4" />
         </div>
         <div
           v-else-if="currentUser === null"
@@ -21,7 +21,7 @@
           <p class="pb-4 text-center text-secondaryLight">
             {{ t("empty.profile") }}
           </p>
-          <ButtonPrimary
+          <HoppButtonPrimary
             :label="t('auth.login')"
             class="mb-4"
             @click="invokeAction('modals.login.toggle')"
@@ -66,7 +66,7 @@
                     :title="t('settings.verified_email')"
                     class="ml-2 text-green-500 svg-icons focus:outline-none cursor-help"
                   />
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     v-else
                     :label="t('settings.verify_email')"
                     :icon="IconVerified"
@@ -79,7 +79,7 @@
             </div>
             <div class="flex items-end space-x-2">
               <div>
-                <SmartItem
+                <HoppSmartItem
                   to="/settings"
                   :icon="IconSettings"
                   :label="t('profile.app_settings')"
@@ -89,12 +89,12 @@
               <FirebaseLogout outline />
             </div>
           </div>
-          <SmartTabs
+          <HoppSmartTabs
             v-model="selectedProfileTab"
             styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-0 z-10"
             render-inactive-tabs
           >
-            <SmartTab :id="'sync'" :label="t('settings.account')">
+            <HoppSmartTab :id="'sync'" :label="t('settings.account')">
               <div class="grid grid-cols-1">
                 <section class="p-4">
                   <h4 class="font-semibold text-secondaryDark">
@@ -120,7 +120,7 @@
                         autocomplete="off"
                         required
                       />
-                      <ButtonSecondary
+                      <HoppButtonSecondary
                         filled
                         outline
                         :label="t('action.save')"
@@ -147,7 +147,7 @@
                         autocomplete="off"
                         required
                       />
-                      <ButtonSecondary
+                      <HoppButtonSecondary
                         filled
                         outline
                         :label="t('action.save')"
@@ -170,39 +170,39 @@
                   </div>
                   <div class="py-4 space-y-4">
                     <div class="flex items-center">
-                      <SmartToggle
+                      <HoppSmartToggle
                         :on="SYNC_COLLECTIONS"
                         @change="toggleSetting('syncCollections')"
                       >
                         {{ t("settings.sync_collections") }}
-                      </SmartToggle>
+                      </HoppSmartToggle>
                     </div>
                     <div class="flex items-center">
-                      <SmartToggle
+                      <HoppSmartToggle
                         :on="SYNC_ENVIRONMENTS"
                         @change="toggleSetting('syncEnvironments')"
                       >
                         {{ t("settings.sync_environments") }}
-                      </SmartToggle>
+                      </HoppSmartToggle>
                     </div>
                     <div class="flex items-center">
-                      <SmartToggle
+                      <HoppSmartToggle
                         :on="SYNC_HISTORY"
                         @change="toggleSetting('syncHistory')"
                       >
                         {{ t("settings.sync_history") }}
-                      </SmartToggle>
+                      </HoppSmartToggle>
                     </div>
                   </div>
                 </section>
 
                 <ProfileShortcodes />
               </div>
-            </SmartTab>
-            <SmartTab :id="'teams'" :label="t('team.title')">
+            </HoppSmartTab>
+            <HoppSmartTab :id="'teams'" :label="t('team.title')">
               <Teams :modal="false" class="p-4" />
-            </SmartTab>
-          </SmartTabs>
+            </HoppSmartTab>
+          </HoppSmartTabs>
         </div>
       </div>
     </div>

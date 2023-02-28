@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center min-h-screen">
-    <SmartSpinner v-if="signingInWithEmail" />
+    <HoppSmartSpinner v-if="signingInWithEmail" />
     <AppLogo v-else class="w-16 h-16 rounded" />
     <pre v-if="error" class="mt-4 text-secondaryLight">{{ error }}</pre>
   </div>

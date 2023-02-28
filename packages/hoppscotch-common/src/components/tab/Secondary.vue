@@ -1,5 +1,5 @@
 <template>
-  <SmartLink
+  <HoppSmartLink
     :to="to"
     :exact="exact"
     :blank="blank"
@@ -28,7 +28,7 @@
     <span class="truncate">
       {{ label }}
     </span>
-  </SmartLink>
+  </HoppSmartLink>
 </template>
 
 <script lang="ts">

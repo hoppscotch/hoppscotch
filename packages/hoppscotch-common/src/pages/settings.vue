@@ -58,7 +58,7 @@
             </h4>
             <div class="my-1 text-secondaryLight">
               {{ t("settings.experiments_notice") }}
-              <SmartAnchor
+              <HoppSmartAnchor
                 class="link"
                 to="https://github.com/hoppscotch/hoppscotch/issues/new/choose"
                 blank
@@ -67,30 +67,36 @@
             </div>
             <div class="py-4 space-y-4">
               <div class="flex items-center">
-                <SmartToggle :on="TELEMETRY_ENABLED" @change="showConfirmModal">
+                <HoppSmartToggle
+                  :on="TELEMETRY_ENABLED"
+                  @change="showConfirmModal"
+                >
                   {{ t("settings.telemetry") }}
-                </SmartToggle>
+                </HoppSmartToggle>
               </div>
               <div class="flex items-center">
-                <SmartToggle
+                <HoppSmartToggle
                   :on="EXPAND_NAVIGATION"
                   @change="toggleSetting('EXPAND_NAVIGATION')"
                 >
                   {{ t("settings.expand_navigation") }}
-                </SmartToggle>
+                </HoppSmartToggle>
               </div>
               <div class="flex items-center">
-                <SmartToggle
+                <HoppSmartToggle
                   :on="SIDEBAR_ON_LEFT"
                   @change="toggleSetting('SIDEBAR_ON_LEFT')"
                 >
                   {{ t("settings.sidebar_on_left") }}
-                </SmartToggle>
+                </HoppSmartToggle>
               </div>
               <div class="flex items-center">
-                <SmartToggle :on="ZEN_MODE" @change="toggleSetting('ZEN_MODE')">
+                <HoppSmartToggle
+                  :on="ZEN_MODE"
+                  @change="toggleSetting('ZEN_MODE')"
+                >
                   {{ t("layout.zen_mode") }}
-                </SmartToggle>
+                </HoppSmartToggle>
               </div>
             </div>
           </section>
@@ -126,7 +132,7 @@
             </div>
             <div class="flex flex-col py-4 space-y-2">
               <span>
-                <SmartItem
+                <HoppSmartItem
                   to="https://chrome.google.com/webstore/detail/hoppscotch-browser-extens/amknoiejhlmhancpahfcfcfhllgkpbld"
                   blank
                   :icon="IconChrome"
@@ -137,7 +143,7 @@
                 />
               </span>
               <span>
-                <SmartItem
+                <HoppSmartItem
                   to="https://addons.mozilla.org/en-US/firefox/addon/hoppscotch"
                   blank
                   :icon="IconFirefox"
@@ -150,12 +156,12 @@
             </div>
             <div class="py-4 space-y-4">
               <div class="flex items-center">
-                <SmartToggle
+                <HoppSmartToggle
                   :on="EXTENSIONS_ENABLED"
                   @change="toggleInterceptor('extension')"
                 >
                   {{ t("settings.extensions_use_toggle") }}
-                </SmartToggle>
+                </HoppSmartToggle>
               </div>
             </div>
           </section>
@@ -169,7 +175,7 @@
                   "settings.read_the"
                 )}`
               }}
-              <SmartAnchor
+              <HoppSmartAnchor
                 class="link"
                 to="https://docs.hoppscotch.io/privacy"
                 blank
@@ -178,12 +184,12 @@
             </div>
             <div class="py-4 space-y-4">
               <div class="flex items-center">
-                <SmartToggle
+                <HoppSmartToggle
                   :on="PROXY_ENABLED"
                   @change="toggleInterceptor('proxy')"
                 >
                   {{ t("settings.proxy_use_toggle") }}
-                </SmartToggle>
+                </HoppSmartToggle>
               </div>
             </div>
             <div class="flex items-center py-4 space-x-2">
@@ -201,7 +207,7 @@
                   {{ t("settings.proxy_url") }}
                 </label>
               </div>
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('settings.reset_default')"
                 :icon="clearIcon"
@@ -214,7 +220,7 @@
         </div>
       </div>
     </div>
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmRemove"
       :title="`${t('confirm.remove_telemetry')} ${t(
         'settings.telemetry_helps_us'

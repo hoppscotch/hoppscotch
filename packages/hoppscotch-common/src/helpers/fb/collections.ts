@@ -84,6 +84,8 @@ export function initCollections() {
   })
 
   const gqlCollSub = graphqlCollections$.subscribe((collections) => {
+    const currentUser = platform.auth.getCurrentUser()
+
     if (
       loadedGraphqlCollections &&
       currentUser &&

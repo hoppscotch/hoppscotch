@@ -1,6 +1,6 @@
 <template>
   <div class="flex" @click="OpenLogoutModal()">
-    <SmartItem
+    <HoppSmartItem
       ref="logoutItem"
       :icon="IconLogOut"
       :label="`${t('auth.logout')}`"
@@ -8,7 +8,7 @@
       :shortcut="shortcut"
       @click="OpenLogoutModal()"
     />
-    <SmartConfirmModal
+    <HoppSmartConfirmModal
       :show="confirmLogout"
       :title="`${t('confirm.logout')}`"
       @hide-modal="confirmLogout = false"

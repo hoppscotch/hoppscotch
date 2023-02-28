@@ -27,7 +27,7 @@ export const HoppFontSizes = ["small", "medium", "large"] as const
 
 export type HoppFontSize = (typeof HoppFontSizes)[number]
 
-export type SettingsType = {
+export type SettingsDef = {
   syncCollections: boolean
   syncHistory: boolean
   syncEnvironments: boolean
@@ -53,7 +53,7 @@ export type SettingsType = {
   COLUMN_LAYOUT: boolean
 }
 
-export const defaultSettings: SettingsType = {
+export const defaultSettings: SettingsDef = {
   syncCollections: true,
   syncHistory: true,
   syncEnvironments: true,
@@ -79,18 +79,22 @@ export const defaultSettings: SettingsType = {
   COLUMN_LAYOUT: true,
 }
 
+type ApplySettingPayload = {
+  [K in keyof SettingsDef]: {
+    settingKey: K
+    value: SettingsDef[K]
+  }
+}[keyof SettingsDef]
+
 const validKeys = Object.keys(defaultSettings)
 
 const dispatchers = defineDispatchers({
-  bulkApplySettings(
-    _currentState: SettingsType,
-    payload: Partial<SettingsType>
-  ) {
+  bulkApplySettings(_currentState: SettingsDef, payload: Partial<SettingsDef>) {
     return payload
   },
   toggleSetting(
-    currentState: SettingsType,
-    { settingKey }: { settingKey: KeysMatching<SettingsType, boolean> }
+    currentState: SettingsDef,
+    { settingKey }: { settingKey: KeysMatching<SettingsDef, boolean> }
   ) {
     if (!has(currentState, settingKey)) {
       // console.log(
@@ -99,14 +103,14 @@ const dispatchers = defineDispatchers({
       return {}
     }
 
-    const result: Partial<SettingsType> = {}
+    const result: Partial<SettingsDef> = {}
     result[settingKey] = !currentState[settingKey]
 
     return result
   },
-  applySetting<K extends keyof SettingsType>(
-    _currentState: SettingsType,
-    { settingKey, value }: { settingKey: K; value: SettingsType[K] }
+  applySetting(
+    _currentState: SettingsDef,
+    { settingKey, value }: ApplySettingPayload
   ) {
     if (!validKeys.includes(settingKey)) {
       // console.log(
@@ -115,8 +119,9 @@ const dispatchers = defineDispatchers({
       return {}
     }
 
-    const result: Partial<SettingsType> = {}
-    result[settingKey] = value
+    const result: Partial<SettingsDef> = {
+      [settingKey]: value,
+    }
 
     return result
   },
@@ -129,20 +134,20 @@ export const settingsStore = new DispatchingStore(defaultSettings, dispatchers)
  */
 export const settings$ = settingsStore.subject$.asObservable()
 
-export function getSettingSubject<K extends keyof SettingsType>(
+export function getSettingSubject<K extends keyof SettingsDef>(
   settingKey: K
-): Observable<SettingsType[K]> {
+): Observable<SettingsDef[K]> {
   return settingsStore.subject$.pipe(pluck(settingKey), distinctUntilChanged())
 }
 
-export function bulkApplySettings(settingsObj: Partial<SettingsType>) {
+export function bulkApplySettings(settingsObj: Partial<SettingsDef>) {
   settingsStore.dispatch({
     dispatcher: "bulkApplySettings",
     payload: settingsObj,
   })
 }
 
-export function toggleSetting(settingKey: KeysMatching<SettingsType, boolean>) {
+export function toggleSetting(settingKey: KeysMatching<SettingsDef, boolean>) {
   settingsStore.dispatch({
     dispatcher: "toggleSetting",
     payload: {
@@ -151,12 +156,13 @@ export function toggleSetting(settingKey: KeysMatching<SettingsType, boolean>) {
   })
 }
 
-export function applySetting<K extends keyof SettingsType>(
-  settingKey: K,
-  value: SettingsType[K]
+export function applySetting<K extends ApplySettingPayload>(
+  settingKey: K["settingKey"],
+  value: K["value"]
 ) {
   settingsStore.dispatch({
     dispatcher: "applySetting",
+    // @ts-expect-error TS is not able to understand the type semantics here
     payload: {
       settingKey,
       value,

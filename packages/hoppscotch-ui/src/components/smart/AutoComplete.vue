@@ -1,36 +1,17 @@
 <template>
   <div class="autocomplete-wrapper">
-    <input
-      ref="acInput"
-      :value="text"
-      type="text"
-      autocomplete="off"
-      :placeholder="placeholder"
-      :spellcheck="spellcheck"
-      :autocapitalize="autocapitalize"
-      :class="styles"
-      @input.stop="
+    <input ref="acInput" :value="text" type="text" autocomplete="off" :placeholder="placeholder" :spellcheck="spellcheck"
+      :autocapitalize="autocapitalize" :class="styles" @input.stop="
         (e) => {
           $emit('input', e.target.value)
           updateSuggestions(e)
         }
-      "
-      @keyup="updateSuggestions"
-      @click="updateSuggestions"
-      @keydown="handleKeystroke"
-      @change="$emit('change', $event)"
-    />
-    <ul
-      v-if="suggestions.length > 0 && suggestionsVisible"
-      class="suggestions"
-      :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }"
-    >
-      <li
-        v-for="(suggestion, index) in suggestions"
-        :key="`suggestion-${index}`"
-        :class="{ active: currentSuggestionIndex === index }"
-        @click.prevent="forceSuggestion(suggestion)"
-      >
+      " @keyup="updateSuggestions" @click="updateSuggestions" @keydown="handleKeystroke"
+      @change="$emit('change', $event)" />
+    <ul v-if="suggestions.length > 0 && suggestionsVisible" class="suggestions"
+      :style="{ transform: `translate(${suggestionsOffsetLeft}px, 0)` }">
+      <li v-for="(suggestion, index) in suggestions" :key="`suggestion-${index}`"
+        :class="{ active: currentSuggestionIndex === index }" @click.prevent="forceSuggestion(suggestion)">
         {{ suggestion }}
       </li>
     </ul>
@@ -182,7 +163,7 @@ export default defineComponent({
         case "Tab": {
           const activeSuggestion =
             this.suggestions[
-              this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
+            this.currentSuggestionIndex >= 0 ? this.currentSuggestionIndex : 0
             ]
 
           if (!activeSuggestion) {
@@ -205,7 +186,7 @@ export default defineComponent({
   @apply relative;
   @apply contents;
 
-  input:focus + ul.suggestions,
+  input:focus+ul.suggestions,
   ul.suggestions:hover {
     @apply block;
   }

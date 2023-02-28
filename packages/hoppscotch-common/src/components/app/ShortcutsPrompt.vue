@@ -32,7 +32,7 @@
         </div>
       </div>
     </div>
-    <ButtonSecondary
+    <HoppButtonSecondary
       :label="`${t('app.documentation')}`"
       to="https://docs.hoppscotch.io/features/response"
       :icon="IconExternalLink"

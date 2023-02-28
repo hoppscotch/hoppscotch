@@ -1,10 +1,11 @@
 <template>
   <Story title="Toggle">
-    <SmartToggle :on="on" @change="change"> Turn on </SmartToggle>
+    <HoppSmartToggle :on="on" @change="change"> Turn on </HoppSmartToggle>
   </Story>
 </template>
 
 <script setup lang="ts">
+import { HoppSmartToggle } from "../components/smart"
 import { ref } from "vue"
 
 const on = ref(true)

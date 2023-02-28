@@ -127,7 +127,13 @@ const restCollectionDispatchers = defineDispatchers({
 
   editFolder(
     { state }: RESTCollectionStoreType,
-    { path, folder }: { path: string; folder: string }
+    {
+      path,
+      folder,
+    }: {
+      path: string
+      folder: HoppCollection<HoppRESTRequest>
+    }
   ) {
     const newState = state
 
@@ -393,7 +399,7 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   editFolder(
     { state }: GraphqlCollectionStoreType,
-    { path, folder }: { path: string; folder: string }
+    { path, folder }: { path: string; folder: HoppCollection<HoppGQLRequest> }
   ) {
     const newState = state
 

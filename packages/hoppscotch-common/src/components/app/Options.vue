@@ -1,5 +1,5 @@
 <template>
-  <SmartModal
+  <HoppSmartModal
     v-if="show"
     dialog
     :title="t('app.options')"
@@ -11,7 +11,7 @@
         <h2 class="p-4 font-semibold font-bold text-secondaryDark">
           {{ t("layout.name") }}
         </h2>
-        <SmartItem
+        <HoppSmartItem
           :icon="IconSidebar"
           :label="EXPAND_NAVIGATION ? t('hide.sidebar') : t('show.sidebar')"
           :description="t('layout.collapse_sidebar')"
@@ -19,7 +19,7 @@
           active
           @click="expandNavigation"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconSidebarOpen"
           :label="SIDEBAR ? t('hide.collection') : t('show.collection')"
           :description="t('layout.collapse_collection')"
@@ -30,7 +30,7 @@
         <h2 class="p-4 font-semibold font-bold text-secondaryDark">
           {{ t("support.title") }}
         </h2>
-        <SmartItem
+        <HoppSmartItem
           :icon="IconBook"
           :label="t('app.documentation')"
           to="https://docs.hoppscotch.io"
@@ -40,7 +40,7 @@
           blank
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconGift"
           :label="t('app.whats_new')"
           to="https://docs.hoppscotch.io/changelog"
@@ -50,7 +50,7 @@
           blank
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconActivity"
           :label="t('app.status')"
           to="https://status.hoppscotch.io"
@@ -60,7 +60,7 @@
           active
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconLock"
           :label="`${t('app.terms_and_privacy')}`"
           to="https://docs.hoppscotch.io/privacy"
@@ -73,7 +73,7 @@
         <h2 class="p-4 font-semibold font-bold text-secondaryDark">
           {{ t("settings.follow") }}
         </h2>
-        <SmartItem
+        <HoppSmartItem
           :icon="IconDiscord"
           :label="t('app.discord')"
           to="https://hoppscotch.io/discord"
@@ -83,7 +83,7 @@
           active
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconTwitter"
           :label="t('app.twitter')"
           to="https://hoppscotch.io/twitter"
@@ -93,7 +93,7 @@
           active
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconGithub"
           :label="`${t('app.github')}`"
           to="https://github.com/hoppscotch/hoppscotch"
@@ -103,7 +103,7 @@
           active
           @click="hideModal()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconMessageCircle"
           :label="t('app.chat_with_us')"
           :description="t('support.chat')"
@@ -111,7 +111,7 @@
           active
           @click="chatWithUs()"
         />
-        <SmartItem
+        <HoppSmartItem
           :icon="IconUserPlus"
           :label="`${t('app.invite')}`"
           :description="t('shortcut.miscellaneous.invite')"
@@ -119,7 +119,7 @@
           active
           @click="expandInvite()"
         />
-        <SmartItem
+        <HoppSmartItem
           v-if="navigatorShare"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconShare2"
@@ -132,7 +132,7 @@
       </div>
       <AppShare :show="showShare" @hide-modal="showShare = false" />
     </template>
-  </SmartModal>
+  </HoppSmartModal>
 </template>
 
 <script setup lang="ts">

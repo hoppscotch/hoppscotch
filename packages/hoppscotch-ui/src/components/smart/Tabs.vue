@@ -212,8 +212,8 @@ const selectTab = (id: string) => {
       @apply inline-flex;
       @apply items-center;
       @apply justify-center;
-      @apply w-5;
-      @apply h-4;
+      @apply px-1 py-0.75;
+      @apply min-w-4;
       @apply ml-2;
       @apply text-8px;
       @apply border border-divider;

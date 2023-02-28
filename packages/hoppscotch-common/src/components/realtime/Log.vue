@@ -8,27 +8,27 @@
         {{ title }}
       </label>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.delete')"
           :icon="IconTrash"
           @click="emit('delete')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.scroll_to_top')"
           :icon="IconArrowUp"
           @click="scrollTo('top')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.scroll_to_bottom')"
           :icon="IconArrowDown"
           @click="scrollTo('bottom')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           id="bottompage"
           v-tippy="{ theme: 'tooltip' }"
           :title="`${t('action.autoscroll')}: ${

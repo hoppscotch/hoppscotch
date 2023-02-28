@@ -7,20 +7,20 @@
         {{ t("request.body") }}
       </label>
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/body"
           blank
           :title="t('app.wiki')"
           :icon="IconHelpCircle"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.clear_all')"
           :icon="IconTrash2"
           @click="clearContent"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="t('add.new')"
           :icon="IconPlus"
@@ -44,7 +44,7 @@
           class="flex border-b divide-x divide-dividerLight border-dividerLight draggable-content group"
         >
           <span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{
                 theme: 'tooltip',
                 delay: [500, 20],
@@ -76,10 +76,10 @@
           />
           <div v-if="entry.isFile" class="file-chips-container">
             <div class="space-x-2 file-chips-wrapper">
-              <SmartFileChip
+              <HoppSmartFileChip
                 v-for="(file, fileIndex) in entry.value"
                 :key="`param-${index}-file-${fileIndex}`"
-                >{{ file.name }}</SmartFileChip
+                >{{ file.name }}</HoppSmartFileChip
               >
             </div>
           </div>
@@ -110,7 +110,7 @@
             </label>
           </span>
           <span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="
                 entry.hasOwnProperty('active')
@@ -140,7 +140,7 @@
             />
           </span>
           <span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="t('action.remove')"
               :icon="IconTrash"
@@ -163,7 +163,7 @@
         :alt="`${t('empty.body')}`"
       />
       <span class="pb-4 text-center">{{ t("empty.body") }}</span>
-      <ButtonSecondary
+      <HoppButtonSecondary
         :label="`${t('add.new')}`"
         filled
         :icon="IconPlus"
@@ -188,7 +188,7 @@ import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
 import { FormDataKeyValue } from "@hoppscotch/data"
 import { isEqual, clone } from "lodash-es"
-import draggable from "vuedraggable"
+import draggable from "vuedraggable-es"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"

@@ -1,7 +1,7 @@
 <template>
   <aside class="flex justify-between h-full md:flex-col">
     <nav class="flex flex-1 flex-nowrap md:flex-col md:flex-none bg-primary">
-      <SmartLink
+      <HoppSmartLink
         v-for="(navigation, index) in primaryNavigation"
         :key="`navigation-${index}`"
         v-tippy="{
@@ -20,7 +20,7 @@
         <span v-if="EXPAND_NAVIGATION" class="nav-title">
           {{ t(navigation.title) }}
         </span>
-      </SmartLink>
+      </HoppSmartLink>
     </nav>
   </aside>
 </template>

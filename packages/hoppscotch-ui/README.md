@@ -1,24 +1,15 @@
-<div  align="center">
-
-<a  href="https://hoppscotch.io">
-
-<img
-
-src="https://avatars.githubusercontent.com/u/56705483"
-
-alt="Hoppscotch Logo"
-
-height="64"
-
-/>
-
-</a>
-
+<div align="center">
+  <a href="https://hoppscotch.io">
+    <img
+      src="https://avatars.githubusercontent.com/u/56705483"
+      alt="Hoppscotch Logo"
+      height="64"
+    />
+  </a>
 </div>
+<div align="center">
 
-<div  align="center">
-
-# Hoppscotch UI
+# Hoppscotch UI <font size=2><sup>ALPHA</sup></font>
 
 </div>
 
@@ -28,7 +19,7 @@ Welcome to hoppscotch-ui, a collection of presentational components for our web 
 
 To use the components in project, simply name the component with `directory` name as alias:
 
-For example `Primary Button` component is in `button` directory and the file name is `Primary.vue`. So, use that you have to write `<ButtonPrimary />`
+For example `Primary Button` component is in `button` directory and the file name is `Primary.vue`. So, use that you have to write `<HoppButtonPrimary />`
 
 ## Histoire
 

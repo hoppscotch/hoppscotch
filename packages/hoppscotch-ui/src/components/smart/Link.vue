@@ -1,30 +1,12 @@
 <template>
-  <button
-    v-if="renderedTag === 'BUTTON'"
-    aria-label="button"
-    role="button"
-    v-bind="$attrs"
-  >
+  <button v-if="renderedTag === 'BUTTON'" aria-label="button" role="button" v-bind="$attrs">
     <slot></slot>
   </button>
-  <a
-    v-else-if="renderedTag === 'ANCHOR' && !blank"
-    aria-label="Link"
-    :href="to"
-    role="link"
-    v-bind="updatedAttrs"
-  >
+  <a v-else-if="renderedTag === 'ANCHOR' && !blank" aria-label="Link" :href="to" role="link" v-bind="updatedAttrs">
     <slot></slot>
   </a>
-  <a
-    v-else-if="renderedTag === 'ANCHOR' && blank"
-    aria-label="Link"
-    :href="to"
-    role="link"
-    target="_blank"
-    rel="noopener"
-    v-bind="updatedAttrs"
-  >
+  <a v-else-if="renderedTag === 'ANCHOR' && blank" aria-label="Link" :href="to" role="link" target="_blank" rel="noopener"
+    v-bind="updatedAttrs">
     <slot></slot>
   </a>
   <RouterLink v-else :to="to" v-bind="updatedAttrs">
@@ -33,6 +15,7 @@
 </template>
 
 <script lang="ts">
+// Do not import RouterLink, for some reason that breaks things ¯\_(ツ)_/¯
 /**
  * for preventing the automatic binding of $attrs.
  * we are manually binding $attrs or updatedAttrs.

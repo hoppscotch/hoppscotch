@@ -1,0 +1,57 @@
+{
+  "name": "hoppscotch-sh-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm exec npm-run-all -p -l dev:*",
+    "dev:vite": "vite",
+    "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml --watch dotenv_config_path=\"../../.env\"",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@graphql-typed-document-node/core": "^3.1.1",
+    "@hoppscotch/ui": "workspace:^",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.15",
+    "@urql/vue": "^1.0.4",
+    "@vueuse/core": "^9.10.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.6.0",
+    "ts-node-dev": "^2.0.0",
+    "unplugin-icons": "^0.14.9",
+    "unplugin-vue-components": "^0.21.0",
+    "vue": "^3.2.6",
+    "vue-router": "4"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "3.0.0",
+    "@graphql-codegen/client-preset": "^2.0.0",
+    "@graphql-codegen/introspection": "3.0.0",
+    "@graphql-codegen/typed-document-node": "^2.3.1",
+    "@graphql-codegen/typescript": "3.0.0",
+    "@graphql-codegen/typescript-document-nodes": "3.0.0",
+    "@graphql-codegen/typescript-operations": "3.0.0",
+    "@graphql-codegen/urql-introspection": "2.2.1",
+    "@vitejs/plugin-vue": "^1.6.0",
+    "@vue/compiler-sfc": "^3.2.6",
+    "graphql-tag": "^2.12.6",
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.57.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3",
+    "vite": "^2.5.1",
+    "vite-plugin-pages": "^0.26.0",
+    "vite-plugin-vue-layouts": "^0.7.0",
+    "vite-plugin-windicss": "^1.8.8",
+    "vue-tsc": "^0.3.0",
+    "windicss": "^3.5.6"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": true
+  }
+}

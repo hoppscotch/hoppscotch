@@ -34,7 +34,7 @@
                     tabindex="0"
                     @keyup.escape="hide()"
                   >
-                    <SmartItem
+                    <HoppSmartItem
                       v-for="version in SIOVersions"
                       :key="`client-${version}`"
                       :label="`Client ${version}`"
@@ -76,7 +76,7 @@
               @keyup.enter="isUrlValid ? toggleConnection() : null"
             />
           </div>
-          <ButtonPrimary
+          <HoppButtonPrimary
             id="connect"
             :disabled="!isUrlValid"
             name="connect"
@@ -93,12 +93,12 @@
           />
         </div>
       </div>
-      <SmartTabs
+      <HoppSmartTabs
         v-model="selectedTab"
         styles="sticky overflow-x-auto flex-shrink-0 bg-primary top-upperPrimaryStickyFold z-10"
         render-inactive-tabs
       >
-        <SmartTab
+        <HoppSmartTab
           :id="'communication'"
           :label="`${t('websocket.communication')}`"
           render-inactive-tabs
@@ -110,8 +110,11 @@
             sticky-header-styles="top-upperTertiaryStickyFold"
             @send-message="sendMessage($event)"
           />
-        </SmartTab>
-        <SmartTab :id="'protocols'" :label="`${t('request.authorization')}`">
+        </HoppSmartTab>
+        <HoppSmartTab
+          :id="'protocols'"
+          :label="`${t('request.authorization')}`"
+        >
           <div
             class="sticky z-10 flex items-center justify-between flex-shrink-0 pl-4 overflow-x-auto border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
           >
@@ -126,7 +129,7 @@
                 :on-shown="() => authTippyActions.focus()"
               >
                 <span class="select-wrapper">
-                  <ButtonSecondary
+                  <HoppButtonSecondary
                     class="pr-8 ml-2 rounded-none"
                     :label="authType"
                   />
@@ -138,7 +141,7 @@
                     tabindex="0"
                     @keyup.escape="hide()"
                   >
-                    <SmartItem
+                    <HoppSmartItem
                       label="None"
                       :icon="authType === 'None' ? IconCircleDot : IconCircle"
                       :active="authType === 'None'"
@@ -149,7 +152,7 @@
                         }
                       "
                     />
-                    <SmartItem
+                    <HoppSmartItem
                       label="Bearer Token"
                       :icon="authType === 'Bearer' ? IconCircleDot : IconCircle"
                       :active="authType === 'Bearer'"
@@ -165,21 +168,21 @@
               </tippy>
             </span>
             <div class="flex">
-              <SmartCheckbox
+              <HoppSmartCheckbox
                 :on="authActive"
                 class="px-2"
                 @change="authActive = !authActive"
               >
                 {{ t("state.enabled") }}
-              </SmartCheckbox>
-              <ButtonSecondary
+              </HoppSmartCheckbox>
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 to="https://docs.hoppscotch.io/features/authorization"
                 blank
                 :title="t('app.wiki')"
                 :icon="IconHelpCircle"
               />
-              <ButtonSecondary
+              <HoppButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
                 :title="t('action.clear')"
                 :icon="IconTrash2"
@@ -200,7 +203,7 @@
             <span class="pb-4 text-center">
               {{ t("socketio.connection_not_authorized") }}
             </span>
-            <ButtonSecondary
+            <HoppButtonSecondary
               outline
               :label="t('app.documentation')"
               to="https://docs.hoppscotch.io/features/authorization"
@@ -226,7 +229,7 @@
                 <div class="pb-2 text-secondaryLight">
                   {{ t("helpers.authorization") }}
                 </div>
-                <SmartAnchor
+                <HoppSmartAnchor
                   class="link"
                   :label="t('authorization.learn')"
                   :icon="IconExternalLink"
@@ -237,8 +240,8 @@
               </div>
             </div>
           </div>
-        </SmartTab>
-      </SmartTabs>
+        </HoppSmartTab>
+      </HoppSmartTabs>
     </template>
     <template #secondary>
       <RealtimeLog

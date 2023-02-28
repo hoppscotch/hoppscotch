@@ -16,7 +16,7 @@
       v-else-if="loadingCurrentUser"
       class="flex flex-col items-center justify-center flex-1 p-4"
     >
-      <SmartSpinner />
+      <HoppSmartSpinner />
     </div>
     <div
       v-else-if="currentUser === null"
@@ -24,7 +24,7 @@
     >
       <h1 class="heading">{{ t("team.login_to_continue") }}</h1>
       <p class="mt-2">{{ t("team.login_to_continue_description") }}</p>
-      <ButtonPrimary
+      <HoppButtonPrimary
         :label="t('auth.login_to_hoppscotch')"
         class="mt-8"
         @click="invokeAction('modals.login.toggle')"
@@ -35,7 +35,7 @@
         v-if="inviteDetails.loading"
         class="flex flex-col items-center justify-center flex-1 p-4"
       >
-        <SmartSpinner />
+        <HoppSmartSpinner />
       </div>
       <div v-else>
         <div
@@ -86,7 +86,7 @@
             }}
           </p>
           <div class="mt-8">
-            <ButtonPrimary
+            <HoppButtonPrimary
               :label="
                 t('team.join_team', {
                   team: inviteDetails.data.right.teamInvitation.team.name,
@@ -121,7 +121,7 @@
             }}
           </p>
           <div class="mt-8">
-            <ButtonSecondary
+            <HoppButtonSecondary
               to="/"
               :icon="IconHome"
               filled
@@ -132,7 +132,7 @@
       </div>
     </div>
     <div class="p-4">
-      <ButtonSecondary
+      <HoppButtonSecondary
         class="tracking-wide !font-bold !text-secondaryDark"
         label="HOPPSCOTCH"
         to="/"

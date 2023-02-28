@@ -2,7 +2,7 @@
   <div>
     <div class="flex justify-between bg-primary">
       <div class="flex">
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="EXPAND_NAVIGATION ? t('hide.sidebar') : t('show.sidebar')"
           :icon="IconSidebar"
@@ -10,7 +10,7 @@
           :class="{ '-rotate-180': !EXPAND_NAVIGATION }"
           @click="EXPAND_NAVIGATION = !EXPAND_NAVIGATION"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="`${ZEN_MODE ? t('action.turn_off') : t('action.turn_on')} ${t(
             'layout.zen_mode'
@@ -23,7 +23,7 @@
           @click="ZEN_MODE = !ZEN_MODE"
         />
         <tippy interactive trigger="click" theme="popover">
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="t('settings.interceptor')"
             :icon="IconShieldCheck"
@@ -40,7 +40,7 @@
           theme="popover"
           :on-shown="() => tippyActions!.focus()"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             :icon="IconHelpCircle"
             class="!rounded-none"
             :label="`${t('app.help')}`"
@@ -55,7 +55,7 @@
               @keyup.c="chat!.$el.click()"
               @keyup.escape="hide()"
             >
-              <SmartItem
+              <HoppSmartItem
                 ref="documentation"
                 :icon="IconBook"
                 :label="`${t('app.documentation')}`"
@@ -64,7 +64,7 @@
                 :shortcut="['D']"
                 @click="hide()"
               />
-              <SmartItem
+              <HoppSmartItem
                 ref="shortcuts"
                 :icon="IconZap"
                 :label="`${t('app.keyboard_shortcuts')}`"
@@ -76,7 +76,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 ref="chat"
                 :icon="IconMessageCircle"
                 :label="`${t('app.chat_with_us')}`"
@@ -88,14 +88,14 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconGift"
                 :label="`${t('app.whats_new')}`"
                 to="https://docs.hoppscotch.io/changelog"
                 blank
                 @click="hide()"
               />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconActivity"
                 :label="t('app.status')"
                 to="https://status.hoppscotch.io"
@@ -103,21 +103,21 @@
                 @click="hide()"
               />
               <hr />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconGithub"
                 :label="`${t('app.github')}`"
                 to="https://github.com/hoppscotch/hoppscotch"
                 blank
                 @click="hide()"
               />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconTwitter"
                 :label="`${t('app.twitter')}`"
                 to="https://hoppscotch.io/twitter"
                 blank
                 @click="hide()"
               />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconUserPlus"
                 :label="`${t('app.invite')}`"
                 @click="
@@ -127,7 +127,7 @@
                   }
                 "
               />
-              <SmartItem
+              <HoppSmartItem
                 :icon="IconLock"
                 :label="`${t('app.terms_and_privacy')}`"
                 to="https://docs.hoppscotch.io/privacy"
@@ -148,7 +148,7 @@
             </div>
           </template>
         </tippy>
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${t(
             'app.shortcuts'
@@ -156,14 +156,14 @@
           :icon="IconZap"
           @click="invokeAction('flyouts.keybinds.toggle')"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-if="navigatorShare"
           v-tippy="{ theme: 'tooltip' }"
           :icon="IconShare2"
           :title="t('request.share')"
           @click="nativeShare()"
         />
-        <ButtonSecondary
+        <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           :title="COLUMN_LAYOUT ? t('layout.row') : t('layout.column')"
           :icon="IconColumns"
@@ -177,7 +177,7 @@
             'rotate-180': SIDEBAR_ON_LEFT,
           }"
         >
-          <ButtonSecondary
+          <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
             :title="SIDEBAR ? t('hide.sidebar') : t('show.sidebar')"
             :icon="IconSidebarOpen"
@@ -223,7 +223,7 @@ import { platform } from "~/platform"
 import { TippyComponent } from "vue-tippy"
 import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 import { invokeAction } from "@helpers/actions"
-import SmartItem from "@hoppscotch/ui/src/components/smart/Item.vue"
+import { HoppSmartItem } from "@hoppscotch/ui"
 
 const t = useI18n()
 const showDeveloperOptions = ref(false)
@@ -274,7 +274,7 @@ const showDeveloperOptionModal = () => {
 
 // Template refs
 const tippyActions = ref<TippyComponent | null>(null)
-const documentation = ref<typeof SmartItem>()
-const shortcuts = ref<typeof SmartItem>()
-const chat = ref<typeof SmartItem>()
+const documentation = ref<typeof HoppSmartItem>()
+const shortcuts = ref<typeof HoppSmartItem>()
+const chat = ref<typeof HoppSmartItem>()
 </script>

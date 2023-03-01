@@ -107,6 +107,9 @@ watch(
     if (isCollapsed) {
       setSidePaneSize()
     } else {
+      // Reset to default if no prevoius config is found in localstorage
+      PANE_SIDEBAR_SIZE.value = 20
+      PANE_MAIN_SIZE.value = 80
       populatePaneEvent()
     }
   }

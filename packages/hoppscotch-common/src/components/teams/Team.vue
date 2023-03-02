@@ -27,31 +27,7 @@
         >
           {{ team.name || t("state.nothing_found") }}
         </label>
-        <div class="flex mt-2 overflow-hidden -space-x-1">
-          <div
-            v-for="(member, index) in team.teamMembers"
-            :key="`member-${index}`"
-            v-tippy="{ theme: 'tooltip' }"
-            :title="
-              member.user.displayName ||
-              member.user.email ||
-              t('default_hopp_displayName')
-            "
-            class="inline-flex"
-          >
-            <ProfilePicture
-              v-if="member.user.photoURL"
-              :url="member.user.photoURL"
-              :alt="member.user.displayName"
-              class="ring-primary ring-2"
-            />
-            <ProfilePicture
-              v-else
-              :initial="member.user.displayName || member.user.email"
-              class="ring-primary ring-2"
-            />
-          </div>
-        </div>
+        <TeamsMemberStack :team-members="team.teamMembers" class="mt-4" />
       </div>
     </div>
     <div v-if="!compact" class="flex items-end justify-between flex-shrink-0">
@@ -171,7 +147,7 @@
 import { ref } from "vue"
 import { pipe } from "fp-ts/function"
 import * as TE from "fp-ts/TaskEither"
-import { TeamMemberRole } from "~/helpers/backend/graphql"
+import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import {
   deleteTeam as backendDeleteTeam,
   leaveTeam,
@@ -189,18 +165,7 @@ import IconTrash2 from "~icons/lucide/trash-2"
 const t = useI18n()
 
 const props = defineProps<{
-  team: {
-    name: string
-    myRole: TeamMemberRole
-    ownersCount: number
-    teamMembers: Array<{
-      user: {
-        displayName: string
-        photoURL: string | null
-        email: string | null
-      }
-    }>
-  }
+  team: GetMyTeamsQuery["myTeams"][number]
   teamID: string
   compact: boolean
 }>()

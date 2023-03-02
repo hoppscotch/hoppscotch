@@ -161,7 +161,6 @@
                 ref="saveTippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.c="copyRequestAction.$el.click()"
                 @keyup.s="saveRequestAction.$el.click()"
                 @keyup.escape="hide()"
               >
@@ -180,7 +179,6 @@
                   :label="shareButtonText"
                   :icon="copyLinkIcon"
                   :loading="fetchingShareLink"
-                  :shortcut="['C']"
                   @click="
                     () => {
                       copyRequest()

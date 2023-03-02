@@ -1,0 +1,8 @@
+query GetSingleRequest($requestID: ID!) {
+  request(requestID: $requestID) {
+    id
+    collectionID
+    title
+    request
+  }
+}

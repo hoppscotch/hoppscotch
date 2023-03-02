@@ -82,7 +82,7 @@
 <script setup lang="ts">
 import IconTwitter from "~icons/brands/twitter"
 import IconDiscord from "~icons/brands/discord"
-import IconGitHub from "~icons/hopp/github"
+import IconGitHub from "~icons/lucide/github"
 import IconMessageCircle from "~icons/lucide/message-circle"
 import IconGift from "~icons/lucide/gift"
 import IconZap from "~icons/lucide/zap"

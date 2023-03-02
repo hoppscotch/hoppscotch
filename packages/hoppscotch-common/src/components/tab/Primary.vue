@@ -3,7 +3,7 @@
     :to="to"
     :exact="exact"
     :blank="blank"
-    class="inline-flex items-center px-4 py-2 truncate rounded transition focus:outline-none"
+    class="inline-flex items-center px-4 py-2 truncate transition rounded focus:outline-none"
     :class="[
       color
         ? `text-${color}-500 hover:text-${color}-600 focus-visible:text-${color}-600`
@@ -19,11 +19,13 @@
       class="opacity-75 svg-icons"
       :class="label ? (reverse ? 'ml-4' : 'mr-4') : ''"
     />
-    {{ label }}
+    <div class="truncate max-w-54">
+      {{ label }}
+    </div>
   </HoppSmartLink>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue"
 
 export default defineComponent({

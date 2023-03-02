@@ -2,7 +2,6 @@ import { initializeApp } from "firebase/app"
 import { platform } from "~/platform"
 import { initAnalytics } from "./analytics"
 import { initCollections } from "./collections"
-import { initEnvironments } from "./environments"
 import { initHistory } from "./history"
 import { initSettings } from "./settings"
 
@@ -28,7 +27,7 @@ export function initializeFirebase() {
       initSettings()
       initCollections()
       initHistory()
-      initEnvironments()
+      platform.sync.environments.initEnvironmentsSync()
       initAnalytics()
 
       initialized = true

@@ -19,15 +19,19 @@
     </span>
     <HoppSmartSpinner v-else class="mr-4 text-secondaryDark" />
     <div class="inline-flex items-start flex-1 truncate" :class="{ 'flex-col': description }">
-      <div class="font-semibold truncate">
+      <div class="font-semibold truncate max-w-54">
         {{ label }}
       </div>
       <p v-if="description" class="my-2 text-left text-secondaryLight">
         {{ description }}
       </p>
     </div>
-    <component :is="infoIcon" v-if="infoIcon" class="items-center self-center ml-4 svg-icons"
-      :class="{ 'text-accent': activeInfoIcon }" />
+    <component
+      :is="infoIcon"
+      v-if="infoIcon"
+      class="items-center self-center ml-6 -mr-2 svg-icons"
+      :class="{ 'text-accent': activeInfoIcon }"
+    />
     <div v-if="shortcut.length" class="ml-4 <sm:hidden font-medium">
       <kbd v-for="(key, index) in shortcut" :key="`key-${index}`" class="-mr-2 shortcut-key">
         {{ key }}

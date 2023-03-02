@@ -85,7 +85,7 @@ async function writeGlobalEnvironment(variables: Environment["variables"]) {
   }
 }
 
-export function initEnvironments() {
+export function initEnvironmentsSync() {
   const currentUser$ = platformAuth.getCurrentUserStream()
 
   const envListenSub = environments$.subscribe((envs) => {
@@ -175,12 +175,12 @@ export function initEnvironments() {
         globalListenSub.unsubscribe()
         currentUserSub.unsubscribe()
 
-        initEnvironments()
+        initEnvironmentsSync()
       }
     }
   )
 }
 
 export const def: EnvironmentsPlatformDef = {
-  initEnvironments,
+  initEnvironmentsSync,
 }

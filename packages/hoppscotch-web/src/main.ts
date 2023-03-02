@@ -4,5 +4,7 @@ import { def as envDef } from "./environments"
 
 createHoppApp("#app", {
   auth: authDef,
-  environments: envDef,
+  sync: {
+    environments: envDef,
+  },
 })

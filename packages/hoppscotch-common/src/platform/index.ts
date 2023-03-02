@@ -5,7 +5,9 @@ import { EnvironmentsPlatformDef } from "./environments"
 export type PlatformDef = {
   ui?: UIPlatformDef
   auth: AuthPlatformDef
-  environments: EnvironmentsPlatformDef
+  sync: {
+    environments: EnvironmentsPlatformDef
+  }
 }
 
 export let platform: PlatformDef

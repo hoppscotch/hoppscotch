@@ -1,3 +1,3 @@
 export type EnvironmentsPlatformDef = {
-  initEnvironments: () => void
+  initEnvironmentsSync: () => void
 }

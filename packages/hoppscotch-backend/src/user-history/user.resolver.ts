@@ -1,7 +1,8 @@
-import { Parent, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { User } from '../user/user.model';
 import { UserHistoryService } from './user-history.service';
 import { ReqType, UserHistory } from './user-history.model';
+import { PaginationArgs } from '../types/input-types.args';
 
 @Resolver(() => User)
 export class UserHistoryUserResolver {
@@ -9,18 +10,26 @@ export class UserHistoryUserResolver {
   @ResolveField(() => [UserHistory], {
     description: 'Returns a users REST history',
   })
-  async RESTHistory(@Parent() user: User): Promise<UserHistory[]> {
+  async RESTHistory(
+    @Parent() user: User,
+    @Args() args: PaginationArgs,
+  ): Promise<UserHistory[]> {
     return await this.userHistoryService.fetchUserHistory(
       user.uid,
+      args.take,
       ReqType.REST,
     );
   }
   @ResolveField(() => [UserHistory], {
     description: 'Returns a users GraphQL history',
   })
-  async GraphQLHistory(@Parent() user: User): Promise<UserHistory[]> {
+  async GQLHistory(
+    @Parent() user: User,
+    @Args() args: PaginationArgs,
+  ): Promise<UserHistory[]> {
     return await this.userHistoryService.fetchUserHistory(
       user.uid,
+      args.take,
       ReqType.GQL,
     );
   }

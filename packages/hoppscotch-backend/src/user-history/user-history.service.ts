@@ -19,14 +19,19 @@ export class UserHistoryService {
   /**
    * Fetch users REST or GraphQL history based on ReqType param.
    * @param uid Users uid
+   * @param take items to fetch
    * @param reqType request Type to fetch i.e. GraphQL or REST
    * @returns an array of user history
    */
-  async fetchUserHistory(uid: string, reqType: ReqType) {
+  async fetchUserHistory(uid: string, take: number, reqType: ReqType) {
     const userHistory = await this.prisma.userHistory.findMany({
       where: {
         userUid: uid,
         reqType: reqType,
+      },
+      take: take,
+      orderBy: {
+        executedOn: 'desc',
       },
     });
 

@@ -71,7 +71,7 @@ describe('UserHistoryService', () => {
       ];
 
       return expect(
-        await userHistoryService.fetchUserHistory('abc', ReqType.REST),
+        await userHistoryService.fetchUserHistory('abc', 2, ReqType.REST),
       ).toEqual(userHistory);
     });
     test('Should return a list of users GQL history if exists', async () => {
@@ -118,7 +118,7 @@ describe('UserHistoryService', () => {
         },
       ];
       return expect(
-        await userHistoryService.fetchUserHistory('abc', ReqType.GQL),
+        await userHistoryService.fetchUserHistory('abc', 2, ReqType.GQL),
       ).toEqual(userHistory);
     });
     test('Should return an empty list of users REST history if doesnt exists', async () => {
@@ -126,7 +126,7 @@ describe('UserHistoryService', () => {
 
       const userHistory: UserHistory[] = [];
       return expect(
-        await userHistoryService.fetchUserHistory('abc', ReqType.REST),
+        await userHistoryService.fetchUserHistory('abc', 2, ReqType.REST),
       ).toEqual(userHistory);
     });
     test('Should return an empty list of users GQL history if doesnt exists', async () => {
@@ -134,7 +134,7 @@ describe('UserHistoryService', () => {
 
       const userHistory: UserHistory[] = [];
       return expect(
-        await userHistoryService.fetchUserHistory('abc', ReqType.GQL),
+        await userHistoryService.fetchUserHistory('abc', 2, ReqType.GQL),
       ).toEqual(userHistory);
     });
   });
@@ -278,7 +278,7 @@ describe('UserHistoryService', () => {
   });
   describe('toggleHistoryStarStatus', () => {
     test('Should resolve right and star/unstar a request in the history', async () => {
-      const createdOnDate = new Date()
+      const createdOnDate = new Date();
       mockPrisma.userHistory.findFirst.mockResolvedValueOnce({
         userUid: 'abc',
         id: '1',

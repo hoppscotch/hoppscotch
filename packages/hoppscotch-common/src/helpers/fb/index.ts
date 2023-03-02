@@ -27,7 +27,7 @@ export function initializeFirebase() {
       initSettings()
       initCollections()
       initHistory()
-      platform.environments.initEnvironments()
+      platform.sync.environments.initEnvironmentsSync()
       initAnalytics()
 
       initialized = true

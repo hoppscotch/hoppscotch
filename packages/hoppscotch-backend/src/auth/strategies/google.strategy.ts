@@ -17,10 +17,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
       scope: process.env.GOOGLE_SCOPE.split(','),
+      passReqToCallback: true,
     });
   }
 
-  async validate(accessToken, refreshToken, profile, done: VerifyCallback) {
+  async validate(
+    req: Request,
+    accessToken,
+    refreshToken,
+    profile,
+    done: VerifyCallback,
+  ) {
     const user = await this.usersService.findUserByEmail(
       profile.emails[0].value,
     );

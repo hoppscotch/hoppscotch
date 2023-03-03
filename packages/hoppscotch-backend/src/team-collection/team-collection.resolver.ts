@@ -36,7 +36,7 @@ export class TeamCollectionResolver {
 
   @ResolveField(() => TeamCollection, {
     description:
-      'The collection whom is the parent of this collection (null if this is root collection)',
+      'The collection who is the parent of this collection (null if this is root collection)',
     nullable: true,
     complexity: 3,
   })

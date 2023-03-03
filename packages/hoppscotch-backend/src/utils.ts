@@ -8,6 +8,7 @@ import * as T from 'fp-ts/Task';
 import * as E from 'fp-ts/Either';
 import * as A from 'fp-ts/Array';
 import { TeamMemberRole } from './team/team.model';
+import { User } from './user/user.model';
 import { JSON_INVALID } from './errors';
 
 /**
@@ -124,7 +125,7 @@ export const validateEmail = (email: string) => {
   ).test(email);
 };
 
-/*
+/**
  * String to JSON parser
  * @param {str} str The string to parse
  * @returns {E.Right<T> | E.Left<"json_invalid">} An Either of the parsed JSON
@@ -137,4 +138,17 @@ export function stringToJson<T>(
   } catch (err) {
     return E.left(JSON_INVALID);
   }
+}
+/**
+ *
+ * @param title string whose length we need to check
+ * @param length minimum length the title needs to be
+ * @returns boolean if title is of valid length or not
+ */
+export function isValidLength(title: string, length: number) {
+  if (title.length < length) {
+    return false;
+  }
+
+  return true;
 }

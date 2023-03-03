@@ -373,3 +373,68 @@ export const INVALID_ACCESS_TOKEN = 'auth/invalid_access_token' as const;
  * (AuthService)
  */
 export const INVALID_REFRESH_TOKEN = 'auth/invalid_refresh_token' as const;
+
+/**
+ * The provided title for the user collection is short (less than 3 characters)
+ * (UserCollectionService)
+ */
+export const USER_COLL_SHORT_TITLE = 'user_coll/short_title' as const;
+
+/**
+ * User Collection could not be found
+ * (UserCollectionService)
+ */
+export const USER_COLL_NOT_FOUND = 'user_coll/not_found' as const;
+
+/**
+ * UserCollection is already a root collection
+ * (UserCollectionService)
+ */
+export const USER_COL_ALREADY_ROOT =
+  'user_coll/target_user_collection_is_already_root_user_collection' as const;
+
+/**
+ * Target and Parent user collections are the same
+ * (UserCollectionService)
+ */
+export const USER_COLL_DEST_SAME =
+  'user_coll/target_and_destination_user_collection_are_same' as const;
+
+/**
+ * Target and Parent user collections are not from the same user
+ * (UserCollectionService)
+ */
+export const USER_COLL_NOT_SAME_USER = 'user_coll/not_same_user' as const;
+
+/**
+ * Target and Parent user collections are not from the same type
+ * (UserCollectionService)
+ */
+export const USER_COLL_NOT_SAME_TYPE = 'user_coll/type_mismatch' as const;
+
+/**
+ * Cannot make a parent user collection a child of itself
+ * (UserCollectionService)
+ */
+export const USER_COLL_IS_PARENT_COLL =
+  'user_coll/user_collection_is_parent_coll' as const;
+
+/**
+ * User Collection Re-Ordering Failed
+ * (UserCollectionService)
+ */
+export const USER_COLL_REORDERING_FAILED =
+  'user_coll/reordering_failed' as const;
+
+/**
+ * The Collection and Next User Collection are the same
+ * (UserCollectionService)
+ */
+export const USER_COLL_SAME_NEXT_COLL =
+  'user_coll/user_collection_and_next_user_collection_are_same' as const;
+
+/**
+ * The User Collection does not belong to the logged-in user
+ * (UserCollectionService)
+ */
+export const USER_NOT_OWNER = 'user_coll/user_not_owner' as const;

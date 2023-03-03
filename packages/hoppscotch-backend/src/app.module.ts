@@ -13,6 +13,7 @@ import { TeamEnvironmentsModule } from './team-environments/team-environments.mo
 import { TeamCollectionModule } from './team-collection/team-collection.module';
 import { TeamRequestModule } from './team-request/team-request.module';
 import { TeamInvitationModule } from './team-invitation/team-invitation.module';
+import { UserCollectionModule } from './user-collection/user-collection.module';
 import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
 
@@ -64,6 +65,7 @@ import { COOKIES_NOT_FOUND } from './errors';
     TeamCollectionModule,
     TeamRequestModule,
     TeamInvitationModule,
+    UserCollectionModule,
     ShortcodeModule,
   ],
   providers: [GQLComplexityPlugin],

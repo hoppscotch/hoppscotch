@@ -90,6 +90,8 @@ model User {
   settings           UserSettings?
   UserHistory        UserHistory[]
   UserEnvironments   UserEnvironment[]
+  userCollections    UserCollection[]
+  userRequests       UserRequest[]
   currentRESTSession Json?
   currentGQLSession  Json?
   createdOn          DateTime            @default(now()) @db.Timestamp(3)
@@ -150,6 +152,35 @@ model UserEnvironment {
   name      String?
   variables Json
   isGlobal  Boolean
+}
+
+model UserCollection {
+  id         String           @id @default(cuid())
+  parentID   String?
+  parent     UserCollection?  @relation("ParentUserCollection", fields: [parentID], references: [id], onDelete: Cascade)
+  children   UserCollection[] @relation("ParentUserCollection")
+  requests   UserRequest[]
+  userUid    String
+  user       User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  title      String
+  orderIndex Int
+  type       ReqType
+  createdOn  DateTime         @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
+}
+
+model UserRequest {
+  id           String         @id @default(cuid())
+  collectionID String
+  collection   UserCollection @relation(fields: [collectionID], references: [id], onDelete: Cascade)
+  userUid      String
+  user         User           @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  title        String
+  request      Json
+  type         ReqType
+  orderIndex   Int
+  createdOn    DateTime       @default(now()) @db.Timestamp(3)
+  updatedOn    DateTime       @updatedAt @db.Timestamp(3)
 }
 
 enum TeamMemberRole {

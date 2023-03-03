@@ -209,7 +209,7 @@ import {
   setRESTRequest,
   setRESTSaveContext,
 } from "~/newstore/RESTSession"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isEqual } from "lodash-es"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
   createNewRootCollection,
@@ -1342,12 +1342,10 @@ const discardRequestChange = () => {
  * @param path The path of the request
  * @returns The index of the request
  */
-const pathToIndex = computed(() => {
-  return (path: string) => {
-    const pathArr = path.split("/")
-    return parseInt(pathArr[pathArr.length - 1])
-  }
-})
+const pathToLastIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return parseInt(pathArr[pathArr.length - 1])
+}
 
 /**
  * This function is called when the user drops the request inside a collection
@@ -1363,7 +1361,7 @@ const dropRequest = (payload: {
   if (collectionsType.value.type === "my-collections" && folderPath) {
     moveRESTRequest(
       folderPath,
-      pathToIndex.value(requestIndex),
+      pathToLastIndex(requestIndex),
       destinationCollectionIndex
     )
     toast.success(`${t("request.moved")}`)
@@ -1396,6 +1394,43 @@ const dropRequest = (payload: {
 }
 
 /**
+ * @param path The path of the collection or request
+ * @returns The index of the collection or request
+ */
+const pathToIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return pathArr
+}
+
+/**
+ * Used to check if the collection exist as the parent of the childrens
+ * @param collectionIndexDragged The index of the collection dragged
+ * @param destinationCollectionIndex The index of the destination collection
+ * @returns True if the collection exist as the parent of the childrens
+ */
+const checkIfCollectionIsAParentOfTheChildren = (
+  collectionIndexDragged: string,
+  destinationCollectionIndex: string
+) => {
+  const collectionDraggedPath = pathToIndex(collectionIndexDragged)
+  const destinationCollectionPath = pathToIndex(destinationCollectionIndex)
+
+  if (collectionDraggedPath.length < destinationCollectionPath.length) {
+    const slicedDestinationCollectionPath = destinationCollectionPath.slice(
+      0,
+      collectionDraggedPath.length
+    )
+    if (isEqual(slicedDestinationCollectionPath, collectionDraggedPath)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  return false
+}
+
+/**
  * This function is called when the user moves the collection
  * to a different collection or folder
  * @param payload - object containing the collection index dragged and the destination collection index
@@ -1408,6 +1443,15 @@ const dropCollection = (payload: {
   if (!collectionIndexDragged || !destinationCollectionIndex) return
   if (collectionIndexDragged === destinationCollectionIndex) return
   if (collectionsType.value.type === "my-collections") {
+    if (
+      checkIfCollectionIsAParentOfTheChildren(
+        collectionIndexDragged,
+        destinationCollectionIndex
+      )
+    ) {
+      toast.error(`${t("team.parent_coll_move")}`)
+      return
+    }
     moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
     draggingToRoot.value = false
     toast.success(`${t("collection.moved")}`)
@@ -1445,12 +1489,10 @@ const dropCollection = (payload: {
  * @param id - path of the collection
  * @returns boolean - true if the collection is already in the root
  */
-const isAlreadyInRoot = computed(() => {
-  return (id: string) => {
-    const indexPath = id.split("/").map((i) => parseInt(i))
-    return indexPath.length === 1
-  }
-})
+const isAlreadyInRoot = (id: string) => {
+  const indexPath = pathToIndex(id)
+  return indexPath.length === 1
+}
 
 /**
  * This function is called when the user drops the collection
@@ -1463,7 +1505,7 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
     if (!collectionIndexDragged) return
     if (collectionsType.value.type === "my-collections") {
       // check if the collection is already in the root
-      if (isAlreadyInRoot.value(collectionIndexDragged)) {
+      if (isAlreadyInRoot(collectionIndexDragged)) {
         toast.error(`${t("collection.invalid_root_move")}`)
       } else {
         moveRESTFolder(collectionIndexDragged, null)
@@ -1506,26 +1548,22 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
  * @param destinationReq - path index of the destination request
  * @returns boolean - true if the request is being moved to the same parent
  */
-const isSameSameParent = computed(
-  () => (draggedReq: string, destinationReq: string) => {
-    const draggedReqIndex = draggedReq.split("/").map((i) => parseInt(i))
-    const destinationReqIndex = destinationReq
-      .split("/")
-      .map((i) => parseInt(i))
+const isSameSameParent = (draggedReq: string, destinationReq: string) => {
+  const draggedReqIndex = pathToIndex(draggedReq)
+  const destinationReqIndex = pathToIndex(destinationReq)
 
-    // length of 1 means the request is in the root
-    if (draggedReqIndex.length === 1 && destinationReqIndex.length === 1) {
-      return true
-    } else if (
-      draggedReqIndex[draggedReqIndex.length - 2] ===
-      destinationReqIndex[destinationReqIndex.length - 2]
-    ) {
-      return true
-    } else {
-      return false
-    }
+  // length of 1 means the request is in the root
+  if (draggedReqIndex.length === 1 && destinationReqIndex.length === 1) {
+    return true
+  } else if (
+    draggedReqIndex[draggedReqIndex.length - 2] ===
+    destinationReqIndex[destinationReqIndex.length - 2]
+  ) {
+    return true
+  } else {
+    return false
   }
-)
+}
 
 /**
  * This function is called when the user updates the request order in a collection
@@ -1553,12 +1591,12 @@ const updateRequestOrder = (payload: {
   if (dragedRequestIndex === destinationRequestIndex) return
 
   if (collectionsType.value.type === "my-collections") {
-    if (!isSameSameParent.value(dragedRequestIndex, destinationRequestIndex)) {
+    if (!isSameSameParent(dragedRequestIndex, destinationRequestIndex)) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
       updateRESTRequestOrder(
-        pathToIndex.value(dragedRequestIndex),
-        pathToIndex.value(destinationRequestIndex),
+        pathToLastIndex(dragedRequestIndex),
+        pathToLastIndex(destinationRequestIndex),
         destinationCollectionIndex
       )
       toast.success(`${t("request.order_changed")}`)
@@ -1608,9 +1646,7 @@ const updateCollectionOrder = (payload: {
   if (dragedCollectionIndex === destinationCollectionIndex) return
 
   if (collectionsType.value.type === "my-collections") {
-    if (
-      !isSameSameParent.value(dragedCollectionIndex, destinationCollectionIndex)
-    ) {
+    if (!isSameSameParent(dragedCollectionIndex, destinationCollectionIndex)) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
       updateRESTCollectionOrder(

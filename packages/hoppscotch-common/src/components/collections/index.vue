@@ -1548,18 +1548,21 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
  * @param destinationReq - path index of the destination request
  * @returns boolean - true if the request is being moved to the same parent
  */
-const isSameSameParent = (draggedReq: string, destinationReq: string) => {
-  const draggedReqIndex = pathToIndex(draggedReq)
-  const destinationReqIndex = pathToIndex(destinationReq)
+const isSameSameParent = (draggedItem: string, destinationItem: string) => {
+  const draggedItemIndex = pathToIndex(draggedItem)
+  const destinationItemIndex = pathToIndex(destinationItem)
 
   // length of 1 means the request is in the root
-  if (draggedReqIndex.length === 1 && destinationReqIndex.length === 1) {
+  if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
     return true
-  } else if (
-    draggedReqIndex[draggedReqIndex.length - 2] ===
-    destinationReqIndex[destinationReqIndex.length - 2]
-  ) {
-    return true
+  } else if (draggedItemIndex.length === destinationItemIndex.length) {
+    const dragedItemParent = draggedItemIndex.slice(0, -1)
+    const destinationItemParent = destinationItemIndex.slice(0, -1)
+    if (isEqual(dragedItemParent, destinationItemParent)) {
+      return true
+    } else {
+      return false
+    }
   } else {
     return false
   }

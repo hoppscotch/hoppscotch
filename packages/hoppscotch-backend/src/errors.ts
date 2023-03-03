@@ -45,6 +45,36 @@ export const USER_DELETION_FAILED = 'user/deletion_failed' as const;
 export const USER_IS_OWNER = 'user/is_owner' as const;
 
 /**
+ * Tried to find user collection but failed
+ * (UserRequestService)
+ */
+export const USER_COLLECTION_NOT_FOUND = 'user_collection/not_found' as const;
+
+/**
+ * Tried to reorder user request but failed
+ * (UserRequestService)
+ */
+export const USER_REQUEST_CREATION_FAILED = 'user_request/creation_failed' as const;
+
+/**
+ * Tried to do an action on a user request but user request is not matched with user collection
+ * (UserRequestService)
+ */
+export const USER_REQUEST_INVALID_TYPE = 'user_request/type_mismatch' as const;
+
+/**
+ * Tried to do an action on a user request where user request is not found
+ * (UserRequestService)
+ */
+export const USER_REQUEST_NOT_FOUND = 'user_request/not_found' as const;
+
+/**
+ * Tried to reorder user request but failed
+ * (UserRequestService)
+ */
+export const USER_REQUEST_REORDERING_FAILED = 'user_request/reordering_failed' as const;
+
+/**
  * Tried to perform action on a team which they are not a member of
  * (GqlTeamMemberGuard)
  */

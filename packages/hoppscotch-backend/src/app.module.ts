@@ -6,6 +6,7 @@ import { GQLComplexityPlugin } from './plugins/GQLComplexityPlugin';
 import { AuthModule } from './auth/auth.module';
 import { UserSettingsModule } from './user-settings/user-settings.module';
 import { UserEnvironmentsModule } from './user-environment/user-environments.module';
+import { UserRequestModule } from './user-request/user-request.module';
 import { UserHistoryModule } from './user-history/user-history.module';
 import { subscriptionContextCookieParser } from './auth/helper';
 import { TeamModule } from './team/team.module';
@@ -60,6 +61,7 @@ import { COOKIES_NOT_FOUND } from './errors';
     UserSettingsModule,
     UserEnvironmentsModule,
     UserHistoryModule,
+    UserRequestModule,
     TeamModule,
     TeamEnvironmentsModule,
     TeamCollectionModule,

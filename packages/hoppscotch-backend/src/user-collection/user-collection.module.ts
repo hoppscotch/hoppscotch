@@ -8,5 +8,6 @@ import { PubSubModule } from 'src/pubsub/pubsub.module';
 @Module({
   imports: [PrismaModule, UserModule, PubSubModule],
   providers: [UserCollectionService, UserCollectionResolver],
+  exports: [UserCollectionService],
 })
 export class UserCollectionModule {}

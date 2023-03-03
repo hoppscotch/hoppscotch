@@ -1,3 +1,4 @@
+import { UserRequest } from 'src/user-request/user-request.model';
 import { User } from 'src/user/user.model';
 import { UserSettings } from 'src/user-settings/user-settings.model';
 import { UserEnvironment } from '../user-environment/user-environments.model';
@@ -20,6 +21,13 @@ export type TopicDef = {
     topic: `user_environment/${string}/${'created' | 'updated' | 'deleted'}`
   ]: UserEnvironment;
   [topic: `user_environment/${string}/deleted_many`]: number;
+  [
+    topic: `user_request/${string}/${
+      | 'created'
+      | 'updated'
+      | 'deleted'
+      | 'moved'}`
+  ]: UserRequest;
   [
     topic: `user_history/${string}/${'created' | 'updated' | 'deleted'}`
   ]: UserHistory;

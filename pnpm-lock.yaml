@@ -642,7 +642,8 @@ importers:
       '@graphql-codegen/typescript-operations': 3.0.0
       '@graphql-codegen/urql-introspection': 2.2.1
       '@graphql-typed-document-node/core': ^3.1.1
-      '@hoppscotch/ui': workspace:^
+      '@hoppscotch/ui': workspace:^0.0.1
+      '@hoppscotch/vue-toasted': ^0.1.0
       '@types/cors': ^2.8.13
       '@types/express': ^4.17.15
       '@urql/vue': ^1.0.4
@@ -650,6 +651,7 @@ importers:
       '@vue/compiler-sfc': ^3.2.6
       '@vueuse/core': ^9.10.0
       cors: ^2.8.5
+      date-fns: ^2.29.3
       express: ^4.18.2
       express-graphql: ^0.12.0
       graphql: ^16.6.0
@@ -672,11 +674,13 @@ importers:
     dependencies:
       '@graphql-typed-document-node/core': 3.1.1_graphql@16.6.0
       '@hoppscotch/ui': link:../hoppscotch-ui
+      '@hoppscotch/vue-toasted': 0.1.0_vue@3.2.45
       '@types/cors': 2.8.13
       '@types/express': 4.17.16
       '@urql/vue': 1.0.4_graphql@16.6.0+vue@3.2.45
       '@vueuse/core': 9.12.0_vue@3.2.45
       cors: 2.8.5
+      date-fns: 2.29.3
       express: 4.18.2
       express-graphql: 0.12.0_graphql@16.6.0
       graphql: 16.6.0
@@ -10190,6 +10194,11 @@ packages:
   /dataloader/2.2.2:
     resolution: {integrity: sha512-8YnDaaf7N3k/q5HnTJVuzSyLETjoZjVmHc4AeKAzOvKHEFQKcn64OKBfzHYtE9zGjctNM7V9I0MfnUVLpi7M5g==}
     dev: true
+
+  /date-fns/2.29.3:
+    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+    engines: {node: '>=0.11'}
+    dev: false
 
   /de-indent/1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}

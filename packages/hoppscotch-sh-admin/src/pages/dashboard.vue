@@ -1,12 +1,12 @@
 <template>
   <div class="sm:px-6 p-4">
-    <h3 class="text-3xl font-medium text-gray-800 dark:text-gray-200">
+    <h3 class="text-3xl font-medium text-gray-800 dark:text-gray-200 mb-6">
       Dashboard
     </h3>
 
     <div class="mt-4">
-      <div class="flex flex-wrap -mx-6">
-        <div class="w-full px-6 sm:w-1/2 xl:w-1/3">
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="w-full">
           <div
             class="flex items-center px-5 py-6 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-sm"
           >
@@ -23,7 +23,7 @@
           </div>
         </div>
 
-        <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 sm:mt-0">
+        <div class="w-full">
           <div
             class="flex items-center px-5 py-6 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-sm"
           >
@@ -40,7 +40,7 @@
           </div>
         </div>
 
-        <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 xl:mt-0">
+        <div class="w-full">
           <div
             class="flex items-center px-5 py-6 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-sm"
           >
@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        <div class="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 xl:mt-10">
+        <div class="w-full">
           <div
             class="flex items-center px-5 py-6 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-sm"
           >

@@ -5,12 +5,12 @@
     <div class="flex items-center">
       <button
         @click="isOpen = true"
-        class="text-gray-200 focus:outline-none lg:hidden mr-2"
+        class="text-gray-200 focus:outline-none md:hidden mr-2"
       >
         <icon-lucide-menu class="text-gray-300 w-6" />
       </button>
 
-      <div class="mr-3 mt-2">
+      <div class="mr-3 mt-2 xs:hidden md:block">
         <button @click="expandSidebar">
           <icon-lucide-sidebar-open
             v-if="isExpanded"

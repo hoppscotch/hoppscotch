@@ -1,0 +1,11 @@
+query UsersList($cursor: ID) {
+  admin {
+    allUsers(cursor: $cursor) {
+      uid
+      displayName
+      email
+      isAdmin
+      createdOn
+    }
+  }
+}

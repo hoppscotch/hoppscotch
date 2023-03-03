@@ -41,7 +41,7 @@
         <div class="px-6 py-4 text-left modal-content">
           <!--Title-->
           <div class="flex items-center justify-between pb-3">
-            <p class="text-2xl ml-3 font-bold">{{ title }}</p>
+            <p class="text-2xl ml-3 font-bold text-gray-300">{{ title }}</p>
             <div class="z-50 cursor-pointer modal-close" @click="open = false">
               <svg
                 class="text-white fill-current"
@@ -78,6 +78,10 @@ defineProps({
   },
   button: {
     type: String,
+  },
+  requireButton: {
+    type: Boolean,
+    default: true,
   },
 });
 </script>

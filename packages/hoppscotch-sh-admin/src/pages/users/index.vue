@@ -6,260 +6,362 @@
       Users
     </h3>
 
+    <!-- Table List View for All Users -->
     <div class="flex flex-col">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-4 lg:-mx-8 lg:px-8">
         <div class="inline-block min-w-full overflow-hidden align-middle">
           <div class="sm:px-7 p-4">
             <div class="flex w-full items-center mb-7">
-              <button
-                class="inline-flex mr-3 items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-700 dark:text-gray-400 dark:border-gray-800 border-2 border-gray-200 leading-none py-0"
-              >
-                Last 30 days
-                <icon-lucide-chevron-down
-                  class="w-4 ml-1.5 text-gray-400 dark:text-gray-600"
-                />
-              </button>
+              <HoppButtonPrimary
+                class="mr-4"
+                label="Invite User"
+                @click="showInviteUserModal = true"
+              />
 
-              <div class="relative">
-                <button
-                  @click="dropdownOpen = !dropdownOpen"
-                  class="inline-flex items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-700 dark:text-gray-400 dark:border-gray-800 border-2 border-gray-200 leading-none py-0"
-                >
-                  Filter by
-                  <icon-lucide-chevron-down
-                    class="w-4 ml-1.5 text-gray-400 dark:text-gray-600"
-                  />
-                </button>
-
-                <div
-                  v-show="dropdownOpen"
-                  @click="dropdownOpen = false"
-                  class="fixed inset-0 z-10 w-full h-full"
-                ></div>
-
-                <transition
-                  enter-active-class="transition duration-150 ease-out transform"
-                  enter-from-class="scale-95 opacity-0"
-                  enter-to-class="scale-100 opacity-100"
-                  leave-active-class="transition duration-150 ease-in transform"
-                  leave-from-class="scale-100 opacity-100"
-                  leave-to-class="scale-95 opacity-0"
-                >
-                  <div
-                    v-show="dropdownOpen"
-                    class="absolute left-0 z-20 w-48 mt-2 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-xl"
-                  >
-                    <button
-                      href="#"
-                      class="block w-full text-left rounded-md px-4 py-2 text-gray-800 dark:text-gray-200 hover:bg-emerald-700 hover:text-white"
-                    >
-                      Status
-                    </button>
-                  </div>
-                </transition>
-              </div>
-
-              <Modal v-if="open" :button="button" :title="title">
-                <template #title>
-                  <p class="text-2xl font-bold">Invite User</p>
-                </template>
-                <template #content>
-                  <div>
-                    <div>
-                      <div class="px-6 rounded-md">
-                        <form>
-                          <div class="my-4">
-                            <div>
-                              <label
-                                class="text-gray-800 dark:text-gray-200"
-                                for="emailAddress"
-                                >Email Address</label
-                              >
-                              <input
-                                class="w-full p-3 mt-3 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
-                                type="email"
-                                v-model="email"
-                                placeholder="Enter Email Address"
-                              />
-                            </div>
-                          </div>
-                          <div class="flex justify-end my-2 pt-3">
-                            <button
-                              @click="sendInvite"
-                              class="px-4 py-2 font-medium tracking-wide text-white bg-emerald-700 rounded-md hover:bg-emerald-600 focus:outline-none"
-                            >
-                              Send Invite
-                            </button>
-                          </div>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                </template>
-              </Modal>
-
-              <button
-                class="inline-flex items-center bg-zinc-700 h-8 ml-3 pl-2.5 pr-2 rounded-md shadow text-gray-200 dark:border-gray-800 border border-gray-200 leading-none py-0 hover:bg-emerald-700 focus:outline-none focus:bg-emerald-800"
-              >
-                <router-link :to="'/users/invited'">
-                  Invited Users
-                </router-link>
-              </button>
-              <div
-                class="ml-auto text-gray-400 text-xs sm:inline-flex hidden items-center"
-              >
-                <span class="mr-3">Page 2 of 4</span>
-                <button
-                  class="inline-flex mr-2 items-center h-8 w-8 justify-center text-gray-400 rounded-md shadow border border-gray-200 dark:border-gray-800 leading-none py-0"
-                >
-                  <icon-lucide-chevron-left class="text-xl" />
-                </button>
-
-                <button
-                  class="inline-flex items-center h-8 w-8 justify-center text-gray-400 rounded-md shadow border border-gray-200 dark:border-gray-800 leading-none py-0"
-                >
-                  <icon-lucide-chevron-right class="text-xl" />
-                </button>
-              </div>
+              <HoppButtonSecondary
+                filled
+                outline
+                label="Invite Users"
+                :to="'/users/invited'"
+              />
             </div>
             <div>
-              <table class="w-full text-left">
+              <div
+                v-if="fetching && !error && !(usersList.length >= 1)"
+                class="flex justify-center"
+              >
+                <HoppSmartSpinner />
+              </div>
+              <div v-else-if="error">Unable to Load Users List..</div>
+
+              <table
+                v-if="usersList.length >= 1"
+                class="w-full text-left min-h-32"
+              >
                 <thead>
                   <tr
-                    class="text-zinc-900 dark:text-gray-200 border-b border-gray-300 dark:border-gray-600 text-sm"
+                    class="text-zinc-900 dark:text-gray-200 border-b border-gray-300 dark:border-gray-600 text-sm text-center"
                   >
-                    <th class="font-normal px-3 pt-0 pb-3"></th>
                     <th class="font-normal px-3 pt-0 pb-3">User ID</th>
-                    <th class="font-normal px-3 pt-0 pb-3">Sign-In Method</th>
-                    <th class="font-normal px-3 pt-0 pb-3 hidden md:table-cell">
-                      Email
-                    </th>
-                    <th class="font-normal px-3 pt-0 pb-3">Status</th>
+                    <th class="font-normal px-3 pt-0 pb-3">Name</th>
+                    <th class="font-normal px-3 pt-0 pb-3">Email</th>
                     <th class="font-normal px-3 pt-0 pb-3">Date</th>
+                    <th class="font-normal px-3 pt-0 pb-3"></th>
                   </tr>
                 </thead>
 
                 <tbody class="text-gray-600 dark:text-gray-300">
                   <tr
-                    v-for="user in users"
-                    @click="goToUser"
+                    v-for="user in usersList"
+                    :key="user.uid"
                     class="border-b border-gray-300 dark:border-gray-600 hover:bg-zinc-800 rounded-xl"
                   >
-                    <td>
-                      <label>
-                        <input
-                          type="checkbox"
-                          class="appearance-none bg-gray-600 checked:bg-emerald-600 rounded-md ml-3 w-5 h-5"
-                          name="radio"
-                        />
-                      </label>
-                    </td>
-                    <td class="sm:p-3 py-2 px-1">
+                    <td
+                      @click="goToUserDetails(user)"
+                      class="sm:p-3 py-2 px-1 max-w-30"
+                    >
                       <div class="flex">
                         <span class="ml-3 truncate">
-                          {{ user?.id }}
+                          {{ user.uid }}
                         </span>
                       </div>
                     </td>
-                    <td class="sm:p-3 py-2 px-1 0">
-                      <div class="flex items-center">
-                        {{ user?.signin }}
+                    <td
+                      @click="goToUserDetails(user)"
+                      class="sm:p-3 py-2 px-1 0"
+                    >
+                      <div
+                        v-if="user.displayName"
+                        class="flex items-center justify-center"
+                      >
+                        {{ user.displayName }}
+                        <span
+                          v-if="user.isAdmin"
+                          class="rounded-xl p-1 border-1 border-emerald-600 text-xs text-emerald-600 ml-2"
+                        >
+                          Admin
+                        </span>
+                      </div>
+                      <div
+                        v-else
+                        class="flex items-center justify-center text-center"
+                      >
+                        <span v-if="!user.isAdmin"> - </span>
+                        <span
+                          v-if="user.isAdmin"
+                          class="rounded-xl p-1 border-1 border-emerald-600 text-xs text-emerald-600 ml-2"
+                        >
+                          Admin
+                        </span>
                       </div>
                     </td>
                     <td
-                      class="sm:p-3 py-2 px-1 md:table-cell hidden text-sky-500 dark:text-sky-300"
+                      @click="goToUserDetails(user)"
+                      class="sm:p-3 py-2 px-1 text-sky-500 dark:text-sky-300 text-center"
                     >
-                      {{ user?.email }}
+                      {{ user.email }}
                     </td>
-                    <td class="sm:p-3 py-2 px-1 text-green-500">
-                      {{ user?.status }}
-                    </td>
-                    <td class="sm:p-3 py-2 px-1">
-                      <div class="flex items-center">
-                        <div class="sm:flex hidden flex-col">
-                          {{ user?.date }}
-                          <div class="text-gray-400 text-xs">11:16 AM</div>
+
+                    <td @click="goToUserDetails(user)" class="sm:p-3 py-2 px-1">
+                      <div class="flex items-center justify-center">
+                        <div class="flex flex-col">
+                          {{ getCreatedDate(user.createdOn) }}
+                          <div class="text-gray-400 text-xs text-center">
+                            {{ getCreatedTime(user.createdOn) }}
+                          </div>
                         </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="relative">
                         <button
-                          class="w-8 h-8 inline-flex items-center justify-center text-gray-400 ml-auto"
+                          @click.stop="toggleDropdown(user.uid)"
+                          class="w-8 h-8 dropdown inline-flex items-center justify-right text-gray-400"
                         >
                           <icon-lucide-more-horizontal />
                         </button>
+
+                        <transition
+                          enter-active-class="transition duration-150 ease-out transform"
+                          enter-from-class="scale-95 opacity-0"
+                          enter-to-class="scale-100 opacity-100"
+                          leave-active-class="transition duration-150 ease-in transform"
+                          leave-from-class="scale-100 opacity-100"
+                          leave-to-class="scale-95 opacity-0"
+                        >
+                          <div
+                            v-show="activeUserId && activeUserId == user.uid"
+                            class="absolute right-0 z-20 w-28 mt-5 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-xl"
+                          >
+                            <button
+                              v-if="!user.isAdmin"
+                              @click="makeUserAdmin(user.uid)"
+                              class="block w-full h-10 px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-emerald-700 hover:text-white rounded-md"
+                            >
+                              Make admin
+                            </button>
+                            <button
+                              class="block w-full h-10 px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-red-700 hover:text-white rounded-md"
+                              @click="deleteUser(user.uid)"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </transition>
                       </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
+
+              <div v-if="usersList.length >= 20" class="text-center">
+                <button
+                  @click="fetchNextUsers"
+                  class="mt-5 p-2 rounded-3xl bg-gray-700"
+                >
+                  <icon-lucide-chevron-down class="text-xl" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Send Invite Modal -->
+    <HoppSmartModal
+      v-if="showInviteUserModal"
+      dialog
+      title="Invite User"
+      @close="showInviteUserModal = false"
+    >
+      <template #body>
+        <div>
+          <div>
+            <div class="px-6 rounded-md">
+              <div>
+                <div class="my-4">
+                  <div>
+                    <label
+                      class="text-gray-800 dark:text-gray-200"
+                      for="emailAddress"
+                    >
+                      Email Address
+                    </label>
+                    <input
+                      class="w-full p-3 mt-3 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                      type="email"
+                      v-model="email"
+                      placeholder="Enter Email Address"
+                    />
+                  </div>
+                </div>
+                <div class="flex justify-end my-2 pt-3">
+                  <HoppButtonPrimary
+                    label="Send Invite"
+                    @click="sendInvite()"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </HoppSmartModal>
+
+    <HoppSmartConfirmModal
+      :show="confirmDeletion"
+      :title="`Confirm User Deletion?`"
+      @hide-modal="confirmDeletion = false"
+      @resolve="deleteUserMutation(deleteUserUID)"
+    />
+    <HoppSmartConfirmModal
+      :show="confirmUserToAdmin"
+      :title="`Do you want to make this User into an Admin?`"
+      @hide-modal="confirmUserToAdmin = false"
+      @resolve="makeUserAdminMutation(adminUserUID)"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { useMutation } from '@urql/vue';
+import {
+  UsersListDocument,
+  InviteUserToSignInDocument,
+  RemoveUserAccountByAdminDocument,
+  MakeUserAdminDocument,
+} from '../../helpers/backend/graphql';
+import { usePagedQuery } from '../../composables/usePagedQuery';
+import { format } from 'date-fns';
 import { useRouter } from 'vue-router';
-import Modal from '../../components/app/Modal.vue';
+import { useToast } from '../../composables/toast';
+import { HoppButtonSecondary, HoppSmartSpinner } from '@hoppscotch/ui';
 
-const open = ref(true);
+const toast = useToast();
 
-const sendInvite = () => {
-  open.value = false;
-};
+// Get Proper Date Formats
+const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
+const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
-const router = useRouter();
+// Get Paginated Results of all the users in the infra
+const {
+  fetching,
+  error,
+  goToNextPage: fetchNextUsers,
+  list: usersList,
+} = usePagedQuery(
+  UsersListDocument,
+  (x) => x.admin.allUsers,
+  (x) => x.uid,
+  { cursor: undefined }
+);
 
-const { fetching, data } = useQuery({
-  query: `
-    query {
-      me {
-        displayName
-      }
-    }
-  `,
-});
-
-const goToUser = () => {
-  router.push('/users/details');
-};
-
+// Send Invitation through Email
 const email = ref('');
+const sendInvitation = useMutation(InviteUserToSignInDocument);
+const showInviteUserModal = ref(false);
 
-type User = {
-  id: string;
-  signin: string;
-  email: string;
-  status: string;
-  date: string;
+const sendInvite = async () => {
+  const variables = { inviteeEmail: email.value.trim() };
+  await sendInvitation.executeMutation(variables).then((result) => {
+    if (result.error) {
+      toast.error('Failed to Send Invitation');
+    } else {
+      toast.success('Email Invitation Sent Successfully');
+    }
+  });
 };
 
-const title = 'Invite User';
-const button = 'Send Invite';
-const dropdownOpen = ref(false);
+// Go to Individual User Details Page
+const router = useRouter();
+const goToUserDetails = (user: any) => {
+  router.push('/users/' + user.uid);
+};
 
-const users: Array<User> = [
-  {
-    id: 'abc12',
-    signin: 'Microsoft',
-    email: 'joel@gmail.com',
-    status: 'Active',
-    date: '15-01-2023',
-  },
-  {
-    id: 'zxc21',
-    signin: 'Microsoft',
-    email: 'andrew@gmail.com',
-    status: 'Active',
-    date: '15-01-2023',
-  },
-  {
-    id: 'cadf4',
-    signin: 'Microsoft',
-    email: 'liyas@gmail.com',
-    status: 'Active',
-    date: '15-01-2023',
-  },
-];
+// Open the side menu dropdown of only the selected user
+const activeUserId = ref<null | String>(null);
+
+function toggleDropdown(uid: String) {
+  if (activeUserId.value && activeUserId.value == uid) {
+    activeUserId.value = null;
+  } else {
+    activeUserId.value = uid;
+  }
+}
+
+// Hide dropdown when user clicks elsewhere
+const close = (e: any) => {
+  if (!e.target.closest('.dropdown')) {
+    activeUserId.value = null;
+  }
+};
+
+onMounted(() => document.addEventListener('click', close));
+onBeforeUnmount(() => document.removeEventListener('click', close));
+
+// User Deletion
+const userDeletion = useMutation(RemoveUserAccountByAdminDocument);
+const confirmDeletion = ref(false);
+const deleteUserUID = ref<string | null>(null);
+
+const deleteUser = (id: string) => {
+  confirmDeletion.value = true;
+  deleteUserUID.value = id;
+};
+
+const deleteUserMutation = async (id: string | null) => {
+  if (!id) {
+    confirmDeletion.value = false;
+    toast.error('User Deletion Failed');
+    return;
+  }
+  const variables = { uid: id };
+  await userDeletion.executeMutation(variables).then((result) => {
+    if (result.error) {
+      toast.error('User Deletion Failed');
+    } else {
+      toast.success('User Deleted Successfully');
+      usersList.value = usersList.value.filter((user) => user.uid !== id);
+      toggleDropdown(id);
+    }
+  });
+  confirmDeletion.value = false;
+  deleteUserUID.value = null;
+};
+
+// Make User Admin
+const userToAdmin = useMutation(MakeUserAdminDocument);
+const confirmUserToAdmin = ref(false);
+const adminUserUID = ref<string | null>(null);
+
+const makeUserAdmin = (id: string) => {
+  confirmUserToAdmin.value = true;
+  adminUserUID.value = id;
+};
+
+const makeUserAdminMutation = async (id: string | null) => {
+  if (!id) {
+    confirmUserToAdmin.value = false;
+    toast.error('User Deletion Failed');
+    return;
+  }
+  const variables = { uid: id };
+  await userToAdmin.executeMutation(variables).then((result) => {
+    if (result.error) {
+      toast.error('Failed to make user an admin');
+    } else {
+      toast.success('User is now an Admin');
+      usersList.value = usersList.value.map((user) => {
+        if (user.uid === id) {
+          user.isAdmin = true;
+        }
+        return user;
+      });
+    }
+  });
+  confirmUserToAdmin.value = false;
+  adminUserUID.value = null;
+};
 </script>

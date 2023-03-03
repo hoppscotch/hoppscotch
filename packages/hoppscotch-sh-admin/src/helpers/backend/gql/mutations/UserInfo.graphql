@@ -1,0 +1,11 @@
+query UserInfo($uid: ID!) {
+  admin {
+    userInfo(userUid: $uid) {
+      uid
+      displayName
+      email
+      photoURL
+      createdOn
+    }
+  }
+}

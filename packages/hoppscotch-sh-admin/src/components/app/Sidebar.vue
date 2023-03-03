@@ -9,8 +9,8 @@
     <!-- End Backdrop -->
 
     <div
-      :class="isOpen ? 'translate-x-0 ease-out' : '-translate-x-full ease-in'"
-      class="flex fixed inset-y-0 left-0 z-30 overflow-y-auto transition duration-300 transform bg-neutral-200 dark:bg-neutral-900 lg:translate-x-0 lg:static lg:inset-0 border-r border-gray-300 dark:border-gray-600"
+      :class="isOpen ? '' : '!-translate-x-full ease-in'"
+      class="sidebar-container transform !md:translate-x-0 ease-out"
     >
       <div :class="isExpanded ? 'w-64' : 'w-full'">
         <div class="flex items-center justify-start mt-6 ml-6">
@@ -98,3 +98,12 @@ const activeClass =
 const inactiveClass =
   'border-gray-900 text-gray-500 hover:bg-gray-600 hover:bg-opacity-25 hover:text-gray-100';
 </script>
+
+<style scoped>
+.sidebar-container {
+  @apply fixed md:static md:translate-x-0 md:inset-0 inset-y-0 left-0 z-30;
+  @apply transition duration-300;
+
+  @apply flex overflow-y-auto bg-neutral-200 dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-600;
+}
+</style>

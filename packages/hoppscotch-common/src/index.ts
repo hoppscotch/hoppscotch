@@ -19,8 +19,8 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
   const app = createApp(App)
 
   // Some basic work that needs to be done before module inits even
-  initializeFirebase()
   initBackendGQLClient()
+  initializeFirebase()
   setupLocalPersistence()
   performMigrations()
 

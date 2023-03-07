@@ -115,9 +115,7 @@ import {
   deleteEnvironment,
   duplicateEnvironment,
   createEnvironment,
-  setEnvironmentVariables,
   getGlobalVariables,
-  environmentsStore,
 } from "~/newstore/environments"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
@@ -154,9 +152,8 @@ const removeEnvironment = () => {
 const duplicateEnvironments = () => {
   if (props.environmentIndex === null) return
   if (props.environmentIndex === "Global") {
-    createEnvironment(`Global - ${t("action.duplicate")}`)
-    setEnvironmentVariables(
-      environmentsStore.value.environments.length - 1,
+    createEnvironment(
+      `Global - ${t("action.duplicate")}`,
       cloneDeep(getGlobalVariables())
     )
   } else duplicateEnvironment(props.environmentIndex)

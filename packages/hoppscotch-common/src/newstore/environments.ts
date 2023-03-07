@@ -62,14 +62,14 @@ const dispatchers = defineDispatchers({
   },
   createEnvironment(
     { environments }: EnvironmentStore,
-    { name }: { name: string }
+    { name, variables }: { name: string; variables: Environment["variables"] }
   ) {
     return {
       environments: [
         ...environments,
         {
           name,
-          variables: [],
+          variables: variables,
         },
       ],
     }
@@ -469,11 +469,15 @@ export function appendEnvironments(envs: Environment[]) {
   })
 }
 
-export function createEnvironment(envName: string) {
+export function createEnvironment(
+  envName: string,
+  variables?: Environment["variables"]
+) {
   environmentsStore.dispatch({
     dispatcher: "createEnvironment",
     payload: {
       name: envName,
+      variables: variables ?? [],
     },
   })
 }

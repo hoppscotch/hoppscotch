@@ -304,8 +304,7 @@ const saveEnvironment = () => {
 
   if (props.action === "new") {
     // Creating a new environment
-    createEnvironment(name.value)
-    updateEnvironment(envList.value.length - 1, environmentUpdated)
+    createEnvironment(name.value, environmentUpdated.variables)
     setSelectedEnvironmentIndex({
       type: "MY_ENV",
       index: envList.value.length - 1,

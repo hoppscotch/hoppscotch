@@ -58,7 +58,8 @@ export default defineConfig({
         "../hoppscotch-common/src/helpers/functional"
       ),
       "@workers": path.resolve(__dirname, "../hoppscotch-common/src/workers"),
-
+      "@platform": path.resolve(__dirname, "./src/platform"),
+      "@lib": path.resolve(__dirname, "./src/lib"),
       stream: "stream-browserify",
       util: "util",
     },
@@ -117,6 +118,11 @@ export default defineConfig({
           prefix: "icon",
           customCollections: ["hopp", "auth", "brands"],
         }),
+        (compName: string) => {
+          if (compName.startsWith("Hopp"))
+            return { name: compName, from: "@hoppscotch/ui" }
+          else return undefined
+        },
       ],
       types: [
         {

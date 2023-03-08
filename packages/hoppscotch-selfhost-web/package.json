@@ -16,13 +16,16 @@
     "do-build-prod": "pnpm run build",
     "do-lint": "pnpm run prod-lint",
     "do-typecheck": "pnpm run lint",
-    "do-lintfix": "pnpm run lintfix"
+    "do-lintfix": "pnpm run lintfix",
+    "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\""
   },
   "dependencies": {
     "@hoppscotch/common": "workspace:^",
     "axios": "^0.21.4",
     "buffer": "^6.0.3",
     "firebase": "^9.8.4",
+    "fp-ts": "^2.13.1",
+    "graphql": "^15.8.0",
     "process": "^0.11.10",
     "rxjs": "^7.5.5",
     "stream-browserify": "^3.0.0",
@@ -31,6 +34,14 @@
     "workbox-window": "^6.5.4"
   },
   "devDependencies": {
+    "@graphql-codegen/add": "^3.2.0",
+    "@graphql-codegen/cli": "^2.8.0",
+    "@graphql-codegen/typed-document-node": "^2.3.1",
+    "@graphql-codegen/typescript": "^2.7.1",
+    "@graphql-codegen/typescript-operations": "^2.5.1",
+    "@graphql-codegen/typescript-urql-graphcache": "^2.3.1",
+    "@graphql-codegen/urql-introspection": "^2.2.0",
+    "@graphql-typed-document-node/core": "^3.1.1",
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",
     "@rushstack/eslint-patch": "^1.1.4",
     "@typescript-eslint/eslint-plugin": "^5.19.0",

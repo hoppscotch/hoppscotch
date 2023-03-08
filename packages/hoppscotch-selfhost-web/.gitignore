@@ -25,3 +25,6 @@ dist-ssr
 
 # Sitemap Generation Artifacts (see vite.config.ts)
 .sitemap-gen
+
+# Backend Code generation
+src/api/generated

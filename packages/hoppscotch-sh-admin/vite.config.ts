@@ -11,9 +11,14 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  envDir: path.resolve(__dirname, "../../"),
   server: {
     port: 3000,
+  },
+  resolve: {
+    alias: {
+      '~': path.resolve(__dirname, '../hoppscotch-sh-admin/src'),
+      '@modules': path.resolve(__dirname, '../hoppscotch-sh-admin/src/modules'),
+    },
   },
   plugins: [
     vue(),
@@ -30,22 +35,25 @@ export default defineConfig({
     }),
     Components({
       dts: './src/components.d.ts',
-      dirs: ['./src/components', '../hoppscotch-ui/src/components'],
+      dirs: ['./src/components'],
       directoryAsNamespace: true,
       resolvers: [
         IconResolver({
           prefix: 'icon',
-          customCollections: ['hopp', 'auth', 'brands'],
+          customCollections: ['auth'],
         }),
         (compName: string) => {
-          if (compName.startsWith("Hopp"))
-            return { name: compName, from: "@hoppscotch/ui" }
-          else return undefined
+          if (compName.startsWith('Hopp'))
+            return { name: compName, from: '@hoppscotch/ui' };
+          else return undefined;
         },
       ],
     }),
     Icons({
       compiler: 'vue3',
+      customCollections: {
+        auth: FileSystemIconLoader('../hoppscotch-sh-admin/assets/icons/auth'),
+      },
     }),
   ],
 });

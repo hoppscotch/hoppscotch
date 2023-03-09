@@ -5,9 +5,10 @@
 </template>
 
 <script setup lang="ts">
+import { useDark, useToggle } from '@vueuse/core';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useDark, useToggle } from '@vueuse/core';
+import { HOPP_MODULES } from './modules';
 
 const defaultLayout = 'default';
 
@@ -18,7 +19,10 @@ const layout = computed(
 );
 
 const isDark = useDark();
-const toggleDark = useToggle(isDark);
+useToggle(isDark);
+
+// Run module root component setup code
+HOPP_MODULES.forEach((mod) => mod.onRootSetup?.());
 </script>
 
 <style lang="scss">

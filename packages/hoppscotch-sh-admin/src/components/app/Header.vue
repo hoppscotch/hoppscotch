@@ -26,15 +26,25 @@
         <icon-lucide-bell class="text-gray-300 w-6" />
       </button>
 
-      <div class="relative">
+      <div v-if="currentUser" class="relative">
         <button
           @click="dropdownOpen = !dropdownOpen"
           class="relative z-10 block w-8 h-8 overflow-hidden rounded-full shadow focus:outline-none"
         >
-          <img
-            class="object-cover w-full h-full"
-            src="https://media.licdn.com/dms/image/C5603AQHMCx72bNN1MA/profile-displayphoto-shrink_800_800/0/1630736416611?e=2147483647&v=beta&t=McWCdK_7t_NLeU4ze3JPB8xvwg5w50Okuj2JDBekqjw"
-            alt="Your avatar"
+          <ProfilePicture
+            v-if="currentUser.photoURL"
+            v-tippy="{
+              theme: 'tooltip',
+            }"
+            :url="currentUser.photoURL"
+            :alt="currentUser.displayName ?? 'No Name'"
+            :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"
+          />
+          <ProfilePicture
+            v-else
+            v-tippy="{ theme: 'tooltip' }"
+            :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"
+            :initial="currentUser.displayName ?? currentUser.email"
           />
         </button>
 
@@ -56,21 +66,13 @@
             v-show="dropdownOpen"
             class="absolute right-0 z-20 w-48 py-2 mt-2 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-xl"
           >
-            <a
-              href="#"
-              class="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-emerald-700 hover:text-white"
-              >Profile</a
-            >
-            <a
-              href="#"
-              class="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-emerald-700 hover:text-white"
-              >Settings</a
-            >
-            <router-link
-              to="/"
-              class="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-emerald-700 hover:text-white"
-              >Log out</router-link
-            >
+            <HoppSmartItem to="/profile" :icon="IconUser" :label="'Profile'" />
+            <HoppSmartItem
+              to="/settings"
+              :icon="IconSettings"
+              :label="'Settings'"
+            />
+            <AppLogout ref="logout" />
           </div>
         </transition>
       </div>
@@ -79,10 +81,19 @@
 </template>
 
 <script setup lang="ts">
+import IconSettings from '~icons/lucide/settings';
+import IconUser from '~icons/lucide/user';
 import { ref } from 'vue';
-import { useSidebar } from '../../composables/useSidebar';
+import { useReadonlyStream } from '~/composables/stream';
+import { useSidebar } from '~/composables/useSidebar';
+import { auth } from '~/helpers/auth';
 
 const { isOpen, isExpanded } = useSidebar();
+
+const currentUser = useReadonlyStream(
+  auth.getProbableUserStream(),
+  auth.getProbableUser()
+);
 
 const expandSidebar = () => {
   isExpanded.value = !isExpanded.value;

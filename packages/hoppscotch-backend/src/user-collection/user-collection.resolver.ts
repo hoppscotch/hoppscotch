@@ -18,7 +18,6 @@ import {
   UserCollection,
   UserCollectionReorderData,
 } from './user-collections.model';
-import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
 import { User } from 'src/user/user.model';
 import { PaginationArgs } from 'src/types/input-types.args';
@@ -30,6 +29,7 @@ import {
   UpdateUserCollectionArgs,
 } from './input-type.args';
 import { ReqType } from 'src/types/RequestTypes';
+import * as E from 'fp-ts/Either';
 
 @Resolver(() => UserCollection)
 export class UserCollectionResolver {
@@ -230,7 +230,7 @@ export class UserCollectionResolver {
     @Args() args: RenameUserCollectionsArgs,
   ) {
     const updatedUserCollection =
-      await this.userCollectionService.renameCollection(
+      await this.userCollectionService.renameUserCollection(
         args.newTitle,
         args.userCollectionID,
         user.uid,

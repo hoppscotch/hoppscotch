@@ -43,13 +43,13 @@ export class TeamRequestResolver {
     return this.teamRequestService.getTeamOfRequest(req);
   }
 
-  @ResolveField(() => TeamCollection, {
-    description: 'Collection the request belongs to',
-    complexity: 3,
-  })
-  collection(@Parent() req: TeamRequest): Promise<TeamCollection> {
-    return this.teamRequestService.getCollectionOfRequest(req);
-  }
+  // @ResolveField(() => TeamCollection, {
+  //   description: 'Collection the request belongs to',
+  //   complexity: 3,
+  // })
+  // collection(@Parent() req: TeamRequest): Promise<TeamCollection> {
+  //   return this.teamRequestService.getCollectionOfRequest(req);
+  // }
 
   // Query
   @Query(() => [TeamRequest], {
@@ -126,29 +126,29 @@ export class TeamRequestResolver {
     );
   }
 
-  // Mutation
-  @Mutation(() => TeamRequest, {
-    description: 'Create a request in the given collection.',
-  })
-  @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
-  createRequestInCollection(
-    @Args({
-      name: 'collectionID',
-      description: 'ID of the collection',
-      type: () => ID,
-    })
-    collectionID: string,
-    @Args({
-      name: 'data',
-      type: () => CreateTeamRequestInput,
-      description:
-        'The request data (stringified JSON of Hoppscotch request object)',
-    })
-    data: CreateTeamRequestInput,
-  ): Promise<TeamRequest> {
-    return this.teamRequestService.createTeamRequest(collectionID, data);
-  }
+  // // Mutation
+  // @Mutation(() => TeamRequest, {
+  //   description: 'Create a request in the given collection.',
+  // })
+  // @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
+  // @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  // createRequestInCollection(
+  //   @Args({
+  //     name: 'collectionID',
+  //     description: 'ID of the collection',
+  //     type: () => ID,
+  //   })
+  //   collectionID: string,
+  //   @Args({
+  //     name: 'data',
+  //     type: () => CreateTeamRequestInput,
+  //     description:
+  //       'The request data (stringified JSON of Hoppscotch request object)',
+  //   })
+  //   data: CreateTeamRequestInput,
+  // ): Promise<TeamRequest> {
+  //   return this.teamRequestService.createTeamRequest(collectionID, data);
+  // }
 
   @Mutation(() => TeamRequest, {
     description: 'Update a request with the given ID',
@@ -190,30 +190,30 @@ export class TeamRequestResolver {
     return true;
   }
 
-  @Mutation(() => TeamRequest, {
-    description: 'Move a request to the given collection',
-  })
-  @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
-  moveRequest(
-    @Args({
-      name: 'requestID',
-      description: 'ID of the request to move',
-      type: () => ID,
-    })
-    requestID: string,
-    @Args({
-      name: 'destCollID',
-      description: 'ID of the collection to move the request to',
-      type: () => ID,
-    })
-    destCollID: string,
-  ): Promise<TeamRequest> {
-    return pipe(
-      this.teamRequestService.moveRequest(requestID, destCollID),
-      TE.getOrElse((e) => throwErr(e)),
-    )();
-  }
+  // @Mutation(() => TeamRequest, {
+  //   description: 'Move a request to the given collection',
+  // })
+  // @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
+  // @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  // moveRequest(
+  //   @Args({
+  //     name: 'requestID',
+  //     description: 'ID of the request to move',
+  //     type: () => ID,
+  //   })
+  //   requestID: string,
+  //   @Args({
+  //     name: 'destCollID',
+  //     description: 'ID of the collection to move the request to',
+  //     type: () => ID,
+  //   })
+  //   destCollID: string,
+  // ): Promise<TeamRequest> {
+  //   return pipe(
+  //     this.teamRequestService.moveRequest(requestID, destCollID),
+  //     TE.getOrElse((e) => throwErr(e)),
+  //   )();
+  // }
 
   // Subscriptions
   @Subscription(() => TeamRequest, {

@@ -5,7 +5,10 @@ import { UserEnvironment } from '../user-environment/user-environments.model';
 import { UserHistory } from '../user-history/user-history.model';
 import { TeamMember } from 'src/team/team.model';
 import { TeamEnvironment } from 'src/team-environments/team-environments.model';
-import { TeamCollection } from 'src/team-collection/team-collection.model';
+import {
+  CollectionReorderData,
+  TeamCollection,
+} from 'src/team-collection/team-collection.model';
 import { TeamRequest } from 'src/team-request/team-request.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { UserCollection } from '@prisma/client';
@@ -42,11 +45,11 @@ export type TopicDef = {
     topic: `team_environment/${string}/${'created' | 'updated' | 'deleted'}`
   ]: TeamEnvironment;
   [
-    topic: `team_coll/${string}/${
-      | 'coll_added'
-      | 'coll_updated'
-      | 'coll_removed'}`
+    topic: `team_coll/${string}/${'coll_added' | 'coll_updated'}`
   ]: TeamCollection;
+  [topic: `team_coll/${string}/${'coll_removed'}`]: string;
+  [topic: `team_coll/${string}/${'coll_moved'}`]: TeamCollection;
+  [topic: `team_coll/${string}/${'coll_order_updated'}`]: CollectionReorderData;
   [topic: `user_history/${string}/deleted_many`]: number;
   [topic: `team_req/${string}/${'req_created' | 'req_updated'}`]: TeamRequest;
   [topic: `team_req/${string}/req_deleted`]: string;

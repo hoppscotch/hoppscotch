@@ -54,7 +54,8 @@ export const USER_COLLECTION_NOT_FOUND = 'user_collection/not_found' as const;
  * Tried to reorder user request but failed
  * (UserRequestService)
  */
-export const USER_REQUEST_CREATION_FAILED = 'user_request/creation_failed' as const;
+export const USER_REQUEST_CREATION_FAILED =
+  'user_request/creation_failed' as const;
 
 /**
  * Tried to do an action on a user request but user request is not matched with user collection
@@ -72,7 +73,8 @@ export const USER_REQUEST_NOT_FOUND = 'user_request/not_found' as const;
  * Tried to reorder user request but failed
  * (UserRequestService)
  */
-export const USER_REQUEST_REORDERING_FAILED = 'user_request/reordering_failed' as const;
+export const USER_REQUEST_REORDERING_FAILED =
+  'user_request/reordering_failed' as const;
 
 /**
  * Tried to perform action on a team which they are not a member of
@@ -103,6 +105,58 @@ export const TEAM_USER_NO_FB_SYNCDATA = 'team/user_no_fb_syncdata';
  * (TeamCollectionService)
  */
 export const TEAM_FB_COLL_PATH_RESOLVE_FAIL = 'team/fb_coll_path_resolve_fail';
+
+/**
+ * Could not find the team in the database
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_NOT_FOUND = 'team_coll/collection_not_found';
+
+/**
+ * Cannot make parent collection a child of a collection that a child of itself
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_IS_PARENT_COLL = 'team_coll/collection_is_parent_coll';
+
+/**
+ * Target and Parent collections are not from the same team
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_NOT_SAME_TEAM = 'team_coll/collections_not_same_team';
+
+/**
+ * Target and Parent collections are the same
+ * (TeamCollectionService)
+ */
+export const TEAM_COLL_DEST_SAME =
+  'team_coll/target_and_destination_collection_are_same';
+
+/**
+ * Collection is already a root collection
+ * (TeamCollectionService)
+ */
+export const TEAM_COL_ALREADY_ROOT =
+  'team_coll/target_collection_is_already_root_collection';
+
+/**
+ * Collections have different parents
+ * (TeamCollectionService)
+ */
+export const TEAM_COL_NOT_SAME_PARENT =
+  'team_coll/team_collections_have_different_parents';
+
+/**
+ * Collection and next Collection are the same
+ * (TeamCollectionService)
+ */
+export const TEAM_COL_SAME_NEXT_COLL =
+  'team_coll/collection_and_next_collection_are_same';
+
+/**
+ * Team Collection Re-Ordering Failed
+ * (TeamCollectionService)
+ */
+export const TEAM_COL_REORDERING_FAILED = 'team_coll/reordering_failed';
 
 /**
  * Tried to update the team to a state it doesn't have any owners
@@ -139,6 +193,12 @@ export const TEAM_COLL_SHORT_TITLE = 'team_coll/short_title';
  * (TeamCollectionService)
  */
 export const TEAM_COLL_INVALID_JSON = 'team_coll/invalid_json';
+
+/**
+ * The Team Collection does not belong to the team
+ * (TeamCollectionService)
+ */
+export const TEAM_NOT_OWNER = 'team_coll/team_not_owner' as const;
 
 /**
  * Tried to perform action on a request that doesn't accept their member role level

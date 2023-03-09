@@ -692,9 +692,9 @@ describe('createUserCollection', () => {
   });
 });
 
-describe('renameCollection', () => {
+describe('renameUserCollection', () => {
   test('should throw USER_COLL_SHORT_TITLE when title is less than 3 characters', async () => {
-    const result = await userCollectionService.renameCollection(
+    const result = await userCollectionService.renameUserCollection(
       '',
       rootRESTUserCollection.id,
       user.uid,
@@ -707,7 +707,7 @@ describe('renameCollection', () => {
       'NotFoundError',
     );
 
-    const result = await userCollectionService.renameCollection(
+    const result = await userCollectionService.renameUserCollection(
       'validTitle',
       rootRESTUserCollection.id,
       'op09',
@@ -725,7 +725,7 @@ describe('renameCollection', () => {
       title: 'NewTitle',
     });
 
-    const result = await userCollectionService.renameCollection(
+    const result = await userCollectionService.renameUserCollection(
       'NewTitle',
       rootRESTUserCollection.id,
       user.uid,
@@ -743,7 +743,7 @@ describe('renameCollection', () => {
 
     mockPrisma.userCollection.update.mockRejectedValueOnce('RecordNotFound');
 
-    const result = await userCollectionService.renameCollection(
+    const result = await userCollectionService.renameUserCollection(
       'NewTitle',
       'invalidID',
       user.uid,
@@ -761,7 +761,7 @@ describe('renameCollection', () => {
       title: 'NewTitle',
     });
 
-    const result = await userCollectionService.renameCollection(
+    const result = await userCollectionService.renameUserCollection(
       'NewTitle',
       rootRESTUserCollection.id,
       user.uid,

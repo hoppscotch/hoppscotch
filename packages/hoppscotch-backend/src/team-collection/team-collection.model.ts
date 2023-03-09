@@ -12,6 +12,25 @@ export class TeamCollection {
   })
   title: string;
 
-  parentID: string | null;
+  @Field(() => ID, {
+    description: 'ID of the collection',
+    nullable: true,
+  })
+  parentID: string;
   teamID: string;
+}
+
+@ObjectType()
+export class CollectionReorderData {
+  @Field({
+    description: 'Team Collection being moved',
+  })
+  collection: TeamCollection;
+
+  @Field({
+    description:
+      'Team Collection succeeding the collection being moved in its new position',
+    nullable: true,
+  })
+  nextCollection?: TeamCollection;
 }

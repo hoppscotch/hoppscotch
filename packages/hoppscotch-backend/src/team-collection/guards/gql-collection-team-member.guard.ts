@@ -12,6 +12,7 @@ import {
   TEAM_INVALID_COLL_ID,
   TEAM_REQ_NOT_MEMBER,
 } from 'src/errors';
+import * as E from 'fp-ts/Either';
 
 @Injectable()
 export class GqlCollectionTeamMemberGuard implements CanActivate {
@@ -29,6 +30,7 @@ export class GqlCollectionTeamMemberGuard implements CanActivate {
     if (!requireRoles) throw new Error(BUG_TEAM_NO_REQUIRE_TEAM_ROLE);
 
     const gqlExecCtx = GqlExecutionContext.create(context);
+
     const { user } = gqlExecCtx.getContext().req;
     if (user == undefined) throw new Error(BUG_AUTH_NO_USER_CTX);
 
@@ -38,10 +40,10 @@ export class GqlCollectionTeamMemberGuard implements CanActivate {
     const collection = await this.teamCollectionService.getCollection(
       collectionID,
     );
-    if (!collection) throw new Error(TEAM_INVALID_COLL_ID);
+    if (E.isLeft(collection)) throw new Error(TEAM_INVALID_COLL_ID);
 
     const member = await this.teamService.getTeamMember(
-      collection.teamID,
+      collection.right.teamID,
       user.uid,
     );
     if (!member) throw new Error(TEAM_REQ_NOT_MEMBER);

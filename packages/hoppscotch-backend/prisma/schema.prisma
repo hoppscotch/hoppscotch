@@ -41,14 +41,17 @@ model TeamInvitation {
 }
 
 model TeamCollection {
-  id       String           @id @default(cuid())
-  parentID String?
-  parent   TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
-  children TeamCollection[] @relation("TeamCollectionChildParent")
-  requests TeamRequest[]
-  teamID   String
-  team     Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
-  title    String
+  id         String           @id @default(cuid())
+  parentID   String?
+  parent     TeamCollection?  @relation("TeamCollectionChildParent", fields: [parentID], references: [id])
+  children   TeamCollection[] @relation("TeamCollectionChildParent")
+  requests   TeamRequest[]
+  teamID     String
+  team       Team             @relation(fields: [teamID], references: [id], onDelete: Cascade)
+  title      String
+  orderIndex Int
+  createdOn  DateTime         @default(now()) @db.Timestamp(3)
+  updatedOn  DateTime         @updatedAt @db.Timestamp(3)
 }
 
 model TeamRequest {
@@ -59,6 +62,9 @@ model TeamRequest {
   team         Team           @relation(fields: [teamID], references: [id], onDelete: Cascade)
   title        String
   request      Json
+  orderIndex   Int
+  createdOn    DateTime       @default(now()) @db.Timestamp(3)
+  updatedOn    DateTime       @updatedAt @db.Timestamp(3)
 }
 
 model Shortcode {

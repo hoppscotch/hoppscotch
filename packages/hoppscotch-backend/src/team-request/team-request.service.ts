@@ -19,7 +19,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { throwErr } from 'src/utils';
 import { pipe } from 'fp-ts/function';
 import * as TO from 'fp-ts/TaskOption';
-import * as TE from 'fp-ts/TaskEither';
+import * as E from 'fp-ts/Either';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -127,43 +127,41 @@ export class TeamRequestService {
     this.pubsub.publish(`team_req/${req.teamID}/req_deleted`, requestID);
   }
 
-  async createTeamRequest(
-    collectionID: string,
-    input: CreateTeamRequestInput,
-  ): Promise<TeamRequest> {
-    const team = await this.teamCollectionService.getTeamOfCollection(
-      collectionID,
-    );
+  // async createTeamRequest(collectionID: string, input: CreateTeamRequestInput) {
+  //   const team = await this.teamCollectionService.getTeamOfCollection(
+  //     collectionID,
+  //   );
+  //   if (E.isLeft(team)) return [];
 
-    const data = await this.prisma.teamRequest.create({
-      data: {
-        team: {
-          connect: {
-            id: team.id,
-          },
-        },
-        request: JSON.parse(input.request),
-        title: input.title,
-        collection: {
-          connect: {
-            id: collectionID,
-          },
-        },
-      },
-    });
+  //   const data = await this.prisma.teamRequest.create({
+  //     data: {
+  //       team: {
+  //         connect: {
+  //           id: team.right.id,
+  //         },
+  //       },
+  //       request: JSON.parse(input.request),
+  //       title: input.title,
+  //       collection: {
+  //         connect: {
+  //           id: collectionID,
+  //         },
+  //       },
+  //     },
+  //   });
 
-    const result = {
-      id: data.id,
-      collectionID: data.collectionID,
-      title: data.title,
-      request: JSON.stringify(data.request),
-      teamID: data.teamID,
-    };
+  //   const result = {
+  //     id: data.id,
+  //     collectionID: data.collectionID,
+  //     title: data.title,
+  //     request: JSON.stringify(data.request),
+  //     teamID: data.teamID,
+  //   };
 
-    this.pubsub.publish(`team_req/${result.teamID}/req_created`, result);
+  //   this.pubsub.publish(`team_req/${result.teamID}/req_created`, result);
 
-    return result;
-  }
+  //   return result;
+  // }
 
   async getRequestsInCollection(
     collectionID: string,
@@ -242,12 +240,12 @@ export class TeamRequestService {
     );
   }
 
-  async getCollectionOfRequest(req: TeamRequest): Promise<TeamCollection> {
-    return (
-      (await this.teamCollectionService.getCollection(req.collectionID)) ??
-      throwErr(TEAM_INVALID_COLL_ID)
-    );
-  }
+  // async getCollectionOfRequest(req: TeamRequest): Promise<TeamCollection> {
+  //   return (
+  //     (await this.teamCollectionService.getCollection(req.collectionID)) ??
+  //     throwErr(TEAM_INVALID_COLL_ID)
+  //   );
+  // }
 
   async getTeamOfRequestFromID(reqID: string): Promise<Team> {
     const req =
@@ -263,69 +261,69 @@ export class TeamRequestService {
     return req.team;
   }
 
-  moveRequest(reqID: string, destinationCollID: string) {
-    return pipe(
-      TE.Do,
+  // moveRequest(reqID: string, destinationCollID: string) {
+  //   return pipe(
+  //     TE.Do,
 
-      // Check if the request exists
-      TE.bind('request', () =>
-        pipe(
-          this.getRequestTO(reqID),
-          TE.fromTaskOption(() => TEAM_REQ_NOT_FOUND),
-        ),
-      ),
+  //     // Check if the request exists
+  //     TE.bind('request', () =>
+  //       pipe(
+  //         this.getRequestTO(reqID),
+  //         TE.fromTaskOption(() => TEAM_REQ_NOT_FOUND),
+  //       ),
+  //     ),
 
-      // Check if the destination collection exists (or null)
-      TE.bindW('targetCollection', () =>
-        pipe(
-          this.teamCollectionService.getCollectionTO(destinationCollID),
-          TE.fromTaskOption(() => TEAM_REQ_INVALID_TARGET_COLL_ID),
-        ),
-      ),
+  //     // Check if the destination collection exists (or null)
+  //     TE.bindW('targetCollection', () =>
+  //       pipe(
+  //         this.teamCollectionService.getCollectionTO(destinationCollID),
+  //         TE.fromTaskOption(() => TEAM_REQ_INVALID_TARGET_COLL_ID),
+  //       ),
+  //     ),
 
-      // Block operation if target collection is not part of the same team
-      // as the request
-      TE.chainW(
-        TE.fromPredicate(
-          ({ request, targetCollection }) =>
-            request.teamID === targetCollection.teamID,
-          () => TEAM_REQ_INVALID_TARGET_COLL_ID,
-        ),
-      ),
+  //     // Block operation if target collection is not part of the same team
+  //     // as the request
+  //     TE.chainW(
+  //       TE.fromPredicate(
+  //         ({ request, targetCollection }) =>
+  //           request.teamID === targetCollection.teamID,
+  //         () => TEAM_REQ_INVALID_TARGET_COLL_ID,
+  //       ),
+  //     ),
 
-      // Update the collection
-      TE.chain(({ request, targetCollection }) =>
-        TE.fromTask(() =>
-          this.prisma.teamRequest.update({
-            where: {
-              id: request.id,
-            },
-            data: {
-              collectionID: targetCollection.id,
-            },
-          }),
-        ),
-      ),
+  //     // Update the collection
+  //     TE.chain(({ request, targetCollection }) =>
+  //       TE.fromTask(() =>
+  //         this.prisma.teamRequest.update({
+  //           where: {
+  //             id: request.id,
+  //           },
+  //           data: {
+  //             collectionID: targetCollection.id,
+  //           },
+  //         }),
+  //       ),
+  //     ),
 
-      // Generate TeamRequest model object
-      TE.map(
-        (request) =>
-          <TeamRequest>{
-            id: request.id,
-            collectionID: request.collectionID,
-            request: JSON.stringify(request.request),
-            teamID: request.teamID,
-            title: request.title,
-          },
-      ),
+  //     // Generate TeamRequest model object
+  //     TE.map(
+  //       (request) =>
+  //         <TeamRequest>{
+  //           id: request.id,
+  //           collectionID: request.collectionID,
+  //           request: JSON.stringify(request.request),
+  //           teamID: request.teamID,
+  //           title: request.title,
+  //         },
+  //     ),
 
-      // Update on PubSub
-      TE.chainFirst((req) => {
-        this.pubsub.publish(`team_req/${req.teamID}/req_deleted`, req.id);
-        this.pubsub.publish(`team_req/${req.teamID}/req_created`, req);
+  //     // Update on PubSub
+  //     TE.chainFirst((req) => {
+  //       this.pubsub.publish(`team_req/${req.teamID}/req_deleted`, req.id);
+  //       this.pubsub.publish(`team_req/${req.teamID}/req_created`, req);
 
-        return TE.of({}); // We don't care about the return type
-      }),
-    );
-  }
+  //       return TE.of({}); // We don't care about the return type
+  //     }),
+  //   );
+  // }
 }

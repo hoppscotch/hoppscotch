@@ -28,6 +28,11 @@ export class UserCollectionService {
     private readonly pubsub: PubSubService,
   ) {}
 
+  /**
+   * Typecast a database UserCollection to a UserCollection model
+   * @param userCollection database UserCollection
+   * @returns UserCollection model
+   */
   private cast(collection: UserCollection) {
     return <UserCollectionModel>{
       ...collection,
@@ -35,6 +40,13 @@ export class UserCollectionService {
     };
   }
 
+  /**
+   * Returns the count of child collections present for a given collectionID
+   * * The count returned is highest OrderIndex + 1
+   *
+   * @param collectionID The Collection ID
+   * @returns Number of Child Collections
+   */
   private async getChildCollectionsCount(collectionID: string) {
     const childCollectionCount = await this.prisma.userCollection.findMany({
       where: { parentID: collectionID },
@@ -46,6 +58,13 @@ export class UserCollectionService {
     return childCollectionCount[0].orderIndex;
   }
 
+  /**
+   * Returns the count of root collections present for a given userUID
+   * * The count returned is highest OrderIndex + 1
+   *
+   * @param userID The User UID
+   * @returns Number of Root Collections
+   */
   private async getRootCollectionsCount(userID: string) {
     const rootCollectionCount = await this.prisma.userCollection.findMany({
       where: { userUid: userID, parentID: null },
@@ -57,6 +76,13 @@ export class UserCollectionService {
     return rootCollectionCount[0].orderIndex;
   }
 
+  /**
+   * Check to see if Collection belongs to User
+   *
+   * @param collectionID The collection ID
+   * @param userID The User ID
+   * @returns An Option of a Boolean
+   */
   private async isOwnerCheck(collectionID: string, userID: string) {
     try {
       await this.prisma.userCollection.findFirstOrThrow({
@@ -72,6 +98,12 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Get User of given Collection ID
+   *
+   * @param collectionID The collection ID
+   * @returns User of given Collection ID
+   */
   async getUserOfCollection(collectionID: string) {
     try {
       const userCollection = await this.prisma.userCollection.findUniqueOrThrow(
@@ -90,6 +122,12 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Get parent of given Collection ID
+   *
+   * @param collectionID The collection ID
+   * @returns Parent UserCollection of given Collection ID
+   */
   async getParentOfUserCollection(collectionID: string) {
     const { parent } = await this.prisma.userCollection.findUnique({
       where: {
@@ -103,6 +141,15 @@ export class UserCollectionService {
     return parent;
   }
 
+  /**
+   * Get child collections of given Collection ID
+   *
+   * @param collectionID The collection ID
+   * @param cursor collectionID for pagination
+   * @param take Number of items we want returned
+   * @param type Type of UserCollection
+   * @returns A list of child collections
+   */
   async getChildrenOfUserCollection(
     collectionID: string,
     cursor: string | null,
@@ -123,6 +170,12 @@ export class UserCollectionService {
     });
   }
 
+  /**
+   * Get collection details
+   *
+   * @param collectionID The collection ID
+   * @returns An Either of the Collection details
+   */
   async getUserCollection(collectionID: string) {
     try {
       const userCollection = await this.prisma.userCollection.findUniqueOrThrow(
@@ -138,6 +191,15 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Create a new UserCollection
+   *
+   * @param user The User object
+   * @param title The title of new UserCollection
+   * @param parentUserCollectionID The parent collectionID (null if root collection)
+   * @param type Type of Collection we want to create (REST/GQL)
+   * @returns
+   */
   async createUserCollection(
     user: AuthUser,
     title: string,
@@ -147,6 +209,7 @@ export class UserCollectionService {
     const isTitleValid = isValidLength(title, 3);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
+    // Check to see if parentUserCollectionID belongs to this User
     if (parentUserCollectionID !== null) {
       const isOwner = await this.isOwnerCheck(parentUserCollectionID, user.uid);
       if (O.isNone(isOwner)) return E.left(USER_NOT_OWNER);
@@ -181,6 +244,14 @@ export class UserCollectionService {
     return E.right(userCollection);
   }
 
+  /**
+   *
+   * @param user The User Object
+   * @param cursor collectionID for pagination
+   * @param take Number of items we want returned
+   * @param type Type of UserCollection
+   * @returns A list of root UserCollections
+   */
   async getUserRootCollections(
     user: AuthUser,
     cursor: string | null,
@@ -202,6 +273,15 @@ export class UserCollectionService {
     });
   }
 
+  /**
+   *
+   * @param user The User Object
+   * @param userCollectionID The User UID
+   * @param cursor collectionID for pagination
+   * @param take Number of items we want returned
+   * @param type Type of UserCollection
+   * @returns A list of child UserCollections
+   */
   async getUserChildCollections(
     user: AuthUser,
     userCollectionID: string,
@@ -221,7 +301,15 @@ export class UserCollectionService {
     });
   }
 
-  async renameCollection(
+  /**
+   * Update the title of a UserCollection
+   *
+   * @param newTitle The new title of collection
+   * @param userCollectionID The Collection Id
+   * @param userID The User UID
+   * @returns An Either of the updated UserCollection
+   */
+  async renameUserCollection(
     newTitle: string,
     userCollectionID: string,
     userID: string,
@@ -254,6 +342,12 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Delete a UserCollection from the DB
+   *
+   * @param collectionID The Collection Id
+   * @returns The deleted UserCollection
+   */
   private async removeUserCollection(collectionID: string) {
     try {
       const deletedUserCollection = await this.prisma.userCollection.delete({
@@ -268,6 +362,12 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Delete child collection and requests of a UserCollection
+   *
+   * @param collectionID The Collection Id
+   * @returns A Boolean of deletion status
+   */
   private async deleteCollectionData(collection: UserCollection) {
     // Get all child collections in collectionID
     const childCollectionList = await this.prisma.userCollection.findMany({
@@ -312,6 +412,13 @@ export class UserCollectionService {
     return E.right(true);
   }
 
+  /**
+   * Delete a UserCollection
+   *
+   * @param collectionID The Collection Id
+   * @param userID The User UID
+   * @returns An Either of Boolean of deletion status
+   */
   async deleteUserCollection(collectionID: string, userID: string) {
     // Get collection details of collectionID
     const collection = await this.getUserCollection(collectionID);
@@ -327,6 +434,13 @@ export class UserCollectionService {
     return E.right(true);
   }
 
+  /**
+   * Change parentID of UserCollection's
+   *
+   * @param collectionID The collection ID
+   * @param parentCollectionID The new parent's collection ID or change to root collection
+   * @returns  If successful return an Either of true
+   */
   private async changeParent(
     collection: UserCollection,
     parentCollectionID: string | null,
@@ -358,6 +472,13 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Check if collection is parent of destCollection
+   *
+   * @param collection The ID of collection being moved
+   * @param destCollection The ID of collection into which we are moving target collection into
+   * @returns An Option of boolean, is parent or not
+   */
   private async isParent(
     collection: UserCollection,
     destCollection: UserCollection,
@@ -385,6 +506,14 @@ export class UserCollectionService {
     }
   }
 
+  /**
+   * Update the OrderIndex of all collections in given parentID
+   *
+   * @param parentID The Parent collectionID
+   * @param orderIndexCondition Condition to decide what collections will be updated
+   * @param dataCondition Increment/Decrement OrderIndex condition
+   * @returns A Collection with updated OrderIndexes
+   */
   private async updateOrderIndex(
     parentID: string,
     orderIndexCondition: Prisma.IntFilter,
@@ -401,6 +530,14 @@ export class UserCollectionService {
     return updatedUserCollection;
   }
 
+  /**
+   * Move UserCollection into root or another collection
+   *
+   * @param userCollectionID The ID of collection being moved
+   * @param destCollectionID The ID of collection the target collection is being moved into or move target collection to root
+   * @param userID The User UID
+   * @returns An Either of the moved UserCollection
+   */
   async moveUserCollection(
     userCollectionID: string,
     destCollectionID: string | null,
@@ -490,12 +627,26 @@ export class UserCollectionService {
     return E.right(updatedCollection.right);
   }
 
+  /**
+   * Find the number of child collections present in collectionID
+   *
+   * @param collectionID The Collection ID
+   * @returns Number of collections
+   */
   getCollectionCount(collectionID: string): Promise<number> {
     return this.prisma.userCollection.count({
       where: { parentID: collectionID },
     });
   }
 
+  /**
+   * Update order of root or child collectionID's
+   *
+   * @param collectionID The ID of collection being re-ordered
+   * @param nextCollectionID The ID of collection that is after the moved collection in its new position
+   * @param userID The User UID
+   * @returns If successful return an Either of true
+   */
   async updateUserCollectionOrder(
     collectionID: string,
     nextCollectionID: string | null,

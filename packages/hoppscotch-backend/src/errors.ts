@@ -220,6 +220,13 @@ export const TEAM_REQ_INVALID_TARGET_COLL_ID =
   'team_req/invalid_target_id' as const;
 
 /**
+ * Tried to reorder team request but failed
+ * (TeamRequestService)
+ */
+export const TEAM_REQ_REORDERING_FAILED =
+  'team_req/reordering_failed' as const;
+
+/**
  * No Postmark Sender Email defined
  * (AuthService)
  */

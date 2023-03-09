@@ -2,7 +2,6 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { TeamRequestService } from '../team-request.service';
 import { TeamService } from '../../team/team.service';
-import { User } from '../../user/user.model';
 import { Reflector } from '@nestjs/core';
 import { TeamMemberRole } from '../../team/team.model';
 import {
@@ -10,8 +9,10 @@ import {
   BUG_TEAM_REQ_NO_REQ_ID,
   TEAM_REQ_NOT_REQUIRED_ROLE,
   TEAM_REQ_NOT_MEMBER,
+  TEAM_REQ_NOT_FOUND,
 } from 'src/errors';
 import { throwErr } from 'src/utils';
+import * as O from 'fp-ts/Option';
 
 @Injectable()
 export class GqlRequestTeamMemberGuard implements CanActivate {
@@ -38,21 +39,17 @@ export class GqlRequestTeamMemberGuard implements CanActivate {
     const team = await this.teamRequestService.getTeamOfRequestFromID(
       requestID,
     );
+    if (O.isNone(team)) throw new Error(TEAM_REQ_NOT_FOUND);
 
-    const member =
-      (await this.teamService.getTeamMember(team.id, user.uid)) ??
-      throwErr(TEAM_REQ_NOT_MEMBER);
+    const member = await this.teamService.getTeamMember(
+      team.value.id,
+      user.uid,
+    );
+    if (!member) throwErr(TEAM_REQ_NOT_MEMBER);
 
-    if (requireRoles) {
-      if (requireRoles.includes(member.role)) {
-        return true;
-      } else {
-        throw new Error(TEAM_REQ_NOT_REQUIRED_ROLE);
-      }
-    }
+    if (!(requireRoles && requireRoles.includes(member.role)))
+      throw new Error(TEAM_REQ_NOT_REQUIRED_ROLE);
 
-    if (member) return true;
-
-    throw new Error(TEAM_REQ_NOT_MEMBER);
+    return true;
   }
 }

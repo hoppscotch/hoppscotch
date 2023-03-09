@@ -1,37 +1,4 @@
-import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
-
-@InputType()
-export class CreateTeamRequestInput {
-  @Field(() => ID, {
-    description: 'ID of the team the collection belongs to',
-  })
-  teamID: string;
-
-  @Field({
-    description: 'JSON string representing the request data',
-  })
-  request: string;
-
-  @Field({
-    description: 'Displayed title of the request',
-  })
-  title: string;
-}
-
-@InputType()
-export class UpdateTeamRequestInput {
-  @Field({
-    description: 'JSON string representing the request data',
-    nullable: true,
-  })
-  request?: string;
-
-  @Field({
-    description: 'Displayed title of the request',
-    nullable: true,
-  })
-  title?: string;
-}
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 
 @ObjectType()
 export class TeamRequest {
@@ -59,4 +26,19 @@ export class TeamRequest {
     description: 'Displayed title of the request',
   })
   title: string;
+}
+
+@ObjectType()
+export class RequestReorderData {
+  @Field({
+    description: 'Team Request being moved',
+  })
+  request: TeamRequest;
+
+  @Field({
+    description:
+      'Team Request succeeding the request being moved in its new position',
+    nullable: true,
+  })
+  nextRequest?: TeamRequest;
 }

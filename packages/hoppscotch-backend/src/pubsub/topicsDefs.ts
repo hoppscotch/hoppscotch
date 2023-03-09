@@ -9,7 +9,10 @@ import {
   CollectionReorderData,
   TeamCollection,
 } from 'src/team-collection/team-collection.model';
-import { TeamRequest } from 'src/team-request/team-request.model';
+import {
+  RequestReorderData,
+  TeamRequest,
+} from 'src/team-request/team-request.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { UserCollection } from '@prisma/client';
 import { UserCollectionReorderData } from 'src/user-collection/user-collections.model';
@@ -51,7 +54,10 @@ export type TopicDef = {
   [topic: `team_coll/${string}/${'coll_moved'}`]: TeamCollection;
   [topic: `team_coll/${string}/${'coll_order_updated'}`]: CollectionReorderData;
   [topic: `user_history/${string}/deleted_many`]: number;
-  [topic: `team_req/${string}/${'req_created' | 'req_updated'}`]: TeamRequest;
+  [
+    topic: `team_req/${string}/${'req_created' | 'req_updated' | 'req_moved'}`
+  ]: TeamRequest;
+  [topic: `team_req/${string}/req_order_updated`]: RequestReorderData;
   [topic: `team_req/${string}/req_deleted`]: string;
   [topic: `team/${string}/invite_added`]: TeamInvitation;
   [topic: `team/${string}/invite_removed`]: string;

@@ -8,11 +8,15 @@ import {
   Subscription,
   ID,
 } from '@nestjs/graphql';
+import { RequestReorderData, TeamRequest } from './team-request.model';
 import {
-  TeamRequest,
   CreateTeamRequestInput,
   UpdateTeamRequestInput,
-} from './team-request.model';
+  SearchTeamRequestArgs,
+  GetTeamRequestInCollectionArgs,
+  MoveTeamRequestArgs,
+  UpdateLookUpRequestOrderArgs,
+} from './input-type.args';
 import { Team, TeamMemberRole } from '../team/team.model';
 import { TeamRequestService } from './team-request.service';
 import { TeamCollection } from '../team-collection/team-collection.model';
@@ -23,8 +27,8 @@ import { GqlCollectionTeamMemberGuard } from '../team-collection/guards/gql-coll
 import { RequiresTeamRole } from '../team/decorators/requires-team-role.decorator';
 import { GqlTeamMemberGuard } from '../team/guards/gql-team-member.guard';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import { pipe } from 'fp-ts/function';
-import * as TE from 'fp-ts/TaskEither';
+import * as E from 'fp-ts/Either';
+import * as O from 'fp-ts/Option';
 import { throwErr } from 'src/utils';
 
 @Resolver(() => TeamRequest)
@@ -39,44 +43,40 @@ export class TeamRequestResolver {
     description: 'Team the request belongs to',
     complexity: 3,
   })
-  team(@Parent() req: TeamRequest): Promise<Team> {
-    return this.teamRequestService.getTeamOfRequest(req);
+  async team(@Parent() req: TeamRequest) {
+    const team = await this.teamRequestService.getTeamOfRequest(req);
+    if (E.isLeft(team)) throwErr(team.left);
+    return team.right;
   }
 
-  // @ResolveField(() => TeamCollection, {
-  //   description: 'Collection the request belongs to',
-  //   complexity: 3,
-  // })
-  // collection(@Parent() req: TeamRequest): Promise<TeamCollection> {
-  //   return this.teamRequestService.getCollectionOfRequest(req);
-  // }
+  @ResolveField(() => TeamCollection, {
+    description: 'Collection the request belongs to',
+    complexity: 3,
+  })
+  async collection(@Parent() req: TeamRequest) {
+    const teamCollection = await this.teamRequestService.getCollectionOfRequest(
+      req,
+    );
+    if (E.isLeft(teamCollection)) throwErr(teamCollection.left);
+    return teamCollection.right;
+  }
 
   // Query
   @Query(() => [TeamRequest], {
     description: 'Search the team for a specific request with title',
   })
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
-  searchForRequest(
-    @Args({
-      name: 'teamID',
-      description: 'ID of the team to look in',
-      type: () => ID,
-    })
-    teamID: string,
-    @Args({ name: 'searchTerm', description: 'The title to search for' })
-    searchTerm: string,
-    @Args({
-      name: 'cursor',
-      type: () => ID,
-      description: 'ID of the last returned request or null',
-      nullable: true,
-    })
-    cursor?: string,
-  ): Promise<TeamRequest[]> {
+  @RequiresTeamRole(
+    TeamMemberRole.EDITOR,
+    TeamMemberRole.OWNER,
+    TeamMemberRole.VIEWER,
+  )
+  async searchForRequest(@Args() args: SearchTeamRequestArgs) {
     return this.teamRequestService.searchRequest(
-      teamID,
-      searchTerm,
-      cursor ?? null,
+      args.teamID,
+      args.searchTerm,
+      args.cursor,
+      args.take,
     );
   }
 
@@ -85,19 +85,26 @@ export class TeamRequestResolver {
     nullable: true,
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  request(
+  @RequiresTeamRole(
+    TeamMemberRole.EDITOR,
+    TeamMemberRole.OWNER,
+    TeamMemberRole.VIEWER,
+  )
+  async request(
     @Args({
       name: 'requestID',
       description: 'ID of the request',
       type: () => ID,
     })
     requestID: string,
-  ): Promise<TeamRequest | null> {
-    return this.teamRequestService.getRequest(requestID);
+  ) {
+    const teamRequest = await this.teamRequestService.getRequest(requestID);
+    if (O.isNone(teamRequest)) return null;
+    return teamRequest.value;
   }
 
   @Query(() => [TeamRequest], {
-    description: 'Gives a list of requests in the collection',
+    description: 'Gives a paginated list of requests in the collection',
   })
   @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
   @RequiresTeamRole(
@@ -105,7 +112,21 @@ export class TeamRequestResolver {
     TeamMemberRole.OWNER,
     TeamMemberRole.VIEWER,
   )
-  requestsInCollection(
+  async requestsInCollection(@Args() input: GetTeamRequestInCollectionArgs) {
+    return this.teamRequestService.getRequestsInCollection(
+      input.collectionID,
+      input.cursor,
+      input.take,
+    );
+  }
+
+  // Mutation
+  @Mutation(() => TeamRequest, {
+    description: 'Create a team request in the given collection.',
+  })
+  @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
+  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  async createRequestInCollection(
     @Args({
       name: 'collectionID',
       description: 'ID of the collection',
@@ -113,49 +134,29 @@ export class TeamRequestResolver {
     })
     collectionID: string,
     @Args({
-      name: 'cursor',
-      nullable: true,
-      type: () => ID,
-      description: 'ID of the last returned request (for pagination)',
+      name: 'data',
+      type: () => CreateTeamRequestInput,
+      description:
+        'The request data (stringified JSON of Hoppscotch request object)',
     })
-    cursor?: string,
-  ): Promise<TeamRequest[]> {
-    return this.teamRequestService.getRequestsInCollection(
+    data: CreateTeamRequestInput,
+  ) {
+    const teamRequest = await this.teamRequestService.createTeamRequest(
       collectionID,
-      cursor ?? null,
+      data.teamID,
+      data.title,
+      data.request,
     );
+    if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
+    return teamRequest.right;
   }
-
-  // // Mutation
-  // @Mutation(() => TeamRequest, {
-  //   description: 'Create a request in the given collection.',
-  // })
-  // @UseGuards(GqlAuthGuard, GqlCollectionTeamMemberGuard)
-  // @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
-  // createRequestInCollection(
-  //   @Args({
-  //     name: 'collectionID',
-  //     description: 'ID of the collection',
-  //     type: () => ID,
-  //   })
-  //   collectionID: string,
-  //   @Args({
-  //     name: 'data',
-  //     type: () => CreateTeamRequestInput,
-  //     description:
-  //       'The request data (stringified JSON of Hoppscotch request object)',
-  //   })
-  //   data: CreateTeamRequestInput,
-  // ): Promise<TeamRequest> {
-  //   return this.teamRequestService.createTeamRequest(collectionID, data);
-  // }
 
   @Mutation(() => TeamRequest, {
     description: 'Update a request with the given ID',
   })
   @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
   @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
-  updateRequest(
+  async updateRequest(
     @Args({
       name: 'requestID',
       description: 'ID of the request',
@@ -169,8 +170,14 @@ export class TeamRequestResolver {
         'The updated request data (stringified JSON of Hoppscotch request object)',
     })
     data: UpdateTeamRequestInput,
-  ): Promise<TeamRequest> {
-    return this.teamRequestService.updateTeamRequest(requestID, data);
+  ) {
+    const teamRequest = await this.teamRequestService.updateTeamRequest(
+      requestID,
+      data.title,
+      data.request,
+    );
+    if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
+    return teamRequest.right;
   }
 
   @Mutation(() => Boolean, {
@@ -185,35 +192,50 @@ export class TeamRequestResolver {
       type: () => ID,
     })
     requestID: string,
-  ): Promise<boolean> {
-    await this.teamRequestService.deleteTeamRequest(requestID);
+  ) {
+    const isDeleted = await this.teamRequestService.deleteTeamRequest(
+      requestID,
+    );
+    if (E.isLeft(isDeleted)) throwErr(isDeleted.left);
+    return isDeleted.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Update the order of requests in the lookup table',
+  })
+  @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
+  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  async updateLookUpRequestOrder(
+    @Args()
+    args: UpdateLookUpRequestOrderArgs,
+  ) {
+    const teamRequest = await this.teamRequestService.moveRequest(
+      args.collectionID,
+      args.requestID,
+      args.collectionID,
+      args.nextRequestID,
+      'updateLookUpRequestOrder',
+    );
+    if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
     return true;
   }
 
-  // @Mutation(() => TeamRequest, {
-  //   description: 'Move a request to the given collection',
-  // })
-  // @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
-  // @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
-  // moveRequest(
-  //   @Args({
-  //     name: 'requestID',
-  //     description: 'ID of the request to move',
-  //     type: () => ID,
-  //   })
-  //   requestID: string,
-  //   @Args({
-  //     name: 'destCollID',
-  //     description: 'ID of the collection to move the request to',
-  //     type: () => ID,
-  //   })
-  //   destCollID: string,
-  // ): Promise<TeamRequest> {
-  //   return pipe(
-  //     this.teamRequestService.moveRequest(requestID, destCollID),
-  //     TE.getOrElse((e) => throwErr(e)),
-  //   )();
-  // }
+  @Mutation(() => TeamRequest, {
+    description: 'Move a request to the given collection',
+  })
+  @UseGuards(GqlAuthGuard, GqlRequestTeamMemberGuard)
+  @RequiresTeamRole(TeamMemberRole.EDITOR, TeamMemberRole.OWNER)
+  async moveRequest(@Args() args: MoveTeamRequestArgs) {
+    const teamRequest = await this.teamRequestService.moveRequest(
+      args.srcCollID,
+      args.requestID,
+      args.destCollID,
+      args.nextRequestID,
+      'moveRequest',
+    );
+    if (E.isLeft(teamRequest)) throwErr(teamRequest.left);
+    return teamRequest.right;
+  }
 
   // Subscriptions
   @Subscription(() => TeamRequest, {
@@ -233,7 +255,7 @@ export class TeamRequestResolver {
       type: () => ID,
     })
     teamID: string,
-  ): AsyncIterator<TeamRequest> {
+  ) {
     return this.pubsub.asyncIterator(`team_req/${teamID}/req_created`);
   }
 
@@ -254,7 +276,7 @@ export class TeamRequestResolver {
       type: () => ID,
     })
     teamID: string,
-  ): AsyncIterator<TeamRequest> {
+  ) {
     return this.pubsub.asyncIterator(`team_req/${teamID}/req_updated`);
   }
 
@@ -276,7 +298,51 @@ export class TeamRequestResolver {
       type: () => ID,
     })
     teamID: string,
-  ): AsyncIterator<string> {
+  ) {
     return this.pubsub.asyncIterator(`team_req/${teamID}/req_deleted`);
+  }
+
+  @Subscription(() => RequestReorderData, {
+    description:
+      'Emitted when a requests position has been changed in its collection',
+    resolve: (value) => value,
+  })
+  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
+  @RequiresTeamRole(
+    TeamMemberRole.VIEWER,
+    TeamMemberRole.EDITOR,
+    TeamMemberRole.OWNER,
+  )
+  requestOrderUpdated(
+    @Args({
+      name: 'teamID',
+      description: 'ID of the team to listen to',
+      type: () => ID,
+    })
+    teamID: string,
+  ) {
+    return this.pubsub.asyncIterator(`team_req/${teamID}/req_order_updated`);
+  }
+
+  @Subscription(() => TeamRequest, {
+    description:
+      'Emitted when a request has been moved from one collection into another',
+    resolve: (value) => value,
+  })
+  @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
+  @RequiresTeamRole(
+    TeamMemberRole.VIEWER,
+    TeamMemberRole.EDITOR,
+    TeamMemberRole.OWNER,
+  )
+  requestMoved(
+    @Args({
+      name: 'teamID',
+      description: 'ID of the team to listen to',
+      type: () => ID,
+    })
+    teamID: string,
+  ) {
+    return this.pubsub.asyncIterator(`team_req/${teamID}/req_moved`);
   }
 }

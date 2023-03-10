@@ -265,7 +265,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
 // Trigger the re-ordering event when a request is dragged over another request's top section
 const handleDragOver = (e: DragEvent) => {
   dragging.value = true
-  if (e.offsetY < 4) {
+  if (e.offsetY < 8) {
     ordering.value = true
     dragging.value = false
   } else {

@@ -307,7 +307,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
 // Trigger the re-ordering event when a collection is dragged over another collection's top section
 const handleDragOver = (e: DragEvent) => {
   dragging.value = true
-  if (e.offsetY < 4 && notSameDestination.value) {
+  if (e.offsetY < 8 && notSameDestination.value) {
     ordering.value = true
     dragging.value = false
   } else {

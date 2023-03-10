@@ -9,16 +9,17 @@
       ]"
       @drop="dropEvent"
       @dragover.prevent="ordering = true"
-      @dragleave="ordering = false"
-      @dragend="ordering = false"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
     ></div>
     <div
       class="flex items-stretch group"
       :draggable="!hasNoTeamAccess"
+      @drop="dropEvent"
       @dragstart="dragStart"
-      @dragover.prevent="dragging = true"
-      @dragleave="dragging = false"
-      @dragend="dragging = false"
+      @dragover="handleDragOver($event)"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
       @contextmenu.prevent="options?.tippy.show()"
     >
       <span
@@ -258,10 +259,21 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
   }
 }
 
+// Trigger the re-ordering event when a request is dragged over another request's top section
+const handleDragOver = (e: DragEvent) => {
+  dragging.value = true
+  if (e.offsetY < 4) {
+    ordering.value = true
+    dragging.value = false
+  } else {
+    ordering.value = false
+  }
+}
+
 const dropEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
-    ordering.value = !ordering.value
+    resetDragState()
     emit("update-request-order", e.dataTransfer)
   }
 }
@@ -273,4 +285,9 @@ const isRequestLoading = computed(() => {
     return false
   }
 })
+
+const resetDragState = () => {
+  dragging.value = false
+  ordering.value = false
+}
 </script>

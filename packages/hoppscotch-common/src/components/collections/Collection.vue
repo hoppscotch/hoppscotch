@@ -20,17 +20,17 @@
         }"
       ></div>
       <div
-        class="flex items-stretch group relative z-3"
+        class="flex items-stretch group relative z-3 cursor-pointer pointer-events-auto"
         :draggable="!hasNoTeamAccess"
         @dragstart="dragStart"
-        @drop="dropEvent"
-        @dragover="dragging = true"
-        @dragleave="dragging = false"
+        @drop="handelDrop($event)"
+        @dragover="handleDragOver($event)"
+        @dragleave="resetDragState"
         @dragend="resetDragState"
         @contextmenu.prevent="options?.tippy.show()"
       >
         <span
-          class="flex items-center justify-center px-4 cursor-pointer"
+          class="flex items-center justify-center px-4"
           @click="emit('toggle-children')"
         >
           <HoppSmartSpinner v-if="isCollLoading" />
@@ -42,7 +42,7 @@
           />
         </span>
         <span
-          class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
+          class="flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
           @click="emit('toggle-children')"
         >
           <span class="truncate" :class="{ 'text-accent': isSelected }">
@@ -301,12 +301,30 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
   }
 }
 
+// Trigger the re-ordering event when a collection is dragged over another collection's top section
+const handleDragOver = (e: DragEvent) => {
+  dragging.value = true
+  if (e.offsetY < 4 && notSameDestination.value) {
+    ordering.value = true
+    dragging.value = false
+  } else {
+    ordering.value = false
+  }
+}
+
+const handelDrop = (e: DragEvent) => {
+  if (ordering.value) {
+    orderUpdateCollectionEvent(e)
+  } else {
+    dropEvent(e)
+  }
+}
+
 const dropEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
     emit("drop-event", e.dataTransfer)
-    dragging.value = !dragging.value
-    dropItemID.value = ""
+    resetDragState()
   }
 }
 
@@ -314,8 +332,7 @@ const orderUpdateCollectionEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
     emit("update-collection-order", e.dataTransfer)
-    ordering.value = !ordering.value
-    dropItemID.value = ""
+    resetDragState()
   }
 }
 

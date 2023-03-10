@@ -22,44 +22,47 @@
       @dragend="resetDragState"
       @contextmenu.prevent="options?.tippy.show()"
     >
-      <span
-        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
-        :class="requestLabelColor"
+      <div
+        class="flex items-center justify-center flex-1 min-w-0 cursor-pointer pointer-events-auto"
         @click="selectRequest()"
       >
-        <component
-          :is="IconCheckCircle"
-          v-if="isSelected"
-          class="svg-icons"
-          :class="{ 'text-accent': isSelected }"
-        />
-        <HoppSmartSpinner v-else-if="isRequestLoading" />
-        <span v-else class="font-semibold truncate text-tiny">
-          {{ request.method }}
-        </span>
-      </span>
-      <span
-        class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-        @click="selectRequest()"
-      >
-        <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ request.name }}
+        <span
+          class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
+          :class="requestLabelColor"
+        >
+          <component
+            :is="IconCheckCircle"
+            v-if="isSelected"
+            class="svg-icons"
+            :class="{ 'text-accent': isSelected }"
+          />
+          <HoppSmartSpinner v-else-if="isRequestLoading" />
+          <span v-else class="font-semibold truncate text-tiny">
+            {{ request.method }}
+          </span>
         </span>
         <span
-          v-if="isActive"
-          v-tippy="{ theme: 'tooltip' }"
-          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
-          :title="`${t('collection.request_in_use')}`"
+          class="flex items-center flex-1 min-w-0 py-2 pr-2 pointer-events-none transition group-hover:text-secondaryDark"
         >
-          <span
-            class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
-          >
+          <span class="truncate" :class="{ 'text-accent': isSelected }">
+            {{ request.name }}
           </span>
           <span
-            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
-          ></span>
+            v-if="isActive"
+            v-tippy="{ theme: 'tooltip' }"
+            class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+            :title="`${t('collection.request_in_use')}`"
+          >
+            <span
+              class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
+            >
+            </span>
+            <span
+              class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+            ></span>
+          </span>
         </span>
-      </span>
+      </div>
       <div v-if="!hasNoTeamAccess" class="flex">
         <HoppButtonSecondary
           v-if="!saveRequest"

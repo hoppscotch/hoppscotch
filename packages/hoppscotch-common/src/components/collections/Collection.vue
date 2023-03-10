@@ -29,26 +29,29 @@
         @dragend="resetDragState"
         @contextmenu.prevent="options?.tippy.show()"
       >
-        <span
-          class="flex items-center justify-center px-4"
+        <div
+          class="flex items-center justify-center flex-1 min-w-0"
           @click="emit('toggle-children')"
         >
-          <HoppSmartSpinner v-if="isCollLoading" />
-          <component
-            :is="collectionIcon"
-            v-else
-            class="svg-icons"
-            :class="{ 'text-accent': isSelected }"
-          />
-        </span>
-        <span
-          class="flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
-          @click="emit('toggle-children')"
-        >
-          <span class="truncate" :class="{ 'text-accent': isSelected }">
-            {{ collectionName }}
+          <span
+            class="flex items-center justify-center px-4 pointer-events-none"
+          >
+            <HoppSmartSpinner v-if="isCollLoading" />
+            <component
+              :is="collectionIcon"
+              v-else
+              class="svg-icons"
+              :class="{ 'text-accent': isSelected }"
+            />
           </span>
-        </span>
+          <span
+            class="flex flex-1 min-w-0 py-2 pr-2 transition pointer-events-none group-hover:text-secondaryDark"
+          >
+            <span class="truncate" :class="{ 'text-accent': isSelected }">
+              {{ collectionName }}
+            </span>
+          </span>
+        </div>
         <div v-if="!hasNoTeamAccess" class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"

@@ -28,7 +28,8 @@
     "stream-browserify": "^3.0.0",
     "util": "^0.12.4",
     "vue": "^3.2.41",
-    "workbox-window": "^6.5.4"
+    "workbox-window": "^6.5.4",
+    "@hoppscotch/data": "workspace:^0.4.4"
   },
   "devDependencies": {
     "@intlify/vite-plugin-vue-i18n": "^6.0.1",

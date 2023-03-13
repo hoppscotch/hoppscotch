@@ -33,3 +33,18 @@ export class UserRequest {
   })
   createdOn: Date;
 }
+
+@ObjectType()
+export class UserRequestReorderData {
+  @Field({
+    description: 'User request being moved',
+  })
+  request: UserRequest;
+
+  @Field({
+    description:
+      'User request succeeding the request being moved in its new position',
+    nullable: true,
+  })
+  nextRequest?: UserRequest;
+}

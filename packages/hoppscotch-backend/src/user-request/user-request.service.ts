@@ -261,27 +261,31 @@ export class UserRequestService {
       user,
     );
     if (E.isLeft(twoRequests)) return twoRequests;
-    const { request, nextRequest } = twoRequests.right;
+    const { request: dbRequest, nextRequest: dbNextRequest } =
+      twoRequests.right;
 
     const isTypeValidate = await this.validateTypeEqualityForMoveRequest(
       srcCollID,
       destCollID,
-      request,
-      nextRequest,
+      dbRequest,
+      dbNextRequest,
     );
     if (E.isLeft(isTypeValidate)) return E.left(isTypeValidate.left);
 
     const updatedRequest = await this.reorderRequests(
       srcCollID,
-      request,
+      dbRequest,
       destCollID,
-      nextRequest,
+      dbNextRequest,
     );
     if (E.isLeft(updatedRequest)) return updatedRequest;
 
     const userRequest: UserRequest = this.cast(updatedRequest.right);
 
-    await this.pubsub.publish(`user_request/${user.uid}/moved`, userRequest);
+    await this.pubsub.publish(`user_request/${user.uid}/moved`, {
+      request: userRequest,
+      nextRequest: dbNextRequest ? this.cast(dbNextRequest) : null,
+    });
 
     return E.right(userRequest);
   }

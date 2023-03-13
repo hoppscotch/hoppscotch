@@ -760,7 +760,7 @@ describe('UserRequestService', () => {
 
       expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user_request/${dbUserRequests[0].userUid}/moved`,
-        userRequests[0],
+        { request: userRequests[0], nextRequest: null },
       );
     });
     test('Should resolve left if finding the requests fails', () => {

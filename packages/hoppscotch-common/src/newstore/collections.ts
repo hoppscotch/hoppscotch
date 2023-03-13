@@ -31,7 +31,7 @@ const defaultGraphqlCollectionState = {
 type RESTCollectionStoreType = typeof defaultRESTCollectionState
 type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
 
-function navigateToFolderWithIndexPath(
+export function navigateToFolderWithIndexPath(
   collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
   indexPaths: number[]
 ) {
@@ -97,12 +97,15 @@ const restCollectionDispatchers = defineDispatchers({
     { state }: RESTCollectionStoreType,
     {
       collectionIndex,
-      collection,
-    }: { collectionIndex: number; collection: HoppCollection<any> }
+      partialCollection,
+    }: {
+      collectionIndex: number
+      partialCollection: Partial<HoppCollection<any>>
+    }
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? collection : col
+        index === collectionIndex ? { ...col, ...partialCollection } : col
       ),
     }
   },
@@ -824,13 +827,13 @@ export function getRESTCollection(collectionIndex: number) {
 
 export function editRESTCollection(
   collectionIndex: number,
-  collection: HoppCollection<HoppRESTRequest>
+  partialCollection: Partial<HoppCollection<HoppRESTRequest>>
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editCollection",
     payload: {
       collectionIndex,
-      collection,
+      partialCollection: partialCollection,
     },
   })
 }

@@ -4,7 +4,7 @@
       class="h-1 w-full transition"
       :class="[
         {
-          'bg-accentDark': ordering && notSameDestination,
+          'bg-accentDark': ordering && notSameDestination && !isRequestDragging,
         },
       ]"
       @drop="orderUpdateCollectionEvent"
@@ -26,7 +26,12 @@
         @drop="handelDrop($event)"
         @dragover="handleDragOver($event)"
         @dragleave="resetDragState"
-        @dragend="resetDragState"
+        @dragend="
+          () => {
+            resetDragState()
+            dropItemID = ''
+          }
+        "
         @contextmenu.prevent="options?.tippy.show()"
       >
         <div
@@ -178,6 +183,11 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import {
+  changeCurrentReorderStatus,
+  currentReorderingStatus$,
+} from "~/newstore/reordering"
+import { useReadonlyStream } from "~/composables/stream"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -261,6 +271,11 @@ const dragging = ref(false)
 const ordering = ref(false)
 const dropItemID = ref("")
 
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+})
+
 // Used to determine if the collection is being dragged to a different destination
 // This is used to make the highlight effect work
 watch(
@@ -296,18 +311,26 @@ watch(
   }
 )
 
+const isRequestDragging = computed(() => {
+  return currentReorderingStatus.value.type === "request"
+})
+
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-event", dataTransfer)
     dropItemID.value = dataTransfer.getData("collectionIndex")
     dragging.value = !dragging.value
+    changeCurrentReorderStatus({
+      type: "collection",
+      id: props.id,
+    })
   }
 }
 
 // Trigger the re-ordering event when a collection is dragged over another collection's top section
 const handleDragOver = (e: DragEvent) => {
   dragging.value = true
-  if (e.offsetY < 8 && notSameDestination.value) {
+  if (e.offsetY < 10 && notSameDestination.value) {
     ordering.value = true
     dragging.value = false
   } else {
@@ -354,6 +377,5 @@ const isCollLoading = computed(() => {
 const resetDragState = () => {
   dragging.value = false
   ordering.value = false
-  dropItemID.value = ""
 }
 </script>

@@ -4,7 +4,7 @@
       class="h-1"
       :class="[
         {
-          'bg-accentDark': ordering,
+          'bg-accentDark': ordering && !isCollectionDragging,
         },
       ]"
       @drop="dropEvent"
@@ -155,6 +155,11 @@ import { TippyComponent } from "vue-tippy"
 import { pipe } from "fp-ts/function"
 import * as RR from "fp-ts/ReadonlyRecord"
 import * as O from "fp-ts/Option"
+import {
+  changeCurrentReorderStatus,
+  currentReorderingStatus$,
+} from "~/newstore/reordering"
+import { useReadonlyStream } from "~/composables/stream"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -226,6 +231,11 @@ const duplicate = ref<HTMLButtonElement | null>(null)
 const dragging = ref(false)
 const ordering = ref(false)
 
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+})
+
 const requestMethodLabels = {
   get: "text-green-500",
   post: "text-yellow-500",
@@ -259,13 +269,21 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-request", dataTransfer)
     dragging.value = !dragging.value
+    changeCurrentReorderStatus({
+      type: "request",
+      id: props.requestID ?? "",
+    })
   }
 }
+
+const isCollectionDragging = computed(() => {
+  return currentReorderingStatus.value.type === "collection"
+})
 
 // Trigger the re-ordering event when a request is dragged over another request's top section
 const handleDragOver = (e: DragEvent) => {
   dragging.value = true
-  if (e.offsetY < 8) {
+  if (e.offsetY < 10) {
     ordering.value = true
     dragging.value = false
   } else {

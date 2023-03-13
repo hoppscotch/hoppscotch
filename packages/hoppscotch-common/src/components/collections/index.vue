@@ -470,62 +470,60 @@ const filteredCollections = computed(() => {
   return filteredCollections
 })
 
-const isSelected = computed(() => {
-  return ({
-    collectionIndex,
-    folderPath,
-    requestIndex,
-    collectionID,
-    folderID,
-    requestID,
-  }: {
-    collectionIndex?: number | undefined
-    folderPath?: string | undefined
-    requestIndex?: number | undefined
-    collectionID?: string | undefined
-    folderID?: string | undefined
-    requestID?: string | undefined
-  }) => {
-    if (collectionIndex !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-collection" &&
-        props.picked.collectionIndex === collectionIndex
-      )
-    } else if (requestIndex !== undefined && folderPath !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-request" &&
-        props.picked.folderPath === folderPath &&
-        props.picked.requestIndex === requestIndex
-      )
-    } else if (folderPath !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-folder" &&
-        props.picked.folderPath === folderPath
-      )
-    } else if (collectionID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-collection" &&
-        props.picked.collectionID === collectionID
-      )
-    } else if (requestID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-request" &&
-        props.picked.requestID === requestID
-      )
-    } else if (folderID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-folder" &&
-        props.picked.folderID === folderID
-      )
-    }
+const isSelected = ({
+  collectionIndex,
+  folderPath,
+  requestIndex,
+  collectionID,
+  folderID,
+  requestID,
+}: {
+  collectionIndex?: number | undefined
+  folderPath?: string | undefined
+  requestIndex?: number | undefined
+  collectionID?: string | undefined
+  folderID?: string | undefined
+  requestID?: string | undefined
+}) => {
+  if (collectionIndex !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-collection" &&
+      props.picked.collectionIndex === collectionIndex
+    )
+  } else if (requestIndex !== undefined && folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-request" &&
+      props.picked.folderPath === folderPath &&
+      props.picked.requestIndex === requestIndex
+    )
+  } else if (folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-folder" &&
+      props.picked.folderPath === folderPath
+    )
+  } else if (collectionID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-collection" &&
+      props.picked.collectionID === collectionID
+    )
+  } else if (requestID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-request" &&
+      props.picked.requestID === requestID
+    )
+  } else if (folderID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-folder" &&
+      props.picked.folderID === folderID
+    )
   }
-})
+}
 
 const modalLoadingState = ref(false)
 const exportLoading = ref(false)
@@ -1023,7 +1021,7 @@ const onRemoveCollection = () => {
     if (collectionIndex === null) return
 
     if (
-      isSelected.value({
+      isSelected({
         collectionIndex,
       })
     ) {
@@ -1040,7 +1038,7 @@ const onRemoveCollection = () => {
     if (!collectionID) return
 
     if (
-      isSelected.value({
+      isSelected({
         collectionID,
       })
     ) {
@@ -1067,7 +1065,7 @@ const onRemoveFolder = () => {
     if (!folderPath) return
 
     if (
-      isSelected.value({
+      isSelected({
         folderPath,
       })
     ) {
@@ -1084,7 +1082,7 @@ const onRemoveFolder = () => {
     if (!collectionID) return
 
     if (
-      isSelected.value({
+      isSelected({
         collectionID,
       })
     ) {
@@ -1118,7 +1116,7 @@ const onRemoveRequest = () => {
     if (folderPath === null || requestIndex === null) return
 
     if (
-      isSelected.value({
+      isSelected({
         folderPath,
         requestIndex,
       })
@@ -1136,7 +1134,7 @@ const onRemoveRequest = () => {
     if (!requestID) return
 
     if (
-      isSelected.value({
+      isSelected({
         requestID,
       })
     ) {

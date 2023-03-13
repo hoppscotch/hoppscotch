@@ -9,14 +9,22 @@ import {
   translateToNewRESTCollection,
   translateToNewGQLCollection,
 } from "@hoppscotch/data"
-import { platform } from "~/platform"
+
+import { def as platformAuth } from "./firebase/auth"
+
 import {
   restCollections$,
   graphqlCollections$,
   setRESTCollections,
   setGraphqlCollections,
-} from "~/newstore/collections"
-import { getSettingSubject, settingsStore } from "~/newstore/settings"
+} from "@hoppscotch/common/newstore/collections"
+
+import {
+  getSettingSubject,
+  settingsStore,
+} from "@hoppscotch/common/newstore/settings"
+
+import { CollectionsPlatformDef } from "@hoppscotch/common/platform/collections"
 
 type CollectionFlags = "collectionsGraphql" | "collections"
 
@@ -40,11 +48,8 @@ let loadedRESTCollections = false
  */
 let loadedGraphqlCollections = false
 
-export async function writeCollections(
-  collection: any[],
-  flag: CollectionFlags
-) {
-  const currentUser = platform.auth.getCurrentUser()
+async function writeCollections(collection: any[], flag: CollectionFlags) {
+  const currentUser = platformAuth.getCurrentUser()
 
   if (currentUser === null)
     throw new Error("User not logged in to write collections")
@@ -68,11 +73,11 @@ export async function writeCollections(
   }
 }
 
-export function initCollections() {
-  const currentUser$ = platform.auth.getCurrentUserStream()
+function initCollectionsSync() {
+  const currentUser$ = platformAuth.getCurrentUserStream()
 
   const restCollSub = restCollections$.subscribe((collections) => {
-    const currentUser = platform.auth.getCurrentUser()
+    const currentUser = platformAuth.getCurrentUser()
 
     if (
       loadedRESTCollections &&
@@ -84,7 +89,7 @@ export function initCollections() {
   })
 
   const gqlCollSub = graphqlCollections$.subscribe((collections) => {
-    const currentUser = platform.auth.getCurrentUser()
+    const currentUser = platformAuth.getCurrentUser()
 
     if (
       loadedGraphqlCollections &&
@@ -177,8 +182,12 @@ export function initCollections() {
         gqlCollSub.unsubscribe()
         currentUserSub.unsubscribe()
 
-        initCollections()
+        initCollectionsSync()
       }
     }
   )
+}
+
+export const def: CollectionsPlatformDef = {
+  initCollectionsSync,
 }

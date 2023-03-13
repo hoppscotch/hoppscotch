@@ -1,11 +1,7 @@
 <template>
   <div v-if="fetching" class="flex justify-center"><HoppSmartSpinner /></div>
   <div v-else>
-    <h3
-      class="sm:px-6 p-4 text-3xl font-medium text-zinc-800 dark:text-gray-200"
-    >
-      User Details
-    </h3>
+    <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">User Details</h3>
 
     <div>
       <div>
@@ -21,41 +17,33 @@
               <icon-lucide-user class="text-4xl" />
             </div>
             <div v-if="user.uid">
-              <label class="text-gray-800 dark:text-gray-200" for="username"
-                >UID</label
-              >
+              <label class="text-gray-200" for="username">UID</label>
               <div
-                class="w-full p-3 mt-2 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
               >
                 {{ user.uid }}
               </div>
             </div>
             <div v-if="user.displayName">
-              <label class="text-gray-800 dark:text-gray-200" for="username"
-                >Name</label
-              >
+              <label class="text-gray-200" for="username">Name</label>
               <div
-                class="w-full p-3 mt-2 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
               >
                 {{ user.displayName }}
               </div>
             </div>
             <div v-if="user.email">
-              <label class="text-gray-800 dark:text-gray-200" for="username"
-                >Email</label
-              >
+              <label class="text-gray-200" for="username">Email</label>
               <div
-                class="w-full p-3 mt-2 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                class="w-full p-3 mt-2 bg-zinc-800 border-gray-200 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
               >
                 {{ user.email }}
               </div>
             </div>
             <div v-if="user.createdOn">
-              <label class="text-gray-800 dark:text-gray-200" for="username"
-                >Created On</label
-              >
+              <label class="text-gray-200" for="username">Created On</label>
               <div
-                class="w-full p-3 mt-2 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                class="w-full p-3 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
               >
                 {{ getCreatedDateAndTime(user.createdOn) }}
               </div>

@@ -1,57 +1,41 @@
 <template>
   <div class="sm:px-6 p-4">
-    <h3
-      class="sm:px-6 p-4 text-3xl font-medium text-zinc-800 dark:text-gray-200"
-    >
-      Team Details
-    </h3>
+    <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">Team Details</h3>
 
     <div class="mt-5">
       <div class="flex flex-wrap justify-center mx-6">
         <div class="w-full px-4 sm:w-1/2 xl:w-1/3">
-          <div
-            class="h-80 px-6 py-6 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-sm"
-          >
+          <div class="h-80 px-6 py-6 bg-zinc-800 rounded-md shadow-sm">
             <div class="flex ml-3 mt-2">
               <icon-lucide-user class="text-emerald-400 text-3xl" />
 
-              <h4
-                class="text-3xl ml-2 font-semibold text-gray-700 dark:text-gray-200"
-              >
+              <h4 class="text-3xl ml-2 font-semibold text-gray-200">
                 Team Info
               </h4>
             </div>
             <div class="flex mt-5 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
-                Team ID:
-              </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <h4 class="font-semibold text-gray-400">Team ID:</h4>
+              <div class="text-gray-200 ml-2">
                 {{ team.id }}
               </div>
             </div>
             <div class="flex mt-2 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
-                Team Name:
-              </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <h4 class="font-semibold text-gray-400">Team Name:</h4>
+              <div class="text-gray-200 ml-2">
                 {{ team.name }}
               </div>
             </div>
 
             <div class="flex mt-2 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
-                Creation Date:
-              </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <h4 class="font-semibold text-gray-400">Creation Date:</h4>
+              <div class="text-gray-200 ml-2">
                 {{ team.date }}
               </div>
             </div>
 
             <div class="flex mt-2 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
-                Number of members:
-              </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <h4 class="font-semibold text-gray-400">Number of members:</h4>
+              <div class="text-gray-200 ml-2">
                 {{ team.members }}
               </div>
             </div>
@@ -59,42 +43,34 @@
         </div>
 
         <div class="w-full px-4 sm:w-1/2 xl:w-1/3">
-          <div
-            class="h-80 px-5 py-6 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-sm"
-          >
+          <div class="h-80 px-5 py-6 bg-zinc-800 rounded-md shadow-sm">
             <div class="flex ml-3 mt-2">
               <icon-lucide-line-chart class="text-yellow-300 text-3xl" />
 
-              <h4
-                class="text-3xl ml-2 font-semibold text-gray-700 dark:text-gray-200"
-              >
-                Stats
-              </h4>
+              <h4 class="text-3xl ml-2 font-semibold text-gray-200">Stats</h4>
             </div>
 
             <div class="flex mt-5 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
+              <h4 class="font-semibold text-gray-400">
                 Number of Collections:
               </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <div class="text-gray-200 ml-2">
                 {{ stats.collections }}
               </div>
             </div>
 
             <div class="flex mt-2 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
-                Number of Requests:
-              </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <h4 class="font-semibold text-gray-400">Number of Requests:</h4>
+              <div class="text-gray-200 ml-2">
                 {{ stats.requests }}
               </div>
             </div>
 
             <div class="flex mt-2 ml-5 text-xl">
-              <h4 class="font-semibold text-gray-700 dark:text-gray-400">
+              <h4 class="font-semibold text-gray-400">
                 Number of Environments:
               </h4>
-              <div class="text-gray-600 dark:text-gray-200 ml-2">
+              <div class="text-gray-200 ml-2">
                 {{ stats.environments }}
               </div>
             </div>

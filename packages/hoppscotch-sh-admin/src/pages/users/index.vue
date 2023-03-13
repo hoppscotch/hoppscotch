@@ -1,10 +1,6 @@
 <template>
   <div>
-    <h3
-      class="sm:px-6 p-4 text-3xl font-medium text-zinc-800 dark:text-gray-200"
-    >
-      Users
-    </h3>
+    <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">Users</h3>
 
     <!-- Table List View for All Users -->
     <div class="flex flex-col">
@@ -40,7 +36,7 @@
               >
                 <thead>
                   <tr
-                    class="text-zinc-900 dark:text-gray-200 border-b border-gray-300 dark:border-gray-600 text-sm text-center"
+                    class="text-gray-200 border-b border-gray-600 text-sm text-center"
                   >
                     <th class="font-normal px-3 pt-0 pb-3">User ID</th>
                     <th class="font-normal px-3 pt-0 pb-3">Name</th>
@@ -50,11 +46,11 @@
                   </tr>
                 </thead>
 
-                <tbody class="text-gray-600 dark:text-gray-300">
+                <tbody class="text-gray-300">
                   <tr
                     v-for="user in usersList"
                     :key="user.uid"
-                    class="border-b border-gray-300 dark:border-gray-600 hover:bg-zinc-800 rounded-xl"
+                    class="border-b border-gray-600 hover:bg-zinc-800 rounded-xl"
                   >
                     <td
                       @click="goToUserDetails(user)"
@@ -97,7 +93,7 @@
                     </td>
                     <td
                       @click="goToUserDetails(user)"
-                      class="sm:p-3 py-2 px-1 text-sky-500 dark:text-sky-300 text-center"
+                      class="sm:p-3 py-2 px-1 text-sky-300 text-center"
                     >
                       {{ user.email }}
                     </td>
@@ -131,17 +127,17 @@
                         >
                           <div
                             v-show="activeUserId && activeUserId == user.uid"
-                            class="absolute right-0 z-20 w-28 mt-5 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-xl"
+                            class="absolute right-0 z-20 w-28 mt-5 bg-zinc-800 rounded-md shadow-xl"
                           >
                             <button
                               v-if="!user.isAdmin"
                               @click="makeUserAdmin(user.uid)"
-                              class="block w-full h-10 px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-emerald-700 hover:text-white rounded-md"
+                              class="block w-full h-10 px-4 py-2 text-sm text-gray-200 hover:bg-emerald-700 hover:text-white rounded-md"
                             >
                               Make admin
                             </button>
                             <button
-                              class="block w-full h-10 px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-red-700 hover:text-white rounded-md"
+                              class="block w-full h-10 px-4 py-2 text-sm text-gray-200 hover:bg-red-700 hover:text-white rounded-md"
                               @click="deleteUser(user.uid)"
                             >
                               Delete
@@ -182,14 +178,11 @@
               <div>
                 <div class="my-4">
                   <div>
-                    <label
-                      class="text-gray-800 dark:text-gray-200"
-                      for="emailAddress"
-                    >
+                    <label class="text-gray-200" for="emailAddress">
                       Email Address
                     </label>
                     <input
-                      class="w-full p-3 mt-3 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                      class="w-full p-3 mt-3 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
                       type="email"
                       v-model="email"
                       placeholder="Enter Email Address"

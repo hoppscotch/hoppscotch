@@ -20,7 +20,7 @@
 
               <span
                 v-if="isExpanded"
-                class="mx-2 text-xl font-semibold text-gray-600 dark:text-gray-200"
+                class="mx-2 text-xl font-semibold text-gray-200"
                 >Hoppscotch</span
               >
             </router-link>
@@ -104,6 +104,6 @@ const inactiveClass =
   @apply fixed md:static md:translate-x-0 md:inset-0 inset-y-0 left-0 z-30;
   @apply transition duration-300;
 
-  @apply flex overflow-y-auto bg-neutral-200 dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-600;
+  @apply flex overflow-y-auto bg-neutral-900 border-r border-gray-600;
 }
 </style>

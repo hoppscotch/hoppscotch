@@ -1,7 +1,5 @@
 <template>
-  <h3 class="sm:px-6 p-4 text-3xl font-medium text-zinc-800 dark:text-gray-200">
-    Create Team
-  </h3>
+  <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">Create Team</h3>
 
   <div>
     <div>
@@ -9,13 +7,11 @@
         <form>
           <div class="flex mt-4 ml-10">
             <div>
-              <label
-                class="text-gray-800 dark:text-gray-200 mr-5 text-lg"
-                for="username"
+              <label class="text-gray-200 mr-5 text-lg" for="username"
                 >Name:
               </label>
               <input
-                class="w-96 p-2 mt-2 dark:bg-zinc-800 border-gray-200 dark:border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
+                class="w-96 p-2 mt-2 bg-zinc-800 border-gray-600 rounded-md focus:border-emerald-600 focus:ring focus:ring-opacity-40 focus:ring-emerald-500"
                 type="text"
                 placeholder="Enter Name"
               />

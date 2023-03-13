@@ -1,10 +1,6 @@
 <template>
   <div>
-    <h3
-      class="sm:px-6 p-4 text-3xl font-medium text-zinc-800 dark:text-gray-200"
-    >
-      Teams
-    </h3>
+    <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">Teams</h3>
 
     <div class="flex flex-col">
       <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-4 lg:-mx-8 lg:px-8">
@@ -12,24 +8,20 @@
           <div class="sm:px-7 p-4">
             <div v-if="showOptions" class="flex w-full items-center mb-7">
               <button
-                class="inline-flex mr-3 items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-700 dark:text-gray-400 dark:border-gray-800 border-2 border-gray-200 leading-none py-0"
+                class="inline-flex mr-3 items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-400 border-gray-800 border-2 leading-none py-0"
               >
                 Last 30 days
-                <icon-lucide-chevron-down
-                  class="w-4 ml-1.5 text-gray-400 dark:text-gray-600"
-                />
+                <icon-lucide-chevron-down class="w-4 ml-1.5 text-gray-600" />
               </button>
               <button
-                class="inline-flex items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-700 dark:text-gray-400 dark:border-gray-800 border-2 border-gray-200 leading-none py-0"
+                class="inline-flex items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-400 border-gray-800 border-2 leading-none py-0"
               >
                 Filter by
-                <icon-lucide-chevron-down
-                  class="w-4 ml-1.5 text-gray-400 dark:text-gray-600"
-                />
+                <icon-lucide-chevron-down class="w-4 ml-1.5 text-gray-600" />
               </button>
               <router-link to="/teams/addteam">
                 <button
-                  class="inline-flex items-center bg-emerald-700 h-8 ml-3 pl-2.5 pr-2 rounded-md shadow text-gray-200 dark:border-gray-800 border border-gray-200 leading-none py-0 hover:bg-emerald-700 focus:outline-none focus:bg-emerald-800"
+                  class="inline-flex items-center bg-emerald-700 h-8 ml-3 pl-2.5 pr-2 rounded-md shadow border-gray-800 border leading-none py-0 hover:bg-emerald-700 focus:outline-none focus:bg-emerald-800"
                 >
                   Create Team
                 </button>
@@ -39,12 +31,12 @@
               >
                 <span class="mr-3">Page 2 of 4</span>
                 <button
-                  class="inline-flex mr-2 items-center h-8 w-8 justify-center text-gray-400 rounded-md shadow border border-gray-200 dark:border-gray-800 leading-none py-0"
+                  class="inline-flex mr-2 items-center h-8 w-8 justify-center text-gray-400 rounded-md shadow border border-gray-800 leading-none py-0"
                 >
                   <icon-lucide-chevron-left class="text-xl" />
                 </button>
                 <button
-                  class="inline-flex items-center h-8 w-8 justify-center text-gray-400 rounded-md shadow border border-gray-200 dark:border-gray-800 leading-none py-0"
+                  class="inline-flex items-center h-8 w-8 justify-center text-gray-400 rounded-md shadow border border-gray-800 leading-none py-0"
                 >
                   <icon-lucide-chevron-right class="text-xl" />
                 </button>
@@ -53,9 +45,7 @@
             <div>
               <table class="w-full text-left">
                 <thead>
-                  <tr
-                    class="text-zinc-900 dark:text-gray-200 border-b border-gray-300 dark:border-gray-600 text-sm"
-                  >
+                  <tr class="text-gray-200 border-b border-gray-600 text-sm">
                     <th class="font-normal px-3 pt-0 pb-3"></th>
                     <th class="font-normal px-3 pt-0 pb-3">Team ID</th>
                     <th class="font-normal px-3 pt-0 pb-3">Team Name</th>
@@ -66,12 +56,12 @@
                     <th class="font-normal px-3 pt-0 pb-3">Date</th>
                   </tr>
                 </thead>
-                <tbody class="text-gray-600 dark:text-gray-300">
+                <tbody class="text-gray-300">
                   <!-- <router-link :custom="true" class="" :to="'/team/detail'"> -->
                   <tr
                     v-for="team in teams"
                     id="team.id"
-                    class="border-b border-gray-300 dark:border-gray-600 hover:bg-zinc-800 rounded-xl"
+                    class="border-b border-gray-600 hover:bg-zinc-800 rounded-xl"
                     @click="goToTeam"
                   >
                     <td>
@@ -92,7 +82,7 @@
                     </td>
 
                     <td
-                      class="sm:p-3 py-2 px-1 md:table-cell hidden text-sky-500 dark:text-sky-300"
+                      class="sm:p-3 py-2 px-1 md:table-cell hidden text-sky-300"
                     >
                       {{ team.name }}
                     </td>

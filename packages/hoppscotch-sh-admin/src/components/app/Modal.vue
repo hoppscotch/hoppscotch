@@ -2,7 +2,7 @@
   <div>
     <button
       @click="open = true"
-      class="inline-flex items-center bg-emerald-700 h-8 ml-3 pl-2.5 pr-2 rounded-md shadow text-gray-200 dark:border-gray-800 border border-gray-200 leading-none py-0 hover:bg-emerald-700 focus:outline-none focus:bg-emerald-800"
+      class="inline-flex items-center bg-emerald-700 h-8 ml-3 pl-2.5 pr-2 rounded-md shadow border-gray-800 border border-gray-200 leading-none py-0 hover:bg-emerald-700 focus:outline-none focus:bg-emerald-800"
     >
       Invite User
     </button>

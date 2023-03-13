@@ -1,8 +1,6 @@
 <template>
   <div class="flex justify-between">
-    <h3
-      class="mt-10 text-2xl justify-start font-medium text-zinc-800 dark:text-gray-200"
-    >
+    <h3 class="mt-10 text-2xl justify-start font-medium text-gray-200">
       Members
     </h3>
     <div class="mt-8 ml-2">

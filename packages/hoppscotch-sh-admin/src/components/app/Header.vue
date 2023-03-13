@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex items-center justify-between border-b border-gray-400 dark:border-gray-600 px-6 py-4 bg-neutral-50 dark:bg-neutral-900 shadow-lg"
+    class="flex items-center justify-between border-b border-gray-600 px-6 py-4 bg-neutral-900 shadow-lg"
   >
     <div class="flex items-center">
       <button
@@ -64,7 +64,7 @@
         >
           <div
             v-show="dropdownOpen"
-            class="absolute right-0 z-20 w-48 py-2 mt-2 bg-zinc-200 dark:bg-zinc-800 rounded-md shadow-xl"
+            class="absolute right-0 z-20 w-48 py-2 mt-2 bg-zinc-800 rounded-md shadow-xl"
           >
             <HoppSmartItem to="/profile" :icon="IconUser" :label="'Profile'" />
             <HoppSmartItem

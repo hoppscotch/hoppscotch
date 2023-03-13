@@ -9,6 +9,7 @@
     "preinstall": "npx only-allow pnpm",
     "prepare": "husky install",
     "dev": "pnpm -r do-dev",
+    "gen-gql": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' pnpm -r generate-gql-sdl",
     "generate": "pnpm -r do-build-prod",
     "start": "http-server packages/hoppscotch-web/dist -p 3000",
     "lint": "pnpm -r do-lint",
@@ -29,6 +30,7 @@
     "@commitlint/cli": "^16.2.3",
     "@commitlint/config-conventional": "^16.2.1",
     "@types/node": "^17.0.24",
+    "cross-env": "^7.0.3",
     "http-server": "^14.1.1"
   }
 }

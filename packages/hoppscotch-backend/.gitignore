@@ -38,3 +38,6 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# Generated artifacts (GQL Schema SDL generation etc.)
+gen/

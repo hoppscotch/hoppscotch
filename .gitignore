@@ -171,3 +171,6 @@ tests/*/videos
 
 # PNPM
 .pnpm-store
+
+# GQL SDL generated for the frontends
+gql-gen/

@@ -7,6 +7,7 @@ importers:
       '@commitlint/cli': ^16.2.3
       '@commitlint/config-conventional': ^16.2.1
       '@types/node': ^17.0.24
+      cross-env: ^7.0.3
       http-server: ^14.1.1
       husky: ^7.0.4
       lint-staged: ^12.3.8
@@ -17,6 +18,7 @@ importers:
       '@commitlint/cli': 16.3.0
       '@commitlint/config-conventional': 16.2.4
       '@types/node': 17.0.45
+      cross-env: 7.0.3
       http-server: 14.1.1
 
   packages/codemirror-lang-graphql:
@@ -77,6 +79,7 @@ importers:
       bcrypt: ^5.1.0
       cookie: ^0.5.0
       cookie-parser: ^1.4.6
+      cross-env: ^7.0.3
       eslint: ^8.29.0
       eslint-config-prettier: ^8.5.0
       eslint-plugin-prettier: ^4.2.1
@@ -166,6 +169,7 @@ importers:
       '@types/supertest': 2.0.12
       '@typescript-eslint/eslint-plugin': 5.45.0_yjegg5cyoezm3fzsmuszzhetym
       '@typescript-eslint/parser': 5.45.0_s5ps7njkmjlaqajutnox5ntcla
+      cross-env: 7.0.3
       eslint: 8.29.0
       eslint-config-prettier: 8.5.0_eslint@8.29.0
       eslint-plugin-prettier: 4.2.1_eabs6augosioka4cd2cz5tdama
@@ -9957,7 +9961,7 @@ packages:
     dev: false
 
   /concat-map/0.0.1:
-    resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+    resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
 
   /concat-stream/1.6.2:
     resolution: {integrity: sha512-27HBghJxjiZtIk3Ycvn/4kbJk/1uZuJFfuPEns6LaEvpvG1f0hTea8lilrouyo9mVc2GWdcEZ8OLoGmSADlrCw==}

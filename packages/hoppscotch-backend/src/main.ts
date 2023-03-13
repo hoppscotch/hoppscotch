@@ -3,6 +3,7 @@ import { json } from 'express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { VersioningType } from '@nestjs/common';
+import { emitGQLSchemaFile } from './gql-schema';
 
 async function bootstrap() {
   console.log(`Running in production: ${process.env.PRODUCTION}`);
@@ -38,4 +39,9 @@ async function bootstrap() {
   app.use(cookieParser());
   await app.listen(process.env.PORT || 3170);
 }
-bootstrap();
+
+if (!process.env.GENERATE_GQL_SCHEMA) {
+  bootstrap();
+} else {
+  emitGQLSchemaFile();
+}

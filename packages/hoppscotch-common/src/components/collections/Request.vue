@@ -4,7 +4,7 @@
       class="h-1"
       :class="[
         {
-          'bg-accentDark': ordering && !isCollectionDragging,
+          'bg-accentDark': isReorderable,
         },
       ]"
       @drop="dropEvent"
@@ -176,6 +176,11 @@ const props = defineProps({
     default: "",
     required: false,
   },
+  parentID: {
+    type: String as PropType<string | null>,
+    default: null,
+    required: true,
+  },
   collectionsType: {
     type: String as PropType<CollectionType>,
     default: "my-collections",
@@ -234,6 +239,7 @@ const ordering = ref(false)
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
   id: "",
+  parentID: "",
 })
 
 const requestMethodLabels = {
@@ -271,13 +277,22 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
     dragging.value = !dragging.value
     changeCurrentReorderStatus({
       type: "request",
-      id: props.requestID ?? "",
+      id: props.requestID,
+      parentID: props.parentID,
     })
   }
 }
 
 const isCollectionDragging = computed(() => {
   return currentReorderingStatus.value.type === "collection"
+})
+
+const isSameParent = computed(() => {
+  return currentReorderingStatus.value.parentID === props.parentID
+})
+
+const isReorderable = computed(() => {
+  return ordering.value && !isCollectionDragging.value && isSameParent.value
 })
 
 // Trigger the re-ordering event when a request is dragged over another request's top section

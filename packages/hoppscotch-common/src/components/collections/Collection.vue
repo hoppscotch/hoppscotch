@@ -4,7 +4,7 @@
       class="h-1 w-full transition"
       :class="[
         {
-          'bg-accentDark': ordering && notSameDestination && !isRequestDragging,
+          'bg-accentDark': isReorderable,
         },
       ]"
       @drop="orderUpdateCollectionEvent"
@@ -200,6 +200,11 @@ const props = defineProps({
     default: "",
     required: true,
   },
+  parentID: {
+    type: String as PropType<string | null>,
+    default: null,
+    required: true,
+  },
   data: {
     type: Object as PropType<HoppCollection<HoppRESTRequest> | TeamCollection>,
     default: () => ({}),
@@ -274,6 +279,7 @@ const dropItemID = ref("")
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
   id: "",
+  parentID: "",
 })
 
 // Used to determine if the collection is being dragged to a different destination
@@ -315,6 +321,19 @@ const isRequestDragging = computed(() => {
   return currentReorderingStatus.value.type === "request"
 })
 
+const isSameParent = computed(() => {
+  return currentReorderingStatus.value.parentID === props.parentID
+})
+
+const isReorderable = computed(() => {
+  return (
+    ordering.value &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  )
+})
+
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-event", dataTransfer)
@@ -323,6 +342,7 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
     changeCurrentReorderStatus({
       type: "collection",
       id: props.id,
+      parentID: props.parentID,
     })
   }
 }

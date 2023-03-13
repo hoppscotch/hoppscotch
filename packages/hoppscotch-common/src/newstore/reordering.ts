@@ -2,8 +2,8 @@ import { distinctUntilChanged, pluck } from "rxjs"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 
 type ReorderingItem =
-  | { type: "collection"; id: string }
-  | { type: "request"; id: string }
+  | { type: "collection"; id: string; parentID: string | null }
+  | { type: "request"; id: string; parentID: string | null }
 
 type CurrentReorderingState = {
   currentReorderingItem: ReorderingItem
@@ -13,6 +13,7 @@ const initialState: CurrentReorderingState = {
   currentReorderingItem: {
     type: "collection",
     id: "",
+    parentID: "",
   },
 }
 

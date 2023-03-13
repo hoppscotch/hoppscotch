@@ -53,6 +53,7 @@
           <CollectionsCollection
             v-if="node.data.type === 'collections'"
             :id="node.data.data.data.id"
+            :parent-i-d="node.data.data.parentIndex"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -114,6 +115,7 @@
           <CollectionsCollection
             v-if="node.data.type === 'folders'"
             :id="node.data.data.data.id"
+            :parent-i-d="node.data.data.parentIndex"
             :data="node.data.data.data"
             :collections-type="collectionsType.type"
             :is-open="isOpen"
@@ -178,6 +180,7 @@
             v-if="node.data.type === 'requests'"
             :request="node.data.data.data.request"
             :request-i-d="node.data.data.data.id"
+            :parent-i-d="node.data.data.parentIndex"
             :collections-type="collectionsType.type"
             :duplicate-loading="duplicateLoading"
             :is-active="isActiveRequest(node.data.data.data.id)"

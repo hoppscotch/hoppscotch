@@ -3,6 +3,7 @@ import { json } from 'express';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
 import { VersioningType } from '@nestjs/common';
+import * as session from 'express-session';
 import { emitGQLSchemaFile } from './gql-schema';
 
 async function bootstrap() {
@@ -11,6 +12,12 @@ async function bootstrap() {
   console.log(`Database: ${process.env.DATABASE_URL}`);
 
   const app = await NestFactory.create(AppModule);
+
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+    }),
+  );
 
   // Increase fil upload limit to 50MB
   app.use(

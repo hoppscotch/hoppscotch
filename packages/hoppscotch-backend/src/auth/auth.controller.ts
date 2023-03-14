@@ -20,7 +20,9 @@ import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { authCookieHandler, throwHTTPErr } from './helper';
-
+import { GoogleSSOGuard } from './guards/google-sso.guard';
+import { GithubSSOGuard } from './guards/github-sso.guard';
+import { MicrosoftSSOGuard } from './guards/microsoft-sso-.guard';
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -44,7 +46,7 @@ export class AuthController {
   async verify(@Body() data: VerifyMagicDto, @Res() res: Response) {
     const authTokens = await this.authService.verifyMagicLinkTokens(data);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
-    authCookieHandler(res, authTokens.right, false);
+    authCookieHandler(res, authTokens.right, false, null);
   }
 
   /**
@@ -63,14 +65,14 @@ export class AuthController {
       user,
     );
     if (E.isLeft(newTokenPair)) throwHTTPErr(newTokenPair.left);
-    authCookieHandler(res, newTokenPair.right, false);
+    authCookieHandler(res, newTokenPair.right, false, null);
   }
 
   /**
    ** Route to initiate SSO auth via Google
    */
   @Get('google')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleSSOGuard)
   async googleAuth(@Request() req) {}
 
   /**
@@ -78,18 +80,23 @@ export class AuthController {
    * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
    */
   @Get('google/callback')
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleSSOGuard)
   async googleAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
-    authCookieHandler(res, authTokens.right, true);
+    authCookieHandler(
+      res,
+      authTokens.right,
+      true,
+      req.authInfo.state.redirect_uri,
+    );
   }
 
   /**
    ** Route to initiate SSO auth via Github
    */
   @Get('github')
-  @UseGuards(AuthGuard('github'))
+  @UseGuards(GithubSSOGuard)
   async githubAuth(@Request() req) {}
 
   /**
@@ -97,18 +104,23 @@ export class AuthController {
    * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
    */
   @Get('github/callback')
-  @UseGuards(AuthGuard('github'))
+  @UseGuards(GithubSSOGuard)
   async githubAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
-    authCookieHandler(res, authTokens.right, true);
+    authCookieHandler(
+      res,
+      authTokens.right,
+      true,
+      req.authInfo.state.redirect_uri,
+    );
   }
 
   /**
    ** Route to initiate SSO auth via Microsoft
    */
   @Get('microsoft')
-  @UseGuards(AuthGuard('microsoft'))
+  @UseGuards(MicrosoftSSOGuard)
   async microsoftAuth(@Request() req) {}
 
   /**
@@ -116,11 +128,16 @@ export class AuthController {
    * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
    */
   @Get('microsoft/callback')
-  @UseGuards(AuthGuard('microsoft'))
+  @UseGuards(MicrosoftSSOGuard)
   async microsoftAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
-    authCookieHandler(res, authTokens.right, true);
+    authCookieHandler(
+      res,
+      authTokens.right,
+      true,
+      req.authInfo.state.redirect_uri,
+    );
   }
 
   /**

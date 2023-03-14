@@ -18,6 +18,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
       scope: process.env.GOOGLE_SCOPE.split(','),
       passReqToCallback: true,
+      store: true,
     });
   }
 

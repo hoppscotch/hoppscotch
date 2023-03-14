@@ -30,6 +30,7 @@ export const authCookieHandler = (
   res: Response,
   authTokens: AuthTokens,
   redirect: boolean,
+  redirectUrl: string | null,
 ) => {
   const currentTime = DateTime.now();
   const accessTokenValidity = currentTime
@@ -55,9 +56,18 @@ export const authCookieHandler = (
     sameSite: 'lax',
     maxAge: refreshTokenValidity,
   });
-  if (redirect) {
-    res.status(HttpStatus.OK).redirect(process.env.REDIRECT_URL);
-  } else res.status(HttpStatus.OK).send();
+
+  if (!redirect) {
+    res.status(HttpStatus.OK).send();
+  }
+
+  // check to see if redirectUrl is a whitelisted url
+  const whitelistedOrigins = process.env.WHITELISTED_ORIGINS.split(',');
+  if (!whitelistedOrigins.includes(redirectUrl))
+    // if it is not redirect by default to REDIRECT_URL
+    redirectUrl = process.env.REDIRECT_URL;
+
+  res.status(HttpStatus.OK).redirect(redirectUrl);
 };
 
 /**

@@ -38,6 +38,7 @@
     "cookie": "^0.5.0",
     "cookie-parser": "^1.4.6",
     "express": "^4.17.1",
+    "express-session": "^1.17.3",
     "fp-ts": "^2.13.1",
     "graphql": "^15.5.0",
     "graphql-query-complexity": "^0.12.0",

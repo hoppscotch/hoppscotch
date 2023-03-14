@@ -14,7 +14,7 @@ import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
-import { UserRequest } from '../user-request.model';
+import { UserRequest, UserRequestReorderData } from '../user-request.model';
 import { UserRequestService } from '../user-request.service';
 import {
   GetUserRequestArgs,
@@ -255,7 +255,7 @@ export class UserRequestResolver {
     return this.pubSub.asyncIterator(`user_request/${user.uid}/deleted`);
   }
 
-  @Subscription(() => UserRequest, {
+  @Subscription(() => UserRequestReorderData, {
     description: 'Listen for User Request Moved',
     resolve: (value) => value,
   })

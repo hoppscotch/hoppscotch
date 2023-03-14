@@ -1,4 +1,5 @@
 import { Field, ID, ArgsType } from '@nestjs/graphql';
+import { ReqType } from '@prisma/client';
 import { PaginationArgs } from 'src/types/input-types.args';
 
 @ArgsType()
@@ -72,4 +73,25 @@ export class MoveUserCollectionArgs {
     description: 'ID of the collection',
   })
   userCollectionID: string;
+}
+
+@ArgsType()
+export class ImportUserCollectionsFromJSONArgs {
+  @Field({
+    name: 'jsonString',
+    description: 'JSON string to import',
+  })
+  jsonString: string;
+  @Field({
+    name: 'reqType',
+    description: 'Type of UserCollection',
+  })
+  reqType: ReqType;
+  @Field(() => ID, {
+    name: 'parentCollectionID',
+    description:
+      'ID to the collection to which to import into (null if to import into the root of the user)',
+    nullable: true,
+  })
+  parentCollectionID?: string;
 }

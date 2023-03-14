@@ -24,6 +24,7 @@ import { PaginationArgs } from 'src/types/input-types.args';
 import {
   CreateChildUserCollectionArgs,
   CreateRootUserCollectionArgs,
+  ImportUserCollectionsFromJSONArgs,
   MoveUserCollectionArgs,
   RenameUserCollectionsArgs,
   UpdateUserCollectionArgs,
@@ -137,6 +138,32 @@ export class UserCollectionResolver {
 
     if (E.isLeft(userCollection)) throwErr(userCollection.left);
     return userCollection.right;
+  }
+
+  @Query(() => String, {
+    description:
+      'Returns the JSON string giving the collections and their contents of a user',
+  })
+  @UseGuards(GqlAuthGuard)
+  async exportUserCollectionsToJSON(
+    @GqlUser() user: AuthUser,
+    @Args({
+      type: () => ID,
+      name: 'collectionID',
+      description: 'ID of the user collection',
+      nullable: true,
+      defaultValue: null,
+    })
+    collectionID: string,
+  ) {
+    const jsonString =
+      await this.userCollectionService.exportUserCollectionsToJSON(
+        user.uid,
+        collectionID,
+      );
+
+    if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
+    return jsonString.right;
   }
 
   // Mutations
@@ -298,6 +325,25 @@ export class UserCollectionResolver {
       throwErr(res.left);
     }
     return res.right;
+  }
+
+  @Mutation(() => Boolean, {
+    description: 'Import collections from JSON string to the specified Team',
+  })
+  @UseGuards(GqlAuthGuard)
+  async importUserCollectionsFromJSON(
+    @Args() args: ImportUserCollectionsFromJSONArgs,
+    @GqlUser() user: AuthUser,
+  ) {
+    const importedCollection =
+      await this.userCollectionService.importCollectionsFromJSON(
+        args.jsonString,
+        user.uid,
+        args.parentCollectionID,
+        args.reqType,
+      );
+    if (E.isLeft(importedCollection)) throwErr(importedCollection.left);
+    return importedCollection.right;
   }
 
   // Subscriptions

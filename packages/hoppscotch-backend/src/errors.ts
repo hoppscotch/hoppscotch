@@ -223,8 +223,7 @@ export const TEAM_REQ_INVALID_TARGET_COLL_ID =
  * Tried to reorder team request but failed
  * (TeamRequestService)
  */
-export const TEAM_REQ_REORDERING_FAILED =
-  'team_req/reordering_failed' as const;
+export const TEAM_REQ_REORDERING_FAILED = 'team_req/reordering_failed' as const;
 
 /**
  * No Postmark Sender Email defined
@@ -487,7 +486,7 @@ export const USER_COLL_NOT_FOUND = 'user_coll/not_found' as const;
  * UserCollection is already a root collection
  * (UserCollectionService)
  */
-export const USER_COL_ALREADY_ROOT =
+export const USER_COLL_ALREADY_ROOT =
   'user_coll/target_user_collection_is_already_root_user_collection' as const;
 
 /**
@@ -535,3 +534,9 @@ export const USER_COLL_SAME_NEXT_COLL =
  * (UserCollectionService)
  */
 export const USER_NOT_OWNER = 'user_coll/user_not_owner' as const;
+
+/**
+ * The JSON used is not valid
+ * (UserCollectionService)
+ */
+export const USER_COLL_INVALID_JSON = 'user_coll/invalid_json';

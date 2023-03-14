@@ -8,19 +8,26 @@ import {
   USER_COLL_REORDERING_FAILED,
   USER_COLL_SAME_NEXT_COLL,
   USER_COLL_SHORT_TITLE,
-  USER_COL_ALREADY_ROOT,
+  USER_COLL_ALREADY_ROOT,
   USER_NOT_FOUND,
   USER_NOT_OWNER,
+  USER_COLL_INVALID_JSON,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthUser } from 'src/types/AuthUser';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import { Prisma, User, UserCollection } from '@prisma/client';
+import {
+  Prisma,
+  User,
+  UserCollection,
+  ReqType as DBReqType,
+} from '@prisma/client';
 import { UserCollection as UserCollectionModel } from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
-import { isValidLength } from 'src/utils';
+import { isValidLength, stringToJson } from 'src/utils';
+import { CollectionFolder } from 'src/types/CollectionFolder';
 @Injectable()
 export class UserCollectionService {
   constructor(
@@ -209,10 +216,20 @@ export class UserCollectionService {
     const isTitleValid = isValidLength(title, 3);
     if (!isTitleValid) return E.left(USER_COLL_SHORT_TITLE);
 
-    // Check to see if parentUserCollectionID belongs to this User
+    // If creating a child collection
     if (parentUserCollectionID !== null) {
-      const isOwner = await this.isOwnerCheck(parentUserCollectionID, user.uid);
-      if (O.isNone(isOwner)) return E.left(USER_NOT_OWNER);
+      const parentCollection = await this.getUserCollection(
+        parentUserCollectionID,
+      );
+      if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
+
+      // Check to see if parentUserCollectionID belongs to this User
+      if (parentCollection.right.userUid !== user.uid)
+        return E.left(USER_NOT_OWNER);
+
+      // Check to see if parent collection is of the same type of new collection being created
+      if (parentCollection.right.type !== type)
+        return E.left(USER_COLL_NOT_SAME_TYPE);
     }
 
     const isParent = parentUserCollectionID
@@ -555,7 +572,7 @@ export class UserCollectionService {
       if (!collection.right.parentID) {
         // collection is a root collection
         // Throw error if collection is already a root collection
-        return E.left(USER_COL_ALREADY_ROOT);
+        return E.left(USER_COLL_ALREADY_ROOT);
       }
       // Move child collection into root and update orderIndexes for root userCollections
       await this.updateOrderIndex(
@@ -763,5 +780,254 @@ export class UserCollectionService {
     } catch (error) {
       return E.left(USER_COLL_REORDERING_FAILED);
     }
+  }
+
+  /**
+   * Generate a JSON containing all the contents of a collection
+   *
+   * @param userUID The User UID
+   * @param collectionID The Collection ID
+   * @returns A JSON string containing all the contents of a collection
+   */
+  private async exportUserCollectionToJSONObject(
+    userUID: string,
+    collectionID: string,
+  ): Promise<E.Left<string> | E.Right<CollectionFolder>> {
+    // Get Collection details
+    const collection = await this.getUserCollection(collectionID);
+    if (E.isLeft(collection)) return E.left(collection.left);
+
+    // Get all child collections whose parentID === collectionID
+    const childCollectionList = await this.prisma.userCollection.findMany({
+      where: {
+        parentID: collectionID,
+        userUid: userUID,
+      },
+      orderBy: {
+        orderIndex: 'asc',
+      },
+    });
+
+    // Create a list of child collection and request data ready for export
+    const childrenCollectionObjects: CollectionFolder[] = [];
+    for (const coll of childCollectionList) {
+      const result = await this.exportUserCollectionToJSONObject(
+        userUID,
+        coll.id,
+      );
+      if (E.isLeft(result)) return E.left(result.left);
+
+      childrenCollectionObjects.push(result.right);
+    }
+
+    // Fetch all child requests that belong to collectionID
+    const requests = await this.prisma.userRequest.findMany({
+      where: {
+        userUid: userUID,
+        collectionID,
+      },
+      orderBy: {
+        orderIndex: 'asc',
+      },
+    });
+
+    const result: CollectionFolder = {
+      id: collection.right.id,
+      name: collection.right.title,
+      folders: childrenCollectionObjects,
+      requests: requests.map((x) => {
+        return {
+          id: x.id,
+          name: x.title,
+          ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
+        };
+      }),
+    };
+
+    return E.right(result);
+  }
+
+  /**
+   * Generate a JSON containing all the contents of collections and requests of a team
+   *
+   * @param userUID The User UID
+   * @returns A JSON string containing all the contents of collections and requests of a team
+   */
+  async exportUserCollectionsToJSON(
+    userUID: string,
+    collectionID: string | null,
+  ) {
+    // Get all child collections details
+    const childCollectionList = await this.prisma.userCollection.findMany({
+      where: {
+        userUid: userUID,
+        parentID: collectionID,
+      },
+    });
+
+    // Create a list of child collection and request data ready for export
+    const collectionListObjects: CollectionFolder[] = [];
+    for (const coll of childCollectionList) {
+      const result = await this.exportUserCollectionToJSONObject(
+        userUID,
+        coll.id,
+      );
+      if (E.isLeft(result)) return E.left(result.left);
+
+      collectionListObjects.push(result.right);
+    }
+
+    // If collectionID is not null, return JSONified data for specific collection
+    if (collectionID) {
+      // Get Details of collection
+      const parentCollection = await this.getUserCollection(collectionID);
+      if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
+
+      // Fetch all child requests that belong to collectionID
+      const requests = await this.prisma.userRequest.findMany({
+        where: {
+          userUid: userUID,
+          collectionID: parentCollection.right.id,
+        },
+        orderBy: {
+          orderIndex: 'asc',
+        },
+      });
+
+      return E.right(
+        JSON.stringify({
+          id: parentCollection.right.id,
+          name: parentCollection.right.title,
+          folders: collectionListObjects,
+          requests: requests.map((x) => {
+            return {
+              id: x.id,
+              name: x.title,
+              ...(x.request as Record<string, unknown>), // type casting x.request of type Prisma.JSONValue to an object to enable spread
+            };
+          }),
+        }),
+      );
+    }
+
+    return E.right(JSON.stringify(collectionListObjects));
+  }
+
+  /**
+   * Generate a Prisma query object representation of a collection and its child collections and requests
+   *
+   * @param folder CollectionFolder from client
+   * @param userID The User ID
+   * @param orderIndex Initial OrderIndex of
+   * @param reqType The Type of Collection
+   * @returns A Prisma query object to create a collection, its child collections and requests
+   */
+  private generatePrismaQueryObj(
+    folder: CollectionFolder,
+    userID: string,
+    orderIndex: number,
+    reqType: DBReqType,
+  ): Prisma.UserCollectionCreateInput {
+    return {
+      title: folder.name,
+      user: {
+        connect: {
+          uid: userID,
+        },
+      },
+      requests: {
+        create: folder.requests.map((r, index) => ({
+          title: r.name,
+          user: {
+            connect: {
+              uid: userID,
+            },
+          },
+          type: reqType,
+          request: r,
+          orderIndex: index + 1,
+        })),
+      },
+      orderIndex: orderIndex,
+      type: reqType,
+      children: {
+        create: folder.folders.map((f, index) =>
+          this.generatePrismaQueryObj(f, userID, index + 1, reqType),
+        ),
+      },
+    };
+  }
+
+  /**
+   * Create new UserCollections and UserRequests from JSON string
+   *
+   * @param jsonString The JSON string of the content
+   * @param userID The User ID
+   * @param destCollectionID The Collection ID
+   * @param reqType The Type of Collection
+   * @returns An Either of a Boolean if the creation operation was successful
+   */
+  async importCollectionsFromJSON(
+    jsonString: string,
+    userID: string,
+    destCollectionID: string | null,
+    reqType: DBReqType,
+  ) {
+    // Check to see if jsonString is valid
+    const collectionsList = stringToJson<CollectionFolder[]>(jsonString);
+    if (E.isLeft(collectionsList)) return E.left(USER_COLL_INVALID_JSON);
+
+    // Check to see if parsed jsonString is an array
+    if (!Array.isArray(collectionsList.right))
+      return E.left(USER_COLL_INVALID_JSON);
+
+    // Check to see if destCollectionID belongs to this User
+    if (destCollectionID) {
+      const parentCollection = await this.getUserCollection(destCollectionID);
+      if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
+
+      // Check to see if parentUserCollectionID belongs to this User
+      if (parentCollection.right.userUid !== userID)
+        return E.left(USER_NOT_OWNER);
+
+      // Check to see if parent collection is of the same type of new collection being created
+      if (parentCollection.right.type !== reqType)
+        return E.left(USER_COLL_NOT_SAME_TYPE);
+    }
+
+    // Get number of root or child collections for destCollectionID(if destcollectionID != null) or destTeamID(if destcollectionID == null)
+    const count = !destCollectionID
+      ? await this.getRootCollectionsCount(userID)
+      : await this.getChildCollectionsCount(destCollectionID);
+
+    // Generate Prisma Query Object for all child collections in collectionsList
+    const queryList = collectionsList.right.map((x) =>
+      this.generatePrismaQueryObj(x, userID, count + 1, reqType),
+    );
+
+    const parent = destCollectionID
+      ? {
+          connect: {
+            id: destCollectionID,
+          },
+        }
+      : undefined;
+
+    const userCollections = await this.prisma.$transaction(
+      queryList.map((x) =>
+        this.prisma.userCollection.create({
+          data: {
+            ...x,
+            parent,
+          },
+        }),
+      ),
+    );
+
+    userCollections.forEach((x) =>
+      this.pubsub.publish(`user_coll/${userID}/created`, x),
+    );
+
+    return E.right(true);
   }
 }

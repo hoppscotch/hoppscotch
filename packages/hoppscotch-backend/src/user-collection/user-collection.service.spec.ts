@@ -9,7 +9,7 @@ import {
   USER_COLL_REORDERING_FAILED,
   USER_COLL_SAME_NEXT_COLL,
   USER_COLL_SHORT_TITLE,
-  USER_COL_ALREADY_ROOT,
+  USER_COLL_ALREADY_ROOT,
   USER_NOT_OWNER,
 } from 'src/errors';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -997,7 +997,7 @@ describe('moveUserCollection', () => {
       null,
       user.uid,
     );
-    expect(result).toEqualLeft(USER_COL_ALREADY_ROOT);
+    expect(result).toEqualLeft(USER_COLL_ALREADY_ROOT);
   });
   test('should successfully move a child user-collection into root', async () => {
     // getUserCollection

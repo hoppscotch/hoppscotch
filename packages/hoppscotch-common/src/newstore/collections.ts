@@ -45,6 +45,15 @@ function navigateToFolderWithIndexPath(
   return target !== undefined ? target : null
 }
 
+function reorderItems(array: unknown[], from: number, to: number) {
+  const item = array.splice(from, 1)[0]
+  if (from < to) {
+    array.splice(to - 1, 0, item)
+  } else {
+    array.splice(to, 0, item)
+  }
+}
+
 const restCollectionDispatchers = defineDispatchers({
   setCollections(
     _: RESTCollectionStoreType,
@@ -295,18 +304,14 @@ const restCollectionDispatchers = defineDispatchers({
     )
 
     if (containingFolder === null) {
-      const [removed] = newState.splice(folderIndex, 1)
-
-      newState.splice(destinationFolderIndex, 0, removed)
+      reorderItems(newState, folderIndex, destinationFolderIndex)
 
       return {
         state: newState,
       }
     }
 
-    const [removed] = containingFolder.folders.splice(folderIndex, 1)
-
-    containingFolder.folders.splice(destinationFolderIndex, 0, removed)
+    reorderItems(containingFolder.folders, folderIndex, destinationFolderIndex)
 
     return {
       state: newState,
@@ -480,9 +485,7 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    const [removed] = targetLocation.requests.splice(requestIndex, 1)
-
-    targetLocation.requests.splice(destinationRequestIndex, 0, removed)
+    reorderItems(targetLocation.requests, requestIndex, destinationRequestIndex)
 
     return {
       state: newState,

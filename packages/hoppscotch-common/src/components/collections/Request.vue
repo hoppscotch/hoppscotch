@@ -4,61 +4,65 @@
       class="h-1"
       :class="[
         {
-          'bg-accentDark': ordering,
+          'bg-accentDark': isReorderable,
         },
       ]"
       @drop="dropEvent"
       @dragover.prevent="ordering = true"
-      @dragleave="ordering = false"
-      @dragend="ordering = false"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
     ></div>
     <div
       class="flex items-stretch group"
       :draggable="!hasNoTeamAccess"
+      @drop="dropEvent"
       @dragstart="dragStart"
-      @dragover.prevent="dragging = true"
-      @dragleave="dragging = false"
-      @dragend="dragging = false"
+      @dragover="handleDragOver($event)"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
       @contextmenu.prevent="options?.tippy.show()"
     >
-      <span
-        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
-        :class="requestLabelColor"
+      <div
+        class="flex items-center justify-center flex-1 min-w-0 cursor-pointer pointer-events-auto"
         @click="selectRequest()"
       >
-        <component
-          :is="IconCheckCircle"
-          v-if="isSelected"
-          class="svg-icons"
-          :class="{ 'text-accent': isSelected }"
-        />
-        <HoppSmartSpinner v-else-if="isRequestLoading" />
-        <span v-else class="font-semibold truncate text-tiny">
-          {{ request.method }}
-        </span>
-      </span>
-      <span
-        class="flex items-center flex-1 min-w-0 py-2 pr-2 cursor-pointer transition group-hover:text-secondaryDark"
-        @click="selectRequest()"
-      >
-        <span class="truncate" :class="{ 'text-accent': isSelected }">
-          {{ request.name }}
+        <span
+          class="flex items-center justify-center w-16 px-2 truncate pointer-events-none"
+          :class="requestLabelColor"
+        >
+          <component
+            :is="IconCheckCircle"
+            v-if="isSelected"
+            class="svg-icons"
+            :class="{ 'text-accent': isSelected }"
+          />
+          <HoppSmartSpinner v-else-if="isRequestLoading" />
+          <span v-else class="font-semibold truncate text-tiny">
+            {{ request.method }}
+          </span>
         </span>
         <span
-          v-if="isActive"
-          v-tippy="{ theme: 'tooltip' }"
-          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
-          :title="`${t('collection.request_in_use')}`"
+          class="flex items-center flex-1 min-w-0 py-2 pr-2 pointer-events-none transition group-hover:text-secondaryDark"
         >
-          <span
-            class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
-          >
+          <span class="truncate" :class="{ 'text-accent': isSelected }">
+            {{ request.name }}
           </span>
           <span
-            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
-          ></span>
+            v-if="isActive"
+            v-tippy="{ theme: 'tooltip' }"
+            class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
+            :title="`${t('collection.request_in_use')}`"
+          >
+            <span
+              class="absolute inline-flex flex-shrink-0 w-full h-full bg-green-500 rounded-full opacity-75 animate-ping"
+            >
+            </span>
+            <span
+              class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+            ></span>
+          </span>
         </span>
-      </span>
+      </div>
       <div v-if="!hasNoTeamAccess" class="flex">
         <HoppButtonSecondary
           v-if="!saveRequest"
@@ -151,6 +155,11 @@ import { TippyComponent } from "vue-tippy"
 import { pipe } from "fp-ts/function"
 import * as RR from "fp-ts/ReadonlyRecord"
 import * as O from "fp-ts/Option"
+import {
+  changeCurrentReorderStatus,
+  currentReorderingStatus$,
+} from "~/newstore/reordering"
+import { useReadonlyStream } from "~/composables/stream"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -166,6 +175,11 @@ const props = defineProps({
     type: String,
     default: "",
     required: false,
+  },
+  parentID: {
+    type: String as PropType<string | null>,
+    default: null,
+    required: true,
   },
   collectionsType: {
     type: String as PropType<CollectionType>,
@@ -222,6 +236,12 @@ const duplicate = ref<HTMLButtonElement | null>(null)
 const dragging = ref(false)
 const ordering = ref(false)
 
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
+
 const requestMethodLabels = {
   get: "text-green-500",
   post: "text-yellow-500",
@@ -255,13 +275,41 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-request", dataTransfer)
     dragging.value = !dragging.value
+    changeCurrentReorderStatus({
+      type: "request",
+      id: props.requestID,
+      parentID: props.parentID,
+    })
+  }
+}
+
+const isCollectionDragging = computed(() => {
+  return currentReorderingStatus.value.type === "collection"
+})
+
+const isSameParent = computed(() => {
+  return currentReorderingStatus.value.parentID === props.parentID
+})
+
+const isReorderable = computed(() => {
+  return ordering.value && !isCollectionDragging.value && isSameParent.value
+})
+
+// Trigger the re-ordering event when a request is dragged over another request's top section
+const handleDragOver = (e: DragEvent) => {
+  dragging.value = true
+  if (e.offsetY < 10) {
+    ordering.value = true
+    dragging.value = false
+  } else {
+    ordering.value = false
   }
 }
 
 const dropEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
-    ordering.value = !ordering.value
+    resetDragState()
     emit("update-request-order", e.dataTransfer)
   }
 }
@@ -273,4 +321,9 @@ const isRequestLoading = computed(() => {
     return false
   }
 })
+
+const resetDragState = () => {
+  dragging.value = false
+  ordering.value = false
+}
 </script>

@@ -547,6 +547,15 @@ export default class NewTeamCollectionAdapter {
     )
   }
 
+  private reorderItems = (array: unknown[], from: number, to: number) => {
+    const item = array.splice(from, 1)[0]
+    if (from < to) {
+      array.splice(to - 1, 0, item)
+    } else {
+      array.splice(to, 0, item)
+    }
+  }
+
   public updateRequestOrder(
     dragedRequestID: string,
     destinationRequestID: string,
@@ -570,10 +579,7 @@ export default class NewTeamCollectionAdapter {
 
     if (requestIndex === -1) return
 
-    const request = collection.requests[requestIndex]
-
-    collection.requests.splice(requestIndex, 1)
-    collection.requests.splice(destinationIndex, 0, request)
+    this.reorderItems(collection.requests, requestIndex, destinationIndex)
 
     this.collections$.next(tree)
   }
@@ -600,10 +606,7 @@ export default class NewTeamCollectionAdapter {
       // If the collection index is not found, don't update
       if (collectionIndex === -1) return
 
-      const collection = coll.children[collectionIndex]
-
-      coll.children.splice(collectionIndex, 1)
-      coll.children.splice(destinationIndex, 0, collection)
+      this.reorderItems(coll.children, collectionIndex, destinationIndex)
     } else {
       // If the collection has no parent collection, it is a root collection
       const collectionIndex = tree.findIndex((coll) => coll.id === collectionID)
@@ -615,10 +618,7 @@ export default class NewTeamCollectionAdapter {
       // If the collection index is not found, don't update
       if (collectionIndex === -1) return
 
-      const collection = tree[collectionIndex]
-
-      tree.splice(collectionIndex, 1)
-      tree.splice(destinationIndex, 0, collection)
+      this.reorderItems(tree, collectionIndex, destinationIndex)
     }
 
     this.collections$.next(tree)

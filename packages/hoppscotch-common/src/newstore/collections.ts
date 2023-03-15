@@ -31,7 +31,7 @@ const defaultGraphqlCollectionState = {
 type RESTCollectionStoreType = typeof defaultRESTCollectionState
 type GraphqlCollectionStoreType = typeof defaultGraphqlCollectionState
 
-function navigateToFolderWithIndexPath(
+export function navigateToFolderWithIndexPath(
   collections: HoppCollection<HoppRESTRequest | HoppGQLRequest>[],
   indexPaths: number[]
 ) {
@@ -43,6 +43,15 @@ function navigateToFolderWithIndexPath(
     target = target.folders[indexPaths.shift() as number]
 
   return target !== undefined ? target : null
+}
+
+function reorderItems(array: unknown[], from: number, to: number) {
+  const item = array.splice(from, 1)[0]
+  if (from < to) {
+    array.splice(to - 1, 0, item)
+  } else {
+    array.splice(to, 0, item)
+  }
 }
 
 const restCollectionDispatchers = defineDispatchers({
@@ -88,12 +97,15 @@ const restCollectionDispatchers = defineDispatchers({
     { state }: RESTCollectionStoreType,
     {
       collectionIndex,
-      collection,
-    }: { collectionIndex: number; collection: HoppCollection<any> }
+      partialCollection,
+    }: {
+      collectionIndex: number
+      partialCollection: Partial<HoppCollection<any>>
+    }
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? collection : col
+        index === collectionIndex ? { ...col, ...partialCollection } : col
       ),
     }
   },
@@ -295,18 +307,14 @@ const restCollectionDispatchers = defineDispatchers({
     )
 
     if (containingFolder === null) {
-      const [removed] = newState.splice(folderIndex, 1)
-
-      newState.splice(destinationFolderIndex, 0, removed)
+      reorderItems(newState, folderIndex, destinationFolderIndex)
 
       return {
         state: newState,
       }
     }
 
-    const [removed] = containingFolder.folders.splice(folderIndex, 1)
-
-    containingFolder.folders.splice(destinationFolderIndex, 0, removed)
+    reorderItems(containingFolder.folders, folderIndex, destinationFolderIndex)
 
     return {
       state: newState,
@@ -480,9 +488,7 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    const [removed] = targetLocation.requests.splice(requestIndex, 1)
-
-    targetLocation.requests.splice(destinationRequestIndex, 0, removed)
+    reorderItems(targetLocation.requests, requestIndex, destinationRequestIndex)
 
     return {
       state: newState,
@@ -821,13 +827,13 @@ export function getRESTCollection(collectionIndex: number) {
 
 export function editRESTCollection(
   collectionIndex: number,
-  collection: HoppCollection<HoppRESTRequest>
+  partialCollection: Partial<HoppCollection<HoppRESTRequest>>
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editCollection",
     payload: {
       collectionIndex,
-      collection,
+      partialCollection: partialCollection,
     },
   })
 }

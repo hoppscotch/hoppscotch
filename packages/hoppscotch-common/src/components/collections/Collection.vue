@@ -4,7 +4,7 @@
       class="h-1 w-full transition"
       :class="[
         {
-          'bg-accentDark': ordering && notSameDestination,
+          'bg-accentDark': isReorderable,
         },
       ]"
       @drop="orderUpdateCollectionEvent"
@@ -20,35 +20,43 @@
         }"
       ></div>
       <div
-        class="flex items-stretch group relative z-3"
+        class="flex items-stretch group relative z-3 cursor-pointer pointer-events-auto"
         :draggable="!hasNoTeamAccess"
         @dragstart="dragStart"
-        @drop="dropEvent"
-        @dragover="dragging = true"
-        @dragleave="dragging = false"
-        @dragend="resetDragState"
+        @drop="handelDrop($event)"
+        @dragover="handleDragOver($event)"
+        @dragleave="resetDragState"
+        @dragend="
+          () => {
+            resetDragState()
+            dropItemID = ''
+          }
+        "
         @contextmenu.prevent="options?.tippy.show()"
       >
-        <span
-          class="flex items-center justify-center px-4 cursor-pointer"
+        <div
+          class="flex items-center justify-center flex-1 min-w-0"
           @click="emit('toggle-children')"
         >
-          <HoppSmartSpinner v-if="isCollLoading" />
-          <component
-            :is="collectionIcon"
-            v-else
-            class="svg-icons"
-            :class="{ 'text-accent': isSelected }"
-          />
-        </span>
-        <span
-          class="flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer group-hover:text-secondaryDark"
-          @click="emit('toggle-children')"
-        >
-          <span class="truncate" :class="{ 'text-accent': isSelected }">
-            {{ collectionName }}
+          <span
+            class="flex items-center justify-center px-4 pointer-events-none"
+          >
+            <HoppSmartSpinner v-if="isCollLoading" />
+            <component
+              :is="collectionIcon"
+              v-else
+              class="svg-icons"
+              :class="{ 'text-accent': isSelected }"
+            />
           </span>
-        </span>
+          <span
+            class="flex flex-1 min-w-0 py-2 pr-2 transition pointer-events-none group-hover:text-secondaryDark"
+          >
+            <span class="truncate" :class="{ 'text-accent': isSelected }">
+              {{ collectionName }}
+            </span>
+          </span>
+        </div>
         <div v-if="!hasNoTeamAccess" class="flex">
           <HoppButtonSecondary
             v-tippy="{ theme: 'tooltip' }"
@@ -175,6 +183,11 @@ import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
 import { TeamCollection } from "~/helpers/teams/TeamCollection"
+import {
+  changeCurrentReorderStatus,
+  currentReorderingStatus$,
+} from "~/newstore/reordering"
+import { useReadonlyStream } from "~/composables/stream"
 
 type CollectionType = "my-collections" | "team-collections"
 type FolderType = "collection" | "folder"
@@ -185,6 +198,11 @@ const props = defineProps({
   id: {
     type: String,
     default: "",
+    required: true,
+  },
+  parentID: {
+    type: String as PropType<string | null>,
+    default: null,
     required: true,
   },
   data: {
@@ -258,6 +276,12 @@ const dragging = ref(false)
 const ordering = ref(false)
 const dropItemID = ref("")
 
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
+
 // Used to determine if the collection is being dragged to a different destination
 // This is used to make the highlight effect work
 watch(
@@ -293,11 +317,52 @@ watch(
   }
 )
 
+const isRequestDragging = computed(() => {
+  return currentReorderingStatus.value.type === "request"
+})
+
+const isSameParent = computed(() => {
+  return currentReorderingStatus.value.parentID === props.parentID
+})
+
+const isReorderable = computed(() => {
+  return (
+    ordering.value &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  )
+})
+
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
     emit("drag-event", dataTransfer)
     dropItemID.value = dataTransfer.getData("collectionIndex")
     dragging.value = !dragging.value
+    changeCurrentReorderStatus({
+      type: "collection",
+      id: props.id,
+      parentID: props.parentID,
+    })
+  }
+}
+
+// Trigger the re-ordering event when a collection is dragged over another collection's top section
+const handleDragOver = (e: DragEvent) => {
+  dragging.value = true
+  if (e.offsetY < 10 && notSameDestination.value) {
+    ordering.value = true
+    dragging.value = false
+  } else {
+    ordering.value = false
+  }
+}
+
+const handelDrop = (e: DragEvent) => {
+  if (ordering.value) {
+    orderUpdateCollectionEvent(e)
+  } else {
+    dropEvent(e)
   }
 }
 
@@ -305,8 +370,7 @@ const dropEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
     emit("drop-event", e.dataTransfer)
-    dragging.value = !dragging.value
-    dropItemID.value = ""
+    resetDragState()
   }
 }
 
@@ -314,8 +378,7 @@ const orderUpdateCollectionEvent = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
     emit("update-collection-order", e.dataTransfer)
-    ordering.value = !ordering.value
-    dropItemID.value = ""
+    resetDragState()
   }
 }
 
@@ -334,6 +397,5 @@ const isCollLoading = computed(() => {
 const resetDragState = () => {
   dragging.value = false
   ordering.value = false
-  dropItemID.value = ""
 }
 </script>

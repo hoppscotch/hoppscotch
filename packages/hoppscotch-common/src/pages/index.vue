@@ -16,6 +16,16 @@
           :label="tab.request.name"
           :is-removable="tabs.length > 1"
         >
+          <template #tabhead>
+            <span
+              class="font-semibold truncate text-tiny w-10 mr-2 truncate"
+              :class="getMethodLabelColorClassOf(tab.request)"
+            >
+              {{ tab.request.method }}
+            </span>
+            {{ tab.request.name }}
+          </template>
+
           <HttpRequestTab
             :model-value="tab"
             @update:model-value="onTabUpdate"
@@ -55,6 +65,7 @@ import { useToast } from "@composables/toast"
 import { onLoggedIn } from "@composables/auth"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { useRoute } from "vue-router"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 
 const toast = useToast()
 const t = useI18n()

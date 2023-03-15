@@ -31,12 +31,17 @@ const props = defineProps({
     default: false,
   },
 })
+
+console.log(slots)
+
 const tabMeta = computed<TabMeta>(() => ({
   info: props.info,
   label: props.label,
   isRemovable: props.isRemovable,
   icon: slots.icon,
+  tabhead: slots.tabhead
 }))
+
 const {
   activeTabID,
   renderInactive,

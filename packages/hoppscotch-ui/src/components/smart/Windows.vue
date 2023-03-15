@@ -10,7 +10,8 @@
                 <button :key="`removable-tab-${tabID}`" class="tab" :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''" role="button" @keyup.enter="selectTab(tabID)"
                   @click="selectTab(tabID)">
-                  <div class="flex items-stretch truncate">
+
+                  <div v-if="!tabMeta.tabhead" class="flex items-stretch truncate">
                     <span v-if="tabMeta.icon" class="flex items-center justify-center mx-4 cursor-pointer">
                       <component :is="tabMeta.icon" class="w-4 h-4 svg-icons" />
                     </span>
@@ -18,8 +19,13 @@
                       {{ tabMeta.label }}
                     </span>
                   </div>
+
+                  <div v-else class="truncate flex items-center justify-start mx-4">
+                    <component :is="tabMeta.tabhead" />
+                  </div>
+
                   <HoppButtonSecondary v-tippy="{ theme: 'tooltip', delay: [500, 20] }" :icon="IconX" :style="{
-                    visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
+                    display: tabMeta.isRemovable ? 'flex' : 'none',
                   }" :title="closeText ?? t?.('action.close') ?? 'Close'"
                     :class="[{ active: modelValue === tabID }, 'close']" class="mx-2 !p-0.5"
                     @click.stop="emit('removeTab', tabID)" />
@@ -60,6 +66,7 @@ import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 export type TabMeta = {
   label: string | null
   icon: Slot | undefined
+  tabhead: Slot | undefined
   info: string | null
   isRemovable: boolean
 }

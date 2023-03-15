@@ -8,11 +8,32 @@
         </HoppSmartWindow>
       </HoppSmartWindows>
     </Variant>
+    <Variant title="Custom Tab Heads">
+      <HoppSmartWindows
+        v-model="selectedWindow"
+        @add-tab="openNewTab"
+        @remove-tab="removeTab"
+        @sort="sortTabs"
+      >
+        <HoppSmartWindow
+          v-for="window in tabs"
+          :id="window.id"
+          :key="'tab_' + window.id"
+          :label="window.name"
+          :is-removable="window.removable"
+        >
+          <template #tabhead>
+            <icon-lucide-train class="svg-icons" /> <span class="truncate w-2"> - Lorem ipsum dolor sit amet</span>
+          </template>
+        </HoppSmartWindow>
+      </HoppSmartWindows>
+    </Variant>
   </Story>
 </template>
 
 <script setup lang="ts">
 import { HoppSmartWindows, HoppSmartWindow } from "../components/smart"
+import IconLucideTrain from "~icons/lucide/train"
 import { ref } from "vue"
 
 const selectedWindow = ref("window1")

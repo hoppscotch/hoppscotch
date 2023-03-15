@@ -161,7 +161,6 @@
                 ref="saveTippyActions"
                 class="flex flex-col focus:outline-none"
                 tabindex="0"
-                @keyup.s="saveRequestAction.$el.click()"
                 @keyup.escape="hide()"
               >
                 <input
@@ -195,7 +194,6 @@
                   ref="saveRequestAction"
                   :label="`${t('request.save_as')}`"
                   :icon="IconFolderPlus"
-                  :shortcut="['S']"
                   @click="
                     () => {
                       showSaveRequestModal = true

@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, ID, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { UserHistoryService } from './user-history.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { UserHistory } from './user-history.model';
@@ -59,6 +59,7 @@ export class UserHistoryResolver {
     @Args({
       name: 'id',
       description: 'ID of User History',
+      type: () => ID,
     })
     id: string,
   ): Promise<UserHistory> {
@@ -77,6 +78,7 @@ export class UserHistoryResolver {
     @Args({
       name: 'id',
       description: 'ID of User History',
+      type: () => ID,
     })
     id: string,
   ): Promise<UserHistory> {

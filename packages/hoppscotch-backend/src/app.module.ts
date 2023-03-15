@@ -21,6 +21,9 @@ import { COOKIES_NOT_FOUND } from './errors';
 @Module({
   imports: [
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      buildSchemaOptions: {
+        numberScalarMode: 'integer',
+      },
       cors: process.env.PRODUCTION !== 'true' && {
         origin: process.env.WHITELISTED_ORIGINS.split(','),
         credentials: true,

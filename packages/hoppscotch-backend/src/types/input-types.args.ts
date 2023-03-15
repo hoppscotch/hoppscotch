@@ -1,9 +1,9 @@
-import { ArgsType, Field, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, ID, InputType } from '@nestjs/graphql';
 
 @ArgsType()
 @InputType()
 export class PaginationArgs {
-  @Field({
+  @Field(() => ID, {
     nullable: true,
     defaultValue: undefined,
     description: 'Cursor for pagination, ID of the last item in the list',

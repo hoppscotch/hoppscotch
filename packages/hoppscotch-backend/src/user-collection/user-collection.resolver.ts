@@ -209,7 +209,7 @@ export class UserCollectionResolver {
   }
 
   @Mutation(() => UserCollection, {
-    description: 'Creates a new child REST user collection',
+    description: 'Creates a new child GraphQL user collection',
   })
   @UseGuards(GqlAuthGuard)
   async createGQLChildUserCollection(
@@ -229,7 +229,7 @@ export class UserCollectionResolver {
   }
 
   @Mutation(() => UserCollection, {
-    description: 'Creates a new child GraphQL user collection',
+    description: 'Creates a new child REST user collection',
   })
   @UseGuards(GqlAuthGuard)
   async createRESTChildUserCollection(
@@ -309,7 +309,8 @@ export class UserCollectionResolver {
   }
 
   @Mutation(() => Boolean, {
-    description: 'Move user collection into new parent or root',
+    description:
+      'Update the order of UserCollections inside parent collection or in root',
   })
   @UseGuards(GqlAuthGuard)
   async updateUserCollectionOrder(

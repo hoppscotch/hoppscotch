@@ -10,13 +10,6 @@ export class GetUserRequestArgs extends PaginationArgs {
     description: 'Collection ID of the user request',
   })
   collectionID?: string;
-
-  @Field({
-    nullable: true,
-    defaultValue: undefined,
-    description: 'Title of the user request',
-  })
-  title?: string;
 }
 
 @ArgsType()
@@ -46,13 +39,15 @@ export class MoveUserRequestArgs {
 
 @ArgsType()
 export class CreateUserRequestArgs {
-  @Field({ nullable: false, description: 'Collection ID of the user request' })
+  @Field(() => ID, {
+    description: 'Collection ID of the user request',
+  })
   collectionID: string;
 
-  @Field({ nullable: false, description: 'Title of the user request' })
+  @Field({ description: 'Title of the user request' })
   title: string;
 
-  @Field({ nullable: false, description: 'content/body of the user request' })
+  @Field({ description: 'content/body of the user request' })
   request: string;
 
   type: ReqType;

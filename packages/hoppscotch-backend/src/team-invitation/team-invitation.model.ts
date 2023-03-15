@@ -18,7 +18,7 @@ export class TeamInvitation {
   })
   creatorUid: string;
 
-  @Field(() => ID, {
+  @Field({
     description: 'Email of the invitee',
   })
   inviteeEmail: string;

@@ -1,37 +1,52 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Email } from 'src/types/Email';
+import { Injectable } from '@nestjs/common';
 import {
   MailDescription,
   UserMagicLinkMailDescription,
 } from './MailDescriptions';
-import * as postmark from 'postmark';
 import { throwErr } from 'src/utils';
 import * as TE from 'fp-ts/TaskEither';
-import { EMAIL_FAILED, SENDER_EMAIL_INVALID } from 'src/errors';
+import { EMAIL_FAILED } from 'src/errors';
+import { MailerService as NestMailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
-export class MailerService implements OnModuleInit {
-  client: postmark.ServerClient;
+export class MailerService {
+  constructor(private readonly nestMailerService: NestMailerService) {}
 
-  onModuleInit() {
-    this.client = new postmark.ServerClient(
-      process.env.POSTMARK_SERVER_TOKEN || throwErr(SENDER_EMAIL_INVALID),
-    );
+  /**
+   * Takes an input mail description and spits out the Email subject required for it
+   * @param mailDesc The mail description to get subject for
+   * @returns The subject of the email
+   */
+  private resolveSubjectForMailDesc(
+    mailDesc: MailDescription | UserMagicLinkMailDescription,
+  ): string {
+    switch (mailDesc.template) {
+      case 'team-invitation':
+        return `${mailDesc.variables.invitee} invited you to join ${mailDesc.variables.invite_team_name} in Hoppscotch`;
+
+      case 'code-your-own':
+        return 'Sign in to Hoppscotch';
+    }
   }
 
+  /**
+   * Sends an email to the given email address given a mail description
+   * @param to The email address to be sent to (NOTE: this is not validated)
+   * @param mailDesc Definition of what email to be sent
+   */
   sendMail(
     to: string,
     mailDesc: MailDescription | UserMagicLinkMailDescription,
   ) {
     return TE.tryCatch(
-      () =>
-        this.client.sendEmailWithTemplate({
-          To: to,
-          From:
-            process.env.POSTMARK_SENDER_EMAIL || throwErr(SENDER_EMAIL_INVALID),
-          TemplateAlias: mailDesc.template,
-          TemplateModel: mailDesc.variables,
-        }),
+      async () => {
+        await this.nestMailerService.sendMail({
+          to,
+          template: mailDesc.template,
+          subject: this.resolveSubjectForMailDesc(mailDesc),
+          context: mailDesc.variables,
+        });
+      },
       () => EMAIL_FAILED,
     );
   }
@@ -44,15 +59,12 @@ export class MailerService implements OnModuleInit {
    */
   async sendAuthEmail(to: string, mailDesc: UserMagicLinkMailDescription) {
     try {
-      const res = await this.client.sendEmailWithTemplate({
-        To: to,
-        From:
-          process.env.POSTMARK_SENDER_EMAIL ||
-          throwErr('No Postmark Sender Email defined'),
-        TemplateAlias: mailDesc.template,
-        TemplateModel: mailDesc.variables,
+      await this.nestMailerService.sendMail({
+        to,
+        template: mailDesc.template,
+        subject: this.resolveSubjectForMailDesc(mailDesc),
+        context: mailDesc.variables,
       });
-      return res;
     } catch (error) {
       return throwErr(EMAIL_FAILED);
     }

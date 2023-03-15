@@ -540,3 +540,16 @@ export const USER_NOT_OWNER = 'user_coll/user_not_owner' as const;
  * (UserCollectionService)
  */
 export const USER_COLL_INVALID_JSON = 'user_coll/invalid_json';
+
+/*
+ * MAILER_SMTP_URL environment variable is not defined
+ * (MailerModule)
+ */
+export const MAILER_SMTP_URL_UNDEFINED = 'mailer/smtp_url_undefined' as const;
+
+/**
+ * MAILER_ADDRESS_FROM environment variable is not defined
+ * (MailerModule)
+ */
+export const MAILER_FROM_ADDRESS_UNDEFINED =
+  'mailer/from_address_undefined' as const;

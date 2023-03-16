@@ -172,6 +172,8 @@ export function closeTab(tabID: string) {
   }
 
   tabOrdering.value.splice(tabOrdering.value.indexOf(tabID), 1)
+
+  tabMap.delete(tabID)
 }
 
 export function getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {

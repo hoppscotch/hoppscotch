@@ -154,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, reactive, ref, watch, nextTick } from "vue"
+import { computed, PropType, ref, watch } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -171,7 +171,6 @@ import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
-  getRESTCollection,
   moveRESTRequest,
   removeRESTCollection,
   removeRESTFolder,
@@ -1229,21 +1228,6 @@ const dropRequest = (payload: {
       pathToLastIndex(requestIndex),
       destinationCollectionIndex
     )
-
-    const possibleTab = getTabRefWithSaveContext({
-      originLocation: "user-collection",
-      folderPath,
-      requestIndex: pathToLastIndex(requestIndex),
-    })
-
-    if (possibleTab) {
-      possibleTab.value.document.saveContext = {
-        originLocation: "user-collection",
-        folderPath: destinationCollectionIndex,
-        requestIndex:
-          getRESTCollection(parseInt(destinationCollectionIndex)).requests.length - 1,
-      }
-    }
 
     toast.success(`${t("request.moved")}`)
     draggingToRoot.value = false

@@ -460,6 +460,20 @@ const restCollectionDispatchers = defineDispatchers({
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
 
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = {
+        originLocation: "user-collection",
+        folderPath: destinationPath,
+        requestIndex: destLocation.requests.length - 1,
+      }
+    }
+
     return {
       state: newState,
     }

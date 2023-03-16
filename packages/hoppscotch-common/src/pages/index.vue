@@ -38,25 +38,38 @@
       <HttpSidebar />
     </template>
   </AppPaneLayout>
+  <HoppSmartConfirmModal
+    :show="confirmingCloseFortabID !== null"
+    :confirm="t('modal.close_unsaved_tab')"
+    :title="t('confirm.save_unsaved_tab')"
+    @hide-modal="confirmingCloseFortabID = null"
+    @resolve="confirmRemoveTab"
+  />
 </template>
 
 <script lang="ts" setup>
-import { onMounted } from "vue"
+import { ref, onMounted } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
 import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { useI18n } from "@composables/i18n"
 import {
   closeTab,
   createNewTab,
   currentActiveTab,
   currentTabID,
   getActiveTabs,
+  getTabRef,
   HoppRESTTab,
   updateTab,
   updateTabOrdering,
 } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+
+const confirmingCloseFortabID = ref<string | null>(null)
+
+const t = useI18n()
 
 const tabs = getActiveTabs()
 
@@ -92,7 +105,19 @@ const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
 }
 
 const removeTab = (tabID: string) => {
-  closeTab(tabID)
+  const tab = getTabRef(tabID)
+
+  if (tab.value.document.isDirty) {
+    confirmingCloseFortabID.value = tabID
+  } else {
+    closeTab(tab.value.id)
+  }
+}
+
+const confirmRemoveTab = () => {
+  if (confirmingCloseFortabID.value) {
+    closeTab(confirmingCloseFortabID.value)
+  }
 }
 
 bindRequestToURLParams()

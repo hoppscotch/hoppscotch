@@ -181,6 +181,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import { computed, reactive, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
 import {
+  HoppRESTReqBody,
   parseRawKeyValueEntries,
   parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
@@ -194,13 +195,27 @@ import * as E from "fp-ts/Either"
 import draggable from "vuedraggable-es"
 import { useCodemirror } from "@composables/codemirror"
 import linter from "~/helpers/editor/linting/rawKeyValue"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { throwError } from "~/helpers/functional/error"
+import { useVModel } from "@vueuse/core"
+
+type Body = HoppRESTReqBody & {
+  contentType: "application/x-www-form-urlencoded"
+}
+
+const props = defineProps<{
+  modelValue: Body
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", val: Body): void
+}>()
+
+const body = useVModel(props, "modelValue", emit)
 
 const t = useI18n()
 const toast = useToast()
@@ -231,7 +246,7 @@ useCodemirror(
 )
 
 // The functional urlEncodedParams list (the urlEncodedParams actually in the system)
-const urlEncodedParamsRaw = pluckRef(useRESTRequestBody(), "body")
+const urlEncodedParamsRaw = pluckRef(body, "body")
 
 const urlEncodedParams = computed<RawKeyValueEntry[]>({
   get() {

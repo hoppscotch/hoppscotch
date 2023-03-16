@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col flex-1">
-    <HttpResponseMeta :response="response!" />
+    <HttpResponseMeta v-if="tab.response" :response="tab.response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       v-model:selected-tab-preference="selectedTabPreference"
-      :response="response"
+      v-model:tab="tab"
     />
   </div>
 </template>
@@ -12,24 +12,31 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
 import { startPageProgress, completePageProgress } from "@modules/loadingbar"
-import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { HoppRESTTab } from "~/helpers/rest/tab"
+import { useVModel } from "@vueuse/core"
 
 const props = defineProps<{
-  response: HoppRESTResponse | null
+  tab: HoppRESTTab
 }>()
+
+const emit = defineEmits<{
+  (e: "update:tab", val: HoppRESTTab): void
+}>()
+
+const tab = useVModel(props, "tab", emit)
 
 const selectedTabPreference = ref<string | null>(null)
 
 const hasResponse = computed(
-  () => props.response?.type === "success" || props.response?.type === "fail"
+  () =>
+    tab.value.response?.type === "success" ||
+    tab.value.response?.type === "fail"
 )
 
-const loading = computed(
-  () => props.response === null || props.response.type === "loading"
-)
+const loading = computed(() => tab.value.response?.type === "loading")
 
-watch(props, () => {
-  if (props.response?.type === "loading") startPageProgress()
+watch(loading, (isLoading) => {
+  if (isLoading) startPageProgress()
   else completePageProgress()
 })
 </script>

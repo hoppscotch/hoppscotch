@@ -13,8 +13,8 @@
     </HoppSmartTab>
     <HoppSmartTab :id="'bodyParams'" :label="`${t('tab.body')}`">
       <HttpBody
-        v-model:content-type="request.body.contentType"
         v-model:headers="request.headers"
+        v-model:body="request.body"
         @change-tab="changeTab"
       />
     </HoppSmartTab>

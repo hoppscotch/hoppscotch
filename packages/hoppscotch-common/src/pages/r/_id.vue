@@ -71,10 +71,11 @@ import {
   ResolveShortcodeQuery,
   ResolveShortcodeQueryVariables,
 } from "~/helpers/backend/graphql"
-import { getDefaultRESTRequest, setRESTRequest } from "~/newstore/RESTSession"
 
 import IconHome from "~icons/lucide/home"
 import IconRefreshCW from "~icons/lucide/refresh-cw"
+import { createNewTab } from "~/helpers/rest/tab"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 export default defineComponent({
   setup() {
@@ -106,9 +107,10 @@ export default defineComponent({
             data.right.shortcode?.request as string
           )
 
-          setRESTRequest(
-            safelyExtractRESTRequest(request, getDefaultRESTRequest())
-          )
+          createNewTab({
+            request: safelyExtractRESTRequest(request, getDefaultRESTRequest()),
+            isDirty: false,
+          })
 
           router.push({ path: "/" })
         }

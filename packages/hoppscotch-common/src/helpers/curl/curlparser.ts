@@ -20,7 +20,7 @@ import { getMethod } from "./sub_helpers/method"
 import { concatParams, getURLObject } from "./sub_helpers/url"
 import { preProcessCurlCommand } from "./sub_helpers/preproc"
 import { getBody, getFArgumentMultipartData } from "./sub_helpers/body"
-import { getDefaultRESTRequest } from "~/newstore/RESTSession"
+import { getDefaultRESTRequest } from "../rest/default"
 import {
   objHasProperty,
   objHasArrayProperty,

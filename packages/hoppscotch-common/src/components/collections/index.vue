@@ -146,18 +146,6 @@
       @import-to-teams="importToTeams"
       @hide-modal="displayModalImportExport(false)"
     />
-    <HttpReqChangeConfirmModal
-      :show="confirmChangeToRequest"
-      :loading="modalLoadingState"
-      @hide-modal="confirmChangeToRequest = false"
-      @save-change="saveRequestChange"
-      @discard-change="discardRequestChange"
-    />
-    <CollectionsSaveRequest
-      mode="rest"
-      :show="showSaveRequestModal"
-      @hide-modal="showSaveRequestModal = false"
-    />
     <TeamsAdd
       :show="showTeamModalAdd"
       @hide-modal="displayTeamModalAdd(false)"
@@ -166,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, reactive, ref, watch } from "vue"
+import { computed, PropType, reactive, ref, watch, nextTick } from "vue"
 import { useToast } from "@composables/toast"
 import { useI18n } from "@composables/i18n"
 import { Picked } from "~/helpers/types/HoppPicked"
@@ -183,7 +171,7 @@ import {
   editRESTCollection,
   editRESTFolder,
   editRESTRequest,
-  moveRESTFolder,
+  getRESTCollection,
   moveRESTRequest,
   removeRESTCollection,
   removeRESTFolder,
@@ -192,24 +180,14 @@ import {
   saveRESTRequestAs,
   updateRESTRequestOrder,
   updateRESTCollectionOrder,
+  moveRESTFolder,
 } from "~/newstore/collections"
 import TeamCollectionAdapter from "~/helpers/teams/TeamCollectionAdapter"
 import {
   HoppCollection,
   HoppRESTRequest,
-  isEqualHoppRESTRequest,
   makeCollection,
-  safelyExtractRESTRequest,
-  translateToNewRequest,
 } from "@hoppscotch/data"
-import {
-  addRequestWithNewTab,
-  getDefaultRESTRequest,
-  getRESTRequest,
-  getRESTSaveContext,
-  setRESTRequest,
-  setRESTSaveContext,
-} from "~/newstore/RESTSession"
 import { cloneDeep, isEqual } from "lodash-es"
 import { GQLError } from "~/helpers/backend/GQLClient"
 import {
@@ -235,12 +213,17 @@ import {
   getTeamCollectionJSON,
   teamCollToHoppRESTColl,
 } from "~/helpers/backend/helpers"
-import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 import * as E from "fp-ts/Either"
 import { platform } from "~/platform"
 import { createCollectionGists } from "~/helpers/gist"
 import { workspaceStatus$ } from "~/newstore/workspace"
 import IconListEnd from "~icons/lucide/list-end"
+import {
+  createNewTab,
+  currentActiveTab,
+  currentTabID,
+  getTabRefWithSaveContext,
+} from "~/helpers/rest/tab"
 
 const t = useI18n()
 const toast = useToast()
@@ -314,15 +297,6 @@ const collectionJSON = ref("")
 const exportingTeamCollections = ref(false)
 const creatingGistCollection = ref(false)
 const importingMyCollections = ref(false)
-
-// Confirm Change to request modal
-const confirmChangeToRequest = ref(false)
-const showSaveRequestModal = ref(false)
-const clickedRequest = reactive({
-  folderPath: "" as string | undefined,
-  requestIndex: null as string | null,
-  request: null as HoppRESTRequest | null,
-})
 
 // TeamList-Adapter
 const teamListAdapter = new TeamListAdapter(true)
@@ -638,7 +612,7 @@ const addRequest = (payload: {
 
 const onAddRequest = (requestName: string) => {
   const newRequest = {
-    ...cloneDeep(getRESTRequest()),
+    ...cloneDeep(currentActiveTab.value.document.request),
     name: requestName,
   }
 
@@ -647,10 +621,14 @@ const onAddRequest = (requestName: string) => {
     if (!path) return
     const insertionIndex = saveRESTRequestAs(path, newRequest)
 
-    setRESTRequest(newRequest, {
-      originLocation: "user-collection",
-      folderPath: path,
-      requestIndex: insertionIndex,
+    createNewTab({
+      request: newRequest,
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: path,
+        requestIndex: insertionIndex,
+      },
     })
 
     displayModalAddRequest(false)
@@ -678,12 +656,17 @@ const onAddRequest = (requestName: string) => {
         (result) => {
           const { createRequestInCollection } = result
 
-          setRESTRequest(newRequest, {
-            originLocation: "team-collection",
-            requestID: createRequestInCollection.id,
-            collectionID: createRequestInCollection.collection.id,
-            teamID: createRequestInCollection.collection.team.id,
+          createNewTab({
+            request: newRequest,
+            isDirty: false,
+            saveContext: {
+              originLocation: "team-collection",
+              requestID: createRequestInCollection.id,
+              collectionID: createRequestInCollection.collection.id,
+              teamID: createRequestInCollection.collection.team.id,
+            },
           })
+
           modalLoadingState.value = false
           displayModalAddRequest(false)
         }
@@ -874,27 +857,22 @@ const updateEditingRequest = (newName: string) => {
     ...request,
     name: newName || request.name,
   }
-
-  const saveCtx = getRESTSaveContext()
-
   if (collectionsType.value.type === "my-collections") {
     const folderPath = editingFolderPath.value
     const requestIndex = editingRequestIndex.value
 
     if (folderPath === null || requestIndex === null) return
 
+    const possibleActiveTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex,
+      folderPath,
+    })
+
     editRESTRequest(folderPath, requestIndex, requestUpdated)
 
-    if (
-      saveCtx &&
-      saveCtx.originLocation === "user-collection" &&
-      saveCtx.requestIndex === editingRequestIndex.value &&
-      saveCtx.folderPath === editingFolderPath.value
-    ) {
-      setRESTRequest({
-        ...getRESTRequest(),
-        name: requestUpdated.name,
-      })
+    if (possibleActiveTab) {
+      possibleActiveTab.value.document.request.name = requestUpdated.name
     }
 
     displayModalEditRequest(false)
@@ -926,15 +904,13 @@ const updateEditingRequest = (newName: string) => {
       )
     )()
 
-    if (
-      saveCtx &&
-      saveCtx.originLocation === "team-collection" &&
-      saveCtx.requestID === editingRequestID.value
-    ) {
-      setRESTRequest({
-        ...getRESTRequest(),
-        name: requestName,
-      })
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.request.name = requestName
     }
   }
 }
@@ -1125,6 +1101,18 @@ const onRemoveRequest = () => {
       emit("select", null)
     }
 
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath,
+      requestIndex,
+    })
+
+    // If there is a tab attached to this request, dissociate its state and mark it dirty
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = undefined
+      possibleTab.value.document.isDirty = true
+    }
+
     removeRESTRequest(folderPath, requestIndex)
 
     toast.success(t("state.deleted"))
@@ -1158,47 +1146,23 @@ const onRemoveRequest = () => {
         }
       )
     )()
+
+    // If there is a tab attached to this request, dissociate its state and mark it dirty
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = undefined
+      possibleTab.value.document.isDirty = true
+    }
   }
 }
 
 // The request is picked in the save request as modal
 const selectPicked = (payload: Picked | null) => {
   emit("select", payload)
-}
-
-// select request change modal functions
-const noChangeSetRESTRequest = () => {
-  const folderPath = clickedRequest.folderPath
-  const requestIndex = clickedRequest.requestIndex
-  const request = clickedRequest.request
-
-  let newContext: HoppRequestSaveContext | null = null
-  if (collectionsType.value.type === "my-collections") {
-    if (!folderPath || !requestIndex || !request) return
-
-    newContext = {
-      originLocation: "user-collection",
-      requestIndex: parseInt(requestIndex),
-      folderPath,
-      req: cloneDeep(request),
-    }
-  } else if (collectionsType.value.type === "team-collections") {
-    if (!requestIndex || !request) return
-    newContext = {
-      originLocation: "team-collection",
-      requestID: requestIndex,
-      req: cloneDeep(request),
-    }
-  }
-  setRESTRequest(
-    cloneDeep(
-      safelyExtractRESTRequest(
-        translateToNewRequest(request),
-        getDefaultRESTRequest()
-      )
-    ),
-    newContext
-  )
 }
 
 /**
@@ -1211,131 +1175,29 @@ const selectRequest = (selectedRequest: {
   requestIndex: string
   isActive: boolean
 }) => {
-  const { request, folderPath, requestIndex, isActive } = selectedRequest
-  // If the request is already active, then we reset the save context
-  if (isActive) {
-    setRESTSaveContext(null)
-    return
-  }
+  const { request, folderPath, requestIndex } = selectedRequest
 
-  const currentRESTRequest = getRESTRequest()
+  const possibleTab = getTabRefWithSaveContext({
+    originLocation: "user-collection",
+    requestIndex: parseInt(requestIndex),
+    folderPath: folderPath!,
+  })
 
-  const currentRESTSaveContext = getRESTSaveContext()
-
-  clickedRequest.folderPath = folderPath
-  clickedRequest.requestIndex = requestIndex
-  clickedRequest.request = request
-
-  // If there is no active context,
-  if (!currentRESTSaveContext) {
-    // Check if the use is clicking on the same request
-    if (isEqualHoppRESTRequest(currentRESTRequest, request)) {
-      noChangeSetRESTRequest()
-    } else {
-      // can show the save change modal here since there is change in the request
-      // and the user is clicking on the different request
-      // and currently we dont have any active context
-      // confirmChangeToRequest.value = true
-
-      addRequestWithNewTab(request)
-    }
+  // If there is a request with this save context, switch into it
+  if (possibleTab) {
+    currentTabID.value = possibleTab.value.id
   } else {
-    if (isEqualHoppRESTRequest(currentRESTRequest, request)) {
-      noChangeSetRESTRequest()
-    } else {
-      const currentReqWithNoChange = currentRESTSaveContext.req
-      // now we compare the current request
-      // with the request inside the active context
-      if (
-        currentReqWithNoChange &&
-        isEqualHoppRESTRequest(currentReqWithNoChange, currentRESTRequest)
-      ) {
-        noChangeSetRESTRequest()
-      } else {
-        // there is change in the request
-        // so we can show the save change modal here
-        // confirmChangeToRequest.value = true
-        addRequestWithNewTab(request)
-      }
-    }
+    // If not, open the request in a new tab
+    createNewTab({
+      request: cloneDeep(request),
+      isDirty: false,
+      saveContext: {
+        originLocation: "user-collection",
+        folderPath: folderPath!,
+        requestIndex: parseInt(requestIndex),
+      },
+    })
   }
-}
-
-/**
- * This function is called when the user clicks on the save button in the confirm change modal
- * There are two cases
- * 1. There is no active context
- * 2. There is active context
- * In the first case, we can show the save request as modal and user can select the location to save the request
- * In the second case, we can save the request in the same location and update the request
- */
-const saveRequestChange = () => {
-  const currentRESTSaveContext = getRESTSaveContext()
-
-  if (!currentRESTSaveContext) {
-    showSaveRequestModal.value = true
-    confirmChangeToRequest.value = false
-    return
-  }
-
-  const currentRESTRequest = getRESTRequest()
-
-  if (currentRESTSaveContext.originLocation === "user-collection") {
-    const folderPath = currentRESTSaveContext.folderPath
-    const requestIndex = currentRESTSaveContext.requestIndex
-
-    editRESTRequest(folderPath, requestIndex, currentRESTRequest)
-
-    // after saving the request, we need to change the context
-    // to the new request (clicked request)
-    noChangeSetRESTRequest()
-
-    toast.success(`${t("request.saved")}`)
-    confirmChangeToRequest.value = false
-  } else {
-    modalLoadingState.value = true
-
-    const requestID = currentRESTSaveContext.requestID
-
-    const data = {
-      request: JSON.stringify(currentRESTRequest),
-      title: currentRESTRequest.name,
-    }
-
-    pipe(
-      updateTeamRequest(requestID, data),
-      TE.match(
-        (err: GQLError<string>) => {
-          toast.error(`${getErrorMessage(err)}`)
-          confirmChangeToRequest.value = false
-          showSaveRequestModal.value = true
-          modalLoadingState.value = false
-        },
-        () => {
-          toast.success(`${t("request.saved")}`)
-          modalLoadingState.value = false
-          confirmChangeToRequest.value = false
-
-          const clickedRequestID = clickedRequest.requestIndex
-
-          if (!clickedRequestID) return
-
-          noChangeSetRESTRequest()
-        }
-      )
-    )()
-  }
-}
-
-/**
- * This function is called when the user clicks on the
- * don't save button in the confirm change modal
- * This function will change the request to the clicked request
- * without saving the changes
- */
-const discardRequestChange = () => {
-  noChangeSetRESTRequest()
-  confirmChangeToRequest.value = false
 }
 
 /**
@@ -1358,13 +1220,31 @@ const dropRequest = (payload: {
   destinationCollectionIndex: string
 }) => {
   const { folderPath, requestIndex, destinationCollectionIndex } = payload
+
   if (!requestIndex || !destinationCollectionIndex) return
+
   if (collectionsType.value.type === "my-collections" && folderPath) {
     moveRESTRequest(
       folderPath,
       pathToLastIndex(requestIndex),
       destinationCollectionIndex
     )
+
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath,
+      requestIndex: pathToLastIndex(requestIndex),
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = {
+        originLocation: "user-collection",
+        folderPath: destinationCollectionIndex,
+        requestIndex:
+          getRESTCollection(parseInt(destinationCollectionIndex)).requests.length - 1,
+      }
+    }
+
     toast.success(`${t("request.moved")}`)
     draggingToRoot.value = false
   } else if (hasTeamWriteAccess.value) {
@@ -1387,6 +1267,18 @@ const dropRequest = (payload: {
             requestMoveLoading.value.indexOf(requestIndex),
             1
           )
+
+          const possibleTab = getTabRefWithSaveContext({
+            originLocation: "team-collection",
+            requestID: requestIndex,
+          })
+
+          if (possibleTab) {
+            possibleTab.value.document.saveContext = {
+              originLocation: "team-collection",
+              requestID: requestIndex,
+            }
+          }
           toast.success(`${t("request.moved")}`)
         }
       )

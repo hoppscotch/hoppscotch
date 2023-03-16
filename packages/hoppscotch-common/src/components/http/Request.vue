@@ -17,7 +17,7 @@
               <input
                 id="method"
                 class="flex px-4 py-2 font-semibold transition rounded-l cursor-pointer text-secondaryDark w-26 bg-primaryLight"
-                :value="modelValue.method"
+                :value="tab.document.request.method"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
                 @input="onSelectMethod($event)"
@@ -50,7 +50,7 @@
         class="flex flex-1 overflow-auto transition border-l rounded-r border-divider bg-primaryLight whitespace-nowrap"
       >
         <SmartEnvInput
-          v-model="request.endpoint"
+          v-model="tab.document.request.endpoint"
           :placeholder="`${t('request.url')}`"
           @enter="newSendRequest()"
           @paste="onPasteUrl($event)"
@@ -165,7 +165,7 @@
               >
                 <input
                   id="request-name"
-                  v-model="request.name"
+                  v-model="tab.document.request.name"
                   :placeholder="`${t('request.name')}`"
                   name="request-name"
                   type="text"
@@ -229,12 +229,10 @@ import { useI18n } from "@composables/i18n"
 import { useSetting } from "@composables/settings"
 import { useStreamSubscriber } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { HoppRESTRequest } from "@hoppscotch/data"
 import { completePageProgress, startPageProgress } from "@modules/loadingbar"
 import { refAutoReset, useVModel } from "@vueuse/core"
 import * as E from "fp-ts/Either"
 import { isLeft, isRight } from "fp-ts/lib/Either"
-import { cloneDeep } from "lodash-es"
 import { computed, ref, watch } from "vue"
 import { defineActionHandler } from "~/helpers/actions"
 import { runMutation } from "~/helpers/backend/GQLClient"
@@ -249,12 +247,6 @@ import { runRESTRequest$ } from "~/helpers/RequestRunner"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { editRESTRequest } from "~/newstore/collections"
-import {
-  getRESTRequest,
-  getRESTSaveContext,
-  resetRESTRequest,
-  setRESTSaveContext,
-} from "~/newstore/RESTSession"
 import IconCheck from "~icons/lucide/check"
 import IconChevronDown from "~icons/lucide/chevron-down"
 import IconCode2 from "~icons/lucide/code-2"
@@ -265,6 +257,8 @@ import IconLink2 from "~icons/lucide/link-2"
 import IconRotateCCW from "~icons/lucide/rotate-ccw"
 import IconSave from "~icons/lucide/save"
 import IconShare2 from "~icons/lucide/share-2"
+import { HoppRESTTab } from "~/helpers/rest/tab"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 
 const t = useI18n()
 
@@ -285,17 +279,16 @@ const toast = useToast()
 
 const { subscribeToStream } = useStreamSubscriber()
 
-const props = defineProps<{ modelValue: HoppRESTRequest }>()
-const emit = defineEmits(["update:modelValue", "update:response"])
+const props = defineProps<{ modelValue: HoppRESTTab }>()
+const emit = defineEmits(["update:modelValue"])
 
-const request = useVModel(props, "modelValue", emit)
+const tab = useVModel(props, "modelValue", emit)
 
 const newEndpoint = computed(() => {
-  console.log(request.value.endpoint)
-  return request.value.endpoint
+  return tab.value.document.request.endpoint
 })
 const newMethod = computed(() => {
-  return props.modelValue.method
+  return tab.value.document.request.method
 })
 
 const curlText = ref("")
@@ -364,7 +357,7 @@ const newSendRequest = async () => {
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
-  const streamResult = await runRESTRequest$()()
+  const streamResult = await runRESTRequest$(tab)()
 
   console.log("Stream result", streamResult)
 
@@ -408,9 +401,11 @@ const ensureMethodInEndpoint = () => {
   ) {
     const domain = newEndpoint.value.split(/[/:#?]+/)[0]
     if (domain === "localhost" || /([0-9]+\.)*[0-9]/.test(domain)) {
-      request.value.endpoint = "http://" + request.value.endpoint
+      tab.value.document.request.endpoint =
+        "http://" + tab.value.document.request.endpoint
     } else {
-      request.value.endpoint = "https://" + request.value.endpoint
+      tab.value.document.request.endpoint =
+        "https://" + tab.value.document.request.endpoint
     }
   }
 }
@@ -423,7 +418,7 @@ const onPasteUrl = (e: { pastedValue: string; prevValue: string }) => {
   if (isCURL(pastedData)) {
     showCurlImportModal.value = true
     curlText.value = pastedData
-    request.value.endpoint = e.prevValue
+    tab.value.document.request.endpoint = e.prevValue
   }
 }
 
@@ -440,7 +435,7 @@ const cancelRequest = () => {
 }
 
 const updateMethod = (method: string) => {
-  request.value.method = method
+  tab.value.document.request.method = method
 }
 
 const onSelectMethod = (e: Event | any) => {
@@ -449,11 +444,11 @@ const onSelectMethod = (e: Event | any) => {
 }
 
 const clearContent = () => {
-  resetRESTRequest()
+  tab.value.document.request = getDefaultRESTRequest()
 }
 
 const updateRESTResponse = (response: HoppRESTResponse | null) => {
-  emit("update:response", response)
+  tab.value.response = response
   console.log("Updating response", response)
 }
 
@@ -480,7 +475,7 @@ const copyRequest = async () => {
   } else {
     shareLink.value = ""
     fetchingShareLink.value = true
-    const shortcodeResult = await createShortcode(request.value)()
+    const shortcodeResult = await createShortcode(tab.value.document.request)()
     if (E.isLeft(shortcodeResult)) {
       toast.error(`${shortcodeResult.left.error}`)
       shareLink.value = `${t("error.something_went_wrong")}`
@@ -538,33 +533,26 @@ const cycleDownMethod = () => {
 }
 
 const saveRequest = () => {
-  const saveCtx = getRESTSaveContext()
+  const saveCtx = tab.value.document.saveContext
+
   if (!saveCtx) {
     showSaveRequestModal.value = true
     return
   }
   if (saveCtx.originLocation === "user-collection") {
-    const req = getRESTRequest()
+    const req = tab.value.document.request
 
     try {
-      editRESTRequest(
-        saveCtx.folderPath,
-        saveCtx.requestIndex,
-        getRESTRequest()
-      )
-      setRESTSaveContext({
-        originLocation: "user-collection",
-        folderPath: saveCtx.folderPath,
-        requestIndex: saveCtx.requestIndex,
-        req: cloneDeep(req),
-      })
+      editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
+
+      tab.value.document.isDirty = false
       toast.success(`${t("request.saved")}`)
     } catch (e) {
-      setRESTSaveContext(null)
+      tab.value.document.saveContext = undefined
       saveRequest()
     }
   } else if (saveCtx.originLocation === "team-collection") {
-    const req = getRESTRequest()
+    const req = tab.value.document.request
 
     // TODO: handle error case (NOTE: overwriteRequestTeams is async)
     try {
@@ -578,11 +566,8 @@ const saveRequest = () => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
         } else {
-          setRESTSaveContext({
-            originLocation: "team-collection",
-            requestID: saveCtx.requestID,
-            req: cloneDeep(req),
-          })
+          tab.value.document.isDirty = false
+
           toast.success(`${t("request.saved")}`)
         }
       })
@@ -614,7 +599,10 @@ defineActionHandler("request.method.delete", () => updateMethod("DELETE"))
 defineActionHandler("request.method.head", () => updateMethod("HEAD"))
 
 const isCustomMethod = computed(() => {
-  return request.value.method === "CUSTOM" || !methods.includes(newMethod.value)
+  return (
+    tab.value.document.request.method === "CUSTOM" ||
+    !methods.includes(newMethod.value)
+  )
 })
 
 const COLUMN_LAYOUT = useSetting("COLUMN_LAYOUT")

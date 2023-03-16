@@ -32,8 +32,6 @@ const props = defineProps({
   },
 })
 
-console.log(slots)
-
 const tabMeta = computed<TabMeta>(() => ({
   info: props.info,
   label: props.label,

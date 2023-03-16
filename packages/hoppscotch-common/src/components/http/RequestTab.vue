@@ -1,34 +1,26 @@
 <template>
   <AppPaneLayout layout-id="rest-primary">
     <template #primary>
-      <HttpRequest v-model="tab.request" @update:response="onUpdateResponse" />
-      <HttpRequestOptions v-model="tab.request" />
+      <HttpRequest v-model="tab" />
+      <HttpRequestOptions v-model="tab.document.request" />
     </template>
     <template #secondary>
-      <HttpResponse :response="tab.response" />
+      <HttpResponse v-model:tab="tab" />
     </template>
   </AppPaneLayout>
 </template>
 
 <script setup lang="ts">
-import { cloneDeep } from "lodash-es"
-import { ref, watch } from "vue"
-import { RESTTab } from "~/newstore/RESTSession"
+import { useVModel } from "@vueuse/core"
+import { HoppRESTTab } from "~/helpers/rest/tab"
 
-const props = defineProps<{ modelValue: RESTTab }>()
-const emit = defineEmits(["update:modelValue"])
+// TODO: Move Response and Request execution code to over here
 
-const tab = ref(cloneDeep(props.modelValue))
+const props = defineProps<{ modelValue: HoppRESTTab }>()
 
-const onUpdateResponse = (response: any) => {
-  tab.value.response = response
-}
+const emit = defineEmits<{
+  (e: "update:modelValue", val: HoppRESTTab): void
+}>()
 
-watch(
-  () => tab.value,
-  (newVal) => {
-    emit("update:modelValue", newVal)
-  },
-  { deep: true }
-)
+const tab = useVModel(props, "modelValue", emit)
 </script>

@@ -42,8 +42,13 @@
     :show="confirmingCloseFortabID !== null"
     :confirm="t('modal.close_unsaved_tab')"
     :title="t('confirm.save_unsaved_tab')"
-    @hide-modal="confirmingCloseFortabID = null"
-    @resolve="confirmRemoveTab"
+    @hide-modal="onCloseConfirmSaveTab"
+    @resolve="onResolveConfirmSaveTab"
+  />
+  <CollectionsSaveRequest
+    :show="savingRequest"
+    :mode="'rest'"
+    @hide-modal="onSaveModalClose"
   />
 </template>
 
@@ -66,7 +71,9 @@ import {
   updateTabOrdering,
 } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { invokeAction } from "~/helpers/actions"
 
+const savingRequest = ref(false)
 const confirmingCloseFortabID = ref<string | null>(null)
 
 const t = useI18n()
@@ -114,9 +121,40 @@ const removeTab = (tabID: string) => {
   }
 }
 
-const confirmRemoveTab = () => {
+/**
+ * This function is closed when the confirm tab is closed by some means (even saving triggers close)
+ */
+const onCloseConfirmSaveTab = () => {
+  if (!savingRequest.value && confirmingCloseFortabID.value) {
+    closeTab(confirmingCloseFortabID.value)
+    confirmingCloseFortabID.value = null
+  }
+}
+
+/**
+ * Called when the user confirms they want to save the tab
+ */
+const onResolveConfirmSaveTab = () => {
+  if (currentActiveTab.value.document.saveContext) {
+    invokeAction("request.save")
+
+    if (confirmingCloseFortabID.value) {
+      closeTab(confirmingCloseFortabID.value)
+      confirmingCloseFortabID.value = null
+    }
+  } else {
+    savingRequest.value = true
+  }
+}
+
+/**
+ * Called when the Save Request modal is done and is closed
+ */
+const onSaveModalClose = () => {
+  savingRequest.value = false
   if (confirmingCloseFortabID.value) {
     closeTab(confirmingCloseFortabID.value)
+    confirmingCloseFortabID.value = null
   }
 }
 

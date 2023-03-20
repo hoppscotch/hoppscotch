@@ -2,62 +2,87 @@
   <div class="sm:px-6 p-4">
     <h3 class="text-3xl font-bold text-gray-200 mb-6">Dashboard</h3>
 
-    <div class="mt-4">
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div v-if="fetching" class="flex justify-center">
+      <HoppSmartSpinner />
+    </div>
+    <div v-else-if="error">
+      <p class="text-xl">No Metrics Found..</p>
+    </div>
+
+    <div v-else class="mt-4">
+      <div class="grid lg:grid-cols-2 gap-6">
         <div class="w-full">
           <div
-            class="flex items-center px-5 py-6 bg-zinc-800 rounded-md shadow-sm"
+            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
           >
-            <icon-lucide-user-cog class="text-2xl text-emerald-500" />
+            <icon-lucide-user-cog class="text-5xl text-emerald-500" />
 
-            <div class="mx-5">
-              <h4 class="text-2xl font-semibold text-gray-200">1000</h4>
-              <div class="text-gray-400">Total Users</div>
+            <div class="mx-10">
+              <h4 class="text-4xl font-semibold text-gray-200">
+                {{ metrics?.usersCount }}
+              </h4>
+              <div class="text-gray-400 font-bold text-xl">Total Users</div>
             </div>
           </div>
         </div>
 
         <div class="w-full">
           <div
-            class="flex items-center px-5 py-6 bg-zinc-800 rounded-md shadow-sm"
+            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
           >
-            <icon-lucide-users class="text-2xl text-pink-400" />
+            <icon-lucide-users class="text-5xl text-pink-400" />
 
-            <div class="mx-5">
-              <h4 class="text-2xl font-semibold text-gray-200">200</h4>
-              <div class="text-gray-400">Total Teams</div>
+            <div class="mx-10">
+              <h4 class="text-4xl font-semibold text-gray-200">
+                {{ metrics?.teamsCount }}
+              </h4>
+              <div class="text-gray-400 font-bold text-xl">Total Teams</div>
             </div>
           </div>
         </div>
 
         <div class="w-full">
           <div
-            class="flex items-center px-5 py-6 bg-zinc-800 rounded-md shadow-sm"
+            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
           >
-            <icon-lucide-line-chart class="text-2xl text-cyan-400" />
+            <icon-lucide-line-chart class="text-5xl text-cyan-400" />
 
-            <div class="mx-5">
-              <h4 class="text-2xl font-semibold text-gray-200">20</h4>
-              <div class="text-gray-400">Total Requests</div>
+            <div class="mx-10">
+              <h4 class="text-4xl font-semibold text-gray-200">
+                {{ metrics?.teamRequestsCount }}
+              </h4>
+              <div class="text-gray-400 font-bold text-xl">Total Requests</div>
             </div>
           </div>
         </div>
 
         <div class="w-full">
           <div
-            class="flex items-center px-5 py-6 bg-zinc-800 rounded-md shadow-sm"
+            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
           >
-            <icon-lucide-folder-tree class="text-2xl text-orange-400" />
+            <icon-lucide-folder-tree class="text-5xl text-orange-400" />
 
-            <div class="mx-5">
-              <h4 class="text-2xl font-semibold text-gray-200">215</h4>
-              <div class="text-gray-400">Total Collections</div>
+            <div class="mx-10">
+              <h4 class="text-4xl font-semibold text-gray-200">
+                {{ metrics?.teamCollectionsCount }}
+              </h4>
+              <div class="text-gray-400 font-bold text-xl">
+                Total Collections
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="mt-8"></div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useQuery } from '@urql/vue';
+import { MetricsDocument } from '../helpers/backend/graphql';
+
+// Get Metrics Data
+const { fetching, error, data } = useQuery({ query: MetricsDocument });
+const metrics = computed(() => data?.value?.admin);
+</script>

@@ -74,7 +74,9 @@ export async function emitGQLSchemaFile() {
       `Generating Schema against ${RESOLVERS.length} resolvers and ${SCALARS.length} custom scalars`,
     );
 
-    const schema = await gqlSchemaFactory.create(RESOLVERS, SCALARS);
+    const schema = await gqlSchemaFactory.create(RESOLVERS, SCALARS, {
+      numberScalarMode: 'integer',
+    });
 
     const schemaString = printSchema(schema, {
       commentDescriptions: true,

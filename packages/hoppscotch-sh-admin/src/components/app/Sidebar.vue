@@ -38,7 +38,7 @@
               :class="route.name === '/dashboard' ? 'white' : 'gray'"
             />
 
-            <span v-if="isExpanded" class="mx-4">Dashboard</span>
+            <span v-if="isExpanded" class="mx-4 font-semibold">Dashboard</span>
           </router-link>
 
           <router-link
@@ -51,7 +51,7 @@
               :class="route.path === '/users' ? 'white' : 'gray'"
             />
 
-            <span v-if="isExpanded" class="mx-4">Users</span>
+            <span v-if="isExpanded" class="mx-4 font-semibold">Users</span>
           </router-link>
 
           <router-link
@@ -64,20 +64,7 @@
               :class="route.name === '/teams' ? 'white' : 'gray'"
             />
 
-            <span v-if="isExpanded" class="mx-4">Teams</span>
-          </router-link>
-
-          <router-link
-            class="flex items-center px-6 py-4 duration-200 border-l-4 rounded-sm"
-            :class="[route.name === '/settings' ? activeClass : inactiveClass]"
-            to="/settings"
-          >
-            <icon-lucide-settings
-              class="text-xl"
-              :class="route.name === '/settings' ? 'white' : 'gray'"
-            />
-
-            <span v-if="isExpanded" class="mx-4">Settings</span>
+            <span v-if="isExpanded" class="mx-4 font-semibold">Teams</span>
           </router-link>
         </nav>
       </div>

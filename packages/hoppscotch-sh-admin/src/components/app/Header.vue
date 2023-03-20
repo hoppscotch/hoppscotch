@@ -22,10 +22,6 @@
     </div>
 
     <div class="flex items-center">
-      <button class="flex mx-4 text-gray-400 focus:outline-none toggle-dark">
-        <icon-lucide-bell class="text-gray-300 w-6" />
-      </button>
-
       <div v-if="currentUser" class="relative">
         <button
           @click="dropdownOpen = !dropdownOpen"
@@ -66,12 +62,6 @@
             v-show="dropdownOpen"
             class="absolute right-0 z-20 w-48 py-2 mt-2 bg-zinc-800 rounded-md shadow-xl"
           >
-            <HoppSmartItem to="/profile" :icon="IconUser" :label="'Profile'" />
-            <HoppSmartItem
-              to="/settings"
-              :icon="IconSettings"
-              :label="'Settings'"
-            />
             <AppLogout ref="logout" />
           </div>
         </transition>
@@ -81,8 +71,6 @@
 </template>
 
 <script setup lang="ts">
-import IconSettings from '~icons/lucide/settings';
-import IconUser from '~icons/lucide/user';
 import { ref } from 'vue';
 import { useReadonlyStream } from '~/composables/stream';
 import { useSidebar } from '~/composables/useSidebar';

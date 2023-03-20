@@ -1,6 +1,14 @@
 <template>
   <div>
-    <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">
+    <div class="ml-3">
+      <button
+        class="p-2 mb-2 rounded-3xl bg-zinc-800"
+        @click="router.push('/users')"
+      >
+        <icon-lucide-arrow-left class="text-xl" />
+      </button>
+    </div>
+    <h3 class="sm:px-6 p-4 text-3xl font-bold text-gray-200 mb-2">
       Invited Users
     </h3>
 
@@ -13,18 +21,18 @@
                 <HoppSmartSpinner />
               </div>
               <div v-else-if="error">
-                <p class="text-xl">No Invited Users Found</p>
+                <p class="text-xl">No Invited Users Found..</p>
               </div>
 
               <table v-else class="w-full text-left">
                 <thead>
                   <tr
-                    class="text-gray-200 border-b border-gray-600 text-sm text-center"
+                    class="text-gray-200 border-b border-gray-600 text-sm font-bold"
                   >
-                    <th class="font-normal px-3 pt-0 pb-3">Admin ID</th>
-                    <th class="font-normal px-3 pt-0 pb-3">Admin Email</th>
-                    <th class="font-normal px-3 pt-0 pb-3">Invitee Email</th>
-                    <th class="font-normal px-3 pt-0 pb-3">Invited On</th>
+                    <th class="px-3 pt-0 pb-3">Admin ID</th>
+                    <th class="px-3 pt-0 pb-3">Admin Email</th>
+                    <th class="px-3 pt-0 pb-3">Invitee Email</th>
+                    <th class="px-3 pt-0 pb-3">Invited On</th>
                   </tr>
                 </thead>
                 <tbody
@@ -35,27 +43,29 @@
                   <tr
                     class="border-b border-gray-600 hover:bg-zinc-800 rounded-xl"
                   >
-                    <td class="sm:p-3 py-2 px-3 max-w-30">
-                      <div class="flex justify-center">
-                        <span class="ml-3 truncate">
+                    <td class="sm:p-3 py-2 px-3 max-w-30 ml-2">
+                      <div>
+                        <span class="truncate">
                           {{ user?.adminUid }}
                         </span>
                       </div>
                     </td>
-                    <td class="sm:p-3 py-2 px-1 text-sky-300">
-                      <div class="flex items-center justify-center">
+                    <td class="sm:p-3 py-2 px-1">
+                      <span class="flex items-center ml-2">
                         {{ user?.adminEmail }}
-                      </div>
+                      </span>
                     </td>
-                    <td class="sm:p-3 py-2 px-1 text-sky-300 text-center">
-                      {{ user?.inviteeEmail }}
+                    <td class="sm:p-3 py-2 px-1 ml-4">
+                      <span class="ml-2">
+                        {{ user?.inviteeEmail }}
+                      </span>
                     </td>
 
                     <td class="sm:p-3 py-2 px-1">
-                      <div class="flex items-center justify-center">
+                      <div class="flex items-center ml-2">
                         <div class="flex flex-col">
                           {{ getCreatedDate(user?.invitedOn) }}
-                          <div class="text-gray-400 text-xs text-center">
+                          <div class="text-gray-400 text-xs">
                             {{ getCreatedTime(user?.invitedOn) }}
                           </div>
                         </div>
@@ -78,6 +88,9 @@ import { useQuery } from '@urql/vue';
 import { InvitedUsersDocument } from '../../helpers/backend/graphql';
 import { format } from 'date-fns';
 import { HoppSmartSpinner } from '@hoppscotch/ui';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Get Proper Date Formats
 const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');

@@ -4,6 +4,7 @@ query UserInfo($uid: ID!) {
       uid
       displayName
       email
+      isAdmin
       photoURL
       createdOn
     }

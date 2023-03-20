@@ -1,6 +1,6 @@
 <template>
   <div class="sm:px-6 p-4">
-    <h3 class="text-3xl font-medium text-gray-200 mb-6">Dashboard</h3>
+    <h3 class="text-3xl font-bold text-gray-200 mb-6">Dashboard</h3>
 
     <div class="mt-4">
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -34,11 +34,11 @@
           <div
             class="flex items-center px-5 py-6 bg-zinc-800 rounded-md shadow-sm"
           >
-            <icon-lucide-lock class="text-2xl text-cyan-400" />
+            <icon-lucide-line-chart class="text-2xl text-cyan-400" />
 
             <div class="mx-5">
               <h4 class="text-2xl font-semibold text-gray-200">20</h4>
-              <div class="text-gray-400">Total Roles</div>
+              <div class="text-gray-400">Total Requests</div>
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@
           <div
             class="flex items-center px-5 py-6 bg-zinc-800 rounded-md shadow-sm"
           >
-            <icon-lucide-line-chart class="text-2xl text-orange-400" />
+            <icon-lucide-folder-tree class="text-2xl text-orange-400" />
 
             <div class="mx-5">
               <h4 class="text-2xl font-semibold text-gray-200">215</h4>

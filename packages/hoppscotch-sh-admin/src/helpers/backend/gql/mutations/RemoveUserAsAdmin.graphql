@@ -1,0 +1,3 @@
+mutation RemoveUserAsAdmin($uid: String!) {
+  removeUserAsAdmin(userUID: $uid)
+}

@@ -23,17 +23,18 @@ export function usePagedQuery<
   const fetchNextPage = async () => {
     fetching.value = true;
     try {
-      const result = await client.query(query, {
-        ...variables,
-        cursor: list.value.length > 0
-          ? getCursor(list.value.at(-1))
-          : undefined
-      }).toPromise();
+      const result = await client
+        .query(query, {
+          ...variables,
+          cursor:
+            list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined,
+        })
+        .toPromise();
 
       const resultList = getList(result.data!);
 
       if (resultList.length < 20) {
-        hasNextPage.value = false
+        hasNextPage.value = false;
       }
 
       list.value.push(...resultList);
@@ -42,22 +43,30 @@ export function usePagedQuery<
       error.value = true;
     }
     fetching.value = false;
-  }
+  };
 
   onMounted(async () => {
-    await fetchNextPage()
+    await fetchNextPage();
   });
 
   const goToNextPage = async () => {
     if (hasNextPage.value) {
-      await fetchNextPage()
+      await fetchNextPage();
     }
+  };
+
+  const refetch = async () => {
+    currentPage.value = 0;
+    hasNextPage.value = true;
+    list.value = [];
+    await fetchNextPage();
   };
 
   return {
     fetching,
     error,
     goToNextPage,
+    refetch,
     list,
     hasNextPage,
   };

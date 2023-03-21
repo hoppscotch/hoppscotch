@@ -2,11 +2,11 @@
   <div>
     <h3 class="sm:px-6 p-4 text-3xl font-medium text-gray-200">Teams</h3>
 
-    <div class="flex flex-col">
-      <div class="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-4 lg:-mx-8 lg:px-8">
+    <div class="flex flex-col" v-if="!fetching">
+      <div class="py-2 overflow-x-auto">
         <div class="inline-block min-w-full overflow-hidden align-middle">
           <div class="sm:px-7 p-4">
-            <div v-if="showOptions" class="flex w-full items-center mb-7">
+            <div class="flex w-full items-center mb-7">
               <button
                 class="inline-flex mr-3 items-center h-8 pl-2.5 pr-2 rounded-md shadow text-gray-400 border-gray-800 border-2 leading-none py-0"
               >
@@ -42,27 +42,26 @@
                 </button>
               </div>
             </div>
+
             <div>
               <table class="w-full text-left">
                 <thead>
                   <tr class="text-gray-200 border-b border-gray-600 text-sm">
                     <th class="font-normal px-3 pt-0 pb-3"></th>
-                    <th class="font-normal px-3 pt-0 pb-3">Team ID</th>
                     <th class="font-normal px-3 pt-0 pb-3">Team Name</th>
-                    <th class="font-normal px-3 pt-0 pb-3 hidden md:table-cell">
-                      Members
+                    <th class="font-normal px-3 pt-0 pb-3">Team ID</th>
+                    <th class="font-normal px-3 pt-0 pb-3 md:table-cell">
+                      Number of Members
                     </th>
-                    <!-- <th class="font-normal px-3 pt-0 pb-3">Status</th> -->
-                    <th class="font-normal px-3 pt-0 pb-3">Date</th>
+                    <th class="font-normal px-3 pt-0 pb-3">Action</th>
                   </tr>
                 </thead>
                 <tbody class="text-gray-300">
                   <!-- <router-link :custom="true" class="" :to="'/team/detail'"> -->
                   <tr
-                    v-for="team in teams"
-                    id="team.id"
-                    class="border-b border-gray-600 hover:bg-zinc-800 rounded-xl"
-                    @click="goToTeam"
+                    v-for="(team, index) in teamList"
+                    :key="team.id"
+                    class="border-b border-gray-300 dark:border-gray-600 hover:bg-zinc-800 rounded-xl"
                   >
                     <td>
                       <label>
@@ -73,91 +72,159 @@
                         />
                       </label>
                     </td>
-                    <td class="sm:p-3 py-2 px-1">
-                      <div class="flex">
-                        <span class="ml-3">
-                          {{ team.id }}
-                        </span>
-                      </div>
-                    </td>
 
                     <td
                       class="sm:p-3 py-2 px-1 md:table-cell hidden text-sky-300"
+                      @click="goToTeam(team.id)"
                     >
-                      {{ team.name }}
+                      <span class="hover:underline cursor-pointer">
+                        {{ team.name }}
+                      </span>
                     </td>
+
+                    <td @click="goToTeam(team.id)" class="sm:p-3 py-2 px-1">
+                      <span class="hover:underline cursor-pointer">
+                        {{ team.id }}
+                      </span>
+                    </td>
+
                     <td class="sm:p-3 py-2 px-1 justify-center">
-                      {{ team.members }}
-                    </td>
-                    <td class="sm:p-3 py-2 px-1">
-                      <div class="flex items-center">
-                        <div class="sm:flex hidden flex-col">
-                          {{ team.date }}
-                          <div class="text-gray-400 text-xs">11:16 AM</div>
-                        </div>
-                      </div>
+                      {{ team.members?.length }}
                     </td>
                     <td>
-                      <button
-                        class="w-8 h-8 inline-flex items-center justify-right text-gray-400"
+                      <tippy
+                        interactive
+                        trigger="click"
+                        theme="popover"
+                        :on-shown="() => tippyActions![index].focus()"
                       >
-                        <icon-lucide-more-horizontal />
-                      </button>
+                        <span class="cursor-pointer">
+                          <icon-lucide-more-horizontal />
+                        </span>
+                        <template #content="{ hide }">
+                          <div
+                            ref="tippyActions"
+                            class="flex flex-col focus:outline-none"
+                            tabindex="0"
+                            @keyup.escape="hide()"
+                          >
+                            <HoppSmartItem
+                              label="Delete"
+                              @click="
+                                () => {
+                                  deleteTeam(team.id);
+                                  hide();
+                                }
+                              "
+                            />
+                          </div>
+                        </template>
+                      </tippy>
                     </td>
                   </tr>
                   <!-- </router-link> -->
                 </tbody>
               </table>
             </div>
+
+            <div v-if="teamList.length >= 20" class="text-center">
+              <button
+                @click="fetchNextTeams"
+                class="mt-5 p-2 rounded-3xl bg-gray-700"
+              >
+                <icon-lucide-chevron-down class="text-xl" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <HoppSmartConfirmModal
+    :show="confirmDeletion"
+    :title="`Confirm Deletion of the team?`"
+    @hide-modal="confirmDeletion = false"
+    @resolve="deleteTeamMutation(deleteTeamID)"
+  />
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import { defineProps } from 'vue';
 
-defineProps({
-  showOptions: {
-    type: Boolean,
-    default: true,
-  },
-});
+import {
+  RemoveTeamDocument,
+  TeamListDocument,
+} from '../../helpers/backend/graphql';
+import { usePagedQuery } from '../../composables/usePagedQuery';
 
-interface Team {
-  id: string;
-  name: string;
-  members: number;
-  date: string;
-}
+import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { useMutation } from '@urql/vue';
+import { useToast } from '../../composables/toast';
 
-const teams: Array<Team> = [
-  {
-    id: '123e4',
-    name: 'HoppMain',
-    members: 100,
-    date: '15-01-2023',
-  },
-  {
-    id: '12vbe',
-    name: 'Hopp',
-    members: 10,
-    date: '19-05-2023',
-  },
-  {
-    id: 'bg1d2',
-    name: 'Kratos',
-    members: 59,
-    date: '15-03-2023',
-  },
-];
+const toast = useToast();
 
 const router = useRouter();
 
-const goToTeam = () => {
-  router.push('/teams/details');
+const {
+  fetching,
+  goToNextPage: fetchNextTeams,
+  refetch,
+  list: teamList,
+} = usePagedQuery(
+  TeamListDocument,
+  (x) => x.admin.allTeams,
+  (x) => x.id,
+  { cursor: undefined }
+);
+
+const goToTeam = (teamId: string) => {
+  router.push('/teams/' + teamId);
+};
+
+// Open the side menu dropdown of only the selected user
+const activeTeamId = ref<null | String>(null);
+
+// Template refs
+const tippyActions = ref<any | null>(null);
+
+// Hide dropdown when user clicks elsewhere
+const close = (e: any) => {
+  if (!e.target.closest('.dropdown')) {
+    activeTeamId.value = null;
+  }
+};
+
+onMounted(() => document.addEventListener('click', close));
+onBeforeUnmount(() => document.removeEventListener('click', close));
+
+// User Deletion
+const teamDeletion = useMutation(RemoveTeamDocument);
+const confirmDeletion = ref(false);
+const deleteTeamID = ref<string | null>(null);
+
+const deleteTeam = (id: string) => {
+  confirmDeletion.value = true;
+  deleteTeamID.value = id;
+};
+
+const deleteTeamMutation = async (id: string | null) => {
+  if (!id) {
+    confirmDeletion.value = false;
+    toast.error('Team Deletion Failed');
+    return;
+  }
+  const variables = { uid: id };
+  await teamDeletion.executeMutation(variables).then((result) => {
+    if (result.error) {
+      toast.error('Team Deletion Failed');
+    } else {
+      refetch();
+      toast.success('Team Deleted Successfully');
+    }
+  });
+  confirmDeletion.value = false;
+  deleteTeamID.value = null;
+  router.push('/teams');
 };
 </script>

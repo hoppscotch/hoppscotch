@@ -1,0 +1,12 @@
+mutation AcceptTeamInvitation($inviteID: ID!) {
+  acceptTeamInvitation(inviteID: $inviteID) {
+    membershipID
+    role
+    user {
+      uid
+      displayName
+      photoURL
+      email
+    }
+  }
+}

@@ -41,17 +41,6 @@
       </div>
     </div>
   </div>
-
-  <div class="flex justify-center sm:justify-end mt-8">
-    <router-link to="/users">
-      <button
-        @click="submitTeam"
-        class="px-4 py-2 text-gray-200 bg-emerald-900 rounded-md hover:bg-emerald-700 focus:outline-none focus:bg-emerald-800"
-      >
-        Save
-      </button>
-    </router-link>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -73,9 +62,5 @@ const addNewMember = () => {
 
 const deleteMemberRow = (index: number) => {
   members.splice(index, 1);
-};
-
-const submitTeam = () => {
-  console.log('members', members);
 };
 </script>

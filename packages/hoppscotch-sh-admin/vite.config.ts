@@ -48,6 +48,12 @@ export default defineConfig({
           else return undefined;
         },
       ],
+      types: [
+        {
+          from: 'vue-tippy',
+          names: ['Tippy'],
+        },
+      ],
     }),
     Icons({
       compiler: 'vue3',

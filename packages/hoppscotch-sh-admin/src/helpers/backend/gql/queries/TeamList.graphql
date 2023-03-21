@@ -1,0 +1,11 @@
+query TeamList($cursor: ID) {
+  admin {
+    allTeams(cursor: $cursor) {
+      id
+      name
+      members {
+        membershipID
+      }
+    }
+  }
+}

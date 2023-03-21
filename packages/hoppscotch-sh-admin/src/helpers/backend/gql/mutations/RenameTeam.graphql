@@ -1,0 +1,6 @@
+mutation RenameTeam($uid: ID!, $name: String!) {
+  renameTeamByAdmin(teamID: $uid, newName: $name) {
+    id
+    name
+  }
+}

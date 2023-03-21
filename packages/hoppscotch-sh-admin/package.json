@@ -25,13 +25,16 @@
     "express-graphql": "^0.12.0",
     "fp-ts": "^2.13.1",
     "graphql": "^16.6.0",
+    "io-ts": "^2.2.16",
     "lodash-es": "^4.17.21",
     "rxjs": "^7.8.0",
     "ts-node-dev": "^2.0.0",
     "unplugin-icons": "^0.14.9",
     "unplugin-vue-components": "^0.21.0",
     "vue": "^3.2.6",
-    "vue-router": "4"
+    "vue-router": "4",
+    "tippy.js": "^6.3.7",
+    "vue-tippy": "6.0.0-alpha.58"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "3.0.0",

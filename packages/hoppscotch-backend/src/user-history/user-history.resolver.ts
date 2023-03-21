@@ -8,7 +8,10 @@ import { GqlUser } from '../decorators/gql-user.decorator';
 import { User } from '../user/user.model';
 import { throwErr } from '../utils';
 import * as E from 'fp-ts/Either';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver()
 export class UserHistoryResolver {
   constructor(
@@ -115,6 +118,7 @@ export class UserHistoryResolver {
     description: 'Listen for User History Creation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userHistoryCreated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_history/${user.uid}/created`);
@@ -124,6 +128,7 @@ export class UserHistoryResolver {
     description: 'Listen for User History update',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userHistoryUpdated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_history/${user.uid}/updated`);
@@ -133,6 +138,7 @@ export class UserHistoryResolver {
     description: 'Listen for User History deletion',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userHistoryDeleted(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_history/${user.uid}/deleted`);
@@ -142,6 +148,7 @@ export class UserHistoryResolver {
     description: 'Listen for User History deleted many',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userHistoryDeletedMany(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_history/${user.uid}/deleted_many`);

@@ -18,6 +18,7 @@ import { AdminModule } from './admin/admin.module';
 import { UserCollectionModule } from './user-collection/user-collection.module';
 import { ShortcodeModule } from './shortcode/shortcode.module';
 import { COOKIES_NOT_FOUND } from './errors';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -59,6 +60,10 @@ import { COOKIES_NOT_FOUND } from './errors';
         connection,
       }),
       driver: ApolloDriver,
+    }),
+    ThrottlerModule.forRoot({
+      ttl: +process.env.RATE_LIMIT_TTL,
+      limit: +process.env.RATE_LIMIT_MAX,
     }),
     UserModule,
     AuthModule,

@@ -1,8 +1,10 @@
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Mutation, Args, Subscription, ID } from '@nestjs/graphql';
+import { SkipThrottle } from '@nestjs/throttler';
 import { pipe } from 'fp-ts/function';
 import * as TE from 'fp-ts/TaskEither';
 import { GqlAuthGuard } from 'src/guards/gql-auth.guard';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { RequiresTeamRole } from 'src/team/decorators/requires-team-role.decorator';
 import { GqlTeamMemberGuard } from 'src/team/guards/gql-team-member.guard';
@@ -12,6 +14,7 @@ import { GqlTeamEnvTeamGuard } from './gql-team-env-team.guard';
 import { TeamEnvironment } from './team-environments.model';
 import { TeamEnvironmentsService } from './team-environments.service';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => 'TeamEnvironment')
 export class TeamEnvironmentsResolver {
   constructor(
@@ -144,6 +147,7 @@ export class TeamEnvironmentsResolver {
     description: 'Listen for Team Environment Updates',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.OWNER,
@@ -165,6 +169,7 @@ export class TeamEnvironmentsResolver {
     description: 'Listen for Team Environment Creation Messages',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.OWNER,
@@ -186,6 +191,7 @@ export class TeamEnvironmentsResolver {
     description: 'Listen for Team Environment Deletion Messages',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.OWNER,

@@ -9,7 +9,10 @@ import { UserSettings } from './user-settings.model';
 import { UserSettingsService } from './user-settings.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver()
 export class UserSettingsResolver {
   constructor(
@@ -63,6 +66,7 @@ export class UserSettingsResolver {
     description: 'Listen for user setting creation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userSettingsCreated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_settings/${user.uid}/created`);
@@ -72,6 +76,7 @@ export class UserSettingsResolver {
     description: 'Listen for user setting updates',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userSettingsUpdated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_settings/${user.uid}/updated`);

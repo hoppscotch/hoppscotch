@@ -25,7 +25,10 @@ import {
 import { AuthUser } from 'src/types/AuthUser';
 import { User } from 'src/user/user.model';
 import { ReqType } from 'src/user-history/user-history.model';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => UserRequest)
 export class UserRequestResolver {
   constructor(
@@ -232,6 +235,7 @@ export class UserRequestResolver {
     description: 'Listen for User Request Creation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userRequestCreated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_request/${user.uid}/created`);
@@ -241,6 +245,7 @@ export class UserRequestResolver {
     description: 'Listen for User Request Update',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userRequestUpdated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_request/${user.uid}/updated`);
@@ -250,6 +255,7 @@ export class UserRequestResolver {
     description: 'Listen for User Request Deletion',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userRequestDeleted(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_request/${user.uid}/deleted`);
@@ -259,6 +265,7 @@ export class UserRequestResolver {
     description: 'Listen for User Request Moved',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userRequestMoved(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_request/${user.uid}/moved`);

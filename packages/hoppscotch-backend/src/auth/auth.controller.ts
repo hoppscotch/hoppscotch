@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Post,
   Req,
   Request,
@@ -20,11 +18,14 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
-import { AuthGuard } from '@nestjs/passport';
 import { authCookieHandler, throwHTTPErr } from './helper';
 import { GoogleSSOGuard } from './guards/google-sso.guard';
 import { GithubSSOGuard } from './guards/github-sso.guard';
 import { MicrosoftSSOGuard } from './guards/microsoft-sso-.guard';
+import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
+import { SkipThrottle } from '@nestjs/throttler';
+
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller({ path: 'auth', version: '1' })
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -82,6 +83,7 @@ export class AuthController {
    * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
    */
   @Get('google/callback')
+  @SkipThrottle()
   @UseGuards(GoogleSSOGuard)
   async googleAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
@@ -106,6 +108,7 @@ export class AuthController {
    * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
    */
   @Get('github/callback')
+  @SkipThrottle()
   @UseGuards(GithubSSOGuard)
   async githubAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);
@@ -130,6 +133,7 @@ export class AuthController {
    * @see https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow#how-it-works
    */
   @Get('microsoft/callback')
+  @SkipThrottle()
   @UseGuards(MicrosoftSSOGuard)
   async microsoftAuthRedirect(@Request() req, @Res() res) {
     const authTokens = await this.authService.generateAuthTokens(req.user.uid);

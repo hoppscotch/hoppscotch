@@ -29,7 +29,10 @@ import {
 } from './input-type.args';
 import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamCollection)
 export class TeamCollectionResolver {
   constructor(
@@ -312,6 +315,7 @@ export class TeamCollectionResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamCollectionAdded(
     @Args({
@@ -333,6 +337,7 @@ export class TeamCollectionResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamCollectionUpdated(
     @Args({
@@ -354,6 +359,7 @@ export class TeamCollectionResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamCollectionRemoved(
     @Args({
@@ -375,6 +381,7 @@ export class TeamCollectionResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamCollectionMoved(
     @Args({
@@ -396,6 +403,7 @@ export class TeamCollectionResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   collectionOrderUpdated(
     @Args({

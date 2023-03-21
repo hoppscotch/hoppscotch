@@ -10,7 +10,10 @@ import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from 'src/types/AuthUser';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => User)
 export class UserResolver {
   constructor(
@@ -73,6 +76,7 @@ export class UserResolver {
     description: 'Listen for user updates',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userUpdated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user/${user.uid}/updated`);

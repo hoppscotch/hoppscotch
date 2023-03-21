@@ -34,7 +34,10 @@ import { TeamInviteViewerGuard } from './team-invite-viewer.guard';
 import { TeamInviteTeamOwnerGuard } from './team-invite-team-owner.guard';
 import { UserService } from 'src/user/user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamInvitation)
 export class TeamInvitationResolver {
   constructor(
@@ -199,6 +202,7 @@ export class TeamInvitationResolver {
     description: 'Listens to when a Team Invitation is added',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.OWNER,
@@ -220,6 +224,7 @@ export class TeamInvitationResolver {
     description: 'Listens to when a Team Invitation is removed',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.OWNER,

@@ -30,7 +30,10 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { throwErr } from 'src/utils';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => TeamRequest)
 export class TeamRequestResolver {
   constructor(
@@ -242,6 +245,7 @@ export class TeamRequestResolver {
     description: 'Emits when a new request is added to a team',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.VIEWER,
@@ -263,6 +267,7 @@ export class TeamRequestResolver {
     description: 'Emitted when a request has been updated',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.VIEWER,
@@ -285,6 +290,7 @@ export class TeamRequestResolver {
       'Emitted when a request has been deleted. Only the id of the request is emitted.',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.VIEWER,
@@ -307,6 +313,7 @@ export class TeamRequestResolver {
       'Emitted when a requests position has been changed in its collection',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.VIEWER,
@@ -329,6 +336,7 @@ export class TeamRequestResolver {
       'Emitted when a request has been moved from one collection into another',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   @RequiresTeamRole(
     TeamMemberRole.VIEWER,

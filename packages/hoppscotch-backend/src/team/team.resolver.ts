@@ -11,7 +11,6 @@ import {
   ID,
 } from '@nestjs/graphql';
 import { TeamService } from './team.service';
-import { User } from '../user/user.model';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlUser } from '../decorators/gql-user.decorator';
 import { UseGuards } from '@nestjs/common';
@@ -21,7 +20,10 @@ import { PubSubService } from '../pubsub/pubsub.service';
 import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => Team)
 export class TeamResolver {
   constructor(
@@ -271,6 +273,7 @@ export class TeamResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamMemberAdded(
     @Args({
@@ -293,6 +296,7 @@ export class TeamResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamMemberUpdated(
     @Args({
@@ -315,6 +319,7 @@ export class TeamResolver {
     TeamMemberRole.EDITOR,
     TeamMemberRole.VIEWER,
   )
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlTeamMemberGuard)
   teamMemberRemoved(
     @Args({

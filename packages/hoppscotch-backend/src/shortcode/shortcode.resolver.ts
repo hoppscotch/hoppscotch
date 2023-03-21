@@ -20,7 +20,10 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { AuthUser } from '../types/AuthUser';
 import { JwtService } from '@nestjs/jwt';
 import { PaginationArgs } from 'src/types/input-types.args';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => Shortcode)
 export class ShortcodeResolver {
   constructor(
@@ -105,6 +108,7 @@ export class ShortcodeResolver {
     description: 'Listen for shortcode creation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   myShortcodesCreated(@GqlUser() user: AuthUser) {
     return this.pubsub.asyncIterator(`shortcode/${user.uid}/created`);
@@ -114,6 +118,7 @@ export class ShortcodeResolver {
     description: 'Listen for shortcode deletion',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   myShortcodesRevoked(@GqlUser() user: AuthUser): AsyncIterator<Shortcode> {
     return this.pubsub.asyncIterator(`shortcode/${user.uid}/revoked`);

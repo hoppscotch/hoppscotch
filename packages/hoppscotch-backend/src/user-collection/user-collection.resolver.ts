@@ -31,7 +31,10 @@ import {
 } from './input-type.args';
 import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => UserCollection)
 export class UserCollectionResolver {
   constructor(
@@ -352,6 +355,7 @@ export class UserCollectionResolver {
     description: 'Listen for User Collection Creation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userCollectionCreated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/created`);
@@ -361,6 +365,7 @@ export class UserCollectionResolver {
     description: 'Listen to when a User Collection has been updated.',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userCollectionUpdated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/updated`);
@@ -370,6 +375,7 @@ export class UserCollectionResolver {
     description: 'Listen to when a User Collection has been deleted',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userCollectionRemoved(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/deleted`);
@@ -379,6 +385,7 @@ export class UserCollectionResolver {
     description: 'Listen to when a User Collection has been moved',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userCollectionMoved(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/moved`);
@@ -388,6 +395,7 @@ export class UserCollectionResolver {
     description: 'Listen to when a User Collections position has changed',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userCollectionOrderUpdated(@GqlUser() user: AuthUser) {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/order_updated`);

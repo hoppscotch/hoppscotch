@@ -8,7 +8,10 @@ import { User } from '../user/user.model';
 import { UserEnvironmentsService } from './user-environments.service';
 import * as E from 'fp-ts/Either';
 import { throwErr } from 'src/utils';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver()
 export class UserEnvironmentsResolver {
   constructor(
@@ -157,6 +160,7 @@ export class UserEnvironmentsResolver {
     description: 'Listen for User Environment Creation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userEnvironmentCreated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_environment/${user.uid}/created`);
@@ -166,6 +170,7 @@ export class UserEnvironmentsResolver {
     description: 'Listen for User Environment updates',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userEnvironmentUpdated(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_environment/${user.uid}/updated`);
@@ -175,6 +180,7 @@ export class UserEnvironmentsResolver {
     description: 'Listen for User Environment deletion',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userEnvironmentDeleted(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(`user_environment/${user.uid}/deleted`);
@@ -184,6 +190,7 @@ export class UserEnvironmentsResolver {
     description: 'Listen for User Environment DeleteMany',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard)
   userEnvironmentDeleteMany(@GqlUser() user: User) {
     return this.pubsub.asyncIterator(

@@ -20,6 +20,7 @@ import { UserRequestResolver } from './user-request/resolvers/user-request.resol
 import { UserSettingsResolver } from './user-settings/user-settings.resolver';
 import { UserResolver } from './user/user.resolver';
 import { Logger } from '@nestjs/common';
+import { AdminResolver } from './admin/admin.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -27,6 +28,7 @@ import { Logger } from '@nestjs/common';
  * NOTE: This needs to be KEPT UP-TO-DATE to keep the schema accurate
  */
 const RESOLVERS = [
+  AdminResolver,
   ShortcodeResolver,
   TeamResolver,
   TeamMemberResolver,

@@ -2,12 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
+import * as TO from 'fp-ts/TaskOption';
+import * as TE from 'fp-ts/TaskEither';
+import * as T from 'fp-ts/Task';
+import * as A from 'fp-ts/Array';
+import { pipe, constVoid } from 'fp-ts/function';
 import { AuthUser } from 'src/types/AuthUser';
-import { USER_NOT_FOUND } from 'src/errors';
+import { USER_NOT_FOUND, USERS_NOT_FOUND } from 'src/errors';
 import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import { stringToJson } from 'src/utils';
+import { stringToJson, taskEitherValidateArraySeq } from 'src/utils';
 import { UserDataHandler } from './user.data.handler';
 
 @Injectable()
@@ -260,5 +265,169 @@ export class UserService {
     if (E.isLeft(jsonSession)) return E.left(jsonSession.left);
 
     return E.right(jsonSession.right);
+  }
+
+  /**
+   * Fetch all the users in the `User` table based on cursor
+   * @param cursorID string of userUID or null
+   * @param take number of users to query
+   * @returns an array of `User` object
+   */
+  async fetchAllUsers(cursorID: string, take: number) {
+    const fetchedUsers = await this.prisma.user.findMany({
+      skip: cursorID ? 1 : 0,
+      take: take,
+      cursor: cursorID ? { uid: cursorID } : undefined,
+    });
+    return fetchedUsers;
+  }
+
+  /**
+   * Fetch the number of users in db
+   * @returns a count (Int) of user records in DB
+   */
+  async getUsersCount() {
+    const usersCount = await this.prisma.user.count();
+    return usersCount;
+  }
+
+  /**
+   * Change a user to an admin by toggling isAdmin param to true
+   * @param userUID user UID
+   * @returns a Either of `User` object or error
+   */
+  async makeAdmin(userUID: string) {
+    try {
+      const elevatedUser = await this.prisma.user.update({
+        where: {
+          uid: userUID,
+        },
+        data: {
+          isAdmin: true,
+        },
+      });
+      return E.right(elevatedUser);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Fetch all the admin users
+   * @returns an array of admin users
+   */
+  async fetchAdminUsers() {
+    const admins = this.prisma.user.findMany({
+      where: {
+        isAdmin: true,
+      },
+    });
+
+    return admins;
+  }
+
+  /**
+   * Deletes a user account by UID
+   * @param uid User UID
+   * @returns an Either of string  or boolean
+   */
+  async deleteUserAccount(uid: string) {
+    try {
+      await this.prisma.user.delete({
+        where: {
+          uid: uid,
+        },
+      });
+      return E.right(true);
+    } catch (e) {
+      return E.left(USER_NOT_FOUND);
+    }
+  }
+
+  /**
+   * Get user deletion error messages when the data handlers are initialised in respective modules
+   * @param user User Object
+   * @returns an TaskOption of string array
+   */
+  getUserDeletionErrors(user: AuthUser): TO.TaskOption<string[]> {
+    return pipe(
+      this.userDataHandlers,
+      A.map((handler) =>
+        pipe(
+          handler.canAllowUserDeletion(user),
+          TO.matchE(
+            () => TE.right(undefined),
+            (error) => TE.left(error),
+          ),
+        ),
+      ),
+      taskEitherValidateArraySeq,
+      TE.matchE(
+        (e) => TO.some(e),
+        () => TO.none,
+      ),
+    );
+  }
+
+  /**
+   * Deletes a user by UID
+   * @param user User Object
+   * @returns an TaskEither of string  or boolean
+   */
+  deleteUserByUID(user: AuthUser) {
+    return pipe(
+      this.getUserDeletionErrors(user),
+      TO.matchEW(
+        () =>
+          pipe(
+            this.userDataHandlers,
+            A.map((handler) => handler.onUserDelete(user)),
+            T.sequenceArray,
+            T.map(constVoid),
+            TE.fromTask,
+          ) as TE.TaskEither<never, void>,
+        (errors): TE.TaskEither<string[], void> => TE.left(errors),
+      ),
+
+      TE.chainW(() => () => this.deleteUserAccount(user.uid)),
+
+      TE.chainFirst(() =>
+        TE.fromTask(() =>
+          this.pubsub.publish(`user/${user.uid}/deleted`, <User>{
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            isAdmin: user.isAdmin,
+            createdOn: user.createdOn,
+            currentGQLSession: user.currentGQLSession,
+            currentRESTSession: user.currentRESTSession,
+          }),
+        ),
+      ),
+
+      TE.mapLeft((errors) => errors.toString()),
+    );
+  }
+
+  /**
+   * Change the user from an admin by toggling isAdmin param to false
+   * @param userUID user UID
+   * @returns a Either of `User` object or error
+   */
+  async removeUserAsAdmin(userUID: string) {
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          uid: userUID,
+        },
+        data: {
+          isAdmin: false,
+        },
+      });
+      return E.right(user);
+    } catch (error) {
+      return E.left(USER_NOT_FOUND);
+    }
   }
 }

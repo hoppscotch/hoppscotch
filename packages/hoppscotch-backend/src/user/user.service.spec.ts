@@ -1,13 +1,26 @@
-import { JSON_INVALID } from 'src/errors';
+import { JSON_INVALID, USER_NOT_FOUND } from 'src/errors';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthUser } from 'src/types/AuthUser';
 import { User } from './user.model';
 import { UserService } from './user.service';
 import { PubSubService } from 'src/pubsub/pubsub.service';
+import * as TO from 'fp-ts/TaskOption';
+import * as T from 'fp-ts/Task';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
+let service: UserService;
+
+const handler1 = {
+  canAllowUserDeletion: jest.fn(),
+  onUserDelete: jest.fn(),
+};
+
+const handler2 = {
+  canAllowUserDeletion: jest.fn(),
+  onUserDelete: jest.fn(),
+};
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -27,6 +40,90 @@ const user: AuthUser = {
   createdOn: currentTime,
 };
 
+const adminUser: AuthUser = {
+  uid: '123344',
+  email: 'dwight@dundermifflin.com',
+  displayName: 'Dwight Schrute',
+  photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+  isAdmin: true,
+  currentRESTSession: {},
+  currentGQLSession: {},
+  refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+  createdOn: currentTime,
+};
+
+const users: AuthUser[] = [
+  {
+    uid: '123344',
+    email: 'dwight@dundermifflin.com',
+    displayName: 'Dwight Schrute',
+    photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+    isAdmin: false,
+    currentRESTSession: {},
+    currentGQLSession: {},
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    createdOn: currentTime,
+  },
+  {
+    uid: '5555',
+    email: 'abc@dundermifflin.com',
+    displayName: 'abc Schrute',
+    photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+    isAdmin: false,
+    currentRESTSession: {},
+    currentGQLSession: {},
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    createdOn: currentTime,
+  },
+  {
+    uid: '6666',
+    email: 'def@dundermifflin.com',
+    displayName: 'def Schrute',
+    photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+    isAdmin: false,
+    currentRESTSession: {},
+    currentGQLSession: {},
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    createdOn: currentTime,
+  },
+];
+
+const adminUsers: AuthUser[] = [
+  {
+    uid: '123344',
+    email: 'dwight@dundermifflin.com',
+    displayName: 'Dwight Schrute',
+    photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+    isAdmin: true,
+    currentRESTSession: {},
+    currentGQLSession: {},
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    createdOn: currentTime,
+  },
+  {
+    uid: '5555',
+    email: 'abc@dundermifflin.com',
+    displayName: 'abc Schrute',
+    photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+    isAdmin: true,
+    currentRESTSession: {},
+    currentGQLSession: {},
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    createdOn: currentTime,
+  },
+  {
+    uid: '6666',
+    email: 'def@dundermifflin.com',
+    displayName: 'def Schrute',
+    photoURL: 'https://en.wikipedia.org/wiki/Dwight_Schrute',
+    isAdmin: true,
+    currentRESTSession: {},
+    currentGQLSession: {},
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    createdOn: currentTime,
+  },
+];
+
 const exampleSSOProfileData = {
   id: '123rfedvd',
   emails: [{ value: 'dwight@dundermifflin.com' }],
@@ -38,6 +135,10 @@ const exampleSSOProfileData = {
 beforeEach(() => {
   mockReset(mockPrisma);
   mockPubSub.publish.mockClear();
+  service = new UserService(mockPrisma, mockPubSub as any);
+
+  service.registerUserDataHandler(handler1);
+  service.registerUserDataHandler(handler2);
 });
 
 describe('UserService', () => {
@@ -310,6 +411,149 @@ describe('UserService', () => {
           currentRESTSession: JSON.stringify(user.currentRESTSession),
         },
       );
+    });
+  });
+
+  describe('fetchAllUsers', () => {
+    test('should resolve right and return 20 users when cursor is null', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(users);
+
+      const result = await userService.fetchAllUsers(null, 20);
+      expect(result).toEqual(users);
+    });
+    test('should resolve right and return next 20 users when cursor is provided', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(users);
+
+      const result = await userService.fetchAllUsers('123344', 20);
+      expect(result).toEqual(users);
+    });
+    test('should resolve left and return an error when users not found', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce([]);
+
+      const result = await userService.fetchAllUsers(null, 20);
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('fetchAdminUsers', () => {
+    test('should return a list of admin users', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(adminUsers);
+      const result = await userService.fetchAdminUsers();
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        where: {
+          isAdmin: true,
+        },
+      });
+      expect(result).toEqual(adminUsers);
+    });
+    test('should return null when no admin users found', async () => {
+      mockPrisma.user.findMany.mockResolvedValueOnce(null);
+      const result = await userService.fetchAdminUsers();
+      expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
+        where: {
+          isAdmin: true,
+        },
+      });
+      expect(result).toEqual(null);
+    });
+  });
+
+  describe('makeAdmin', () => {
+    test('should resolve right and return a user object after making a user admin', async () => {
+      mockPrisma.user.update.mockResolvedValueOnce(adminUser);
+      const result = await userService.makeAdmin(user.uid);
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: {
+          uid: user.uid,
+        },
+        data: {
+          isAdmin: true,
+        },
+      });
+      expect(result).toEqualRight(adminUser);
+    });
+    test('should resolve left and error when invalid user uid is passed', async () => {
+      mockPrisma.user.update.mockRejectedValueOnce('NotFoundError');
+      const result = await userService.makeAdmin(user.uid);
+      expect(mockPrisma.user.update).toHaveBeenCalledWith({
+        where: {
+          uid: user.uid,
+        },
+        data: {
+          isAdmin: true,
+        },
+      });
+      expect(result).toEqualLeft(USER_NOT_FOUND);
+    });
+  });
+
+  describe('deleteUserByID', () => {
+    test('should resolve right for valid user uid and perform successful user deletion', () => {
+      // For a successful deletion, the handlers should allow user deletion
+      handler1.canAllowUserDeletion.mockImplementation(() => TO.none);
+      handler2.canAllowUserDeletion.mockImplementation(() => TO.none);
+      handler1.onUserDelete.mockImplementation(() => T.of(undefined));
+      handler2.onUserDelete.mockImplementation(() => T.of(undefined));
+      mockPrisma.user.delete.mockResolvedValueOnce(user);
+
+      const result = service.deleteUserByUID(user)();
+      return expect(result).resolves.toBeRight();
+    });
+    test('should resolve right for successful deletion and publish user deleted subscription', async () => {
+      // For a successful deletion, the handlers should allow user deletion
+      handler1.canAllowUserDeletion.mockImplementation(() => TO.none);
+      handler2.canAllowUserDeletion.mockImplementation(() => TO.none);
+      handler1.onUserDelete.mockImplementation(() => T.of(undefined));
+      handler2.onUserDelete.mockImplementation(() => T.of(undefined));
+
+      mockPrisma.user.delete.mockResolvedValueOnce(user);
+      const result = service.deleteUserByUID(user)();
+      await expect(result).resolves.toBeRight();
+
+      // fire the subscription for user deletion
+      expect(mockPubSub.publish).toHaveBeenCalledWith(
+        `user/${user.uid}/deleted`,
+        <User>{
+          uid: user.uid,
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          isAdmin: user.isAdmin,
+          currentRESTSession: user.currentRESTSession,
+          currentGQLSession: user.currentGQLSession,
+          createdOn: user.createdOn,
+        },
+      );
+    });
+    test("should resolve left when one or both the handlers don't allow userDeletion", () => {
+      // Handlers don't allow user deletion
+      handler1.canAllowUserDeletion.mockImplementation(() => TO.some);
+      handler2.canAllowUserDeletion.mockImplementation(() => TO.some);
+
+      const result = service.deleteUserByUID(user)();
+      return expect(result).resolves.toBeLeft();
+    });
+    test('should resolve left when ther is an unsuccessful deletion of userdata from firestore', () => {
+      // Handlers allow deletion to proceed
+      handler1.canAllowUserDeletion.mockImplementation(() => TO.none);
+      handler2.canAllowUserDeletion.mockImplementation(() => TO.none);
+      handler1.onUserDelete.mockImplementation(() => T.of(undefined));
+      handler2.onUserDelete.mockImplementation(() => T.of(undefined));
+
+      // Deleting users errors out
+      mockPrisma.user.delete.mockRejectedValueOnce('NotFoundError');
+
+      const result = service.deleteUserByUID(user)();
+      return expect(result).resolves.toBeLeft();
+    });
+  });
+
+  describe('getUsersCount', () => {
+    test('should return count of all users in the organization', async () => {
+      mockPrisma.user.count.mockResolvedValueOnce(10);
+
+      const result = await userService.getUsersCount();
+      expect(result).toEqual(10);
     });
   });
 });

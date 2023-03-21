@@ -83,7 +83,7 @@ export class TeamRequestService {
     teamID: string,
     searchTerm: string,
     cursor: string,
-    take: number = 10,
+    take = 10,
   ) {
     const fetchedRequests = await this.prisma.teamRequest.findMany({
       take: take,
@@ -183,7 +183,7 @@ export class TeamRequestService {
   async getRequestsInCollection(
     collectionID: string,
     cursor: string,
-    take: number = 10,
+    take = 10,
   ) {
     const dbTeamRequests = await this.prisma.teamRequest.findMany({
       cursor: cursor ? { id: cursor } : undefined,
@@ -423,5 +423,29 @@ export class TeamRequestService {
     } catch (err) {
       return E.left(TEAM_REQ_REORDERING_FAILED);
     }
+  }
+
+  /**
+   * Return count of total requests in a team
+   * @param teamID team ID
+   */
+  async totalRequestsInATeam(teamID: string) {
+    const requestsCount = await this.prisma.teamRequest.count({
+      where: {
+        teamID: teamID,
+      },
+    });
+
+    return requestsCount;
+  }
+
+  /**
+   * Fetch list of all the Team Requests in DB
+   *
+   * @returns number of Team Requests in the DB
+   */
+  async getTeamRequestsCount() {
+    const teamRequestsCount = this.prisma.teamRequest.count();
+    return teamRequestsCount;
   }
 }

@@ -14,3 +14,11 @@ export type UserMagicLinkMailDescription = {
     magicLink: string;
   };
 };
+
+export type AdminUserInvitationMailDescription = {
+  template: 'code-your-own';
+  variables: {
+    inviteeEmail: string;
+    magicLink: string;
+  };
+};

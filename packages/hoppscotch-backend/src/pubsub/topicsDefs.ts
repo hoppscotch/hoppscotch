@@ -17,6 +17,7 @@ import {
   TeamRequest,
 } from 'src/team-request/team-request.model';
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
+import { InvitedUser } from '../admin/invited-user.model';
 import { UserCollection } from '@prisma/client';
 import { UserCollectionReorderData } from 'src/user-collection/user-collections.model';
 import { Shortcode } from 'src/shortcode/shortcode.model';
@@ -24,7 +25,8 @@ import { Shortcode } from 'src/shortcode/shortcode.model';
 // A custom message type that defines the topic and the corresponding payload.
 // For every module that publishes a subscription add its type def and the possible subscription type.
 export type TopicDef = {
-  [topic: `user/${string}/${'updated'}`]: User;
+  [topic: `admin/${string}/${'invited'}`]: InvitedUser;
+  [topic: `user/${string}/${'updated' | 'deleted'}`]: User;
   [topic: `user_settings/${string}/${'created' | 'updated'}`]: UserSettings;
   [
     topic: `user_environment/${string}/${'created' | 'updated' | 'deleted'}`

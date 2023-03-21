@@ -231,4 +231,18 @@ export class TeamEnvironmentsService {
       ),
     );
   }
+
+  /**
+   * Fetch the count of environments for a given team.
+   * @param teamID team id
+   * @returns a count of team envs
+   */
+  async totalEnvsInTeam(teamID: string) {
+    const envCount = await this.prisma.teamEnvironment.count({
+      where: {
+        teamID: teamID,
+      },
+    });
+    return envCount;
+  }
 }

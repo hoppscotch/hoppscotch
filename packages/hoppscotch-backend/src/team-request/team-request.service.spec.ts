@@ -10,7 +10,6 @@ import {
   TEAM_REQ_REORDERING_FAILED,
 } from 'src/errors';
 import * as E from 'fp-ts/Either';
-import * as O from 'fp-ts/Option';
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { TeamRequest } from './team-request.model';
 import { MoveTeamRequestArgs } from './input-type.args';
@@ -689,5 +688,36 @@ describe('moveRequest', () => {
         'moveRequest',
       ),
     ).resolves.toEqualLeft(TEAM_REQ_REORDERING_FAILED);
+  });
+});
+describe('totalRequestsInATeam', () => {
+  test('should resolve right and return a total team reqs count ', async () => {
+    mockPrisma.teamRequest.count.mockResolvedValueOnce(2);
+    const result = await teamRequestService.totalRequestsInATeam('id1');
+    expect(mockPrisma.teamRequest.count).toHaveBeenCalledWith({
+      where: {
+        teamID: 'id1',
+      },
+    });
+    expect(result).toEqual(2);
+  });
+  test('should resolve left and return an error when no team reqs found', async () => {
+    mockPrisma.teamRequest.count.mockResolvedValueOnce(0);
+    const result = await teamRequestService.totalRequestsInATeam('id1');
+    expect(mockPrisma.teamRequest.count).toHaveBeenCalledWith({
+      where: {
+        teamID: 'id1',
+      },
+    });
+    expect(result).toEqual(0);
+  });
+
+  describe('getTeamRequestsCount', () => {
+    test('should return count of all Team Collections in the organization', async () => {
+      mockPrisma.teamRequest.count.mockResolvedValueOnce(10);
+
+      const result = await teamRequestService.getTeamRequestsCount();
+      expect(result).toEqual(10);
+    });
   });
 });

@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Req,
   Request,
   Res,
   UseGuards,
@@ -15,6 +16,7 @@ import { VerifyMagicDto } from './dto/verify-magic.dto';
 import { Response } from 'express';
 import * as E from 'fp-ts/Either';
 import { RTJwtAuthGuard } from './guards/rt-jwt-auth.guard';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GqlUser } from 'src/decorators/gql-user.decorator';
 import { AuthUser } from 'src/types/AuthUser';
 import { RTCookie } from 'src/decorators/rt-cookie.decorator';
@@ -148,5 +150,13 @@ export class AuthController {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
     return res.status(200).send();
+  }
+
+  @Get('verify/admin')
+  @UseGuards(JwtAuthGuard)
+  async verifyAdmin(@GqlUser() user: AuthUser) {
+    const userInfo = await this.authService.verifyAdmin(user);
+    if (E.isLeft(userInfo)) throwHTTPErr(userInfo.left);
+    return userInfo.right;
   }
 }

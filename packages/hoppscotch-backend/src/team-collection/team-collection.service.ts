@@ -613,13 +613,6 @@ export class TeamCollectionService {
       },
     });
 
-    // // Update orderIndexes in TeamCollection table for user
-    // await this.updateOrderIndex(
-    //   collection.parentID,
-    //   { gt: collection.orderIndex },
-    //   { decrement: 1 },
-    // );
-
     // Delete collection from TeamCollection table
     const deletedTeamCollection = await this.removeTeamCollection(
       collection.id,
@@ -954,6 +947,31 @@ export class TeamCollectionService {
     } catch (error) {
       return E.left(TEAM_COL_REORDERING_FAILED);
     }
+  }
+
+  /**
+   * Fetch list of all the Team Collections in DB for a particular team
+   * @param teamID Team ID
+   * @returns number of Team Collections in the DB
+   */
+  async totalCollectionsInTeam(teamID: string) {
+    const collCount = await this.prisma.teamCollection.count({
+      where: {
+        teamID: teamID,
+      },
+    });
+
+    return collCount;
+  }
+
+  /**
+   * Fetch list of all the Team Collections in DB
+   *
+   * @returns number of Team Collections in the DB
+   */
+  async getTeamCollectionsCount() {
+    const teamCollectionsCount = this.prisma.teamCollection.count();
+    return teamCollectionsCount;
   }
 
   // async importCollectionFromFirestore(

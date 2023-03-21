@@ -4,7 +4,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TeamMember as DbTeamMember } from '@prisma/client';
 import { UserService } from '../user/user.service';
 import { UserDataHandler } from 'src/user/user.data.handler';
-import { User } from 'src/user/user.model';
 import {
   TEAM_NAME_INVALID,
   TEAM_ONLY_ONE_OWNER,
@@ -13,6 +12,7 @@ import {
   TEAM_INVALID_ID_OR_USER,
   TEAM_MEMBER_NOT_FOUND,
   USER_IS_OWNER,
+  TEAMS_NOT_FOUND,
 } from '../errors';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { flow, pipe } from 'fp-ts/function';
@@ -23,6 +23,7 @@ import * as E from 'fp-ts/Either';
 import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { throwErr } from 'src/utils';
+import { AuthUser } from '../types/AuthUser';
 
 @Injectable()
 export class TeamService implements UserDataHandler, OnModuleInit {
@@ -36,7 +37,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     this.userService.registerUserDataHandler(this);
   }
 
-  canAllowUserDeletion(user: User): TO.TaskOption<string> {
+  canAllowUserDeletion(user: AuthUser): TO.TaskOption<string> {
     return pipe(
       this.isUserOwnerRoleInTeams(user.uid),
       TO.fromTask,
@@ -44,7 +45,7 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     );
   }
 
-  onUserDelete(user: User): T.Task<void> {
+  onUserDelete(user: AuthUser): T.Task<void> {
     return this.deleteUserFromAllTeams(user.uid);
   }
 
@@ -452,6 +453,21 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     return this.filterMismatchedUsers(teamID, members);
   }
 
+  /**
+   * Get a count of members in a team
+   * @param teamID Team ID
+   * @returns a count of members in a team
+   */
+  async getCountOfMembersInTeam(teamID: string) {
+    const memberCount = await this.prisma.teamMember.count({
+      where: {
+        teamID: teamID,
+      },
+    });
+
+    return memberCount;
+  }
+
   async getMembersOfTeam(
     teamID: string,
     cursor: string | null,
@@ -488,5 +504,32 @@ export class TeamService implements UserDataHandler, OnModuleInit {
     );
 
     return this.filterMismatchedUsers(teamID, members);
+  }
+
+  /**
+   * Fetch all the teams in the `Team` table based on cursor
+   * @param cursorID string of teamID or undefined
+   * @param take number of items to query
+   * @returns an array of `Team` object
+   */
+  async fetchAllTeams(cursorID: string, take: number) {
+    const options = {
+      skip: cursorID ? 1 : 0,
+      take: take,
+      cursor: cursorID ? { id: cursorID } : undefined,
+    };
+
+    const fetchedTeams = await this.prisma.team.findMany(options);
+    return fetchedTeams;
+  }
+
+  /**
+   * Fetch list of all the Teams in the DB
+   *
+   * @returns number of teams in the org
+   */
+  async getTeamsCount() {
+    const teamsCount = await this.prisma.team.count();
+    return teamsCount;
   }
 }

@@ -6,3 +6,7 @@ export interface SSOProviderProfile {
   provider: string;
   id: string;
 }
+
+export type IsAdmin = {
+  isAdmin: boolean;
+};

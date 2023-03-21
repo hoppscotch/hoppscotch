@@ -9,7 +9,6 @@ import {
   SHORTCODE_INVALID_JSON,
   SHORTCODE_NOT_FOUND,
 } from 'src/errors';
-import { User } from 'src/user/user.model';
 import { UserDataHandler } from 'src/user/user.data.handler';
 import { Shortcode } from './shortcode.model';
 import { Shortcode as DBShortCode } from '@prisma/client';
@@ -17,6 +16,7 @@ import { PubSubService } from 'src/pubsub/pubsub.service';
 import { UserService } from 'src/user/user.service';
 import { stringToJson } from 'src/utils';
 import { PaginationArgs } from 'src/types/input-types.args';
+import { AuthUser } from '../types/AuthUser';
 
 const SHORT_CODE_LENGTH = 12;
 const SHORT_CODE_CHARS =
@@ -34,13 +34,14 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
     this.userService.registerUserDataHandler(this);
   }
 
-  canAllowUserDeletion(user: User): TO.TaskOption<string> {
+  canAllowUserDeletion(user: AuthUser): TO.TaskOption<string> {
     return TO.none;
   }
 
-  onUserDelete(user: User): T.Task<void> {
-    // return this.deleteUserShortcodes(user.uid);
-    return undefined;
+  onUserDelete(user: AuthUser): T.Task<void> {
+    return async () => {
+      await this.deleteUserShortCodes(user.uid);
+    };
   }
 
   /**
@@ -195,8 +196,7 @@ export class ShortcodeService implements UserDataHandler, OnModuleInit {
   }
 
   /**
-   * Delete all of Users ShortCodes
-   *
+   * Delete all the Users ShortCodes
    * @param uid User Uid
    * @returns number of all deleted user ShortCodes
    */

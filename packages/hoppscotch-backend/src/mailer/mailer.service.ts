@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  AdminUserInvitationMailDescription,
   MailDescription,
   UserMagicLinkMailDescription,
 } from './MailDescriptions';
@@ -18,7 +19,10 @@ export class MailerService {
    * @returns The subject of the email
    */
   private resolveSubjectForMailDesc(
-    mailDesc: MailDescription | UserMagicLinkMailDescription,
+    mailDesc:
+      | MailDescription
+      | UserMagicLinkMailDescription
+      | AdminUserInvitationMailDescription,
   ): string {
     switch (mailDesc.template) {
       case 'team-invitation':
@@ -65,6 +69,29 @@ export class MailerService {
         subject: this.resolveSubjectForMailDesc(mailDesc),
         context: mailDesc.variables,
       });
+    } catch (error) {
+      return throwErr(EMAIL_FAILED);
+    }
+  }
+
+  /**
+   *
+   * @param to Receiver's email id
+   * @param mailDesc Details of email to be sent for user invitation
+   * @returns Response if email was send successfully or not
+   */
+  async sendUserInvitationEmail(
+    to: string,
+    mailDesc: AdminUserInvitationMailDescription,
+  ) {
+    try {
+      const res = await this.nestMailerService.sendMail({
+        to,
+        template: mailDesc.template,
+        subject: this.resolveSubjectForMailDesc(mailDesc),
+        context: mailDesc.variables,
+      });
+      return res;
     } catch (error) {
       return throwErr(EMAIL_FAILED);
     }

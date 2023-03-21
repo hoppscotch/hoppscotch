@@ -1,6 +1,7 @@
 export const INVALID_EMAIL = 'invalid/email' as const;
 
 export const EMAIL_FAILED = 'email/failed' as const;
+export const DUPLICATE_EMAIL = 'email/both_emails_cannot_be_same' as const;
 
 /**
  * Token Authorization failed (Check 'Authorization' Header)
@@ -27,6 +28,11 @@ export const USER_FB_DOCUMENT_DELETION_FAILED =
 export const USER_NOT_FOUND = 'user/not_found' as const;
 
 /**
+ * User is already invited by admin
+ */
+export const USER_ALREADY_INVITED = 'admin/user_already_invited' as const;
+
+/**
  * User update failure
  * (UserService)
  */
@@ -39,10 +45,27 @@ export const USER_UPDATE_FAILED = 'user/update_failed' as const;
 export const USER_DELETION_FAILED = 'user/deletion_failed' as const;
 
 /**
+ * Users not found
+ * (UserService)
+ */
+export const USERS_NOT_FOUND = 'user/users_not_found' as const;
+
+/**
  * User deletion failure error due to user being a team owner
  * (UserService)
  */
 export const USER_IS_OWNER = 'user/is_owner' as const;
+/**
+ * User deletion failure error due to user being an admin
+ * (UserService)
+ */
+export const USER_IS_ADMIN = 'user/is_admin' as const;
+
+/**
+ * Teams not found
+ * (TeamsService)
+ */
+export const TEAMS_NOT_FOUND = 'user/teams_not_found' as const;
 
 /**
  * Tried to find user collection but failed
@@ -250,6 +273,13 @@ export const TEAM_INVITE_EMAIL_DO_NOT_MATCH =
 
 export const TEAM_INVITE_NOT_VALID_VIEWER =
   'team_invite/not_valid_viewer' as const;
+
+/**
+ * No team invitations found
+ * (TeamInvitationService)
+ */
+export const TEAM_INVITATION_NOT_FOUND =
+  'team_invite/invitations_not_found' as const;
 
 /**
  * ShortCode not found in DB

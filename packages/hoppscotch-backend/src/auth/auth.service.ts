@@ -1,7 +1,6 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { MailerService } from 'src/mailer/mailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from 'src/user/user.model';
 import { UserService } from 'src/user/user.service';
 import { VerifyMagicDto } from './dto/verify-magic.dto';
 import { DateTime } from 'luxon';
@@ -26,7 +25,7 @@ import {
 } from 'src/types/AuthTokens';
 import { JwtService } from '@nestjs/jwt';
 import { AuthError } from 'src/types/AuthError';
-import { AuthUser } from 'src/types/AuthUser';
+import { AuthUser, IsAdmin } from 'src/types/AuthUser';
 import { VerificationToken } from '@prisma/client';
 
 @Injectable()
@@ -338,5 +337,29 @@ export class AuthService {
       });
 
     return E.right(generatedAuthTokens.right);
+  }
+
+  /**
+   * Verify is signed in User is an admin or not
+   *
+   * @param user User Object
+   * @returns Either of boolean if user is admin or not
+   */
+  async verifyAdmin(user: AuthUser) {
+    if (user.isAdmin) return E.right(<IsAdmin>{ isAdmin: true });
+
+    const usersCount = await this.usersService.getUsersCount();
+    if (usersCount === 1) {
+      const elevatedUser = await this.usersService.makeAdmin(user.uid);
+      if (E.isLeft(elevatedUser))
+        return E.left(<AuthError>{
+          message: elevatedUser.left,
+          statusCode: HttpStatus.NOT_FOUND,
+        });
+
+      return E.right(<IsAdmin>{ isAdmin: true });
+    }
+
+    return E.right(<IsAdmin>{ isAdmin: false });
   }
 }

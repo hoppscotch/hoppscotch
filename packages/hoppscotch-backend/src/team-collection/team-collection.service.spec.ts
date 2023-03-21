@@ -24,6 +24,7 @@ import * as E from 'fp-ts/Either';
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const teamCollectionService = new TeamCollectionService(
   mockPrisma,
@@ -1425,6 +1426,38 @@ describe('replaceCollectionsWithJSON', () => {
       `team_coll/${rootTeamCollection.teamID}/coll_added`,
       rootTeamCollection,
     );
+  });
+});
+
+describe('totalCollectionsInTeam', () => {
+  test('should resolve right and return a total team colls count ', async () => {
+    mockPrisma.teamCollection.count.mockResolvedValueOnce(2);
+    const result = await teamCollectionService.totalCollectionsInTeam('id1');
+    expect(mockPrisma.teamCollection.count).toHaveBeenCalledWith({
+      where: {
+        teamID: 'id1',
+      },
+    });
+    expect(result).toEqual(2);
+  });
+  test('should resolve left and return an error when no team colls found', async () => {
+    mockPrisma.teamCollection.count.mockResolvedValueOnce(0);
+    const result = await teamCollectionService.totalCollectionsInTeam('id1');
+    expect(mockPrisma.teamCollection.count).toHaveBeenCalledWith({
+      where: {
+        teamID: 'id1',
+      },
+    });
+    expect(result).toEqual(0);
+  });
+
+  describe('getTeamCollectionsCount', () => {
+    test('should return count of all Team Collections in the organization', async () => {
+      mockPrisma.teamCollection.count.mockResolvedValueOnce(10);
+
+      const result = await teamCollectionService.getTeamCollectionsCount();
+      expect(result).toEqual(10);
+    });
   });
 });
 

@@ -101,6 +101,7 @@ model User {
   currentRESTSession Json?
   currentGQLSession  Json?
   createdOn          DateTime            @default(now()) @db.Timestamp(3)
+  invitedUsers       InvitedUsers[]
 }
 
 model Account {
@@ -158,6 +159,14 @@ model UserEnvironment {
   name      String?
   variables Json
   isGlobal  Boolean
+}
+
+model InvitedUsers {
+  adminUid     String
+  user         User     @relation(fields: [adminUid], references: [uid], onDelete: Cascade)
+  adminEmail   String
+  inviteeEmail String   @unique
+  invitedOn    DateTime @default(now()) @db.Timestamp(3)
 }
 
 model UserRequest {

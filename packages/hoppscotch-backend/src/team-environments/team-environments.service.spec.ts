@@ -2,7 +2,7 @@ import { mockDeep, mockReset } from 'jest-mock-extended';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamEnvironment } from './team-environments.model';
 import { TeamEnvironmentsService } from './team-environments.service';
-import { TEAM_ENVIRONMENT_NOT_FOUND, TEAM_MEMBER_NOT_FOUND } from 'src/errors';
+import { TEAM_ENVIRONMENT_NOT_FOUND } from 'src/errors';
 
 const mockPrisma = mockDeep<PrismaService>();
 
@@ -398,6 +398,29 @@ describe('TeamEnvironmentsService', () => {
           variables: JSON.stringify([{}]),
         },
       );
+    });
+  });
+
+  describe('totalEnvsInTeam', () => {
+    test('should resolve right and return a total team envs count ', async () => {
+      mockPrisma.teamEnvironment.count.mockResolvedValueOnce(2);
+      const result = await teamEnvironmentsService.totalEnvsInTeam('id1');
+      expect(mockPrisma.teamEnvironment.count).toHaveBeenCalledWith({
+        where: {
+          teamID: 'id1',
+        },
+      });
+      expect(result).toEqual(2);
+    });
+    test('should resolve left and return an error when no team envs found', async () => {
+      mockPrisma.teamEnvironment.count.mockResolvedValueOnce(0);
+      const result = await teamEnvironmentsService.totalEnvsInTeam('id1');
+      expect(mockPrisma.teamEnvironment.count).toHaveBeenCalledWith({
+        where: {
+          teamID: 'id1',
+        },
+      });
+      expect(result).toEqual(0);
     });
   });
 });

@@ -9,6 +9,7 @@ import {
   MAGIC_LINK_EXPIRED,
   VERIFICATION_TOKEN_DATA_NOT_FOUND,
   USER_NOT_FOUND,
+  USERS_NOT_FOUND,
 } from 'src/errors';
 import { MailerService } from 'src/mailer/mailer.service';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -362,5 +363,48 @@ describe('refreshAuthTokens', () => {
       message: INVALID_REFRESH_TOKEN,
       statusCode: HttpStatus.NOT_FOUND,
     });
+  });
+});
+
+describe('verifyAdmin', () => {
+  test('should successfully elevate user to admin when userCount is 1 ', async () => {
+    // getUsersCount
+    mockUser.getUsersCount.mockResolvedValueOnce(1);
+    // makeAdmin
+    mockUser.makeAdmin.mockResolvedValueOnce(
+      E.right({
+        ...user,
+        isAdmin: true,
+      }),
+    );
+
+    const result = await authService.verifyAdmin(user);
+    expect(result).toEqualRight({ isAdmin: true });
+  });
+
+  test('should return true if user is already an admin', async () => {
+    const result = await authService.verifyAdmin({ ...user, isAdmin: true });
+    expect(result).toEqualRight({ isAdmin: true });
+  });
+
+  test('should throw USERS_NOT_FOUND when userUid is invalid', async () => {
+    // getUsersCount
+    mockUser.getUsersCount.mockResolvedValueOnce(1);
+    // makeAdmin
+    mockUser.makeAdmin.mockResolvedValueOnce(E.left(USER_NOT_FOUND));
+
+    const result = await authService.verifyAdmin(user);
+    expect(result).toEqualLeft({
+      message: USER_NOT_FOUND,
+      statusCode: HttpStatus.NOT_FOUND,
+    });
+  });
+
+  test('should return false when user is not an admin and userCount is greater than 1', async () => {
+    // getUsersCount
+    mockUser.getUsersCount.mockResolvedValueOnce(13);
+
+    const result = await authService.verifyAdmin(user);
+    expect(result).toEqualRight({ isAdmin: false });
   });
 });

@@ -37,6 +37,17 @@ const team: Team = {
   id: 'teamID',
   name: 'teamName',
 };
+
+const teams: Team[] = [
+  {
+    id: 'teamID',
+    name: 'teamName',
+  },
+  {
+    id: 'teamID2',
+    name: 'teamName2',
+  },
+];
 const dbTeamMember: DbTeamMember = {
   id: 'teamMemberID',
   role: TeamMemberRole.VIEWER,
@@ -51,6 +62,8 @@ const teamMember: TeamMember = {
 
 describe('getCountOfUsersWithRoleInTeam', () => {
   test('resolves to the correct count of owners in a team', async () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     mockPrisma.teamMember.count.mockResolvedValue(2);
 
     await expect(
@@ -234,6 +247,8 @@ describe('addMemberToTeamWithEmail', () => {
 
 describe('deleteTeam', () => {
   test('resolves for proper deletion', async () => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     mockPrisma.team.findUnique.mockResolvedValue(team);
     mockPrisma.teamMember.deleteMany.mockResolvedValue({
       count: 10,
@@ -915,6 +930,59 @@ describe('deleteUserFromAllTeams', () => {
       where: {
         userUid: dbTeamMember.userUid,
       },
+    });
+  });
+});
+
+describe('fetchAllTeams', () => {
+  test('should resolve right and return 20 teams when cursor is null', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce(teams);
+
+    const result = await teamService.fetchAllTeams(null, 20);
+    expect(result).toEqual(teams);
+  });
+  test('should resolve right and return next 20 teams when cursor is provided', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce(teams);
+
+    const result = await teamService.fetchAllTeams('teamID', 20);
+    expect(result).toEqual(teams);
+  });
+  test('should resolve left and return an error when users not found', async () => {
+    mockPrisma.team.findMany.mockResolvedValueOnce([]);
+
+    const result = await teamService.fetchAllTeams(null, 20);
+    expect(result).toEqual([]);
+  });
+});
+
+describe('getCountOfMembersInTeam', () => {
+  test('should resolve right and return a total team member count ', async () => {
+    mockPrisma.teamMember.count.mockResolvedValueOnce(2);
+    const result = await teamService.getCountOfMembersInTeam(team.id);
+    expect(mockPrisma.teamMember.count).toHaveBeenCalledWith({
+      where: {
+        teamID: team.id,
+      },
+    });
+    expect(result).toEqual(2);
+  });
+  test('should resolve left and return an error when no team members found', async () => {
+    mockPrisma.teamMember.count.mockResolvedValueOnce(0);
+    const result = await teamService.getCountOfMembersInTeam(team.id);
+    expect(mockPrisma.teamMember.count).toHaveBeenCalledWith({
+      where: {
+        teamID: team.id,
+      },
+    });
+    expect(result).toEqual(0);
+  });
+
+  describe('getTeamsCount', () => {
+    test('should return count of all teams in the organization', async () => {
+      mockPrisma.team.count.mockResolvedValueOnce(10);
+
+      const result = await teamService.getTeamsCount();
+      expect(result).toEqual(10);
     });
   });
 });

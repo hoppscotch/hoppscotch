@@ -74,7 +74,7 @@
                     </td>
 
                     <td
-                      class="sm:p-3 py-2 px-1 md:table-cell hidden text-sky-300"
+                      class="sm:p-3 py-2 px-1 md:table-cell text-sky-300"
                       @click="goToTeam(team.id)"
                     >
                       <span class="hover:underline cursor-pointer">
@@ -175,7 +175,8 @@ const {
   TeamListDocument,
   (x) => x.admin.allTeams,
   (x) => x.id,
-  { cursor: undefined }
+  10,
+  { cursor: undefined, take: 10 }
 );
 
 const goToTeam = (teamId: string) => {

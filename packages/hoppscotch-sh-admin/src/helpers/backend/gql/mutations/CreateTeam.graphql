@@ -1,4 +1,4 @@
-mutation CreateTeam($userUid: String!, $name: String!) {
+mutation CreateTeam($userUid: ID!, $name: String!) {
   createTeamByAdmin(userUid: $userUid, name: $name) {
     id
     name

@@ -66,7 +66,7 @@ const addTeam = async () => {
 
   if (data) {
     name.value = '';
-    goToTeamDetailsPage(data.createATeamByAdmin.id);
+    goToTeamDetailsPage(data.createTeamByAdmin.id);
   }
 
   if (error) {

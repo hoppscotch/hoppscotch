@@ -10,6 +10,7 @@ export function usePagedQuery<
   query: string | TypedDocumentNode<Result, Vars> | DocumentNode,
   getList: (result: Result) => ListItem[],
   getCursor: (value: ListItem) => string,
+  itemsPerPage: number,
   variables: Vars
 ) {
   //Fetch All Users
@@ -26,6 +27,7 @@ export function usePagedQuery<
       const result = await client
         .query(query, {
           ...variables,
+          take: itemsPerPage,
           cursor:
             list.value.length > 0 ? getCursor(list.value.at(-1)) : undefined,
         })
@@ -33,7 +35,7 @@ export function usePagedQuery<
 
       const resultList = getList(result.data!);
 
-      if (resultList.length < 20) {
+      if (resultList.length < itemsPerPage) {
         hasNextPage.value = false;
       }
 

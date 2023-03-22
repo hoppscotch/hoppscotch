@@ -144,7 +144,7 @@ import { useMutation } from '@urql/vue';
 import {
   MakeUserAdminDocument,
   UserInfoDocument,
-  RemoveUserAccountByAdminDocument,
+  RemoveUserByAdminDocument,
   RemoveUserAsAdminDocument,
 } from '../../helpers/backend/graphql';
 import { useClientHandle } from '@urql/vue';
@@ -179,7 +179,7 @@ onMounted(async () => {
 
 // User Deletion
 const router = useRouter();
-const userDeletion = useMutation(RemoveUserAccountByAdminDocument);
+const userDeletion = useMutation(RemoveUserByAdminDocument);
 const confirmDeletion = ref(false);
 const deleteUserUID = ref<string | null>(null);
 

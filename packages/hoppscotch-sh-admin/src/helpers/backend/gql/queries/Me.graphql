@@ -1,9 +1,0 @@
-query Me {
-  me {
-    uid
-    displayName
-    photoURL
-    isAdmin
-    createdOn
-  }
-}

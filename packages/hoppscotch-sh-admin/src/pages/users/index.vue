@@ -235,9 +235,9 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useMutation } from '@urql/vue';
 import {
-  InviteUserToSignInDocument,
+  InviteNewUserDocument,
   MakeUserAdminDocument,
-  RemoveUserAccountByAdminDocument,
+  RemoveUserByAdminDocument,
   RemoveUserAsAdminDocument,
   UsersListDocument,
 } from '../../helpers/backend/graphql';
@@ -256,6 +256,7 @@ const getCreatedDate = (date: string) => format(new Date(date), 'dd-MM-yyyy');
 const getCreatedTime = (date: string) => format(new Date(date), 'hh:mm a');
 
 // Get Paginated Results of all the users in the infra
+const usersPerPage = 20;
 const {
   fetching,
   error,
@@ -266,12 +267,13 @@ const {
   UsersListDocument,
   (x) => x.admin.allUsers,
   (x) => x.uid,
-  { cursor: undefined }
+  usersPerPage,
+  { cursor: undefined, take: usersPerPage }
 );
 
 // Send Invitation through Email
 const email = ref('');
-const sendInvitation = useMutation(InviteUserToSignInDocument);
+const sendInvitation = useMutation(InviteNewUserDocument);
 const showInviteUserModal = ref(false);
 
 const sendInvite = async () => {
@@ -321,7 +323,7 @@ watch(
 );
 
 // User Deletion
-const userDeletion = useMutation(RemoveUserAccountByAdminDocument);
+const userDeletion = useMutation(RemoveUserByAdminDocument);
 const confirmDeletion = ref(false);
 const deleteUserUID = ref<string | null>(null);
 

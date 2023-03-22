@@ -1,10 +1,12 @@
-query UsersList($cursor: ID) {
+# Write your query or mutation here
+query UsersList($cursor: ID, $take: Int) {
   admin {
-    allUsers(cursor: $cursor) {
+    allUsers(cursor: $cursor, take: $take) {
       uid
       displayName
       email
       isAdmin
+      photoURL
       createdOn
     }
   }

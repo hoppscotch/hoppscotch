@@ -78,7 +78,9 @@ const t = useI18n()
 const props = defineProps<{
   modelValue: string
 }>()
-const emit = defineEmits(["update:modelValue"])
+const emit = defineEmits<{
+  (e: "update:modelValue", value: string): void
+}>()
 
 const preRequestScript = useVModel(props, "modelValue", emit)
 

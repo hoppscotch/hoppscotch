@@ -66,7 +66,9 @@ const t = useI18n()
 
 // v-model integration with props and emit
 const props = defineProps<{ modelValue: HoppRESTRequest }>()
-const emit = defineEmits(["update:modelValue"])
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTRequest): void
+}>()
 
 const request = ref(props.modelValue)
 
@@ -83,8 +85,6 @@ const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 const changeTab = (e: RequestOptionTabs) => {
   selectedRealtimeTab.value = e
 }
-
-// TODO: Resolve count issue
 
 const newActiveParamsCount$ = computed(() => {
   const e = request.value.params.filter(

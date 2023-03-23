@@ -48,7 +48,7 @@
     <div v-else>
       <draggable
         v-model="workingHeaders"
-        :item-key="(header: any) => `header-${header.id}`"
+        :item-key="(header: WorkingHeader) => `header-${header.id}`"
         animation="250"
         handle=".draggable-handle"
         draggable=".draggable-content"
@@ -309,8 +309,10 @@ useCodemirror(
   })
 )
 
+type WorkingHeader = HoppRESTHeader & { id: number }
+
 // The UI representation of the headers list (has the empty end headers)
-const workingHeaders = ref<Array<HoppRESTHeader & { id: number }>>([
+const workingHeaders = ref<Array<WorkingHeader>>([
   {
     id: idTicker.value++,
     key: "",
@@ -403,7 +405,6 @@ watch(bulkHeaders, (newBulkHeaders) => {
   )
 
   if (!isEqual(props.modelValue, filteredBulkHeaders)) {
-    // TODO: check if this is the right way to emit
     request.value.headers = filteredBulkHeaders
   }
 })
@@ -482,7 +483,7 @@ const clearContent = () => {
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
 const computedHeaders = computed(() =>
-  getComputedHeaders(props.modelValue, aggregateEnvs.value).map(
+  getComputedHeaders(request.value, aggregateEnvs.value).map(
     (header, index) => ({
       id: `header-${index}`,
       ...header,

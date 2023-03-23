@@ -18,13 +18,17 @@
         >
           <template #tabhead>
             <span
-              class="font-semibold truncate text-tiny w-10 mr-2 truncate"
+              class="font-semibold truncate text-tiny w-10"
               :class="getMethodLabelColorClassOf(tab.document.request)"
             >
               {{ tab.document.request.method }}
             </span>
-            {{ tab.document.isDirty ? "•" : "" }}
-            {{ tab.document.request.name }}
+            <span class="text-green-600">
+              {{ tab.document.isDirty ? "•" : "" }}
+            </span>
+            <span class="truncate flex-1">
+              {{ tab.document.request.name }}
+            </span>
           </template>
 
           <HttpRequestTab

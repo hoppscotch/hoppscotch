@@ -28,7 +28,10 @@ import {
   AddUserToTeamArgs,
   ChangeUserRoleInTeamArgs,
 } from './input-types.args';
+import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@UseGuards(GqlThrottlerGuard)
 @Resolver(() => Admin)
 export class AdminResolver {
   constructor(
@@ -395,6 +398,7 @@ export class AdminResolver {
     description: 'Listen for User Invitation',
     resolve: (value) => value,
   })
+  @SkipThrottle()
   @UseGuards(GqlAuthGuard, GqlAdminGuard)
   userInvited(@GqlUser() admin: AuthUser) {
     return this.pubsub.asyncIterator(`admin/${admin.uid}/invited`);

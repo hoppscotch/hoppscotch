@@ -9,6 +9,7 @@ import {
   DUPLICATE_EMAIL,
   EMAIL_FAILED,
   INVALID_EMAIL,
+  ONLY_ONE_ADMIN_ACCOUNT,
   TEAM_INVITE_ALREADY_MEMBER,
   USER_ALREADY_INVITED,
   USER_IS_ADMIN,
@@ -348,6 +349,9 @@ export class AdminService {
    * @returns an Either of boolean or error
    */
   async removeUserAsAdmin(userUID: string) {
+    const adminUsers = await this.userService.fetchAdminUsers();
+    if (adminUsers.length === 1) return E.left(ONLY_ONE_ADMIN_ACCOUNT);
+
     const admin = await this.userService.removeUserAsAdmin(userUID);
     if (E.isLeft(admin)) return E.left(admin.left);
     return E.right(true);

@@ -4,6 +4,13 @@ export const EMAIL_FAILED = 'email/failed' as const;
 export const DUPLICATE_EMAIL = 'email/both_emails_cannot_be_same' as const;
 
 /**
+ * Only one admin account found in infra
+ * (AdminService)
+ */
+export const ONLY_ONE_ADMIN_ACCOUNT =
+  'admin/only_one_admin_account_found' as const;
+
+/**
  * Token Authorization failed (Check 'Authorization' Header)
  * (GqlAuthGuard)
  */

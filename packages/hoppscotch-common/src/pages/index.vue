@@ -43,7 +43,7 @@
     </template>
   </AppPaneLayout>
   <HoppSmartConfirmModal
-    :show="confirmingCloseFortabID !== null"
+    :show="confirmingCloseForTabID !== null"
     :confirm="t('modal.close_unsaved_tab')"
     :title="t('confirm.save_unsaved_tab')"
     @hide-modal="onCloseConfirmSaveTab"
@@ -72,6 +72,7 @@ import {
   getTabRef,
   HoppRESTTab,
   loadTabsFromPersistedState,
+  persistableTabState,
   updateTab,
   updateTabOrdering,
 } from "~/helpers/rest/tab"
@@ -79,12 +80,21 @@ import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { invokeAction } from "~/helpers/actions"
 import { onLoggedIn } from "~/composables/auth"
 import { platform } from "~/platform"
-import { Subscription } from "rxjs"
+import {
+  audit,
+  BehaviorSubject,
+  combineLatest,
+  EMPTY,
+  from,
+  map,
+  Subscription,
+} from "rxjs"
 import { useToast } from "~/composables/toast"
 import { PersistableRESTTabState } from "~/helpers/rest/tab"
+import { watchDebounced } from "@vueuse/core"
 
 const savingRequest = ref(false)
-const confirmingCloseFortabID = ref<string | null>(null)
+const confirmingCloseForTabID = ref<string | null>(null)
 
 const t = useI18n()
 const toast = useToast()
@@ -129,7 +139,7 @@ const removeTab = (tabID: string) => {
   const tab = getTabRef(tabID)
 
   if (tab.value.document.isDirty) {
-    confirmingCloseFortabID.value = tabID
+    confirmingCloseForTabID.value = tabID
   } else {
     closeTab(tab.value.id)
   }
@@ -139,9 +149,9 @@ const removeTab = (tabID: string) => {
  * This function is closed when the confirm tab is closed by some means (even saving triggers close)
  */
 const onCloseConfirmSaveTab = () => {
-  if (!savingRequest.value && confirmingCloseFortabID.value) {
-    closeTab(confirmingCloseFortabID.value)
-    confirmingCloseFortabID.value = null
+  if (!savingRequest.value && confirmingCloseForTabID.value) {
+    closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
   }
 }
 
@@ -152,9 +162,9 @@ const onResolveConfirmSaveTab = () => {
   if (currentActiveTab.value.document.saveContext) {
     invokeAction("request.save")
 
-    if (confirmingCloseFortabID.value) {
-      closeTab(confirmingCloseFortabID.value)
-      confirmingCloseFortabID.value = null
+    if (confirmingCloseForTabID.value) {
+      closeTab(confirmingCloseForTabID.value)
+      confirmingCloseForTabID.value = null
     }
   } else {
     savingRequest.value = true
@@ -166,9 +176,9 @@ const onResolveConfirmSaveTab = () => {
  */
 const onSaveModalClose = () => {
   savingRequest.value = false
-  if (confirmingCloseFortabID.value) {
-    closeTab(confirmingCloseFortabID.value)
-    confirmingCloseFortabID.value = null
+  if (confirmingCloseForTabID.value) {
+    closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
   }
 }
 
@@ -199,6 +209,40 @@ const syncTabState = () => {
   if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
 }
 
+/**
+ * Performs sync of the REST Tab session with Firestore.
+ *
+ * @returns A subscription to the sync observable stream.
+ * Unsubscribe to stop syncing.
+ */
+function startTabStateSync(): Subscription {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+  const tabState$ = new BehaviorSubject<PersistableRESTTabState | null>(null)
+
+  watchDebounced(
+    persistableTabState,
+    (state) => {
+      tabState$.next(state)
+    },
+    { debounce: 500, deep: true }
+  )
+
+  const sub = combineLatest([currentUser$, tabState$])
+    .pipe(
+      map(([user, tabState]) =>
+        user && tabState
+          ? from(platform.sync.tabState.writeCurrentTabState(user, tabState))
+          : EMPTY
+      ),
+      audit((x) => x)
+    )
+    .subscribe(() => {
+      // NOTE: This subscription should be kept
+    })
+
+  return sub
+}
+
 function setupTabStateSync() {
   const route = useRoute()
 
@@ -222,7 +266,7 @@ function setupTabStateSync() {
       }
     }
 
-    // sub = startRequestSync()
+    sub = startTabStateSync()
   })
 
   // Stop subscription to stop syncing

@@ -1,30 +1,30 @@
-import { TabStatePlatformDef } from "@hoppscotch/common/platform/tab"
 import { PersistableRESTTabState } from "@hoppscotch/common/helpers/rest/tab"
-import { HoppRESTRequest, translateToNewRequest } from "@hoppscotch/data"
+import { HoppUser } from "@hoppscotch/common/platform/auth"
+import { TabStatePlatformDef } from "@hoppscotch/common/platform/tab"
 import { doc, getDoc, getFirestore, setDoc } from "firebase/firestore"
 import { def as platformAuth } from "./firebase/auth"
 
 /**
- * Writes a request to a user's firestore sync
+ * Writes tab state to a user's firestore sync
  *
- * @param user The user to write to
- * @param request The request to write to the request sync
+ * @param persistableTabState The tab state to write to the request sync
  */
-function writeCurrentTabState(persistableTabState: PersistableRESTTabState) {
-  const currentUser = platformAuth.getCurrentUser()!
-
+function writeCurrentTabState(
+  user: HoppUser,
+  persistableTabState: PersistableRESTTabState
+) {
   // Remove FormData entries because those can't be stored on Firestore ?
 
   return setDoc(
-    doc(getFirestore(), "users", currentUser.uid, "requests", "tab-state"),
+    doc(getFirestore(), "users", user.uid, "requests", "tab-state"),
     persistableTabState
   )
 }
 
 /**
- * Loads the synced request from the firestore sync
+ * Loads the synced tab state from the firestore sync
  *
- * @returns Fetched request object if exists else null
+ * @returns Fetched tab state object if exists else null
  */
 async function loadTabStateFromSync(): Promise<PersistableRESTTabState | null> {
   const currentUser = platformAuth.getCurrentUser()

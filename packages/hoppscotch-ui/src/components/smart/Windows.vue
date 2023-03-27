@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight">
-      <div class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto">
-        <div class="flex justify-between divide-x divide-dividerLight">
+      <div class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto" ref="scrollContainer">
+        <div class="flex justify-between divide-x divide-dividerLight" @wheel="scrollOnWindows">
           <div class="flex">
             <draggable v-bind="dragOptions" :list="tabEntries" :style="tabStyles" :item-key="'window-'"
               class="flex flex-shrink-0 overflow-x-auto transition divide-x divide-dividerLight" @sort="sortTabs">
@@ -185,6 +185,14 @@ const selectTab = (id: string) => {
 }
 const addTab = () => {
   emit("addTab")
+}
+
+const scrollContainer = ref<HTMLElement|null>(null)
+
+const scrollOnWindows = (event: WheelEvent) => {
+  event.preventDefault()
+  if(scrollContainer.value)
+    scrollContainer.value.scrollLeft += event.deltaY
 }
 </script>
 

@@ -322,7 +322,7 @@ export function setupRESTTabsPersistence() {
     (state) => {
       window.localStorage.setItem("restTabState", JSON.stringify(state))
     },
-    { debounce: 500 }
+    { debounce: 500, deep: true }
   )
 }
 

@@ -258,8 +258,6 @@ function setupTabStateSync() {
       const tabStateFromSync =
         await platform.sync.tabState.loadTabStateFromSync()
 
-      console.log("TABSTATE FROM SYNC", tabStateFromSync)
-
       if (tabStateFromSync) {
         tabStateForSync.value = tabStateFromSync
         confirmSync.value = true

@@ -6,5 +6,5 @@ export type TabStatePlatformDef = {
   writeCurrentTabState: (
     user: HoppUser,
     persistableTabState: PersistableRESTTabState
-  ) => void | any
+  ) => Promise<void>
 }

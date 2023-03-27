@@ -23,8 +23,8 @@
             >
               {{ tab.document.request.method }}
             </span>
-            <span class="text-green-600">
-              {{ tab.document.isDirty ? "•" : "" }}
+            <span class="text-green-600 mr-1" v-if="tab.document.isDirty">
+              •
             </span>
             <span class="truncate flex-1">
               {{ tab.document.request.name }}
@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted, onBeforeUnmount, watch } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -71,18 +71,28 @@ import {
   getActiveTabs,
   getTabRef,
   HoppRESTTab,
+  loadTabsFromPersistedState,
   updateTab,
   updateTabOrdering,
 } from "~/helpers/rest/tab"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { invokeAction } from "~/helpers/actions"
+import { onLoggedIn } from "~/composables/auth"
+import { platform } from "~/platform"
+import { Subscription } from "rxjs"
+import { useToast } from "~/composables/toast"
+import { PersistableRESTTabState } from "~/helpers/rest/tab"
 
 const savingRequest = ref(false)
 const confirmingCloseFortabID = ref<string | null>(null)
 
 const t = useI18n()
+const toast = useToast()
 
 const tabs = getActiveTabs()
+
+const confirmSync = ref(false)
+const tabStateForSync = ref<PersistableRESTTabState | null>(null)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -161,6 +171,67 @@ const onSaveModalClose = () => {
     confirmingCloseFortabID.value = null
   }
 }
+
+watch(confirmSync, (newValue) => {
+  if (newValue) {
+    toast.show(`${t("confirm.sync")}`, {
+      duration: 0,
+      action: [
+        {
+          text: `${t("action.yes")}`,
+          onClick: (_, toastObject) => {
+            syncTabState()
+            toastObject.goAway(0)
+          },
+        },
+        {
+          text: `${t("action.no")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+      ],
+    })
+  }
+})
+
+const syncTabState = () => {
+  if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
+}
+
+function setupTabStateSync() {
+  const route = useRoute()
+
+  // Subscription to request sync
+  let sub: Subscription | null = null
+
+  // Load request on login resolve and start sync
+  onLoggedIn(async () => {
+    if (
+      Object.keys(route.query).length === 0 &&
+      !(route.query.code || route.query.error)
+    ) {
+      const tabStateFromSync =
+        await platform.sync.tabState.loadTabStateFromSync()
+
+      console.log("TABSTATE FROM SYNC", tabStateFromSync)
+
+      if (tabStateFromSync) {
+        tabStateForSync.value = tabStateFromSync
+        confirmSync.value = true
+      }
+    }
+
+    // sub = startRequestSync()
+  })
+
+  // Stop subscription to stop syncing
+  onBeforeUnmount(() => {
+    sub?.unsubscribe()
+  })
+}
+
+setupTabStateSync()
 
 bindRequestToURLParams()
 // oAuthURL()

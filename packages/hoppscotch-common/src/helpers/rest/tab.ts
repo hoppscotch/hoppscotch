@@ -14,7 +14,7 @@ export type HoppRESTTab = {
   testResults?: HoppTestResult | null
 }
 
-type PersistableRESTTabState = {
+export type PersistableRESTTabState = {
   lastActiveTabID: string
   orderedDocs: Array<{
     tabID: string

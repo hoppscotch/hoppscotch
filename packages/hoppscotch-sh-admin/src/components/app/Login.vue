@@ -6,72 +6,78 @@
     >
     and login with an admin account.
   </div>
-  <div v-else>
-    <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
-      <HoppSmartItem
-        :loading="signingInWithGitHub"
-        :icon="IconGithub"
-        :label="`Continue with GitHub`"
-        @click="signInWithGithub"
-      />
-      <HoppSmartItem
-        :loading="signingInWithGoogle"
-        :icon="IconGoogle"
-        :label="`Continue with Google`"
-        @click="signInWithGoogle"
-      />
-      <HoppSmartItem
-        :loading="signingInWithMicrosoft"
-        :icon="IconMicrosoft"
-        :label="`Continue with Microsoft`"
-        @click="signInWithMicrosoft"
-      />
-      <HoppSmartItem
-        :icon="IconEmail"
-        :label="`Continue with Email`"
-        @click="mode = 'email'"
-      />
-    </div>
-    <form
-      v-if="mode === 'email'"
-      class="flex flex-col space-y-2"
-      @submit.prevent="signInWithEmail"
+  <div v-else class="flex flex-1 flex-col">
+    <div
+      class="p-6 bg-primaryLight rounded-lg border border-primaryDark shadow"
     >
-      <div class="flex flex-col">
-        <input
-          id="email"
-          v-model="form.email"
-          class="input floating-input"
-          placeholder=" "
-          type="email"
-          name="email"
-          autocomplete="off"
-          required
-          spellcheck="false"
-          v-focus
-          autofocus
+      <div v-if="mode === 'sign-in'" class="flex flex-col space-y-2">
+        <HoppSmartItem
+          :loading="signingInWithGitHub"
+          :icon="IconGithub"
+          :label="`Continue with GitHub`"
+          class="!items-center"
+          @click="signInWithGithub"
         />
-        <label for="email"> Email </label>
+        <HoppSmartItem
+          :loading="signingInWithGoogle"
+          :icon="IconGoogle"
+          :label="`Continue with Google`"
+          @click="signInWithGoogle"
+        />
+        <HoppSmartItem
+          :loading="signingInWithMicrosoft"
+          :icon="IconMicrosoft"
+          :label="`Continue with Microsoft`"
+          @click="signInWithMicrosoft"
+        />
+        <HoppSmartItem
+          :icon="IconEmail"
+          :label="`Continue with Email`"
+          @click="mode = 'email'"
+        />
       </div>
-      <HoppButtonPrimary
-        :loading="signingInWithEmail"
-        type="submit"
-        :label="`Send magic link`"
-      />
-    </form>
-    <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
-      <div class="flex flex-col items-center justify-center max-w-md">
-        <icon-lucide-inbox class="w-6 h-6 text-accent" />
-        <h3 class="my-2 text-lg text-center">
-          We sent a magic link to {{ form.email }}
-        </h3>
-        <p class="text-center">
-          We sent a magic link to {{ form.email }}. Click on the link to sign
-          in.
-        </p>
+      <form
+        v-if="mode === 'email'"
+        class="flex flex-col space-y-4"
+        @submit.prevent="signInWithEmail"
+      >
+        <div class="flex flex-col">
+          <input
+            id="email"
+            v-model="form.email"
+            class="input floating-input"
+            placeholder=" "
+            type="email"
+            name="email"
+            autocomplete="off"
+            required
+            spellcheck="false"
+            v-focus
+            autofocus
+          />
+          <label for="email"> Email </label>
+        </div>
+        <HoppButtonPrimary
+          :loading="signingInWithEmail"
+          type="submit"
+          :label="`Send magic link`"
+        />
+      </form>
+      <div v-if="mode === 'email-sent'" class="flex flex-col px-4">
+        <div class="flex flex-col items-center justify-center max-w-md">
+          <icon-lucide-inbox class="w-6 h-6 text-accent" />
+          <h3 class="my-2 text-lg text-center">
+            We sent a magic link to {{ form.email }}
+          </h3>
+          <p class="text-center">
+            We sent a magic link to {{ form.email }}. Click on the link to sign
+            in.
+          </p>
+        </div>
       </div>
     </div>
-    <section class="text-center mt-10">
+
+    <section class="mt-15">
       <div v-if="mode === 'sign-in'" class="text-secondaryLight text-tiny">
         By signing in, you are agreeing to our
         <HoppSmartAnchor

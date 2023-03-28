@@ -1,23 +1,19 @@
 <template>
-  <div
-    class="flex items-center justify-center h-screen bg-gray-200 dark:bg-gradient-to-r dark:from-zinc-700 dark:to-gray-900 p-6"
+  <main
+    class="flex h-screen flex-col justify-center items-center flex-1 flex-shrink-0"
   >
-    <div>
-      <div class="flex flex-col items-center justify-center mb-10">
-        <HoppButtonSecondary
-          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
-          :label="'Hoppscotch'"
-          to="/"
-        />
-        <span> Dashboard </span>
+    <div class="flex flex-col justify-center text-center px-4">
+      <div class="flex justify-center items-center py-6">
+        <img src="/cover.jpg" alt="hoppscotch-logo" class="h-15" />
       </div>
-      <div
-        class="bg-primary xs:w-xs sm:w-sm md:w-lg p-10 rounded-md border border-secondaryLight"
-      >
+      <div class="flex flex-col items-center">
+        <h1 class="text-2xl text-secondaryDark">Login to Admin Dashboard</h1>
+      </div>
+      <div class="flex my-6">
         <AppLogin />
       </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <route lang="yaml">

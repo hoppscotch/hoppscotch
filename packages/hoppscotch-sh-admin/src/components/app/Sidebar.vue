@@ -15,15 +15,15 @@
       <div :class="isExpanded ? 'w-64' : 'w-full'">
         <div class="flex items-center justify-start mt-6 ml-6">
           <div class="flex items-center">
-            <router-link class="flex" to="/dashboard">
-              <img src="/public/cover.jpg" alt="" class="h-7" />
+            <HoppSmartLink class="flex items-center space-x-4" to="/dashboard">
+              <img src="/cover.jpg" alt="hoppscotch-logo" class="h-7" />
 
               <span
                 v-if="isExpanded"
                 class="mx-2 text-xl font-semibold text-gray-200"
                 >Hoppscotch</span
               >
-            </router-link>
+            </HoppSmartLink>
           </div>
         </div>
 
@@ -73,6 +73,7 @@
 </template>
 
 <script setup lang="ts">
+import { HoppSmartLink } from '@hoppscotch/ui';
 import { useSidebar } from '../../composables/useSidebar';
 import { useRoute } from 'vue-router';
 

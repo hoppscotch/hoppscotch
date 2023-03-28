@@ -7,6 +7,7 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { getRESTSaveContext, setRESTSaveContext } from "./RESTSession"
+import { cloneDeep } from "lodash-es"
 
 const defaultRESTCollectionState = {
   state: [
@@ -105,7 +106,9 @@ const restCollectionDispatchers = defineDispatchers({
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? { ...col, ...partialCollection } : col
+        index === collectionIndex
+          ? { ...col, ...cloneDeep(partialCollection) }
+          : col
       ),
     }
   },
@@ -162,7 +165,7 @@ const restCollectionDispatchers = defineDispatchers({
 
     Object.assign(target, {
       ...target,
-      ...folder,
+      ...cloneDeep(folder),
     })
 
     return {
@@ -547,7 +550,7 @@ const gqlCollectionDispatchers = defineDispatchers({
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? { ...col, ...collection } : col
+        index === collectionIndex ? { ...col, ...cloneDeep(collection) } : col
       ),
     }
   },
@@ -601,7 +604,7 @@ const gqlCollectionDispatchers = defineDispatchers({
 
     Object.assign(target, {
       ...target,
-      ...folder,
+      ...cloneDeep(folder),
     })
 
     return {

@@ -1,7 +1,8 @@
 import { Args, Parent, ResolveField, Resolver } from '@nestjs/graphql';
 import { User } from '../user/user.model';
 import { UserHistoryService } from './user-history.service';
-import { ReqType, UserHistory } from './user-history.model';
+import { UserHistory } from './user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import { PaginationArgs } from '../types/input-types.args';
 
 @Resolver(() => User)

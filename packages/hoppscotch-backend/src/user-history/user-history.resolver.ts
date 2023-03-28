@@ -2,6 +2,7 @@ import { Args, ID, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { UserHistoryService } from './user-history.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { UserHistory } from './user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
 import { GqlUser } from '../decorators/gql-user.decorator';
@@ -40,8 +41,9 @@ export class UserHistoryResolver {
     @Args({
       name: 'reqType',
       description: 'Request type, REST or GQL',
+      type: () => ReqType,
     })
-    reqType: string,
+    reqType: ReqType,
   ): Promise<UserHistory> {
     const createdHistory = await this.userHistoryService.createUserHistory(
       user.uid,
@@ -101,8 +103,9 @@ export class UserHistoryResolver {
     @Args({
       name: 'reqType',
       description: 'Request type, REST or GQL',
+      type: () => ReqType,
     })
-    reqType: string,
+    reqType: ReqType,
   ): Promise<number> {
     const deletedHistory = await this.userHistoryService.deleteAllUserHistory(
       user.uid,

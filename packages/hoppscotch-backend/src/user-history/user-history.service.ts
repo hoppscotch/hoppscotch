@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
-import { ReqType, UserHistory } from './user-history.model';
+import { UserHistory } from './user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import {

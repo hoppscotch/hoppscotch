@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ObjectType()
 export class UserHistory {
@@ -37,11 +38,6 @@ export class UserHistory {
       'Timestamp of when the request was executed or history was created',
   })
   executedOn: Date;
-}
-
-export enum ReqType {
-  REST = 'REST',
-  GQL = 'GQL',
 }
 
 registerEnumType(ReqType, {

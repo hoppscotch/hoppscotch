@@ -46,6 +46,7 @@ export class UserResolver {
     @Args({
       name: 'sessionType',
       description: 'Type of the session',
+      type: () => SessionType,
     })
     sessionType: SessionType,
   ): Promise<User> {

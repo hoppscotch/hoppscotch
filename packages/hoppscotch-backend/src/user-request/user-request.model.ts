@@ -1,5 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { ReqType } from 'src/user-history/user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ObjectType()
 export class UserRequest {

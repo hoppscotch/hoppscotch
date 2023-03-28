@@ -20,7 +20,7 @@ import {
 import { UserRequest } from './user-request.model';
 import { UserRequestService } from './user-request.service';
 import { AuthUser } from 'src/types/AuthUser';
-import { ReqType } from 'src/user-history/user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import { UserCollectionService } from 'src/user-collection/user-collection.service';
 
 const mockPrisma = mockDeep<PrismaService>();

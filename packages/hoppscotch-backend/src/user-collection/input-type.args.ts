@@ -1,5 +1,5 @@
 import { Field, ID, ArgsType } from '@nestjs/graphql';
-import { ReqType } from '@prisma/client';
+import { ReqType } from 'src/types/RequestTypes';
 import { PaginationArgs } from 'src/types/input-types.args';
 
 @ArgsType()
@@ -82,7 +82,7 @@ export class ImportUserCollectionsFromJSONArgs {
     description: 'JSON string to import',
   })
   jsonString: string;
-  @Field({
+  @Field(() => ReqType, {
     name: 'reqType',
     description: 'Type of UserCollection',
   })

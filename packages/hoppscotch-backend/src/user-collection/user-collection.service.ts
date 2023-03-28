@@ -18,16 +18,12 @@ import { AuthUser } from 'src/types/AuthUser';
 import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { PubSubService } from 'src/pubsub/pubsub.service';
-import {
-  Prisma,
-  User,
-  UserCollection,
-  ReqType as DBReqType,
-} from '@prisma/client';
+import { Prisma, UserCollection, ReqType as DBReqType } from '@prisma/client';
 import { UserCollection as UserCollectionModel } from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
 import { isValidLength, stringToJson } from 'src/utils';
 import { CollectionFolder } from 'src/types/CollectionFolder';
+
 @Injectable()
 export class UserCollectionService {
   constructor(

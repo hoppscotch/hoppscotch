@@ -2,12 +2,12 @@ import { UserHistoryService } from './user-history.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { PubSubService } from '../pubsub/pubsub.service';
 import { mockDeep, mockReset } from 'jest-mock-extended';
-import { ReqType, UserHistory } from './user-history.model';
+import { UserHistory } from './user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import {
   USER_HISTORY_INVALID_REQ_TYPE,
   USER_HISTORY_NOT_FOUND,
 } from '../errors';
-import { ReqType as DBReqType } from '@prisma/client';
 
 const mockPrisma = mockDeep<PrismaService>();
 const mockPubSub = mockDeep<PubSubService>();

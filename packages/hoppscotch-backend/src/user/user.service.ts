@@ -8,7 +8,7 @@ import * as T from 'fp-ts/Task';
 import * as A from 'fp-ts/Array';
 import { pipe, constVoid } from 'fp-ts/function';
 import { AuthUser } from 'src/types/AuthUser';
-import { USER_NOT_FOUND, USERS_NOT_FOUND } from 'src/errors';
+import { USER_NOT_FOUND } from 'src/errors';
 import { SessionType, User } from './user.model';
 import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';

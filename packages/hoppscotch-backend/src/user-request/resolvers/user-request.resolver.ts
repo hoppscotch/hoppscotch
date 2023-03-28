@@ -24,7 +24,7 @@ import {
 } from '../input-type.args';
 import { AuthUser } from 'src/types/AuthUser';
 import { User } from 'src/user/user.model';
-import { ReqType } from 'src/user-history/user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import { GqlThrottlerGuard } from 'src/guards/gql-throttler.guard';
 import { SkipThrottle } from '@nestjs/throttler';
 

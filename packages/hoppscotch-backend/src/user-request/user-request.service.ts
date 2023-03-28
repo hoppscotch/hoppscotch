@@ -13,7 +13,7 @@ import {
 } from 'src/errors';
 import { stringToJson } from 'src/utils';
 import { AuthUser } from 'src/types/AuthUser';
-import { ReqType } from 'src/user-history/user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 import { UserCollectionService } from 'src/user-collection/user-collection.service';
 
 @Injectable()

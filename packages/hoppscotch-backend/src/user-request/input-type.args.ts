@@ -1,6 +1,6 @@
 import { Field, ID, ArgsType } from '@nestjs/graphql';
 import { PaginationArgs } from 'src/types/input-types.args';
-import { ReqType } from 'src/user-history/user-history.model';
+import { ReqType } from 'src/types/RequestTypes';
 
 @ArgsType()
 export class GetUserRequestArgs extends PaginationArgs {

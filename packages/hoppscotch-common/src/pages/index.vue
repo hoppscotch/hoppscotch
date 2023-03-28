@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onBeforeUnmount, watch } from "vue"
+import { ref, onMounted, onBeforeUnmount, watch, onBeforeMount } from "vue"
 import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import { useRoute } from "vue-router"
@@ -92,6 +92,7 @@ import {
 import { useToast } from "~/composables/toast"
 import { PersistableRESTTabState } from "~/helpers/rest/tab"
 import { watchDebounced } from "@vueuse/core"
+import { oauthRedirect } from "~/helpers/oauth"
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -184,7 +185,7 @@ const onSaveModalClose = () => {
 
 watch(confirmSync, (newValue) => {
   if (newValue) {
-    toast.show(`${t("confirm.sync")}`, {
+    toast.show(t("confirm.sync"), {
       duration: 0,
       action: [
         {
@@ -273,8 +274,28 @@ function setupTabStateSync() {
   })
 }
 
-setupTabStateSync()
+function oAuthURL() {
+  onBeforeMount(async () => {
+    try {
+      const tokenInfo = await oauthRedirect()
+      if (
+        typeof tokenInfo === "object" &&
+        tokenInfo.hasOwnProperty("access_token")
+      ) {
+        if (
+          currentActiveTab.value.document.request.auth.authType === "oauth-2"
+        ) {
+          currentActiveTab.value.document.request.auth.token =
+            tokenInfo.access_token
+        }
+      }
 
+      // eslint-disable-next-line no-empty
+    } catch (_) {}
+  })
+}
+
+setupTabStateSync()
 bindRequestToURLParams()
-// oAuthURL()
+oAuthURL()
 </script>

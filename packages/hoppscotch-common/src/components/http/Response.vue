@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col flex-1">
-    <HttpResponseMeta v-if="tab.response" :response="tab.response" />
+    <HttpResponseMeta :response="tab.response" />
     <LensesResponseBodyRenderer
       v-if="!loading && hasResponse"
       v-model:selected-tab-preference="selectedTabPreference"

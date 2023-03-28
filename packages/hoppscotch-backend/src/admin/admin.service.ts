@@ -393,4 +393,15 @@ export class AdminService {
     const teamRequestCount = this.teamRequestService.getTeamRequestsCount();
     return teamRequestCount;
   }
+
+  /**
+   * Get team info by ID
+   * @param teamID Team ID
+   * @returns an Either of `Team` or error
+   */
+  async getTeamInfo(teamID: string) {
+    const team = await this.teamService.getTeamWithIDTE(teamID)();
+    if (E.isLeft(team)) return E.left(team.left);
+    return E.right(team.right);
+  }
 }

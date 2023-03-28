@@ -102,6 +102,22 @@ export class AdminResolver {
     const teams = await this.adminService.fetchAllTeams(args.cursor, args.take);
     return teams;
   }
+  @ResolveField(() => Team, {
+    description: 'Returns a team info by ID when requested by Admin',
+  })
+  async teamInfo(
+    @Parent() admin: Admin,
+    @Args({
+      name: 'teamID',
+      type: () => ID,
+      description: 'Team ID for which info to fetch',
+    })
+    teamID: string,
+  ): Promise<Team> {
+    const team = await this.adminService.getTeamInfo(teamID);
+    if (E.isLeft(team)) throwErr(team.left);
+    return team.right;
+  }
 
   @ResolveField(() => Number, {
     description: 'Return count of all the members in a team',

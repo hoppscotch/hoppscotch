@@ -61,6 +61,7 @@ export class TeamResolver {
 
   @ResolveField(() => TeamMemberRole, {
     description: 'The role of the current user in the team',
+    nullable: true,
   })
   @UseGuards(GqlAuthGuard)
   myRole(

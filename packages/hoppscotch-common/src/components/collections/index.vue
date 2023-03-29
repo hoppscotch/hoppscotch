@@ -1177,26 +1177,46 @@ const selectRequest = (selectedRequest: {
 }) => {
   const { request, folderPath, requestIndex } = selectedRequest
 
-  const possibleTab = getTabRefWithSaveContext({
-    originLocation: "user-collection",
-    requestIndex: parseInt(requestIndex),
-    folderPath: folderPath!,
-  })
-
   // If there is a request with this save context, switch into it
-  if (possibleTab) {
-    currentTabID.value = possibleTab.value.id
-  } else {
-    // If not, open the request in a new tab
-    createNewTab({
-      request: cloneDeep(request),
-      isDirty: false,
-      saveContext: {
-        originLocation: "user-collection",
-        folderPath: folderPath!,
-        requestIndex: parseInt(requestIndex),
-      },
+  let possibleTab = null
+
+  if (collectionsType.value.type === "team-collections") {
+    possibleTab = getTabRefWithSaveContext({
+      originLocation: "team-collection",
+      requestID: requestIndex,
     })
+    if (possibleTab) {
+      currentTabID.value = possibleTab.value.id
+    } else {
+      createNewTab({
+        request: cloneDeep(request),
+        isDirty: false,
+        saveContext: {
+          originLocation: "team-collection",
+          requestID: requestIndex,
+        },
+      })
+    }
+  } else {
+    possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      requestIndex: parseInt(requestIndex),
+      folderPath: folderPath!,
+    })
+    if (possibleTab) {
+      currentTabID.value = possibleTab.value.id
+    } else {
+      // If not, open the request in a new tab
+      createNewTab({
+        request: cloneDeep(request),
+        isDirty: false,
+        saveContext: {
+          originLocation: "user-collection",
+          folderPath: folderPath!,
+          requestIndex: parseInt(requestIndex),
+        },
+      })
+    }
   }
 }
 

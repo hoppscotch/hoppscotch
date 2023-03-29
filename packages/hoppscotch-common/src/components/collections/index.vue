@@ -222,6 +222,7 @@ import {
   currentActiveTab,
   currentTabID,
   getTabRefWithSaveContext,
+  resolveSaveContextOnReorder,
 } from "~/helpers/rest/tab"
 
 const t = useI18n()
@@ -1218,6 +1219,8 @@ const dropRequest = (payload: {
   requestIndex: string
   destinationCollectionIndex: string
 }) => {
+  console.log(payload)
+
   const { folderPath, requestIndex, destinationCollectionIndex } = payload
 
   if (!requestIndex || !destinationCollectionIndex) return
@@ -1474,6 +1477,11 @@ const updateRequestOrder = (payload: {
     if (!isSameSameParent(dragedRequestIndex, destinationRequestIndex)) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
+      resolveSaveContextOnReorder(
+        pathToLastIndex(dragedRequestIndex),
+        pathToLastIndex(destinationRequestIndex),
+        destinationCollectionIndex
+      )
       updateRESTRequestOrder(
         pathToLastIndex(dragedRequestIndex),
         pathToLastIndex(destinationRequestIndex),

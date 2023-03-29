@@ -191,3 +191,46 @@ export function getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
 
   return null
 }
+
+export function resolveSaveContextOnReorder(
+  lastIndex: number,
+  newIndex: number,
+  folderPath: string
+) {
+  if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
+  if (lastIndex === newIndex) return
+
+  const effectedIndexes = getAffectedIndexes(lastIndex, newIndex)
+
+  getActiveTabs().value.forEach((tab) => {
+    if (
+      tab.document.saveContext?.originLocation === "user-collection" &&
+      tab.document.saveContext.folderPath === folderPath &&
+      effectedIndexes.has(tab.document.saveContext.requestIndex)
+    ) {
+      const newIndex = effectedIndexes.get(
+        tab.document.saveContext.requestIndex
+      )!
+      tab.document.saveContext.requestIndex = newIndex
+    }
+  })
+
+  console.log("actually moving", {
+    getActiveTabs: getActiveTabs().value,
+  })
+}
+
+function getAffectedIndexes(oldIndex: number, newIndex: number) {
+  const indexes = new Map<number, number>()
+  indexes.set(oldIndex, newIndex)
+  if (oldIndex < newIndex) {
+    for (let i = oldIndex + 1; i <= newIndex; i++) {
+      indexes.set(i, i - 1)
+    }
+  } else {
+    for (let i = oldIndex - 1; i >= newIndex; i--) {
+      indexes.set(i, i + 1)
+    }
+  }
+  return indexes
+}

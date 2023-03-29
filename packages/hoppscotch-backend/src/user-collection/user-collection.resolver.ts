@@ -16,6 +16,8 @@ import { AuthUser } from 'src/types/AuthUser';
 import { UserCollectionService } from './user-collection.service';
 import {
   UserCollection,
+  UserCollectionExportJSONData,
+  UserCollectionRemovedData,
   UserCollectionReorderData,
 } from './user-collections.model';
 import { throwErr } from 'src/utils';
@@ -143,7 +145,7 @@ export class UserCollectionResolver {
     return userCollection.right;
   }
 
-  @Query(() => String, {
+  @Query(() => UserCollectionExportJSONData, {
     description:
       'Returns the JSON string giving the collections and their contents of a user',
   })
@@ -158,11 +160,18 @@ export class UserCollectionResolver {
       defaultValue: null,
     })
     collectionID: string,
+    @Args({
+      type: () => ReqType,
+      name: 'collectionType',
+      description: 'Type of the user collection',
+    })
+    collectionType: ReqType,
   ) {
     const jsonString =
       await this.userCollectionService.exportUserCollectionsToJSON(
         user.uid,
         collectionID,
+        collectionType,
       );
 
     if (E.isLeft(jsonString)) throwErr(jsonString.left as string);
@@ -371,7 +380,7 @@ export class UserCollectionResolver {
     return this.pubSub.asyncIterator(`user_coll/${user.uid}/updated`);
   }
 
-  @Subscription(() => ID, {
+  @Subscription(() => UserCollectionRemovedData, {
     description: 'Listen to when a User Collection has been deleted',
     resolve: (value) => value,
   })

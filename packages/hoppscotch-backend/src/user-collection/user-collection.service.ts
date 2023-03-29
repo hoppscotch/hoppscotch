@@ -19,7 +19,10 @@ import * as E from 'fp-ts/Either';
 import * as O from 'fp-ts/Option';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { Prisma, UserCollection, ReqType as DBReqType } from '@prisma/client';
-import { UserCollection as UserCollectionModel } from './user-collections.model';
+import {
+  UserCollection as UserCollectionModel,
+  UserCollectionExportJSONData,
+} from './user-collections.model';
 import { ReqType } from 'src/types/RequestTypes';
 import { isValidLength, stringToJson } from 'src/utils';
 import { CollectionFolder } from 'src/types/CollectionFolder';
@@ -419,7 +422,10 @@ export class UserCollectionService {
 
     this.pubsub.publish(
       `user_coll/${deletedUserCollection.right.userUid}/deleted`,
-      deletedUserCollection.right.id,
+      {
+        id: deletedUserCollection.right.id,
+        type: ReqType[deletedUserCollection.right.type],
+      },
     );
 
     return E.right(true);
@@ -852,12 +858,14 @@ export class UserCollectionService {
   async exportUserCollectionsToJSON(
     userUID: string,
     collectionID: string | null,
+    reqType: ReqType,
   ) {
     // Get all child collections details
     const childCollectionList = await this.prisma.userCollection.findMany({
       where: {
         userUid: userUID,
         parentID: collectionID,
+        type: reqType,
       },
     });
 
@@ -879,6 +887,9 @@ export class UserCollectionService {
       const parentCollection = await this.getUserCollection(collectionID);
       if (E.isLeft(parentCollection)) return E.left(parentCollection.left);
 
+      if (parentCollection.right.type !== reqType)
+        return E.left(USER_COLL_NOT_SAME_TYPE);
+
       // Fetch all child requests that belong to collectionID
       const requests = await this.prisma.userRequest.findMany({
         where: {
@@ -890,8 +901,8 @@ export class UserCollectionService {
         },
       });
 
-      return E.right(
-        JSON.stringify({
+      return E.right(<UserCollectionExportJSONData>{
+        exportedCollection: JSON.stringify({
           id: parentCollection.right.id,
           name: parentCollection.right.title,
           folders: collectionListObjects,
@@ -903,10 +914,14 @@ export class UserCollectionService {
             };
           }),
         }),
-      );
+        collectionType: parentCollection.right.type,
+      });
     }
 
-    return E.right(JSON.stringify(collectionListObjects));
+    return E.right(<UserCollectionExportJSONData>{
+      exportedCollection: JSON.stringify(collectionListObjects),
+      collectionType: reqType,
+    });
   }
 
   /**

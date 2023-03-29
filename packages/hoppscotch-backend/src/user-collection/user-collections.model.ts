@@ -38,6 +38,32 @@ export class UserCollectionReorderData {
   nextUserCollection?: UserCollection;
 }
 
+@ObjectType()
+export class UserCollectionRemovedData {
+  @Field(() => ID, {
+    description: 'ID of User Collection being removed',
+  })
+  id: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  type: ReqType;
+}
+
 registerEnumType(ReqType, {
   name: 'CollType',
 });
+
+@ObjectType()
+export class UserCollectionExportJSONData {
+  @Field(() => ID, {
+    description: 'Stringified contents of the collection',
+  })
+  exportedCollection: string;
+
+  @Field(() => ReqType, {
+    description: 'Type of the user collection',
+  })
+  collectionType: ReqType;
+}

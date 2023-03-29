@@ -19,7 +19,10 @@ import {
 import { TeamInvitation } from 'src/team-invitation/team-invitation.model';
 import { InvitedUser } from '../admin/invited-user.model';
 import { UserCollection } from '@prisma/client';
-import { UserCollectionReorderData } from 'src/user-collection/user-collections.model';
+import {
+  UserCollectionRemovedData,
+  UserCollectionReorderData,
+} from 'src/user-collection/user-collections.model';
 import { Shortcode } from 'src/shortcode/shortcode.model';
 
 // A custom message type that defines the topic and the corresponding payload.
@@ -42,7 +45,7 @@ export type TopicDef = {
   [
     topic: `user_coll/${string}/${'created' | 'updated' | 'moved'}`
   ]: UserCollection;
-  [topic: `user_coll/${string}/${'deleted'}`]: string;
+  [topic: `user_coll/${string}/${'deleted'}`]: UserCollectionRemovedData;
   [topic: `user_coll/${string}/${'order_updated'}`]: UserCollectionReorderData;
   [topic: `team/${string}/member_removed`]: string;
   [topic: `team/${string}/${'member_added' | 'member_updated'}`]: TeamMember;

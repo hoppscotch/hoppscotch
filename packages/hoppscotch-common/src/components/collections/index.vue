@@ -222,8 +222,8 @@ import {
   currentActiveTab,
   currentTabID,
   getTabRefWithSaveContext,
-  resolveSaveContextOnReorder,
 } from "~/helpers/rest/tab"
+import { resolveSaveContextOnReorder } from "~/helpers/collection/request"
 
 const t = useI18n()
 const toast = useToast()

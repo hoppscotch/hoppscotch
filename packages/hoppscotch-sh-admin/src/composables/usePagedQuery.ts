@@ -17,7 +17,7 @@ export function usePagedQuery<
   const { client } = useClientHandle();
   const fetching = ref(true);
   const error = ref(false);
-  const list = ref<any[]>([]);
+  const list = ref<ListItem[]>([]);
   const currentPage = ref(0);
   const hasNextPage = ref(true);
 

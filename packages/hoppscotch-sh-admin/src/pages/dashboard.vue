@@ -1,77 +1,40 @@
 <template>
-  <div class="sm:px-6 p-4">
-    <h3 class="text-3xl font-bold text-gray-200 mb-6">Dashboard</h3>
-
+  <div class="flex flex-col">
     <div v-if="fetching" class="flex justify-center">
       <HoppSmartSpinner />
     </div>
-    <div v-else-if="error">
+
+    <div v-else-if="error || !metrics">
       <p class="text-xl">No Metrics Found..</p>
     </div>
 
-    <div v-else class="mt-4">
-      <div class="grid lg:grid-cols-2 gap-6">
-        <div class="w-full">
-          <div
-            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
-          >
-            <icon-lucide-user-cog class="text-5xl text-emerald-500" />
-
-            <div class="mx-10">
-              <h4 class="text-4xl font-semibold text-gray-200">
-                {{ metrics?.usersCount }}
-              </h4>
-              <div class="text-gray-400 font-bold text-xl">Total Users</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="w-full">
-          <div
-            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
-          >
-            <icon-lucide-users class="text-5xl text-pink-400" />
-
-            <div class="mx-10">
-              <h4 class="text-4xl font-semibold text-gray-200">
-                {{ metrics?.teamsCount }}
-              </h4>
-              <div class="text-gray-400 font-bold text-xl">Total Teams</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="w-full">
-          <div
-            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
-          >
-            <icon-lucide-line-chart class="text-5xl text-cyan-400" />
-
-            <div class="mx-10">
-              <h4 class="text-4xl font-semibold text-gray-200">
-                {{ metrics?.teamRequestsCount }}
-              </h4>
-              <div class="text-gray-400 font-bold text-xl">Total Requests</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="w-full">
-          <div
-            class="flex items-center px-15 py-6 bg-primaryLight rounded-md shadow-sm h-50"
-          >
-            <icon-lucide-folder-tree class="text-5xl text-orange-400" />
-
-            <div class="mx-10">
-              <h4 class="text-4xl font-semibold text-gray-200">
-                {{ metrics?.teamCollectionsCount }}
-              </h4>
-              <div class="text-gray-400 font-bold text-xl">
-                Total Collections
-              </div>
-            </div>
-          </div>
-        </div>
+    <div v-else>
+      <h1 class="text-lg font-bold text-secondaryDark">Dashboard</h1>
+      <div class="py-10 grid lg:grid-cols-2 gap-6">
+        <DashboardMetricsCard
+          :count="metrics.usersCount"
+          label="Total Users"
+          :icon="UserIcon"
+          color="text-green-400"
+        />
+        <DashboardMetricsCard
+          :count="metrics.teamsCount"
+          label="Total Teams"
+          :icon="UsersIcon"
+          color="text-pink-400"
+        />
+        <DashboardMetricsCard
+          :count="metrics.teamRequestsCount"
+          label="Total Requests"
+          :icon="LineChartIcon"
+          color="text-cyan-400"
+        />
+        <DashboardMetricsCard
+          :count="metrics.teamCollectionsCount"
+          label="Total Collections"
+          :icon="FolderTreeIcon"
+          color="text-orange-400"
+        />
       </div>
     </div>
   </div>
@@ -81,6 +44,10 @@
 import { computed } from 'vue';
 import { useQuery } from '@urql/vue';
 import { MetricsDocument } from '../helpers/backend/graphql';
+import UserIcon from '~icons/lucide/user';
+import UsersIcon from '~icons/lucide/users';
+import LineChartIcon from '~icons/lucide/line-chart';
+import FolderTreeIcon from '~icons/lucide/folder-tree';
 
 // Get Metrics Data
 const { fetching, error, data } = useQuery({ query: MetricsDocument });

@@ -1,31 +1,32 @@
 <template>
   <header
-    class="flex items-center justify-between border-b border-gray-600 px-6 py-4 bg-neutral-900 shadow-lg"
+    class="flex items-center justify-between border-b border-divider px-6 py-4 bg-primary shadow-lg"
   >
     <div class="flex items-center">
-      <button
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        title="Open navigation"
+        :icon="IconMenu"
+        class="transform !md:hidden mr-2"
         @click="isOpen = true"
-        class="text-gray-200 focus:outline-none md:hidden mr-2"
-      >
-        <icon-lucide-menu class="text-gray-300 w-6" />
-      </button>
-
-      <div class="mr-3 mt-2 xs:hidden md:block">
-        <button @click="expandSidebar">
-          <icon-lucide-sidebar-open
-            v-if="isExpanded"
-            class="text-gray-300 w-6"
-          />
-          <icon-lucide-sidebar-close v-else class="text-gray-300 w-6" />
-        </button>
-      </div>
+      />
+      <HoppButtonSecondary
+        v-tippy="{ theme: 'tooltip' }"
+        :title="isExpanded ? 'Collapse sidebar' : 'Expand sidebar'"
+        :icon="isExpanded ? IconSidebarClose : IconSidebarOpen"
+        class="transform"
+        @click="expandSidebar"
+      />
     </div>
 
     <div class="flex items-center">
       <div v-if="currentUser" class="relative">
-        <button
-          @click="dropdownOpen = !dropdownOpen"
-          class="relative z-10 block w-8 h-8 overflow-hidden rounded-full shadow focus:outline-none"
+        <tippy
+          interactive
+          trigger="click"
+          theme="popover"
+          arrow
+          :on-shown="() => tippyActions!.focus()"
         >
           <ProfilePicture
             v-if="currentUser.photoURL"
@@ -42,29 +43,19 @@
             :title="currentUser.displayName ?? currentUser.email ?? 'No Name'"
             :initial="currentUser.displayName ?? currentUser.email"
           />
-        </button>
-
-        <div
-          v-show="dropdownOpen"
-          @click="dropdownOpen = false"
-          class="fixed inset-0 z-10 w-full h-full"
-        ></div>
-
-        <transition
-          enter-active-class="transition duration-150 ease-out transform"
-          enter-from-class="scale-95 opacity-0"
-          enter-to-class="scale-100 opacity-100"
-          leave-active-class="transition duration-150 ease-in transform"
-          leave-from-class="scale-100 opacity-100"
-          leave-to-class="scale-95 opacity-0"
-        >
-          <div
-            v-show="dropdownOpen"
-            class="absolute right-0 z-20 w-48 py-2 mt-2 bg-zinc-800 rounded-md shadow-xl"
-          >
-            <AppLogout ref="logout" />
-          </div>
-        </transition>
+          <template #content="{ hide }">
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.escape="hide()"
+            >
+              <div>
+                <AppLogout ref="logout" @click="hide()" />
+              </div>
+            </div>
+          </template>
+        </tippy>
       </div>
     </div>
   </header>
@@ -72,9 +63,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { TippyComponent } from 'vue-tippy';
 import { useReadonlyStream } from '~/composables/stream';
 import { useSidebar } from '~/composables/useSidebar';
 import { auth } from '~/helpers/auth';
+import IconMenu from '~icons/lucide/menu';
+import IconSidebarOpen from '~icons/lucide/sidebar-open';
+import IconSidebarClose from '~icons/lucide/sidebar-close';
 
 const { isOpen, isExpanded } = useSidebar();
 
@@ -87,5 +82,6 @@ const expandSidebar = () => {
   isExpanded.value = !isExpanded.value;
 };
 
-const dropdownOpen = ref(false);
+// Template refs
+const tippyActions = ref<TippyComponent | null>(null);
 </script>

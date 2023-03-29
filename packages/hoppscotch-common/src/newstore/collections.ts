@@ -7,6 +7,7 @@ import {
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { getRESTSaveContext, setRESTSaveContext } from "./RESTSession"
+import { cloneDeep } from "lodash-es"
 
 const defaultRESTCollectionState = {
   state: [
@@ -105,7 +106,9 @@ const restCollectionDispatchers = defineDispatchers({
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? { ...col, ...partialCollection } : col
+        index === collectionIndex
+          ? { ...col, ...cloneDeep(partialCollection) }
+          : col
       ),
     }
   },
@@ -144,7 +147,7 @@ const restCollectionDispatchers = defineDispatchers({
       folder,
     }: {
       path: string
-      folder: HoppCollection<HoppRESTRequest>
+      folder: Partial<HoppCollection<HoppRESTRequest>>
     }
   ) {
     const newState = state
@@ -160,7 +163,10 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    Object.assign(target, folder)
+    Object.assign(target, {
+      ...target,
+      ...cloneDeep(folder),
+    })
 
     return {
       state: newState,
@@ -540,11 +546,11 @@ const gqlCollectionDispatchers = defineDispatchers({
     {
       collectionIndex,
       collection,
-    }: { collectionIndex: number; collection: HoppCollection<any> }
+    }: { collectionIndex: number; collection: Partial<HoppCollection<any>> }
   ) {
     return {
       state: state.map((col, index) =>
-        index === collectionIndex ? collection : col
+        index === collectionIndex ? { ...col, ...cloneDeep(collection) } : col
       ),
     }
   },
@@ -578,7 +584,10 @@ const gqlCollectionDispatchers = defineDispatchers({
 
   editFolder(
     { state }: GraphqlCollectionStoreType,
-    { path, folder }: { path: string; folder: HoppCollection<HoppGQLRequest> }
+    {
+      path,
+      folder,
+    }: { path: string; folder: Partial<HoppCollection<HoppGQLRequest>> }
   ) {
     const newState = state
 
@@ -593,7 +602,10 @@ const gqlCollectionDispatchers = defineDispatchers({
       return {}
     }
 
-    Object.assign(target, folder)
+    Object.assign(target, {
+      ...target,
+      ...cloneDeep(folder),
+    })
 
     return {
       state: newState,
@@ -850,7 +862,7 @@ export function addRESTFolder(name: string, path: string) {
 
 export function editRESTFolder(
   path: string,
-  folder: HoppCollection<HoppRESTRequest>
+  folder: Partial<HoppCollection<HoppRESTRequest>>
 ) {
   restCollectionStore.dispatch({
     dispatcher: "editFolder",
@@ -1018,7 +1030,7 @@ export function removeGraphqlCollection(collectionIndex: number) {
 
 export function editGraphqlCollection(
   collectionIndex: number,
-  collection: HoppCollection<HoppGQLRequest>
+  collection: Partial<HoppCollection<HoppGQLRequest>>
 ) {
   graphqlCollectionStore.dispatch({
     dispatcher: "editCollection",
@@ -1041,7 +1053,7 @@ export function addGraphqlFolder(name: string, path: string) {
 
 export function editGraphqlFolder(
   path: string,
-  folder: HoppCollection<HoppGQLRequest>
+  folder: Partial<HoppCollection<HoppGQLRequest>>
 ) {
   graphqlCollectionStore.dispatch({
     dispatcher: "editFolder",

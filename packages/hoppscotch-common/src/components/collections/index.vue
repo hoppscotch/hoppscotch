@@ -223,7 +223,10 @@ import {
   currentTabID,
   getTabRefWithSaveContext,
 } from "~/helpers/rest/tab"
-import { resolveSaveContextOnReorder } from "~/helpers/collection/request"
+import {
+  getRequestsByPath,
+  resolveSaveContextOnReorder,
+} from "~/helpers/collection/request"
 
 const t = useI18n()
 const toast = useToast()
@@ -1109,11 +1112,19 @@ const onRemoveRequest = () => {
 
     // If there is a tab attached to this request, dissociate its state and mark it dirty
     if (possibleTab) {
-      possibleTab.value.document.saveContext = undefined
+      possibleTab.value.document.saveContext = null
       possibleTab.value.document.isDirty = true
     }
 
     removeRESTRequest(folderPath, requestIndex)
+
+    // the same function is used to reorder requests since after removing, it's basically doing reorder
+    resolveSaveContextOnReorder({
+      lastIndex: requestIndex,
+      newIndex: -1,
+      folderPath,
+      totalRequests: getRequestsByPath(myCollections.value, folderPath).length,
+    })
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1497,11 +1508,11 @@ const updateRequestOrder = (payload: {
     if (!isSameSameParent(dragedRequestIndex, destinationRequestIndex)) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
-      resolveSaveContextOnReorder(
-        pathToLastIndex(dragedRequestIndex),
-        pathToLastIndex(destinationRequestIndex),
-        destinationCollectionIndex
-      )
+      resolveSaveContextOnReorder({
+        lastIndex: pathToLastIndex(dragedRequestIndex),
+        newIndex: pathToLastIndex(destinationRequestIndex),
+        folderPath: destinationCollectionIndex,
+      })
       updateRESTRequestOrder(
         pathToLastIndex(dragedRequestIndex),
         pathToLastIndex(destinationRequestIndex),
@@ -1549,6 +1560,8 @@ const updateCollectionOrder = (payload: {
   dragedCollectionIndex: string
   destinationCollectionIndex: string
 }) => {
+  console.log("updateCollectionOrder", payload)
+
   const { dragedCollectionIndex, destinationCollectionIndex } = payload
   if (!dragedCollectionIndex || !destinationCollectionIndex) return
   if (dragedCollectionIndex === destinationCollectionIndex) return

@@ -33,6 +33,7 @@ export type HoppRESTSaveContext =
        */
       collectionID?: string
     }
+  | null
 
 /**
  * Defines a live 'document' (something that is open and being edited) in the app

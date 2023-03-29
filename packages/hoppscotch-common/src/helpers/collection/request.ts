@@ -8,7 +8,7 @@ import { getAffectedIndexes } from "./affectedIndex"
  * @param payload.lastIndex
  * @param payload.newIndex
  * @param payload.folderPath
- * @param payload.totalRequests
+ * @param payload.length
  * @returns
  */
 
@@ -16,32 +16,32 @@ export function resolveSaveContextOnReorder(payload: {
   lastIndex: number
   folderPath: string
   newIndex: number
-  totalRequests?: number // better way to do this? now it could be undefined
+  length?: number // better way to do this? now it could be undefined
 }) {
   let { lastIndex, newIndex, folderPath } = payload
 
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
   if (lastIndex === newIndex) return
 
-  const effectedIndexes = getAffectedIndexes(
+  const affectedIndexes = getAffectedIndexes(
     lastIndex,
-    newIndex === -1 ? payload.totalRequests! : newIndex
+    newIndex === -1 ? payload.length! : newIndex
   )
 
   // if (newIndex === -1) remove it from the map because it will be deleted
-  if (newIndex === -1) effectedIndexes.delete(lastIndex)
+  if (newIndex === -1) affectedIndexes.delete(lastIndex)
 
   const tabs = getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
       tab.document.saveContext.folderPath === folderPath &&
-      effectedIndexes.has(tab.document.saveContext.requestIndex)
+      affectedIndexes.has(tab.document.saveContext.requestIndex)
     )
   })
 
   for (const tab of tabs) {
     if (tab.value.document.saveContext?.originLocation === "user-collection") {
-      const newIndex = effectedIndexes.get(
+      const newIndex = affectedIndexes.get(
         tab.value.document.saveContext?.requestIndex
       )!
       tab.value.document.saveContext.requestIndex = newIndex

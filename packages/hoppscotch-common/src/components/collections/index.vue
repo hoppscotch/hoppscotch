@@ -227,6 +227,7 @@ import {
   getRequestsByPath,
   resolveSaveContextOnReorder,
 } from "~/helpers/collection/request"
+import { resolveSaveContextOnCollectionReorder } from "~/helpers/collection/collection"
 
 const t = useI18n()
 const toast = useToast()
@@ -1123,7 +1124,7 @@ const onRemoveRequest = () => {
       lastIndex: requestIndex,
       newIndex: -1,
       folderPath,
-      totalRequests: getRequestsByPath(myCollections.value, folderPath).length,
+      length: getRequestsByPath(myCollections.value, folderPath).length,
     })
 
     toast.success(t("state.deleted"))
@@ -1508,16 +1509,16 @@ const updateRequestOrder = (payload: {
     if (!isSameSameParent(dragedRequestIndex, destinationRequestIndex)) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
-      resolveSaveContextOnReorder({
-        lastIndex: pathToLastIndex(dragedRequestIndex),
-        newIndex: pathToLastIndex(destinationRequestIndex),
-        folderPath: destinationCollectionIndex,
-      })
       updateRESTRequestOrder(
         pathToLastIndex(dragedRequestIndex),
         pathToLastIndex(destinationRequestIndex),
         destinationCollectionIndex
       )
+      resolveSaveContextOnReorder({
+        lastIndex: pathToLastIndex(dragedRequestIndex),
+        newIndex: pathToLastIndex(destinationRequestIndex),
+        folderPath: destinationCollectionIndex,
+      })
       toast.success(`${t("request.order_changed")}`)
     }
   } else if (hasTeamWriteAccess.value) {
@@ -1560,8 +1561,6 @@ const updateCollectionOrder = (payload: {
   dragedCollectionIndex: string
   destinationCollectionIndex: string
 }) => {
-  console.log("updateCollectionOrder", payload)
-
   const { dragedCollectionIndex, destinationCollectionIndex } = payload
   if (!dragedCollectionIndex || !destinationCollectionIndex) return
   if (dragedCollectionIndex === destinationCollectionIndex) return
@@ -1574,6 +1573,11 @@ const updateCollectionOrder = (payload: {
         dragedCollectionIndex,
         destinationCollectionIndex
       )
+      resolveSaveContextOnCollectionReorder({
+        lastIndex: pathToLastIndex(dragedCollectionIndex),
+        newIndex: pathToLastIndex(destinationCollectionIndex),
+        folderPath: dragedCollectionIndex.split("/").slice(0, -1).join("/"),
+      })
       toast.success(`${t("collection.order_changed")}`)
     }
   } else if (hasTeamWriteAccess.value) {

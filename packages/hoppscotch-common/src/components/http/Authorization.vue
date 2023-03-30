@@ -32,7 +32,7 @@
                 :active="authName === 'None'"
                 @click="
                   () => {
-                    authType = 'none'
+                    auth.authType = 'none'
                     hide()
                   }
                 "
@@ -43,7 +43,7 @@
                 :active="authName === 'Basic Auth'"
                 @click="
                   () => {
-                    authType = 'basic'
+                    auth.authType = 'basic'
                     hide()
                   }
                 "
@@ -54,7 +54,7 @@
                 :active="authName === 'Bearer'"
                 @click="
                   () => {
-                    authType = 'bearer'
+                    auth.authType = 'bearer'
                     hide()
                   }
                 "
@@ -65,7 +65,7 @@
                 :active="authName === 'OAuth 2.0'"
                 @click="
                   () => {
-                    authType = 'oauth-2'
+                    auth.authType = 'oauth-2'
                     hide()
                   }
                 "
@@ -76,7 +76,7 @@
                 :active="authName === 'API key'"
                 @click="
                   () => {
-                    authType = 'api-key'
+                    auth.authType = 'api-key'
                     hide()
                   }
                 "
@@ -114,7 +114,7 @@
       </div>
     </div>
     <div
-      v-if="authType === 'none'"
+      v-if="auth.authType === 'none'"
       class="flex flex-col items-center justify-center p-4 text-secondaryLight"
     >
       <img
@@ -136,91 +136,22 @@
     </div>
     <div v-else class="flex flex-1 border-b border-dividerLight">
       <div class="w-2/3 border-r border-dividerLight">
-        <div v-if="authType === 'basic'">
+        <div v-if="auth.authType === 'basic'">
+          <HttpAuthorizationBasic v-model="auth" />
+        </div>
+        <div v-if="auth.authType === 'bearer'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput
-              v-model="basicUsername"
-              :placeholder="t('authorization.username')"
-            />
-          </div>
-          <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput
-              v-model="basicPassword"
-              :placeholder="t('authorization.password')"
-            />
+            <SmartEnvInput v-model="auth.token" placeholder="Token" />
           </div>
         </div>
-        <div v-if="authType === 'bearer'">
+        <div v-if="auth.authType === 'oauth-2'">
           <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="bearerToken" placeholder="Token" />
+            <SmartEnvInput v-model="auth.token" placeholder="Token" />
           </div>
+          <HttpOAuth2Authorization v-model="auth" />
         </div>
-        <div v-if="authType === 'oauth-2'">
-          <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="oauth2Token" placeholder="Token" />
-          </div>
-          <HttpOAuth2Authorization />
-        </div>
-        <div v-if="authType === 'api-key'">
-          <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="apiKey" placeholder="Key" />
-          </div>
-          <div class="flex flex-1 border-b border-dividerLight">
-            <SmartEnvInput v-model="apiValue" placeholder="Value" />
-          </div>
-          <div class="flex items-center border-b border-dividerLight">
-            <span class="flex items-center">
-              <label class="ml-4 text-secondaryLight">
-                {{ t("authorization.pass_key_by") }}
-              </label>
-              <tippy
-                interactive
-                trigger="click"
-                theme="popover"
-                :on-shown="() => authTippyActions.focus()"
-              >
-                <span class="select-wrapper">
-                  <HoppButtonSecondary
-                    :label="addTo || t('state.none')"
-                    class="pr-8 ml-2 rounded-none"
-                  />
-                </span>
-                <template #content="{ hide }">
-                  <div
-                    ref="authTippyActions"
-                    class="flex flex-col focus:outline-none"
-                    tabindex="0"
-                    @keyup.escape="hide()"
-                  >
-                    <HoppSmartItem
-                      :icon="addTo === 'Headers' ? IconCircleDot : IconCircle"
-                      :active="addTo === 'Headers'"
-                      :label="'Headers'"
-                      @click="
-                        () => {
-                          addTo = 'Headers'
-                          hide()
-                        }
-                      "
-                    />
-                    <HoppSmartItem
-                      :icon="
-                        addTo === 'Query params' ? IconCircleDot : IconCircle
-                      "
-                      :active="addTo === 'Query params'"
-                      :label="'Query params'"
-                      @click="
-                        () => {
-                          addTo = 'Query params'
-                          hide()
-                        }
-                      "
-                    />
-                  </div>
-                </template>
-              </tippy>
-            </span>
-          </div>
+        <div v-if="auth.authType === 'api-key'">
+          <HttpAuthorizationApiKey v-model="auth" />
         </div>
       </div>
       <div
@@ -248,49 +179,40 @@ import IconTrash2 from "~icons/lucide/trash-2"
 import IconExternalLink from "~icons/lucide/external-link"
 import IconCircleDot from "~icons/lucide/circle-dot"
 import IconCircle from "~icons/lucide/circle"
-import { computed, ref, Ref } from "vue"
-import {
-  HoppRESTAuthBasic,
-  HoppRESTAuthBearer,
-  HoppRESTAuthOAuth2,
-  HoppRESTAuthAPIKey,
-} from "@hoppscotch/data"
+import { computed, ref } from "vue"
+import { HoppRESTAuth } from "@hoppscotch/data"
 import { pluckRef } from "@composables/ref"
-import { useStream } from "@composables/stream"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
+import { useVModel } from "@vueuse/core"
 
 const t = useI18n()
 
 const colorMode = useColorMode()
 
-const auth = useStream(
-  restAuth$,
-  { authType: "none", authActive: true },
-  setRESTAuth
-)
+const props = defineProps<{
+  modelValue: HoppRESTAuth
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTAuth): void
+}>()
+
+const auth = useVModel(props, "modelValue", emit)
+
+const AUTH_KEY_NAME = {
+  basic: "Basic Auth",
+  bearer: "Bearer",
+  "oauth-2": "OAuth 2.0",
+  "api-key": "API key",
+  none: "None",
+} as const
+
 const authType = pluckRef(auth, "authType")
-const authName = computed(() => {
-  if (authType.value === "basic") return "Basic Auth"
-  else if (authType.value === "bearer") return "Bearer"
-  else if (authType.value === "oauth-2") return "OAuth 2.0"
-  else if (authType.value === "api-key") return "API key"
-  else return "None"
-})
+const authName = computed(() =>
+  AUTH_KEY_NAME[authType.value] ? AUTH_KEY_NAME[authType.value] : "None"
+)
 const authActive = pluckRef(auth, "authActive")
-const basicUsername = pluckRef(auth as Ref<HoppRESTAuthBasic>, "username")
-const basicPassword = pluckRef(auth as Ref<HoppRESTAuthBasic>, "password")
-const bearerToken = pluckRef(auth as Ref<HoppRESTAuthBearer>, "token")
-const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
-const apiKey = pluckRef(auth as Ref<HoppRESTAuthAPIKey>, "key")
-const apiValue = pluckRef(auth as Ref<HoppRESTAuthAPIKey>, "value")
-const addTo = pluckRef(auth as Ref<HoppRESTAuthAPIKey>, "addTo")
-if (typeof addTo.value === "undefined") {
-  addTo.value = "Headers"
-  apiKey.value = ""
-  apiValue.value = ""
-}
 
 const clearContent = () => {
   auth.value = {
@@ -301,5 +223,4 @@ const clearContent = () => {
 
 // Template refs
 const tippyActions = ref<any | null>(null)
-const authTippyActions = ref<any | null>(null)
 </script>

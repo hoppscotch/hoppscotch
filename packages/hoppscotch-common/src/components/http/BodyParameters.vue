@@ -186,14 +186,26 @@ import { ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
-import { FormDataKeyValue } from "@hoppscotch/data"
+import { FormDataKeyValue, HoppRESTReqBody } from "@hoppscotch/data"
 import { isEqual, clone } from "lodash-es"
 import draggable from "vuedraggable-es"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { useColorMode } from "@composables/theming"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
+import { useVModel } from "@vueuse/core"
+
+type Body = HoppRESTReqBody & { contentType: "multipart/form-data" }
+
+const props = defineProps<{
+  modelValue: Body
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", val: Body): void
+}>()
+
+const body = useVModel(props, "modelValue", emit)
 
 type WorkingFormDataKeyValue = { id: number; entry: FormDataKeyValue }
 
@@ -206,7 +218,7 @@ const idTicker = ref(0)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
-const bodyParams = pluckRef<any, any>(useRESTRequestBody(), "body")
+const bodyParams = pluckRef(body, "body")
 
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<WorkingFormDataKeyValue[]>([
@@ -355,7 +367,7 @@ const clearContent = () => {
 const setRequestAttachment = (
   index: number,
   entry: FormDataKeyValue,
-  event: InputEvent
+  event: InputEvent | Event
 ) => {
   // check if file exists or not
   if ((event.target as HTMLInputElement).files?.length === 0) {

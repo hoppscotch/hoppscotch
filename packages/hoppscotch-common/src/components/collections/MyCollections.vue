@@ -298,11 +298,10 @@ import { GetMyTeamsQuery } from "~/helpers/backend/graphql"
 import { ChildrenResult, SmartTreeAdapter } from "~/helpers/treeAdapter"
 import { useI18n } from "@composables/i18n"
 import { useColorMode } from "@composables/theming"
-import { useReadonlyStream } from "~/composables/stream"
-import { restSaveContext$ } from "~/newstore/RESTSession"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
+import { currentActiveTab } from "~/helpers/rest/tab"
 
 export type Collection = {
   type: "collections"
@@ -508,23 +507,21 @@ const isSelected = computed(() => {
   }
 })
 
-const active = useReadonlyStream(restSaveContext$, null)
+const active = computed(() => currentActiveTab.value.document.saveContext)
 
-const isActiveRequest = computed(() => {
-  return (folderPath: string, requestIndex: number) => {
-    return pipe(
-      active.value,
-      O.fromNullable,
-      O.filter(
-        (active) =>
-          active.originLocation === "user-collection" &&
-          active.folderPath === folderPath &&
-          active.requestIndex === requestIndex
-      ),
-      O.isSome
-    )
-  }
-})
+const isActiveRequest = (folderPath: string, requestIndex: number) => {
+  return pipe(
+    active.value,
+    O.fromNullable,
+    O.filter(
+      (active) =>
+        active.originLocation === "user-collection" &&
+        active.folderPath === folderPath &&
+        active.requestIndex === requestIndex
+    ),
+    O.isSome
+  )
+}
 
 const selectRequest = (data: {
   request: HoppRESTRequest
@@ -532,6 +529,7 @@ const selectRequest = (data: {
   requestIndex: string
 }) => {
   const { request, folderPath, requestIndex } = data
+
   if (props.saveRequest) {
     emit("select", {
       pickedType: "my-request",
@@ -543,7 +541,7 @@ const selectRequest = (data: {
       request,
       folderPath,
       requestIndex,
-      isActive: isActiveRequest.value(folderPath, parseInt(requestIndex)),
+      isActive: isActiveRequest(folderPath, parseInt(requestIndex)),
     })
   }
 }

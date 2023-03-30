@@ -9,51 +9,52 @@
       :label="`${t('tab.parameters')}`"
       :info="`${newActiveParamsCount$}`"
     >
-      <HttpParameters />
+      <HttpParameters v-model="request.params" />
     </HoppSmartTab>
     <HoppSmartTab :id="'bodyParams'" :label="`${t('tab.body')}`">
-      <HttpBody @change-tab="changeTab" />
+      <HttpBody
+        v-model:headers="request.headers"
+        v-model:body="request.body"
+        @change-tab="changeTab"
+      />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'headers'"
       :label="`${t('tab.headers')}`"
       :info="`${newActiveHeadersCount$}`"
     >
-      <HttpHeaders @change-tab="changeTab" />
+      <HttpHeaders v-model="request" @change-tab="changeTab" />
     </HoppSmartTab>
     <HoppSmartTab :id="'authorization'" :label="`${t('tab.authorization')}`">
-      <HttpAuthorization />
+      <HttpAuthorization v-model="request.auth" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'preRequestScript'"
       :label="`${t('tab.pre_request_script')}`"
       :indicator="
-        preRequestScript && preRequestScript.length > 0 ? true : false
+        request.preRequestScript && request.preRequestScript.length > 0
+          ? true
+          : false
       "
     >
-      <HttpPreRequestScript />
+      <HttpPreRequestScript v-model="request.preRequestScript" />
     </HoppSmartTab>
     <HoppSmartTab
       :id="'tests'"
       :label="`${t('tab.tests')}`"
-      :indicator="testScript && testScript.length > 0 ? true : false"
+      :indicator="
+        request.testScript && request.testScript.length > 0 ? true : false
+      "
     >
-      <HttpTests />
+      <HttpTests v-model="request.testScript" />
     </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
-import { map } from "rxjs/operators"
-import { useReadonlyStream } from "@composables/stream"
-import {
-  restActiveHeadersCount$,
-  restActiveParamsCount$,
-  usePreRequestScript,
-  useTestScript,
-} from "~/newstore/RESTSession"
 import { useI18n } from "@composables/i18n"
+import { HoppRESTRequest } from "@hoppscotch/data"
+import { computed, ref, watch } from "vue"
 
 export type RequestOptionTabs =
   | "params"
@@ -63,33 +64,43 @@ export type RequestOptionTabs =
 
 const t = useI18n()
 
+// v-model integration with props and emit
+const props = defineProps<{ modelValue: HoppRESTRequest }>()
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTRequest): void
+}>()
+
+const request = ref(props.modelValue)
+
+watch(
+  () => request.value,
+  (newVal) => {
+    emit("update:modelValue", newVal)
+  },
+  { deep: true }
+)
+
 const selectedRealtimeTab = ref<RequestOptionTabs>("params")
 
 const changeTab = (e: RequestOptionTabs) => {
   selectedRealtimeTab.value = e
 }
 
-const newActiveParamsCount$ = useReadonlyStream(
-  restActiveParamsCount$.pipe(
-    map((e) => {
-      if (e === 0) return null
-      return `${e}`
-    })
-  ),
-  null
-)
+const newActiveParamsCount$ = computed(() => {
+  const e = request.value.params.filter(
+    (x) => x.active && (x.key !== "" || x.value !== "")
+  ).length
 
-const newActiveHeadersCount$ = useReadonlyStream(
-  restActiveHeadersCount$.pipe(
-    map((e) => {
-      if (e === 0) return null
-      return `${e}`
-    })
-  ),
-  null
-)
+  if (e === 0) return null
+  return `${e}`
+})
 
-const preRequestScript = usePreRequestScript()
+const newActiveHeadersCount$ = computed(() => {
+  const e = request.value.headers.filter(
+    (x) => x.active && (x.key !== "" || x.value !== "")
+  ).length
 
-const testScript = useTestScript()
+  if (e === 0) return null
+  return `${e}`
+})
 </script>

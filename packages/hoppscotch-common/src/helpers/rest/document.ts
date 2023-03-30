@@ -1,12 +1,6 @@
 import { HoppRESTRequest } from "@hoppscotch/data"
 
-/**
- * We use the save context to figure out
- * how a loaded request is to be saved.
- * These will be set when the request is loaded
- * into the request session
- */
-export type HoppRequestSaveContext =
+export type HoppRESTSaveContext =
   | {
       /**
        * The origin source of the request
@@ -20,10 +14,6 @@ export type HoppRequestSaveContext =
        * Index to the request
        */
       requestIndex: number
-      /**
-       * Current request
-       */
-      req?: HoppRESTRequest
     }
   | {
       /**
@@ -42,8 +32,27 @@ export type HoppRequestSaveContext =
        * ID of the collection loaded
        */
       collectionID?: string
-      /**
-       * Current request
-       */
-      req?: HoppRESTRequest
     }
+  | null
+
+/**
+ * Defines a live 'document' (something that is open and being edited) in the app
+ */
+export type HoppRESTDocument = {
+  /**
+   * The request as it is in the document
+   */
+  request: HoppRESTRequest
+
+  /**
+   * Whether the request has any unsaved changes
+   * (atleast as far as we can say)
+   */
+  isDirty: boolean
+
+  /**
+   * Info about where this request should be saved.
+   * This contains where the request is originated from basically.
+   */
+  saveContext?: HoppRESTSaveContext
+}

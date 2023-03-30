@@ -22,6 +22,7 @@
           <slot name="primary" />
         </Pane>
         <Pane
+          v-if="hasSecondary"
           :size="PANE_MAIN_BOTTOM_SIZE"
           class="flex flex-col !overflow-auto"
         >
@@ -62,6 +63,7 @@ const SIDEBAR = useSetting("SIDEBAR")
 const slots = useSlots()
 
 const hasSidebar = computed(() => !!slots.sidebar)
+const hasSecondary = computed(() => !!slots.secondary)
 
 const props = defineProps({
   layoutId: {

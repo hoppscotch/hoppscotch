@@ -316,11 +316,10 @@ import { TeamRequest } from "~/helpers/teams/TeamRequest"
 import { ChildrenResult, SmartTreeAdapter } from "~/helpers/treeAdapter"
 import { cloneDeep } from "lodash-es"
 import { HoppRESTRequest } from "@hoppscotch/data"
-import { useReadonlyStream } from "~/composables/stream"
-import { restSaveContext$ } from "~/newstore/RESTSession"
 import { pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import { Picked } from "~/helpers/types/HoppPicked.js"
+import { currentActiveTab } from "~/helpers/rest/tab"
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -520,7 +519,7 @@ const isSelected = computed(() => {
   }
 })
 
-const active = useReadonlyStream(restSaveContext$, null)
+const active = computed(() => currentActiveTab.value.document.saveContext)
 
 const isActiveRequest = computed(() => {
   return (requestID: string) => {

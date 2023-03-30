@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col flex-1 h-auto overflow-y-hidden flex-nowrap">
     <div class="relative sticky top-0 z-10 flex-shrink-0 overflow-x-auto tabs bg-primaryLight">
-      <div class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto">
-        <div class="flex justify-between divide-x divide-dividerLight">
+      <div class="flex flex-1 flex-shrink-0 w-0 overflow-x-auto" ref="scrollContainer">
+        <div class="flex justify-between divide-x divide-dividerLight" @wheel="scrollOnWindows">
           <div class="flex">
             <draggable v-bind="dragOptions" :list="tabEntries" :style="tabStyles" :item-key="'window-'"
               class="flex flex-shrink-0 overflow-x-auto transition divide-x divide-dividerLight" @sort="sortTabs">
@@ -10,16 +10,22 @@
                 <button :key="`removable-tab-${tabID}`" class="tab" :class="[{ active: modelValue === tabID }]"
                   :aria-label="tabMeta.label || ''" role="button" @keyup.enter="selectTab(tabID)"
                   @click="selectTab(tabID)">
-                  <div class="flex items-stretch truncate">
+
+                  <div v-if="!tabMeta.tabhead" class="flex items-stretch truncate">
                     <span v-if="tabMeta.icon" class="flex items-center justify-center mx-4 cursor-pointer">
                       <component :is="tabMeta.icon" class="w-4 h-4 svg-icons" />
                     </span>
-                    <span class="truncate">
+                    <span class="truncate pl-4">
                       {{ tabMeta.label }}
                     </span>
                   </div>
+
+                  <div v-else class="truncate flex items-center justify-start mx-4">
+                    <component :is="tabMeta.tabhead" />
+                  </div>
+
                   <HoppButtonSecondary v-tippy="{ theme: 'tooltip', delay: [500, 20] }" :icon="IconX" :style="{
-                    visibility: tabMeta.isRemovable ? 'visible' : 'hidden',
+                    display: tabMeta.isRemovable ? 'flex' : 'none',
                   }" :title="closeText ?? t?.('action.close') ?? 'Close'"
                     :class="[{ active: modelValue === tabID }, 'close']" class="mx-2 !p-0.5"
                     @click.stop="emit('removeTab', tabID)" />
@@ -60,10 +66,13 @@ import { HoppUIPluginOptions, HOPP_UI_OPTIONS } from "./../../index"
 export type TabMeta = {
   label: string | null
   icon: Slot | undefined
+  tabhead: Slot | undefined
   info: string | null
   isRemovable: boolean
 }
 export type TabProvider = {
+  // Whether inactive tabs should remain rendered
+  renderInactive: ComputedRef<boolean>
   activeTabID: ComputedRef<string>
   addTabEntry: (tabID: string, meta: TabMeta) => void
   updateTabEntry: (tabID: string, newMeta: TabMeta) => void
@@ -80,6 +89,10 @@ const props = defineProps({
   modelValue: {
     type: String,
     required: true,
+  },
+  renderInactiveTabs: {
+    type: Boolean,
+    default: false,
   },
   canAddNewTab: {
     type: Boolean,
@@ -161,6 +174,7 @@ const sortTabs = (e: {
   })
 }
 provide<TabProvider>("tabs-system", {
+  renderInactive: computed(() => props.renderInactiveTabs),
   activeTabID: computed(() => props.modelValue),
   addTabEntry,
   updateTabEntry,
@@ -171,6 +185,14 @@ const selectTab = (id: string) => {
 }
 const addTab = () => {
   emit("addTab")
+}
+
+const scrollContainer = ref<HTMLElement|null>(null)
+
+const scrollOnWindows = (event: WheelEvent) => {
+  event.preventDefault()
+  if(scrollContainer.value)
+    scrollContainer.value.scrollLeft += event.deltaY
 }
 </script>
 

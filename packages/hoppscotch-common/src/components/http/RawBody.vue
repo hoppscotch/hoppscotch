@@ -35,7 +35,7 @@
               'application/hal+json',
               'application/vnd.api+json',
               'application/xml',
-            ].includes(contentType)
+            ].includes(body.contentType)
           "
           v-tippy="{ theme: 'tooltip' }"
           :title="t('action.prettify')"
@@ -74,16 +74,14 @@ import IconInfo from "~icons/lucide/info"
 import { computed, reactive, Ref, ref, watch } from "vue"
 import * as TO from "fp-ts/TaskOption"
 import { pipe } from "fp-ts/function"
-import { ValidContentTypes } from "@hoppscotch/data"
-import { refAutoReset } from "@vueuse/core"
+import { HoppRESTReqBody, ValidContentTypes } from "@hoppscotch/data"
+import { refAutoReset, useVModel } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
 import { getEditorLangForMimeType } from "@helpers/editorutils"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { isJSONContentType } from "~/helpers/utils/contenttypes"
-import { useRESTRequestBody } from "~/newstore/RESTSession"
-
 import jsonLinter from "~/helpers/editor/linting/json"
 import { readFileAsText } from "~/helpers/functional/files"
 
@@ -92,27 +90,35 @@ type PossibleContentTypes = Exclude<
   "multipart/form-data" | "application/x-www-form-urlencoded"
 >
 
+type Body = HoppRESTReqBody & { contentType: PossibleContentTypes }
+
+const props = defineProps<{
+  modelValue: Body
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", val: Body): void
+}>()
+
+const body = useVModel(props, "modelValue", emit)
+
 const t = useI18n()
 
 const payload = ref<HTMLInputElement | null>(null)
 
-const props = defineProps<{
-  contentType: PossibleContentTypes
-}>()
-
 const toast = useToast()
 
-const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
+const rawParamsBody = pluckRef(body, "body")
 
 const prettifyIcon = refAutoReset<
   typeof IconWand2 | typeof IconCheck | typeof IconInfo
 >(IconWand2, 1000)
 
 const rawInputEditorLang = computed(() =>
-  getEditorLangForMimeType(props.contentType)
+  getEditorLangForMimeType(body.value.contentType)
 )
 const langLinter = computed(() =>
-  isJSONContentType(props.contentType) ? jsonLinter : null
+  isJSONContentType(body.value.contentType) ? jsonLinter : null
 )
 
 const linewrapEnabled = ref(true)
@@ -175,10 +181,10 @@ const uploadPayload = async (e: Event) => {
 const prettifyRequestBody = () => {
   let prettifyBody = ""
   try {
-    if (props.contentType.endsWith("json")) {
+    if (body.value.contentType.endsWith("json")) {
       const jsonObj = JSON.parse(rawParamsBody.value as string)
       prettifyBody = JSON.stringify(jsonObj, null, 2)
-    } else if (props.contentType == "application/xml") {
+    } else if (body.value.contentType == "application/xml") {
       prettifyBody = prettifyXML(rawParamsBody.value as string)
     }
     rawParamsBody.value = prettifyBody

@@ -1,51 +1,109 @@
 <template>
   <AppPaneLayout layout-id="http">
     <template #primary>
-      <HttpRequest />
-      <HttpRequestOptions />
-    </template>
-    <template #secondary>
-      <HttpResponse />
+      <HoppSmartWindows
+        v-if="currentTabID"
+        :id="'rest_windows'"
+        v-model="currentTabID"
+        @remove-tab="removeTab"
+        @add-tab="addNewTab"
+        @sort="sortTabs"
+      >
+        <HoppSmartWindow
+          v-for="tab in tabs"
+          :id="tab.id"
+          :key="tab.id"
+          :label="tab.document.request.name"
+          :is-removable="tabs.length > 1"
+        >
+          <template #tabhead>
+            <span
+              class="font-semibold truncate text-tiny w-10"
+              :class="getMethodLabelColorClassOf(tab.document.request)"
+            >
+              {{ tab.document.request.method }}
+            </span>
+            <span class="text-green-600 mr-1" v-if="tab.document.isDirty">
+              •
+            </span>
+            <span class="truncate flex-1">
+              {{ tab.document.request.name }}
+            </span>
+          </template>
+
+          <HttpRequestTab
+            :model-value="tab"
+            @update:model-value="onTabUpdate"
+          />
+        </HoppSmartWindow>
+      </HoppSmartWindows>
     </template>
     <template #sidebar>
       <HttpSidebar />
     </template>
   </AppPaneLayout>
+  <HoppSmartConfirmModal
+    :show="confirmingCloseForTabID !== null"
+    :confirm="t('modal.close_unsaved_tab')"
+    :title="t('confirm.save_unsaved_tab')"
+    @hide-modal="onCloseConfirmSaveTab"
+    @resolve="onResolveConfirmSaveTab"
+  />
+  <CollectionsSaveRequest
+    :show="savingRequest"
+    :mode="'rest'"
+    @hide-modal="onSaveModalClose"
+  />
 </template>
 
-<script lang="ts">
-import {
-  defineComponent,
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  Ref,
-  ref,
-  watch,
-} from "vue"
-import type { Subscription } from "rxjs"
-import {
-  HoppRESTRequest,
-  HoppRESTAuthOAuth2,
-  safelyExtractRESTRequest,
-  isEqualHoppRESTRequest,
-} from "@hoppscotch/data"
-import {
-  getRESTRequest,
-  setRESTRequest,
-  setRESTAuth,
-  restAuth$,
-  getDefaultRESTRequest,
-} from "~/newstore/RESTSession"
+<script lang="ts" setup>
+import { ref, onMounted, onBeforeUnmount, watch, onBeforeMount } from "vue"
+import { safelyExtractRESTRequest } from "@hoppscotch/data"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
-import { pluckRef } from "@composables/ref"
-import { useI18n } from "@composables/i18n"
-import { useStream } from "@composables/stream"
-import { useToast } from "@composables/toast"
-import { onLoggedIn } from "@composables/auth"
-import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
-import { oauthRedirect } from "~/helpers/oauth"
 import { useRoute } from "vue-router"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
+import { useI18n } from "@composables/i18n"
+import {
+  closeTab,
+  createNewTab,
+  currentActiveTab,
+  currentTabID,
+  getActiveTabs,
+  getTabRef,
+  HoppRESTTab,
+  loadTabsFromPersistedState,
+  persistableTabState,
+  updateTab,
+  updateTabOrdering,
+} from "~/helpers/rest/tab"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
+import { invokeAction } from "~/helpers/actions"
+import { onLoggedIn } from "~/composables/auth"
+import { platform } from "~/platform"
+import {
+  audit,
+  BehaviorSubject,
+  combineLatest,
+  EMPTY,
+  from,
+  map,
+  Subscription,
+} from "rxjs"
+import { useToast } from "~/composables/toast"
+import { PersistableRESTTabState } from "~/helpers/rest/tab"
+import { watchDebounced } from "@vueuse/core"
+import { oauthRedirect } from "~/helpers/oauth"
+
+const savingRequest = ref(false)
+const confirmingCloseForTabID = ref<string | null>(null)
+
+const t = useI18n()
+const toast = useToast()
+
+const tabs = getActiveTabs()
+
+const confirmSync = ref(false)
+const tabStateForSync = ref<PersistableRESTTabState | null>(null)
 
 function bindRequestToURLParams() {
   const route = useRoute()
@@ -55,42 +113,138 @@ function bindRequestToURLParams() {
     // If query params are empty, or contains code or error param (these are from Oauth Redirect)
     // We skip URL params parsing
     if (Object.keys(query).length === 0 || query.code || query.error) return
-    setRESTRequest(
-      safelyExtractRESTRequest(
-        translateExtURLParams(query),
-        getDefaultRESTRequest()
-      )
+    currentActiveTab.value.document.request = safelyExtractRESTRequest(
+      translateExtURLParams(query),
+      getDefaultRESTRequest()
     )
   })
 }
 
-function oAuthURL() {
-  const auth = useStream(
-    restAuth$,
-    { authType: "none", authActive: true },
-    setRESTAuth
-  )
-
-  const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
-
-  onBeforeMount(async () => {
-    try {
-      const tokenInfo = await oauthRedirect()
-      if (Object.prototype.hasOwnProperty.call(tokenInfo, "access_token")) {
-        if (typeof tokenInfo === "object") {
-          oauth2Token.value = tokenInfo.access_token
-        }
-      }
-
-      // eslint-disable-next-line no-empty
-    } catch (_) {}
-  })
+const onTabUpdate = (tab: HoppRESTTab) => {
+  updateTab(tab)
 }
 
-function setupRequestSync(
-  confirmSync: Ref<boolean>,
-  requestForSync: Ref<HoppRESTRequest | null>
-) {
+const addNewTab = () => {
+  const tab = createNewTab({
+    request: getDefaultRESTRequest(),
+    isDirty: false,
+  })
+
+  currentTabID.value = tab.id
+}
+const sortTabs = (e: { oldIndex: number; newIndex: number }) => {
+  updateTabOrdering(e.oldIndex, e.newIndex)
+}
+
+const removeTab = (tabID: string) => {
+  const tab = getTabRef(tabID)
+
+  if (tab.value.document.isDirty) {
+    confirmingCloseForTabID.value = tabID
+  } else {
+    closeTab(tab.value.id)
+  }
+}
+
+/**
+ * This function is closed when the confirm tab is closed by some means (even saving triggers close)
+ */
+const onCloseConfirmSaveTab = () => {
+  if (!savingRequest.value && confirmingCloseForTabID.value) {
+    closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
+  }
+}
+
+/**
+ * Called when the user confirms they want to save the tab
+ */
+const onResolveConfirmSaveTab = () => {
+  if (currentActiveTab.value.document.saveContext) {
+    invokeAction("request.save")
+
+    if (confirmingCloseForTabID.value) {
+      closeTab(confirmingCloseForTabID.value)
+      confirmingCloseForTabID.value = null
+    }
+  } else {
+    savingRequest.value = true
+  }
+}
+
+/**
+ * Called when the Save Request modal is done and is closed
+ */
+const onSaveModalClose = () => {
+  savingRequest.value = false
+  if (confirmingCloseForTabID.value) {
+    closeTab(confirmingCloseForTabID.value)
+    confirmingCloseForTabID.value = null
+  }
+}
+
+watch(confirmSync, (newValue) => {
+  if (newValue) {
+    toast.show(t("confirm.sync"), {
+      duration: 0,
+      action: [
+        {
+          text: `${t("action.yes")}`,
+          onClick: (_, toastObject) => {
+            syncTabState()
+            toastObject.goAway(0)
+          },
+        },
+        {
+          text: `${t("action.no")}`,
+          onClick: (_, toastObject) => {
+            toastObject.goAway(0)
+          },
+        },
+      ],
+    })
+  }
+})
+
+const syncTabState = () => {
+  if (tabStateForSync.value) loadTabsFromPersistedState(tabStateForSync.value)
+}
+
+/**
+ * Performs sync of the REST Tab session with Firestore.
+ *
+ * @returns A subscription to the sync observable stream.
+ * Unsubscribe to stop syncing.
+ */
+function startTabStateSync(): Subscription {
+  const currentUser$ = platform.auth.getCurrentUserStream()
+  const tabState$ = new BehaviorSubject<PersistableRESTTabState | null>(null)
+
+  watchDebounced(
+    persistableTabState,
+    (state) => {
+      tabState$.next(state)
+    },
+    { debounce: 500, deep: true }
+  )
+
+  const sub = combineLatest([currentUser$, tabState$])
+    .pipe(
+      map(([user, tabState]) =>
+        user && tabState
+          ? from(platform.sync.tabState.writeCurrentTabState(user, tabState))
+          : EMPTY
+      ),
+      audit((x) => x)
+    )
+    .subscribe(() => {
+      // NOTE: This subscription should be kept
+    })
+
+  return sub
+}
+
+function setupTabStateSync() {
   const route = useRoute()
 
   // Subscription to request sync
@@ -102,16 +256,16 @@ function setupRequestSync(
       Object.keys(route.query).length === 0 &&
       !(route.query.code || route.query.error)
     ) {
-      const request = await loadRequestFromSync()
-      if (request) {
-        if (!isEqualHoppRESTRequest(request, getRESTRequest())) {
-          requestForSync.value = request
-          confirmSync.value = true
-        }
+      const tabStateFromSync =
+        await platform.sync.tabState.loadTabStateFromSync()
+
+      if (tabStateFromSync) {
+        tabStateForSync.value = tabStateFromSync
+        confirmSync.value = true
       }
     }
 
-    sub = startRequestSync()
+    sub = startTabStateSync()
   })
 
   // Stop subscription to stop syncing
@@ -120,54 +274,28 @@ function setupRequestSync(
   })
 }
 
-export default defineComponent({
-  setup() {
-    const requestForSync = ref<HoppRESTRequest | null>(null)
-
-    const confirmSync = ref(false)
-
-    const toast = useToast()
-    const t = useI18n()
-
-    watch(confirmSync, (newValue) => {
-      if (newValue) {
-        toast.show(`${t("confirm.sync")}`, {
-          duration: 0,
-          action: [
-            {
-              text: `${t("action.yes")}`,
-              onClick: (_, toastObject) => {
-                syncRequest()
-                toastObject.goAway(0)
-              },
-            },
-            {
-              text: `${t("action.no")}`,
-              onClick: (_, toastObject) => {
-                toastObject.goAway(0)
-              },
-            },
-          ],
-        })
+function oAuthURL() {
+  onBeforeMount(async () => {
+    try {
+      const tokenInfo = await oauthRedirect()
+      if (
+        typeof tokenInfo === "object" &&
+        tokenInfo.hasOwnProperty("access_token")
+      ) {
+        if (
+          currentActiveTab.value.document.request.auth.authType === "oauth-2"
+        ) {
+          currentActiveTab.value.document.request.auth.token =
+            tokenInfo.access_token
+        }
       }
-    })
 
-    const syncRequest = () => {
-      setRESTRequest(
-        safelyExtractRESTRequest(requestForSync.value!, getDefaultRESTRequest())
-      )
-    }
+      // eslint-disable-next-line no-empty
+    } catch (_) {}
+  })
+}
 
-    setupRequestSync(confirmSync, requestForSync)
-    bindRequestToURLParams()
-    oAuthURL()
-
-    return {
-      confirmSync,
-      syncRequest,
-      oAuthURL,
-      requestForSync,
-    }
-  },
-})
+setupTabStateSync()
+bindRequestToURLParams()
+oAuthURL()
 </script>

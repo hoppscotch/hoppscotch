@@ -4,6 +4,7 @@ import { EnvironmentsPlatformDef } from "./environments"
 import { CollectionsPlatformDef } from "./collections"
 import { SettingsPlatformDef } from "./settings"
 import { HistoryPlatformDef } from "./history"
+import { TabStatePlatformDef } from "./tab"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
@@ -13,6 +14,7 @@ export type PlatformDef = {
     collections: CollectionsPlatformDef
     settings: SettingsPlatformDef
     history: HistoryPlatformDef
+    tabState: TabStatePlatformDef
   }
 }
 

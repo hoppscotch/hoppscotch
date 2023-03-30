@@ -48,7 +48,7 @@
     <div v-else>
       <draggable
         v-model="workingHeaders"
-        :item-key="(header) => `header-${header.id}`"
+        :item-key="(header: WorkingHeader) => `header-${header.id}`"
         animation="250"
         handle=".draggable-handle"
         draggable=".draggable-content"
@@ -240,10 +240,11 @@ import IconEyeOff from "~icons/lucide/eye-off"
 import IconArrowUpRight from "~icons/lucide/arrow-up-right"
 import IconWrapText from "~icons/lucide/wrap-text"
 import { useColorMode } from "@composables/theming"
-import { computed, reactive, Ref, ref, watch } from "vue"
+import { computed, reactive, ref, watch } from "vue"
 import { isEqual, cloneDeep } from "lodash-es"
 import {
   HoppRESTHeader,
+  HoppRESTRequest,
   parseRawKeyValueEntriesE,
   rawKeyValueEntriesToString,
   RawKeyValueEntry,
@@ -256,15 +257,9 @@ import * as A from "fp-ts/Array"
 import draggable from "vuedraggable-es"
 import { RequestOptionTabs } from "./RequestOptions.vue"
 import { useCodemirror } from "@composables/codemirror"
-import {
-  getRESTRequest,
-  restHeaders$,
-  restRequest$,
-  setRESTHeaders,
-} from "~/newstore/RESTSession"
 import { commonHeaders } from "~/helpers/headers"
 import { useI18n } from "@composables/i18n"
-import { useReadonlyStream, useStream } from "@composables/stream"
+import { useReadonlyStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { throwError } from "~/helpers/functional/error"
@@ -274,6 +269,7 @@ import {
   getComputedHeaders,
 } from "~/helpers/utils/EffectiveURL"
 import { aggregateEnvs$, getAggregateEnvs } from "~/newstore/environments"
+import { useVModel } from "@vueuse/core"
 
 const t = useI18n()
 const toast = useToast()
@@ -288,9 +284,15 @@ const linewrapEnabled = ref(true)
 
 const deletionToast = ref<{ goAway: (delay: number) => void } | null>(null)
 
+// v-model integration with props and emit
+const props = defineProps<{ modelValue: HoppRESTRequest }>()
+
 const emit = defineEmits<{
   (e: "change-tab", value: RequestOptionTabs): void
+  (e: "update:modelValue", value: HoppRESTRequest): void
 }>()
+
+const request = useVModel(props, "modelValue", emit)
 
 useCodemirror(
   bulkEditor,
@@ -307,13 +309,10 @@ useCodemirror(
   })
 )
 
-// The functional headers list (the headers actually in the system)
-const headers = useStream(restHeaders$, [], setRESTHeaders) as Ref<
-  HoppRESTHeader[]
->
+type WorkingHeader = HoppRESTHeader & { id: number }
 
 // The UI representation of the headers list (has the empty end headers)
-const workingHeaders = ref<Array<HoppRESTHeader & { id: number }>>([
+const workingHeaders = ref<Array<WorkingHeader>>([
   {
     id: idTicker.value++,
     key: "",
@@ -339,7 +338,7 @@ watch(workingHeaders, (headersList) => {
 
 // Sync logic between headers and working/bulk headers
 watch(
-  headers,
+  request.value.headers,
   (newHeadersList) => {
     // Sync should overwrite working headers
     const filteredWorkingHeaders = pipe(
@@ -388,8 +387,8 @@ watch(workingHeaders, (newWorkingHeaders) => {
     )
   )
 
-  if (!isEqual(headers.value, fixedHeaders)) {
-    headers.value = cloneDeep(fixedHeaders)
+  if (!isEqual(request.value.headers, fixedHeaders)) {
+    request.value.headers = cloneDeep(fixedHeaders)
   }
 })
 
@@ -405,8 +404,8 @@ watch(bulkHeaders, (newBulkHeaders) => {
     E.getOrElse(() => [] as RawKeyValueEntry[])
   )
 
-  if (!isEqual(headers.value, filteredBulkHeaders)) {
-    headers.value = filteredBulkHeaders
+  if (!isEqual(props.modelValue, filteredBulkHeaders)) {
+    request.value.headers = filteredBulkHeaders
   }
 })
 
@@ -481,11 +480,10 @@ const clearContent = () => {
   bulkHeaders.value = ""
 }
 
-const restRequest = useReadonlyStream(restRequest$, getRESTRequest())
 const aggregateEnvs = useReadonlyStream(aggregateEnvs$, getAggregateEnvs())
 
 const computedHeaders = computed(() =>
-  getComputedHeaders(restRequest.value, aggregateEnvs.value).map(
+  getComputedHeaders(request.value, aggregateEnvs.value).map(
     (header, index) => ({
       id: `header-${index}`,
       ...header,

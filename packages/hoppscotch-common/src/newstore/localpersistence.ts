@@ -1,11 +1,9 @@
 /* eslint-disable no-restricted-globals, no-restricted-syntax */
 
-import { clone, cloneDeep, assign, isEmpty } from "lodash-es"
+import { clone, assign, isEmpty } from "lodash-es"
 import * as O from "fp-ts/Option"
 import { pipe } from "fp-ts/function"
 import {
-  safelyExtractRESTRequest,
-  translateToNewRequest,
   translateToNewRESTCollection,
   translateToNewGQLCollection,
   Environment,
@@ -41,17 +39,16 @@ import {
   setSelectedEnvironmentIndex,
   selectedEnvironmentIndex$,
 } from "./environments"
-import {
-  getDefaultRESTRequest,
-  restRequest$,
-  setRESTRequest,
-} from "./RESTSession"
 import { WSRequest$, setWSRequest } from "./WebSocketSession"
 import { SIORequest$, setSIORequest } from "./SocketIOSession"
 import { SSERequest$, setSSERequest } from "./SSESession"
 import { MQTTRequest$, setMQTTRequest } from "./MQTTSession"
 import { bulkApplyLocalState, localStateStore } from "./localstate"
-import { StorageLike } from "@vueuse/core"
+import { StorageLike, watchDebounced } from "@vueuse/core"
+import {
+  loadTabsFromPersistedState,
+  persistableTabState,
+} from "~/helpers/rest/tab"
 
 function checkAndMigrateOldSettings() {
   const vuexData = JSON.parse(window.localStorage.getItem("vuex") || "{}")
@@ -305,33 +302,28 @@ function setupGlobalEnvsPersistence() {
   })
 }
 
-function setupRequestPersistence() {
-  const localRequest = JSON.parse(
-    window.localStorage.getItem("restRequest") || "null"
-  )
-
-  if (localRequest) {
-    const parsedLocal = translateToNewRequest(localRequest)
-    setRESTRequest(
-      safelyExtractRESTRequest(parsedLocal, getDefaultRESTRequest())
+// TODO: Graceful error handling ?
+export function setupRESTTabsPersistence() {
+  try {
+    const state = window.localStorage.getItem("restTabState")
+    if (state) {
+      const data = JSON.parse(state)
+      loadTabsFromPersistedState(data)
+    }
+  } catch (e) {
+    console.error(
+      `Failed parsing persisted tab state, state:`,
+      window.localStorage.getItem("restTabState")
     )
   }
 
-  restRequest$.subscribe((req) => {
-    const reqClone = cloneDeep(req)
-    if (reqClone.body.contentType === "multipart/form-data") {
-      reqClone.body.body = reqClone.body.body.map((x) => {
-        if (x.isFile)
-          return {
-            ...x,
-            isFile: false,
-            value: "",
-          }
-        else return x
-      })
-    }
-    window.localStorage.setItem("restRequest", JSON.stringify(reqClone))
-  })
+  watchDebounced(
+    persistableTabState,
+    (state) => {
+      window.localStorage.setItem("restTabState", JSON.stringify(state))
+    },
+    { debounce: 500, deep: true }
+  )
 }
 
 export function setupLocalPersistence() {
@@ -339,7 +331,7 @@ export function setupLocalPersistence() {
 
   setupLocalStatePersistence()
   setupSettingsPersistence()
-  setupRequestPersistence()
+  setupRESTTabsPersistence()
   setupHistoryPersistence()
   setupCollectionsPersistence()
   setupGlobalEnvsPersistence()

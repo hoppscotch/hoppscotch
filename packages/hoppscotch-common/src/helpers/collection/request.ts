@@ -18,14 +18,14 @@ export function resolveSaveContextOnReorder(payload: {
   newIndex: number
   length?: number // better way to do this? now it could be undefined
 }) {
-  let { lastIndex, newIndex, folderPath } = payload
+  let { lastIndex, newIndex, folderPath, length } = payload
 
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
   if (lastIndex === newIndex) return
 
   const affectedIndexes = getAffectedIndexes(
     lastIndex,
-    newIndex === -1 ? payload.length! : newIndex
+    newIndex === -1 ? length! : newIndex
   )
 
   // if (newIndex === -1) remove it from the map because it will be deleted

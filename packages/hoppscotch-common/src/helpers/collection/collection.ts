@@ -1,3 +1,4 @@
+import { HoppCollection, HoppRESTRequest } from "@hoppscotch/data"
 import { getTabsRefTo } from "../rest/tab"
 import { getAffectedIndexes } from "./affectedIndex"
 
@@ -55,4 +56,25 @@ export function resolveSaveContextOnCollectionReorder(payload: {
       tab.value.document.saveContext.folderPath = newPath
     }
   }
+}
+
+export function getFoldersByPath(
+  collections: HoppCollection<HoppRESTRequest>[],
+  path: string
+): HoppCollection<HoppRESTRequest>[] {
+  // path will be like this "0/0/1" these are the indexes of the folders
+  const pathArray = path.split("/").map((index) => parseInt(index))
+
+  let currentCollection = collections[pathArray[0]]
+
+  if (pathArray.length === 1) {
+    return currentCollection.folders
+  } else {
+    for (let i = 1; i < pathArray.length; i++) {
+      const folder = currentCollection.folders[pathArray[i]]
+      if (folder) currentCollection = folder
+    }
+  }
+
+  return currentCollection.folders
 }

@@ -227,7 +227,10 @@ import {
   getRequestsByPath,
   resolveSaveContextOnReorder,
 } from "~/helpers/collection/request"
-import { resolveSaveContextOnCollectionReorder } from "~/helpers/collection/collection"
+import {
+  getFoldersByPath,
+  resolveSaveContextOnCollectionReorder,
+} from "~/helpers/collection/collection"
 
 const t = useI18n()
 const toast = useToast()
@@ -1011,6 +1014,13 @@ const onRemoveCollection = () => {
 
     removeRESTCollection(collectionIndex)
 
+    resolveSaveContextOnCollectionReorder({
+      lastIndex: collectionIndex,
+      newIndex: -1,
+      folderPath: "", // root folder
+      length: myCollections.value.length,
+    })
+
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
   } else if (hasTeamWriteAccess.value) {
@@ -1054,6 +1064,14 @@ const onRemoveFolder = () => {
     }
 
     removeRESTFolder(folderPath)
+
+    const parentFolder = folderPath.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
+    resolveSaveContextOnCollectionReorder({
+      lastIndex: pathToLastIndex(folderPath),
+      newIndex: -1,
+      folderPath: parentFolder,
+      length: getFoldersByPath(myCollections.value, parentFolder).length,
+    })
 
     toast.success(t("state.deleted"))
     displayConfirmModal(false)
@@ -1251,8 +1269,6 @@ const dropRequest = (payload: {
   requestIndex: string
   destinationCollectionIndex: string
 }) => {
-  console.log(payload)
-
   const { folderPath, requestIndex, destinationCollectionIndex } = payload
 
   if (!requestIndex || !destinationCollectionIndex) return

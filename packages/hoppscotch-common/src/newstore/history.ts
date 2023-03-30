@@ -163,6 +163,20 @@ const RESTHistoryDispatchers = defineDispatchers({
       }),
     }
   },
+  // only used for history.sync.ts to prevent double insertion of history entries from storeSync and Subscriptions
+  removeDuplicateEntry(currentVal: RESTHistoryType, { id }: { id: string }) {
+    const entries = currentVal.state.filter((e) => e.id === id)
+
+    if (entries.length == 2) {
+      const indexToRemove = currentVal.state.findIndex((e) => e.id === id)
+
+      currentVal.state.splice(indexToRemove, 1)
+    }
+
+    return {
+      state: currentVal.state,
+    }
+  },
 })
 
 const GQLHistoryDispatchers = defineDispatchers({
@@ -210,6 +224,20 @@ const GQLHistoryDispatchers = defineDispatchers({
         }
         return e
       }),
+    }
+  },
+  // only used for history.sync.ts to prevent double insertion of history entries from storeSync and Subscriptions
+  removeDuplicateEntry(currentVal: GraphqlHistoryType, { id }: { id: string }) {
+    const entries = currentVal.state.filter((e) => e.id === id)
+
+    if (entries.length == 2) {
+      const indexToRemove = currentVal.state.findIndex((e) => e.id === id)
+
+      currentVal.state.splice(indexToRemove, 1)
+    }
+
+    return {
+      state: currentVal.state,
     }
   },
 })
@@ -294,6 +322,20 @@ export function toggleGraphqlHistoryEntryStar(entry: GQLHistoryEntry) {
   graphqlHistoryStore.dispatch({
     dispatcher: "toggleStar",
     payload: { entry },
+  })
+}
+
+export function removeDuplicateRestHistoryEntry(id: string) {
+  restHistoryStore.dispatch({
+    dispatcher: "removeDuplicateEntry",
+    payload: { id },
+  })
+}
+
+export function removeDuplicateGraphqlHistoryEntry(id: string) {
+  graphqlHistoryStore.dispatch({
+    dispatcher: "removeDuplicateEntry",
+    payload: { id },
   })
 }
 

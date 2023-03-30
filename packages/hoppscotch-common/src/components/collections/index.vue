@@ -225,7 +225,7 @@ import {
 } from "~/helpers/rest/tab"
 import {
   getRequestsByPath,
-  resolveSaveContextOnReorder,
+  resolveSaveContextOnRequestReorder,
 } from "~/helpers/collection/request"
 import {
   getFoldersByPath,
@@ -1138,7 +1138,7 @@ const onRemoveRequest = () => {
     removeRESTRequest(folderPath, requestIndex)
 
     // the same function is used to reorder requests since after removing, it's basically doing reorder
-    resolveSaveContextOnReorder({
+    resolveSaveContextOnRequestReorder({
       lastIndex: requestIndex,
       newIndex: -1,
       folderPath,
@@ -1279,6 +1279,32 @@ const dropRequest = (payload: {
       pathToLastIndex(requestIndex),
       destinationCollectionIndex
     )
+
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath,
+      requestIndex: pathToLastIndex(requestIndex),
+    })
+
+    // If there is a tab attached to this request, change save its save context
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = {
+        originLocation: "user-collection",
+        folderPath: destinationCollectionIndex,
+        requestIndex: getRequestsByPath(
+          myCollections.value,
+          destinationCollectionIndex
+        ).length,
+      }
+    }
+
+    // When it's drop it's basically getting deleted from last folder. reordering last folder accordingly
+    resolveSaveContextOnRequestReorder({
+      lastIndex: pathToLastIndex(requestIndex),
+      newIndex: -1, // being deleted from last folder
+      folderPath,
+      length: getRequestsByPath(myCollections.value, folderPath).length,
+    })
 
     toast.success(`${t("request.moved")}`)
     draggingToRoot.value = false
@@ -1530,7 +1556,7 @@ const updateRequestOrder = (payload: {
         pathToLastIndex(destinationRequestIndex),
         destinationCollectionIndex
       )
-      resolveSaveContextOnReorder({
+      resolveSaveContextOnRequestReorder({
         lastIndex: pathToLastIndex(dragedRequestIndex),
         newIndex: pathToLastIndex(destinationRequestIndex),
         folderPath: destinationCollectionIndex,

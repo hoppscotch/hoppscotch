@@ -12,7 +12,7 @@ import { getAffectedIndexes } from "./affectedIndex"
  * @returns
  */
 
-export function resolveSaveContextOnReorder(payload: {
+export function resolveSaveContextOnRequestReorder(payload: {
   lastIndex: number
   folderPath: string
   newIndex: number

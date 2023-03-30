@@ -3,7 +3,7 @@ import parser from "yargs-parser"
 import * as O from "fp-ts/Option"
 import * as S from "fp-ts/string"
 import { pipe } from "fp-ts/function"
-import { getDefaultRESTRequest } from "~/newstore/RESTSession"
+import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { objHasProperty } from "~/helpers/functional/object"
 
 const defaultRESTReq = getDefaultRESTRequest()

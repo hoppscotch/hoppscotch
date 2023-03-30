@@ -81,7 +81,6 @@
 import { reactive, ref, watch } from "vue"
 import { refAutoReset } from "@vueuse/core"
 import { useCodemirror } from "@composables/codemirror"
-import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
 import { parseCurlToHoppRESTReq } from "~/helpers/curl"
@@ -94,6 +93,7 @@ import IconWrapText from "~icons/lucide/wrap-text"
 import IconClipboard from "~icons/lucide/clipboard"
 import IconCheck from "~icons/lucide/check"
 import IconTrash2 from "~icons/lucide/trash-2"
+import { currentActiveTab } from "~/helpers/rest/tab"
 
 const t = useI18n()
 
@@ -144,7 +144,7 @@ const handleImport = () => {
   try {
     const req = parseCurlToHoppRESTReq(text)
 
-    setRESTRequest(req)
+    currentActiveTab.value.document.request = req
   } catch (e) {
     console.error(e)
     toast.error(`${t("error.curl_invalid_format")}`)

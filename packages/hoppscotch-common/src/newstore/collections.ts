@@ -6,8 +6,8 @@ import {
   makeCollection,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { getRESTSaveContext, setRESTSaveContext } from "./RESTSession"
 import { cloneDeep } from "lodash-es"
+import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
 
 const defaultRESTCollectionState = {
   state: [
@@ -400,14 +400,17 @@ const restCollectionDispatchers = defineDispatchers({
 
     targetLocation.requests.splice(requestIndex, 1)
 
-    // If the save context is set and is set to the same source, we invalidate it
-    const saveCtx = getRESTSaveContext()
-    if (
-      saveCtx?.originLocation === "user-collection" &&
-      saveCtx.folderPath === path &&
-      saveCtx.requestIndex === requestIndex
-    ) {
-      setRESTSaveContext(null)
+    // Deal with situations where a tab with the given thing is deleted
+    // We are just going to dissociate the save context of the tab and mark it dirty
+    const tab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex: requestIndex,
+    })
+
+    if (tab) {
+      tab.value.document.saveContext = undefined
+      tab.value.document.isDirty = true
     }
 
     return {
@@ -456,6 +459,20 @@ const restCollectionDispatchers = defineDispatchers({
 
     destLocation.requests.push(req)
     targetLocation.requests.splice(requestIndex, 1)
+
+    const possibleTab = getTabRefWithSaveContext({
+      originLocation: "user-collection",
+      folderPath: path,
+      requestIndex,
+    })
+
+    if (possibleTab) {
+      possibleTab.value.document.saveContext = {
+        originLocation: "user-collection",
+        folderPath: destinationPath,
+        requestIndex: destLocation.requests.length - 1,
+      }
+    }
 
     return {
       state: newState,
@@ -718,16 +735,6 @@ const gqlCollectionDispatchers = defineDispatchers({
     }
 
     targetLocation.requests.splice(requestIndex, 1)
-
-    // If the save context is set and is set to the same source, we invalidate it
-    const saveCtx = getRESTSaveContext()
-    if (
-      saveCtx?.originLocation === "user-collection" &&
-      saveCtx.folderPath === path &&
-      saveCtx.requestIndex === requestIndex
-    ) {
-      setRESTSaveContext(null)
-    }
 
     return {
       state: newState,

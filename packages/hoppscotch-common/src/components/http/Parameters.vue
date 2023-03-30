@@ -179,7 +179,7 @@ import IconCheckCircle from "~icons/lucide/check-circle"
 import IconCircle from "~icons/lucide/circle"
 import IconTrash from "~icons/lucide/trash"
 import IconWrapText from "~icons/lucide/wrap-text"
-import { reactive, Ref, ref, watch } from "vue"
+import { reactive, ref, watch } from "vue"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -198,10 +198,9 @@ import { useCodemirror } from "@composables/codemirror"
 import { useColorMode } from "@composables/theming"
 import { useI18n } from "@composables/i18n"
 import { useToast } from "@composables/toast"
-import { useStream } from "@composables/stream"
-import { restParams$, setRESTParams } from "~/newstore/RESTSession"
 import { throwError } from "@functional/error"
 import { objRemoveKey } from "@functional/object"
+import { useVModel } from "@vueuse/core"
 
 const colorMode = useColorMode()
 
@@ -232,8 +231,16 @@ useCodemirror(
   })
 )
 
+const props = defineProps<{
+  modelValue: HoppRESTParam[]
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", value: Array<HoppRESTParam>): void
+}>()
+
 // The functional parameters list (the parameters actually applied to the session)
-const params = useStream(restParams$, [], setRESTParams) as Ref<HoppRESTParam[]>
+const params = useVModel(props, "modelValue", emit)
 
 // The UI representation of the parameters list (has the empty end param)
 const workingParams = ref<Array<HoppRESTParam & { id: number }>>([

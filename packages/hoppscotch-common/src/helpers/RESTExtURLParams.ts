@@ -1,6 +1,6 @@
 import { FormDataKeyValue, HoppRESTRequest } from "@hoppscotch/data"
+import { getDefaultRESTRequest } from "./rest/default"
 import { isJSONContentType } from "./utils/contenttypes"
-import { getDefaultRESTRequest } from "~/newstore/RESTSession"
 
 /**
  * Handles translations for all the hopp.io REST Shareable URL params

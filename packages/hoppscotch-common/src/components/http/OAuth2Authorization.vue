@@ -31,89 +31,72 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Ref, defineComponent } from "vue"
+<script setup lang="ts">
+import { ref, watch } from "vue"
 import { HoppRESTAuthOAuth2, parseTemplateString } from "@hoppscotch/data"
 import { pluckRef } from "@composables/ref"
 import { useI18n } from "@composables/i18n"
-import { useStream } from "@composables/stream"
 import { useToast } from "@composables/toast"
-import { restAuth$, setRESTAuth } from "~/newstore/RESTSession"
 import { tokenRequest } from "~/helpers/oauth"
 import { getCombinedEnvVariables } from "~/helpers/preRequest"
 
-export default defineComponent({
-  setup() {
-    const t = useI18n()
-    const toast = useToast()
+const t = useI18n()
+const toast = useToast()
 
-    const auth = useStream(
-      restAuth$,
-      { authType: "none", authActive: true },
-      setRESTAuth
-    )
+const props = defineProps<{
+  modelValue: HoppRESTAuthOAuth2
+}>()
 
-    const oidcDiscoveryURL = pluckRef(
-      auth as Ref<HoppRESTAuthOAuth2>,
-      "oidcDiscoveryURL"
-    )
+const emit = defineEmits<{
+  (e: "update:modelValue", value: HoppRESTAuthOAuth2): void
+}>()
 
-    const authURL = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "authURL")
+const auth = ref(props.modelValue)
 
-    const accessTokenURL = pluckRef(
-      auth as Ref<HoppRESTAuthOAuth2>,
-      "accessTokenURL"
-    )
+watch(
+  () => auth.value,
+  (val) => {
+    emit("update:modelValue", val)
+  }
+)
 
-    const clientID = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "clientID")
+const oidcDiscoveryURL = pluckRef(auth, "oidcDiscoveryURL")
 
-    const clientSecret = pluckRef(
-      auth as Ref<HoppRESTAuthOAuth2>,
-      "clientSecret"
-    )
+const authURL = pluckRef(auth, "authURL")
 
-    const scope = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "scope")
+const accessTokenURL = pluckRef(auth, "accessTokenURL")
 
-    const handleAccessTokenRequest = async () => {
-      if (
-        oidcDiscoveryURL.value === "" &&
-        (authURL.value === "" || accessTokenURL.value === "")
-      ) {
-        toast.error(`${t("error.incomplete_config_urls")}`)
-        return
-      }
-      const envs = getCombinedEnvVariables()
-      const envVars = [...envs.selected, ...envs.global]
+const clientID = pluckRef(auth, "clientID")
 
-      try {
-        const tokenReqParams = {
-          grantType: "code",
-          oidcDiscoveryUrl: parseTemplateString(
-            oidcDiscoveryURL.value,
-            envVars
-          ),
-          authUrl: parseTemplateString(authURL.value, envVars),
-          accessTokenUrl: parseTemplateString(accessTokenURL.value, envVars),
-          clientId: parseTemplateString(clientID.value, envVars),
-          clientSecret: parseTemplateString(clientSecret.value, envVars),
-          scope: parseTemplateString(scope.value, envVars),
-        }
-        await tokenRequest(tokenReqParams)
-      } catch (e) {
-        toast.error(`${e}`)
-      }
+// TODO: Fix this type error. currently there is no type for clientSecret
+const clientSecret = pluckRef(auth, "clientSecret" as any)
+
+const scope = pluckRef(auth, "scope")
+
+const handleAccessTokenRequest = async () => {
+  if (
+    oidcDiscoveryURL.value === "" &&
+    (authURL.value === "" || accessTokenURL.value === "")
+  ) {
+    toast.error(`${t("error.incomplete_config_urls")}`)
+    return
+  }
+  const envs = getCombinedEnvVariables()
+  const envVars = [...envs.selected, ...envs.global]
+
+  try {
+    const tokenReqParams = {
+      grantType: "code",
+      oidcDiscoveryUrl: parseTemplateString(oidcDiscoveryURL.value, envVars),
+      authUrl: parseTemplateString(authURL.value, envVars),
+      accessTokenUrl: parseTemplateString(accessTokenURL.value, envVars),
+      clientId: parseTemplateString(clientID.value, envVars),
+      clientSecret: parseTemplateString(clientSecret.value, envVars),
+      scope: parseTemplateString(scope.value, envVars),
     }
-
-    return {
-      oidcDiscoveryURL,
-      authURL,
-      accessTokenURL,
-      clientID,
-      clientSecret,
-      scope,
-      handleAccessTokenRequest,
-      t,
-    }
-  },
-})
+    await tokenRequest(tokenReqParams)
+  } catch (e) {
+    toast.error(`${e}`)
+  }
+}
 </script>

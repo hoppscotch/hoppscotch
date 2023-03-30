@@ -1,6 +1,6 @@
-import { Observable } from "rxjs"
+import { Observable, Subject } from "rxjs"
 import { filter } from "rxjs/operators"
-import { chain, right, TaskEither } from "fp-ts/lib/TaskEither"
+import * as TE from "fp-ts/lib/TaskEither"
 import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as A from "fp-ts/Array"
@@ -22,7 +22,6 @@ import { createRESTNetworkRequestStream } from "./network"
 import { HoppTestData, HoppTestResult } from "./types/HoppTestResult"
 import { isJSONContentType } from "./utils/contenttypes"
 import { updateTeamEnvironment } from "./backend/mutations/TeamEnvironment"
-import { getRESTRequest, setRESTTestResults } from "~/newstore/RESTSession"
 import {
   environmentsStore,
   getCurrentEnvironment,
@@ -31,6 +30,8 @@ import {
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { HoppRESTTab } from "./rest/tab"
+import { Ref } from "vue"
 
 const getTestableBody = (
   res: HoppRESTResponse & { type: "success" | "fail" }
@@ -64,20 +65,26 @@ const combineEnvVariables = (env: {
   selected: Environment["variables"]
 }) => [...env.selected, ...env.global]
 
-export const runRESTRequest$ = (): TaskEither<
-  string | Error,
-  Observable<HoppRESTResponse>
-> =>
+export const executedResponses$ = new Subject<
+  HoppRESTResponse & { type: "success" | "fail " }
+>()
+
+export const runRESTRequest$ = (
+  tab: Ref<HoppRESTTab>
+): TE.TaskEither<string | Error, Observable<HoppRESTResponse>> =>
   pipe(
     getFinalEnvsFromPreRequest(
-      getRESTRequest().preRequestScript,
+      tab.value.document.request.preRequestScript,
       getCombinedEnvVariables()
     ),
-    chain((envs) => {
-      const effectiveRequest = getEffectiveRESTRequest(getRESTRequest(), {
-        name: "Env",
-        variables: combineEnvVariables(envs),
-      })
+    TE.chain((envs) => {
+      const effectiveRequest = getEffectiveRESTRequest(
+        tab.value.document.request,
+        {
+          name: "Env",
+          variables: combineEnvVariables(envs),
+        }
+      )
 
       const stream = createRESTNetworkRequestStream(effectiveRequest)
 
@@ -86,6 +93,11 @@ export const runRESTRequest$ = (): TaskEither<
         .pipe(filter((res) => res.type === "success" || res.type === "fail"))
         .subscribe(async (res) => {
           if (res.type === "success" || res.type === "fail") {
+            executedResponses$.next(
+              // @ts-expect-error Typescript can't figure out this inference for some reason
+              res
+            )
+
             const runResult = await runTestScript(res.req.testScript, envs, {
               status: res.statusCode,
               body: getTestableBody(res),
@@ -93,7 +105,9 @@ export const runRESTRequest$ = (): TaskEither<
             })()
 
             if (isRight(runResult)) {
-              setRESTTestResults(translateToSandboxTestResults(runResult.right))
+              tab.value.testResults = translateToSandboxTestResults(
+                runResult.right
+              )
 
               setGlobalEnvVariables(runResult.right.envs.global)
 
@@ -128,7 +142,7 @@ export const runRESTRequest$ = (): TaskEither<
                 )()
               }
             } else {
-              setRESTTestResults({
+              tab.value.testResults = {
                 description: "",
                 expectResults: [],
                 tests: [],
@@ -145,14 +159,14 @@ export const runRESTRequest$ = (): TaskEither<
                   },
                 },
                 scriptError: true,
-              })
+              }
             }
 
             subscription.unsubscribe()
           }
         })
 
-      return right(stream)
+      return TE.right(stream)
     })
   )
 

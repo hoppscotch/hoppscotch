@@ -203,7 +203,7 @@ const props = defineProps({
   parentID: {
     type: String as PropType<string | null>,
     default: null,
-    required: true,
+    required: false,
   },
   data: {
     type: Object as PropType<HoppCollection<HoppRESTRequest> | TeamCollection>,

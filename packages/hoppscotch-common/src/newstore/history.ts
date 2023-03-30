@@ -8,7 +8,7 @@ import {
   GQL_REQ_SCHEMA_VERSION,
 } from "@hoppscotch/data"
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
-import { completedRESTResponse$ } from "./RESTSession"
+import { executedResponses$ } from "~/helpers/RequestRunner"
 
 export type RESTHistoryEntry = {
   v: number
@@ -340,36 +340,27 @@ export function removeDuplicateGraphqlHistoryEntry(id: string) {
 }
 
 // Listen to completed responses to add to history
-completedRESTResponse$.subscribe((res) => {
-  if (res !== null) {
-    if (
-      res.type === "loading" ||
-      res.type === "network_fail" ||
-      res.type === "script_fail"
-    )
-      return
-
-    addRESTHistoryEntry(
-      makeRESTHistoryEntry({
-        request: {
-          auth: res.req.auth,
-          body: res.req.body,
-          endpoint: res.req.endpoint,
-          headers: res.req.headers,
-          method: res.req.method,
-          name: res.req.name,
-          params: res.req.params,
-          preRequestScript: res.req.preRequestScript,
-          testScript: res.req.testScript,
-          v: res.req.v,
-        },
-        responseMeta: {
-          duration: res.meta.responseDuration,
-          statusCode: res.statusCode,
-        },
-        star: false,
-        updatedOn: new Date(),
-      })
-    )
-  }
+executedResponses$.subscribe((res) => {
+  addRESTHistoryEntry(
+    makeRESTHistoryEntry({
+      request: {
+        auth: res.req.auth,
+        body: res.req.body,
+        endpoint: res.req.endpoint,
+        headers: res.req.headers,
+        method: res.req.method,
+        name: res.req.name,
+        params: res.req.params,
+        preRequestScript: res.req.preRequestScript,
+        testScript: res.req.testScript,
+        v: res.req.v,
+      },
+      responseMeta: {
+        duration: res.meta.responseDuration,
+        statusCode: res.statusCode,
+      },
+      star: false,
+      updatedOn: new Date(),
+    })
+  )
 })

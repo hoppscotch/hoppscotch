@@ -216,7 +216,6 @@ import {
   setGlobalEnvVariables,
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
-import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
 
 import IconTrash2 from "~icons/lucide/trash-2"
@@ -226,6 +225,17 @@ import IconCheck from "~icons/lucide/check"
 import IconClose from "~icons/lucide/x"
 
 import { useColorMode } from "~/composables/theming"
+import { useVModel } from "@vueuse/core"
+
+const props = defineProps<{
+  modelValue: HoppTestResult | null | undefined
+}>()
+
+const emit = defineEmits<{
+  (e: "update:modelValue", val: HoppTestResult | null | undefined): void
+}>()
+
+const testResults = useVModel(props, "modelValue", emit)
 
 const t = useI18n()
 const colorMode = useColorMode()
@@ -236,11 +246,6 @@ const displayModalAdd = (shouldDisplay: boolean) => {
   showModalDetails.value = shouldDisplay
 }
 
-const testResults = useReadonlyStream(
-  restTestResults$,
-  null
-) as Ref<HoppTestResult | null>
-
 /**
  * Get the "addition" environment variables
  * @returns Array of objects with key-value pairs of arguments
@@ -250,7 +255,9 @@ const getAdditionVars = () =>
     ? testResults.value.envDiff.selected.additions
     : []
 
-const clearContent = () => setRESTTestResults(null)
+const clearContent = () => {
+  testResults.value = null
+}
 
 const haveEnvVariables = computed(() => {
   if (!testResults.value) return false

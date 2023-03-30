@@ -152,14 +152,12 @@ import { ref, PropType, watch, computed } from "vue"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useI18n } from "@composables/i18n"
 import { TippyComponent } from "vue-tippy"
-import { pipe } from "fp-ts/function"
-import * as RR from "fp-ts/ReadonlyRecord"
-import * as O from "fp-ts/Option"
 import {
   changeCurrentReorderStatus,
   currentReorderingStatus$,
 } from "~/newstore/reordering"
 import { useReadonlyStream } from "~/composables/stream"
+import { getMethodLabelColorClassOf } from "~/helpers/rest/labelColoring"
 
 type CollectionType = "my-collections" | "team-collections"
 
@@ -242,20 +240,8 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   parentID: "",
 })
 
-const requestMethodLabels = {
-  get: "text-green-500",
-  post: "text-yellow-500",
-  put: "text-blue-500",
-  delete: "text-red-500",
-  default: "text-gray-500",
-} as const
-
 const requestLabelColor = computed(() =>
-  pipe(
-    requestMethodLabels,
-    RR.lookup(props.request.method.toLowerCase()),
-    O.getOrElseW(() => requestMethodLabels.default)
-  )
+  getMethodLabelColorClassOf(props.request)
 )
 
 watch(

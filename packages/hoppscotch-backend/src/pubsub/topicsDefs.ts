@@ -5,7 +5,10 @@ import {
 import { User } from 'src/user/user.model';
 import { UserSettings } from 'src/user-settings/user-settings.model';
 import { UserEnvironment } from '../user-environment/user-environments.model';
-import { UserHistory } from '../user-history/user-history.model';
+import {
+  UserHistory,
+  UserHistoryDeletedManyData,
+} from '../user-history/user-history.model';
 import { TeamMember } from 'src/team/team.model';
 import { TeamEnvironment } from 'src/team-environments/team-environments.model';
 import {
@@ -58,7 +61,7 @@ export type TopicDef = {
   [topic: `team_coll/${string}/${'coll_removed'}`]: string;
   [topic: `team_coll/${string}/${'coll_moved'}`]: TeamCollection;
   [topic: `team_coll/${string}/${'coll_order_updated'}`]: CollectionReorderData;
-  [topic: `user_history/${string}/deleted_many`]: number;
+  [topic: `user_history/${string}/deleted_many`]: UserHistoryDeletedManyData;
   [
     topic: `team_req/${string}/${'req_created' | 'req_updated' | 'req_moved'}`
   ]: TeamRequest;

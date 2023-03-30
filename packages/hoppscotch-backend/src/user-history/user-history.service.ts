@@ -178,12 +178,14 @@ export class UserHistoryService {
       },
     });
 
+    const deletionInfo = {
+      count: deletedCount.count,
+      reqType: requestType.right,
+    };
+
     // Publish multiple user history deleted subscription
-    await this.pubsub.publish(
-      `user_history/${uid}/deleted_many`,
-      deletedCount.count,
-    );
-    return E.right(deletedCount.count);
+    await this.pubsub.publish(`user_history/${uid}/deleted_many`, deletionInfo);
+    return E.right(deletionInfo);
   }
 
   /**

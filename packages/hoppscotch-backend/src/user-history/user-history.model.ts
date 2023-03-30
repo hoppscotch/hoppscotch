@@ -40,6 +40,18 @@ export class UserHistory {
   executedOn: Date;
 }
 
+@ObjectType()
+export class UserHistoryDeletedManyData {
+  @Field(() => Number, {
+    description: 'Number of user histories deleted',
+  })
+  count: number;
+  @Field(() => ReqType, {
+    description: 'Type of the request in the history',
+  })
+  reqType: ReqType;
+}
+
 registerEnumType(ReqType, {
   name: 'ReqType',
 });

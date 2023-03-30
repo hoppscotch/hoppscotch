@@ -1,7 +1,7 @@
 import { Args, ID, Mutation, Resolver, Subscription } from '@nestjs/graphql';
 import { UserHistoryService } from './user-history.service';
 import { PubSubService } from '../pubsub/pubsub.service';
-import { UserHistory } from './user-history.model';
+import { UserHistory, UserHistoryDeletedManyData } from './user-history.model';
 import { ReqType } from 'src/types/RequestTypes';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../guards/gql-auth.guard';
@@ -93,7 +93,7 @@ export class UserHistoryResolver {
     return deletedHistory.right;
   }
 
-  @Mutation(() => Number, {
+  @Mutation(() => UserHistoryDeletedManyData, {
     description:
       'Deletes all REST/GQL history for a user based on Request type',
   })
@@ -106,7 +106,7 @@ export class UserHistoryResolver {
       type: () => ReqType,
     })
     reqType: ReqType,
-  ): Promise<number> {
+  ): Promise<UserHistoryDeletedManyData> {
     const deletedHistory = await this.userHistoryService.deleteAllUserHistory(
       user.uid,
       reqType,
@@ -147,7 +147,7 @@ export class UserHistoryResolver {
     return this.pubsub.asyncIterator(`user_history/${user.uid}/deleted`);
   }
 
-  @Subscription(() => Number, {
+  @Subscription(() => UserHistoryDeletedManyData, {
     description: 'Listen for User History deleted many',
     resolve: (value) => value,
   })

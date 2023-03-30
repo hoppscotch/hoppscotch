@@ -428,7 +428,10 @@ describe('UserHistoryService', () => {
 
       return expect(
         await userHistoryService.deleteAllUserHistory('abc', 'REST'),
-      ).toEqualRight(2);
+      ).toEqualRight({
+        count: 2,
+        reqType: ReqType.REST,
+      });
     });
     test('Should resolve right and delete all user GQL history for a request type', async () => {
       mockPrisma.userHistory.deleteMany.mockResolvedValueOnce({
@@ -437,7 +440,10 @@ describe('UserHistoryService', () => {
 
       return expect(
         await userHistoryService.deleteAllUserHistory('abc', 'GQL'),
-      ).toEqualRight(2);
+      ).toEqualRight({
+        count: 2,
+        reqType: ReqType.GQL,
+      });
     });
     test('Should resolve left and error when ReqType is invalid', async () => {
       return expect(
@@ -452,7 +458,10 @@ describe('UserHistoryService', () => {
       await userHistoryService.deleteAllUserHistory('abc', 'REST');
       return expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user_history/abc/deleted_many`,
-        2,
+        {
+          count: 2,
+          reqType: ReqType.REST,
+        },
       );
     });
     test('Should delete all user GQL history for a request type and publish deleted many subscription', async () => {
@@ -463,7 +472,10 @@ describe('UserHistoryService', () => {
       await userHistoryService.deleteAllUserHistory('abc', 'GQL');
       return expect(mockPubSub.publish).toHaveBeenCalledWith(
         `user_history/abc/deleted_many`,
-        2,
+        {
+          count: 2,
+          reqType: ReqType.GQL,
+        },
       );
     });
   });

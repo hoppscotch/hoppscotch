@@ -101,7 +101,7 @@ function resetSaveContextForAffectedRequests(folderPath: string) {
   const tabs = getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath === folderPath
+      tab.document.saveContext.folderPath.startsWith(folderPath)
     )
   })
 

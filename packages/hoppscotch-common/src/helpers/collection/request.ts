@@ -18,7 +18,8 @@ export function resolveSaveContextOnRequestReorder(payload: {
   newIndex: number
   length?: number // better way to do this? now it could be undefined
 }) {
-  let { lastIndex, newIndex, folderPath, length } = payload
+  const { lastIndex, folderPath, length } = payload
+  let { newIndex } = payload
 
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
   if (lastIndex === newIndex) return

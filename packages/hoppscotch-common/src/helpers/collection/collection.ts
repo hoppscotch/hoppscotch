@@ -21,7 +21,8 @@ export function resolveSaveContextOnCollectionReorder(
   },
   type: "remove" | "drop" = "remove"
 ) {
-  let { lastIndex, newIndex, folderPath, length } = payload
+  const { lastIndex, folderPath, length } = payload
+  let { newIndex } = payload
 
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
   if (lastIndex === newIndex) return

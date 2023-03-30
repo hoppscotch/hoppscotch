@@ -1,6 +1,6 @@
 import { v4 as uuidV4 } from "uuid"
 import { isEqual } from "lodash-es"
-import { reactive, watch, computed, ref, shallowReadonly, Ref } from "vue"
+import { reactive, watch, computed, ref, shallowReadonly } from "vue"
 import { HoppRESTDocument, HoppRESTSaveContext } from "./document"
 import { refWithControl } from "@vueuse/core"
 import { HoppRESTResponse } from "../types/HoppRESTResponse"
@@ -179,7 +179,7 @@ export function closeTab(tabID: string) {
 export function getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
   for (const tab of tabMap.values()) {
     // For `team-collection` request id can be considered unique
-    if (ctx.originLocation === "team-collection") {
+    if (ctx && ctx.originLocation === "team-collection") {
       if (
         tab.document.saveContext?.originLocation === "team-collection" &&
         tab.document.saveContext.requestID === ctx.requestID

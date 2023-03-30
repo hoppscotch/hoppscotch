@@ -28,8 +28,14 @@ export function resolveSaveContextOnCollectionReorder(payload: {
     newIndex === -1 ? length! : newIndex
   )
 
-  // if (newIndex === -1) remove it from the map because it will be deleted
-  if (newIndex === -1) affectedIndexes.delete(lastIndex)
+  if (newIndex === -1) {
+    // if (newIndex === -1) remove it from the map because it will be deleted
+    affectedIndexes.delete(lastIndex)
+    // when collection deleted opended requests from that collection be affected
+    resetSaveContextForAffectedRequests(
+      folderPath ? `${folderPath}/${lastIndex}` : lastIndex.toString()
+    )
+  }
 
   // add folder path as prefix to the affected indexes
   const affectedPaths = new Map<string, string>()
@@ -55,6 +61,20 @@ export function resolveSaveContextOnCollectionReorder(payload: {
       )!
       tab.value.document.saveContext.folderPath = newPath
     }
+  }
+}
+
+function resetSaveContextForAffectedRequests(folderPath: string) {
+  const tabs = getTabsRefTo((tab) => {
+    return (
+      tab.document.saveContext?.originLocation === "user-collection" &&
+      tab.document.saveContext.folderPath === folderPath
+    )
+  })
+
+  for (const tab of tabs) {
+    tab.value.document.saveContext = null
+    tab.value.document.isDirty = true
   }
 }
 

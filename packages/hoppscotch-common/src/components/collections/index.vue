@@ -230,6 +230,7 @@ import {
 import {
   getFoldersByPath,
   resolveSaveContextOnCollectionReorder,
+  updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
 
 const t = useI18n()
@@ -1396,6 +1397,7 @@ const dropCollection = (payload: {
   const { collectionIndexDragged, destinationCollectionIndex } = payload
   if (!collectionIndexDragged || !destinationCollectionIndex) return
   if (collectionIndexDragged === destinationCollectionIndex) return
+
   if (collectionsType.value.type === "my-collections") {
     if (
       checkIfCollectionIsAParentOfTheChildren(
@@ -1406,7 +1408,33 @@ const dropCollection = (payload: {
       toast.error(`${t("team.parent_coll_move")}`)
       return
     }
+
+    const totalFoldersOfDestinationCollection = getFoldersByPath(
+      myCollections.value,
+      destinationCollectionIndex
+    ).length
+
     moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
+
+    const parentFolder = collectionIndexDragged
+      .split("/")
+      .slice(0, -1)
+      .join("/") // remove last folder to get parent folder
+    resolveSaveContextOnCollectionReorder(
+      {
+        lastIndex: pathToLastIndex(collectionIndexDragged),
+        newIndex: -1,
+        folderPath: parentFolder,
+        length: getFoldersByPath(myCollections.value, parentFolder).length,
+      },
+      "drop"
+    )
+
+    updateSaveContextForAffectedRequests(
+      collectionIndexDragged,
+      `${destinationCollectionIndex}/${totalFoldersOfDestinationCollection}`
+    )
+
     draggingToRoot.value = false
     toast.success(`${t("collection.moved")}`)
   } else if (hasTeamWriteAccess.value) {

@@ -12,12 +12,15 @@ import { getAffectedIndexes } from "./affectedIndex"
  * @returns
  */
 
-export function resolveSaveContextOnCollectionReorder(payload: {
-  lastIndex: number
-  newIndex: number
-  folderPath: string
-  length?: number // better way to do this? now it could be undefined
-}) {
+export function resolveSaveContextOnCollectionReorder(
+  payload: {
+    lastIndex: number
+    newIndex: number
+    folderPath: string
+    length?: number // better way to do this? now it could be undefined
+  },
+  type: "remove" | "drop" = "remove"
+) {
   let { lastIndex, newIndex, folderPath, length } = payload
 
   if (newIndex > lastIndex) newIndex-- // there is a issue when going down? better way to resolve this?
@@ -32,9 +35,11 @@ export function resolveSaveContextOnCollectionReorder(payload: {
     // if (newIndex === -1) remove it from the map because it will be deleted
     affectedIndexes.delete(lastIndex)
     // when collection deleted opended requests from that collection be affected
-    resetSaveContextForAffectedRequests(
-      folderPath ? `${folderPath}/${lastIndex}` : lastIndex.toString()
-    )
+    if (type === "remove") {
+      resetSaveContextForAffectedRequests(
+        folderPath ? `${folderPath}/${lastIndex}` : lastIndex.toString()
+      )
+    }
   }
 
   // add folder path as prefix to the affected indexes
@@ -60,6 +65,34 @@ export function resolveSaveContextOnCollectionReorder(payload: {
         tab.value.document.saveContext?.folderPath
       )!
       tab.value.document.saveContext.folderPath = newPath
+    }
+  }
+}
+
+/**
+ * Resolve save context for affected requests on drop folder from one  to another
+ * @param oldFolderPath
+ * @param newFolderPath
+ * @returns
+ */
+
+export function updateSaveContextForAffectedRequests(
+  oldFolderPath: string,
+  newFolderPath: string
+) {
+  const tabs = getTabsRefTo((tab) => {
+    return (
+      tab.document.saveContext?.originLocation === "user-collection" &&
+      tab.document.saveContext.folderPath === oldFolderPath
+    )
+  })
+
+  for (const tab of tabs) {
+    if (tab.value.document.saveContext?.originLocation === "user-collection") {
+      tab.value.document.saveContext = {
+        ...tab.value.document.saveContext,
+        folderPath: newFolderPath,
+      }
     }
   }
 }

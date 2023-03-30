@@ -1409,17 +1409,16 @@ const dropCollection = (payload: {
       return
     }
 
-    const totalFoldersOfDestinationCollection = getFoldersByPath(
-      myCollections.value,
-      destinationCollectionIndex
-    ).length
-
-    moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
-
     const parentFolder = collectionIndexDragged
       .split("/")
       .slice(0, -1)
       .join("/") // remove last folder to get parent folder
+    const totalFoldersOfDestinationCollection =
+      getFoldersByPath(myCollections.value, destinationCollectionIndex).length -
+      (parentFolder === destinationCollectionIndex ? 1 : 0)
+
+    moveRESTFolder(collectionIndexDragged, destinationCollectionIndex)
+
     resolveSaveContextOnCollectionReorder(
       {
         lastIndex: pathToLastIndex(collectionIndexDragged),

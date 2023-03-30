@@ -83,7 +83,7 @@ export function updateSaveContextForAffectedRequests(
   const tabs = getTabsRefTo((tab) => {
     return (
       tab.document.saveContext?.originLocation === "user-collection" &&
-      tab.document.saveContext.folderPath === oldFolderPath
+      tab.document.saveContext.folderPath.startsWith(oldFolderPath)
     )
   })
 
@@ -91,7 +91,10 @@ export function updateSaveContextForAffectedRequests(
     if (tab.value.document.saveContext?.originLocation === "user-collection") {
       tab.value.document.saveContext = {
         ...tab.value.document.saveContext,
-        folderPath: newFolderPath,
+        folderPath: tab.value.document.saveContext.folderPath.replace(
+          oldFolderPath,
+          newFolderPath
+        ),
       }
     }
   }

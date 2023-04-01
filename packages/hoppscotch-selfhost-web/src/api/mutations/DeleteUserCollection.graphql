@@ -1,0 +1,3 @@
+mutation DeleteUserCollection($userCollectionID: ID!) {
+  deleteUserCollection(userCollectionID: $userCollectionID)
+}

@@ -166,7 +166,7 @@ function setupUserEnvironmentUpdatedSubscription() {
       } else {
         // handle the case for normal environments
 
-        const localIndex = environmentsMapper.getIndexByBackendId(id)
+        const localIndex = environmentsMapper.getLocalIDByBackendID(id)
 
         if (localIndex && name) {
           runDispatchWithOutSyncing(() => {
@@ -197,7 +197,7 @@ function setupUserEnvironmentDeletedSubscription() {
     if (E.isRight(res)) {
       const { id } = res.right.userEnvironmentDeleted
 
-      const localIndex = environmentsMapper.getIndexByBackendId(id)
+      const localIndex = environmentsMapper.getLocalIDByBackendID(id)
 
       if (localIndex) {
         runDispatchWithOutSyncing(() => {

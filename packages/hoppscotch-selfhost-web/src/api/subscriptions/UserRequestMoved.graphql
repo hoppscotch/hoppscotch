@@ -1,0 +1,13 @@
+subscription UserRequestMoved {
+  userRequestMoved {
+    request {
+      id
+      collectionID
+      type
+    }
+    nextRequest {
+      id
+      collectionID
+    }
+  }
+}

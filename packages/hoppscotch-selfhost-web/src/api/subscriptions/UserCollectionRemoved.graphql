@@ -1,0 +1,6 @@
+subscription UserCollectionRemoved {
+  userCollectionRemoved {
+    id
+    type
+  }
+}

@@ -1,0 +1,12 @@
+query ExportUserCollectionsToJSON(
+  $collectionID: ID
+  $collectionType: ReqType!
+) {
+  exportUserCollectionsToJSON(
+    collectionID: $collectionID
+    collectionType: $collectionType
+  ) {
+    collectionType
+    exportedCollection
+  }
+}

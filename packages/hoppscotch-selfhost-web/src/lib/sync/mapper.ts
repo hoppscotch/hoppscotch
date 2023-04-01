@@ -1,32 +1,41 @@
-export const createMapper = () => {
-  const indexBackendIDMap = new Map<number, string | undefined>()
-  const backendIdIndexMap = new Map<string, number | undefined>()
+export const createMapper = <
+  LocalIDType extends string | number,
+  BackendIDType extends string | number
+>() => {
+  const backendIDByLocalIDMap = new Map<
+    LocalIDType,
+    BackendIDType | undefined
+  >()
+  const localIDByBackendIDMap = new Map<
+    BackendIDType,
+    LocalIDType | undefined
+  >()
 
   return {
-    addEntry(localIndex: number, backendId: string) {
-      indexBackendIDMap.set(localIndex, backendId)
-      backendIdIndexMap.set(backendId, localIndex)
+    addEntry(localIdentifier: LocalIDType, backendIdentifier: BackendIDType) {
+      backendIDByLocalIDMap.set(localIdentifier, backendIdentifier)
+      localIDByBackendIDMap.set(backendIdentifier, localIdentifier)
     },
     getValue() {
-      return indexBackendIDMap
+      return backendIDByLocalIDMap
     },
-    getBackendIdByIndex(localIndex: number) {
-      return indexBackendIDMap.get(localIndex)
+    getBackendIDByLocalID(localIdentifier: LocalIDType) {
+      return backendIDByLocalIDMap.get(localIdentifier)
     },
-    getIndexByBackendId(backendId: string) {
-      return backendIdIndexMap.get(backendId)
+    getLocalIDByBackendID(backendId: BackendIDType) {
+      return localIDByBackendIDMap.get(backendId)
     },
-    removeEntry(backendId?: string, index?: number) {
+    removeEntry(backendId?: BackendIDType, index?: LocalIDType) {
       if (backendId) {
-        const index = backendIdIndexMap.get(backendId)
+        const index = localIDByBackendIDMap.get(backendId)
 
-        backendIdIndexMap.delete(backendId)
-        index && indexBackendIDMap.delete(index)
+        localIDByBackendIDMap.delete(backendId)
+        index && backendIDByLocalIDMap.delete(index)
       } else if (index) {
-        const backendId = indexBackendIDMap.get(index)
+        const backendId = backendIDByLocalIDMap.get(index)
 
-        indexBackendIDMap.delete(index)
-        backendId && backendIdIndexMap.delete(backendId)
+        backendIDByLocalIDMap.delete(index)
+        backendId && localIDByBackendIDMap.delete(backendId)
       }
     },
   }

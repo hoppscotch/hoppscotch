@@ -17,8 +17,8 @@ import {
   updateUserEnvironment,
 } from "./environments.api"
 
-export const environmentsMapper = createMapper()
-export const globalEnvironmentMapper = createMapper()
+export const environmentsMapper = createMapper<number, string>()
+export const globalEnvironmentMapper = createMapper<number, string>()
 
 export const storeSyncDefinition: StoreSyncDefinitionOf<
   typeof environmentsStore
@@ -73,7 +73,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   updateEnvironment({ envIndex, updatedEnv }) {
-    const backendId = environmentsMapper.getBackendIdByIndex(envIndex)
+    const backendId = environmentsMapper.getBackendIDByLocalID(envIndex)
     console.log(environmentsMapper)
 
     if (backendId) {
@@ -81,7 +81,7 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   async deleteEnvironment({ envIndex }) {
-    const backendId = environmentsMapper.getBackendIdByIndex(envIndex)
+    const backendId = environmentsMapper.getBackendIDByLocalID(envIndex)
 
     if (backendId) {
       await deleteUserEnvironment(backendId)()
@@ -89,14 +89,14 @@ export const storeSyncDefinition: StoreSyncDefinitionOf<
     }
   },
   setGlobalVariables({ entries }) {
-    const backendId = globalEnvironmentMapper.getBackendIdByIndex(0)
+    const backendId = globalEnvironmentMapper.getBackendIDByLocalID(0)
 
     if (backendId) {
       updateUserEnvironment(backendId, { name: "", variables: entries })()
     }
   },
   clearGlobalVariables() {
-    const backendId = globalEnvironmentMapper.getBackendIdByIndex(0)
+    const backendId = globalEnvironmentMapper.getBackendIDByLocalID(0)
 
     if (backendId) {
       clearGlobalEnvironmentVariables(backendId)

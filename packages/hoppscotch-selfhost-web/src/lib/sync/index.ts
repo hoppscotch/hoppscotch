@@ -79,7 +79,7 @@ export const getSyncInitFunction = <T extends DispatchingStore<any, any>>(
       )
     }
 
-    startSubscriptions()
+    stopSubscriptions = startSubscriptions()
   }
 
   function stopListeningToSubscriptions() {

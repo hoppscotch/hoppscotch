@@ -2,7 +2,7 @@ import { platform } from "~/platform"
 
 let initialized = false
 
-export function initializeFirebase() {
+export function initializeApp() {
   if (!initialized) {
     try {
       platform.auth.performAuthInit()

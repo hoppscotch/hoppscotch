@@ -17,7 +17,8 @@
     "do-lint": "pnpm run prod-lint",
     "do-typecheck": "pnpm run lint",
     "do-lintfix": "pnpm run lintfix",
-    "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\""
+    "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\"",
+    "postinstall": "pnpm run gql-codegen"
   },
   "dependencies": {
     "@hoppscotch/common": "workspace:^",

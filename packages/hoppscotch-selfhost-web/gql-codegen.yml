@@ -1,6 +1,5 @@
 overwrite: true
-schema:
-  - ${VITE_BACKEND_GQL_URL}
+schema: "../../gql-gen/*.gql"
 generates:
   src/api/generated/graphql.ts:
     documents: "src/**/*.graphql"
@@ -14,6 +13,6 @@ generates:
       - typed-document-node
       - typescript-urql-graphcache
 
-  src/helpers/backend/backend-schema.json:
+  src/api/generated/backend-schema.json:
     plugins:
       - urql-introspection

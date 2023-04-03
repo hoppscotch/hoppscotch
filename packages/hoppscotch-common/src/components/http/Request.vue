@@ -352,14 +352,10 @@ const newSendRequest = async () => {
 
   ensureMethodInEndpoint()
 
-  console.log("Sending request", newEndpoint.value)
-
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
   const streamResult = await runRESTRequest$(tab)()
-
-  console.log("Stream result", streamResult)
 
   if (isRight(streamResult)) {
     subscribeToStream(
@@ -449,7 +445,6 @@ const clearContent = () => {
 
 const updateRESTResponse = (response: HoppRESTResponse | null) => {
   tab.value.response = response
-  console.log("Updating response", response)
 }
 
 const copyLinkIcon = refAutoReset<

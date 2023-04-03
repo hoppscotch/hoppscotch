@@ -124,8 +124,6 @@ export function getFoldersByPath(
   // path will be like this "0/0/1" these are the indexes of the folders
   const pathArray = path.split("/").map((index) => parseInt(index))
 
-  console.log(pathArray, collections[pathArray[0]])
-
   let currentCollection = collections[pathArray[0]]
 
   if (pathArray.length === 1) {

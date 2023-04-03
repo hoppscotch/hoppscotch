@@ -5,10 +5,12 @@ import { CollectionsPlatformDef } from "./collections"
 import { SettingsPlatformDef } from "./settings"
 import { HistoryPlatformDef } from "./history"
 import { TabStatePlatformDef } from "./tab"
+import { AnalyticsPlatformDef } from "./analytics"
 
 export type PlatformDef = {
   ui?: UIPlatformDef
   auth: AuthPlatformDef
+  analytics?: AnalyticsPlatformDef
   sync: {
     environments: EnvironmentsPlatformDef
     collections: CollectionsPlatformDef

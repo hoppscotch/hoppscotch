@@ -9,7 +9,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import { useI18n } from "@composables/i18n"
-import { initializeFirebase } from "~/helpers/fb"
+import { initializeApp } from "~/helpers/app"
 import { platform } from "~/platform"
 
 export default defineComponent({
@@ -25,7 +25,7 @@ export default defineComponent({
     }
   },
   beforeMount() {
-    initializeFirebase()
+    initializeApp()
   },
   async mounted() {
     this.signingInWithEmail = true

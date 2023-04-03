@@ -1,4 +1,9 @@
 import {
+  AnalyticsPlatformDef,
+  HoppRequestEvent,
+} from "@hoppscotch/common/platform/analytics"
+
+import {
   Analytics,
   getAnalytics,
   logEvent,
@@ -6,13 +11,13 @@ import {
   setUserId,
   setUserProperties,
 } from "firebase/analytics"
-import { platform } from "~/platform"
+import { def as platformAuth } from "./firebase/auth"
 import {
   HoppAccentColor,
   HoppBgColor,
   settings$,
   settingsStore,
-} from "~/newstore/settings"
+} from "@hoppscotch/common/newstore/settings"
 
 let analytics: Analytics | null = null
 
@@ -27,13 +32,6 @@ type SettingsCustomDimensions = {
   usesTelemetry: boolean
 }
 
-type HoppRequestEvent =
-  | {
-      platform: "rest" | "graphql-query" | "graphql-schema"
-      strategy: "normal" | "proxy" | "extension"
-    }
-  | { platform: "wss" | "sse" | "socketio" | "mqtt" }
-
 export function initAnalytics() {
   analytics = getAnalytics()
 
@@ -42,7 +40,7 @@ export function initAnalytics() {
 }
 
 function initLoginListeners() {
-  const authEvents$ = platform.auth.getAuthEventsStream()
+  const authEvents$ = platformAuth.getAuthEventsStream()
 
   authEvents$.subscribe((ev) => {
     if (ev.event === "login") {
@@ -106,4 +104,10 @@ export function logPageView(pagePath: string) {
       page_path: pagePath,
     })
   }
+}
+
+export const def: AnalyticsPlatformDef = {
+  initAnalytics,
+  logHoppRequestRunToAnalytics,
+  logPageView,
 }

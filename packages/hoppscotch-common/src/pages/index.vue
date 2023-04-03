@@ -1,59 +1,60 @@
 <template>
-  <AppPaneLayout layout-id="http">
-    <template #primary>
-      <HoppSmartWindows
-        v-if="currentTabID"
-        :id="'rest_windows'"
-        v-model="currentTabID"
-        @remove-tab="removeTab"
-        @add-tab="addNewTab"
-        @sort="sortTabs"
-      >
-        <HoppSmartWindow
-          v-for="tab in tabs"
-          :id="tab.id"
-          :key="tab.id"
-          :label="tab.document.request.name"
-          :is-removable="tabs.length > 1"
+  <div>
+    <AppPaneLayout layout-id="http">
+      <template #primary>
+        <HoppSmartWindows
+          v-if="currentTabID"
+          :id="'rest_windows'"
+          v-model="currentTabID"
+          @remove-tab="removeTab"
+          @add-tab="addNewTab"
+          @sort="sortTabs"
         >
-          <template #tabhead>
-            <span
-              class="font-semibold truncate text-tiny w-10"
-              :class="getMethodLabelColorClassOf(tab.document.request)"
-            >
-              {{ tab.document.request.method }}
-            </span>
-            <span class="text-green-600 mr-1" v-if="tab.document.isDirty">
-              •
-            </span>
-            <span class="truncate flex-1">
-              {{ tab.document.request.name }}
-            </span>
-          </template>
-
-          <HttpRequestTab
-            :model-value="tab"
-            @update:model-value="onTabUpdate"
-          />
-        </HoppSmartWindow>
-      </HoppSmartWindows>
-    </template>
-    <template #sidebar>
-      <HttpSidebar />
-    </template>
-  </AppPaneLayout>
-  <HoppSmartConfirmModal
-    :show="confirmingCloseForTabID !== null"
-    :confirm="t('modal.close_unsaved_tab')"
-    :title="t('confirm.save_unsaved_tab')"
-    @hide-modal="onCloseConfirmSaveTab"
-    @resolve="onResolveConfirmSaveTab"
-  />
-  <CollectionsSaveRequest
-    :show="savingRequest"
-    :mode="'rest'"
-    @hide-modal="onSaveModalClose"
-  />
+          <HoppSmartWindow
+            v-for="tab in tabs"
+            :id="tab.id"
+            :key="tab.id"
+            :label="tab.document.request.name"
+            :is-removable="tabs.length > 1"
+          >
+            <template #tabhead>
+              <span
+                class="font-semibold truncate text-tiny w-10"
+                :class="getMethodLabelColorClassOf(tab.document.request)"
+              >
+                {{ tab.document.request.method }}
+              </span>
+              <span class="text-green-600 mr-1" v-if="tab.document.isDirty">
+                •
+              </span>
+              <span class="truncate flex-1">
+                {{ tab.document.request.name }}
+              </span>
+            </template>
+            <HttpRequestTab
+              :model-value="tab"
+              @update:model-value="onTabUpdate"
+            />
+          </HoppSmartWindow>
+        </HoppSmartWindows>
+      </template>
+      <template #sidebar>
+        <HttpSidebar />
+      </template>
+    </AppPaneLayout>
+    <HoppSmartConfirmModal
+      :show="confirmingCloseForTabID !== null"
+      :confirm="t('modal.close_unsaved_tab')"
+      :title="t('confirm.save_unsaved_tab')"
+      @hide-modal="onCloseConfirmSaveTab"
+      @resolve="onResolveConfirmSaveTab"
+    />
+    <CollectionsSaveRequest
+      :show="savingRequest"
+      :mode="'rest'"
+      @hide-modal="onSaveModalClose"
+    />
+  </div>
 </template>
 
 <script lang="ts" setup>

@@ -2,7 +2,7 @@ import { createApp } from "vue"
 import { PlatformDef, setPlatformDef } from "./platform"
 import { setupLocalPersistence } from "./newstore/localpersistence"
 import { performMigrations } from "./helpers/migrations"
-import { initializeFirebase } from "./helpers/fb"
+import { initializeApp } from "./helpers/app"
 import { initBackendGQLClient } from "./helpers/backend/GQLClient"
 import { HOPP_MODULES } from "@modules/."
 
@@ -20,7 +20,7 @@ export function createHoppApp(el: string | Element, platformDef: PlatformDef) {
 
   // Some basic work that needs to be done before module inits even
   initBackendGQLClient()
-  initializeFirebase()
+  initializeApp()
   setupLocalPersistence()
   performMigrations()
 

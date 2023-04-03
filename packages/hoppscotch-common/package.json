@@ -50,7 +50,6 @@
     "buffer": "^6.0.3",
     "esprima": "^4.0.1",
     "events": "^3.3.0",
-    "firebase": "^9.8.4",
     "fp-ts": "^2.12.1",
     "fuse.js": "^6.6.2",
     "globalthis": "^1.0.3",

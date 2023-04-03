@@ -155,7 +155,7 @@ import {
   GetInviteDetailsQueryVariables,
 } from "~/helpers/backend/graphql"
 import { acceptTeamInvitation } from "~/helpers/backend/mutations/TeamInvitation"
-import { initializeFirebase } from "~/helpers/fb"
+import { initializeApp } from "~/helpers/app"
 import { platform } from "~/platform"
 import { onLoggedIn } from "@composables/auth"
 import { useReadonlyStream } from "@composables/stream"
@@ -234,7 +234,7 @@ export default defineComponent({
     }
   },
   beforeMount() {
-    initializeFirebase()
+    initializeApp()
   },
   mounted() {
     if (typeof this.$route.query.id === "string") {

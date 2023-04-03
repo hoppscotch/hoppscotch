@@ -6,8 +6,8 @@ import {
 } from "vue-router"
 import { setupLayouts } from "virtual:generated-layouts"
 import generatedRoutes from "virtual:generated-pages"
-import { logPageView } from "~/helpers/fb/analytics"
 import { readonly, ref } from "vue"
+import { platform } from "~/platform"
 
 const routes = setupLayouts(generatedRoutes)
 
@@ -59,7 +59,7 @@ export default <HoppModule>{
     // module to expose a stream of router events that can be independently
     // subbed to
     router.afterEach((to) => {
-      logPageView(to.fullPath)
+      platform.analytics?.logPageView(to.fullPath)
 
       _isLoadingInitialRoute.value = false
 

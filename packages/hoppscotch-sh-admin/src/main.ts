@@ -12,22 +12,25 @@ import '../assets/scss/styles.scss';
 import { HOPP_MODULES } from './modules';
 import { auth } from './helpers/auth';
 
-const app = createApp(App).use(
-  urql,
-  createClient({
-    url: import.meta.env.VITE_BACKEND_GQL_URL,
-    fetchOptions: () => {
-      return {
-        credentials: 'include',
-      };
-    },
-  })
-);
+// Top-level await is not available in our targets
+(async () => {
+  const app = createApp(App).use(
+    urql,
+    createClient({
+      url: import.meta.env.VITE_BACKEND_GQL_URL,
+      fetchOptions: () => {
+        return {
+          credentials: 'include',
+        };
+      },
+    })
+  );
 
-// Initialize auth
-await auth.performAuthInit();
+  // Initialize auth
+  await auth.performAuthInit();
 
-// Initialize modules
-HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app));
+  // Initialize modules
+  HOPP_MODULES.forEach((mod) => mod.onVueAppInit?.(app));
 
-app.mount('#app');
+  app.mount('#app');
+})()

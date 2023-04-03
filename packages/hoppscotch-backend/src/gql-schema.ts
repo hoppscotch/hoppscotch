@@ -21,6 +21,12 @@ import { UserSettingsResolver } from './user-settings/user-settings.resolver';
 import { UserResolver } from './user/user.resolver';
 import { Logger } from '@nestjs/common';
 import { AdminResolver } from './admin/admin.resolver';
+import { TeamEnvsTeamResolver } from './team-environments/team.resolver';
+import { TeamTeamInviteExtResolver } from './team-invitation/team-teaminvite-ext.resolver';
+import { UserRequestUserCollectionResolver } from './user-request/resolvers/user-collection.resolver';
+import { UserEnvsUserResolver } from './user-environment/user.resolver';
+import { UserHistoryUserResolver } from './user-history/user.resolver';
+import { UserSettingsUserResolver } from './user-settings/user.resolver';
 
 /**
  * All the resolvers present in the application.
@@ -31,18 +37,25 @@ const RESOLVERS = [
   AdminResolver,
   ShortcodeResolver,
   TeamResolver,
+  TeamEnvsTeamResolver,
   TeamMemberResolver,
   TeamCollectionResolver,
+  TeamTeamInviteExtResolver,
   TeamEnvironmentsResolver,
+  TeamEnvsTeamResolver,
   TeamInvitationResolver,
   TeamRequestResolver,
   UserResolver,
   UserCollectionResolver,
   UserEnvironmentsResolver,
+  UserEnvsUserResolver,
+  UserHistoryUserResolver,
   UserHistoryResolver,
   UserCollectionResolver,
   UserRequestResolver,
+  UserRequestUserCollectionResolver,
   UserSettingsResolver,
+  UserSettingsUserResolver,
 ];
 
 /**

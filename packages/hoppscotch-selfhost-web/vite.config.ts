@@ -37,6 +37,9 @@ export default defineConfig({
   build: {
     sourcemap: true,
     emptyOutDir: true,
+    rollupOptions: {
+      maxParallelFileOps: 2,
+    },
   },
   resolve: {
     alias: {

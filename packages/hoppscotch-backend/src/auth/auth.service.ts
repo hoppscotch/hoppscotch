@@ -94,9 +94,9 @@ export class AuthService {
    */
   private async generateRefreshToken(userUid: string) {
     const refreshTokenPayload: RefreshTokenPayload = {
-      iss: process.env.APP_DOMAIN,
+      iss: process.env.VITE_BASE_URL,
       sub: userUid,
-      aud: [process.env.APP_DOMAIN],
+      aud: [process.env.VITE_BASE_URL],
     };
 
     const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
@@ -126,9 +126,9 @@ export class AuthService {
    */
   async generateAuthTokens(userUid: string) {
     const accessTokenPayload: AccessTokenPayload = {
-      iss: process.env.APP_DOMAIN,
+      iss: process.env.VITE_BASE_URL,
       sub: userUid,
-      aud: [process.env.APP_DOMAIN],
+      aud: [process.env.VITE_BASE_URL],
     };
 
     const refreshToken = await this.generateRefreshToken(userUid);
@@ -217,7 +217,7 @@ export class AuthService {
       template: 'code-your-own',
       variables: {
         inviteeEmail: email,
-        magicLink: `${process.env.APP_DOMAIN}/magic-link?token=${generatedTokens.token}`,
+        magicLink: `${process.env.VITE_BASE_URL}/magic-link?token=${generatedTokens.token}`,
       },
     });
 

@@ -6,8 +6,10 @@
   "scripts": {
     "dev": "pnpm exec npm-run-all -p -l dev:*",
     "dev:vite": "vite",
-    "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml --watch dotenv_config_path=\".env\"",
-    "build": "vue-tsc && vite build",
+    "dev:gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml --watch dotenv_config_path=\"../../.env\"",
+    "gql-codegen": "graphql-codegen --require dotenv/config --config gql-codegen.yml dotenv_config_path=\"../../.env\"",
+    "postinstall": "pnpm run gql-codegen",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {

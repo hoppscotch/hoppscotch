@@ -1,4 +1,4 @@
-query GetCollectionChildrenIDs($collectionID: ID!, $cursor: String)  {
+query GetCollectionChildrenIDs($collectionID: ID!, $cursor: ID)  {
   collection(collectionID: $collectionID) {
     children(cursor: $cursor) {
       id

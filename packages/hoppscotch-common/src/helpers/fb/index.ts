@@ -1,6 +1,5 @@
 import { initializeApp } from "firebase/app"
 import { platform } from "~/platform"
-import { initAnalytics } from "./analytics"
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_API_KEY,
@@ -25,7 +24,7 @@ export function initializeFirebase() {
       platform.sync.collections.initCollectionsSync()
       platform.sync.history.initHistorySync()
       platform.sync.environments.initEnvironmentsSync()
-      initAnalytics()
+      platform.analytics?.initAnalytics()
 
       initialized = true
     } catch (e) {

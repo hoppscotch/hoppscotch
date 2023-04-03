@@ -1,6 +1,6 @@
 import Paho, { ConnectionOptions } from "paho-mqtt"
 import { BehaviorSubject, Subject } from "rxjs"
-import { logHoppRequestRunToAnalytics } from "../fb/analytics"
+import { platform } from "~/platform"
 
 export type MQTTConnectionConfig = {
   username?: string
@@ -105,7 +105,7 @@ export class MQTTConnection {
       this.handleError(e)
     }
 
-    logHoppRequestRunToAnalytics({
+    platform.analytics?.logHoppRequestRunToAnalytics({
       platform: "mqtt",
     })
   }

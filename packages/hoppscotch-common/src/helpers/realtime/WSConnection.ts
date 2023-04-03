@@ -1,5 +1,5 @@
 import { BehaviorSubject, Subject } from "rxjs"
-import { logHoppRequestRunToAnalytics } from "../fb/analytics"
+import { platform } from "~/platform"
 
 export type WSErrorMessage = SyntaxError | Event
 
@@ -71,7 +71,7 @@ export class WSConnection {
       this.handleError(error as SyntaxError)
     }
 
-    logHoppRequestRunToAnalytics({
+    platform.analytics?.logHoppRequestRunToAnalytics({
       platform: "wss",
     })
   }

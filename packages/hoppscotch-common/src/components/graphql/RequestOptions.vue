@@ -379,7 +379,7 @@ import {
 import { commonHeaders } from "~/helpers/headers"
 import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
-import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
+import { platform } from "~/platform"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { useCodemirror } from "@composables/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
@@ -748,7 +748,7 @@ const runQuery = async () => {
     console.error(e)
   }
 
-  logHoppRequestRunToAnalytics({
+  platform.analytics?.logHoppRequestRunToAnalytics({
     platform: "graphql-query",
     strategy: getCurrentStrategyID(),
   })

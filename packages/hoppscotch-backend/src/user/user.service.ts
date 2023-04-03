@@ -14,6 +14,7 @@ import { USER_UPDATE_FAILED } from 'src/errors';
 import { PubSubService } from 'src/pubsub/pubsub.service';
 import { stringToJson, taskEitherValidateArraySeq } from 'src/utils';
 import { UserDataHandler } from './user.data.handler';
+import { User as DbUser } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -26,6 +27,27 @@ export class UserService {
 
   registerUserDataHandler(handler: UserDataHandler) {
     this.userDataHandlers.push(handler);
+  }
+
+  /**
+   * Converts a prisma user object to a user object
+   *
+   * @param dbUser Prisma User object
+   * @returns  User object
+   */
+  convertDbUserToUser(dbUser: DbUser): User {
+    const dbCurrentRESTSession = dbUser.currentRESTSession;
+    const dbCurrentGQLSession = dbUser.currentGQLSession;
+
+    return {
+      ...dbUser,
+      currentRESTSession: dbCurrentRESTSession
+        ? JSON.stringify(dbCurrentRESTSession)
+        : null,
+      currentGQLSession: dbCurrentGQLSession
+        ? JSON.stringify(dbCurrentGQLSession)
+        : null,
+    };
   }
 
   /**
@@ -236,15 +258,7 @@ export class UserService {
         data: sessionObj,
       });
 
-      const updatedUser: User = {
-        ...dbUpdatedUser,
-        currentGQLSession: dbUpdatedUser.currentGQLSession
-          ? JSON.stringify(dbUpdatedUser.currentGQLSession)
-          : null,
-        currentRESTSession: dbUpdatedUser.currentRESTSession
-          ? JSON.stringify(dbUpdatedUser.currentRESTSession)
-          : null,
-      };
+      const updatedUser = this.convertDbUserToUser(dbUpdatedUser);
 
       // Publish subscription for user updates
       await this.pubsub.publish(`user/${updatedUser.uid}/updated`, updatedUser);

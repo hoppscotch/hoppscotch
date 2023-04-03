@@ -26,8 +26,8 @@ export class UserResolver {
       "Gives details of the user executing this query (pass Authorization 'Bearer' header)",
   })
   @UseGuards(GqlAuthGuard)
-  me(@GqlUser() user) {
-    return user;
+  me(@GqlUser() user: AuthUser) {
+    return this.userService.convertDbUserToUser(user);
   }
 
   /* Mutations */

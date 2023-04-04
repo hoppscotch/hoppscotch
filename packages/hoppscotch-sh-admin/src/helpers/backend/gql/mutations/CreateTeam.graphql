@@ -12,7 +12,6 @@ mutation CreateTeam($userUid: ID!, $name: String!) {
         photoURL
       }
     }
-    myRole
     ownersCount
     editorsCount
     viewersCount

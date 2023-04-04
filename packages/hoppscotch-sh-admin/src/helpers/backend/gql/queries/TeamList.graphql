@@ -1,6 +1,6 @@
-query TeamList($cursor: ID) {
+query TeamList($cursor: ID, $take: Int) {
   admin {
-    allTeams(cursor: $cursor) {
+    allTeams(cursor: $cursor, take: $take) {
       id
       name
       members {

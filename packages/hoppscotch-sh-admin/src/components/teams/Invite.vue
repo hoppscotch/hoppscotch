@@ -1,45 +1,7 @@
 <template>
   <HoppSmartModal v-if="show" dialog title="Add Member" @close="hideModal">
     <template #body>
-      <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
-        <div class="flex flex-col items-center justify-center max-w-md">
-          <icon-lucide-users class="w-6 h-6 text-accent" />
-          <h3 class="my-2 text-lg text-center">
-            We have sent you an invite link
-          </h3>
-          <p class="text-center">
-            You can use this link to invite your team members to join your team.
-          </p>
-        </div>
-        <div
-          class="flex flex-col p-4 mt-8 border rounded space-y-6 border-dividerLight"
-        >
-          <div
-            v-for="(invitee, index) in sendInvitesResult"
-            :key="`invitee-${index}`"
-          >
-            <p class="flex items-center">
-              <component
-                :is="
-                  invitee.status === 'error' ? IconAlertTriangle : IconMailCheck
-                "
-                class="mr-4 svg-icons"
-                :class="
-                  invitee.status === 'error' ? 'text-red-500' : 'text-green-500'
-                "
-              />
-              <span class="truncate">{{ invitee.email }}</span>
-            </p>
-            <p v-if="invitee.status === 'error'" class="mt-2 ml-8 text-red-500">
-              {{ getErrorMessage(invitee.error) }}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div
-        v-else-if="sendingInvites"
-        class="flex items-center justify-center p-4"
-      >
+      <div v-if="addingUserToTeam" class="flex items-center justify-center p-4">
         <HoppSmartSpinner />
       </div>
       <div v-else class="flex flex-col">
@@ -50,21 +12,21 @@
               :icon="IconPlus"
               label="Add new"
               filled
-              @click="addNewInvitee"
+              @click="addNewMember"
             />
           </div>
         </div>
         <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
-            v-for="(invitee, index) in newInvites"
-            :key="`new-invitee-${index}`"
+            v-for="(member, index) in newMembersList"
+            :key="`new-member-${index}`"
             class="flex divide-x divide-dividerLight"
           >
             <input
-              v-model="invitee.key"
+              v-model="member.key"
               class="flex flex-1 px-4 py-2 bg-transparent"
               placeholder="Email"
-              :name="'invitee' + index"
+              :name="'member' + index"
               autofocus
             />
             <span>
@@ -79,7 +41,7 @@
                     class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
                     placeholder="Permissions"
                     :name="'value' + index"
-                    :value="invitee.value"
+                    :value="member.value"
                     readonly
                   />
                 </span>
@@ -93,12 +55,12 @@
                     <HoppSmartItem
                       label="OWNER"
                       :icon="
-                        invitee.value === 'OWNER' ? IconCircleDot : IconCircle
+                        member.value === 'OWNER' ? IconCircleDot : IconCircle
                       "
-                      :active="invitee.value === 'OWNER'"
+                      :active="member.value === 'OWNER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Owner);
+                          updateNewMemberRole(index, TeamMemberRole.Owner);
                           hide();
                         }
                       "
@@ -106,12 +68,12 @@
                     <HoppSmartItem
                       label="EDITOR"
                       :icon="
-                        invitee.value === 'EDITOR' ? IconCircleDot : IconCircle
+                        member.value === 'EDITOR' ? IconCircleDot : IconCircle
                       "
-                      :active="invitee.value === 'EDITOR'"
+                      :active="member.value === 'EDITOR'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Editor);
+                          updateNewMemberRole(index, TeamMemberRole.Editor);
                           hide();
                         }
                       "
@@ -119,12 +81,12 @@
                     <HoppSmartItem
                       label="VIEWER"
                       :icon="
-                        invitee.value === 'VIEWER' ? IconCircleDot : IconCircle
+                        member.value === 'VIEWER' ? IconCircleDot : IconCircle
                       "
-                      :active="invitee.value === 'VIEWER'"
+                      :active="member.value === 'VIEWER'"
                       @click="
                         () => {
-                          updateNewInviteeRole(index, TeamMemberRole.Viewer);
+                          updateNewMemberRole(index, TeamMemberRole.Viewer);
                           hide();
                         }
                       "
@@ -140,12 +102,12 @@
                 title="Remove"
                 :icon="IconTrash"
                 color="red"
-                @click="removeNewInvitee(index)"
+                @click="removeNewMember(index)"
               />
             </div>
           </div>
           <div
-            v-if="newInvites.length === 0"
+            v-if="newMembersList.length === 0"
             class="flex flex-col items-center justify-center p-4 text-secondaryLight"
           >
             <img
@@ -154,15 +116,11 @@
               class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
             />
             <span class="pb-4 text-center"> No invites </span>
-            <HoppButtonSecondary
-              label="Add new"
-              filled
-              @click="addNewInvitee"
-            />
+            <HoppButtonSecondary label="Add new" filled @click="addNewMember" />
           </div>
         </div>
         <div
-          v-if="newInvites.length"
+          v-if="newMembersList.length"
           class="flex flex-col items-start px-4 py-4 mt-4 border rounded border-dividerLight"
         >
           <span
@@ -217,34 +175,12 @@
     </template>
 
     <template #footer>
-      <p
-        v-if="sendInvitesResult.length"
-        class="flex justify-between flex-1 text-secondaryLight"
-      >
-        <HoppButtonSecondary
-          class="link !p-0"
-          label="Invite more"
-          :icon="IconArrowLeft"
-          @click="
-            () => {
-              sendInvitesResult = [];
-              newInvites = [
-                {
-                  key: '',
-                  value: TeamMemberRole.Viewer,
-                },
-              ];
-            }
-          "
+      <span class="flex space-x-2">
+        <HoppButtonPrimary
+          label="Add Member"
+          outline
+          @click="addUserasTeamMember"
         />
-        <HoppButtonSecondary
-          class="link !p-0"
-          label="Dismiss"
-          @click="hideModal"
-        />
-      </p>
-      <span v-else class="flex space-x-2">
-        <HoppButtonPrimary label="Invite" outline @click="sendInvites" />
         <HoppButtonSecondary label="Cancel" outline filled @click="hideModal" />
       </span>
     </template>
@@ -257,22 +193,17 @@ import * as A from 'fp-ts/Array';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
 import {
+  AddUserToTeamByAdminDocument,
   TeamMemberRole,
-  CreateTeamInvitationDocument,
 } from '../../helpers/backend/graphql';
-
 import { useToast } from '~/composables/toast';
-
+import { useMutation } from '@urql/vue';
+import { Email, EmailCodec } from '~/helpers/backend/Email';
 import IconTrash from '~icons/lucide/trash';
 import IconPlus from '~icons/lucide/plus';
 import IconHelpCircle from '~icons/lucide/help-circle';
-import IconAlertTriangle from '~icons/lucide/alert-triangle';
-import IconMailCheck from '~icons/lucide/mail-check';
 import IconCircleDot from '~icons/lucide/circle-dot';
 import IconCircle from '~icons/lucide/circle';
-import IconArrowLeft from '~icons/lucide/arrow-left';
-import { useMutation } from '@urql/vue';
-import { Email, EmailCodec } from '~/helpers/backend/Email';
 
 const toast = useToast();
 
@@ -286,97 +217,67 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'hide-modal'): void;
+  (e: 'member'): void;
 }>();
 
-const t = (key: string) => key;
-
-const newInvites = ref<Array<{ key: string; value: TeamMemberRole }>>([
+const newMembersList = ref<Array<{ key: string; value: TeamMemberRole }>>([
   {
     key: '',
     value: TeamMemberRole.Viewer,
   },
 ]);
 
-const addNewInvitee = () => {
-  newInvites.value.push({
+const addNewMember = () => {
+  newMembersList.value.push({
     key: '',
     value: TeamMemberRole.Viewer,
   });
 };
 
-const updateNewInviteeRole = (index: number, role: TeamMemberRole) => {
-  newInvites.value[index].value = role;
+const updateNewMemberRole = (index: number, role: TeamMemberRole) => {
+  newMembersList.value[index].value = role;
 };
 
-const removeNewInvitee = (id: number) => {
-  newInvites.value.splice(id, 1);
+const removeNewMember = (id: number) => {
+  newMembersList.value.splice(id, 1);
 };
 
-type SendInvitesErrorType =
-  | {
-      email: Email;
-      status: 'error';
-      error: any;
-    }
-  | {
-      email: Email;
-      status: 'success';
-    };
+const addingUserToTeam = ref<boolean>(false);
 
-const sendInvitesResult = ref<Array<SendInvitesErrorType>>([]);
-
-const sendingInvites = ref<boolean>(false);
-
-const sendInvites = async () => {
-  sendingInvites.value = true;
+const addUserasTeamMember = async () => {
+  addingUserToTeam.value = true;
 
   const validationResult = pipe(
-    newInvites.value,
+    newMembersList.value,
     O.fromPredicate(
-      (invites): invites is Array<{ key: Email; value: TeamMemberRole }> =>
+      (
+        memberInvites
+      ): memberInvites is Array<{ key: Email; value: TeamMemberRole }> =>
         pipe(
-          invites,
-          A.every((invitee) => EmailCodec.is(invitee.key))
+          memberInvites,
+          A.every((member) => EmailCodec.is(member.key))
         )
     ),
     O.map(
-      A.map((invitee) =>
-        createTeamInvitation(invitee.key, invitee.value, props.editingTeamID)
+      A.map((member) =>
+        addUserToTeam(member.key, member.value, props.editingTeamID)
       )
     )
   );
 
   if (O.isNone(validationResult)) {
     // Error handling for no validation
-    toast.error(`Invalid email address`);
-    sendingInvites.value = false;
+    toast.error('Invalid User!!');
+    addingUserToTeam.value = false;
     return;
   }
 
   hideModal();
 };
 
-const getErrorMessage = (error: SendInvitesErrorType | any) => {
-  if (error.type === 'network_error') {
-    return t('error.network_error');
-  } else {
-    switch (error.error) {
-      case 'team/invalid_id':
-        return t('team.invalid_id');
-      case 'team/member_not_found':
-        return t('team.member_not_found');
-      case 'team_invite/already_member':
-        return t('team.already_member');
-      case 'team_invite/member_has_invite':
-        return t('team.member_has_invite');
-    }
-  }
-};
-
 const hideModal = () => {
-  sendingInvites.value = false;
-  sendInvitesResult.value = [];
-  newInvites.value = [
+  addingUserToTeam.value = false;
+  newMembersList.value = [
     {
       key: '',
       value: TeamMemberRole.Viewer,
@@ -385,18 +286,29 @@ const hideModal = () => {
   emit('hide-modal');
 };
 
-const teamInvitationMutation = useMutation(CreateTeamInvitationDocument);
-const createTeamInvitation = async (
-  inviteeEmail: Email,
-  inviteeRole: TeamMemberRole,
+const addUserToTeamMutation = useMutation(AddUserToTeamByAdminDocument);
+const addUserToTeam = async (
+  email: string,
+  userRole: TeamMemberRole,
   teamID: string
 ) => {
-  const res = await teamInvitationMutation.executeMutation({
-    inviteeEmail,
-    inviteeRole,
-    teamID,
-  });
+  const variables = { userEmail: email, role: userRole, teamID: teamID };
 
+  const res = await addUserToTeamMutation
+    .executeMutation(variables)
+    .then((result) => {
+      if (result.error) {
+        console.log(result.error);
+        if (result.error.toString() == '[GraphQL] user/not_found') {
+          toast.error('User not found in the infra!!');
+        } else {
+          toast.error('Failed to add user to the team!!');
+        }
+      } else {
+        toast.success('User is now a member of the team!!');
+        emit('member');
+      }
+    });
   return res;
 };
 </script>

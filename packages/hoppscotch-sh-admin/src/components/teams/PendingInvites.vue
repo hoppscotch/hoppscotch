@@ -1,15 +1,14 @@
 <template>
-  <div class="flex items-center justify-between flex-1">
-    <label for="memberList" class="pb-4"> Pending Invites </label>
-  </div>
+  <h3 class="text-2xl font-bold text-gray-200 mb-5">Pending Invites</h3>
+
   <div class="border rounded divide-y divide-dividerLight border-divider">
     <div v-if="fetching" class="flex items-center justify-center p-4">
       <HoppSmartSpinner />
     </div>
     <div v-else>
-      <div v-if="data" class="divide-y divide-dividerLight">
+      <div v-if="team" class="divide-y divide-dividerLight">
         <div
-          v-for="(invitee, index) in data?.team?.teamInvitations"
+          v-for="(invitee, index) in pendingInvites"
           :key="`invitee-${index}`"
           class="flex divide-x divide-dividerLight"
         >
@@ -41,7 +40,7 @@
         </div>
       </div>
       <div
-        v-if="data && data?.team?.teamInvitations.length === 0"
+        v-if="team && pendingInvites?.length === 0"
         class="flex flex-col items-center justify-center p-4 text-secondaryLight"
       >
         <span class="text-center"> No pending invites </span>
@@ -57,43 +56,72 @@
 <script setup lang="ts">
 import IconTrash from '~icons/lucide/trash';
 import IconHelpCircle from '~icons/lucide/help-circle';
-import { useMutation, useQuery } from '@urql/vue';
-import { ref } from 'vue';
+import { useMutation, useClientHandle } from '@urql/vue';
+import { ref, onMounted } from 'vue';
 import {
-  GetPendingInvitesDocument,
   RevokeTeamInvitationDocument,
+  TeamInfoDocument,
+  TeamInfoQuery,
 } from '~/helpers/backend/graphql';
 import { useToast } from '~/composables/toast';
-
-const props = defineProps({
-  editingTeamID: { type: String, default: null },
-});
+import { useRoute } from 'vue-router';
 
 const toast = useToast();
-const isLoadingIndex = ref<null | number>(null);
 
-const { fetching, data, error } = useQuery({
-  query: GetPendingInvitesDocument,
-  variables: {
-    teamID: props.editingTeamID,
-  },
+// Get details of the team
+const fetching = ref(true);
+const error = ref(false);
+const { client } = useClientHandle();
+const route = useRoute();
+const team = ref<TeamInfoQuery['admin']['teamInfo'] | undefined>();
+const pendingInvites = ref<
+  TeamInfoQuery['admin']['teamInfo']['teamInvitations'] | undefined
+>();
+
+const getTeamInfo = async () => {
+  fetching.value = true;
+  const result = await client
+    .query(TeamInfoDocument, { teamID: route.params.id.toString() })
+    .toPromise();
+
+  if (result.error) {
+    error.value = true;
+    return toast.error('Unable to load team details..');
+  }
+
+  if (result.data?.admin.teamInfo) {
+    team.value = result.data.admin.teamInfo;
+    pendingInvites.value = team.value.teamInvitations;
+  }
+  fetching.value = false;
+};
+
+onMounted(async () => {
+  await getTeamInfo();
 });
 
-console.log(data);
+// Remove Invitation
+const isLoadingIndex = ref<null | number>(null);
+
+const revokeInvitationMutation = useMutation(RevokeTeamInvitationDocument);
+const revokeTeamInvitation = (inviteID: string) =>
+  revokeInvitationMutation.executeMutation({ inviteID });
 
 const removeInvitee = async (id: string, index: number) => {
   isLoadingIndex.value = index;
   const result = await revokeTeamInvitation(id);
   if (result.error) {
-    toast.error(`Member could not be removed`);
+    toast.error('Removal of invitee failed!!');
   } else {
-    toast.success(`Member removed successfully`);
+    if (pendingInvites.value) {
+      pendingInvites.value = pendingInvites.value.filter(
+        (invite: { id: string }) => {
+          return invite.id !== id;
+        }
+      );
+      toast.success('Removal of invitee is successfull!!');
+    }
   }
   isLoadingIndex.value = null;
 };
-
-const revokeInvitationMutation = useMutation(RevokeTeamInvitationDocument);
-function revokeTeamInvitation(inviteID: string) {
-  return revokeInvitationMutation.executeMutation({ inviteID });
-}
 </script>

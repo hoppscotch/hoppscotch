@@ -165,6 +165,20 @@
         </div>
       </div>
     </div>
+    <div
+      v-if="isLastItem"
+      class="w-full transition"
+      :class="[
+        {
+          'bg-accentDark': isLastItemReorderable,
+          'h-1 ': isLastItem,
+        },
+      ]"
+      @drop="updateLastItemOrder"
+      @dragover.prevent="orderingLastItem = true"
+      @dragleave="orderingLastItem = false"
+      @dragend="resetDragState"
+    ></div>
   </div>
 </template>
 
@@ -249,6 +263,11 @@ const props = defineProps({
     default: () => [],
     required: false,
   },
+  isLastItem: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
 })
 
 const emit = defineEmits<{
@@ -262,6 +281,7 @@ const emit = defineEmits<{
   (event: "drag-event", payload: DataTransfer): void
   (event: "dragging", payload: boolean): void
   (event: "update-collection-order", payload: DataTransfer): void
+  (event: "update-last-collection-order", payload: DataTransfer): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -274,6 +294,7 @@ const options = ref<TippyComponent | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)
+const orderingLastItem = ref(false)
 const dropItemID = ref("")
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
@@ -333,6 +354,14 @@ const isReorderable = computed(() => {
     isSameParent.value
   )
 })
+const isLastItemReorderable = computed(() => {
+  return (
+    orderingLastItem.value &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  )
+})
 
 const dragStart = ({ dataTransfer }: DragEvent) => {
   if (dataTransfer) {
@@ -350,17 +379,35 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
 // Trigger the re-ordering event when a collection is dragged over another collection's top section
 const handleDragOver = (e: DragEvent) => {
   dragging.value = true
-  if (e.offsetY < 10 && notSameDestination.value) {
+  if (
+    e.offsetY < 10 &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  ) {
     ordering.value = true
     dragging.value = false
+    orderingLastItem.value = false
+  } else if (
+    e.offsetY > 18 &&
+    notSameDestination.value &&
+    !isRequestDragging.value &&
+    isSameParent.value
+  ) {
+    orderingLastItem.value = true
+    dragging.value = false
+    ordering.value = false
   } else {
     ordering.value = false
+    orderingLastItem.value = false
   }
 }
 
 const handelDrop = (e: DragEvent) => {
   if (ordering.value) {
     orderUpdateCollectionEvent(e)
+  } else if (orderingLastItem.value) {
+    updateLastItemOrder(e)
   } else {
     dropEvent(e)
   }
@@ -382,6 +429,14 @@ const orderUpdateCollectionEvent = (e: DragEvent) => {
   }
 }
 
+const updateLastItemOrder = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    emit("update-last-collection-order", e.dataTransfer)
+    resetDragState()
+  }
+}
+
 const notSameDestination = computed(() => {
   return dropItemID.value !== props.id
 })
@@ -397,5 +452,6 @@ const isCollLoading = computed(() => {
 const resetDragState = () => {
   dragging.value = false
   ordering.value = false
+  orderingLastItem.value = false
 }
 </script>

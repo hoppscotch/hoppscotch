@@ -8,6 +8,7 @@ import {
 import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { cloneDeep } from "lodash-es"
 import { getTabRefWithSaveContext } from "~/helpers/rest/tab"
+import { resolveSaveContextOnRequestReorder } from "~/helpers/collection/request"
 
 const defaultRESTCollectionState = {
   state: [
@@ -288,18 +289,49 @@ const restCollectionDispatchers = defineDispatchers({
       destinationCollectionIndex,
     }: {
       collectionIndex: string
-      destinationCollectionIndex: string
+      destinationCollectionIndex: string | null
     }
   ) {
     const newState = state
 
     const indexPaths = collectionIndex.split("/").map((x) => parseInt(x))
 
+    if (indexPaths.length === 0) {
+      console.log("Given path too short. Skipping request.")
+      return {}
+    }
+
+    // Reordering the collection to the last position
+    if (destinationCollectionIndex === null) {
+      const folderIndex = indexPaths.pop() as number
+
+      const containingFolder = navigateToFolderWithIndexPath(
+        newState,
+        indexPaths
+      )
+
+      if (containingFolder === null) {
+        newState.push(newState.splice(folderIndex, 1)[0])
+        return {
+          state: newState,
+        }
+      }
+
+      // Pushing the folder to the end of the array (last position)
+      containingFolder.folders.push(
+        containingFolder.folders.splice(folderIndex, 1)[0]
+      )
+
+      return {
+        state: newState,
+      }
+    }
+
     const destinationIndexPaths = destinationCollectionIndex
       .split("/")
       .map((x) => parseInt(x))
 
-    if (indexPaths.length === 0 || destinationIndexPaths.length === 0) {
+    if (destinationIndexPaths.length === 0) {
       console.log("Given path too short. Skipping request.")
       return {}
     }
@@ -487,7 +519,7 @@ const restCollectionDispatchers = defineDispatchers({
       destinationCollectionPath,
     }: {
       requestIndex: number
-      destinationRequestIndex: number
+      destinationRequestIndex: number | null
       destinationCollectionPath: string
     }
   ) {
@@ -511,7 +543,31 @@ const restCollectionDispatchers = defineDispatchers({
       return {}
     }
 
+    // if the destination is null, we are moving to the end of the list
+    if (destinationRequestIndex === null) {
+      // move to the end of the list
+      targetLocation.requests.push(
+        targetLocation.requests.splice(requestIndex, 1)[0]
+      )
+
+      resolveSaveContextOnRequestReorder({
+        lastIndex: requestIndex,
+        newIndex: targetLocation.requests.length,
+        folderPath: destinationCollectionPath,
+      })
+
+      return {
+        state: newState,
+      }
+    }
+
     reorderItems(targetLocation.requests, requestIndex, destinationRequestIndex)
+
+    resolveSaveContextOnRequestReorder({
+      lastIndex: requestIndex,
+      newIndex: destinationRequestIndex,
+      folderPath: destinationCollectionPath,
+    })
 
     return {
       state: newState,
@@ -967,7 +1023,7 @@ export function moveRESTRequest(
 
 export function updateRESTRequestOrder(
   requestIndex: number,
-  destinationRequestIndex: number,
+  destinationRequestIndex: number | null,
   destinationCollectionPath: string
 ) {
   restCollectionStore.dispatch({
@@ -982,7 +1038,7 @@ export function updateRESTRequestOrder(
 
 export function updateRESTCollectionOrder(
   collectionIndex: string,
-  destinationCollectionIndex: string
+  destinationCollectionIndex: string | null
 ) {
   restCollectionStore.dispatch({
     dispatcher: "updateCollectionOrder",

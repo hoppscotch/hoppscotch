@@ -1185,7 +1185,7 @@ const onRemoveRequest = () => {
     })
 
     if (possibleTab) {
-      possibleTab.value.document.saveContext = undefined
+      possibleTab.value.document.saveContext = null
       possibleTab.value.document.isDirty = true
     }
   }

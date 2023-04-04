@@ -76,18 +76,21 @@
       </div>
     </template>
     <template #footer>
-      <div v-if="mode === 'sign-in'" class="text-secondaryLight text-tiny">
+      <div
+        v-if="mode === 'sign-in' && tosLink && privacyPolicyLink"
+        class="text-secondaryLight text-tiny"
+      >
         By signing in, you are agreeing to our
         <HoppSmartAnchor
           class="link"
-          to="https://docs.hoppscotch.io/terms"
+          :to="tosLink"
           blank
           label="Terms of Service"
         />
         and
         <HoppSmartAnchor
           class="link"
-          to="https://docs.hoppscotch.io/privacy"
+          :to="privacyPolicyLink"
           blank
           label="Privacy Policy"
         />
@@ -141,6 +144,9 @@ export default defineComponent({
   setup() {
     const { subscribeToStream } = useStreamSubscriber()
 
+    const tosLink = import.meta.env.VITE_APP_TOS_LINK
+    const privacyPolicyLink = import.meta.env.VITE_APP_PRIVACY_POLICY_LINK
+
     return {
       subscribeToStream,
       t: useI18n(),
@@ -150,6 +156,8 @@ export default defineComponent({
       IconEmail,
       IconMicrosoft,
       IconArrowLeft,
+      tosLink,
+      privacyPolicyLink,
     }
   },
   data() {

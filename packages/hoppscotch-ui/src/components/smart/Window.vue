@@ -21,23 +21,32 @@ import { TabMeta, TabProvider } from "./Windows.vue"
 
 const slots = useSlots()
 
-const props = defineProps({
-  label: { type: String, default: null },
-  info: { type: String, default: null },
-  id: { type: String, default: null, required: true },
-  isRemovable: { type: Boolean, default: true },
-  selected: {
-    type: Boolean,
-    default: false,
-  },
-})
+const props = withDefaults(
+  defineProps<{
+    label: string | null
+    info: string | null
+    id: string
+    isRemovable: boolean
+    closeVisibility: "hover" | "always" | "never"
+    selected: boolean
+  }>(),
+  {
+    label: null,
+    info: null,
+    isRemovable: true,
+    closeVisibility: "always",
+    selected: false,
+  }
+)
 
 const tabMeta = computed<TabMeta>(() => ({
   info: props.info,
   label: props.label,
   isRemovable: props.isRemovable,
   icon: slots.icon,
-  tabhead: slots.tabhead
+  suffix: slots.suffix,
+  tabhead: slots.tabhead,
+  closeVisibility: props.closeVisibility,
 }))
 
 const {

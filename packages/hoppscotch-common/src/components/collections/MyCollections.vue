@@ -504,45 +504,41 @@ const emit = defineEmits<{
 
 const refFilterCollection = toRef(props, "filteredCollections")
 
-const pathToIndex = computed(() => {
-  return (path: string) => {
-    const pathArr = path.split("/")
-    return pathArr[pathArr.length - 1]
-  }
-})
+const pathToIndex = (path: string) => {
+  const pathArr = path.split("/")
+  return pathArr[pathArr.length - 1]
+}
 
-const isSelected = computed(() => {
-  return ({
-    collectionIndex,
-    folderPath,
-    requestIndex,
-  }: {
-    collectionIndex?: number | undefined
-    folderPath?: string | undefined
-    requestIndex?: number | undefined
-  }) => {
-    if (collectionIndex !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-collection" &&
-        props.picked.collectionIndex === collectionIndex
-      )
-    } else if (requestIndex !== undefined && folderPath !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-request" &&
-        props.picked.folderPath === folderPath &&
-        props.picked.requestIndex === requestIndex
-      )
-    } else {
-      return (
-        props.picked &&
-        props.picked.pickedType === "my-folder" &&
-        props.picked.folderPath === folderPath
-      )
-    }
+const isSelected = ({
+  collectionIndex,
+  folderPath,
+  requestIndex,
+}: {
+  collectionIndex?: number | undefined
+  folderPath?: string | undefined
+  requestIndex?: number | undefined
+}) => {
+  if (collectionIndex !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-collection" &&
+      props.picked.collectionIndex === collectionIndex
+    )
+  } else if (requestIndex !== undefined && folderPath !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-request" &&
+      props.picked.folderPath === folderPath &&
+      props.picked.requestIndex === requestIndex
+    )
+  } else {
+    return (
+      props.picked &&
+      props.picked.pickedType === "my-folder" &&
+      props.picked.folderPath === folderPath
+    )
   }
-})
+}
 
 const active = computed(() => currentActiveTab.value.document.saveContext)
 

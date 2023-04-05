@@ -1395,6 +1395,27 @@ const checkIfCollectionIsAParentOfTheChildren = (
   return false
 }
 
+const isMoveToSameLocation = (
+  draggedItemPath: string,
+  destinationPath: string
+) => {
+  const draggedItemPathArr = pathToIndex(draggedItemPath)
+  const destinationPathArr = pathToIndex(destinationPath)
+
+  if (draggedItemPathArr.length > 0) {
+    const draggedItemParentPathArr = draggedItemPathArr.slice(
+      0,
+      draggedItemPathArr.length - 1
+    )
+
+    if (isEqual(draggedItemParentPathArr, destinationPathArr)) {
+      return true
+    } else {
+      return false
+    }
+  }
+}
+
 /**
  * This function is called when the user moves the collection
  * to a different collection or folder
@@ -1416,6 +1437,13 @@ const dropCollection = (payload: {
       )
     ) {
       toast.error(`${t("team.parent_coll_move")}`)
+      return
+    }
+
+    //check if the collection is being moved to its own parent
+    if (
+      isMoveToSameLocation(collectionIndexDragged, destinationCollectionIndex)
+    ) {
       return
     }
 
@@ -1556,10 +1584,14 @@ const isSameSameParent = (
     draggedItemIndex.length === 1
   ) {
     return draggedItemIndex[0] === destinationCollectionIndex
-  } else if (destinationItemPath === null && draggedItemIndex.length !== 1) {
+  } else if (
+    destinationItemPath === null &&
+    draggedItemIndex.length !== 1 &&
+    destinationCollectionIndex !== null
+  ) {
     const dragedItemParent = draggedItemIndex.slice(0, -1)
 
-    return dragedItemParent[0] === destinationCollectionIndex
+    return dragedItemParent.join("/") === destinationCollectionIndex
   } else {
     if (destinationItemPath === null) return false
     const destinationItemIndex = pathToIndex(destinationItemPath)

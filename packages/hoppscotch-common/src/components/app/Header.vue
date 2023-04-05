@@ -17,27 +17,13 @@
         />
         <!-- <AppGitHubStarButton class="mt-1.5 transition" /> -->
       </div>
-      <div class="inline-flex items-center justify-center flex-1 space-x-2">
-        <AppNavigation v-if="mdAndLarger" />
-        <div
-          class="bg-primaryDark max-w-128 text-secondaryLight justify-between cursor-pointer rounded border border-dividerDark hover:border-dividerDark hover:bg-primaryLight hover:text-secondary focus-visible:border-dividerDark focus-visible:bg-primaryLight focus-visible:text-secondary focus:outline-none transition flex flex-1 items-center px-2 py-1.25"
-          tabindex="0"
-          @click="invokeAction('modals.search.toggle')"
-        >
-          <span class="inline-flex">
-            <icon-lucide-search class="mr-2 svg-icons" />
-            {{ t("app.search") }}
-          </span>
-          <kbd class="shortcut-key">/</kbd>
-        </div>
+      <div class="inline-flex items-center space-x-2">
         <HoppButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${
-            mdAndLarger ? t('support.title') : t('app.options')
-          } <kbd>?</kbd>`"
-          :icon="IconHelpCircle"
+          :title="`${t('app.search')} <kbd>/</kbd>`"
+          :icon="IconSearch"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-          @click="invokeAction('modals.support.toggle')"
+          @click="invokeAction('modals.search.toggle')"
         />
         <HoppButtonSecondary
           v-if="showInstallButton"
@@ -47,8 +33,15 @@
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="installPWA()"
         />
-      </div>
-      <div class="inline-flex items-center justify-end flex-1 space-x-2">
+        <HoppButtonSecondary
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${
+            mdAndLarger ? t('support.title') : t('app.options')
+          } <kbd>?</kbd>`"
+          :icon="IconLifeBuoy"
+          class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
+          @click="invokeAction('modals.support.toggle')"
+        />
         <div
           v-if="currentUser === null"
           class="inline-flex items-center space-x-2"
@@ -242,7 +235,8 @@ import IconSettings from "~icons/lucide/settings"
 import IconDownload from "~icons/lucide/download"
 import IconUploadCloud from "~icons/lucide/upload-cloud"
 import IconUserPlus from "~icons/lucide/user-plus"
-import IconHelpCircle from "~icons/lucide/help-circle"
+import IconLifeBuoy from "~icons/lucide/life-buoy"
+import IconSearch from "~icons/lucide/search"
 import { breakpointsTailwind, useBreakpoints, useNetwork } from "@vueuse/core"
 import { pwaDefferedPrompt, installPWA } from "@modules/pwa"
 import { platform } from "~/platform"

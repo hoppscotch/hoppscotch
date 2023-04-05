@@ -16,7 +16,8 @@
       <div
         class="absolute bg-accent opacity-0 pointer-events-none inset-0 z-1 transition"
         :class="{
-          'opacity-25': dragging && notSameDestination,
+          'opacity-25':
+            dragging && notSameDestination && notSameParentDestination,
         }"
       ></div>
       <div
@@ -308,7 +309,7 @@ const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
 watch(
   () => dragging.value,
   (val) => {
-    if (val && notSameDestination.value) {
+    if (val && notSameDestination.value && notSameParentDestination.value) {
       emit("dragging", true)
     } else {
       emit("dragging", false)
@@ -337,6 +338,10 @@ watch(
     }
   }
 )
+
+const notSameParentDestination = computed(() => {
+  return currentReorderingStatus.value.parentID !== props.id
+})
 
 const isRequestDragging = computed(() => {
   return currentReorderingStatus.value.type === "request"
@@ -392,7 +397,8 @@ const handleDragOver = (e: DragEvent) => {
     e.offsetY > 18 &&
     notSameDestination.value &&
     !isRequestDragging.value &&
-    isSameParent.value
+    isSameParent.value &&
+    props.isLastItem
   ) {
     orderingLastItem.value = true
     dragging.value = false
@@ -409,7 +415,7 @@ const handelDrop = (e: DragEvent) => {
   } else if (orderingLastItem.value) {
     updateLastItemOrder(e)
   } else {
-    dropEvent(e)
+    notSameParentDestination.value ? dropEvent(e) : e.stopPropagation()
   }
 }
 

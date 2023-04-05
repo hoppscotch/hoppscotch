@@ -371,10 +371,5 @@ const resetDragState = () => {
   dragging.value = false
   ordering.value = false
   orderingLastItem.value = false
-  currentReorderingStatus.value = {
-    type: "collection",
-    id: "",
-    parentID: "",
-  }
 }
 </script>

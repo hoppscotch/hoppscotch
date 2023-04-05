@@ -21,16 +21,16 @@ RUN pnpm exec prisma generate
 
 FROM builder AS dev
 
-ENV PRODUCTION = false
+ENV PRODUCTION="false"
 
-CMD ["pnpm", "run", "start"]
+CMD ["pnpm", "run", "start:dev"]
 
 EXPOSE 3170
 
 
 FROM builder AS prod
 
-ENV PRODUCTION = true
+ENV PRODUCTION="true"
 
 CMD ["pnpm", "run", "start:prod"]
 

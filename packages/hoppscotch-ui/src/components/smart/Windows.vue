@@ -9,7 +9,7 @@
       >
         <div
           class="flex justify-between divide-x divide-dividerLight"
-          @wheel="scroll"
+          @wheel.prevent="scroll"
         >
           <div class="flex">
             <draggable
@@ -244,7 +244,8 @@ const addTab = () => {
 const scrollContainer = ref<HTMLElement | null>(null)
 
 const scroll = (e: WheelEvent) => {
-  if (scrollContainer.value) scrollContainer.value.scrollLeft += e.deltaY
+  scrollContainer.value!.scrollLeft += e.deltaY
+  scrollContainer.value!.scrollLeft += e.deltaX
 }
 </script>
 

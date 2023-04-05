@@ -1,13 +1,13 @@
 <template>
   <div class="flex flex-col">
     <div
-      class="h-1"
+      class="h-1 w-full transition"
       :class="[
         {
           'bg-accentDark': isReorderable,
         },
       ]"
-      @drop="dropEvent"
+      @drop="updateRequestOrder"
       @dragover.prevent="ordering = true"
       @dragleave="resetDragState"
       @dragend="resetDragState"
@@ -15,7 +15,7 @@
     <div
       class="flex items-stretch group"
       :draggable="!hasNoTeamAccess"
-      @drop="dropEvent"
+      @drop="handelDrop"
       @dragstart="dragStart"
       @dragover="handleDragOver($event)"
       @dragleave="resetDragState"
@@ -138,6 +138,19 @@
         </span>
       </div>
     </div>
+    <div
+      class="w-full transition"
+      :class="[
+        {
+          'bg-accentDark': isLastItemReorderable,
+          'h-1 ': isLastItem,
+        },
+      ]"
+      @drop="handelDrop"
+      @dragover.prevent="orderingLastItem = true"
+      @dragleave="resetDragState"
+      @dragend="resetDragState"
+    ></div>
   </div>
 </template>
 
@@ -214,6 +227,11 @@ const props = defineProps({
     default: () => [],
     required: false,
   },
+  isLastItem: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
 })
 
 const emit = defineEmits<{
@@ -223,6 +241,7 @@ const emit = defineEmits<{
   (event: "select-request"): void
   (event: "drag-request", payload: DataTransfer): void
   (event: "update-request-order", payload: DataTransfer): void
+  (event: "update-last-request-order", payload: DataTransfer): void
 }>()
 
 const tippyActions = ref<TippyComponent | null>(null)
@@ -233,6 +252,7 @@ const duplicate = ref<HTMLButtonElement | null>(null)
 
 const dragging = ref(false)
 const ordering = ref(false)
+const orderingLastItem = ref(false)
 
 const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
   type: "collection",
@@ -269,6 +289,10 @@ const dragStart = ({ dataTransfer }: DragEvent) => {
   }
 }
 
+const isSameRequest = computed(() => {
+  return currentReorderingStatus.value.id === props.requestID
+})
+
 const isCollectionDragging = computed(() => {
   return currentReorderingStatus.value.type === "collection"
 })
@@ -278,7 +302,18 @@ const isSameParent = computed(() => {
 })
 
 const isReorderable = computed(() => {
-  return ordering.value && !isCollectionDragging.value && isSameParent.value
+  return (
+    ordering.value &&
+    !isCollectionDragging.value &&
+    isSameParent.value &&
+    !isSameRequest.value
+  )
+})
+
+const isLastItemReorderable = computed(() => {
+  return (
+    orderingLastItem.value && isSameParent.value && !isCollectionDragging.value
+  )
 })
 
 // Trigger the re-ordering event when a request is dragged over another request's top section
@@ -287,16 +322,40 @@ const handleDragOver = (e: DragEvent) => {
   if (e.offsetY < 10) {
     ordering.value = true
     dragging.value = false
+    orderingLastItem.value = false
+  } else if (e.offsetY > 18) {
+    orderingLastItem.value = true
+    dragging.value = false
+    ordering.value = false
   } else {
     ordering.value = false
+    orderingLastItem.value = false
   }
 }
 
-const dropEvent = (e: DragEvent) => {
+const handelDrop = (e: DragEvent) => {
+  if (ordering.value) {
+    updateRequestOrder(e)
+  } else if (orderingLastItem.value) {
+    updateLastItemOrder(e)
+  } else {
+    updateRequestOrder(e)
+  }
+}
+
+const updateRequestOrder = (e: DragEvent) => {
   if (e.dataTransfer) {
     e.stopPropagation()
     resetDragState()
     emit("update-request-order", e.dataTransfer)
+  }
+}
+
+const updateLastItemOrder = (e: DragEvent) => {
+  if (e.dataTransfer) {
+    e.stopPropagation()
+    resetDragState()
+    emit("update-last-request-order", e.dataTransfer)
   }
 }
 
@@ -311,5 +370,6 @@ const isRequestLoading = computed(() => {
 const resetDragState = () => {
   dragging.value = false
   ordering.value = false
+  orderingLastItem.value = false
 }
 </script>

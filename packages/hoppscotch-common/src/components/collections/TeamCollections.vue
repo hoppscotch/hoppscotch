@@ -60,6 +60,7 @@
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess"
             :collection-move-loading="collectionMoveLoading"
+            :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
                 collectionID: node.id,
@@ -95,7 +96,16 @@
             @drop-event="dropEvent($event, node.id)"
             @drag-event="dragEvent($event, node.id)"
             @update-collection-order="
-              updateCollectionOrder($event, node.data.data.data.id)
+              updateCollectionOrder($event, {
+                destinationCollectionIndex: node.data.data.data.id,
+                destinationCollectionParentIndex: node.data.data.parentIndex,
+              })
+            "
+            @update-last-collection-order="
+              updateCollectionOrder($event, {
+                destinationCollectionIndex: null,
+                destinationCollectionParentIndex: node.data.data.parentIndex,
+              })
             "
             @dragging="
               (isDraging) =>
@@ -122,6 +132,7 @@
             :export-loading="exportLoading"
             :has-no-team-access="hasNoTeamAccess"
             :collection-move-loading="collectionMoveLoading"
+            :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
                 folderID: node.data.data.data.id,
@@ -159,7 +170,16 @@
             @drop-event="dropEvent($event, node.data.data.data.id)"
             @drag-event="dragEvent($event, node.data.data.data.id)"
             @update-collection-order="
-              updateCollectionOrder($event, node.data.data.data.id)
+              updateCollectionOrder($event, {
+                destinationCollectionIndex: node.data.data.data.id,
+                destinationCollectionParentIndex: node.data.data.parentIndex,
+              })
+            "
+            @update-last-collection-order="
+              updateCollectionOrder($event, {
+                destinationCollectionIndex: null,
+                destinationCollectionParentIndex: node.data.data.parentIndex,
+              })
             "
             @dragging="
               (isDraging) =>
@@ -186,6 +206,7 @@
             :is-active="isActiveRequest(node.data.data.data.id)"
             :has-no-team-access="hasNoTeamAccess"
             :request-move-loading="requestMoveLoading"
+            :is-last-item="node.data.isLastItem"
             :is-selected="
               isSelected({
                 requestID: node.data.data.data.id,
@@ -229,6 +250,12 @@
               updateRequestOrder($event, {
                 folderPath: node.data.data.parentIndex,
                 requestIndex: node.data.data.data.id,
+              })
+            "
+            @update-last-request-order="
+              updateRequestOrder($event, {
+                folderPath: node.data.data.parentIndex,
+                requestIndex: null,
               })
             "
           />
@@ -461,7 +488,7 @@ const emit = defineEmits<{
     event: "update-request-order",
     payload: {
       dragedRequestIndex: string
-      destinationRequestIndex: string
+      destinationRequestIndex: string | null
       destinationCollectionIndex: string
     }
   ): void
@@ -469,7 +496,10 @@ const emit = defineEmits<{
     event: "update-collection-order",
     payload: {
       dragedCollectionIndex: string
-      destinationCollectionIndex: string
+      destinationCollection: {
+        destinationCollectionIndex: string | null
+        destinationCollectionParentIndex: string | null
+      }
     }
   ): void
   (event: "select", payload: Picked | null): void
@@ -597,7 +627,7 @@ const updateRequestOrder = (
   {
     folderPath,
     requestIndex,
-  }: { folderPath: string | null; requestIndex: string }
+  }: { folderPath: string | null; requestIndex: string | null }
 ) => {
   if (!folderPath) return
   const dragedRequestIndex = dataTransfer.getData("requestIndex")
@@ -613,17 +643,21 @@ const updateRequestOrder = (
 
 const updateCollectionOrder = (
   dataTransfer: DataTransfer,
-  destinationCollectionIndex: string
+  destinationCollection: {
+    destinationCollectionIndex: string | null
+    destinationCollectionParentIndex: string | null
+  }
 ) => {
   const dragedCollectionIndex = dataTransfer.getData("collectionIndex")
 
   emit("update-collection-order", {
     dragedCollectionIndex,
-    destinationCollectionIndex,
+    destinationCollection,
   })
 }
 
 type TeamCollections = {
+  isLastItem: boolean
   type: "collections"
   data: {
     parentIndex: null
@@ -632,6 +666,7 @@ type TeamCollections = {
 }
 
 type TeamFolder = {
+  isLastItem: boolean
   type: "folders"
   data: {
     parentIndex: string
@@ -640,6 +675,7 @@ type TeamFolder = {
 }
 
 type TeamRequests = {
+  isLastItem: boolean
   type: "requests"
   data: {
     parentIndex: string
@@ -679,9 +715,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
             status: "loading",
           }
         } else {
-          const data = this.data.value.map((item) => ({
+          const data = this.data.value.map((item, index) => ({
             id: item.id,
             data: {
+              isLastItem: index === this.data.value.length - 1,
               type: "collections",
               data: {
                 parentIndex: null,
@@ -709,9 +746,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
           if (items) {
             const data = [
               ...(items.children
-                ? items.children.map((item) => ({
+                ? items.children.map((item, index) => ({
                     id: `${id}/${item.id}`,
                     data: {
+                      isLastItem: index === items.children.length - 1,
                       type: "folders",
                       data: {
                         parentIndex: parsedID,
@@ -721,9 +759,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
                   }))
                 : []),
               ...(items.requests
-                ? items.requests.map((item) => ({
+                ? items.requests.map((item, index) => ({
                     id: `${id}/${item.id}`,
                     data: {
+                      isLastItem: index === items.requests.length - 1,
                       type: "requests",
                       data: {
                         parentIndex: parsedID,

@@ -103,7 +103,7 @@ export const moveRESTTeamCollection = (
 
 export const updateOrderRESTTeamCollection = (
   collectionID: string,
-  destCollID: string
+  destCollID: string | null
 ) =>
   runMutation<
     UpdateCollectionOrderMutation,

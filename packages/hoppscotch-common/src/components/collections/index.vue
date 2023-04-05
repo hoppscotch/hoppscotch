@@ -2,7 +2,8 @@
   <div
     :class="{
       'rounded border border-divider': saveRequest,
-      'bg-primaryDark': draggingToRoot,
+      'bg-primaryDark':
+        draggingToRoot && currentReorderingStatus.type !== 'request',
     }"
     class="flex-1"
     @drop.prevent="dropToRoot"
@@ -85,7 +86,9 @@
     />
     <div
       class="hidden bg-primaryDark flex-col flex-1 items-center py-15 justify-center px-4 text-secondaryLight"
-      :class="{ '!flex': draggingToRoot }"
+      :class="{
+        '!flex': draggingToRoot && currentReorderingStatus.type !== 'request',
+      }"
     >
       <component :is="IconListEnd" class="svg-icons !w-8 !h-8" />
     </div>
@@ -232,6 +235,7 @@ import {
   resolveSaveContextOnCollectionReorder,
   updateSaveContextForAffectedRequests,
 } from "~/helpers/collection/collection"
+import { currentReorderingStatus$ } from "~/newstore/reordering"
 
 const t = useI18n()
 const toast = useToast()
@@ -395,6 +399,12 @@ watch(
     }
   }
 )
+
+const currentReorderingStatus = useReadonlyStream(currentReorderingStatus$, {
+  type: "collection",
+  id: "",
+  parentID: "",
+})
 
 const hasTeamWriteAccess = computed(() => {
   if (!collectionsType.value.selectedTeam) return false
@@ -1525,27 +1535,49 @@ const dropToRoot = ({ dataTransfer }: DragEvent) => {
 
 /**
  * Used to check if the request/collection is being moved to the same parent since reorder is only allowed within the same parent
- * @param draggedReq - path index of the dragged request
- * @param destinationReq - path index of the destination request
+ * @param draggedItem - path index of the dragged request
+ * @param destinationItem - path index of the destination request
+ * @param destinationCollectionIndex -  index of the destination collection
  * @returns boolean - true if the request is being moved to the same parent
  */
-const isSameSameParent = (draggedItem: string, destinationItem: string) => {
-  const draggedItemIndex = pathToIndex(draggedItem)
-  const destinationItemIndex = pathToIndex(destinationItem)
+const isSameSameParent = (
+  draggedItemPath: string,
+  destinationItemPath: string | null,
+  destinationCollectionIndex: string | null
+) => {
+  const draggedItemIndex = pathToIndex(draggedItemPath)
 
-  // length of 1 means the request is in the root
-  if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
-    return true
-  } else if (draggedItemIndex.length === destinationItemIndex.length) {
+  // if the destinationItemPath and destinationCollectionIndex is null, it means the request is being moved to the root
+  if (destinationItemPath === null && destinationCollectionIndex === null) {
+    return draggedItemIndex.length === 1
+  } else if (
+    destinationItemPath === null &&
+    destinationCollectionIndex !== null &&
+    draggedItemIndex.length === 1
+  ) {
+    return draggedItemIndex[0] === destinationCollectionIndex
+  } else if (destinationItemPath === null && draggedItemIndex.length !== 1) {
     const dragedItemParent = draggedItemIndex.slice(0, -1)
-    const destinationItemParent = destinationItemIndex.slice(0, -1)
-    if (isEqual(dragedItemParent, destinationItemParent)) {
+
+    return dragedItemParent[0] === destinationCollectionIndex
+  } else {
+    if (destinationItemPath === null) return false
+    const destinationItemIndex = pathToIndex(destinationItemPath)
+
+    // length of 1 means the request is in the root
+    if (draggedItemIndex.length === 1 && destinationItemIndex.length === 1) {
       return true
+    } else if (draggedItemIndex.length === destinationItemIndex.length) {
+      const dragedItemParent = draggedItemIndex.slice(0, -1)
+      const destinationItemParent = destinationItemIndex.slice(0, -1)
+      if (isEqual(dragedItemParent, destinationItemParent)) {
+        return true
+      } else {
+        return false
+      }
     } else {
       return false
     }
-  } else {
-    return false
   }
 }
 
@@ -1556,7 +1588,7 @@ const isSameSameParent = (draggedItem: string, destinationItem: string) => {
  */
 const updateRequestOrder = (payload: {
   dragedRequestIndex: string
-  destinationRequestIndex: string
+  destinationRequestIndex: string | null
   destinationCollectionIndex: string
 }) => {
   const {
@@ -1565,29 +1597,28 @@ const updateRequestOrder = (payload: {
     destinationCollectionIndex,
   } = payload
 
-  if (
-    !dragedRequestIndex ||
-    !destinationRequestIndex ||
-    !destinationCollectionIndex
-  )
-    return
+  if (!dragedRequestIndex || !destinationCollectionIndex) return
 
   if (dragedRequestIndex === destinationRequestIndex) return
 
   if (collectionsType.value.type === "my-collections") {
-    if (!isSameSameParent(dragedRequestIndex, destinationRequestIndex)) {
+    if (
+      !isSameSameParent(
+        dragedRequestIndex,
+        destinationRequestIndex,
+        destinationCollectionIndex
+      )
+    ) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
       updateRESTRequestOrder(
         pathToLastIndex(dragedRequestIndex),
-        pathToLastIndex(destinationRequestIndex),
+        destinationRequestIndex
+          ? pathToLastIndex(destinationRequestIndex)
+          : null,
         destinationCollectionIndex
       )
-      resolveSaveContextOnRequestReorder({
-        lastIndex: pathToLastIndex(dragedRequestIndex),
-        newIndex: pathToLastIndex(destinationRequestIndex),
-        folderPath: destinationCollectionIndex,
-      })
+
       toast.success(`${t("request.order_changed")}`)
     }
   } else if (hasTeamWriteAccess.value) {
@@ -1628,14 +1659,25 @@ const updateRequestOrder = (payload: {
  */
 const updateCollectionOrder = (payload: {
   dragedCollectionIndex: string
-  destinationCollectionIndex: string
+  destinationCollection: {
+    destinationCollectionIndex: string | null
+    destinationCollectionParentIndex: string | null
+  }
 }) => {
-  const { dragedCollectionIndex, destinationCollectionIndex } = payload
-  if (!dragedCollectionIndex || !destinationCollectionIndex) return
+  const { dragedCollectionIndex, destinationCollection } = payload
+  const { destinationCollectionIndex, destinationCollectionParentIndex } =
+    destinationCollection
+  if (!dragedCollectionIndex) return
   if (dragedCollectionIndex === destinationCollectionIndex) return
 
   if (collectionsType.value.type === "my-collections") {
-    if (!isSameSameParent(dragedCollectionIndex, destinationCollectionIndex)) {
+    if (
+      !isSameSameParent(
+        dragedCollectionIndex,
+        destinationCollectionIndex,
+        destinationCollectionParentIndex
+      )
+    ) {
       toast.error(`${t("collection.different_parent")}`)
     } else {
       updateRESTCollectionOrder(
@@ -1644,7 +1686,9 @@ const updateCollectionOrder = (payload: {
       )
       resolveSaveContextOnCollectionReorder({
         lastIndex: pathToLastIndex(dragedCollectionIndex),
-        newIndex: pathToLastIndex(destinationCollectionIndex),
+        newIndex: pathToLastIndex(
+          destinationCollectionIndex ? destinationCollectionIndex : ""
+        ),
         folderPath: dragedCollectionIndex.split("/").slice(0, -1).join("/"),
       })
       toast.success(`${t("collection.order_changed")}`)

@@ -706,7 +706,10 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
           ...item.folders.map((folder, index) => ({
             id: `${id}/${index}`,
             data: {
-              isLastItem: index === item.folders.length - 1,
+              isLastItem:
+                item.folders && item.folders.length > 1
+                  ? index === item.folders.length - 1
+                  : false,
               type: "folders",
               data: {
                 parentIndex: id,
@@ -717,7 +720,10 @@ class MyCollectionsAdapter implements SmartTreeAdapter<MyCollectionNode> {
           ...item.requests.map((requests, index) => ({
             id: `${id}/${index}`,
             data: {
-              isLastItem: index === item.requests.length - 1,
+              isLastItem:
+                item.requests && item.requests.length > 1
+                  ? index === item.requests.length - 1
+                  : false,
               type: "requests",
               data: {
                 parentIndex: id,

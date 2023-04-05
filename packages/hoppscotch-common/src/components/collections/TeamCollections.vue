@@ -749,7 +749,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
                 ? items.children.map((item, index) => ({
                     id: `${id}/${item.id}`,
                     data: {
-                      isLastItem: index === items.children.length - 1,
+                      isLastItem:
+                        items.children && items.children.length > 1
+                          ? index === items.children.length - 1
+                          : false,
                       type: "folders",
                       data: {
                         parentIndex: parsedID,
@@ -762,7 +765,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
                 ? items.requests.map((item, index) => ({
                     id: `${id}/${item.id}`,
                     data: {
-                      isLastItem: index === items.requests.length - 1,
+                      isLastItem:
+                        items.requests && items.requests.length > 1
+                          ? index === items.requests.length - 1
+                          : false,
                       type: "requests",
                       data: {
                         parentIndex: parsedID,

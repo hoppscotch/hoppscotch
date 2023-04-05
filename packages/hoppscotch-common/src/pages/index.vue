@@ -16,19 +16,33 @@
             :key="tab.id"
             :label="tab.document.request.name"
             :is-removable="tabs.length > 1"
+            :close-visibility="'hover'"
           >
             <template #tabhead>
-              <span
-                class="font-semibold truncate text-tiny w-10"
-                :class="getMethodLabelColorClassOf(tab.document.request)"
+              <div
+                v-tippy="{ theme: 'tooltip', delay: [500, 20] }"
+                :title="tab.document.request.name"
+                class="truncate px-2"
               >
-                {{ tab.document.request.method }}
-              </span>
-              <span class="text-green-600 mr-1" v-if="tab.document.isDirty">
-                •
-              </span>
-              <span class="truncate flex-1">
-                {{ tab.document.request.name }}
+                <span
+                  class="font-semibold text-tiny"
+                  :class="getMethodLabelColorClassOf(tab.document.request)"
+                >
+                  {{ tab.document.request.method }}
+                </span>
+                <span class="leading-8 px-2">
+                  {{ tab.document.request.name }}
+                </span>
+              </div>
+            </template>
+            <template #suffix>
+              <span
+                class="text-green-600 text-[8px] group-hover:hidden w-4"
+                v-if="tab.document.isDirty"
+              >
+                <svg viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                  <circle cx="12" cy="12" r="10" fill="currentColor"></circle>
+                </svg>
               </span>
             </template>
             <HttpRequestTab

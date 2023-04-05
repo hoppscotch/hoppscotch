@@ -517,54 +517,50 @@ const hasNoTeamAccess = computed(
       props.collectionsType.selectedTeam.myRole === "VIEWER")
 )
 
-const isSelected = computed(() => {
-  return ({
-    collectionID,
-    folderID,
-    requestID,
-  }: {
-    collectionID?: string | undefined
-    folderID?: string | undefined
-    requestID?: string | undefined
-  }) => {
-    if (collectionID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-collection" &&
-        props.picked.collectionID === collectionID
-      )
-    } else if (requestID !== undefined) {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-request" &&
-        props.picked.requestID === requestID
-      )
-    } else {
-      return (
-        props.picked &&
-        props.picked.pickedType === "teams-folder" &&
-        props.picked.folderID === folderID
-      )
-    }
+const isSelected = ({
+  collectionID,
+  folderID,
+  requestID,
+}: {
+  collectionID?: string | undefined
+  folderID?: string | undefined
+  requestID?: string | undefined
+}) => {
+  if (collectionID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-collection" &&
+      props.picked.collectionID === collectionID
+    )
+  } else if (requestID !== undefined) {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-request" &&
+      props.picked.requestID === requestID
+    )
+  } else {
+    return (
+      props.picked &&
+      props.picked.pickedType === "teams-folder" &&
+      props.picked.folderID === folderID
+    )
   }
-})
+}
 
 const active = computed(() => currentActiveTab.value.document.saveContext)
 
-const isActiveRequest = computed(() => {
-  return (requestID: string) => {
-    return pipe(
-      active.value,
-      O.fromNullable,
-      O.filter(
-        (active) =>
-          active.originLocation === "team-collection" &&
-          active.requestID === requestID
-      ),
-      O.isSome
-    )
-  }
-})
+const isActiveRequest = (requestID: string) => {
+  return pipe(
+    active.value,
+    O.fromNullable,
+    O.filter(
+      (active) =>
+        active.originLocation === "team-collection" &&
+        active.requestID === requestID
+    ),
+    O.isSome
+  )
+}
 
 const selectRequest = (data: {
   request: HoppRESTRequest
@@ -580,7 +576,7 @@ const selectRequest = (data: {
     emit("select-request", {
       request: request,
       requestIndex: requestIndex,
-      isActive: isActiveRequest.value(requestIndex),
+      isActive: isActiveRequest(requestIndex),
     })
   }
 }
@@ -749,7 +745,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
                 ? items.children.map((item, index) => ({
                     id: `${id}/${item.id}`,
                     data: {
-                      isLastItem: index === items.children.length - 1,
+                      isLastItem:
+                        items.children && items.children.length > 1
+                          ? index === items.children.length - 1
+                          : false,
                       type: "folders",
                       data: {
                         parentIndex: parsedID,
@@ -762,7 +761,10 @@ class TeamCollectionsAdapter implements SmartTreeAdapter<TeamCollectionNode> {
                 ? items.requests.map((item, index) => ({
                     id: `${id}/${item.id}`,
                     data: {
-                      isLastItem: index === items.requests.length - 1,
+                      isLastItem:
+                        items.requests && items.requests.length > 1
+                          ? index === items.requests.length - 1
+                          : false,
                       type: "requests",
                       data: {
                         parentIndex: parsedID,

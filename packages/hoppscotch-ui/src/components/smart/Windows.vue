@@ -244,7 +244,6 @@ const addTab = () => {
 const scrollContainer = ref<HTMLElement | null>(null)
 
 const scroll = (e: WheelEvent) => {
-  e.preventDefault()
   if (scrollContainer.value) scrollContainer.value.scrollLeft += e.deltaY
 }
 </script>

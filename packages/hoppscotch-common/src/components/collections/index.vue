@@ -1556,10 +1556,14 @@ const isSameSameParent = (
     draggedItemIndex.length === 1
   ) {
     return draggedItemIndex[0] === destinationCollectionIndex
-  } else if (destinationItemPath === null && draggedItemIndex.length !== 1) {
+  } else if (
+    destinationItemPath === null &&
+    draggedItemIndex.length !== 1 &&
+    destinationCollectionIndex !== null
+  ) {
     const dragedItemParent = draggedItemIndex.slice(0, -1)
 
-    return dragedItemParent[0] === destinationCollectionIndex
+    return dragedItemParent.join("/") === destinationCollectionIndex
   } else {
     if (destinationItemPath === null) return false
     const destinationItemIndex = pathToIndex(destinationItemPath)
